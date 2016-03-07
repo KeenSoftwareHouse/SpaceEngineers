@@ -195,7 +195,7 @@ namespace Sandbox.Game.Entities
             if (m_stateChange && ((m_open && 1f - m_currOpening < EPSILON) || (!m_open && m_currOpening < EPSILON)))
             {
                 //END OF MOVEMENT
-                if (m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
+                if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
                 m_currSpeed = 0;
                 ResourceSink.Update();
@@ -212,10 +212,6 @@ namespace Sandbox.Game.Entities
                 if (Enabled && ResourceSink.IsPowered && m_currSpeed != 0)
                 {
                     StartSound(m_sound);
-                }
-                else
-                {
-                    m_soundEmitter.StopSound(false);
                 }
             }
 
@@ -279,9 +275,11 @@ namespace Sandbox.Game.Entities
             if (!Enabled || !ResourceSink.IsPowered)
                 return;
 
-            m_soundEmitter.StopSound(true);
             OnStateChange();
             RaisePropertiesChanged();
+
+            if(m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
         }
         #endregion
 

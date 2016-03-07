@@ -99,7 +99,7 @@
         <SubtypeId>SolarPanels</SubtypeId>
       </Id>
       <IsSource>true</IsSource>
-      <Priority>3</Priority>
+      <Priority>1</Priority>
     </DistributionGroup>
 
     <DistributionGroup>
@@ -117,7 +117,7 @@
         <SubtypeId>Reactors</SubtypeId>
       </Id>
       <IsSource>true</IsSource>
-      <Priority>1</Priority>
+      <Priority>3</Priority>
     </DistributionGroup>
 
   </ResourceDistributionGroups>

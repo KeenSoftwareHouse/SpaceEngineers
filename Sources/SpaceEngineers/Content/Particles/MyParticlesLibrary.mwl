@@ -2235,7 +2235,7 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>0 1 0</Value>
+                <Value>0 0.2 0</Value>
               </Key>
             </Keys>
           </MyAnimatedPropertyVector3>
@@ -2364,7 +2364,7 @@
           <MyConstPropertyBool name="Use layer sorting">false</MyConstPropertyBool>
           <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
           <MyConstPropertyBool name="Alpha anisotropic">false</MyConstPropertyBool>
-          <MyConstPropertyFloat name="Gravity">-2</MyConstPropertyFloat>
+          <MyConstPropertyFloat name="Gravity">-0.25</MyConstPropertyFloat>
           <MyAnimatedProperty2DVector3 name="Pivot rotation">
             <Keys />
           </MyAnimatedProperty2DVector3>
@@ -2658,7 +2658,7 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>0 3 0</Value>
+                <Value>0 0.2 0</Value>
               </Key>
             </Keys>
           </MyAnimatedPropertyVector3>
@@ -2787,7 +2787,7 @@
           <MyConstPropertyBool name="Use layer sorting">false</MyConstPropertyBool>
           <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
           <MyConstPropertyBool name="Alpha anisotropic">false</MyConstPropertyBool>
-          <MyConstPropertyFloat name="Gravity">-2</MyConstPropertyFloat>
+          <MyConstPropertyFloat name="Gravity">-0.25</MyConstPropertyFloat>
           <MyAnimatedProperty2DVector3 name="Pivot rotation">
             <Keys />
           </MyAnimatedProperty2DVector3>
@@ -3513,7 +3513,7 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>0 3 0</Value>
+                <Value>0 0.2 0</Value>
               </Key>
             </Keys>
           </MyAnimatedPropertyVector3>
@@ -3642,7 +3642,7 @@
           <MyConstPropertyBool name="Use layer sorting">false</MyConstPropertyBool>
           <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
           <MyConstPropertyBool name="Alpha anisotropic">false</MyConstPropertyBool>
-          <MyConstPropertyFloat name="Gravity">-2</MyConstPropertyFloat>
+          <MyConstPropertyFloat name="Gravity">-0.25</MyConstPropertyFloat>
           <MyAnimatedProperty2DVector3 name="Pivot rotation">
             <Keys />
           </MyAnimatedProperty2DVector3>
@@ -32129,7 +32129,7 @@
                     <Keys>
                       <Key>
                         <Time>0</Time>
-                        <Value>Smoke_c</Value>
+                        <Value>Smoke_lit</Value>
                       </Key>
                     </Keys>
                   </MyAnimatedPropertyTransparentMaterial>
@@ -32325,7 +32325,7 @@
                     <Keys>
                       <Key>
                         <Time>0</Time>
-                        <Value>GlareJetpack</Value>
+                        <Value>DecalGlare</Value>
                       </Key>
                     </Keys>
                   </MyAnimatedPropertyTransparentMaterial>
@@ -32534,7 +32534,7 @@
                     <Keys>
                       <Key>
                         <Time>0</Time>
-                        <Value>Smoke_c</Value>
+                        <Value>Smoke_lit</Value>
                       </Key>
                     </Keys>
                   </MyAnimatedPropertyTransparentMaterial>
@@ -32730,7 +32730,7 @@
                     <Keys>
                       <Key>
                         <Time>0</Time>
-                        <Value>Smoke_c</Value>
+                        <Value>Smoke_lit</Value>
                       </Key>
                     </Keys>
                   </MyAnimatedPropertyTransparentMaterial>
@@ -32922,7 +32922,7 @@
                     <Keys>
                       <Key>
                         <Time>0</Time>
-                        <Value>GlareJetpack</Value>
+                        <Value>DecalGlare</Value>
                       </Key>
                     </Keys>
                   </MyAnimatedPropertyTransparentMaterial>
@@ -33118,7 +33118,7 @@
                     <Keys>
                       <Key>
                         <Time>0</Time>
-                        <Value>Smoke_c</Value>
+                        <Value>Smoke_lit</Value>
                       </Key>
                     </Keys>
                   </MyAnimatedPropertyTransparentMaterial>
@@ -36897,7 +36897,7 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>0 1 0</Value>
+                <Value>0 0.2 0</Value>
               </Key>
             </Keys>
           </MyAnimatedPropertyVector3>
@@ -37026,7 +37026,7 @@
           <MyConstPropertyBool name="Use layer sorting">false</MyConstPropertyBool>
           <MyConstPropertyInt name="Sort layer">-1</MyConstPropertyInt>
           <MyConstPropertyBool name="Alpha anisotropic">false</MyConstPropertyBool>
-          <MyConstPropertyFloat name="Gravity">-4</MyConstPropertyFloat>
+          <MyConstPropertyFloat name="Gravity">-0.25</MyConstPropertyFloat>
           <MyAnimatedProperty2DVector3 name="Pivot rotation">
             <Keys />
           </MyAnimatedProperty2DVector3>

@@ -127,37 +127,35 @@ namespace VRageRender
             foreach (var id in MyLightRendering.VisibleSpotlights)
             {
                 var nearPlaneDistance = 0.5f;
-                var shadowMatrix = MatrixD.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up) *
-                    MatrixD.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, nearPlaneDistance, Math.Max(id.ShadowDistance, nearPlaneDistance));
-                MatrixD localToProjection = MatrixD.CreateTranslation(MyEnvironment.CameraPosition) * shadowMatrix;
-                MyLightRendering.Spotlights[index].ShadowMatrix = Matrix.Transpose(localToProjection * MyMatrixHelpers.ClipspaceToTexture);
+                var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
+                var viewMatrix = MatrixD.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up);
+                var projectionMatrix = MatrixD.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, nearPlaneDistance, Math.Max(id.ShadowDistance, nearPlaneDistance));
+                var viewProjection = viewMatrix * projectionMatrix;
+                MatrixD worldViewProjection = worldMatrix * viewProjection;
+                MyLightRendering.Spotlights[index].ShadowMatrix = Matrix.Transpose(worldViewProjection * MyMatrixHelpers.ClipspaceToTexture);
 
                 if (id.CastsShadows && casterIndex < MAX_SPOTLIGHT_SHADOWCASTERS)
                 {
-                    var query = new MyShadowmapQuery();
-                    MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
-                    
-                    if(MyLights.IgnoredEntitites.ContainsKey(id))
-                    {
-                        query.IgnoredEntities = MyLights.IgnoredEntitites[id];
-                    }
-                
                     if(ShadowmapsPool.Count <= casterIndex)
-                    {
                         ShadowmapsPool.Add(MyRwTextures.CreateShadowmap(SpotlightShadowmapSize, SpotlightShadowmapSize));
-                    }
 
-                    query.DepthBuffer = ShadowmapsPool[casterIndex].Dsv;
-                    query.Viewport = new MyViewport(SpotlightShadowmapSize, SpotlightShadowmapSize);
-                    query.QueryType = MyFrustumEnum.ShadowProjection;
-                    query.ProjectionInfo = new MyProjectionInfo
+                    MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
+
+                    var query = new MyShadowmapQuery
                     {
-                        WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
-                        WorldToProjection = shadowMatrix,
-                        LocalToProjection = localToProjection
+                        DepthBuffer = ShadowmapsPool[casterIndex].Dsv,
+                        Viewport = new MyViewport(SpotlightShadowmapSize, SpotlightShadowmapSize),
+                        QueryType = MyFrustumEnum.ShadowProjection,
+                        ProjectionInfo = new MyProjectionInfo
+                        {
+                            WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
+                            WorldToProjection = viewProjection,
+                            LocalToProjection = worldViewProjection
+                        },
+                        IgnoredEntities = MyLights.IgnoredEntitites.ContainsKey(id) ? MyLights.IgnoredEntitites[id] : null,
                     };
                     m_shadowmapQueries.Add(query);
-                    casterIndex++;
+                    ++casterIndex;
                 }
                 else
                 {

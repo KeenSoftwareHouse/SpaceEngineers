@@ -176,8 +176,6 @@ namespace Sandbox.Game
         };
         HashSet<MyEntity> m_pushedEntities = new HashSet<MyEntity>();
 
-        private MyEntity3DSoundEmitter m_soundEmitter;
-
         //Use this bool to enable debug draw and better support for debugging explosions
         public static bool DEBUG_EXPLOSIONS = false;
 
@@ -217,9 +215,6 @@ namespace Sandbox.Game
         void StartInternal()
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyExplosion.StartInternal");
-
-            if (m_soundEmitter == null)
-                m_soundEmitter = new MyEntity3DSoundEmitter(null);
 
             m_velocity = m_explosionInfo.Velocity;
             m_explosionSphere = m_explosionInfo.ExplosionSphere;
@@ -309,10 +304,15 @@ namespace Sandbox.Game
         private void PlaySound()
         {
             MySoundPair cueEnum = GetCueByExplosionType(m_explosionInfo.ExplosionType);
-            m_soundEmitter.SetPosition(m_explosionSphere.Center);
-            m_soundEmitter.SetVelocity(Vector3.Zero);
-            //m_soundEmitter.Entity = m_explosionInfo.OwnerEntity;
-            m_soundEmitter.PlaySingleSound(cueEnum, true);
+            if (cueEnum != MySoundPair.Empty)
+            {
+                MyEntity3DSoundEmitter emitter = MyAudioComponent.TryGetSoundEmitter();
+                if (emitter != null)
+                {
+                    emitter.SetPosition(m_explosionSphere.Center);
+                    emitter.PlaySound(cueEnum);
+                }
+            }
             if (m_explosionInfo.HitEntity == MySession.Static.ControlledEntity)
                 MyAudio.Static.PlaySound(m_explPlayer.SoundId);
         }
@@ -1114,8 +1114,6 @@ namespace Sandbox.Game
                 MyLights.RemoveLight(m_light);
                 m_light = null;
             }
-
-            m_soundEmitter.StopSound(true);
         }
 
         MatrixD CalculateEffectMatrix(BoundingSphereD explosionSphere)

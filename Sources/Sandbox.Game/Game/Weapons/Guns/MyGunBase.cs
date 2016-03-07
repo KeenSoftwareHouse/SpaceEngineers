@@ -79,6 +79,7 @@ namespace Sandbox.Game.Weapons
         public bool HasAmmoMagazines { get { return m_weaponProperties.WeaponDefinition.HasAmmoMagazines(); } }
         public bool IsAmmoProjectile { get { return m_weaponProperties.IsAmmoProjectile; } }
         public bool IsAmmoMissile { get { return m_weaponProperties.IsAmmoMissile; } }
+        public int BurstFireRate { get { return WeaponProperties.CurrentBurstFireRate; } }
 
         public bool HasDummies { get { return m_dummiesByAmmoType.Count > 0; } }
         public MatrixD WorldMatrix
@@ -573,7 +574,7 @@ namespace Sandbox.Game.Weapons
 
         internal void StartShootSound(MyEntity3DSoundEmitter soundEmitter)
         {
-            if (ShootSound != null)
+            if (ShootSound != null && soundEmitter != null)
             {
                 if (soundEmitter.IsPlaying)
                 {
@@ -587,7 +588,7 @@ namespace Sandbox.Game.Weapons
 
         internal void StartNoAmmoSound(MyEntity3DSoundEmitter soundEmitter)
         {
-            if (NoAmmoSound != null)
+            if (NoAmmoSound != null && soundEmitter != null)
             {
                 soundEmitter.StopSound(true);
                 soundEmitter.PlaySingleSound(NoAmmoSound, true);

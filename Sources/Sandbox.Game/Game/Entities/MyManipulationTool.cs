@@ -26,12 +26,15 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Import;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.Entities
 {
     /// <summary>
     /// Manipulation tool - used for manipulating target entities. creates fixed constraint between owner's head pivot and target.
     /// </summary>
+    [StaticEventOwner]
     [MyEntityType(typeof(MyObjectBuilder_ManipulationTool))]
     public class MyManipulationTool : MyEntity, IMyHandheldGunObject<MyDeviceBase>, IMyUseObject
     {
@@ -64,7 +67,8 @@ namespace Sandbox.Game.Entities
             get
             {
                 if (m_constraint != null && !m_constraint.InWorld)
-                    SyncTool.StopManipulation();
+                    StopManipulationSyncedInternal();
+
                 return m_constraint;
             }
         }
@@ -206,8 +210,6 @@ namespace Sandbox.Game.Entities
             get { return m_otherEntity; }
         }
 
-        private MySyncManipulationTool SyncTool { get; set; }
-
         public class MyCharacterVirtualPhysicsBody : MyPhysicsBody
         {
             public MyCharacterVirtualPhysicsBody(IMyEntity entity, RigidBodyFlag flags)
@@ -297,8 +299,6 @@ namespace Sandbox.Game.Entities
             Save = false;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
-
-            SyncTool = new MySyncManipulationTool(EntityId);
         }
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
@@ -354,7 +354,7 @@ namespace Sandbox.Game.Entities
                         {
                             if (SafeConstraint != null)
                             {
-                                SyncTool.StopManipulation();
+                                StopManipulationSyncedInternal();
                             }
                             else if (oldState == MyState.NONE)
                             {
@@ -363,7 +363,7 @@ namespace Sandbox.Game.Entities
                                 MyEntity hitEntity = GetTargetEntity(ref ownerWorldHeadMatrix, out hitPosition);
                                 if (hitEntity != null)
                                 {
-                                    SyncTool.StartManipulation(MyState.HOLD, hitEntity, hitPosition, ref ownerWorldHeadMatrix);
+                                    StartManipulationSyncedInternal(MyState.HOLD, hitEntity, hitPosition, ref ownerWorldHeadMatrix);
                                 }
                             }
                         }
@@ -377,7 +377,7 @@ namespace Sandbox.Game.Entities
                             if (m_state == MyState.HOLD)
                                 ThrowEntity();
                             else
-                                SyncTool.StopManipulation();
+                                StopManipulationSyncedInternal();
                         }
                     }
                     else if (oldState == MyState.NONE)
@@ -389,7 +389,7 @@ namespace Sandbox.Game.Entities
                             MyEntity hitEntity = GetTargetEntity(ref ownerWorldHeadMatrix, out hitPosition);
                             if (hitEntity != null)
                             {
-                                SyncTool.StartManipulation(MyState.PULL, hitEntity, hitPosition, ref ownerWorldHeadMatrix);
+                                StartManipulationSyncedInternal(MyState.PULL, hitEntity, hitPosition, ref ownerWorldHeadMatrix);
                             }
                         }
                     }
@@ -427,7 +427,7 @@ namespace Sandbox.Game.Entities
         public void OnControlReleased()
         {
             if (Sync.IsServer)
-                SyncTool.StopManipulation();
+                StopManipulationSyncedInternal();
         }
 
         public override void UpdateBeforeSimulation()
@@ -458,7 +458,7 @@ namespace Sandbox.Game.Entities
 
             MyEntity otherEntity = m_otherEntity;
 
-            SyncTool.StopManipulation();
+            StopManipulationSyncedInternal();
 
             MatrixD ownerWorldMatrix = Owner.GetHeadMatrix(false, forceHeadBone: true);
             Vector3 ownerWorldForward = ownerWorldMatrix.Forward;
@@ -951,7 +951,7 @@ namespace Sandbox.Game.Entities
             return mcData;
         }
 
-        public void StopManipulation()
+        private void StopManipulation()
         {
             // Manipulation stopped might be recursivelly called when SetMotionOnClient is called which can raise physics change event!
             if (m_manipulationStopped)
@@ -1198,7 +1198,7 @@ namespace Sandbox.Game.Entities
                         {
                             // Synced from local player because lagged server can drop manipulated items with fast moves
                             if (!(m_otherEntity is MyCharacter) && IsOwnerLocalPlayer())
-                                SyncTool.StopManipulation();
+                                StopManipulationSyncedInternal();
 
                             return;
                         }
@@ -1210,7 +1210,7 @@ namespace Sandbox.Game.Entities
                         // Synced from local player because lagged server can drop manipulated items with fast moves
                         if (!(m_otherEntity is MyCharacter) && IsOwnerLocalPlayer())
                         {
-                            SyncTool.StopManipulation();
+                            StopManipulationSyncedInternal();
                             return;
                         }
                     }
@@ -1234,7 +1234,7 @@ namespace Sandbox.Game.Entities
                                 // Synced from local player because lagged server can drop manipulated items with fast moves
                                 if (!(m_otherEntity is MyCharacter) && IsOwnerLocalPlayer())
                                 {
-                                    SyncTool.StopManipulation();
+                                    StopManipulationSyncedInternal();
                                     return;
                                 }
                             }
@@ -1250,7 +1250,7 @@ namespace Sandbox.Game.Entities
                 {
                     if (!IsManipulatedEntityMassValid())
                     {
-                        SyncTool.StopManipulation();
+                        StopManipulationSyncedInternal();
                         return;
                     }
                 }
@@ -1259,7 +1259,7 @@ namespace Sandbox.Game.Entities
                 if (IsOwnerLocalPlayer() && CheckManipulatedObjectPenetration())
                 {
                     ProfilerShort.End();
-                    SyncTool.StopManipulation();
+                    StopManipulationSyncedInternal();
                     return;
                 }
 
@@ -1303,7 +1303,7 @@ namespace Sandbox.Game.Entities
 
                 if (rotation != null)
                 {
-                    SyncTool.RotateManipulatedEntity(rotation.Value);
+                    MyMultiplayer.RaiseStaticEvent(s => MyManipulationTool.OnRotateManipulatedEntity, EntityId, rotation.Value.ToVector4());
                 }
             }
         }
@@ -1451,7 +1451,7 @@ namespace Sandbox.Game.Entities
         void OtherEntity_OnMarkForClose(MyEntity obj)
         {
             if (Sync.IsServer)
-                StopManipulationSynced();
+                StopManipulationSyncedInternal();
             else 
                 StopManipulation();
         }
@@ -1459,7 +1459,7 @@ namespace Sandbox.Game.Entities
         private void OtherEntity_OnClosing(MyEntity obj)
         {
             if (Sync.IsServer)
-                StopManipulationSynced();
+                StopManipulationSyncedInternal();
             else
                 StopManipulation();
         }
@@ -1467,19 +1467,19 @@ namespace Sandbox.Game.Entities
         void OtherEntity_OnPhysicsChanged(MyEntity obj)
         {
             if (Sync.IsServer)
-                StopManipulationSynced();
+                StopManipulationSyncedInternal();
         }
 
         public void StartManipulationSynced(MyState myState, MyEntity spawned, Vector3D position, ref MatrixD ownerWorldHeadMatrix)
         {
             Debug.Assert(Sync.IsServer);
-            SyncTool.StartManipulation(myState, spawned, position, ref ownerWorldHeadMatrix);
+            StartManipulationSyncedInternal(myState, spawned, position, ref ownerWorldHeadMatrix);
         }
 
         public void StopManipulationSynced()
         {
             Debug.Assert(Sync.IsServer);
-            SyncTool.StopManipulation();
+            StopManipulationSyncedInternal();
         }
 
         IMyEntity IMyUseObject.Owner
@@ -1620,7 +1620,7 @@ namespace Sandbox.Game.Entities
                 && Owner.ControllerInfo.Controller.Player.IsLocalPlayer;
         }
 
-        public void RotateManipulatedEntity(ref Quaternion rotation)
+        private void RotateManipulatedEntity(ref Quaternion rotation)
         {
             if (m_state == MyState.HOLD && IsHoldingItem && m_fixedConstraintData != null) 
             {
@@ -1681,5 +1681,55 @@ namespace Sandbox.Game.Entities
 
         public int CurrentAmmunition { set; get; }
         public int CurrentMagazineAmmunition { set; get; }
+
+        private void StartManipulationSyncedInternal(MyManipulationTool.MyState state, MyEntity otherEntity, Vector3D hitPosition, ref MatrixD ownerWorldHeadMatrix)
+        {
+            bool manipulationStarted = StartManipulation(state, otherEntity, hitPosition, ref ownerWorldHeadMatrix);
+            if (manipulationStarted && IsHoldingItem)
+            {
+                MyMultiplayer.RaiseStaticEvent(s => MyManipulationTool.OnStartManipulation, EntityId, state, otherEntity.EntityId, hitPosition, ownerWorldHeadMatrix);
+            }
+        }
+
+        private void StopManipulationSyncedInternal()
+        {
+            StopManipulation();
+            MyMultiplayer.RaiseStaticEvent(s => MyManipulationTool.OnStopManipulation, EntityId);
+        }
+
+        [Event, Reliable, Broadcast]
+        static void OnStartManipulation(long entityId, MyManipulationTool.MyState state, long otherEntityId, Vector3D hitPosition, MatrixD ownerWorldHeadMatrix)
+        {
+            MyManipulationTool manipulationTool;
+            MyEntity otherEntity;
+            if (MyEntities.TryGetEntityById(entityId, out manipulationTool) && MyEntities.TryGetEntityById(otherEntityId, out otherEntity))
+            {
+                manipulationTool.StartManipulation(state, otherEntity, hitPosition, ref ownerWorldHeadMatrix, true);
+            }
+        }
+
+        [Event, Reliable, Server, BroadcastExcept]
+        static void OnStopManipulation(long entityId)
+        {
+            if (Sync.IsServer)
+                return;
+
+            MyManipulationTool manipulationTool;
+            if (MyEntities.TryGetEntityById(entityId, out manipulationTool))
+            {
+                manipulationTool.StopManipulation();
+            }
+        }
+
+        [Event, Reliable, Server(ExceptLocal = true), BroadcastExcept]
+        static void OnRotateManipulatedEntity(long entityId, Vector4 rot)
+        {
+            Quaternion quaternion = new Quaternion(rot.X, rot.Y, rot.Z, rot.W);
+            MyManipulationTool manipulationTool;
+            if (MyEntities.TryGetEntityById(entityId, out manipulationTool))
+            {
+                manipulationTool.RotateManipulatedEntity(ref quaternion);
+            }
+        }
     }
 }

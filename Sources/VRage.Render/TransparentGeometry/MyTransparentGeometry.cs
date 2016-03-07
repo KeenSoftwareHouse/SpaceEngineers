@@ -292,6 +292,7 @@ namespace VRageRender
 
             //  Color
             billboard.Color = color;
+            billboard.ColorIntensity = 1;
             billboard.Reflectivity = reflectivity;
 
             billboard.Near = near;

@@ -105,7 +105,8 @@ namespace VRageRender
             // It might be an error, but since device itself is not disposed multiple times, I guess it can be ignored for now.
             //Debug.Assert(RenderThread != null, "Render thread is not set, it should be!");
 
-            m_render.DisposeDevice();
+            if (m_render != null)
+                m_render.DisposeDevice();
             RenderThread = null;
         }
 
@@ -1195,6 +1196,19 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
+        public static int RequestScreenData(Vector2I resolution, byte[] preallocatedBuffer)
+        {
+            var message = MessagePool.Get<MyRenderMessageRequestScreenData>(MyRenderMessageEnum.RequestScreenData);
+
+            message.Id = 0;
+            message.PreallocatedBuffer = preallocatedBuffer;
+            message.Resolution = resolution;
+
+            EnqueueMessage(message);
+
+            return message.Id;
+        }
+
         public static void ChangeMaterialTexture(uint id,string materialName,string textureName)
         {
             var message = MessagePool.Get<MyRenderMessageChangeMaterialTexture>(MyRenderMessageEnum.ChangeMaterialTexture);
@@ -1266,6 +1280,7 @@ namespace VRageRender
             EnqueueOutputMessage(message);
         }
 
+
         #endregion
 
         #region Output messages
@@ -1328,6 +1343,17 @@ namespace VRageRender
 
             message.ClipmapId = clipmapId;
             message.Cell = cell;
+
+            EnqueueOutputMessage(message);
+        }
+
+        public static void SendReadyScreenData(int id, byte[] screenData, Vector2 resolution)
+        {
+            var message = MessagePool.Get<MyRenderMessageScreenDataReady>(MyRenderMessageEnum.ScreenDataReady);
+
+            message.Id = id;
+            message.ScreenData = screenData;
+            message.Resolution = resolution;
 
             EnqueueOutputMessage(message);
         }

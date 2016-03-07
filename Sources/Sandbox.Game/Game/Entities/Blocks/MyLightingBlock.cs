@@ -562,6 +562,7 @@ namespace Sandbox.Game.Entities.Blocks
                 return;
 
             ProfilerShort.Begin("UpdateLightPosition");
+            m_positionDirty = false;
 
             var newPos = PositionComp.GetPosition() + Vector3.TransformNormal(m_lightLocalPosition, WorldMatrix);
 
@@ -577,8 +578,6 @@ namespace Sandbox.Game.Entities.Blocks
             m_light.Position = Vector3D.Transform(m_lightWorldPosition, toLocal);
             m_light.ReflectorDirection = Vector3D.TransformNormal(WorldMatrix.Forward, toLocal);
             m_light.ReflectorUp = Vector3D.TransformNormal(WorldMatrix.Up, toLocal);
-            m_light.MarkPropertiesDirty();
-            m_positionDirty = false;
 
             ProfilerShort.End();
         }        

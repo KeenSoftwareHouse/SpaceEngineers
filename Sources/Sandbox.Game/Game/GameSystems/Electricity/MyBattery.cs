@@ -14,19 +14,14 @@ using VRage.Game.Components;
 using System;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.GameSystems.Electricity
 {
+    [StaticEventOwner]
     public class MyBattery
     {
-        internal class Friend
-        {
-            protected static void OnSyncCapacitySuccess(MyBattery battery, float remainingCapacity)
-            {
-                battery.SyncCapacitySuccess(remainingCapacity);
-            }
-        }
-
 		private int m_lastUpdateTime;
 
         private MyEntity m_lastParent = null;
@@ -42,8 +37,6 @@ namespace Sandbox.Game.GameSystems.Electricity
         private readonly MyCharacter m_owner;
 		public MyCharacter Owner { get { return m_owner; } }
 
-        internal readonly MySyncBattery SyncObject;
-
         public MyResourceSinkComponent ResourceSink { get; private set; }
 	    public MyResourceSourceComponent ResourceSource { get; private set; }
 
@@ -55,7 +48,6 @@ namespace Sandbox.Game.GameSystems.Electricity
         public MyBattery(MyCharacter owner)
         {
             m_owner = owner;
-            SyncObject = new MySyncBattery(this);
 			ResourceSink = new MyResourceSinkComponent();
 			ResourceSource = new MyResourceSourceComponent();
         }
@@ -161,14 +153,20 @@ namespace Sandbox.Game.GameSystems.Electricity
 
 			if (!ResourceSource.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId))
                 ResourceSink.Update();
-           
-            SyncObject.SendCapacitySync(Owner, ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId));
+
+            MyMultiplayer.RaiseStaticEvent(s => MyBattery.SyncCapacitySuccess, Owner.EntityId, ResourceSource.RemainingCapacityByType(MyResourceDistributorComponent.ElectricityId));
 		}
 
-		internal void SyncCapacitySuccess(float remainingCapacity)
-		{
-			ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, remainingCapacity);
-		}
+        [Event, Reliable, Server, Broadcast]
+        private static void SyncCapacitySuccess(long entityId, float remainingCapacity)
+        {
+            MyCharacter owner;
+            MyEntities.TryGetEntityById(entityId, out owner);
+            if (owner == null)
+                return;
+
+            owner.SuitBattery.ResourceSource.SetRemainingCapacityByType(MyResourceDistributorComponent.ElectricityId, remainingCapacity);
+        }
 
         public void DebugDepleteBattery()
         {

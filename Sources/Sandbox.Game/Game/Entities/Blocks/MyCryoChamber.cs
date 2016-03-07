@@ -40,6 +40,9 @@ namespace Sandbox.Game.Entities.Blocks
         readonly Sync<MyPlayer.PlayerId?> m_attachedPlayerId;
 
         bool m_retryAttachPilot = false;
+        private bool m_pilotLights = false;
+        private bool m_pilotJetpack = false;
+        private bool m_pilotCameraInFP = true;
 
         public override bool IsInFirstPersonView
         {
@@ -192,9 +195,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void PlacePilotInSeat(MyCharacter pilot)
         {
+            m_pilotLights = pilot.LightEnabled;
             pilot.EnableLights(false);
+            m_pilotCameraInFP = pilot.IsInFirstPersonView;
 
             var jetpack = pilot.JetpackComp;
+            m_pilotJetpack = jetpack.TurnedOn;
             if (jetpack != null)
                 jetpack.TurnOnJetpack(false, false, false, false);
 
@@ -224,6 +230,17 @@ namespace Sandbox.Game.Entities.Blocks
             m_attachedPlayerId.Value = null;
             
             UpdateEmissivity(false);
+
+            if (m_pilotLights)
+                pilot.EnableLights(true);
+            if (m_pilotJetpack && pilot.JetpackComp != null)
+            {
+                pilot.JetpackComp.TurnOnJetpack(true);
+            }
+            pilot.IsInFirstPersonView = m_pilotCameraInFP;
+            m_pilotLights = false;
+            m_pilotJetpack = false;
+            m_pilotCameraInFP = true;
         }
 
         public override void OnModelChange()
@@ -391,14 +408,14 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (isUsed)
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
+                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.SoundId)
                     {
                         m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
                     }
                 }
                 else
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
+                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.SoundId)
                     {
                         m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
                     }
@@ -408,8 +425,6 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_soundEmitter.StopSound(true);
             }
-
-            m_soundEmitter.Update();
         }
 
         public void CameraAttachedToChanged(IMyCameraController oldController, IMyCameraController newController)
@@ -428,18 +443,6 @@ namespace Sandbox.Game.Entities.Blocks
             }*/
 
             base.sync_UseSuccess(actionEnum, user);
-        }
-
-        protected override void OnControlledEntity_Used()
-        {
-            var pilot = m_pilot;
-            base.OnControlledEntity_Used();
-
-            if (pilot != null && pilot == MySession.Static.LocalCharacter)
-            {
-                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);
-                //MySession.Static.CameraAttachedToChanged -= CameraAttachedToChanged;
-            }
         }
 
         protected override void OnControlAcquired_UpdateCamera()

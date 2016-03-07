@@ -17,7 +17,7 @@ namespace Sandbox.ModAPI.Ingame
 
         int RemainingBlocks { get; }
 
-        void LoadRandomBlueprint(string searchPattern);
-        void LoadBlueprint(string name);
+        bool LoadRandomBlueprint(string searchPattern);
+        bool LoadBlueprint(string name);
     }
 }

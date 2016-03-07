@@ -11,5 +11,13 @@ namespace Sandbox.ModAPI.Ingame
 
         float CurrentStoredPower { get; }
         float MaxStoredPower { get; }
+
+        float CurrentInput { get; }
+        float CurrentOutput { get; }
+        bool IsCharging { get; }
+
+        bool OnlyRecharge { get; set; }
+        bool OnlyDischarge { get; set; }
+        bool SemiautoEnabled { get; set; }
     }
 }

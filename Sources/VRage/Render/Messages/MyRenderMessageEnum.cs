@@ -127,6 +127,9 @@ namespace VRageRender
         SetTextureIgnoreQuality,
         UpdateRenderQuality,
 
+        RequestScreenData,
+        ScreenDataReady,    // Output
+
         TakeScreenshot,
         ScreenshotTaken, //Output
         ExportToObjComplete, //Output

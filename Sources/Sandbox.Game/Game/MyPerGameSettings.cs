@@ -127,6 +127,9 @@ namespace Sandbox.Game
 
         public static bool UseVolumeLimiter = false;
 
+        public static bool UseSameSoundLimiter = false;
+        public static int SameSoundLimiterCount = 3;
+
         public static bool RestrictSpectatorFlyMode = false;
 
         private static Type m_isoMesherType = typeof(MyDualContouringMesher);

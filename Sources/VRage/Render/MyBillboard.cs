@@ -17,6 +17,7 @@ namespace VRageRender
         public Vector3D Position2;
         public Vector3D Position3;
         public Color Color;
+        public float ColorIntensity;
         public Vector2 UVOffset;
 
         public int ParentID = -1;

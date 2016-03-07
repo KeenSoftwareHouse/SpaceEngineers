@@ -72,6 +72,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -262,6 +263,8 @@
     <Content Include="Shaders\AtmospherePostprocess.hlsl" />
     <Content Include="Shaders\AtmospherePrecompute.hlsl" />
     <Content Include="Shaders\billboard.hlsl" />
+    <Content Include="Shaders\bloom_blur_h.hlsl" />
+    <Content Include="Shaders\bloom_blur_v.hlsl" />
     <Content Include="Shaders\bloom_downscale.hlsl" />
     <Content Include="Shaders\bloom_init.hlsl" />
     <Content Include="Shaders\blur.hlsl" />

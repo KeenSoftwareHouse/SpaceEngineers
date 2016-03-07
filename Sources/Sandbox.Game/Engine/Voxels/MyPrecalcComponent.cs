@@ -95,11 +95,15 @@ namespace Sandbox.Engine.Voxels
 
         internal static void QueueJobCancel(MyWorkTracker<MyCellCoord, MyPrecalcJobPhysicsPrefetch> tracker, MyCellCoord id)
         {
-            ThreadCommandBuffer.Add(new JobCancelCommand
+            var threadCommandBuffer = ThreadCommandBuffer;
+            lock (threadCommandBuffer)
             {
-                Tracker = tracker,
-                Id = id,
-            });
+                ThreadCommandBuffer.Add(new JobCancelCommand
+                {
+                    Tracker = tracker,
+                    Id = id,
+                });
+            }
         }
 
         [Conditional("DEBUG")]
@@ -269,13 +273,18 @@ namespace Sandbox.Engine.Voxels
             base.UpdateAfterSimulation();
 
             // Applying all buffered commands that have been collected from threads during simulation step.
-            foreach (var threadCommandBuffer in CommandBuffers)
+            lock (CommandBuffers)
             {
-                foreach (var cancelCommand in threadCommandBuffer)
+                foreach (var threadCommandBuffer in CommandBuffers)
                 {
-                    cancelCommand.Tracker.Cancel(cancelCommand.Id);
+                    lock (threadCommandBuffer)
+                    {
+                        foreach (var cancelCommand in threadCommandBuffer)
+                            cancelCommand.Tracker.Cancel(cancelCommand.Id);
+
+                        threadCommandBuffer.Clear();
+                    }
                 }
-                threadCommandBuffer.Clear();
             }
         }
 

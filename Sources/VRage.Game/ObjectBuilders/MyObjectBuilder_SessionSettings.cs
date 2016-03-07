@@ -328,6 +328,18 @@ namespace VRage.Game
         [GameRelation(Game.Shared)]
         public float FloraDensityMultiplier = 1f;
 
+        [ProtoMember]
+        [Display(Name = "Enable structural simulation")]
+        [GameRelation(Game.MedievalEngineers)]
+        public bool EnableStructuralSimulation = true;
+
+        [ProtoMember]
+        [Display(Name = "Max active fracture pieces")]
+        [GameRelation(Game.MedievalEngineers)]
+        [Range(0, int.MaxValue)]
+        //Max of any fracture pieces
+        public int MaxActiveFracturePieces = 50;
+
         public void LogMembers(MyLog log, LoggingOptions options)
         {
             log.WriteLine("Settings:");
@@ -365,6 +377,8 @@ namespace VRage.Game
                 log.WriteLine("ViewDistance = " + ViewDistance);
                 log.WriteLine("Battle = " + Battle);
                 log.WriteLine("Voxel destruction = " + EnableVoxelDestruction);
+                log.WriteLine("EnableStructuralSimulation = " + EnableStructuralSimulation);
+                log.WriteLine("MaxActiveFracturePieces = " + MaxActiveFracturePieces);
             }
         }
     }

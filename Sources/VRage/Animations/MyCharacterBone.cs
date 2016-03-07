@@ -280,5 +280,12 @@ namespace VRage.Animations
             }
             return m_bindTransform;            
         }
+
+        public MyCharacterBone GetChildBone(int childIndex)
+        {
+            if (m_children == null || childIndex < 0 || childIndex >= m_children.Count)
+                return null;
+            return m_children[childIndex];
+        }
     }
 }

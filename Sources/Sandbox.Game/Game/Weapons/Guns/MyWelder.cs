@@ -30,8 +30,8 @@ namespace Sandbox.Game.Weapons
     [MyEntityType(typeof(MyObjectBuilder_Welder))]
     public class MyWelder : MyEngineerToolBase
     {
-        private static MySoundPair IDLE_SOUND = new MySoundPair("ToolPlayWeldIdle");
-        private static MySoundPair METAL_SOUND = new MySoundPair("ToolPlayWeldMetal");
+        private MySoundPair weldSoundIdle = new MySoundPair("ToolPlayWeldIdle");
+        private MySoundPair weldSoundWeld = new MySoundPair("ToolPlayWeldMetal");
 
         public static readonly float WELDER_AMOUNT_PER_SECOND = 1f;
         public static readonly float WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED = 0.6f;
@@ -90,6 +90,19 @@ namespace Sandbox.Game.Weapons
 
             PhysicalObject.GunEntity = (MyObjectBuilder_EntityBase)objectBuilder.Clone();
             PhysicalObject.GunEntity.EntityId = this.EntityId;
+
+            foreach (ToolSound toolSound in m_handItemDef.ToolSounds)
+            {
+                if (toolSound.type == null || toolSound.subtype == null || toolSound.sound == null)
+                    continue;
+                if (toolSound.type.Equals("Main"))
+                {
+                    if(toolSound.subtype.Equals("Idle"))
+                        weldSoundIdle = new MySoundPair(toolSound.sound);
+                    if (toolSound.subtype.Equals("Weld"))
+                        weldSoundWeld = new MySoundPair(toolSound.sound);
+                }
+            }
         }
 
         protected override bool ShouldBePowered()
@@ -318,7 +331,7 @@ namespace Sandbox.Game.Weapons
         {
             base.BeginFailReaction(action, status);
 
-            m_soundEmitter.PlaySingleSound(IDLE_SOUND, true, true);
+            m_soundEmitter.PlaySingleSound(weldSoundIdle, true, true);
 
             FillStockpile();
         }
@@ -518,9 +531,9 @@ namespace Sandbox.Game.Weapons
 
         protected override void StartLoopSound(bool effect)
         {
-            MySoundPair cueEnum = effect ? METAL_SOUND : IDLE_SOUND;
+            MySoundPair cueEnum = effect ? weldSoundWeld : weldSoundIdle;
             if(effect)
-                m_soundEmitter.PlaySingleSound(METAL_SOUND, true, true);
+                m_soundEmitter.PlaySingleSound(weldSoundWeld, true, true);
         }
 
         protected override void StopLoopSound()

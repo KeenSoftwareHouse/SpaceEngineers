@@ -28,6 +28,7 @@ namespace Sandbox.Game.Gui
 			m_currentPosition.Y += 0.01f;
 			AddLabel("General", Color.Yellow.ToVector4(), 1.2f);
             AddCheckBox("Enable Shadows", () => MyRenderProxy.Settings.EnableShadows, (newValue) => { MyRenderProxy.Settings.EnableShadows = newValue; });
+            AddCheckBox("Enable Shadow Blur", () => MyRenderProxy.Settings.EnableShadowBlur, (newValue) => { MyRenderProxy.Settings.EnableShadowBlur = newValue; });
 			AddSlider("Shadow fadeout", 0f, 1f, () => MyRenderProxy.Settings.ShadowFadeoutMultiplier, (x) => MyRenderProxy.Settings.ShadowFadeoutMultiplier = x);
 
             m_currentPosition.Y += 0.01f;

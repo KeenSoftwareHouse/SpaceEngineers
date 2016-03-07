@@ -484,7 +484,12 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(rotor != null, "Rotor cannot be null!");
             Debug.Assert(m_constraint == null, "Already attached, call detach first!");
             Debug.Assert(m_rotorBlockId.Value.OtherEntityId == 0 || m_rotorBlockId.Value.OtherEntityId == rotor.EntityId, "m_rotorBlockId must be set prior calling Attach");
-            
+
+            if (rotor == null || MarkedForClose || Closed || rotor.MarkedForClose || rotor.Closed || CubeGrid.MarkedForClose || CubeGrid.Closed)
+            {
+                return false;
+            }
+
             if (CubeGrid.Physics != null && CubeGrid.Physics.Enabled)
             {
                 m_rotorBlock = rotor;
@@ -493,11 +498,11 @@ namespace Sandbox.Game.Entities.Cube
                     return false;
                 if (CubeGrid.Physics.RigidBody == m_rotorGrid.Physics.RigidBody)
                 {
-                    //if (updateGroup)
-                    //{
-                    //    OnConstraintAdded(GridLinkTypeEnum.Physical, m_rotorGrid);
-                    //    OnConstraintAdded(GridLinkTypeEnum.Logical, m_rotorGrid);
-                    //}
+                    if (updateGroup && m_welded)
+                    {
+                        OnConstraintAdded(GridLinkTypeEnum.Physical, m_rotorGrid);
+                        OnConstraintAdded(GridLinkTypeEnum.Logical, m_rotorGrid);
+                   }
                     m_isAttached = true;
                     return true;
                 }

@@ -33,8 +33,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void OnRemovedFromScene(object source)
         {
-            if(m_soundEmitter != null)
-                m_soundEmitter.Cleanup();
+            if (m_soundEmitter != null)
+                m_soundEmitter.StopSound(true, true);
+                
             m_soundEmitter = null;
             base.OnRemovedFromScene(source);
         }
@@ -149,9 +150,7 @@ namespace Sandbox.Game.Entities.Cube
         }
         internal override void StopDamageEffect()
         {
-            if (m_soundEmitter == null)
-                return;
-            if (BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+            if (m_soundEmitter != null && BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
                 m_soundEmitter.StopSound(true);
             base.StopDamageEffect();
         }

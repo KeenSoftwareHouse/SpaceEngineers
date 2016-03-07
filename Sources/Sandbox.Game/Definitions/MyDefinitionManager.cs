@@ -102,11 +102,11 @@ namespace Sandbox.Definitions
 
         #region Loading and unloading
 
-        public void LoadSounds(bool mergeDefinitions = true)
+        public void PreloadDefinitions()
         {
-            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadSounds() - START");
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.PreloadDefinitions() - START");
 
-            m_definitions.m_sounds.Clear();
+            m_definitions.Clear();
 
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
             {
@@ -114,10 +114,10 @@ namespace Sandbox.Definitions
                 if (!m_modDefinitionSets.ContainsKey(""))
                     m_modDefinitionSets.Add("", new DefinitionSet());
                 var baseDefinitionSet = m_modDefinitionSets[""];
-                LoadSounds(MyModContext.BaseGame, baseDefinitionSet, false, mergeDefinitions);
+                LoadDefinitions(MyModContext.BaseGame, baseDefinitionSet, false, true);
             }
 
-            MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadSounds() - END");
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.PreloadDefinitions() - END");
         }
 
         public void LoadScenarios()
@@ -283,8 +283,49 @@ namespace Sandbox.Definitions
             }
         }
 
-        private void LoadDefinitions(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true)
+        private HashSet<string> GetPreloadSet()
         {
+            HashSet<string> preloadSet = new HashSet<string>();
+            string preloadFilePath = Path.Combine(MyModContext.BaseGame.ModPathData, "DefinitionsToPreload.sbc");
+
+
+            if (!MyFileSystem.FileExists(preloadFilePath))
+                return null;
+
+            MyObjectBuilder_Definitions builder = Load<MyObjectBuilder_Definitions>(preloadFilePath);
+            if (builder == null)
+                return null;
+
+            if (builder.Definitions == null)
+                return null;
+
+            MyObjectBuilder_DefinitionsToPreload definitionsToPreload = (MyObjectBuilder_DefinitionsToPreload) builder.Definitions[0];
+            foreach (var fileInfo in definitionsToPreload.DefinitionFiles)
+            {
+                if (MySandboxGame.IsDedicated)
+                {
+                    if (fileInfo.LoadOnDedicated)
+                        preloadSet.Add(fileInfo.Name);
+                }
+                else
+                {
+                    preloadSet.Add(fileInfo.Name);
+                }
+            }
+
+            return preloadSet;
+        } 
+
+        private void LoadDefinitions(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true, bool isPreload = false)
+        {
+            HashSet<string> preloadSet = null;
+
+            if (isPreload)
+            {
+                preloadSet = GetPreloadSet();
+                if (preloadSet == null) return;
+            }
+
             if (!MyFileSystem.DirectoryExists(context.ModPathData))
                 return;
 
@@ -295,6 +336,8 @@ namespace Sandbox.Definitions
             var definitionsBuilders = new List<Tuple<MyObjectBuilder_Definitions, string>>(30);
             foreach (var file in MyFileSystem.GetFiles(context.ModPathData, "*.sbc", VRage.FileSystem.MySearchOption.AllDirectories))
             {
+                if (isPreload && !preloadSet.Contains(Path.GetFileName(file))) continue;
+                if (Path.GetFileName(file) == "DefinitionsToPreload.sbc") continue;
                 context.CurrentFile = file;
 
                 ProfilerShort.Begin("Verify Integrity");
@@ -323,6 +366,7 @@ namespace Sandbox.Definitions
                     FailModLoading(context);
                     return;
                 }
+
                 definitionsBuilders.Add(new Tuple<MyObjectBuilder_Definitions, string>(builder, file));
                 ProfilerShort.End();
             }
@@ -1007,41 +1051,6 @@ namespace Sandbox.Definitions
                 {
                     MySandboxGame.Log.WriteLine("Loading respawn ships");
                     InitRespawnShips(context, definitionSet.m_respawnShips, objBuilder.RespawnShips, failOnDebug);
-                }
-            }
-        }
-
-        private void LoadSounds(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true, bool mergeDefinitions = true)
-        {
-            var file = Path.Combine(context.ModPathData, "Audio.sbc");
-            if (!MyFileSystem.FileExists(file))
-                return;
-
-            context.CurrentFile = file;
-
-            MyDataIntegrityChecker.HashInFile(file);
-            var objBuilder = Load<MyObjectBuilder_Definitions>(file);
-            if (objBuilder == null)
-            {
-                MyDefinitionErrors.Add(context, "Sounds: Cannot load definition file, see log for details", TErrorSeverity.Error);
-                return;
-            }
-
-            if (objBuilder.Sounds != null)
-            {
-                MySandboxGame.Log.WriteLine("Loading Sounds");
-                InitSounds(context, definitionSet.m_sounds, objBuilder.Sounds, failOnDebug);
-            }
-
-            context.CurrentFile = null;
-
-            if (mergeDefinitions)
-                MergeDefinitions();
-            else
-            {
-                foreach (var soundDef in definitionSet.m_sounds)
-                {
-                    m_definitions.m_sounds[soundDef.Key] = soundDef.Value;
                 }
             }
         }

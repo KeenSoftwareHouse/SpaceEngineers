@@ -635,7 +635,7 @@ namespace VRageRender
             int subsectionIndex = 0;
             for (int idx1 = 0; idx1 < sectionCount; idx1++)
             {
-                var section = MyMeshes.GetMeshSection(Mesh, idx1);
+                var section = MyMeshes.GetMeshSection(Mesh, lodIndex, idx1);
                 MyMeshSectionPartInfo1[] meshes = section.Info.Meshes;
                 for (int idx2 = 0; idx2 < meshes.Length; idx2++)
                 {

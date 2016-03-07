@@ -614,10 +614,15 @@ namespace Sandbox.Game.Entities.Cube
             // Include the batteries for total power shutdown
             foreach (var block in CubeGrid.GetBlocks())
             {
-                if (block.FatBlock is MyBatteryBlock)
+                if (block != null && block.FatBlock is MyBatteryBlock)
+                {
                     ((MyBatteryBlock)block.FatBlock).Enabled = enabledState == MyMultipleEnabledEnum.AllEnabled ? true : false;
+                }
             }
-            ResourceDistributor.ChangeSourcesState(MyResourceDistributorComponent.ElectricityId, enabledState, playerId);
+            if (ResourceDistributor != null)
+            {
+                ResourceDistributor.ChangeSourcesState(MyResourceDistributorComponent.ElectricityId, enabledState, playerId);
+            }
         }
 
         private void TerminalSystem_GroupRemoved(MyBlockGroup group)

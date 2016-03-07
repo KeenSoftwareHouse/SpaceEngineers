@@ -19,6 +19,7 @@ using Sandbox.Graphics.GUI;
 using SpaceEngineers.Game.Players;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -61,11 +62,6 @@ namespace Sandbox.Game.Gui
         MyGuiControlMultilineText m_multilineRespawnWhenShipReady;
         MyRespawnShipDefinition m_selectedRespawnShip;
 
-        /// <summary>
-        /// Override for perma death message box warning.
-        /// </summary>
-        private bool showPermaDeath = true;
-
         public static StringBuilder NoRespawnText { //get { return Static.m_noRespawnText.Text; } 
             set { if (Static!=null) 
                 Static.m_noRespawnText.Text = value; 
@@ -88,7 +84,7 @@ namespace Sandbox.Game.Gui
 
         #region Constructor
 
-        public MyGuiScreenMedicals(bool showPermaDeath = true)
+        public MyGuiScreenMedicals()
             : base(new Vector2(0.85f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, new Vector2(0.95f, 0.8f))
         {
             Static = this;
@@ -96,7 +92,6 @@ namespace Sandbox.Game.Gui
             CloseButtonEnabled = false;
             m_closeOnEsc = false;
             m_selectedRespawnShip = null;
-            this.showPermaDeath = showPermaDeath;
 
             RecreateControls(true);
 
@@ -563,17 +558,11 @@ namespace Sandbox.Game.Gui
 
         private void CheckPermaDeathAndRespawn(string shipPrefabId)
         {
-            bool playerInGame = false;
-            foreach (var player in Sync.Clients.GetClients())
-            {
-                if (player.SteamUserId == Sync.MyId)
-                {
-                    playerInGame = true;
-                    break;
-                }
-            }
+            var identity = Sync.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
+            Debug.Assert(identity != null, "Could not get local player identity! This should not happen!");
+            if (identity == null) return;
 
-            if (MySession.Static.Settings.PermanentDeath.Value && playerInGame && showPermaDeath)
+            if (MySession.Static.Settings.PermanentDeath.Value && identity.FirstSpawnDone)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
@@ -591,33 +580,6 @@ namespace Sandbox.Game.Gui
             {
                 this.RespawnShip(shipPrefabId);
             }
-        }
-
-        private bool HasAnyOwnership()
-        {
-            long id = MySession.Static.LocalPlayerId;
-            
-            var entities = MyEntities.GetEntities();
-            foreach (var entity in entities)
-            {
-                var grid = entity as MyCubeGrid;
-                if (grid != null)
-                {
-                    var blocks = grid.CubeBlocks;
-                    foreach (var block in blocks)
-                    {
-                        if (block.FatBlock != null)
-                        {
-                            if (block.FatBlock.OwnerId == id)
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return false;
         }
 
         private void RespawnAtMedicalRoom(long medicalId)
@@ -646,7 +608,11 @@ namespace Sandbox.Game.Gui
 
         private void RespawnShipImmediately(string shipPrefabId)
         {
-            MyPlayerCollection.RespawnRequest(MySession.Static.LocalCharacter == null, true, 0, shipPrefabId);
+            var identity = Sync.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
+            Debug.Assert(identity != null, "Could not get local player identity! This should not happen!");
+            bool newPlayer = identity == null || identity.FirstSpawnDone;
+
+            MyPlayerCollection.RespawnRequest(MySession.Static.LocalCharacter == null, newPlayer, 0, shipPrefabId);
             CloseScreen();
         }
 

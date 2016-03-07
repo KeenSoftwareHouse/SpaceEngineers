@@ -1,8 +1,6 @@
 ﻿#region Using
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -10,7 +8,6 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Debris;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
@@ -19,7 +16,6 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Text;
 using VRage;
-using VRage.Audio;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
@@ -52,6 +48,7 @@ namespace Sandbox.Game.Entities
         private StringBuilder m_displayedText = new StringBuilder();
 
         public MyPhysicalInventoryItem Item;
+        private int m_modelVariant;
 
         public MyVoxelMaterialDefinition VoxelMaterial;
         public long CreationTime;
@@ -109,6 +106,7 @@ namespace Sandbox.Game.Entities
             base.Init(objectBuilder);
 
             this.Item = new MyPhysicalInventoryItem(builder.Item);
+            this.m_modelVariant = builder.ModelVariant;
 
             InitInternal();
 
@@ -149,6 +147,7 @@ namespace Sandbox.Game.Entities
         {
             var builder = (MyObjectBuilder_FloatingObject)base.GetObjectBuilder(copy);
             builder.Item = Item.GetObjectBuilder();
+            builder.ModelVariant = m_modelVariant;
             return builder;
         }
 
@@ -157,18 +156,34 @@ namespace Sandbox.Game.Entities
             // TODO: This will be fixed and made much more simple once ore models are done
             // https://app.asana.com/0/6594565324126/10473934569658
 
-            var physicalItem = MyDefinitionManager.Static.GetPhysicalItemDefinition(Item.Content);
+            var itemDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(Item.Content);
 
-            m_health = physicalItem.Health;
+            m_health = itemDefinition.Health;
 
-            string model = physicalItem.Model;
-
-            VoxelMaterial = null;
-            float scale = this.Item.Scale;
-
-            if (Item.Content is MyObjectBuilder_Ore)
+            // Setting the item's model
+            string model = itemDefinition.Model;
+            if (itemDefinition.HasModelVariants)
             {
-                string oreSubTypeId = physicalItem.Id.SubtypeName;
+                int modelNum = itemDefinition.Models.Length;
+                Debug.Assert(m_modelVariant >= 0 && m_modelVariant < modelNum, "Model variant overflow. This can happen if model variants changed");
+                m_modelVariant = m_modelVariant % modelNum;
+
+                model = itemDefinition.Models[m_modelVariant];
+            }
+            else if (Item.Content is MyObjectBuilder_Ore)
+            {
+                model = MyDebris.GetRandomDebrisVoxel();
+            }
+
+            // Setting voxel material (if applicable)
+            VoxelMaterial = null;
+            if (itemDefinition.VoxelMaterial != MyStringHash.NullOrEmpty)
+            {
+                VoxelMaterial = MyDefinitionManager.Static.GetVoxelMaterialDefinition(itemDefinition.VoxelMaterial.String);
+            }
+            else if (Item.Content is MyObjectBuilder_Ore)
+            {
+                string oreSubTypeId = itemDefinition.Id.SubtypeName;
                 string materialName = (Item.Content as MyObjectBuilder_Ore).GetMaterialName();
                 bool hasMaterialName = (Item.Content as MyObjectBuilder_Ore).HasMaterialName();
 
@@ -177,15 +192,17 @@ namespace Sandbox.Game.Entities
                     if ((hasMaterialName && materialName == mat.Id.SubtypeName) || (hasMaterialName == false && oreSubTypeId == mat.MinedOre))
                     {
                         VoxelMaterial = mat;
-                        model = MyDebris.GetRandomDebrisVoxel();
-                        scale = (float)Math.Pow((float)Item.Amount * physicalItem.Volume / MyDebris.VoxelDebrisModelVolume, 0.333f);
                         break;
                     }
                 }
-
-                scale = (float)Math.Pow((float)Item.Amount * physicalItem.Volume / MyDebris.VoxelDebrisModelVolume, 0.333f);
             }
 
+            // Setting the scale
+            float scale = this.Item.Scale;
+            if (Item.Content is MyObjectBuilder_Ore)
+            {
+                scale = (float)Math.Pow((float)Item.Amount * itemDefinition.Volume / MyDebris.VoxelDebrisModelVolume, 0.333f);
+            }
             if (scale < 0.05f)
                 Close();
             else if (scale < 0.15f)
@@ -196,10 +213,9 @@ namespace Sandbox.Game.Entities
             Init(m_displayedText, model, null, null, null);
 
             PositionComp.Scale = scale; // Must be set after init
-
-
+            
             var massProperties = new HkMassProperties();
-            var mass = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(physicalItem.Mass) : physicalItem.Mass;
+            var mass = MyPerGameSettings.Destruction ? MyDestructionHelper.MassToHavok(itemDefinition.Mass) : itemDefinition.Mass;
             mass = mass * (float)Item.Amount;
 
             HkShape shape = GetPhysicsShape(mass, scale, out massProperties);
@@ -226,7 +242,7 @@ namespace Sandbox.Game.Entities
                 Physics.Enabled = true;
             }
 
-            Physics.MaterialType = this.EvaluatePhysicsMaterial(physicalItem.PhysicalMaterial);
+            Physics.MaterialType = this.EvaluatePhysicsMaterial(itemDefinition.PhysicalMaterial);
             Physics.PlayCollisionCueEnabled = true;
             Physics.RigidBody.ContactSoundCallbackEnabled = true;
             m_easeCollisionForce = new HkEasePenetrationAction(Physics.RigidBody, 2f);
@@ -428,13 +444,16 @@ namespace Sandbox.Game.Entities
 
             if (sync)
             {
-                if (!Sync.IsServer)
-                    return false;
-                else
+                if (Sync.IsServer)
                 {
-                    MySyncHelper.DoDamageSynced(this, damage, damageType, attackerId);
+                    MySyncDamage.DoDamageSynced(this, damage, damageType, attackerId);
                     return true;
                 }
+                else
+                {
+                    return false;
+                }
+
             }
 
             MyDamageInformation damageinfo = new MyDamageInformation(false, damage, damageType, attackerId);

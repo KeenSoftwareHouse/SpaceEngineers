@@ -77,6 +77,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModAPI\MyDirectXInput_ModAPI.cs" />
     <Compile Include="MyControllerHelper.cs" />
     <Compile Include="MyDirectXInput.cs" />
     <Compile Include="MyDirectInput.cs" />

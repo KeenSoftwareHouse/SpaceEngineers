@@ -195,6 +195,7 @@ namespace VRageRender
             //  Color
             billboard.Color = color;
             billboard.Reflectivity = reflectivity;
+            billboard.ColorIntensity = 1;
 
             billboard.Near = near;
             billboard.Lowres = lowres;
@@ -425,6 +426,7 @@ namespace VRageRender
 
                 billboardData.CustomProjectionID = billboard.CustomViewProjection;
                 billboardData.Color = billboard.Color;
+                billboardData.Color *= billboard.ColorIntensity;
                 billboardData.AlphaCutout = billboard.AlphaCutout;
                 billboardData.AlphaSaturation = material.AlphaSaturation;
                 billboardData.SoftParticleDistanceScale = material.SoftParticleDistanceScale;

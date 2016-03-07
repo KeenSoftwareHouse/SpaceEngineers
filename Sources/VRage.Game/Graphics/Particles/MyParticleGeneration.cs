@@ -120,6 +120,8 @@ namespace VRage.Game
             AlphaCutout,
             BirthPerFrame,
             RadiusBySpeed,
+
+            ColorIntensity,
         }
 
         IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyGenerationPropertiesEnum)).Length];
@@ -356,6 +358,13 @@ namespace VRage.Game
             private set { m_properties[(int)MyGenerationPropertiesEnum.AlphaCutout] = value; }
         }
 
+        public MyAnimatedPropertyFloat ColorIntensity
+        {
+            get { return (MyAnimatedPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.ColorIntensity]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.ColorIntensity] = value; }
+        }
+
+
         //////////////////////////////
 
         #endregion
@@ -441,6 +450,8 @@ namespace VRage.Game
             AddProperty(MyGenerationPropertiesEnum.BirthPerFrame, new MyAnimatedPropertyFloat("Birth per frame"));
 
             AddProperty(MyGenerationPropertiesEnum.RadiusBySpeed, new MyConstPropertyFloat("Radius by speed"));
+
+            AddProperty(MyGenerationPropertiesEnum.ColorIntensity, new MyAnimatedPropertyFloat("Color intensity"));
             
 
             Thickness.AddKey(0, 1.0f);
@@ -454,6 +465,8 @@ namespace VRage.Game
             PivotDistVar.SetValue(1);
 
             AccelerationVar.SetValue(0);
+
+            ColorIntensity.AddKey(0, 1.0f);
 
             m_emitter.Init();
         }
@@ -903,6 +916,7 @@ namespace VRage.Game
             float colorVar;
             ColorVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out colorVar);
             Color.GetInterpolatedKeys(m_effect.GetElapsedTime(), colorVar, 1.0f, particle.Color);
+            ColorIntensity.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particle.ColorIntensity);
 
             Material.GetInterpolatedKeys(m_effect.GetElapsedTime(), 0, 1.0f, particle.Material);
 

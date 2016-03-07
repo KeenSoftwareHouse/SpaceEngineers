@@ -105,6 +105,8 @@ namespace VRage.Audio
         public MySoundData SoloCue { get; set; }
         public bool GameSoundIsPaused { get; private set; }
         public bool useLimiter = false;
+        public bool useSameSoundLimiter = false;
+        public int sameSoundLimiterCount = 3;
 
         volatile bool m_deviceLost = false;
         int m_lastDeviceCount = 0;
@@ -335,6 +337,9 @@ namespace VRage.Audio
             if (m_canPlay)
             {
                 m_cueBank = new MyCueBank(m_audioEngine, sounds);
+                m_cueBank.useSameSoundLimiter = useSameSoundLimiter;
+                m_cueBank.sameSoundlimiterCount = sameSoundLimiterCount;
+                m_cueBank.SetSameSoundLimiter();
                 m_cueBank.DisablePooling = initParams.DisablePooling;
                 m_effectBank = new MyEffectBank(effects, m_audioEngine);
                 m_3Dsounds = new List<IMy3DSoundEmitter>();
@@ -378,6 +383,16 @@ namespace VRage.Audio
 
             MyLog.Default.DecreaseIndent();
             MyLog.Default.WriteLine("MyAudio.LoadData - END");
+        }
+
+        public void SetSameSoundLimiter()
+        {
+            if (m_cueBank != null)
+            {
+                m_cueBank.useSameSoundLimiter = useSameSoundLimiter;
+                m_cueBank.sameSoundlimiterCount = sameSoundLimiterCount;
+                m_cueBank.SetSameSoundLimiter();
+            }
         }
 
         public void UnloadData()
@@ -792,7 +807,8 @@ namespace VRage.Audio
                     {
                         // switches to another, random, track
                         m_currentTransition = null;
-                        MyStringId? newTransitionEnum = GetRandomTransitionEnum();
+                        //MyStringId? newTransitionEnum = GetRandomTransitionEnum();
+                        MyStringId? newTransitionEnum = MyStringId.GetOrCompute("Default");
                         if (newTransitionEnum.HasValue)
                             ApplyTransition(newTransitionEnum.Value, 0, null, false);
                     }
@@ -854,7 +870,7 @@ namespace VRage.Audio
             }
 
             // if category not set, we take random category from transition cues
-            MyStringId transitionCategory = category ?? m_cueBank.GetRandomTransitionCategory(transitionEnum);
+            MyStringId transitionCategory = category ?? m_cueBank.GetRandomTransitionCategory(ref transitionEnum);
             // we set this transition as next
             m_nextTransitions[priority] = new MyMusicTransition(priority, transitionEnum, transitionCategory);
             MyTrace.Send(TraceWindow.Server, string.Format("Applying transition {0} {1} (priority = {2})", transitionEnum, transitionCategory, priority));
@@ -1026,13 +1042,13 @@ namespace VRage.Audio
             {
                 m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, cue, m_deviceDetails.OutputFormat.Channels, source.CustomMaxDistance);
                 float maxDistance = source.CustomMaxDistance.HasValue ? source.CustomMaxDistance.Value : cue.MaxDistance;
-                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, source.Sound.FrequencyRatio);
+                sourceVoice.distanceToListener = m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, source.Sound.FrequencyRatio, sourceVoice.Silent);
             }
             else
             {
                 float maxDistance = source.CustomMaxDistance.Value;
                 m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, maxDistance, m_deviceDetails.OutputFormat.Channels, cue.VolumeCurve);
-                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio);     
+                sourceVoice.distanceToListener = m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio, sourceVoice.Silent);     
             }
         }
 
@@ -1141,7 +1157,7 @@ namespace VRage.Audio
                 source.SourceChannels = 1;
                 if (originalType == MySoundDimensions.D2)
                     source.SourceChannels = 2;
-                m_x3dAudio.Apply3D(sound.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sound.FrequencyRatio);
+                sound.distanceToListener = m_x3dAudio.Apply3D(sound.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sound.FrequencyRatio, sound.Silent);
 
                 Update3DCuesState();
 
@@ -1188,7 +1204,7 @@ namespace VRage.Audio
             if (dimension == MySoundDimensions.D3)
             {
                 m_helperEmitter.UpdateValuesOmni(source.SourcePosition, source.Velocity, maxDistance, m_deviceDetails.OutputFormat.Channels, MyCurveType.Linear);
-                m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio);
+                sourceVoice.distanceToListener = m_x3dAudio.Apply3D(sourceVoice.Voice, m_listener, m_helperEmitter, source.SourceChannels, m_deviceDetails.OutputFormat.Channels, m_calculateFlags, maxDistance, sourceVoice.FrequencyRatio, sourceVoice.Silent);
                 Update3DCuesState();
                 Add3DCueToUpdateList(source);
 

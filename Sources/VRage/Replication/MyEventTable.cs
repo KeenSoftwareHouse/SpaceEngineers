@@ -136,7 +136,12 @@ namespace VRage.Network
             var serverAttribute = info.GetCustomAttribute<ServerAttribute>();
 
             CallSiteFlags flags = CallSiteFlags.None;
-            if (serverAttribute != null) flags |= CallSiteFlags.Server;
+            if (serverAttribute != null)
+            {
+                flags |= CallSiteFlags.Server;
+                if (serverAttribute.ExceptLocal)
+                    flags |= CallSiteFlags.ExceptLocal;
+            }
             if (info.HasAttribute<ClientAttribute>()) flags |= CallSiteFlags.Client;
             if (info.HasAttribute<BroadcastAttribute>()) flags |= CallSiteFlags.Broadcast;
             if (info.HasAttribute<BroadcastExceptAttribute>()) flags |= CallSiteFlags.BroadcastExcept;
