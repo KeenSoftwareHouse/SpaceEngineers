@@ -54,6 +54,12 @@ namespace Sandbox.Game.Components
             if (Models.Count == 0)
                 return;
 
+            var block = base.Container.Entity as MyCubeBlock;
+            if (block != null)
+            {
+                this.CalculateBlockDepthBias(block);
+            }
+
             m_renderObjectIDs = new uint[Models.Count + 1];
 
             m_renderObjectIDs[0] = VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED;
@@ -71,7 +77,8 @@ namespace Sandbox.Game.Components
                     GetRenderFlags(),
                     GetRenderCullingOptions(),
                     m_diffuseColor,
-                    m_colorMaskHsv
+                    m_colorMaskHsv,
+                    depthBias: DepthBias
                 ));
 
                 MyRenderProxy.SetParentCullObject(m_renderObjectIDs[i + 1], m_renderObjectIDs[0], Models[i].LocalTransform);

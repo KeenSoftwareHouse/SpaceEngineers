@@ -233,7 +233,7 @@ namespace Sandbox.Game.Gui
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
             };
-            
+            m_UIOpacitySlider.ValueChanged += sliderChanged;
 
             rowIndex++;
 			var UIBkOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ScreenOptionsGame_UIBkOpacity))
@@ -246,6 +246,7 @@ namespace Sandbox.Game.Gui
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
             };
+            m_UIBkOpacitySlider.ValueChanged += sliderChanged;
 
             rowIndex++;
 
@@ -290,9 +291,6 @@ namespace Sandbox.Game.Gui
 
             //  Update controls with values from config file
             UpdateControls(constructor);
-
-            m_UIOpacitySlider.ValueChanged += sliderChanged;
-            m_UIBkOpacitySlider.ValueChanged += sliderChanged;
 
             CloseButtonEnabled = true;
         }

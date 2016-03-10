@@ -235,6 +235,13 @@ namespace Sandbox.Game.Multiplayer
             public long IdentityId; // Ignored in request
         }
 
+        [MessageId(7357, P2PMessageEnum.Reliable)]
+        struct IdentityFirstSpawnMsg
+        {
+            [ProtoMember]
+            public long IdentityId;
+        }
+
         public delegate void RespawnRequestedDelegate(ref RespawnMsg respawnMsg, MyNetworkClient client);
 
         #endregion
@@ -312,6 +319,7 @@ namespace Sandbox.Game.Multiplayer
             MySyncLayer.RegisterMessage<PlayerChangeColorsMsg>(OnPlayerColorsChangedRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<NewNpcIdentityMsg>(OnNpcIdentityRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
             MySyncLayer.RegisterMessage<NewNpcIdentityMsg>(OnNpcIdentitySuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
+            MySyncLayer.RegisterMessage<IdentityFirstSpawnMsg>(OnIdentityFirstSpawn, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
         }
 
         public MyPlayerCollection()
@@ -1011,6 +1019,15 @@ namespace Sandbox.Game.Multiplayer
                 messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MyCommonTexts.NPCIdentityAdded), identity.DisplayName)));
         }
 
+        static void OnIdentityFirstSpawn(ref IdentityFirstSpawnMsg msg, MyNetworkClient sender)
+        {
+            var identity = Sync.Players.TryGetIdentity(msg.IdentityId);
+            Debug.Assert(identity != null, "Server told me identity was spawned the first time, but I cannot find it!");
+            if (identity == null) return;
+
+            identity.PerformFirstSpawn();
+        }
+
         #endregion
 
         #region Public methods
@@ -1655,23 +1672,37 @@ namespace Sandbox.Game.Multiplayer
 
         static void OnRespawnRequest(ref RespawnMsg msg, MyNetworkClient sender)
         {
+            Debug.Assert(Sync.IsServer, "This method can only be called on the server!");
             Debug.Assert(Sync.Players.RespawnComponent != null, "The respawn component is not set! Cannot handle respawn request!");
             if (Sync.Players.RespawnComponent == null)
             {
                 return;
             }
 
+            PlayerId playerId = new PlayerId(sender.SteamUserId, msg.PlayerSerialId);
+
             bool respawnSuccessful = Sync.Players.RespawnComponent.HandleRespawnRequest(
                 msg.JoinGame,
                 msg.NewIdentity,
                 msg.RespawnEntityId,
                 msg.RespawnShipId,
-                new PlayerId(sender.SteamUserId, msg.PlayerSerialId),
+                playerId,
                 msg.SpawnPosition,
                 msg.BotDefinitionId
             );
 
-            if (!respawnSuccessful)
+            if (respawnSuccessful)
+            {
+                MyIdentity identity = Sync.Players.TryGetPlayerIdentity(playerId);
+                Debug.Assert(identity != null, "Could not find identity of respawning player!");
+                if (identity != null && !identity.FirstSpawnDone)
+                {
+                    var identitySpawnedMsg = new IdentityFirstSpawnMsg() { IdentityId = identity.IdentityId };
+                    MySession.Static.SyncLayer.SendMessageToAll(ref identitySpawnedMsg, MyTransportMessageEnum.Success);
+                    identity.PerformFirstSpawn();
+                }
+            }
+            else
             {
                 MySession.Static.SyncLayer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Failure);
             }

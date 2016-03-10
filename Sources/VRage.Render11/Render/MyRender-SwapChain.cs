@@ -337,7 +337,7 @@ namespace VRageRender
                 }
                 catch(SharpDXException e)
                 {
-                    Log.WriteLine("Device removed - resetting device");
+                    Log.WriteLine("Device removed - resetting device; reason: " + e.ToString());
                     HandleDeviceReset();
                     Log.WriteLine("Device removed - resetting completed");
 
@@ -485,8 +485,8 @@ namespace VRageRender
             Log.WriteLine("MyRenderDeviceSettings = {");
             Log.IncreaseIndent();
             Log.WriteLine("Adapter id = " + settings.AdapterOrdinal);
-            Log.WriteLine("DXGIAdapter id = " + m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId);
-            Log.WriteLine("DXGIOutput id = " + m_adapterInfoList[settings.AdapterOrdinal].OutputId);
+            Log.WriteLine("DXGIAdapter id = " + GetAdaptersList()[settings.AdapterOrdinal].AdapterDeviceId);
+            Log.WriteLine("DXGIOutput id = " + GetAdaptersList()[settings.AdapterOrdinal].OutputId);
             Log.WriteLine(String.Format("Resolution = {0} x {1}", settings.BackBufferWidth, settings.BackBufferHeight));
             Log.WriteLine("Window mode = " + settings.WindowMode);
             Log.DecreaseIndent();
@@ -510,16 +510,6 @@ namespace VRageRender
         {
             Log.WriteLine("ApplySettings");
             Log.IncreaseIndent();
-
-            //bool differentAdapter = m_adapterInfoList[m_settings.AdapterOrdinal].AdapterDeviceId != m_adapterInfoList[settings.AdapterOrdinal].AdapterDeviceId;
-
-            //if (differentAdapter)
-            //{
-            //    m_settings = settings;
-            //    HandleDeviceReset();
-            //}
-            //else
-            //{
             LogSettings(ref settings);
 
             CommandsListsSupported = m_adapterInfoList[m_settings.AdapterOrdinal].MultithreadedRenderingSupported;
@@ -536,7 +526,7 @@ namespace VRageRender
                 if (e.Descriptor == SharpDX.DXGI.ResultCode.DeviceRemoved && Device.DeviceRemovedReason == SharpDX.DXGI.ResultCode.DeviceRemoved)
                 {
                     deviceRemoved = true;
-                    Log.WriteLine("Device removed - resetting device");
+                    Log.WriteLine("Device removed - resetting device" + e.ToString());
                     HandleDeviceReset();
                     Log.WriteLine("Device removed - resetting completed");
                 }

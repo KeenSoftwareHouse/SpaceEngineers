@@ -1779,26 +1779,35 @@ namespace Sandbox.Game.Entities.Blocks
         int ModAPI.Ingame.IMyProjector.RemainingBlocks { get { return this.m_remainingBlocks; } }
 
 
-        void ModAPI.Ingame.IMyProjector.LoadRandomBlueprint(string searchPattern)
+        bool ModAPI.Ingame.IMyProjector.LoadRandomBlueprint(string searchPattern)
         {
+            bool success = false;
             string[] files = System.IO.Directory.GetFiles(Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints"), searchPattern);
-            
-            var index = MyRandom.Instance.Next() % files.Length;
-            LoadBlueprint(files[index]);
-        }
-        void ModAPI.Ingame.IMyProjector.LoadBlueprint(string path)
-        {
-            LoadBlueprint(path);
+
+            if (files.Length > 0)
+            {
+                var index = MyRandom.Instance.Next() % files.Length;
+                success = LoadBlueprint(files[index]);
+            }
+            return success;
         }
 
-        private void LoadBlueprint(string path)
+        bool ModAPI.Ingame.IMyProjector.LoadBlueprint(string path)
         {
+            return LoadBlueprint(path);
+        }
+
+        private bool LoadBlueprint(string path)
+        {
+            bool success = false;
             MyObjectBuilder_Definitions blueprint;
             blueprint = MyGuiBlueprintScreenBase.LoadPrefab(path);
 
             if (blueprint != null)
-                MyGuiBlueprintScreen.CopyBlueprintPrefabToClipboard(blueprint, m_clipboard);
+                success = MyGuiBlueprintScreen.CopyBlueprintPrefabToClipboard(blueprint, m_clipboard);
+
             OnBlueprintScreen_Closed(null);
+            return success;
         }
         #endregion
 

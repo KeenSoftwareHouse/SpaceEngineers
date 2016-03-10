@@ -27,6 +27,8 @@ namespace VRage.Animations.AnimationNodes
         private int[] m_boneIndicesMapping;
         // If true, animation will loop automatically.
         private bool m_loop = true;
+        // If true, animation will interpolate between keyframes.
+        public bool m_interpolate = true;
 
         // --------------- properties ---------------------------------------------------------
 
@@ -41,6 +43,13 @@ namespace VRage.Animations.AnimationNodes
         {
             get { return m_speed; }
             set { m_speed = value; }
+        }
+
+        // If true, animation will interpolate between keyframes.
+        public bool Interpolate
+        {
+            get { return m_interpolate; }
+            set { m_interpolate = value; }
         }
 
         // --------------- constructor --------------------------------------------------------
@@ -108,7 +117,7 @@ namespace VRage.Animations.AnimationNodes
                     if (charBoneIndex < 0 || data.LayerBoneMask[charBoneIndex] == false) // unaffected bone?
                         continue;
 
-                    if (currentKeyFrameIndex != currentKeyFrameIndex2)
+                    if (currentKeyFrameIndex != currentKeyFrameIndex2 && m_interpolate)
                     {
                         // interpolate between two keyframes
                         var keyframe1 = currentBone.Keyframes[currentKeyFrameIndex];

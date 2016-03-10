@@ -880,6 +880,17 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.RequestScreenData:
+                {
+                    var renderMessage = (MyRenderMessageRequestScreenData)message;
+
+                    var screenData = GetScreenData((Vector2I)renderMessage.Resolution, renderMessage.PreallocatedBuffer);
+
+                    MyRenderProxy.SendReadyScreenData(renderMessage.Id, screenData, renderMessage.Resolution);
+
+                    break;
+                }
+
                 case MyRenderMessageEnum.DrawTextToMaterial:
                 {
                     var rMessage = (MyRenderMessageDrawTextToMaterial)message;
@@ -893,23 +904,19 @@ namespace VRageRender
                     var actor = MyIDTracker<MyActor>.FindByID(rMessage.RenderObjectID);
                     if (actor != null)
                     {
-                        var r = actor.GetRenderable();
+                        var renderableComponent = actor.GetRenderable();
                         var key = new MyEntityMaterialKey { LOD = 0, Material = X.TEXT(rMessage.MaterialName) };
 
-                        if (!r.ModelProperties.ContainsKey(key))
-                        {
-                            r.ModelProperties[key] = new MyModelProperties();
-                        }
+                        if (!renderableComponent.ModelProperties.ContainsKey(key))
+                            renderableComponent.ModelProperties[key] = new MyModelProperties();
                         else
-                        {
-                            r.ModelProperties[key].TextureSwaps = null;
-                        }
+                            renderableComponent.ModelProperties[key].TextureSwaps = null;
 
-                        RwTexId handle = r.ModelProperties[key].CustomRenderedTexture;
+                        RwTexId handle = renderableComponent.ModelProperties[key].CustomRenderedTexture;
                         if (handle == RwTexId.NULL && MyModelProperties.CustomTextures < MyModelProperties.MaxCustomTextures)
                         {
                            handle = MyRwTextures.CreateRenderTarget(rMessage.TextureResolution * rMessage.TextureAspectRatio, rMessage.TextureResolution, SharpDX.DXGI.Format.R8G8B8A8_UNorm_SRgb, true);
-                           r.ModelProperties[key].CustomRenderedTexture = handle;
+                           renderableComponent.ModelProperties[key].CustomRenderedTexture = handle;
                            ++MyModelProperties.CustomTextures;
                         }
 

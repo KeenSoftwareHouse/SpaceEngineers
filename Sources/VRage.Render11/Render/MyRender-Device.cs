@@ -75,6 +75,8 @@ namespace VRageRender
 
         internal static void HandleDeviceReset()
         {
+            ResetAdaptersList();
+            DisposeDevice();
             CreateDevice(m_windowHandle, m_settings);
 
             MyRenderContext.OnDeviceReset();
@@ -116,10 +118,93 @@ namespace VRageRender
 
         internal static MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
+            bool deviceCreated = CreateDeviceInternalSafe(windowHandle, settingsToTry);
+
+            if (!deviceCreated)
+            {
+                Log.WriteLine("Primary desktop size fallback.");
+                var adapters = GetAdaptersList();
+                int i = 0;
+                int j = 0;
+                for (; i < adapters.Length; ++i)
+                {
+                    for (j = 0; j < adapters[i].SupportedDisplayModes.Length; ++j)
+                    {
+                        if (adapters[i].IsDx11Supported)
+                        {
+                            var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+                            if (adapters[i].SupportedDisplayModes[j].Width == bounds.Width &&
+                                adapters[i].SupportedDisplayModes[j].Height == bounds.Height)
+                            {
+                                var displayMode = adapters[i].SupportedDisplayModes[j];
+                                var newSettings = new MyRenderDeviceSettings()
+                                {
+                                    AdapterOrdinal = i,
+                                    BackBufferHeight = displayMode.Height,
+                                    BackBufferWidth = displayMode.Width,
+                                    WindowMode = MyWindowModeEnum.Fullscreen,
+                                    RefreshRate = displayMode.RefreshRate,
+                                    VSync = true
+                                };
+
+                                deviceCreated = CreateDeviceInternalSafe(windowHandle, newSettings);
+                                if (deviceCreated)
+                                    return m_settings;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!deviceCreated)
+            {
+                Log.WriteLine("Lowest res fallback.");
+                var simpleSettings = new MyRenderDeviceSettings()
+                {
+                    AdapterOrdinal = 0,
+                    BackBufferHeight = 480,
+                    BackBufferWidth = 640,
+                    WindowMode = MyWindowModeEnum.Window,
+                    VSync = true,
+                };
+                deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings);
+                if (!deviceCreated)
+                {
+                    VRage.Utils.MyMessageBox.Show("Unsupported graphics card", "Graphics card is not supported, please see minimum requirements");
+                    throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
+                }
+            }
+
+            return m_settings;
+        }
+
+        private static bool CreateDeviceInternalSafe(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
+        {
+            try
+            {
+                CreateDeviceInternal(windowHandle, settingsToTry);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.WriteLine("CreateDevice failed: " + ex.ToString());
+                DisposeDevice();
+            }
+            return false;
+        }
+
+        private static MyRenderDeviceSettings CreateDeviceInternal(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
+        {
             if (Device != null)
             { 
                 Device.Dispose();
                 Device = null;
+            }
+
+            if (settingsToTry != null)
+            {
+                Log.WriteLine("CreateDevice - original settings");
+                var originalSettings = settingsToTry.Value;
+                LogSettings(ref originalSettings);
             }
 
             FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
@@ -149,6 +234,9 @@ namespace VRageRender
             }
 
             m_settings = settings;
+
+            Log.WriteLine("CreateDevice settings");
+            LogSettings(ref m_settings);
 
             // If this line crashes cmd this: Dism /online /add-capability /capabilityname:Tools.Graphics.DirectX~~~~0.0.1.0
             var adapters = GetAdaptersList();
@@ -198,7 +286,6 @@ namespace VRageRender
                 InitSubsystems();
                 m_initialized = true;
             }
-            
 
             if (m_swapchain != null)
             {

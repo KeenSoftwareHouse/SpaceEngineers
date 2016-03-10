@@ -142,13 +142,7 @@ namespace VRageRender
                     }
                     else
                     {
-                        bool foundSection = RecordMeshSectionCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
-                        if (!foundSection)
-                        {
-                            // Sometimes the actor changes the renderable model unexpectedly, for example
-                            // because of unmounting. Fallback on full model highlight in this case
-                            RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
-                        }
+                        RecordMeshSectionCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
                     }
                 }
             }
@@ -203,7 +197,7 @@ namespace VRageRender
             MyOutlineDesc desc, ref OutlineConstantsLayout constants, ref float maxThickness)
         {
             MeshSectionId sectionId;
-            bool found = MyMeshes.TryGetMeshSection(model, desc.SectionIndex, out sectionId);
+            bool found = MyMeshes.TryGetMeshSection(model, rendercomp.CurrentLod, desc.SectionIndex, out sectionId);
             if (!found)
                 return false;
 

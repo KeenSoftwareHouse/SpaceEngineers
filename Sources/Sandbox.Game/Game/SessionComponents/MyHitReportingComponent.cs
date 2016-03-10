@@ -30,8 +30,8 @@ namespace Sandbox.Game.SessionComponents
         private int m_crosshairCtr = 0;
 
         private static MyHitReportingComponent m_static = null;
-        private const int TIMEOUT = 2000;
-        private const int BLEND_TIME = 1000;
+        private const int TIMEOUT = 500;
+        private const int BLEND_TIME = 500;
         private static Color HIT_COLOR = Color.White;
 
         private static MyStringId m_hitReportingSprite;

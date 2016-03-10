@@ -666,6 +666,12 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      
+      <!-- These are default values for welders - they are here for reference -->
+      <ToolSounds>
+        <ToolSound type="Main" subtype="Idle" sound="ToolPlayWeldIdle" />
+        <ToolSound type="Main" subtype="Weld" sound="ToolPlayWeldMetal" />
+      </ToolSounds>
     </HandItem>    
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id>
@@ -1207,6 +1213,12 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>2.5</ShakeAmountTarget>
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
+
+      <!-- These are default values for grinders - they are here for reference -->
+      <ToolSounds>
+        <ToolSound type="Main" subtype="Idle" sound="ToolPlayGrindIdle" />
+        <ToolSound type="Main" subtype="Soundset" sound="Grinder" /><!-- Physical material of grinder -->
+      </ToolSounds>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id>
@@ -1745,6 +1757,12 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      
+      <!-- These are default values for drills - they are here for reference -->
+      <ToolSounds>
+        <ToolSound type="Main" subtype="Idle" sound="ToolPlayDrillIdle" />
+        <ToolSound type="Main" subtype="Soundset" sound="HandDrill" /><!-- Physical material of drill -->
+      </ToolSounds>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id>

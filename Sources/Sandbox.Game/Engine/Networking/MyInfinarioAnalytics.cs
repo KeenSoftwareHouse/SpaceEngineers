@@ -242,7 +242,7 @@ namespace Sandbox.Engine.Networking
                                 foreach (var property in m_processStartCached)
                                     properties[property.Key] = property.Value;
                                 m_infinario.Track("process_end", properties);
-                                m_infinario.TrackSessionEnd(properties);
+                                m_infinario.TrackSessionEnd();
                             }
                             break;
                         case MyInfinarioEventType.GameplayStart:

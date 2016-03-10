@@ -1760,6 +1760,7 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepTurretGatlingFireStart3d.wav</Start>
           <Loop>ARC\WEP\ArcWepTurretGatlingFireLoop3d.wav</Loop>
           <End>ARC\WEP\ArcWepTurretGatlingFireEnd3d.wav</End>
         </Wave>
@@ -1818,6 +1819,7 @@
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D3">
+          <Start>ARC\WEP\ArcWepTurretInteriorFireStart3d.wav</Start>
           <Loop>ARC\WEP\ArcWepTurretInteriorFireLoop3d.wav</Loop>
           <End>ARC\WEP\ArcWepTurretInteriorFireEnd3d.wav</End>
         </Wave>
@@ -3953,6 +3955,57 @@
         </Wave>
       </Waves>
     </Sound>
+        <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayStepsMetal</SubtypeId>
+      </Id>
+      <Category>R_PLAYER_RUNS</Category>
+      <MaxDistance>35</MaxDistance>
+      <Volume>0.6</Volume>
+      <Loopable>false</Loopable>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d03.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d04.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d05.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d06.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d07.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d08.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d09.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d10.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d11.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d12.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayStepsMetal2d13.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
@@ -4878,7 +4931,8 @@
       <Category>WEP_EXPL</Category>
       <MaxDistance>200</MaxDistance>
       <DistantSounds>
-        <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
+          <DistantSound distance="50" sound="ArcWepLrgWarheadExplDist02" />
+          <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
       </DistantSounds>
       <Volume>0.6150559</Volume>
       <Waves>
@@ -4945,6 +4999,7 @@
       <Category>WEP_EXPL</Category>
       <MaxDistance>200</MaxDistance>
       <DistantSounds>
+        <DistantSound distance="50" sound="ArcWepLrgWarheadExplDist02" />
         <DistantSound distance="100" sound="ArcWepLrgWarheadExplDist01" />
       </DistantSounds>
       <Volume>0.6150559</Volume>
@@ -5111,6 +5166,29 @@
         <Wave Type="D3">
           <Start>ARC\EXPL\ArcExpDistanceTest3d01.wav</Start>
         </Wave>
+        <Wave Type="D3">
+          <Start>ARC\EXPL\ArcExpDistanceTest3d0102.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\EXPL\ArcExpDistanceTest3d0103.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcWepLrgWarheadExplDist02</SubtypeId>
+      </Id>
+      <Category>WEP_EXPL</Category>
+      <MaxDistance>1000</MaxDistance>
+      <Volume>0.7</Volume>
+      <Waves>
+        <Wave Type="D3">
+          <Start>ARC\EXPL\ArcExpDistanceTest3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\EXPL\ArcExpDistanceTest3d03.wav</Start>
+        </Wave>
       </Waves>
     </Sound>
     <Sound>
@@ -5258,6 +5336,106 @@
         </Wave>
         <Wave Type="D3">
           <Start>Arc\IMP\ArcImpMetalRock3d05.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpMetalGlass</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalGlass3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalGlass3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalGlass3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalGlass3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalGlass3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpMetalIce</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalIce3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalIce3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalIce3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalIce3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalIce3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpMetalSand</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSand3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSand3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSand3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSand3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSand3d05.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcImpMetalSnow</SubtypeId>
+      </Id>
+      <Category>R_IMP</Category>
+      <MaxDistance>30</MaxDistance>
+      <Waves>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSnow3d01.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSnow3d02.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSnow3d03.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSnow3d04.wav</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>Arc\IMP\ArcImpMetalSnow3d05.wav</Start>
         </Wave>
       </Waves>
     </Sound>
@@ -6900,7 +7078,7 @@
       </Id>
       <Category>R_PLAY_BREATH</Category>
       <MaxDistance>0</MaxDistance>
-      <Volume>0.307692051</Volume>
+      <Volume>0.1</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -6915,7 +7093,7 @@
       </Id>
       <Category>R_PLAY_BREATH</Category>
       <MaxDistance>0</MaxDistance>
-      <Volume>0.307692051</Volume>
+      <Volume>0.2</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -7649,7 +7827,7 @@
       </Id>
       <Category>AMB</Category>
       <MaxDistance>100</MaxDistance>
-      <Volume>0.4</Volume>
+      <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -7679,7 +7857,7 @@
       </Id>
       <Category>AMB</Category>
       <MaxDistance>100</MaxDistance>
-      <Volume>0.3</Volume>
+      <Volume>0.4</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">
@@ -7694,7 +7872,7 @@
       </Id>
       <Category>AMB</Category>
       <MaxDistance>100</MaxDistance>
-      <Volume>0.35</Volume>
+      <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <Waves>
         <Wave Type="D2">

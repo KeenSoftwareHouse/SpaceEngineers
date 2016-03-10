@@ -7,11 +7,10 @@ using VRage.Game;
 using VRage.ObjectBuilders;
 using VRageMath;
 
-namespace Sandbox.Common.ObjectBuilders
+namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    [System.Xml.Serialization.XmlSerializerAssembly("MedievalEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_FracturedBlock : MyObjectBuilder_CubeBlock
     {
         [ProtoContract]

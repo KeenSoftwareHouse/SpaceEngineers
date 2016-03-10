@@ -177,6 +177,14 @@ namespace Sandbox
         public event EventHandler OnGameLoaded;
         public event EventHandler OnScreenshotTaken;
 
+        protected interface IGameCustomInitialization
+        {
+            void InitIlChecker();
+            void InitIlCompilerOptions();
+        }
+        // Game custom initialization - used because dedicated server instances MySandBoxGame (for any game type).
+        protected static IGameCustomInitialization GameCustomInitialization { get; set; }
+
         #endregion
 
         #region Init
@@ -514,8 +522,8 @@ namespace Sandbox
 
 
             MyInput.Initialize(IsDedicated
-                ? (IMyInput)new MyNullInput()
-                : (IMyInput)new MyDirectXInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
+                ? (VRage.Input.IMyInput)new MyNullInput()
+                : (VRage.Input.IMyInput)new MyDirectXInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
 
             MySpaceBindingCreator.CreateBinding();
         }
@@ -629,7 +637,6 @@ namespace Sandbox
                 {
                     case MyQuickLaunchType.LAST_SANDBOX:
                     case MyQuickLaunchType.NEW_SANDBOX:
-                    case MyQuickLaunchType.SCENARIO_QUICKSTART:
                         MyGuiSandbox.AddScreen(new MyGuiScreenStartQuickLaunch(quickLaunch.Value, MyCommonTexts.StartGameInProgressPleaseWait));
                         break;
                     default:
@@ -1085,7 +1092,7 @@ namespace Sandbox
             MySandboxGame.Log.IncreaseIndent();
 
             ProfilerShort.Begin("MyDefinitionManager.LoadSounds");
-            MyDefinitionManager.Static.LoadSounds();
+            MyDefinitionManager.Static.PreloadDefinitions();
 
             ProfilerShort.BeginNextBlock("MyAudio.LoadData");
             MyAudio.LoadData(new MyAudioInitParams()
@@ -1098,6 +1105,13 @@ namespace Sandbox
             }, MyAudioExtensions.GetSoundDataFromDefinitions(), MyAudioExtensions.GetEffectData());
             if (MyPerGameSettings.UseVolumeLimiter && MyAudio.Static is MyXAudio2)
                 (MyAudio.Static as MyXAudio2).useLimiter = true;
+
+            if (MyPerGameSettings.UseSameSoundLimiter && MyAudio.Static is MyXAudio2)
+            {
+                (MyAudio.Static as MyXAudio2).useSameSoundLimiter = true;
+                (MyAudio.Static as MyXAudio2).sameSoundLimiterCount = MyPerGameSettings.SameSoundLimiterCount;
+                (MyAudio.Static as MyXAudio2).SetSameSoundLimiter();
+            }
 
             //  Volume from config
             MyAudio.Static.VolumeMusic = Config.MusicVolume;
@@ -1193,10 +1207,19 @@ namespace Sandbox
         private void InitIlCompiler()
         {
             Log.IncreaseIndent();
-            Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
-            IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] {getPath("SpaceEngineers.ObjectBuilders.dll"),getPath("MedievalEngineers.ObjectBuilders.dll"), "System.Xml.dll", getPath("Sandbox.Game.dll"),
+
+            if (GameCustomInitialization != null)
+            {
+                GameCustomInitialization.InitIlCompilerOptions();
+            }
+            else
+            {
+                Func<string, string> getPath = (x) => Path.Combine(MyFileSystem.ExePath, x);
+                IlCompiler.Options = new System.CodeDom.Compiler.CompilerParameters(new string[] {getPath("SpaceEngineers.ObjectBuilders.dll"), "System.Xml.dll", getPath("Sandbox.Game.dll"),
                 getPath("Sandbox.Common.dll"), getPath("Sandbox.Graphics.dll"), getPath("VRage.dll"), //getPath("VRage.Data.dll"),
                 getPath("VRage.Library.dll"), getPath("VRage.Math.dll"), getPath("VRage.Game.dll"),"System.Core.dll", "System.dll"/*, "Microsoft.CSharp.dll" */});
+            }
+
             Log.DecreaseIndent();
             if (MyFakes.ENABLE_SCRIPTS_PDB)
                 IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
@@ -1228,15 +1251,11 @@ namespace Sandbox
 
             // space & medieval object builders/definition object builders. Move to game dlls when sandbox's finally gone.
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AdvancedDoor));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_BattleAreaMarker));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AdvancedDoor));
-            IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_BattleAreaMarker));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Medieval.ObjectBuilders.MyObjectBuilder_HandTorch));
-            IlChecker.AllowNamespaceOfTypeCommon(typeof(Medieval.ObjectBuilders.MyObjectBuilder_HandTorch));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_AdvancedDoorDefinition));
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Medieval.ObjectBuilders.Definitions.MyObjectBuilder_BarbarianWaveEventDefinition));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.MyObjectBuilder_BarbarianWaveEventDefinition));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_AdvancedDoorDefinition));
-            IlChecker.AllowNamespaceOfTypeCommon(typeof(Medieval.ObjectBuilders.Definitions.MyObjectBuilder_BarbarianWaveEventDefinition));
+            IlChecker.AllowNamespaceOfTypeCommon(typeof(VRage.Game.MyObjectBuilder_BarbarianWaveEventDefinition));
 
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyObjectBuilder_Base));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(MyDefinitionBase));
@@ -1264,6 +1283,8 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(IMyInventoryItem));
 
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Lights.MyLight));
+
             var serializerType = typeof(MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new List<MemberInfo>()
             {
@@ -1276,6 +1297,7 @@ namespace Sandbox
             {
                 typeof(IMyEntity).GetMethod("GetPosition"),
                 typeof(IMyEntity).GetProperty("WorldMatrix").GetGetMethod(),
+                typeof(IMyEntity).GetProperty("Components").GetGetMethod(),
             });
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.IWork), null);
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.Task), null);
@@ -1290,8 +1312,62 @@ namespace Sandbox
             IlChecker.AllowedOperands.Add(typeof(VRage.MyFixedPoint), null);
             IlChecker.AllowedOperands.Add(typeof(VRage.MyTexts), null);
 
+            // Access to Input
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.ModAPI.IMyInput));
+            IlChecker.AllowedOperands.Add(typeof(MyInputExtensions), null);
+            IlChecker.AllowedOperands.Add(typeof(MyKeys), null);
+            IlChecker.AllowedOperands.Add(typeof(MyJoystickAxesEnum), null);
+            IlChecker.AllowedOperands.Add(typeof(MyJoystickButtonsEnum), null);
+            IlChecker.AllowedOperands.Add(typeof(MyMouseButtonsEnum), null);
+            IlChecker.AllowedOperands.Add(typeof(MySharedButtonsEnum), null);
+            IlChecker.AllowedOperands.Add(typeof(MyGuiControlTypeEnum), null);
+            IlChecker.AllowedOperands.Add(typeof(MyGuiInputDeviceEnum), null);
+
+            #region Power/Gas Resources
+            // Allow resource checking in ingame script
+
+            // Get the generic overloaded TryGet method
+            var methods = from method in typeof(MyComponentContainer).GetMethods()
+                          where method.Name == "TryGet" &&
+                          method.ContainsGenericParameters &&
+                          method.GetParameters().Length == 1
+                          select method;
+            Debug.Assert(methods.Count() == 1);
+
+            IlChecker.AllowedOperands.Add(typeof(MyComponentContainer), new List<MemberInfo>()
+            {
+                // Source
+                typeof(MyComponentContainer).GetMethod("Has").MakeGenericMethod(typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent)),
+                typeof(MyComponentContainer).GetMethod("Get").MakeGenericMethod(typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent)),
+                typeof(MyComponentContainer).GetMethod("TryGet", new [] {typeof(Type), typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent)}),
+                methods.FirstOrDefault().MakeGenericMethod(typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent)),
+
+                // Sink
+                typeof(MyComponentContainer).GetMethod("Has").MakeGenericMethod(typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent)),
+                typeof(MyComponentContainer).GetMethod("Get").MakeGenericMethod(typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent)),
+                typeof(MyComponentContainer).GetMethod("TryGet", new [] {typeof(Type), typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent)}),
+                methods.FirstOrDefault().MakeGenericMethod(typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent)),
+            });
+            IlChecker.AllowedOperands.Add(typeof(MyResourceSourceComponentBase), null);
+            IlChecker.AllowedOperands.Add(typeof(MyResourceSinkComponentBase), new List<MemberInfo>()
+            {
+                typeof(MyResourceSinkComponentBase).GetProperty("AcceptedResources").GetGetMethod(),
+                typeof(MyResourceSinkComponentBase).GetMethod("CurrentInputByType"),
+                typeof(MyResourceSinkComponentBase).GetMethod("IsPowerAvailable"),
+                typeof(MyResourceSinkComponentBase).GetMethod("IsPoweredByType"),
+                typeof(MyResourceSinkComponentBase).GetMethod("MaxRequiredInputByType"),
+                typeof(MyResourceSinkComponentBase).GetMethod("RequiredInputByType"),
+                typeof(MyResourceSinkComponentBase).GetMethod("SuppliedRatioByType"),
+            });
+            IlChecker.AllowedOperands.Add(typeof(ListReader<MyDefinitionId>), null);
+            IlChecker.AllowedOperands.Add(typeof(MyDefinitionId), null);
+            #endregion
+
             // access to renderer - unfortunatelly it is not safe now
             // IlChecker.AllowedOperands.Add(typeof(VRageRender.MyRenderProxy), null);
+
+            if (GameCustomInitialization != null)
+                GameCustomInitialization.InitIlChecker();
         }
 
         void Matchmaking_LobbyJoinRequest(Lobby lobby, ulong invitedBy)

@@ -9,7 +9,6 @@ using VRage;
 using Havok;
 using System.Diagnostics;
 using System;
-using Medieval.ObjectBuilders;
 using VRage.Library.Utils;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
@@ -235,7 +234,7 @@ namespace Sandbox.Game.GameSystems
                 }
 
                 int currentFracturedPiecesCount = m_piecesTimesOfDeath.Count - m_blendingPieces.Count;
-                var maxFracturePieces = ((MyObjectBuilder_MedievalSessionSettings)MySession.Static.Settings).MaxActiveFracturePieces;
+                var maxFracturePieces = MySession.Static.Settings.MaxActiveFracturePieces;
                 if (currentFracturedPiecesCount > maxFracturePieces)
                 {
                     m_tmpFracturesList.AddHashset(m_inactivePieces);

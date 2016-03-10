@@ -218,7 +218,7 @@ namespace VRageRender.Profiler
                             m_enabled = false;
                             m_useCustomFrame = false;
                         }
-                        else if (!m_enabled)
+                        else
                         {
                             m_enabled = true;
                             m_profilerProcessingEnabled = true; // Enable when disabled and keep enabled

@@ -131,7 +131,7 @@ namespace Sandbox.Game.Entities.Character
         public const int HK_CHARACTER_FLYING = 5;
 
         // This is the move indicator force multiplier for aerial controls, should be a low value
-        const float AERIAL_CONTROL_FORCE_MULTIPLIER = 0.05f;
+        const float AERIAL_CONTROL_FORCE_MULTIPLIER = 0.062f;
 
         #endregion
 
@@ -157,6 +157,8 @@ namespace Sandbox.Game.Entities.Character
         int m_weaponBone = -1;
         public int WeaponBone { get { return m_weaponBone; } }
         public event Action<IMyHandheldGunObject<MyDeviceBase>> WeaponEquiped;
+        private bool m_inAtmosphere = true;//oxygen or planet atmo
+        public bool InAtmosphere { get { return m_inAtmosphere; } }
         static readonly Vector3 m_weaponIronsightTranslation = new Vector3(0.0f, -0.11f, -0.22f);
         IMyHandheldGunObject<MyDeviceBase> m_currentWeapon;
 
@@ -1735,6 +1737,7 @@ namespace Sandbox.Game.Entities.Character
         {
             base.UpdateBeforeSimulation100();
 
+            UpdateAtmosphereStatus();
             SoundComp.UpdateBeforeSimulation100();
 
             m_suitBattery.UpdateOnServer100();
@@ -1906,6 +1909,36 @@ namespace Sandbox.Game.Entities.Character
                 if (!IsDead && Physics.CharacterProxy != null && m_currentCharacterState != Physics.CharacterProxy.GetState())
                 {
                     OnCharacterStateChanged(Physics.CharacterProxy.GetState());
+                }
+            }
+        }
+
+        private void UpdateAtmosphereStatus()
+        {
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null && this.Equals(MySession.Static.LocalCharacter))
+            {
+                Vector3D pos = PositionComp.GetPosition();
+                float oxygen = OxygenComponent != null ? OxygenComponent.EnvironmentOxygenLevel : 0f;
+                if (oxygen > 0f)
+                {
+                    m_inAtmosphere = true;//in pressurized environment
+                }
+                else
+                {
+                    Vector3 gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(pos);
+                    if (gravity.LengthSquared() > 0f)
+                    {
+                        MyPlanet planet = MyGravityProviderSystem.GetNearestPlanet(pos);
+                        float d = (float)Vector3D.DistanceSquared(planet.PositionComp.GetPosition(), pos);
+                        if (planet != null && planet.HasAtmosphere && Vector3D.DistanceSquared(planet.PositionComp.GetPosition(), pos) < planet.AtmosphereRadius * planet.AtmosphereRadius)
+                            m_inAtmosphere = true;//in atmosphere without oxygen
+                        else
+                            m_inAtmosphere = false;
+                    }
+                    else
+                    {
+                        m_inAtmosphere = false;
+                    }
                 }
             }
         }
@@ -5703,7 +5736,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (sync)
             {
-                MySyncHelper.KillCharacter(this, damageInfo);
+                KillCharacter(damageInfo);
                 return;
             }
 
@@ -7486,6 +7519,19 @@ namespace Sandbox.Game.Entities.Character
 
         public MyEntity ManipulatedEntity;
         private MyGuiScreenBase m_InventoryScreen;
+
+        private void KillCharacter(MyDamageInformation damageInfo)
+        {
+            Debug.Assert(Sync.IsServer, "KillCharacter called from client");
+            Kill(false, damageInfo);
+            MyMultiplayer.RaiseEvent(this, x => x.OnKillCharacter, damageInfo);
+        }
+
+        [Event, Reliable, Broadcast]
+        void OnKillCharacter(MyDamageInformation damageInfo)
+        {
+            Kill(false, damageInfo);
+        }
 
         [Event, Reliable, Broadcast]
         public void SpawCharacterRelative(long RelatedEntity, Vector3 DeltaPosition) // Delta position to related entity in entity local space)

@@ -1,4 +1,5 @@
-﻿using VRage.Animations;
+﻿using System.Collections.Generic;
+using VRage.Animations;
 using VRage.Game.SessionComponents;
 using VRage.Utils;
 using VRageMath;
@@ -18,6 +19,9 @@ namespace VRage.Game.Components
         private Matrix[] m_boneRelativeTransforms;
         // Final matrices - absolute.
         private Matrix[] m_boneAbsoluteTransforms;
+
+        // Reference to last bone result in raw form.
+        private List<MyAnimationClip.BoneState> m_lastBoneResult;
 
         // ------------------------------------------------------------------------
 
@@ -73,6 +77,11 @@ namespace VRage.Game.Components
                 {
                     m_boneRelativeTransforms = new Matrix[value.Length];
                     m_boneAbsoluteTransforms = new Matrix[value.Length];
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        m_boneRelativeTransforms[i] = Matrix.Identity;
+                        m_boneAbsoluteTransforms[i] = Matrix.Identity;
+                    }
                     Controller.ResultBonesPool.Reset(m_characterBones);
                 }
             }
@@ -82,6 +91,8 @@ namespace VRage.Game.Components
         public Matrix[] BoneRelativeTransforms { get { return m_boneRelativeTransforms; } }
         // Final matrices - absolute.
         public Matrix[] BoneAbsoluteTransforms { get { return m_boneAbsoluteTransforms; } }
+        // Last result in raw form. Allocated from internal pool -> this variable or its content may change during update.
+        public List<MyAnimationClip.BoneState> LastRawBoneResult { get { return m_lastBoneResult; } }
 
         // ------------------------------------------------------------------------
 
@@ -103,6 +114,7 @@ namespace VRage.Game.Components
                         ref updateData.BonesResult[i].Rotation);
                 }
             }
+            m_lastBoneResult = updateData.BonesResult;
         }
 
         // Find character bone having given name. If found, output parameter index is set.

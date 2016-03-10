@@ -4,16 +4,20 @@ using VRage.Generics;
 using Sandbox.Engine.Utils;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Game.Weapons.Ammo;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Engine.Physics;
 using System;
 using Sandbox.Game.Weapons.Guns;
 using VRage.Game.Components;
+using VRage.Network;
+using VRage.Game.Entity;
+using System.Diagnostics;
+using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.Weapons
 {
+    [StaticEventOwner]
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
     class MyMissiles : MySessionComponentBase
     {
@@ -98,10 +102,10 @@ namespace Sandbox.Game.Weapons
         public static MyMissile Add(MyWeaponPropertiesWrapper weaponProperties, Vector3D position, Vector3D initialVelocity, Vector3D direction, long ownerId)
         {
             MyMissile newMissile = AddUnsynced(weaponProperties, position, initialVelocity, direction, ownerId);
+            // REMOVE-ME: Still commented out as of 70997. Ported to new MP events. Rmoved old sync class MySyncMissiles
             //if (newMissile != null && Sync.IsServer)
-            //{
-            //    MySyncMissiles.SendMissileCreated(missileData.Launcher, position, initialVelocity, direction, missileData.CustomMaxDistance, missileData.Flags, ownerId);
-            //}
+            //    MyMultiplayer.RaiseStaticEvent(s => MyMissiles.MissileCreatedSuccess, missileData.Launcher, initialVelocity);
+
             return newMissile;
         }
 
@@ -109,6 +113,25 @@ namespace Sandbox.Game.Weapons
         {
             //m_missiles.Deallocate(missile);
             m_missiles.Remove(missile);
+        }
+
+        // TODO: Remove me if not needed
+        [Obsolete]
+        [Event, Broadcast]
+        private static void MissileCreatedSuccess(long launcherId, Vector3D initialVelocity)
+        {
+            MyEntity shootingEntity;
+            MyEntities.TryGetEntityById(launcherId, out shootingEntity);
+            Debug.Assert(shootingEntity != null, "Could not find missile shooting entity");
+            if (shootingEntity == null)
+                return;
+
+            var shootingLauncher = shootingEntity as IMyMissileGunObject;
+            Debug.Assert(shootingLauncher != null, "Shooting entity was not an IMyMissileGunObject");
+            if (shootingLauncher == null)
+                return;
+
+            shootingLauncher.ShootMissile(initialVelocity);
         }
     }
 }

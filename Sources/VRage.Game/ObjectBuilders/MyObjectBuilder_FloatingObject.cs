@@ -12,6 +12,10 @@ namespace VRage.Game
         [ProtoMember]
         public MyObjectBuilder_InventoryItem Item;
 
+        [ProtoMember, DefaultValue(0)]
+        public int ModelVariant;
+        public bool ShouldSerializeModelVariant() { return ModelVariant != 0; }
+
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
         public string OreSubtypeId;

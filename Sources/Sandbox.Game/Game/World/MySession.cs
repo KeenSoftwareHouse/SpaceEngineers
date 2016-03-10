@@ -2474,7 +2474,7 @@ namespace Sandbox.Game.World
             MyTerminalControlFactory.Unload();
 
             MyDefinitionManager.Static.UnloadData();
-            MyDefinitionManager.Static.LoadSounds();
+            MyDefinitionManager.Static.PreloadDefinitions();
 
             MyDefinitionErrors.Clear();
 

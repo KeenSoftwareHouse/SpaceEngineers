@@ -154,6 +154,11 @@ namespace VRage.Network
             SetGroupLimit(StateGroupEnum.FloatingObjectPhysics, 136);
         }
 
+        protected override bool IsLocal
+        {
+            get { return m_localClientEndpoint != null; }
+        }
+
         public override void Dispose()
         {
             base.Dispose();

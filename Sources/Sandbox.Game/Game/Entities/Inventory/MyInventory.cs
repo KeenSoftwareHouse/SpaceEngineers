@@ -781,12 +781,12 @@ namespace Sandbox.Game
             OnContentsChanged();
 
             if (Sync.IsServer)
-                NotifyHudPickedItem(amount, ref newItem);
+                NotifyHudPickedItem(amount, ref newItem, true);
         }
 
-        private void NotifyHudPickedItem(MyFixedPoint amount, ref MyPhysicalInventoryItem newItem)
+        private void NotifyHudPickedItem(MyFixedPoint amount, ref MyPhysicalInventoryItem newItem, bool added)
         {
-            if (MyFakes.ENABLE_HUD_PICKED_UP_ITEMS && Entity != null && (Owner is MyCharacter) && MyHud.PickedUpItems.Visible)
+            if (MyFakes.ENABLE_HUD_PICKED_UP_ITEMS && Entity != null && (Owner is MyCharacter) && MyHud.PickedUpItems.Visible && added)
             {
                 long localPlayerId = (Owner as MyCharacter).GetPlayerIdentityId();
                 if (localPlayerId == MySession.Static.LocalPlayerId)
@@ -1387,7 +1387,7 @@ namespace Sandbox.Game
             }
             m_usedIds.Add(item.ItemId);
 
-            NotifyHudPickedItem(item.Amount, ref item);
+            NotifyHudPickedItem(item.Amount, ref item, true);
         }
 
         #endregion
@@ -2055,7 +2055,7 @@ namespace Sandbox.Game
                 }
                 m_items[index] = item2;
 
-                NotifyHudPickedItem(amount, ref item2);
+                NotifyHudPickedItem(amount, ref item2, amount > 0);
             }
         }
 

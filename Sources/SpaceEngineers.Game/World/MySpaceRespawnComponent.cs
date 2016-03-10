@@ -392,19 +392,7 @@ namespace SpaceEngineers.Game.Players
         [Event, Reliable, Client]
         static void ShowMedicalScreen_Implementation()
         {
-            MyGuiSandbox.AddScreen(new MyGuiScreenMedicals(ShowPermaWarning));
-        }
-
-        [Event, Reliable, Client]
-        static void NewIdentityCreated_Response(MyPlayer.PlayerId playerId, bool joinGame)
-        {
-            if (MySession.Static != null && MySession.Static.LocalHumanPlayer != null)
-            {
-                int firstLocalPlayer = MySession.Static.LocalHumanPlayer.Id.SerialId;
-                ulong steamId = MySession.Static.LocalHumanPlayer.Id.SteamId;
-                if (steamId == playerId.SteamId && firstLocalPlayer == playerId.SerialId)
-                    ShowPermaWarning = !joinGame;
-            }
+            MyGuiSandbox.AddScreen(new MyGuiScreenMedicals());
         }
 
         public override bool HandleRespawnRequest(bool joinGame, bool newIdentity, long medicalRoomId, string respawnShipId, MyPlayer.PlayerId playerId, Vector3D? spawnPosition, VRage.ObjectBuilders.SerializableDefinitionId? botDefinitionId)
@@ -419,9 +407,6 @@ namespace SpaceEngineers.Game.Players
 
             Vector3D currentPosition = Vector3D.Zero;
             if (player != null && player.Character != null) currentPosition = player.Character.PositionComp.GetPosition();
-
-            // Send postback message to a client that there was new identity created
-            MyMultiplayer.RaiseStaticEvent(s => NewIdentityCreated_Response, playerId, joinGame, new EndpointId(playerId.SteamId));
 
             if (TryFindCryoChamberCharacter(player))
             {
@@ -478,7 +463,13 @@ namespace SpaceEngineers.Game.Players
 
             if (spawnAsNewPlayer)
             {
-                bool resetIdentity = MySession.Static.Settings.PermanentDeath.Value;
+                bool resetIdentity = false;
+                if (MySession.Static.Settings.PermanentDeath.Value)
+                {
+                    var oldIdentity = Sync.Players.TryGetPlayerIdentity(playerId);
+                    resetIdentity = oldIdentity.FirstSpawnDone;
+                }
+
                 if (player == null)
                 {
                     var identity = Sync.Players.CreateNewIdentity(player.DisplayName);

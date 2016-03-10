@@ -346,6 +346,8 @@ namespace Sandbox.Game.Multiplayer
         public void AddPlayerToFaction(long playerId, long factionId)
         {
             m_playerFaction[playerId] = factionId;
+            foreach (var faction in m_factions)
+                faction.Value.CancelJoinRequest(playerId);
         }
 
         public void KickPlayerFromFaction(long playerId)

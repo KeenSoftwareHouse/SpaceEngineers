@@ -6,7 +6,7 @@ using VRage.Utils;
 
 namespace VRage.Input
 {
-    public class MyControl
+    public class MyControl : ModAPI.IMyControl
     {
         private const int DEFAULT_CAPACITY = 16;
         private static StringBuilder m_toStringCache = new StringBuilder(DEFAULT_CAPACITY);

@@ -223,27 +223,7 @@ namespace Sandbox.Game.Components
 			m_soundEmitters[(int)MySoundEmitterEnum.PrimaryState].Update();
             if (windSystem)
             {
-                float oxygen = MyOxygenProviderSystem.GetOxygenInPoint(m_character.PositionComp.GetPosition());
-                if (oxygen > 0f)
-                {
-                    inAtmosphere = true;//in pressurized environment
-                }
-                else
-                {
-                    Vector3 gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_character.PositionComp.GetPosition());
-                    if (gravity.LengthSquared() > 0f)
-                    {
-                        MyPlanet planet = MyGravityProviderSystem.GetNearestPlanet(m_character.PositionComp.GetPosition());
-                        if(planet != null && planet.AtmosphereSettings.FogIntensity > 0f)
-                            inAtmosphere = true;//in atmosphere without oxygen
-                        else
-                            inAtmosphere = false;
-                    }
-                    else
-                    {
-                        inAtmosphere = false;
-                    }
-                }
+                inAtmosphere = m_character.InAtmosphere;
                 windEmitter.Update();
             }
 		}
@@ -282,7 +262,7 @@ namespace Sandbox.Game.Components
 				if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
 				{
 					if (primaryEmitter.Loop)
-						primaryEmitter.StopSound(false);
+						primaryEmitter.StopSound(true);
                     primaryEmitter.PlaySound(cueEnum, false, false);
 				}
                 else if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND] && primaryEmitter.SoundId == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND].SoundId)

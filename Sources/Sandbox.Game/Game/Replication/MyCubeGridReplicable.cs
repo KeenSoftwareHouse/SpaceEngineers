@@ -36,7 +36,7 @@ namespace Sandbox.Game.Replication
 
         public override float GetPriority(MyClientInfo state)
         {
-            if (Grid == null || Grid.Physics == null)
+            if (Grid == null || Grid.Projector != null)
                 return 0.0f;
 
             float priority = base.GetPriority(state);
@@ -272,8 +272,13 @@ namespace Sandbox.Game.Replication
             foreach (var entity in m_foundEntities)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
+
                 if (grid != null)
                 {
+                    // Dont check for projections
+                    if (grid.Projector != null)
+                        continue;
+
                     var rad = grid.PositionComp.LocalVolume.Radius;
                     if (rad > maxRadius || (rad == maxRadius && (biggestGrid == null || grid.EntityId > biggestGrid.EntityId)))
                     {

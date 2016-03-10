@@ -221,6 +221,7 @@ namespace VRage.Game
 
             billboard.Material = material;
             billboard.Color = materialInstance.Color;
+            billboard.ColorIntensity = 1;
             billboard.Priority = priority;
             billboard.EnableColorize = colorize;
             billboard.CustomViewProjection = -1;
@@ -325,6 +326,7 @@ namespace VRage.Game
            
            //  Color
            billboard.Color = color;
+           billboard.ColorIntensity = 1;
            billboard.Reflectivity = reflectivity;
 
            billboard.Near = near;
