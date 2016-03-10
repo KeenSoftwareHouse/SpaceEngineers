@@ -37,7 +37,7 @@ namespace VRage.Input
         }
     }
 
-    public class MyDirectXInput : IMyInput
+    public partial class MyDirectXInput : IMyInput
     {
         [DllImport("user32.dll")]
         static extern IntPtr GetForegroundWindow();

@@ -244,7 +244,8 @@ namespace VRageRender
             renderContext.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
             deviceContext.ComputeShader.SetShaderResource(0, null);
 
-            MyBlur.Run(postprocessTarget.Rtv, MyRender11.CascadesHelper.Rtv, MyRender11.CascadesHelper.ShaderView, postprocessTarget.ShaderView);
+            if(MyRender11.Settings.EnableShadowBlur)
+                MyBlur.Run(postprocessTarget.Rtv, MyRender11.CascadesHelper.Rtv, MyRender11.CascadesHelper.ShaderView, postprocessTarget.ShaderView, depthDiscardThreshold: 0.2f);
 
             MyGpuProfiler.IC_EndBlock();
         }

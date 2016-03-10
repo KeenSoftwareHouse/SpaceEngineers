@@ -1654,6 +1654,9 @@ Open admin profile?</value>
   <data name="DialogTextDownloadModsFailed" xml:space="preserve">
     <value>Downloading mods has failed! Please check mods in world settings.</value>
   </data>
+  <data name="DialogTextDownloadModsFailedSteamOffline" xml:space="preserve">
+    <value>Steam is offline. Please try to change world settings to offline and load the world again.</value>
+  </data>
   <data name="ProgressTextCheckingMods" xml:space="preserve">
     <value>Checking for mod updates ... please wait.</value>
   </data>

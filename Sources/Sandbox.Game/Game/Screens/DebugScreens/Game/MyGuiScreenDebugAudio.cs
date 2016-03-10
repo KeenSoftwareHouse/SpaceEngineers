@@ -314,7 +314,7 @@ namespace Sandbox.Game.Gui
         void OnReload(MyGuiControlButton button)
         {
             MyAudio.Static.UnloadData();
-            MyDefinitionManager.Static.LoadSounds(false);
+            MyDefinitionManager.Static.PreloadDefinitions();
             MyAudio.Static.ReloadData(MyAudioExtensions.GetSoundDataFromDefinitions(), MyAudioExtensions.GetEffectData());
         }
 

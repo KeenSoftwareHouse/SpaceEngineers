@@ -134,7 +134,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_privateTitle.CompareUpdate(value);
 
-                if (m_privateTitle != value)
+                if (m_privateTitleHelper != value)
                 {
                     m_privateTitleHelper.Clear().Append(value);
                 }
@@ -148,7 +148,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_descriptionChanged = m_privateDescription.CompareUpdate(value);
 
-                if (m_privateDescription != value)
+                if (m_privateDescriptionHelper != value)
                 {
                     m_privateDescriptionHelper.Clear().Append(value);
                 }

@@ -175,6 +175,20 @@ namespace VRage.Utils
             }
         }
 
+
+        //  Returns random vector, whose direction is 'normal', but deviated by random angle (whose interval is 0..maxAngle in radians).
+        public static Vector3 GetRandomVector3MaxAngle(float maxAngle)
+        {
+            float resultTheta = MyUtils.GetRandomFloat(-maxAngle, maxAngle);
+            float resultPhi = MyUtils.GetRandomFloat(0, MathHelper.TwoPi);
+			//  Convert to cartezian coordinates (XYZ)
+            return -new Vector3(
+                MyMath.FastSin(resultTheta) * MyMath.FastCos(resultPhi),
+                MyMath.FastSin(resultTheta) * MyMath.FastSin(resultPhi),
+                MyMath.FastCos(resultTheta)
+                );
+        }
+
         //  Random vector distributed over the circle about normal. 
         //  Returns random vector that always lies on circle
         public static Vector3 GetRandomVector3CircleNormalized()

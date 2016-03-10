@@ -34,7 +34,7 @@ namespace VRage.Game
         static List<string> s_emitterTypeStrings = MyParticleEmitterTypeStrings.ToList<string>();
 
         //Version of the emitter for serialization
-        static readonly int Version = 4;
+        static readonly int Version = 5;
 
         private enum MyEmitterPropertiesEnum
         {
@@ -46,14 +46,11 @@ namespace VRage.Game
             RadiusMin,
             RadiusMax,
             DirToCamera,
-            //LimitAngle
+            LimitAngle
         }
 
         IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
 
-        /// <summary>
-        /// Public members to easy access
-        /// </summary>
         public MyParticleEmitterType Type
         {
             get { return (MyParticleEmitterType)(int)(m_properties[(int)MyEmitterPropertiesEnum.Type] as MyConstPropertyEnum); }
@@ -103,11 +100,11 @@ namespace VRage.Game
             private set { m_properties[(int)MyEmitterPropertiesEnum.DirToCamera] = value; }
         }
 
-        //public MyConstPropertyFloat LimitAngle
-        //{
-        //    get { return m_properties[(int)MyEmitterPropertiesEnum.LimitAngle] as MyConstPropertyFloat; }
-        //    private set { m_properties[(int)MyEmitterPropertiesEnum.LimitAngle] = value; }
-        //}
+        public MyAnimatedPropertyFloat LimitAngle
+        {
+            get { return m_properties[(int)MyEmitterPropertiesEnum.LimitAngle] as MyAnimatedPropertyFloat; }
+            private set { m_properties[(int)MyEmitterPropertiesEnum.LimitAngle] = value; }
+        }
 
 
         public MyParticleEmitter(MyParticleEmitterType type)
@@ -124,7 +121,7 @@ namespace VRage.Game
             AddProperty(MyEmitterPropertiesEnum.RadiusMin, new MyConstPropertyFloat("RadiusMin"));
             AddProperty(MyEmitterPropertiesEnum.RadiusMax, new MyConstPropertyFloat("RadiusMax"));
             AddProperty(MyEmitterPropertiesEnum.DirToCamera, new MyConstPropertyBool("DirToCamera"));
-            //AddProperty(MyEmitterPropertiesEnum.LimitAngle, new MyConstPropertyFloat("LimitAngle"));
+            AddProperty(MyEmitterPropertiesEnum.LimitAngle, new MyAnimatedPropertyFloat("LimitAngle"));
 
             Offset.AddKey(0, new Vector3(0, 0, 0));
             Rotation.AddKey(0, new Vector3(0, 0, 0));
@@ -133,7 +130,6 @@ namespace VRage.Game
             RadiusMin.SetValue(1.0f);
             RadiusMax.SetValue(1.0f);
             DirToCamera.SetValue(false);
-            //LimitAngle.SetValue(90.0f);
         }
 
         public void Done()
@@ -195,7 +191,17 @@ namespace VRage.Game
                     break;
 
                 case MyParticleEmitterType.Sphere:
-                    localPos = MyUtils.GetRandomVector3Normalized() * currentSize * currentAxisScale;
+                    if (LimitAngle.GetKeysCount() > 0)
+                    {
+                        float angle;
+                        LimitAngle.GetInterpolatedValue<float>(elapsedTime, out angle);
+                        angle = MathHelper.ToRadians(angle);
+                        localPos = MyUtils.GetRandomVector3MaxAngle(angle) * currentSize * currentAxisScale;
+                    }
+                    else
+                    {
+                        localPos = MyUtils.GetRandomVector3Normalized() * currentSize * currentAxisScale;
+                    }
                     break;
 
                 case MyParticleEmitterType.Box:
@@ -237,8 +243,8 @@ namespace VRage.Game
             if (currentRotation.LengthSquared() > 0)
             {
                 Matrix rotationMatrix = Matrix.CreateRotationX(MathHelper.ToRadians(currentRotation.X));
-                rotationMatrix = rotationMatrix * Matrix.CreateRotationX(MathHelper.ToRadians(currentRotation.Y));
-                rotationMatrix = rotationMatrix * Matrix.CreateRotationX(MathHelper.ToRadians(currentRotation.Z));
+                rotationMatrix = rotationMatrix * Matrix.CreateRotationY(MathHelper.ToRadians(currentRotation.Y));
+                rotationMatrix = rotationMatrix * Matrix.CreateRotationZ(MathHelper.ToRadians(currentRotation.Z));
 
                 Vector3.TransformNormal(ref localPos, ref rotationMatrix, out localPos);
             }
@@ -337,6 +343,11 @@ namespace VRage.Game
                 DeserializeV2(reader);
                 return;
             }
+            else if (version == 4)
+            {
+                DeserializeV4(reader);
+                return;
+            }
 
             reader.ReadStartElement(); //ParticleEmitter
 
@@ -354,7 +365,7 @@ namespace VRage.Game
 
             foreach (IMyConstProperty property in m_properties)
             {
-                if (property.Name == "Rotation" || property.Name == "AxisScale" || property.Name == "AxisScale")
+                if (property.Name == "Rotation" || property.Name == "AxisScale")
                     continue;
 
                 property.Deserialize(reader);
@@ -383,13 +394,31 @@ namespace VRage.Game
             reader.ReadStartElement(); //ParticleEmitter
 
             foreach (IMyConstProperty property in m_properties)
-            {              
+            {
+                if (property.Name == "LimitAngle")
+                    continue;
+
                 property.Deserialize(reader);
             }
 
             if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "LimitAngle")
             {
                 reader.Skip();
+            }
+
+            reader.ReadEndElement(); //ParticleEmitter
+        }
+
+        void DeserializeV4(XmlReader reader)
+        {
+            reader.ReadStartElement(); //ParticleEmitter
+
+            foreach (IMyConstProperty property in m_properties)
+            {
+                if (property.Name == "LimitAngle")
+                    continue;
+
+                property.Deserialize(reader);
             }
 
             reader.ReadEndElement(); //ParticleEmitter

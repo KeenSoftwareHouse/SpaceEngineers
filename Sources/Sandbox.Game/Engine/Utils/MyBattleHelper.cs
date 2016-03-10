@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Medieval.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game;
@@ -135,15 +134,8 @@ namespace Sandbox.Engine.Utils
             settings.MaxPlayers = dedicated ? (short)MAX_BATTLE_PLAYERS : (short)12;
             settings.PermanentDeath = false;
             settings.AutoSave = false;
-
-            if (settings is MyObjectBuilder_MedievalSessionSettings)
-            {
-                MyObjectBuilder_MedievalSessionSettings me_settings = settings as MyObjectBuilder_MedievalSessionSettings;
-                me_settings.EnableStructuralSimulation = true;
-            }
+            settings.EnableStructuralSimulation = true;
         }
-
-
 
     }
 }

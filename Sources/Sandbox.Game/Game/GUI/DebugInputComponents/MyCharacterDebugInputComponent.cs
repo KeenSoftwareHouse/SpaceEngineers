@@ -1,9 +1,11 @@
 ﻿#region Using
 
+using System.Collections.Generic;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
 using System.Linq;
+using VRage.Animations;
 using VRage.Game.Entity.UseObject;
 using VRage.Input;
 using VRage.Utils;
@@ -17,6 +19,7 @@ namespace Sandbox.Game.Gui
     class MyCharacterInputComponent : MyDebugComponent
     {
         private bool m_toggleMovementState = false;
+        private bool m_toggleShowSkeleton = false;
 
         public override string GetName()
         {
@@ -41,6 +44,14 @@ namespace Sandbox.Game.Gui
                    return true;
                });
 
+            AddShortcut(MyKeys.NumPad8, true, false, false, false,
+               () => "Toggle skeleton view",
+               delegate
+               {
+                   ToggleSkeletonView();
+                   return true;
+               });
+
             AddShortcut(MyKeys.NumPad3, true, false, false, false, () => "Toggle character movement status", () => { ShowMovementState(); return true; });
         }
 
@@ -54,6 +65,11 @@ namespace Sandbox.Game.Gui
             
             bool handled = false;
             return handled;
+        }
+
+        private void ToggleSkeletonView()
+        {
+            m_toggleShowSkeleton = !m_toggleShowSkeleton;
         }
 
         public static MyCharacter SpawnCharacter(string model = null)
@@ -142,6 +158,58 @@ namespace Sandbox.Game.Gui
 
             if (MySession.Static != null && MySession.Static.LocalCharacter != null)
                 Text("Character look speed: {0}", MySession.Static.LocalCharacter.RotationSpeed);
+
+            if (m_toggleShowSkeleton)
+                DrawSkeleton();
+        }
+
+        private Dictionary<MyCharacterBone, int> m_boneRefToIndex = null;
+
+        // Terrible, unoptimized function for visual debugging.
+        // Draw skeleton using raw data from animation controller.
+        private void DrawSkeleton()
+        {
+            if (m_boneRefToIndex == null)
+            { 
+                // lazy initialization of this debugging feature
+                m_boneRefToIndex = new Dictionary<MyCharacterBone, int>(256);
+            }
+
+            MyCharacter character = MySession.Static != null ? MySession.Static.LocalCharacter : null;
+            if (character == null)
+                return;
+            List<MyAnimationClip.BoneState> bones = character.AnimationController.LastRawBoneResult;
+            MyCharacterBone[] characterBones = character.AnimationController.CharacterBones;
+            if (bones == null)
+                return;
+            m_boneRefToIndex.Clear();
+            for (int i = 0; i < bones.Count; i++)
+            {
+                m_boneRefToIndex.Add(character.AnimationController.CharacterBones[i], i);
+            }
+
+
+            for (int i = 0; i < bones.Count; i++)
+                if (characterBones[i].Parent == null)
+                {
+                    MatrixD worldMatrix = character.PositionComp.WorldMatrix;
+                    DrawBoneHierarchy(ref worldMatrix, characterBones, bones, i);
+                }
+        }
+
+        private void DrawBoneHierarchy(ref MatrixD parentTransform, MyCharacterBone[] characterBones, List<MyAnimationClip.BoneState> rawBones, int boneIndex)
+        {
+            MatrixD currentTransform = Matrix.CreateTranslation(rawBones[boneIndex].Translation) * parentTransform;
+            currentTransform = Matrix.CreateFromQuaternion(rawBones[boneIndex].Rotation) * currentTransform;
+            MyRenderProxy.DebugDrawLine3D(currentTransform.Translation, parentTransform.Translation, Color.Green, Color.Green, false);
+            if (characterBones[boneIndex].Parent == null)
+                MyRenderProxy.DebugDrawText3D(currentTransform.Translation, characterBones[boneIndex].Name, Color.Green, 1.0f, false);
+            for (int i = 0; characterBones[boneIndex].GetChildBone(i) != null; i++)
+            {
+                var childBone = characterBones[boneIndex].GetChildBone(i);
+                DrawBoneHierarchy(ref currentTransform, characterBones, rawBones,
+                    m_boneRefToIndex[childBone]);
+            }
         }
     }
 }

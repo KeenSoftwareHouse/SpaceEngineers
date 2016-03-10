@@ -22,7 +22,8 @@ namespace Sandbox.Common.ObjectBuilders
         public string Name;
 
         [ProtoMember, DefaultValue(null)]
-        [Serialize(MyObjectFlags.Dynamic | MyObjectFlags.Nullable, DynamicSerializerType = typeof(MyObjectBuilderDynamicSerializer))]
+        [DynamicNullableObjectBuilderItem]
+        [Serialize(MyObjectFlags.Nullable)]
         public List<MyObjectBuilder_ToolbarItem> Actions = null;
 
         // Used only when sending over network because ProtoBuf cannot handle nulls in array

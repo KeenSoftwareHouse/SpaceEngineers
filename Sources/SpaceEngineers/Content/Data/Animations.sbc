@@ -45,6 +45,7 @@
       <InfluenceArea>Body</InfluenceArea>
       <Public>false</Public>
     </Animation>
+    
 	
 	<!-- End - Idle and Standing -->
 	
@@ -539,8 +540,42 @@
       <AllowInCockpit>true</AllowInCockpit>
       <AllowWithWeapon>true</AllowWithWeapon>
     </Animation>
-	
-	<Animation>
+
+        
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>HelmetOpen</SubtypeId>
+      </Id>
+      <DisplayName>Open Helmet</DisplayName>
+      <Description>Open Helmet</Description>
+      <Icon>Textures\GUI\Icons\Animations\HelmetOpen.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\helmet_open.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>HelmetGlass</InfluenceArea>
+      <Public>true</Public>
+      <AllowInCockpit>true</AllowInCockpit>
+      <AllowWithWeapon>true</AllowWithWeapon>
+    </Animation>
+
+    <Animation>
+      <Id>
+        <TypeId>AnimationDefinition</TypeId>
+        <SubtypeId>HelmetClose</SubtypeId>
+      </Id>
+      <DisplayName>Close Helmet</DisplayName>
+      <Description>Close Helmet</Description>
+      <Icon>Textures\GUI\Icons\Animations\HelmetClose.dds</Icon>
+      <AnimationModel>Models\Characters\Animations\helmet_close.mwm</AnimationModel>
+      <ClipIndex>0</ClipIndex>
+      <InfluenceArea>HelmetGlass</InfluenceArea>
+      <Public>true</Public>
+      <AllowInCockpit>true</AllowInCockpit>
+      <AllowWithWeapon>true</AllowWithWeapon>
+    </Animation>
+
+
+    <Animation>
       <Id>
         <TypeId>AnimationDefinition</TypeId>
         <SubtypeId>HoldingTool</SubtypeId>

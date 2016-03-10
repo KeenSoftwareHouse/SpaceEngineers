@@ -43,9 +43,12 @@ namespace Sandbox.Game.Entities.Cube
             m_statorBlock = stator;
         }
 
-        internal void Detach()
+        internal void Detach(bool isWelding)
         {
-            m_statorBlock = null;
+            if (isWelding == false)
+            {
+                m_statorBlock = null;
+            }
         }
 
         public override void OnUnregisteredFromGridSystems()
@@ -57,6 +60,30 @@ namespace Sandbox.Game.Entities.Cube
                 statorBlock.SyncDetach();
             }
             base.OnUnregisteredFromGridSystems();
+
+            if (Sync.IsServer)
+            {
+                CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
+            }
         }
+
+        public override void OnRegisteredToGridSystems()
+        {
+            base.OnRegisteredToGridSystems();
+
+            if (Sync.IsServer)
+            {
+                CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
+            }
+        }
+
+        protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
+        {
+            if (m_statorBlock != null)
+            {
+                m_statorBlock.OnGridSplit();
+            }
+        }
+
     }
 }

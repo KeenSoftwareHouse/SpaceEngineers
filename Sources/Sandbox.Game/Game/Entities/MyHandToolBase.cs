@@ -26,12 +26,15 @@ using System;
 using Sandbox.Common;
 using VRage;
 using VRage.Game;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
 
 #endregion
 
 
 namespace Sandbox.Game.Entities
 {
+    [StaticEventOwner]
     [MyEntityType(typeof(MyObjectBuilder_HandToolBase))]
     public class MyHandToolBase : MyEntity, IMyHandheldGunObject<MyDeviceBase>, IStoppableAttackingTool
     {
@@ -625,10 +628,13 @@ namespace Sandbox.Game.Entities
                 if (hitDistance > m_toolItemDef.HitDistance)
                     entityDetected = false;
 
-                if ((m_primaryToolAction != null && (m_primaryHitCondition.EntityType != null || entityDetected)) ||
-                    (m_secondaryToolAction != null && (m_primaryHitCondition.EntityType != null || entityDetected)))
+                if (m_primaryToolAction != null && (m_primaryHitCondition.EntityType != null || entityDetected))
                 {
-                    MyHud.Crosshair.ChangeDefaultSprite(MyHudTexturesEnum.HudOre);
+                    MyHud.Crosshair.ChangeDefaultSprite(m_primaryToolAction.Value.Crosshair);
+                }
+                else if (m_secondaryToolAction != null && (m_secondaryHitCondition.EntityType != null || entityDetected))
+                {
+                    MyHud.Crosshair.ChangeDefaultSprite(m_secondaryToolAction.Value.Crosshair);
                 }
                 else
                 {
@@ -793,7 +799,7 @@ namespace Sandbox.Game.Entities
             float attackDelay = delaySec > 0 ? delaySec : AFTER_SHOOT_HIT_DELAY;
 
             // Send stop to clients
-            MySyncHandTool.StopShootingRequest(EntityId, attackDelay);
+            MyMultiplayer.RaiseStaticEvent(s => MyHandToolBase.StopShootingRequest, EntityId, attackDelay);
 
             // Set stop on server
             StopShooting(attackDelay);
@@ -811,6 +817,18 @@ namespace Sandbox.Game.Entities
             m_shotToolAction = null;
 
             m_wasShooting = false;
+        }
+
+        [Event, Reliable, Broadcast]
+        private static void StopShootingRequest(long entityId, float attackDelay)
+        {
+            MyEntity entity = null;
+            MyEntities.TryGetEntityById(entityId, out entity);
+            MyHandToolBase handTool = entity as MyHandToolBase;
+            if (handTool == null)
+                return;
+
+            handTool.StopShooting(attackDelay);
         }
 
         public int CurrentAmmunition { set; get; }

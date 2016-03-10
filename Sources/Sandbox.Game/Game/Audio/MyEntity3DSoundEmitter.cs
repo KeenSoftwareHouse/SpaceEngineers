@@ -389,8 +389,7 @@ namespace Sandbox.Game.Entities
             //          ...but cached MySession.LocalCharacter.OxygenComponent.EnvironmentOxygenLevel can be still on full level!
             if (MySession.Static.LocalCharacter == null)
                 return false;
-            float oxygenOnPlayerPos = MyOxygenProviderSystem.GetOxygenInPoint(MySession.Static.LocalCharacter.PositionComp.GetPosition());
-            return oxygenOnPlayerPos > 0.1f;
+            return MySession.Static.LocalCharacter.InAtmosphere;
         }
 
         private MyCueId SelectCue(MySoundPair sound)

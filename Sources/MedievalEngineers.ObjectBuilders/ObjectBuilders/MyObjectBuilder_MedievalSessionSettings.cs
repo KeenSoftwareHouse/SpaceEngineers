@@ -19,21 +19,9 @@ namespace Medieval.ObjectBuilders
         }
 
         [ProtoMember]
-        [Display(Name = "Enable structural simulation")]
-        [GameRelation(Game.MedievalEngineers)]
-        public bool EnableStructuralSimulation = true;
-
-        [ProtoMember]
         [Display(Name = "Enable barbarians")]
         [GameRelation(Game.MedievalEngineers)]
         public bool EnableBarbarians = true;
-
-        [ProtoMember]
-        [Display(Name = "Max active fracture pieces")]
-        [GameRelation(Game.MedievalEngineers)]
-        [Range(0, int.MaxValue)]
-        //Max of any fracture pieces
-        public int MaxActiveFracturePieces = 50;
 
         [ProtoMember]
         [Display(Name = "Game day in real minutes")]

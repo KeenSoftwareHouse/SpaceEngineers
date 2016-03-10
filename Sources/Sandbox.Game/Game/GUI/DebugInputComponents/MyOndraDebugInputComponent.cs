@@ -318,7 +318,6 @@ namespace Sandbox.Game.Gui
             if (MyInput.Static.IsNewKeyPressed(MyKeys.Multiply))
             {
                 MyDebugDrawSettings.ENABLE_DEBUG_DRAW = !MyDebugDrawSettings.ENABLE_DEBUG_DRAW;
-                MyStructuralIntegrity.Enabled = true;
                 MyDebugDrawSettings.DEBUG_DRAW_STRUCTURAL_INTEGRITY = true;
 
                 var grids = MyEntities.GetEntities().OfType<MyCubeGrid>();

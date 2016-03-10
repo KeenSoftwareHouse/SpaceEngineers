@@ -121,7 +121,11 @@
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_TimerComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_UseObjectsComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ItemAutoswitchComponent.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionsToPreload.cs" />
+    <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyPhysicsComponentDefinitionBase.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_InventoryBagEntity.cs" />
     <Compile Include="Graphics\MyMeshHelper.cs" />
     <Compile Include="Graphics\Particles\MyAnimatedParticle.cs" />
@@ -133,6 +137,7 @@
     <Compile Include="Graphics\Particles\MyParticlesManager.cs" />
     <Compile Include="Graphics\MySimpleObjectDraw.cs" />
     <Compile Include="Graphics\MyTransparentGeometry.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_Rope.cs" />
     <Compile Include="Utils\MyCamera.cs" />
     <Compile Include="Utils\MyCameraZoomProperties.cs" />
     <Compile Include="Common\MyFactoryTagAttribute.cs" />

@@ -67,6 +67,21 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public float CurrentOutput
+        {
+            get { if (SourceComp != null) return SourceComp.CurrentOutput; return 0; }
+        }
+
+        public float CurrentInput
+        {
+            get { if (ResourceSink != null) return ResourceSink.CurrentInput; return 0; }
+        }
+
+        public bool IsCharging
+        {
+            get { return (CurrentInput > CurrentOutput && CurrentInput > 0); }
+        }
+
         public bool SemiautoEnabled
         {
             get { return m_semiautoEnabled; }
@@ -240,7 +255,14 @@ namespace Sandbox.Game.Entities
             bool shouldRecharge = OnlyRecharge || !OnlyDischarge;
             float inputToFillInUpdateInterval = (MaxStoredPower - CurrentStoredPower) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND / m_productionUpdateInterval * SourceComp.ProductionToCapacityMultiplierByType(MyResourceDistributorComponent.ElectricityId);
             float currentOutput = SourceComp.CurrentOutputByType(MyResourceDistributorComponent.ElectricityId);
-            return canRecharge && shouldRecharge ? Math.Min(inputToFillInUpdateInterval + currentOutput, ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId)) : 0.0f;
+
+            float requiredInput = 0;
+            if (canRecharge && shouldRecharge)
+            {
+                float maxRequiredInput = ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId);
+                requiredInput = Math.Min(inputToFillInUpdateInterval + currentOutput, maxRequiredInput);
+            }
+            return requiredInput;
         }
 
         private float ComputeMaxPowerOutput()

@@ -115,9 +115,6 @@ echo     ^</Reference^>>> %scriptProjectFile%
 echo     ^<Reference Include="SpaceEngineers.ObjectBuilders"^>>>%scriptProjectFile%
 echo       ^<HintPath^>%appdir%\SpaceEngineers.ObjectBuilders.dll^</HintPath^>>>%scriptProjectFile%
 echo     ^</Reference^>>> %scriptProjectFile%
-echo     ^<Reference Include="MedievalEngineers.ObjectBuilders"^>>>%scriptProjectFile%
-echo       ^<HintPath^>%appdir%\MedievalEngineers.ObjectBuilders.dll^</HintPath^>>>%scriptProjectFile%
-echo     ^</Reference^>>> %scriptProjectFile%
 echo   ^</ItemGroup^>>>%scriptProjectFile%
 echo ^<ItemGroup^>>>%scriptProjectFile%
 echo     ^<Compile Include="ModAPISample.cs" /^> >>%scriptProjectFile% 

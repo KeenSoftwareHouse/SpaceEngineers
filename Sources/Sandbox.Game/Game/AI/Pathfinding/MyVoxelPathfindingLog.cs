@@ -101,7 +101,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 StreamReader logFile = new StreamReader(path);
                 string line = null;
                 String nmopRegex = "NMOP: Voxel NavMesh: (\\S+) (ADD|REM) \\[X:(\\d+), Y:(\\d+), Z:(\\d+)\\]";
-                String voxopRegex = "VOXOP: (\\S+) \\[X:(\\d+), Y:(\\d+), Z:(\\d+)\\] \\[X:(\\d+), Y:(\\d+), Z:(\\d+)\\] (\\S+) (\\S+)";
+                String voxopRegex = "VOXOP: (\\S*) \\[X:(\\d+), Y:(\\d+), Z:(\\d+)\\] \\[X:(\\d+), Y:(\\d+), Z:(\\d+)\\] (\\S+) (\\S+)";
 
                 while ((line = logFile.ReadLine()) != null)
                 {

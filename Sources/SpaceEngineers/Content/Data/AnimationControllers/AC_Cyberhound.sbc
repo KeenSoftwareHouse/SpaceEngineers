@@ -29,9 +29,11 @@
                   <X>282</X>
                   <Y>-25</Y>
                 </EdPos>
-                <AnimationName>CyberhoundIdle1</AnimationName>
+                <PathToModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Idle_01.mwm</PathToModel>
+                <AnimationName>AnimStack::cyberhound animations</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
               </Child>
             </AnimationTree>
             <EdPos>
@@ -59,9 +61,11 @@
                       <X>488</X>
                       <Y>-89</Y>
                     </EdPos>
-                    <AnimationName>CyberhoundWalk</AnimationName>
+                    <PathToModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Walk.mwm</PathToModel>
+                    <AnimationName>AnimStack::cyberhound animations</AnimationName>
                     <Loop>true</Loop>
                     <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
                   </Node>
                 </Child>
                 <Child>
@@ -71,9 +75,11 @@
                       <X>468</X>
                       <Y>105</Y>
                     </EdPos>
-                    <AnimationName>CyberhoundRun</AnimationName>
+                    <PathToModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Run.mwm</PathToModel>
+                    <AnimationName>AnimStack::cyberhound animations</AnimationName>
                     <Loop>true</Loop>
                     <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
                   </Node>
                 </Child>
               </Child>
@@ -92,12 +98,14 @@
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                 <EdPos>
-                  <X>446</X>
-                  <Y>-16</Y>
+                  <X>321</X>
+                  <Y>-81</Y>
                 </EdPos>
-                <AnimationName>CyberhoundAttack</AnimationName>
+                <PathToModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Attack.mwm</PathToModel>
+                <AnimationName>AnimStack::cyberhound animations</AnimationName>
                 <Loop>false</Loop>
                 <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
               </Child>
             </AnimationTree>
             <EdPos>
@@ -117,9 +125,11 @@
                   <X>453</X>
                   <Y>-49</Y>
                 </EdPos>
-                <AnimationName>CyberhoundDied</AnimationName>
+                <PathToModel>Models\Characters\Animations\Creatures\Cyberhound\Cyberhound_Death.mwm</PathToModel>
+                <AnimationName>AnimStack::ME_wolf_2012</AnimationName>
                 <Loop>false</Loop>
                 <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
               </Child>
             </AnimationTree>
             <EdPos>
@@ -136,7 +146,6 @@
               </Conjunction>
             </Conditions>
           </Transition>
-          <Transition Name="Attack" From="Idle" To="Attack" TimeInSec="0.1" Sync="Restart" />
           <Transition Name="Attack" From="Move" To="Attack" TimeInSec="0.1" Sync="Restart" />
           <Transition From="Attack" To="Idle" TimeInSec="0.2" Sync="Restart">
             <Conditions>
@@ -182,6 +191,7 @@
               </Conjunction>
             </Conditions>
           </Transition>
+          <Transition Name="Attack" From="Idle" To="Attack" TimeInSec="0.1" Sync="Restart" />
         </Transitions>
       </StateMachine>
     </StateMachines>

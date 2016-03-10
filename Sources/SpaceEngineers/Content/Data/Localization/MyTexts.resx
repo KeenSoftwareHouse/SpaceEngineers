@@ -3332,7 +3332,7 @@ Characters leaving the game area will be killed.</value>
     <value>Main method not found. Please add Main method into script.</value>
   </data>
   <data name="ProgrammableBlock_Exception_TooComplex" xml:space="preserve">
-    <value>Script execution terminated, script is too complex. Please edit and rebuilt script.</value>
+    <value>Script execution terminated, script is too complex. Please edit and rebuild script.</value>
   </data>
   <data name="ProgrammableBlock_SaveChanges" xml:space="preserve">
     <value>Do you want to remember changes ?</value>
@@ -5391,5 +5391,8 @@ and can also be used by some mods to create advanced logic and effects.</value>
   </data>
   <data name="BlockPropertyTitle_WeldSpeed" xml:space="preserve">
     <value>Safety lock speed</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NestedTooComplex" xml:space="preserve">
+    <value>Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.</value>
   </data>
 </root>

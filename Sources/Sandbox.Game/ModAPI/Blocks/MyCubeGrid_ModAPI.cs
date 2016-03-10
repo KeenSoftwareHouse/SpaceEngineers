@@ -11,6 +11,11 @@ namespace Sandbox.Game.Entities
 {
     public partial class MyCubeGrid : IMyCubeGrid
     {
+        IMySlimBlock IMyCubeGrid.AddBlock(MyObjectBuilder_CubeBlock objectBuilder, bool testMerge)
+        {
+            return AddBlock(objectBuilder, testMerge);
+        }
+
         void IMyCubeGrid.ApplyDestructionDeformation(IMySlimBlock block)
         {
             if (block is MySlimBlock)

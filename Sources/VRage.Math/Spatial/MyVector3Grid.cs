@@ -319,6 +319,8 @@ namespace VRageMath.Spatial
                             removed = true;
                             break;
                         }
+
+                        currentPtr = nextPtr;
                     }
                     Debug.Assert(removed, "Did not remove the entry in the old bin!");
                 }

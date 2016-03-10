@@ -173,10 +173,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MedievalEngineers.ObjectBuilders\MedievalEngineers.ObjectBuilders.csproj">
-      <Project>{9e11ca22-11b8-42b1-acda-3747a3b2bdbd}</Project>
-      <Name>MedievalEngineers.ObjectBuilders</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2C96F0AB-7962-4B73-A075-B0E0B09F6195}</Project>
       <Name>Sandbox.Common</Name>

@@ -420,7 +420,11 @@ namespace Sandbox.Game.Weapons
         }
 
         public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
-        {            
+        {
+            // Don't shoot when the grid doesn't have physics.
+            if (Parent.Physics == null)
+                return;
+
             //  Angle of muzzle flash particle
             m_muzzleFlashLength = MyUtils.GetRandomFloat(3, 4);// *m_barrel.GetMuzzleSize();
             m_muzzleFlashRadius = MyUtils.GetRandomFloat(0.9f, 1.5f);// *m_barrel.GetMuzzleSize();
@@ -541,7 +545,8 @@ namespace Sandbox.Game.Weapons
 
         private void StopLoopSound()
         {
-            m_soundEmitter.StopSound(true);
+            if(m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
         }
 
         private void StartLoopSound()

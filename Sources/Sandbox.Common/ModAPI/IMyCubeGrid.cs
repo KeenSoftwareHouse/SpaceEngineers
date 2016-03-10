@@ -245,6 +245,14 @@ namespace Sandbox.ModAPI
         void UpdateOwnership(long ownerId, bool isFunctional);
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
 
+        /// <summary>
+        /// Add a cubeblock to the grid
+        /// </summary>
+        /// <param name="objectBuilder">Object builder of cube to add</param>
+        /// <param name="testMerge">test for grid merging</param>
+        /// <returns></returns>
+        IMySlimBlock AddBlock(MyObjectBuilder_CubeBlock objectBuilder, bool testMerge);
+
         //Missing dependencies
         //void BuildBlocks(long buildBy, ref IMyCubeGrid.MyBlockBuildArea area);
         //void BuildBlocks(VRageMath.Vector3 colorMaskHsv, System.Collections.Generic.HashSet<IMyCubeGrid.MyBlockLocation> locations);

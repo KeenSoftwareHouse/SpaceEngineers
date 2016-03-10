@@ -15,11 +15,13 @@ using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Input;
+using VRage.Network;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Components
 {
+    [StaticEventOwner]
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     class MySessionComponentThrower : MySessionComponentBase
     {
@@ -115,7 +117,7 @@ namespace Sandbox.Game.Components
                 }
 
                 gridBuilders[0].EntityId = MyEntityIdentifier.AllocateId();
-                MySyncThrower.RequestThrow(gridBuilders[0], position, linearVelocity, mass, CurrentDefinition.ThrowSound);
+                MyMultiplayer.RaiseStaticEvent(s => MySessionComponentThrower.OnThrowMessageSuccess, gridBuilders[0], position, linearVelocity, mass, CurrentDefinition.ThrowSound);
 
                 m_startTime = 0;
             }
@@ -201,6 +203,12 @@ namespace Sandbox.Game.Components
         private void CurrentToolbar_Unselected(MyToolbar toolbar)
         {
             Enabled = false;
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        static void OnThrowMessageSuccess(MyObjectBuilder_CubeGrid grid, Vector3D position, Vector3D linearVelocity, float mass, MyCueId throwSound)
+        {
+            MySessionComponentThrower.Static.Throw(grid, position, linearVelocity, mass, throwSound);
         }
     }
 }

@@ -245,6 +245,19 @@ namespace VRageRender
                 MyRwTextures.Destroy(ref CascadesHelper);
                 MyRwTextures.Destroy(ref m_gbuffer1Copy);
             }
+
+            if(m_lastScreenDataResource != null && m_lastScreenDataResource != Backbuffer)
+            {
+                m_lastScreenDataResource.Release();
+                m_lastScreenDataResource = null;
+            }
+
+            if(m_lastDataStream != null)
+            {
+                m_lastDataStream.Dispose();
+                m_lastDataStream = null;
+            }
+
         }
 
         internal static void CreateScreenResources()

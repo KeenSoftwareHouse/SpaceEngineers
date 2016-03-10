@@ -42,6 +42,7 @@ namespace Sandbox.Game.GameSystems
         private float m_maxRequiredPowerInput;
 
         private Vector3 m_overrideTargetVelocity;
+        private int m_framesFromLastOverride;
 
         #endregion
 
@@ -113,7 +114,7 @@ namespace Sandbox.Game.GameSystems
             gyro.SlimBlock.ComponentStack.IsFunctionalChanged -= ComponentStack_IsFunctionalChanged;
         }
 
-        public void UpdateBeforeSimulationOld()
+        private void UpdateGyros()
         {
             if (m_grid.Physics == null)
                 return;
@@ -199,6 +200,49 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
+        private void UpdateOverriddenGyros()
+        {
+            // Not checking whether engines are running, since ControlTorque should be 0 when
+            // engines are stopped (set by cockpit).
+            if (ResourceSink.SuppliedRatio > 0f && m_grid.Physics.Enabled && !m_grid.Physics.RigidBody.IsFixed)
+            {
+                Matrix invWorldRot = m_grid.PositionComp.WorldMatrixInvScaled.GetOrientation();
+                Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
+                Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
+
+                Vector3 desiredAcceleration = (m_overrideTargetVelocity - localAngularVelocity) * MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+
+                // CH: CAUTION: Don't try to use InertiaTensor, although it might be more intuitive in some cases.
+                // I tried it and it's not an inverse of the InverseInertiaTensor! Only the InverseInertiaTensor seems to be correct!
+                var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
+                Vector3 invTensorVector = new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
+                var minInvTensor = invTensorVector.Min();
+
+                // This is to ensure that the correction is done uniformly in all axes
+                desiredAcceleration = desiredAcceleration * Vector3.Normalize(invTensorVector);
+
+                // Calculate the desired velocity correction torque
+                Vector3 desiredTorque = desiredAcceleration / invTensorVector;
+
+                // Apply rotation limiters
+                float divider = Math.Max(1, minInvTensor * INV_TENSOR_MAX_LIMIT);
+                Torque = (ControlTorque * m_maxGyroForce + desiredTorque) / divider;
+                Torque *= ResourceSink.SuppliedRatio;
+
+                // Damp the torque dynamically so stopping the ship abruptly looks good
+                Torque *= m_framesFromLastOverride / MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+
+                if (m_framesFromLastOverride < MyEngineConstants.UPDATE_STEPS_PER_SECOND)
+                    m_framesFromLastOverride++;
+
+                if (Torque.LengthSquared() > 0.0001f)
+                    m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque);
+            }
+        }
+
+        // NOTE: This method had problems with overridden gyros, so it's not used anymore in the normal
+        //  code path. It is still used in the autopilot code path, though. For reference on the new code
+        // look at UpdateOverriddenGyros()
         public Vector3 GetAngularVelocity(Vector3 control)
         {
             /*if (m_grid.GridControllers.IsControlledByLocalPlayer || (!m_grid.GridControllers.IsControlledByAnyPlayer && Sync.IsServer) || (false && Sync.IsServer))
@@ -290,7 +334,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                     MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Old gyros", Color.White, 1.0f);
-                UpdateBeforeSimulationOld();
+                UpdateGyros();
                 return;
             }
 
@@ -298,9 +342,7 @@ namespace Sandbox.Game.GameSystems
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 
             if (m_grid.Physics != null)
-            {
-                m_grid.Physics.AngularVelocity = GetAngularVelocity(ControlTorque);
-            }
+                UpdateOverriddenGyros();
         }
 
         private void RecomputeGyroParameters()
@@ -312,6 +354,7 @@ namespace Sandbox.Game.GameSystems
             m_maxOverrideForce = 0.0f;
             m_maxRequiredPowerInput = 0.0f;
             m_overrideTargetVelocity = Vector3.Zero;
+            m_framesFromLastOverride = 1;
             foreach (var gyro in m_gyros)
             {
                 if (IsUsed(gyro))
@@ -326,8 +369,8 @@ namespace Sandbox.Game.GameSystems
                     m_maxRequiredPowerInput += gyro.RequiredPowerInput;
                 }
             }
-            if ((m_maxOverrideForce + m_maxGyroForce) != 0.0f)
-                m_overrideTargetVelocity /= (m_maxOverrideForce + m_maxGyroForce);
+            if (m_maxOverrideForce != 0.0f)
+                m_overrideTargetVelocity /= m_maxOverrideForce;
 
             ResourceSink.MaxRequiredInput = m_maxRequiredPowerInput;
             ResourceSink.Update();

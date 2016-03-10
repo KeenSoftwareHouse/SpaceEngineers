@@ -77,7 +77,12 @@ namespace Sandbox.Game.Screens.Terminal.Controls
         }
 
         public abstract TValue GetDefaultValue(TBlock block);
-        public abstract TValue GetMininum(TBlock block);
+        [Obsolete("Use GetMinimum instead")]
+        public TValue GetMininum(TBlock block)
+        {
+            return GetMinimum(block);
+        }
+        public abstract TValue GetMinimum(TBlock block);
         public abstract TValue GetMaximum(TBlock block);
 
         public TValue GetValue(ModAPI.Ingame.IMyCubeBlock block)
@@ -95,9 +100,15 @@ namespace Sandbox.Game.Screens.Terminal.Controls
             return GetDefaultValue(((TBlock)block));
         }
 
+        [Obsolete("Use GetMinimum instead")]
         public TValue GetMininum(ModAPI.Ingame.IMyCubeBlock block)
         {
-            return GetMininum(((TBlock)block));
+            return GetMinimum(((TBlock)block));
+        }
+
+        public TValue GetMinimum(ModAPI.Ingame.IMyCubeBlock block)
+        {
+            return GetMinimum(((TBlock)block));
         }
 
         public TValue GetMaximum(ModAPI.Ingame.IMyCubeBlock block)

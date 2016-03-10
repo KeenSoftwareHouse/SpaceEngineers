@@ -236,6 +236,7 @@ namespace VRageRender
         public int ShadowCascadeCount = 4;
         public bool ShowShadowCascadeSplits = false;
         public bool UpdateCascadesEveryFrame = false;
+        public bool EnableShadowBlur = true;
         public float ShadowCascadeMaxDistance = 300.0f;
         public float ShadowCascadeMaxDistanceMultiplierMedium = 2f;
         public float ShadowCascadeMaxDistanceMultiplierHigh = 3.5f;
@@ -329,6 +330,7 @@ namespace VRageRender
 
             ShadowCascadeCount = settings.ShadowCascadeCount;
             ShowShadowCascadeSplits = settings.ShowShadowCascadeSplits;
+            EnableShadowBlur = settings.EnableShadowBlur;
             ShadowInterleaving = settings.ShadowInterleaving;
             UpdateCascadesEveryFrame = settings.UpdateCascadesEveryFrame;
 			ShadowCascadeMaxDistanceMultiplierMedium = settings.ShadowCascadeMaxDistanceMultiplierMedium;

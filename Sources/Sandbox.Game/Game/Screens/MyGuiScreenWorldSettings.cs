@@ -841,10 +841,20 @@ namespace Sandbox.Game.Gui
                 }
                 else
                 {
-                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
-                        messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed),
-                        buttonType: MyMessageBoxButtonsType.OK));
+                    if (MySteam.IsOnline)
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                             messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                             messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed),
+                             buttonType: MyMessageBoxButtonsType.OK));
+                    }
+                    else
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                                      messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                                                      messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailedSteamOffline),
+                                                      buttonType: MyMessageBoxButtonsType.OK));
+                    }
                 }
                 MyLog.Default.WriteLine("StartNewSandbox - End");
             });

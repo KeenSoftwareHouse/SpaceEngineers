@@ -157,5 +157,19 @@ namespace Sandbox.Game.Entities.Blocks
                 m_soundEmitter.StopSound(true);
             base.StopDamageEffect();
         }
+
+#region IMySolarPanel interface
+
+        public float CurrentOutput
+        {
+            get { if (SourceComp != null) return SourceComp.CurrentOutput; return 0; }
+        }
+
+        public float MaxOutput
+        {
+            get { if (SourceComp != null) return SourceComp.MaxOutput; return 0; }
+        }
+
+#endregion
     }
 }

@@ -1485,6 +1485,8 @@ namespace Sandbox.Game.EntityComponents
 		    ProfilerShort.Begin("Non-zero inputs");
 		    float totalAvailableResource = availableResource;
 		    int sinkPriorityIndex = startPriorityIdx;
+
+            // Distribute power over the sinks by priority
 			for (; sinkPriorityIndex < sinksByPriority.Length; ++sinkPriorityIndex)
 		    {
 				sinkDataByPriority[sinkPriorityIndex].RemainingAvailableResource = availableResource;
@@ -1529,6 +1531,7 @@ namespace Sandbox.Game.EntityComponents
             ProfilerShort.End();
             float consumptionForNonStorage = totalAvailableResource - availableResource + (startPriorityIdx != 0 ? sinkDataByPriority[0].RemainingAvailableResource - sinkDataByPriority[startPriorityIdx].RemainingAvailableResource : 0f);
 
+            // Distribute remaining energy over stockpiling storage
 	        float totalAvailableResourcesForStockpiles = Math.Max(totalAvailableResource - consumptionForNonStorage, 0);
 	        float availableResourcesForStockpiles = totalAvailableResourcesForStockpiles;
             if (stockpilingStorageList.Count > 0)
@@ -1561,8 +1564,9 @@ namespace Sandbox.Game.EntityComponents
                 ProfilerShort.End();
             }
 
+            // Distribute remaining power over non-stockpiling storage
 	        float consumptionForStockpiles = totalAvailableResourcesForStockpiles - availableResourcesForStockpiles;
-            float totalAvailableResourcesForStorage = Math.Max(totalAvailableResource - sinkSourceData.Item2.MaxAvailableResource - consumptionForNonStorage - consumptionForStockpiles, 0);
+            float totalAvailableResourcesForStorage = Math.Max(totalAvailableResource - (sinkSourceData.Item2.MaxAvailableResource - sinkSourceData.Item2.MaxAvailableResource * sinkSourceData.Item2.UsageRatio) - consumptionForNonStorage - consumptionForStockpiles, 0);
             float availableResourcesForStorage = totalAvailableResourcesForStorage;
             if (otherStorageList.Count > 0)
             {

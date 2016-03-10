@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    partial class MyTextPanel : Sandbox.ModAPI.Ingame.IMyTextPanel
+    partial class MyTextPanel : Sandbox.ModAPI.IMyTextPanel
     {
         private StringBuilder m_publicTitleHelper = new StringBuilder();
         private StringBuilder m_privateTitleHelper = new StringBuilder();
@@ -268,6 +268,38 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
             SyncObject.SendRemoveSelectedImageRequest(selection.ToArray());
+        }
+
+        void ModAPI.Ingame.IMyTextPanel.GetSelectedImages(List<string> output)
+        {
+            foreach (var item in m_selectedTexturesToDraw)
+            {
+                output.Add(item.Id.SubtypeName);
+            }
+        }
+
+        string ModAPI.Ingame.IMyTextPanel.CurrentlyShownImage
+        {
+            get
+            {
+                if (m_selectedTexturesToDraw.Count == 0)
+                    return null;
+
+                if (m_currentPos >= m_selectedTexturesToDraw.Count)
+                    return m_selectedTexturesToDraw[0].Id.SubtypeName;
+
+                return m_selectedTexturesToDraw[m_currentPos].Id.SubtypeName;
+            }
+        }
+
+        ShowTextOnScreenFlag ModAPI.Ingame.IMyTextPanel.ShowOnScreen
+        {
+            get { return ShowTextFlag; }
+        }
+
+        bool ModAPI.Ingame.IMyTextPanel.ShowText
+        {
+            get { return ShowTextOnScreen; }
         }
     }
 }
