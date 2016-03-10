@@ -507,8 +507,12 @@ namespace Sandbox.Game.Entities.Blocks
                                 MyHud.Notifications.Add(MyNotificationSingletons.ObstructingBlockDuringMerge);
                             return;
                         }
+
                         var handle = BeforeMerge;
                         if (handle != null) BeforeMerge();
+                        handle = m_other.BeforeMerge;
+                        if (handle != null) m_other.BeforeMerge();
+
                         if (Sync.IsServer)
                         {
                             foreach (var block in CubeGrid.GetBlocks())
