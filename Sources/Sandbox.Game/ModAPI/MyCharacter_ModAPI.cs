@@ -52,8 +52,18 @@ namespace Sandbox.Game.Entities.Character
         }
 
         IMyInventory IMyInventoryOwner.GetInventory(int index)
-        {            
+        {
             return MyEntityExtensions.GetInventory(this, index);
+        }
+
+        VRage.Game.MyCharacterMovementEnum VRage.Game.ModAPI.IMyCharacter.GetCurrentMovementState()
+        {
+            return this.GetCurrentMovementState();
+        }
+
+        VRage.Game.ModAPI.IMyPlayer VRage.Game.ModAPI.IMyCharacter.GetPlayer()
+        {
+            return Sandbox.Game.World.MyPlayer.GetPlayerFromCharacter(this);
         }
     }
 }
