@@ -1809,6 +1809,17 @@ namespace Sandbox.Game.Entities.Blocks
             OnBlueprintScreen_Closed(null);
             return success;
         }
+
+        MyObjectBuilder_CubeGrid ModAPI.IMyProjector.LoadedBlueprint {
+            get {
+                if (m_originalGridBuilder != null) {
+                    return (MyObjectBuilder_CubeGrid)m_originalGridBuilder.Clone();
+                }
+                else {
+                    return null;
+                }
+            }
+        }
         #endregion
 
     }

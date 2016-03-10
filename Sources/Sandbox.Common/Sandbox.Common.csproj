@@ -145,6 +145,7 @@
     <Compile Include="ModAPI\IMyGamePaths.cs" />
     <Compile Include="ModAPI\IMyPrefabManager.cs" />
     <Compile Include="ModAPI\IMyProductionBlock.cs" />
+    <Compile Include="ModAPI\IMyProjector.cs" />
     <Compile Include="ModAPI\IMyReactor.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
     <Compile Include="ModAPI\IMyShipDrill.cs" />
