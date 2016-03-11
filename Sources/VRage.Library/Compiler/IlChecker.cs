@@ -93,6 +93,10 @@ namespace VRage.Compiler
                 rt.GetMethod("op_Inequality"),
                 rt.GetMethod("GetFields", new Type[] { typeof(System.Reflection.BindingFlags) }),
             };
+            
+            var members = new List<MemberInfo>();
+            members.Add(typeof(System.Environment).GetProperty("CurrentManagedThreadId").GetGetMethod());
+            AllowedOperands.Add(typeof(System.Environment), members);
 
             AllowedOperands[typeof(Type)] = new List<MemberInfo>()
             {
@@ -117,6 +121,7 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.DivideByZeroException), null);
             AllowedOperands.Add(typeof(System.InvalidCastException), null);
             AllowedOperands.Add(typeof(System.IO.FileNotFoundException), null);
+            AllowedOperands.Add(typeof(System.NotSupportedException), null);
 
             var t = typeof(MethodInfo).Assembly.GetType("System.Reflection.RuntimeMethodInfo");
             //AllowedOperands[t] = new List<MemberInfo>() { t.GetMethod("Equals") };
