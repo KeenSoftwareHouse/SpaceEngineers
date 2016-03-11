@@ -1419,6 +1419,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MyTSF\MyTSF.vcxproj">
+      <Project>{fb22f4d2-4ef6-4e67-bc16-72ca7e3919dc}</Project>
+      <Name>MyTSF</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2c96f0ab-7962-4b73-a075-b0e0b09f6195}</Project>
       <Name>Sandbox.Common</Name>

@@ -7,24 +7,13 @@ struct FoliageSet
     float Density;
     uint MaterialIndex;
     uint MaterialId;
+    float __padding;
 };
 
 cbuffer FoliageConstantBuffer : register( MERGE(b, FOLIAGE_SLOT) ) 
 {
     FoliageSet FoliageConstants;
 };
-
-uint2 packed_float4(float4 p)
-{
-	return uint2(f32tof16(p.x) | (f32tof16(p.y) << 16), f32tof16(p.z) | (f32tof16(p.w) << 16 ));
-}
-
-uint2 pack_normal(float3 v)
-{
-	uint2 p = (v.xz * 0.5 + 0.5) * uint2(255, 127);
-	p.y |= (1 << 7) * (v.y > 0);
-	return p;
-}
 
 FoliageStreamGeometryOutputVertex SpawnPoint(FoliageStreamVertex vertices[3], uint seed)
 {
@@ -35,13 +24,13 @@ FoliageStreamGeometryOutputVertex SpawnPoint(FoliageStreamVertex vertices[3], ui
     float b = (1-r2)*sqrt(r1);
     float c = r2*sqrt(r1);
 
-    float3 position = vertices[0].position * a + vertices[1].position * b + vertices[2].position * c;
+    float3 position = a * vertices[0].position + b * vertices[1].position + c * vertices[2].position;
 
-    uint2 packedNormal = pack_normal(normalize(vertices[0].normal + vertices[1].normal + vertices[2].normal));
+    uint2 packedNormal = PackNormal(normalize(vertices[0].normal + vertices[1].normal + vertices[2].normal));
     
     FoliageStreamGeometryOutputVertex resultVertex;
     resultVertex.position = position;
-    resultVertex.NormalSeedMaterialId = packedNormal.x | (packedNormal.y << 8) | ((seed % 0x100) << 16) | (FoliageConstants.MaterialId << 24);
+    resultVertex.NormalSeedMaterialId = packedNormal.x | (packedNormal.y << 8) | ((seed % 0x100) << 16) | ((FoliageConstants.MaterialId % 0x100) << 24);
     return resultVertex;
 }
 
@@ -49,7 +38,6 @@ float triangle_area(float3 v0, float3 v1, float3 v2)
 {
 	return length(cross(v1 - v0, v2 - v0)) * 0.5f;
 }
-
 
 uint combine_hashes(uint h0, uint h1) {
     return (17 * 31 + h0) * 31 + h1;
@@ -86,7 +74,7 @@ void __geometry_shader(triangle FoliageStreamVertex input[3], uint primitiveID :
     spawnCount = min(spawnCount, MAX_FOLIAGE_PER_TRIANGLE);
     for ( int pointIndex = 0; pointIndex < spawnCount; ++pointIndex )
 	{
-        point_stream.Append(SpawnPoint(input, seed));
+        point_stream.Append(SpawnPoint(input, (seed + pointIndex) % 0x100));
 	}
 	if ( random(seed) < spawnFraction )
 	{

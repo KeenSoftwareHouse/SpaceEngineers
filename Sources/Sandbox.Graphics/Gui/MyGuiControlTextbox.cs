@@ -9,7 +9,6 @@ using System.Threading;
 using System.Windows.Forms;
 
 using MyIME;
-using MyIMESystem;
 
 using VRage.Game;
 using VRage.Input;
@@ -28,20 +27,17 @@ namespace MyIME
 		}
 		public static void IMEStart(string refText,int defPos)
 		{
-			MyIMESystem.MyIME.IMEStart();
 			static_ime.bText = new StringBuilder();
 			static_ime.rText = new StringBuilder(refText);
 			static_ime.RPos = defPos;
 			static_ime.IMEPos = 0;
 			static_ime.Act = true;
 			static_ime.nocomp = true;
-			static_ime.sm = SMode.hiragana;
 		}
 		public static void IMEEnd()
 		{
 			static_ime.Act = false;
 			static_ime.nocomp = false;
-			MyIMESystem.MyIME.IMEEnd();
 		}
 		static MyIMEControl()
 		{
@@ -63,17 +59,7 @@ namespace MyIME
 		{
 			get
 			{
-				switch(sm)
-				{
-					case SMode.hiragana:
-						return bText.ToString().Replace('-','ー');
-					case SMode.katakana:
-						return Convert(bText.ToString()).Replace('-','ー');
-					case SMode.kannji:
-						return Convert2(bText.ToString()).Replace('-','ー');
-					default:
-						return bText.ToString().Replace('-','ー');
-				}
+				return bText.ToString();
 			}
 			set
 			{
@@ -85,7 +71,6 @@ namespace MyIME
 		}
 		string bufText;
 		int IMEPos, RPos;
-		SMode sm;
 		#endregion
 
 		#region Action
@@ -118,7 +103,9 @@ namespace MyIME
 								if (bText.Length != 0)
 									bText.Remove(bText.Length - 1, 1);
 							}
-							tText = PreConvert(tText);
+							MyTSF.MyIME.SetTarget(tText);
+							tText = MyTSF.MyIME.PreConvert();
+							comvMode = false;
 							Move(IMEPos - 1);
 						}
 						break;
@@ -132,20 +119,27 @@ namespace MyIME
 							{
 								bText.Append(t);
 							}
-							tText = PreConvert(tText);
+							MyTSF.MyIME.SetTarget(tText);
+							tText = MyTSF.MyIME.PreConvert();
+							comvMode = false;
 							Move(IMEPos + 1);
 							nocomp = !nocomp;
 						}
 						break;
 					case ' ':
 						{
-							sm++;
-							sm = (SMode)((int)sm % 3);
+							if(!comvMode)
+							{
+								MyTSF.MyIME.SetConvert();
+								comvMode = true;
+							}
+							tText = MyTSF.MyIME.Convert();
+							Move(IMELength);
 						}
 						break;
 					case '\n':
 						{
-							IMEEnd();
+							Reflush();
 						}
 						break;
 					default:
@@ -159,7 +153,9 @@ namespace MyIME
 							{
 								bText.Append(t);
 							}
-							tText = PreConvert(tText);
+							MyTSF.MyIME.SetTarget(tText);
+							tText = MyTSF.MyIME.PreConvert();
+							comvMode = false;
 							Move(IMEPos + 1);
 						}
 						break;
@@ -193,27 +189,6 @@ namespace MyIME
 		}
 		#endregion
 
-		#region ConvertMethod
-		string Convert2(string buf)
-		{
-			return MyIMESystem.MyIME.HToK(buf);
-		}
-		string Convert(string buf)
-		{
-			return MyIMESystem.MyIME.HToKK(buf);
-		}
-		string PreConvert(string buf)
-		{
-			return MyIMESystem.MyIME.RToH(buf);
-		}
-		#endregion
-
-		enum SMode : int
-		{
-			hiragana = 0,
-			kannji = 1,
-			katakana = 2
-		}
 	}
 
 }

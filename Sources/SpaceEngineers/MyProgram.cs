@@ -46,7 +46,6 @@ namespace SpaceEngineers
         private static MySplashScreen splashScreen;
 
         //  Main method
-		[STAThread]
         static void Main(string[] args)
         {
             if (args.Contains("-report"))

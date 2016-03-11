@@ -27,6 +27,10 @@
     <CodeAnalysisFailOnMissingRules>true</CodeAnalysisFailOnMissingRules>
     <NoWarn>162,612,618,429,414,169,649</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -103,7 +107,6 @@
     <Compile Include="Gui\ThrottledKeyStatus.cs" />
     <Compile Include="MyControlsGUI.cs" />
     <Compile Include="MyGuiSoundManager.cs" />
-    <Compile Include="MyIME.cs" />
     <Compile Include="MyScreenManager.cs" />
     <Compile Include="Gui\MyColoredText.cs" />
     <Compile Include="Gui\MyGuiCompositeTexture.cs" />
@@ -173,6 +176,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MyTSF\MyTSF.vcxproj">
+      <Project>{fb22f4d2-4ef6-4e67-bc16-72ca7e3919dc}</Project>
+      <Name>MyTSF</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2C96F0AB-7962-4B73-A075-B0E0B09F6195}</Project>
       <Name>Sandbox.Common</Name>

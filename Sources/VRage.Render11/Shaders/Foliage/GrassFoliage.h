@@ -16,38 +16,35 @@ float3 CalculateWindOffset(float3 position)
     return normalize(wind_d) * dot(waves, 0.25);
 }
 
-void SpawnBillboard(float3 position, float3 InstancePosition, float3x3 onb, float2 scale, float3 surfaceNormal, uint textureIndex, inout TriangleStream<RenderingPixelInput> triangle_stream)
+void SpawnBillboard(float3 position, float3 InstancePosition, float2 scale, float3 surfaceNormal, float3 surfaceTangent, uint textureIndex, inout TriangleStream<RenderingPixelInput> triangle_stream)
 {
     RenderingPixelInput vertex;
-    float3 tanx = onb[0];
-    float3 tany = onb[1];
-    float3 N = onb[2];
     scale.x *= 0.5;
 
     float3 windOffset = CalculateWindOffset(InstancePosition);
-    N = normalize(N + windOffset);
+    float3 adjustedNormal = normalize(surfaceNormal + windOffset);
 
     vertex.normal = normalize(surfaceNormal);
-    vertex.tangent = normalize(tanx);
+    vertex.tangent = normalize(surfaceTangent);
 
-    float3 downLeftPosition = mad(scale.x, -tanx, position);
-    float3 downRightPosition = mad(scale.x, tanx, position);
-    float3 upLeftPosition = mad(N, scale.y, downLeftPosition);
-    float3 upRightPosition = mad(N, scale.y, downRightPosition);
+    float3 downLeftPosition = mad(scale.x, -surfaceTangent, position);
+    float3 downRightPosition = mad(scale.x, surfaceTangent, position);
+    float3 upLeftPosition = mad(adjustedNormal, scale.y, downLeftPosition);
+    float3 upRightPosition = mad(adjustedNormal, scale.y, downRightPosition);
 
-    vertex.position = world_to_clip(downLeftPosition);
+    vertex.position = WorldToClip(downLeftPosition);
     vertex.texcoord = float3(0, 1, textureIndex);
     triangle_stream.Append(vertex);
 
-    vertex.position = world_to_clip(downRightPosition);
+    vertex.position = WorldToClip(downRightPosition);
     vertex.texcoord = float3(1, 1, textureIndex);
     triangle_stream.Append(vertex);
 
-    vertex.position = world_to_clip(upLeftPosition);
+    vertex.position = WorldToClip(upLeftPosition);
     vertex.texcoord = float3(0, 0, textureIndex);
     triangle_stream.Append(vertex);
 
-    vertex.position = world_to_clip(upRightPosition);
+    vertex.position = WorldToClip(upRightPosition);
     vertex.texcoord = float3(1, 0, textureIndex);
 
     triangle_stream.Append(vertex);

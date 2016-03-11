@@ -90,7 +90,15 @@ namespace Sandbox.Engine.Platform
             BypassedMessages.Add((int)WinApi.WM.KILLFOCUS);
 
             BypassedMessages.Add((int)WinApi.WM.IME_NOTIFY);
+
+			MyTSF.MyIME.IMEStart(Handle);
+
         }
+		
+		~GameWindowForm()
+		{
+			MyTSF.MyIME.IMEEnd();
+		}
 
         internal bool AllowUserResizing
         {

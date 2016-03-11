@@ -9,7 +9,7 @@ void vertex_program(inout VertexShaderInterface vertex, out MaterialVertexPayloa
 		float normalLightDot = dot(vertex.normal_object, frame_.directionalLightVec);
 		if (normalLightDot > 0)
 		{
-			vertex.position_clip -= normalize(world_to_clip(frame_.directionalLightVec)) * 0.15f;
+            vertex.position_clip -= normalize(WorldToClip(frame_.directionalLightVec)) * 0.15f;
 		}
 	}
 #endif
