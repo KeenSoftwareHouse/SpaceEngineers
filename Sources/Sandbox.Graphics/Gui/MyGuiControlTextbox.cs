@@ -177,6 +177,7 @@ namespace MyIME
 		void Reflush()
 		{
 			IMEEnd();
+			IMEStart(Text.ToString(),Pos);
 		}
 		void Move(int Pos)
 		{
