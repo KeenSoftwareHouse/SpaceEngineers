@@ -1182,12 +1182,31 @@ namespace Sandbox.Game
 
             FixTransferAmount(src, dst, srcItem, spawn, ref remove, ref amount);
 
-            if (amount != 0)
+            //If dst == src we need to remove first or AddItems could fail.
+            
+            if (dst == src)
             {
-                if (dst.AddItems(amount, srcItem.Value.Content, dst == src && remove == 0 ? itemId : (uint?)null, destItemIndex))
+                if (remove != 0)
                 {
-                    if (remove != 0)
-                        src.RemoveItems(itemId, remove);
+                    src.RemoveItems(itemId, remove);
+
+                    if (amount != 0)
+                    {
+                        dst.AddItems(amount, srcItem.Value.Content, (uint?)null, destItemIndex);
+                    }
+                }
+            }
+            else
+            {
+                if (amount != 0)
+                {
+                    if (dst.AddItems(amount, srcItem.Value.Content, (uint?)null, destItemIndex))
+                    {
+                        if (remove != 0)
+                        {
+                            src.RemoveItems(itemId, remove);
+                        }
+                    }
                 }
             }
         }
