@@ -38,6 +38,7 @@ namespace VRage.Dedicated
             this.worldListTimer = new System.Windows.Forms.Timer(this.components);
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.battleButton = new System.Windows.Forms.RadioButton();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -80,7 +81,6 @@ namespace VRage.Dedicated
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.serviceUpdateTimer = new System.Windows.Forms.Timer(this.components);
-            this.battleButton = new System.Windows.Forms.RadioButton();
             this.battleListTimer = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -102,7 +102,7 @@ namespace VRage.Dedicated
             this.gamesListBox.FormattingEnabled = true;
             this.gamesListBox.Location = new System.Drawing.Point(0, 0);
             this.gamesListBox.Name = "gamesListBox";
-            this.gamesListBox.Size = new System.Drawing.Size(337, 191);
+            this.gamesListBox.Size = new System.Drawing.Size(337, 150);
             this.gamesListBox.TabIndex = 0;
             this.gamesListBox.SelectedIndexChanged += new System.EventHandler(this.gamesListBox_SelectedIndexChanged);
             // 
@@ -135,7 +135,7 @@ namespace VRage.Dedicated
             // startButton
             // 
             this.startButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.startButton.Location = new System.Drawing.Point(551, 710);
+            this.startButton.Location = new System.Drawing.Point(551, 673);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(149, 48);
             this.startButton.TabIndex = 3;
@@ -163,7 +163,7 @@ namespace VRage.Dedicated
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(350, 507);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(350, 470);
             this.tableLayoutPanel1.TabIndex = 6;
             // 
             // groupBox1
@@ -179,10 +179,21 @@ namespace VRage.Dedicated
             this.groupBox1.Controls.Add(this.loadGameButton);
             this.groupBox1.Location = new System.Drawing.Point(1, 92);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(705, 589);
+            this.groupBox1.Size = new System.Drawing.Size(705, 552);
             this.groupBox1.TabIndex = 7;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Game settings";
+            // 
+            // battleButton
+            // 
+            this.battleButton.AutoSize = true;
+            this.battleButton.Location = new System.Drawing.Point(10, 54);
+            this.battleButton.Name = "battleButton";
+            this.battleButton.Size = new System.Drawing.Size(82, 17);
+            this.battleButton.TabIndex = 12;
+            this.battleButton.TabStop = true;
+            this.battleButton.Text = "Castle siege";
+            this.battleButton.UseVisualStyleBackColor = true;
             // 
             // splitContainer1
             // 
@@ -200,8 +211,8 @@ namespace VRage.Dedicated
             // 
             this.splitContainer1.Panel2.AutoScroll = true;
             this.splitContainer1.Panel2.Controls.Add(this.groupBox2);
-            this.splitContainer1.Size = new System.Drawing.Size(337, 507);
-            this.splitContainer1.SplitterDistance = 191;
+            this.splitContainer1.Size = new System.Drawing.Size(337, 470);
+            this.splitContainer1.SplitterDistance = 150;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 11;
             // 
@@ -211,7 +222,7 @@ namespace VRage.Dedicated
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(337, 314);
+            this.groupBox2.Size = new System.Drawing.Size(337, 318);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Server settings";
@@ -242,7 +253,7 @@ namespace VRage.Dedicated
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 16);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(331, 295);
+            this.panel1.Size = new System.Drawing.Size(331, 299);
             this.panel1.TabIndex = 25;
             // 
             // worldNameTextBox
@@ -554,7 +565,7 @@ namespace VRage.Dedicated
             // 
             this.getBackButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.getBackButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.getBackButton.Location = new System.Drawing.Point(551, 685);
+            this.getBackButton.Location = new System.Drawing.Point(551, 648);
             this.getBackButton.Name = "getBackButton";
             this.getBackButton.Size = new System.Drawing.Size(149, 23);
             this.getBackButton.TabIndex = 12;
@@ -613,7 +624,7 @@ namespace VRage.Dedicated
             this.groupBox3.Controls.Add(this.button1);
             this.groupBox3.Controls.Add(this.editConfigButton);
             this.groupBox3.Controls.Add(this.saveConfigButton);
-            this.groupBox3.Location = new System.Drawing.Point(7, 687);
+            this.groupBox3.Location = new System.Drawing.Point(7, 650);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(293, 73);
             this.groupBox3.TabIndex = 18;
@@ -627,7 +638,7 @@ namespace VRage.Dedicated
             this.groupBox4.Controls.Add(this.stopServiceButton);
             this.groupBox4.Controls.Add(this.serviceStatusLabel);
             this.groupBox4.Controls.Add(this.serviceStatusValueLabel);
-            this.groupBox4.Location = new System.Drawing.Point(343, 687);
+            this.groupBox4.Location = new System.Drawing.Point(343, 650);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(198, 72);
             this.groupBox4.TabIndex = 19;
@@ -640,17 +651,6 @@ namespace VRage.Dedicated
             this.serviceUpdateTimer.Interval = 1000;
             this.serviceUpdateTimer.Tick += new System.EventHandler(this.serviceUpdateTimer_Tick);
             // 
-            // battleButton
-            // 
-            this.battleButton.AutoSize = true;
-            this.battleButton.Location = new System.Drawing.Point(10, 54);
-            this.battleButton.Name = "battleButton";
-            this.battleButton.Size = new System.Drawing.Size(82, 17);
-            this.battleButton.TabIndex = 12;
-            this.battleButton.TabStop = true;
-            this.battleButton.Text = "Castle siege";
-            this.battleButton.UseVisualStyleBackColor = true;
-            // 
             // battleListTimer
             // 
             this.battleListTimer.Enabled = true;
@@ -660,7 +660,7 @@ namespace VRage.Dedicated
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(704, 763);
+            this.ClientSize = new System.Drawing.Size(704, 726);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.startButton);
@@ -669,7 +669,6 @@ namespace VRage.Dedicated
             this.Controls.Add(this.logoPictureBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(720, 16384);
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(720, 400);
             this.Name = "ConfigForm";
