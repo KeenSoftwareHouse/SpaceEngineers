@@ -75,6 +75,9 @@ namespace Sandbox.Game.Entities
         private readonly Sync<bool> m_controlThrusters;
         private readonly Sync<bool> m_controlWheels;
 
+        private Vector3 m_controlThrust;
+        private Vector3 m_controlTorque;
+
         private readonly Sync<bool> m_dampenersEnabled;
 
         private bool m_reactorsSwitched = true;
@@ -223,13 +226,13 @@ namespace Sandbox.Game.Entities
 
             MyTerminalControlFactory.AddControl(mainCockpit);
 
-			m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
-			m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
-			m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
-			m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
-			m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
-			m_horizonIndicator.EnableAction();
-			MyTerminalControlFactory.AddControl(m_horizonIndicator);           
+            m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
+            m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
+            m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
+            m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
+            m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
+            m_horizonIndicator.EnableAction();
+            MyTerminalControlFactory.AddControl(m_horizonIndicator);           
         }
 
         public virtual MyCharacter Pilot
@@ -285,7 +288,7 @@ namespace Sandbox.Game.Entities
                 IsMainCockpit = true;
             }
 
-			HorizonIndicatorEnabled = shipControllerOb.HorizonIndicatorEnabled;
+            HorizonIndicatorEnabled = shipControllerOb.HorizonIndicatorEnabled;
             Toolbar = new MyToolbar(ToolbarType); ;
             Toolbar.Init(shipControllerOb.Toolbar, this);
 
@@ -302,7 +305,7 @@ namespace Sandbox.Game.Entities
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             }
 
-			NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_baseIdleSound = BlockDefinition.PrimarySound;
 
@@ -326,7 +329,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.Toolbar = Toolbar.GetObjectBuilder();
             objectBuilder.BuildToolbar = BuildToolbar.GetObjectBuilder();
             objectBuilder.IsMainCockpit = m_isMainCockpit;
-			objectBuilder.HorizonIndicatorEnabled = HorizonIndicatorEnabled;
+            objectBuilder.HorizonIndicatorEnabled = HorizonIndicatorEnabled;
 
             return objectBuilder;
         }
@@ -372,6 +375,8 @@ namespace Sandbox.Game.Entities
             // No movement, no change, early return
             if (m_enableShipControl && moveIndicator == Vector3.Zero && rotationIndicator == Vector2.Zero && rollIndicator == 0.0f)
             {
+                m_controlThrust = Vector3.Zero;
+                m_controlTorque = Vector3.Zero;
                 //if (ControllerInfo.Controller.IsLocalPlayer() || Sync.IsServer)
                 if ((ControllerInfo.IsLocallyControlled() && CubeGrid.GridSystems.ControlSystem.IsLocallyControlled) || (Sync.IsServer && false))
                 {
@@ -379,6 +384,19 @@ namespace Sandbox.Game.Entities
                 }
                 return;
             }
+
+            // Process the user inputs independent from the ship controllers state
+            const float pixelsForMaxRotation = 20; // mouse pixels will do maximal rotation
+            rotationIndicator /= pixelsForMaxRotation;
+            Vector2.ClampToSphere(ref rotationIndicator, 1.0f);
+            rollIndicator *= RollControlMultiplier;
+
+            Matrix orientMatrix;
+            Orientation.GetMatrix(out orientMatrix);
+
+            m_controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
+            m_controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator), orientMatrix);
+            Vector3.ClampToSphere(m_controlTorque, 1.0f);
 
             if (IsMainCockpit == false && CubeGrid.HasMainCockpit())
             {
@@ -406,25 +424,11 @@ namespace Sandbox.Game.Entities
             {
                 // Engine off, no control forces, early return
                 if (CubeGrid.GridSystems.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower)
-                {
-                    // mouse pixels will do maximal rotation
-                    const float pixelsForMaxRotation = 20;
-                    rotationIndicator /= pixelsForMaxRotation;
-                    Vector2.ClampToSphere(ref rotationIndicator, 1.0f);
-                    rollIndicator *= RollControlMultiplier;
-
-                    Matrix orientMatrix;
-                    Orientation.GetMatrix(out orientMatrix);
-
-                    var controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
-                    var controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator), orientMatrix);
-                    Vector3.ClampToSphere(controlTorque, 1.0f);
-
-                    
+                {                    
                     if(thrustComponent != null)
-                        thrustComponent.ControlThrust = controlThrust;
+                        thrustComponent.ControlThrust = m_controlThrust;
                     if(GridGyroSystem != null)
-                        GridGyroSystem.ControlTorque = controlTorque;
+                        GridGyroSystem.ControlTorque = m_controlTorque;
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -438,12 +442,12 @@ namespace Sandbox.Game.Entities
             }
             finally
             {
-	            var controlThrust = Vector3.Zero;
-	            var controlTorque = Vector3.Zero;
+                var controlThrust = Vector3.Zero;
+                var controlTorque = Vector3.Zero;
                 if (thrustComponent != null)
                     controlThrust = thrustComponent.ControlThrust;
-	            if (GridGyroSystem != null)
-		            controlTorque = GridGyroSystem.ControlTorque;
+                if (GridGyroSystem != null)
+                    controlTorque = GridGyroSystem.ControlTorque;
 
                 // Need it every frame because of MP interpolation
                 CubeGrid.SendControlThrust(Vector3B.Round(controlThrust * 127.0f));
@@ -659,7 +663,7 @@ namespace Sandbox.Game.Entities
                 MyHud.ShipInfo.FuelRemainingTime = GridResourceDistributor.RemainingFuelTimeByType(MyResourceDistributorComponent.ElectricityId);
                 MyHud.ShipInfo.Reactors = GridResourceDistributor.MaxAvailableResourceByType(MyResourceDistributorComponent.ElectricityId);
                 MyHud.ShipInfo.ResourceState = GridResourceDistributor.ResourceStateByType(MyResourceDistributorComponent.ElectricityId);
-				MyHud.ShipInfo.AllEnabledRecently = GridResourceDistributor.AllEnabledRecently;
+                MyHud.ShipInfo.AllEnabledRecently = GridResourceDistributor.AllEnabledRecently;
             }
             if (GridGyroSystem != null)
                 MyHud.ShipInfo.GyroCount = GridGyroSystem.GyroCount;
@@ -702,7 +706,7 @@ namespace Sandbox.Game.Entities
                     }
                 } //GridResourceDistributor
 
-				UpdateShipMass();
+                UpdateShipMass();
 
                 if (Parent.Physics != null)
                 {
@@ -725,9 +729,9 @@ namespace Sandbox.Game.Entities
             Debug.Assert(ControllerInfo.IsLocallyHumanControlled());
 
             MyHud.ShipInfo.Mass = 0;
-			MyCubeGrid parentGrid = Parent as MyCubeGrid;
-			if (parentGrid == null)
-				return;
+            MyCubeGrid parentGrid = Parent as MyCubeGrid;
+            if (parentGrid == null)
+                return;
 
             MyHud.ShipInfo.Mass = parentGrid.GetCurrentMass(Pilot);
         }
@@ -1501,13 +1505,13 @@ namespace Sandbox.Game.Entities
             }
         }
 
-		public void SwitchToWeapon(MyToolbarItemWeapon weapon)
-		{
-			if (m_enableShipControl)
-			{
-				SwitchToWeaponInternal((weapon != null ? weapon.Definition.Id : (MyDefinitionId?)null), true);
-			}
-		}
+        public void SwitchToWeapon(MyToolbarItemWeapon weapon)
+        {
+            if (m_enableShipControl)
+            {
+                SwitchToWeaponInternal((weapon != null ? weapon.Definition.Id : (MyDefinitionId?)null), true);
+            }
+        }
 
         void SwitchToWeaponInternal(MyDefinitionId? weapon, bool updateSync)
         {
@@ -1678,7 +1682,7 @@ namespace Sandbox.Game.Entities
         {
             if (Render.NearFlag)
             {
-				Render.ColorMaskHsv = SlimBlock.ColorMaskHSV;
+                Render.ColorMaskHsv = SlimBlock.ColorMaskHSV;
 
                 //TODO: Find out how to correctly change Near model
                 return;
@@ -1872,10 +1876,10 @@ namespace Sandbox.Game.Entities
                 if (m_singleWeaponMode != value)
                 {
                     m_singleWeaponMode = value;
-					if (m_selectedGunId.HasValue)
-						SwitchToWeapon(m_selectedGunId.Value);
-					else
-						SwitchToWeapon(null);
+                    if (m_selectedGunId.HasValue)
+                        SwitchToWeapon(m_selectedGunId.Value);
+                    else
+                        SwitchToWeapon(null);
                 }
             }
         }
@@ -1931,22 +1935,22 @@ namespace Sandbox.Game.Entities
             return CubeGrid.HasMainCockpit() == false || CubeGrid.IsMainCockpit(this);
         }
 
-		readonly Sync<bool> m_horizonIndicatorEnabled;
+        readonly Sync<bool> m_horizonIndicatorEnabled;
         
-		public bool HorizonIndicatorEnabled
-		{
-			get { return m_horizonIndicatorEnabled; }
-			set
-			{
-				m_horizonIndicatorEnabled.Value = value;
-			}
-		}
+        public bool HorizonIndicatorEnabled
+        {
+            get { return m_horizonIndicatorEnabled; }
+            set
+            {
+                m_horizonIndicatorEnabled.Value = value;
+            }
+        }
 
-		protected void SetHorizonIndicator(bool newValue)
-		{
-			if (HorizonIndicatorEnabled == newValue)
-				return;
-		}
+        protected void SetHorizonIndicator(bool newValue)
+        {
+            if (HorizonIndicatorEnabled == newValue)
+                return;
+        }
 
         public virtual MyToolbarType ToolbarType
         {
@@ -2147,8 +2151,18 @@ namespace Sandbox.Game.Entities
         bool IMyShipController.DampenersOverride
         {
             get {
-	            return EntityThrustComponent != null && EntityThrustComponent.DampenersEnabled;
+                return EntityThrustComponent != null && EntityThrustComponent.DampenersEnabled;
             }
+        }
+
+        Vector3 IMyShipController.Translation
+        {
+            get { return m_controlThrust; }
+        }
+
+        Vector3 IMyShipController.Rotation
+        {
+            get { return m_controlTorque; }
         }
 
         void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
@@ -2413,4 +2427,3 @@ namespace Sandbox.Game.Entities
 
     }
 }
-
