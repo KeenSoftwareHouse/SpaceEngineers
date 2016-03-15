@@ -164,14 +164,14 @@ namespace Sandbox.Game.Entities.Blocks
             SourceComp.OutputChanged += Source_OutputChanged;
             FillSinkInfo();
             var sinkDataList = new List<MyResourceSinkInfo>
-	        {
-				new MyResourceSinkInfo {ResourceTypeId = MyResourceDistributorComponent.ElectricityId, MaxRequiredInput = BlockDefinition.OperationalPowerConsumption, RequiredInputFunc = ComputeRequiredPower},
-	        };
+            {
+                new MyResourceSinkInfo {ResourceTypeId = MyResourceDistributorComponent.ElectricityId, MaxRequiredInput = BlockDefinition.OperationalPowerConsumption, RequiredInputFunc = ComputeRequiredPower},
+            };
 
             ResourceSink.Init(
                 BlockDefinition.ResourceSinkGroup,
                 sinkDataList);
-			ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
+            ResourceSink.IsPoweredChanged += PowerReceiver_IsPoweredChanged;
             ResourceSink.CurrentInputChanged += Sink_CurrentInputChanged;
 
             m_lastOutputUpdateTime = MySession.Static.GameplayFrameCounter;
@@ -559,7 +559,7 @@ namespace Sandbox.Game.Entities.Blocks
             DetailedInfo.Append(BlockDefinition.DisplayNameText);
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
-			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
+            MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
 
             if (!MySession.Static.Settings.EnableOxygen)
@@ -724,6 +724,17 @@ namespace Sandbox.Game.Entities.Blocks
                 return 0f;
 
             return oxygenBlock.OxygenLevel(CubeGrid.GridSize);
+        }
+
+        public float GetAirDensity()
+        {
+            if (PositionComp == null)
+                return 0f;
+            BoundingBoxD boundingBox = this.PositionComp.WorldAABB;
+            MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(ref boundingBox);
+            if (planet != null)
+                return planet.GetAirDensity(boundingBox.Center);
+            return 0f;
         }
 
         private void FillSinkInfo()

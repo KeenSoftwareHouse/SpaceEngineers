@@ -36,5 +36,10 @@ namespace Sandbox.ModAPI.Ingame
         /// true - depressurize (sucking air out)
         /// </summary>
         bool IsDepressurizing { get; }
+        /// <summary>
+        /// Get the surrounding atmospheric level.
+        /// </summary>
+        /// <returns>Atmospheric density as decimal (0.5 = 50%)</returns>
+        float GetAirDensity();
     }
 }
