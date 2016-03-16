@@ -6,7 +6,7 @@ namespace Sandbox.ModAPI
 {
 	public delegate void CharacterMovementStateDelegate(MyCharacterMovementEnum oldState, MyCharacterMovementEnum newState);
 
-	public interface IMyCharacter : Ingame.IMyCharacter
+	public interface IMyCharacter
     {
         float EnvironmentOxygenLevel { get; }
 		float BaseMass { get; }

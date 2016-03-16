@@ -3973,15 +3973,6 @@ namespace Sandbox.Game.Entities.Character
             return MatrixD.Invert(matrix);
         }
 
-        MatrixD Sandbox.ModAPI.Ingame.IMyCharacter.HeadMatrix
-        {
-            get { return GetHeadMatrix(true); }
-        }
-        long Sandbox.ModAPI.Ingame.IMyCharacter.PlayerId
-        {
-            get { return GetPlayerIdentityId(); }
-        }
-
         public override bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
         {
             bool hitHead;
