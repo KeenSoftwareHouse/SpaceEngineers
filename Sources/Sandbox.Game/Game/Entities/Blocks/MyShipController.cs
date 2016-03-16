@@ -75,8 +75,8 @@ namespace Sandbox.Game.Entities
         private readonly Sync<bool> m_controlThrusters;
         private readonly Sync<bool> m_controlWheels;
 
-        private Vector3 m_controlThrust;
-        private Vector3 m_controlTorque;
+        private Vector3 m_inputTranslation;
+        private Vector3 m_inputRotation;
 
         private readonly Sync<bool> m_dampenersEnabled;
 
@@ -375,8 +375,8 @@ namespace Sandbox.Game.Entities
             // No movement, no change, early return
             if (m_enableShipControl && moveIndicator == Vector3.Zero && rotationIndicator == Vector2.Zero && rollIndicator == 0.0f)
             {
-                m_controlThrust = Vector3.Zero;
-                m_controlTorque = Vector3.Zero;
+                m_inputTranslation = Vector3.Zero;
+                m_inputRotation = Vector3.Zero;
                 //if (ControllerInfo.Controller.IsLocalPlayer() || Sync.IsServer)
                 if ((ControllerInfo.IsLocallyControlled() && CubeGrid.GridSystems.ControlSystem.IsLocallyControlled) || (Sync.IsServer && false))
                 {
@@ -391,12 +391,9 @@ namespace Sandbox.Game.Entities
             Vector2.ClampToSphere(ref rotationIndicator, 1.0f);
             rollIndicator *= RollControlMultiplier;
 
-            Matrix orientMatrix;
-            Orientation.GetMatrix(out orientMatrix);
-
-            m_controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
-            m_controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator), orientMatrix);
-            Vector3.ClampToSphere(m_controlTorque, 1.0f);
+            m_inputTranslation = moveIndicator;
+            m_inputRotation = new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator);
+            Vector3.ClampToSphere(m_inputRotation, 1f);
 
             if (IsMainCockpit == false && CubeGrid.HasMainCockpit())
             {
@@ -424,11 +421,18 @@ namespace Sandbox.Game.Entities
             {
                 // Engine off, no control forces, early return
                 if (CubeGrid.GridSystems.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower)
-                {                    
+                {
+
+                    Matrix orientMatrix;
+                    Orientation.GetMatrix(out orientMatrix);
+
+                    Vector3 controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
+                    Vector3 controlTorque = Vector3.Transform(m_inputRotation, orientMatrix);  
+   
                     if(thrustComponent != null)
-                        thrustComponent.ControlThrust = m_controlThrust;
+                        thrustComponent.ControlThrust = controlThrust;
                     if(GridGyroSystem != null)
-                        GridGyroSystem.ControlTorque = m_controlTorque;
+                        GridGyroSystem.ControlTorque = controlTorque;
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -2157,12 +2161,12 @@ namespace Sandbox.Game.Entities
 
         Vector3 IMyShipController.Translation
         {
-            get { return m_controlThrust; }
+            get { return m_inputTranslation; }
         }
 
         Vector3 IMyShipController.Rotation
         {
-            get { return m_controlTorque; }
+            get { return m_inputRotation; }
         }
 
         void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
@@ -2427,3 +2431,4 @@ namespace Sandbox.Game.Entities
 
     }
 }
+
