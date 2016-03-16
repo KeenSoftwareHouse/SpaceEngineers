@@ -2137,7 +2137,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             var jetpack = JetpackComp;
-            bool jetpackNotActive = (jetpack == null || !jetpack.UpdatePhysicalMovement());	//Solve Y orientation and gravity only in non flying mode
+            bool jetpackNotActive = (jetpack == null || !jetpack.UpdatePhysicalMovement()); //Solve Y orientation and gravity only in non flying mode
 
             //if (!ControllerInfo.IsRemotelyControlled() || (Sync.IsServer && false))
             if (ControllerInfo.IsLocallyControlled() || (Sync.IsServer && ControllerInfo.Controller == null) || MyFakes.CHARACTER_SERVER_SYNC)
@@ -2649,7 +2649,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJumpTime > 0))
             {
-                if (jetpackRunning)	// TODO: Move to jetpack
+                if (jetpackRunning) // TODO: Move to jetpack
                 {
                     MatrixD rotationMatrix = WorldMatrix.GetOrientation();
                     Vector3D translationDraw = WorldMatrix.Translation;
@@ -2697,7 +2697,7 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
 
-            if (roll != 0 && jetpackRunning && !Definition.VerticalPositionFlyingOnly)	// TODO: Move to jetpack
+            if (roll != 0 && jetpackRunning && !Definition.VerticalPositionFlyingOnly)  // TODO: Move to jetpack
             {
                 MatrixD rotationMatrix = WorldMatrix.GetOrientation();
                 Vector3D translation = WorldMatrix.Translation + WorldMatrix.Up;
@@ -3971,6 +3971,15 @@ namespace Sandbox.Game.Entities.Character
             m_lastCorrectSpectatorCamera = MatrixD.Zero;
 
             return MatrixD.Invert(matrix);
+        }
+
+        MatrixD Sandbox.ModAPI.Ingame.IMyCharacter.HeadMatrix
+        {
+            get { return GetHeadMatrix(true); }
+        }
+        long Sandbox.ModAPI.Ingame.IMyCharacter.PlayerId
+        {
+            get { return GetPlayerIdentityId(); }
         }
 
         public override bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
