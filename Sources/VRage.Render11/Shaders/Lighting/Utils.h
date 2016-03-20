@@ -25,7 +25,8 @@ float RoughnessToGloss(float roughness)
 
 float remap_gloss(float g)
 {
-    return pow(1 - g, 2);
+	float r = GlossToRoughness(g);
+    return r * r;
 }
 
 float RoughnessToSpecular(float roughness)

@@ -22,6 +22,7 @@ namespace MyTSF {
 		static String^ Convert();
 		static void ResetConvert();
 		static Int32 ConvertAbleCount();
+		static void MoveConvertTarget(Int32 s);
 	};
 
 	class MyTextStore : public ITextStoreACP
@@ -91,6 +92,8 @@ namespace MyTSF {
 		static void SetConvert();
 		static void ResetConvert();
 		static Int32 ConvertAbleCount();
+		static void MoveConvertTarget(Int32 s);
+	private:
 		template<typename T>
 		static void RELEASE(CComPtr<T> x)
 		{
@@ -111,7 +114,8 @@ namespace MyTSF {
 	protected:
 		static std::wstring target;
 		static std::wstring htarget;
-		static std::queue<std::wstring> outRef;
+		static std::vector<std::queue<std::wstring> > outRef;
+		static size_t target_index;
 
 		static CComPtr<ITfThreadMgr> thr_mgr;
 		static CComPtr<ITfDocumentMgr> doc_mgr;

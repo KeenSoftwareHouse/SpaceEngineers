@@ -31,7 +31,10 @@ float4 WorldToClip(float3 worldPosition)
     return mul(float4(worldPosition, 1), projection_.view_proj_matrix);
 }
 
-#define MATERIAL_FLAG_RGB_COLORING 1
+#define MATERIAL_FLAG_COLORING (MATERIAL_FLAG_COLORING_RGB|MATERIAL_FLAG_HAS_KEYCOLOR)
+
+#define MATERIAL_FLAG_COLORING_RGB 1
+#define MATERIAL_FLAG_NO_KEYCOLOR 2
 
 struct ObjectConstants
 {

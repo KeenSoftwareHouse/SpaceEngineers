@@ -3,7 +3,8 @@
 #include <common.h>
 #include <Math/math.h>
 
-struct FrameConstants {
+struct FrameConstants 
+{
 	//
 	matrix 	view_projection_matrix;
 	matrix	view_matrix;

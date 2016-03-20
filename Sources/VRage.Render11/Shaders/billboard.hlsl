@@ -72,7 +72,7 @@ VsOut __vertex_shader(VsIn vertex, uint vertex_id : SV_VertexID)
 #ifdef LIT_PARTICLE
     float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.view_matrix).xyz;
     float3 V = normalize(get_camera_position() - vs_pos);
-    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(0, 0, V, 0, 0.5f);
+    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(V, 0.5f);
 #endif
 
 	return result;

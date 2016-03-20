@@ -20,24 +20,24 @@ float G1SmithSchlickGGX(float nx, float k)
 }
 
 // geometric / visibility
-float GSmithSchlickGGX(float nl, float nv, float a)
+float GSmithSchlickGGX(float ln, float vn, float a)
 {
 	float k = 0.5f * a;
-	return 0.25f / (G1SmithSchlickGGX(nl, k) * G1SmithSchlickGGX(nv, k));
+	return 0.25f / (G1SmithSchlickGGX(ln, k) * G1SmithSchlickGGX(vn, k));
 }
 
 // fresnel
-float3 FSchlick(float3 f0, float vh)
+float3 FSchlick(float vh, float3 f0)
 {
 	float fr = exp2((-5.55473 * vh - 6.98316) * vh);
 	return mad(1 - f0, fr, f0);
 }
 
-float3 SpecularBRDFGGX(float3 f0, float gloss, float nl, float nh, float nv, float vh)
+float3 SpecularBRDFGGX(float ln, float nh, float vn, float vh, float3 f0, float gloss)
 {
     float roughness = GlossToRoughness(gloss);
     float a = max(roughness*roughness, 2e-3);
-	return saturate(DGGX(nh, a) * GSmithSchlickGGX(nl, nv, a) * FSchlick(f0, vh)) / 4.0f;
+	return DGGX(nh, a) * GSmithSchlickGGX(ln, vn, a) * FSchlick(vh, f0);
 }
 
 #define SpecularLight SpecularBRDFGGX

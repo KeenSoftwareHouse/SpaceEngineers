@@ -54,6 +54,10 @@ namespace MyTSF
 		return MyIMEBase::ConvertAbleCount();
 	}
 
+	void MyIME::MoveConvertTarget(Int32 s)
+	{
+		MyIMEBase::MoveConvertTarget(s);
+	}
 
 #pragma endregion
 
@@ -64,8 +68,8 @@ namespace MyTSF
 
 		std::wstring MyIMEBase::target;
 		std::wstring MyIMEBase::htarget;
-		std::queue<std::wstring> MyIMEBase::outRef;
-		bool convertFlg;
+		std::vector<std::queue<std::wstring> > MyIMEBase::outRef;
+		size_t MyIMEBase::target_index = 0;
 
 		CComPtr<ITfThreadMgr> MyIMEBase::thr_mgr;
 		CComPtr<ITfDocumentMgr > MyIMEBase::doc_mgr;
@@ -126,8 +130,7 @@ namespace MyTSF
 	void MyIMEBase::IMEStart(HANDLE hwnd)
 	{
 		target = L"";
-		outRef = std::queue<std::wstring>();
-		convertFlg = false;
+		outRef = std::vector<std::queue<std::wstring> >();
 
 		CoInitialize(NULL);
 
@@ -206,90 +209,136 @@ namespace MyTSF
 
 	void MyIMEBase::SetConvert()
 	{
-		convertFlg = true;
-		outRef = std::queue<std::wstring>();
+		outRef = std::vector<std::queue<std::wstring> >();
+		target_index = -1;
 
 		HRESULT h = E_FAIL;
 		//std::vector<TF_SELECTION> selections((size_t)sel_len);
-		size_t sel_len = 1;
-		TF_SELECTION selections = { 0 };
-		ULONG ferched_count = 0;
-		ITfRange* rrange  = NULL;
-		BOOL convert_flg = FALSE;
-		ITfCandidateList* list = NULL;
-		ULONG length = 0;
+		size_t start = 0, tcount = 0;
+		size_t hts = htarget.size();
 
 		MyTextStore* store = dynamic_cast<MyTextStore*>((ITextStoreACP*)text_store);
 		if (store == nullptr)
 			return;
 
-		store->SetString(htarget);
+		std::queue<std::wstring> bq,bbq;
 
-		if (store->SetLock(TS_LF_READ))
+		while (start + tcount <= hts)
 		{
-			ITfContext* bcontext = static_cast<ITfContext*>(context);
-			h = bcontext->GetSelection(
-				cookie, TF_DEFAULT_SELECTION, sel_len,
-				&selections, &ferched_count);
-
-			store->ResetLock();
-
-			if(FAILED(h))
-				return;
-		}
-
-		h = reconversion->QueryRange(selections.range, &rrange, &convert_flg);
-		if (FAILED(h) || rrange == NULL) 
-			return;
-
-		h = reconversion->GetReconversion(selections.range, &list);
-		if (FAILED(h) || list == NULL)
-			return;
-
-		h = list->GetCandidateNum(&length);
-
-		for (ULONG i = 0; i < length; i++)
-		{
-			ITfCandidateString* pstring = NULL;
-			BSTR bstr = NULL;
-			if (SUCCEEDED(list->GetCandidate(i, &pstring)) &&
-				SUCCEEDED(pstring->GetString(&bstr)))
+			size_t sel_len = 1;
+			TF_SELECTION selections = { 0 };
+			ULONG ferched_count = 0;
+			ITfRange* rrange  = NULL;
+			BOOL convert_flg = FALSE;
+			ITfCandidateList* list = NULL;
+			ULONG length = 0;
+			do
 			{
-				std::wstring buf(bstr);
-				outRef.push(buf);
-			}
-		}
+				bbq = bq;
+				bq = std::queue<std::wstring>();
 
-		RELEASE(list);
-		RELEASE(rrange);
-		RELEASE(selections.range);
+				tcount++;
+				store->SetString(htarget.substr(start, tcount));
+
+				if (store->SetLock(TS_LF_READ))
+				{
+					ITfContext* bcontext = static_cast<ITfContext*>(context);
+					h = bcontext->GetSelection(
+						cookie, TF_DEFAULT_SELECTION, sel_len,
+						&selections, &ferched_count);
+
+					store->ResetLock();
+
+					if (FAILED(h))
+						return;
+				}
+
+				h = reconversion->QueryRange(selections.range, &rrange, &convert_flg);
+				if (FAILED(h) || rrange == NULL)
+					return;
+
+				h = reconversion->GetReconversion(selections.range, &list);
+				if (FAILED(h) || list == NULL)
+					return;
+
+				h = list->GetCandidateNum(&length);
+				if (FAILED(h))
+					return;
+
+				ITfCandidateString* pstring = NULL;
+				BSTR bstr = NULL;
+
+
+				for (ULONG i = 0; i < length; i++)
+				{
+					ITfCandidateString* pstring = NULL;
+					BSTR bstr = NULL;
+					if (SUCCEEDED(list->GetCandidate(i, &pstring)) &&
+						SUCCEEDED(pstring->GetString(&bstr)))
+					{
+						std::wstring buf(bstr);
+						bq.push(buf);
+					}
+				}
+			} while (bq != bbq && start + tcount <= hts);
+
+			outRef.push_back(bq);
+			start += tcount - 1;
+			tcount = 0;
+
+			RELEASE(list);
+			RELEASE(rrange);
+			RELEASE(selections.range);
+		}
 
 	}
 
 	String^ MyIMEBase::Convert()
 	{
 
-		std::wstring tans;
-		if (!outRef.empty())
+		std::wstring tans = L"";
+		for (int i = 0; i < outRef.size(); i++)
 		{
-			tans = outRef.front();
-			outRef.pop();
-			outRef.push(tans);
+			if (!outRef[i].empty())
+			{
+				if (i == target_index)
+				{
+					std::wstring buf = outRef[i].front();
+					outRef[i].pop();
+					outRef[i].push(buf);
+				}
+				else if(target_index == -1)
+					target_index = 0;
+				std::wstring buf = outRef[i].front();
+				tans += buf;
+			}
 		}
-		else
-			tans = L"";
 		String^ ans = gcnew String(tans.c_str());
 		return ans;
 	}
 
 	void MyIMEBase::ResetConvert()
-	{
-		convertFlg = false;
-	}
+	{}
 
 	Int32 MyIMEBase::ConvertAbleCount()
 	{
-		return outRef.size();
+		size_t ans = 1;
+		for (int i = 0; i < outRef.size(); i++)
+		{
+			ans *= outRef[i].size();
+		}
+		return ans;
+	}
+
+	void MyIMEBase::MoveConvertTarget(Int32 s)
+	{
+		if(target_index <= 0)
+			target_index = 0;
+		target_index += s;
+		if (target_index <= 0)
+			target_index = 0;
+		else if (target_index >= outRef.size())
+			target_index = outRef.size() - 1;
 	}
 
 #pragma endregion
