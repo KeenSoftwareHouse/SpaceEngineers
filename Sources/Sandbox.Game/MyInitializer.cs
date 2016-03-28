@@ -62,12 +62,14 @@ namespace Sandbox
             m_appName = appName;
 
             var logName = new StringBuilder(m_appName);
+            /*
             if (addDateToLog)
             {
                 logName.Append("_");
                 logName.Append(new StringBuilder().GetFormatedDateTimeForFilename(DateTime.Now));
             }
             logName.Append(".log");
+            */
 
             var rootPath = new FileInfo(MyFileSystem.ExePath).Directory.FullName;
             var contentPath = Path.Combine(rootPath, "Content");
@@ -79,7 +81,7 @@ namespace Sandbox
 
             MySandboxGame.IsPirated = !isSteamPath && !manifestPresent;
 
-            MySandboxGame.Log.Init(logName.ToString(), MyFinalBuildConstants.APP_VERSION_STRING);
+            MySandboxGame.Log.Init(logName.ToString(), MyFinalBuildConstants.APP_VERSION_STRING, addDateToLog);
             MySandboxGame.Log.WriteLine("Steam build: Always true");
             MySandboxGame.Log.WriteLine(string.Format("Is official: {0} {1}{2}{3}",
                 MyFinalBuildConstants.IS_OFFICIAL,

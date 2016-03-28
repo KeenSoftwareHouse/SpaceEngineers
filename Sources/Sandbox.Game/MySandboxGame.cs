@@ -254,6 +254,9 @@ namespace Sandbox
                 //ignum
                 //+connect 62.109.134.123:27025
 
+                if ((MySandboxGame.ConfigDedicated.AppendDateToLogName >= 0) && (MySandboxGame.ConfigDedicated.AppendDateToLogName < 2) && ((MySandboxGame.ConfigDedicated.AppendDateToLogName == 1) != MySandboxGame.Log.AppendDateToLogname))
+                    MySandboxGame.Log.Rename("SpaceEngineersDedicated", (MySandboxGame.ConfigDedicated.AppendDateToLogName == 1));
+
                 IPAddress address = MyDedicatedServerOverrides.IpAddress ?? IPAddressExtensions.ParseOrAny(MySandboxGame.ConfigDedicated.IP);
                 ushort port = (ushort)(MyDedicatedServerOverrides.Port ?? MySandboxGame.ConfigDedicated.ServerPort);
 

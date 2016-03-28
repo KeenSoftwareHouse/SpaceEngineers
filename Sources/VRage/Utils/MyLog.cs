@@ -101,6 +101,8 @@ namespace VRage.Utils
         private LoggingOptions m_loggingOptions = (LoggingOptions.ALL & ~LoggingOptions.LOADING_MODELS); // Everything except loading models
         private Action<string> m_normalWriter;
         private Action<string> m_closedLogWriter;
+        private bool m_appendDateToLogname = false;
+        private DateTime m_logstartdt = DateTime.Now;
 
         static MyLog m_default;
         public static MyLog Default
@@ -123,18 +125,34 @@ namespace VRage.Utils
             }
         }
 
-        public void Init(string logFileName, StringBuilder appVersionString)
+        public bool AppendDateToLogname
+        {
+            get { return m_appendDateToLogname; }
+        }
+
+        public void Init(string logFileName, StringBuilder appVersionString, bool appenddatetologname = false)
         {
             lock (m_lock)
             {
                 try
                 {
+                    m_logstartdt = DateTime.Now;
                     m_filepath = Path.IsPathRooted(logFileName) ? logFileName : Path.Combine(MyFileSystem.UserDataPath, logFileName);
+                    if (!m_filepath.EndsWith(".log"))
+                    {
+                        if (appenddatetologname)
+                        {
+                            m_filepath += "_";
+                            m_filepath += (new StringBuilder().GetFormatedDateTimeForFilename(m_logstartdt).ToString());
+                        }
+                        m_filepath += ".log";
+                    }
                     m_stream = MyFileSystem.OpenWrite(m_filepath);
                     m_streamWriter = new StreamWriter(m_stream);
                     m_normalWriter = new Action<string>(WriteLine);
                     m_closedLogWriter = new Action<string>((s) => File.AppendAllText(m_filepath, s + Environment.NewLine));
                     m_enabled = true;
+                    m_appendDateToLogname = appenddatetologname;
                 }
                 catch (Exception e)
                 {
@@ -149,6 +167,58 @@ namespace VRage.Utils
                 WriteLine("Log Started");
                 WriteLine(String.Format("Timezone (local - UTC): {0}h", timezone));
                 WriteLine("App Version: " + appVersionString);
+            }
+        }
+
+        public void Rename(string logFileName, bool appenddatetologname)
+        {
+            lock (m_lock)
+            {
+                try
+                {
+                    WriteLine("Log rename to '" + logFileName + "' with append date set to " + (appenddatetologname ? "true" : "false"));
+                    string newfilepath = Path.IsPathRooted(logFileName) ? logFileName : Path.Combine(MyFileSystem.UserDataPath, logFileName);
+                    if (!newfilepath.EndsWith(".log"))
+                    {
+                        // append log start date
+                        if (appenddatetologname)
+                        {
+                            newfilepath += "_";
+                            newfilepath += (new StringBuilder().GetFormatedDateTimeForFilename(m_logstartdt).ToString());
+                        }
+                        newfilepath += ".log";
+                    }
+                    if (newfilepath != m_filepath)
+                    {
+                        // flush and close log, so we can rename
+                        m_streamWriter.Flush();
+                        m_streamWriter.Close();
+                        try
+                        {
+                            // delete backup log if exists
+                            if (File.Exists(newfilepath + ".bak"))
+                                File.Delete(newfilepath + ".bak");
+                            // move old log to backup
+                            if (File.Exists(newfilepath))
+                                File.Move(newfilepath, newfilepath + ".bak");
+                            // move current log to new name
+                            File.Move(m_filepath, newfilepath);
+                            m_filepath = newfilepath;
+                        }
+                        catch(Exception e)
+                        {
+                            SystemTrace.Fail("Cannot move log file: " + e.ToString());
+                        }
+                        // reopen log streams
+                        m_stream = MyFileSystem.OpenWrite(m_filepath, FileMode.Append);
+                        m_streamWriter = new StreamWriter(m_stream);
+                    }
+                    m_appendDateToLogname = appenddatetologname;
+                }
+                catch (Exception e)
+                {
+                    SystemTrace.Fail("Cannot rename log file: " + e.ToString());
+                }
             }
         }
 
