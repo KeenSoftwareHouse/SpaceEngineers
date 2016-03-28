@@ -217,6 +217,8 @@ namespace VRage.Dedicated
             }
             if (scenarioCB.Items.Count > 0 && scenarioCB.SelectedIndex == -1)
                 scenarioCB.SelectedIndex = 0;
+
+            logNameDateCB.SelectedIndex = (MySandboxGame.ConfigDedicated.AppendDateToLogName < 0) ? 0 : (MySandboxGame.ConfigDedicated.AppendDateToLogName > 2) ? 2 : MySandboxGame.ConfigDedicated.AppendDateToLogName;
         }
 
         struct WorldItem
@@ -814,6 +816,7 @@ namespace VRage.Dedicated
             MySandboxGame.ConfigDedicated.WorldName = worldNameTextBox.Text;
             MySandboxGame.ConfigDedicated.PauseGameWhenEmpty = pauseWhenEmptyCHB.Checked;
             MySandboxGame.ConfigDedicated.IgnoreLastSession = ignoreLastSessionCHB.Checked;
+            MySandboxGame.ConfigDedicated.AppendDateToLogName = logNameDateCB.SelectedIndex;
 
             if (!string.IsNullOrEmpty(SteamGroupID.Text))
             {
