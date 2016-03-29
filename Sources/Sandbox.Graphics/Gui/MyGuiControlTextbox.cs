@@ -15,183 +15,27 @@ using VRage.Input;
 using VRage.Utils;
 using VRageMath;
 
-namespace MyIME
+namespace IME
 {
-	public class MyIMEControl
+	public static class TPos
 	{
-		#region statics
-		static MyIMEControl static_ime;
-		public static MyIMEControl Static
+		public static string Trans(string t,int i)
 		{
-			get { return static_ime; }
+			target = t;
+			index = i;
+			return t;
 		}
-		public static void IMEStart(string refText,int defPos)
+		public static int CPos
 		{
-			static_ime.bText = new StringBuilder();
-			static_ime.rText = new StringBuilder(refText);
-			static_ime.RPos = defPos;
-			static_ime.IMEPos = 0;
-			static_ime.Act = true;
-			static_ime.nocomp = true;
+			get { return index; }
 		}
-		public static void IMEEnd()
+		public static string Target
 		{
-			static_ime.Act = false;
-			static_ime.nocomp = false;
+			get { return target; }
 		}
-		static MyIMEControl()
-		{
-			static_ime = new MyIMEControl();
-		}
-		#endregion
-
-		public MyIMEControl()
-		{
-			act = false;
-			bText = new StringBuilder();
-			IMEPos = 0;
-		}
-
-		#region feilds
-		bool act,nocomp,comvMode;
-		StringBuilder bText, rText;
-		string tText
-		{
-			get
-			{
-				return bText.ToString();
-			}
-			set
-			{
-				bText.Clear();
-				bText.Append(value);
-				if (nocomp && bText.Length > 0)
-					bText.Replace('ん', 'n', bText.Length - 1, 1);
-			}
-		}
-		string bufText;
-		int IMEPos, RPos;
-		#endregion
-
-		#region Action
-		int IMELength
-		{ get{return bText.Length;}}
-		public bool Act{get;set;}
-		public StringBuilder Text
-		{
-			get
-			{
-				StringBuilder ans = new StringBuilder(rText.ToString());
-				ans.Insert(RPos, tText);
-				return ans;
-			}
-		}
-		public void Press(char t)
-		{
-			{
-				#region nPress
-				switch (t)
-				{
-					case '\b':
-						{
-							try
-							{
-								bText.Remove(IMEPos - 1, 1);
-							}
-							catch
-							{
-								if (bText.Length != 0)
-									bText.Remove(bText.Length - 1, 1);
-							}
-							MyTSF.MyIME.SetTarget(tText);
-							tText = MyTSF.MyIME.PreConvert();
-							comvMode = false;
-							Move(IMEPos - 1);
-						}
-						break;
-					case 'n':
-						{
-							try
-							{
-								bText.Insert(IMEPos + 1, t);
-							}
-							catch
-							{
-								bText.Append(t);
-							}
-							MyTSF.MyIME.SetTarget(tText);
-							tText = MyTSF.MyIME.PreConvert();
-							comvMode = false;
-							Move(IMEPos + 1);
-							nocomp = !nocomp;
-						}
-						break;
-					case ' ':
-						{
-							if(!comvMode)
-							{
-								MyTSF.MyIME.SetConvert();
-								comvMode = true;
-							}
-							tText = MyTSF.MyIME.Convert();
-							Move(IMELength);
-						}
-						break;
-					case '\n':
-						{
-							Reflush();
-						}
-						break;
-					default:
-						{
-							nocomp = true;
-							try
-							{
-								bText.Insert(IMEPos + 1, t);
-							}
-							catch
-							{
-								bText.Append(t);
-							}
-							MyTSF.MyIME.SetTarget(tText);
-							tText = MyTSF.MyIME.PreConvert();
-							comvMode = false;
-							Move(IMEPos + 1);
-						}
-						break;
-				}
-				#endregion
-			}
-		}
-		public int Pos
-		{
-			set
-			{
-				Move(value - RPos);
-			}
-			get
-			{
-				return RPos + IMEPos;
-			}
-		}
-		void Reflush()
-		{
-			IMEEnd();
-			IMEStart(Text.ToString(),Pos);
-		}
-		void Move(int Pos)
-		{
-			if (-1 < Pos && Pos < IMELength)
-				IMEPos = Pos;
-			else if (Pos >= IMELength)
-				IMEPos = IMELength;
-			else if (Pos <= -1)
-				IMEPos = -1;
-		}
-		#endregion
-
+		static int index;
+		static string target;
 	}
-
 }
 
 //  Textbox GUI control. Supports MaxLength.
@@ -731,51 +575,35 @@ namespace Sandbox.Graphics.GUI
                 {
                     if (character == BACKSPACE)
                     {
-						if (MyIMEControl.Static.Act)
-						{
-							MyIMEControl.Static.Pos = CarriagePositionIndex;
-							MyIMEControl.Static.Press(character);
-							SetText(MyIMEControl.Static.Text);
-							CarriagePositionIndex = MyIMEControl.Static.Pos;
-						}
+						if (m_selection.Length == 0)
+							ApplyBackspace();
 						else
-						{
-							if (m_selection.Length == 0)
-								ApplyBackspace();
-							else
-								m_selection.EraseText(this);
-						}
-                        
+							m_selection.EraseText(this);
 
                         textChanged = true;
                     }
 
 					if(character == '\u000f')
 					{
-						MyIMEControl.IMEStart(Text,CarriagePositionIndex);
+						StringBuilder sb = new StringBuilder();
+						GetText(sb);
+						MyIME.Utility.Statics.IO.Clear(sb.ToString(), CarriagePositionIndex);
 					}
 					if(character == '\u000e')
 					{
-						MyIMEControl.IMEEnd();
+						SetText(new StringBuilder(IME.TPos.Target));
+						CarriagePositionIndex = IME.TPos.CPos;
 					}
-					if(MyIMEControl.Static.Act && character == '\n')
-					{
-						MyIMEControl.Static.Press(character);
-					}
+
                 }
                 else
                 {
                     if (m_selection.Length > 0)
                         m_selection.EraseText(this);
 
-					if(!MyIMEControl.Static.Act)
-						InsertChar(character);
-					else
+					if (!MyIME.Utility.Statics.IO.ConvertAble)
 					{
-						MyIMEControl.Static.Pos = CarriagePositionIndex;
-						MyIMEControl.Static.Press(character);
-						SetText(MyIMEControl.Static.Text);
-						CarriagePositionIndex = MyIMEControl.Static.Pos;
+						InsertChar(character);
 					}
 
                     textChanged = true;

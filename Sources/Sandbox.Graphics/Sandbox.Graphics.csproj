@@ -176,6 +176,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\My_IME_Library\DemoForm\MyTSF IME System\MyTSF IME System.csproj">
+      <Project>{d24214a6-6d40-4854-a106-d496e8d174b1}</Project>
+      <Name>MyTSF IME System</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MyTSF\MyTSF.vcxproj">
       <Project>{fb22f4d2-4ef6-4e67-bc16-72ca7e3919dc}</Project>
       <Name>MyTSF</Name>

@@ -8680,7 +8680,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Description_CloseHelmet = MyStringId.GetOrCompute("Description_CloseHelmet");
 
         ///<summary>
-        ///Body location
+        ///Body Location
         ///</summary>
         public static readonly MyStringId GPS_Body_Location_Name = MyStringId.GetOrCompute("GPS_Body_Location_Name");
 
@@ -8688,5 +8688,25 @@ namespace Sandbox.Game.Localization
         ///Last known body location
         ///</summary>
         public static readonly MyStringId GPS_Body_Location_Desc = MyStringId.GetOrCompute("GPS_Body_Location_Desc");
+
+        ///<summary>
+        ///Alien Planet Landing
+        ///</summary>
+        public static readonly MyStringId DisplayName_AlienLander = MyStringId.GetOrCompute("DisplayName_AlienLander");
+
+        ///<summary>
+        ///Mars Planet Landing
+        ///</summary>
+        public static readonly MyStringId DisplayName_MarsLander = MyStringId.GetOrCompute("DisplayName_MarsLander");
+
+        ///<summary>
+        ///Add Wheel
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_AddWheel = MyStringId.GetOrCompute("BlockActionTitle_AddWheel");
+
+        ///<summary>
+        ///Tries to add a wheel if no wheel is present.
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_AddWheel = MyStringId.GetOrCompute("BlockActionTooltip_AddWheel");
     }
 }

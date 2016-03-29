@@ -111,5 +111,5 @@ float3 TonemappedColor(float3 color)
 
 float3 CalculateContrast(float3 color, float contrast) {
 	float f = 259 * (contrast + 255) / (255 * (259 - contrast));
-	return saturate(f * (color - 0.5) + 0.5);
+    return saturate(mad(f, color, mad(-0.5, f, 0.5)));
 }

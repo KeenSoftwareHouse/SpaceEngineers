@@ -15,9 +15,19 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 		output.emissive = 1;
 	}
 
-	float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+    float4 ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 	float4 extras = AmbientOcclusionTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 	float4 cm = ColorMetalTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+
+#ifdef DEBUG
+    ng.w *= frame_.TextureDebugMultipliers.GlossMultiplier;
+    extras.x *= frame_.TextureDebugMultipliers.AoMultiplier;
+    extras.y *= frame_.TextureDebugMultipliers.EmissiveMultiplier;
+    extras.w *= frame_.TextureDebugMultipliers.ColorMaskMultiplier;
+    cm.xyz *= frame_.TextureDebugMultipliers.RgbMultiplier;
+    cm.w *= frame_.TextureDebugMultipliers.MetalnessMultiplier;
+#endif
+
 #ifdef BUILD_TANGENT_IN_PIXEL
 	FeedOutputBuildTangent(pixel, pixel.custom.texcoord0, output, ng, cm, extras);
 #else

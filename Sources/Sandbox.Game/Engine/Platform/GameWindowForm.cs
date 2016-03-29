@@ -14,9 +14,8 @@ using Vector2 = VRageMath.Vector2;
 using System.Diagnostics;
 using VRageRender;
 using VRage.Utils;
-
-
 using MyIME;
+
 
 namespace Sandbox.Engine.Platform
 {
@@ -91,13 +90,12 @@ namespace Sandbox.Engine.Platform
 
             BypassedMessages.Add((int)WinApi.WM.IME_NOTIFY);
 
-			MyTSF.MyIME.IMEStart(Handle);
-
+			MyIME.Utility.Statics.IO = new MyIME.Utility.MyIO(Handle,IME.TPos.Trans);
         }
 		
 		~GameWindowForm()
 		{
-			MyTSF.MyIME.IMEEnd();
+			MyIME.Utility.Statics.IO = null;
 		}
 
         internal bool AllowUserResizing
@@ -157,27 +155,40 @@ namespace Sandbox.Engine.Platform
 		{
 			if(e.KeyCode == Keys.IMEConvert)
 			{
+				MyIME.Utility.Statics.IO.ConvertAble = true;
 				m_bufferedChars.Add('\u000f');
+				return;
 			}
-			if(e.KeyCode == Keys.IMENonconvert)
+			else if(e.KeyCode == Keys.IMENonconvert)
 			{
-				m_bufferedChars.Add('\u000e');
+				MyIME.Utility.Statics.IO.ConvertAble = false;
+				return;
 			}
-			if(e.KeyCode == Keys.Return)
+			else if(MyIME.Utility.Statics.IO.ConvertAble)
 			{
-				m_bufferedChars.Add('\n');
+				MyIME.Utility.Statics.IO.PressCtrl(ref e);
+				return;
 			}
-			base.OnKeyDown(e);
+
+			//base.OnKeyDown(e);
 		}
 
 		protected override void OnKeyPress(KeyPressEventArgs e)
 		{
-			char input = e.KeyChar;
-			using (m_bufferedCharsLock.AcquireExclusiveUsing())
+			if (MyIME.Utility.Statics.IO.ConvertAble)
 			{
-				m_bufferedChars.Add(input);
+				MyIME.Utility.Statics.IO.PressChar(e);
+				m_bufferedChars.Add('\u000e');
 			}
-			base.OnKeyPress(e);
+			else
+			{
+				char input = e.KeyChar;
+				using (m_bufferedCharsLock.AcquireExclusiveUsing())
+				{
+					m_bufferedChars.Add(input);
+				}
+			}
+			//base.OnKeyPress(e);
 		}
 
 		protected override void OnMouseMove(MouseEventArgs e)

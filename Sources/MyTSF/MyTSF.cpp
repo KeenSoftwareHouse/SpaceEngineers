@@ -3,83 +3,95 @@
 #include "stdafx.h"
 #include "MyTSF.h"
 
-namespace MyTSF
-{
-
-
 #pragma region Managed My TSF Class
 
-	void MyIME::IMEStart(Int32 hwnd)
-	{
-		MyIMEBase::IMEStart((void*)hwnd);
-	}
+namespace MyIME
+{
+		MyIMEBase::MyIMEBase(Int32 hwnd)
+		{
+			um_base = new MyTSF::MyIMEBase((void*)hwnd);
+		}
 
-	void MyIME::IMEStart(IntPtr hwnd)
-	{
-		MyIMEBase::IMEStart((void*)hwnd);
-	}
+		MyIMEBase::MyIMEBase(IntPtr hwnd)
+		{
+			um_base = new MyTSF::MyIMEBase((void*)hwnd);
+		}
 
-	void MyIME::IMEEnd()
-	{
-		MyIMEBase::IMEEnd();
-	}
+		MyIMEBase::~MyIMEBase()
+		{
+			delete um_base;
+		}
 
-	void MyIME::SetTarget(String^ target)
-	{
-		MyIMEBase::SetTarget(target);
-	}
+		void MyIMEBase::SetTarget(String^ target)
+		{
+			um_base->SetTarget(target);
+		}
 
-	void MyIME::SetConvert()
-	{
-		MyIMEBase::SetConvert();
-	}
+		void MyIMEBase::SetConvert()
+		{
+			um_base->SetConvert();
+		}
 
-	String^ MyIME::Convert()
-	{
-		return MyIMEBase::Convert();
-	}
+		String^ MyIMEBase::Convert()
+		{
+			return um_base->ConvertDown();
+		}
 
-	void MyIME::ResetConvert()
-	{
-		MyIMEBase::ResetConvert();
-	}
+		String^ MyIMEBase::ConvertDown()
+		{
+			return um_base->ConvertDown();
+		}
 
-	String^ MyIME::PreConvert()
-	{
-		return MyIMEBase::PreConvert();
-	}
+		String^ MyIMEBase::ConvertUp()
+		{
+			return um_base->ConvertUp();
+		}
 
-	Int32 MyIME::ConvertAbleCount()
-	{
-		return MyIMEBase::ConvertAbleCount();
-	}
+		void MyIMEBase::ResetConvert()
+		{
+			um_base->ResetConvert();
+		}
 
-	void MyIME::MoveConvertTarget(Int32 s)
-	{
-		MyIMEBase::MoveConvertTarget(s);
-	}
+		String^ MyIMEBase::PreConvert()
+		{
+			return um_base->PreConvert();
+		}
+
+		Int32 MyIMEBase::ConvertAbleCount()
+		{
+			return um_base->ConvertAbleCount();
+		}
+
+		Int32 MyIMEBase::ConvertTargetAbleCount()
+		{
+			return um_base->ConvertTargetAbleCount();
+		}
+
+		void MyIMEBase::MoveConvertTarget(Int32 s)
+		{
+			um_base->MoveConvertTarget(s);
+		}
+
+		Int32 MyIMEBase::ConvertStartPosition()
+		{
+			return um_base->ConvertStartPosition();
+		}
+
+		Int32 MyIMEBase::ConvertEndPosition()
+		{
+			return um_base->ConvertEndPosition();
+		}
+
+}
 
 #pragma endregion
+
+namespace MyTSF
+{
 
 #pragma region Unmanaged My TSF Class
 
 
-	#pragma region Statics
-
-		std::wstring MyIMEBase::target;
-		std::wstring MyIMEBase::htarget;
-		std::vector<std::queue<std::wstring> > MyIMEBase::outRef;
-		size_t MyIMEBase::target_index = 0;
-
-		CComPtr<ITfThreadMgr> MyIMEBase::thr_mgr;
-		CComPtr<ITfDocumentMgr > MyIMEBase::doc_mgr;
-		CComPtr<ITfContext> MyIMEBase::context;
-		CComPtr<ITfFunctionProvider> MyIMEBase::function_prov;
-		CComPtr<ITextStoreACP> MyIMEBase::text_store;
-		CComPtr<ITfFnReconversion> MyIMEBase::reconversion;
-		TfEditCookie MyIMEBase::cookie;
-
-	#pragma endregion
 
 	namespace
 	{
@@ -127,10 +139,10 @@ namespace MyTSF
 		}
 	}
 
-	void MyIMEBase::IMEStart(HANDLE hwnd)
+	MyIMEBase::MyIMEBase(HANDLE hwnd)
 	{
 		target = L"";
-		outRef = std::vector<std::queue<std::wstring> >();
+		outRef = std::vector<std::deque<std::wstring> >();
 
 		CoInitialize(NULL);
 
@@ -169,10 +181,10 @@ namespace MyTSF
 			h = thr_mgr->SetFocus(doc_mgr);
 
 		if (FAILED(h))
-			IMEEnd();
+			delete this;
 	}
 
-	void MyIMEBase::IMEEnd()
+	MyIMEBase::~MyIMEBase()
 	{
 
 		MyIMEBase::RELEASE(text_store);
@@ -209,7 +221,7 @@ namespace MyTSF
 
 	void MyIMEBase::SetConvert()
 	{
-		outRef = std::vector<std::queue<std::wstring> >();
+		outRef = std::vector<std::deque<std::wstring> >();
 		target_index = -1;
 
 		HRESULT h = E_FAIL;
@@ -221,7 +233,7 @@ namespace MyTSF
 		if (store == nullptr)
 			return;
 
-		std::queue<std::wstring> bq,bbq;
+		std::deque<std::wstring> bq,bbq;
 
 		while (start + tcount <= hts)
 		{
@@ -235,7 +247,7 @@ namespace MyTSF
 			do
 			{
 				bbq = bq;
-				bq = std::queue<std::wstring>();
+				bq = std::deque<std::wstring>();
 
 				tcount++;
 				store->SetString(htarget.substr(start, tcount));
@@ -277,7 +289,7 @@ namespace MyTSF
 						SUCCEEDED(pstring->GetString(&bstr)))
 					{
 						std::wstring buf(bstr);
-						bq.push(buf);
+						bq.push_back(buf);
 					}
 				}
 			} while (bq != bbq && start + tcount <= hts);
@@ -293,7 +305,7 @@ namespace MyTSF
 
 	}
 
-	String^ MyIMEBase::Convert()
+	String^ MyIMEBase::ConvertDown()
 	{
 
 		std::wstring tans = L"";
@@ -304,8 +316,32 @@ namespace MyTSF
 				if (i == target_index)
 				{
 					std::wstring buf = outRef[i].front();
-					outRef[i].pop();
-					outRef[i].push(buf);
+					outRef[i].pop_front();
+					outRef[i].push_back(buf);
+				}
+				else if(target_index == -1)
+					target_index = 0;
+				std::wstring buf = outRef[i].front();
+				tans += buf;
+			}
+		}
+		String^ ans = gcnew String(tans.c_str());
+		return ans;
+	}
+
+	String^ MyIMEBase::ConvertUp()
+	{
+
+		std::wstring tans = L"";
+		for (int i = 0; i < outRef.size(); i++)
+		{
+			if (!outRef[i].empty())
+			{
+				if (i == target_index)
+				{
+					std::wstring buf = outRef[i].back();
+					outRef[i].pop_back();
+					outRef[i].push_front(buf);
 				}
 				else if(target_index == -1)
 					target_index = 0;
@@ -330,15 +366,47 @@ namespace MyTSF
 		return ans;
 	}
 
+	Int32 MyIMEBase::ConvertTargetAbleCount()
+	{
+		if (target_index < 0)
+		{
+			return outRef[0].size();
+		}
+		return outRef[target_index].size();
+	}
+
 	void MyIMEBase::MoveConvertTarget(Int32 s)
 	{
-		if(target_index <= 0)
+		if (target_index < 0)
 			target_index = 0;
-		target_index += s;
-		if (target_index <= 0)
+		long buf = (long) target_index + s;
+		if (buf < 0)
 			target_index = 0;
-		else if (target_index >= outRef.size())
+		else if (buf >= outRef.size())
 			target_index = outRef.size() - 1;
+		else
+			target_index = buf;
+	}
+
+	Int32 MyIMEBase::ConvertStartPosition()
+	{
+		size_t ans = 0;
+		for (int i = 0; i < target_index; i++)
+		{
+			ans += outRef[i].front().size();
+		}
+		return ans;
+	}
+
+	Int32 MyIMEBase::ConvertEndPosition()
+	{
+		size_t ans = 0;
+		for (int i = 0; i <= target_index; i++)
+		{
+			ans += outRef[i].front().size();
+		}
+		ans = (ans > 0) ? ans - 1 : 0;
+		return ans;
 	}
 
 #pragma endregion

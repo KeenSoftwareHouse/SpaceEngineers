@@ -107,11 +107,23 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 
 	cm = ColorMetalTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 
+#ifdef DEBUG
+    cm.xyz *= frame_.TextureDebugMultipliers.RgbMultiplier;
+    cm.w *= frame_.TextureDebugMultipliers.MetalnessMultiplier;
+#endif
+
 	output.depth = OffsetDepth(output.depth, frame_.projection_matrix, 20 * cm.w * cm.w * cm.w);
 
 #ifndef DEPTH_ONLY
 	extras = AmbientOcclusionTexture.Sample(TextureSampler, pixel.custom.texcoord0);
 	ng = NormalGlossTexture.Sample(TextureSampler, pixel.custom.texcoord0);
+
+#ifdef DEBUG
+    ng.w *= frame_.TextureDebugMultipliers.GlossMultiplier;
+    extras.x *= frame_.TextureDebugMultipliers.AoMultiplier;
+    extras.y *= frame_.TextureDebugMultipliers.EmissiveMultiplier;
+    extras.w *= frame_.TextureDebugMultipliers.ColorMaskMultiplier;
+#endif
 
 #ifdef BUILD_TANGENT_IN_PIXEL
 	FeedOutputBuildTangent(pixel, pixel.custom.texcoord0, output, ng, cm, extras);

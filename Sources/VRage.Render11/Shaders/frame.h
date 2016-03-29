@@ -92,6 +92,8 @@ struct FrameConstants
 	float VoxelAoOffset;
 
 	matrix background_orientation;
+
+    TextureDebugMultipliersType TextureDebugMultipliers;
 };
 
 cbuffer Frame : register( MERGE(b,FRAME_SLOT) )

@@ -4,26 +4,10 @@
 
 
 using namespace System;
-
 namespace MyTSF {
 
 	//文字列変換用クラス
 	//IMEを使って文字列をローマ字からかな交じり文に変換する.
-	public ref class MyIME
-	{
-		// TODO: このクラスの、ユーザーのメソッドをここに追加してください。
-	public:
-		static void IMEStart(Int32 hwnd);
-		static void IMEStart(IntPtr hwnd);
-		static void IMEEnd();
-		static void SetTarget(String^ rTarget);
-		static String^ PreConvert();
-		static void SetConvert();
-		static String^ Convert();
-		static void ResetConvert();
-		static Int32 ConvertAbleCount();
-		static void MoveConvertTarget(Int32 s);
-	};
 
 	class MyTextStore : public ITextStoreACP
 	{
@@ -84,15 +68,19 @@ namespace MyTSF {
 	class MyIMEBase
 	{
 	public:
-		static void IMEStart(HANDLE hwnd);
-		static void IMEEnd();
-		static void SetTarget(String^ rTarget);
-		static String^ PreConvert();
-		static String^ Convert();
-		static void SetConvert();
-		static void ResetConvert();
-		static Int32 ConvertAbleCount();
-		static void MoveConvertTarget(Int32 s);
+		MyIMEBase(HANDLE hwnd);
+		virtual ~MyIMEBase();
+		void SetTarget(String^ rTarget);
+		String^ PreConvert();
+		String^ ConvertDown();
+		String^ ConvertUp();
+		void SetConvert();
+		void ResetConvert();
+		Int32 ConvertAbleCount();
+		Int32 ConvertTargetAbleCount();
+		void MoveConvertTarget(Int32 s);
+		Int32 ConvertStartPosition();
+		Int32 ConvertEndPosition();
 	private:
 		template<typename T>
 		static void RELEASE(CComPtr<T> x)
@@ -112,18 +100,101 @@ namespace MyTSF {
 			}
 		}
 	protected:
-		static std::wstring target;
-		static std::wstring htarget;
-		static std::vector<std::queue<std::wstring> > outRef;
-		static size_t target_index;
+		std::wstring target;
+		std::wstring htarget;
+		std::vector<std::deque<std::wstring> > outRef;
+		size_t target_index;
 
-		static CComPtr<ITfThreadMgr> thr_mgr;
-		static CComPtr<ITfDocumentMgr> doc_mgr;
-		static CComPtr<ITfContext> context;
-		static CComPtr<ITfFunctionProvider> function_prov;
-		static CComPtr<ITextStoreACP> text_store;
-		static CComPtr<ITfFnReconversion> reconversion;
-		static TfEditCookie cookie;
+		CComPtr<ITfThreadMgr> thr_mgr;
+		CComPtr<ITfDocumentMgr> doc_mgr;
+		CComPtr<ITfContext> context;
+		CComPtr<ITfFunctionProvider> function_prov;
+		CComPtr<ITextStoreACP> text_store;
+		CComPtr<ITfFnReconversion> reconversion;
+		TfEditCookie cookie;
 	};
 
 }
+
+namespace MyIME
+{
+	/// <summary>
+	/// IMEの基底クラスです
+	/// </summary>
+	public ref class MyIMEBase
+	{
+	public:
+		/// <summary>
+		/// コンストラクタです.
+		/// </summary>
+		/// <param name="hwnd">関連付けられたハンドル</param>
+		MyIMEBase(IntPtr hwnd);
+		/// <summary>
+		/// コンストラクタです.
+		/// </summary>
+		/// <param name="hwnd">関連付けられたハンドル</param>
+		MyIMEBase(Int32 hwnd);
+		~MyIMEBase();
+		/// <summary>
+		/// 変換文字列を設定します.
+		/// </summary>
+		/// <param name="rTarget">変換文字列</param>
+		void SetTarget(String^ rTarget);
+		/// <summary>
+		/// 日本語文字列の読みを取得します.
+		/// </summary>
+		/// <returns>日本語文字列の読み</returns>
+		String^ PreConvert();
+		/// <summary>
+		/// 再変換を行い生成された日本語文字列を取得します.
+		/// </summary>
+		/// <returns>日本語文字列</returns>
+		String^ Convert();
+		/// <summary>
+		/// 再変換を行い生成された日本語文字列を取得します.
+		/// </summary>
+		/// <returns>日本語文字列</returns>
+		String^ ConvertDown();
+		/// <summary>
+		/// 再変換を行い生成された日本語文字列を取得します.
+		/// </summary>
+		/// <returns>日本語文字列</returns>
+		String^ ConvertUp();
+		/// <summary>
+		/// 日本語文字列を生成します.
+		/// </summary>
+		void SetConvert();
+		/// <summary>
+		/// 内部文字列を初期化します.
+		/// </summary>
+		void ResetConvert();
+		/// <summary>
+		/// 再変換可能な回数の総数を取得します.
+		/// </summary>
+		/// <returns>再変換可能な回数</returns>
+		Int32 ConvertAbleCount();
+		/// <summary>
+		/// 再変換対象の再変換可能な回数を取得します.
+		/// </summary>
+		/// <returns>再変換可能な回数</returns>
+		Int32 ConvertTargetAbleCount();
+		/// <summary>
+		/// 再変換する対象を変更します.
+		/// </summary>
+		/// <param name="s">新しい対象の元の対象からの相対的な位置</param>
+		void MoveConvertTarget(Int32 s);
+		/// <summary>
+		/// 再変換対象の位置を取得します.
+		/// </summary>
+		/// <returns>再変換対象の開始位置</returns>
+		Int32 ConvertStartPosition();
+		/// <summary>
+		/// 再変換対象の位置を取得します.
+		/// </summary>
+		/// <returns>再変換対象の終了位置</returns>
+		Int32 ConvertEndPosition();
+	private:
+		MyTSF::MyIMEBase* um_base;
+	};
+}
+

@@ -96,10 +96,11 @@ float4 CalculateColor(VsOut input, bool minTexture, float alphaCutout)
 {
     float softParticleFade = 1;
     float depth_sample = Depth[input.position.xy].r;
-    if ( depth_sample < 1 ) {
-        float targetdepth = linearize_depth(depth_sample, frame_.projection_matrix);
-        float depth = linearize_depth(input.position.z, frame_.projection_matrix);
-        softParticleFade = saturate(BillboardBuffer[input.index].SoftParticleDistanceScale * (depth - targetdepth));
+    if ( depth_sample < 1 ) 
+	{
+        float targetdepth = -linearize_depth(depth_sample, frame_.projection_matrix) / 20;
+        float depth = -linearize_depth(input.position.z, frame_.projection_matrix) / 20;
+		softParticleFade = saturate(BillboardBuffer[input.index].SoftParticleDistanceScale * (targetdepth - depth));
     }
 
 	float4 billboardColor = float4(srgb_to_rgb(BillboardBuffer[input.index].Color.xyz), BillboardBuffer[input.index].Color.w);
