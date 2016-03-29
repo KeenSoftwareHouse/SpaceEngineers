@@ -42,3 +42,6 @@ user.props
 3rd/SteamSDK/release/x64
 3rd/VRage.Native/debug/x64
 3rd/VRage.Native/release/x64
+
+
+*.VC.opendb

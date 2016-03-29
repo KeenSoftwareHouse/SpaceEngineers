@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers", "Sources\SpaceEngineers\SpaceEngineers.csproj", "{5CD034C8-A242-4BD6-94F4-F20C655A69E8}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -82,6 +82,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpaceEngineers.ObjectBuilders", "Sources\SpaceEngineers.ObjectBuilders\SpaceEngineers.ObjectBuilders.csproj", "{E48FEB99-6814-4947-8035-8C2B4066DD9B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MyTSF", "Sources\MyTSF\MyTSF.vcxproj", "{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -297,6 +299,18 @@ Global
 		{E48FEB99-6814-4947-8035-8C2B4066DD9B}.Release|x64.Build.0 = Release|x64
 		{E48FEB99-6814-4947-8035-8C2B4066DD9B}.Release|x86.ActiveCfg = Release|x86
 		{E48FEB99-6814-4947-8035-8C2B4066DD9B}.Release|x86.Build.0 = Release|x86
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Debug|x64.ActiveCfg = Debug|x64
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Debug|x64.Build.0 = Debug|x64
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Debug|x86.ActiveCfg = Debug|Win32
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Debug|x86.Build.0 = Debug|Win32
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release Official|x64.ActiveCfg = Release|x64
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release Official|x64.Build.0 = Release|x64
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release Official|x86.ActiveCfg = Release|Win32
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release Official|x86.Build.0 = Release|Win32
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release|x64.ActiveCfg = Release|x64
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release|x64.Build.0 = Release|x64
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release|x86.ActiveCfg = Release|Win32
+		{FB22F4D2-4EF6-4E67-BC16-72CA7E3919DC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

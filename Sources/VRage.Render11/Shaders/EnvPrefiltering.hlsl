@@ -40,7 +40,7 @@ void __compute_shader(uint3 dispatchThreadID : SV_DispatchThreadID) {
 	    	float lod = Gloss_Blend == 1 ? 0 : 0.5 * log2((float)(sampleSolidAngle/texelSolidAngle));
 	    	float3 sample = (float3)ProbeTex.SampleLevel(LinearSampler, L, lod);
 	    	acc.xyz += sample * NL;
-	    	acc.w += NL;
+			acc.w += NL;
 	    }
 	}
 

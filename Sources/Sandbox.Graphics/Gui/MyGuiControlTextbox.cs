@@ -4,12 +4,39 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
+
+using MyIME;
+
 using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
+
+namespace IME
+{
+	public static class TPos
+	{
+		public static string Trans(string t,int i)
+		{
+			target = t;
+			index = i;
+			return t;
+		}
+		public static int CPos
+		{
+			get { return index; }
+		}
+		public static string Target
+		{
+			get { return target; }
+		}
+		static int index;
+		static string target;
+	}
+}
 
 //  Textbox GUI control. Supports MaxLength.
 //  Supports horisontaly scrollable texts - if text is longer than textbox width, the text will scroll from left to right.
@@ -31,7 +58,7 @@ namespace Sandbox.Graphics.GUI
         Debug
     }
 
-    [MyGuiControlType(typeof(MyObjectBuilder_GuiControlTextbox))]
+	[MyGuiControlType(typeof(MyObjectBuilder_GuiControlTextbox))]
     public class MyGuiControlTextbox : MyGuiControlBase
     {
         #region Styles and static data
@@ -168,7 +195,7 @@ namespace Sandbox.Graphics.GUI
         private StyleDefinition m_styleDef;
         private static MyKeyThrottler m_keyThrottler;
 
-        protected int CarriagePositionIndex
+        public int CarriagePositionIndex
         {
             get { return m_carriagePositionIndex; }
             private set
@@ -220,10 +247,11 @@ namespace Sandbox.Graphics.GUI
         #region Events
         public event Action<MyGuiControlTextbox> TextChanged;
         public event Action<MyGuiControlTextbox> EnterPressed;
-        #endregion
+		#endregion
 
-        #region Construction and serialization
-        public MyGuiControlTextbox() : this(position: null) { }
+
+		#region Construction and serialization
+		public MyGuiControlTextbox() : this(position: null) { }
 
         public MyGuiControlTextbox(
             Vector2? position            = null,
@@ -248,6 +276,7 @@ namespace Sandbox.Graphics.GUI
             m_visualStyle           = visualStyle;
             RefreshVisualStyle();
             m_slidingWindowOffset = 0f;
+
         }
 
         public override void Init(MyObjectBuilder_GuiControlBase objectBuilder)
@@ -546,20 +575,37 @@ namespace Sandbox.Graphics.GUI
                 {
                     if (character == BACKSPACE)
                     {
-                        if (m_selection.Length == 0)
-                            ApplyBackspace();
-                        else
-                            m_selection.EraseText(this);
-                        
+						if (m_selection.Length == 0)
+							ApplyBackspace();
+						else
+							m_selection.EraseText(this);
+
                         textChanged = true;
                     }
+
+					if(character == '\u000f')
+					{
+						StringBuilder sb = new StringBuilder();
+						GetText(sb);
+						MyIME.Utility.Statics.IO.Clear(sb.ToString(), CarriagePositionIndex);
+					}
+					if(character == '\u000e')
+					{
+						SetText(new StringBuilder(IME.TPos.Target));
+						CarriagePositionIndex = IME.TPos.CPos;
+					}
+
                 }
                 else
                 {
                     if (m_selection.Length > 0)
                         m_selection.EraseText(this);
 
-                    InsertChar(character);
+					if (!MyIME.Utility.Statics.IO.ConvertAble)
+					{
+						InsertChar(character);
+					}
+
                     textChanged = true;
                 }
             }

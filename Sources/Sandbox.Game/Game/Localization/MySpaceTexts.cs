@@ -8225,6 +8225,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertiesText_MotorAttachingSpecific = MyStringId.GetOrCompute("BlockPropertiesText_MotorAttachingSpecific");
 
         ///<summary>
+        ///Safety locked
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MotorLocked = MyStringId.GetOrCompute("BlockPropertiesText_MotorLocked");
+
+        ///<summary>
         ///Detached
         ///</summary>
         public static readonly MyStringId BlockPropertiesText_MotorDetached = MyStringId.GetOrCompute("BlockPropertiesText_MotorDetached");
@@ -8653,5 +8658,55 @@ namespace Sandbox.Game.Localization
         ///Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.
         ///</summary>
         public static readonly MyStringId ProgrammableBlock_Exception_NestedTooComplex = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NestedTooComplex");
+
+        ///<summary>
+        ///Open Helmet
+        ///</summary>
+        public static readonly MyStringId DisplayName_OpenHelmet = MyStringId.GetOrCompute("DisplayName_OpenHelmet");
+
+        ///<summary>
+        ///Close Helmet
+        ///</summary>
+        public static readonly MyStringId DisplayName_CloseHelmet = MyStringId.GetOrCompute("DisplayName_CloseHelmet");
+
+        ///<summary>
+        ///Open Helmet
+        ///</summary>
+        public static readonly MyStringId Description_OpenHelmet = MyStringId.GetOrCompute("Description_OpenHelmet");
+
+        ///<summary>
+        ///Close Helmet
+        ///</summary>
+        public static readonly MyStringId Description_CloseHelmet = MyStringId.GetOrCompute("Description_CloseHelmet");
+
+        ///<summary>
+        ///Body Location
+        ///</summary>
+        public static readonly MyStringId GPS_Body_Location_Name = MyStringId.GetOrCompute("GPS_Body_Location_Name");
+
+        ///<summary>
+        ///Last known body location
+        ///</summary>
+        public static readonly MyStringId GPS_Body_Location_Desc = MyStringId.GetOrCompute("GPS_Body_Location_Desc");
+
+        ///<summary>
+        ///Alien Planet Landing
+        ///</summary>
+        public static readonly MyStringId DisplayName_AlienLander = MyStringId.GetOrCompute("DisplayName_AlienLander");
+
+        ///<summary>
+        ///Mars Planet Landing
+        ///</summary>
+        public static readonly MyStringId DisplayName_MarsLander = MyStringId.GetOrCompute("DisplayName_MarsLander");
+
+        ///<summary>
+        ///Add Wheel
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_AddWheel = MyStringId.GetOrCompute("BlockActionTitle_AddWheel");
+
+        ///<summary>
+        ///Tries to add a wheel if no wheel is present.
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_AddWheel = MyStringId.GetOrCompute("BlockActionTooltip_AddWheel");
     }
 }

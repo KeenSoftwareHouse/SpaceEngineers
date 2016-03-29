@@ -14,6 +14,8 @@ using Vector2 = VRageMath.Vector2;
 using System.Diagnostics;
 using VRageRender;
 using VRage.Utils;
+using MyIME;
+
 
 namespace Sandbox.Engine.Platform
 {
@@ -87,7 +89,14 @@ namespace Sandbox.Engine.Platform
             BypassedMessages.Add((int)WinApi.WM.KILLFOCUS);
 
             BypassedMessages.Add((int)WinApi.WM.IME_NOTIFY);
+
+			MyIME.Utility.Statics.IO = new MyIME.Utility.MyIO(Handle,IME.TPos.Trans);
         }
+		
+		~GameWindowForm()
+		{
+			MyIME.Utility.Statics.IO = null;
+		}
 
         internal bool AllowUserResizing
         {
@@ -139,26 +148,57 @@ namespace Sandbox.Engine.Platform
             if (m.Msg == (int)WinApi.WM.SYSKEYDOWN)
                 return;
 
-            if (m.Msg == (int)WinApi.WM.CHAR)
-            {
-                char input = (char)m.WParam;
-                using (m_bufferedCharsLock.AcquireExclusiveUsing())
-                {
-                    m_bufferedChars.Add(input);
-                }
-                return;
-            }
-
-            if (m.Msg == (int)WinApi.WM.MOUSEMOVE)
-            {
-                m_mousePosition.X = unchecked((short)(long)m.LParam);
-                m_mousePosition.Y = unchecked((short)((long)m.LParam >> 16));
-            }
-
             base.WndProc(ref m);
         }
 
-        public bool PreFilterMessage(ref Message m)
+		protected override void OnKeyDown(KeyEventArgs e)
+		{
+			if(e.KeyCode == Keys.IMEConvert)
+			{
+				MyIME.Utility.Statics.IO.ConvertAble = true;
+				m_bufferedChars.Add('\u000f');
+				return;
+			}
+			else if(e.KeyCode == Keys.IMENonconvert)
+			{
+				MyIME.Utility.Statics.IO.ConvertAble = false;
+				return;
+			}
+			else if(MyIME.Utility.Statics.IO.ConvertAble)
+			{
+				MyIME.Utility.Statics.IO.PressCtrl(ref e);
+				return;
+			}
+
+			//base.OnKeyDown(e);
+		}
+
+		protected override void OnKeyPress(KeyPressEventArgs e)
+		{
+			if (MyIME.Utility.Statics.IO.ConvertAble)
+			{
+				MyIME.Utility.Statics.IO.PressChar(e);
+				m_bufferedChars.Add('\u000e');
+			}
+			else
+			{
+				char input = e.KeyChar;
+				using (m_bufferedCharsLock.AcquireExclusiveUsing())
+				{
+					m_bufferedChars.Add(input);
+				}
+			}
+			//base.OnKeyPress(e);
+		}
+
+		protected override void OnMouseMove(MouseEventArgs e)
+		{
+			m_mousePosition.X = e.X;
+			m_mousePosition.Y = e.Y;
+			base.OnMouseMove(e);
+		}
+
+		public bool PreFilterMessage(ref Message m)
         {
             if (m.Msg == (int)WinApi.WM.MOUSEMOVE)
             {
@@ -197,7 +237,8 @@ namespace Sandbox.Engine.Platform
 
             if (m.Msg == (int)WinApi.WM.KEYDOWN)
             {
-                return true;
+                //return true;
+                return false;
             }
 
             if (m.Msg == (int)WinApi.WM.SYSCOMMAND)

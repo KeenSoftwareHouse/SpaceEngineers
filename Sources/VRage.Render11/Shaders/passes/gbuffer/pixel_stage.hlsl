@@ -31,8 +31,6 @@ void __pixel_shader(PixelStageInput input, out GbufferOutput output,
 	material_output.coverage = coverage;
 	
 	pixel_program(pixel, material_output);
-	if(material_output.DISCARD)
-		discard;
 
 #ifdef CUSTOM_DEPTH
 	float depth = material_output.depth > 0 ? material_output.depth : input.position.z;

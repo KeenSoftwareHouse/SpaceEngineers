@@ -5,7 +5,7 @@
 #include <Lighting/SpecularGGX.h>
 #include <Lighting/Utils.h>
 
-float toksvig_gloss(float gloss, float normalmap_len)
+float ToksvigGloss(float gloss, float normalmap_len)
 {
     float specular = GlossToSpecular(gloss);
     float ft = normalmap_len / lerp(specular, 1.0f, normalmap_len);
@@ -31,14 +31,22 @@ float3 importance_sample_ggx(float2 xi, float a, float3 N, out float pdf)
     return tanx * H.x + tany * H.y + N * H.z;
 }
 
-float3 MaterialRadiance(float3 albedo, float3 f0, float gloss, float3 N, float3 L, float3 V, float3 H)
+float3 MaterialRadiance(float3 albedo, float3 f0, float gloss, float3 N, float3 L, float3 V, float3 H, float dFactor, float sFactor, float id = 0)
 {
-	float nl = max(abs(dot(L, N)), 0.001);
-	float nv = max(abs(dot(N, V)), 0.001);
-    float nh = abs(dot(N, H));
-    float vh = abs(dot(V, H));
+	float ln = saturate(dot(L, N));
+	float vn = saturate(dot(V, N));
+    float nh = saturate(dot(N, H));
+	float vh = saturate(dot(V, H));
+	float lv = saturate(dot(L, V));
 
-    return DiffuseLight(nl, nv, albedo, gloss) + SpecularLight(f0, gloss, nl, nh, nv, vh);
+	float3 light = DiffuseLight(ln, vn, lv, albedo, gloss) * dFactor;
+	light += SpecularLight(ln, nh, vn, vh, f0, gloss) * sFactor;
+
+	if (id == 2)
+	{
+		ln = 0.5f;
+	}
+	return light * ln;
 }
 
 #endif

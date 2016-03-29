@@ -3,7 +3,8 @@
 #include <common.h>
 #include <Math/math.h>
 
-struct FrameConstants {
+struct FrameConstants 
+{
 	//
 	matrix 	view_projection_matrix;
 	matrix	view_matrix;
@@ -91,6 +92,8 @@ struct FrameConstants {
 	float VoxelAoOffset;
 
 	matrix background_orientation;
+
+    TextureDebugMultipliersType TextureDebugMultipliers;
 };
 
 cbuffer Frame : register( MERGE(b,FRAME_SLOT) )

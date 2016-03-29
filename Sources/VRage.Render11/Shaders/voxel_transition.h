@@ -24,37 +24,16 @@ float4 GetNearestDistanceAndScale(float distance, float4 materialSettings)
 
 void ProcessDithering(PixelInterface pixel, inout MaterialOutputInterface output)
 {
+#ifdef DITHERED
 	float3 lightDir = normalize(frame_.directionalLightVec);
 	float3 nrm = normalize(pixel.custom.normal.xyz);
 	float shadowTreshold = -0.2f;
 
-	/*if (dot(lightDir, nrm) > shadowTreshold)
-	{
-		output.base_color = float3(1, 0, 0);
+	// < 0 dark side; >0 light side
+	float voxelSide = shadowTreshold - dot(lightDir, nrm);
 
-	}
-	else
-	{
-		output.base_color = float3(0, 1, 0);
-	}
-
-	output.metalness = 0;
-
-	output.normal = nrm;
-	output.gloss = 0;
-	output.emissive = 0;
-	output.ao = 1;
-	output.id = 4;
-
-	return;*/
-
-#ifdef DITHERED
-
-	bool isDarkSide = dot(lightDir, nrm) > shadowTreshold;
-
-	float object_dither = abs(pixel.custom_alpha);
 	float tex_dither = Dither8x8[(uint2)pixel.screen_position.xy % 8];
-
+	float object_dither = abs(pixel.custom_alpha);
 	if (object_dither > 2)
 	{
 		object_dither -= 2.0f;
@@ -62,27 +41,20 @@ void ProcessDithering(PixelInterface pixel, inout MaterialOutputInterface output
 
 		if (object_dither > 1)
 		{
+#ifdef DEPTH_ONLY
 			object_dither -= 1;
 
-#ifdef DEPTH_ONLY
-			if (tex_dither > object_dither && !isDarkSide)
-			{
-				DISCARD_PIXEL;
-			}
+			if (voxelSide > 0)
+				clip(object_dither - tex_dither);
+
 #endif
 		}
 		else
 		{ //0 - 1
 #ifdef DEPTH_ONLY
-			if (!isDarkSide)
-			{
-				DISCARD_PIXEL;
-			}
+			clip(-voxelSide);
 #else
-			if (tex_dither > object_dither)
-			{
-				DISCARD_PIXEL;
-			}
+			clip(object_dither - tex_dither);
 #endif
 		}
 	}
@@ -91,28 +63,19 @@ void ProcessDithering(PixelInterface pixel, inout MaterialOutputInterface output
 		if (object_dither > 1)
 		{
 #ifdef DEPTH_ONLY
-			if (!isDarkSide)
-			{
-				DISCARD_PIXEL;
-			}
+			clip(-voxelSide);
 #else
 
 			object_dither -= 1;
-			if (tex_dither < object_dither)
-			{
-				DISCARD_PIXEL;
-			}
+			clip(tex_dither - object_dither);
 #endif
 		}
 		else // 1 - 2
 		{
 #ifdef DEPTH_ONLY
-			if (!isDarkSide)
+			if (voxelSide > 0)
 			{
-				if (tex_dither < object_dither)
-				{
-					DISCARD_PIXEL;
-				}
+				clip(tex_dither - object_dither);
 			}
 #endif
 		}

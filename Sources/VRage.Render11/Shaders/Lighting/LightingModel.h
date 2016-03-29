@@ -11,35 +11,26 @@ float falloff_to_radius(float f, float range)
 	return range * r_;
 }
 
-float3 calculate_light(SurfaceInterface surface, float3 lightVector)
+float3 calculate_light(SurfaceInterface surface, float3 lightVector, float3 lightColor, float dFactor, float sFactor)
 {
 	float3 N = surface.N;
 	float3 V = surface.V;
 	float3 H = normalize(V + lightVector);
 
-	float3 NE = N;
-    float shadowMultiplier = mad(-frame_.skyboxBrightness, frame_.shadowFadeout, frame_.shadowFadeout);
-	float NL = saturate(dot(lightVector, NE));
-
-    if ( surface.id == 2 )
-    {
-        NL = 0.5f;
-    }
-
-    NL = max(lerp(NL, M_1_PI, shadowMultiplier), NL);
-
-	return (1 - surface.emissive) * M_PI * NL * MaterialRadiance(surface.albedo, surface.f0, surface.gloss, NE, lightVector, V, H);
+	float3 lightRadiance = lightColor * MaterialRadiance(surface.albedo, surface.f0, surface.gloss, N, lightVector, V, H, dFactor, sFactor, surface.id);
+	return lightRadiance;
+	//return (1 - surface.emissive) * M_PI * lightRadiance;
 }
 
-float3 main_directional_light(SurfaceInterface surface) 
+float3 main_directional_light(SurfaceInterface surface)
 {
-	return calculate_light(surface, -frame_.directionalLightVec) * frame_.directionalLightColor;
+	return calculate_light(surface, -frame_.directionalLightVec, frame_.directionalLightColor, 1, 0.25f);
 }
 
 float3 back_directional_light(SurfaceInterface surface, int index)
 {
     float3 lightVector = -normalize(frame_.additionalSunDirection[index].xyz);
-    return calculate_light(surface, lightVector) * frame_.additionalSunIntensity * frame_.additionalSunColor * dot(surface.N, lightVector);
+	return calculate_light(surface, lightVector, frame_.additionalSunIntensity * frame_.additionalSunColor, 1, 0.25f);
 }
 
 // scattering

@@ -49,20 +49,18 @@ float3 ambient_specular(float3 f0, float gloss, float3 N, float3 V)
 	return lerp(sample, sample1, smoothstep(0, 1, frame_.skyboxBlend)) * ( f0 * env_brdf.x + env_brdf.y) * frame_.env_mult;
 }
 
-float3 ambient_diffuse(float3 f0, float gloss, float3 N, float3 V, float global_ambient = 0.000075f)
+float3 ambient_diffuse(float3 N, float global_ambient)
 {
-	// Remove some of the tint
-	float ambient_boost = 0.75f;
+	float3 sample0 = SkyboxIBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz;
+	float3 sample1 = Skybox2IBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz;
+	float3 skybox = lerp(sample0, sample1, smoothstep(0, 1, frame_.skyboxBlend));
 
-	float3 sample = SkyboxIBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz * ambient_boost + global_ambient;
-	float3 sample1 = Skybox2IBLTex.SampleLevel(TextureSampler, N, IBL_MAX_MIPMAP).xyz * ambient_boost + global_ambient;
-
-	return lerp(sample, sample1, smoothstep(0, 1, frame_.skyboxBlend)) * frame_.env_mult;
+	return (global_ambient + skybox) * frame_.env_mult;
 }
 
 float3 ambient_diffuse(float3 N)
 {
-	return ambient_diffuse(0, 0, N, 0);
+	return ambient_diffuse(N, 0.000075f);
 }
 
 static const uint SamplesNum = 64;

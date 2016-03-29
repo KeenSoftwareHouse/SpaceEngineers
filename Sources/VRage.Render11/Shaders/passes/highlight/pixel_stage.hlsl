@@ -33,8 +33,6 @@ void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 
 	MaterialOutputInterface material_output = make_mat_interface();
 	pixel_program(pixel, material_output);
-	if(material_output.DISCARD)
-		discard;
 
 	//float4 volumePos = mul(float4(pixel.position_ws, 1), Outline.WorldToVolume);
 	//volumePos /= volumePos.w;

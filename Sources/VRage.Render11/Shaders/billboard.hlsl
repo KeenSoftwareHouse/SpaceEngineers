@@ -72,7 +72,7 @@ VsOut __vertex_shader(VsIn vertex, uint vertex_id : SV_VertexID)
 #ifdef LIT_PARTICLE
     float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.view_matrix).xyz;
     float3 V = normalize(get_camera_position() - vs_pos);
-    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(0, 0, V, 0, 0.5f);
+    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(V, 0.5f);
 #endif
 
 	return result;
@@ -96,10 +96,11 @@ float4 CalculateColor(VsOut input, bool minTexture, float alphaCutout)
 {
     float softParticleFade = 1;
     float depth_sample = Depth[input.position.xy].r;
-    if ( depth_sample < 1 ) {
-        float targetdepth = linearize_depth(depth_sample, frame_.projection_matrix);
-        float depth = linearize_depth(input.position.z, frame_.projection_matrix);
-        softParticleFade = saturate(BillboardBuffer[input.index].SoftParticleDistanceScale * (depth - targetdepth));
+    if ( depth_sample < 1 ) 
+	{
+        float targetdepth = -linearize_depth(depth_sample, frame_.projection_matrix) / 20;
+        float depth = -linearize_depth(input.position.z, frame_.projection_matrix) / 20;
+		softParticleFade = saturate(BillboardBuffer[input.index].SoftParticleDistanceScale * (targetdepth - depth));
     }
 
 	float4 billboardColor = float4(srgb_to_rgb(BillboardBuffer[input.index].Color.xyz), BillboardBuffer[input.index].Color.w);

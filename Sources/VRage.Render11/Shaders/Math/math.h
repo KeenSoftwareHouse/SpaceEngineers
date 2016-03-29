@@ -11,28 +11,43 @@
 
 // depth for RH projection matrix
 
-float linearize_depth(float depth, float proj33, float proj43) {
+float linearize_depth(float depth, float proj33, float proj43) 
+{
 	return -proj43 / (depth + proj33);
 }
 
-float linearize_depth(float depth, matrix projmatrix) {
+float linearize_depth(float depth, matrix projmatrix) 
+{
 	return linearize_depth(depth, projmatrix._33, projmatrix._43);
+}
+
+float OffsetDepth(float depth, matrix projmatrix, float offset)
+{
+	float proj43 = projmatrix._43;
+	float proj33 = projmatrix._33;
+	float linearDepth = linearize_depth(depth, proj33, proj43);
+	float newDepth = linearDepth + offset;
+
+	return -proj43 / newDepth - proj33;
 }
 
 // splines
 
-float3 cubic_hermit(float3 p0, float3 p1, float3 m0, float3 m1, float t) {
+float3 cubic_hermit(float3 p0, float3 p1, float3 m0, float3 m1, float t) 
+{
     float t3 = pow(t, 3);
     float t2 = t*t;
     return (2*t3 - 3*t2 + 1)*p0 + (t3 - 2*t2 + t)*m0 + (t3 - t2)*m1 + (-2*t3 +3*t2)*p1;
 }
 
-float3 cubic_hermit_tan(float3 p0, float3 p1, float3 m0, float3 m1, float t) {
+float3 cubic_hermit_tan(float3 p0, float3 p1, float3 m0, float3 m1, float t) 
+{
     float t2 = t*t;
     return 6*t*(t+1)*p0 + (3*t2 + 4*t + 1)*m0 + t*(3*t-2)*m1 - 6*(t-1)*t*p1;
 }
 
-float smootherstep(float edge0, float edge1, float x) {
+float smootherstep(float edge0, float edge1, float x) 
+{
     // Scale, and clamp x to 0..1 range
     x = clamp((x - edge0)/(edge1 - edge0), 0.0, 1.0);
     // Evaluate polynomial
@@ -41,15 +56,18 @@ float smootherstep(float edge0, float edge1, float x) {
 
 // curves
 
-float4 smooth_curve( float4 x ) {  
+float4 smooth_curve( float4 x ) 
+{
     return x * x *( 3.0 - 2.0 * x );  
 }  
 
-float4 triangle_wave( float4 x ) {  
+float4 triangle_wave( float4 x ) 
+{
   return abs( frac( x + 0.5 ) * 2.0 - 1.0 );  
 }  
 
-float4 smooth_triangle_wave( float4 x ) {  
+float4 smooth_triangle_wave( float4 x ) 
+{
   return smooth_curve( triangle_wave( x ) );  
 }  
 

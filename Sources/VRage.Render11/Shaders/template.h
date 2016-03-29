@@ -26,12 +26,15 @@ float4x4 get_view_proj_matrix()
 	return projection_.view_proj_matrix;
 }
 
-float4 world_to_clip(float3 p)
+float4 WorldToClip(float3 worldPosition)
 {
-    return mul(float4(p, 1), projection_.view_proj_matrix);
+    return mul(float4(worldPosition, 1), projection_.view_proj_matrix);
 }
 
-#define MATERIAL_FLAG_RGB_COLORING 1
+#define MATERIAL_FLAG_COLORING (MATERIAL_FLAG_COLORING_RGB|MATERIAL_FLAG_HAS_KEYCOLOR)
+
+#define MATERIAL_FLAG_COLORING_RGB 1
+#define MATERIAL_FLAG_NO_KEYCOLOR 2
 
 struct ObjectConstants
 {

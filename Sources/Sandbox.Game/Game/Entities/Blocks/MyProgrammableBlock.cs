@@ -361,9 +361,9 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     if (IlInjector.IsWithinRunBlock())
                     {
-                        // If we're within a nested run, we don't reset the program, we just pass the error
-                        response += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NestedTooComplex);
-                        return ScriptTerminationReason.InstructionOverflow;
+						// If we're within a nested run, we don't reset the program, we just pass the error
+						response += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NestedTooComplex);
+						return ScriptTerminationReason.InstructionOverflow;
                     }
                     else
                     {
