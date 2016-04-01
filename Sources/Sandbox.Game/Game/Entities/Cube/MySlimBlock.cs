@@ -1915,7 +1915,7 @@ namespace Sandbox.Game.Entities.Cube
         public float GetMass()
         {
             if (FatBlock != null)
-                return FatBlock.GetMass();
+                return FatBlock.GetMass() * Integrity / MaxIntegrity;
             Matrix m;
             if (MyDestructionData.Static != null)
                 return MyDestructionData.Static.GetBlockMass(CalculateCurrentModel(out m), BlockDefinition);

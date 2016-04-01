@@ -4145,6 +4145,7 @@ namespace Sandbox.Game.Entities
             if (block != null)
             {
                 block.SetIntegrity(buildIntegrity, integrity, integrityChangeType, grinderOwner);
+                Physics.UpdateMass();
             }
         }
 
