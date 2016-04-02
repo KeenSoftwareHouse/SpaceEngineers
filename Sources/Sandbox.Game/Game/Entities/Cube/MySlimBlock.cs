@@ -1915,7 +1915,27 @@ namespace Sandbox.Game.Entities.Cube
         public float GetMass()
         {
             if (FatBlock != null)
-                return FatBlock.GetMass() * Integrity / MaxIntegrity;
+            {
+                /* If the block is incomplete / damaged this function calculates its effective mass.
+                 *   taking into considerabtion stockpiled, but unbuilt items.
+                 */
+                if (!ComponentStack.IsFullIntegrity)
+                {
+                    float effectiveIntegrity = Integrity; // this accounts for integrity supplied from mounted components
+                    if (StockpileAllocated && !StockpileEmpty)
+                    {
+                        MyComponentStack.GroupInfo group;
+                        for (int index = 0; index < ComponentStack.GroupCount; ++index)
+                        {
+                            group = ComponentStack.GetGroupInfo(index);
+                            effectiveIntegrity += (m_stockpile.GetItemAmount(group.Component.Id) * group.Component.MaxIntegrity);
+                        }
+                    }
+                    return FatBlock.GetMass() * effectiveIntegrity / MaxIntegrity;
+                }
+                return FatBlock.GetMass();
+            }
+
             Matrix m;
             if (MyDestructionData.Static != null)
                 return MyDestructionData.Static.GetBlockMass(CalculateCurrentModel(out m), BlockDefinition);
