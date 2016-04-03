@@ -51,8 +51,8 @@ namespace Sandbox.Game.Gui
         MyGuiControlButton m_buttonAddCurrent;
         MyGuiControlButton m_buttonDelete;
 
-		MyGuiControlButton m_buttonShowAll;
-		MyGuiControlButton m_buttonHideAll;
+        MyGuiControlButton m_buttonShowAll;
+        MyGuiControlButton m_buttonHideAll;
 
         MyGuiControlButton m_buttonCopy;
 
@@ -80,14 +80,14 @@ namespace Sandbox.Game.Gui
             m_buttonAddCurrent = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonFromCurrent");
             m_buttonAddFromClipboard = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonFromClipboard");
             m_buttonDelete = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonDelete");
-			m_buttonShowAll = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonShowAll");
-			m_buttonHideAll = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonHideAll");
+            m_buttonShowAll = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonShowAll");
+            m_buttonHideAll = (MyGuiControlButton)m_controlsParent.Controls.GetControlByName("buttonHideAll");
             m_buttonAdd.ButtonClicked += OnButtonPressedNew;
             m_buttonAddFromClipboard.ButtonClicked += OnButtonPressedNewFromClipboard;
             m_buttonAddCurrent.ButtonClicked += OnButtonPressedNewFromCurrent;
             m_buttonDelete.ButtonClicked += OnButtonPressedDelete;
-			m_buttonShowAll.ButtonClicked += OnButtonPressedShowAll;
-			m_buttonHideAll.ButtonClicked += OnButtonPressedHideAll;
+            m_buttonShowAll.ButtonClicked += OnButtonPressedShowAll;
+            m_buttonHideAll.ButtonClicked += OnButtonPressedHideAll;
 
             //right:
             m_labelInsName = (MyGuiControlLabel)controlsParent.Controls.GetControlByName("labelInsName");
@@ -184,23 +184,23 @@ namespace Sandbox.Game.Gui
             enableEditBoxes(false);
 
             // did we just insert a coordinate?
-			if (m_justInsertedGpsCoord != null)
-			{
-				for (int i = 0; i < m_tableIns.RowsCount; i++)
-				{
-					var current = m_tableIns.GetRow(i).UserData;
-					if (!(current is MyGps)) continue;	// should not happen, just making sure
-					if (m_justInsertedGpsCoord.Equals(((MyGps)current).Name))
-					{
-						m_tableIns.SelectedRowIndex = i;
-						enableEditBoxes(true);
-						// reset coordinate marker
-						m_justInsertedGpsCoord = null;
-						break;
-					}
-				}
-			}
-			else if (selected!=null)
+            if (m_justInsertedGpsCoord != null)
+            {
+                for (int i = 0; i < m_tableIns.RowsCount; i++)
+                {
+                    var current = m_tableIns.GetRow(i).UserData;
+                    if (!(current is MyGps)) continue; // should not happen, just making sure
+                    if (m_justInsertedGpsCoord.Equals(((MyGps)current).Name))
+                    {
+                        m_tableIns.SelectedRowIndex = i;
+                        enableEditBoxes(true);
+                        // reset coordinate marker
+                        m_justInsertedGpsCoord = null;
+                        break;
+                    }
+                }
+            }
+            else if (selected != null)
                 for (int i = 0; i < m_tableIns.RowsCount; i++)
                     if (selected == m_tableIns.GetRow(i).UserData)
                     {
@@ -536,25 +536,25 @@ namespace Sandbox.Game.Gui
             Delete();
         }
 
-		void OnButtonPressedShowAll(MyGuiControlButton obj)
-		{
-			for(int i = 0; i < m_tableIns.RowsCount; i++)
-			{
-				MyGps currentPos = (MyGps)m_tableIns.GetRow(i).UserData;
-				currentPos.ShowOnHud = true;
-				MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, currentPos.Hash, currentPos.ShowOnHud);
-			}
-		}
+        void OnButtonPressedShowAll(MyGuiControlButton obj)
+        {
+            for (int i = 0; i < m_tableIns.RowsCount; i++)
+            {
+                MyGps currentPos = (MyGps)m_tableIns.GetRow(i).UserData;
+                currentPos.ShowOnHud = true;
+                MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, currentPos.Hash, currentPos.ShowOnHud);
+            }
+        }
 
-		void OnButtonPressedHideAll(MyGuiControlButton obj)
-		{
-			for(int i = 0; i < m_tableIns.RowsCount; i++)
-			{
-				MyGps currentPos = (MyGps)m_tableIns.GetRow(i).UserData;
-				currentPos.ShowOnHud = false;
-				MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, currentPos.Hash, currentPos.ShowOnHud);
-			}
-		}
+        void OnButtonPressedHideAll(MyGuiControlButton obj)
+        {
+            for (int i = 0; i < m_tableIns.RowsCount; i++)
+            {
+                MyGps currentPos = (MyGps)m_tableIns.GetRow(i).UserData;
+                currentPos.ShowOnHud = false;
+                MySession.Static.Gpss.ChangeShowOnHud(MySession.Static.LocalPlayerId, currentPos.Hash, currentPos.ShowOnHud);
+            }
+        }
 
 
         private void OnButtonPressedCopy(MyGuiControlButton sender)
@@ -723,8 +723,8 @@ namespace Sandbox.Game.Gui
             m_buttonAddFromClipboard.ButtonClicked -= OnButtonPressedNewFromClipboard;
             m_buttonAddCurrent.ButtonClicked -= OnButtonPressedNewFromCurrent;
             m_buttonDelete.ButtonClicked -= OnButtonPressedDelete;
-			m_buttonShowAll.ButtonClicked -= OnButtonPressedShowAll;
-			m_buttonHideAll.ButtonClicked -= OnButtonPressedHideAll;
+            m_buttonShowAll.ButtonClicked -= OnButtonPressedShowAll;
+            m_buttonHideAll.ButtonClicked -= OnButtonPressedHideAll;
 
             m_buttonCopy.ButtonClicked -= OnButtonPressedCopy;
         }
