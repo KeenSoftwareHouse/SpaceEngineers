@@ -8653,5 +8653,15 @@ namespace Sandbox.Game.Localization
         ///Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.
         ///</summary>
         public static readonly MyStringId ProgrammableBlock_Exception_NestedTooComplex = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NestedTooComplex");
+
+        ///<summary>
+        ///Hide all on HUD
+        ///</summary>
+        public static readonly MyStringId TerminalTab_GPS_HideAll = MyStringId.GetOrCompute("TerminalTab_GPS_HideAll");
+
+        ///<summary>
+        ///Show all on HUD
+        ///</summary>
+        public static readonly MyStringId TerminalTab_GPS_ShowAll = MyStringId.GetOrCompute("TerminalTab_GPS_ShowAll");
     }
 }

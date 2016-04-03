@@ -5395,4 +5395,10 @@ and can also be used by some mods to create advanced logic and effects.</value>
   <data name="ProgrammableBlock_Exception_NestedTooComplex" xml:space="preserve">
     <value>Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.</value>
   </data>
+  <data name="TerminalTab_GPS_HideAll" xml:space="preserve">
+    <value>Hide all on HUD</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowAll" xml:space="preserve">
+    <value>Show all on HUD</value>
+  </data>
 </root>
