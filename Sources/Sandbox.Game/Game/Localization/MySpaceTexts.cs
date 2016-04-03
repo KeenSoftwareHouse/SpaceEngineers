@@ -8690,14 +8690,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ProgrammableBlock_Exception_NestedTooComplex = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NestedTooComplex");
 
         ///<summary>
-        ///Open Helmet
+        ///Hide all on HUD
         ///</summary>
-        public static readonly MyStringId DisplayName_OpenHelmet = MyStringId.GetOrCompute("DisplayName_OpenHelmet");
+        public static readonly MyStringId TerminalTab_GPS_HideAll = MyStringId.GetOrCompute("TerminalTab_GPS_HideAll");
 
         ///<summary>
-        ///Close Helmet
+        ///Show all on HUD
         ///</summary>
-        public static readonly MyStringId DisplayName_CloseHelmet = MyStringId.GetOrCompute("DisplayName_CloseHelmet");
+        public static readonly MyStringId TerminalTab_GPS_ShowAll = MyStringId.GetOrCompute("TerminalTab_GPS_ShowAll");
 
         ///<summary>
         ///Open Helmet
