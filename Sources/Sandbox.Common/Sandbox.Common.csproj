@@ -107,6 +107,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModAPI\IMyBatteryBlock.cs" />
     <Compile Include="ModAPI\IMyGridProgram.cs" />
     <Compile Include="ModAPI\IMyGyro.cs" />
     <Compile Include="ModAPI\IMyLaserAntenna.cs" />
