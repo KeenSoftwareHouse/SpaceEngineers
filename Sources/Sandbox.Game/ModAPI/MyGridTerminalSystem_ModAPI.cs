@@ -48,7 +48,12 @@ namespace Sandbox.Game.GameSystems
 
         List<IMyBlockGroup> IMyGridTerminalSystem.GetBlockGroups()
         {
-            return BlockGroups.ConvertAll(new Converter<MyBlockGroup, IMyBlockGroup>(bg => bg as IMyBlockGroup));
+            var blockGroups = new List<IMyBlockGroup>();
+            foreach (var group in BlockGroups)
+            {
+                blockGroups.Add(group);
+            }
+            return blockGroups;
         }
 
         void IMyGridTerminalSystem.GetBlocksOfType<T>(List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect = null)
