@@ -16,20 +16,20 @@ using VRage.Voxels;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Game;
 
 namespace Sandbox.Engine.Voxels
 {
     class MyVoxelPhysicsBody : MyPhysicsBody
     {
-        public static bool USE_HIT_BASED_SHAPE_DISCARD = true;
         const bool ENABLE_AABB_PHANTOM = true;
         private const int SHAPE_DISCARD_THRESHOLD = 0;
         private const int SHAPE_DISCARD_CHECK_INTERVAL = 18; // this is in update10s
 
         private static Vector3I[] m_cellsToGenerateBuffer = new Vector3I[128];
 
-        internal HashSet<Vector3I> InvalidCells = new HashSet<Vector3I>(Vector3I.Comparer);
-        internal MyPrecalcJobPhysicsBatch RunningBatchTask;
+        internal HashSet<Vector3I>[] InvalidCells;
+        internal MyPrecalcJobPhysicsBatch[] RunningBatchTask = new MyPrecalcJobPhysicsBatch[2];
 
         public readonly MyVoxelBase m_voxelMap;
         private bool m_needsShapeUpdate;
@@ -63,6 +63,11 @@ namespace Sandbox.Engine.Voxels
             : base(voxelMap, RigidBodyFlag.RBF_STATIC)
         {
             ProfilerShort.Begin("MyVoxelPhysicsBody(");
+
+            InvalidCells = new HashSet<Vector3I>[2];
+
+            InvalidCells[0] = new HashSet<Vector3I>();
+            InvalidCells[1] = new HashSet<Vector3I>();
 
             m_predictionSize = predictionSize;
             m_phantomExtend = phantomExtend;
@@ -309,6 +314,7 @@ namespace Sandbox.Engine.Voxels
         internal void InvalidateRange(Vector3I minVoxelChanged, Vector3I maxVoxelChanged, int lod)
         {
             MyPrecalcComponent.AssertUpdateThread();
+
             // No physics there ever was so we don't care.
             if (!m_bodiesInitialized) return;
 
@@ -327,8 +333,8 @@ namespace Sandbox.Engine.Voxels
             }
 
             ProfilerShort.Begin("MyVoxelPhysicsBody.InvalidateRange");
-            minVoxelChanged -= MyPrecalcComponent.InvalidatedRangeInflate;
-            maxVoxelChanged += MyPrecalcComponent.InvalidatedRangeInflate;
+            minVoxelChanged -= 1;// MyPrecalcComponent.InvalidatedRangeInflate;
+            maxVoxelChanged += 1;//MyPrecalcComponent.InvalidatedRangeInflate;
             m_voxelMap.Storage.ClampVoxelCoord(ref minVoxelChanged);
             m_voxelMap.Storage.ClampVoxelCoord(ref maxVoxelChanged);
 
@@ -349,31 +355,33 @@ namespace Sandbox.Engine.Voxels
 
             var rb = GetRigidBody(lod);
             Debug.Assert(rb != null, "RigidBody in voxel physics is null! This must not happen.");
-            
+
             if (rb != null)
             {
-                HkUniformGridShape shape = (HkUniformGridShape) rb.GetShape();
+                HkUniformGridShape shape = (HkUniformGridShape)rb.GetShape();
                 Debug.Assert(shape.Base.IsValid);
+
+
+                var numCells = (maxCellChangedVoxelMap - minCellChangedVoxelMap + 1).Size;
+                if (numCells >= m_cellsToGenerateBuffer.Length)
+                {
+                    m_cellsToGenerateBuffer = new Vector3I[MathHelper.GetNearestBiggerPowerOfTwo(numCells)];
+                }
 
                 var tmpBuffer = m_cellsToGenerateBuffer;
                 int invalidCount = shape.InvalidateRange(ref minCellChangedVoxelMap, ref maxCellChangedVoxelMap, tmpBuffer);
-                if (invalidCount > tmpBuffer.Length)
-                {
-                    // Not storing this new buffer in static variable since this is just temporary and potentially large.
-                    // Static variable could be potentially the same as leak.
-                    tmpBuffer = new Vector3I[invalidCount];
-                    int invalidCount2 = shape.InvalidateRange(ref minCellChangedVoxelMap, ref maxCellChangedVoxelMap, tmpBuffer);
-                    Debug.Assert(invalidCount == invalidCount2);
-                    invalidCount = invalidCount2;
-                }
-                
-                shape.InvalidateRangeImmediate(ref minCellChangedVoxelMap, ref maxCellChangedVoxelMap);
+                Debug.Assert(invalidCount <= tmpBuffer.Length);
+
+                //if (numCells <= 8)
+                //shape.InvalidateRangeImmediate(ref minCellChangedVoxelMap, ref maxCellChangedVoxelMap);
+
                 Debug.Assert(invalidCount <= tmpBuffer.Length);
                 for (int i = 0; i < invalidCount; i++)
                 {
-                    InvalidCells.Add(tmpBuffer[i]);
+                    InvalidCells[lod].Add(tmpBuffer[i]);
                 }
-                if (RunningBatchTask == null && InvalidCells.Count != 0)
+
+                if (RunningBatchTask[lod] == null && InvalidCells[lod].Count != 0)
                 {
                     MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);
                 }
@@ -404,8 +412,6 @@ namespace Sandbox.Engine.Voxels
         {
             UpdateRigidBodyShape();
         }
-
-        MyStorageData m_debugStorageData = new MyStorageData();
 
         internal void UpdateAfterSimulation10()
         {
@@ -518,10 +524,7 @@ namespace Sandbox.Engine.Voxels
 
             if (m_bodiesInitialized)
             {
-                if (USE_HIT_BASED_SHAPE_DISCARD)
-                    CheckAndDiscardShapes();
-                else
-                    CheckAndDiscardShapesOld();
+                CheckAndDiscardShapes();
             }
             ProfilerShort.End();
         }
@@ -546,22 +549,6 @@ namespace Sandbox.Engine.Voxels
                         if (hits <= SHAPE_DISCARD_THRESHOLD)
                             voxelShape.DiscardLargeData();
                     }
-                }
-            }
-        }
-
-        private void CheckAndDiscardShapesOld()
-        {
-            var voxelShape = (HkUniformGridShape)GetShape();
-            if (m_nearbyEntities.Count == 0 && RigidBody != null && MyFakes.ENABLE_VOXEL_PHYSICS_SHAPE_DISCARDING && voxelShape.ShapeCount > 0)
-            {
-                // RigidBody.GetShape();
-                Debug.Assert(voxelShape.Base.IsValid);
-                voxelShape.DiscardLargeData();
-                if (RigidBody2 != null)
-                {
-                    voxelShape = (HkUniformGridShape)RigidBody2.GetShape();
-                    voxelShape.DiscardLargeData();
                 }
             }
         }
@@ -652,8 +639,8 @@ namespace Sandbox.Engine.Voxels
                     shape.SetChild(coord.X, coord.Y, coord.Z, childShape, HkReferencePolicy.None);
                 }
                 m_needsShapeUpdate = true;
-                if (InvalidCells.Count != 0)
-                    MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);
+                /*if (InvalidCells.Count != 0)
+                    MyPrecalcComponent.PhysicsWithInvalidCells.Add(this);*/
             }
         }
 
@@ -662,17 +649,6 @@ namespace Sandbox.Engine.Voxels
             // mk:NOTE This method must be thread safe. Called from worker threads.
 
             coord.CoordInLod += m_cellsOffset >> coord.Lod;
-
-            if (m_voxelMap is MyVoxelPhysics)
-            {
-                var clipmapId = ((MyVoxelPhysics)m_voxelMap).Parent.Render.RenderObjectIDs[0];
-                var clipmapCellId = MyCellCoord.GetClipmapCellHash(clipmapId, coord.PackId64());
-                var isoMesh = MyPrecalcJobRender.IsoMeshCache.Read(clipmapCellId);
-                if (isoMesh != null)
-                {
-                    return isoMesh;
-                }
-            }
 
             var min = coord.CoordInLod << MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS_BITS;
             var max = min + MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
@@ -748,10 +724,14 @@ namespace Sandbox.Engine.Voxels
         {
             base.Close();
             m_workTracker.CancelAll();
-            if (RunningBatchTask != null)
+
+            for (int lod = 0; lod < RunningBatchTask.Length; ++lod)
             {
-                RunningBatchTask.Cancel();
-                RunningBatchTask = null;
+                if (RunningBatchTask[lod] != null)
+                {
+                    RunningBatchTask[lod].Cancel();
+                    RunningBatchTask[lod] = null;
+                }
             }
 
             if (ENABLE_AABB_PHANTOM && m_aabbPhantom != null)
@@ -907,10 +887,10 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        public override VRage.Utils.MyStringHash GetMaterialAt(Vector3D worldPos)
+        public override MyStringHash GetMaterialAt(Vector3D worldPos)
         {
             var material = m_voxelMap.GetMaterialAt(ref worldPos);
-            Debug.Assert(material != null);
+            //Debug.Assert(material != null);
             return material != null ? MyStringHash.GetOrCompute(material.MaterialTypeName) : MyStringHash.NullOrEmpty;
         }
 

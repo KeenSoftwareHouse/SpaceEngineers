@@ -1,33 +1,28 @@
 ﻿#region Using
 
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Blocks;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Gui;
-using Sandbox.Game.GUI;
-using Sandbox.Game.Localization;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.SessionComponents;
-using Sandbox.Game.World;
-using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.Players;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Sandbox;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Gui;
+using Sandbox.Game.GUI;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.World;
+using Sandbox.Graphics.GUI;
+using SpaceEngineers.Game.Entities.Blocks;
+using SpaceEngineers.Game.World;
 using VRage;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -35,7 +30,7 @@ using VRageMath;
 
 #endregion
 
-namespace Sandbox.Game.Gui
+namespace SpaceEngineers.Game.GUI
 {
     [StaticEventOwner]
     public class MyGuiScreenMedicals : MyGuiScreenBase
@@ -425,7 +420,7 @@ namespace Sandbox.Game.Gui
                 RefreshRespawnPoints();//because medical rooms are not powered when the map starts
             }
 
-            if (m_respawnsTable.SelectedRow != null && MySession.Static.GetCameraControllerEnum() !=  MyCameraControllerEnum.Entity)
+            if (m_respawnsTable.SelectedRow != null && MySession.Static.GetCameraControllerEnum() != MyCameraControllerEnum.Entity)
             {
                 MyMedicalRoomInfo userData = m_respawnsTable.SelectedRow.UserData as MyMedicalRoomInfo;
 
@@ -433,7 +428,7 @@ namespace Sandbox.Game.Gui
                 {
                     m_respawnButton.Enabled = false;
                     MyMedicalRoom medicalRoom;
-                    if (MyEntities.TryGetEntityById<MyMedicalRoom>(userData.MedicalRoomId,out medicalRoom))
+                    if (MyEntities.TryGetEntityById<MyMedicalRoom>(userData.MedicalRoomId, out medicalRoom))
                     {
                         m_respawnButton.Enabled = true;
                         Vector3D medRoomPosition = (Vector3D)medicalRoom.PositionComp.GetPosition();
@@ -443,12 +438,11 @@ namespace Sandbox.Game.Gui
                         if (!cameraPosition.HasValue)
                             cameraPosition = preferredCameraPosition;
 
-                        MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator, null, cameraPosition.Value);
                         MySpectatorCameraController.Static.Target = medRoomPosition;
-
+                        MySpectatorCameraController.Static.Position = cameraPosition.Value;
                     }
                 }
-               
+
             }
                 
 

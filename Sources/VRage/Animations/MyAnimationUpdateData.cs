@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace VRage.Animations
 {
@@ -31,5 +28,23 @@ namespace VRage.Animations
         // link to list of bones, it can be used for passing the result of animation tree node 
         // (OUT)
         public List<MyAnimationClip.BoneState> BonesResult;
+
+        // movements in animation tree, positive - go to child nr x, negative - go back to parent, zero - end
+        // (IN/OUT)
+        public int[] VisitedTreeNodesPath;
+
+        // current number of elements in VisitedTreeNodesPath
+        // (IN/OUT)
+        public int VisitedTreeNodesCounter;
+
+        // Helper function, store walking through animation controller.
+        public void AddVisitedTreeNodesPathPoint(int nextPoint)
+        {
+            if (VisitedTreeNodesPath != null && VisitedTreeNodesCounter < VisitedTreeNodesPath.Length)
+            {
+                VisitedTreeNodesPath[VisitedTreeNodesCounter] = nextPoint;
+                VisitedTreeNodesCounter++;
+            }
+        }
     }
 }

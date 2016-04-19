@@ -23,6 +23,7 @@ using VRage.Utils;
 using VRageMath;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -307,7 +308,7 @@ namespace Sandbox.Game.Entities
             {
                 m_jumpTarget = MySession.Static.Gpss.GetGps(ob.JumpTarget.Value);
             }
-
+ 
             m_jumpDistanceRatio.Value = ob.JumpRatio;
             m_isRecharging.Value = ob.Recharging;
 
@@ -378,6 +379,10 @@ namespace Sandbox.Game.Entities
             if (m_storedJumpTarget != null)
             {
                 m_jumpTarget = MySession.Static.Gpss.GetGps(m_storedJumpTarget.Value);
+                if (m_jumpTarget != null)
+                {
+                    m_targetSync.Value = m_jumpTarget.Hash;
+                }
             }
         }
 
@@ -452,7 +457,7 @@ namespace Sandbox.Game.Entities
 
         private float ComputeRequiredPower()
         {
-            if (IsFunctional && IsWorking)
+            if (IsFunctional && IsWorking && m_isRecharging)
             {
                 if (IsFull)
                 {
@@ -570,15 +575,15 @@ namespace Sandbox.Game.Entities
                 {
                     if (i <= fillCount)
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], color, emissivity);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], color, emissivity);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], Color.Black, 0);
                     }
                 }
 
-                VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive4", color, emissivity);
+                UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive4", color, emissivity);
 
                 m_prevColor = color;
                 m_prevFillCount = fillCount;

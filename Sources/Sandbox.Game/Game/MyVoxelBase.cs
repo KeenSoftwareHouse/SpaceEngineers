@@ -27,10 +27,12 @@ using Sandbox.Game.World;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities.Character;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract class MyVoxelBase : MyEntity, IMyVoxelDrawable, IMyVoxelBase, IMyEventProxy
+    public abstract class MyVoxelBase : MyEntity, IMyVoxelDrawable, IMyVoxelBase, IMyDecalProxy, IMyEventProxy
     {
         struct MyRampShapeParams
         {
@@ -615,6 +617,20 @@ namespace Sandbox.Game.Entities
         public virtual int GetOrePriority()
         {
             return MyVoxelConstants.PRIORITY_NORMAL;
+        }
+
+        void IMyDecalProxy.GetDecalRenderData(MyHitInfo hitInfo, out MyDecalRenderData renderable)
+        {
+            renderable = new MyDecalRenderData();
+            renderable.Position = hitInfo.Position;
+            renderable.Normal = hitInfo.Normal;
+            renderable.RenderObjectId = Render.GetRenderObjectID();
+            renderable.Material = Physics.GetMaterialAt(hitInfo.Position);
+        }
+
+        void IMyDecalProxy.OnAddDecal(uint decalId, ref MyDecalRenderData renderable)
+        {
+            // Do nothing
         }
 
         public void RequestVoxelCutoutSphere(Vector3D center, float radius, bool createDebris, bool damage)

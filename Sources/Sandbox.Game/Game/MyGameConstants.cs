@@ -100,6 +100,7 @@ namespace Sandbox.Game
 
     public static class MyDrillConstants
     {
+        public const float DRILL_SHIP_REAL_LENGTH = 0.98f;
         public const float DRILL_HAND_REAL_LENGTH = 0.98f;
         public const MyParticleEffectsIDEnum DRILL_HAND_DUST_EFFECT = MyParticleEffectsIDEnum.Smoke_HandDrillDust;
         public const MyParticleEffectsIDEnum DRILL_HAND_DUST_STONES_EFFECT = MyParticleEffectsIDEnum.Smoke_HandDrillDustStones;
@@ -154,6 +155,8 @@ namespace Sandbox.Game
 
         // prefabs that are supposed to have their explosion larger than this will have the 'huge' explosion particle effect
         public const int EXPLOSION_EFFECT_SIZE_FOR_HUGE_EXPLOSION = 300;
+
+        public const int CAMERA_SHAKE_TIME_MS = 300;
     }
 
     public static class MyEnergyConstants

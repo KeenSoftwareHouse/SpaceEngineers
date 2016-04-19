@@ -370,6 +370,11 @@ namespace SpaceEngineers.AI
                 if (Sync.Players.TryGetPlayerById(new MyPlayer.PlayerId(Sync.MyId, botSerialNum), out player))
                 {
                     player.Controller.ControlledEntityChanged += OnBotControlledEntityChanged;
+                    MyCharacter character = (player.Controller.ControlledEntity as MyCharacter);
+                    if (character != null)
+                    {
+                        character.CharacterDied += BotCharacterDied;
+                    }
                 }
             }
         }

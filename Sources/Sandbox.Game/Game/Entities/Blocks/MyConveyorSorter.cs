@@ -27,7 +27,9 @@ using Sandbox.Engine;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.Entity;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.Entities
 {
@@ -42,7 +44,13 @@ namespace Sandbox.Game.Entities
             }
             private set
             {
-                m_inventoryConstraint.IsWhitelist = value;
+                if (m_inventoryConstraint.IsWhitelist != value)
+                {
+                    m_inventoryConstraint.IsWhitelist = value;
+
+                    // Recompute because of new sorter settings
+                    CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
+                }
             }
         }
 
@@ -65,13 +73,19 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        readonly Sync<bool> m_drainAll;
         public bool DrainAll
         {
-            get;
-            private set;
+            get
+            {
+                return m_drainAll;
+            }
+            private set
+            {
+                m_drainAll.Value = value;
+            }
         }
 
-        MySyncConveyorSorter m_sync;
 
         private MyConveyorSorterDefinition m_conveyorSorterDefinition;
 
@@ -79,7 +93,7 @@ namespace Sandbox.Game.Entities
 
         public MyConveyorSorter()
         {
-            m_sync = new MySyncConveyorSorter(this);
+            m_drainAll.ValueChanged += x => DoChangeDrainAll();
         }
 
         public new MyConveyorSorterDefinition BlockDefinition
@@ -101,7 +115,7 @@ namespace Sandbox.Game.Entities
         {
             drainAll = new MyTerminalControlOnOffSwitch<MyConveyorSorter>("DrainAll", MySpaceTexts.Terminal_DrainAll);
             drainAll.Getter = (block) => block.DrainAll;
-            drainAll.Setter = (block, val) => block.ChangeDrainAll(val);
+            drainAll.Setter = (block, val) => block.DrainAll = val;
             drainAll.EnableToggleAction();
             MyTerminalControlFactory.AddControl(drainAll);
 
@@ -305,74 +319,57 @@ namespace Sandbox.Game.Entities
 
         #region sync
 
-        public void ChangeDrainAll(bool cAll)
+        internal void DoChangeDrainAll()
         {
-            if (cAll == DrainAll)
-                return;
-            if (!Sync.MultiplayerActive)
-                DoChangeDrainAll(cAll);
-            else
-                m_sync.ChangeDrainAll(cAll);
-        }
-
-        internal bool DoChangeDrainAll(bool cAll)
-        {
-            DrainAll = cAll;
+            DrainAll = m_drainAll;
             drainAll.UpdateVisual();
-            return true;
         }
 
         public void ChangeBlWl(bool IsWl)
         {
-            if (IsWl == IsWhitelist)
-                return;
-            if (!Sync.MultiplayerActive)
-                DoChangeBlWl(IsWl);
-            else
-                m_sync.ChangeBlWl(IsWl);
+            MyMultiplayer.RaiseEvent(this, x => x.DoChangeBlWl, IsWl);
         }
 
-        internal bool DoChangeBlWl(bool isWl)
+        [Event, Reliable, Server, Broadcast] 
+        void DoChangeBlWl(bool IsWl)
         {
-            IsWhitelist = isWl;
+            IsWhitelist = IsWl;
             blacklistWhitelist.UpdateVisual();
-            return true;
         }
 
         void ChangeListId(SerializableDefinitionId id, bool wasAdded)
         {
-            if (!Sync.MultiplayerActive)
-                DoChangeListId(id, wasAdded);
-            else
-                m_sync.ChangeListId(id, wasAdded);
+            MyMultiplayer.RaiseEvent(this, x => x.DoChangeListId, id, wasAdded);
         }
 
-        internal bool DoChangeListId(SerializableDefinitionId id, bool add)
+        [Event,Reliable,Server,Broadcast] 
+        void DoChangeListId(SerializableDefinitionId id, bool add)
         {
             if (add)
                 m_inventoryConstraint.Add(id);
             else
                 m_inventoryConstraint.Remove(id);
+
+            // Recompute because of new sorter settings
+            CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
+
             if (m_allowCurrentListUpdate)
                 currentList.UpdateVisual();
-            return true;
         }
 
         void ChangeListType(byte type, bool wasAdded)
         {
-            if (!Sync.MultiplayerActive)
-                DoChangeListType(type, wasAdded);
-            else
-                m_sync.ChangeListType(type, wasAdded);
+            MyMultiplayer.RaiseEvent(this, x => x.DoChangeListType, type, wasAdded);
         }
 
-        internal bool DoChangeListType(byte type, bool add)
+        [Event, Reliable, Server, Broadcast] 
+        void DoChangeListType(byte type, bool add)
         {
             Tuple<MyObjectBuilderType, StringBuilder> tuple;
             if (!CandidateTypes.TryGetValue(type, out tuple))
             {
                 Debug.Assert(false, "type not in dictionary");
-                return false;
+                return;
             }
             if (add)
             {
@@ -380,9 +377,12 @@ namespace Sandbox.Game.Entities
             }
             else
                 m_inventoryConstraint.RemoveObjectBuilderType(tuple.Item1);
+
+            // Recompute because of new sorter settings
+            CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
+
             if (m_allowCurrentListUpdate)
                 currentList.UpdateVisual();
-            return true;
         }
 
         #endregion
@@ -406,6 +406,7 @@ namespace Sandbox.Game.Entities
             MyObjectBuilder_ConveyorSorter ob = (MyObjectBuilder_ConveyorSorter)objectBuilder;
             DrainAll = ob.DrainAll;
             IsWhitelist = ob.IsWhiteList;
+
             foreach (var id in ob.DefinitionIds)
                 m_inventoryConstraint.Add(id);
             foreach (byte b in ob.DefinitionTypes)
@@ -427,8 +428,9 @@ namespace Sandbox.Game.Entities
             
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>( new MyInventory(m_conveyorSorterDefinition.InventorySize.Volume, m_conveyorSorterDefinition.InventorySize, MyInventoryFlags.CanSend, this));
-                this.GetInventory().Init(ob.Inventory);
+                MyInventory inventory = new MyInventory(m_conveyorSorterDefinition.InventorySize.Volume, m_conveyorSorterDefinition.InventorySize, MyInventoryFlags.CanSend);
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(ob.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
@@ -648,6 +650,28 @@ namespace Sandbox.Game.Entities
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new PullInformation();
+            pullInformation.Inventory = this.GetInventory(0);
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = m_inventoryConstraint;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pushInformation = new PullInformation();
+            pushInformation.Inventory = this.GetInventory(0);
+            pushInformation.OwnerID = OwnerId;
+            pushInformation.Constraint = new MyInventoryConstraint("Empty constraint");
+            return pushInformation;
         }
 
         #endregion

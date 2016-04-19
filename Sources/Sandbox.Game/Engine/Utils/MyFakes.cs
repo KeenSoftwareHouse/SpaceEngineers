@@ -3,6 +3,7 @@ using Sandbox.Game.Entities;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using VRage.Game;
 using VRage.Game.Entity;
 
 namespace Sandbox.Engine.Utils
@@ -60,6 +61,8 @@ namespace Sandbox.Engine.Utils
 
         public static bool SHOW_DAMAGE_EFFECTS = true;
 
+        public static bool SHOW_NEW_DAMAGE_EFFECTS = false;
+
         public static float THRUST_FORCE_RATIO = 1.0f;
 
         // Higher number makes deformation and destruction faster
@@ -95,10 +98,15 @@ namespace Sandbox.Engine.Utils
         public static bool SHOW_INVALID_TRIANGLES = false;
 
         public static bool ENABLE_NEW_SOUNDS = false;
+        public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
+        public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
+        public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;
         public static bool ENABLE_NON_PUBLIC_CATEGORY_CLASSES = false;
+        public static bool ENABLE_NON_PUBLIC_BLUEPRINTS = false;
+        public static bool ENABLE_NON_PUBLIC_GUI_ELEMENTS = false;
 
         public static bool ENABLE_COLOR_MASK_FOR_EVERYTHING = false;
 
@@ -128,7 +136,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool AUDIO_TEST = false;
 
-        public static bool ENABLE_STRUCTURAL_INTEGRITY = true;
+        public static bool ENABLE_STRUCTURAL_INTEGRITY = false;
 
         public static bool TEST_PREFABS_FOR_INCONSISTENCIES = false;
 
@@ -275,6 +283,9 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_USE_OBJECT_HIGHLIGHT = true;
 
         public static bool ENABLE_USE_NEW_OBJECT_HIGHLIGHT = true;
+
+        // REMOVE-ME as soon as highlight is properly working for merged proxies
+        public static bool ENABLE_ME_HIGHLIGHT_TEMPORARY_HACK = false;
 
         public static float MAX_PRECALC_TIME_IN_MILLIS = 20f;
         public static bool ENABLE_YIELDING_IN_PRECALC_TASK = false;
@@ -627,7 +638,7 @@ namespace Sandbox.Engine.Utils
         
         public static bool ENABLE_DURABILITY_DEBUG = false;
         
-        public static bool ENABLE_DURABILITY_COMPONENT = false;
+        public static bool ENABLE_DURABILITY_COMPONENT = true;
 
         public static bool SPAWN_SPACE_FAUNA_IN_CREATIVE = true; // space fauna spawns by default only in survival game, this flag can change it to spawn in creative mode too
 
@@ -645,16 +656,25 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_GATHERING_SMALL_BLOCK_FROM_GRID = false;
 
-        public static bool ENABLE_MEDIEVAL_INVENTORY_SLOTS_RESTRICTION = false;
+        public static bool ENABLE_COMPONENT_BLOCKS = true;
 
-        public static int NUMBER_OF_INVENTORY_SLOTS_MEDIEVAL = 14;
-
-        public static bool ENABLE_MEDIEVAL_AREA_INVENTORY = true;
+        public static bool ENABLE_MEDIEVAL_AREA_INVENTORY = false;
 
         public static bool ENABLE_BOUNDINGBOX_SHRINKING = true;
 
         public static bool ENABLE_HUD_PICKED_UP_ITEMS = false;
 
         public static bool ENABLE_SENT_GROUP_AT_ONCE = false;
+
+        public static bool ENABLE_LOAD_NEEDED_SESSION_COMPONENTS = true;
+
+        public static bool ENABLE_SMALL_GRIDS_IN_SURVIVAL_TOOLBAR_CONFIG = true;
+
+        public static bool ENABLE_CHARACTER_CONTROL_ON_SERVER = true;
+        public static bool ENABLE_SHIP_CONTROL_ON_SERVER = true;
+
+        public static bool ENABLE_SEPARATE_USE_AND_PICK_UP_KEY = false;
+
+        public static bool ENABLE_USE_DEFAULT_DAMAGE_DECAL = false;
     }
 }

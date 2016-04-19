@@ -1,7 +1,6 @@
 ﻿#region Usings
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -32,6 +31,8 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Replication;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI;
+
 #endregion
 
 namespace Sandbox.Game.Entities.Cube
@@ -444,7 +445,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            if (doSparks && value.SeparatingVelocity > 2.0f && value.ContactProperties.WasUsed && !m_lastContacts.ContainsKey(value.ContactPointId) && info.EnableParticles)
+            if (doSparks && Math.Abs(value.SeparatingVelocity) > 2.0f && value.ContactProperties.WasUsed && !m_lastContacts.ContainsKey(value.ContactPointId) && info.EnableParticles)
             {
                 ProfilerShort.Begin("AddCollisionEffect");
                 m_lastContacts[value.ContactPointId] = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -852,8 +853,8 @@ namespace Sandbox.Game.Entities.Cube
                                         m_grid.RemoveDestroyedBlock(block);
                                         ProfilerShort.End();
                                         destructionDone = true;
+                                        blocksDeformed++;
                                     }
-                                    blocksDeformed++;
                                 }
                             }
                         }

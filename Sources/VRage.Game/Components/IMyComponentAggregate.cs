@@ -41,7 +41,7 @@ namespace VRage.Game.Components
             aggregate.ChildList.AddComponent(component);         
         }
 
-        public static void RemoveComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
+        public static bool RemoveComponent(this IMyComponentAggregate aggregate, MyComponentBase component)
         {
             int index = aggregate.ChildList.GetComponentIndex(component);
             if (index != -1)
@@ -49,7 +49,19 @@ namespace VRage.Game.Components
                 aggregate.BeforeComponentRemove(component);
                 component.SetContainer(null);
                 aggregate.ChildList.RemoveComponentAt(index);
+                return true;
             }
+
+            foreach (var child in aggregate.ChildList.Reader)
+            {
+                var childAggregate = child as IMyComponentAggregate;
+                if (childAggregate == null) continue;
+
+                bool removed = childAggregate.RemoveComponent(component);
+                if (removed) return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -63,7 +75,6 @@ namespace VRage.Game.Components
                 aggregate.ChildList.RemoveComponentAt(index);
             }
         }
-
 
         public static void GetComponentsFlattened(this IMyComponentAggregate aggregate, List<MyComponentBase> output)
         {

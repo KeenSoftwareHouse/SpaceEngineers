@@ -23,7 +23,7 @@ using Sandbox.Game.World;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Entities.Character;
 using VRage;
-using Sandbox.Common.Components;
+
 using VRageMath.Spatial;
 using Sandbox.Game;
 using VRage.Game;
@@ -57,6 +57,7 @@ namespace Sandbox.Engine.Physics
     {
         #region Fields
         static MyStringId m_startCue = MyStringId.GetOrCompute("Start");
+        private static MyStringHash m_character = MyStringHash.GetOrCompute("Character");
 
         private Vector3 m_lastLinearVelocity;
         private Vector3 m_lastAngularVelocity;
@@ -861,6 +862,15 @@ namespace Sandbox.Engine.Physics
                 ProfilerShort.End();
                 return;
             }
+            ProfilerShort.BeginNextBlock("GetMaterial");
+            var worldPos = ClusterToWorld(value.ContactPoint.Position);
+            var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
+            var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
+            if (materialA == m_character || materialB == m_character)
+            {
+                ProfilerShort.End();
+                return;
+            }
             ProfilerShort.Begin("Lambdas");
             var colision = value.Base;
             Func<bool> canHear = () =>
@@ -887,18 +897,20 @@ namespace Sandbox.Engine.Physics
                 //mass = mass == 0 ? massB : massB == 0 ? mass : mass < massB ? mass : massB; // select smaller mass > 0
                 //mass /= 40; //reference mass
                 //val *= mass;
-                if (value.SeparatingVelocity < 10)
-                    volume = value.SeparatingVelocity / 10;
+                if (Math.Abs(value.SeparatingVelocity) < 10f)
+                    volume = 0.5f + Math.Abs(value.SeparatingVelocity) / 20f;
                 else
-                    volume = 1;
+                    volume = 1f;
             }
 
-            ProfilerShort.BeginNextBlock("GetMaterial");
-            var worldPos = ClusterToWorld(value.ContactPoint.Position);
-            var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
-            var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
             ProfilerShort.BeginNextBlock("PlaySound");
-            MyAudioComponent.PlayContactSound(Entity.EntityId, m_startCue, worldPos, materialA, materialB, volume, canHear);
+            bool firstOneIsLighter = bodyB.Entity is MyVoxelBase || bodyB.Entity.Physics == null;
+            if (firstOneIsLighter == false && bodyA.Entity.Physics != null && bodyA.Entity.Physics.IsStatic == false && (bodyB.Entity.Physics.IsStatic || bodyA.Entity.Physics.Mass < bodyB.Entity.Physics.Mass))
+                firstOneIsLighter = true;
+            if (firstOneIsLighter)
+                MyAudioComponent.PlayContactSound(bodyA.Entity.EntityId, m_startCue, worldPos, materialA, materialB, volume, canHear, surfaceEntity: (MyEntity)bodyB.Entity, separatingVelocity: Math.Abs(value.SeparatingVelocity));
+            else
+                MyAudioComponent.PlayContactSound(bodyB.Entity.EntityId, m_startCue, worldPos, materialB, materialA, volume, canHear, surfaceEntity: (MyEntity)bodyA.Entity, separatingVelocity: Math.Abs(value.SeparatingVelocity));
             ProfilerShort.End();
             ProfilerShort.End();
         }
@@ -1119,7 +1131,9 @@ false,
                     world.RemoveConstraint(constraint);
                 }
                 else
-                    Debug.Fail("Trying to remove invalid constraint!");
+                {
+                       Debug.Fail("Trying to remove invalid constraint!");
+                }
             }
 
             if (IsRagdollModeActive)

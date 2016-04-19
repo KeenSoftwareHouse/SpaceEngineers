@@ -280,6 +280,7 @@ namespace VRageRender
             billboard.Position3 = quad.Point3;
 
             billboard.UVOffset = uvOffset;
+            billboard.UVSize = Vector2.Zero;
 
             EnableColorize = colorize;
 

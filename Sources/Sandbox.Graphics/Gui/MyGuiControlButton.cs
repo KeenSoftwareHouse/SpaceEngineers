@@ -1,6 +1,5 @@
 ﻿#region Using
 
-using Sandbox.Common;
 using System;
 using System.Text;
 using VRage;

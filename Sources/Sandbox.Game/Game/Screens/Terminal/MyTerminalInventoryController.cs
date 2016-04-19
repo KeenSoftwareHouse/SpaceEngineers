@@ -445,7 +445,7 @@ namespace Sandbox.Game.Gui
 
             if (grid != null)
             {
-                foreach (var block in grid.GridSystems.ConveyorSystem.Blocks)
+                foreach (var block in grid.GridSystems.ConveyorSystem.InventoryBlocks)
                 {
                     if ((block is Sandbox.Game.Entities.Cube.MyTerminalBlock) &&
                         !(block as Sandbox.Game.Entities.Cube.MyTerminalBlock).HasLocalPlayerAccess())
@@ -576,7 +576,7 @@ namespace Sandbox.Game.Gui
 					m_reachableInventoryOwners.Clear();
 				}
 
-                if (!MyGridConveyorSystem.Pathfinding.Reachable(srcEndpoint.ConveyorEndpoint, dstEndpoint.ConveyorEndpoint))
+                if (!MyGridConveyorSystem.Reachable(srcEndpoint.ConveyorEndpoint, dstEndpoint.ConveyorEndpoint))
                     return false;
             }
 
@@ -782,7 +782,7 @@ namespace Sandbox.Game.Gui
                 //MyFloatingObjects.Spawn(thrownItem, ownerAsEntity.GetPosition() + forward + up, forward, up, ownerAsEntity.Physics);
             }
 
-            MyGuiAudio.PlaySound(MyGuiSounds.PlayDropItem);
+            //MyGuiAudio.PlaySound(MyGuiSounds.PlayDropItem);
 
             RefreshSelectedInventoryItem();
         }

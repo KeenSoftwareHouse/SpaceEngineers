@@ -24,16 +24,16 @@ using Sandbox.Game.EntityComponents;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRage.Game.Components;
-using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
+using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
-using IMyInventory = VRage.ModAPI.Ingame.IMyInventory;
+using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenGenerator))]
-    class MyGasGenerator : MyFunctionalBlock, IMyGasBlock, IMyOxygenGenerator, VRage.ModAPI.Ingame.IMyInventoryOwner, IMyEventProxy
+    class MyGasGenerator : MyFunctionalBlock, IMyGasBlock, IMyOxygenGenerator, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, IMyEventProxy
     {
         private Color? m_prevEmissiveColor = null;
         private readonly Sync<bool> m_useConveyorSystem;
@@ -124,14 +124,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (this.GetInventory() == null) // can be already initialized as deserialized component
             {
-                Components.Add<MyInventoryBase>( new MyInventory(
-                    BlockDefinition.InventoryMaxVolume,
-                        BlockDefinition.InventorySize,
-                        MyInventoryFlags.CanReceive,
-                        this)
-                {
-                    Constraint = BlockDefinition.InputInventoryConstraint
-                });
+                MyInventory inventory = new MyInventory(BlockDefinition.InventoryMaxVolume, BlockDefinition.InventorySize, MyInventoryFlags.CanReceive);
+                inventory.Constraint = BlockDefinition.InputInventoryConstraint;
+                Components.Add<MyInventoryBase>(inventory);
             }
             else
             {
@@ -337,12 +332,12 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (m_producedSinceLastUpdate)
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.GenerateSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.GenerateSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.GenerateSound.Realistic)
                         m_soundEmitter.PlaySound(BlockDefinition.GenerateSound, true);
                 }
-                else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.SoundId)
+                else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.IdleSound.Realistic)
                 {
-                    if (m_soundEmitter.SoundId == BlockDefinition.GenerateSound.SoundId)
+                    if (m_soundEmitter.SoundId == BlockDefinition.GenerateSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.GenerateSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true, true);
                     }
@@ -792,6 +787,24 @@ namespace Sandbox.Game.Entities.Blocks
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

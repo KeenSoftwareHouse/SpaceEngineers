@@ -6,12 +6,12 @@ namespace VRage.Voxels
     public interface IMyClipmapCellHandler
     {
         IMyClipmapCell CreateCell(MyClipmapScaleEnum scaleGroup, MyCellCoord cellCoord, ref MatrixD worldMatrix);
-
         void DeleteCell(IMyClipmapCell cell);
 
         void AddToScene(IMyClipmapCell cell);
-
         void RemoveFromScene(IMyClipmapCell cell);
+
+        void AddToMergeBatch(IMyClipmapCell cell);
 
         float GetTime(); //Seconds
 

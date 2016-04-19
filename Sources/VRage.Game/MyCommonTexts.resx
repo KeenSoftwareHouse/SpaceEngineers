@@ -2290,4 +2290,19 @@ Do you want to continue?</value>
   <data name="DisplayName_Flammables" xml:space="preserve">
     <value>Flammables</value>
   </data>
+  <data name="ControlTypeNavigation2" xml:space="preserve">
+    <value>Navigation 2</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyWorld" xml:space="preserve">
+    <value>Copy World</value>
+  </data>
+  <data name="MessageBoxTextWorldExistsDownloadOverwrite" xml:space="preserve">
+    <value>World already exists! Download &amp; Overwrite?</value>
+  </data>
+  <data name="MessageBoxTextWorldExistsOverwrite" xml:space="preserve">
+    <value>World already exists! Overwrite?</value>
+  </data>
+  <data name="ToolTipWorkshopCopyWorld" xml:space="preserve">
+    <value>Download selected world to save games without loading it (Use to Edit Settings before playing world)</value>
+  </data>
 </root>

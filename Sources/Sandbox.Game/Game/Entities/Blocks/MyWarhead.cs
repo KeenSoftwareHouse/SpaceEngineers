@@ -32,10 +32,11 @@ using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
-using Sandbox.Common.ModAPI;
 using VRage.Game.Entity;
 using VRage;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.Network;
 
 #endregion

@@ -16,16 +16,18 @@ namespace VRage.Network
         public StateGroupEnum GroupType;
 
         public readonly IMyReplicable Owner;
+        public readonly IMyReplicable Parent;
         public readonly NetworkId GroupId;
         public readonly IMyStateGroup Group;
 
-        public MyStateDataEntry(IMyReplicable owner, NetworkId groupId, IMyStateGroup group)
+        public MyStateDataEntry(IMyReplicable owner, NetworkId groupId, IMyStateGroup group, IMyReplicable parent)
         {
             Priority = 0;
             Owner = owner;
             GroupId = groupId;
             Group = group;
             GroupType = group.GroupType;
+            Parent = parent;
         }
 
         public override string ToString()

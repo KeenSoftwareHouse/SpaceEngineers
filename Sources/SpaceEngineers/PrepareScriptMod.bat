@@ -184,7 +184,7 @@ echo using System.Text;>>%scriptFile%
 echo using System.Threading.Tasks;>>%scriptFile%
 
 echo using Sandbox.Common;>>%scriptFile%
-echo using Sandbox.Common.Components;>>%scriptFile%
+echo using VRage.Game.Components;>>%scriptFile%
 echo using Sandbox.Common.ObjectBuilders;>>%scriptFile%
 echo using Sandbox.Definitions;>>%scriptFile%
 echo using Sandbox.Engine;>>%scriptFile%

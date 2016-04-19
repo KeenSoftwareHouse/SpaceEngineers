@@ -6,6 +6,8 @@ using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using VRage;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -209,9 +211,9 @@ namespace Sandbox.Engine.Utils
                 UpdateLightPosition();
         }
         
-        MatrixD IMyCameraController.GetViewMatrix()
+        void IMyCameraController.ControlCamera(MyCamera currentCamera)
         {
-            return GetViewMatrix();
+            currentCamera.SetViewMatrix(GetViewMatrix());
         }
 
         #region Light
@@ -350,6 +352,11 @@ namespace Sandbox.Engine.Utils
             {
                 return true;
             }
+        }
+        
+        bool IMyCameraController.HandlePickUp()
+        {
+            return false;
         }
     }
 }

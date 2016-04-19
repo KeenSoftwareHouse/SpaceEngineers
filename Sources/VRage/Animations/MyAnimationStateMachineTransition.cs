@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Generics;
+﻿using VRage.Generics;
 using VRage.Utils;
 
 namespace VRage.Animations
@@ -30,14 +26,15 @@ namespace VRage.Animations
 
         /// <summary>
         /// Animation transition evaluation - different behavior from default transition. 
-        /// If no conditions are given, it must be triggered manually.
+        /// If no conditions are given and it has a name, it must be triggered manually.
+        /// 
         /// </summary>
         public override bool Evaluate()
         {
             if (Conditions.Count > 0)
                 return base.Evaluate();
             else
-                return false;
+                return Name == MyStringId.NullOrEmpty;
         }
     }
 }

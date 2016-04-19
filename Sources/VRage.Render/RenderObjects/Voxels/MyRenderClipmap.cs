@@ -130,6 +130,11 @@ namespace VRageRender
 
         }
 
+        void IMyClipmapCellHandler.AddToMergeBatch(IMyClipmapCell cell)
+        {
+
+        }
+
         public void UpdateMerging() { }
     }
 }

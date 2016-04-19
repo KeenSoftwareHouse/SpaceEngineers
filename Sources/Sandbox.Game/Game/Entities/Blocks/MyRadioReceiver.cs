@@ -12,7 +12,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    class MyRadioReceiver : MyDataReceiver
+    public class MyRadioReceiver : MyDataReceiver
     {
         public override void OnAddedToContainer()
         {

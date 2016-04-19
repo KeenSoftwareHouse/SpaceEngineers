@@ -85,6 +85,12 @@ namespace Sandbox.Definitions
             set;
         }
 
+        public float HighlightPulseInSeconds
+        {
+            get;
+            set;
+        }
+
         static MyEnvironmentDefinition m_defaults = new MyEnvironmentDefinition();
         const float DELTA = 0.001f;
 
@@ -107,6 +113,7 @@ namespace Sandbox.Definitions
             LargeShipMaxAngularSpeed = objBuilder.LargeShipMaxAngularSpeed;
             ContourHighlightColor = new Color(objBuilder.ContourHighlightColor);
             ContourHighlightThickness = objBuilder.ContourHighlightThickness;
+            HighlightPulseInSeconds = objBuilder.HighlightPulseInSeconds;
             FogProperties.Deserialize(objBuilder);
             SunProperties.Deserialize(objBuilder);
         }
@@ -126,7 +133,8 @@ namespace Sandbox.Definitions
                     MathHelper.ToDegrees(BackgroundOrientation.Pitch),
                     MathHelper.ToDegrees(BackgroundOrientation.Roll)),
                 ContourHighlightColor = this.ContourHighlightColor.ToVector4(),
-                ContourHighlightThickness = this.ContourHighlightThickness
+                ContourHighlightThickness = this.ContourHighlightThickness,
+                HighlightPulseInSeconds = this.HighlightPulseInSeconds,
 
             };
             FogProperties.Serialize(result);
@@ -193,6 +201,11 @@ namespace Sandbox.Definitions
             if (src.ContourHighlightThickness != m_defaults.ContourHighlightThickness)
             {
                 ContourHighlightThickness = src.ContourHighlightThickness;
+            }
+
+            if(src.HighlightPulseInSeconds != m_defaults.HighlightPulseInSeconds)
+            {
+                HighlightPulseInSeconds = src.HighlightPulseInSeconds;
             }
 		}
 		private void MergeSunProperties(MyEnvironmentDefinition src)

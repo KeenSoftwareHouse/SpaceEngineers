@@ -10,6 +10,8 @@ using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Game.Components;
 using VRage.ModAPI;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.World
 {
@@ -20,7 +22,7 @@ namespace Sandbox.Game.World
             get { return VoxelMaps; }
         }
 
-        ModAPI.Interfaces.IMyCameraController IMySession.CameraController
+        IMyCameraController IMySession.CameraController
         {
             get { return CameraController; }
         }
@@ -419,6 +421,21 @@ namespace Sandbox.Game.World
         IMyGpsCollection IMySession.GPS
         {
             get { return MySession.Static.Gpss; }
+        }
+
+        bool IMySession.IsUserAdmin( ulong steamId )
+        {
+            return MySession.Static.IsUserAdmin( steamId );
+        }
+        
+        bool IMySession.IsUserPromoted( ulong steamId )
+        {
+            return MySession.Static.IsUserPromoted( steamId );
+        }
+
+        bool IMySession.HasAdminPrivileges
+        {
+            get { return MySession.Static.IsAdmin; }
         }
 
         event Action IMySession.OnSessionReady

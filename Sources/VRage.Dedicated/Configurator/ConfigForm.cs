@@ -60,6 +60,25 @@ namespace VRage.Dedicated
             this.logoPictureBox.Image = LogoImage;
         }
 
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            const int WM_KEYDOWN = 0x100;
+            var keyCode = (Keys)(msg.WParam.ToInt32() &
+                                  Convert.ToInt32(Keys.KeyCode));
+            if ((msg.Msg == WM_KEYDOWN && keyCode == Keys.A)
+                && (ModifierKeys == Keys.Control))
+            {
+                if (adminIDs.Focused)
+                    adminIDs.SelectAll();
+                if (bannedIDs.Focused)
+                    bannedIDs.SelectAll();
+                if (modIdsTextBox.Focused)
+                    modIdsTextBox.SelectAll();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
         private void scenarioCB_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!m_isEnvironmentHostilityChanged)
@@ -429,7 +448,7 @@ namespace VRage.Dedicated
 
                     m_selectedSessionSettings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
                     m_selectedSessionSettings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
-                    m_selectedSessionSettings.CargoShipsEnabled = !MyFakes.ENABLE_PLANETS;
+                    m_selectedSessionSettings.CargoShipsEnabled = true;
                     m_selectedSessionSettings.EnableCyberhounds = false;
                     m_selectedSessionSettings.EnableSpiders = true;
 
@@ -669,6 +688,10 @@ namespace VRage.Dedicated
                     checkBox.Checked = false;
                     m_selectedSessionSettings.PermanentDeath = false;
                 }
+            }
+            else
+            {
+                m_selectedSessionSettings.PermanentDeath = false;
             }
         }
 

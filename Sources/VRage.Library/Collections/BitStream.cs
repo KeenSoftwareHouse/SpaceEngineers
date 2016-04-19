@@ -77,7 +77,7 @@ namespace VRage.Library.Collections
 
         ~BitStream()
         {
-            Debug.Fail("Undisposed BitStream");
+         //   Debug.Fail("Undisposed BitStream");
             ReleaseInternalBuffer();
         }
 

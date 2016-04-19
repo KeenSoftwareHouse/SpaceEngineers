@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.Components;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game;
@@ -18,7 +17,7 @@ using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.Library.Sync;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -576,7 +575,8 @@ namespace Sandbox.Game.Components
             }
             else
             {
-                System.Diagnostics.Debug.Fail("Trying to remove item from production, but item wasn't found!");
+                // On MP it can easily happen that we are removing an item that was already produced on the server, so don't assert in that case
+                System.Diagnostics.Debug.Assert(Sync.Clients.Count != 0, "Trying to remove item from production, but item wasn't found!");
             }            
         }
 
@@ -661,8 +661,12 @@ namespace Sandbox.Game.Components
             foreach (var prodItem in definition.Results)
             {
                 var amountToAdd = prodItem.Amount * amountMult;
+                IMyInventoryItem inventoryItem;
 
-                var inventoryItem = CreateInventoryItem(prodItem.Id, amountToAdd);
+                if (definition is MyBlockBlueprintDefinition)
+                    inventoryItem = CreateInventoryBlockItem(prodItem.Id, amountToAdd);
+                else
+                    inventoryItem = CreateInventoryItem(prodItem.Id, amountToAdd);
 
                 var resultAdded = inventory.Add(inventoryItem, inventoryItem.Amount);
 
@@ -673,10 +677,18 @@ namespace Sandbox.Game.Components
         protected IMyInventoryItem CreateInventoryItem(MyDefinitionId itemDefinition, MyFixedPoint amount)
         {
             var content = MyObjectBuilderSerializer.CreateNewObject(itemDefinition) as MyObjectBuilder_PhysicalObject;
-
+            
             System.Diagnostics.Debug.Assert(content != null, "Can not create the requested type from definition!");
 
             MyPhysicalInventoryItem inventoryItem = new MyPhysicalInventoryItem(amount, content);            
+
+            return inventoryItem;
+        }
+
+        protected IMyInventoryItem CreateInventoryBlockItem(MyDefinitionId blockDefinition, MyFixedPoint amount)
+        {
+            var content = new MyObjectBuilder_BlockItem() { BlockDefId = blockDefinition };
+            MyPhysicalInventoryItem inventoryItem = new MyPhysicalInventoryItem(amount, content);
 
             return inventoryItem;
         }

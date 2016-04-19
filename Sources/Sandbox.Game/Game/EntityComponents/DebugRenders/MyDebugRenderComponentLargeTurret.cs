@@ -1,5 +1,5 @@
 ﻿using Sandbox.Game.Weapons;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.EntityComponents;
 using VRageMath;
 using VRage.Game.Components;

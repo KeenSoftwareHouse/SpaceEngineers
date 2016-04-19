@@ -12,8 +12,7 @@ namespace Sandbox.Game.GameSystems
 {
     public partial class MyBlockGroup
     {
-
-        internal StringBuilder Name = new StringBuilder();
+        public StringBuilder Name = new StringBuilder();
         internal List<MyTerminalBlock> Blocks = new List<MyTerminalBlock>();
         private MyCubeGrid m_grid;
 

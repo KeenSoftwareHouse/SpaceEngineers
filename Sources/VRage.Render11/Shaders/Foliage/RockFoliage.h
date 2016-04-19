@@ -60,13 +60,13 @@ void SpawnPebble(float3 position, float3 InstancePosition, float3x3 onb, float2 
         sincos(angle, SinCosAngle.x, SinCosAngle.y);
 
         delta = tanx * hammersleySample.y * SinCosAngle.y + tany * hammersleySample.y * SinCosAngle.x;
-        vertex.position = world_to_clip(position + delta);
+        vertex.position = WorldToClip(position + delta);
         vertex.normal = mad(normalize(delta), SinCosBeta.y, N * SinCosBeta.x);
         vertex.tangent = normalize(mad(-tanx, SinCosAngle.x, tany * SinCosBeta.y));
         vertex.texcoord = float3(mad(SinCosAngle.yx, 0.5f, 0.5f), index);
         triangle_stream.Append(vertex);
 
-        vertex.position = world_to_clip(mad(N, hammersleySample.x * scale.y, position));
+        vertex.position = WorldToClip(mad(N, hammersleySample.x * scale.y, position));
         vertex.normal = N;
         vertex.tangent = normalize(mad(-tanx, SinCosAngle.x, tany * SinCosAngle.y));
         vertex.texcoord = float3(0.5, 0.5, index);
@@ -76,7 +76,7 @@ void SpawnPebble(float3 position, float3 InstancePosition, float3x3 onb, float2 
         sincos(angle, SinCosAngle.x, SinCosAngle.y);
 
         delta = tanx * SinCosAngle.y * hammersleySample.x + tany * SinCosAngle.x * hammersleySample.y;
-        vertex.position = world_to_clip(position + delta);
+        vertex.position = WorldToClip(position + delta);
         vertex.normal = normalize(delta) * SinCosBeta.y + N * SinCosBeta.x;
         vertex.tangent = normalize(-tanx * SinCosAngle.x + tany * SinCosAngle.x);
         vertex.texcoord = float3(mad(SinCosAngle.yx, 0.5f, 0.5f), index);
@@ -88,7 +88,7 @@ void SpawnPebble(float3 position, float3 InstancePosition, float3x3 onb, float2 
     sincos(angle, SinCosAngle.x, SinCosAngle.y);
 
     delta = tanx * SinCosAngle.y * hammersleySample.y + tany * SinCosAngle.x * hammersleySample.y;
-    vertex.position = world_to_clip(position + delta);
+    vertex.position = WorldToClip(position + delta);
     vertex.normal = normalize(delta) * SinCosBeta.y + N * SinCosBeta.x;
     vertex.tangent = normalize(-tanx * SinCosAngle.x + tany * SinCosAngle.y);
     vertex.texcoord = float3(SinCosAngle.y * 0.5 + 0.5, SinCosAngle.x * 0.5 + 0.5, index);

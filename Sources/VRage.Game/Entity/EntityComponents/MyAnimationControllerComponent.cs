@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VRage.Animations;
 using VRage.Game.SessionComponents;
 using VRage.Utils;
@@ -12,7 +13,7 @@ namespace VRage.Game.Components
     public class MyAnimationControllerComponent : MyEntityComponentBase
     {
         // Animation controller. Contains definition of animation layers (state machines, its nodes are animation trees). 
-        private VRage.Animations.MyAnimationController m_controller = new VRage.Animations.MyAnimationController();
+        private readonly VRage.Animations.MyAnimationController m_controller = new VRage.Animations.MyAnimationController();
         // Array of character bones (skinned entity bones with additional description).
         private VRage.Animations.MyCharacterBone[] m_characterBones;
         // Final matrices - relative.
@@ -22,6 +23,9 @@ namespace VRage.Game.Components
 
         // Reference to last bone result in raw form.
         private List<MyAnimationClip.BoneState> m_lastBoneResult;
+
+        private bool m_componentValid = false;
+        FastResourceLock m_componentValidLock = new FastResourceLock();
 
         // ------------------------------------------------------------------------
 
@@ -44,6 +48,22 @@ namespace VRage.Game.Components
         public override void OnBeforeRemovedFromContainer()
         {
             MySessionComponentAnimationSystem.Static.UnregisterEntityComponent(this);
+        }
+
+        public void MarkAsValid()
+        {
+            using (m_componentValidLock.AcquireExclusiveUsing())
+            {
+                m_componentValid = true;
+            }
+        }
+
+        public void MarkAsInvalid()
+        {
+            using (m_componentValidLock.AcquireExclusiveUsing())
+            {
+                m_componentValid = false;
+            }
         }
 
         // ------------------------------------------------------------------------
@@ -75,6 +95,11 @@ namespace VRage.Game.Components
                 m_characterBones = value;
                 if (value != null)
                 {
+                    CharacterBonesSorted = new MyCharacterBone[m_characterBones.Length];
+                    Array.Copy(m_characterBones, CharacterBonesSorted, m_characterBones.Length);
+                    // sort the bones, deeper in hierarchy they are, later they are evaluated
+                    Array.Sort(CharacterBonesSorted, (x, y) => x.GetHierarchyDepth().CompareTo(y.GetHierarchyDepth()));
+
                     m_boneRelativeTransforms = new Matrix[value.Length];
                     m_boneAbsoluteTransforms = new Matrix[value.Length];
                     for (int i = 0; i < value.Length; i++)
@@ -86,6 +111,8 @@ namespace VRage.Game.Components
                 }
             }
         }
+
+        public VRage.Animations.MyCharacterBone[] CharacterBonesSorted { get; private set; }
 
         // Final matrices - relative.
         public Matrix[] BoneRelativeTransforms { get { return m_boneRelativeTransforms; } }
@@ -100,21 +127,27 @@ namespace VRage.Game.Components
         // Called from MySessionComponentAnimationSystem.
         public void Update()
         {
-            VRage.Animations.MyAnimationUpdateData updateData = new Animations.MyAnimationUpdateData();
-            updateData.DeltaTimeInSeconds = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-            updateData.CharacterBones = m_characterBones;
-            updateData.Controller = null;  // will be set inside m_controller.Update automatically if null
-            updateData.BonesResult = null; // will be set inside m_controller.Update (result!)
-            m_controller.Update(ref updateData);
-            if (updateData.BonesResult != null)
+            using (m_componentValidLock.AcquireSharedUsing())
             {
-                for (int i = 0; i < updateData.BonesResult.Count; i++)
+                if (!m_componentValid)
+                    return;
+                VRage.Animations.MyAnimationUpdateData updateData = new Animations.MyAnimationUpdateData();
+                updateData.DeltaTimeInSeconds = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                updateData.CharacterBones = m_characterBones;
+                updateData.Controller = null;  // will be set inside m_controller.Update automatically if null
+                updateData.BonesResult = null; // will be set inside m_controller.Update (result!)
+
+                m_controller.Update(ref updateData);
+                if (updateData.BonesResult != null)
                 {
-                    CharacterBones[i].SetCompleteTransform(ref updateData.BonesResult[i].Translation,
-                        ref updateData.BonesResult[i].Rotation);
+                    for (int i = 0; i < updateData.BonesResult.Count; i++)
+                    {
+                        CharacterBones[i].SetCompleteTransform(ref updateData.BonesResult[i].Translation,
+                            ref updateData.BonesResult[i].Rotation);
+                    }
                 }
+                m_lastBoneResult = updateData.BonesResult;
             }
-            m_lastBoneResult = updateData.BonesResult;
         }
 
         // Find character bone having given name. If found, output parameter index is set.
@@ -149,11 +182,16 @@ namespace VRage.Game.Components
         /// </summary>
         public void TriggerAction(MyStringId actionName)
         {
-            Controller.TriggerAction(actionName);
+            using (m_componentValidLock.AcquireSharedUsing())
+            {
+                if (m_componentValid)
+                    Controller.TriggerAction(actionName);
+            }
         }
 
         public void Clear()
         {
+            MarkAsInvalid();
             Controller.DeleteAllLayers();
             Controller.Variables.Clear();
             Controller.ResultBonesPool.Reset(null);

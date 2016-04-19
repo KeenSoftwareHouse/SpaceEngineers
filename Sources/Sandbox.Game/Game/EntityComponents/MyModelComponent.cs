@@ -61,7 +61,7 @@ namespace Sandbox.Game.EntityComponents
             Debug.Assert(Definition != null);
             if (Definition != null)
                 this.RaiseEntityEvent(ModelChanged, new ModelChangedParams(Definition.Model, Definition.Size, Definition.Mass, Definition.Volume, Definition.DisplayNameText,
-                    Definition.Icon));
+                    Definition.Icons));
         }
 
         /// <summary>

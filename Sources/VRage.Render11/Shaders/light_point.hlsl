@@ -2,6 +2,9 @@
 
 #include <Lighting/light.h>
 
+StructuredBuffer<PointLightData> LightList : register (t13);
+StructuredBuffer<uint> TileIndices : register(t14);
+
 void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 #ifdef SAMPLE_FREQ_PASS
 	, uint sample_index : SV_SampleIndex
@@ -29,12 +32,15 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 	float3 acc = 0;
 
 	[loop]
-	for(uint i = 0; i < numLights; i++) {
+	for(uint i = 0; i < numLights; i++) 
+	{
         uint index = TileIndices[frame_.tiles_num + mad(MAX_TILE_LIGHTS, tileIndex, i)];
 		PointLightData light = LightList[index];
 
 		float3 L = light.positionView - input.positionView;
 		float distance = length(L);
+		L /= distance;
+		float3 H = normalize(V + L);
 
 		float range = light.range;
 		float radius = min(light.radius, range - 0.001f); 
@@ -51,13 +57,9 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 		float attenuation = 1.0f / (denom * denom);
 
         attenuation = saturate((attenuation - cutoff) / (1 - cutoff));
-
-		L = normalize(L);
-		float3 H = normalize(V+L);
-		float nl = saturate(dot(L, N));
 		
-		float3 light_factor = M_PI * attenuation * nl * light.color;
-		acc += light_factor * MaterialRadiance(input.albedo, input.f0, input.gloss, N, L, V, H);
+		float3 light_factor = attenuation * light.color;
+        acc += light_factor * MaterialRadiance(input.albedo, input.f0, input.gloss * light.glossFactor, N, L, V, H);
 	}
 
 	output = acc;

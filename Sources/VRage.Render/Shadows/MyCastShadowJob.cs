@@ -33,7 +33,7 @@ namespace VRageRender.Shadows
 
         List<MyLineSegmentOverlapResult<MyElement>> m_overlapList = new List<MyLineSegmentOverlapResult<MyElement>>();
 
-        public unsafe void DoWork()
+        public unsafe void DoWork(WorkData workData = null)
         {
             try
             {

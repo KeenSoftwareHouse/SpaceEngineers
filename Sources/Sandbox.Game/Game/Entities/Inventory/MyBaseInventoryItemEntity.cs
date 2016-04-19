@@ -37,7 +37,7 @@ namespace Sandbox.Game.Weapons
         MyPhysicalItemDefinition m_definition;
         float m_amount;
 
-        public string IconTexture { get { return m_definition.Icon; } }
+        public string[] IconTextures { get { return m_definition.Icons; } }
 
         #endregion
 

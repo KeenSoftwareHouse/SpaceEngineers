@@ -44,6 +44,7 @@ using Sandbox.Game;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.Definitions.Animation;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 
 #endregion
 
@@ -73,6 +74,11 @@ namespace Sandbox.Definitions
         internal DefinitionSet LoadingSet
         {
             get { return m_currentLoadingSet; }
+        }
+
+        public override MyDefinitionSet GetLoadingSet()
+        {
+            return LoadingSet;
         }
 
         public bool Loading { get; private set; }
@@ -173,9 +179,13 @@ namespace Sandbox.Definitions
                     m_modDefinitionSets.Add("", new DefinitionSet());
                 var baseDefinitionSet = m_modDefinitionSets[""];
 
-                ProfilerShort.Begin("Parse Definitions");
+                ProfilerShort.Begin("Parse Base Definitions");
 
                 LoadDefinitions(MyModContext.BaseGame, baseDefinitionSet);
+
+                ProfilerShort.End();
+
+                ProfilerShort.Begin("Logging mods");
 
                 MySandboxGame.Log.WriteLine(string.Format("List of used mods ({0}) - START", mods.Count));
                 MySandboxGame.Log.IncreaseIndent();
@@ -186,6 +196,10 @@ namespace Sandbox.Definitions
                 MySandboxGame.Log.WriteLine("List of used mods - END");
 
                 MyAnalyticsHelper.SetUsedMods(mods);
+
+                ProfilerShort.End();
+
+                ProfilerShort.Begin("Parse Mod Definitions");
 
                 foreach (var mod in mods)
                 {
@@ -207,13 +221,15 @@ namespace Sandbox.Definitions
                 }
 
                 ProfilerShort.BeginNextBlock("Test Models");
-                if (MyFakes.TEST_MODELS)
+                if (MyFakes.TEST_MODELS && (Sandbox.AppCode.MyExternalAppBase.Static == null))
                 {
                     var s = Stopwatch.GetTimestamp();
                     TestCubeBlockModels();
                     var delta = (Stopwatch.GetTimestamp() - s) / (double)Stopwatch.Frequency;
                     Debug.WriteLine("Models tested in: {0} seconds", delta);
                 }
+
+                CheckCharacterPickup();
 
                 if (MyFakes.ENABLE_ALL_IN_SURVIVAL)
                 {
@@ -254,6 +270,56 @@ namespace Sandbox.Definitions
 
             Loading = false;
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - END");
+        }
+
+        /// <summary>
+        /// This is here only for a while to warn modders about the pickup component change that we did.
+        /// </summary>
+        private void CheckCharacterPickup()
+        {
+            if (MyPerGameSettings.Game != GameEnum.ME_GAME) return;
+
+            // Add characters that we have in the game and that we know are not picking stuff
+            HashSet<MyDefinitionId> ignoredCharacters = new HashSet<MyDefinitionId>();
+            ignoredCharacters.Add(new MyDefinitionId(typeof(MyObjectBuilder_Character), "Peasant_male"));
+            ignoredCharacters.Add(new MyDefinitionId(typeof(MyObjectBuilder_Character), "Medieval_barbarian"));
+            ignoredCharacters.Add(new MyDefinitionId(typeof(MyObjectBuilder_Character), "Medieval_deer"));
+            ignoredCharacters.Add(new MyDefinitionId(typeof(MyObjectBuilder_Character), "Medieval_wolf"));
+
+            MyContainerDefinition containerDef = null;
+            string error = "Character definition {0} is missing a pickup component! " +
+            "You will not be able to pickup things with this character! " +
+            "See the player character in EntityContainers.sbc and EntityComponents.sbc for an example.";
+            
+            foreach (var pair in m_definitions.m_characters)
+            {
+                var characterDef = pair.Value;
+                if (ignoredCharacters.Contains(characterDef.Id)) continue;
+
+                bool hasContainerDef = TryGetContainerDefinition(characterDef.Id, out containerDef);
+
+                if (!hasContainerDef)
+                {
+                    MyDefinitionErrors.Add(MyModContext.UnknownContext, String.Format(error, characterDef.Id.ToString()), TErrorSeverity.Warning);
+                    continue;
+                }
+
+                bool foundPickup = false;
+                foreach (var component in containerDef.DefaultComponents)
+                {
+                    Type componentType = (Type)component.BuilderType;
+                    if (typeof(MyObjectBuilder_CharacterPickupComponent).IsAssignableFrom(componentType))
+                    {
+                        foundPickup = true;
+                        break;
+                    }
+                }
+
+                if (!foundPickup)
+                {
+                    MyDefinitionErrors.Add(MyModContext.UnknownContext, String.Format(error, characterDef.Id.ToString()), TErrorSeverity.Warning);
+                }
+            }
         }
 
         private void TestCubeBlockModels()
@@ -838,6 +904,13 @@ namespace Sandbox.Definitions
                 InitBattle(context, ref definitionSet.m_battleDefinition, objBuilder.Battle, failOnDebug);
             }
 
+            if (objBuilder.DecalGlobals != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading decal global definitions");
+                Check(failOnDebug, "DecalGlobals", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                InitDecalGlobals(context, objBuilder.DecalGlobals, failOnDebug);
+            }
+
             if (objBuilder.Decals != null)
             {
                 MySandboxGame.Log.WriteLine("Loading decal definitions");
@@ -1080,27 +1153,49 @@ namespace Sandbox.Definitions
 
         private void LoadPostProcess()
         {
+            ProfilerShort.Begin("CreateTransparentMaterials");
             CreateTransparentMaterials();
+            ProfilerShort.BeginNextBlock("InitVoxelMaterials");
             InitVoxelMaterials();
+            ProfilerShort.BeginNextBlock("InitVoxelMaterialChanges");
             InitVoxelMaterialChanges();
+            ProfilerShort.BeginNextBlock("InitRopeDefinitions");
             InitRopeDefinitions();
+            ProfilerShort.BeginNextBlock("InitBlockGroups");
             InitBlockGroups();
+            ProfilerShort.BeginNextBlock("PostprocessComponentGroups");
             PostprocessComponentGroups();
+            ProfilerShort.BeginNextBlock("PostprocessComponentBlocks");
             PostprocessComponentBlocks();
+            ProfilerShort.BeginNextBlock("PostprocessBlueprints");
             PostprocessBlueprints();
+            ProfilerShort.BeginNextBlock("AddEntriesToBlueprintClasses");
             AddEntriesToBlueprintClasses();
+            ProfilerShort.BeginNextBlock("AddEntriesToEnvironmentItemClasses");
             AddEntriesToEnvironmentItemClasses();
+            ProfilerShort.BeginNextBlock("PairPhysicalAndHandItems");
             PairPhysicalAndHandItems();
+            ProfilerShort.BeginNextBlock("CheckWeaponRelatedDefinitions");
             CheckWeaponRelatedDefinitions();
+            ProfilerShort.BeginNextBlock("MoveNonPublicBlocksToSpecialCategory");
             MoveNonPublicBlocksToSpecialCategory();
             if (MyAudio.Static != null)
+            {
+                ProfilerShort.BeginNextBlock("MyAudio.Static.ReloadData");
                 MyAudio.Static.ReloadData(MyAudioExtensions.GetSoundDataFromDefinitions(), MyAudioExtensions.GetEffectData());
+            }
+            ProfilerShort.BeginNextBlock("PostprocessPirateAntennas");
             PostprocessPirateAntennas();
+            ProfilerShort.BeginNextBlock("InitMultiBlockDefinitions");
             InitMultiBlockDefinitions();
+            ProfilerShort.BeginNextBlock("CreateMapMultiBlockDefinitionToBlockDefinition");
             CreateMapMultiBlockDefinitionToBlockDefinition();
+            ProfilerShort.BeginNextBlock("PostprocessAllDefinitions");
             PostprocessAllDefinitions();
 
+            ProfilerShort.BeginNextBlock("AfterPostprocess");
             AfterPostprocess();
+            ProfilerShort.End();
         }
 
         private void PostprocessAllDefinitions()
@@ -1675,7 +1770,7 @@ namespace Sandbox.Definitions
                 Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
                 output[res[i].Id] = res[i];
 
-                if (context.IsBaseGame)
+                if (context.IsBaseGame && !MyFinalBuildConstants.IS_OFFICIAL)
                     Static.m_currentLoadingSet.AddDefinition(res[i]); // compatibility
                 else
                     Static.m_currentLoadingSet.AddOrRelaceDefinition(res[i]);
@@ -2082,17 +2177,33 @@ namespace Sandbox.Definitions
             output = destructionDef;
         }
 
-        private static void InitDecals(MyModContext context, MyObjectBuilder_DecalDefinition[] objBuilder, bool failOnDebug = true)
+        private static void InitDecals(MyModContext context, MyObjectBuilder_DecalDefinition[] objBuilders, bool failOnDebug = true)
         {
             List<string> names = new List<string>();
             List<MyDecalMaterialDesc> desc = new List<MyDecalMaterialDesc>();
-            foreach (var m in objBuilder)
+            foreach (var obj in objBuilders)
             {
-                names.Add(m.Id.SubtypeName);
-                desc.Add(m.Material);
+                if (obj.MaxSize < obj.MinSize)
+                    obj.MaxSize = obj.MinSize;
+
+                MyDecalMaterial material = new MyDecalMaterial(obj.Material,
+                    MyStringHash.GetOrCompute(obj.Target), MyStringHash.GetOrCompute(obj.Source),
+                    obj.MinSize, obj.MaxSize, obj.Depth, obj.Rotation);
+
+                desc.Add(obj.Material);
+                names.Add(material.GetStringId());
+
+                MyDecalMaterials.AddDecalMaterial(material);
             }
 
             VRageRender.MyRenderProxy.RegisterDecals(names, desc);
+        }
+
+        private static void InitDecalGlobals(MyModContext context, MyObjectBuilder_DecalGlobalsDefinition objBuilder, bool failOnDebug = true)
+        {
+            MyDecalGlobals globals = new MyDecalGlobals();
+            globals.DecalQueueSize = objBuilder.DecalQueueSize;
+            VRageRender.MyRenderProxy.SetDecalGlobals(globals);
         }
 
         public void SetDefaultNavDef(MyCubeBlockDefinition blockDefinition)
@@ -2411,9 +2522,17 @@ namespace Sandbox.Definitions
             {
                 // Modders can have their character defined with MyObjectBuilder_CharacterDefinition
                 if (typeof(MyObjectBuilder_CharacterDefinition).IsAssignableFrom(characters[i].Id.TypeId))
+                {
                     characters[i].Id.TypeId = typeof(MyObjectBuilder_Character);
+                }
                 res[i] = InitDefinition<MyCharacterDefinition>(context, characters[i]);
-
+                if(res[i].Id.TypeId.IsNull)
+                {
+                    MySandboxGame.Log.WriteLine("Invalid character Id found in mod !");
+                    MyDefinitionErrors.Add(context, "Invalid character Id found in mod ! ", TErrorSeverity.Error);
+                    continue;
+                }
+                
                 Check(!outputCharacters.ContainsKey(res[i].Name), res[i].Name, failOnDebug);
                 outputCharacters[res[i].Name] = res[i];
 
@@ -2677,7 +2796,7 @@ namespace Sandbox.Definitions
                 i++;
             }
 
-            ob.Icon = cubeBlockDefinition.Icon;
+            ob.Icons = cubeBlockDefinition.Icons;
             ob.DisplayName = cubeBlockDefinition.DisplayNameEnum.HasValue ? cubeBlockDefinition.DisplayNameEnum.Value.ToString() : cubeBlockDefinition.DisplayNameText;
             ob.Public = cubeBlockDefinition.Public;
 
@@ -2774,6 +2893,9 @@ namespace Sandbox.Definitions
         {
             if (!defId.TypeId.IsNull)
             {
+                definition = base.GetDefinition<T>(defId);
+                if (definition != null) return true;
+
                 MyDefinitionBase definitionBase;
                 if (m_definitions.m_definitionsById.TryGetValue(defId, out definitionBase))
                 {
@@ -3254,6 +3376,15 @@ namespace Sandbox.Definitions
             return m_definitions.m_definitionsById[id] as MyPhysicalItemDefinition;
         }
 
+        public void TryGetDefinitionsByTypeId(MyObjectBuilderType typeId, HashSet<MyDefinitionId> definitions)
+        {
+            foreach (MyDefinitionId definition in m_definitions.m_definitionsById.Keys)
+            {
+                if (definition.TypeId == typeId && !definitions.Contains(definition))
+                    definitions.Add(definition);
+            }
+        }
+
         public MyEnvironmentItemDefinition GetEnvironmentItemDefinition(MyDefinitionId id)
         {
             Debug.Assert(m_definitions.m_definitionsById.ContainsKey(id));
@@ -3375,7 +3506,6 @@ namespace Sandbox.Definitions
         {
             if (!m_definitions.m_physicalItemsByHandItemId.ContainsKey(handItemId))
             {
-                MySandboxGame.Log.WriteLine(string.Format("No physical item for hand item '{0}'", handItemId));
                 return null;
             }
             return m_definitions.m_physicalItemsByHandItemId[handItemId];
@@ -3521,6 +3651,9 @@ namespace Sandbox.Definitions
             return group;
         }
 
+        /// <summary>
+        /// Returns the substitution definition for a "base" (i.e. required) component that has multiple other components (i.e. providing components) substituting it
+        /// </summary>
         public bool TryGetComponentSubstitutionDefinition(MyDefinitionId componentDefId, out MyComponentSubstitutionDefinition substitutionDefinition)
         {
             substitutionDefinition = null;
@@ -3536,6 +3669,9 @@ namespace Sandbox.Definitions
             return false;
         }
 
+        /// <summary>
+        /// Returns the substitution definition for a component that can serve as a providing component for some other "base" (required) component
+        /// </summary>
         public bool TryGetProvidingComponentDefinition(MyDefinitionId componentDefId, out MyComponentSubstitutionDefinition substitutionDefinition)
         {
             substitutionDefinition = null;

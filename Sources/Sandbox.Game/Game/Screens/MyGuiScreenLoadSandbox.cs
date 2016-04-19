@@ -695,6 +695,19 @@ namespace Sandbox.Game.Gui
             m_sessionsTable.ScrollToSelection();
         }
 
+        public void SelectSteamWorld(string sessionPath)
+        {
+            int i;
+            for (i = 0; i < m_availableSaves.Count; i++)
+                if (sessionPath.Equals(m_availableSaves[i].Item1))
+                    break;
+
+            Debug.Assert(i >= m_availableSaves.Count, "table row out of range!!!");
+
+            m_sessionsTable.SelectedRowIndex = i;
+            m_sessionsTable.ScrollToSelection();
+        }
+
         private IMyAsyncResult beginAction()
         {
             return new MyLoadWorldInfoListResult();

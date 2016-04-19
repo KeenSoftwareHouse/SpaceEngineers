@@ -1,6 +1,5 @@
 ﻿using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
@@ -20,7 +19,6 @@ using VRage.ObjectBuilders;
 using VRageMath;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
-using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 
 namespace Sandbox.Game.Entities.Cube

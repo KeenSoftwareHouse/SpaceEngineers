@@ -30,6 +30,8 @@ using VRage.Game.Components;
 using VRage.Voxels;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 
 #endregion
 
@@ -196,8 +198,7 @@ namespace Sandbox.Game
             SHRAPNEL_DATA.ProjectileTrailColor = MyProjectilesConstants.GetProjectileTrailColorByType(MyAmmoType.HighSpeed);
             SHRAPNEL_DATA.AmmoType = MyAmmoType.HighSpeed;
             SHRAPNEL_DATA.ProjectileTrailScale = 0.1f;
-            SHRAPNEL_DATA.ProjectileOnHitMaterialParticles = MyParticleEffects.GetCustomHitMaterialMethodById((int)MyCustomHitMaterialMethodType.Small);
-            SHRAPNEL_DATA.ProjectileOnHitParticles = MyParticleEffects.GetCustomHitParticlesMethodById((int)MyCustomHitParticlesMethodType.BasicSmall);
+            SHRAPNEL_DATA.ProjectileOnHitEffectName = "Hit_BasicAmmoSmall";
         }
 
         public void Start(MyExplosionInfo explosionInfo)
@@ -221,14 +222,14 @@ namespace Sandbox.Game
 
             if (m_explosionInfo.PlaySound)
             {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sound");
                 //  Play explosion sound
+                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sound");
                 PlaySound();
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Light");
             //  Light of explosion
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Light");
             m_light = MyLights.AddLight();
             if (m_light != null)
             {
@@ -239,8 +240,38 @@ namespace Sandbox.Game
             } 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            MyParticleEffectsIDEnum newParticlesType;
+            // Particles
+            if (m_explosionInfo.CreateParticleEffect)
+            {
+                CreateParticleEffectInternal();
+            }
 
+            m_explosionTriggered = false;
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+        }
+
+        private void PerformCameraShake(float intensityWeight)
+        {
+            if (MySector.MainCamera == null)
+                return;
+
+            const float maxShake = 8;
+            float intensityMultiplier = 10 * intensityWeight;
+
+            Vector3D dirToCamera = MySector.MainCamera.Position - m_explosionSphere.Center;
+            double invLengthSqDirToCamera = 1.0 / dirToCamera.LengthSquared();
+            float intensity = (float)(m_explosionSphere.Radius * m_explosionSphere.Radius * invLengthSqDirToCamera);
+            if (intensity > MyMathConstants.EPSILON)
+            {
+                MySector.MainCamera.CameraShake.AddShake(Math.Min(intensityMultiplier * intensity, maxShake));
+                MySector.MainCamera.CameraSpring.AddCurrentCameraControllerVelocity(intensityMultiplier * dirToCamera * invLengthSqDirToCamera);
+            }
+        }
+
+        private void CreateParticleEffectInternal()
+        {
+            MyParticleEffectsIDEnum newParticlesType;
             switch (m_explosionInfo.ExplosionType)
             {
                 case MyExplosionTypeEnum.MISSILE_EXPLOSION:
@@ -283,21 +314,9 @@ namespace Sandbox.Game
                     throw new System.NotImplementedException();
                     break;
             }
-
-            if (m_explosionInfo.CreateParticleEffect)
-            {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Particles");
-
-
-                //  Explosion particles
-                GenerateExplosionParticles(newParticlesType, m_explosionSphere, m_explosionInfo.ParticleScale);
-
-
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-            }
-
-            m_explosionTriggered = false;
-
+            //  Explosion particles
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Particles");
+            GenerateExplosionParticles(newParticlesType, m_explosionSphere, m_explosionInfo.ParticleScale);
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
@@ -310,6 +329,7 @@ namespace Sandbox.Game
                 if (emitter != null)
                 {
                     emitter.SetPosition(m_explosionSphere.Center);
+                    emitter.Entity = m_explosionInfo.HitEntity;
                     emitter.PlaySound(cueEnum);
                 }
             }
@@ -946,9 +966,9 @@ namespace Sandbox.Game
             {
                 foreach (var grid in explodedGrids)
                 {
-                    VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("UpdateDirty");
+                    /*VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("UpdateDirty");
                     grid.UpdateDirty();
-                    VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+                    VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();*/
 
                     VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("CreateExplosionDebris");
                     if (m_explosionInfo.HitEntity == grid)
@@ -1046,6 +1066,11 @@ namespace Sandbox.Game
             }
 
             ElapsedMiliseconds += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
+
+            if (ElapsedMiliseconds < MyExplosionsConstants.CAMERA_SHAKE_TIME_MS)
+            {
+                PerformCameraShake(1.0f - (float)ElapsedMiliseconds / MyExplosionsConstants.CAMERA_SHAKE_TIME_MS);
+            }
 
             if (ElapsedMiliseconds > m_explosionInfo.ObjectsRemoveDelayInMiliseconds)
             {

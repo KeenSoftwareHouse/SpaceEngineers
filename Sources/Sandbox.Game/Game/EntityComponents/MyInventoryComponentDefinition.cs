@@ -18,6 +18,7 @@ namespace Sandbox.Game.EntityComponents
         public float Mass;
         public bool RemoveEntityOnEmpty;
         public bool MultiplierEnabled;
+        public int MaxItemCount;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -33,6 +34,7 @@ namespace Sandbox.Game.EntityComponents
             Mass = ob.Mass;
             RemoveEntityOnEmpty = ob.RemoveEntityOnEmpty;
             MultiplierEnabled = ob.MultiplierEnabled;
+            MaxItemCount = ob.MaxItemCount;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -43,6 +45,7 @@ namespace Sandbox.Game.EntityComponents
             ob.Mass = Mass;
             ob.RemoveEntityOnEmpty = RemoveEntityOnEmpty;
             ob.MultiplierEnabled = MultiplierEnabled;
+            ob.MaxItemCount = MaxItemCount;
 
             return ob;
         }

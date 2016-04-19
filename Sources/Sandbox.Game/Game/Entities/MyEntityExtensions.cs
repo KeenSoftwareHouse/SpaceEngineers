@@ -1,46 +1,11 @@
-﻿#region Using
-
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using Havok;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Models;
+﻿using System.Collections.Generic;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Utils;
-using Sandbox.Game.World;
-using Sandbox.Graphics;
-using VRage.Import;
-using VRage.Utils;
-using VRageMath;
-using VRageRender;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.Gui;
-using Sandbox.ModAPI;
-using Sandbox.Common.Components;
-using Sandbox.Game.Entities.Character;
-using VRage;
 using Sandbox.Game.Components;
 using VRage.Game.Components;
-using VRage.ModAPI;
 using VRage.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Game.EntityComponents;
-using VRage.Network;
-using VRage.Library.Collections;
-using Sandbox.Game.Entities.Inventory;
-using VRage.Game;
 using VRage.Game.Entity;
-
-
-#endregion
 
 namespace Sandbox.Game.Entities
 {

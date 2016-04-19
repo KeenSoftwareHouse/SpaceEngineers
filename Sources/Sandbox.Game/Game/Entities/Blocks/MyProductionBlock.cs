@@ -23,8 +23,9 @@ using Sandbox.Game.Entities.Inventory;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
+using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -88,7 +89,7 @@ namespace Sandbox.Game.Entities.Cube
                         Debug.Assert(InventoryAggregate.ChildList.Contains(m_inputInventory), "Input inventory got lost! It is not in the inventory aggregate!");
                         InventoryAggregate.ChildList.RemoveComponent(m_inputInventory);
                     }
-                    InventoryAggregate.ChildList.AddComponent(value);
+                    InventoryAggregate.AddComponent(value);
                 }
                 Debug.Assert(InventoryCount <= 2, "Invalid insertion - too many inventories in aggregate");
                 Debug.Assert(m_inputInventory != null, "Input inventory wasn't set!");
@@ -110,7 +111,7 @@ namespace Sandbox.Game.Entities.Cube
                         Debug.Assert(InventoryAggregate.ChildList.Contains(m_outputInventory), "Output inventory got lost! It is not in the inventory aggregate!");
                         InventoryAggregate.ChildList.RemoveComponent(m_outputInventory);
                     }
-                    InventoryAggregate.ChildList.AddComponent(value);
+                    InventoryAggregate.AddComponent(value);
                 }                
                 Debug.Assert(InventoryCount <= 2, "Invalid insertion - too many inventories in aggregate");
                 Debug.Assert(m_outputInventory != null, "Output inventory wasn't set!");
@@ -205,7 +206,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyProductionBlock()
         {
-            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_queue = new List<QueueItem>();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -237,8 +238,7 @@ namespace Sandbox.Game.Entities.Cube
                 InputInventory = new MyInventory(
                     ProductionBlockDefinition.InventoryMaxVolume,
                     ProductionBlockDefinition.InventorySize,
-                    MyInventoryFlags.CanReceive,
-                    this);
+                    MyInventoryFlags.CanReceive);
                 if (ob.InputInventory != null)
                     InputInventory.Init(ob.InputInventory);                
             }
@@ -250,8 +250,7 @@ namespace Sandbox.Game.Entities.Cube
                 OutputInventory = new MyInventory(
                     ProductionBlockDefinition.InventoryMaxVolume,
                     ProductionBlockDefinition.InventorySize,
-                    MyInventoryFlags.CanSend,
-                    this);
+                    MyInventoryFlags.CanSend);
                 if (ob.OutputInventory != null)
                     OutputInventory.Init(ob.OutputInventory);
             }
@@ -571,6 +570,12 @@ namespace Sandbox.Game.Entities.Cube
                     if (idx == -1)
                         idx = m_queue.Count;
 
+                    if (idx > m_queue.Count)
+                    {
+                        MyLog.Default.WriteLine("Production block.InsertQueueItem: Index out of bounds, desync!");
+                        idx = m_queue.Count;
+                    }
+
                     // Reset timer when adding first item. Otherwise we might produce it faster than possible.
                     if (m_queue.Count == 0)
                         m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
@@ -702,6 +707,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void UpdateProduction()
         {
+            ProfilerShort.Begin("UpdateProduction");
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 			if (ResourceSink.IsPowered)
             {
@@ -712,6 +718,7 @@ namespace Sandbox.Game.Entities.Cube
                 IsProducing = false;
             }
             m_lastUpdateTime = currentTime;
+            ProfilerShort.End();
         }
 
         protected override void Closing()
@@ -970,6 +977,28 @@ namespace Sandbox.Game.Entities.Cube
             m_outputInventory = null;
             m_inputInventory = null;
             Components.Add<MyInventoryBase>(fixedAggregate);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public virtual Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = InputInventory;
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = InputInventory.Constraint;
+            return pullInformation;
+        }
+
+        public virtual Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = OutputInventory;
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = OutputInventory.Constraint;
+            return pullInformation;
         }
 
         #endregion

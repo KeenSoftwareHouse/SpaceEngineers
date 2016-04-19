@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Utils;
 using VRageMath;
 
-namespace VRage.Animations.AnimationNodes
+namespace VRage.Animations
 {
     /// <summary>
     /// Node of animation tree: single track. Contains reference to animation clip.
@@ -28,7 +25,7 @@ namespace VRage.Animations.AnimationNodes
         // If true, animation will loop automatically.
         private bool m_loop = true;
         // If true, animation will interpolate between keyframes.
-        public bool m_interpolate = true;
+        private bool m_interpolate = true;
 
         // --------------- properties ---------------------------------------------------------
 
@@ -91,12 +88,18 @@ namespace VRage.Animations.AnimationNodes
                 {
                     while (m_localTime >= m_animationClip.Duration)
                         m_localTime -= m_animationClip.Duration;
+                    while (m_localTime < 0)
+                        m_localTime += m_animationClip.Duration;
                 }
                 else
                 {
                     if (m_localTime >= m_animationClip.Duration)
                     {
                         m_localTime = m_animationClip.Duration;
+                    }
+                    else if (m_localTime < 0)
+                    {
+                        m_localTime = 0;
                     }
                 }
             
@@ -114,7 +117,7 @@ namespace VRage.Animations.AnimationNodes
                         currentKeyFrameIndex2 = Math.Max(0, currentBone.Keyframes.Count - 1);
 
                     int charBoneIndex = m_boneIndicesMapping[i]; // use mapping clip bone -> char bone
-                    if (charBoneIndex < 0 || data.LayerBoneMask[charBoneIndex] == false) // unaffected bone?
+                    if (charBoneIndex < 0 || charBoneIndex >= data.BonesResult.Count || data.LayerBoneMask[charBoneIndex] == false) // unaffected bone?
                         continue;
 
                     if (currentKeyFrameIndex != currentKeyFrameIndex2 && m_interpolate)
@@ -140,6 +143,9 @@ namespace VRage.Animations.AnimationNodes
                     }
                 }
             }
+
+            // debug going through animation tree
+            data.AddVisitedTreeNodesPathPoint(-1);  // finishing this node, we will go back to parent
         }
 
         // Get local time in normalized format (from 0 to 1).
@@ -147,7 +153,7 @@ namespace VRage.Animations.AnimationNodes
         public override float GetLocalTimeNormalized()
         {
             if (m_animationClip != null && m_animationClip.Duration > 0.0)
-                return m_localTime < m_animationClip.Duration ? (float)(m_localTime / m_animationClip.Duration) : 1.0f;
+                return m_localTime < m_animationClip.Duration ? (float)(m_localTime / m_animationClip.Duration) : (Loop ? 1.0f - MyMathConstants.EPSILON : 1.0f);
             else
                 return 0.0f;
         }

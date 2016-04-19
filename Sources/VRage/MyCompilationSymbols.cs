@@ -18,6 +18,9 @@ namespace VRage
 
         public static bool PerformanceOrMemoryProfiling = MemoryProfiling || PerformanceProfiling;
 
+        public const bool DX11Debug = false;
+        public const bool DX11DebugOutput = false;
+
         /// <summary>
         /// This is reliable, enforced by .NET documentation.
         /// Without this environment variable, CLR won't attach profiler.

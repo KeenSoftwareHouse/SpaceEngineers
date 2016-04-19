@@ -336,7 +336,7 @@
     <value>Large Steel Tube</value>
   </data>
   <data name="DisplayName_Block_LargeThrust" xml:space="preserve">
-    <value>Large Thruster</value>
+    <value>Large Ion Thruster</value>
   </data>
   <data name="DisplayName_Block_LightArmorBlock" xml:space="preserve">
     <value>Light Armor Block</value>
@@ -438,7 +438,7 @@
     <value>Small Steel Tube</value>
   </data>
   <data name="DisplayName_Block_SmallThrust" xml:space="preserve">
-    <value>Small Thruster</value>
+    <value>Small Ion Thruster</value>
   </data>
   <data name="DisplayName_Block_Stairs" xml:space="preserve">
     <value>Stairs</value>
@@ -5067,7 +5067,7 @@ These ships are enemies and will try to attack you with their drones.</value>
     <value>Enable drones</value>
   </data>
   <data name="ToolTipWorldSettings_CargoShipsEnabled" xml:space="preserve">
-    <value>Random NPC cargo ships can be encountered.</value>
+    <value>Random NPC ships will fly through world from time to time.</value>
   </data>
   <data name="ToolTipWorldSettings_ClientCanSave" xml:space="preserve">
     <value>Client can save network game. If unchecked then only server can save.</value>
@@ -5076,7 +5076,7 @@ These ships are enemies and will try to attack you with their drones.</value>
     <value>Camera can be switched to 3rd person view, looking on your astronaut from behind.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableEncounters" xml:space="preserve">
-    <value>Random NPC ships will fly through world from time to time.</value>
+    <value>Random NPC cargo ships can be encountered.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableIngameScripts" xml:space="preserve">
     <value>If disabled, scripts will not be run in game. Scripts are used in programmable block
@@ -5135,6 +5135,15 @@ and can also be used by some mods to create advanced logic and effects.</value>
   </data>
   <data name="BlockPropertiesText_MotorAttachingSpecific" xml:space="preserve">
     <value>Looking for specific rotor to attach</value>
+  </data>
+  <data name="BlockPropertiesText_HeadAttachingAny" xml:space="preserve">
+    <value>Looking for any Head to attach</value>
+  </data>
+  <data name="BlockPropertiesText_HeadAttachingSpecific" xml:space="preserve">
+    <value>Looking for specific Head to attach</value>
+  </data>
+  <data name="BlockPropertiesText_MotorLocked" xml:space="preserve">
+    <value>Safety locked</value>
   </data>
   <data name="BlockPropertiesText_MotorDetached" xml:space="preserve">
     <value>Detached</value>
@@ -5394,5 +5403,91 @@ and can also be used by some mods to create advanced logic and effects.</value>
   </data>
   <data name="ProgrammableBlock_Exception_NestedTooComplex" xml:space="preserve">
     <value>Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.</value>
+  </data>
+  <data name="DisplayName_OpenHelmet" xml:space="preserve">
+    <value>Open Helmet</value>
+  </data>
+  <data name="DisplayName_CloseHelmet" xml:space="preserve">
+    <value>Close Helmet</value>
+  </data>
+  <data name="Description_OpenHelmet" xml:space="preserve">
+    <value>Open Helmet</value>
+  </data>
+  <data name="Description_CloseHelmet" xml:space="preserve">
+    <value>Close Helmet</value>
+  </data>
+  <data name="GPS_Body_Location_Name" xml:space="preserve">
+    <value>Body Location</value>
+  </data>
+  <data name="GPS_Body_Location_Desc" xml:space="preserve">
+    <value>Last known body location</value>
+  </data>
+  <data name="DisplayName_AlienLander" xml:space="preserve">
+    <value>Alien Planet Landing</value>
+  </data>
+  <data name="DisplayName_MarsLander" xml:space="preserve">
+    <value>Mars Planet Landing</value>
+  </data>
+  <data name="BlockActionTitle_AddWheel" xml:space="preserve">
+    <value>Add Wheel</value>
+  </data>
+  <data name="BlockActionTooltip_AddWheel" xml:space="preserve">
+    <value>Tries to add a wheel if no wheel is present.</value>
+  </data>
+  <data name="BlockActionTitle_AddPistonHead" xml:space="preserve">
+    <value>Add Piston Head</value>
+  </data>
+  <data name="BlockActionTooltip_AddPistonHead" xml:space="preserve">
+    <value>Tries to add a piston head if no head is present.</value>
+  </data>
+  <data name="Notification_PistonHeadNotPlaced" xml:space="preserve">
+    <value>Piston head could not be placed.</value>
+  </data>
+  <data name="Notification_PistonHeadAlreadyExists" xml:space="preserve">
+    <value>Piston head already exists.</value>
+  </data>
+  <data name="NotificationLandingGearSwitchLocked" xml:space="preserve">
+    <value>Landing gears Locked</value>
+  </data>
+  <data name="NotificationLandingGearSwitchUnlocked" xml:space="preserve">
+    <value>Landing gears Unlocked</value>
+  </data>
+  <data name="BlockPropertyTitle_Silent" xml:space="preserve">
+    <value>Silent</value>
+  </data>
+  <data name="ToolTipTimerBlock_Silent" xml:space="preserve">
+    <value>Turn off timer beep sounds</value>
+  </data>
+  <data name="ProgrammableBlock_Exception_NoValidConstructor" xml:space="preserve">
+    <value>This program has no valid constructor.</value>
+  </data>
+  <data name="ProgrammableBlock_DefaultScript_Constructor" xml:space="preserve">
+    <value>The constructor, called only once every session and
+always before any other method is called. Use it to
+initialize your script. 
+    
+The constructor is optional and can be removed if not
+needed.</value>
+  </data>
+  <data name="ProgrammableBlock_DefaultScript_Main" xml:space="preserve">
+    <value>The main entry point of the script, invoked every time
+one of the programmable block's Run actions are invoked.
+
+The method itself is required, but the argument above
+can be removed if not needed.</value>
+  </data>
+  <data name="ProgrammableBlock_DefaultScript_Save" xml:space="preserve">
+    <value>Called when the program needs to save its state. Use
+this method to save your state to the Storage field
+or some other means. 
+
+This method is optional and can be removed if not
+needed.</value>
+  </data>
+  <data name="NotificationHandbrakeOff" xml:space="preserve">
+    <value>Handbrake off</value>
+  </data>
+  <data name="NotificationHandbrakeOn" xml:space="preserve">
+    <value>Handbrake on</value>
   </data>
 </root>

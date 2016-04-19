@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sandbox.Common;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using VRage;
 using VRageMath;
-using VRage.Utils;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {

@@ -28,8 +28,12 @@ namespace VRageRender
             private readonly int m_lod;
 
             private readonly MergeJobInfo[] m_mergeJobs;
+
+            // Cell proxies for the merged meshes
             private readonly MyClipmapCellProxy[] m_mergedLodMeshProxies;
-            private readonly HashSet<MyActor>[] m_trackedActors;   // List of actors that correspond to the cells that have been or will be merged
+
+            // List of actors that correspond to the cells that have been or will be merged
+            private readonly HashSet<MyActor>[] m_trackedActors;
             private readonly HashSet<int> m_dirtyProxyIndices;
 
             private readonly Dictionary<MyClipmapCellProxy, int> m_cellProxyToAabbProxy;
@@ -50,7 +54,7 @@ namespace VRageRender
                 m_lod = lod;
                 m_lodDivisions = lodDivisions;
 
-                if (m_lodDivisions <= 0)
+                if (!IsUsed())
                     return;
 
                 m_dirtyProxyIndices = new HashSet<int>();
@@ -102,6 +106,8 @@ namespace VRageRender
 
             internal void UpdateMesh(MyRenderMessageUpdateMergedVoxelMesh updateMessage)
             {
+                ProfilerShort.Begin("MyLodMeshMergeHandler.UpdateMesh");
+
                 int divideIndex = GetDivideIndexFromMergeCell(ref updateMessage.Metadata.Cell.CoordInLod);
 
                 // A job wasn't cancelled in time and made it here
@@ -113,13 +119,23 @@ namespace VRageRender
                 if (mergeSuccessful)
                 {
                     Debug.Assert(mergedId.Info.MergedLodMeshes.Count == 0, "Merging into an already merged mesh");
+
+                    ProfilerShort.Begin("Combine to merged");
                     mergedId.Info.MergedLodMeshes.UnionWith(m_mergeJobs[divideIndex].LodMeshesBeingMerged);
+                    ProfilerShort.End();
+
                     SwitchMergeState(divideIndex, true);
                 }
                 else
+                {
+                    ProfilerShort.Begin("Combine to pending");
                     mergedId.Info.PendingLodMeshes.UnionWith(m_mergeJobs[divideIndex].LodMeshesBeingMerged);
+                    ProfilerShort.End();
+                }
 
                 ResetMerge(divideIndex);
+
+                ProfilerShort.End();
             }
 
             internal bool OnAddedToScene(MyClipmapCellProxy cellProxy)
@@ -329,10 +345,17 @@ namespace VRageRender
 
             private void SwitchMergeState(int divideIndex, bool mergeState)
             {
+                ProfilerShort.Begin("MyLodMeshMergeHandler.SwitchMergeState");
+
                 foreach (var actor in m_trackedActors[divideIndex])
-                    actor.MarkRenderDirty();
+                {
+                    var renderableComponent = (MyVoxelRenderableComponent)actor.GetRenderable();
+                    renderableComponent.SetMergedState(mergeState);
+                }
 
                 m_mergedLodMeshProxies[divideIndex].Actor.MarkRenderDirty();
+
+                ProfilerShort.End();
             }
 
             private void InvalidateAllMergedMeshesInLod()
@@ -436,8 +459,10 @@ namespace VRageRender
             }
         }
 
-        private MyLodMeshMerge[] m_mergesPerLod;
+        private readonly MyLodMeshMerge[] m_mergesPerLod;
         private readonly HashSet<int> m_dirtyLodMergeIndices = new HashSet<int>();
+
+        private MyClipmap m_parentClipmap;
 
         private const ulong m_updateCheckInterval = 180;
         private ulong m_mergeCounter = 0;
@@ -466,17 +491,18 @@ namespace VRageRender
 
         internal MyLodMeshMergeHandler(MyClipmap parentClipmap, int lodCount, int lodDivisions, ref MatrixD worldMatrix, ref Vector3D massiveCenter, float massiveRadius, RenderFlags renderFlags)
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
-                return;
-
+            Debug.Assert(lodCount <= NUM_DIVISIONS_PER_LOD.Length, "Only " + NUM_DIVISIONS_PER_LOD.Length + " lods allowed, " + lodCount + " requested. Consider adding elements to NUM_DIVISIONS_PER_LOD.");
+            Debug.Assert(parentClipmap != null, "Parent clipmap of merge handler cannot be null!");
             m_mergesPerLod = new MyLodMeshMerge[lodCount];
 
-            for(int lodIndex = 0; lodIndex < m_mergesPerLod.Length; ++lodIndex)
+            for (int lodIndex = 0; lodIndex < m_mergesPerLod.Length; ++lodIndex)
             {
                 int divisions = NUM_DIVISIONS_PER_LOD[lodIndex];
                 m_mergesPerLod[lodIndex] = new MyLodMeshMerge(parentClipmap, lodIndex, divisions, ref worldMatrix, ref massiveCenter, massiveRadius, renderFlags);
                 m_dirtyLodMergeIndices.Add(lodIndex);
             }
+
+            m_parentClipmap = parentClipmap;
         }
 
         internal bool Update()
@@ -535,19 +561,29 @@ namespace VRageRender
 
         internal void ResetMeshes()
         {
-            // TODO: Start merges when merging turned on
+            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            {
+                foreach (var lodMerge in m_mergesPerLod)
+                    lodMerge.ResetMeshes();
 
-            foreach (var lodMerge in m_mergesPerLod)
-                lodMerge.ResetMeshes();
-
-            m_dirtyLodMergeIndices.Clear();
-            MyMeshes.LodMeshToMerged.Clear();
+                m_dirtyLodMergeIndices.Clear();
+                MyMeshes.LodMeshToMerged.Clear();
+            }
+            else
+            {
+                m_parentClipmap.RequestMergeAll();
+            }
         }
 
         internal void DebugDrawCells()
         {
             foreach (var lodMerge in m_mergesPerLod)
                 lodMerge.DebugDrawCells();
+        }
+
+        internal static bool ShouldAllocate(MyLodMeshMergeHandler mergeHandler)
+        {
+            return MyRenderProxy.Settings.EnableVoxelMerging && mergeHandler == null;
         }
     }
 
@@ -636,7 +672,7 @@ namespace VRageRender
                 MyRenderProxy.MergeVoxelMeshes(clipmapId, workId, m_tmpMetadata, new MyCellCoord(cellInfo.Lod, cellInfo.Coord), m_tmpBatches);
 
                 m_tmpBatches.Clear();
-                m_tmpMetadata.Clear();
+                m_tmpMetadata.SetSize(0);
             }
             return pendingMeshesOverThreshold;
         }

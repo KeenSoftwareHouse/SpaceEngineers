@@ -12,5 +12,6 @@ namespace VRage.Replication
         void SendClientUpdate(BitStream stream);
         void SendEvent(BitStream stream, bool reliable);
         void SendReplicableReady(BitStream stream);
+        void SendConnectRequest(BitStream stream);
     }
 }

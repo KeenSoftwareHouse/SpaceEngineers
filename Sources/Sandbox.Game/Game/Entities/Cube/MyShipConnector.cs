@@ -31,7 +31,7 @@ using VRage.Library.Utils;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Game.Entity;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -47,6 +47,7 @@ namespace Sandbox.Game.Entities.Cube
 
             public long OtherEntityId; // zero when detached, valid EntityId when approaching or connected
             public MyDeltaTransform? MasterToSlave; // relative connector-to-connector world transform MASTER * DELTA = SLAVE, null when detached/approaching, valid value when connected
+            public MyDeltaTransform? MasterToSlaveApproaching;
         }
 
         private enum Mode
@@ -270,8 +271,9 @@ namespace Sandbox.Game.Entities.Cube
 
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>( new MyInventory(inventorySize.Volume, inventorySize, MyInventoryFlags.CanReceive | MyInventoryFlags.CanSend, this));
-                this.GetInventory().Init(ob.Inventory);
+                MyInventory inventory = new MyInventory(inventorySize.Volume, inventorySize, MyInventoryFlags.CanReceive | MyInventoryFlags.CanSend);
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(ob.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
@@ -565,20 +567,20 @@ namespace Sandbox.Game.Entities.Cube
                     obj = m_other;
 
                 if (obj.Connected)
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.ForestGreen, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.ForestGreen, 1);
                 else if (obj.IsReleasing)
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.RoyalBlue, 0.5f);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.RoyalBlue, 0.5f);
                 else
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Goldenrod, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Goldenrod, 1);
             }
             else
             {
                 if (!IsWorking && m_connectorMode == Mode.Connector)
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Black, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Black, 1);
                 else if (m_detectedFloaters.Count < 2 || !IsWorking)
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Gray, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Gray, 1);
                 else
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, "Emissive1", Color.Red, 1);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], "Emissive1", Color.Red, 1);
             }
         }
 
@@ -678,10 +680,15 @@ namespace Sandbox.Game.Entities.Cube
                     // Detach when connected or aproaching something else
                     Detach(false);
                 }
-
+               
                 MyShipConnector connector;
                 if (!InConstraint && MyEntities.TryGetEntityById<MyShipConnector>(state.OtherEntityId, out connector) && connector.FriendlyWithBlock(this))
                 {
+                    if (Sync.IsServer == false && state.MasterToSlaveApproaching != null)
+                    {
+                        WorldMatrix = MatrixD.Multiply(state.MasterToSlaveApproaching.Value, connector.WorldMatrix);
+                    }
+
                     this.CreateConstraintNosync(connector);
                 }
             }
@@ -705,6 +712,10 @@ namespace Sandbox.Game.Entities.Cube
                     {
                         // Special case when deserializing old saves with connected connector (old saves does not have MasterToSlave transform...it's zero)
                         masterToSlave = null;
+                    }
+                    else if(Sync.IsServer == false)
+                    {
+                        WorldMatrix = MatrixD.Multiply(masterToSlave.Value, m_other.WorldMatrix);
                     }
                     Connect(masterToSlave);
                 }
@@ -773,20 +784,17 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (ejectedItemCount > 0)
                 {
-                    m_soundEmitter.PlaySound(m_actionSound);
-                    MyMultiplayer.RaiseEvent(this, x => x.PlayActionSound);
+                    if (m_soundEmitter != null)
+                    {
+                        m_soundEmitter.PlaySound(m_actionSound);
+                        MyMultiplayer.RaiseEvent(this, x => x.PlayActionSound);
+                    }
                 }
 
                 if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_Collector, out effect))
                 {
-                    //effect.WorldMatrix = Matrix.CreateWorld(PositionComp.GetPosition(), PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
                     effect.WorldMatrix = entity.WorldMatrix;
                     effect.Velocity = CubeGrid.Physics.LinearVelocity;
-
-                    foreach (var gen in effect.GetGenerations())
-                    {
-                        gen.MotionInheritance.AddKey(0, 1f);
-                    }
                 }
                 break;
             }
@@ -851,8 +859,9 @@ namespace Sandbox.Game.Entities.Cube
             CreateConstraintNosync(otherConnector);
             if (Sync.IsServer)
             {
-                m_connectionState.Value = new State() { OtherEntityId = otherConnector.EntityId, MasterToSlave = null };
-                otherConnector.m_connectionState.Value = new State() { OtherEntityId = EntityId, MasterToSlave = null };
+                MatrixD masterToSlave = CubeGrid.WorldMatrix * MatrixD.Invert(m_other.WorldMatrix);
+                m_connectionState.Value = new State() { OtherEntityId = otherConnector.EntityId, MasterToSlave = null, MasterToSlaveApproaching = masterToSlave };
+                otherConnector.m_connectionState.Value = new State() { OtherEntityId = EntityId, MasterToSlave = null, MasterToSlaveApproaching = masterToSlave };
             }
         }
 
@@ -997,6 +1006,9 @@ namespace Sandbox.Game.Entities.Cube
                 this.OnConstraintAdded(GridLinkTypeEnum.Physical, otherConnector.CubeGrid);
             }
             CubeGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged;
+
+            CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
+            otherConnector.CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
         }
 
         void CubeGrid_OnPhysicsChanged(MyEntity obj)
@@ -1108,6 +1120,9 @@ namespace Sandbox.Game.Entities.Cube
                     this.OnConstraintRemoved(GridLinkTypeEnum.Logical, otherConnector.CubeGrid);
                     this.OnConstraintRemoved(GridLinkTypeEnum.Physical, otherConnector.CubeGrid);
                 }
+
+                CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
+                otherConnector.CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
             }
         }
 
@@ -1250,6 +1265,24 @@ namespace Sandbox.Game.Entities.Cube
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new PullInformation();
+            pullInformation.Inventory = this.GetInventory(0);
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = new MyInventoryConstraint("Empty Constraint");
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

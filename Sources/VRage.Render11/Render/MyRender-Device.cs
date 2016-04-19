@@ -19,7 +19,6 @@ using Vector2 = VRageMath.Vector2;
 using VRageMath;
 using VRage.Win32;
 
-
 namespace VRageRender
 {
     partial class MyRender11
@@ -33,42 +32,47 @@ namespace VRageRender
         internal static Vector2 ResolutionF { get { return new Vector2(m_resolution.X, m_resolution.Y); } }
         internal static Vector2I ResolutionI { get { return m_resolution; } }
 
-        static DeviceDebug DebugDevice { get; set; }
-        static InfoQueue DebugInfoQueue { get; set; }
+        //static private DeviceDebug DebugDevice { get; set; }
+        static private InfoQueue DebugInfoQueue { get; set; }
 
         #region Debug
-        [Conditional("DEBUG_DEVICE")]
-        static void PopErrorFilter()
+        internal static void AddDebugQueueMessage(string message)
         {
             if (DebugInfoQueue != null)
+                DebugInfoQueue.AddApplicationMessage(MessageSeverity.Information, message);
+        }
+        [Conditional("DEBUG")]
+        static private void InitDebugOutput()
+        {
+            if (VRage.MyCompilationSymbols.DX11Debug && VRage.MyCompilationSymbols.DX11DebugOutput)
             {
-                DebugInfoQueue.PopStorageFilter();
+                DebugInfoQueue = Device.QueryInterface<InfoQueue>();
+                DebugInfoQueue.SetBreakOnSeverity(MessageSeverity.Corruption, true);
+                DebugInfoQueue.SetBreakOnSeverity(MessageSeverity.Error, true);
+                DebugInfoQueue.MessageCountLimit = 4096;
+                DebugInfoQueue.ClearStorageFilter();
             }
         }
-
-        static void ProcessDebugOutput()
+        private static long m_lastSkippedCount;
+        [Conditional("DEBUG")]
+        internal static void ProcessDebugOutput()
         {
-            using (var DebugInfoQueue = Device.QueryInterface<InfoQueue>())
+            if (DebugInfoQueue != null && VRage.MyCompilationSymbols.DX11DebugOutput)
             {
-                System.Threading.Thread t = System.Threading.Thread.CurrentThread;
-                bool running = true;
-
-                Device.Disposing += (x, e) => { running = false; t.Join(); };
-
-                DebugInfoQueue.MessageCountLimit = 4096;
-                while (running)
+                for (int i = 0; i < DebugInfoQueue.NumStoredMessages; i++)
                 {
-                    for (int i = 0; i < DebugInfoQueue.NumStoredMessages; i++)
-                    {
-                        var msg = DebugInfoQueue.GetMessage(i);
-                        //string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", FormatEnum(msg.Severity), msg.Description.Replace("\0", ""), FormatEnum(msg.Category), (int)msg.Id, FormatEnum(msg.Id));
-                        string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", msg.Severity.ToString(), msg.Description.Replace("\0", ""), msg.Category.ToString(), (int)msg.Id, msg.Id.ToString());
-                        System.Diagnostics.Debug.Print(text);
-                        System.Diagnostics.Debug.WriteLine(String.Empty);
-                    }
-                    DebugInfoQueue.ClearStoredMessages();
-                    System.Threading.Thread.Sleep(16);
+                    var msg = DebugInfoQueue.GetMessage(i);
+                    //string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", FormatEnum(msg.Severity), msg.Description.Replace("\0", ""), FormatEnum(msg.Category), (int)msg.Id, FormatEnum(msg.Id));
+                    string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", msg.Severity.ToString(), msg.Description.Replace("\0", ""), msg.Category.ToString(), (int)msg.Id, msg.Id.ToString());
+                    System.Diagnostics.Debug.Print(text);
+                    System.Diagnostics.Debug.WriteLine(String.Empty);
                 }
+                if ((DebugInfoQueue.NumMessagesDiscardedByMessageCountLimit - m_lastSkippedCount) > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("Skipped messages: " + (DebugInfoQueue.NumMessagesDiscardedByMessageCountLimit - m_lastSkippedCount));
+                    m_lastSkippedCount = DebugInfoQueue.NumMessagesDiscardedByMessageCountLimit;
+                }
+                DebugInfoQueue.ClearStoredMessages();
             }
         }
         #endregion
@@ -169,6 +173,7 @@ namespace VRageRender
                 deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings);
                 if (!deviceCreated)
                 {
+                    m_settings.AdapterOrdinal = -1;
                     VRage.Utils.MyMessageBox.Show("Unsupported graphics card", "Graphics card is not supported, please see minimum requirements");
                     throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
                 }
@@ -210,9 +215,10 @@ namespace VRageRender
             FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
             DeviceCreationFlags flags = DeviceCreationFlags.None;
       
-    #if DEBUG_DEVICE && DEBUG
-            flags |= DeviceCreationFlags.Debug;
-    #endif
+#if DEBUG
+            if (VRage.MyCompilationSymbols.DX11Debug)
+                flags |= DeviceCreationFlags.Debug;
+#endif
 
             WinApi.DEVMODE mode = new WinApi.DEVMODE();
             WinApi.EnumDisplaySettings(null, WinApi.ENUM_REGISTRY_SETTINGS, ref mode);
@@ -246,6 +252,7 @@ namespace VRageRender
             if (adapterId >= GetFactory().Adapters.Length)
                 throw new MyRenderException("Invalid adapter id binding!", MyRenderExceptionEnum.GpuNotSupported);
             var adapter = GetFactory().Adapters[adapterId];
+            TweakSettingsAdapterAdHoc(adapter);
             Device = new Device(adapter, flags, FeatureLevel.Level_11_0);
 
             // HACK: This is required for Steam overlay to work. Apparently they hook only CreateDevice methods with DriverType argument.
@@ -255,19 +262,7 @@ namespace VRageRender
             }
             catch { }
 
-            if (flags.HasFlag(DeviceCreationFlags.Debug))
-            {
-                if (DebugDevice != null)
-                {
-                    DebugDevice.Dispose();
-                    DebugDevice = null;
-                }
-
-                DebugDevice = new DeviceDebug(Device);
-                DebugInfoQueue = DebugDevice.QueryInterface<InfoQueue>();
-
-                new System.Threading.Thread(ProcessDebugOutput).Start();
-            }
+            InitDebugOutput();
 
             if(DeviceContext != null)
             {
@@ -328,6 +323,16 @@ namespace VRageRender
             return m_settings;
         }
 
+        private static void TweakSettingsAdapterAdHoc(Adapter adapter)
+        {
+            // Workaround for some AMD/ATI cards that manifest a dirty texture
+            // when blurring for the highlight, showing for example blue grass on ME
+            if (adapter.Description.VendorId == 0x1002)
+                Settings.BlurCopyOnDepthStencilFail = true;
+            else
+                Settings.BlurCopyOnDepthStencilFail = false;
+        }
+
         internal static void DisposeDevice()
         {
             ForceWindowed();
@@ -360,11 +365,14 @@ namespace VRageRender
 
             if (Device != null)
             {
-    #if DEBUG_DEVICE
-                var deviceDebug = new DeviceDebug(Device);
-                deviceDebug.ReportLiveDeviceObjects(ReportingLevel.Detail);
-                deviceDebug.Dispose();
-    #endif
+#if DEBUG
+                if (VRage.MyCompilationSymbols.DX11Debug)
+                {
+                    var deviceDebug = new DeviceDebug(Device);
+                    deviceDebug.ReportLiveDeviceObjects(ReportingLevel.Detail | ReportingLevel.Summary);
+                    deviceDebug.Dispose();
+                }
+#endif
 
                 Device.Dispose();
                 Device = null;

@@ -4,7 +4,7 @@ using VRage.Win32;
 
 namespace VRage.Input
 {
-    class MyGuiLocalizedKeyboardState
+    public class MyGuiLocalizedKeyboardState
     {
         static HashSet<byte> m_localKeys;
 
@@ -95,8 +95,8 @@ namespace VRage.Input
 
         public void ClearStates()
         {
-            m_previousKeyboardState = new MyKeyboardState();
-            m_actualKeyboardState = new MyKeyboardState();                        
+            m_previousKeyboardState = m_actualKeyboardState;
+            m_actualKeyboardState = new MyKeyboardState();
         }
 
 
@@ -111,6 +111,12 @@ namespace VRage.Input
         {
             m_previousKeyboardState = m_actualKeyboardState;
             m_actualKeyboardState = state;
+        }
+
+        public void UpdateStatesFromSnapshot(MyKeyboardState currentState, MyKeyboardState previousState)
+        {
+            m_previousKeyboardState = previousState;
+            m_actualKeyboardState = currentState;
         }
 
         public MyKeyboardState GetActualKeyboardState()

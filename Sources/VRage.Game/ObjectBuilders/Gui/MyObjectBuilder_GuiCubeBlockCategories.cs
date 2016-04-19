@@ -28,5 +28,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public bool ShowAnimations = false;
+
+        [ProtoMember]
+        public bool ShowInCreative = true;
     }
 }

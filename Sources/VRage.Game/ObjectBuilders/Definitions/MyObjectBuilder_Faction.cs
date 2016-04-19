@@ -1,5 +1,6 @@
 ﻿using ProtoBuf;
 using System.Collections.Generic;
+using VRage.Serialization;
 
 namespace VRage.Game
 {
@@ -23,15 +24,19 @@ namespace VRage.Game
         public long FactionId;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string Tag;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string Name;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string Description;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string PrivateInfo;
 
         [ProtoMember]

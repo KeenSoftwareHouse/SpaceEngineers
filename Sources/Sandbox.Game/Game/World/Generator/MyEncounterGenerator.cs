@@ -1,5 +1,5 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Voxels;
@@ -22,6 +22,7 @@ using VRage.Game;
 using VRage.Library.Utils;
 using VRage.ModAPI;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -208,12 +209,12 @@ namespace Sandbox.Game.World.Generator
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
 
-                var spawningOptions = spawnGroup.ReactorsOn ? Sandbox.ModAPI.SpawningOptions.None : Sandbox.ModAPI.SpawningOptions.TurnOffReactors;
+                var spawningOptions = spawnGroup.ReactorsOn ? VRage.Game.ModAPI.SpawningOptions.None : VRage.Game.ModAPI.SpawningOptions.TurnOffReactors;
                 if (selectedPrefab.Speed > 0.0f)
                 {
-                    spawningOptions = Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
-                                     Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
-                                     Sandbox.ModAPI.SpawningOptions.DisableDampeners;
+                    spawningOptions = VRage.Game.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
+                                     VRage.Game.ModAPI.SpawningOptions.SpawnRandomCargo |
+                                     VRage.Game.ModAPI.SpawningOptions.DisableDampeners;
 
                     float centerArcRadius = (float)Math.Atan(MyNeutralShipSpawner.NEUTRAL_SHIP_FORBIDDEN_RADIUS / placePosition.Length());
                     direction = -Vector3D.Normalize(placePosition);
@@ -227,7 +228,7 @@ namespace Sandbox.Game.World.Generator
 
                     upVector = Vector3D.CalculatePerpendicularVector(direction);
                 }
-                spawningOptions |= Sandbox.ModAPI.SpawningOptions.DisableSave;
+                spawningOptions |= VRage.Game.ModAPI.SpawningOptions.DisableSave;
 
                 if (selectedPrefab.PlaceToGridOrigin) spawningOptions |= SpawningOptions.UseGridOrigin;
 

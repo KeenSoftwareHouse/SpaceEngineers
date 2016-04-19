@@ -10,13 +10,16 @@ namespace VRage.Network
     /// </summary>
     public enum StateGroupEnum
     {
-        Properties,
+        PositionVerification,
+        Properties,   
         Inventory, 
         Terminal,
+
         Physics,
        
-        FloatingObjectPhysics,
         Streamining,
         FracturedPiece,
+
+        FloatingObjectPhysics,
     }
 }

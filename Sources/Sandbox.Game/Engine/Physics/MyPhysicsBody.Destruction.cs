@@ -21,7 +21,7 @@ using Sandbox.Game.World;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Entities.Character;
 using VRage;
-using Sandbox.Common.Components;
+
 using VRageMath.Spatial;
 using Sandbox.Game;
 

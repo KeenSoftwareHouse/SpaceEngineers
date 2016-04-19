@@ -43,6 +43,7 @@ using VRage.Game;
 using VRage.Network;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -237,7 +238,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                if (m_savedPreviousControlledEntityId != null)
+                if (m_savedPreviousControlledEntityId.HasValue)
                 {
                     if (TryFindSavedEntity())
                     {
@@ -354,6 +355,8 @@ namespace Sandbox.Game.Entities
             { Base6Directions.Direction.Up, Vector3D.Right },
             { Base6Directions.Direction.Down, Vector3D.Right }
         };
+
+        bool m_syncing = false;
 
         static MyRemoteControl()
         {
@@ -520,16 +523,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public new MySyncRemoteControl SyncObject
-        {
-            get { return (MySyncRemoteControl)base.SyncObject; }
-        }
-
-        protected override MySyncComponentBase OnCreateSync()
-        {
-            return new MySyncRemoteControl(this);
-        }
-
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             SyncFlag = true; 
@@ -653,7 +646,7 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateBeforeSimulation();
 
-            if (m_savedPreviousControlledEntityId != null && m_savedPreviousControlledEntityId.HasValue)
+            if (m_savedPreviousControlledEntityId.HasValue)
             {
                 MySession.Static.Players.UpdatePlayerControllers(EntityId);
                 if (TryFindSavedEntity())
@@ -668,6 +661,10 @@ namespace Sandbox.Game.Entities
         #region Autopilot GUI
         private bool CanEnableAutoPilot()
         {
+            //by Gregory: disable autopilot when  no waypoints or only one way point in circle or patrol
+            if (m_waypoints.Count == 0 || (m_waypoints.Count == 1 && m_currentFlightMode != FlightMode.OneWay))
+                return false;
+
             return IsWorking && m_previousControlledEntity == null;
         }
 
@@ -695,8 +692,12 @@ namespace Sandbox.Game.Entities
         {
             if (CanEnableAutoPilot())
             {
-                m_autoPilotEnabled.Value = enabled;
+                if(enabled == false)
+                {
+                    ClearMovementControl();
+                }
             }
+            m_autoPilotEnabled.Value = enabled;
         }
 
         void RemoveAutoPilot()
@@ -805,11 +806,12 @@ namespace Sandbox.Game.Entities
                     names[i] = m_selectedGpsLocations[i].Name;
                 }
 
-                SyncObject.AddWaypoints(coords, names);
+                MyMultiplayer.RaiseEvent(this,x=> x.OnAddWaypoints,coords, names);
                 m_selectedGpsLocations.Clear();
             }
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnAddWaypoints(Vector3D[] coords, string[] names)
         {
             Debug.Assert(coords.Length == names.Length);
@@ -855,17 +857,15 @@ namespace Sandbox.Game.Entities
 
                 if (indexes.Count > 0)
                 {
-                    var indexesToSend = indexes.ToArray();
-                    Array.Sort(indexesToSend);
-
-                    SyncObject.MoveWaypointsUp(indexesToSend);
+                    MyMultiplayer.RaiseEvent(this, x => x.OnMoveWaypointsUp, indexes);
                 }
             }
         }
 
-        private void OnMoveWaypointsUp(int[] indexes)
+        [Event, Reliable, Server, Broadcast]
+        private void OnMoveWaypointsUp(List<int> indexes)
         {
-            for (int i = 0; i < indexes.Length; i++)
+            for (int i = 0; i < indexes.Count; i++)
             {
                 Debug.Assert(indexes[i] > 0);
                 SwapWaypoints(indexes[i] - 1, indexes[i]);
@@ -906,17 +906,15 @@ namespace Sandbox.Game.Entities
 
                 if (indexes.Count > 0)
                 {
-                    var indexesToSend = indexes.ToArray();
-                    Array.Sort(indexesToSend);
-
-                    SyncObject.MoveWaypointsDown(indexesToSend);
+                    MyMultiplayer.RaiseEvent(this, x => x.OnMoveWaypointsDown, indexes);
                 }
             }
         }
 
-        private void OnMoveWaypointsDown(int[] indexes)
+        [Event, Reliable, Server, Broadcast]
+        private void OnMoveWaypointsDown(List<int> indexes)
         {
-            for (int i = indexes.Length - 1; i >= 0; i--)
+            for (int i = indexes.Count - 1; i >= 0; i--)
             {
                 int index = indexes[i];
                 Debug.Assert(index < m_waypoints.Count - 1);
@@ -945,14 +943,15 @@ namespace Sandbox.Game.Entities
                     var item = m_selectedWaypoints[i];
                     indexes[i] = m_waypoints.IndexOf(item);
                 }
+
                 Array.Sort(indexes);
-
-                SyncObject.RemoveWaypoints(indexes);
-
+                MyMultiplayer.RaiseEvent(this, x => x.OnRemoveWaypoints, indexes);
+               
                 m_selectedWaypoints.Clear();
             }
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnRemoveWaypoints(int[] indexes)
         {
             bool currentWaypointRemoved = false;
@@ -1100,10 +1099,11 @@ namespace Sandbox.Game.Entities
         {
             if (m_clipboard != null)
             {
-                SyncObject.SendPasteAutopilotSettings(m_clipboard);
+                MyMultiplayer.RaiseEvent(this, x => x.OnPasteAutopilotSetup, m_clipboard);
             }
         }
 
+        [Event, Reliable, Server, Broadcast]
         private void OnPasteAutopilotSetup(MyObjectBuilder_AutopilotClipboard clipboard)
         {
             m_currentDirection.Value = (Base6Directions.Direction)clipboard.Direction;
@@ -1154,9 +1154,10 @@ namespace Sandbox.Game.Entities
 
         public void AddWaypoint(Vector3D point, string name)
         {
-            SyncObject.AddWaypoint(point, name);
+            MyMultiplayer.RaiseEvent(this, x => x.OnAddWaypoint, point, name);
         }
 
+        [Event,Reliable,Server,Broadcast]
         private void OnAddWaypoint(Vector3D point, string name)
         {
             m_waypoints.Add(new MyAutopilotWaypoint(point, name, this));
@@ -1243,7 +1244,7 @@ namespace Sandbox.Game.Entities
         {
             if (m_selectedWaypoints.Count == 1)
             {
-                SyncObject.SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
+                SendToolbarItemChanged(ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex)), index.ItemIndex, m_waypoints.IndexOf(m_selectedWaypoints[0]));
             }
         }
 
@@ -1344,6 +1345,8 @@ namespace Sandbox.Game.Entities
             int currentIndex = m_waypoints.IndexOf(CurrentWaypoint);
             var m_oldWaypoint = CurrentWaypoint;
 
+            bool enableAutopilot = m_autoPilotEnabled;
+
             if (m_waypoints.Count > 0)
             {
                 if (m_currentFlightMode == FlightMode.Circle)
@@ -1357,7 +1360,14 @@ namespace Sandbox.Game.Entities
                         currentIndex++;
                         if (currentIndex >= m_waypoints.Count)
                         {
-                            currentIndex = m_waypoints.Count - 2;
+                            if (m_waypoints.Count != 1)
+                            {
+                                currentIndex = m_waypoints.Count - 2;
+                            }
+                            else
+                            {
+                                currentIndex = 0;
+                            }
                             m_patrolDirectionForward = false;
                         }
                     }
@@ -1367,6 +1377,10 @@ namespace Sandbox.Game.Entities
                         if (currentIndex < 0)
                         {
                             currentIndex = 1;
+                            if (m_waypoints.Count == 1)
+                            {
+                                currentIndex = 0;
+                            }
                             m_patrolDirectionForward = true;
                         }
                     }
@@ -1385,7 +1399,10 @@ namespace Sandbox.Game.Entities
 						if(thrustComp != null)
                         thrustComp.AutoPilotControlThrust = Vector3.Zero;
 
-                        if (Sync.IsServer) SetAutoPilotEnabled(false);
+                        if (Sync.IsServer)
+                        {
+                            enableAutopilot = false;
+                        }
                     }
                 }
             }
@@ -1393,7 +1410,10 @@ namespace Sandbox.Game.Entities
             if (currentIndex < 0 || currentIndex >= m_waypoints.Count)
             {
                 CurrentWaypoint = null;
-                if (Sync.IsServer) SetAutoPilotEnabled(false);
+                if (Sync.IsServer)
+                {
+                    enableAutopilot = false;
+                }
                 UpdatePlanetWaypointInfo();
                 UpdateText();
             }
@@ -1401,7 +1421,7 @@ namespace Sandbox.Game.Entities
             {
                 CurrentWaypoint = m_waypoints[currentIndex];
 
-                if (CurrentWaypoint != m_oldWaypoint)
+                if (CurrentWaypoint != m_oldWaypoint || m_waypoints.Count == 1)
                 {
                     if (Sync.IsServer && m_oldWaypoint.Actions != null && m_autoPilotEnabled)
                     {
@@ -1412,6 +1432,14 @@ namespace Sandbox.Game.Entities
                                 m_actionToolbar.SetItemAtIndex(0, m_oldWaypoint.Actions[i]);
                                 m_actionToolbar.UpdateItem(0);
                                 m_actionToolbar.ActivateItemAtSlot(0);
+
+                                
+                                //by Gregory temporary fix in order not to get the action looping for one waypoint
+                                if (m_waypoints.Count == 1)
+                                {
+                                    enableAutopilot = false;
+                                }
+                                
                             }
                         }
                         m_actionToolbar.Clear();
@@ -1420,6 +1448,11 @@ namespace Sandbox.Game.Entities
                     UpdatePlanetWaypointInfo();
                     UpdateText();
                 }
+            }
+
+            if (Sync.IsServer && enableAutopilot != m_autoPilotEnabled)
+            {
+                SetAutoPilotEnabled(enableAutopilot);
             }
 
             m_stuckDetection.Reset();
@@ -1514,6 +1547,7 @@ namespace Sandbox.Game.Entities
                     velocity /= 4.0;
                 }
                 gyros.ControlTorque = velocity;
+                gyros.MarkDirty();
             }
 
             if (m_dockingModeEnabled)
@@ -1872,8 +1906,10 @@ namespace Sandbox.Game.Entities
 
             if ((double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop) || timeToReachTarget > timeToStop) && velocity.LengthSquared() < (maxSpeed * maxSpeed))
             {
-                thrustSystem.AutoPilotControlThrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);
-                thrustSystem.AutoPilotControlThrust.Normalize();
+                Vector3 thrust = Vector3D.Transform(delta, invWorldRot) - Vector3D.Transform(velocityToCancel, invWorldRot);       
+                thrust.Normalize();
+                // becaouse of c# properties and structs 
+                thrustSystem.AutoPilotControlThrust = thrust;
             }
         }
 
@@ -1997,7 +2033,7 @@ namespace Sandbox.Game.Entities
         private bool TryFindSavedEntity()
         {
             MyEntity oldControllerEntity;
-            if (MyEntities.TryGetEntityById(m_savedPreviousControlledEntityId.Value, out oldControllerEntity))
+            if (m_savedPreviousControlledEntityId.HasValue && MyEntities.TryGetEntityById(m_savedPreviousControlledEntityId.Value, out oldControllerEntity))
             {
                 m_previousControlledEntity = (IMyControllableEntity)oldControllerEntity;
                 if (m_previousControlledEntity != null)
@@ -2017,7 +2053,7 @@ namespace Sandbox.Game.Entities
 
         public bool WasControllingCockpitWhenSaved()
         {
-            if (m_savedPreviousControlledEntityId != null)
+            if (m_savedPreviousControlledEntityId.HasValue)
             {
                 MyEntity oldControllerEntity;
                 if (MyEntities.TryGetEntityById(m_savedPreviousControlledEntityId.Value, out oldControllerEntity))
@@ -2435,7 +2471,7 @@ namespace Sandbox.Game.Entities
         {
             if (ControllerInfo.Controller == null)
             {
-                System.Diagnostics.Debug.Assert(m_savedPreviousControlledEntityId != null,"Controller is null, but remote control was not properly released!");
+                System.Diagnostics.Debug.Assert(m_savedPreviousControlledEntityId.HasValue,"Controller is null, but remote control was not properly released!");
                 return false;
             }
 
@@ -2564,356 +2600,60 @@ namespace Sandbox.Game.Entities
             return null;
         }
 
-        [PreloadRequired]
-        public class MySyncRemoteControl : MySyncControllableEntity
+        void SendToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
         {
-            [ProtoContract]
-            [MessageIdAttribute(2504, P2PMessageEnum.Reliable)]
-            protected struct RemoveWaypointsMsg : IEntityMessage
+            if (m_syncing)
+                return;
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnToolbarItemChanged, item, index, waypointIndex);
+        }
+
+        [Event, Reliable, Server, BroadcastExcept]
+        private void OnToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
+        {
+            m_syncing = true;
+            MyToolbarItem toolbarItem = null;
+            if (item.EntityID != 0)
             {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int[] WaypointIndexes;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2505, P2PMessageEnum.Reliable)]
-            protected struct MoveWaypointsUpMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int[] WaypointIndexes;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2506, P2PMessageEnum.Reliable)]
-            protected struct MoveWaypointsDownMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int[] WaypointIndexes;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2507, P2PMessageEnum.Reliable)]
-            protected struct AddWaypointsMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public Vector3D[] Coords;
-                [ProtoMember]
-                public string[] Names;
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2508, P2PMessageEnum.Reliable)]
-            public struct ChangeToolbarItemMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public int WaypointIndex;
-
-                [ProtoMember]
-                public ToolbarItem Item;
-
-                [ProtoMember]
-                public int Index;
-
-                public override string ToString()
+                if (string.IsNullOrEmpty(item.GroupName))
                 {
-                    return String.Format("{0}, {1}", this.GetType().Name, this.GetEntityText());
-                }
-            }
-
-            [ProtoContract]
-            [MessageIdAttribute(2510, P2PMessageEnum.Reliable)]
-            protected struct PasteAutopilotSetupMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public MyObjectBuilder_AutopilotClipboard Clipboard;
-            }
-
-
-            [ProtoContract]
-            [MessageIdAttribute(2512, P2PMessageEnum.Reliable)]
-            protected struct AddWaypointMsg : IEntityMessage
-            {
-                [ProtoMember]
-                public long EntityId;
-                public long GetEntityId() { return EntityId; }
-
-                [ProtoMember]
-                public Vector3D Coord;
-
-                [ProtoMember]
-                public string Name;
-            }
-
-
-            static MySyncRemoteControl()
-            {
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, RemoveWaypointsMsg>(OnRemoveWaypoints, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, MoveWaypointsUpMsg>(OnMoveWaypointsUp, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, MoveWaypointsDownMsg>(OnMoveWaypointsDown, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, AddWaypointsMsg>(OnAddWaypoints, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, ChangeToolbarItemMsg>(OnToolbarItemChanged, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, PasteAutopilotSetupMsg>(OnPasteAutopilotSetup, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf);
-
-                MySyncLayer.RegisterEntityMessage<MySyncRemoteControl, AddWaypointMsg>(OnAddWaypoint, MyMessagePermissions.FromServer | MyMessagePermissions.ToServer);
-            }
-
-            private MyRemoteControl m_remoteControl;
-         
-            public MySyncRemoteControl(MyRemoteControl remoteControl) :
-                base(remoteControl)
-            {
-                m_remoteControl = remoteControl;
-            }
-
-
-            private bool m_syncing;
-            public bool IsSyncing
-            {
-                get { return m_syncing; }
-            }
-
-            public void RemoveWaypoints(int[] waypointIndexes)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new RemoveWaypointsMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.WaypointIndexes = waypointIndexes;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void MoveWaypointsUp(int[] waypointIndexes)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new MoveWaypointsUpMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.WaypointIndexes = waypointIndexes;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void MoveWaypointsDown(int[] waypointIndexes)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new MoveWaypointsDownMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.WaypointIndexes = waypointIndexes;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void AddWaypoints(Vector3D[] coords, string[] names)
-            {
-                if (m_syncing)
-                {
-                    return;
-                }
-
-                var msg = new AddWaypointsMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.Coords = coords;
-                msg.Names = names;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-                m_syncing = true;
-            }
-
-            public void SendToolbarItemChanged(ToolbarItem item, int index, int waypointIndex)
-            {
-                if (m_syncing)
-                    return;
-                var msg = new ChangeToolbarItemMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.Item = item;
-                msg.Index = index;
-                msg.WaypointIndex = waypointIndex;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg);
-            }
-
-            public void SendPasteAutopilotSettings(MyObjectBuilder_AutopilotClipboard clipboard)
-            {
-                var msg = new PasteAutopilotSetupMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-
-                msg.Clipboard = clipboard;
-
-                Sync.Layer.SendMessageToServerAndSelf(ref msg,MyTransportMessageEnum.Request);
-            }
-
-            public void AddWaypoint(Vector3D point, string name)
-            {
-                var msg = new AddWaypointMsg();
-                msg.EntityId = m_remoteControl.EntityId;
-                msg.Coord = point;
-                msg.Name = name;
-
-                if (Sync.IsServer)
-                {
-                    m_remoteControl.OnAddWaypoint(point, name);
-                    Sync.Layer.SendMessageToAll(ref msg);
+                    MyTerminalBlock block;
+                    if (MyEntities.TryGetEntityById<MyTerminalBlock>(item.EntityID, out block))
+                    {
+                        var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
+                        builder.Action = item.Action;
+                        builder.Parameters = item.Parameters;
+                        toolbarItem = MyToolbarItemFactory.CreateToolbarItem(builder);
+                    }
                 }
                 else
                 {
-                    Sync.Layer.SendMessageToServer(ref msg);
-                }
-            }
-
-            private static void OnRemoveWaypoints(MySyncRemoteControl sync, ref RemoveWaypointsMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnRemoveWaypoints(msg.WaypointIndexes);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-          
-            private static void OnMoveWaypointsUp(MySyncRemoteControl sync, ref MoveWaypointsUpMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnMoveWaypointsUp(msg.WaypointIndexes);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-         
-            private static void OnMoveWaypointsDown(MySyncRemoteControl sync, ref MoveWaypointsDownMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnMoveWaypointsDown(msg.WaypointIndexes);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-           
-            private static void OnAddWaypoints(MySyncRemoteControl sync, ref AddWaypointsMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnAddWaypoints(msg.Coords, msg.Names);
-                sync.m_syncing = false;
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
-            }
-  
-            private static void OnToolbarItemChanged(MySyncRemoteControl sync, ref ChangeToolbarItemMsg msg, MyNetworkClient sender)
-            {
-                sync.m_syncing = true;
-                MyToolbarItem item = null;
-                if (msg.Item.EntityID != 0)
-                {
-                    if (string.IsNullOrEmpty(msg.Item.GroupName))
+                    MyRemoteControl parent;
+                    if (MyEntities.TryGetEntityById<MyRemoteControl>(item.EntityID, out parent))
                     {
-                        MyTerminalBlock block;
-                        if (MyEntities.TryGetEntityById<MyTerminalBlock>(msg.Item.EntityID, out block))
+                        var grid = parent.CubeGrid;
+                        var groupName = item.GroupName;
+                        var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
+                        if (group != null)
                         {
-                            var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                            builder.Action = msg.Item.Action;
-                            builder.Parameters = msg.Item.Parameters;
-                            item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                        }
-                    }
-                    else
-                    {
-                        MyRemoteControl parent;
-                        if (MyEntities.TryGetEntityById<MyRemoteControl>(msg.Item.EntityID, out parent))
-                        {
-                            var grid = parent.CubeGrid;
-                            var groupName = msg.Item.GroupName;
-                            var group = grid.GridSystems.TerminalSystem.BlockGroups.Find((x) => x.Name.ToString() == groupName);
-                            if (group != null)
-                            {
-                                var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                                builder.Action = msg.Item.Action;
-                                builder.BlockEntityId = msg.Item.EntityID;
-                                builder.Parameters = msg.Item.Parameters;
-                                item = MyToolbarItemFactory.CreateToolbarItem(builder);
-                            }
+                            var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
+                            builder.Action = item.Action;
+                            builder.BlockEntityId = item.EntityID;
+                            builder.Parameters = item.Parameters;
+                            toolbarItem = MyToolbarItemFactory.CreateToolbarItem(builder);
                         }
                     }
                 }
-
-                var waypoint = sync.m_remoteControl.m_waypoints[msg.WaypointIndex];
-                if (waypoint.Actions == null)
-                {
-                    waypoint.InitActions();
-                }
-                waypoint.Actions[msg.Index] = item;
-                sync.m_remoteControl.RaisePropertiesChangedRemote();
-                sync.m_syncing = false;
-
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
             }
-           
-            private static void OnPasteAutopilotSetup(MySyncRemoteControl sync, ref PasteAutopilotSetupMsg msg, MyNetworkClient sender)
+
+            var waypoint = m_waypoints[waypointIndex];
+            if (waypoint.Actions == null)
             {
-                sync.m_remoteControl.OnPasteAutopilotSetup(msg.Clipboard);
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAllButOne(ref msg, sender.SteamUserId);
-                }
+                waypoint.InitActions();
             }
-
-            private static void OnAddWaypoint(MySyncRemoteControl sync, ref AddWaypointMsg msg, MyNetworkClient sender)
-            {
-                sync.m_remoteControl.OnAddWaypoint(msg.Coord, msg.Name);
-                if (Sync.IsServer)
-                {
-                    Sync.Layer.SendMessageToAll(ref msg);
-                }
-            }
+            waypoint.Actions[index] = toolbarItem;
+            RaisePropertiesChangedRemote();
+            m_syncing = false;
         }
 
         class MyDebugRenderComponentRemoteControl : MyDebugRenderComponent
@@ -2923,7 +2663,7 @@ namespace Sandbox.Game.Entities
                 : base(remote)
             {
                 m_remote = remote;
-    }
+            }
 
             public override bool DebugDraw()
             {
@@ -2938,7 +2678,7 @@ namespace Sandbox.Game.Entities
                 MyRenderProxy.DebugDrawText3D(pos1, m_remote.m_currentInfo.Elevation.ToString("N"), Color.White, 1.0f, false);
 
                 return true;
-}
+            }
         }
     }
 }

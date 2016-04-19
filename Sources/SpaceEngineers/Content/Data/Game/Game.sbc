@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Definition xsi:type="VR.GameDefinition">
+		<Id>
+			<TypeId>MyObjectBuilder_GameDefinition</TypeId>
+			<SubtypeId>VRageDefault</SubtypeId>
+		</Id>
+		<SessionComponents>
+			<Component>MyPhysicsComponentSystem</Component>
+			<Component>MySessionComponentAnimationSystem</Component>
+			<Component>MyParticlesManager</Component>
+			<Component>MyAiTargetManager</Component>
+			<Component>MyAIComponent</Component>
+			<Component>MyTimerComponentSystem</Component>
+			<Component>MyCubeBuilder</Component>
+			<Component>MyCoordinateSystem</Component>
+			<Component>MyDamageSystem</Component>
+			<Component>MyChatSystem</Component>
+			<Component>MyScenarioSystem</Component>
+			<Component>MyHudCameraOverlay</Component>
+			<Component>MyHitReportingComponent</Component>
+			<Component>MySessionComponentEntityTrigger</Component>
+			<Component>MySessionComponentMissionTriggers</Component>
+			<Component>MySessionComponentVoxelHand</Component>
+			<Component>MyScriptManager</Component>
+			<Component>MyHudWarnings</Component>
+			<Component>MyFloatingObjects</Component>
+			<Component>MyDebris</Component>
+			<Component>MyHud</Component>
+			<Component>MyToolbarComponent</Component>
+			<Component>MyAudioComponent</Component>
+			<Component>MyGlobalEvents</Component>
+			<Component>MyGamePruningStructure</Component>
+			<Component>MyLights</Component>
+			<Component>MyPhysics</Component>
+			<Component>MyMaterialPropertiesHelper</Component>
+			<Component>MyThirdPersonSpectator</Component>
+			<Component>MyPrecalcComponent</Component>
+			<Component>MySector</Component>
+		</SessionComponents>
+	</Definition>
+
+	<Definition xsi:type="VR.GameDefinition">
+		<Id>
+			<TypeId>MyObjectBuilder_GameDefinition</TypeId>
+			<SubtypeId>Space</SubtypeId>
+		</Id>
+
+		<Default>true</Default>
+
+		<InheritFrom>VRageDefault</InheritFrom>
+
+		<SessionComponents Combine="Union">
+			<Component>MySpaceFaunaComponent</Component>
+			<Component>MySpaceBuildComponent</Component>
+			<Component>MySpacePlanetTrackComponent</Component>
+			<Component>MySpaceRespawnComponent</Component>
+			<Component>MyPlanets</Component>
+			<Component>MyAntennaSystem</Component>
+			<Component>MyHeightMapLoadingSystem</Component>
+			<Component>MyEnvironmentalParticles</Component>
+			<Component>MySessionComponentPlanetAmbientSounds</Component>
+			<Component>MyEncounterGenerator</Component>
+			<Component>MyProceduralWorldGenerator</Component>
+			<Component>MyPirateAntennas</Component>
+			<Component>MyMeteorShower</Component>
+			<Component>MyWarheads</Component>
+			<Component>MyExplosions</Component>
+			<Component>MyMissiles</Component>
+			<Component>MyProjectiles</Component>
+			<Component>MyNeutralShipSpawner</Component>
+		</SessionComponents>
+	</Definition>
+</Definitions>

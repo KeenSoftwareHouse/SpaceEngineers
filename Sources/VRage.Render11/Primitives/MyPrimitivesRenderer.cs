@@ -20,14 +20,15 @@ using System.Diagnostics;
 namespace VRageRender
 {
 
-    internal class MyDebugMesh {
+    internal class MyDebugMesh 
+    {
         public VertexBufferId vbuffer;
         public bool edges;
         public bool depth;
 
         public unsafe MyDebugMesh(MyRenderMessageDebugDrawMesh message)
         {
-            vbuffer = MyHwBuffers.CreateVertexBuffer(message.VertexCount, sizeof(MyVertexFormatPositionColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
+            vbuffer = MyHwBuffers.CreateVertexBuffer(message.VertexCount, sizeof(MyVertexFormatPositionColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyDebugMesh");
 
             Update(message);
         }
@@ -81,7 +82,7 @@ namespace VRageRender
         {
             m_currentBufferSize = 100000;
 
-            m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatPositionColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
+            m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatPositionColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyPrimitivesRenderer");
 
             m_vs = MyShaders.CreateVs("primitive.hlsl");
             m_ps = MyShaders.CreatePs("primitive.hlsl");

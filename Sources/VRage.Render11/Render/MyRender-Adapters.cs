@@ -128,92 +128,6 @@ namespace VRageRender
             }
         }
 
-        unsafe static MyAdapterInfo[] GetAdapters()
-        {
-            List<MyAdapterInfo> adaptersList = new List<MyAdapterInfo>();
-
-            var factory = GetFactory();
-            FeatureLevel[] featureLevels = { FeatureLevel.Level_11_0 };
-
-            int adapterIndex = 0;
-
-            LogInfoFromWMI(Log);
-            LogInfoFromWMI(MyLog.Default);
-
-            for (int i = 0; i < factory.Adapters.Length; i++)
-            {
-                var adapter = factory.Adapters[i];
-                Device adapterTestDevice = null;
-                try
-                {
-                    adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
-                }
-                catch (SharpDXException)
-                {
-
-                }
-
-                bool supportedDevice = adapterTestDevice != null;
-
-                bool supportsConcurrentResources = false;
-                bool supportsCommandLists = false;
-                if (supportedDevice)
-                {
-                    adapterTestDevice.CheckThreadingSupport(out supportsConcurrentResources, out supportsCommandLists);
-                }
-
-                // DedicatedSystemMemory = bios or DVMT preallocated video memory, that cannot be used by OS - need retest on pc with only cpu/chipset based graphic
-                // DedicatedVideoMemory = discrete graphic video memory
-                // SharedSystemMemory = aditional video memory, that can be taken from OS RAM when needed
-                void* vramptr =
-                    ((IntPtr)
-                        (adapter.Description.DedicatedSystemMemory != 0
-                            ? adapter.Description.DedicatedSystemMemory
-                            : adapter.Description.DedicatedVideoMemory)).ToPointer();
-                UInt64 vram = (UInt64) vramptr;
-                void* svramptr = ((IntPtr) adapter.Description.SharedSystemMemory).ToPointer();
-                UInt64 svram = (UInt64) svramptr;
-
-                // microsoft software renderer allocates 256MB shared memory, cpu integrated graphic on notebooks has 0 preallocated, all shared
-                supportedDevice = supportedDevice && (vram > 500000000 || svram > 500000000);
-
-                var deviceDesc =
-                    String.Format(
-                        "{0}, dev id: {1}, mem: {2}, shared mem: {3}, Luid: {4}, rev: {5}, subsys id: {6}, vendor id: {7}",
-                        adapter.Description.Description,
-                        adapter.Description.DeviceId,
-                        vram,
-                        svram,
-                        adapter.Description.Luid,
-                        adapter.Description.Revision,
-                        adapter.Description.SubsystemId,
-                        adapter.Description.VendorId
-                        );
-
-                var info = new MyAdapterInfo
-                {
-                    Name = adapter.Description.Description,
-                    DeviceName = adapter.Description.Description,
-                    VendorId = adapter.Description.VendorId,
-                    DeviceId = adapter.Description.DeviceId,
-                    Description = deviceDesc,
-                    IsDx11Supported = supportedDevice,
-                    AdapterDeviceId = i,
-                    Priority = VendorPriority(adapter.Description.VendorId),
-                    HDRSupported = true,
-                    MaxTextureSize = SharpDX.Direct3D11.Texture2D.MaximumTexture2DSize,
-                    VRAM = vram > 0 ? vram : svram,
-                    Has512MBRam = (vram > 500000000 || svram > 500000000),
-                    MultithreadedRenderingSupported = supportsCommandLists
-                };
-
-                adaptersList.Add(info);
-                adapterIndex++;
-            }
-
-            return adaptersList.ToArray();
-        }
-
         unsafe static MyAdapterInfo[] CreateAdaptersList()
         {
             List<MyAdapterInfo> adaptersList = new List<MyAdapterInfo>();
@@ -234,7 +148,7 @@ namespace VRageRender
                 {
                     adapterTestDevice = new Device(adapter, DeviceCreationFlags.None, featureLevels);
                 }
-                catch (SharpDXException)
+                catch (Exception)
                 {
 
                 }

@@ -160,11 +160,14 @@ namespace Sandbox.Game.GameSystems.Conveyors
         protected ConveyorLinePosition[] GetLinePositions()
         {
             ConveyorLinePosition[] retval = null;
-            if (m_linePositions.TryGetValue(CubeBlock.BlockDefinition.Id, out retval))
-                return retval;
-
-            retval = GetLinePositions(CubeBlock, "detector_conveyor");
-            m_linePositions.Add(CubeBlock.BlockDefinition.Id, retval);
+            lock (m_linePositions)
+            {
+                if (!m_linePositions.TryGetValue(CubeBlock.BlockDefinition.Id, out retval))
+                {
+                    retval = GetLinePositions(CubeBlock, "detector_conveyor");
+                    m_linePositions.Add(CubeBlock.BlockDefinition.Id, retval);
+                }
+            }
             return retval;
         }
 

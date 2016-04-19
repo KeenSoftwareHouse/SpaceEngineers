@@ -36,7 +36,7 @@ namespace Sandbox.Game.Gui
         public static MyHudObjectiveLine ObjectiveLine = new MyHudObjectiveLine();
         public static MyHudNetgraph Netgraph = new MyHudNetgraph();
         public static MyHudVoiceChat VoiceChat = new MyHudVoiceChat();
-        public static MyHudPickedUpItems PickedUpItems = new MyHudPickedUpItems();
+        public static MyHudChangedInventoryItems ChangedInventoryItems = new MyHudChangedInventoryItems();
 
         private static int m_rotatingWheelVisibleCounter;
         public static bool RotatingWheelVisible
@@ -114,7 +114,7 @@ namespace Sandbox.Game.Gui
             GpsMarkers.Clear();
             HackingMarkers.Clear();
             ObjectiveLine.Clear();
-            PickedUpItems.Clear();
+            ChangedInventoryItems.Clear();
             if (MyFakes.ENABLE_NETGRAPH)
             {
                 Netgraph.ClearNetgraph();

@@ -25,8 +25,6 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
 using System.Reflection;
-using Sandbox.Common.Components;
-using VRage;
 using Sandbox.Game.Entities;
 using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;

@@ -21,5 +21,8 @@ namespace VRage.Game.ObjectBuilders.ComponentSystem
 
         [ProtoMember]
         public bool MultiplierEnabled = true;
+
+        [ProtoMember]
+        public int MaxItemCount = int.MaxValue;
     }
 }

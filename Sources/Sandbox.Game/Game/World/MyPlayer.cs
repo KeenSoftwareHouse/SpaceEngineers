@@ -150,6 +150,16 @@ namespace Sandbox.Game.World
         public bool IsRealPlayer { get { return Id.SerialId == 0; } }
         public bool IsBot { get { return !IsRealPlayer; } }
 
+        public bool IsAdmin
+        {
+            get { return MySession.Static.IsUserAdmin( Client.SteamUserId ); }
+        }
+
+        public bool IsPromoted
+        {
+            get { return MySession.Static.IsUserPromoted( Client.SteamUserId ); }
+        }
+
         public MyCharacter Character
         {
             get

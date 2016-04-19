@@ -25,18 +25,20 @@ namespace Sandbox.Game.Replication
         static List<MyCubeGrid> m_groups = new List<MyCubeGrid>();
         List<MyObjectBuilder_EntityBase> m_builders;
         List<MyEntity> m_foundEntities = null;
+        MyEntityPositionVerificationStateGroup m_posVerGroup;
 
         private MyPropertySyncStateGroup m_propertySync;
         public MyCubeGrid Grid { get { return Instance; } }
 
         protected override IMyStateGroup CreatePhysicsGroup()
         {
+            m_posVerGroup = new MyGridPositionVerificationStateGroup(Instance);
             return new MyGridPhysicsStateGroup(Instance, this);
         }
 
         public override float GetPriority(MyClientInfo state)
         {
-            if (Grid == null || Grid.Projector != null)
+            if (Grid == null || Grid.Projector != null || Grid.IsPreview)
                 return 0.0f;
 
             float priority = base.GetPriority(state);
@@ -61,6 +63,15 @@ namespace Sandbox.Game.Replication
                         }
 
                     }
+                }
+            }
+
+            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
+            {
+                MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
+                if (master != Grid)
+                {
+                    return MyExternalReplicable.FindByObject(master).GetPriority(state);
                 }
             }
             return priority;
@@ -144,6 +155,7 @@ namespace Sandbox.Game.Replication
         {
             base.GetStateGroups(resultList);
             resultList.Add(m_propertySync);
+            resultList.Add(m_posVerGroup);
         }
 
         protected override void OnHook()

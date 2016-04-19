@@ -16,6 +16,7 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Screens;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 
 namespace Sandbox.ModAPI
@@ -25,7 +26,7 @@ namespace Sandbox.ModAPI
         private const string STORAGE_FOLDER = "Storage";
         public static readonly MyAPIUtilities Static;
 
-        public event Sandbox.ModAPI.MessageEnteredDel MessageEntered;
+        public event MessageEnteredDel MessageEntered;
 
         static MyAPIUtilities()
         {

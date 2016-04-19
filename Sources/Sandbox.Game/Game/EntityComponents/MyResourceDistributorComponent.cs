@@ -1250,7 +1250,7 @@ namespace Sandbox.Game.EntityComponents
 			bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
 			{
-                if (!MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
+                if (!MyGridConveyorSystem.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
 					continue;
 
                 var group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];
@@ -1281,7 +1281,7 @@ namespace Sandbox.Game.EntityComponents
             bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
             {
-                if (block == null || !MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
+                if (block == null || !MyGridConveyorSystem.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
                 {
                     bool addToGroup = false;
                     if (block == null)
@@ -1332,7 +1332,7 @@ namespace Sandbox.Game.EntityComponents
             bool found = false;
             for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
             {
-                if (block == null || !MyGridConveyorSystem.Pathfinding.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
+                if (block == null || !MyGridConveyorSystem.Reachable(m_dataPerType[typeIndex].DistributionGroups[groupIndex].FirstEndpoint, block.ConveyorEndpoint))
                 {
                     bool addToGroup = false;
                     if (block == null)
@@ -1495,13 +1495,15 @@ namespace Sandbox.Game.EntityComponents
 			    {
 				    // Run everything in the group at max.
 					availableResource -= sinkDataByPriority[sinkPriorityIndex].RequiredInput;
-				    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 						sink.SetInputFromDistributor(typeId, sink.RequiredInputByType(typeId), sinkDataByPriority[sinkPriorityIndex].IsAdaptible);
 			    }
 				else if (sinkDataByPriority[sinkPriorityIndex].IsAdaptible && availableResource > 0.0f)
 			    {
 				    // Distribute power in this group based on ratio of its requirement vs. group requirement.
-				    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 				    {
 						float ratio = sink.RequiredInputByType(typeId) / sinkDataByPriority[sinkPriorityIndex].RequiredInput;
 						sink.SetInputFromDistributor(typeId, ratio * availableResource, true);
@@ -1512,7 +1514,8 @@ namespace Sandbox.Game.EntityComponents
 			    {
 				    // Not enough power for this group and members can't adapt.
 				    // None of the lower priority groups will get any power either.
-                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                    //ToArray = Hotfix for collection modified exception
+                    foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 						sink.SetInputFromDistributor(typeId, 0.0f, sinkDataByPriority[sinkPriorityIndex].IsAdaptible);
 					sinkDataByPriority[sinkPriorityIndex].RemainingAvailableResource = availableResource;
 				    ++sinkPriorityIndex; // move on to next group
@@ -1525,7 +1528,8 @@ namespace Sandbox.Game.EntityComponents
 			for (; sinkPriorityIndex < sinkDataByPriority.Length; ++sinkPriorityIndex)
 		    {
 				sinkDataByPriority[sinkPriorityIndex].RemainingAvailableResource = 0.0f;
-				foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex])
+                //ToArray = Hotfix for collection modified exception
+                foreach (MyResourceSinkComponent sink in sinksByPriority[sinkPriorityIndex].ToArray())
 					sink.SetInputFromDistributor(typeId, 0.0f, sinkDataByPriority[sinkPriorityIndex].IsAdaptible);
 		    }
             ProfilerShort.End();
@@ -1575,8 +1579,9 @@ namespace Sandbox.Game.EntityComponents
 				if (ordinaryStorageRequiredInput <= availableResourcesForStorage)
                 {
 					availableResourcesForStorage -= ordinaryStorageRequiredInput;
-                    foreach (int pairIndex in otherStorageList)
+                    for (int i = 0; i<otherStorageList.Count; i++)
                     {
+                        int pairIndex = otherStorageList[i];
                         var sink = sinkSourcePairs[pairIndex].Item1;
                         sink.SetInputFromDistributor(typeId, sink.RequiredInputByType(typeId), true);
                     }
@@ -1584,8 +1589,9 @@ namespace Sandbox.Game.EntityComponents
                 }
                 else
                 {
-                    foreach (int pairIndex in otherStorageList)
+                    for (int i = 0; i < otherStorageList.Count; i++)
                     {
+                        int pairIndex = otherStorageList[i];
                         var sink = sinkSourcePairs[pairIndex].Item1;
                         float ratio = sink.RequiredInputByType(typeId) / ordinaryStorageRequiredInput;
                         sink.SetInputFromDistributor(typeId, ratio * availableResourcesForStorage, true);
@@ -1609,8 +1615,9 @@ namespace Sandbox.Game.EntityComponents
 	            sinkSourceData.Item2.UsageRatio = 0f;
 
             sinkSourceData.Item2.ActiveCount = 0;
-            foreach (int pairIndex in otherStorageList)
+            for (int i = 0; i < otherStorageList.Count; i++)
             {
+                int pairIndex = otherStorageList[i];
                 var source = sinkSourcePairs[pairIndex].Item2;
                 if (!source.Enabled || !source.ProductionEnabledByType(typeId) || !source.HasCapacityRemainingByType(typeId))
                     continue;
@@ -1635,7 +1642,8 @@ namespace Sandbox.Game.EntityComponents
 				    sourceDataByPriority[sourcePriorityIndex].UsageRatio = 0f;
 
 			    sourceDataByPriority[sourcePriorityIndex].ActiveCount = 0;
-			    foreach (MyResourceSourceComponent source in sourcesByPriority[sourcePriorityIndex])
+                //ToArray = Hotfix for collection modified exception
+			    foreach (MyResourceSourceComponent source in sourcesByPriority[sourcePriorityIndex].ToArray())
 			    {
 				    if (!source.Enabled || !source.HasCapacityRemainingByType(typeId))
 					    continue;

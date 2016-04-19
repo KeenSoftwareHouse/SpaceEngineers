@@ -166,8 +166,8 @@ namespace VRageRender.Shadows
                 }
             }
         }
- 
-        public void DoWork()
+
+        public void DoWork(WorkData workData = null)
         {
             PrepareCascadesForDraw();
         }

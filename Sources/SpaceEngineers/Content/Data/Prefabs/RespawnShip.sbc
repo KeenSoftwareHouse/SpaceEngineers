@@ -10,8 +10,9 @@
         <CubeGrid>
           <EntityId>134637444538539245</EntityId>
           <PersistentFlags>CastShadows InScene</PersistentFlags>
+          <UsePositionForSpawn>true</UsePositionForSpawn>
           <PositionAndOrientation>
-            <Position x="-160.29554037427806" y="13.199660491945906" z="-1.8716088588444109" />
+            <Position x="54577.41" y="128093.16" z="-124759.83" />
             <Forward x="0.6505017" y="-0.738391042" z="0.177837312" />
             <Up x="-0.467721641" y="-0.204976544" z="0.859779656" />
             <Orientation>

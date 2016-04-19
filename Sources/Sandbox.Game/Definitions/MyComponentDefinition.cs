@@ -22,8 +22,6 @@ namespace Sandbox.Definitions
         public float DropProbability;
 
 		public float DeconstructionEfficiency;
-        
-        public int MaxStackAmount;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -33,7 +31,6 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(ob != null);
             this.MaxIntegrity = ob.MaxIntegrity;
             this.DropProbability = ob.DropProbability;
-            this.MaxStackAmount = ob.MaxStackAmount;
 			DeconstructionEfficiency = ob.DeconstructionEfficiency;
         }
     }

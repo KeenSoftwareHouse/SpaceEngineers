@@ -14,6 +14,26 @@
     <Ship>
       <Id>
         <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>MarsLander</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_MarsLander</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>MarsLander</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
+        <SubtypeId>AlienLander</SubtypeId>
+      </Id>
+      <DisplayName>DisplayName_AlienLander</DisplayName>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <CooldownSeconds>900</CooldownSeconds>
+      <Prefab>AlienLander</Prefab>
+    </Ship>
+    <Ship>
+      <Id>
+        <TypeId>RespawnShipDefinition</TypeId>
         <SubtypeId>RespawnShip</SubtypeId>
       </Id>
       <DisplayName>DisplayName_RespawnShip_Yellow</DisplayName>

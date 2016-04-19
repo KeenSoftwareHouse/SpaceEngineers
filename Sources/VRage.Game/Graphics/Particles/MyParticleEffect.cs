@@ -43,16 +43,16 @@ namespace VRage.Game
         int m_particlesCount;
         float m_distance;
 
-        List<MyParticleGeneration> m_generations = new List<MyParticleGeneration>();
+        List<IMyParticleGeneration> m_generations = new List<IMyParticleGeneration>();
         List<MyParticleGeneration> m_sortedGenerations = new List<MyParticleGeneration>();
         List<MyParticleEffect> m_instances;
         List<MyParticleLight> m_particleLights = new List<MyParticleLight>();
+        List<MyParticleSound> m_particleSounds = new List<MyParticleSound>();
 
         BoundingBoxD m_AABB = new BoundingBoxD();
 
         const int GRAVITY_UPDATE_DELAY = 100;
         int m_updateCounter = 0;
-
 
         public bool AutoDelete;
         public bool EnableLods;
@@ -72,6 +72,8 @@ namespace VRage.Game
         public Vector3 Velocity;
 
         public Vector3 Gravity;
+
+        bool m_positionDirty = false;
 
         
         #endregion
@@ -133,13 +135,14 @@ namespace VRage.Game
 
             m_name = "ParticleEffect";
 
-            foreach (MyParticleGeneration generation in m_generations)
+            foreach (IMyParticleGeneration generation in m_generations)
             {
                 if (done)
                     generation.Done();
                 else
                     generation.Close();
-                MyParticlesManager.GenerationsPool.Deallocate(generation);
+
+                generation.Deallocate();
             }
 
             m_generations.Clear();
@@ -155,6 +158,18 @@ namespace VRage.Game
             }
 
             m_particleLights.Clear();
+
+
+            foreach (MyParticleSound particleSound in m_particleSounds)
+            {
+                if (done)
+                    particleSound.Done();
+                else
+                    particleSound.Close();
+                MyParticlesManager.SoundsPool.Deallocate(particleSound);
+            }
+
+            m_particleSounds.Clear();
 
             if (m_instances != null)
             {
@@ -178,7 +193,7 @@ namespace VRage.Game
             m_wasPreloaded = false;
             m_hasShownSomething = false;
 
-            foreach (MyParticleGeneration generation in m_generations)
+            foreach (IMyParticleGeneration generation in m_generations)
             {
                 generation.Clear();
             }
@@ -205,9 +220,9 @@ namespace VRage.Game
                 effect.SetPreload(GetPreload());
                 effect.LowRes = LowRes;
 
-                foreach (MyParticleGeneration generation in m_generations)
+                foreach (IMyParticleGeneration generation in m_generations)
                 {
-                    MyParticleGeneration gen = generation.CreateInstance(effect);
+                    IMyParticleGeneration gen = generation.CreateInstance(effect);
                     if (gen != null)
                     {
                         effect.AddGeneration(gen);
@@ -220,6 +235,15 @@ namespace VRage.Game
                     if (pl != null)
                     {
                         effect.AddParticleLight(pl);
+                    }
+                }
+
+                foreach (MyParticleSound particleSound in m_particleSounds)
+                {
+                    MyParticleSound ps = particleSound.CreateInstance(effect);
+                    if (ps != null)
+                    {
+                        effect.AddParticleSound(ps);
                     }
                 }
 
@@ -241,6 +265,11 @@ namespace VRage.Game
             AutoDelete = autodelete ? true : AutoDelete;
         }
 
+        public void Play()
+        {
+            m_isStopped = false;
+        }
+
         public void RemoveInstance(MyParticleEffect effect)
         {
             if (m_instances != null)
@@ -250,7 +279,7 @@ namespace VRage.Game
             }
         }
 
-        public List<MyParticleEffect> GetInstances()
+        internal List<MyParticleEffect> GetInstances()
         {
             return m_instances;
         }
@@ -264,9 +293,9 @@ namespace VRage.Game
             effect.m_preload = m_preload;
             effect.m_length = m_length;
 
-            foreach (MyParticleGeneration generation in m_generations)
+            foreach (IMyParticleGeneration generation in m_generations)
             {
-                MyParticleGeneration duplicatedGeneration = generation.Duplicate(effect);
+                IMyParticleGeneration duplicatedGeneration = generation.Duplicate(effect);
                 effect.AddGeneration(duplicatedGeneration);
             }
 
@@ -344,15 +373,15 @@ namespace VRage.Game
                 m_worldMatrix = MatrixD.CreateWorld(position, Vector3D.Normalize(Velocity), m_worldMatrix.Up);
             }
 
-            foreach (MyParticleGeneration generation in m_generations)
+            foreach (IMyParticleGeneration generation in m_generations)
             {
                 generation.EffectMatrix = WorldMatrix;
                 generation.Update();
+
                 m_particlesCount += generation.GetParticlesCount();
                 m_birthRate += generation.GetBirthRate();
 
-                BoundingBoxD bbox = generation.GetAABB();
-                m_AABB = m_AABB.Include(ref bbox);
+                generation.MergeAABB(ref m_AABB);                
             }
 
 
@@ -364,7 +393,10 @@ namespace VRage.Game
                 particleLight.Update();
             }
 
-
+            foreach (var particleSound in m_particleSounds)
+            {
+                particleSound.Update();
+            }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
@@ -380,6 +412,8 @@ namespace VRage.Game
             if (!m_isPreloading && OnUpdate != null)
                 OnUpdate(this, null);
 
+            m_positionDirty = false;
+
             return false;
         }
 
@@ -387,13 +421,28 @@ namespace VRage.Game
 
         #region Properties
 
-        public float Preload { get { return m_preload; } set { m_preload = value; } }
+        public float Preload
+        {
+            get { return m_preload; }
+            set
+            {
+                m_preload = value;
+
+                if (m_instances != null)
+                {
+                    foreach (MyParticleEffect effect in m_instances)
+                    {
+                        effect.Preload = value;
+                    }
+                }
+            }
+        }
 
         public bool Enabled { get; set; }
 
         public bool LowRes { get; set; }
 
-        public int ID { get { return m_particleID; } set { m_particleID = value; } }
+        public int ID { get { return m_particleID; } set { SetID(value); } }
 
         public float Length { get { return GetLength(); } set { SetLength(value); } }
 
@@ -414,7 +463,12 @@ namespace VRage.Game
 
         public void SetID(int id)
         {
-            m_particleID = id;
+            if (m_particleID != id)
+            {
+                var oldId = m_particleID;
+                m_particleID = id;
+                MyParticlesLibrary.UpdateParticleEffectID(oldId);                
+            }
         }
 
         public string GetName()
@@ -435,6 +489,14 @@ namespace VRage.Game
         public void SetLength(float length)
         {
             m_length = length;
+
+            if (m_instances != null)
+            {
+                foreach (MyParticleEffect effect in m_instances)
+                {
+                    effect.SetLength(length);
+                }
+            }
         }
 
         public bool HasShownSomething()
@@ -449,6 +511,10 @@ namespace VRage.Game
             set 
             {
                 MyUtils.AssertIsValidOrZero(value);
+
+                if (value.Translation != m_worldMatrix.Translation)
+                    SetDirty();
+
                 m_worldMatrix = value;                
             }
         }
@@ -456,7 +522,7 @@ namespace VRage.Game
         public string Name
         {
             get { return m_name; }
-            set { m_name = value; }
+            set { SetName(value); }
         }
 
         public float GetPreload()
@@ -490,7 +556,7 @@ namespace VRage.Game
 
         #region Generations
 
-        public void AddGeneration(MyParticleGeneration generation)
+        public void AddGeneration(IMyParticleGeneration generation)
         {
             m_generations.Add(generation);
 
@@ -503,13 +569,14 @@ namespace VRage.Game
             }
         }
 
+
         public void RemoveGeneration(int index)
         {
-            MyParticleGeneration generation = m_generations[index];
+            IMyParticleGeneration generation = m_generations[index];
             m_generations.Remove(generation);
 
             generation.Close();
-            MyParticlesManager.GenerationsPool.Deallocate(generation);
+            generation.Deallocate();
 
             if (m_instances != null)
             {
@@ -520,16 +587,16 @@ namespace VRage.Game
             }
         }
 
-        public void RemoveGeneration(MyParticleGeneration generation)
+        public void RemoveGeneration(IMyParticleGeneration generation)
         {
             int index = m_generations.IndexOf(generation);
             RemoveGeneration(index);
         }
 
-        public List<MyParticleGeneration> GetGenerations()
+        public List<IMyParticleGeneration> GetGenerations()
         {
             return m_generations;
-        }
+        }      
 
         [Browsable(false)]
         public bool IsStopped
@@ -541,7 +608,42 @@ namespace VRage.Game
         {
             return m_AABB;
         }
-    
+
+        public void SetDirty()
+        {
+            foreach (var generation in m_generations)
+            {
+                generation.SetDirty();
+            }
+
+            if (m_instances != null)
+            {
+                foreach (var i in m_instances)
+                {
+                    i.SetDirty();
+                }
+            }
+        }
+
+
+        public void SetPositionDirty()
+        {
+            m_positionDirty = true;
+
+            if (m_instances != null)
+            {
+                foreach (var i in m_instances)
+                {
+                    i.SetPositionDirty();
+                }
+            }
+        }
+
+        public bool IsPositionDirty
+        {
+            get { return m_positionDirty; }
+        }
+
 
         #endregion
 
@@ -589,6 +691,51 @@ namespace VRage.Game
         }
 
         #endregion
+
+        #region Particle sounds
+
+        public void AddParticleSound(MyParticleSound particleSound)
+        {
+            m_particleSounds.Add(particleSound);
+
+            if (m_instances != null)
+            {
+                foreach (MyParticleEffect effect in m_instances)
+                {
+                    effect.AddParticleSound(particleSound.CreateInstance(effect));
+                }
+            }
+        }
+
+        public void RemoveParticleSound(int index)
+        {
+            MyParticleSound particleSound = m_particleSounds[index];
+            m_particleSounds.Remove(particleSound);
+
+            particleSound.Close();
+            MyParticlesManager.SoundsPool.Deallocate(particleSound);
+
+            if (m_instances != null)
+            {
+                foreach (MyParticleEffect effect in m_instances)
+                {
+                    effect.RemoveParticleSound(index);
+                }
+            }
+        }
+
+        public void RemoveParticleSound(MyParticleSound particleSound)
+        {
+            int index = m_particleSounds.IndexOf(particleSound);
+            RemoveParticleSound(index);
+        }
+
+        public List<MyParticleSound> GetParticleSounds()
+        {
+            return m_particleSounds;
+        }
+
+        #endregion
         
         #region Serialization
 
@@ -608,7 +755,7 @@ namespace VRage.Game
             
             writer.WriteStartElement("Generations");
 
-            foreach (MyParticleGeneration generation in m_generations)
+            foreach (IMyParticleGeneration generation in m_generations)
             {
                 generation.Serialize(writer);
             }
@@ -623,6 +770,15 @@ namespace VRage.Game
             }
 
             writer.WriteEndElement(); //Particle lights
+
+            writer.WriteStartElement("ParticleSounds");
+
+            foreach (MyParticleSound particleSound in m_particleSounds)
+            {
+                particleSound.Serialize(writer);
+            }
+
+            writer.WriteEndElement(); //Particle sounds
 
             writer.WriteEndElement(); //ParticleEffect
         }
@@ -648,13 +804,30 @@ namespace VRage.Game
 
             while (reader.NodeType != XmlNodeType.EndElement)
             {
-                MyParticleGeneration generation = MyParticlesManager.GenerationsPool.Allocate();
-                generation.Start(this);
-                generation.Init();
+                if (isEmpty)
+                    break;
 
-                generation.Deserialize(reader);
+                if (reader.Name == "ParticleGeneration")
+                {
+                    MyParticleGeneration generation = MyParticlesManager.GenerationsPool.Allocate();
+                    generation.Start(this);
+                    generation.Init();
 
-                AddGeneration(generation);
+                    generation.Deserialize(reader);
+
+                    AddGeneration(generation);
+                }
+                else
+                    if (reader.Name == "ParticleGPUGeneration")
+                    {
+                        MyParticleGPUGeneration generation = MyParticlesManager.GPUGenerationsPool.Allocate();
+                        generation.Start(this);
+                        generation.Init();
+
+                        generation.Deserialize(reader);
+
+                        AddGeneration(generation);
+                    }
             }
 
             if (!isEmpty)
@@ -664,21 +837,54 @@ namespace VRage.Game
             {
 
                 isEmpty = reader.IsEmptyElement;
-                reader.ReadStartElement(); //Particle lights
-
-                while (reader.NodeType != XmlNodeType.EndElement)
+                if (isEmpty)
                 {
-                    MyParticleLight particleLight = MyParticlesManager.LightsPool.Allocate();
-                    particleLight.Start(this);
-                    particleLight.Init();
-
-                    particleLight.Deserialize(reader);
-
-                    AddParticleLight(particleLight);
+                    reader.Read();
                 }
+                else
+                {
+                    reader.ReadStartElement(); //Particle lights
 
-                if (!isEmpty)
+                    while (reader.NodeType != XmlNodeType.EndElement)
+                    {
+                        MyParticleLight particleLight = MyParticlesManager.LightsPool.Allocate();
+                        particleLight.Start(this);
+                        particleLight.Init();
+
+                        particleLight.Deserialize(reader);
+
+                        AddParticleLight(particleLight);
+                    }
+
                     reader.ReadEndElement(); //Particle lights
+                }
+            }
+
+            if (reader.NodeType != XmlNodeType.EndElement)
+            {
+
+                isEmpty = reader.IsEmptyElement;
+                if (isEmpty)
+                {
+                    reader.Read();
+                }
+                else
+                {
+                    reader.ReadStartElement(); //Particle sounds
+
+                    while (reader.NodeType != XmlNodeType.EndElement)
+                    {
+                        MyParticleSound particleSound = MyParticlesManager.SoundsPool.Allocate();
+                        particleSound.Start(this);
+                        particleSound.Init();
+
+                        particleSound.Deserialize(reader);
+
+                        AddParticleSound(particleSound);
+                    }
+
+                    reader.ReadEndElement(); //Particle sounds
+                }
             }
 
             reader.ReadEndElement(); //ParticleEffect
@@ -696,9 +902,10 @@ namespace VRage.Game
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Sort generations");
                 m_sortedGenerations.Clear();
 
-                foreach (MyParticleGeneration generation in m_generations)
+                foreach (IMyParticleGeneration generation in m_generations)
                 {
-                    m_sortedGenerations.Add(generation);
+                    if (generation is MyParticleGeneration)
+                        m_sortedGenerations.Add((MyParticleGeneration)generation);
                 }
 
                 m_sortedGenerations.Sort();
@@ -731,36 +938,22 @@ namespace VRage.Game
 
         public void DebugDraw()
         {
-            // TODO: Par
-            //MyDebugDraw.DrawAxis(WorldMatrix, 1.0f, 1.0f);
+            VRageRender.MyRenderProxy.DebugDrawAxis(WorldMatrix, 1.0f, false);
             //MyDebugDraw.DrawSphereWireframe(WorldMatrix.Translation, 0.1f, Vector3.One, 1.0f);
 
-            //foreach (MyParticleGeneration generation in m_generations)
-            //{
-            //    generation.DebugDraw();
-            //}
+            foreach (MyParticleGeneration generation in m_generations)
+            {
+               generation.DebugDraw();
+            }
 
-            //Color color = !m_isStopped ? Color.White : Color.Red;
-            //MyDebugDraw.DrawText(WorldMatrix.Translation, new System.Text.StringBuilder(GetID().ToString() + " [" + GetParticlesCount().ToString() + "]") , color, 1.0f);
+            Color color = !m_isStopped ? Color.White : Color.Red;
+            VRageRender.MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation, Name + "(" + GetID().ToString() + ") [" + GetParticlesCount().ToString() + "]", color, 0.8f, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
 
-            //// Vector4 colorV = color.ToVector4();
-            //// MyDebugDraw.DrawAABB(ref m_AABB, ref colorV, 1.0f);
+            VRageRender.MyRenderProxy.DebugDrawAABB(m_AABB, color);
         }
 
         #endregion
-
-        public bool IsValid()
-        {
-            foreach (var generation in m_generations)
-            {
-                if (!generation.IsValid())
-                {
-                    return false;
-                }
-            }
-            
-            return true;
-        }
+       
     }
 
 

@@ -479,6 +479,11 @@ using VRage.Utils;
         public static readonly MyStringId ControlName_UseOrInteract = MyStringId.GetOrCompute("ControlName_UseOrInteract");
 
         ///<summary>
+        ///Pick Up
+        ///</summary>
+        public static readonly MyStringId ControlName_PickUp = MyStringId.GetOrCompute("ControlName_PickUp");
+
+        ///<summary>
         ///Vertical sync
         ///</summary>
         public static readonly MyStringId VerticalSync = MyStringId.GetOrCompute("VerticalSync");
@@ -1872,6 +1877,11 @@ using VRage.Utils;
         ///Inventory is full
         ///</summary>
         public static readonly MyStringId NotificationInventoryFull = MyStringId.GetOrCompute("NotificationInventoryFull");
+
+        ///<summary>
+        ///This inventory still contains items
+        ///</summary>
+        public static readonly MyStringId NotificationInventoryNotEmpty = MyStringId.GetOrCompute("NotificationInventoryNotEmpty");
 
         ///<summary>
         ///{0} is out of ammunition
@@ -3429,6 +3439,11 @@ using VRage.Utils;
         public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_High = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_High");
 
         ///<summary>
+        ///Disabled
+        ///</summary>
+        public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_Disabled = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_Disabled");
+
+        ///<summary>
         ///Low
         ///</summary>
         public static readonly MyStringId ScreenGraphicsOptions_ShadowMapResolution_Low = MyStringId.GetOrCompute("ScreenGraphicsOptions_ShadowMapResolution_Low");
@@ -3732,4 +3747,39 @@ using VRage.Utils;
         ///Mute when inactive
         ///</summary>
         public static readonly MyStringId MuteWhenNotInFocus = MyStringId.GetOrCompute("MuteWhenNotInFocus");
+
+        ///<summary>
+        ///Navigation 2
+        ///</summary>
+        public static readonly MyStringId ControlTypeNavigation2 = MyStringId.GetOrCompute("ControlTypeNavigation2");
+
+        ///<summary>
+        ///Copy World
+        ///</summary>
+        public static readonly MyStringId ScreenLoadSubscribedWorldCopyWorld = MyStringId.GetOrCompute("ScreenLoadSubscribedWorldCopyWorld");
+
+        ///<summary>
+        ///You have unlocked new knowledge about {0}.
+        ///</summary>
+        public static readonly MyStringId NotificationResearchUnlocked = MyStringId.GetOrCompute("NotificationResearchUnlocked");
+
+        ///<summary>
+        ///You already have knowledge about {0}!
+        ///</summary>
+        public static readonly MyStringId NotificationResearchKnown = MyStringId.GetOrCompute("NotificationResearchKnown");
+
+        ///<summary>
+        ///World already exists! Download & Overwrite?
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextWorldExistsDownloadOverwrite = MyStringId.GetOrCompute("MessageBoxTextWorldExistsDownloadOverwrite");
+
+        ///<summary>
+        ///World already exists! Overwrite?
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextWorldExistsOverwrite = MyStringId.GetOrCompute("MessageBoxTextWorldExistsOverwrite");
+
+        ///<summary>
+        ///Download selected world to save games without loading it (Use to Edit Settings before playing world)
+        ///</summary>
+        public static readonly MyStringId ToolTipWorkshopCopyWorld = MyStringId.GetOrCompute("ToolTipWorkshopCopyWorld");
     }

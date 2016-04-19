@@ -1,3 +1,7 @@
+// @define USE_NORMALMAP_DECAL
+// @define USE_COLORMAP_DECAL
+// @define USE_DUAL_SOURCE_BLENDING
+
 #include <common.h>
 #include <frame.h>
 
@@ -11,14 +15,9 @@ Texture2DMS<float4, MS_SAMPLE_COUNT>	Gbuffer1	: register( t1 );
 Texture2DMS<uint2, MS_SAMPLE_COUNT>		Stencil		: register( t2 );
 #endif
 
-#include <gbuffer_write.h>
-
-struct DecalConstants {
-	float4 WorldMatrix_row0;
-	float4 WorldMatrix_row1;
-	float4 WorldMatrix_row2;
-	//matrix WorldMatrix; //  unit box to decal volume
-	float4 DecalData;
+struct DecalConstants
+{
+	matrix WorldMatrix;     // Position of unit box decal volume
 	matrix InvWorldMatrix;
 };
 
@@ -28,7 +27,6 @@ cbuffer DecalConstants : register ( b2 )
 };
 
 // textures
-
 Texture2D<float> DecalAlpha : register( t3 );
 Texture2D<float4> DecalColor : register( t4 );
 Texture2D<float4> DecalNormalmap : register( t5 );
@@ -50,12 +48,7 @@ VsOut __vertex_shader(uint vertex_id : SV_VertexID)
 	vertexPosition.y = -0.5f + (quadId == 0 || quadId == 3);
 	vertexPosition.z = -0.5f + (vId / 4);
 
-	matrix worldMatrix = transpose(matrix(
-		Decals[decalId].WorldMatrix_row0,
-		Decals[decalId].WorldMatrix_row1,
-		Decals[decalId].WorldMatrix_row2, 
-		float4(0,0,0,1)));
-
+    matrix worldMatrix = Decals[decalId].WorldMatrix;
 	float4 wposition = mul(float4(vertexPosition.xyz, 1), worldMatrix);
 
 	VsOut result;
@@ -81,8 +74,15 @@ float3x3 pixel_tangent_space(float3 N, float3 pos, float2 uv) {
 }
 
 // copy of gbuffer normals? (resolved for msaa...)
-void __pixel_shader(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out float4 out_gbuffer1 : SV_TARGET1, out float4 out_gbuffer2 : SV_TARGET2)
+void __pixel_shader(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0
+#ifdef USE_DUAL_SOURCE_BLENDING
+    , out float4 out_alpha : SV_TARGET1
+#else
+    , out float4 out_gbuffer1 : SV_TARGET1, out float4 out_gbuffer2 : SV_TARGET2
+#endif
+)
 {
+    out_gbuffer0 = 0;
 	float2 screencoord = vertex.position.xy;
 
 	float hw_depth;
@@ -109,44 +109,41 @@ void __pixel_shader(VsOut vertex, out float4 out_gbuffer0 : SV_TARGET0, out floa
 	decalPos /= decalPos.w;
 
 	float3 gbufferN = normalize(gbuffer1.xyz * 2 - 1);
-	float gbufferG = gbuffer1.w;
-	float2 texcoord = decalPos.xy * -1 + 0.5;
-	float3x3 tangent_to_world = pixel_tangent_space(gbufferN, position, texcoord);
-
-	float3 blendedN = gbufferN;
-	out_gbuffer0 = 0;
-
 	float3 projN = normalize(vertex.normal);
-	float aoBump = 0;
 
-	if(Decals[vertex.id].DecalData.x)
-	{
-		// normalmap decal
-		if(any(abs(decalPos.xyz) > 0.5) || dot(projN, gbufferN) < 0.33)
-		{
-			discard;
-		}
+    float2 texcoord = decalPos.xy * -1 + 0.5;
+    float decalAlpha = DecalAlpha.Sample(TextureSampler, texcoord);
 
-		float3 decalNm = DecalNormalmap.Sample(TextureSampler, texcoord).xyz * 2 - 1;
-		blendedN = normalize(mul(decalNm, tangent_to_world));	
+    if (decalAlpha == 0 || any(abs(decalPos.xyz) > 0.5) || dot(projN, gbufferN) < 0.33)
+        discard;
 
-		out_gbuffer1 = float4(decalNm * 0.5 + 0.5, 1);
-		aoBump = pow(dot(blendedN, gbufferN), 4);
-	}
-	else
-	{
-		// overlay decal
-		float4 decalCm = DecalColor.Sample(TextureSampler, texcoord);
-		float decalAlpha = DecalAlpha.Sample(TextureSampler, texcoord);
+#ifdef USE_COLORMAP_DECAL
+    float4 decalCm = DecalColor.Sample(TextureSampler, texcoord);
 
-		if(any(abs(decalPos.xyz) > 0.5) || decalAlpha < 0.5f || dot(projN, gbufferN) < 0.33)
-		{
-			discard;
-		}	
+#ifdef USE_DUAL_SOURCE_BLENDING
+    out_alpha = decalAlpha;
+    out_gbuffer0 = decalCm;
+#else
+    // In this case we basically ignore metal
+    out_gbuffer0 = float4(decalCm.rgb, decalAlpha);
+#endif
 
-		out_gbuffer0 = decalCm;
-	}
+#endif
 
-	out_gbuffer1 = float4(blendedN * 0.5 + 0.5, gbuffer1.w);
-	out_gbuffer2 = aoBump;
+#ifdef USE_NORMALMAP_DECAL
+    float4 decalNmSample = DecalNormalmap.Sample(TextureSampler, texcoord);
+    float3 decalNm = decalNmSample.xyz * 2 - 1;
+    float3x3 tangent_to_world = pixel_tangent_space(gbufferN, position, texcoord);
+    float3 blendedN = normalize(mul(decalNm, tangent_to_world));
+    float aoBump = pow(dot(blendedN, gbufferN), 4);
+
+    float3 outN = blendedN * 0.5 + 0.5;
+    float gloss = decalNmSample.a;
+
+    // NOTE: Relies on alpha mask discard above. If we try to do blending
+    // here it can't work because it would reuse same Gbuffer1 copy each
+    // time, getting bad artifacts
+    out_gbuffer1 = float4(outN, gloss);
+    out_gbuffer2 = aoBump;
+#endif
 }

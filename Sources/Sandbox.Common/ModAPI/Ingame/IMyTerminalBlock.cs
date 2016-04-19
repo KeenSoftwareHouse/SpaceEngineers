@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Collections;
-using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
+using VRage.Game.ModAPI.Ingame;
+using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyTerminalBlock : IMyCubeBlock
@@ -46,7 +47,7 @@ namespace Sandbox.ModAPI.Ingame
         {
             return ((IMyInventoryOwner)block).HasInventory;
         }
-        public static VRage.ModAPI.Ingame.IMyInventory GetInventory(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block, int index)
+        public static VRage.Game.ModAPI.Ingame.IMyInventory GetInventory(this Sandbox.ModAPI.Ingame.IMyTerminalBlock block, int index)
         {
             if (block is IMyInventoryOwner)
             {

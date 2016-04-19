@@ -14,84 +14,17 @@ using System.Text;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Library.Utils;
+using VRage.Network;
 using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.AI
 {
+    [StaticEventOwner]
 	[PreloadRequired]
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class MyAiTargetManager : MySessionComponentBase
     {
-		#region Sync Messages
-		[MessageId(4657, P2PMessageEnum.Reliable)]
-		struct ReserveEntityMsg
-		{
-			public long EntityId;
-			public long ReservationTimeMs;
-			public int SenderSerialId;
-		}
-
-		[MessageId(4658, P2PMessageEnum.Reliable)]
-		struct ReserveEnvironmentItemMsg
-		{
-			public long EntityId;
-			public int LocalId;
-			public long ReservationTimeMs;
-			public int SenderSerialId;
-		}
-
-		[MessageId(4659, P2PMessageEnum.Reliable)]
-		struct ReserveVoxelPositionMsg
-		{
-			public long EntityId;
-			public Vector3I VoxelPos;
-			public long ReservationTimeMs;
-			public int SenderSerialId;
-		}
-
-        [MessageId(4660, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct ReserveAreaMsg     
-        {
-            [ProtoMember]
-            public string ReservationName;
-            [ProtoMember]
-            public Vector3D Position;
-            [ProtoMember]
-            public float Radius;
-            [ProtoMember]
-            public long ReservationTimeMs;
-            [ProtoMember]
-            public int SenderSerialId;
-        }
-
-        [MessageId(4661, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct ReserveAreaAllMsg
-        {
-            [ProtoMember]
-            public string ReservationName;
-            [ProtoMember]
-            public Vector3D Position;
-            [ProtoMember]
-            public float Radius;
-            [ProtoMember]
-            public long Id;
-        }
-
-        [MessageId(4662, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct ReserveAreaCancelMsg
-        {
-            [ProtoMember]
-            public string ReservationName;
-            [ProtoMember]
-            public long Id;
-        }
-
-		#endregion
-
 		public struct ReservedEntityData
 		{
 			public MyReservedEntityType Type;
@@ -158,166 +91,224 @@ namespace Sandbox.Game.AI
 		#endregion
 
 		#region Sync callbacks
-		private static void OnReserveEntityRequest(ref ReserveEntityMsg msg, MyNetworkClient sender)
-		{
-			if (!Sync.IsServer)
-				return;
 
-			MyTransportMessageEnum responseState = MyTransportMessageEnum.Success;
+        [Event, Reliable, Server]
+        private static void OnReserveEntityRequest(long entityId, long reservationTimeMs, int senderSerialId)
+		{
+            EndpointId sender;
+            if (MyEventContext.Current.IsLocallyInvoked)
+                sender = new EndpointId(Sync.MyId);
+            else
+                sender = MyEventContext.Current.Sender;
+
+			bool success = true;
 			ReservedEntityData entityData;
-			var entityId = new KeyValuePair<long, long>(msg.EntityId, 0);
-			if (m_reservedEntities.TryGetValue(entityId, out entityData))
+            var entityIdPair = new KeyValuePair<long, long>(entityId, 0);
+            if (m_reservedEntities.TryGetValue(entityIdPair, out entityData))
 			{
-				if (entityData.ReserverId == new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId))
-					entityData.ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * msg.ReservationTimeMs / 1000;
+                if (entityData.ReserverId == new MyPlayer.PlayerId(sender.Value, senderSerialId))
+                    entityData.ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * reservationTimeMs / 1000;
 				else
-					responseState = MyTransportMessageEnum.Failure;
+                    success = false;
 			}
 			else
-				m_reservedEntities.Add(entityId, new ReservedEntityData()
+                m_reservedEntities.Add(entityIdPair, new ReservedEntityData()
 				{
-					EntityId = msg.EntityId,
-					ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * msg.ReservationTimeMs / 1000,
-					ReserverId = new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId)
+                    EntityId = entityId,
+                    ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * reservationTimeMs / 1000,
+                    ReserverId = new MyPlayer.PlayerId(sender.Value, senderSerialId)
 				});
 
-			Sync.Layer.SendMessage(ref msg, sender.SteamUserId, responseState);
+            if (MyEventContext.Current.IsLocallyInvoked)
+            {
+                if (success)
+                    OnReserveEntitySuccess(entityId, senderSerialId);
+                else
+                    OnReserveEntityFailure(entityId, senderSerialId);
+            }
+            else
+            {
+                if (success)
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveEntitySuccess, entityId, senderSerialId, sender);
+                else
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveEntityFailure, entityId, senderSerialId, sender);
+            }
 		}
 
-		private static void OnReserveEntitySuccess(ref ReserveEntityMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveEntitySuccess(long entityId, int senderSerialId)
 		{
 			if (OnReservationResult != null)
 			{
-				var reservationData = new ReservedEntityData() { Type = MyReservedEntityType.ENTITY, EntityId = msg.EntityId, ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId) };
+                var reservationData = new ReservedEntityData() { Type = MyReservedEntityType.ENTITY, EntityId = entityId, ReserverId = new MyPlayer.PlayerId(0, senderSerialId) };
 				OnReservationResult(ref reservationData, true);
 			}
 		}
 
-		private static void OnReserveEntityFailure(ref ReserveEntityMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveEntityFailure(long entityId, int senderSerialId)
 		{
 			if (OnReservationResult != null)
 			{
-				var reservationData = new ReservedEntityData() { Type = MyReservedEntityType.ENTITY, EntityId = msg.EntityId, ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId) };
+                var reservationData = new ReservedEntityData() { Type = MyReservedEntityType.ENTITY, EntityId = entityId, ReserverId = new MyPlayer.PlayerId(0, senderSerialId) };
 				OnReservationResult(ref reservationData, false);
 			}
 		}
 
-		private static void OnReserveEnvironmentItemRequest(ref ReserveEnvironmentItemMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        private static void OnReserveEnvironmentItemRequest(long entityId, int localId, long reservationTimeMs, int senderSerialId)
 		{
-			if (!Sync.IsServer)
-				return;
+            EndpointId sender;
+            if (MyEventContext.Current.IsLocallyInvoked)
+                sender = new EndpointId(Sync.MyId);
+            else
+                sender = MyEventContext.Current.Sender;
 
-			MyTransportMessageEnum responseState = MyTransportMessageEnum.Success;
+            bool success = true;
 			ReservedEntityData entityData;
-			var entityId = new KeyValuePair<long, long>(msg.EntityId, msg.LocalId);
-			if (m_reservedEntities.TryGetValue(entityId, out entityData))
+            var entityIdPair = new KeyValuePair<long, long>(entityId, localId);
+            if (m_reservedEntities.TryGetValue(entityIdPair, out entityData))
 			{
-				if (entityData.ReserverId == new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId))
-					entityData.ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * msg.ReservationTimeMs / 1000;
+                if (entityData.ReserverId == new MyPlayer.PlayerId(sender.Value, senderSerialId))
+                    entityData.ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * reservationTimeMs / 1000;
 				else
-					responseState = MyTransportMessageEnum.Failure;
+                    success = false;
 			}
 			else
-				m_reservedEntities.Add(entityId, new ReservedEntityData()
+                m_reservedEntities.Add(entityIdPair, new ReservedEntityData()
 				{
-					EntityId = msg.EntityId,
-					LocalId = msg.LocalId,
-					ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * msg.ReservationTimeMs / 1000,
-					ReserverId = new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId)
+                    EntityId = entityId,
+                    LocalId = localId,
+                    ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * reservationTimeMs / 1000,
+                    ReserverId = new MyPlayer.PlayerId(sender.Value, senderSerialId)
 				});
 
-			Sync.Layer.SendMessage(ref msg, sender.SteamUserId, responseState);
+            if (MyEventContext.Current.IsLocallyInvoked)
+            {
+                if (success)
+                    OnReserveEnvironmentItemSuccess(entityId, localId, senderSerialId);
+                else
+                    OnReserveEnvironmentItemFailure(entityId, localId, senderSerialId);
+            }
+            else
+            {
+                if (success)
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveEnvironmentItemSuccess, entityId, localId, senderSerialId, sender);
+                else
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveEnvironmentItemFailure, entityId, localId, senderSerialId, sender);
+            }
 		}
 
-		private static void OnReserveEnvironmentItemSuccess(ref ReserveEnvironmentItemMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveEnvironmentItemSuccess(long entityId, int localId, int senderSerialId)
 		{
 			if (OnReservationResult != null)
 			{
 				var reservationData = new ReservedEntityData()
 				{
 					Type = MyReservedEntityType.ENVIRONMENT_ITEM,
-					EntityId = msg.EntityId,
-					LocalId = msg.LocalId,
-					ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                    EntityId = entityId,
+                    LocalId = localId,
+                    ReserverId = new MyPlayer.PlayerId(0, senderSerialId)
 				};
 				OnReservationResult(ref reservationData, true);
 			}
 		}
 
-		private static void OnReserveEnvironmentItemFailure(ref ReserveEnvironmentItemMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveEnvironmentItemFailure(long entityId, int localId, int senderSerialId)
 		{
 			if (OnReservationResult != null)
 			{
 				var reservationData = new ReservedEntityData()
 				{
 					Type = MyReservedEntityType.ENVIRONMENT_ITEM,
-					EntityId = msg.EntityId,
-					LocalId = msg.LocalId,
-					ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                    EntityId = entityId,
+                    LocalId = localId,
+                    ReserverId = new MyPlayer.PlayerId(0, senderSerialId)
 				};
 				OnReservationResult(ref reservationData, false);
 			}
 		}
 
-		private static void OnReserveVoxelPositionRequest(ref ReserveVoxelPositionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        private static void OnReserveVoxelPositionRequest(long entityId, Vector3I voxelPosition, long reservationTimeMs, int senderSerialId)
 		{
-			if (!Sync.IsServer)
-				return;
+            EndpointId sender;
+            if (MyEventContext.Current.IsLocallyInvoked)
+                sender = new EndpointId(Sync.MyId);
+            else
+                sender = MyEventContext.Current.Sender;
 
-			MyTransportMessageEnum responseState = MyTransportMessageEnum.Success;
+            bool success = true;
 			ReservedEntityData entityData;
 			MyVoxelBase voxelMap = null;
-			if (!MySession.Static.VoxelMaps.Instances.TryGetValue(msg.EntityId, out voxelMap))
+			if (!MySession.Static.VoxelMaps.Instances.TryGetValue(entityId, out voxelMap))
 				return;
 
 			Vector3I voxelMapSize = voxelMap.StorageMax - voxelMap.StorageMin;
 			Debug.Assert(voxelMapSize.AbsMax() < 2 * 10E6, "Voxel map size too large to reserve unique voxel position");
 			// Integer overflow won't even happen on the next line for voxel maps smaller than roughly (2.5M)^3, and most Vector3I member functions have broken down way before that
-			var entityId = new KeyValuePair<long, long>(msg.EntityId, msg.VoxelPos.X + msg.VoxelPos.Y * voxelMapSize.X + msg.VoxelPos.Z * voxelMapSize.X * voxelMapSize.Y);
-			if (m_reservedEntities.TryGetValue(entityId, out entityData))
+			var entityIdPair = new KeyValuePair<long, long>(entityId, voxelPosition.X + voxelPosition.Y * voxelMapSize.X + voxelPosition.Z * voxelMapSize.X * voxelMapSize.Y);
+			if (m_reservedEntities.TryGetValue(entityIdPair, out entityData))
 			{
-				if (entityData.ReserverId == new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId))
-					entityData.ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * msg.ReservationTimeMs / 1000;
-				else
-					responseState = MyTransportMessageEnum.Failure;
+                if (entityData.ReserverId == new MyPlayer.PlayerId(sender.Value, senderSerialId))
+                    entityData.ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * reservationTimeMs / 1000;
+                else
+                    success = false;
 			}
 			else
-				m_reservedEntities.Add(entityId, new ReservedEntityData()
+				m_reservedEntities.Add(entityIdPair, new ReservedEntityData()
 				{
-					EntityId = msg.EntityId,
-					GridPos = msg.VoxelPos,
-					ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * msg.ReservationTimeMs / 1000,
-					ReserverId = new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId)
+					EntityId = entityId,
+					GridPos = voxelPosition,
+					ReservationTimer = Stopwatch.GetTimestamp() + Stopwatch.Frequency * reservationTimeMs / 1000,
+                    ReserverId = new MyPlayer.PlayerId(sender.Value, senderSerialId)
 				});
 
-			Sync.Layer.SendMessage(ref msg, sender.SteamUserId, responseState);
+            if (MyEventContext.Current.IsLocallyInvoked)
+            {
+                if (success)
+                    OnReserveVoxelPositionSuccess(entityId, voxelPosition, senderSerialId);
+                else
+                    OnReserveVoxelPositionFailure(entityId, voxelPosition, senderSerialId);
+            }
+            else
+            {
+                if (success)
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveVoxelPositionSuccess, entityId, voxelPosition, senderSerialId, sender);
+                else
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveVoxelPositionFailure, entityId, voxelPosition, senderSerialId, sender);
+            }
 		}
 
-		private static void OnReserveVoxelPositionSuccess(ref ReserveVoxelPositionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveVoxelPositionSuccess(long entityId, Vector3I voxelPosition, int senderSerialId)
 		{
 			if (OnReservationResult != null)
 			{
 				var reservationData = new ReservedEntityData()
 				{
 					Type = MyReservedEntityType.VOXEL,
-					EntityId = msg.EntityId,
-					GridPos = msg.VoxelPos,
-					ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                    EntityId = entityId,
+                    GridPos = voxelPosition,
+                    ReserverId = new MyPlayer.PlayerId(0, senderSerialId)
 				};
 				OnReservationResult(ref reservationData, true);
 			}
 		}
 
-		private static void OnReserveVoxelPositionFailure(ref ReserveVoxelPositionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveVoxelPositionFailure(long entityId, Vector3I voxelPosition, int senderSerialId)
 		{
 			if (OnReservationResult != null)
 			{
 				var reservationData = new ReservedEntityData()
 				{
 					Type = MyReservedEntityType.VOXEL,
-					EntityId = msg.EntityId,
-					GridPos = msg.VoxelPos,
-					ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                    EntityId = entityId,
+                    GridPos = voxelPosition,
+                    ReserverId = new MyPlayer.PlayerId(0, senderSerialId)
 				};
 				OnReservationResult(ref reservationData, false);
 			}
@@ -325,37 +316,17 @@ namespace Sandbox.Game.AI
 
 		public void RequestEntityReservation(long entityId, long reservationTimeMs, int senderSerialId)
 		{
-			var msg = new ReserveEntityMsg()
-			{
-				EntityId = entityId,
-				ReservationTimeMs = reservationTimeMs,
-				SenderSerialId = senderSerialId,
-			};
-			Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveEntityRequest, entityId, reservationTimeMs, senderSerialId);
 		}
 
 		public void RequestEnvironmentItemReservation(long entityId, int localId, long reservationTimeMs, int senderSerialId)
 		{
-			var msg = new ReserveEnvironmentItemMsg()
-			{
-				EntityId = entityId,
-				LocalId = localId,
-				ReservationTimeMs = reservationTimeMs,
-				SenderSerialId = senderSerialId
-			};
-			Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveEnvironmentItemRequest, entityId, localId, reservationTimeMs, senderSerialId);
 		}
 
 		public void RequestVoxelPositionReservation(long entityId, Vector3I voxelPosition, long reservationTimeMs, int senderSerialId)
 		{
-			var msg = new ReserveVoxelPositionMsg()
-			{
-				EntityId = entityId,
-				VoxelPos = voxelPosition,
-				ReservationTimeMs = reservationTimeMs,
-				SenderSerialId = senderSerialId,
-			};
-			Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveVoxelPositionRequest, entityId, voxelPosition, reservationTimeMs, senderSerialId);
 		}
 
 		#endregion
@@ -364,33 +335,29 @@ namespace Sandbox.Game.AI
 
         public void RequestAreaReservation(string reservationName, Vector3D position, float radius, long reservationTimeMs, int senderSerialId)
         {
-            var msg = new ReserveAreaMsg()
-            {
-                ReservationName = reservationName,
-                Position = position,
-                Radius = radius,
-                ReservationTimeMs = reservationTimeMs,
-                SenderSerialId = senderSerialId,
-            };
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveAreaRequest, reservationName, position, radius, reservationTimeMs, senderSerialId);
         }
 
-        private static void OnReserveAreaRequest(ref ReserveAreaMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        private static void OnReserveAreaRequest(string reservationName, Vector3D position, float radius, long reservationTimeMs, int senderSerialId)
         {
-            if (!Sync.IsServer)
-                return;
+            EndpointId sender;
+            if (MyEventContext.Current.IsLocallyInvoked)
+                sender = new EndpointId(Sync.MyId);
+            else
+                sender = MyEventContext.Current.Sender;
 
-            if (!m_reservedAreas.ContainsKey(msg.ReservationName))
-                m_reservedAreas.Add(msg.ReservationName, new Dictionary<long, ReservedAreaData>());
+            if (!m_reservedAreas.ContainsKey(reservationName))
+                m_reservedAreas.Add(reservationName, new Dictionary<long, ReservedAreaData>());
 
-            var reservations = m_reservedAreas[msg.ReservationName];
+            var reservations = m_reservedAreas[reservationName];
             bool reservedBySomeone = false;
-            MyPlayer.PlayerId requestId = new MyPlayer.PlayerId(sender.SteamUserId, msg.SenderSerialId);
+            MyPlayer.PlayerId requestId = new MyPlayer.PlayerId(sender.Value, senderSerialId);
 
             foreach (var r in reservations)
             {
                 var currentReservation = r.Value;
-                var sqDist = (currentReservation.WorldPosition - msg.Position).LengthSquared();
+                var sqDist = (currentReservation.WorldPosition - position).LengthSquared();
                 bool inRadius = sqDist <= currentReservation.Radius * currentReservation.Radius; 
                 
                 if (inRadius)
@@ -404,95 +371,78 @@ namespace Sandbox.Game.AI
             {
                 reservations[AreaReservationCounter++] = new ReservedAreaData()
                 {
-                    WorldPosition = msg.Position,
-                    Radius = msg.Radius,
-                    ReservationTimer = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromMiliseconds(msg.ReservationTimeMs),
+                    WorldPosition = position,
+                    Radius = radius,
+                    ReservationTimer = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromMiliseconds(reservationTimeMs),
                     ReserverId = requestId,
                 };
 
-                var allMsg = new ReserveAreaAllMsg()
-                {
-                    Id = AreaReservationCounter,
-                    Position = msg.Position,
-                    Radius = msg.Radius,
-                    ReservationName = msg.ReservationName,
-                };
+                MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveAreaAllSuccess, AreaReservationCounter, reservationName, position, radius);
 
-                Sync.Layer.SendMessageToAll(ref allMsg, MyTransportMessageEnum.Success);
-                Sync.Layer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Success);
+                if (MyEventContext.Current.IsLocallyInvoked)
+                    OnReserveAreaSuccess(position, radius, senderSerialId);
+                else
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveAreaSuccess, position, radius, senderSerialId, sender);
             }
             else
             {
-                Sync.Layer.SendMessage(ref msg, sender.SteamUserId, MyTransportMessageEnum.Failure);
+                if (MyEventContext.Current.IsLocallyInvoked)
+                    OnReserveAreaFailure(position, radius, senderSerialId);
+                else
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveAreaFailure, position, radius, senderSerialId, sender);
             }
-
-            
         }
 
-        private static void OnReserveAreaSuccess(ref ReserveAreaMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveAreaSuccess(Vector3D position, float radius, int senderSerialId)
         {
             if (OnAreaReservationResult != null)
             {
                 var reservationData = new ReservedAreaData()
                 {
-                    WorldPosition = msg.Position,
-                    Radius = msg.Radius,
-                    ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                    WorldPosition = position,
+                    Radius = radius,
+                    ReserverId = new MyPlayer.PlayerId(0, senderSerialId)
                 };
                 OnAreaReservationResult(ref reservationData, true);
             }
         }
 
-        private static void OnReserveAreaFailure(ref ReserveAreaMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnReserveAreaFailure(Vector3D position, float radius, int senderSerialId)
         {
             if (OnAreaReservationResult != null)
             {
                 var reservationData = new ReservedAreaData()
                 {
-                    WorldPosition = msg.Position,
-                    Radius = msg.Radius,
-                    ReserverId = new MyPlayer.PlayerId(0, msg.SenderSerialId)
+                    WorldPosition = position,
+                    Radius = radius,
+                    ReserverId = new MyPlayer.PlayerId(0, senderSerialId)
                 };
                 OnAreaReservationResult(ref reservationData, false);
             }
         }
 
-        private static void OnReserveAreaAllSuccess(ref ReserveAreaAllMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        private static void OnReserveAreaAllSuccess(long id, string reservationName, Vector3D position, float radius)
         {
-            if (!m_reservedAreas.ContainsKey(msg.ReservationName))
-                m_reservedAreas[msg.ReservationName] = new Dictionary<long, ReservedAreaData>();
-            var reservations = m_reservedAreas[msg.ReservationName];
-            reservations.Add(msg.Id, new ReservedAreaData() { WorldPosition = msg.Position, Radius = msg.Radius });
+            if (!m_reservedAreas.ContainsKey(reservationName))
+                m_reservedAreas[reservationName] = new Dictionary<long, ReservedAreaData>();
+            var reservations = m_reservedAreas[reservationName];
+            reservations.Add(id, new ReservedAreaData() { WorldPosition = position, Radius = radius });
         }
 
-        private static void OnReserveAreaCancel(ref ReserveAreaCancelMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        private static void OnReserveAreaCancel(string reservationName, long id)
         {
             Dictionary<long, ReservedAreaData> reservations;
-            if (m_reservedAreas.TryGetValue(msg.ReservationName, out reservations))
+            if (m_reservedAreas.TryGetValue(reservationName, out reservations))
             {
-                reservations.Remove(msg.Id);
+                reservations.Remove(id);
             }
         }
 
         #endregion
-
-        static MyAiTargetManager()
-		{
-			MySyncLayer.RegisterMessage<ReserveEntityMsg>(OnReserveEntityRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-			MySyncLayer.RegisterMessage<ReserveEntityMsg>(OnReserveEntitySuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-			MySyncLayer.RegisterMessage<ReserveEntityMsg>(OnReserveEntityFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-			MySyncLayer.RegisterMessage<ReserveEnvironmentItemMsg>(OnReserveEnvironmentItemRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-			MySyncLayer.RegisterMessage<ReserveEnvironmentItemMsg>(OnReserveEnvironmentItemSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-			MySyncLayer.RegisterMessage<ReserveEnvironmentItemMsg>(OnReserveEnvironmentItemFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-			MySyncLayer.RegisterMessage<ReserveVoxelPositionMsg>(OnReserveVoxelPositionRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-			MySyncLayer.RegisterMessage<ReserveVoxelPositionMsg>(OnReserveVoxelPositionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-			MySyncLayer.RegisterMessage<ReserveVoxelPositionMsg>(OnReserveVoxelPositionFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-            MySyncLayer.RegisterMessage<ReserveAreaMsg>(OnReserveAreaRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<ReserveAreaMsg>(OnReserveAreaSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ReserveAreaMsg>(OnReserveAreaFailure, MyMessagePermissions.FromServer, MyTransportMessageEnum.Failure);
-            MySyncLayer.RegisterMessage<ReserveAreaAllMsg>(OnReserveAreaAllSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<ReserveAreaCancelMsg>(OnReserveAreaCancel, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-		}
 
 		public override void LoadData()
         {
@@ -559,13 +509,7 @@ namespace Sandbox.Game.AI
                 {
                     m_reservedAreas[id.Key].Remove(id.Value);
 
-                    var cancelMsg = new ReserveAreaCancelMsg()
-                    {
-                        ReservationName = id.Key,
-                        Id = id.Value,
-                    };
-
-                    Sync.Layer.SendMessageToAll(ref cancelMsg, MyTransportMessageEnum.Success);
+                    MyMultiplayer.RaiseStaticEvent(s => MyAiTargetManager.OnReserveAreaCancel, id.Key, id.Value);
                 }
 
                 m_removeReservedAreas.Clear();

@@ -42,7 +42,7 @@ namespace Sandbox.Game.GameSystems
         private float m_maxRequiredPowerInput;
 
         private Vector3 m_overrideTargetVelocity;
-        private int m_framesFromLastOverride;
+        private int? m_overrideAccelerationRampFrames;
 
         #endregion
 
@@ -114,12 +114,17 @@ namespace Sandbox.Game.GameSystems
             gyro.SlimBlock.ComponentStack.IsFunctionalChanged -= ComponentStack_IsFunctionalChanged;
         }
 
-        private void UpdateGyros()
+        private void UpdateGyros(bool networkUpdate = false)
         {
             if (m_grid.Physics == null)
                 return;
             if (m_grid.Physics.AngularVelocity == Vector3.Zero && ControlTorque == Vector3.Zero)
                 return;
+
+            if(Sync.IsServer && networkUpdate == false && m_grid.GridSystems.ControlSystem.IsControlled == true && m_grid.GridSystems.ControlSystem.IsLocallyControlled == false)
+            {
+                return;
+            }
             //if (m_grid.GridControllers.IsControlledByLocalPlayer || (!m_grid.GridControllers.IsControlledByAnyPlayer && Sync.IsServer) || (false && Sync.IsServer))
             {
                 // Not checking whether engines are running, since ControlTorque should be 0 when
@@ -127,16 +132,10 @@ namespace Sandbox.Game.GameSystems
                 if (ResourceSink.SuppliedRatio > 0f && m_grid.Physics != null && (m_grid.Physics.Enabled || m_grid.Physics.IsWelded) && !m_grid.Physics.RigidBody.IsFixed)
                 {
                     Matrix invWorldRot = m_grid.PositionComp.WorldMatrixNormalizedInv.GetOrientation();
-                    Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
                     Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
 
                     float slowdown = (1 - MAX_SLOWDOWN) * (1 - ResourceSink.SuppliedRatio) + MAX_SLOWDOWN;
                     var slowdownAngularAcceleration = -localAngularVelocity;// *MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                    var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
-                    invTensor.M44 = 1;
-                    var minInvTensor = Math.Min(Math.Min(invTensor.M11, invTensor.M22), invTensor.M33);
-
-                    var scale = m_grid.Physics.RigidBody.InertiaTensor.Scale;
 
                     var slowdownTorque = slowdownAngularAcceleration;
 
@@ -151,16 +150,17 @@ namespace Sandbox.Game.GameSystems
                         slowdownTorque = Vector3.TransformNormal(slowdownTorque, Matrix.Invert(m_grid.Physics.RigidBody.GetRigidBodyMatrix()));
                     }
 
+                    var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
+                    invTensor.M44 = 1;
+      
                     // Only multiply the slowdown by the multiplier if we want to move in a different direction in the given axis
                     if (!localAngularVelocity.IsValid()) localAngularVelocity = Vector3.Zero;
                     if (!ControlTorque.IsValid()) ControlTorque = Vector3.Zero;
                     Vector3 selector = Vector3.One - Vector3.IsZeroVector(Vector3.Sign(localAngularVelocity) - Vector3.Sign(ControlTorque));
                     slowdownTorque *= torqueSlowdownMultiplier;
+
                     slowdownTorque /= invTensor.Scale;
                     slowdownTorque = Vector3.Clamp(slowdownTorque, -slowdownClamp, slowdownClamp) * selector;
-
-                    //MyRenderProxy.DebugDrawText2D(new Vector2(300, 260), m_grid.Physics.RigidBody.InertiaTensor.Scale.ToString(), Color.White, 0.8f);
-                    //MyRenderProxy.DebugDrawText2D(new Vector2(300, 280), invTensor.Scale.ToString(), Color.Orange, 0.8f);
 
                     if (slowdownTorque.LengthSquared() > 0.0001f)
                     {
@@ -169,13 +169,15 @@ namespace Sandbox.Game.GameSystems
                         m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, slowdownTorque * slowdown);
                     }
 
+                    var minInvTensor = Math.Min(Math.Min(invTensor.M11, invTensor.M22), invTensor.M33);
                     // Max rotation limiter
+
                     float divider = Math.Max(1, minInvTensor * INV_TENSOR_MAX_LIMIT);
 
                     Torque = Vector3.Clamp(ControlTorque, -Vector3.One, Vector3.One) * m_maxGyroForce / divider;
                     Torque *= ResourceSink.SuppliedRatio;
 
-                    scale = m_grid.Physics.RigidBody.InertiaTensor.Scale;
+                    var scale = m_grid.Physics.RigidBody.InertiaTensor.Scale;
                     scale = Vector3.Abs(scale / scale.AbsMax());
                     if (Torque.LengthSquared() > 0.0001f)
                     {
@@ -186,11 +188,12 @@ namespace Sandbox.Game.GameSystems
                             torque = Vector3.TransformNormal(torque, Matrix.Invert(m_grid.Physics.RigidBody.GetRigidBodyMatrix()));
                             //torque *= new Vector3(-1, 1, -1);//jn: some weird transformation for welded ship
                         }
-                        m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, torque * scale);
+                        float relativeSpeed = Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio;
+                        m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, relativeSpeed*torque * scale);
                         //if (Sandbox.Game.World.MySession.Static.ControlledEntity.Entity.GetTopMostParent() == m_grid)
                         //    MyRenderProxy.DebugDrawText2D(new Vector2(300,300), (torque * scale).ToString(), Color.Green, 0.8f);
                     }
-
+              
                     const float stoppingVelocitySq = 0.0003f * 0.0003f;
                     if (ControlTorque == Vector3.Zero && m_grid.Physics.AngularVelocity != Vector3.Zero && m_grid.Physics.AngularVelocity.LengthSquared() < stoppingVelocitySq && m_grid.Physics.RigidBody.IsActive)
                     {
@@ -210,33 +213,62 @@ namespace Sandbox.Game.GameSystems
                 Matrix worldRot = m_grid.WorldMatrix.GetOrientation();
                 Vector3 localAngularVelocity = Vector3.Transform(m_grid.Physics.AngularVelocity, ref invWorldRot);
 
-                Vector3 desiredAcceleration = (m_overrideTargetVelocity - localAngularVelocity) * MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+                Vector3 velocityDiff = m_overrideTargetVelocity - localAngularVelocity;
+                if (velocityDiff == Vector3.Zero)
+                    return;
+
+                UpdateOverrideAccelerationRampFrames(velocityDiff);
+
+                // acceleration = m/s * (1/s)
+                Vector3 desiredAcceleration = velocityDiff * (MyEngineConstants.UPDATE_STEPS_PER_SECOND / m_overrideAccelerationRampFrames.Value);
 
                 // CH: CAUTION: Don't try to use InertiaTensor, although it might be more intuitive in some cases.
                 // I tried it and it's not an inverse of the InverseInertiaTensor! Only the InverseInertiaTensor seems to be correct!
                 var invTensor = m_grid.Physics.RigidBody.InverseInertiaTensor;
                 Vector3 invTensorVector = new Vector3(invTensor.M11, invTensor.M22, invTensor.M33);
-                var minInvTensor = invTensorVector.Min();
-
-                // This is to ensure that the correction is done uniformly in all axes
-                desiredAcceleration = desiredAcceleration * Vector3.Normalize(invTensorVector);
 
                 // Calculate the desired velocity correction torque
                 Vector3 desiredTorque = desiredAcceleration / invTensorVector;
 
-                // Apply rotation limiters
-                float divider = Math.Max(1, minInvTensor * INV_TENSOR_MAX_LIMIT);
-                Torque = (ControlTorque * m_maxGyroForce + desiredTorque) / divider;
+                // Calculate the available force for the correction by arbitrarily sum overridden gyros
+                // and the remaining force force of the controlled gyros
+                float correctionForce = m_maxOverrideForce + m_maxGyroForce * (1.0f - ControlTorque.Length());
+
+                // Reduce the desired torque to the available force
+                Vector3 availableTorque = Vector3.ClampToSphere(desiredTorque, correctionForce);
+
+                Torque = ControlTorque * m_maxGyroForce + availableTorque;
                 Torque *= ResourceSink.SuppliedRatio;
 
-                // Damp the torque dynamically so stopping the ship abruptly looks good
-                Torque *= m_framesFromLastOverride / MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+                const float TORQUE_SQ_LEN_TH = 0.0001f;
+                if (Torque.LengthSquared() < TORQUE_SQ_LEN_TH)
+                    return;
 
-                if (m_framesFromLastOverride < MyEngineConstants.UPDATE_STEPS_PER_SECOND)
-                    m_framesFromLastOverride++;
+                m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque*Sync.RelativeSimulationRatio);
+            }
+        }
 
-                if (Torque.LengthSquared() > 0.0001f)
-                    m_grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, null, null, Torque);
+        // Update frames count to obtain a smooth acceleration ramp for overriden gyros
+        private void UpdateOverrideAccelerationRampFrames(Vector3 velocityDiff)
+        {
+            if (m_overrideAccelerationRampFrames == null)
+            {
+                float squaredSpeed = velocityDiff.LengthSquared();
+                const float MIN_ROTATION_SPEED_SQ_TH = (float)((Math.PI / 2) * (Math.PI / 2));
+                const int ACCELARION_RAMP_FRAMES = (int)MyEngineConstants.UPDATE_STEPS_PER_SECOND * 2;
+                if (squaredSpeed > MIN_ROTATION_SPEED_SQ_TH)
+                {
+                    m_overrideAccelerationRampFrames = ACCELARION_RAMP_FRAMES;
+                }
+                else
+                {
+                    const float K_PROP_ACCEL = (ACCELARION_RAMP_FRAMES - 1) / MIN_ROTATION_SPEED_SQ_TH;
+                    m_overrideAccelerationRampFrames = (int)(squaredSpeed * K_PROP_ACCEL) + 1;
+                }
+            }
+            else if (m_overrideAccelerationRampFrames > 1)
+            {
+                m_overrideAccelerationRampFrames--;
             }
         }
 
@@ -325,7 +357,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        public void UpdateBeforeSimulation()
+        public void UpdateBeforeSimulation(bool networkUpdate = false)
         {
             if (m_gyrosChanged)
                 RecomputeGyroParameters();
@@ -334,14 +366,14 @@ namespace Sandbox.Game.GameSystems
             {
                 if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                     MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "Old gyros", Color.White, 1.0f);
-                UpdateGyros();
+                UpdateGyros(networkUpdate);
                 return;
             }
 
             if (MyDebugDrawSettings.DEBUG_DRAW_GYROS)
                 MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 0.0f), "New gyros", Color.White, 1.0f);
 
-            if (m_grid.Physics != null)
+            if (m_grid.Physics != null && networkUpdate ==false)
                 UpdateOverriddenGyros();
         }
 
@@ -354,7 +386,7 @@ namespace Sandbox.Game.GameSystems
             m_maxOverrideForce = 0.0f;
             m_maxRequiredPowerInput = 0.0f;
             m_overrideTargetVelocity = Vector3.Zero;
-            m_framesFromLastOverride = 1;
+            m_overrideAccelerationRampFrames = null;
             foreach (var gyro in m_gyros)
             {
                 if (IsUsed(gyro))

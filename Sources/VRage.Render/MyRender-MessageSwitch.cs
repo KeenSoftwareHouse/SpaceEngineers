@@ -394,12 +394,12 @@ namespace VRageRender
                         // var rMessage = (MyRenderMessageSetCameraViewMatrix)drawMessage;
 
                         MyRenderCamera.ProjectionMatrix = rMessage.ProjectionMatrix;
-                        MyRenderCamera.ProjectionMatrixForNearObjects = rMessage.NearProjectionMatrix;
+                        MyRenderCamera.ProjectionMatrixForNearObjects = rMessage.ProjectionMatrix;
                         MyRenderCamera.SetViewMatrix(rMessage.ViewMatrix, rMessage.UpdateTime);
 
                         MyRenderCamera.SafeNearForForward = rMessage.SafeNear;
                         MyRenderCamera.FieldOfView = rMessage.FOV;
-                        MyRenderCamera.FieldOfViewForNearObjects = rMessage.NearFOV;
+                        MyRenderCamera.FieldOfViewForNearObjects = rMessage.FOV;
 
                         if ((MyRenderCamera.NEAR_PLANE_DISTANCE != rMessage.NearPlane) ||
                             (MyRenderCamera.FAR_PLANE_DISTANCE != rMessage.FarPlane) ||
@@ -1016,14 +1016,14 @@ namespace VRageRender
                                 if (renderLight.m_parentID != rMessage.ParentID)
                                     dirtyAABB = true;
 
-                                if (renderLight.m_position != rMessage.Position)
+                                if (renderLight.m_position != rMessage.ReflectorPosition)
                                     dirtyAABB = true;
 
                                 renderLight.UpdateParameters(
                                     rMessage.Type,
-                                    rMessage.Position,
+                                    rMessage.ReflectorPosition,
                                     rMessage.ParentID,
-                                    rMessage.Offset,
+                                    rMessage.PointPositionOffset,
                                     rMessage.Color,
                                     rMessage.SpecularColor,
                                     rMessage.Falloff,

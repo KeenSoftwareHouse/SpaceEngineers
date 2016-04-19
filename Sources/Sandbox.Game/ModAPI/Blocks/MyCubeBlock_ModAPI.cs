@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.Components;
-using Sandbox.ModAPI;
+﻿using VRage.Game.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,13 +6,14 @@ using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
+using Sandbox.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
     public partial class MyCubeBlock : IMyCubeBlock, IMyUpgradableBlock
     {
-        SerializableDefinitionId Sandbox.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
-        SerializableDefinitionId Sandbox.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
+        SerializableDefinitionId VRage.Game.ModAPI.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
+        SerializableDefinitionId VRage.Game.ModAPI.Ingame.IMyCubeBlock.BlockDefinition { get { return BlockDefinition.Id; } }
 
         public void Init(MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid)
         {
@@ -21,19 +21,19 @@ namespace Sandbox.Game.Entities
                 Init(builder, cubeGrid as MyCubeGrid);
         }
 
-        Action<MyCubeBlock> GetDelegate(Action<ModAPI.IMyCubeBlock> value)
+        Action<MyCubeBlock> GetDelegate(Action<VRage.Game.ModAPI.IMyCubeBlock> value)
         {
             return (Action<MyCubeBlock>)Delegate.CreateDelegate(typeof(Action<MyCubeBlock>), value.Target, value.Method);
         }
 
-        event Action<Sandbox.ModAPI.IMyCubeBlock> Sandbox.ModAPI.IMyCubeBlock.IsWorkingChanged
+        event Action<VRage.Game.ModAPI.IMyCubeBlock> VRage.Game.ModAPI.IMyCubeBlock.IsWorkingChanged
         {
             add { IsWorkingChanged += GetDelegate(value); }
             remove { IsWorkingChanged -= GetDelegate(value); }
         }
 
         IMyCubeGrid IMyCubeBlock.CubeGrid { get { return CubeGrid; } }
-        Sandbox.ModAPI.Ingame.IMyCubeGrid Sandbox.ModAPI.Ingame.IMyCubeBlock.CubeGrid { get { return CubeGrid; } }
+        VRage.Game.ModAPI.Ingame.IMyCubeGrid VRage.Game.ModAPI.Ingame.IMyCubeBlock.CubeGrid { get { return CubeGrid; } }
 
         void IMyCubeBlock.CalcLocalMatrix(out VRageMath.Matrix localMatrix, out string currModel)
         {
@@ -133,7 +133,7 @@ namespace Sandbox.Game.Entities
             get { return GetMass(); }
         }
 
-        float ModAPI.Ingame.IMyCubeBlock.Mass
+        float VRage.Game.ModAPI.Ingame.IMyCubeBlock.Mass
         {
             get { return GetMass(); }
         }

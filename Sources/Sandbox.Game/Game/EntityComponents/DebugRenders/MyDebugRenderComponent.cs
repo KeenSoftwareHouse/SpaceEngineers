@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Threading;
 
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
 using VRage.Utils;
 using VRage.Import;
 using VRage.ModAPI;

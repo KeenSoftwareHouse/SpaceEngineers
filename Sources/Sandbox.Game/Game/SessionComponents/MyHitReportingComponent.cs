@@ -10,6 +10,7 @@ using System;
 using VRage.Audio;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.Network;
 using VRage.Utils;
 using VRageMath;
@@ -76,7 +77,7 @@ namespace Sandbox.Game.SessionComponents
             base.UnloadData();
         }
 
-        private void AfterDamageApplied(object target, Sandbox.ModAPI.MyDamageInformation info)
+        private void AfterDamageApplied(object target, MyDamageInformation info)
         {
             MyCharacter targetCharacter = target as MyCharacter;
             if (targetCharacter == null || targetCharacter.IsDead) return;
@@ -102,7 +103,7 @@ namespace Sandbox.Game.SessionComponents
 
                 if (MyPerGameSettings.Game == GameEnum.ME_GAME)
                 {
-                    hitCue = MyStringHash.GetOrCompute("ToolCrossbHitBody");
+                    //hitCue = MyStringHash.GetOrCompute("ToolCrossbHitBody");//this causes to play the hit sound at full volume regardless of distance
                 }
             }
 

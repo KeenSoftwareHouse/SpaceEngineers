@@ -1,6 +1,6 @@
 ﻿using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;

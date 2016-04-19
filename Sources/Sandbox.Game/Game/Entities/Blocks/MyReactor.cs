@@ -23,8 +23,8 @@ using VRage.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Entity;
-using VRage.ModAPI.Ingame;
-using IMyInventory = VRage.ModAPI.Ingame.IMyInventory;
+using VRage.Game.ModAPI.Ingame;
+using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities
 {
@@ -99,8 +99,9 @@ namespace Sandbox.Game.Entities
 
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>( new MyInventory(m_reactorDefinition.InventoryMaxVolume, m_reactorDefinition.InventorySize, MyInventoryFlags.CanReceive, this));
-                this.GetInventory().Init(obGenerator.Inventory);
+                MyInventory inventory = new MyInventory(m_reactorDefinition.InventoryMaxVolume, m_reactorDefinition.InventorySize, MyInventoryFlags.CanReceive);
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(obGenerator.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
@@ -463,5 +464,23 @@ namespace Sandbox.Game.Entities
             else if (before && !IsWorking)
                 OnStopWorking();
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.ItemDefinition = m_reactorDefinition.FuelId;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

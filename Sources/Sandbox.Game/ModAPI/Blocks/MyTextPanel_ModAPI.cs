@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.GUI.TextPanel;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -16,22 +17,22 @@ namespace Sandbox.Game.Entities.Blocks
 
         void ModAPI.Ingame.IMyTextPanel.ShowPublicTextOnScreen()
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PUBLIC);
+            ShowTextFlag = ShowTextOnScreenFlag.PUBLIC;
         }
 
         void ModAPI.Ingame.IMyTextPanel.ShowPrivateTextOnScreen()
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.PRIVATE);
+            ShowTextFlag = ShowTextOnScreenFlag.PRIVATE;
         }
 
         void ModAPI.Ingame.IMyTextPanel.ShowTextureOnScreen()
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)ShowTextOnScreenFlag.NONE);
+            ShowTextFlag = ShowTextOnScreenFlag.NONE;
         }
 
         void ModAPI.Ingame.IMyTextPanel.SetShowOnScreen(ShowTextOnScreenFlag set)
         {
-            SyncObject.SendShowOnScreenChangeRequest((byte)set);
+            ShowTextFlag = set;
         }
 
         bool ModAPI.Ingame.IMyTextPanel.WritePublicTitle(string value, bool append)
@@ -45,7 +46,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_publicTitleHelper.Clear();
             }
             m_publicTitleHelper.Append(value);
-            SyncObject.SendChangeTitleMessage(m_publicTitleHelper, true);
+            SendChangeTitleMessage(m_publicTitleHelper, true);
             return true;
         }
 
@@ -65,7 +66,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_publicDescriptionHelper.Clear();
             }
             m_publicDescriptionHelper.Append(value);
-            SyncObject.SendChangeDescriptionMessage(m_publicDescriptionHelper, true);
+            SendChangeDescriptionMessage(m_publicDescriptionHelper, true);
             return true;
         }
 
@@ -85,7 +86,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_privateTitleHelper.Clear();
             }
             m_privateTitleHelper.Append(value);
-            SyncObject.SendChangeTitleMessage(m_privateTitleHelper, false);
+            SendChangeTitleMessage(m_privateTitleHelper, false);
             return true;
         }
 
@@ -105,7 +106,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_privateDescriptionHelper.Clear();
             }
             m_privateDescriptionHelper.Append(value);
-            SyncObject.SendChangeDescriptionMessage(m_privateDescriptionHelper, false);
+            SendChangeDescriptionMessage(m_privateDescriptionHelper, false);
             return true;
         }
 
@@ -132,7 +133,7 @@ namespace Sandbox.Game.Entities.Blocks
                                 return;
                         }
                     }
-                    SyncObject.SendAddImagesToSelectionRequest(new int[1] { t });
+                    SendAddImagesToSelectionRequest(new int[1] { t });
                     return;
                 }
             }
@@ -174,7 +175,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (selection.Count > 0)
             {
-                SyncObject.SendAddImagesToSelectionRequest(selection.ToArray());
+                SendAddImagesToSelectionRequest(selection.ToArray());
             }
         }
 
@@ -208,7 +209,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (selection.Count > 0)
             {
-                SyncObject.SendRemoveSelectedImageRequest(selection.ToArray());
+                SendRemoveSelectedImageRequest(selection.ToArray());
             }
         }
 
@@ -245,7 +246,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (selection.Count > 0)
             {
-                SyncObject.SendRemoveSelectedImageRequest(selection.ToArray());
+                SendRemoveSelectedImageRequest(selection.ToArray());
             }
         }
 
@@ -267,7 +268,7 @@ namespace Sandbox.Game.Entities.Blocks
                     }
                 }
             }
-            SyncObject.SendRemoveSelectedImageRequest(selection.ToArray());
+            SendRemoveSelectedImageRequest(selection.ToArray());
         }
 
         void ModAPI.Ingame.IMyTextPanel.GetSelectedImages(List<string> output)

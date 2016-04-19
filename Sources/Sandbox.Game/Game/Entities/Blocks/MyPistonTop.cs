@@ -7,12 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.ModAPI;
 using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_PistonTop))]
-    class MyPistonTop : MyCubeBlock, IMyConveyorEndpointBlock
+    public class MyPistonTop : MyCubeBlock, IMyConveyorEndpointBlock, IMyPistonTop
     {
         private MyPistonBase m_pistonBlock;
 
@@ -21,15 +22,22 @@ namespace Sandbox.Game.Entities.Blocks
             m_pistonBlock = pistonBase;
         }
 
-        internal void Detach()
+        internal void Detach(bool isWelding)
         {
-            m_pistonBlock = null;
+            if (isWelding == false)
+            {
+                m_pistonBlock = null;
+            }
         }
 
         public override void OnUnregisteredFromGridSystems()
         {
             if (m_pistonBlock != null)
-                m_pistonBlock.Detach();
+            {
+                var pistonBlock = m_pistonBlock;
+                pistonBlock.Detach();
+                pistonBlock.SyncDetach();
+            }
             base.OnUnregisteredFromGridSystems();
         }
 
@@ -57,5 +65,27 @@ namespace Sandbox.Game.Entities.Blocks
             m_conveyorEndpoint = new MyAttachableConveyorEndpoint(this);
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_conveyorEndpoint));
         }
+
+        #region ModAPI Implementation
+        bool ModAPI.Ingame.IMyPistonTop.IsAttached
+        {
+            get { return m_pistonBlock != null; } 
+        }
+        
+        ModAPI.IMyPistonBase ModAPI.IMyPistonTop.Piston
+        {
+            get { return m_pistonBlock; }
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+        #endregion
     }
 }

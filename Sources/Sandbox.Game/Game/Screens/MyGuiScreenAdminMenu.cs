@@ -97,7 +97,7 @@ namespace Sandbox.Game.Gui
 
             m_creativeCheckbox = AddCheckBox(MyCommonTexts.ScreenDebugAdminMenu_EnableAdminMode, false, OnEnableAdminModeChanged, true, null, m_labelColor, cbOffset);
             m_creativeCheckbox.SetToolTip(MyCommonTexts.ScreenDebugAdminMenu_EnableAdminMode_Tooltip);
-            m_creativeCheckbox.IsChecked = MySession.Static.IsAdminModeEnabled;
+            m_creativeCheckbox.IsChecked = MySession.Static.IsAdminModeEnabled(Sync.MyId);
             m_creativeCheckbox.Enabled = MySession.Static.IsAdmin;
 
          
@@ -470,7 +470,7 @@ namespace Sandbox.Game.Gui
 
         void OnEnableAdminModeChanged(MyGuiControlCheckbox checkbox)
         {
-            MySession.Static.IsAdminModeEnabled = checkbox.IsChecked;
+            MySession.Static.EnableAdminMode(Sync.MyId,checkbox.IsChecked);
         }
 
         void OnSmallGridChanged(MyGuiControlCheckbox checkbox)

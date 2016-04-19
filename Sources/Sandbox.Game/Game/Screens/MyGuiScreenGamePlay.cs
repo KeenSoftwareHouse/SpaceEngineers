@@ -33,6 +33,7 @@ using VRageRender;
 using VRage.Game.Entity;
 using VRage.Data.Audio;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 
 #endregion
 
@@ -71,7 +72,7 @@ namespace Sandbox.Game.Gui
                 if (MySession.Static == null)
                     return false;
 
-                if(MySession.Static.IsAdminModeEnabled)
+                if (MySession.Static.IsAdminModeEnabled(Sync.MyId))
                 {
                     return true;
                 }
@@ -181,8 +182,13 @@ namespace Sandbox.Game.Gui
             MySandboxGame.Log.IncreaseIndent();
 
             base.UnloadContent();
-            if (MyAudio.Static != null)
-                MyAudio.Static.ReloadData();
+
+            MyXAudio2 audio = MyAudio.Static as MyXAudio2;
+            if (audio != null)
+            {
+                MyEntity3DSoundEmitter.ClearEntityEmitters();
+                audio.ClearSounds();
+            }
 
             //  Do GC collect as last step. Reason is that after we loaded new level, a lot of garbage is created and we want to clear it now and not wait until GC decides so.
             GC.Collect();
@@ -234,7 +240,7 @@ namespace Sandbox.Game.Gui
         //  This method is called every update (but only if application has focus)
         public override void HandleUnhandledInput(bool receivedFocusInThisUpdate)
         {
-            if (MyInput.Static.ENABLE_DEVELOPER_KEYS || (MySession.Static != null && MySession.Static.Settings.EnableSpectator) || (MyMultiplayer.Static != null && MySession.Static.LocalHumanPlayer != null && (MyMultiplayer.Static.IsAdmin(MySession.Static.LocalHumanPlayer.Id.SteamId) || MySession.Static.IsAdminModeEnabled)))
+            if (MyInput.Static.ENABLE_DEVELOPER_KEYS || (MySession.Static != null && MySession.Static.Settings.EnableSpectator) || (MyMultiplayer.Static != null && MySession.Static.LocalHumanPlayer != null && (MyMultiplayer.Static.IsAdmin(MySession.Static.LocalHumanPlayer.Id.SteamId) || MySession.Static.IsAdminModeEnabled(MySession.Static.LocalHumanPlayer.Id.SteamId))))
             {
                 //Set camera to player
                 if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.SPECTATOR_NONE))
@@ -345,11 +351,11 @@ namespace Sandbox.Game.Gui
                 }
 
                 // This was added because planets, CTG testers were frustrated from testing, because they can't move in creative
-                if (MySession.Static != null && (MySession.Static.CreativeMode || MySession.Static.IsAdminModeEnabled )&& MyInput.Static.IsNewKeyPressed(MyKeys.Space) && MyInput.Static.IsAnyCtrlKeyPressed())
+                if (MySession.Static != null && (MySession.Static.CreativeMode || MySession.Static.IsAdminModeEnabled(Sync.MyId)) && MyInput.Static.IsNewKeyPressed(MyKeys.Space) && MyInput.Static.IsAnyCtrlKeyPressed())
                 {
                     if (MySession.Static.CameraController == MySpectator.Static && MySession.Static.ControlledEntity != null)
                     {
-                        MySession.Static.ControlledEntity.Entity.PositionComp.SetPosition(MySpectator.Static.Position);
+                        MySession.Static.ControlledEntity.Teleport(MySpectator.Static.Position);
                     }
                 }
 
@@ -367,8 +373,8 @@ namespace Sandbox.Game.Gui
             }
 
             // Switch view - cockpit on/off, third person
-            if ((MyInput.Static.IsNewGameControlPressed(MyControlsSpace.CAMERA_MODE) 
-                || MyControllerHelper.IsControl(MyControllerHelper.CX_CHARACTER, MyControlsSpace.CAMERA_MODE)) 
+            if ((MyInput.Static.IsNewGameControlPressed(MyControlsSpace.CAMERA_MODE)
+                || MyControllerHelper.IsControl(MyControllerHelper.CX_CHARACTER, MyControlsSpace.CAMERA_MODE))
                 && CanSwitchCamera)
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
@@ -493,6 +499,28 @@ namespace Sandbox.Game.Gui
                         {
                             controlledObject.UseFinished();
                         }
+                        
+                        if (MyControllerHelper.IsControl(context, MyControlsSpace.PICK_UP, MyControlStateType.NEW_PRESSED))
+                        {
+                            // Key press
+                            if (currentCameraController != null)
+                            {
+                                if (!currentCameraController.HandlePickUp())
+                                    controlledObject.PickUp();
+                            }
+                            else
+                            {
+                                controlledObject.PickUp();
+                            }
+                        }
+                        else if (MyControllerHelper.IsControl(context, MyControlsSpace.PICK_UP, MyControlStateType.PRESSED))
+                        {
+                            controlledObject.PickUpContinues();
+                        }
+                        else if (MyControllerHelper.IsControl(context, MyControlsSpace.PICK_UP, MyControlStateType.NEW_RELEASED))
+                        {
+                            controlledObject.PickUpFinished();
+                        }
 
                         //Temp fix until spectators are implemented as entities
                         //Prevents controlled object from getting input while spectator mode is enabled
@@ -545,7 +573,8 @@ namespace Sandbox.Game.Gui
                         }
                         if (MyControllerHelper.IsControl(context, MyControlsSpace.THRUSTS, MyControlStateType.NEW_PRESSED))
                         {
-                            MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
+                            if (controlledObject is MyCharacter == false)
+                                MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                             controlledObject.SwitchThrusts();
                         }
                         if (MyControllerHelper.IsControl(context, MyControlsSpace.HEADLIGHTS, MyControlStateType.NEW_PRESSED))
@@ -568,7 +597,6 @@ namespace Sandbox.Game.Gui
                         }
                         if (MyControllerHelper.IsControl(context, MyControlsSpace.LANDING_GEAR, MyControlStateType.NEW_PRESSED))
                         {
-                            MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
                             controlledObject.SwitchLeadingGears();
                         }
                         if (MyControllerHelper.IsControl(context, MyControlsSpace.SUICIDE, MyControlStateType.NEW_PRESSED))
@@ -584,7 +612,6 @@ namespace Sandbox.Game.Gui
 
                 if (MySandboxGame.IsPaused == false)
                 {
-                    //no terminal when paused
                     if (MyControllerHelper.IsControl(context, MyControlsSpace.TERMINAL, MyControlStateType.NEW_PRESSED) && MyGuiScreenGamePlay.ActiveGameplayScreen == null)
                     {
                         MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
@@ -678,7 +705,7 @@ namespace Sandbox.Game.Gui
                 || MyControllerHelper.IsControl(context, MyControlsGUI.MAIN_MENU, MyControlStateType.NEW_PRESSED))
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-  
+
                 //Allow changing video options from game in DX version
                 MyGuiScreenMainMenu.AddMainMenu(MySandboxGame.IsPaused == false);
             }
@@ -698,9 +725,9 @@ namespace Sandbox.Game.Gui
             {
                 //if (MyToolbarComponent.CurrentToolbar.SelectedItem == null || (MyToolbarComponent.CurrentToolbar.SelectedItem != null && MyToolbarComponent.CurrentToolbar.SelectedItem.GetType() != typeof(MyToolbarItemVoxelHand)))
                 //{
-                    MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-                    var screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.FactionScreen);
-                    MyScreenManager.AddScreenNow(screen);
+                MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
+                var screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.FactionScreen);
+                MyScreenManager.AddScreenNow(screen);
                 //}
             }
 
@@ -741,7 +768,7 @@ namespace Sandbox.Game.Gui
                         else
                             MyHud.Notifications.Add(MyNotificationSingletons.AdminMenuNotAvailable);
                     }
-                    else if (MyPerGameSettings.GUI.VoxelMapEditingScreen != null && (MySession.Static.IsAdminModeEnabled || MySession.Static.CreativeMode) && MyInput.Static.IsAnyShiftKeyPressed())
+                    else if (MyPerGameSettings.GUI.VoxelMapEditingScreen != null && (MySession.Static.IsAdminModeEnabled(Sync.MyId) || MySession.Static.CreativeMode) && MyInput.Static.IsAnyShiftKeyPressed())
                     {
                         // Shift + F10
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.VoxelMapEditingScreen));
@@ -861,10 +888,10 @@ namespace Sandbox.Game.Gui
             if (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.ThirdPersonSpectator)
             {
                 MyEntityCameraSettings settings = null;
-                if (MySession.Static.LocalHumanPlayer != null && MySession.Static.ControlledEntity!=null)
+                if (MySession.Static.LocalHumanPlayer != null && MySession.Static.ControlledEntity != null)
                 {
                     if (MySession.Static.Cameras.TryGetCameraSettings(MySession.Static.LocalHumanPlayer.Id, MySession.Static.ControlledEntity.Entity.EntityId, out settings))
-                        MyThirdPersonSpectator.Static.ResetDistance(settings.Distance);
+                        MyThirdPersonSpectator.Static.ResetViewerDistance(settings.Distance);
                     else
                         MyThirdPersonSpectator.Static.RecalibrateCameraPosition();
                 }
@@ -934,7 +961,8 @@ namespace Sandbox.Game.Gui
 
 
             //Needs to be in update, because several calculation are dependedt on camera position
-            MySector.MainCamera.SetViewMatrix(MySession.Static.CameraController.GetViewMatrix());
+            // MZ: position no longer needs to be updated
+            //MySector.MainCamera.SetViewMatrix(MySector.MainCamera.ViewMatrix);
 
             base.Update(hasFocus);
             count++;
@@ -983,16 +1011,15 @@ namespace Sandbox.Game.Gui
             //    VRageRender.MyRenderProxy.DebugDrawAxis(m, 1, false);
             //}
 
-            MatrixD viewMatrix = MySession.Static.CameraController.GetViewMatrix();
-            if (viewMatrix.IsValid() && viewMatrix != MatrixD.Zero)
+            if (MySector.MainCamera != null)
             {
-                MySector.MainCamera.SetViewMatrix(viewMatrix);
+                // set new camera values
+                MySession.Static.CameraController.ControlCamera(MySector.MainCamera);
+                // update camera properties accordingly to the new settings - zoom, spring, shaking...
+                MySector.MainCamera.Update(MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                // upload to renderer
+                MySector.MainCamera.UploadViewMatrixToRender();
             }
-            else
-            {
-                Debug.Fail("Camera matrix is invalid or zero!");
-            }
-
 
             MyRenderProxy.UpdateGameplayFrame(MySession.Static.GameplayFrameCounter);
 

@@ -255,23 +255,5 @@ namespace Sandbox.Game.Screens.DebugScreens
                 }
             }
         }
-
-        private void ResetPart(MyGuiControlBase sender)
-        {
-            var instances = MySession.Static.VoxelMaps.Instances;
-            foreach (var voxelMap in instances)
-            {
-                if (!(voxelMap is MyVoxelPhysics))
-                {
-                    var octree = voxelMap.Storage as MyOctreeStorage;
-                    var worldAabb = voxelMap.PositionComp.WorldAABB;
-                    BoundingBoxD resetAabb;
-                    resetAabb.Min = worldAabb.Min + worldAabb.Size * 0.25f;
-                    resetAabb.Max = worldAabb.Max - worldAabb.Size * 0.25f;
-                    if (octree != null)
-                        octree.ResetOutsideBorders(voxelMap, resetAabb);
-                }
-            }
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using VRageMath;
+﻿using System;
+using VRageMath;
 
 namespace VRage.ModAPI
 {
@@ -11,18 +12,16 @@ namespace VRage.ModAPI
         MatrixD ViewMatrix { get; }                    //  This is view matrix when camera in real position
         MatrixD WorldMatrix { get; }
         MatrixD ProjectionMatrix { get; }
-        MatrixD ProjectionMatrixForNearObjects { get; }
-
+        
         float NearPlaneDistance { get; }
         float FarPlaneDistance { get; } // farplane is now set by MyObjectBuilder_SessionSettings.ViewDistance
         float NearForNearObjects { get; }
         float FarForNearObjects { get; }
 
         float FieldOfViewAngle { get; }
-        float FieldOfViewAngleForNearObjects { get; }
         float FovWithZoom { get; }
-        float FovWithZoomForNearObjects { get; }
-        double GetDistanceWithFOV(VRageMath.Vector3D position);
+
+        double GetDistanceWithFOV(VRageMath.Vector3D position);  // GetDistanceFromPoint
         bool IsInFrustum(ref VRageMath.BoundingBoxD boundingBox);
         bool IsInFrustum(ref VRageMath.BoundingSphereD boundingSphere);
         bool IsInFrustum(VRageMath.BoundingBoxD boundingBox);
@@ -34,5 +33,11 @@ namespace VRage.ModAPI
         /// <returns>Screen coordinate in 0-1 distance.</returns>
         Vector3D WorldToScreen(ref Vector3D worldPos);
 
+        [Obsolete]
+        MatrixD ProjectionMatrixForNearObjects { get; }
+        [Obsolete]
+        float FieldOfViewAngleForNearObjects { get; }
+        [Obsolete]
+        float FovWithZoomForNearObjects { get; }
     }
 }

@@ -14,7 +14,7 @@ namespace Sandbox.Common.ObjectBuilders
     [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_ShipConnector : MyObjectBuilder_FunctionalBlock
     {
-        public const float DefaultStrength = 0.0003f;
+        public const float DefaultStrength = 0.00015f;
 
         [ProtoMember]
         public MyObjectBuilder_Inventory Inventory;

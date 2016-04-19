@@ -80,6 +80,7 @@ namespace Sandbox.Game.Lights
         private Color m_color = Color.White;
         private Color m_specularColor = Color.White;
         private float m_falloff;
+        private float m_glossFactor;
         private float m_range;
         private float m_intensity;
         private bool m_lightOn;        //  If true, we use the light in lighting calculation. Otherwise it's like turned off, but still in the buffer.
@@ -96,6 +97,7 @@ namespace Sandbox.Game.Lights
         private Color m_reflectorColor;
         private float m_reflectorRange;
         private float m_reflectorFalloff;
+        private float m_reflectorGlossFactor;
         private string m_reflectorTexture;
 
         private bool m_castShadows;
@@ -215,6 +217,18 @@ namespace Sandbox.Game.Lights
                 }
             }
         }
+        public float GlossFactor
+        {
+            get { return m_glossFactor; }
+            set
+            {
+                if (m_glossFactor != value)
+                {
+                    m_glossFactor = value;
+                    m_propertiesDirty = true;
+                }
+            }
+        }
 
         public float Range
         {
@@ -330,7 +344,7 @@ namespace Sandbox.Game.Lights
             {
                 if (Vector3.DistanceSquared(m_reflectorUp, value) > 0.00001f)
                 {
-                    m_reflectorUp = value;
+                    m_reflectorUp = MyUtils.Normalize(value);
                     m_spotParamsDirty = true;
                     m_propertiesDirty = true;
                 }
@@ -397,6 +411,22 @@ namespace Sandbox.Game.Lights
                 if (m_reflectorFalloff != value)
                 {
                     m_reflectorFalloff = value;
+                    m_propertiesDirty = true;
+                }
+            }
+        }
+
+        public float ReflectorGlossFactor
+        {
+            get
+            {
+                return m_reflectorGlossFactor;
+            }
+            set
+            {
+                if (m_reflectorGlossFactor != value)
+                {
+                    m_reflectorGlossFactor = value;
                     m_propertiesDirty = true;
                 }
             }
@@ -691,6 +721,7 @@ namespace Sandbox.Game.Lights
                     Color,
                     SpecularColor,
                     Falloff,
+                    GlossFactor,
                     Range,
                     Intensity,
                     LightOn,
@@ -703,6 +734,7 @@ namespace Sandbox.Game.Lights
                     ReflectorColor,
                     ReflectorRange,
                     ReflectorFalloff,
+                    ReflectorGlossFactor,
                     ReflectorTexture,
                     ShadowDistance,
                     CastShadows,
@@ -795,6 +827,7 @@ namespace Sandbox.Game.Lights
             ReflectorRange     = 1;
             ReflectorUp        = Vector3.Up;
             ReflectorDirection = Vector3.Forward;
+            ReflectorGlossFactor = 0.75f;
             LightOn            = true;
             Intensity          = 1.0f;
             UseInForwardRender = false;
@@ -802,6 +835,7 @@ namespace Sandbox.Game.Lights
             PointLightOffset   = 0;
             CastShadows        = true;
             Range              = 0.5f;
+            GlossFactor        = 0.75f;
             ShadowDistance     = MyLightsConstants.MAX_SPOTLIGHT_SHADOW_RANGE;
             ParentID           = -1;
 
@@ -815,6 +849,7 @@ namespace Sandbox.Game.Lights
                 Color,
                 SpecularColor,
                 Falloff,
+                GlossFactor,
                 Range,
                 Intensity,
                 LightOn,
@@ -827,6 +862,7 @@ namespace Sandbox.Game.Lights
                 ReflectorColor,
                 ReflectorRange,
                 ReflectorFalloff,
+                ReflectorGlossFactor,
                 ReflectorTexture,
                 ShadowDistance,
                 CastShadows,
@@ -865,7 +901,7 @@ namespace Sandbox.Game.Lights
             m_spotParamsDirty = false;
             float scaleZ, scaleXY;
             Vector3D position = Position;
-            CalculateAABB(ref m_spotBoundingBox, out scaleZ, out scaleXY, ref position, ref m_reflectorDirection, ref m_reflectorUp, ReflectorConeMaxAngleCos, ReflectorRange);
+            CalculateAABB(ref m_spotBoundingBox, out scaleZ, out scaleXY, position, m_reflectorDirection, m_reflectorUp, ReflectorConeMaxAngleCos, ReflectorRange);
             m_spotWorld = Matrix.CreateScale(scaleXY, scaleXY, scaleZ) * Matrix.CreateWorld(Position, ReflectorDirection, ReflectorUp);
             ProfilerShort.End();
         }
@@ -875,7 +911,7 @@ namespace Sandbox.Game.Lights
             PositionWithOffset = Position + ReflectorDirection * Range * PointLightOffset;
         }
 
-        private static void CalculateAABB(ref BoundingBoxD bbox, out float scaleZ, out float scaleXY, ref Vector3D position, ref Vector3 direction, ref Vector3 up, float reflectorConeMaxAngleCos, float reflectorRange)
+        private static void CalculateAABB(ref BoundingBoxD bbox, out float scaleZ, out float scaleXY, Vector3D position, Vector3 direction, Vector3 up, float reflectorConeMaxAngleCos, float reflectorRange)
         {
             float cosAngle = 1 - reflectorConeMaxAngleCos;
             scaleZ = reflectorRange;
@@ -884,7 +920,6 @@ namespace Sandbox.Game.Lights
             // Calculate cone bottom scale (Pythagoras theorem)
             scaleXY = (float)System.Math.Sqrt(side * side - reflectorRange * reflectorRange) * 2;
 
-            up = MyUtils.Normalize(up);
             Vector3 coneSideDirection = Vector3.Cross(up, direction);
             coneSideDirection = MyUtils.Normalize(coneSideDirection);
             

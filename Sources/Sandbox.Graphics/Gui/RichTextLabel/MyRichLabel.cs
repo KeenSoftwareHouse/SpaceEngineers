@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using Sandbox.Gui.RichTextLabel;
+﻿using Sandbox.Gui.RichTextLabel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

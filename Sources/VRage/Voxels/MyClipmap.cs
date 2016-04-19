@@ -65,6 +65,8 @@ namespace VRage.Voxels
         public static bool UseQueries = true;
         private PruningFunc m_prunningFunc = null;
 
+        public MatrixD WorldMatrix { get { return m_worldMatrix; } }
+
         public MyClipmap(uint id, MyClipmapScaleEnum scaleGroup, MatrixD worldMatrix, Vector3I sizeLod0, IMyClipmapCellHandler cellProvider, Vector3D massiveCenter, float massiveRadius, PruningFunc prunningFunc)
         {
             m_id = id;
@@ -306,6 +308,12 @@ namespace VRage.Voxels
         void ResetClipping()
         {
             m_updateClippingFrustum = true;
+        }
+
+        public void RequestMergeAll()
+        {
+            for (int lodIndex = 0; lodIndex < m_lodLevels.Length; ++lodIndex)
+                m_lodLevels[lodIndex].RequestMergeAll();
         }
 
         public bool IsDitheringInProgress()

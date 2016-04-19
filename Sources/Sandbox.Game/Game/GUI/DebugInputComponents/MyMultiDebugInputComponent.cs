@@ -53,7 +53,7 @@ namespace Sandbox.Game.Gui
             }
             set
             {
-                MultidebugData? data = (MultidebugData?)value;
+                MultidebugData? data = value as MultidebugData?;
                 if (data.HasValue)
                 {
                     m_activeMode = data.Value.ActiveDebug;

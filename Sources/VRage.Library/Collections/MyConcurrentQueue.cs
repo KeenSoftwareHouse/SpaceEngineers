@@ -27,7 +27,7 @@ namespace VRage.Collections
                 using (m_lock.Acquire())
                 {
                     return m_queue.Count;
-                };
+                }
             }
         }
 
@@ -52,7 +52,7 @@ namespace VRage.Collections
             using (m_lock.Acquire())
             {
                 return m_queue.Dequeue();
-            };
+            }
         }
 
         public bool TryDequeue(out T instance)

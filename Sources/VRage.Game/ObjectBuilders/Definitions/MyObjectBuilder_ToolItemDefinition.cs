@@ -96,7 +96,7 @@ namespace VRage.Game
             public float CustomShapeRadius;
 
             [ProtoMember]
-            public MyHudTexturesEnum Crosshair = MyHudTexturesEnum.crosshair;
+            public MyHudTexturesEnum Crosshair = MyHudTexturesEnum.HudOre;
              
             [XmlArrayItem("HitCondition")]
             [ProtoMember, DefaultValue(null)]

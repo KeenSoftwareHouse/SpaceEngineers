@@ -2,38 +2,39 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.World
 {
-    public partial class MyIdentity : Sandbox.ModAPI.IMyIdentity
+    public partial class MyIdentity : IMyIdentity
     {
         // Warning: this is obsolete!
-        long ModAPI.IMyIdentity.PlayerId
+        long IMyIdentity.PlayerId
         {
             get { return IdentityId; }
         }
 
-        long ModAPI.IMyIdentity.IdentityId
+        long IMyIdentity.IdentityId
         {
             get { return IdentityId; }
         }
 
-        string ModAPI.IMyIdentity.DisplayName
+        string IMyIdentity.DisplayName
         {
             get { return DisplayName; }
         }
 
-        string ModAPI.IMyIdentity.Model
+        string IMyIdentity.Model
         {
             get { return Model; }
         }
 
-        VRageMath.Vector3? ModAPI.IMyIdentity.ColorMask
+        VRageMath.Vector3? IMyIdentity.ColorMask
         {
             get { return ColorMask; }
         }
 
-        bool ModAPI.IMyIdentity.IsDead
+        bool IMyIdentity.IsDead
         {
             get { return IsDead; }
         }

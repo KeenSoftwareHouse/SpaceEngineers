@@ -25,7 +25,7 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
 using System.Reflection;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.Entities;
 using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;
@@ -1121,6 +1121,7 @@ namespace Sandbox.Game.Entities
             MyPrefabManager.SavePrefabToPath(name, prefabPath, gridToexport);
         }
 
+
         private static void GetModelDataFromGrid(List<MyCubeGrid> baseGrid, List<Vector3> vertices, List<TriangleWithMaterial> triangles, List<Vector2> uvs, Dictionary<string, MyExportModel.Material> materials, int currVerticesCount)
         {
             var baseGridWorldInv = MatrixD.Invert(baseGrid[0].WorldMatrix);
@@ -1149,8 +1150,20 @@ namespace Sandbox.Game.Entities
                             //without this piston will always be exported as fully retracted
                             block.FatBlock.UpdateOnceBeforeFrame();                    
                         }
-                        ExtractModelDataForObj(block.FatBlock.Model, block.FatBlock.PositionComp.LocalMatrix * (Matrix)localToExport, vertices, triangles, uvs, ref Vector2.Zero, materials, ref currVerticesCount, block.ColorMaskHSV);
-                        ProcessChildrens(vertices, triangles, uvs, materials, ref currVerticesCount, block.FatBlock.PositionComp.LocalMatrix * (Matrix)localToExport, block.ColorMaskHSV, block.FatBlock.Hierarchy.Children);
+                        // For ME
+                        else if (block.FatBlock is MyCompoundCubeBlock)
+                        {
+                            var compoundBlock = block.FatBlock as MyCompoundCubeBlock;
+                            foreach (var blockInCompound in compoundBlock.GetBlocks())
+                            {
+                                ExtractModelDataForObj(blockInCompound.FatBlock.Model, blockInCompound.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, vertices, triangles, uvs, ref Vector2.Zero, materials, ref currVerticesCount, blockInCompound.ColorMaskHSV);
+                                ProcessChildrens(vertices, triangles, uvs, materials, ref currVerticesCount, blockInCompound.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, blockInCompound.ColorMaskHSV, blockInCompound.FatBlock.Hierarchy.Children);
+                            }
+                            continue;
+                        }
+
+                        ExtractModelDataForObj(block.FatBlock.Model, block.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, vertices, triangles, uvs, ref Vector2.Zero, materials, ref currVerticesCount, block.ColorMaskHSV);
+                        ProcessChildrens(vertices, triangles, uvs, materials, ref currVerticesCount, block.FatBlock.PositionComp.WorldMatrix * baseGridWorldInv, block.ColorMaskHSV, block.FatBlock.Hierarchy.Children);
                     }
                 }
             }
@@ -1778,16 +1791,29 @@ namespace Sandbox.Game.Entities
             {
                 baseTextureName = baseTextureName.Substring(0, textureName.LastIndexOf('_'));
             }
-            string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me"+ Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
+
+            if (MySandboxGame.IsDirectX11)
             {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName)); ;
+                string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+                }
             }
-            srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
+            else
             {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName)); ;
+                string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+                }
+                srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+                }
             }
+
             return diffuseTextureName;
         }
 

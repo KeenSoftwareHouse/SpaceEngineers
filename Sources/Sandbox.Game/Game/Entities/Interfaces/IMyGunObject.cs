@@ -6,6 +6,7 @@ using Sandbox.Game.Weapons;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 using VRageMath;
 
 namespace Sandbox.Game.Entities

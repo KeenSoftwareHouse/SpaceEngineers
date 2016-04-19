@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 

@@ -570,9 +570,7 @@ namespace Sandbox
             {
                 m_physicalMaterials = new Dictionary<string, MyPhysicalMaterialDefinition>();
                 foreach (var physMat in MyDefinitionManager.Static.GetPhysicalMaterialDefinitions())
-                {
                     m_physicalMaterials.Add(physMat.Id.SubtypeName, physMat);
-                }
 
                 m_physicalMaterials["Default"] = new MyPhysicalMaterialDefinition()
                 {
@@ -580,13 +578,8 @@ namespace Sandbox
                     HorisontalTransmissionMultiplier = 1,
                     HorisontalFragility = 2,
                     CollisionMultiplier = 1.4f,
-                    SupportMultiplier = 1.5f             
+                    SupportMultiplier = 1.5f,
                 };
-            }
-
-            if(MyPerGameSettings.Destruction == false)
-            {
-              return m_physicalMaterials["Default"];
             }
 
             if (!string.IsNullOrEmpty(physicalMaterial))

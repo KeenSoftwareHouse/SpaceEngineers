@@ -21,6 +21,7 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Screens;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
@@ -30,7 +31,21 @@ namespace Sandbox.Game.Gui
         private static Vector2 m_editorWindowSize = new Vector2(1.0f, 0.9f);
         private static Vector2 m_editorDescSize = new Vector2(0.94f, 0.73f);
 
-        const string CODE_WRAPPER_BEFORE = "using System;\nusing System.Collections.Generic;\nusing VRageMath;\nusing VRage.Game;\nusing System.Text;\nusing Sandbox.ModAPI.Interfaces;\nusing Sandbox.ModAPI.Ingame;\nusing Sandbox.Game.EntityComponents;\nusing VRage.Game.Components;\nusing VRage.Collections;\nVRage.Game.ObjectBuilders.Definition;\npublic class Program: MyGridProgram\n{\n";
+        const string CODE_WRAPPER_BEFORE = "using System;\n" +
+                                           "using System.Collections.Generic;\n" +
+                                           "using VRageMath;\n" +
+                                           "using VRage.Game;\n" +
+                                           "using System.Text;\n" +
+                                           "using Sandbox.ModAPI.Interfaces;\n" +
+                                           "using Sandbox.ModAPI.Ingame;\n" +
+                                           "using Sandbox.Game.EntityComponents;\n" +
+                                           "using VRage.Game.Components;\n" +
+                                           "using VRage.Collections;\n" +
+                                           "using VRage.Game.ObjectBuilders.Definitions;\n" +
+                                           "using VRage.Game.ModAPI.Ingame;\n" +
+                                           "using SpaceEngineers.Game.ModAPI.Ingame;\n" +
+                                           "public class Program: MyGridProgram\n" +
+                                           "{\n";
         const string CODE_WRAPPER_AFTER = "\n}";
         private MyGuiControlButton m_openWorkshopButton;
         private MyGuiControlButton m_checkCodeButton;

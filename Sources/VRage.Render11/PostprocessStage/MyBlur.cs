@@ -38,7 +38,7 @@ namespace VRageRender
             m_blurShaders = new Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>>();
 
             if (m_blurConstantBuffer == ConstantsBufferId.NULL)
-                m_blurConstantBuffer = MyHwBuffers.CreateConstantsBuffer(sizeof(BlurConstants));
+                m_blurConstantBuffer = MyHwBuffers.CreateConstantsBuffer(sizeof(BlurConstants), "MyBlur");
         }
 
         private static int GetShaderKey(MyBlurDensityFunctionType densityFunctionType, int maxOffset, bool copyOnStencilFail, bool useDepthDiscard)

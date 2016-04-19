@@ -25,7 +25,7 @@ using Sandbox.Engine.Multiplayer;
 using VRage.Game.Entity;
 using VRage;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -72,8 +72,9 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (this.GetInventory() == null)
             {
-               Components.Add<MyInventoryBase>( new MyInventory(def.InventorySize.Volume, def.InventorySize, MyInventoryFlags.CanSend, this));
-               this.GetInventory().Init(ob.Inventory);
+                MyInventory inventory = new MyInventory(def.InventorySize.Volume, def.InventorySize, MyInventoryFlags.CanSend);
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(ob.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
@@ -124,6 +125,10 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(Sync.IsServer, "Connector can take objects only on the server!");
 
+            //By Gregory: temporary fix for when pasting grid with collector(collector is off and acts as on). Maybe something better? Note this is not marked for close or else this wouldn't occur
+            if (!base.Enabled)
+                return;
+
             base.UpdateOnceBeforeFrame();
             if (m_entitiesToTake.Count > 0)
             {
@@ -141,7 +146,8 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (playSound)
             {
-                m_soundEmitter.PlaySound(m_actionSound);
+                if (m_soundEmitter != null)
+                    m_soundEmitter.PlaySound(m_actionSound);
                 MyMultiplayer.RaiseEvent(this, x => x.PlayActionSound);
             }
             //m_entitiesToTake.Clear();
@@ -150,7 +156,8 @@ namespace Sandbox.Game.Entities.Blocks
         [Event, Reliable, Broadcast]
         void PlayActionSound()
         {
-            m_soundEmitter.PlaySound(m_actionSound);
+            if (m_soundEmitter != null)
+                m_soundEmitter.PlaySound(m_actionSound);
         }
 
         void Receiver_IsPoweredChanged()
@@ -382,6 +389,24 @@ namespace Sandbox.Game.Entities.Blocks
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pushInformation = new PullInformation();
+            pushInformation.Inventory = this.GetInventory(0);
+            pushInformation.OwnerID = OwnerId;
+            pushInformation.Constraint = new MyInventoryConstraint("Empty constraint");
+            return pushInformation;
         }
 
         #endregion

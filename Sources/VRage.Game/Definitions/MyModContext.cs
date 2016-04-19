@@ -16,6 +16,16 @@ namespace VRage.Game
             }
         }
 
+        private static MyModContext m_unknownContext = null;
+        public static MyModContext UnknownContext
+        {
+            get
+            {
+                if (m_unknownContext == null) InitUnknownModContext();
+                return m_unknownContext;
+            }
+        }
+
         [XmlIgnore]
         public string ModName { get; private set; }
         [XmlIgnore]
@@ -65,6 +75,14 @@ namespace VRage.Game
             m_baseContext.ModName = null;
             m_baseContext.ModPath = MyFileSystem.ContentPath;
             m_baseContext.ModPathData = Path.Combine(m_baseContext.ModPath, "Data");
+        }
+
+        private static void InitUnknownModContext()
+        {
+            m_unknownContext = new MyModContext();
+            m_unknownContext.ModName = "Unknown MOD";
+            m_unknownContext.ModPath = null;
+            m_unknownContext.ModPathData = null;
         }
     }
 }

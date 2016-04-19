@@ -20,10 +20,24 @@ namespace VRage.Game
         Default,
         FromEmitterCenter
     }
+    public enum MyRotationReference
+    {
+        Camera,
+        Local,        
+        Velocity,
+        VelocityAndCamera,
+        LocalAndCamera
+    }
+    public enum MyAccelerationReference
+    {
+        Local,
+        Camera,
+        Velocity,
+        Gravity
+    }
 
-
-
-    public class MyParticleGeneration : IComparable
+    
+    public class MyParticleGeneration : IComparable, IMyParticleGeneration
     {
         #region Static
 
@@ -40,14 +54,34 @@ namespace VRage.Game
             "Trail"
         };
 
+        static string[] MyRotationReferenceStrings =
+        {
+            "Camera",            
+            "Local",            
+            "Velocity",
+            "Velocity and camera",
+            "Local and camera"
+        };
+
+        static string[] MyAccelerationReferenceStrings =
+        {
+            "Local",            
+            "Camera",                        
+            "Velocity",
+            "Gravity"
+        };
+
+
         static List<string> s_velocityDirStrings = MyVelocityDirStrings.ToList<string>();
         static List<string> s_particleTypeStrings = MyParticleTypeStrings.ToList<string>();
+        static List<string> s_rotationReferenceStrings = MyRotationReferenceStrings.ToList<string>();
+        static List<string> s_accelerationReferenceStrings = MyAccelerationReferenceStrings.ToList<string>();
 
         #endregion
 
         #region Members
 
-        static readonly int Version = 0;
+        static readonly int Version = 2;
         string m_name;
 
         MyParticleEffect m_effect;
@@ -111,8 +145,8 @@ namespace VRage.Game
             Gravity,
 
             PivotRotation,
-            PivotDistance,
-            PivotDistVar,
+            //PivotDistance,
+            //PivotDistVar,
 
             Acceleration,
             AccelerationVar,
@@ -122,6 +156,19 @@ namespace VRage.Game
             RadiusBySpeed,
 
             ColorIntensity,
+
+            Pivot,
+            PivotVar,
+            PivotRotationVar,
+
+            RotationReference,
+
+            ArraySize,
+            ArrayIndex,
+            ArrayOffset,
+            ArrayModulo,
+
+            AccelerationReference,
         }
 
         IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyGenerationPropertiesEnum)).Length];
@@ -172,27 +219,27 @@ namespace VRage.Game
             private set { m_properties[(int)MyGenerationPropertiesEnum.VelocityDir].SetValue((int)value); }
         }
 
-        public MyAnimatedPropertyFloat Angle
+        public MyAnimatedPropertyVector3 Angle
         {
-            get { return (MyAnimatedPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.Angle]; }
+            get { return (MyAnimatedPropertyVector3)m_properties[(int)MyGenerationPropertiesEnum.Angle]; }
             private set { m_properties[(int)MyGenerationPropertiesEnum.Angle] = value; }
         }
 
-        public MyConstPropertyFloat AngleVar
+        public MyConstPropertyVector3 AngleVar
         {
-            get { return (MyConstPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.AngleVar]; }
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGenerationPropertiesEnum.AngleVar]; }
             private set { m_properties[(int)MyGenerationPropertiesEnum.AngleVar] = value; }
         }
 
-        public MyAnimatedPropertyFloat RotationSpeed
+        public MyAnimatedProperty2DVector3 RotationSpeed
         {
-            get { return (MyAnimatedPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.RotationSpeed]; }
+            get { return (MyAnimatedProperty2DVector3)m_properties[(int)MyGenerationPropertiesEnum.RotationSpeed]; }
             private set { m_properties[(int)MyGenerationPropertiesEnum.RotationSpeed] = value; }
         }
 
-        public MyConstPropertyFloat RotationSpeedVar
+        public MyConstPropertyVector3 RotationSpeedVar
         {
-            get { return (MyConstPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.RotationSpeedVar]; }
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGenerationPropertiesEnum.RotationSpeedVar]; }
             private set { m_properties[(int)MyGenerationPropertiesEnum.RotationSpeedVar] = value; }
         }
 
@@ -328,17 +375,17 @@ namespace VRage.Game
             private set { m_properties[(int)MyGenerationPropertiesEnum.PivotRotation] = value; }
         }
 
-        public MyAnimatedProperty2DFloat PivotDistance
-        {
-            get { return (MyAnimatedProperty2DFloat)m_properties[(int)MyGenerationPropertiesEnum.PivotDistance]; }
-            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotDistance] = value; }
-        }
+        //public MyAnimatedProperty2DFloat PivotDistance
+        //{
+        //    get { return (MyAnimatedProperty2DFloat)m_properties[(int)MyGenerationPropertiesEnum.PivotDistance]; }
+        //    private set { m_properties[(int)MyGenerationPropertiesEnum.PivotDistance] = value; }
+        //}
 
-        public MyConstPropertyFloat PivotDistVar
-        {
-            get { return (MyConstPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.PivotDistVar]; }
-            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotDistVar] = value; }
-        }
+        //public MyConstPropertyFloat PivotDistVar
+        //{
+        //    get { return (MyConstPropertyFloat)m_properties[(int)MyGenerationPropertiesEnum.PivotDistVar]; }
+        //    private set { m_properties[(int)MyGenerationPropertiesEnum.PivotDistVar] = value; }
+        //}
 
         public MyAnimatedProperty2DVector3 Acceleration
         {
@@ -364,6 +411,59 @@ namespace VRage.Game
             private set { m_properties[(int)MyGenerationPropertiesEnum.ColorIntensity] = value; }
         }
 
+        public MyAnimatedProperty2DVector3 Pivot
+        {
+            get { return (MyAnimatedProperty2DVector3)m_properties[(int)MyGenerationPropertiesEnum.Pivot]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.Pivot] = value; }
+        }
+
+        public MyConstPropertyVector3 PivotVar
+        {
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGenerationPropertiesEnum.PivotVar]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotVar] = value; }
+        }
+
+        public MyConstPropertyVector3 PivotRotationVar
+        {
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGenerationPropertiesEnum.PivotRotationVar]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.PivotRotationVar] = value; }
+        }
+
+        public MyRotationReference RotationReference
+        {
+            get { return (MyRotationReference)(int)((MyConstPropertyInt)m_properties[(int)MyGenerationPropertiesEnum.RotationReference]); }
+            set { m_properties[(int)MyGenerationPropertiesEnum.RotationReference].SetValue((int)value); }
+        }
+
+        public MyConstPropertyVector3 ArraySize
+        {
+            get { return (MyConstPropertyVector3)m_properties[(int)MyGenerationPropertiesEnum.ArraySize]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.ArraySize] = value; }
+        }
+
+        public MyAnimatedProperty2DInt ArrayIndex
+        {
+            get { return (MyAnimatedProperty2DInt)m_properties[(int)MyGenerationPropertiesEnum.ArrayIndex]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.ArrayIndex] = value; }
+        }
+
+        public MyConstPropertyInt ArrayOffset
+        {
+            get { return (MyConstPropertyInt)m_properties[(int)MyGenerationPropertiesEnum.ArrayOffset]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.ArrayOffset] = value; }
+        }
+
+        public MyConstPropertyInt ArrayModulo
+        {
+            get { return (MyConstPropertyInt)m_properties[(int)MyGenerationPropertiesEnum.ArrayModulo]; }
+            private set { m_properties[(int)MyGenerationPropertiesEnum.ArrayModulo] = value; }
+        }
+
+        public MyAccelerationReference AccelerationReference
+        {
+            get { return (MyAccelerationReference)(int)((MyConstPropertyInt)m_properties[(int)MyGenerationPropertiesEnum.AccelerationReference]); }
+            set { m_properties[(int)MyGenerationPropertiesEnum.RotationReference].SetValue((int)value); }
+        }
 
         //////////////////////////////
 
@@ -394,11 +494,11 @@ namespace VRage.Game
             AddProperty(MyGenerationPropertiesEnum.Velocity, new MyAnimatedPropertyVector3("Velocity"));
             AddProperty(MyGenerationPropertiesEnum.VelocityDir, new MyConstPropertyEnum("Velocity dir", typeof(MyVelocityDirEnum) ,s_velocityDirStrings));
 
-            AddProperty(MyGenerationPropertiesEnum.Angle, new MyAnimatedPropertyFloat("Angle"));
-            AddProperty(MyGenerationPropertiesEnum.AngleVar, new MyConstPropertyFloat("Angle var")); 
+            AddProperty(MyGenerationPropertiesEnum.Angle, new MyAnimatedPropertyVector3("Angle"));
+            AddProperty(MyGenerationPropertiesEnum.AngleVar, new MyConstPropertyVector3("Angle var")); 
 
-            AddProperty(MyGenerationPropertiesEnum.RotationSpeed, new MyAnimatedPropertyFloat("Rotation speed"));
-            AddProperty(MyGenerationPropertiesEnum.RotationSpeedVar, new MyConstPropertyFloat("Rotation speed var"));
+            AddProperty(MyGenerationPropertiesEnum.RotationSpeed, new MyAnimatedProperty2DVector3("Rotation speed"));
+            AddProperty(MyGenerationPropertiesEnum.RotationSpeedVar, new MyConstPropertyVector3("Rotation speed var"));
 
             AddProperty(MyGenerationPropertiesEnum.Radius, new MyAnimatedProperty2DFloat("Radius"));
             AddProperty(MyGenerationPropertiesEnum.RadiusVar, new MyAnimatedPropertyFloat("Radius var"));            
@@ -439,8 +539,8 @@ namespace VRage.Game
             AddProperty(MyGenerationPropertiesEnum.Gravity, new MyConstPropertyFloat("Gravity"));
 
             AddProperty(MyGenerationPropertiesEnum.PivotRotation, new MyAnimatedProperty2DVector3("Pivot rotation"));
-            AddProperty(MyGenerationPropertiesEnum.PivotDistance, new MyAnimatedProperty2DFloat("Pivot distance"));
-            AddProperty(MyGenerationPropertiesEnum.PivotDistVar, new MyConstPropertyFloat("Pivot distance var"));
+            //AddProperty(MyGenerationPropertiesEnum.PivotDistance, new MyAnimatedProperty2DFloat("Pivot distance"));
+            //AddProperty(MyGenerationPropertiesEnum.PivotDistVar, new MyConstPropertyFloat("Pivot distance var"));
 
             AddProperty(MyGenerationPropertiesEnum.Acceleration, new MyAnimatedProperty2DVector3("Acceleration"));
             AddProperty(MyGenerationPropertiesEnum.AccelerationVar, new MyConstPropertyFloat("Acceleration var"));
@@ -452,17 +552,25 @@ namespace VRage.Game
             AddProperty(MyGenerationPropertiesEnum.RadiusBySpeed, new MyConstPropertyFloat("Radius by speed"));
 
             AddProperty(MyGenerationPropertiesEnum.ColorIntensity, new MyAnimatedPropertyFloat("Color intensity"));
-            
 
-            Thickness.AddKey(0, 1.0f);
+            AddProperty(MyGenerationPropertiesEnum.Pivot, new MyAnimatedProperty2DVector3("Pivot"));
+            AddProperty(MyGenerationPropertiesEnum.PivotVar, new MyConstPropertyVector3("Pivot var"));
+            AddProperty(MyGenerationPropertiesEnum.PivotRotationVar, new MyConstPropertyVector3("Pivot rotation var"));
+
+            AddProperty(MyGenerationPropertiesEnum.RotationReference, new MyConstPropertyEnum("Rotation reference", typeof(MyRotationReference), s_rotationReferenceStrings));
+
+            AddProperty(MyGenerationPropertiesEnum.ArraySize, new MyConstPropertyVector3("Array size"));
+            AddProperty(MyGenerationPropertiesEnum.ArrayIndex, new MyAnimatedProperty2DInt("Array index"));
+            AddProperty(MyGenerationPropertiesEnum.ArrayOffset, new MyConstPropertyInt("Array offset"));
+            AddProperty(MyGenerationPropertiesEnum.ArrayModulo, new MyConstPropertyInt("Array modulo"));
+
+            AddProperty(MyGenerationPropertiesEnum.AccelerationReference, new MyConstPropertyEnum("Acceleration reference", typeof(MyAccelerationReference), s_accelerationReferenceStrings));
 
             LODBirth.AddKey(0, 1.0f);
             LODRadius.AddKey(0, 1.0f);
 
             UseLayerSorting.SetValue(false);
             SortLayer.SetValue(-1);
-
-            PivotDistVar.SetValue(1);
 
             AccelerationVar.SetValue(0);
 
@@ -516,11 +624,15 @@ namespace VRage.Game
             m_effect = null;
         }
 
+        public void Deallocate()
+        {
+            MyParticlesManager.GenerationsPool.Deallocate(this);
+        }
+
         public void InitDefault()
         {
             Birth.AddKey(0, 1.0f);
             Life.AddKey(0, 10.0f);
-            Thickness.AddKey(0, 1.0f);
             Velocity.AddKey(0, new Vector3(0, 1, 0));
 
 
@@ -540,8 +652,6 @@ namespace VRage.Game
             LODBirth.AddKey(0, 1.0f);
             LODBirth.AddKey(MyConstants.MAX_PARTICLE_DISTANCE_DEFAULT, 0f);
             LODRadius.AddKey(0, 1.0f);
-
-            PivotDistVar.SetValue(1.0f);
 
             AccelerationVar.SetValue(0.0f);
 
@@ -585,7 +695,7 @@ namespace VRage.Game
 
             if (OnDie.GetValue<int>() != -1)
             {
-                inheritedGeneration = GetInheritedGeneration(OnDie.GetValue<int>());
+                inheritedGeneration = GetInheritedGeneration(OnDie.GetValue<int>()) as MyParticleGeneration;
 
                 if (inheritedGeneration == null)
                 {
@@ -651,7 +761,9 @@ namespace VRage.Game
                             else
                             {
                                 MyPolyLineD polyLine = new MyPolyLineD();
-                                polyLine.Thickness = particle.Thickness;
+                                float thickness;
+                                particle.Radius.GetInterpolatedValue(particle.NormalizedTime, out thickness);
+                                polyLine.Thickness = thickness;
                                 polyLine.Point0 = particle.ActualPosition;
                                 polyLine.Point1 = previousParticlePosition;
 
@@ -662,8 +774,8 @@ namespace VRage.Game
                                 var camPos = MyTransparentGeometry.Camera.Translation;
                                 MyUtils.GetPolyLineQuad(out particle.Quad, ref polyLine, camPos);
 
-                                particle.Quad.Point0 = previousTrail0 + direction * 0.15f;
-                                particle.Quad.Point3 = previousTrail1 + direction * 0.15f;
+                                particle.Quad.Point0 = previousTrail0;// +0.15 * direction;
+                                particle.Quad.Point3 = previousTrail1;// +0.15 * direction;
                                 previousTrail0 = particle.Quad.Point1;
                                 previousTrail1 = particle.Quad.Point2;
                             }
@@ -700,7 +812,7 @@ namespace VRage.Game
             {
                 float lodBirth = 1.0f;
 
-                if (GetEffect().EnableLods)
+                if (GetEffect().EnableLods && LODBirth.GetKeysCount() > 0)
                 {
                     LODBirth.GetInterpolatedValue<float>(GetEffect().Distance, out lodBirth);
                 }
@@ -712,10 +824,22 @@ namespace VRage.Game
                     * MyParticlesManager.BirthMultiplierOverall
                     * lodBirth;
 
-                BirthPerFrame.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out m_birthPerFrame);
-                m_birthPerFrame *= (EnableCustomBirth ? m_effect.UserBirthMultiplier : 1.0f)
-                    * MyParticlesManager.BirthMultiplierOverall
-                    * lodBirth;
+                if (BirthPerFrame.GetKeysCount() > 0)
+                {
+                    float keyTime, diff;
+                    BirthPerFrame.GetNextValue(m_effect.GetElapsedTime() - VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, out m_birthPerFrame, out keyTime, out diff);
+                    if (
+                        (keyTime >= (m_effect.GetElapsedTime() - VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS)) &&
+                        (keyTime < m_effect.GetElapsedTime())
+                        )
+                    {
+                        m_birthPerFrame *= (EnableCustomBirth ? m_effect.UserBirthMultiplier : 1.0f)
+                            * MyParticlesManager.BirthMultiplierOverall
+                            * lodBirth;
+                    }
+                    else
+                        m_birthPerFrame = 0;
+                }
 
                 m_particlesToCreate += m_birthRate;
             }
@@ -766,7 +890,7 @@ namespace VRage.Game
 
             if (OnLife.GetValue<int>() != -1)
             {
-                MyParticleGeneration inheritedGeneration = GetInheritedGeneration(OnLife.GetValue<int>());
+                MyParticleGeneration inheritedGeneration = GetInheritedGeneration(OnLife.GetValue<int>()) as MyParticleGeneration;
 
                 if (inheritedGeneration == null)
                 {
@@ -809,7 +933,7 @@ namespace VRage.Game
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
-        private MyParticleGeneration GetInheritedGeneration(int generationIndex)
+        private IMyParticleGeneration GetInheritedGeneration(int generationIndex)
         {
              if (generationIndex >= m_effect.GetGenerations().Count || generationIndex == m_effect.GetGenerations().IndexOf(this))
                  return null;
@@ -869,6 +993,8 @@ namespace VRage.Game
             vel.Z *= m_effect.UserScale;
             particle.Velocity = vel;
 
+            particle.Velocity = Vector3D.TransformNormal(particle.Velocity, GetEffect().WorldMatrix);
+
             if (VelocityDir == MyVelocityDirEnum.FromEmitterCenter)
             {
                 if (!MyUtils.IsZero(startOffset - particle.StartPosition))
@@ -877,21 +1003,25 @@ namespace VRage.Game
                     particle.Velocity = MyUtils.Normalize(particle.StartPosition - (Vector3D)startOffset) * length;
                 }
             }
-            particle.Velocity = Vector3D.TransformNormal(particle.Velocity, GetEffect().WorldMatrix);
 
-            Angle.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particle.Angle);
-            float angleVar = AngleVar;
-            if (angleVar > 0)
+            Angle.GetInterpolatedValue<Vector3>(m_effect.GetElapsedTime(), out particle.Angle);
+            Vector3 angleVar = AngleVar;
+            if (angleVar.LengthSquared() > 0)
             {
-                particle.Angle = MyUtils.GetRandomFloat(particle.Angle - AngleVar, particle.Angle + AngleVar);
+                particle.Angle = new Vector3(
+                    MyUtils.GetRandomFloat(particle.Angle.X - angleVar.X, particle.Angle.X + angleVar.X),
+                    MyUtils.GetRandomFloat(particle.Angle.Y - angleVar.Y, particle.Angle.Y + angleVar.Y),
+                    MyUtils.GetRandomFloat(particle.Angle.Z - angleVar.Z, particle.Angle.Z + angleVar.Z));
             }
 
-            RotationSpeed.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particle.RotationSpeed);
-            float rotationSpeedVar = RotationSpeedVar;
-            if (rotationSpeedVar > 0)
+            if (RotationSpeed.GetKeysCount() > 0)
             {
-                particle.RotationSpeed = MyUtils.GetRandomFloat(particle.RotationSpeed - RotationSpeedVar, particle.RotationSpeed + RotationSpeedVar);
+                particle.RotationSpeed = new MyAnimatedPropertyVector3(RotationSpeed.Name);
+                Vector3 rotationSpeedVar = RotationSpeedVar;
+                RotationSpeed.GetInterpolatedKeys(m_effect.GetElapsedTime(), rotationSpeedVar, 1, particle.RotationSpeed);
             }
+            else
+                particle.RotationSpeed = null;
 
             float radiusVar;
             RadiusVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out radiusVar);
@@ -908,8 +1038,7 @@ namespace VRage.Game
                 * GetEffect().UserScale, 
                 particle.Radius);
                     
-            if (particle.Type != MyParticleTypeEnum.Point)
-                Thickness.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particle.Thickness);
+            Thickness.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particle.Thickness);
 
             particle.Thickness *= lodRadius;
 
@@ -923,33 +1052,54 @@ namespace VRage.Game
             particle.Flags = 0;
             particle.Flags |= BlendTextures.GetValue<bool>() ? MyAnimatedParticle.ParticleFlags.BlendTextures : 0;
 
-            if (PivotRotation.GetKeysCount() > 0 && PivotDistance.GetKeysCount() > 0)
+            if (Pivot.GetKeysCount() > 0)
             {
-                particle.PivotDistance = new MyAnimatedPropertyFloat(PivotDistance.Name); 
-                particle.PivotRotation = new MyAnimatedPropertyVector3(PivotRotation.Name);
-                PivotDistance.GetInterpolatedKeys(m_effect.GetElapsedTime(), PivotDistVar, 1.0f, particle.PivotDistance);
-                PivotRotation.GetInterpolatedKeys(m_effect.GetElapsedTime(), 1.0f, particle.PivotRotation);
+                particle.Pivot = new MyAnimatedPropertyVector3(Pivot.Name);
+                Pivot.GetInterpolatedKeys(m_effect.GetElapsedTime(), (Vector3)PivotVar, 1.0f, particle.Pivot);
             }
+            else
+                particle.Pivot = null;
+
+            if (PivotRotation.GetKeysCount() > 0)
+            {
+                particle.PivotRotation = new MyAnimatedPropertyVector3(PivotRotation.Name);
+                PivotRotation.GetInterpolatedKeys(m_effect.GetElapsedTime(), (Vector3)PivotRotationVar, 1.0f, particle.PivotRotation);
+            }
+            else
+                particle.PivotRotation = null;
 
             if (Acceleration.GetKeysCount() > 0)
             {
                 particle.Acceleration = new MyAnimatedPropertyVector3(Acceleration.Name);
-                float multiplier = MyUtils.GetRandomFloat(1-AccelerationVar, 1+AccelerationVar);
+                float multiplier = MyUtils.GetRandomFloat(1 - AccelerationVar, 1 + AccelerationVar);
                 Acceleration.GetInterpolatedKeys(m_effect.GetElapsedTime(), multiplier, particle.Acceleration);
             }
+            else
+                particle.Acceleration = null;
 
             if (AlphaCutout.GetKeysCount() > 0)
             {
                 particle.AlphaCutout = new MyAnimatedPropertyFloat(AlphaCutout.Name);
                 AlphaCutout.GetInterpolatedKeys(m_effect.GetElapsedTime(), 0, 1, particle.AlphaCutout);
             }
+            else
+                particle.AlphaCutout = null;
+
+            if (ArrayIndex.GetKeysCount() > 0)
+            {
+                particle.ArrayIndex = new MyAnimatedPropertyInt(ArrayIndex.Name);
+                ArrayIndex.GetInterpolatedKeys(m_effect.GetElapsedTime(), 0, 1, particle.ArrayIndex);
+            }
+            else
+                particle.ArrayIndex = null;
+
 
             particle.Start(this);
                  
             m_particles.Add(particle);
         }
 
-        public MyParticleGeneration CreateInstance(MyParticleEffect effect)
+        public IMyParticleGeneration CreateInstance(MyParticleEffect effect)
         {
             MyParticleGeneration generation = MyParticlesManager.GenerationsPool.Allocate(true);
             if (generation == null)
@@ -969,7 +1119,7 @@ namespace VRage.Game
             return generation;
         }
 
-        public MyParticleGeneration Duplicate(MyParticleEffect effect)
+        public IMyParticleGeneration Duplicate(MyParticleEffect effect)
         {
             MyParticleGeneration generation = MyParticlesManager.GenerationsPool.Allocate();
             generation.Start(effect);
@@ -1020,10 +1170,11 @@ namespace VRage.Game
 
         public bool IsInherited { get; set; }
 
-        public BoundingBoxD GetAABB()
+        public void MergeAABB(ref BoundingBoxD aabb)
         {
-            return m_AABB;
+            aabb.Include(ref m_AABB);
         }
+
 
         #endregion
 
@@ -1047,10 +1198,220 @@ namespace VRage.Game
             writer.WriteEndElement(); //ParticleGeneration
         }
 
+
+        public void DeserializeV0(XmlReader reader)
+        {
+            reader.ReadStartElement(); //ParticleGeneration
+
+            foreach (IMyConstProperty property in m_properties)
+            {
+                if (reader.Name == "Emitter")
+                    break; //we added new property which is not in xml yet
+
+                IMyConstProperty dProperty = property;
+
+                if ((dProperty.Name == "Angle") || (dProperty.Name == "Rotation speed"))
+                {
+                    dProperty = new MyAnimatedPropertyFloat();
+                }
+                if ((dProperty.Name == "Angle var") || (dProperty.Name == "Rotation speed var"))
+                {
+                    dProperty = new MyConstPropertyFloat();
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "PivotDistance")
+                {
+                    var tProperty = new MyAnimatedProperty2DFloat("temp");
+                    tProperty.Deserialize(reader);
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "PivotDistVar")
+                {
+                    var tProperty = new MyConstPropertyFloat();
+                    tProperty.Deserialize(reader);
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "Pivot distance")
+                {
+                    var tProperty = new MyAnimatedProperty2DFloat("temp");
+                    tProperty.Deserialize(reader);
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "Pivot distance var")
+                {
+                    var tProperty = new MyConstPropertyFloat();
+                    tProperty.Deserialize(reader);
+                }
+
+                dProperty.Deserialize(reader);
+            }
+
+            reader.ReadStartElement();
+            m_emitter.Deserialize(reader);
+            reader.ReadEndElement();
+
+            reader.ReadEndElement(); //ParticleGeneration
+
+            //Disable texture blending if it is set but unneccessary
+            if (BlendTextures)
+            {
+                bool someMaterialKeysDifferent = false;
+                for (int j = 0; j < Material.GetKeysCount(); j++)
+                {
+                    MyAnimatedPropertyTransparentMaterial key;
+                    float time;
+                    Material.GetKey(j, out time, out key);
+
+                    MyTransparentMaterial previousMaterial = null;
+                    for (int i = 0; i < key.GetKeysCount(); i++)
+                    {
+                        float timeMat;
+                        MyTransparentMaterial material;
+                        key.GetKey(i, out timeMat, out material);
+
+                        if (previousMaterial != null && (previousMaterial != material))
+                        {
+                            if (previousMaterial.Texture != material.Texture)
+                            {
+                                someMaterialKeysDifferent = true;
+                                break;
+                            }
+                        }
+                        previousMaterial = material;
+                    }
+
+                    if (someMaterialKeysDifferent)
+                        break;
+                }
+
+                if (!someMaterialKeysDifferent)
+                {
+                    BlendTextures.SetValue(false);
+                }
+            }
+            float dist;
+            float val;
+            if (LODBirth.GetKeysCount() > 0)
+            {
+                LODBirth.GetKey(LODBirth.GetKeysCount() - 1, out dist, out val);
+                if (val > 0f)
+                {
+                    LODBirth.AddKey(Math.Max(dist + MyConstants.MAX_PARTICLE_DISTANCE_EXTENSION, MyConstants.MAX_PARTICLE_DISTANCE_DEFAULT), 0f);
+                }
+            }
+
+            if ((int)ParticleType != (int)MyParticleTypeEnum.Line)
+                Thickness.ClearKeys();
+
+        }
+
+        public void DeserializeV1(XmlReader reader)
+        {
+            reader.ReadStartElement(); //ParticleGeneration
+
+            foreach (IMyConstProperty property in m_properties)
+            {
+                if (reader.Name == "Emitter")
+                    break; //we added new property which is not in xml yet
+
+                IMyConstProperty dProperty = property;
+
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "PivotDistance")
+                {
+                    var tProperty = new MyAnimatedProperty2DFloat("temp");
+                    tProperty.Deserialize(reader);
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "PivotDistVar")
+                {
+                    var tProperty = new MyConstPropertyFloat();
+                    tProperty.Deserialize(reader);
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "Pivot distance")
+                {
+                    var tProperty = new MyAnimatedProperty2DFloat("temp");
+                    tProperty.Deserialize(reader);
+                }
+                if (reader.AttributeCount > 0 && reader.GetAttribute(0) == "Pivot distance var")
+                {
+                    var tProperty = new MyConstPropertyFloat();
+                    tProperty.Deserialize(reader);
+                }
+
+                dProperty.Deserialize(reader);
+            }
+
+            reader.ReadStartElement();
+            m_emitter.Deserialize(reader);
+            reader.ReadEndElement();
+
+            reader.ReadEndElement(); //ParticleGeneration
+
+            //Disable texture blending if it is set but unneccessary
+            if (BlendTextures)
+            {
+                bool someMaterialKeysDifferent = false;
+                for (int j = 0; j < Material.GetKeysCount(); j++)
+                {
+                    MyAnimatedPropertyTransparentMaterial key;
+                    float time;
+                    Material.GetKey(j, out time, out key);
+
+                    MyTransparentMaterial previousMaterial = null;
+                    for (int i = 0; i < key.GetKeysCount(); i++)
+                    {
+                        float timeMat;
+                        MyTransparentMaterial material;
+                        key.GetKey(i, out timeMat, out material);
+
+                        if (previousMaterial != null && (previousMaterial != material))
+                        {
+                            if (previousMaterial.Texture != material.Texture)
+                            {
+                                someMaterialKeysDifferent = true;
+                                break;
+                            }
+                        }
+                        previousMaterial = material;
+                    }
+
+                    if (someMaterialKeysDifferent)
+                        break;
+                }
+
+                if (!someMaterialKeysDifferent)
+                {
+                    BlendTextures.SetValue(false);
+                }
+            }
+            float dist;
+            float val;
+            if (LODBirth.GetKeysCount() > 0)
+            {
+                LODBirth.GetKey(LODBirth.GetKeysCount() - 1, out dist, out val);
+                if (val > 0f)
+                {
+                    LODBirth.AddKey(Math.Max(dist + MyConstants.MAX_PARTICLE_DISTANCE_EXTENSION, MyConstants.MAX_PARTICLE_DISTANCE_DEFAULT), 0f);
+                }
+            }
+
+            if ((int)ParticleType != (int)MyParticleTypeEnum.Line)
+                Thickness.ClearKeys();
+
+        }
+
         public void Deserialize(XmlReader reader)
         {
             m_name = reader.GetAttribute("name");
             int version = Convert.ToInt32(reader.GetAttribute("version"), CultureInfo.InvariantCulture);
+
+            if (version == 0)
+            {
+                DeserializeV0(reader);
+                return;
+            }
+
+            if (version == 1)
+            {
+                DeserializeV1(reader);
+                return;
+            }
+
 
             reader.ReadStartElement(); //ParticleGeneration
 
@@ -1107,10 +1468,13 @@ namespace VRage.Game
             }
             float dist;
             float val;
-            LODBirth.GetKey(LODBirth.GetKeysCount() - 1, out dist, out val);
-            if (val > 0f)
+            if (LODBirth.GetKeysCount() > 0)
             {
-                LODBirth.AddKey(Math.Max(dist + MyConstants.MAX_PARTICLE_DISTANCE_EXTENSION, MyConstants.MAX_PARTICLE_DISTANCE_DEFAULT), 0f);
+                LODBirth.GetKey(LODBirth.GetKeysCount() - 1, out dist, out val);
+                if (val > 0f)
+                {
+                    LODBirth.AddKey(Math.Max(dist + MyConstants.MAX_PARTICLE_DISTANCE_EXTENSION, MyConstants.MAX_PARTICLE_DISTANCE_DEFAULT), 0f);
+                }
             }
         }
 
@@ -1157,7 +1521,7 @@ namespace VRage.Game
                     }
                     MyTransparentGeometry.EndParticleProfilingBlock();
                     if (billboard == null)
-                        break;
+                        continue;
                 }
             }
         }
@@ -1166,9 +1530,7 @@ namespace VRage.Game
         {
             foreach (VRageRender.MyBillboard billboard in m_billboards)
             {
-                //MyTransparentGeometry.AddBillboardToSortingList(billboard);
                 collectedBillboards.Add(billboard);
-                MyParticlesManager.ParticlesTotal += billboard.ContainedBillboards.Count;
             }
             m_billboards.Clear();
         }
@@ -1222,5 +1584,10 @@ namespace VRage.Game
             //return MyUtils.IsValid(m_effect.WorldMatrix);
             return true;
         }
+
+        public bool IsDirty { get { return true; } }
+
+        public void SetDirty() { }
+
     }
 }

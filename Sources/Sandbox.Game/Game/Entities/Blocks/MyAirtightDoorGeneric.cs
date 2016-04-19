@@ -253,7 +253,8 @@ namespace Sandbox.Game.Entities
                 && (force || color != m_prevEmissiveColor || m_prevEmissivity!=emissivity))
             {
                 foreach (var name in m_emissiveNames)
-                    VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, name, color , emissivity);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], name, color, emissivity);
+
                 m_prevEmissiveColor = color;
                 m_prevEmissivity = emissivity;
             }
@@ -413,7 +414,7 @@ namespace Sandbox.Game.Entities
 
         private void StartSound(MySoundPair cuePair)
         {
-            if ((m_soundEmitter.Sound != null) && (m_soundEmitter.Sound.IsPlaying) && (m_soundEmitter.SoundId == cuePair.SoundId))
+            if ((m_soundEmitter.Sound != null) && (m_soundEmitter.Sound.IsPlaying) && (m_soundEmitter.SoundId == cuePair.Arcade || m_soundEmitter.SoundId == cuePair.Realistic))
                 return;
 
             m_soundEmitter.StopSound(true);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -147,7 +148,8 @@ namespace VRage.ModAPI
         Matrix LocalMatrix { get; set; }
         void SetLocalMatrix(VRageMath.Matrix localMatrix, object source = null);
         void GetChildren(List<IMyEntity> children, Func<IMyEntity, bool> collect = null);
-
+        MyEntitySubpart GetSubpart(string name);
+        bool TryGetSubpart(string name, out MyEntitySubpart subpart);
 
 
         //Render
@@ -167,7 +169,23 @@ namespace VRage.ModAPI
         void DebugDraw();
         void DebugDrawInvalidTriangles();
         void EnableColorMaskForSubparts(bool enable);
-        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);  
+        void SetColorMaskForSubparts(VRageMath.Vector3 colorMaskHsv);
+
+        /// <summary>
+        /// Sets the emissive value of a specific emissive material on entity.
+        /// </summary>
+        /// <param name="emissiveName">The name of the emissive material (ie. "Emissive0")</param>
+        /// <param name="emissivity">Level of emissivity (0 is off, 1 is full brightness)</param>
+        /// <param name="emissivePartColor">Color to emit</param>
+        void SetEmissiveParts(string emissiveName, Color emissivePartColor, float emissivity);
+
+        /// <summary>
+        /// Sets the emissive value of a specific emissive material on all entity subparts.
+        /// </summary>
+        /// <param name="emissiveName">The name of the emissive material (ie. "Emissive0")</param>
+        /// <param name="emissivity">Level of emissivity (0 is off, 1 is full brightness).</param>
+        /// <param name="emissivePartColor">Color to emit</param>
+        void SetEmissivePartsForSubparts(string emissiveName, Color emissivePartColor, float emissivity);
 
 
         //Scene 

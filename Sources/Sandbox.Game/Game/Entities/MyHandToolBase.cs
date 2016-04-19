@@ -28,6 +28,8 @@ using VRage;
 using VRage.Game;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
 
 #endregion
 
@@ -364,7 +366,7 @@ namespace Sandbox.Game.Entities
                 MySoundPair sound;
                 if (def.GeneralSounds.TryGetValue(MyStringId.GetOrCompute(soundName), out sound) && !sound.SoundId.IsNull)
                 {
-                    m_soundEmitter.PlaySound(sound.SoundId);
+                    m_soundEmitter.PlaySound(sound);
                 }
                 else
                 {
@@ -433,16 +435,22 @@ namespace Sandbox.Game.Entities
                         {
                             var shapeCastComponent = detectorComponent as MyCharacterShapecastDetectorComponent;
                             shapeCastComponent.ShapeRadius = m_shotToolAction.Value.CustomShapeRadius;
-                            shapeCastComponent.DoDetection();
+                            shapeCastComponent.DoDetectionModel();
                             shapeCastComponent.ShapeRadius = MyCharacterShapecastDetectorComponent.DEFAULT_SHAPE_RADIUS;
                         }
 
                         if (detectorComponent.DetectedEntity != null)
                         {
+                            MyHitInfo hitInfo = new MyHitInfo();
+                            hitInfo.Position = detectorComponent.HitPosition;
+                            hitInfo.Normal = detectorComponent.HitNormal;
+
                             bool isBlock = false;
                             float efficiencyMultiplier = 1.0f;
                             bool canHit = CanHit(toolComponent, detectorComponent, ref isBlock, out efficiencyMultiplier);
-                            
+
+                            MyDecals.HandleAddDecal(detectorComponent.DetectedEntity, hitInfo, MyDamageType.Weapon);
+
                             bool isHit = false;
                             if (canHit)
                             {
@@ -451,11 +459,12 @@ namespace Sandbox.Game.Entities
                                     efficiencyMultiplier *= Owner.StatComp.GetEfficiencyModifier(m_shotToolAction.Value.StatsEfficiency);
                                 }
 
+                                float efficiency = m_shotToolAction.Value.Efficiency * efficiencyMultiplier;
                                 var tool = detectorComponent.DetectedEntity as MyHandToolBase;
                                 if (isBlock && tool != null)
-                                    isHit = toolComponent.Hit(tool.Owner, detectorComponent.HitPosition, detectorComponent.HitNormal, detectorComponent.ShapeKey, m_shotToolAction.Value.Efficiency * efficiencyMultiplier);
+                                    isHit = toolComponent.Hit(tool.Owner, hitInfo, detectorComponent.ShapeKey, efficiency);
                                 else
-                                    isHit = toolComponent.Hit((MyEntity) detectorComponent.DetectedEntity, detectorComponent.HitPosition, detectorComponent.HitNormal, detectorComponent.ShapeKey, m_shotToolAction.Value.Efficiency * efficiencyMultiplier);
+                                    isHit = toolComponent.Hit((MyEntity)detectorComponent.DetectedEntity, hitInfo, detectorComponent.ShapeKey, efficiency);
 
                                 if (isHit && Sync.IsServer && Owner.StatComp != null)
                                 {
@@ -715,7 +724,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void DrawHud(Sandbox.ModAPI.Interfaces.IMyCameraController camera, long playerId)
+        public void DrawHud(IMyCameraController camera, long playerId)
 		{
             if (m_primaryToolAction.HasValue)
             {

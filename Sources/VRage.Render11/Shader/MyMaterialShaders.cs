@@ -38,6 +38,9 @@ namespace VRageRender
         USE_DEFORMED_CUBE_INSTANCING = 1 << 11,
         USE_GENERIC_INSTANCING = 1 << 12,
         USE_MERGE_INSTANCING = 1 << 13,
+
+        // only on USE_MERGE_INSTANCING
+        USE_SINGLE_INSTANCE = 1 << 14,
     }
     
     struct MyMaterialShadersBundleId
@@ -117,6 +120,11 @@ namespace VRageRender
                 list.Add(new ShaderMacro("USE_GENERIC_INSTANCING", null));
             if ((flags & MyShaderUnifiedFlags.USE_MERGE_INSTANCING) > 0)
                 list.Add(new ShaderMacro("USE_MERGE_INSTANCING", null));
+            if ((flags & MyShaderUnifiedFlags.USE_SINGLE_INSTANCE) > 0)
+            {
+                Debug.Assert((flags & MyShaderUnifiedFlags.USE_MERGE_INSTANCING) > 0);
+                list.Add(new ShaderMacro("USE_SINGLE_INSTANCE", null));
+            }
             if ((flags & MyShaderUnifiedFlags.USE_VOXEL_MORPHING) == MyShaderUnifiedFlags.USE_VOXEL_MORPHING)
                 list.Add(new ShaderMacro("USE_VOXEL_MORPHING", null));
             if((flags & MyShaderUnifiedFlags.USE_VOXEL_DATA) == MyShaderUnifiedFlags.USE_VOXEL_DATA)
@@ -184,11 +192,16 @@ namespace VRageRender
             return id;
         }
 
-        internal static void Recompile()
+        private static void ClearSources()
         {
             LoadTemplates();
             MaterialSources.Clear();
             MaterialPassSources.Clear();
+        }
+
+        internal static void Recompile()
+        {
+            ClearSources();
 
             foreach (var id in HashIndex.Values)
             {
@@ -297,11 +310,21 @@ namespace VRageRender
                     throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
                 }
             }
-            else if (Bundles[id.Index].VS == null && Bundles[id.Index].PS == null)
+            else //if (Bundles[id.Index].VS == null && Bundles[id.Index].PS == null)
             {
                 string message = "Failed to compile material shader" + info.Name + " for vertex " + info.Layout.Info.Components.GetString();
                 MyRender11.Log.WriteLine(message);
-                throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                    ClearSources();
+                    InitBundle(id, invalidateCache);
+                }
+#else
+                if (Bundles[id.Index].VS == null && Bundles[id.Index].PS == null)
+                    throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
+#endif
             }
         }
 

@@ -7,11 +7,11 @@ namespace VRageRender
 {
     struct MyMapping
     {
-        private DeviceContext context;
-        private Resource buffer;
-        private int bufferSize;
-        private DataBox dataBox;
-        private System.IntPtr dataPointer;
+        private DeviceContext m_context;
+        private Resource m_buffer;
+        private int m_bufferSize;
+        private DataBox m_dataBox;
+        private System.IntPtr m_dataPointer;
 
         internal static MyMapping MapDiscard(DeviceContext context, Buffer buffer)
         {
@@ -22,57 +22,92 @@ namespace VRageRender
         {
             return MapDiscard(MyRender11.DeviceContext, buffer, buffer.Description.SizeInBytes);
         }
-        
+
         internal static MyMapping MapDiscard(Resource buffer)
         {
             var mapping = MapDiscard(MyRender11.DeviceContext, buffer, 0);
-            if (mapping.dataBox.SlicePitch != 0)
-                mapping.bufferSize = mapping.dataBox.SlicePitch;
+            if (mapping.m_dataBox.SlicePitch != 0)
+                mapping.m_bufferSize = mapping.m_dataBox.SlicePitch;
             else if (buffer is Texture2D)
             {
                 Texture2D tex = buffer as Texture2D;
-                mapping.bufferSize = mapping.dataBox.RowPitch * tex.Description.Height;
+                mapping.m_bufferSize = mapping.m_dataBox.RowPitch * tex.Description.Height;
             }
             else Debug.Assert(false);
             return mapping;
         }
 
+        internal static MyMapping MapRead(Resource buffer)
+        {
+            var mapping = MapRead(MyRender11.DeviceContext, buffer, 0);
+            if (mapping.m_dataBox.SlicePitch != 0)
+                mapping.m_bufferSize = mapping.m_dataBox.SlicePitch;
+            else if (buffer is Texture2D)
+            {
+                Texture2D tex = buffer as Texture2D;
+                mapping.m_bufferSize = mapping.m_dataBox.RowPitch * tex.Description.Height;
+            }
+            else Debug.Assert(false);
+            return mapping;
+        }
+
+        internal void ReadAndPosition<T>(ref T data) where T : struct
+        {
+            m_dataPointer = Utilities.ReadAndPosition(m_dataPointer, ref data);
+            Debug.Assert((m_dataPointer.ToInt64() - m_dataBox.DataPointer.ToInt64()) <= m_bufferSize);
+        }
+
         internal void WriteAndPosition<T>(ref T data) where T : struct
         {
-            dataPointer = Utilities.WriteAndPosition(dataPointer, ref data);
-            Debug.Assert((dataPointer.ToInt64() - dataBox.DataPointer.ToInt64()) <= bufferSize);
+            m_dataPointer = Utilities.WriteAndPosition(m_dataPointer, ref data);
+            Debug.Assert((m_dataPointer.ToInt64() - m_dataBox.DataPointer.ToInt64()) <= m_bufferSize);
         }
 
         internal void WriteAndPosition<T>(T[] data, int offset, int count) where T : struct
         {
-            dataPointer = Utilities.Write(dataPointer, data, offset, count);
-            Debug.Assert((dataPointer.ToInt64() - dataBox.DataPointer.ToInt64()) <= bufferSize);
+            m_dataPointer = Utilities.Write(m_dataPointer, data, offset, count);
+            Debug.Assert((m_dataPointer.ToInt64() - m_dataBox.DataPointer.ToInt64()) <= m_bufferSize);
         }
 
         internal void WriteAndPositionByRow<T>(T[] data, int offset, int count) where T : struct
         {
-            Debug.Assert(count <= dataBox.RowPitch);
-            Utilities.Write(dataPointer, data, offset, count);
-            dataPointer += dataBox.RowPitch;
-            Debug.Assert((dataPointer.ToInt64() - dataBox.DataPointer.ToInt64()) <= bufferSize);
+            Debug.Assert(count <= m_dataBox.RowPitch);
+            Utilities.Write(m_dataPointer, data, offset, count);
+            m_dataPointer += m_dataBox.RowPitch;
+            Debug.Assert((m_dataPointer.ToInt64() - m_dataBox.DataPointer.ToInt64()) <= m_bufferSize);
         }
 
         internal void Unmap()
         {
-            context.UnmapSubresource(buffer, 0);
+            m_context.UnmapSubresource(m_buffer, 0);
         }
 
         private static MyMapping MapDiscard(DeviceContext context, Resource buffer, int bufferSize)
         {
             MyMapping mapping;
-            mapping.context = context;
-            mapping.buffer = buffer;
-            mapping.bufferSize = bufferSize;
-            mapping.dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+            mapping.m_context = context;
+            mapping.m_buffer = buffer;
+            mapping.m_bufferSize = bufferSize;
+            mapping.m_dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
 
-            if (mapping.dataBox.IsEmpty)
+            if (mapping.m_dataBox.IsEmpty)
                 throw new MyRenderException("Resource mapping failed!");
-            mapping.dataPointer = mapping.dataBox.DataPointer;
+            mapping.m_dataPointer = mapping.m_dataBox.DataPointer;
+
+            return mapping;
+        }
+
+        private static MyMapping MapRead(DeviceContext context, Resource buffer, int bufferSize)
+        {
+            MyMapping mapping;
+            mapping.m_context = context;
+            mapping.m_buffer = buffer;
+            mapping.m_bufferSize = bufferSize;
+            mapping.m_dataBox = context.MapSubresource(buffer, 0, MapMode.Read, MapFlags.None);
+
+            if (mapping.m_dataBox.IsEmpty)
+                throw new MyRenderException("Resource mapping failed!");
+            mapping.m_dataPointer = mapping.m_dataBox.DataPointer;
 
             return mapping;
         }
@@ -80,8 +115,8 @@ namespace VRageRender
         /*private void LogState<T>(string msg, Exception ex, MyMapping mapping, IntPtr originalPointer, SharpDX.Direct3D11.Buffer buffer, T data) where T : struct
         {
             MyLog.Default.WriteLine(ex);
-            MyLog.Default.WriteLine(string.Format("@ {0} DataPointer {1} Original Pointer {2} dataBox rowpitch {3} / SlicePitch {4} Buffer {5} ",
-                msg, mapping.dataBox.DataPointer.ToInt64(), originalPointer.ToInt64(), mapping.dataBox.RowPitch, mapping.dataBox.SlicePitch,
+            MyLog.Default.WriteLine(string.Format("@ {0} DataPointer {1} Original Pointer {2} m_dataBox rowpitch {3} / SlicePitch {4} Buffer {5} ",
+                msg, mapping.m_dataBox.DataPointer.ToInt64(), originalPointer.ToInt64(), mapping.m_dataBox.RowPitch, mapping.m_dataBox.SlicePitch,
                 string.Format("CB Desc (BindFlags {0}, CpuAccessFlags {1}, OptionFlags {2}, Usage {3}, SizeInBytes {4}, StructureByteStride {5})",
                     buffer.Description.BindFlags, buffer.Description.CpuAccessFlags, buffer.Description.OptionFlags, buffer.Description.Usage,
                     buffer.Description.SizeInBytes, buffer.Description.StructureByteStride)));

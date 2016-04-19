@@ -11,6 +11,7 @@ using Sandbox.ModAPI;
 using System.Diagnostics;
 using SteamSDK;
 using Sandbox.Engine.Networking;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.World
 {

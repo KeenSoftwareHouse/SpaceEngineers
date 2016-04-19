@@ -12,6 +12,9 @@ using VRage.Import;
 using VRage.Game.Models;
 using VRage.Render.Models;
 using VRage.Game.Components;
+using System;
+using VRage.Game.Entity;
+using Sandbox.Game.Entities.Cube;
 
 #endregion
 
@@ -19,6 +22,13 @@ namespace Sandbox.Game.Gui
 {
     public class MyHudSelectedObject
     {
+        [ThreadStatic]
+        private static List<int> m_tmpSectionIds = new List<int>();
+
+        [ThreadStatic]
+        private static List<uint> m_tmpSubpartIds = new List<uint>();
+
+        private bool m_highlightAttributeDirty;
         private bool m_visible;
         private int m_visibleRenderID = -1;
         private string m_highlightAttribute;
@@ -26,16 +36,9 @@ namespace Sandbox.Game.Gui
         internal MyHudSelectedObjectStatus PreviousObject;
         private Vector2 m_halfSize = Vector2.One * 0.02f;
         private Color m_color = MyHudConstants.HUD_COLOR_LIGHT;
+        private MyHudObjectHighlightStyle m_style;
 
-        public MyHudSelectedObject()
-        {
-        }
-
-        public bool KeepObjectReference
-        {
-            get;
-            set;
-        }
+        public MyHudSelectedObject() { }
 
         internal MyHudSelectedObjectState State
         {
@@ -54,19 +57,22 @@ namespace Sandbox.Game.Gui
                 CheckForTransition();
                 m_highlightAttribute = value;
                 CurrentObject.SectionIndices = null;
+                CurrentObject.SubpartIndices = null;
+                if (value != null)
+                    m_highlightAttributeDirty = true;
             }
         }
 
         public MyHudObjectHighlightStyle HighlightStyle
         {
-            get { return CurrentObject.Style; }
+            get { return m_style; }
             set
             {
-                if (CurrentObject.Style == value)
+                if (m_style == value)
                     return;
 
                 CheckForTransition();
-                CurrentObject.Style = value;
+                m_style = value;
             }
         }
 
@@ -106,6 +112,11 @@ namespace Sandbox.Game.Gui
                 else
                     m_visibleRenderID = -1;
 
+                if (value)
+                    CurrentObject.Style = m_style;
+                else
+                    CurrentObject.Style = MyHudObjectHighlightStyle.None;
+
                 m_visible = value;
                 State = MyHudSelectedObjectState.VisibleStateSet;
             }
@@ -119,13 +130,14 @@ namespace Sandbox.Game.Gui
         public IMyUseObject InteractiveObject
         {
             get { return CurrentObject.Instance; }
-            internal set
-            {
-                if (CurrentObject.Instance == value)
-                    return;
+        }
 
-                CheckForTransition();
-                CurrentObject.Instance = value;
+        internal uint[] SubpartIndices
+        {
+            get
+            {
+                ComputeHighlightIndices();
+                return CurrentObject.SubpartIndices;
             }
         }
 
@@ -133,40 +145,88 @@ namespace Sandbox.Game.Gui
         {
             get
             {
-                if (CurrentObject.SectionIndices != null)
-                    return CurrentObject.SectionIndices;
-
-                if (m_highlightAttribute == null)
-                    return null;
-
-                string[] sections = m_highlightAttribute.Split(MyModelDummy.ATTRIBUTE_HIGHLIGHT_SEPARATOR[0]);
-                CurrentObject.SectionIndices = new int[sections.Length];
-                MyModel model = CurrentObject.Instance.Owner.Render.GetModel();
-                for (int idx = 0; idx < sections.Length; idx++)
-                {
-                    MyMeshSection section;
-                    bool found = model.TryGetMeshSection(sections[idx], out section);
-                    if (found)
-                    {
-                        CurrentObject.SectionIndices[idx] = section.Index;
-                    }
-                    else
-                    {
-                        // Returns a sentinel empty array to signal a problem
-                        CurrentObject.SectionIndices = new int[0];
-                        break;
-                    }
-                }
-
+                ComputeHighlightIndices();
                 return CurrentObject.SectionIndices;
             }
         }
 
-        internal void Highlight(IMyUseObject obj = null)
+        private void ComputeHighlightIndices()
         {
-            if (obj == null)
-                obj = CurrentObject.Instance;
+            if (!m_highlightAttributeDirty)
+                return;
 
+            if (m_highlightAttribute == null)
+            {
+                m_highlightAttributeDirty = false;
+                return;
+            }
+
+            m_tmpSectionIds.Clear();
+            m_tmpSubpartIds.Clear();
+            string[] names = m_highlightAttribute.Split(MyModelDummy.ATTRIBUTE_HIGHLIGHT_SEPARATOR[0]);
+            MyModel model = CurrentObject.Instance.Owner.Render.GetModel();
+            bool found = true;
+            for (int idx = 0; idx < names.Length; idx++)
+            {
+                string name = names[idx];
+                if (name.StartsWith(MyModelDummy.SUBPART_PREFIX))
+                {
+                    string subpartName = name.Substring(MyModelDummy.SUBPART_PREFIX.Length);
+                    MyEntitySubpart subpart;
+                    found = CurrentObject.Instance.Owner.TryGetSubpart(subpartName, out subpart);
+                    if (!found)
+                        break;
+
+                    int id = subpart.Render.GetRenderObjectID();
+                    if (id != -1)
+                        m_tmpSubpartIds.Add((uint)id);
+                } else if (name.StartsWith(MyModelDummy.SUBBLOCK_PREFIX))
+                {
+                    // Subblocks are very similar in subparts as purpouse but they can be
+                    // fully fledged blocks
+                    MyCubeBlock cubeBlock = CurrentObject.Instance.Owner as MyCubeBlock;
+                    if (cubeBlock == null)
+                        break;
+
+                    string subblockName = name.Substring(MyModelDummy.SUBBLOCK_PREFIX.Length);
+                    MySlimBlock subblock;
+                    found = cubeBlock.TryGetSubBlock(subblockName, out subblock);
+                    if (!found)
+                        break;
+
+                    int id = subblock.FatBlock.Render.GetRenderObjectID();
+                    if (id != -1)
+                        m_tmpSubpartIds.Add((uint)id);
+                }
+                else
+                {
+                    MyMeshSection section;
+                    found = model.TryGetMeshSection(names[idx], out section);
+                    if (!found)
+                        break;
+
+                    m_tmpSectionIds.Add(section.Index);
+                }
+            }
+
+            if (found)
+            {
+                CurrentObject.SectionIndices = m_tmpSectionIds.ToArray();
+                if (m_tmpSubpartIds.Count != 0)
+                    CurrentObject.SubpartIndices = m_tmpSubpartIds.ToArray();
+            }
+            else
+            {
+                // Clear the lists to signal a problem
+                CurrentObject.SectionIndices = new int[0];
+                CurrentObject.SubpartIndices = null;
+            }
+
+            m_highlightAttributeDirty = false;
+        }
+
+        internal void Highlight(IMyUseObject obj)
+        {
             bool transition = SetObjectInternal(obj);
             if (transition)
                 return;
@@ -195,12 +255,20 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        internal void ResetCurrent()
+        {
+            CurrentObject.Reset();
+            m_highlightAttributeDirty = true;
+        }
+
+        /// <returns>Abort</returns>
         private bool SetObjectInternal(IMyUseObject obj)
         {
             if (CurrentObject.Instance == obj)
                 return false;
 
             bool transition = CheckForTransition();
+            ResetCurrent();
             CurrentObject.Instance = obj;
             return transition;
         }
@@ -209,6 +277,9 @@ namespace Sandbox.Game.Gui
         {
             if (CurrentObject.Instance == null || !m_visible)
                 return false;
+
+            if (PreviousObject.Instance != null)
+                return true;
 
             DoTransition();
             return true;
@@ -229,28 +300,32 @@ namespace Sandbox.Game.Gui
 
     public enum MyHudObjectHighlightStyle
     {
+        None = 0,
+
         /// <summary>
         /// Old block highlight style
         /// </summary>
-        HighlightStyle1 = 0,
+        HighlightStyle1 = 1,
 
         /// <summary>
         /// Contour highlight style
         /// </summary>
-        HighlightStyle2 = 1
+        HighlightStyle2 = 2
     }
 
     struct MyHudSelectedObjectStatus
     {
         public IMyUseObject Instance;
         public int[] SectionIndices;
+        public uint[] SubpartIndices;
         public MyHudObjectHighlightStyle Style;
 
         public void Reset()
         {
             Instance = null;
             SectionIndices = null;
-            Style = MyHudObjectHighlightStyle.HighlightStyle1;
+            SubpartIndices = null;
+            Style = MyHudObjectHighlightStyle.None;
         }
     }
 

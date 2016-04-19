@@ -1,5 +1,7 @@
-﻿using Sandbox.Engine.Utils;
+﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Replication;
@@ -37,12 +39,14 @@ namespace Sandbox.Engine.Multiplayer
         public MyContextKind Context { get; protected set; }
         public MyEntity ContextEntity { get; protected set; }
 
-        public override void Serialize(BitStream stream)
+        uint m_currentServerTimeStamp = 0;
+
+        public override void Serialize(BitStream stream,uint serverTimeStamp)
         {
             if (stream.Writing)
                 Write(stream);
             else
-                Read(stream);
+                Read(stream, serverTimeStamp);
         }
 
         protected virtual MyEntity GetControlledEntity()
@@ -67,7 +71,7 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-        private void Read(BitStream stream)
+        private void Read(BitStream stream, uint serverTimeStamp)
         {
             MyNetworkClient sender;
             if (!Sync.Clients.TryGetClient(EndpointId.Value, out sender))
@@ -81,7 +85,7 @@ namespace Sandbox.Engine.Multiplayer
             if (controlledEntity != null)
             {
                 ReadInternal(stream, sender, controlledEntity);
-                ReadPhysics(stream, sender, controlledEntity);
+                ReadPhysics(stream, sender, controlledEntity,serverTimeStamp);
             }
         }
 
@@ -95,6 +99,7 @@ namespace Sandbox.Engine.Multiplayer
         /// <param name="validControlledEntity"></param>
         private void WriteShared(BitStream stream, MyEntity controlledEntity)
         {
+            stream.WriteUInt32(ClientTimeStamp);
             stream.WriteBool(controlledEntity != null);
             if (controlledEntity == null)
             {
@@ -111,6 +116,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             controlledEntity = null;
 
+            ClientTimeStamp = stream.ReadUInt32();
             var hasControlledEntity = stream.ReadBool();
             if (!hasControlledEntity)
             {
@@ -138,34 +144,84 @@ namespace Sandbox.Engine.Multiplayer
         private void WritePhysics(BitStream stream, MyEntity controlledEntity)
         {
             IMyReplicable player = MyExternalReplicable.FindByObject(controlledEntity);
+
+            stream.WriteBool(player != null);
+          
             if (player == null)
-            {
-                stream.WriteBool(false);
+            {             
                 return;
             }
 
-            var stateGroup = player.FindStateGroup<MyEntityPhysicsStateGroup>();
+            IMyStateGroup stateGroup = null;
+
+            bool useCharacterOnServer  = controlledEntity is MyCharacter &&  MyFakes.ENABLE_CHARACTER_CONTROL_ON_SERVER;
+            bool useGridOnServer = controlledEntity is MyCubeGrid && MyFakes.ENABLE_SHIP_CONTROL_ON_SERVER;
+            MyShipController controller = MySession.Static.ControlledEntity as MyShipController;
+            bool hasWheels = controller != null && controller.HasWheels;
+
+            if (useCharacterOnServer || (useGridOnServer && hasWheels == false))
+            {
+                stateGroup = player.FindStateGroup<MyEntityPositionVerificationStateGroup>();
+            }
+            else
+            {
+                stateGroup = player.FindStateGroup<MyEntityPhysicsStateGroup>();
+            }
+
+
+
+            stream.WriteBool(useCharacterOnServer || (useGridOnServer && hasWheels == false));
+            stream.WriteBool(stateGroup != null );
+           
             if (stateGroup == null)
-            {
-
-                stream.WriteBool(false);
-                return;
+            {          
+               return;
             }
-            bool isResponsible = stateGroup.ResponsibleForUpdate(new EndpointId(Sync.MyId));
+
+            bool isResponsible = MyEntityPhysicsStateGroup.ResponsibleForUpdate(controlledEntity,new EndpointId(Sync.MyId));
             stream.WriteBool(isResponsible);
             if (isResponsible)
             {
-                stateGroup.Serialize(stream, null, 0, 65535);
+                stateGroup.Serialize(stream, EndpointId, ClientTimeStamp, 0, 65535);   
             }
         }
 
-        private void ReadPhysics(BitStream stream, MyNetworkClient sender, MyEntity controlledEntity)
+        private void ReadPhysics(BitStream stream, MyNetworkClient sender, MyEntity controlledEntity,uint serverTimeStamp)
         {
-            var stateGroup = MyExternalReplicable.FindByObject(controlledEntity).FindStateGroup<MyEntityPhysicsStateGroup>();
+            
             bool hasPhysics = stream.ReadBool();
-            if (hasPhysics && stateGroup.ResponsibleForUpdate(new EndpointId(sender.SteamUserId)))
+
+            //if (m_currentServerTimeStamp == serverTimeStamp)
+            //{
+            //    return;
+            //}
+
+            m_currentServerTimeStamp = serverTimeStamp;
+
+            if (hasPhysics && MyEntityPhysicsStateGroup.ResponsibleForUpdate(controlledEntity, new EndpointId(sender.SteamUserId)))
             {
-                stateGroup.Serialize(stream, null, 0, 65535);
+                IMyStateGroup stateGroup = null;
+
+                bool enableControlOnServer = stream.ReadBool();
+                bool stateGroupFound = stream.ReadBool();
+                if (stateGroupFound == false)
+                {
+                    return;
+                }
+
+                if (enableControlOnServer)
+                {
+                    stateGroup = MyExternalReplicable.FindByObject(controlledEntity).FindStateGroup<MyEntityPositionVerificationStateGroup>();
+                }
+                else
+                {
+                    stateGroup = MyExternalReplicable.FindByObject(controlledEntity).FindStateGroup<MyEntityPhysicsStateGroup>();
+                }
+
+                if (stream.ReadBool())
+                {
+                    stateGroup.Serialize(stream, new EndpointId(sender.SteamUserId), ClientTimeStamp, 0, 65535);
+                }
             }
         }
     }

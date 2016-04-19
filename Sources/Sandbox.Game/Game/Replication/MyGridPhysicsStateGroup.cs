@@ -27,7 +27,7 @@ namespace Sandbox.Game.Replication
     /// </summary>
     class MyGridPhysicsStateGroup : MyEntityPhysicsStateGroup
     {
-        const int NUM_NODES_TO_SEND_ALL = 50;
+        const int NUM_NODES_TO_SEND_ALL = 20;
         static Func<MyEntity, Vector3D, bool> m_positionValidation = ValidatePosition;
 
         static List<MyCubeGrid> m_groups = new List<MyCubeGrid>();
@@ -97,7 +97,6 @@ namespace Sandbox.Game.Replication
 
             if (Entity != GetMasterGrid(Entity))
                 return 0;
-         
 
             return base.GetGroupPriority(frameCountWithoutSync, client, settings);
         }
@@ -107,7 +106,7 @@ namespace Sandbox.Game.Replication
             if (Sync.IsServer == false && MyPerGameSettings.EnableMultiplayerVelocityCompensation && grid != null && grid.Physics != null && grid.Physics.RigidBody != null)
             {
                 float maxSpeed = grid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();
-
+                
                 maxSpeed *= Sync.RelativeSimulationRatio;
                
                 if (fromServer && grid.Physics.RigidBody.LinearVelocity.LengthSquared() > maxSpeed * maxSpeed)
@@ -121,7 +120,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public override void Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             // Client does not care about slave grids, he always synced group through controlled object
             Debug.Assert(stream.Reading || !Sync.IsServer || Entity == GetMasterGrid(Entity), "Writing data from SlaveGrid!");
@@ -139,8 +138,9 @@ namespace Sandbox.Game.Replication
                 moving = stream.ReadBool();
             }
 
+
             // Serialize this grid
-            apply = SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, apply,moving, m_positionValidation, MoveHandler);
+            apply = SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, apply,moving, timestamp, m_positionValidation, MoveHandler);
             SerializeVelocities(stream, Entity, EffectiveSimulationRatio, apply, moving,VelocityHandler);
 
      
@@ -160,6 +160,10 @@ namespace Sandbox.Game.Replication
                     int i= -1;
                     foreach (var node in g.Nodes)
                     {
+                        if (ResponsibleForUpdate(node.NodeData, forClient))
+                        {
+                            continue;
+                        }
                         i++;
                         if(i < m_currentSentPosition)
                         {
@@ -170,6 +174,7 @@ namespace Sandbox.Game.Replication
                             break;
                         }
                         var target = MyMultiplayer.Static.ReplicationLayer.GetProxyTarget((IMyEventProxy)node.NodeData);
+                        
                         if (node.NodeData != Entity && !node.NodeData.IsStatic && target != null)
                         {
                             m_groups.Add(node.NodeData);
@@ -193,7 +198,7 @@ namespace Sandbox.Game.Replication
                         moving = IsMoving(node);
                         stream.WriteBool(moving);
                
-                        SerializeTransform(stream, node, basePos, true, apply, moving,null, null); // 12.5 bytes
+                        SerializeTransform(stream, node, basePos, true, apply, moving,timestamp, null, null); // 12.5 bytes
                         SerializeVelocities(stream, node, EffectiveSimulationRatio, apply, moving); // 12 byte
                         UpdateGridMaxSpeed(node, Sync.IsServer);
                     }
@@ -213,7 +218,7 @@ namespace Sandbox.Game.Replication
                     MyCubeGrid grid = replicable != null ? replicable.Grid : null;
 
                     moving = stream.ReadBool();
-                    SerializeTransform(stream, grid, basePos, true, apply && grid != null,moving, null, null); // 12.5 bytes
+                    SerializeTransform(stream, grid, basePos, true, apply && grid != null,moving, timestamp, null, null); // 12.5 bytes
                     SerializeVelocities(stream, grid, EffectiveSimulationRatio, apply && grid != null, moving); // 12 bytes
                    
                     UpdateGridMaxSpeed(grid,!Sync.IsServer);

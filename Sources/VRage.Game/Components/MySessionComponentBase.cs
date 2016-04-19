@@ -24,6 +24,9 @@ namespace VRage.Game.Components
 
         public MyObjectBuilderType ObjectBuilderType;
 
+        // So the component may override or extend the functionality of another component.
+        public Type ComponentType;
+
         public MySessionComponentDescriptor(MyUpdateOrder updateOrder)
             : this(updateOrder, 1000)
         {
@@ -48,6 +51,7 @@ namespace VRage.Game.Components
         public readonly int Priority;
         public MyUpdateOrder UpdateOrder { get; set; }
         public readonly MyObjectBuilderType ObjectBuilderType;
+        public Type ComponentType;
 
         virtual public bool UpdatedBeforeInit()
         {
@@ -64,9 +68,13 @@ namespace VRage.Game.Components
             Priority = attr.Priority;
             UpdateOrder = attr.UpdateOrder;
             ObjectBuilderType = attr.ObjectBuilderType;
+            ComponentType = attr.ComponentType;
 
             if (ObjectBuilderType != MyObjectBuilderType.Invalid)
                 MySessionComponentMapping.Map(GetType(), ObjectBuilderType);
+
+            if (ComponentType == null)
+                ComponentType = GetType();
         }
 
         public virtual Type[] Dependencies
@@ -151,7 +159,7 @@ namespace VRage.Game.Components
 
         public override string ToString()
         {
-            return GetType().Name;
+            return ComponentType.ToString();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using SharpDX.Direct3D11;
+using System.Diagnostics;
 
 namespace VRageRender
 {
@@ -167,12 +168,22 @@ namespace VRageRender
             return GetLayout(components.Select(x => new MyVertexInputComponent(x)).ToArray());
         }
 
-        internal static VertexLayoutId GetLayout(VertexLayoutId a, VertexLayoutId b)
+        internal static VertexLayoutId GetLayout(VertexLayoutId firstLayout, VertexLayoutId secondLayout)
         {
-            return GetLayout(a.Info.Components.Concat(b.Info.Components).ToArray());
+            VertexLayoutId combinedLayout = VertexLayoutId.NULL;
+            List<MyVertexInputComponent> firstComponents = new List<MyVertexInputComponent>(firstLayout.Info.Components);
+            MyVertexInputComponent[] secondComponents = secondLayout.Info.Components;
+           
+            firstComponents.AddArray(secondComponents);
+
+            Debug.Assert(firstComponents.Count == firstComponents.Capacity);
+            firstComponents.Capacity = firstComponents.Count;
+
+            combinedLayout = GetLayout(firstComponents.GetInternalArray());
+            return combinedLayout;
         }
 
-        internal static VertexLayoutId GetLayout(params MyVertexInputComponent [] components)
+        internal static VertexLayoutId GetLayout(params MyVertexInputComponent[] components)
         {
             if(components == null || components.Length == 0)
             {
@@ -195,17 +206,22 @@ namespace VRageRender
 
             var declarationBuilder = new StringBuilder();
             var sourceBuilder = new StringBuilder();
-            var elementsList = new List<InputElement>();
             var semanticDict = new Dictionary<string, int>();
+
+            // Might save some allocations when each AddComponent only adds one element as then we can use GetInternalArray and Capacity set does nothing
+            var elementsList = new List<InputElement>(components.Length);
 
             foreach (var component in components)
             {
                 MyVertexInputLayout.m_mapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
             }
 
+            elementsList.Capacity = elementsList.Count;
+            Debug.Assert(elementsList.Count == elementsList.Capacity);
+
             Layouts.Data[id.Index] = new MyVertexLayoutInfo {
                 Components = components,
-                Elements = elementsList.ToArray(),
+                Elements = elementsList.GetInternalArray(),
                 SourceDataMove = sourceBuilder.ToString(),
                 SourceDeclarations = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder.ToString()).ToString(),
                 HasBonesInfo = components.Any(x => x.Type == MyVertexInputComponentType.BLEND_INDICES)

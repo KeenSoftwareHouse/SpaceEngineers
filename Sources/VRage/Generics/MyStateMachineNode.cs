@@ -11,6 +11,8 @@ namespace VRage.Generics
         public string Name { get; private set; }
         // List of all transitions.
         public List<MyStateMachineTransition> Transitions = new List<MyStateMachineTransition>();
+        // When this state is about to become current and there is a valid transition, go immediatelly to the next node.
+        public bool PassThrough = false;
 
         // Constructor, pass node name.
         public MyStateMachineNode(string name)

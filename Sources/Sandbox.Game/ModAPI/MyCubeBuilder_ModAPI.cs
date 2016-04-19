@@ -1,11 +1,12 @@
 ﻿using Sandbox.Game.Entities.Character;
-using Sandbox.ModAPI;
+using VRage.Game.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.ModAPI;
+using Sandbox.ModAPI;
 
 namespace Sandbox.Game.Entities
 {

@@ -95,6 +95,19 @@ namespace VRage.Audio
             set;
         }
 
+        bool UseVolumeLimiter
+        {
+            get;
+            set;
+        }
+
+        bool UseSameSoundLimiter
+        {
+            get;
+            set;
+        }
+        void SetSameSoundLimiter();
+
         event Action<bool> VoiceChatEnabled;
 
         void PlayMusic(MyMusicTrack? track = null, int priorityForRandom = 0);

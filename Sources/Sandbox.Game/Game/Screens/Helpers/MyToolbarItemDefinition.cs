@@ -59,7 +59,7 @@ namespace Sandbox.Game.Screens.Helpers
                     return false;
                 }
                 SetDisplayName(Definition.DisplayNameText);
-                SetIcon(Definition.Icon);
+                SetIcons(Definition.Icons);
                 return true;
             }
             return false;

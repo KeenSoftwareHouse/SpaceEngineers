@@ -229,12 +229,15 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void UpdateProduction(int timeDelta)
         {
+            ProfilerShort.Begin("Rebuild Queue");
             if (m_queueNeedsRebuild && (Sync.IsServer))
                 RebuildQueue();
 
+            ProfilerShort.BeginNextBlock("ProcessQueueItems");
             IsProducing = IsWorking && !IsQueueEmpty && !OutputInventory.IsFull;
             if (IsProducing)
                 ProcessQueueItems(timeDelta);
+            ProfilerShort.End();
         }
 
         private void ProcessQueueItems(int timeDelta)

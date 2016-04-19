@@ -47,6 +47,17 @@ float4 SampleInput(int2 texel)
     return inputSample;
 }
 
+float SampleDepth(int2 texel)
+{
+    float depthSample;
+#ifndef MS_SAMPLE_COUNT
+    depthSample = DepthBuffer[texel];
+#else
+    depthSample = DepthBuffer.Load(texel, 0);
+#endif
+    return depthSample;
+}
+
 void __pixel_shader(PostprocessVertex input, out float4 output : SV_Target0)
 {
         //output = InputTexture[input.position.xy];
@@ -58,7 +69,7 @@ void __pixel_shader(PostprocessVertex input, out float4 output : SV_Target0)
 #endif
     {
 #ifdef COPY_ON_STENCIL_FAIL
-        SampleInput(input.position.xy);
+        output = SampleInput(input.position.xy);
 #endif
         return;
     }
@@ -67,7 +78,7 @@ void __pixel_shader(PostprocessVertex input, out float4 output : SV_Target0)
     const int size = MAX_OFFSET;
 
 #ifdef DEPTH_DISCARD_THRESHOLD
-    float depthSample = DepthBuffer[input.position.xy];
+    float depthSample = SampleDepth(input.position.xy);
     float linearDepth = -linearize_depth(depthSample, frame_.projection_matrix);
 #endif
 
@@ -83,11 +94,11 @@ void __pixel_shader(PostprocessVertex input, out float4 output : SV_Target0)
         float4 addToResult = SampleInput(texel);
 
 #ifdef DEPTH_DISCARD_THRESHOLD  // Really expensive, avoid using this flag if at all possible
-        float depthSampleAtOffset = DepthBuffer[texel];
+        float depthSampleAtOffset = SampleDepth(texel);
         float linearDepthAtOffset = -linearize_depth(depthSampleAtOffset, frame_.projection_matrix);
         if ( !depth_not_background(depthSampleAtOffset) || (abs(linearDepth - linearDepthAtOffset) > DEPTH_DISCARD_THRESHOLD) )
         {
-            output = InputTexture[input.position.xy];
+            output = SampleInput(input.position.xy);
             return;
         }
 #endif

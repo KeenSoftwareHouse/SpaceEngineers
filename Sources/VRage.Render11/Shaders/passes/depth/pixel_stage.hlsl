@@ -20,6 +20,4 @@ void __pixel_shader(PixelStageInput input) {
 
 	MaterialOutputInterface material_output = make_mat_interface();
 	pixel_program(pixel, material_output);
-	if(material_output.DISCARD)
-		discard;
 }

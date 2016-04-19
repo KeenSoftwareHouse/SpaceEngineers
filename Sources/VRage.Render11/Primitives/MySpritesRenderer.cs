@@ -89,7 +89,7 @@ namespace VRageRender
                 ));
 
             m_currentBufferSize = 100000;
-            m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatSpritePositionTextureRotationColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
+            m_VB = MyHwBuffers.CreateVertexBuffer(m_currentBufferSize, sizeof(MyVertexFormatSpritePositionTextureRotationColor), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MySpritesRenderer");
 
             m_contextsStack.Add(new MySpritesContext());
         }

@@ -233,7 +233,7 @@ namespace Sandbox.Game.Entities.Cube
         /// <summary>
         /// Call this when you change detailed info or other terminal properties
         /// </summary>
-        protected void RaisePropertiesChanged()
+        public void RaisePropertiesChanged()
         {
             var handler = PropertiesChanged;
             if (handler != null) handler(this);

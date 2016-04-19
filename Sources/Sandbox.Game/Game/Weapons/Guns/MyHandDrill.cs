@@ -25,6 +25,7 @@ using Sandbox.Engine.Networking;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 
 #endregion
 
@@ -243,6 +244,10 @@ namespace Sandbox.Game.Weapons
             if (m_drillBase.IsDrilling || m_drillBase.AnimationMaxSpeedRatio > 0f)
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_spikeLastUpdateTime) / 1000f;
+
+                if (m_objectInDrillingRange && Owner != null && Owner.ControllerInfo.IsLocallyControlled() && (Owner.IsInFirstPersonView || Owner.ForceFirstPersonCamera))
+                    m_drillBase.PerformCameraShake();
+
 #if ROTATE_DRILL_SPIKE
                 m_spikeRotationAngle += timeDelta * m_drillBase.AnimationMaxSpeedRatio * SPIKE_MAX_ROTATION_SPEED;
                 if (m_spikeRotationAngle > MathHelper.TwoPi) m_spikeRotationAngle -= MathHelper.TwoPi;
@@ -266,8 +271,9 @@ namespace Sandbox.Game.Weapons
         private void CreateCollisionSparks()
         {
             float distSq = MyDrillConstants.DRILL_HAND_REAL_LENGTH * MyDrillConstants.DRILL_HAND_REAL_LENGTH;
-            var origin = m_drillBase.Sensor.Center * 2 - m_drillBase.Sensor.FrontPoint;
+            var origin = m_drillBase.Sensor.Center;
 
+            m_objectInDrillingRange = false;
             foreach (var entry in m_drillBase.Sensor.EntitiesInRange)
             {
                 const float sparksMoveDist = 0.1f;
@@ -275,6 +281,7 @@ namespace Sandbox.Game.Weapons
                 var pt = entry.Value.DetectionPoint;
                 if (Vector3.DistanceSquared(pt, origin) < distSq)
                 {
+                    m_objectInDrillingRange = true;
                     if (Vector3.DistanceSquared(m_lastSparksPosition, pt) > sparksMoveDist * sparksMoveDist)
                     {
                         m_lastSparksPosition = pt;
@@ -320,13 +327,17 @@ namespace Sandbox.Game.Weapons
 
         public void OnControlReleased()
         {
-            m_drillBase.IgnoredEntities.Remove(m_owner);
-            m_drillBase.StopDrill();
-            m_tryingToDrill = false;
-			SinkComp.Update();
-            m_drillBase.OutputInventory = null;
+            if (m_drillBase != null)
+            {
+                m_drillBase.IgnoredEntities.Remove(m_owner);
+                m_drillBase.StopDrill();
 
-            if (m_owner.ControllerInfo.IsLocallyControlled())
+                m_tryingToDrill = false;
+                SinkComp.Update();
+                m_drillBase.OutputInventory = null;
+            }
+
+            if (m_owner != null && m_owner.ControllerInfo != null && m_owner.ControllerInfo.IsLocallyControlled())
             {
                 m_oreDetectorBase.Clear();
             }
@@ -340,6 +351,7 @@ namespace Sandbox.Game.Weapons
         }
 
         private bool m_tryingToDrill;
+        private bool m_objectInDrillingRange;
 
         public MyDefinitionId DefinitionId
         {

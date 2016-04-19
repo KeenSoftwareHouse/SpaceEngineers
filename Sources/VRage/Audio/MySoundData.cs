@@ -12,12 +12,18 @@ namespace VRage.Data.Audio
         public float Volume = 1.0f;
         public float VolumeVariation;
         public float PitchVariation;
+        public float Pitch = 0f;
+        public int SoundLimit = 0;
+        public bool DisablePitchEffects = false;
         public bool Loopable;
         public string Alternative2D;
         public bool UseOcclusion;
         public List<MyAudioWave> Waves;
         public List<DistantSound> DistantSounds;
         public MyMusicTrack MusicTrack;
+        public int PreventSynchronization = -1;
+        public bool ModifiableByHelmetFilters = true;
+        public MyStringHash RealisticFilter = MyStringHash.NullOrEmpty;
 
         public bool IsHudCue { get { return StringComparer.InvariantCultureIgnoreCase.Equals(Category.ToString(), "hud"); } }
 

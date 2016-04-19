@@ -35,9 +35,6 @@ namespace Sandbox.Game.World
 
         static readonly int GLOBAL_EVENT_UPDATE_RATIO_IN_MS = 2000;
 
-        public static MySyncGlobal SyncObject = new MySyncGlobal();
-
-
         public override void LoadData()
         {
             m_globalEvents.Clear();

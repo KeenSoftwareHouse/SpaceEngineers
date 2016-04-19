@@ -7,6 +7,7 @@ using VRage;
 using VRage.Game.Components;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Components
 {
@@ -24,6 +25,7 @@ namespace Sandbox.Game.Components
                 return null;
             }
         }
+        public MyDamageInformation LastDamage { get; private set; }
 
         public float HealthRatio { get { var retVal = 1.0f; var health = Health; if (health != null) retVal = health.Value / health.MaxValue; return retVal; } }
 
@@ -92,6 +94,8 @@ namespace Sandbox.Game.Components
 			if(m_character != null)
 				m_character.CharacterAccumulatedDamage += damage;
 
+            if (statChangeData is MyDamageInformation)
+                LastDamage = (MyDamageInformation)statChangeData;
 			health.Decrease(damage, statChangeData);
 
 			if (updateSync && !Sync.IsServer)

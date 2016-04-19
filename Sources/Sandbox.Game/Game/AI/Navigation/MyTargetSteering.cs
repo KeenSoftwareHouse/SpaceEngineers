@@ -59,7 +59,7 @@ namespace Sandbox.Game.AI.Navigation
             else
             {
                 m_entity = relativeEntity;
-                m_target = Vector3D.Transform(target, m_entity.PositionComp.WorldMatrixInvScaled);
+                m_target = Vector3D.Transform(target, m_entity.PositionComp.WorldMatrixNormalizedInv);
             }
 
             m_capsuleRadiusSq = radius * radius;

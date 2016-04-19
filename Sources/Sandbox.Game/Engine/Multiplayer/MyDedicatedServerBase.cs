@@ -18,6 +18,7 @@ using VRage.Trace;
 using VRage.Utils;
 using VRage.Network;
 using VRage.Library.Utils;
+using VRage.Library.Collections;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -31,73 +32,6 @@ namespace Sandbox.Engine.Multiplayer
     }
 
     #endregion
-
-    #region Messages
-
-    [ProtoBuf.ProtoContract]
-    [MessageId(13872, P2PMessageEnum.Reliable)]
-    public struct ChatMsg
-    {
-        [ProtoBuf.ProtoMember]
-        public string Text;
-
-        [ProtoBuf.ProtoMember]
-        public ulong Author; // Ignored when sending message from client to server
-    }
-    
-    public enum JoinResult
-    {
-        OK,
-        AlreadyJoined,
-        TicketInvalid,
-        SteamServersOffline,
-        NotInGroup,
-        GroupIdInvalid,
-        ServerFull,
-        BannedByAdmins,
-
-        TicketCanceled,
-        TicketAlreadyUsed,
-        LoggedInElseWhere,
-        NoLicenseOrExpired,
-        UserNotConnected,
-        VACBanned,
-        VACCheckTimedOut
-    }
-
-    [ProtoBuf.ProtoContract]
-    [MessageId(13874, P2PMessageEnum.Reliable)]
-    public struct JoinResultMsg
-    {
-        [ProtoBuf.ProtoMember]
-        public JoinResult JoinResult;
-
-        [ProtoBuf.ProtoMember]
-        public ulong Admin;
-    }
-
-    [ProtoBuf.ProtoContract]
-    [MessageId(13875, P2PMessageEnum.Reliable)]
-    public struct ConnectedClientDataMsg
-    {
-        [ProtoBuf.ProtoMember]
-        public ulong SteamID;
-
-        [ProtoBuf.ProtoMember]
-        public string Name;
-
-        [ProtoBuf.ProtoMember]
-        public bool IsAdmin;
-
-        [ProtoBuf.ProtoMember]
-        public bool Join;
-
-        [ProtoBuf.ProtoMember]
-        public byte[] Token;
-    }
-
-    #endregion
-
 
     public abstract class MyDedicatedServerBase : MyMultiplayerServerBase
     {
@@ -240,7 +174,7 @@ namespace Sandbox.Engine.Multiplayer
         protected MyDedicatedServerBase(MySyncLayer syncLayer)
             : base(syncLayer, null)
         {
-            RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
+            syncLayer.TransportLayer.Register(MyMessageId.CLIENT_CONNNECTED, (p) => ClientConnected(p));
         }
 
         protected void Initialize(IPEndPoint serverEndpoint)
@@ -250,9 +184,6 @@ namespace Sandbox.Engine.Multiplayer
             ServerStarted = false;
 
             HostName = "Dedicated server";
-
-            SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             m_membersCollection = new MemberCollection(m_members);
             SetMemberLimit(MaxPlayers);
@@ -541,7 +472,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public override bool IsCorrectVersion()
         {
-            return m_appVersion == Sandbox.Common.MyFinalBuildConstants.APP_VERSION;
+            return m_appVersion == MyFinalBuildConstants.APP_VERSION;
         }
 
         public override MyDownloadWorldResult DownloadWorld()
@@ -614,11 +545,10 @@ namespace Sandbox.Engine.Multiplayer
             msg.Text = text;
             msg.Author = Sync.MyId;
 
+            SendChatMessage(ref msg);
             // This will send the message to every client except message author
-            OnChatMessage(ref msg, Sync.MyId);
+            OnChatMessage(ref msg);
         }
-
-        protected abstract void OnChatMessage(ref ChatMsg msg, ulong sender);
 
         public void SendJoinResult(ulong sendTo, JoinResult joinResult, ulong adminID = 0)
         {
@@ -626,7 +556,7 @@ namespace Sandbox.Engine.Multiplayer
             msg.JoinResult = joinResult;
             msg.Admin = adminID;
 
-            SendControlMessage(sendTo, ref msg);
+            ReplicationLayer.SendJoinResult(ref msg,sendTo);
         }
 
         public override void Dispose()
@@ -734,9 +664,8 @@ namespace Sandbox.Engine.Multiplayer
             m_membersLimit = MyDedicatedServerOverrides.MaxPlayers.HasValue ? MyDedicatedServerOverrides.MaxPlayers.Value : limit;
         }
 
-        void OnConnectedClient(ref ConnectedClientDataMsg msg, MyNetworkClient sender)
+        protected void OnConnectedClient(ref ConnectedClientDataMsg msg, ulong steamId)
         {
-            var steamId = sender.SteamUserId;
             RaiseClientJoined(steamId);
 
             MyLog.Default.WriteLineAndConsole("OnConnectedClient " + msg.Name + " attempt");
@@ -802,7 +731,8 @@ namespace Sandbox.Engine.Multiplayer
             msg.Name = connectedClientName;
             msg.IsAdmin = MySandboxGame.ConfigDedicated.Administrators.Contains(connectedSteamID.ToString()) || MySandboxGame.ConfigDedicated.Administrators.Contains(ConvertSteamIDFrom64(connectedSteamID));
             msg.Join = join;
-            SyncLayer.SendMessage(ref msg, steamTo);
+
+            ReplicationLayer.SendClientConnected(ref msg, steamTo);
         }
 
         protected override void OnClientKick(ref MyControlKickClientMsg data, ulong sender)
@@ -822,9 +752,10 @@ namespace Sandbox.Engine.Multiplayer
             SendControlMessage(sender, ref data);
         }
 
-        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
+        void ClientConnected(VRage.MyPacket packet)
         {
-            Debug.Fail("Members data cannot be sent to server");
+           ConnectedClientDataMsg msg =  ReplicationLayer.OnClientConnected(packet);
+           OnConnectedClient(ref msg,msg.SteamID);
         }
     }
 }

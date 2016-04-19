@@ -26,15 +26,24 @@ float4x4 get_view_proj_matrix()
 	return projection_.view_proj_matrix;
 }
 
-float4 world_to_clip(float3 p)
+float4 WorldToClip(float3 worldPosition)
 {
-    return mul(float4(p, 1), projection_.view_proj_matrix);
+    return mul(float4(worldPosition, 1), projection_.view_proj_matrix);
 }
 
-#define MATERIAL_FLAG_RGB_COLORING 1
+#define MATERIAL_FLAG_COLORING (MATERIAL_FLAG_COLORING_RGB|MATERIAL_FLAG_HAS_KEYCOLOR)
+
+#define MATERIAL_FLAG_COLORING_RGB 1
+#define MATERIAL_FLAG_NO_KEYCOLOR 2
 
 struct ObjectConstants
 {
+#ifdef USE_MERGE_INSTANCING
+    int instanceIndex;
+    int startIndex;
+    float __p1, __p2;
+#else
+
 #ifndef USE_VOXEL_DATA
     float   facing;
     float2 	windScaleAndFreq;
@@ -66,6 +75,8 @@ struct ObjectConstants
 #ifdef USE_SKINNING
     matrix bone_matrix[60];
 #endif
+
+#endif
 };
 
 cbuffer Object : register( MERGE(b,OBJECT_SLOT) )
@@ -73,9 +84,13 @@ cbuffer Object : register( MERGE(b,OBJECT_SLOT) )
 	ObjectConstants object_;
 };
 
+#ifndef USE_MERGE_INSTANCING
+
 matrix get_object_matrix()
 {
 	return transpose(matrix(object_.matrix_row0, object_.matrix_row1, object_.matrix_row2, float4(0,0,0,1)));
 }
+
+#endif
 
 #endif

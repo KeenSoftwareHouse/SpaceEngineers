@@ -33,6 +33,9 @@ namespace VRage.Game
         [ProtoMember, DefaultValue(null)]
         public float? Volume = null; // in liters
 
+        [ProtoMember, DefaultValue(null)]
+        public float? ModelVolume = null; // in liters
+
         [ProtoMember]
         public string PhysicalMaterial;
 
@@ -63,5 +66,8 @@ namespace VRage.Game
 
         [ProtoMember, DefaultValue(null)]
         public string ExtraInventoryTooltipLine = null;
+
+        [ProtoMember]
+        public MyFixedPoint MaxStackAmount = MyFixedPoint.MaxValue;
     }
 }

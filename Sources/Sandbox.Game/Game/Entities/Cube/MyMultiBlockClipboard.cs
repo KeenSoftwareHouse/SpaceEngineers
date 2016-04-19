@@ -20,6 +20,7 @@ using VRage;
 using VRage.Library.Utils;
 using VRage.Game.Entity;
 using VRage.Game;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -151,7 +152,7 @@ namespace Sandbox.Game.Entities.Cube
             if (CopiedGrids.Count < 1) 
                 return false;
 
-            if(MySession.Static.IsAdminModeEnabled)
+            if (MySession.Static.IsAdminModeEnabled(Sync.MyId))
                 return true;
 
             MyCubeBuilder.BuildComponent.GetMultiBlockPlacementMaterials(m_multiBlockDefinition);
@@ -521,7 +522,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 m_touchingGrids.Add(null);
 
-                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding && !MySession.Static.IsAdminModeEnabled)
+                if (MySession.Static.SurvivalMode && !MyCubeBuilder.SpectatorIsBuilding && !MySession.Static.IsAdminModeEnabled(Sync.MyId))
                 {
                     if (i == 0 && MyCubeBuilder.CameraControllerSpectator)
                     {
@@ -798,7 +799,7 @@ namespace Sandbox.Game.Entities.Cube
 
             base.SetupDragDistance();
 
-            if (MySession.Static.SurvivalMode && !MySession.Static.IsAdminModeEnabled)
+            if (MySession.Static.SurvivalMode && !MySession.Static.IsAdminModeEnabled(Sync.MyId))
                 m_dragDistance = MyCubeBuilder.Static.IntersectionDistance;
         }
 
@@ -876,7 +877,7 @@ namespace Sandbox.Game.Entities.Cube
                 return;
 
             MyCubeBuilder.BuildComponent.GetMultiBlockPlacementMaterials(multiBlockDefinition);
-            MyCubeBuilder.BuildComponent.AfterMultiBlockBuild(builder);
+            MyCubeBuilder.BuildComponent.AfterSuccessfulBuild(builder, instantBuild: false);
         }
     }
 }

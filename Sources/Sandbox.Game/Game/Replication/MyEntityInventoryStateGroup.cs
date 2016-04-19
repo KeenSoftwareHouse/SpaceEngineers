@@ -31,13 +31,13 @@ namespace Sandbox.Game.Replication
             public List<uint> RemovedItems;
             public Dictionary<uint, MyFixedPoint> ChangedItems;
             public SortedDictionary<int,MyPhysicalInventoryItem> NewItems;
+            public Dictionary<int, int> SwappedItems;
         }
 
         struct ClientInvetoryData
         {
             public MyPhysicalInventoryItem Item;
             public MyFixedPoint Amount;
-
         }
 
         class InventoryClientData
@@ -47,7 +47,8 @@ namespace Sandbox.Game.Replication
             public bool Dirty;
             public Dictionary<byte, InventoryDeltaInformation> SendPackets = new Dictionary<byte, InventoryDeltaInformation>();
             public List<InventoryDeltaInformation> FailedIncompletePackets = new List<InventoryDeltaInformation>();
-            public Dictionary<uint,ClientInvetoryData> ClientItems = new Dictionary<uint,ClientInvetoryData>();
+            public SortedDictionary<uint, ClientInvetoryData> ClientItemsSorted = new SortedDictionary<uint, ClientInvetoryData>();
+            public List<ClientInvetoryData> ClientItems = new List<ClientInvetoryData>();
         }
 
         MyInventory Inventory { get; set; }
@@ -121,7 +122,9 @@ namespace Sandbox.Game.Replication
                     amount = (MyFixedPoint)gasItem.GasLevel;
                 }
 
-                data.ClientItems[serverItem.ItemId] = new ClientInvetoryData() { Item = serverItem, Amount = amount };
+                ClientInvetoryData item = new ClientInvetoryData() { Item = serverItem, Amount = amount };
+                data.ClientItemsSorted[serverItem.ItemId] = item;
+                data.ClientItems.Add(item);
             }
             
         }
@@ -134,7 +137,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public void ClientUpdate()
+        public void ClientUpdate(uint timestamp)
         {
         }
 
@@ -151,7 +154,7 @@ namespace Sandbox.Game.Replication
                 return 0.0f;
             }
 
-            if(clientData.FailedIncompletePackets.Count  > 0)
+            if (clientData.FailedIncompletePackets.Count  > 0)
             {
                 return 1.0f * INVENTORY_PRIORITY_RAMP * frameCountWithoutSync;
             }
@@ -201,35 +204,38 @@ namespace Sandbox.Game.Replication
 
             if (state.ContextEntity != null)
             {
-                MyCubeGrid parent = state.ContextEntity.GetTopMostParent() as MyCubeGrid;
-
-                if (parent != null)
-                {
-                    foreach (var block in parent.GridSystems.TerminalSystem.Blocks)
-                    {
-                        if (block == Inventory.Container.Entity)
-                        {
-                            if (state.Context == Sandbox.Engine.Multiplayer.MyClientState.MyContextKind.Production && (block is MyAssembler) == false)
-                            {
-                                continue;
-                            }
-                            return 1.0f;
-                        }
-                    }
-                }
-                else if (state.ContextEntity == Inventory.Owner)
+                if (state.ContextEntity == Inventory.Owner)
                 {
                     return 1.0f;
+                }
+                else
+                {
+                    MyCubeGrid parent = state.ContextEntity.GetTopMostParent() as MyCubeGrid;
+
+                    if (parent != null)
+                    {
+                        foreach (var block in parent.GridSystems.TerminalSystem.Blocks)
+                        {
+                            if (block == Inventory.Container.Entity)
+                            {
+                                if (state.Context == Sandbox.Engine.Multiplayer.MyClientState.MyContextKind.Production && (block is MyAssembler) == false)
+                                {
+                                    continue;
+                                }
+                                return 1.0f;
+                            }
+                        }
+                    }
                 }
             }
             return 0;
         }
 
-        public void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public void Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
         {
             if (stream.Writing)
             {
-                InventoryClientData clientData = m_clientInventoryUpdate[forClient.EndpointId.Value];
+                InventoryClientData clientData = m_clientInventoryUpdate[forClient.Value];
                 bool needsSplit = false;
                 if (clientData.FailedIncompletePackets.Count > 0)
                 {
@@ -352,7 +358,23 @@ namespace Sandbox.Game.Replication
                     VRage.Serialization.MySerializer.CreateAndRead(stream, out item, MyObjectBuilderSerializer.Dynamic);
                     if (apply)
                     {
-                        Inventory.AddItem(position, item);
+                        Inventory.AddItemClient(position, item);
+                    }
+                }
+            }
+
+            hasItems = stream.ReadBool();
+            if (hasItems)
+            {
+                int numItems = stream.ReadInt32();
+
+                for (int i = 0; i < numItems; ++i)
+                {
+                    int position = stream.ReadInt32();
+                    int newPosition = stream.ReadInt32();
+                    if (apply)
+                    {
+                        Inventory.SwapItemClient(position, newPosition);
                     }
                 }
             }
@@ -372,26 +394,122 @@ namespace Sandbox.Game.Replication
                 m_foundDeltaItems = new HashSet<uint>();
             }
             m_foundDeltaItems.Clear();
-
-            InventoryDeltaInformation delta = new InventoryDeltaInformation();
-            delta.HasChanges = false;
-
+           
+            
+            InventoryDeltaInformation delta;
             List<MyPhysicalInventoryItem> items = Inventory.GetItems();
+            //this is two step algoritm 
+
+            //first check for adds/removals
+            //this part can find removed and added items
+            //but cannot find swapped items
+            CalculateAddsAndRemovals(clientData, out delta, items);
+
+            //apply changes to client items (only add and remove)
+
+            if(delta.HasChanges)
+            {
+                ApplyChangesToClientItems(clientData,ref delta);
+            }
+            //then check client data for changed items
+            for (int i = 0; i < items.Count; ++i)
+            {
+                if(clientData.ClientItems.Count < i && clientData.ClientItems[i].Item.ItemId !=  items[i].ItemId)
+                {    
+                    if(delta.SwappedItems == null)
+                    {
+                        delta.SwappedItems = new Dictionary<int, int>();
+                    }
+                    if(delta.SwappedItems.ContainsKey(i))
+                    {
+                        continue;
+                    }
+
+                    for (int j = 0; j < clientData.ClientItems.Count;++j)
+                    {
+                        if(clientData.ClientItems[j].Item.ItemId == items[i].ItemId)
+                        {
+                            delta.SwappedItems[j] = i;
+                        }
+                    }             
+                }
+            }
+
+            clientData.ClientItemsSorted.Clear();
+            clientData.ClientItems.Clear();
+
+            foreach (var serverItem in items)
+            {
+                MyFixedPoint amount = serverItem.Amount;
+
+                var gasItem = serverItem.Content as MyObjectBuilder_GasContainerObject;
+                if (gasItem != null)
+                {
+                    amount = (MyFixedPoint)gasItem.GasLevel;
+                }
+                ClientInvetoryData item = new ClientInvetoryData() { Item = serverItem, Amount = amount };
+                clientData.ClientItemsSorted[serverItem.ItemId] = item;
+                clientData.ClientItems.Add(item);
+            }
+            return delta;
+        }
+
+        private void ApplyChangesToClientItems(InventoryClientData clientData,ref  InventoryDeltaInformation delta)
+        {
+            if (delta.RemovedItems != null)
+            {
+                foreach (var item in delta.RemovedItems)
+                {
+                    int index = -1;
+                    for (int i = 0; i < clientData.ClientItems.Count; ++i)
+                    {
+                        if (clientData.ClientItems[i].Item.ItemId == item)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    if (index != -1)
+                    {
+                        clientData.ClientItems.RemoveAt(index);
+                    }
+                }
+            }
+
+            if (delta.NewItems != null)
+            {
+                foreach (var item in delta.NewItems)
+                {
+                    ClientInvetoryData newitem = new ClientInvetoryData() { Item = item.Value, Amount = item.Value.Amount };
+                    if (item.Key >= clientData.ClientItems.Count)
+                    {
+                        clientData.ClientItems.Add(newitem);
+                    }
+                    else
+                    {
+                        clientData.ClientItems.Insert(item.Key, newitem);
+                    }
+                }
+            }
+        }
+
+        private void CalculateAddsAndRemovals(InventoryClientData clientData, out InventoryDeltaInformation delta, List<MyPhysicalInventoryItem> items)
+        {
+            delta = new InventoryDeltaInformation();
+            delta.HasChanges = false;
 
             int serverPos = 0;
             foreach (var serverItem in items)
             {
-
                 ClientInvetoryData clientItem;
 
-                if (clientData.ClientItems.TryGetValue(serverItem.ItemId,out clientItem))
+                if (clientData.ClientItemsSorted.TryGetValue(serverItem.ItemId, out clientItem))
                 {
                     if (clientItem.Item.Content.TypeId == serverItem.Content.TypeId &&
                         clientItem.Item.Content.SubtypeId == serverItem.Content.SubtypeId)
                     {
                         m_foundDeltaItems.Add(serverItem.ItemId);
-                        delta.HasChanges = true;
-
                         MyFixedPoint serverAmount = serverItem.Amount;
 
                         var gasItem = serverItem.Content as MyObjectBuilder_GasContainerObject;
@@ -408,7 +526,8 @@ namespace Sandbox.Game.Replication
                                 delta.ChangedItems = new Dictionary<uint, MyFixedPoint>();
                             }
                             delta.ChangedItems[serverItem.ItemId] = contentDelta;
-                        }                      
+                            delta.HasChanges = true;
+                        }
                     }
                 }
                 else
@@ -424,7 +543,7 @@ namespace Sandbox.Game.Replication
                 serverPos++;
             }
 
-            foreach (var clientItem in clientData.ClientItems)
+            foreach (var clientItem in clientData.ClientItemsSorted)
             {
                 if (delta.RemovedItems == null)
                 {
@@ -436,27 +555,10 @@ namespace Sandbox.Game.Replication
                     delta.HasChanges = true;
                 }
             }
-
-            clientData.ClientItems.Clear();
-            foreach (var serverItem in items)
-            {
-                MyFixedPoint amount = serverItem.Amount;
-
-                var gasItem = serverItem.Content as MyObjectBuilder_GasContainerObject;
-                if (gasItem != null)
-                {
-                    amount = (MyFixedPoint)gasItem.GasLevel;
-                }
-
-                clientData.ClientItems[serverItem.ItemId] = new ClientInvetoryData() { Item = serverItem, Amount = amount };
-            }
-            return delta;
         }
 
         private InventoryDeltaInformation WriteInventory(ref InventoryDeltaInformation packetInfo, BitStream stream, byte packetId, int maxBitPosition, out bool needsSplit)
         {
-            Console.WriteLine(String.Format("sending: {0}, {1}", packetId, Inventory.Owner.ToString()));
-
             InventoryDeltaInformation sendPacketInfo = PrepareSendData(ref packetInfo, stream, maxBitPosition, out needsSplit);
             if (sendPacketInfo.HasChanges == false)
             {
@@ -490,7 +592,7 @@ namespace Sandbox.Game.Replication
             }
 
             stream.WriteBool(sendPacketInfo.NewItems != null);
-            if (packetInfo.NewItems != null)
+            if (sendPacketInfo.NewItems != null)
             {
                 stream.WriteInt32(sendPacketInfo.NewItems.Count);
                 foreach (var item in sendPacketInfo.NewItems)
@@ -498,6 +600,17 @@ namespace Sandbox.Game.Replication
                     stream.WriteInt32(item.Key);
                     MyPhysicalInventoryItem itemTosend = item.Value;
                     VRage.Serialization.MySerializer.Write(stream, ref itemTosend, MyObjectBuilderSerializer.Dynamic);
+                }
+            }
+
+            stream.WriteBool(sendPacketInfo.SwappedItems != null);
+            if (sendPacketInfo.SwappedItems != null)
+            {
+                stream.WriteInt32(sendPacketInfo.SwappedItems.Count);
+                foreach (var item in sendPacketInfo.SwappedItems)
+                {
+                    stream.WriteInt32(item.Key);
+                    stream.WriteInt32(item.Value);
                 }
             }
 
@@ -601,6 +714,36 @@ namespace Sandbox.Game.Replication
                     }
                 }
             }
+
+            stream.WriteBool(packetInfo.SwappedItems != null);
+            if (packetInfo.SwappedItems != null)
+            {
+                stream.WriteInt32(packetInfo.SwappedItems.Count);
+                if (stream.BitPosition > maxBitPosition)
+                {
+                    needsSplit = true;
+                }
+                else
+                {
+                    sentData.SwappedItems = new Dictionary<int, int>();
+
+                    foreach (var item in packetInfo.SwappedItems)
+                    {
+                        stream.WriteInt32(item.Key);
+                        stream.WriteInt32(item.Value);
+
+                        if (stream.BitPosition <= maxBitPosition)
+                        {
+                            sentData.SwappedItems[item.Key] = item.Value;
+                            sentData.HasChanges = true;
+                        }
+                        else
+                        {
+                            needsSplit = true;
+                        }
+                    }
+                }
+            }
             stream.SetBitPositionWrite(startStreamPosition);
             return sentData;
         }
@@ -679,12 +822,37 @@ namespace Sandbox.Game.Replication
                 }
             }
 
+
+            if (originalData.SwappedItems != null)
+            {
+                if (sentData.SwappedItems == null)
+                {
+                    split.SwappedItems = new Dictionary<int, int>();
+                    foreach (var item in originalData.SwappedItems)
+                    {
+                        split.SwappedItems[item.Key] = item.Value;
+                    }
+                }
+                else if (originalData.SwappedItems.Count != sentData.SwappedItems.Count)
+                {
+                    split.SwappedItems = new Dictionary<int, int>();
+                    foreach (var item in originalData.SwappedItems)
+                    {
+                        if (sentData.SwappedItems.ContainsKey(item.Key) == false)
+                        {
+                            split.SwappedItems[item.Key] = item.Value;
+                        }
+                    }
+                }
+            }
+
             return split;
         }
 
         public void OnAck(MyClientStateBase forClient, byte packetId, bool delivered)
         {
-            Console.WriteLine(String.Format("delivery: {0}, {1}", packetId, delivered));
+            if (!VRage.Game.MyFinalBuildConstants.IS_OFFICIAL)
+                Console.WriteLine(String.Format("delivery: {0}, {1}", packetId, delivered));
             InventoryClientData clientData = m_clientInventoryUpdate[forClient.EndpointId.Value];
             InventoryDeltaInformation packetInfo;
             if (clientData.SendPackets.TryGetValue(packetId, out packetInfo))

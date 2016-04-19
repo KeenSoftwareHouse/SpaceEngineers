@@ -1082,7 +1082,7 @@ namespace Sandbox.Engine.Physics
             } 
             if (changed && MyFakes.ENABLE_RAGDOLL_CLIENT_SYNC)
             {
-                m_character.SyncObject.SendRagdollTransforms(worldTransform, m_ragdollRigidBodiesAbsoluteTransforms);
+                m_character.SendRagdollTransforms(worldTransform, m_ragdollRigidBodiesAbsoluteTransforms);
                 m_lastSyncedWorldMatrix = worldTransform;
             }
         }

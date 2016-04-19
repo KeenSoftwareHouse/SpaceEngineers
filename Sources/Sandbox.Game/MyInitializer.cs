@@ -23,6 +23,7 @@ using VRage.Trace;
 using VRageRender;
 using VRage.Library.Utils;
 using VRage.Common.Utils;
+using VRage.Game;
 
 namespace Sandbox
 {

@@ -14,7 +14,7 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using Sandbox.Engine.Utils;
-using Sandbox.Common.Components;
+
 using Sandbox.Game;
 using VRage;
 using VRage.Library.Utils;
@@ -907,8 +907,8 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         protected bool RemoveItem(int itemInstanceId, int physicsInstanceId, bool sync, bool immediateUpdate)
         {
             //Debug.Assert(sync == false || Sync.IsServer, "Synchronizing env. item removal from the client is forbidden!"); let it sync for planets
-            Debug.Assert(m_physicsShapeInstanceIdToLocalId.ContainsKey(physicsInstanceId), "Could not find env. item shape!");
-            Debug.Assert(m_localIdToPhysicsShapeInstanceId.ContainsKey(itemInstanceId), "Could not find env. item instance!");
+            Debug.Assert(physicsInstanceId == -1 || m_physicsShapeInstanceIdToLocalId.ContainsKey(physicsInstanceId), "Could not find env. item shape!");
+            Debug.Assert(physicsInstanceId == -1 || m_localIdToPhysicsShapeInstanceId.ContainsKey(itemInstanceId), "Could not find env. item instance!");
 
             m_physicsShapeInstanceIdToLocalId.Remove(physicsInstanceId);
             m_localIdToPhysicsShapeInstanceId.Remove(itemInstanceId);
@@ -1144,9 +1144,9 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 if (debri != null && debri.Physics != null)
                 {
                     MyParticleEffect effect;
-                    if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.DestructionTree, out effect))
+                    if (MyParticlesManager.TryCreateParticleEffect((int) MyParticleEffectsIDEnum.DestructionTree, out effect))
                     {
-                        effect.WorldMatrix = MatrixD.CreateTranslation(position);//, (Vector3D)normal, Vector3D.CalculatePerpendicularVector(normal));
+                        effect.WorldMatrix = MatrixD.CreateTranslation(position); //, (Vector3D)normal, Vector3D.CalculatePerpendicularVector(normal));
                         effect.AutoDelete = true;
                     }
 
@@ -1155,11 +1155,11 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     const float ENERGY_PRESERVATION = .8f;
 
                     // Tree final velocity
-                    float velTree = (float)Math.Sqrt(energy / treeMass);
-                    float accell = velTree / (VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED) * ENERGY_PRESERVATION;
-                    var force = accell * normal;
+                    float velTree = (float) Math.Sqrt(energy/treeMass);
+                    float accell = velTree/(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS*MyFakes.SIMULATION_SPEED)*ENERGY_PRESERVATION;
+                    var force = accell*normal;
 
-                    var pos = debri.Physics.CenterOfMassWorld + 0.5f * Vector3D.Dot(position - debri.Physics.CenterOfMassWorld, debri.WorldMatrix.Up) * debri.WorldMatrix.Up;
+                    var pos = debri.Physics.CenterOfMassWorld + 0.5f*Vector3D.Dot(position - debri.Physics.CenterOfMassWorld, debri.WorldMatrix.Up)*debri.WorldMatrix.Up;
                     debri.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, force, pos, null);
                     Debug.Assert(debri.GetPhysicsBody().HavokWorld.ActiveRigidBodies.Contains(debri.Physics.RigidBody));
                 }

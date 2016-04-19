@@ -327,39 +327,4 @@ namespace VRageRender
             }
         }
     }
-
-    public static class MeshIdExtensions
-    {
-        internal static bool ShouldHaveFoliage(this MeshId mesh)
-        {
-            int partsNum;
-            if (MyMeshes.IsMergedVoxelMesh(mesh))
-                partsNum = MyMeshes.GetMergedLodMesh(mesh, 0).Info.PartsNum;
-            else
-                partsNum = MyMeshes.GetLodMesh(mesh, 0).Info.PartsNum;
-
-            bool shouldHaveFoliage = false;
-            for (int partIndex = 0; partIndex < partsNum; ++partIndex)
-            {
-                var triple = MyMeshes.GetVoxelPart(mesh, partIndex).Info.MaterialTriple;
-
-                if (triple.I0 >= 0 && MyVoxelMaterials1.Table[triple.I0].HasFoliage)
-                {
-                    shouldHaveFoliage = true;
-                    break;
-                }
-                if (triple.I1 >= 0 && MyVoxelMaterials1.Table[triple.I1].HasFoliage)
-                {
-                    shouldHaveFoliage = true;
-                    break;
-                }
-                if (triple.I2 >= 0 && MyVoxelMaterials1.Table[triple.I2].HasFoliage)
-                {
-                    shouldHaveFoliage = true;
-                    break;
-                }
-            }
-            return shouldHaveFoliage;
-        }
-    }
 }

@@ -368,6 +368,15 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.SetDecalGlobals:
+                {
+                    var rMessage = (MyRenderMessageSetDecalGlobals)message;
+
+                    MyScreenDecals.SetDecalGlobals(rMessage.Globals);
+
+                    break;
+                }
+
                 case MyRenderMessageEnum.RegisterDecalsMaterials:
                 {
                     var rMessage = (MyRenderMessageRegisterScreenDecalsMaterials)message;
@@ -456,7 +465,7 @@ namespace VRageRender
                     }
 
                     var light = MyLights.Get(rMessage.ID);
-                    if(light != LightId.NULL)
+                    if (light != LightId.NULL)
                     {
                         MyLights.Remove(rMessage.ID, light);
                         break;
@@ -469,10 +478,14 @@ namespace VRageRender
                         break;
                     }
 
-                    MyAtmosphereRenderer.RemoveAtmosphere(rMessage.ID);
-					MyCloudRenderer.RemoveCloud(rMessage.ID);
+                    if (rMessage.ID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+                    {
+                        MyGPUEmitters.Remove(rMessage.ID);
+                        MyAtmosphereRenderer.RemoveAtmosphere(rMessage.ID);
+                        MyCloudRenderer.RemoveCloud(rMessage.ID);
 
-                    MyPrimitivesRenderer.RemoveDebugMesh(rMessage.ID);
+                        MyPrimitivesRenderer.RemoveDebugMesh(rMessage.ID);
+                    }
 
                     break;
                 }
@@ -772,7 +785,7 @@ namespace VRageRender
 
                         actor.MarkRenderDirty();
 
-                        MyOutline.HandleOutline(rMessage.ID, rMessage.MaterialName, rMessage.MeshIndex, rMessage.OutlineColor, rMessage.OutlineThickness);
+                        MyOutline.HandleOutline(rMessage.ID, rMessage.MeshIndex, rMessage.OutlineColor, rMessage.OutlineThickness, rMessage.PulseTimeInFrames);
                     }
 
                     break;
@@ -781,11 +794,12 @@ namespace VRageRender
                 case MyRenderMessageEnum.UpdateModelHighlight:
                 {
                     var rMessage = (MyRenderMessageUpdateModelHighlight)message;
+                    MyOutline.HandleOutline(rMessage.ID, rMessage.SectionIndices, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInFrames);
 
-                    var actor = MyIDTracker<MyActor>.FindByID(rMessage.ID);
-                    if (actor != null)
+                    if (rMessage.SubpartIndices != null)
                     {
-                        MyOutline.HandleOutline(rMessage.ID, rMessage.MaterialName, rMessage.SectionIndices, rMessage.OutlineColor, rMessage.Thickness);
+                        foreach (uint index in rMessage.SubpartIndices)
+                            MyOutline.HandleOutline(index, null, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInFrames);
                     }
 
                     break;
@@ -987,7 +1001,10 @@ namespace VRageRender
                     var rMessage = (MyRenderMessageUpdateClipmapCell)message;
 
                     var clipmap = MyClipmapFactory.ClipmapByID.Get(rMessage.ClipmapId);
-                    if(clipmap != null)
+
+                    Debug.Assert(clipmap != null);
+
+                    if (clipmap != null)
                     {
                         clipmap.Base.UpdateCell(rMessage);
                     }
@@ -995,10 +1012,10 @@ namespace VRageRender
                 }
 
                 case MyRenderMessageEnum.UpdateMergedVoxelMesh:
-                    {
-                        var rMessage = (MyRenderMessageUpdateMergedVoxelMesh)message;
+                {
+                    var rMessage = (MyRenderMessageUpdateMergedVoxelMesh)message;
 
-                        MyClipmapHandler clipmap = MyClipmapFactory.ClipmapByID.Get(rMessage.ClipmapId);
+                    MyClipmapHandler clipmap = MyClipmapFactory.ClipmapByID.Get(rMessage.ClipmapId);
                         if (clipmap != null)
                             clipmap.UpdateMergedMesh(rMessage);
                         break;
@@ -1072,17 +1089,14 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageUpdateRenderLight)message;
 
-                  
                     var light = MyLights.Get(rMessage.ID);
-
 
                     if(light != LightId.NULL)
                     {
-
                         var lightInfo = new MyLightInfo
                         {
-                            Position = rMessage.Position,
-                            PositionWithOffset = rMessage.Position + rMessage.Offset * rMessage.Range * rMessage.ReflectorDirection,
+                            SpotPosition = rMessage.ReflectorPosition,
+                            PointPosition = rMessage.ReflectorPosition + rMessage.PointPositionOffset * rMessage.Range * rMessage.ReflectorDirection,
                             CastsShadows = rMessage.CastShadows,
                             ShadowsDistance = rMessage.ShadowDistance,
                             ParentGID = rMessage.ParentID,
@@ -1093,7 +1107,8 @@ namespace VRageRender
 
                         if ((rMessage.Type & LightTypeEnum.PointLight) > 0)
                         {
-                            MyLights.UpdatePointlight(light, rMessage.LightOn, rMessage.Range, new Vector3(rMessage.Color.R, rMessage.Color.G, rMessage.Color.B) / 255.0f * rMessage.Intensity, rMessage.Falloff);
+                            MyLights.UpdatePointlight(light, rMessage.LightOn, rMessage.Range, 
+                                new Vector3(rMessage.Color.R, rMessage.Color.G, rMessage.Color.B) / 255.0f * rMessage.Intensity, rMessage.Falloff, rMessage.GlossFactor);
                         }
                         if ((rMessage.Type & LightTypeEnum.Hemisphere) > 0)
                         {
@@ -1111,7 +1126,8 @@ namespace VRageRender
                             coneMaxAngleCos = (float)Math.Min(Math.Max(coneMaxAngleCos, 0.01), 0.99f);
                             MyLights.UpdateSpotlight(light, rMessage.ReflectorOn,
                                 rMessage.ReflectorDirection, rMessage.ReflectorRange, coneMaxAngleCos, rMessage.ReflectorUp,
-                                new Vector3(rMessage.ReflectorColor.R, rMessage.ReflectorColor.G, rMessage.ReflectorColor.B) / 255.0f * rMessage.Intensity, rMessage.ReflectorFalloff,
+                                new Vector3(rMessage.ReflectorColor.R, rMessage.ReflectorColor.G, rMessage.ReflectorColor.B) / 255.0f * rMessage.ReflectorIntensity,
+                                rMessage.ReflectorFalloff, rMessage.ReflectorGlossFactor,
                                 MyTextures.GetTexture(rMessage.ReflectorTexture, MyTextureEnum.CUSTOM));
                         }
 
@@ -1170,7 +1186,9 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageUpdateFogSettings)message;
 
-                    MyEnvironment.FogSettings = rMessage.Settings;
+                    if (m_debugOverrides.Fog)
+                        MyEnvironment.FogSettings = rMessage.Settings;
+                    else MyEnvironment.FogSettings.FogDensity = 0;
 
                     break;
                 }
@@ -1210,6 +1228,9 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageUpdateRenderEnvironment)message;
 
+                    if (!m_debugOverrides.AdditionalSuns)
+                        rMessage.AdditionalSunCount = 0;
+
                     if (MyEnvironment.AdditionalSunIntensities == null || MyEnvironment.AdditionalSunIntensities.Length != rMessage.AdditionalSunCount)
                         MyEnvironment.AdditionalSunIntensities = new float[rMessage.AdditionalSunCount];
                     if (MyEnvironment.AdditionalSunColors == null || MyEnvironment.AdditionalSunColors.Length != rMessage.AdditionalSunCount)
@@ -1218,8 +1239,9 @@ namespace VRageRender
                         MyEnvironment.AdditionalSunDirections = new Vector2[rMessage.AdditionalSunCount];
 
                     MyEnvironment.DirectionalLightDir = VRageMath.Vector3.Normalize(rMessage.SunDirection);
-                    MyEnvironment.DirectionalLightIntensity = rMessage.SunIntensity * rMessage.SunColor.ToVector3();
-                    MyEnvironment.DirectionalLightEnabled = rMessage.SunLightOn;
+                    if (rMessage.SunLightOn && m_debugOverrides.Sun)
+                        MyEnvironment.DirectionalLightIntensity = rMessage.SunIntensity*rMessage.SunColor.ToVector3();
+                    else MyEnvironment.DirectionalLightIntensity = new Vector3(0, 0, 0);
 
                     for (int lightIndex = 0; lightIndex < MyEnvironment.AdditionalSunIntensities.Length; ++lightIndex)
                     {
@@ -1248,6 +1270,12 @@ namespace VRageRender
                     break;
                 }
 
+                case MyRenderMessageEnum.UpdateDebugOverrides:
+                {
+                    var rMessage = (MyRenderMessageUpdateDebugOverrides)message;
+                    m_debugOverrides = rMessage.Overrides;
+                    break;
+                }
                 case MyRenderMessageEnum.UpdatePostprocessSettings:
                 {
                     var rMessage = (MyRenderMessageUpdatePostprocessSettings)message;
@@ -1516,6 +1544,42 @@ namespace VRageRender
                 case MyRenderMessageEnum.CollectGarbage:
                 {
                     GC.Collect();
+                    break;
+                }
+
+                case MyRenderMessageEnum.RenderColoredTexture:
+                {
+                    var rMessage = (MyRenderMessageRenderColoredTexture)message;
+                    m_texturesToRender.AddRange(rMessage.texturesToRender);
+                    break;
+                }
+
+                case MyRenderMessageEnum.CreateGPUEmitter:
+                {
+                    var rMessage = (MyRenderMessageCreateGPUEmitter)message;
+
+                    //MyLight.Create(rMessage.ID);
+
+                    MyGPUEmitters.Create(rMessage.ID);
+
+                    break;
+                }
+                case MyRenderMessageEnum.UpdateGPUEmitters:
+                {
+                    var rMessage = (MyRenderMessageUpdateGPUEmitters)message;
+                    MyGPUEmitters.UpdateEmitters(rMessage.Emitters);
+                    break;
+                }
+                case MyRenderMessageEnum.UpdateGPUEmittersPosition:
+                {
+                    var rMessage = (MyRenderMessageUpdateGPUEmittersPosition)message;
+                    MyGPUEmitters.UpdateEmittersPosition(rMessage.GIDs, rMessage.WorldPositions);
+                    break;
+                }
+                case MyRenderMessageEnum.RemoveGPUEmitter:
+                {
+                    var rMessage = (MyRenderMessageRemoveGPUEmitter)message;
+                    MyGPUEmitters.Remove(rMessage.GID, rMessage.Instant);
                     break;
                 }
 

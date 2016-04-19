@@ -20,6 +20,7 @@ using VRage.Game.Entity;
 using Sandbox.Game.SessionComponents;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.World.Triggers
 {

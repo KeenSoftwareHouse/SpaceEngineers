@@ -171,6 +171,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             SetEnableDamageEffects(config.EnableDamageEffects);
             // Need to send both messages as I don't know which one will be used. One of them will be ignored.
             MyRenderProxy.SwitchRenderSettings(m_currentGraphicsSettings.Render);
+            MyRenderProxy.Settings.EnableShadows = (m_currentGraphicsSettings.Render.ShadowQuality != MyShadowsQuality.DISABLED);
 
             // Load previous device settings that will be used for device creation.
             // If there are no settings in the config (eg. game is run for the first time), null is returned, leaving the decision up
@@ -297,7 +298,6 @@ namespace Sandbox.Engine.Platform.VideoMode
                 {
                     MySector.MainCamera.Zoom.Update(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
                 }
-                MySector.MainCamera.ChangeFov(MySector.MainCamera.FieldOfView);
             }
         }
 

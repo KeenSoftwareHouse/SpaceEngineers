@@ -1,5 +1,5 @@
 ﻿using Sandbox.Game.Entities.Cube;
-using Sandbox.ModAPI;
+using VRage.Game.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -247,9 +247,9 @@ namespace Sandbox.Game.Entities
             remove { OnBlockOwnershipChanged -= GetDelegate(value); }
         }
 
-        Sandbox.ModAPI.Ingame.IMySlimBlock Sandbox.ModAPI.Ingame.IMyCubeGrid.GetCubeBlock(Vector3I position)
+        VRage.Game.ModAPI.Ingame.IMySlimBlock VRage.Game.ModAPI.Ingame.IMyCubeGrid.GetCubeBlock(Vector3I position)
         {
-            Sandbox.ModAPI.Ingame.IMySlimBlock block = GetCubeBlock(position);
+            VRage.Game.ModAPI.Ingame.IMySlimBlock block = GetCubeBlock(position);
             if (block != null && block.FatBlock != null)
             {
                 if ((block.FatBlock is MyTerminalBlock) && (block.FatBlock as MyTerminalBlock).IsAccessibleForProgrammableBlock)

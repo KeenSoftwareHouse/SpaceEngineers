@@ -5,7 +5,7 @@ using System.Text;
 using Havok;
 using Sandbox.Game.Entities;
 using System.Diagnostics;
-using Sandbox.Common.Components;
+
 using VRage.ModAPI;
 using VRageMath;
 using VRage.Game.Components;
@@ -114,6 +114,46 @@ namespace Sandbox.Engine.Physics
         public static IMyEntity GetHitEntity(this HkWorld.HitInfo hitInfo)
         {
             return hitInfo.Body.GetEntity(hitInfo.GetShapeKey(0));
+        }
+
+        public static float GetConvexRadius(this HkWorld.HitInfo hitInfo)
+        {
+            foreach (var shape in hitInfo.Body.GetShape().GetAllShapes())
+            {
+                if (shape.IsConvex)
+                    return shape.ConvexRadius;
+            }
+
+            return 0;
+        }
+
+        public static Vector3 GetFixedPosition(this MyPhysics.HitInfo hitInfo)
+        {
+            Vector3 position = hitInfo.Position;
+            float convexRadiusAdjustment = hitInfo.HkHitInfo.GetConvexRadius();
+            if (convexRadiusAdjustment != 0)
+                position += -hitInfo.HkHitInfo.Normal * convexRadiusAdjustment;
+
+            return position;
+        }
+
+        public static IEnumerable<HkShape> GetAllShapes(this HkShape shape)
+        {
+            if (shape.IsContainer())
+            {
+                var iterator = shape.GetContainer();
+                while (iterator.CurrentShapeKey != HkShape.InvalidShapeKey)
+                {
+                    foreach (var child in iterator.CurrentValue.GetAllShapes())
+                        yield return child;
+
+                    iterator.Next();
+                }
+
+                yield break;
+            }
+
+            yield return shape;
         }
 
         public static IMyEntity GetCollisionEntity(this HkBodyCollision collision)

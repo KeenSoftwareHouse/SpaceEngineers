@@ -11,6 +11,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -181,6 +183,21 @@ namespace Sandbox.Game.Entities
         }
 
         public void UseFinished()
+        {
+
+        }
+
+        public void PickUp()
+        {
+
+        }
+
+        public void PickUpContinues()
+        {
+
+        }
+
+        public void PickUpFinished()
         {
 
         }
@@ -381,6 +398,11 @@ namespace Sandbox.Game.Entities
 
         }
 
+        void IMyControllableEntity.Teleport(Vector3D pos)
+        {
+
+        }
+
         public float HeadLocalXAngle { get; set; }
         public float HeadLocalYAngle { get; set; }
 
@@ -392,9 +414,9 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        MatrixD IMyCameraController.GetViewMatrix()
+        void IMyCameraController.ControlCamera(MyCamera currentCamera)
         {
-            return GetViewMatrix();
+            currentCamera.SetViewMatrix(GetViewMatrix());
         }
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
@@ -442,6 +464,11 @@ namespace Sandbox.Game.Entities
         }
 
         bool IMyCameraController.HandleUse()
+        {
+            return false;
+        }
+
+        bool IMyCameraController.HandlePickUp()
         {
             return false;
         }

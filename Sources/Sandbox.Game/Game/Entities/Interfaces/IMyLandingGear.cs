@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Sandbox.Game.Entities.Interfaces
 {
-    delegate void LockModeChangedHandler(IMyLandingGear gear, LandingGearMode oldMode);
+    public delegate void LockModeChangedHandler(IMyLandingGear gear, LandingGearMode oldMode);
 
-    interface IMyLandingGear
+    public interface IMyLandingGear
     {
         bool AutoLock { get; }
         LandingGearMode LockMode { get; }

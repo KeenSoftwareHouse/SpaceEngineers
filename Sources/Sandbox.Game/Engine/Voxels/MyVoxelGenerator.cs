@@ -16,6 +16,7 @@ using Sandbox.Game.Entities.EnvironmentItems;
 using VRage.ModAPI;
 using VRage.Game.Entity;
 using Sandbox.Game.AI;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -592,7 +593,10 @@ namespace Sandbox.Engine.Voxels
             voxelMap.Storage.ClampVoxelCoord(ref cacheMax);
             m_cache.Resize(cacheMin, cacheMax);
             m_cache.ClearMaterials(0);
-            voxelMap.Storage.ReadRange(m_cache, readMaterial ? MyStorageDataTypeFlags.ContentAndMaterial : MyStorageDataTypeFlags.Content, 0, ref cacheMin, ref cacheMax);
+
+            // Advise that the read content shall be cached
+            MyVoxelRequestFlags flags = MyVoxelRequestFlags.AdviseCache;
+            voxelMap.Storage.ReadRange(m_cache, readMaterial ? MyStorageDataTypeFlags.ContentAndMaterial : MyStorageDataTypeFlags.Content, 0, ref cacheMin, ref cacheMax, ref flags);
 
             Vector3I center;
             if (materials)

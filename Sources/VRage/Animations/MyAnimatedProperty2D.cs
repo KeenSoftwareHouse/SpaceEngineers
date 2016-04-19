@@ -75,6 +75,10 @@ namespace VRage.Animations
 
             T interpolatedKeys = interpolatedKeysOb as T;
             interpolatedKeys.ClearKeys();
+
+            if (previousKeys == null)
+                return;
+
             if (m_interpolator2 != null)
                 interpolatedKeys.Interpolator = m_interpolator2;
 

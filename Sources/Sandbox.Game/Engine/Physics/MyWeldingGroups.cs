@@ -12,7 +12,7 @@ using VRage.Groups;
 
 namespace Sandbox.Engine.Physics
 {
-    class MyWeldingGroups : MyGroups<MyEntity, MyWeldGroupData>, IMySceneComponent
+    public class MyWeldingGroups : MyGroups<MyEntity, MyWeldGroupData>, IMySceneComponent
     {
         static MyWeldingGroups m_static;
 

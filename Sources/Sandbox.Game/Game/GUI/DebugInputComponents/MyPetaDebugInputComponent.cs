@@ -853,7 +853,7 @@ namespace Sandbox.Game.Gui
                 Vector3D closestPoint = Vector3.Zero;
                 Vector3D campos = MySector.MainCamera.Position;
                 closestPoint = MyUtils.GetClosestPointOnLine(ref lineStart, ref lineEnd, ref campos);
-                var distance = MySector.MainCamera.GetDistanceWithFOV(closestPoint);
+                var distance = MySector.MainCamera.GetDistanceFromPoint(closestPoint);
 
                 var lineThickness = thickness * MathHelper.Clamp(distance, 0.1f, 10);
 

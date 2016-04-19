@@ -400,6 +400,9 @@ Remove the original control?</value>
   <data name="ControlName_UseOrInteract" xml:space="preserve">
     <value>Use / Interact</value>
   </data>
+  <data name="ControlName_PickUp" xml:space="preserve">
+    <value>Pick Up</value>
+  </data>
   <data name="VerticalSync" xml:space="preserve">
     <value>Vertical sync</value>
   </data>
@@ -1243,6 +1246,9 @@ World size: {1}</value>
   </data>
   <data name="NotificationInventoryFull" xml:space="preserve">
     <value>Inventory is full</value>
+  </data>
+  <data name="NotificationInventoryNotEmpty" xml:space="preserve">
+    <value>This inventory still contains items</value>
   </data>
   <data name="OutOfAmmo" xml:space="preserve">
     <value>{0} is out of ammunition</value>
@@ -2183,6 +2189,9 @@ Do you want to continue?</value>
   <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
     <value>High</value>
   </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
   <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
     <value>Low</value>
   </data>
@@ -2367,5 +2376,26 @@ Do you want to continue?</value>
   </data>
   <data name="MuteWhenNotInFocus" xml:space="preserve">
     <value>Mute when inactive</value>
+  </data>
+  <data name="ControlTypeNavigation2" xml:space="preserve">
+    <value>Navigation 2</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyWorld" xml:space="preserve">
+    <value>Copy World</value>
+  </data>
+  <data name="NotificationResearchUnlocked" xml:space="preserve">
+    <value>You have unlocked new knowledge about {0}.</value>
+  </data>
+  <data name="NotificationResearchKnown" xml:space="preserve">
+    <value>You already have knowledge about {0}!</value>
+  </data>
+  <data name="MessageBoxTextWorldExistsDownloadOverwrite" xml:space="preserve">
+    <value>World already exists! Download &amp; Overwrite?</value>
+  </data>
+  <data name="MessageBoxTextWorldExistsOverwrite" xml:space="preserve">
+    <value>World already exists! Overwrite?</value>
+  </data>
+  <data name="ToolTipWorkshopCopyWorld" xml:space="preserve">
+    <value>Download selected world to save games without loading it (Use to Edit Settings before playing world)</value>
   </data>
 </root>

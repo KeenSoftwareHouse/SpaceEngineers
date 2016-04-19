@@ -68,6 +68,7 @@ namespace VRageRender
             }
             else if (submesh.IndexCount > 0)
             {
+                //MyRender11.AddDebugQueueMessage("ForwardPass DrawIndexedInstanced " + proxy.Material.ToString());
                 RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 RC.Stats.DrawIndexedInstanced++;
                 Stats.Instances += proxy.InstanceCount;
@@ -75,14 +76,16 @@ namespace VRageRender
             }
         }
 
-        internal override void RecordCommands(ref MyRenderableProxy_2 proxy)
+        protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)
         {
             RC.SetSRVs(ref proxy.ObjectSRVs);
             RC.BindVertexData(ref proxy.VertexData);
 
-            Debug.Assert(proxy.ForwardShaders.VS != null);
+            Debug.Assert(proxy.ForwardShaders.MultiInstance.VS != null);
 
-            RC.BindShaders(proxy.ForwardShaders);
+            RC.BindShaders(proxy.ForwardShaders.MultiInstance);
+
+            SetProxyConstants(ref proxy);
 
             for (int i = 0; i < proxy.Submeshes.Length; i++)
             {
@@ -111,6 +114,7 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
+                            //MyRender11.AddDebugQueueMessage("ForwardPass DrawIndexedInstanced " + proxy.VertexData.VB[0].DebugName);
                             RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                             break;
                         case MyDrawCommandEnum.Draw:
@@ -121,8 +125,6 @@ namespace VRageRender
                     }
                 }
             }
-
-            base.RecordCommands(ref proxy);
         }
 
         internal override void End()

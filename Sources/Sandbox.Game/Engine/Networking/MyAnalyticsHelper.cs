@@ -19,6 +19,7 @@ using VRageRender;
 using Sandbox.Game.Multiplayer;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.Library.Utils;
 
 namespace Sandbox.Engine.Networking
@@ -426,7 +427,7 @@ namespace Sandbox.Engine.Networking
                 }
                 analytics.ReportServerStatus(MyMultiplayer.Static.MemberCount,MyMultiplayer.Static.MemberLimit,Sync.ServerSimulationRatio,entities.Count,gridCount,blockCount,movingGrids,MyMultiplayer.Static.HostName);
 
-                MyLog.Default.WriteLine("Analytics helper server status reported");
+                //MyLog.Default.WriteLine("Analytics helper server status reported");
             }
             catch (Exception exception)
             {

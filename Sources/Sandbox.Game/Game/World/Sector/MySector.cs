@@ -128,9 +128,6 @@ namespace Sandbox.Game.World
 
         public override void UpdateBeforeSimulation()
         {
-            if ( MainCamera != null )
-                MainCamera.Update(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
-
             MyEntities.UpdateBeforeSimulation();
 
             base.UpdateBeforeSimulation();

@@ -134,7 +134,7 @@ namespace VRageRender
         private unsafe void InitConstantBuffer()
         {
             DestroyConstantBuffer();
-            m_csmConstants = MyHwBuffers.CreateConstantsBuffer((sizeof(Matrix) + 2 * sizeof(Vector4) + sizeof(Vector4)) * 8 + sizeof(Vector4));
+            m_csmConstants = MyHwBuffers.CreateConstantsBuffer((sizeof(Matrix) + 2 * sizeof(Vector4) + sizeof(Vector4)) * 8 + sizeof(Vector4), "MyShadowCascades");
         }
 
         private void DestroyConstantBuffer()
@@ -146,39 +146,66 @@ namespace VRageRender
         {
             DestroyCascadeTextures();
 
+            MyRender11.Log.WriteLine("InitCascadeTextures: " + m_cascadesReferenceCount + " / " + MyScene.SeparateGeometry);
             m_cascadeShadowmapArray = MyRwTextures.CreateShadowmapArray(cascadeResolution, cascadeResolution,
                 m_initializedShadowCascadesCount, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "Cascades shadowmaps");
             m_cascadeShadowmapBackup = MyRwTextures.CreateShadowmapArray(cascadeResolution, cascadeResolution,
                 m_initializedShadowCascadesCount, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "Cascades shadowmaps backup");
 
             if (m_cascadesReferenceCount == 0 && MyScene.SeparateGeometry)
+            {
+                MyRender11.Log.WriteLine("InitCascadeTextures m_combinedShadowmapArray");
                 m_combinedShadowmapArray = MyRwTextures.CreateRenderTargetArray(cascadeResolution, cascadeResolution,
                     m_initializedShadowCascadesCount, Format.R32_Float, Format.R32_Float, "Combined shadowmaps");
+            }
 
             ++m_cascadesReferenceCount;
         }
 
         private void DestroyCascadeTextures()
         {
+            MyRender11.Log.WriteLine("DestroyCascadeTextures");
+            MyRender11.Log.IncreaseIndent();
             if (m_cascadeShadowmapArray != RwTexId.NULL)
             {
-                MyRwTextures.Destroy(m_cascadeShadowmapArray);
-                m_cascadeShadowmapArray = RwTexId.NULL;
+                MyRender11.Log.WriteLine("m_cascadeShadowmapArray destroy");
+                try
+                {
+                    MyRwTextures.Destroy(m_cascadeShadowmapArray);
+                }
+                finally
+                {
+                    m_cascadeShadowmapArray = RwTexId.NULL;
+                }
             }
 
             if (m_cascadeShadowmapBackup != RwTexId.NULL)
             {
-                MyRwTextures.Destroy(m_cascadeShadowmapBackup);
-                m_cascadeShadowmapBackup = RwTexId.NULL;
+                MyRender11.Log.WriteLine("m_cascadeShadowmapBackup destroy");
+                try
+                {
+                    MyRwTextures.Destroy(m_cascadeShadowmapBackup);
+                }
+                finally
+                {
+                    m_cascadeShadowmapBackup = RwTexId.NULL;
+                }
             }
 
             m_cascadesReferenceCount = Math.Max(m_cascadesReferenceCount - 1, 0);
-
-            if(m_cascadesReferenceCount == 0 && m_combinedShadowmapArray != RwTexId.NULL)
+            if (m_cascadesReferenceCount == 0 && m_combinedShadowmapArray != RwTexId.NULL)
             {
-                MyRwTextures.Destroy(m_combinedShadowmapArray);
-                m_combinedShadowmapArray = RwTexId.NULL;
+                MyRender11.Log.WriteLine("m_combinedShadowmapArray destroy");
+                try
+                {
+                    MyRwTextures.Destroy(m_combinedShadowmapArray);
+                }
+                finally
+                {
+                    m_combinedShadowmapArray = RwTexId.NULL;
+                }
             }
+            MyRender11.Log.DecreaseIndent();
         }
 
         private void SetNumberOfCascades(int newCount)

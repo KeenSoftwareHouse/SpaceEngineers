@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.ModAPI;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
@@ -26,13 +25,16 @@ using VRage.Game.Entity;
 using VRage.Game;
 using ProtoBuf;
 using Sandbox.Engine.Multiplayer;
+using VRage.Game.Components;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.Network;
 
 namespace Sandbox.Game.Entities.Cube
 {
     [StaticEventOwner]
     [MyCubeBlockType(typeof(MyObjectBuilder_CubeBlock))]
-    public partial class MySlimBlock : IMyDestroyableObject
+    public partial class MySlimBlock : IMyDestroyableObject, IMyDecalProxy
     {
         static MySoundPair CONSTRUCTION_START = new MySoundPair("PrgConstrPh01Start");
         static MySoundPair CONSTRUCTION_PROG = new MySoundPair("PrgConstrPh02Proc");
@@ -824,38 +826,10 @@ namespace Sandbox.Game.Entities.Cube
             m_stockpile.ClearSyncList();
             foreach (var item in m_tmpItemList)
             {
-                // If the item is just some component that is represented by another components, use the first
-                // ME Example: ScrapWoodComponent has representation as ScrapWood or ScrapWoodBranches
-                MyComponentSubstitutionDefinition substitution;
-                if (MyDefinitionManager.Static.TryGetComponentSubstitutionDefinition(item.Content.GetId(), out substitution))
-                {
-                    Debug.Assert(substitution.ProvidingComponents.Count > 0, "Invalid component substitution definition for: " + item.Content.GetId().ToString());
-                    MyDefinitionId componentId = item.Content.GetId();
-                    int componentAmount = (int)item.Amount;
-                    MyObjectBuilder_Base itemBuilder = item.Content;
-                    if (substitution.ProvidingComponents.Count > 0)
-                    {
-                        componentId = substitution.ProvidingComponents.First().Key;
-                        componentAmount = componentAmount * substitution.ProvidingComponents.First().Value;
-                        itemBuilder = MyObjectBuilderSerializer.CreateNewObject(componentId);
-                    }
-                    var amount = (int)toInventory.ComputeAmountThatFits(componentId);
-                    amount = Math.Min(amount, componentAmount);                   
-                    toInventory.AddItems(amount, itemBuilder);
-                    var removedAmount = amount;
-                    if (substitution.ProvidingComponents.Count > 0)
-                    {
-                        removedAmount = removedAmount / substitution.ProvidingComponents.First().Value;
-                    }
-                    m_stockpile.RemoveItems(amount, item.Content);
-                }
-                else
-                {
-                    var amount = (int)toInventory.ComputeAmountThatFits(item.Content.GetId());
-                    amount = Math.Min(amount, item.Amount);
-                    toInventory.AddItems(amount, item.Content);
-                    m_stockpile.RemoveItems(amount, item.Content);
-                }
+                var amount = toInventory.ComputeAmountThatFits(item.Content.GetId()).ToIntSafe();
+                amount = Math.Min(amount, item.Amount);
+                toInventory.AddItems(amount, item.Content);
+                m_stockpile.RemoveItems(amount, item.Content);
             }
             CubeGrid.SendStockpileChanged(this, m_stockpile.GetSyncList());
             m_stockpile.ClearSyncList();
@@ -874,7 +848,7 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var item in m_tmpItemList)
             {
-                var amount = (int)toInventory.ComputeAmountThatFits(item.Content.GetId());
+                var amount = toInventory.ComputeAmountThatFits(item.Content.GetId()).ToIntSafe();
                 amount = Math.Min(amount, item.Amount);
                 toInventory.AddItems(amount, item.Content);
                 m_stockpile.RemoveItems(amount, item.Content);
@@ -1079,7 +1053,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyDestroyableObject.DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
+        public bool DoDamage(float damage, MyStringHash damageType, bool sync, MyHitInfo? hitInfo, long attackerId)
         {
             if (sync)
             {
@@ -1092,7 +1066,7 @@ namespace Sandbox.Game.Entities.Cube
             return true;
         }
 
-        public void DoDamage(float damage, MyStringHash damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true, long attackerId = 0)
+        public void DoDamage(float damage, MyStringHash damageType, MyHitInfo? hitInfo = null, bool addDirtyParts = true, long attackerId = 0)
         {
             if (!CubeGrid.BlocksDestructionEnabled)
                 return;
@@ -1115,18 +1089,18 @@ namespace Sandbox.Game.Entities.Cube
 
                     float totalMaxIntegrity = multiBlockInfo.GetTotalMaxIntegrity();
                     foreach (var multiBlockPart in m_tmpMultiBlocks)
-                        multiBlockPart.DoDamageInternal(damage * (multiBlockPart.MaxIntegrity / totalMaxIntegrity), damageType, addDirtyParts: addDirtyParts, hitInfo: hitInfo, createDecal: createDecal, attackerId: attackerId);
+                        multiBlockPart.DoDamageInternal(damage * (multiBlockPart.MaxIntegrity / totalMaxIntegrity), damageType, addDirtyParts: addDirtyParts, hitInfo: hitInfo, attackerId: attackerId);
 
                     m_tmpMultiBlocks.Clear();
                 }
             }
             else
             {
-                DoDamageInternal(damage, damageType, addDirtyParts: addDirtyParts, hitInfo: hitInfo, createDecal: createDecal, attackerId: attackerId);
+                DoDamageInternal(damage, damageType, addDirtyParts: addDirtyParts, hitInfo: hitInfo, attackerId: attackerId);
             }
         }
 
-        public void DoDamageInternal(float damage, MyStringHash damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, bool createDecal = true, long attackerId = 0)
+        public void DoDamageInternal(float damage, MyStringHash damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, long attackerId = 0)
         {
             if (!CubeGrid.BlocksDestructionEnabled)
                 return;
@@ -1178,10 +1152,6 @@ namespace Sandbox.Game.Entities.Cube
             {
                 if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
                     FatBlock.SetDamageEffect(true);
-
-                if (hitInfo.HasValue && createDecal)
-                    CubeGrid.RenderData.AddDecal(Position, Vector3D.Transform(hitInfo.Value.Position, CubeGrid.PositionComp.WorldMatrixInvScaled),
-                        Vector3D.TransformNormal(hitInfo.Value.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled), BlockDefinition.PhysicalMaterial.DamageDecal);
             }
 
             if (UseDamageSystem)
@@ -1192,6 +1162,19 @@ namespace Sandbox.Game.Entities.Cube
             m_lastDamageType = damageType;
         }
 
+        void IMyDecalProxy.GetDecalRenderData(MyHitInfo hitInfo, out MyDecalRenderData renderable)
+        {
+            renderable = new MyDecalRenderData();
+            renderable.Position = Vector3D.Transform(hitInfo.Position, CubeGrid.PositionComp.WorldMatrixInvScaled);
+            renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled);
+            renderable.RenderObjectId = CubeGrid.Render.GetRenderObjectID();
+            renderable.Material = MyStringHash.GetOrCompute(BlockDefinition.PhysicalMaterial.Id.SubtypeName);
+        }
+
+        void IMyDecalProxy.OnAddDecal(uint decalId, ref MyDecalRenderData renderable)
+        {
+            CubeGrid.RenderData.AddDecal(Position, decalId);
+        }
 
         /// <summary>
         /// Destruction does not apply any damage to block (instead triggers destruction) so it is applied through this method 
@@ -1783,28 +1766,31 @@ namespace Sandbox.Game.Entities.Cube
             MyEntity3DSoundEmitter emitter = MyAudioComponent.TryGetSoundEmitter();
             if (emitter == null)
                 return;
-            emitter.SetPosition(CubeGrid.PositionComp.GetPosition() + (Position - 1) * CubeGrid.GridSize);
+            if(FatBlock != null)
+                emitter.SetPosition(FatBlock.PositionComp.GetPosition());
+            else
+                emitter.SetPosition(CubeGrid.PositionComp.GetPosition() + (Position - 1) * CubeGrid.GridSize);
             switch (integrityChangeType)
             {
                 case MyCubeGrid.MyIntegrityChangeEnum.ConstructionBegin:
                     if (deconstruction)
-                        emitter.PlaySound(DECONSTRUCTION_START, true);
+                        emitter.PlaySound(DECONSTRUCTION_START, true, alwaysHearOnRealistic: true);
                     else
-                        emitter.PlaySound(CONSTRUCTION_START, true);
+                        emitter.PlaySound(CONSTRUCTION_START, true, alwaysHearOnRealistic: true);
                     break;
 
                 case MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd:
                     if (deconstruction)
-                        emitter.PlaySound(DECONSTRUCTION_END, true);
+                        emitter.PlaySound(DECONSTRUCTION_END, true, alwaysHearOnRealistic: true);
                     else
-                        emitter.PlaySound(CONSTRUCTION_END, true);
+                        emitter.PlaySound(CONSTRUCTION_END, true, alwaysHearOnRealistic: true);
                     break;
 
                 case MyCubeGrid.MyIntegrityChangeEnum.ConstructionProcess:
                     if (deconstruction)
-                        emitter.PlaySound(DECONSTRUCTION_PROG, true);
+                        emitter.PlaySound(DECONSTRUCTION_PROG, true, alwaysHearOnRealistic: true);
                     else
-                        emitter.PlaySound(CONSTRUCTION_PROG, true);
+                        emitter.PlaySound(CONSTRUCTION_PROG, true, alwaysHearOnRealistic: true);
                     break;
 
                 default:
@@ -2105,7 +2091,7 @@ namespace Sandbox.Game.Entities.Cube
             var componentInfo = new MyHudBlockInfo.ComponentInfo();
             componentInfo.DefinitionId = groupInfo.Component.Id;
             componentInfo.ComponentName = groupInfo.Component.DisplayNameText;
-            componentInfo.Icon = groupInfo.Component.Icon;
+            componentInfo.Icons = groupInfo.Component.Icons;
             componentInfo.TotalCount = groupInfo.TotalCount;
             componentInfo.MountedCount = groupInfo.MountedCount;
             if (availableInventory != null)

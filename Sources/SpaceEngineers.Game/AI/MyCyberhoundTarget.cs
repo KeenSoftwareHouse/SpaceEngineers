@@ -41,7 +41,7 @@ namespace SpaceEngineers.Game.AI
 
         private static HashSet<MySlimBlock> m_tmpBlocks = new HashSet<MySlimBlock>();
 
-        private static MyStringId m_stringIdAttackAction = MyStringId.GetOrCompute("Attack");
+        private static MyStringId m_stringIdAttackAction = MyStringId.GetOrCompute("attack");
 
         public MyCyberhoundTarget(IMyEntityBot bot) : base(bot)
         {
@@ -49,6 +49,7 @@ namespace SpaceEngineers.Game.AI
 
         public void Attack(bool playSound)
         {
+            // SUCH DOGE, MUCH HEAD, VERY EYES // anton 2016
             MyCharacter botEntity = m_bot.AgentEntity;
             if (botEntity == null) return;
 

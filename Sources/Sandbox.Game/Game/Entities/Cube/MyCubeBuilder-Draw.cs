@@ -32,6 +32,7 @@ using Sandbox.Engine.Models;
 using Havok;
 using VRage.Game.Models;
 using VRage.Game;
+using VRage.Render.Models;
 
 #endregion
 
@@ -43,6 +44,8 @@ namespace Sandbox.Game.Entities
         /// Used for rescaling aabb in the Draw semi transparent method.
         /// </summary>
         private static float SEMI_TRANSPARENT_BOX_MODIFIER = 1.04f;
+
+        private const float DebugScale = 0.5f;
 
         public static void DrawSemiTransparentBox(MyCubeGrid grid, MySlimBlock block, Color color, bool onlyWireframe = false, string lineMaterial = null, Vector4? lineColor = null)
         {
@@ -367,8 +370,8 @@ namespace Sandbox.Game.Entities
             var generatingBlock = generatedBlock.CubeGrid.GetGeneratingBlock(generatedBlock);
             if (generatingBlock != null)
             {
-                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 0), "Generated SubTypeId: " + generatedBlock.BlockDefinition.Id.SubtypeName + " " + generatedBlock.Min.ToString() + " " + generatedBlock.Orientation.ToString(), Color.Yellow, 0.5f);
-                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 14), "Generating SubTypeId: " + generatingBlock.BlockDefinition.Id.SubtypeName + " " + generatingBlock.Min.ToString() + " " + generatingBlock.Orientation.ToString(), Color.Yellow, 0.5f);
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 0), "Generated SubTypeId: " + generatedBlock.BlockDefinition.Id.SubtypeName + " " + generatedBlock.Min.ToString() + " " + generatedBlock.Orientation.ToString(), Color.Yellow, DebugScale);
+                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0, 14), "Generating SubTypeId: " + generatingBlock.BlockDefinition.Id.SubtypeName + " " + generatingBlock.Min.ToString() + " " + generatingBlock.Orientation.ToString(), Color.Yellow, DebugScale);
 
                 Vector4 blue = new Vector4(Color.Blue.ToVector3() * 0.8f, 1);
                 MyCubeBuilder.DrawSemiTransparentBox(generatingBlock.CubeGrid, generatingBlock, Color.Blue, lineColor: blue);
@@ -400,27 +403,34 @@ namespace Sandbox.Game.Entities
         private void DebugDrawVertexNames()
         {
             //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(10, 0), "Voxel names searching", Color.Yellow, 0.5f);
-            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * 500);
-            VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersection = MyEntities.GetIntersectionWithLine(ref line, MySession.Static.LocalCharacter, null,false,true,true,VRage.Game.Components.IntersectionFlags.ALL_TRIANGLES,0,false);
-            
+            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection*500);
+            MyIntersectionResultLineTriangleEx? intersection =
+                MyEntities.GetIntersectionWithLine(ref line, MySession.Static.LocalCharacter, null, false, true, true,
+                    VRage.Game.Components.IntersectionFlags.ALL_TRIANGLES, 0, false);
+
 
             if (intersection.HasValue)
             {
                 if (intersection.Value.Entity is MyVoxelBase)
                 {
-                    MyVoxelBase voxels = intersection.Value.Entity as MyVoxelBase;
+                    MyVoxelBase voxels = (MyVoxelBase) intersection.Value.Entity;
                     Vector3D point = intersection.Value.IntersectionPointInWorldSpace;
                     if (intersection.Value.Entity is MyPlanet)
                     {
-                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Type: planet/moon", Color.Yellow, 0.5f);
-                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), "Terrain: " + voxels.GetMaterialAt(ref point).ToString(), Color.Yellow, 0.5f);
+                        MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Type: planet/moon", Color.Yellow,
+                            DebugScale);
+                        MyRenderProxy.DebugDrawText2D(new Vector2(20, 30),
+                            "Terrain: " + voxels.GetMaterialAt(ref point), Color.Yellow, DebugScale);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Type: asteroid", Color.Yellow, 0.5f);
-                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), "Terrain: " + voxels.GetMaterialAt(ref point).ToString(), Color.Yellow, 0.5f);
+                        MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Type: asteroid", Color.Yellow,
+                            DebugScale);
+                        MyRenderProxy.DebugDrawText2D(new Vector2(20, 30),
+                            "Terrain: " + voxels.GetMaterialAt(ref point), Color.Yellow, DebugScale);
                     }
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 40), "Object size: " + voxels.SizeInMetres.ToString(), Color.Yellow, 0.5f);
+                    MyRenderProxy.DebugDrawText2D(new Vector2(20, 40),
+                        "Object size: " + voxels.SizeInMetres, Color.Yellow, DebugScale);
 
                     //location
                     /*
@@ -431,75 +441,109 @@ namespace Sandbox.Game.Entities
                 }
                 else if (intersection.Value.Entity is MyCubeGrid)
                 {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Detected grid object", Color.Yellow, 0.5f);
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), "Grid name: " + intersection.Value.Entity.DisplayName.ToString(), Color.Yellow, 0.5f);
+                    MyCubeGrid grid = (MyCubeGrid) intersection.Value.Entity;
+                    MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Detected grid object", Color.Yellow, DebugScale);
+                    MyRenderProxy.DebugDrawText2D(new Vector2(20, 30), String.Format("Grid name: {0}", grid.DisplayName), Color.Yellow,
+                        DebugScale);
                     int row = 4;
-                    MyCubeGrid grid = intersection.Value.Entity as MyCubeGrid;
-                    VRage.Game.Models.MyIntersectionResultLineTriangleEx? t = null;
-                    MySlimBlock block = null;
+
+                    MyIntersectionResultLineTriangleEx? t;
+                    MySlimBlock block;
                     if (grid.GetIntersectionWithLine(ref line, out t, out block) && t.HasValue && block != null)
                     {
-                        DebugDrawModelTextures(block.FatBlock, ref row);
+                        if (block.FatBlock != null)
+                        {
+                            DebugDrawModelTextures(block.FatBlock, ref row);
+                        }
+                        else
+                        {
+                            DebugDrawBareBlockInfo(block, ref row);
+                        }
                     }
-                } 
+
+                }
                 else
                 {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Unknown object detected", Color.Yellow, 0.5f);
+                    MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Unknown object detected", Color.Yellow,
+                        DebugScale);
                 }
             }
             else
             {
-                VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Nothing detected nearby", Color.Yellow, 0.5f);
+                MyRenderProxy.DebugDrawText2D(new Vector2(20, 20), "Nothing detected nearby", Color.Yellow, DebugScale);
+            }
+        }
+
+        private static void DebugDrawTexturesInfo(MyModel model, ref int row)
+        {
+            HashSet<string> textures = new HashSet<string>();
+            foreach (MyMesh mesh in model.GetMeshList())
+            {
+                Debug.Assert(mesh.Material.Textures != null);
+                if (mesh.Material.Textures == null) continue;
+                foreach (string texture in mesh.Material.Textures.Values)
+                    if (!string.IsNullOrWhiteSpace(texture)) textures.Add(texture);
+            }
+
+            foreach (string texture in textures.OrderBy(s=>s, StringComparer.InvariantCultureIgnoreCase))
+                MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), texture, Color.White, DebugScale);
+            row++;
+        }
+
+        private static void DebugDrawBareBlockInfo(MySlimBlock block, ref int row)
+        {
+            row += 2;
+            MyRenderProxy.DebugDrawText2D(new Vector2(20, row++*10),
+                String.Format("Display Name: {0}", block.BlockDefinition.DisplayNameText), Color.Yellow, DebugScale);
+            MyRenderProxy.DebugDrawText2D(new Vector2(20, row++*10),
+                String.Format("Cube type: {0}", block.BlockDefinition.CubeDefinition.CubeTopology), Color.Yellow, DebugScale);
+            foreach (string modelName in block.BlockDefinition.CubeDefinition.Model.Distinct().OrderBy(s => s, StringComparer.InvariantCultureIgnoreCase))
+            {
+                MyRenderProxy.DebugDrawText2D(new Vector2(20, row++*10), String.Format("Asset: {0}", modelName), Color.Yellow, DebugScale);
+                MyModel model = MyModels.GetModel(modelName);
+                DebugDrawTexturesInfo(model, ref row);
             }
         }
 
         private void DebugDrawModelTextures(MyCubeBlock block, ref int row)
         {
-            float scale = 0.5f;
+            MyModel model = null;
             if (block != null)
             {
-                MyModel model = block.Model;
-                if (model != null)
-                {
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), "SubTypeId: " + block.BlockDefinition.Id.SubtypeName, Color.Yellow, scale);
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), "Display name: " + block.BlockDefinition.DisplayNameText, Color.Yellow, scale);
-                    if (block.SlimBlock.IsMultiBlockPart)
-                    {
-                        var multiblockInfo = block.CubeGrid.GetMultiBlockInfo(block.SlimBlock.MultiBlockId);
-                        if (multiblockInfo != null)
-                            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10 + 20), "Multiblock: " + multiblockInfo.MultiBlockDefinition.Id.SubtypeName + " (Id:" 
-                                + block.SlimBlock.MultiBlockId + ")", Color.Yellow, scale);
-                    }
-                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), "Asset: " + model.AssetName, Color.Yellow, scale);
-
-                    // Enables to copy asset name to windows clipboard through * key in MyTomasInputComponent
-                    var lastIndex = model.AssetName.LastIndexOf("\\") + 1;
-                    if (lastIndex != -1 && lastIndex < model.AssetName.Length)
-                    {
-                        MyTomasInputComponent.ClipboardText = model.AssetName.Substring(lastIndex);
-                    }
-                    else
-                    {
-                        MyTomasInputComponent.ClipboardText = model.AssetName;
-                    }
-
-                    HashSet<string> textures = new HashSet<string>();
-                    foreach (var mesh in model.GetMeshList())
-                    {
-                        Debug.Assert(mesh.Material.Textures != null);
-                        if (mesh.Material.Textures != null)
-                        {
-                            foreach (var pair in mesh.Material.Textures)
-                                textures.Add(pair.Value);
-                        }
-                    }
-
-                    foreach (var texture in textures)
-                    {
-                        VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10+20), texture, Color.White, scale);
-                    }
-                }
+                model = block.Model;
             }
+            
+            if (model == null) return;
+
+            row += 2;
+
+            MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "SubTypeId: " + block.BlockDefinition.Id.SubtypeName, Color.Yellow, DebugScale);
+            MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "Display name: " + block.BlockDefinition.DisplayNameText, Color.Yellow, DebugScale);
+            if (block.SlimBlock.IsMultiBlockPart)
+            {
+                var multiblockInfo = block.CubeGrid.GetMultiBlockInfo(block.SlimBlock.MultiBlockId);
+                if (multiblockInfo != null)
+                    MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "Multiblock: " + multiblockInfo.MultiBlockDefinition.Id.SubtypeName + " (Id:" 
+                                                                                                + block.SlimBlock.MultiBlockId + ")", Color.Yellow, DebugScale);
+            }
+
+            if (block.BlockDefinition.IsGeneratedBlock)
+                MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "Generated block: " + block.BlockDefinition.GeneratedBlockType, Color.Yellow, DebugScale); 
+
+            MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "Asset: " + model.AssetName, Color.Yellow, DebugScale);
+
+            // Enables to copy asset name to windows clipboard through * key in MyTomasInputComponent
+            var lastIndex = model.AssetName.LastIndexOf("\\") + 1;
+            if (lastIndex != -1 && lastIndex < model.AssetName.Length)
+            {
+                MyTomasInputComponent.ClipboardText = model.AssetName.Substring(lastIndex);
+            }
+            else
+            {
+                MyTomasInputComponent.ClipboardText = model.AssetName;
+            }
+
+            DebugDrawTexturesInfo(model, ref row);
         }
 
         Color DrawSymmetryPlane(MySymmetrySettingModeEnum plane, MyCubeGrid localGrid, Vector3 center)

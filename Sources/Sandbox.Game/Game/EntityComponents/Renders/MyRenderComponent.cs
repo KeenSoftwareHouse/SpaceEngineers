@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Threading;
 
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
 using VRage;
 using VRage.Import;
 using VRage.Game.Components;
@@ -98,6 +98,9 @@ namespace Sandbox.Game.Components
         /// </summary>
         public override void Draw()
         {
+            if (!MyRenderProxy.DebugOverrides.BillboardsStatic)
+                return;
+
             ProfilerShort.Begin("MyRenderComponent::Draw");
 
             var objToCameraSq = Vector3.DistanceSquared(MySector.MainCamera.Position, Container.Entity.PositionComp.GetPosition());

@@ -1,4 +1,5 @@
-﻿using Sandbox.Definitions;
+﻿using System;
+using Sandbox.Definitions;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
@@ -12,6 +13,7 @@ namespace Sandbox.Engine.Voxels
             get { return Size; }
         }
 
+        [Obsolete]
         void VRage.ModAPI.IMyStorage.OverwriteAllMaterials(byte materialIndex)
         {
             OverwriteAllMaterials(MyDefinitionManager.Static.GetVoxelMaterialDefinition(materialIndex));

@@ -20,6 +20,7 @@ namespace VRage.Voxels
 
         private Vector3I m_size3d;
         private int m_sizeLinear;
+        private int m_dataSizeLinear = -1;
 
         public byte[] this[MyStorageDataTypeEnum type]
         {
@@ -27,6 +28,14 @@ namespace VRage.Voxels
             {
                 Debug.Assert(((int)m_storedTypes & (1 << (int)type)) != 0);
                 return m_dataByType[(int)type];
+            }
+            set
+            {
+                Debug.Assert(value.Length >= m_sizeLinear && (m_dataSizeLinear == -1 || value.Length == m_dataSizeLinear));
+
+                if (m_dataSizeLinear == -1) m_dataSizeLinear = value.Length;
+
+                m_dataByType[(int)type] = value;
             }
         }
 
@@ -37,6 +46,21 @@ namespace VRage.Voxels
         public int StepLinear
         {
             get { return m_sX; }
+        }
+
+        public int StepX
+        {
+            get { return m_sX; }
+        }
+
+        public int StepY
+        {
+            get { return m_sY; }
+        }
+
+        public int StepZ
+        {
+            get { return m_sZ; }
         }
 
         public Vector3I Size3D
@@ -51,6 +75,31 @@ namespace VRage.Voxels
             m_storedTypes = typesToStore;
 
             m_dataByType = new byte[(int)MyStorageDataTypeEnum.NUM_STORAGE_DATA_TYPES][];
+        }
+
+        public MyStorageData(Vector3I size, byte[] content = null, byte[] material = null, byte[] occlusion = null)
+        {
+            m_dataByType = new byte[(int)MyStorageDataTypeEnum.NUM_STORAGE_DATA_TYPES][];
+
+            Resize(size);
+
+            if (content != null)
+            {
+                m_storedTypes |= MyStorageDataTypeFlags.Content;
+                this[MyStorageDataTypeEnum.Content] = content;
+            }
+
+            if (material != null)
+            {
+                m_storedTypes |= MyStorageDataTypeFlags.Material;
+                this[MyStorageDataTypeEnum.Material] = material;
+            }
+
+            if (occlusion != null)
+            {
+                m_storedTypes |= MyStorageDataTypeFlags.Occlusion;
+                this[MyStorageDataTypeEnum.Occlusion] = occlusion;
+            }
         }
 
         /**
@@ -96,6 +145,7 @@ namespace VRage.Voxels
                 if ((m_dataByType[i] == null || m_dataByType[i].Length < m_sizeLinear) && m_storedTypes.Requests((MyStorageDataTypeEnum)i))
                 {
                     int pow2Size = MathHelper.GetNearestBiggerPowerOfTwo(m_sizeLinear);
+                    m_dataSizeLinear = pow2Size;
                     Debug.Assert(pow2Size - m_sizeLinear < m_sizeLinear);
                     m_dataByType[i] = new byte[pow2Size];
                 }
@@ -352,11 +402,11 @@ namespace VRage.Voxels
         {
             Vector3I p;
             for (p.Z = min.Z; p.Z <= max.Z; ++p.Z)
-            for (p.Y = min.Y; p.Y <= max.Y; ++p.Y)
-            for (p.X = min.X; p.X <= max.X; ++p.X)
-            {
-                Material(ref p, materialIdx);
-            }
+                for (p.Y = min.Y; p.Y <= max.Y; ++p.Y)
+                    for (p.X = min.X; p.X <= max.X; ++p.X)
+                    {
+                        Material(ref p, materialIdx);
+                    }
         }
 
         public bool ContainsIsoSurface()

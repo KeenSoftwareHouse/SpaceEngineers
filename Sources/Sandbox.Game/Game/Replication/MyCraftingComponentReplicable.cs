@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Network;
-using Sandbox.Common.Components;
+
 using VRage.Game.Components;
 using VRage.Game.Entity;
 

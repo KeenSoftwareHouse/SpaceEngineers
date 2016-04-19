@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using Sandbox.Engine.Physics;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
@@ -214,7 +215,7 @@ namespace Sandbox.Game.Gui
                     {
                         if (agent.Player.Controller.ControlledEntity is MyCharacter)
                         {
-                            Sandbox.ModAPI.MyDamageInformation damageInfo = new Sandbox.ModAPI.MyDamageInformation(false, 1000, MyDamageType.Weapon, MySession.Static.LocalPlayerId);
+                            MyDamageInformation damageInfo = new MyDamageInformation(false, 1000, MyDamageType.Weapon, MySession.Static.LocalPlayerId);
                             (agent.Player.Controller.ControlledEntity as MyCharacter).Kill(true, damageInfo);
                         }
                     }
@@ -593,7 +594,7 @@ namespace Sandbox.Game.Gui
             foreach (var definition in MyDefinitionManager.Static.GetAllDefinitions())
             {
                 grid.Add(new MyGuiControlGrid.Item(
-                    icon: definition.Icon,
+                    icons: definition.Icons,
                     toolTip: definition.DisplayNameText));
             }
 

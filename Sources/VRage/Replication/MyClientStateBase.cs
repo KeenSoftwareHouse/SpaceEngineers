@@ -23,6 +23,8 @@ namespace VRage.Network
         /// Serializes state into/from bit stream.
         /// EndpointId should be ignored.
         /// </summary>
-        public abstract void Serialize(BitStream stream);
+        public abstract void Serialize(BitStream stream,uint timeStamp);
+
+        public uint ClientTimeStamp;
     }
 }

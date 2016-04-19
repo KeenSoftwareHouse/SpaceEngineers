@@ -34,6 +34,8 @@ using VRage.Game;
 using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
+
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -216,7 +218,7 @@ namespace Sandbox.Game.Entities
         public MyThrust()
         {
             Render.NeedsDrawFromParent = true;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_flameCollisionsList = new List<HkBodyCollision>();
             m_damagedEntities = new List<IMyEntity>();
             m_gridRayCastLst = new List<MyPhysics.HitInfo>();
@@ -296,8 +298,6 @@ namespace Sandbox.Game.Entities
             UpdateDetailedInfo();
 
             FuelConverterDefinition = !MyFakes.ENABLE_HYDROGEN_FUEL ? new MyFuelConverterInfo { Efficiency = 1.0f } : BlockDefinition.FuelConverter;
-
-          
         	    
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
         }
@@ -314,6 +314,7 @@ namespace Sandbox.Game.Entities
                     m_propellerMaxDistance = BlockDefinition.PropellerMaxDistance * BlockDefinition.PropellerMaxDistance;
                     m_propellerAcceleration = (1f / BlockDefinition.PropellerAcceleration) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                     m_propellerDeceleration = (1f / BlockDefinition.PropellerDeceleration) * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
                     return true;
                 }
             }
@@ -436,6 +437,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateBeforeSimulation()
         {
             if (m_propellerActive && m_propellerCalculate) PropellerUpdate();
+            base.UpdateBeforeSimulation();
         }
 
         public override void UpdateBeforeSimulation10()
@@ -571,8 +573,6 @@ namespace Sandbox.Game.Entities
         {
             base.UpdateAfterSimulation100();
             UpdateIsWorking();
-            if (m_soundEmitter != null)
-                m_soundEmitter.Update();
         }
 
         private void UpdateSoundState()
@@ -678,6 +678,20 @@ namespace Sandbox.Game.Entities
         {
             m_conveyorEndpoint = new MyMultilineConveyorEndpoint(this);
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }
 

@@ -346,7 +346,7 @@ namespace Sandbox.Game.Gui
                     Vector3.Zero,
                     Vector3.Zero,
                     prefabId,
-                    Sandbox.ModAPI.SpawningOptions.None,
+                    VRage.Game.ModAPI.SpawningOptions.None,
                     0,
                     true);
             }

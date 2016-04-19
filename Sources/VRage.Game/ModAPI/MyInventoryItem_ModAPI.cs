@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 
 namespace VRage.Game.Entity
 {

@@ -98,5 +98,17 @@ static const float3 DEBUG_COLORS [] = {
 
 static const uint DEBUG_COLORS_LEN = 16;
 
+struct TextureDebugMultipliersType
+{
+    float RgbMultiplier;
+    float MetalnessMultiplier;
+    float GlossMultiplier;
+    float AoMultiplier;
+
+    float EmissiveMultiplier;
+    float ColorMaskMultiplier;
+    float2 __padding;
+};
+
 
 #endif

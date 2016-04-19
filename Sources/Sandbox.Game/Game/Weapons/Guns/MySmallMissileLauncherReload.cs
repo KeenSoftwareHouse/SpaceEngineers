@@ -30,7 +30,7 @@ namespace Sandbox.Game.Weapons
         {
             get
             {
-                return this.GunBase.BurstFireRate;
+                return this.GunBase.ShotsInBurst;
             }
         }
 

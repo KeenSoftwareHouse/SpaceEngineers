@@ -1,14 +1,6 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Game.Entities;
+﻿using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
@@ -63,7 +55,7 @@ namespace Sandbox.Game.Screens.Helpers
             }
 
             MyObjectBuilder_ToolbarItemConsumable builder = (MyObjectBuilder_ToolbarItemConsumable)MyToolbarItemFactory.CreateObjectBuilder(this);
-            builder.DefinitionId = Definition.Id;            
+            builder.DefinitionId = Definition.Id;
 
             return builder;
         }
@@ -74,10 +66,10 @@ namespace Sandbox.Game.Screens.Helpers
         }
 
         public override MyToolbarItem.ChangeInfo Update(MyEntity owner, long playerID = 0)
-        {            
-            bool enabled = Inventory != null ? Inventory.GetItemAmount(Definition.Id) > 0 : false; 
-            
+        {
+            bool enabled = Inventory != null ? Inventory.GetItemAmount(Definition.Id) > 0 : false;
+
             return SetEnabled(enabled);
-        }        
+        }
     }
 }

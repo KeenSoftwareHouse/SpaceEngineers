@@ -81,22 +81,26 @@ namespace VRageRender
             }
             else
             {
+                //MyRender11.AddDebugQueueMessage("DepthPass DrawIndexedInstanced " + proxy.Material.ToString());
                 RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 Stats.Instances += proxy.InstanceCount;
                 ++RC.Stats.ShadowDrawIndexedInstanced;
             }
         }
 
-        internal override void RecordCommands(ref MyRenderableProxy_2 proxy)
+        protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)
         {
             RC.SetSRVs(ref proxy.ObjectSRVs);
             RC.BindVertexData(ref proxy.VertexData);
 
-            Debug.Assert(proxy.DepthShaders.VS != null);
+            Debug.Assert(proxy.DepthShaders.MultiInstance.VS != null);
 
             RC.SetRS(DefaultRasterizer);
 
-            RC.BindShaders(proxy.DepthShaders);
+            RC.BindShaders(proxy.DepthShaders.MultiInstance);
+
+            SetProxyConstants(ref proxy);
+
             for (int i = 0; i < proxy.SubmeshesDepthOnly.Length; i++)
             {
                 var submesh = proxy.SubmeshesDepthOnly[i];
@@ -120,6 +124,7 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
+                            //MyRender11.AddDebugQueueMessage("DepthPass DrawIndexedInstanced " + proxy.VertexData.VB[0].DebugName);
                             RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                             break;
                         case MyDrawCommandEnum.Draw:
@@ -130,8 +135,6 @@ namespace VRageRender
                     }
                 }
             }
-
-            base.RecordCommands(ref proxy);
         }
 
         [PooledObjectCleaner]

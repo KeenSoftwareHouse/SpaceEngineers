@@ -40,8 +40,11 @@ using VRage.Game.Definitions.Animation;
 using VRage.Game.Gui;
 using VRage.Game.Entity;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.Serialization;
 using VRage.ObjectBuilders;
+using Sandbox.Game.Replication;
+using VRage.Game.Utils;
 
 #endregion
 
@@ -74,8 +77,6 @@ namespace Sandbox.Game.Entities
 
         float m_headLocalXAngle = 0;
         float m_headLocalYAngle = 0;
-        MyCameraSpring m_cameraSpring;
-        MyCameraHeadShake m_cameraShake;
 
         private long m_lastGasInputUpdateTick;
 
@@ -85,6 +86,8 @@ namespace Sandbox.Game.Entities
         bool m_defferAttach;
 
         private bool m_playIdleSound;
+
+        private float m_currentCameraShakePower = 0f;
 
         protected Action<MyEntity> m_pilotClosedHandler;
 
@@ -258,8 +261,8 @@ namespace Sandbox.Game.Entities
             if (this.GetInventory() == null)
             {
                 Vector3 inv = Vector3.One*1.0f;
-                Components.Add<MyInventoryBase>(new MyInventory(inv.Volume, inv, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive, this));
-                //Inventory.Init(cargoBuilder.Inventory);
+                MyInventory inventory = new MyInventory(inv.Volume, inv, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive);
+                Components.Add<MyInventoryBase>(inventory);
             }
 
             m_defferAttach = true;
@@ -477,15 +480,25 @@ namespace Sandbox.Game.Entities
             m_defferAttach = false;
         }
 
+        public override void UpdateBeforeSimulation()
+        {
+            base.UpdateBeforeSimulation();
+            if (m_soundEmitter != null && m_soundEmitter.VolumeMultiplier < 1f)
+                m_soundEmitter.VolumeMultiplier = Math.Min(1f, m_soundEmitter.VolumeMultiplier + 0.005f);
+        }
+
         public override void UpdateBeforeSimulation10()
         {
             base.UpdateBeforeSimulation10();
 
             if (m_soundEmitter != null)
             {
-                if (hasPower && m_playIdleSound && m_soundEmitter.IsPlaying == false && m_soundEmitter.Plays2D == false)
+                if (hasPower && m_playIdleSound && (m_soundEmitter.IsPlaying == false || (m_soundEmitter.SoundPair.Equals(m_baseIdleSound) == false && m_soundEmitter.SoundPair.Equals(GetInCockpitSound) == false)) && m_baseIdleSound.Equals(MySoundPair.Empty) == false)
+                {
+                    m_soundEmitter.VolumeMultiplier = 0f;
                     m_soundEmitter.PlaySound(m_baseIdleSound, true);
-                else if (IsWorking == false && m_soundEmitter.IsPlaying)
+                }
+                else if ((hasPower == false || IsWorking == false) && m_soundEmitter.IsPlaying && m_soundEmitter.SoundPair.Equals(m_baseIdleSound))
                     m_soundEmitter.StopSound(true);
             }
 
@@ -540,23 +553,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public override void UpdateAfterSimulation()
-        {
-            base.UpdateAfterSimulation();
-
-            if (m_cameraShake != null && m_cameraSpring == null)
-            {
-                Debug.Assert(CubeGrid != null && CubeGrid.Physics != null, "Grid is null or has no physics!");
-                m_cameraSpring = new MyCameraSpring(CubeGrid.Physics);
-            }
-
-            if (m_cameraShake != null && m_cameraSpring != null)
-            {
-                m_cameraSpring.Update(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, PositionComp.WorldMatrixNormalizedInv, ref m_playerHeadSpring);
-                m_cameraShake.UpdateShake(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, ref m_playerHeadSpring, ref m_playerHeadShakeDir);
-            }
-        }
-
         private void Sink_CurrentInputChanged(MyDefinitionId resourceTypeId, float oldInput, MyResourceSinkComponent sink)
         {
             if (resourceTypeId != MyCharacterOxygenComponent.OxygenId)
@@ -573,7 +569,7 @@ namespace Sandbox.Game.Entities
         private void RefillFromBottlesOnGrid()
         {
             List<IMyConveyorEndpoint> reachableVertices = new List<IMyConveyorEndpoint>();
-            MyGridConveyorSystem.Pathfinding.FindReachable(ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null && FriendlyWithBlock(vertex.CubeBlock) && vertex.CubeBlock.HasInventory);
+            MyGridConveyorSystem.FindReachable(ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null && FriendlyWithBlock(vertex.CubeBlock) && vertex.CubeBlock.HasInventory);
 
             bool bottlesUsed = false;
             foreach (var vertex in reachableVertices)
@@ -787,7 +783,7 @@ namespace Sandbox.Game.Entities
                 {
                     m_pilot.Physics.LinearVelocity = Parent.Physics.LinearVelocity;
 
-                    if (Parent.Physics.LinearVelocity.LengthSquared() > 100)
+                    if (Parent.Physics.LinearVelocity.LengthSquared() > 100 * Sync.RelativeSimulationRatio)
                     {
                         var jetpack = m_pilot.JetpackComp;
                         if (jetpack != null)
@@ -811,7 +807,7 @@ namespace Sandbox.Game.Entities
                 var pilot = m_pilot;
                 m_pilot = null;
 
-                if (MySession.Static.CameraController == this)
+                if (MySession.Static.CameraController == this && pilot == MySession.Static.LocalCharacter)
                 {
                     MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);
                 }   
@@ -1071,13 +1067,16 @@ namespace Sandbox.Game.Entities
             System.Diagnostics.Debug.Assert(pilot != null);
             System.Diagnostics.Debug.Assert(m_pilot == null);
 
+            if (Sync.IsServer)
+            {
+                MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(pilot), MyExternalReplicable.FindByObject(this.CubeGrid));
+            }
+
             MyAnalyticsHelper.ReportActivityStart(pilot, "cockpit", "cockpit", string.Empty, string.Empty);
 
             m_pilot = pilot;
             m_pilot.OnMarkForClose += m_pilotClosedHandler;
             m_pilot.IsUsing = this;
-
-            StartLoopSound();
 
             if (storeOriginalPilotWorld)
             {
@@ -1118,14 +1117,23 @@ namespace Sandbox.Game.Entities
                 Sync.Players.SetPlayerToCockpit(pilot.ControllerInfo.Controller.Player, this);
             }
             // Control should be handled elsewhere if we initialize the grid in the Init(...)
-            if (!calledFromInit) GiveControlToPilot();
-            m_pilot.SwitchToWeapon(null);
+            if (!calledFromInit)
+            {
+                GiveControlToPilot();
+                m_pilot.SwitchToWeapon(null);
+
+            }
 
             if (Sync.IsServer)
             {               
                 m_attachedCharacterId.Value = m_pilot.EntityId;
                 m_storeOriginalPlayerWorldMatrix.Value = storeOriginalPilotWorld;
             }
+
+            m_lastPilot = pilot;
+            if (GetInCockpitSound != MySoundPair.Empty)
+                PlayUseSound(true);
+            m_playIdleSound = true;
         }
 
         protected virtual void PlacePilotInSeat(MyCharacter pilot)
@@ -1154,8 +1162,7 @@ namespace Sandbox.Game.Entities
 
         public void AddShake(float shakePower)
         {
-            if (m_cameraShake != null)
-                m_cameraShake.AddShake(shakePower);
+            m_currentCameraShakePower += shakePower;
         }
 
         private void ChangeGasFillLevel(float newFillLevel)
@@ -1164,12 +1171,6 @@ namespace Sandbox.Game.Entities
             {
                 OxygenFillLevel = newFillLevel;
             }
-        }
-
-
-        public MyCameraSpring CameraSpring
-        {
-            get { return m_cameraSpring; }
         }
 
         public override bool IsLargeShip()
@@ -1271,7 +1272,7 @@ namespace Sandbox.Game.Entities
             CubeGrid.RaiseGridChanged();
             base.OnControlAcquired_UpdateCamera();
 
-            m_cameraShake = new MyCameraHeadShake();
+            m_currentCameraShakePower = 0;
         }
 
         protected override void OnControlledEntity_Used()
@@ -1296,8 +1297,7 @@ namespace Sandbox.Game.Entities
         {
             base.OnControlReleased_UpdateCamera();
 
-            m_cameraSpring = null;
-            m_cameraShake = null;
+            m_currentCameraShakePower = 0;
         }
 
         protected override void RemoveLocal()
@@ -1366,9 +1366,18 @@ namespace Sandbox.Game.Entities
             return BlockDefinition.EnableShipControl;
         }
 
-        MatrixD IMyCameraController.GetViewMatrix()
+        void IMyCameraController.ControlCamera(MyCamera currentCamera)
         {
-            return GetViewMatrix();
+            currentCamera.SetViewMatrix(GetViewMatrix());
+            
+            currentCamera.CameraSpring.Enabled = true;
+            currentCamera.CameraSpring.SetCurrentCameraControllerVelocity(Physics != null ? Physics.LinearVelocity : Vector3.Zero);
+
+            if (m_currentCameraShakePower > 0)
+            {
+                currentCamera.CameraShake.AddShake(m_currentCameraShakePower);
+                m_currentCameraShakePower = 0;
+            }
         }
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
@@ -1416,6 +1425,11 @@ namespace Sandbox.Game.Entities
         }
 
         bool IMyCameraController.HandleUse()
+        {
+            return false;
+        }
+
+        bool IMyCameraController.HandlePickUp()
         {
             return false;
         }
@@ -1536,5 +1550,19 @@ namespace Sandbox.Game.Entities
         {
             AttachAutopilot(MyAutopilotFactory.CreateAutopilot(autopilot), updateSync: false);
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

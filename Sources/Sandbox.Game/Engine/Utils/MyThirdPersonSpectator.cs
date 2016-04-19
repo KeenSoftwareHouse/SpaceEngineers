@@ -8,11 +8,16 @@ using Sandbox.Game.World;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Sandbox.Game.Multiplayer;
 using VRage;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.Input;
 using VRage.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Engine.Utils
@@ -20,21 +25,37 @@ namespace Sandbox.Engine.Utils
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     public class MyThirdPersonSpectator : MySessionComponentBase
     {
-        // Minimum distance camera-ship (also used for quick zoom)
-        public const float MAX_DISTANCE = 200.0f;
-        private const int SHAPE_CAST_MAX_STEP_COUNT = 10;
-        private const float SHAPE_CAST_STEP = MAX_DISTANCE / SHAPE_CAST_MAX_STEP_COUNT;
-
-        public static readonly float HEADSHAKE_POWER = 0.5f;
-
-        public static readonly float CAMERA_RADIUS = 0.2f;
-
-        public static readonly float BACKWARD_CUTOFF = 3.0f;
-
-        public static readonly Vector3D LOOK_AT_DIRECTION = Vector3D.Normalize(new Vector3D(0, 5, 12));
-        public static readonly double LOOK_AT_DEFAULT_LENGTH = 30;
+        // Global instance of third person spectator.
         public static MyThirdPersonSpectator Static;
 
+        // Minimum distance camera-ship (also used for quick zoom)
+        public const float MIN_VIEWER_DISTANCE = 1.0f;
+        // Maximum distance camera-ship (also used for quick zoom)
+        public const float MAX_VIEWER_DISTANCE = 200.0f;
+        // "Size" of the camera.
+        public const float CAMERA_RADIUS = 0.2f;
+
+        // Direction in which we are looking. View space.
+        public readonly Vector3D LOOK_AT_DIRECTION = Vector3D.Normalize(new Vector3D(0, 5, 12));
+        // Vertical camera offset (both target and viewer).
+        public const float LOOK_AT_OFFSET_Y = 0.0f;
+        // Default camera distance.
+        public const double LOOK_AT_DEFAULT_LENGTH = 50;
+
+        private const int SHAPE_CAST_MAX_STEP_COUNT = 10;
+        private const float SHAPE_CAST_STEP = MAX_VIEWER_DISTANCE / SHAPE_CAST_MAX_STEP_COUNT;
+        public const float BACKWARD_CUTOFF = 3.0f;
+
+        // Intensity of head shaking.
+        public const float HEADSHAKE_POWER = 0.5f;
+
+        enum MyCameraRaycastResult
+        {
+            Ok,  // no occluder
+            FoundOccluder,  // found occluder, there is space for camera in front of it
+            FoundOccluderNoSpace // found occluder, there is no space for camera in front of it, switch to first person
+        }
+        
         #region Definitions
         // Helper class for spring physics parameters
         // Critical damping = 2*sqrt(Stiffness * Mass)
@@ -42,13 +63,13 @@ namespace Sandbox.Engine.Utils
         {
             // Spring physics properties
             public float Stiffness;
-            public float Damping;
+            public float Dampening;
             public float Mass;
 
-            public SpringInfo(float stiffness, float damping, float mass)
+            public SpringInfo(float stiffness, float dampening, float mass)
             {
                 Stiffness = stiffness;
-                Damping = damping;
+                Dampening = dampening;
                 Mass = mass;
             }
 
@@ -60,7 +81,7 @@ namespace Sandbox.Engine.Utils
             public void Setup(SpringInfo spring)
             {
                 Stiffness = spring.Stiffness;
-                Damping = spring.Damping;
+                Dampening = spring.Dampening;
                 Mass = spring.Mass;
             }
 
@@ -68,7 +89,7 @@ namespace Sandbox.Engine.Utils
             {
                 var amount = MathHelper.Saturate(springChangeTime);
                 Stiffness = MathHelper.SmoothStep(a.Stiffness, b.Stiffness, amount);
-                Damping = MathHelper.SmoothStep(a.Damping, b.Damping, amount);
+                Dampening = MathHelper.SmoothStep(a.Dampening, b.Dampening, amount);
                 Mass = MathHelper.SmoothStep(a.Mass, b.Mass, amount);
             }
         }
@@ -80,18 +101,25 @@ namespace Sandbox.Engine.Utils
 
         Vector3D m_target;
         Matrix m_targetOrientation = Matrix.Identity;
+        Vector3D m_targetUpVec;
 
         // Current spectator position interpolated to desired position
         Vector3D m_position;
-        // Position we are heading to
+        // Desired position (before applying spring).
         Vector3D m_desiredPosition;
         // Current spectator position, interpolated and collision free
         Vector3D m_positionSafe;
+        // Zooming out when there is no obstacle => speed
+        private float m_positionSafeZoomingOutSpeed = 0;
+        // Zooming out when there is no obstacle => last distance between m_position and m_safeposition
+        private float m_lastRaycastDist = float.PositiveInfinity;
+        // Is m_position safe? collision free?
+        bool m_positionCurrentIsSafe;
 
         // Spring physics properties
         public SpringInfo NormalSpring;
-        public SpringInfo StrafingSpring;
-        public SpringInfo AngleSpring;
+        //public SpringInfo StrafingSpring;
+        //public SpringInfo AngleSpring;
 
         // Desired spring parameters
         SpringInfo m_targetSpring;
@@ -105,11 +133,10 @@ namespace Sandbox.Engine.Utils
         Quaternion m_orientation;
         Matrix m_orientationMatrix;
 
-        List<MyPhysics.HitInfo> m_raycastList = new List<MyPhysics.HitInfo>();
-        HashSet<IMyEntity> m_raycastHashSet = new HashSet<IMyEntity>();
-        List<HkBodyCollision> m_rigidList = new List<HkBodyCollision>();
+        readonly List<MyPhysics.HitInfo> m_raycastList = new List<MyPhysics.HitInfo>(64);
 
         bool m_saveSettings;
+        bool m_debugDraw = false;
 
         /// <summary>
         /// Optimization.
@@ -117,9 +144,12 @@ namespace Sandbox.Engine.Utils
         /// causing asteroids to generate too many physics shapes.
         /// </summary>
         uint m_updateCount;
-        float[] m_lastShapeCastDistance = new float[SHAPE_CAST_MAX_STEP_COUNT];
+
+        readonly float[] m_lastShapeCastDistance = new float[SHAPE_CAST_MAX_STEP_COUNT];
 
         private bool? m_localCharacterWasInThirdPerson;
+        private double m_safeMinimumDistance = MIN_VIEWER_DISTANCE;
+
         public bool? LocalCharacterWasInThirdPerson
         {
             get { return m_localCharacterWasInThirdPerson; }
@@ -130,8 +160,8 @@ namespace Sandbox.Engine.Utils
         {
             Static = this;
             NormalSpring = new SpringInfo(20000, 1114, 50);
-            StrafingSpring = new SpringInfo(36000, 2683, 50);
-            AngleSpring = new SpringInfo(30, 14.5f, 2);
+            //StrafingSpring = new SpringInfo(36000, 2683, 50);
+            //AngleSpring = new SpringInfo(30, 14.5f, 2);
 
             m_targetSpring = NormalSpring;
             m_currentSpring = new SpringInfo(NormalSpring);
@@ -140,7 +170,7 @@ namespace Sandbox.Engine.Utils
 
             m_saveSettings = false;
 
-            ResetDistance();
+            ResetViewerDistance();
 
             for (int i = 0; i < m_lastShapeCastDistance.Length; ++i)
             {
@@ -148,52 +178,46 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        // Handles interpolation of spring parameters
-        private void UpdateCurrentSpring()
-        {
-            if (m_targetSpring == StrafingSpring)
-            {
-                m_currentSpring.Setup(m_targetSpring);
-            }
-            else if (m_targetSpring == NormalSpring)
-            {
-                m_currentSpring.Setup(StrafingSpring, NormalSpring, m_springChangeTime);
-            }
-            m_springChangeTime += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-        }
-
         // Updates spectator position (spring connected to desired position)
         public override void UpdateAfterSimulation()
         {
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
-            if (controlledEntity == null)
+            Sandbox.Game.Entities.IMyControllableEntity genericControlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            if (genericControlledEntity == null)
                 return;
+            var remotelyControlledEntity = genericControlledEntity as MyRemoteControl;
+            var controlledEntity = remotelyControlledEntity != null ? remotelyControlledEntity.Pilot : genericControlledEntity.Entity;
 
-            var headMatrix = controlledEntity.GetHeadMatrix(true);
-
-            if (controlledEntity is MyCharacter)
+            if (controlledEntity != null && controlledEntity.PositionComp != null)
             {
-                var character = controlledEntity as MyCharacter;
-                headMatrix = character.Get3rdBoneMatrix(true, true);
+                var positionComp = controlledEntity.PositionComp;
+                float localY = positionComp.LocalAABB.Max.Y - positionComp.LocalAABB.Min.Y;
+                Vector3D lastTarget = m_target;
+                var headMatrix = remotelyControlledEntity == null ? genericControlledEntity.GetHeadMatrix(true) : remotelyControlledEntity.Pilot.GetHeadMatrix(true);
+                m_target = controlledEntity is MyCharacter ? ((positionComp.GetPosition() + (localY + LOOK_AT_OFFSET_Y) * positionComp.WorldMatrix.Up)) : headMatrix.Translation;
+                m_targetOrientation = headMatrix.GetOrientation();
+                m_targetUpVec = m_positionCurrentIsSafe ? (Vector3D)m_targetOrientation.Up : positionComp.WorldMatrix.Up;
+                m_transformedLookAt = Vector3D.Transform(m_lookAt, m_targetOrientation);
+                m_desiredPosition = m_target + m_transformedLookAt;
+
+                m_position += m_target - lastTarget; // compensate character movement
+
+                //m_position = m_desiredPosition;
+            }
+            else
+            {
+                var headMatrix = genericControlledEntity.GetHeadMatrix(true);
+                m_target = headMatrix.Translation;
+                m_targetOrientation = headMatrix.GetOrientation();
+                m_targetUpVec = m_targetOrientation.Up;
+
+                m_transformedLookAt = Vector3D.Transform(m_lookAt, m_targetOrientation);
+                m_desiredPosition = m_target + m_transformedLookAt;
+                m_position = m_desiredPosition;
             }
 
-            m_targetOrientation = (Matrix)headMatrix.GetOrientation();
-            m_target = headMatrix.Translation;
-
-
-            //VRageRender.MyRenderProxy.DebugDrawAxis(headMatrix, 1, false);
-
-            UpdateCurrentSpring();
-
-            m_transformedLookAt = Vector3D.Transform(m_lookAt, m_targetOrientation);
-            m_desiredPosition = m_target + m_transformedLookAt;
-
-            //m_position = m_desiredPosition;
-            //m_velocity = Vector3.Zero;
-            // Calculate spring force
             Vector3D stretch = m_position - m_desiredPosition;
 
-            Vector3D force = -m_currentSpring.Stiffness * stretch - m_currentSpring.Damping * m_velocity;
+            Vector3D force = -m_currentSpring.Stiffness * stretch - m_currentSpring.Dampening * m_velocity;
             force.AssertIsValid();
 
             // Apply acceleration
@@ -202,14 +226,7 @@ namespace Sandbox.Engine.Utils
             m_velocity.AssertIsValid();
 
             // Apply velocity
-            if (!Sandbox.Game.Multiplayer.Sync.IsServer)
-            {  //We are not able to interpolate camera correctly if position is updated through server
-                m_position = m_desiredPosition;
-            }
-            else
-            {
-                m_position += m_velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-            }
+            m_position += m_velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_position.AssertIsValid();
 
             // Limit backward distance from target
@@ -219,245 +236,52 @@ namespace Sandbox.Engine.Utils
                 m_position += (Vector3D)m_targetOrientation.Backward * (backward + BACKWARD_CUTOFF);
             }
 
-            // Roll spring
-            Quaternion targetOrientation = Quaternion.CreateFromRotationMatrix(m_targetOrientation);
-
-            // Computes angle difference between current and target orientation
-            var angleDifference = (float)Math.Acos(MathHelper.Clamp(Quaternion.Dot(m_orientation, targetOrientation), -1, 1));
-            // Normalize angle
-            angleDifference = angleDifference > MathHelper.PiOver2 ? MathHelper.Pi - angleDifference : angleDifference;
-
-            // Compute spring physics
-            float angleForce = -AngleSpring.Stiffness * angleDifference - AngleSpring.Damping * m_angleVelocity;
-            m_angleVelocity += angleForce / AngleSpring.Mass * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-            if (angleDifference > 0)
+            // -------- raycast, prevent camera being inside things ------
+            if (controlledEntity != null)
             {
-                float factor = Math.Abs(m_angleVelocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS / angleDifference);
-                if (angleDifference > MathHelper.PiOver4)
+                MyEntity topControlledEntity = controlledEntity.GetTopMostParent();
+                if (topControlledEntity != null && !topControlledEntity.Closed)
                 {
-                    factor = Math.Max(factor, 1.0f - MathHelper.PiOver4 / angleDifference);
+                    HandleIntersection(topControlledEntity);
                 }
-                factor = MathHelper.Clamp(factor, 0, 1);
-                m_orientation = Quaternion.Slerp(m_orientation, targetOrientation, factor);
-                m_orientationMatrix = Matrix.CreateFromQuaternion(m_orientation);
+                else
+                {
+                    m_positionCurrentIsSafe = false;
+                }
             }
 
-            if ((m_position - m_desiredPosition).LengthSquared() > MAX_DISTANCE * MAX_DISTANCE) RecalibrateCameraPosition();
-
+            // ------- save current settings -------
             if (m_saveSettings)
             {
                 MySession.Static.SaveControlledEntityCameraSettings(false);
                 m_saveSettings = false;
             }
-
             ++m_updateCount;
         }
 
+        // ------------------------- basic methods of camera --------------------------------------
 
-        /// <summary>
-        /// Handles camera collisions with environment
-        /// </summary>
-        /// <param name="controlledEntity"></param>
-        /// <param name="shakeActive"></param>
-        /// <param name="headPosition"></param>
-        /// <param name="headDirection"></param>
-        /// <returns>False if no correct position was found</returns>
-        private bool HandleIntersection(MyEntity controlledEntity, MyOrientedBoundingBoxD safeOBB, bool requireRaycast, bool shakeActive, Vector3D headPosition, Vector3 headDirection)
+        public void Rotate(Vector2 rotationIndicator, float rollIndicator)
         {
-            var line = new LineD(m_target, m_position);
-
-            var safeOBBLine = new LineD(line.From, line.From + line.Direction * 2 * safeOBB.HalfExtent.Length());
-            Vector3D castStartSafe;
-            {
-                MyOrientedBoundingBoxD safeObbWithCollisionExtents = new MyOrientedBoundingBoxD(safeOBB.Center, safeOBB.HalfExtent + 2 * CAMERA_RADIUS, safeOBB.Orientation);
-                double? safeIntersection = safeObbWithCollisionExtents.Intersects(ref safeOBBLine);
-                if (!safeIntersection.HasValue)
-                    safeIntersection = safeOBB.HalfExtent.Length();
-                double safeDistance = safeIntersection.Value;
-                castStartSafe = line.From + line.Direction * safeDistance;
-            }
-
-            {
-                double? unsafeIntersection = safeOBB.Intersects(ref safeOBBLine);
-                if (!requireRaycast && unsafeIntersection.HasValue)
-                {
-                    var castStartUnsafe = line.From + line.Direction * unsafeIntersection.Value;
-                    var castEndUnsafe = castStartSafe + line.Direction;
-                    // short raycast, not causing problems with asteroids generating geometry
-                    Physics.MyPhysics.CastRay(castStartUnsafe, castEndUnsafe, m_raycastList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
-                    if (!IsRaycastOK(m_raycastList))
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            if (requireRaycast)
-            {
-                // short raycast, not causing problems with asteroids generating geometry
-                Physics.MyPhysics.CastRay(line.From, castStartSafe + line.Direction, m_raycastList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
-                if (!IsRaycastOK(m_raycastList))
-                {
-                    return false;
-                }
-            }
-
-            HkShape shape = new HkSphereShape(CAMERA_RADIUS);
-            try
-            {
-                // small shape, not causing problems with asteroids generating geometry
-                Physics.MyPhysics.GetPenetrationsShape(shape, ref castStartSafe, ref Quaternion.Identity, m_rigidList, MyPhysics.CollisionLayers.CharacterCollisionLayer);
-                if (m_rigidList.Count > 0)
-                {
-                    bool sameGrid = false;
-                    if (MySession.Static.ControlledEntity != null && m_rigidList[0].Body != null)
-                    {
-                        sameGrid = m_rigidList[0].GetCollisionEntity() == MySession.Static.ControlledEntity;
-                    }
-
-                    if (sameGrid)
-                        castStartSafe += line.Direction;
-                }
-
-                var shapeCastLine = new LineD(castStartSafe, m_position);
-                uint steps = 1;
-                uint stepIdx = 0;
-                if (shapeCastLine.Length > SHAPE_CAST_STEP)
-                {
-                    steps = (uint)Math.Ceiling(shapeCastLine.Length / SHAPE_CAST_STEP);
-                    if (steps >= SHAPE_CAST_MAX_STEP_COUNT)
-                        steps = SHAPE_CAST_MAX_STEP_COUNT - 1;
-                    stepIdx = m_updateCount % steps;
-                    m_lastShapeCastDistance[stepIdx] = float.PositiveInfinity;
-
-                    Vector3D step = shapeCastLine.Direction * (shapeCastLine.Length / steps);
-                    shapeCastLine = new LineD(castStartSafe + stepIdx * step, castStartSafe + (stepIdx + 1) * step);
-                }
-
-                if (false)
-                {
-                    BoundingBoxD bbox = BoundingBoxD.CreateInvalid();
-                    bbox.Include(new BoundingSphereD(shapeCastLine.From, CAMERA_RADIUS));
-                    bbox.Include(new BoundingSphereD(shapeCastLine.To, CAMERA_RADIUS));
-                    VRageRender.MyRenderProxy.DebugDrawAABB(bbox, Color.Crimson, 1f, 1f, true);
-                }
-
-                var matrix = MatrixD.CreateTranslation(shapeCastLine.From);
-                HkContactPointData? cpd;
-                if (controlledEntity.Physics != null && controlledEntity.GetPhysicsBody().CharacterProxy != null)
-                    cpd = MyPhysics.CastShapeReturnContactData(shapeCastLine.To, shape, ref matrix, MyPhysics.CollisionLayers.CharacterCollisionLayer, 0.0f);
-                else
-                    cpd = MyPhysics.CastShapeReturnContactData(shapeCastLine.To, shape, ref matrix, MyPhysics.CollisionLayers.DefaultCollisionLayer, 0.0f);
-                if (cpd.HasValue)
-                {
-                    var point = shapeCastLine.From + shapeCastLine.Direction * shapeCastLine.Length * cpd.Value.DistanceFraction;
-                    m_lastShapeCastDistance[stepIdx] = (float)(castStartSafe - point).Length();
-                }
-                else
-                {
-                    m_lastShapeCastDistance[stepIdx] = float.PositiveInfinity;
-                }
-
-
-                float? dist = null;
-                for (int i = 0; i < steps; ++i)
-                {
-                    if (m_lastShapeCastDistance[i] != float.PositiveInfinity)
-                        dist = Math.Min(m_lastShapeCastDistance[i], dist ?? float.PositiveInfinity);
-                }
-
-                if (dist.HasValue)
-                {
-                    if (dist == 0.0f)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        m_positionSafe = castStartSafe + shapeCastLine.Direction * dist.Value;
-                    }
-                }
-                else
-                {
-                    m_positionSafe = m_position;
-                }
-                return true;
-            }
-            finally
-            {
-                shape.RemoveReference();
-            }
+            MoveAndRotate(Vector3.Zero, rotationIndicator, rollIndicator);
         }
 
-        private bool IsRaycastOK(List<MyPhysics.HitInfo> m_raycastList)
+        public void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
-            m_raycastHashSet.Clear();
-            foreach (var rb in m_raycastList)
-            {
-                if (rb.HkHitInfo.Body == null
-                    || rb.HkHitInfo.Body.UserObject == null
-                    || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody))
-                    continue;
-                if (rb.HkHitInfo.GetHitEntity() is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>) // ignore player weapons
-                    continue;
-
-                m_raycastHashSet.Add(rb.HkHitInfo.GetHitEntity());
-            }
-
-            if (m_raycastHashSet.Count > 1)
-            {
-                return false;
-            }
-
-            if (m_raycastHashSet.Count == 1 && MySession.Static.ControlledEntity == null)
-            {
-                return false;
-            }
-
-            if (m_raycastHashSet.Count == 1 && m_raycastHashSet.FirstElement() != ((MyEntity)MySession.Static.ControlledEntity).GetTopMostParent())
-            {
-                return false;
-            }
-
-            m_raycastHashSet.Clear();
-            return true;
+            UpdateZoom();
         }
 
-        public MatrixD GetViewMatrix(float fov, float zoomLevel, bool shakeActive, Vector3D headPosition, Vector3 headDirection)
+        private void SetPositionAndLookAt(Vector3D lookAt)
         {
-            System.Diagnostics.Debug.Assert(m_lookAt.LengthSquared() > 0);
+            m_lookAt = lookAt;
 
-            Vector3D position = m_positionSafe;
-            Matrix orientation = m_orientationMatrix;
+            m_transformedLookAt = Vector3D.Transform(lookAt, m_targetOrientation);
+            m_positionSafe = m_target + m_transformedLookAt;
+            m_desiredPosition = m_positionSafe;
+            m_position = m_positionSafe;
+            m_velocity = Vector3.Zero;
 
-            var distance = (m_target - position).Length();
-
-            position.AssertIsValid();
-            distance.AssertIsValid();
-
-            // Push ship down (crosshair approx in middle of screen)
-            var shipVerticalShift = Math.Tan(fov / 2) * 0.1 * distance;
-            Vector3D lookVector = m_target + (Vector3D)orientation.Up * shipVerticalShift - position;
-
-            float zoomPhase = MathHelper.Clamp((1.0f - zoomLevel) * 4, 0, 1);
-
-            if (zoomLevel != 1)
-            {
-                // Normalize directions for more linear interpolation
-                Vector3 lookDirection = (Vector3)Vector3D.Normalize(lookVector);
-                Vector3 crosshairDirection = (Vector3)Vector3D.Normalize(GetCrosshair() - position);
-                lookVector = (Vector3D)Vector3.Lerp(lookDirection, crosshairDirection, zoomPhase);
-            }
-
-            // Apply headshake
-            if (shakeActive)
-            {
-                position += (Vector3D)Vector3D.Transform(headPosition, orientation) * distance * HEADSHAKE_POWER;
-                Matrix matrixRotation = Matrix.CreateFromAxisAngle(Vector3.Forward, headDirection.Z) * Matrix.CreateFromAxisAngle(Vector3.Right, headDirection.X);
-                lookVector = Vector3D.Transform(lookVector, matrixRotation);
-            }
-
-            return MatrixD.CreateLookAt(position, position + lookVector, m_targetOrientation.Up);
+            m_positionSafe.AssertIsValid();
         }
 
         public MatrixD GetViewMatrix()
@@ -466,59 +290,223 @@ namespace Sandbox.Engine.Utils
             if (cameraController == null)
                 return MatrixD.Identity;
 
-            return GetViewMatrix(
-                MySector.MainCamera.FieldOfView,
-                1,
-                false,
-                m_target,
-                m_targetOrientation.Forward);
+            //return GetViewMatrix(
+            //    MySector.MainCamera.FieldOfView,
+            //    1,
+            //    false,
+            //    m_target,
+            //    m_targetOrientation.Forward);
+
+            //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_target, m_target + m_targetOrientation.Up, Color.Aqua, Color.Red, false);
+            //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_positionSafe, m_target + m_targetOrientation.Up, Color.Green, Color.Red, false);
+            //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_positionSafe, m_target, Color.Yellow, Color.Red, false);
+
+            Vector3D shipVerticalOffset = Vector3D.Zero;
+            var cameraControllerEntity = cameraController as MyEntity;
+            if (cameraControllerEntity != null)
+            {
+                MyEntity topControlledEntity = cameraControllerEntity.GetTopMostParent();
+                if (topControlledEntity != null && !topControlledEntity.Closed && topControlledEntity is MyShipController)
+                {
+                    float fov = MySector.MainCamera.FieldOfView;
+                    double shipVerticalShift = (float) Math.Tan(fov / 2) * 0.1f * m_lookAt.Length();
+                    shipVerticalOffset = m_targetUpVec * shipVerticalShift;
+                }
+            }
+
+            //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_positionSafe - shipVerticalOffset, m_target - shipVerticalOffset, Color.Green, Color.Green, false);
+            return MatrixD.CreateLookAt(m_positionSafe, m_target, m_targetUpVec);
         }
 
+        // ------------------ raycasting, checking, recalibration ------------------------------------
+
+        // Is current camera ok or are we inside any obstacle?
+        // there was same method IsCameraPositionOk(Matrix worldMatrix) with custom world matrix - removed, it was not really needed. 
+        // see bottom, maybe it is still there, commented out.
         public bool IsCameraPositionOk()
         {
-            IMyCameraController cameraController = MySession.Static.CameraController;
-            if (cameraController == null)
-                return true;
-
-            MyEntity topControlledEntity = ((MyEntity)cameraController).GetTopMostParent();
-            if (topControlledEntity.Closed) return false;
-
-            var localAABBHr = topControlledEntity.PositionComp.LocalAABBHr;
-            Vector3D center = Vector3D.Transform((Vector3D)localAABBHr.Center, topControlledEntity.WorldMatrix);
-
-            var safeOBB = new MyOrientedBoundingBoxD(center, localAABBHr.HalfExtents, Quaternion.CreateFromRotationMatrix(topControlledEntity.WorldMatrix.GetOrientation()));
-            //VRageRender.MyRenderProxy.DebugDrawOBB(safeOBB, Vector3.One, 1, false, false);
-            //VRageRender.MyRenderProxy.DebugDrawAxis(topControlledEntity.WorldMatrix, 2, false);
-
-			bool camPosIsOk = HandleIntersection(topControlledEntity, safeOBB, topControlledEntity is Sandbox.Game.Entities.Character.MyCharacter || cameraController is MyShipController, true, m_target, m_targetOrientation.Forward);
-
-            return camPosIsOk;
+            return m_positionCurrentIsSafe;
         }
 
-        public bool IsCameraPositionOk(Matrix worldMatrix)
+        /// <summary>
+        /// Processes previously acquired raycast results.
+        /// Returns safe camera eye position (As far from target as possible, but not colliding, best case = desired eye pos).
+        /// </summary>
+        private MyCameraRaycastResult RaycastOccludingObjects(MyEntity controlledEntity, ref Vector3D raycastOrigin, ref Vector3D raycastEnd, ref Vector3D raycastSafeCameraStart, out Vector3D outSafePosition)
         {
-            IMyCameraController cameraController = MySession.Static.CameraController;
-            if (cameraController == null)
-                return true;
+            Vector3D rayDirection = raycastEnd - raycastOrigin;
+            rayDirection.Normalize();
 
-            MyEntity topControlledEntity = ((MyEntity)cameraController).GetTopMostParent();
-            if (topControlledEntity.Closed) return false;
+            outSafePosition = m_position;
+            double closestDistanceSquared = double.PositiveInfinity;
+            bool positionChanged = false;
+            
+            // ray cast - very close objects
+            Physics.MyPhysics.CastRay(raycastOrigin, raycastOrigin + CAMERA_RADIUS * rayDirection, m_raycastList);
+            foreach (MyPhysics.HitInfo rb in m_raycastList)
+            {
+                if (rb.HkHitInfo.Body == null
+                    || rb.HkHitInfo.Body.UserObject == null
+                    || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody)
+                    || rb.HkHitInfo.GetHitEntity() == controlledEntity)
+                    continue;
+                if (rb.HkHitInfo.GetHitEntity() is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>) // ignore player weapons
+                    continue;
 
-            var localAABBHr = topControlledEntity.PositionComp.LocalAABBHr;
-            Vector3D center = Vector3D.Transform((Vector3D)localAABBHr.Center, worldMatrix);
+                double distSq = Vector3D.DistanceSquared(rb.Position, raycastOrigin);
+                if (distSq < closestDistanceSquared)
+                {
+                    closestDistanceSquared = distSq;
+                    float dist = (float)Math.Sqrt(distSq) - CAMERA_RADIUS;
+                    outSafePosition = raycastOrigin + rayDirection * dist;
+                    positionChanged = true;
+                }
+            }
 
-            var safeOBB = new MyOrientedBoundingBoxD(center, localAABBHr.HalfExtents, Quaternion.CreateFromRotationMatrix(worldMatrix.GetOrientation()));
-            //VRageRender.MyRenderProxy.DebugDrawOBB(safeOBB, Vector3.One, 1, false, false);
-            //VRageRender.MyRenderProxy.DebugDrawAxis(topControlledEntity.WorldMatrix, 2, false);
+            if (m_debugDraw)
+                foreach (var raycastResult in m_raycastList)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawPoint(raycastResult.Position, Color.Red, false);
+                }
 
-            bool camPosIsOk = HandleIntersection(topControlledEntity, safeOBB, topControlledEntity is Sandbox.Game.Entities.Character.MyCharacter, true, m_target, m_targetOrientation.Forward);
+            // shape cast - further objects
+            if ((raycastEnd - raycastOrigin).LengthSquared() > CAMERA_RADIUS * CAMERA_RADIUS)
+            {
+                HkShape shapeSphere = new HkSphereShape(CAMERA_RADIUS);
+                MatrixD raycastOriginTransform = MatrixD.Identity;
+                raycastOriginTransform.Translation = raycastOrigin + CAMERA_RADIUS * rayDirection;
+                Physics.MyPhysics.CastShapeReturnContactBodyDatas(raycastEnd, shapeSphere, ref raycastOriginTransform, 0,
+                    0, m_raycastList);
+                foreach (MyPhysics.HitInfo rb in m_raycastList)
+                {
+                    if (rb.HkHitInfo.Body == null
+                        || rb.HkHitInfo.Body.UserObject == null
+                        || rb.HkHitInfo.GetHitEntity() == controlledEntity
+                        || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody))
+                        continue;
+                    if (rb.HkHitInfo.GetHitEntity() is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>)
+                        // ignore player weapons
+                        continue;
 
-            return camPosIsOk;
+                    double distSq = Vector3D.DistanceSquared(rb.Position, raycastOrigin);
+                    if (distSq < closestDistanceSquared)
+                    {
+                        closestDistanceSquared = distSq;
+                        float dist = (float) Math.Sqrt(distSq);
+                        outSafePosition = raycastOrigin + rayDirection * dist;
+                        positionChanged = true;
+                    }
+                }
+                shapeSphere.RemoveReference();
+            }
+
+            if (m_debugDraw)
+                foreach (var raycastResult in m_raycastList)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawSphere(raycastResult.Position, CAMERA_RADIUS, Color.Red, 1, false);
+                }
+
+            if (closestDistanceSquared < (raycastSafeCameraStart - raycastOrigin).LengthSquared() + CAMERA_RADIUS)
+            {
+                return MyCameraRaycastResult.FoundOccluderNoSpace; // obstacle too close, switch to first person
+            }
+
+            return positionChanged ? MyCameraRaycastResult.FoundOccluder : MyCameraRaycastResult.Ok;
+        }
+
+        /// <summary>
+        /// Handles camera collisions with environment
+        /// </summary>
+        /// <returns>False if no correct position was found</returns>
+        private bool HandleIntersection(MyEntity controlledEntity)
+        {
+            Debug.Assert(controlledEntity != null);
+
+            // line from target to eye
+            var line = new LineD(m_target, m_position);
+            // oriented bb of the entity
+            var safeObb = GetEntitySafeOBB(controlledEntity);
+            // oriented bb of the entity + camera radius
+            var safeObbWithCollisionExtents = new MyOrientedBoundingBoxD(safeObb.Center, safeObb.HalfExtent + 0.5f * CAMERA_RADIUS, safeObb.Orientation);
+
+            // start = target, end = eye
+            // find safe start...
+            LineD safeOBBLine = new LineD(line.From + line.Direction * 2 * safeObb.HalfExtent.Length(), line.From);
+            double? safeIntersection = safeObbWithCollisionExtents.Intersects(ref safeOBBLine);
+            Vector3D castStartSafe = safeIntersection != null ? (safeOBBLine.From + safeOBBLine.Direction * safeIntersection.Value) : m_target; // here we go
+
+            // visual debugging :)
+            if (m_debugDraw)
+            {
+                VRageRender.MyRenderProxy.DebugDrawOBB(safeObb, Color.Red, 0.1f, false, true);
+                VRageRender.MyRenderProxy.DebugDrawOBB(safeObbWithCollisionExtents, Color.Yellow, 0.0f, false, true);
+                VRageRender.MyRenderProxy.DebugDrawArrow3D(safeOBBLine.From, safeOBBLine.To, Color.White, Color.Purple,
+                    false);
+                VRageRender.MyRenderProxy.DebugDrawArrow3D(safeOBBLine.From, castStartSafe, Color.White, Color.Red,
+                    false);
+                VRageRender.MyRenderProxy.DebugDrawArrow3D(castStartSafe, m_position, Color.White, Color.Orange, false);
+            }
+
+            // raycast against occluders
+            Vector3D safePositionCandidate;
+            m_safeMinimumDistance = controlledEntity is MyCharacter ? 0 : (castStartSafe - m_target).Length(); // store current safe minimum dist
+            m_safeMinimumDistance = Math.Max(m_safeMinimumDistance, MIN_VIEWER_DISTANCE);
+            Vector3D raycastOrigin = m_target; // not like this: // ((controlledEntity is MyCharacter) ? m_target : castStartSafe);
+            MyCameraRaycastResult raycastResult = RaycastOccludingObjects(controlledEntity, ref raycastOrigin, ref m_position,
+                ref castStartSafe, out safePositionCandidate);
+
+            switch (raycastResult)
+            {
+                case MyCameraRaycastResult.Ok:
+                case MyCameraRaycastResult.FoundOccluder:
+                    m_positionCurrentIsSafe = true;
+                    {
+                        double newDist = (safePositionCandidate - m_position).Length();
+                        if (newDist < m_lastRaycastDist - CAMERA_RADIUS)
+                        {
+                            // new safe position is further from target => change over time
+                            float distDiffZoomSpeed = 1 - MathHelper.Clamp((float)(m_lastRaycastDist - newDist), 0.0f, 1.0f - MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                            m_positionSafeZoomingOutSpeed += distDiffZoomSpeed;
+                            m_positionSafeZoomingOutSpeed = MathHelper.Clamp(m_positionSafeZoomingOutSpeed, 0.0f, 1.0f);
+
+                            m_positionSafe = Vector3D.Lerp(m_positionSafe, safePositionCandidate, m_positionSafeZoomingOutSpeed);
+                        }
+                        else
+                        {
+                            // new safe position is closer => instant change
+                            m_positionSafeZoomingOutSpeed = 0.0f;    // set zooming out speed to zero for next time
+                            m_positionSafe = safePositionCandidate;
+                        }
+                    }
+                    break;
+                //case MyCameraRaycastResult.FoundOccluderNoSpace:
+                default:
+                    m_positionSafeZoomingOutSpeed = 1.0f; // we're in first person, change instantly to third if possible
+                    m_positionCurrentIsSafe = false;
+                    break;    
+            }
+
+            m_lastRaycastDist = (float)(m_positionSafe - m_position).Length();
+
+            if (m_debugDraw)
+            {
+                VRageRender.MyRenderProxy.DebugDrawSphere(m_positionSafe, 0.2f, Color.Purple, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere(safePositionCandidate, 0.2f, Color.Azure, 1, false);
+            }
+            return m_positionCurrentIsSafe;
+        }
+
+        private static MyOrientedBoundingBoxD GetEntitySafeOBB(MyEntity controlledEntity)
+        {
+            var localAABBHr = controlledEntity.PositionComp.LocalAABBHr;
+            Vector3D center = Vector3D.Transform((Vector3D) localAABBHr.Center, controlledEntity.WorldMatrix);
+            var safeOBB = new MyOrientedBoundingBoxD(center, localAABBHr.HalfExtents, Quaternion.CreateFromRotationMatrix(controlledEntity.WorldMatrix.GetOrientation()));
+            return safeOBB;
         }
 
         public void RecalibrateCameraPosition(bool isCharacter = false)
         {
-           // if (m_lookAt != Vector3D.Zero)
+            // if (m_lookAt != Vector3D.Zero)
             //    return;
 
             IMyCameraController cameraController = MySession.Static.CameraController;
@@ -533,13 +521,13 @@ namespace Sandbox.Engine.Utils
             if (!isCharacter)
             {
                 var headMatrix = controlledEntity.GetHeadMatrix(true);
-                m_targetOrientation = (Matrix)headMatrix.GetOrientation();
+                m_targetOrientation = (Matrix) headMatrix.GetOrientation();
                 m_target = headMatrix.Translation;
             }
 
             // parent of hierarchy
-            MyEntity topControlledEntity = ((MyEntity)cameraController).GetTopMostParent();
-            if (topControlledEntity.Closed) 
+            MyEntity topControlledEntity = ((MyEntity) cameraController).GetTopMostParent();
+            if (topControlledEntity.Closed)
                 return;
 
             // calculate controlled object coordinates in parent space
@@ -568,43 +556,18 @@ namespace Sandbox.Engine.Utils
             double offset = width / (2 * halfFovTan);
             offset += finalLength;
 
-            double clampDist = MathHelper.Clamp(offset, GetMinDistance(), MAX_DISTANCE);
+            double clampDist = MathHelper.Clamp(offset, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
 
             Vector3D lookAt = LOOK_AT_DIRECTION * clampDist;
 
             SetPositionAndLookAt(lookAt);
         }
 
-        private void SetPositionAndLookAt(Vector3D lookAt)
-        {
-            m_lookAt = lookAt;
-
-            m_transformedLookAt = Vector3D.Transform(lookAt, m_targetOrientation);
-            m_positionSafe = m_target + m_transformedLookAt;
-            m_desiredPosition = m_positionSafe;
-            m_position = m_positionSafe;
-            m_velocity = Vector3.Zero;
-
-            m_positionSafe.AssertIsValid();
-        }
-
-        public void Rotate(Vector2 rotationIndicator, float rollIndicator)
-        {
-            MoveAndRotate(Vector3.Zero, rotationIndicator, rollIndicator);
-        }
-
-        public void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
-        {
-            UpdateZoom();
-
-            SetState(moveIndicator, rotationIndicator, rollIndicator);
-            //   MyThirdPersonSpectator.Static.QuickZoom = input.IsAnyAltKeyPressed();
-        }
+        // ---------- zoom --------------------------
 
         public void UpdateZoom()
         {
-            bool canZoom = (!MyPerGameSettings.ZoomRequiresLookAroundPressed || MyInput.Static.IsGameControlPressed(Sandbox.Game.MyControlsSpace.LOOKAROUND)) 
-                && !MySession.Static.Battle;
+            bool canZoom = (!MyPerGameSettings.ZoomRequiresLookAroundPressed || MyInput.Static.IsGameControlPressed(Sandbox.Game.MyControlsSpace.LOOKAROUND)) && !MySession.Static.Battle;
 
             if (canZoom && !MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
             {
@@ -614,7 +577,7 @@ namespace Sandbox.Engine.Utils
                 if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null)
                     velocity = MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
 
-                var positionSafe = m_positionSafe + velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                Vector3D positionSafe = m_positionSafe + (Vector3D) velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
                 if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {
@@ -632,7 +595,7 @@ namespace Sandbox.Engine.Utils
                     var distance = m_lookAt.Length();
 
                     // Limit distance 
-                    newDistance = MathHelper.Clamp(newDistance, MyThirdPersonSpectator.Static.GetMinDistance(), MyThirdPersonSpectator.MAX_DISTANCE);
+                    newDistance = MathHelper.Clamp(newDistance, m_safeMinimumDistance, MAX_VIEWER_DISTANCE);
                     m_lookAt *= newDistance / distance;
                     SaveSettings();
                     //m_desiredPosition = positionSafe;
@@ -642,24 +605,57 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        // Sets inner state (like target spring properties) which depends on ship movement type i.e. strafe
-        private void SetState(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
+        // ------------- viewer -------------------------------
+
+        /// <summary>
+        /// Reset the third person camera distance.
+        /// </summary>
+        /// <param name="newDistance">New camera distance. If null, it is not changed.</param>
+        public bool ResetViewerDistance(double? newDistance = null)
         {
-            if (rollIndicator < float.Epsilon &&
-                (Math.Abs(moveIndicator.X) > float.Epsilon || Math.Abs(moveIndicator.Y) > float.Epsilon) &&
-                Math.Abs(moveIndicator.Z) < float.Epsilon)
-            {
-                if (m_targetSpring != StrafingSpring)
-                {
-                    m_springChangeTime = 0;
-                    m_targetSpring = StrafingSpring;
-                }
-            }
-            else if (m_targetSpring != NormalSpring)
-            {
-                m_springChangeTime = 0;
-                m_targetSpring = NormalSpring;
-            }
+            if (!newDistance.HasValue)
+                return false;
+            newDistance = MathHelper.Clamp(newDistance.Value, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
+            Vector3D lookAt = LOOK_AT_DIRECTION * newDistance.Value;
+            SetPositionAndLookAt(lookAt);
+            return true;
+        }
+
+        /// <summary>
+        /// Reset the third person camera "head" angles.
+        /// </summary>
+        /// <param name="headAngle">new head angle</param>
+        public bool ResetViewerAngle(Vector2? headAngle)
+        {
+            if (!headAngle.HasValue)
+                return false;
+
+            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            if (controlledEntity == null)
+                return false;
+
+            controlledEntity.HeadLocalXAngle = headAngle.Value.X;
+            controlledEntity.HeadLocalYAngle = headAngle.Value.Y;
+            return true;
+        }
+
+        /// <summary>
+        /// Get the distance from viewer to the target.
+        /// </summary>
+        /// <returns></returns>
+        public double GetViewerDistance()
+        {
+            return m_lookAt.Length();
+        }
+
+        // --------- utility ----------------------
+
+        /// <summary>
+        /// Flag this spectator to save its settings next Update call.
+        /// </summary>
+        public void SaveSettings()
+        {
+            m_saveSettings = true;
         }
 
         // Returns 3D crosshair position
@@ -668,49 +664,58 @@ namespace Sandbox.Engine.Utils
             return m_target + m_targetOrientation.Forward * 25000;
         }
 
-        public float GetMinDistance()
-        {
-            // return MySession.Static.PlayerShip != null ? MySession.Static.PlayerShip.WorldVolume.Radius * 1.3f : MyThirdPersonSpectator.DEFAULT_MIN_DISTANCE;
-            return 1;
-        }
+        // Handles interpolation of spring parameters
+        //private void UpdateCurrentSpring()
+        //{
+        //    if (m_targetSpring == StrafingSpring)
+        //    {
+        //        m_currentSpring.Setup(m_targetSpring);
+        //    }
+        //    else if (m_targetSpring == NormalSpring)
+        //    {
+        //        m_currentSpring.Setup(StrafingSpring, NormalSpring, m_springChangeTime);
+        //    }
+        //    m_springChangeTime += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+        //}
 
-        public void ResetDistance(double? newDistance = null)
-        {
-            if (newDistance.HasValue)
-            {
-                newDistance = MathHelper.Clamp(newDistance.Value, MyThirdPersonSpectator.Static.GetMinDistance(), MyThirdPersonSpectator.MAX_DISTANCE);
+        // Sets inner state (like target spring properties) which depends on ship movement type i.e. strafe
+        //private void SetState(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
+        //{
+        //    if (rollIndicator < float.Epsilon &&
+        //        (Math.Abs(moveIndicator.X) > float.Epsilon || Math.Abs(moveIndicator.Y) > float.Epsilon) &&
+        //        Math.Abs(moveIndicator.Z) < float.Epsilon)
+        //    {
+        //        //if (m_targetSpring != StrafingSpring)
+        //        //{
+        //        //    m_springChangeTime = 0;
+        //        //    m_targetSpring = StrafingSpring;
+        //        //}
+        //    }
+        //    else if (m_targetSpring != NormalSpring)
+        //    {
+        //        m_springChangeTime = 0;
+        //        m_targetSpring = NormalSpring;
+        //    }
+        //}
 
-                Vector3D lookAt = LOOK_AT_DIRECTION * newDistance.Value;
+        //public bool IsCameraPositionOk(Matrix worldMatrix)
+        //{
+        //    IMyCameraController cameraController = MySession.Static.CameraController;
+        //    if (!(cameraController is MyEntity))
+        //        return true;
 
-                SetPositionAndLookAt(lookAt);
-            }
-        }
+        //    MyEntity topControlledEntity = ((MyEntity)cameraController).GetTopMostParent();
+        //    if (topControlledEntity.Closed) return false;
 
-        public void ResetPosition(double distance, Vector2? headAngle)
-        {
-            if (headAngle.HasValue)
-            {
-                Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
-                if (controlledEntity == null)
-                    return;
+        //    var localAABBHr = topControlledEntity.PositionComp.LocalAABBHr;
+        //    Vector3D center = Vector3D.Transform((Vector3D)localAABBHr.Center, worldMatrix);
 
-                controlledEntity.HeadLocalXAngle = headAngle.Value.X;
-                controlledEntity.HeadLocalYAngle = headAngle.Value.Y;
+        //    var safeOBB = new MyOrientedBoundingBoxD(center, localAABBHr.HalfExtents, Quaternion.CreateFromRotationMatrix(worldMatrix.GetOrientation()));
+        //    //VRageRender.MyRenderProxy.DebugDrawOBB(safeOBB, Vector3.One, 1, false, false);
+        //    //VRageRender.MyRenderProxy.DebugDrawAxis(topControlledEntity.WorldMatrix, 2, false);
 
-                ResetDistance(distance);
-
-                m_positionSafe.AssertIsValid();
-            }
-        }
-
-        public double GetDistance()
-        {
-            return m_lookAt.Length();
-        }
-
-        public void SaveSettings()
-        {
-            m_saveSettings = true;
-        }
+        //    bool camPosIsOk = HandleIntersection(topControlledEntity, safeOBB, topControlledEntity is MyCharacter, true, m_target, m_targetOrientation.Forward);
+        //    return camPosIsOk;
+        //}
     }
 }

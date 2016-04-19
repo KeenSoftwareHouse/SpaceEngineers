@@ -8,12 +8,12 @@ using System.Text;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Game
 {
-    partial class MyInventory : IMyInventory, Sandbox.ModAPI.IMyInventory
+    partial class MyInventory : IMyInventory, VRage.Game.ModAPI.IMyInventory
     {
         bool IMyInventory.IsFull
         {
@@ -25,12 +25,12 @@ namespace Sandbox.Game
             get { return VRageMath.Vector3.MaxValue; }
         }
 
-        bool Sandbox.ModAPI.IMyInventory.Empty()
+        bool VRage.Game.ModAPI.IMyInventory.Empty()
         {
             return Empty();
         }
 
-        void Sandbox.ModAPI.IMyInventory.Clear(bool sync)
+        void VRage.Game.ModAPI.IMyInventory.Clear(bool sync)
         {
             Clear(sync);
         }
@@ -50,9 +50,9 @@ namespace Sandbox.Game
             return ContainItems(amount, ob);
         }
 
-        void Sandbox.ModAPI.IMyInventory.AddItems(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, int index)
+        void VRage.Game.ModAPI.IMyInventory.AddItems(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, int index)
         {
-            AddItems(amount, objectBuilder, index);
+            AddItems(amount, objectBuilder, null, index);
         }
 
         VRage.MyFixedPoint IMyInventory.GetItemAmount(SerializableDefinitionId contentId, MyItemFlags flags)
@@ -60,22 +60,22 @@ namespace Sandbox.Game
             return GetItemAmount(contentId,flags);
         }
 
-        void Sandbox.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, bool spawn)
+        void VRage.Game.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, MyObjectBuilder_PhysicalObject objectBuilder, bool spawn)
         {
             RemoveItemsOfType(amount, objectBuilder, spawn);
         }
 
-        void Sandbox.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, SerializableDefinitionId contentId, MyItemFlags flags, bool spawn)
+        void VRage.Game.ModAPI.IMyInventory.RemoveItemsOfType(VRage.MyFixedPoint amount, SerializableDefinitionId contentId, MyItemFlags flags, bool spawn)
         {
             RemoveItemsOfType(amount, contentId, flags, spawn);
         }
 
-        void Sandbox.ModAPI.IMyInventory.RemoveItemsAt(int itemIndex, VRage.MyFixedPoint? amount, bool sendEvent, bool spawn)
+        void VRage.Game.ModAPI.IMyInventory.RemoveItemsAt(int itemIndex, VRage.MyFixedPoint? amount, bool sendEvent, bool spawn)
         {
             RemoveItemsAt(itemIndex, amount, sendEvent, spawn);
         }
 
-        void Sandbox.ModAPI.IMyInventory.RemoveItems(uint itemId, VRage.MyFixedPoint? amount, bool sendEvent, bool spawn)
+        void VRage.Game.ModAPI.IMyInventory.RemoveItems(uint itemId, VRage.MyFixedPoint? amount, bool sendEvent, bool spawn)
         {
             RemoveItems(itemId, amount, sendEvent, spawn);
         }
@@ -108,7 +108,7 @@ namespace Sandbox.Game
             if (srcConveyor != null)
             {
                 reachableVertices.Clear();
-                MyGridConveyorSystem.Pathfinding.FindReachable(srcConveyor.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null);
+                MyGridConveyorSystem.FindReachable(srcConveyor.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null);
                 foreach (var vertex in reachableVertices)
                 {
                     if (dstInventory.Owner == vertex.CubeBlock)
@@ -182,11 +182,11 @@ namespace Sandbox.Game
             return null;
         }
 
-        bool Sandbox.ModAPI.IMyInventory.TransferItemTo(IMyInventory dst, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection=false)
+        bool VRage.Game.ModAPI.IMyInventory.TransferItemTo(IMyInventory dst, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection = false)
         {
            return TransferItemsTo(dst, sourceItemIndex, targetItemIndex, amount, checkConnection);
         }
-        bool Sandbox.ModAPI.IMyInventory.TransferItemFrom(IMyInventory sourceInventory, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection=false)
+        bool VRage.Game.ModAPI.IMyInventory.TransferItemFrom(IMyInventory sourceInventory, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection = false)
         {
            return TransferItemsFrom(sourceInventory, sourceItemIndex, targetItemIndex, stackIfPossible, amount, checkConnection);
         }

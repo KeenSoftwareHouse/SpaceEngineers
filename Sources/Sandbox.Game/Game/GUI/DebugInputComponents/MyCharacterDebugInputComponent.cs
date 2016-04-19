@@ -1,13 +1,24 @@
 ﻿#region Using
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
 using System.Linq;
+using Sandbox.Definitions;
 using VRage.Animations;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Definitions.Animation;
+using VRage.Game.Entity;
 using VRage.Game.Entity.UseObject;
+using VRage.Game.Models;
+using VRage.Game.SessionComponents;
+using VRage.Generics;
 using VRage.Input;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -20,6 +31,12 @@ namespace Sandbox.Game.Gui
     {
         private bool m_toggleMovementState = false;
         private bool m_toggleShowSkeleton = false;
+
+        private readonly List<MyStateMachineNode> m_animControllerCurrentNodes = new List<MyStateMachineNode>();
+        private readonly List<int[]> m_animControllerTreePath = new List<int[]>();
+        private const int m_editorSendCounterInterval = 60;
+        private int m_editorSendCounter = m_editorSendCounterInterval;
+        private string m_lastAnimationControllerName = null;
 
         public override string GetName()
         {
@@ -52,6 +69,22 @@ namespace Sandbox.Game.Gui
                    return true;
                });
 
+            AddShortcut(MyKeys.NumPad5, true, false, false, false,
+               () => "Reconnect to the AC editor",
+               delegate
+               {
+                   SendControllerNameToEditor();
+                   return true;
+               });
+
+            AddShortcut(MyKeys.NumPad9, true, false, false, false,
+                () => "Reload animations (old system)",
+                delegate
+                {
+                    ReloadAnimationsOldSystem();
+                    return true;
+                });
+
             AddShortcut(MyKeys.NumPad3, true, false, false, false, () => "Toggle character movement status", () => { ShowMovementState(); return true; });
         }
 
@@ -60,11 +93,7 @@ namespace Sandbox.Game.Gui
             if (MySession.Static == null)
                 return false;
 
-            if (base.HandleInput())
-                return true;
-            
-            bool handled = false;
-            return handled;
+            return base.HandleInput();
         }
 
         private void ToggleSkeletonView()
@@ -72,9 +101,150 @@ namespace Sandbox.Game.Gui
             m_toggleShowSkeleton = !m_toggleShowSkeleton;
         }
 
+        private void SendControllerNameToEditor()
+        {
+            if (MySessionComponentExtDebug.Static == null || MySession.Static.LocalCharacter == null || MySession.Static.LocalCharacter.Definition.AnimationController == null
+                || MySession.Static.LocalCharacter.AnimationController.Controller == null)
+                return;
+
+            var msg = new MyExternalDebugStructures.ACConnectToEditorMsg()
+            {
+                ACName = MySession.Static.LocalCharacter.Definition.AnimationController
+            };
+            
+            m_lastAnimationControllerName = msg.ACName;
+            MySessionComponentExtDebug.Static.SendMessageToClients(msg);
+            if (!MySessionComponentExtDebug.Static.IsHandlerRegistered(ReceivedMessageHandler))
+                MySessionComponentExtDebug.Static.ReceivedMsg += ReceivedMessageHandler;
+        }
+        
+        private void ReloadAnimationsOldSystem()
+        {
+            if (MySession.Static.LocalCharacter != null)
+            foreach (var animPlayer in MySession.Static.LocalCharacter.GetAllAnimationPlayers())
+            {
+                MySession.Static.LocalCharacter.PlayerStop(animPlayer.Key, 0.0f);
+            }
+
+            foreach (var animationDefinition in MyDefinitionManager.Static.GetAnimationDefinitions())
+            {
+                MyModel model = MyModels.GetModel(animationDefinition.AnimationModel);
+                if (model != null)
+                    model.UnloadData();
+                MyModel modelFps = MyModels.GetModel(animationDefinition.AnimationModelFPS);
+                if (modelFps != null)
+                    modelFps.UnloadData();
+            }
+        }
+
+        private void ReceivedMessageHandler(MyExternalDebugStructures.CommonMsgHeader messageHeader, IntPtr messageData)
+        {
+            MyExternalDebugStructures.ACReloadInGameMsg msgReload;
+            if (MyExternalDebugStructures.ReadMessageFromPtr(ref messageHeader, messageData, out msgReload))
+            {
+                try
+                {
+                    string acAddress = msgReload.ACAddress;
+                    string acName = msgReload.ACName;
+
+                    MyObjectBuilder_Definitions allDefinitions; // = null;
+                    // load animation controller definition from SBC file
+                    if (MyObjectBuilderSerializer.DeserializeXML(acAddress, out allDefinitions) &&
+                        allDefinitions.Definitions != null &&
+                        allDefinitions.Definitions.Length > 0)
+                    {
+                        var firstDef = allDefinitions.Definitions[0];
+                        MyModContext context = new MyModContext();
+                        context.Init("AnimationControllerDefinition", Path.GetFileName(acAddress));
+                        MyAnimationControllerDefinition animationControllerDefinition = new MyAnimationControllerDefinition();
+                        animationControllerDefinition.Init(firstDef, context);
+
+                        // swap animation controller for each entity
+                        foreach (MyEntity entity in MyEntities.GetEntities())
+                        {
+                            MyCharacter character = entity as MyCharacter;
+                            if (character != null && character.Definition.AnimationController == acName)
+                            {
+                                character.AnimationController.InitFromDefinition(animationControllerDefinition);
+                                character.ObtainBones();
+                            }
+                        }
+
+                        // update in def. manager
+                        MyStringHash animSubtypeNameHash = MyStringHash.GetOrCompute(acName);
+                        MyAnimationControllerDefinition animControllerDefInManager =
+                            MyDefinitionManager.Static.GetDefinition<MyAnimationControllerDefinition>(animSubtypeNameHash);
+                        animControllerDefInManager.Init(firstDef, context);
+                    }
+                }
+                catch (Exception e)
+                {
+                    MyLog.Default.WriteLine(e);
+                }
+            }
+        }
+
+        private void SendAnimationStateChangesToEditor()
+        {
+            if (MySession.Static == null || MySession.Static.LocalCharacter == null || MySession.Static.LocalCharacter.Definition.AnimationController == null
+                || !MySessionComponentExtDebug.Static.HasClients)
+                return;
+
+            var animController = MySession.Static.LocalCharacter.AnimationController.Controller;
+            if (animController == null)
+                return;
+
+            int layerCount = animController.GetLayerCount();
+            if (layerCount != m_animControllerCurrentNodes.Count)
+            {
+                m_animControllerCurrentNodes.Clear();
+                for (int i = 0; i < layerCount; i++)
+                    m_animControllerCurrentNodes.Add(null);
+
+                m_animControllerTreePath.Clear();
+                for (int i = 0; i < layerCount; i++)
+                {
+                    m_animControllerTreePath.Add(new int[animController.GetLayerByIndex(i).VisitedTreeNodesPath.Length]);
+                }
+            }
+
+            for (int i = 0; i < layerCount; i++)
+            {
+                var layerVisitedTreeNodesPath = animController.GetLayerByIndex(i).VisitedTreeNodesPath;
+                if (animController.GetLayerByIndex(i).CurrentNode != m_animControllerCurrentNodes[i]
+                    || !CompareAnimTreePathSeqs(layerVisitedTreeNodesPath, m_animControllerTreePath[i]))
+                {
+                    Array.Copy(layerVisitedTreeNodesPath, m_animControllerTreePath[i], layerVisitedTreeNodesPath.Length); // local copy
+                    m_animControllerCurrentNodes[i] = animController.GetLayerByIndex(i).CurrentNode;
+                    if (m_animControllerCurrentNodes[i] != null)
+                    {
+                        var msg =
+                            MyExternalDebugStructures.ACSendStateToEditorMsg.Create(m_animControllerCurrentNodes[i].Name, m_animControllerTreePath[i]);
+                        MySessionComponentExtDebug.Static.SendMessageToClients(msg);
+                    }
+                }
+            }
+        }
+
+        private static bool CompareAnimTreePathSeqs(int[] seq1, int[] seq2)
+        {
+            if (seq1 == null || seq2 == null || seq1.Length != seq2.Length)
+                return false;
+
+            for (int i = 0; i < seq1.Length; i++)
+            {
+                if (seq1[i] != seq2[i])
+                    return false;
+                if (seq1[i] == 0 && seq2[i] == 0)
+                    return true;
+            }
+
+            return true;
+        }
+
         public static MyCharacter SpawnCharacter(string model = null)
         {
-            var charObject = MySession.Static.LocalHumanPlayer == null ? null : MySession.Static.LocalHumanPlayer.Identity.Character as MyCharacter;
+            var charObject = MySession.Static.LocalHumanPlayer == null ? null : MySession.Static.LocalHumanPlayer.Identity.Character;
             Vector3? colorMask = null;
 
             string name = MySession.Static.LocalHumanPlayer == null ? "" : MySession.Static.LocalHumanPlayer.Identity.DisplayName;
@@ -83,7 +253,7 @@ namespace Sandbox.Game.Gui
             if (charObject != null)
                 colorMask = charObject.ColorMask;
 
-            var character = MyCharacter.CreateCharacter(MatrixD.CreateTranslation(MySector.MainCamera.Position), Vector3.Zero, name, model == null ? currentModel : model, colorMask, null, false);
+            var character = MyCharacter.CreateCharacter(MatrixD.CreateTranslation(MySector.MainCamera.Position), Vector3.Zero, name, model ?? currentModel, colorMask, null, false);
             return character;
         }
 
@@ -132,7 +302,7 @@ namespace Sandbox.Game.Gui
             {
                 MySession.Static.ControlledEntity.Use();
             }
-            cockpit.RequestUse(UseActionEnum.Manipulate, (MyCharacter)MySession.Static.LocalHumanPlayer.Identity.Character);
+            cockpit.RequestUse(UseActionEnum.Manipulate, MySession.Static.LocalHumanPlayer.Identity.Character);
             cockpit.RemoveOriginalPilotPosition();
         }
 
@@ -144,6 +314,16 @@ namespace Sandbox.Game.Gui
         public override void Draw()
         {
             base.Draw();
+
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+            {
+                m_editorSendCounter--;
+                if (m_editorSendCounter <= 0)
+                {
+                    m_editorSendCounter = m_editorSendCounterInterval;
+                    SendControllerNameToEditor();
+                }
+            }
 
             if (m_toggleMovementState)
             {
@@ -159,10 +339,63 @@ namespace Sandbox.Game.Gui
             if (MySession.Static != null && MySession.Static.LocalCharacter != null)
                 Text("Character look speed: {0}", MySession.Static.LocalCharacter.RotationSpeed);
 
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+            {
+                var animController = MySession.Static.LocalCharacter.AnimationController;
+                System.Text.StringBuilder str = new System.Text.StringBuilder(1024);
+                if (animController != null && animController.Controller != null && animController.Controller.GetLayerByIndex(0) != null)
+                {
+                    str.Clear();
+                    foreach (int seqNum in animController.Controller.GetLayerByIndex(0).VisitedTreeNodesPath)
+                    {
+                        if (seqNum == 0)
+                            break;
+                        str.Append(seqNum);
+                        str.Append(",");
+                    }
+                    Text(str.ToString());
+                }
+
+                if (animController != null && animController.Variables != null)
+                    foreach (var variable in animController.Variables.AllVariables)
+                    {
+                        str.Clear();
+                        str.Append(variable.Key);
+                        str.Append(" = ");
+                        str.Append(variable.Value);
+                        Text(str.ToString());
+                    }
+            }
+
             if (m_toggleShowSkeleton)
                 DrawSkeleton();
-        }
 
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null &&
+                MySession.Static.LocalCharacter.Definition.AnimationController != null
+                && MySession.Static.LocalCharacter.Definition.AnimationController != m_lastAnimationControllerName)
+            {
+                SendControllerNameToEditor();
+            }
+            VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(300, 10), "Debugging AC " + m_lastAnimationControllerName, Color.Yellow, 0.5f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            SendAnimationStateChangesToEditor();
+
+            // debugging old animation system
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null
+                && MySession.Static.LocalCharacter.Definition != null 
+                && MySession.Static.LocalCharacter.Definition.AnimationController == null)
+            {
+                var allAnimationPlayers = MySession.Static.LocalCharacter.GetAllAnimationPlayers();
+                float posY = 40;
+                foreach (var animationPlayer in allAnimationPlayers)
+                {
+                    VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(400, posY), (animationPlayer.Key != "" ? animationPlayer.Key : "Body") + ": "
+                        + animationPlayer.Value.ActualPlayer.AnimationNameDebug + " (" + animationPlayer.Value.ActualPlayer.AnimationMwmPathDebug + ")", 
+                        Color.Lime, 0.5f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                    posY += 30;
+                }
+            }
+        }
+         
         private Dictionary<MyCharacterBone, int> m_boneRefToIndex = null;
 
         // Terrible, unoptimized function for visual debugging.

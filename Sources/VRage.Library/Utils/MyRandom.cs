@@ -233,11 +233,13 @@ namespace VRage.Library.Utils
             }
         }
 
+        /// Returns random number between 0 and 1.
         public float NextFloat()
         {
             return (float)NextDouble();
         }
 
+        /// Returns random number between 0 and 1.
         public double NextDouble()
         {
             return this.Sample();

@@ -96,14 +96,14 @@ namespace VRage.Game.Components
         /// </summary>
         public class ModelChangedParams : MyEntityContainerEventExtensions.EntityEventParams
         {
-            public ModelChangedParams(string model, Vector3 size, float mass, float volume, string displayName, string icon)
+            public ModelChangedParams(string model, Vector3 size, float mass, float volume, string displayName, string[] icons)
             {
                 Model = model;
                 Size = size;
                 Mass = mass;
                 Volume = volume;
                 DisplayName = displayName;
-                Icon = icon;
+                Icons = icons;
             }
 
             public Vector3 Size; // in metres
@@ -111,7 +111,7 @@ namespace VRage.Game.Components
             public float Volume; // in m3
             public string Model;
             public string DisplayName;
-            public string Icon;
+            public string[] Icons;
         }
 
         /// <summary>

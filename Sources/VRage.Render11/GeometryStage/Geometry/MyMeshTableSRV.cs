@@ -85,6 +85,11 @@ namespace VRageRender
             m_dirty = false;
         }
 
+        internal int CalculateIndicesCapacity(int currentOffset, int indicesNum)
+        {
+            return currentOffset + ((indicesNum + m_indexPageSize - 1) / m_indexPageSize) * m_indexPageSize;
+        }
+
         internal bool ContainsKey(MyMeshTableEntry key)
         {
             return m_table.ContainsKey(key);
@@ -129,7 +134,7 @@ namespace VRageRender
                 var data = meshInfo.Data;
 
                 int verticesCapacity = vertexOffset + meshInfo.VerticesNum;
-                int indicesCapacity = indexOffset + ((meshInfo.IndicesNum + m_indexPageSize - 1) / m_indexPageSize) * m_indexPageSize;
+                int indicesCapacity = CalculateIndicesCapacity(indexOffset, meshInfo.IndicesNum);
 
                 m_vertices = verticesCapacity;
                 m_indices = indicesCapacity;
@@ -196,15 +201,15 @@ namespace VRageRender
 
                 fixed(void* ptr = m_vertexStream0)
                 {
-                    m_VB_positions = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride0, false, new IntPtr(ptr));
+                    m_VB_positions = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride0, false, new IntPtr(ptr), "MyMergeInstancing positions");
                 }
                 fixed (void* ptr = m_vertexStream1)
                 {
-                    m_VB_rest = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride1, false, new IntPtr(ptr));
+                    m_VB_rest = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride1, false, new IntPtr(ptr), "MyMergeInstancing rest");
                 }
                 fixed (void* ptr = m_indexStream)
                 {
-                    m_IB = MyHwBuffers.CreateStructuredBuffer(m_indices, IndexStride, false, new IntPtr(ptr));
+                    m_IB = MyHwBuffers.CreateStructuredBuffer(m_indices, IndexStride, false, new IntPtr(ptr), "MyMergeInstancing");
                 }
 
                 m_dirty = false;

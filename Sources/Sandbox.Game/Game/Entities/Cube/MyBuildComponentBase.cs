@@ -24,6 +24,7 @@ namespace Sandbox.Game.World
     public abstract class MyBuildComponentBase : MySessionComponentBase
     {
         protected MyComponentList m_materialList = new MyComponentList();
+        protected MyComponentList m_materialListCombined = new MyComponentList();
         protected MyComponentCombiner m_componentCombiner = new MyComponentCombiner();
 
         public DictionaryReader<MyDefinitionId, int> TotalMaterials { get { return m_materialList.TotalMaterials; } }
@@ -51,7 +52,7 @@ namespace Sandbox.Game.World
         public abstract void GetMultiBlockPlacementMaterials(MyMultiBlockDefinition multiBlockDefinition);
 
         // This function does some modifications to the cube block's object builder before it's built, usually integrity changes, etc...
-        public virtual void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
+        public virtual void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob, bool buildAsAdmin)
         {
             if (definition.EntityComponents == null) return;
 
@@ -70,23 +71,19 @@ namespace Sandbox.Game.World
         }
 
         // This function uses RequiredMaterials, so call to Get...Materials has to precede it!
-        public abstract void AfterGridCreated(MyCubeGrid grid, MyEntity builder);
-        public abstract void AfterGridsSpawn(Dictionary<MyDefinitionId, int> buildItems, MyEntity builder);
-        public abstract void AfterBlockBuild(MySlimBlock block, MyEntity builder);
-        public abstract void AfterBlocksBuild(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks, MyEntity builder);
-        public abstract void AfterMultiBlockBuild(MyEntity builder);
+        public abstract void AfterSuccessfulBuild(MyEntity builder, bool instantBuild);
 
-        internal MyFixedPoint GetItemAmountCombined(MyInventoryBase availableInventory, MyDefinitionId myDefinitionId)
+        protected internal MyFixedPoint GetItemAmountCombined(MyInventoryBase availableInventory, MyDefinitionId myDefinitionId)
         {
             return m_componentCombiner.GetItemAmountCombined(availableInventory, myDefinitionId);
         }
 
-        internal void RemoveItemsCombined(MyInventoryBase inventory, int itemAmount, MyDefinitionId itemDefinitionId)
+        protected internal void RemoveItemsCombined(MyInventoryBase inventory, int itemAmount, MyDefinitionId itemDefinitionId)
         {
-            m_materialList.Clear();
-            m_materialList.AddMaterial(itemDefinitionId, itemAmount);
-            m_componentCombiner.RemoveItemsCombined(inventory, m_materialList.TotalMaterials);
-            m_materialList.Clear();
+            m_materialListCombined.Clear();
+            m_materialListCombined.AddMaterial(itemDefinitionId, itemAmount);
+            m_componentCombiner.RemoveItemsCombined(inventory, m_materialListCombined.TotalMaterials);
+            m_materialListCombined.Clear();
             return;
         }
     }

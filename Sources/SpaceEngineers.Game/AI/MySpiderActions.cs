@@ -1,24 +1,14 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Engine.Physics;
-using Sandbox.Game.AI;
+﻿using Sandbox.Game.AI;
 using Sandbox.Game.AI.Actions;
-using Sandbox.Game.AI.Logic;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage.Game;
+using VRage.Game.AI;
 using VRage.Game.Entity;
-using VRage.Trace;
 using VRage.Utils;
 using VRageMath;
 

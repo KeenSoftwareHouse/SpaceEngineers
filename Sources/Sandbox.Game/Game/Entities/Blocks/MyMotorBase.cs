@@ -22,15 +22,18 @@ using Sandbox.Game.Localization;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Network;
+using Sandbox.Game.Replication;
 
 namespace Sandbox.Game.Entities.Cube
 {
-    public abstract class MyMotorBase : MyFunctionalBlock
+    public abstract partial class MyMotorBase : MyFunctionalBlock
     {
         protected struct State
         {
             public long? OtherEntityId;
-            public MyDeltaTransform? MasterToSlave; 
+            public MyDeltaTransform? MasterToSlave;
+            public bool Force;
         }
 
         private const string ROTOR_DUMMY_KEY = "electric_motor";
@@ -46,12 +49,14 @@ namespace Sandbox.Game.Entities.Cube
         protected readonly Sync<float> m_dummyDisplacement;
         protected readonly Sync<State> m_rotorBlockId; // Null = detached, 0 = looking for anything to attach, other = attached or waiting for rotor part to be in scene
         protected readonly Sync<long?> m_weldedEntityId;
+        protected event Action<MyMotorBase> AttachedEntityChanged;
 
         protected bool m_welded = false;
         protected long? m_weldedRotorBlockId;
-        bool m_isWelding = false;
+        protected bool m_isWelding = false;
         protected Sync<bool> m_forceWeld;
         protected Sync<float> m_weldSpeedSq; //squared
+        protected bool m_isAttached = false;
 
         public Vector3 DummyPosition
         {
@@ -127,6 +132,11 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyStringId GetAttachState()
         {
+            if ((m_welded || m_isWelding) && SafeConstraint ==null)
+            {
+                return MySpaceTexts.BlockPropertiesText_MotorLocked;
+            }
+            else 
             if (m_rotorBlockId.Value.OtherEntityId == null)
                 return MySpaceTexts.BlockPropertiesText_MotorDetached;
             else if (m_rotorBlockId.Value.OtherEntityId.Value == 0)
@@ -274,10 +284,41 @@ namespace Sandbox.Game.Entities.Cube
             base.OnBuildSuccess(builtBy);
         }
 
+        public void RecreateRotor(long? builderId = null)
+        {
+            if (builderId.HasValue)
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateRotor, builderId.Value);
+            }
+            else
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateRotor, MySession.Static.LocalPlayerId);
+            }
+        }
+
+        [Event, Reliable, Server]
+        private void DoRecreateRotor(long builderId)
+        {
+            if (m_rotorBlock != null) return;
+
+            CreateRotorGrid(out m_rotorGrid, out m_rotorBlock, builderId);
+            if (m_rotorBlock != null) // No place for top part
+            {
+                MatrixD masterToSlave = m_rotorBlock.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
+                m_rotorBlockId.Value = new State() { OtherEntityId = m_rotorBlock.EntityId, MasterToSlave = masterToSlave };
+                Attach(m_rotorBlock);
+            }
+        }
+
         public override void OnAddedToScene(object source)
         {
             base.OnAddedToScene(source);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+
+            if (m_welded || m_isWelding)
+            {
+                UnweldGroup();
+            }
         }
 
         public override void OnRemovedFromScene(object source)
@@ -292,7 +333,7 @@ namespace Sandbox.Game.Entities.Cube
             base.Closing();
         }
 
-        protected virtual void CreateRotorGrid(out MyCubeGrid rotorGrid, out MyMotorRotor rotorBlock, long builtBy)
+        protected void CreateRotorGrid(out MyCubeGrid rotorGrid, out MyMotorRotor rotorBlock, long builtBy)
         {
             CreateRotorGrid(out rotorGrid, out rotorBlock, builtBy, MyDefinitionManager.Static.TryGetDefinitionGroup(MotorDefinition.RotorPart));
         }
@@ -336,8 +377,13 @@ namespace Sandbox.Game.Entities.Cube
                 grid.Close();
                 return;
             }
-
+      
             MyEntities.Add(grid);
+
+            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
+            {
+                MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(grid), MyExternalReplicable.FindByObject(CubeGrid));
+            }
 
             MatrixD masterToSlave = rotorBlock.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
             m_rotorBlockId.Value = new State() { OtherEntityId = rotorBlock.EntityId, MasterToSlave = masterToSlave};
@@ -377,6 +423,7 @@ namespace Sandbox.Game.Entities.Cube
             if (m_rotorBlock != null)
                 m_rotorBlock.Detach(m_welded || m_isWelding);
             m_rotorBlock = null;
+            m_isAttached = false;
 
             UpdateText();
             return true;
@@ -387,6 +434,12 @@ namespace Sandbox.Game.Entities.Cube
             base.UpdateOnceBeforeFrame();
             TryAttach();
             TryWeld();
+
+            if (AttachedEntityChanged != null)
+            {
+                // OtherEntityId is null when detached, 0 when ready to connect, and other when attached
+                AttachedEntityChanged(this);
+            }
         }
 
         public override void UpdateBeforeSimulation10()
@@ -426,7 +479,7 @@ namespace Sandbox.Game.Entities.Cube
             updateFlags &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             updateFlags &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-            if (m_rotorBlockId.Value.OtherEntityId == null || m_rotorBlockId.Value.OtherEntityId.HasValue == false) // Detached
+            if (m_rotorBlockId.Value.OtherEntityId.HasValue == false) // Detached
             {
                 if (m_constraint != null)
                 {
@@ -451,8 +504,8 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
             }
-            else if ((false == m_welded &&(m_rotorBlock == null || m_rotorBlock.EntityId != m_rotorBlockId.Value.OtherEntityId)) ||
-                     (m_welded && m_weldedRotorBlockId != m_rotorBlockId.Value.OtherEntityId)) // Attached to something else or nothing
+            else if (m_rotorBlockId.Value.OtherEntityId.HasValue && ((false == m_welded && (m_rotorBlockId.Value.Force || m_rotorBlock == null || m_rotorBlock.EntityId != m_rotorBlockId.Value.OtherEntityId)) ||
+                     (m_welded && m_weldedRotorBlockId != m_rotorBlockId.Value.OtherEntityId))) // Attached to something else or nothing
             {
                 Detach();
                 MyMotorRotor rotor;
@@ -461,7 +514,10 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     if (Sync.IsServer == false)
                     {
-                        rotor.CubeGrid.WorldMatrix = MatrixD.Multiply(m_rotorBlockId.Value.MasterToSlave.Value, this.WorldMatrix);
+                        if (m_rotorBlockId.Value.MasterToSlave.HasValue)
+                        {
+                            rotor.CubeGrid.WorldMatrix = MatrixD.Multiply(m_rotorBlockId.Value.MasterToSlave.Value, this.WorldMatrix);
+                        }
                     }
                     else
                     {
@@ -557,11 +613,25 @@ namespace Sandbox.Game.Entities.Cube
 
             var rotor = m_rotorBlock;
             bool detached = Detach(force);
+
+            if (Sync.IsServer)
+            {
+                m_rotorBlockId.Value = new State() { OtherEntityId = 0, MasterToSlave = null };
+            }
+
             if (MarkedForClose || Closed || rotor.MarkedForClose || rotor.Closed || CubeGrid.MarkedForClose || CubeGrid.Closed)
             {
                 return;
             }
+
+            if (Sync.IsServer)
+            {
+                MatrixD masterToSlave = rotor.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
+                m_rotorBlockId.Value = new State() { OtherEntityId = rotor.EntityId, MasterToSlave = masterToSlave, Force = force };
+            }
+
             bool attached = Attach(rotor, force);
+
             //Debug.Assert(detached && attached);
             if(!rotor.MarkedForClose && rotor.CubeGrid.Physics != null)
                 rotor.CubeGrid.Physics.ForceActivate();
@@ -662,6 +732,7 @@ namespace Sandbox.Game.Entities.Cube
             m_welded = true;
 
             m_isWelding = false;
+            RaisePropertiesChanged();
         }
 
         private void UnweldGroup()
@@ -682,6 +753,7 @@ namespace Sandbox.Game.Entities.Cube
                 Attach(m_rotorBlock,false);
                 m_welded = false;
                 m_isWelding = false;
+                RaisePropertiesChanged();
             }
         }
 

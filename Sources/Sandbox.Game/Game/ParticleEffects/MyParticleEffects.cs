@@ -11,46 +11,12 @@ using Sandbox.ModAPI;
 using VRage.ModAPI;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage;
 
 namespace Sandbox.Game
 {
-    public enum MyCustomHitMaterialMethodType
+    public static class MyParticleEffects
     {
-        None = -2,
-        Unknown = -1,
-        Small = 0,
-        Normal,
-    }
-
-    public enum MyCustomHitParticlesMethodType
-    {
-        None = -2,
-        Basic = 2,
-        BasicSmall = 3,
-    }
-    
-    static class MyParticleEffects
-    {
-        static Dictionary<MyEntity, Dictionary<int, MyParticleEffect>> m_hitParticles = new Dictionary<MyEntity, Dictionary<int, MyParticleEffect>>(64);
-        static readonly Dictionary<int, MyCustomHitParticlesMethod> m_generalParticleDelegates = new Dictionary<int, MyCustomHitParticlesMethod>(10);
-        static readonly Dictionary<int, MyCustomHitParticlesMethod> m_autocannonParticleDelegates = new Dictionary<int, MyCustomHitParticlesMethod>(10);
-        static readonly Dictionary<int, MyCustomHitMaterialMethod> m_hitMaterialParticleDelegates = new Dictionary<int, MyCustomHitMaterialMethod>(2);
-
-        static MyParticleEffects()
-        {
-            m_generalParticleDelegates.Add((int)MyCustomHitParticlesMethodType.None, 
-                delegate(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MyEntity weapon, float scale, MyEntity ownerEntity) { });
-            m_generalParticleDelegates.Add((int)MyCustomHitParticlesMethodType.Basic, CreateBasicHitParticles);
-            m_generalParticleDelegates.Add((int)MyCustomHitParticlesMethodType.BasicSmall, CreateBasicHitSmallParticles);
-
-            m_autocannonParticleDelegates.Add((int)MyCustomHitParticlesMethodType.Basic, CreateBasicHitAutocannonParticles);
-
-            m_hitMaterialParticleDelegates.Add((int)MyCustomHitMaterialMethodType.None, 
-                delegate(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MySurfaceImpactEnum surfaceImpact, MyEntity weapon, float scale) { });
-            m_hitMaterialParticleDelegates.Add((int)MyCustomHitMaterialMethodType.Normal, CreateHitMaterialParticles);
-            m_hitMaterialParticleDelegates.Add((int)MyCustomHitMaterialMethodType.Small, CreateHitMaterialSmallParticles);
-        }
-
         public static void GenerateMuzzleFlash(Vector3D position, Vector3 dir, float radius, float length, bool near = false)
         {
             GenerateMuzzleFlash(position, dir, -1, ref MatrixD.Zero, radius, length, near);
@@ -81,220 +47,97 @@ namespace Sandbox.Game
             VRageRender.MyRenderProxy.AddPointBillboardLocal(entity.Render.RenderObjectIDs[0], "MuzzleFlashMachineGunFront", color, localPos, radius, angle, 0, false, near);
         }
 
-        //  Create smoke and debris particle at the place of voxel/model hit
-        public static void CreateCollisionParticles(Vector3D hitPoint, Vector3 direction, bool doSmoke, bool doSparks)
+
+        private class EffectSoundEmitter
         {
-            MatrixD dirMatrix = MatrixD.CreateFromDir(direction);
-            if (doSmoke)
+            public readonly uint ParticleSoundId;
+            public bool Updated;
+            public MyEntity3DSoundEmitter Emitter;
+            public float OriginalVolume;
+
+            public EffectSoundEmitter(uint id, Vector3 position, MySoundPair sound)
             {
-                MyParticleEffect effect;
-                if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Collision_Smoke, out effect))
-                {
-                    effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-                }
-            }
-            if (doSparks)
-            {
-                MyParticleEffect effect;
-                if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Collision_Sparks, out effect))
-                {
-                    effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-                }
+                ParticleSoundId = id;
+                Updated = true;
+                Emitter = new MyEntity3DSoundEmitter(null);
+                Emitter.SetPosition(position);
+                Emitter.PlaySound(sound);
+                if (Emitter.Sound != null)
+                    OriginalVolume = Emitter.Sound.Volume;
+                else
+                    OriginalVolume = 1f;
+                Emitter.Update();
             }
         }
+        private static List<EffectSoundEmitter> m_soundEmitters = new List<EffectSoundEmitter>();
+        private static short UpdateCount = 0;
+        public static void UpdateEffects()
+        {
+            int i, j;
+            bool newSound;
+            UpdateCount++;
 
-        //  Create smoke and debris particle at the place of voxel/model hit
-        static void CreateBasicHitParticles(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MyEntity weapon, float scale, MyEntity ownerEntity = null)
+            //effect sounds
+            for (i = 0; i < m_soundEmitters.Count; i++)
+            {
+                m_soundEmitters[i].Updated = false;//not updated yet
+            }
+            foreach (var soundEffect in MyParticlesManager.SoundsPool.Active)
+            {
+                newSound = true;
+                for (i = 0; i < m_soundEmitters.Count; i++)
+                {
+                    if (m_soundEmitters[i].ParticleSoundId == soundEffect.ParticleSoundId)
+                    {
+                        m_soundEmitters[i].Updated = true;
+                        m_soundEmitters[i].Emitter.CustomVolume = m_soundEmitters[i].OriginalVolume * soundEffect.CurrentVolume;
+                        m_soundEmitters[i].Emitter.CustomMaxDistance = soundEffect.CurrentRange;
+                        newSound = false;
+                        break;
+                    }
+                }
+                if (newSound && soundEffect.Enabled && soundEffect.Position != Vector3.Zero)//create new sound emitter
+                {
+                    MySoundPair sound = new MySoundPair(soundEffect.SoundName);
+                    if (sound != MySoundPair.Empty)
+                    {
+                        m_soundEmitters.Add(new EffectSoundEmitter(soundEffect.ParticleSoundId,Vector3.Zero,sound));
+                    }
+                }
+            }
+            for (i = 0; i < m_soundEmitters.Count; i++)
+            {
+                if (m_soundEmitters[i].Updated == false)//effect no longer exists
+                {
+                    m_soundEmitters[i].Emitter.StopSound(true);
+                    m_soundEmitters.RemoveAt(i);
+                    i--;
+                }
+                else if (UpdateCount == 100)
+                    m_soundEmitters[i].Emitter.Update();
+            }
+
+            if (UpdateCount >= 100)
+                UpdateCount = 0;
+        }
+
+
+        public static void CreateBasicHitParticles(string effectName, ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MyEntity weapon, float scale, MyEntity ownerEntity = null)
         {
             Vector3D reflectedDirection = Vector3D.Reflect(direction, normal);
             MyUtilRandomVector3ByDeviatingVector randomVector = new MyUtilRandomVector3ByDeviatingVector(reflectedDirection);
-
-            if (MySector.MainCamera.GetDistanceWithFOV(hitPoint) < 200)
-            {
-                MyParticleEffect effect;
-                if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Hit_BasicAmmo, out effect))
-                {
-                    MatrixD dirMatrix = MatrixD.CreateFromDir(reflectedDirection);
-                    effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-                    effect.UserScale = scale;
-                }
-            }
-        }
-
-        static void CreateBasicHitSmallParticles(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MyEntity weapon, float scale, MyEntity ownerEntity = null)
-        {
-            Vector3D reflectedDirection = Vector3D.Reflect(direction, normal);
-            MyUtilRandomVector3ByDeviatingVector randomVector = new MyUtilRandomVector3ByDeviatingVector(reflectedDirection);
-
-            if (MySector.MainCamera.GetDistanceWithFOV(hitPoint) < 100)
-            {
-                MyParticleEffect effect;
-                if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Hit_BasicAmmoSmall, out effect))
-                {
-                    MatrixD dirMatrix = MatrixD.CreateFromDir(reflectedDirection);
-                    effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-                    effect.UserScale = scale;
-                }
-            }
-        }
-
-        static MyParticleEffect GetEffectForWeapon(MyEntity weapon, int effectID)
-        {
-            Dictionary<int, MyParticleEffect> effects;
-            m_hitParticles.TryGetValue(weapon, out effects);
-            if (effects == null)
-            {
-                effects = new Dictionary<int, MyParticleEffect>();
-                m_hitParticles.Add(weapon, effects);
-            }
 
             MyParticleEffect effect;
-            effects.TryGetValue(effectID, out effect);
-
-            if (effect == null)
+            if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Hit_BasicAmmoSmall, out effect))
             {
-                if (MyParticlesManager.TryCreateParticleEffect(effectID, out effect))
-                {
-                    effects.Add(effectID, effect);
-                    effect.Tag = weapon;
-                    effect.OnDelete += new EventHandler(effect_OnDelete);
-                }
+                MatrixD dirMatrix = MatrixD.CreateFromDir(normal);
+                effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
+
+                //VRageRender.MyRenderProxy.DebugDrawSphere(hitPoint, 0.1f, Color.Wheat, 1, false);
+                // VRageRender.MyRenderProxy.DebugDrawAxis(effect.WorldMatrix, 5, false);
+
+                effect.UserScale = scale;
             }
-            else
-            {
-                effect.Restart();
-            }
-
-            return effect;
-        }
-
-        static void effect_OnDelete(object sender, EventArgs e)
-        {
-            MyParticleEffect effect = (MyParticleEffect)sender;
-            MyEntity weapon = (MyEntity)effect.Tag;
-            Dictionary<int, MyParticleEffect> effects = m_hitParticles[weapon];
-            effects.Remove(effect.GetID());
-            if (effects.Count == 0)
-                m_hitParticles.Remove(weapon);
-        }
-
-        //  Create smoke and debris particle at the place of voxel/model hit
-        static void CreateBasicHitAutocannonParticles(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MyEntity weapon, float scale, MyEntity ownerEntity = null)
-        {
-            MyParticleEffect effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.Hit_AutocannonBasicAmmo);
-
-            Vector3 reflectedDirection = Vector3.Reflect(direction, normal);
-            MyUtilRandomVector3ByDeviatingVector randomVector = new MyUtilRandomVector3ByDeviatingVector(reflectedDirection);
-            MatrixD dirMatrix = MatrixD.CreateFromDir(reflectedDirection);
-            effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-            effect.UserScale = scale;
-        }
-
-        static void CreateHitMaterialParticles(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MySurfaceImpactEnum surfaceImpact, MyEntity weapon, float scale)
-        {
-            Vector3 reflectedDirection = Vector3.Reflect(direction, normal);
-
-            if (weapon != null)
-            {
-                MyParticleEffect effect = null;
-                switch (surfaceImpact)
-                {
-                    case MySurfaceImpactEnum.METAL:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_Metal);
-                        break;
-                    case MySurfaceImpactEnum.DESTRUCTIBLE:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_Destructible);
-                        break;
-                    case MySurfaceImpactEnum.INDESTRUCTIBLE:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_Indestructible);
-                        break;
-                    case MySurfaceImpactEnum.CHARACTER:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_Character);
-                        break;
-                    default:
-                        System.Diagnostics.Debug.Assert(false);
-                        break;
-                }
-                if (effect != null)
-                {
-                    MatrixD dirMatrix = MatrixD.CreateFromDir(reflectedDirection);
-                    effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-                    effect.UserScale = scale;
-                }
-            }
-        }
-
-        static void CreateHitMaterialSmallParticles(ref Vector3D hitPoint, ref Vector3 normal, ref Vector3D direction, IMyEntity physObject, MySurfaceImpactEnum surfaceImpact, MyEntity weapon, float scale)
-        {
-            if (weapon != null)
-            {
-                Vector3 reflectedDirection = Vector3.Reflect(direction, normal);
-
-                MyParticleEffect effect = null;
-                switch (surfaceImpact)
-                {
-                    case MySurfaceImpactEnum.METAL:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_MetalSmall);
-                        break;
-                    case MySurfaceImpactEnum.DESTRUCTIBLE:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_DestructibleSmall);
-                        break;
-                    case MySurfaceImpactEnum.INDESTRUCTIBLE:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_IndestructibleSmall);
-                        break;
-                    case MySurfaceImpactEnum.CHARACTER:
-                        effect = GetEffectForWeapon(weapon, (int)MyParticleEffectsIDEnum.MaterialHit_CharacterSmall);
-                        break;
-                    default:
-                        System.Diagnostics.Debug.Assert(false);
-                        break;
-                }
-                if (effect != null)
-                {
-                    MatrixD dirMatrix = MatrixD.CreateFromDir(reflectedDirection);
-                    effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);
-                    effect.UserScale = scale;
-                }
-            }
-        }
-
-        public static MyCustomHitParticlesMethod GetCustomHitParticlesMethodById(int id)
-        {
-            MyCustomHitParticlesMethod output;
-            bool found = m_generalParticleDelegates.TryGetValue(id, out output);
-            MyDebug.AssertDebug(found, "No custom hit particles method was defined for this id. Ignore it.");
-            if (!found)
-            {
-                found = m_generalParticleDelegates.TryGetValue((int)MyCustomHitParticlesMethodType.Basic, out output);
-                MyDebug.AssertDebug(found, "No DEFAULT custom hit particles method was defined for this id. Definitions not loaded properly.");
-            }
-            return output;
-        }
-
-        public static MyCustomHitParticlesMethod GetCustomAutocannonHitParticlesMethodById(int id)
-        {
-            MyCustomHitParticlesMethod output;
-            bool found = m_autocannonParticleDelegates.TryGetValue(id, out output);
-            MyDebug.AssertDebug(found, "No custom hit particles method was defined for this id. Ignore it.");
-            if (!found)
-            {
-                found = m_autocannonParticleDelegates.TryGetValue((int)MyCustomHitParticlesMethodType.Basic, out output);
-                MyDebug.AssertDebug(found, "No DEFAULT custom hit particles method was defined for this id. Definitions not loaded properly.");
-            }
-            return output;
-        }
-
-        public static MyCustomHitMaterialMethod GetCustomHitMaterialMethodById(int id)
-        {
-            MyCustomHitMaterialMethod output;
-            bool found = m_hitMaterialParticleDelegates.TryGetValue(id, out output);
-            MyDebug.AssertDebug(found, "No custom hit particles method was defined for this id. Ignore it.");
-            if (!found)
-            {
-                found = m_hitMaterialParticleDelegates.TryGetValue((int)MyCustomHitMaterialMethodType.Normal, out output);
-                MyDebug.AssertDebug(found, "No DEFAULT custom hit particles method was defined for this id. Definitions not loaded properly.");
-            }
-            return output;
         }
     }
 }

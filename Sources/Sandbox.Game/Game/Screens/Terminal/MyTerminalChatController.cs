@@ -328,7 +328,7 @@ namespace Sandbox.Game.Gui
                 var selectedItem = m_playerList.SelectedItems[0];
                 if (selectedItem == m_globalItem)
                 {
-                    MySession.Static.LocalCharacter.SyncObject.SendNewGlobalMessage(MySession.Static.LocalHumanPlayer.Id, m_chatboxText.ToString());
+                    MySession.Static.LocalCharacter.SendNewGlobalMessage(MySession.Static.LocalHumanPlayer.Id, m_chatboxText.ToString());
                 }
                 else
                 {
@@ -366,7 +366,7 @@ namespace Sandbox.Game.Gui
                 //This has to exist!
                 var currentFaction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
 
-                MySession.Static.LocalCharacter.SyncObject.SendNewFactionMessage(targetFaction.FactionId, currentFaction.FactionId, factionChatItem);
+                MySession.Static.LocalCharacter.SendNewFactionMessage(targetFaction.FactionId, currentFaction.FactionId, factionChatItem);
 
                 RefreshFactionChatHistory(targetFaction);
             }

@@ -100,6 +100,11 @@ namespace VRage.Collections
             m_removals.Clear();
         }
 
+        public bool HasChanges()
+        {
+            return (m_additionsAndModifications.Count > 0 || m_removals.Count > 0);
+        }
+
         public void ApplyChanges()
         {
             ApplyAdditionsAndModifications();

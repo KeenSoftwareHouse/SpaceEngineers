@@ -36,7 +36,7 @@ namespace VRageRender
             get { return WorkPriority.Normal; }
         }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
             ProfilerShort.Begin("DoCullWork");
 

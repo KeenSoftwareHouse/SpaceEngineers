@@ -40,12 +40,14 @@ namespace Sandbox.Definitions
         public string SpineBone;
         public float BendMultiplier1st;
         public float BendMultiplier3rd;
-        public bool NeedsOxygen;
+        public bool UsesAtmosphereDetector;
+        [Obsolete("Dont ever use again.")]
+        public bool NeedsOxygen;        // handled in myobjectbuilder_character
         public float OxygenConsumptionMultiplier;
         public float OxygenConsumption;
         public float PressureLevelForLowDamage;
         public float DamageAmountAtZeroPressure;
-        public string HelmetVariation;
+        //public string HelmetVariation;
         public bool LoopingFootsteps;
         public bool VisibleOnHud;
         public bool UsableByPlayer;
@@ -59,10 +61,15 @@ namespace Sandbox.Definitions
         public string CrouchDownSoundName;
         public string CrouchUpSoundName;
         public string PainSoundName;
+        public string SuffocateSoundName;
         public string DeathSoundName;
         public string IronsightActSoundName;
         public string IronsightDeactSoundName;
         public string FastFlySoundName;
+        public string HelmetOxygenNormalSoundName;
+        public string HelmetOxygenLowSoundName;
+        public string HelmetOxygenCriticalSoundName;
+        public string HelmetOxygenNoneSoundName;
 
         // Bones for foot placement IK
         public bool FeetIKEnabled = false;
@@ -198,24 +205,30 @@ namespace Sandbox.Definitions
             LeftAnkleBoneName = builder.LeftAnkleBoneName;
             RightHipBoneName = builder.RightHipBoneName;
             RightKneeBoneName = builder.RightKneeBoneName;
-            RightAnkleBoneName = builder.RightAnkleBoneName;     
+            RightAnkleBoneName = builder.RightAnkleBoneName;
+            UsesAtmosphereDetector = builder.UsesAtmosphereDetector;
             NeedsOxygen = builder.NeedsOxygen;
             OxygenConsumptionMultiplier = builder.OxygenConsumptionMultiplier;
             OxygenConsumption = builder.OxygenConsumption;
             PressureLevelForLowDamage = builder.PressureLevelForLowDamage;
             DamageAmountAtZeroPressure = builder.DamageAmountAtZeroPressure;
             RagdollDataFile = builder.RagdollDataFile;
-            HelmetVariation = builder.HelmetVariation;
+            //HelmetVariation = builder.HelmetVariation;
             JumpSoundName = builder.JumpSoundName;
             JetpackIdleSoundName = builder.JetpackIdleSoundName;
             JetpackRunSoundName = builder.JetpackRunSoundName;
             CrouchDownSoundName = builder.CrouchDownSoundName;
             CrouchUpSoundName = builder.CrouchUpSoundName;
             PainSoundName = builder.PainSoundName;
+            SuffocateSoundName = builder.SuffocateSoundName;
             DeathSoundName = builder.DeathSoundName;
             IronsightActSoundName = builder.IronsightActSoundName;
             IronsightDeactSoundName = builder.IronsightDeactSoundName;
             FastFlySoundName = builder.FastFlySoundName;
+            HelmetOxygenNormalSoundName = builder.HelmetOxygenNormalSoundName;
+            HelmetOxygenLowSoundName = builder.HelmetOxygenLowSoundName;
+            HelmetOxygenCriticalSoundName = builder.HelmetOxygenCriticalSoundName;
+            HelmetOxygenNoneSoundName = builder.HelmetOxygenNoneSoundName;
             LoopingFootsteps = builder.LoopingFootsteps;
             VisibleOnHud = builder.VisibleOnHud;
             UsableByPlayer = builder.UsableByPlayer;
@@ -356,17 +369,19 @@ namespace Sandbox.Definitions
             ob.RightUpperarmBone = RightUpperarmBone;
             ob.SpineBone = SpineBone;
             ob.MaterialsDisabledIn1st = MaterialsDisabledIn1st;
+            ob.UsesAtmosphereDetector = UsesAtmosphereDetector;
             ob.NeedsOxygen = NeedsOxygen;
             ob.OxygenConsumptionMultiplier = OxygenConsumptionMultiplier;
             ob.OxygenConsumption = OxygenConsumption;
             ob.PressureLevelForLowDamage = PressureLevelForLowDamage;
             ob.DamageAmountAtZeroPressure = DamageAmountAtZeroPressure;
-            ob.HelmetVariation = HelmetVariation;
+            //ob.HelmetVariation = HelmetVariation;
             ob.JumpSoundName = JumpSoundName;
             ob.JetpackIdleSoundName = JetpackIdleSoundName;
             ob.JetpackRunSoundName = JetpackRunSoundName;
             ob.CrouchDownSoundName = CrouchDownSoundName;
             ob.CrouchUpSoundName = CrouchUpSoundName;
+            ob.SuffocateSoundName = SuffocateSoundName;
             ob.PainSoundName = PainSoundName;
             ob.DeathSoundName = DeathSoundName;
             ob.IronsightActSoundName = IronsightActSoundName;

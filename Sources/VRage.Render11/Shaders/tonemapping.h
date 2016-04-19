@@ -98,7 +98,7 @@ float3 exposed_color(float3 color, float exposure)
     float linear_exposure = middle_grey() / avg_lum;
     linear_exposure = log2(max(linear_exposure, 0.0001f));
     linear_exposure += exposure;
-    return exp2(linear_exposure) * color;
+	return exp2(linear_exposure) * color;
 }
 
 float3 TonemappedColor(float3 color)
@@ -111,5 +111,5 @@ float3 TonemappedColor(float3 color)
 
 float3 CalculateContrast(float3 color, float contrast) {
 	float f = 259 * (contrast + 255) / (255 * (259 - contrast));
-	return saturate(f * (color - 0.5) + 0.5);
+    return saturate(mad(f, color, mad(-0.5, f, 0.5)));
 }

@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Models;
 using VRageMath;
@@ -7,7 +8,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorRotor))]
-    public class MyMotorRotor : MyCubeBlock
+    public class MyMotorRotor : MyCubeBlock, IMyMotorRotor
     {
         public Vector3 DummyPosLoc { get; private set; }
 
@@ -85,5 +86,16 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        #region ModAPI implementation
+        ModAPI.IMyMotorBase ModAPI.IMyMotorRotor.Stator
+        {
+            get { return Stator; }
+        }
+
+        bool ModAPI.Ingame.IMyMotorRotor.IsAttached
+        {
+            get { return Stator != null; }
+        }
+        #endregion
     }
 }

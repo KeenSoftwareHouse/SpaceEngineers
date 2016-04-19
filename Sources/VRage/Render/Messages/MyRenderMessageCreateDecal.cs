@@ -40,25 +40,6 @@ namespace VRageRender
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.RemoveDecal; } }
     }
 
-    public enum MyScreenDecalType
-    {
-        ScreenDecalBump, // affects normalmap on whole surface
-        ScreenDecalColor // affects color and metallness on alphatested surface
-    }
-
-    [ProtoContract]
-    public struct MyDecalMaterialDesc
-    {
-        [ProtoMember]
-        public MyScreenDecalType DecalType;
-        [ProtoMember]
-        public string NormalmapTexture;
-        [ProtoMember]
-        public string ColorMetalTexture;
-        [ProtoMember]
-        public string AlphamaskTexture;
-    }
-
     public class MyRenderMessageRegisterScreenDecalsMaterials : MyRenderMessageBase
     {
         public List<string> MaterialsNames;
@@ -66,5 +47,13 @@ namespace VRageRender
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.RegisterDecalsMaterials; } }
+    }
+
+    public class MyRenderMessageSetDecalGlobals : MyRenderMessageBase
+    {
+        public MyDecalGlobals Globals;
+
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.SetDecalGlobals; } }
     }
 }

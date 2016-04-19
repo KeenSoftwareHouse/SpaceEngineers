@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace Sandbox.Game.GameSystems
 {
-    static class MyOxygenProviderSystem
+    public static class MyOxygenProviderSystem
     {
         static List<IMyOxygenProvider> m_oxygenGenerators = new List<IMyOxygenProvider>();
 

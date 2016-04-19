@@ -19,6 +19,7 @@ using VRage.Game.Entity;
 using Sandbox.Game.Weapons.Guns;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {
@@ -54,6 +55,8 @@ namespace Sandbox.Game.Weapons
                 METAL_SOUND.Init("ToolLrgGrindMetal");
             }
             m_rotationSpeed = 0.0f;
+
+            HeatUpFrames = MyShipGrinderConstants.GRINDER_HEATUP_FRAMES;
         }
 
         public override void OnControlAcquired(Sandbox.Game.Entities.Character.MyCharacter owner)
@@ -191,6 +194,12 @@ namespace Sandbox.Game.Weapons
                 m_wantsToShake = false;
                 m_otherGrid = null;
             }
+
+            if (!IsShooting && !IsHeatingUp && m_rotationSpeed <= float.Epsilon)
+            {
+                // Doesn't actually do anything, switch each frame update off
+                NeedsUpdate &= ~VRage.ModAPI.MyEntityUpdateEnum.EACH_FRAME;
+            }
         }
 
         public override void UpdateAfterSimulation100()
@@ -314,8 +323,10 @@ namespace Sandbox.Game.Weapons
 
         protected override void PlayLoopSound(bool activated)
         {
+            if (m_soundEmitter == null)
+                return;
             MySoundPair cueEnum = activated ? METAL_SOUND : IDLE_SOUND;
-            if (m_soundEmitter.Sound != null && (m_soundEmitter.Sound.CueEnum == METAL_SOUND.SoundId || m_soundEmitter.Sound.CueEnum == IDLE_SOUND.SoundId) && m_soundEmitter.Sound.IsPlaying)
+            if (m_soundEmitter.Sound != null && (m_soundEmitter.SoundPair.Equals(METAL_SOUND) || m_soundEmitter.SoundPair.Equals(IDLE_SOUND)) && m_soundEmitter.Sound.IsPlaying)
                 m_soundEmitter.PlaySingleSound(cueEnum, true, true);
             else
                 m_soundEmitter.PlaySound(cueEnum);
@@ -333,6 +344,24 @@ namespace Sandbox.Game.Weapons
                 }
             }
         }
-        
+
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public override Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public override Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        #endregion
     }
 }

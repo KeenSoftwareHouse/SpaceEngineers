@@ -483,7 +483,7 @@ namespace Sandbox.Game.Gui
             m_settings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
             m_settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
             m_settings.EnableOxygen = true;
-            m_settings.CargoShipsEnabled = !MyFakes.ENABLE_PLANETS;
+            m_settings.CargoShipsEnabled = true;
             m_mods = new List<MyObjectBuilder_Checkpoint.ModItem>();
             SetSettingsToControls();
             SetDefaultName();

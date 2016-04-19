@@ -31,23 +31,31 @@ namespace Sandbox.Game.Gui
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.02f, 0.10f);
 
             m_currentPosition.Y += 0.01f * m_scale;
-            AddLabel("FXAA", Color.Yellow.ToVector4(), 1.2f);
 
-            AddCheckBox("Enable FXAA", null, MemberHelper.GetMember(() => MyPostProcessAntiAlias.Enabled));
+            bool rendererIsDirectX11 = MySandboxGame.Config.GraphicsRenderer.ToString().Equals("DirectX 11");
+            if (!rendererIsDirectX11)
+            {
+                AddLabel("FXAA (DX9)", Color.Yellow.ToVector4(), 1.2f);
+
+                AddCheckBox("Enable FXAA", null, MemberHelper.GetMember(() => MyPostProcessAntiAlias.Enabled));
+            }
 
             m_currentPosition.Y += 0.01f * m_scale;
             AddLabel("Fog", Color.Yellow.ToVector4(), 1.2f);
 
             var fogObj = MySector.FogProperties;
-            bool rendererIsDirectX11 = MySandboxGame.Config.GraphicsRenderer.ToString().Equals("DirectX 11");
             if (MySector.MainCamera != null)
             {
-                AddCheckBox("Enable fog", MySector.FogProperties, MemberHelper.GetMember(() => MySector.FogProperties.EnableFog));
-                AddSlider("Fog near distance", 1.0f, MySector.MainCamera.FarPlaneDistance, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogNear));
-                AddSlider("Fog far distance", 1.0f, MySector.MainCamera.FarPlaneDistance, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogFar));
+                if (!rendererIsDirectX11)
+                {
+                    AddCheckBox("Enable fog", MySector.FogProperties, MemberHelper.GetMember(() => MySector.FogProperties.EnableFog));
+                    AddSlider("Fog near distance", 1.0f, MySector.MainCamera.FarPlaneDistance, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogNear));
+                    AddSlider("Fog far distance", 1.0f, MySector.MainCamera.FarPlaneDistance, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogFar));
+                }
                 AddSlider("Fog multiplier", 0.0f, 0.5f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogMultiplier));
                 AddSlider("Fog backlight multiplier", 0.0f, 5.0f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogBacklightMultiplier));
-                if (rendererIsDirectX11) AddSlider("Fog density", 0.0f, 0.2f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogDensity));
+                if (rendererIsDirectX11) 
+                    AddSlider("Fog density", 0.0f, 0.2f, fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogDensity));
                 AddColor(new StringBuilder("Fog color"), fogObj, MemberHelper.GetMember(() => MySector.FogProperties.FogColor));
             }
 

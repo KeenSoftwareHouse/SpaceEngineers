@@ -60,20 +60,20 @@ namespace Sandbox.Game.Gui
                 AddSlider("Near clip", 0.05f, 10.0f, MySector.MainCamera, MemberHelper.GetMember(() => MySector.MainCamera.NearPlaneDistance));
                 AddSlider("Far clip", 100.0f, 100000.0f, MySector.MainCamera, MemberHelper.GetMember(() => MySector.MainCamera.FarPlaneDistance));
 
-                AddSlider("FOV", MySector.MainCamera.FieldOfViewAngle, 1.00f, 120.0f, new Action<MyGuiControlSlider>(OnFovSlider));
-                AddSlider("Near FOV", MySector.MainCamera.FieldOfViewAngleForNearObjects, 1.00f, 120.0f, new Action<MyGuiControlSlider>(OnNearFovSlider));
+                AddSlider("FOV", MySector.MainCamera.FieldOfViewDegrees, 1.00f, 120.0f, new Action<MyGuiControlSlider>(OnFovSlider));
+                //AddSlider("Near FOV", MySector.MainCamera.FieldOfViewDegreesForNearObjects, 1.00f, 120.0f, new Action<MyGuiControlSlider>(OnNearFovSlider));
             }
         }
 
         void OnFovSlider(MyGuiControlSlider slider)
         {
-            MySector.MainCamera.FieldOfViewAngle = slider.Value;
+            MySector.MainCamera.FieldOfViewDegrees = slider.Value;
         }
 
-        void OnNearFovSlider(MyGuiControlSlider slider)
-        {
-            MySector.MainCamera.FieldOfViewAngleForNearObjects = slider.Value;
-        }
+        //void OnNearFovSlider(MyGuiControlSlider slider)
+        //{
+        //    MySector.MainCamera.FieldOfViewDegreesForNearObjects = slider.Value;
+        //}
 
         public override string GetFriendlyName()
         {

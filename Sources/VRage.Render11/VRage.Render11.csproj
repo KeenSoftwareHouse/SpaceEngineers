@@ -95,6 +95,7 @@
     <Compile Include="GeometryStage\Foliage\MyFoliageStream.cs" />
     <Compile Include="GeometryStage\Geometry\MyMergeInstancing.cs" />
     <Compile Include="GeometryStage\Geometry\MyMeshes.cs" />
+    <Compile Include="GeometryStage\Geometry\MyMeshIdExtension.cs" />
     <Compile Include="GeometryStage\Geometry\MyMeshTableSRV.cs" />
     <Compile Include="GeometryStage\Geometry\MyOcclusionQuery.cs" />
     <Compile Include="GeometryStage\Geometry\MyScreenDecals.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="PostprocessStage\MyFXAA.cs" />
     <Compile Include="PostprocessStage\MyOutline.cs" />
     <Compile Include="PostprocessStage\MyLuminanceDebugTools.cs" />
+    <Compile Include="PostprocessStage\MySaveExportedTextures.cs" />
     <Compile Include="Profiler\MyGpuProfiler.cs" />
     <Compile Include="Common\MyRenderContext.cs" />
     <Compile Include="Common\MyScreenPass.cs" />
@@ -208,8 +210,13 @@
     <Compile Include="GeometryStage\MyInstanceBuffer.cs" />
     <Compile Include="Render\Utils\MyVideoPlayer.cs" />
     <Compile Include="Resources\BindableResources.cs" />
-    <Compile Include="Resources\Textures.cs" />
+    <Compile Include="Resources\MyTextureAtlas.cs" />
+    <Compile Include="Resources\MyTextures.cs" />
     <Compile Include="Resources\MyResource.cs" />
+    <Compile Include="TransparentStage\MyGPUEmitter.cs" />
+    <Compile Include="TransparentStage\MyGPUEmitters.cs" />
+    <Compile Include="TransparentStage\MyGPUParticleRenderer.cs" />
+    <Compile Include="TransparentStage\MyTransparentRendering.cs" />
     <Content Include="Shaders\data_visualization.h" />
     <Content Include="Shaders\data_visualization_histogram.hlsl" />
     <Content Include="Shaders\data_visualization_tonemapping.hlsl" />
@@ -234,6 +241,7 @@
     <Content Include="Shaders\Foliage\GrassFoliage.h" />
     <Content Include="Shaders\Foliage\RockFoliage.h" />
     <Content Include="Shaders\Lighting\DiffuseOrenNayar.h" />
+    <Content Include="Shaders\Lighting\lightDefs.h" />
     <Content Include="Shaders\Lighting\Utils.h" />
     <Content Include="Shaders\debug_Stencil.hlsl" />
     <Compile Include="Shader\MyMaterialShaders.cs" />
@@ -323,6 +331,12 @@
     <Content Include="Shaders\materials\triplanar_single\vertex.h" />
     <Content Include="Shaders\Math\Color.h" />
     <Content Include="Shaders\Math\math.h" />
+    <Content Include="Shaders\Particles\Emit.hlsl" />
+    <Content Include="Shaders\Particles\Globals.h" />
+    <Content Include="Shaders\Particles\InitDeadList.hlsl" />
+    <Content Include="Shaders\Particles\Render.hlsl" />
+    <Content Include="Shaders\Particles\Reset.hlsl" />
+    <Content Include="Shaders\Particles\Simulation.hlsl" />
     <Content Include="Shaders\passes\depth\pixel_stage.hlsl" />
     <Content Include="Shaders\passes\depth\vertex_stage.hlsl" />
     <Content Include="Shaders\passes\foliage_streaming\geometry_stage.hlsl" />
@@ -334,8 +348,10 @@
     <Content Include="Shaders\passes\gbuffer\vertex_stage.hlsl" />
     <Content Include="Shaders\passes\highlight\pixel_stage.hlsl" />
     <Content Include="Shaders\passes\highlight\vertex_stage.hlsl" />
+    <Content Include="Shaders\postprocess_colorize_exported_texture.hlsl" />
     <Content Include="Shaders\passes\test\pixel_stage.hlsl" />
     <Content Include="Shaders\passes\test\vertex_stage.hlsl" />
+    <Content Include="Shaders\materials\pixel_utils.h" />
     <Content Include="Shaders\pixel_template_base.h" />
     <Content Include="Shaders\postprocess.h" />
     <Content Include="Shaders\postprocess_base.h" />
@@ -355,6 +371,8 @@
     <Content Include="Shaders\template.h" />
     <Content Include="Shaders\tonemapping.h" />
     <Content Include="Shaders\tonemapping.hlsl" />
+    <Content Include="Shaders\Transparency\Globals.h" />
+    <Content Include="Shaders\Transparency\Resolve.hlsl" />
     <Content Include="Shaders\triplanar_sampling.h" />
     <Content Include="Shaders\vertex_merge_instancing.h" />
     <Content Include="Shaders\vertex_template_base.h" />

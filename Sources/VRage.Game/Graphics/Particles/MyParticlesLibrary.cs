@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml;
+using System.Linq;
+using VRage.Animations;
 using VRage.FileSystem;
 using VRage.Utils;
 using VRage.Win32;
@@ -17,6 +19,12 @@ namespace VRage.Game
         static Dictionary<int, MyParticleEffect> m_libraryEffects = new Dictionary<int, MyParticleEffect>();
         static Dictionary<string, MyParticleEffect> m_libraryEffectsString = new Dictionary<string, MyParticleEffect>();
         static readonly int Version = 0;
+        static string m_loadedFile;
+
+        public static string LoadedFile
+        {
+            get { return m_loadedFile; }
+        }
 
         static MyParticlesLibrary()
         {
@@ -134,6 +142,8 @@ namespace VRage.Game
                     Serialize(writer);
                     writer.Flush();
                 }
+
+                m_loadedFile = file;
             }
         }
 
@@ -152,6 +162,8 @@ namespace VRage.Game
                     {
                         Deserialize(reader);
                     }
+
+                    m_loadedFile = path;
                 }
             }
             catch (IOException ex)
@@ -191,6 +203,7 @@ namespace VRage.Game
             }
             
             m_libraryEffects.Clear();
+            m_libraryEffectsString.Clear();
         }
 
         public static int RedundancyDetected = 0;
@@ -254,21 +267,242 @@ namespace VRage.Game
 
         static public void DebugDraw()
         {
-           // if (AppCode.ExternalEditor.MyEditorBase.IsEditorActive)
+            foreach (MyParticleEffect effect in m_libraryEffects.Values)
             {
-                foreach (MyParticleEffect effect in m_libraryEffects.Values)
+                List<MyParticleEffect> instances = effect.GetInstances();
+                if (instances != null)
                 {
-                    List<MyParticleEffect> instances = effect.GetInstances();
-                    if (instances != null)
+                    foreach (MyParticleEffect instance in instances)
                     {
-                        foreach (MyParticleEffect instance in instances)
-                        {
-                            instance.DebugDraw();
-                        }
+                        instance.DebugDraw();
                     }
                 }
             }
         }
+
+        //static public void AddKey(int effectID, int generation, string property, float time, object value)
+        //{
+        //    MyParticleEffect effect;
+        //    if (m_libraryEffects.TryGetValue(effectID, out effect))
+        //    {
+        //        AddKey(effect, generation, property, time, value);
+
+        //        foreach (var instance in effect.GetInstances())
+        //        {
+        //            AddKey(instance, generation, property, time, value);
+        //        }
+        //    }
+        //}
+
+        //static public void AddKey(int effectID, int generation, string property, int parentKeyID, float time, object value)
+        //{
+        //    MyParticleEffect effect;
+        //    if (m_libraryEffects.TryGetValue(effectID, out effect))
+        //    {
+        //        AddKey(effect, generation, property, parentKeyID, time, value);
+
+        //        foreach (var instance in effect.GetInstances())
+        //        {
+        //            AddKey(instance, generation, property, parentKeyID, time, value);
+        //        }
+        //    }
+        //}
+
+        //private static void AddKey(MyParticleEffect effect, int generationIndex, string propertyName, float time, object value)
+        //{
+        //    IMyParticleGeneration generation = effect.GetGenerations()[generationIndex];
+
+        //    IMyConstProperty property = generation.GetProperties().First(x => x.Name == propertyName);
+        //    System.Diagnostics.Debug.Assert(property != null, "Invalid effect instance");
+
+        //    if (property != null)
+        //    {
+        //        if (property is IMyAnimatedProperty)
+        //        {
+        //            var propAnim = property as IMyAnimatedProperty;
+        //            propAnim.AddKey(time, value);
+        //        }
+        //        else
+        //            property.SetValue(value);
+        //    }
+        //}
+
+        //private static void AddKey(MyParticleEffect effect, int generationIndex, string propertyName, int parentKeyID, float time, object value)
+        //{
+        //    IMyParticleGeneration generation = effect.GetGenerations()[generationIndex];
+
+        //    IMyConstProperty property = generation.GetProperties().First(x => x.Name == propertyName);
+        //    System.Diagnostics.Debug.Assert(property != null, "Invalid effect instance");
+
+        //    if (property != null)
+        //    {
+        //        if (property is IMyAnimatedProperty2D)
+        //        {
+        //            var propAnim2D = property as IMyAnimatedProperty2D;
+        //            object animValue; float animTime;
+        //            propAnim2D.GetKeyByID(parentKeyID, out animTime, out animValue);
+
+        //            if (animValue is IMyAnimatedProperty)
+        //            {
+        //                var propAnim = animValue as IMyAnimatedProperty;
+        //                propAnim.AddKey(time, value);
+        //            }
+        //            else
+        //                System.Diagnostics.Debug.Fail("Unknown key value in 2D property");
+        //        }
+        //        else
+        //            System.Diagnostics.Debug.Fail("Only 2D properties can have parent key");
+        //    }
+        //}
+
+        //static public void RemoveKey(int effectID, int generation, string property, int keyID)
+        //{
+        //    MyParticleEffect effect;
+        //    if (m_libraryEffects.TryGetValue(effectID, out effect))
+        //    {
+        //        RemoveKey(effect, generation, property, keyID);
+
+        //        foreach (var instance in effect.GetInstances())
+        //        {
+        //            RemoveKey(instance, generation, property, keyID);
+        //        }
+        //    }
+        //}
+
+        //static public void RemoveKey(int effectID, int generation, string property, int parentKeyID, int keyID)
+        //{
+        //    MyParticleEffect effect;
+        //    if (m_libraryEffects.TryGetValue(effectID, out effect))
+        //    {
+        //        RemoveKey(effect, generation, property, parentKeyID, keyID);
+
+        //        foreach (var instance in effect.GetInstances())
+        //        {
+        //            RemoveKey(instance, generation, property, parentKeyID, keyID);
+        //        }
+        //    }
+        //}
+
+        //private static void RemoveKey(MyParticleEffect effect, int generationIndex, string propertyName, int keyID)
+        //{
+        //    IMyParticleGeneration generation = effect.GetGenerations()[generationIndex];
+
+        //    IMyConstProperty property = generation.GetProperties().First(x => x.Name == propertyName);
+        //    System.Diagnostics.Debug.Assert(property != null, "Invalid effect instance");
+
+        //    if (property != null)
+        //    {
+        //        if (property is IMyAnimatedProperty)
+        //        {
+        //            var propAnim = property as IMyAnimatedProperty;
+        //            propAnim.RemoveKeyByID(keyID);
+        //        }
+        //    }
+        //}
+
+        //private static void RemoveKey(MyParticleEffect effect, int generationIndex, string propertyName, int parentKeyID, int keyID)
+        //{
+        //    IMyParticleGeneration generation = effect.GetGenerations()[generationIndex];
+
+        //    IMyConstProperty property = generation.GetProperties().First(x => x.Name == propertyName);
+        //    System.Diagnostics.Debug.Assert(property != null, "Invalid effect instance");
+
+        //    if (property != null)
+        //    {
+        //        if (property is IMyAnimatedProperty2D)
+        //        {
+        //            var propAnim2D = property as IMyAnimatedProperty2D;
+        //            object animValue; float animTime;
+        //            propAnim2D.GetKeyByID(parentKeyID, out animTime, out animValue);
+
+        //            if (animValue is IMyAnimatedProperty)
+        //            {
+        //                var propAnim = animValue as IMyAnimatedProperty;
+        //                propAnim.RemoveKeyByID(keyID);
+        //            }
+        //            else
+        //                System.Diagnostics.Debug.Fail("Unknown key value in 2D property");
+        //        }
+        //        else
+        //            System.Diagnostics.Debug.Fail("Only 2D properties can have parent key");
+        //    }
+        //}
+
+        //static public void SetKey(int effectID, int generation, string property, int keyID, float time, object value)
+        //{
+        //    MyParticleEffect effect;
+        //    if (m_libraryEffects.TryGetValue(effectID, out effect))
+        //    {
+        //        SetKey(effect, generation, property, keyID, time, value);
+
+        //        foreach (var instance in effect.GetInstances())
+        //        {
+        //            SetKey(instance, generation, property, keyID, time, value);
+        //        }
+        //    }
+        //}
+
+        //static public void SetKey(int effectID, int generation, string property, int parentKeyID, int keyID, float time, object value)
+        //{
+        //    MyParticleEffect effect;
+        //    if (m_libraryEffects.TryGetValue(effectID, out effect))
+        //    {
+        //        SetKey(effect, generation, property, parentKeyID, keyID, time, value);
+
+        //        foreach (var instance in effect.GetInstances())
+        //        {
+        //            SetKey(instance, generation, property, parentKeyID, keyID, time, value);
+        //        }
+        //    }
+        //}
+
+        //private static void SetKey(MyParticleEffect effect, int generationIndex, string propertyName, int keyID, float time, object value)
+        //{
+        //    IMyParticleGeneration generation = effect.GetGenerations()[generationIndex];
+
+        //    IMyConstProperty property = generation.GetProperties().First(x => x.Name == propertyName);
+        //    System.Diagnostics.Debug.Assert(property != null, "Invalid effect instance");
+
+        //    if (property != null)
+        //    {
+        //        if (property is IMyAnimatedProperty)
+        //        {
+        //            var propAnim = property as IMyAnimatedProperty;
+        //            propAnim.SetKeyByID(keyID, time, value);
+        //        }
+        //        else
+        //            property.SetValue(value);
+        //    }
+        //}
+
+        //private static void SetKey(MyParticleEffect effect, int generationIndex, string propertyName, int parentKeyID, int keyID, float time, object value)
+        //{
+        //    IMyParticleGeneration generation = effect.GetGenerations()[generationIndex];
+
+        //    IMyConstProperty property = generation.GetProperties().First(x => x.Name == propertyName);
+        //    System.Diagnostics.Debug.Assert(property != null, "Invalid effect instance");
+
+        //    if (property != null)
+        //    {
+        //        if (property is IMyAnimatedProperty2D)
+        //        {
+        //            var propAnim2D = property as IMyAnimatedProperty2D;
+        //            object animValue; float animTime;
+        //            propAnim2D.GetKeyByID(parentKeyID, out animTime, out animValue);
+
+        //            if (animValue is IMyAnimatedProperty)
+        //            {
+        //                var propAnim = animValue as IMyAnimatedProperty;
+        //                propAnim.SetKeyByID(keyID, time, value);
+        //            }
+        //            else
+        //                System.Diagnostics.Debug.Fail("Unknown key value in 2D property");
+        //        }
+        //        else
+        //            System.Diagnostics.Debug.Fail("Only 2D properties can have parent key");
+        //    }
+        //}
+
 
     }
 }

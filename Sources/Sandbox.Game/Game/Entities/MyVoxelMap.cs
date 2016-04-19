@@ -12,7 +12,7 @@ using System.Threading;
 using VRage;
 using VRageMath;
 using VRageRender;
-using Sandbox.Common.Components;
+
 using Sandbox.Engine.Utils;
 using VRage.Voxels;
 using VRage.Utils;
@@ -92,6 +92,13 @@ namespace Sandbox.Game.Entities
             }
 
             m_storage = MyStorageBase.Load(ob.StorageName);
+            
+            //By Gregory: Added for compatibility with old saves
+            if(m_storage == null)
+            {
+                return;
+            }
+
             Init(builder, m_storage);
 
             if (ob.ContentChanged.HasValue)
@@ -326,6 +333,8 @@ namespace Sandbox.Game.Entities
         protected override void InitVoxelMap(MatrixD worldMatrix, Vector3I size, bool useOffset = true)
         {
             base.InitVoxelMap(worldMatrix, size, useOffset);
+
+            ((MyStorageBase)Storage).InitWriteCache(8);
 
             ProfilerShort.Begin("new MyVoxelPhysicsBody");
             Physics = new MyVoxelPhysicsBody(this, 3.0f, lazyPhysics: DelayRigidBodyCreation);

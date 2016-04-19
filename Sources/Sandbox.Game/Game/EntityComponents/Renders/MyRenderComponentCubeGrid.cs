@@ -17,7 +17,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Engine.Physics;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using VRage.Game.Components;
 using Sandbox.Game.GameSystems;

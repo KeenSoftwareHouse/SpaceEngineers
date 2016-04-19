@@ -20,7 +20,6 @@ namespace SpaceEngineers.Game.GUI
     {
         static readonly MyStringId[] m_renderers = new MyStringId[]
         {
-            MySandboxGame.DirectX9RendererKey,
             MySandboxGame.DirectX11RendererKey,
         };
 
@@ -178,8 +177,9 @@ namespace SpaceEngineers.Game.GUI
             m_comboAntialiasing.AddItem((int)MyAntialiasingMode.MSAA_4, "MSAA 4x");
             m_comboAntialiasing.AddItem((int)MyAntialiasingMode.MSAA_8, "MSAA 8x");
 
-            m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.LOW,    MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_ShadowMapResolution_Low));
-			m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.MEDIUM, MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_ShadowMapResolution_Medium));
+            m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.DISABLED, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_ShadowMapResolution_Disabled));
+            m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.LOW, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_ShadowMapResolution_Low));
+            m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.MEDIUM, MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_ShadowMapResolution_Medium));
             m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.HIGH,   MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_ShadowMapResolution_High));
 
             m_comboTextureQuality.AddItem((int)MyTextureQuality.LOW,    MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality_Low));
@@ -374,6 +374,8 @@ namespace SpaceEngineers.Game.GUI
                 read.Render.TextureQuality        = (MyTextureQuality)m_comboTextureQuality.GetSelectedKey();
                 read.Render.AnisotropicFiltering  = (MyTextureAnisoFiltering)m_comboAnisotropicFiltering.GetSelectedKey();
 
+                MyRenderProxy.Settings.EnableShadows = (read.Render.ShadowQuality != MyShadowsQuality.DISABLED);
+
                 if (MyVideoSettingsManager.RunningGraphicsRenderer != MySandboxGame.DirectX11RendererKey)
                     read.Render.Dx9Quality = (MyRenderQualityEnum)m_comboDx9RenderQuality.GetSelectedKey();
                 else
@@ -392,7 +394,8 @@ namespace SpaceEngineers.Game.GUI
 
         private void WriteSettingsToControls(MyGraphicsSettings graphicsSettings)
         {
-            m_comboRenderer.SelectItemByKey(Array.IndexOf(m_renderers, graphicsSettings.GraphicsRenderer));
+            int selectedRender = Math.Max(0, Array.IndexOf(m_renderers, graphicsSettings.GraphicsRenderer));
+            m_comboRenderer.SelectItemByKey(selectedRender);
             m_checkboxHardwareCursor.IsChecked = graphicsSettings.HardwareCursor;
 
             m_sliderFov.Value = MathHelper.ToDegrees(graphicsSettings.FieldOfView);

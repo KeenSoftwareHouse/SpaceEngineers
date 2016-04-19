@@ -5,12 +5,36 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender.Resources;
 
 namespace VRageRender
 {
+    public struct MyTextureDebugMultipliers
+    {
+        public float RgbMultiplier;
+        public float MetalnessMultiplier;
+        public float GlossMultiplier;
+        public float AoMultiplier;
+
+        public float EmissiveMultiplier;
+        public float ColorMaskMultiplier;
+        public float __padding1;
+        public float __padding2;
+
+        public static MyTextureDebugMultipliers Defaults = new MyTextureDebugMultipliers
+        {
+            RgbMultiplier = 1.0f,
+            MetalnessMultiplier = 1.0f,
+            GlossMultiplier = 1.0f,
+            AoMultiplier = 1.0f,
+            EmissiveMultiplier = 1.0f,
+            ColorMaskMultiplier = 1.0f,
+        };
+    }
+
     static class MyCommon
     {
         // constant buffers
@@ -55,15 +79,20 @@ namespace VRageRender
 
         internal static UInt64 FrameCounter = 0;
 
+        static MyCommon()
+        {
+            m_timer = new Stopwatch();
+            m_timer.Start();
+        }
         internal unsafe static void Init()
         {
-            FrameConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(MyFrameConstantsLayout));
-            ProjectionConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix));
-            ObjectConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix));
-            FoliageConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix));
-            MaterialFoliageTableConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4) * 256);
-            OutlineConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(OutlineConstantsLayout));
-            AlphamaskViewsConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix) * 181);
+            FrameConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(MyFrameConstantsLayout), "FrameConstants");
+            ProjectionConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix), "ProjectionConstants");
+            ObjectConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix), "ObjectConstants");
+            FoliageConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4), "FoliageConstants");
+            MaterialFoliageTableConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4) * 256, "MaterialFoliageTableConstants");
+            OutlineConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(OutlineConstantsLayout), "OutlineConstants");
+            AlphamaskViewsConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix) * 181, "AlphamaskViewsConstants");
 
             UpdateAlphamaskViewsConstants();
         }
@@ -81,7 +110,7 @@ namespace VRageRender
             size = ((size + 15)/16)*16;
             if(!m_objectsConstantBuffers.ContainsKey(size))
             {
-                m_objectsConstantBuffers[size] = MyHwBuffers.CreateConstantsBuffer(size);
+                m_objectsConstantBuffers[size] = MyHwBuffers.CreateConstantsBuffer(size, "CommonObjectCB" + size);
 
             }
             return m_objectsConstantBuffers[size];
@@ -95,109 +124,115 @@ namespace VRageRender
             size = ((size + 15) / 16) * 16;
             if (!m_materialsConstantBuffers.ContainsKey(size))
             {
-                m_materialsConstantBuffers[size] = MyHwBuffers.CreateConstantsBuffer(size);
+                m_materialsConstantBuffers[size] = MyHwBuffers.CreateConstantsBuffer(size, "CommonMaterialCB" + size);
 
             }
             return m_materialsConstantBuffers[size];
         }
 
-         struct MyFrameConstantsLayout
-         {
-             internal Matrix ViewProjection;
-             internal Matrix View;
-             internal Matrix Projection;
-             internal Matrix InvView;
-             internal Matrix InvProjection;
-             internal Matrix InvViewProjection;
-             internal Matrix ViewProjectionWorld;
-             internal Vector4 WorldOffset;
+        struct MyFrameConstantsLayout
+        {
+            internal Matrix ViewProjection;
+            internal Matrix View;
+            internal Matrix Projection;
+            internal Matrix InvView;
+            internal Matrix InvProjection;
+            internal Matrix InvViewProjection;
+            internal Matrix ViewProjectionWorld;
+            internal Vector4 WorldOffset;
 
-             internal Vector2 Resolution;
-             internal float Time;
-             internal float TimeDelta;
+            internal Vector2 Resolution;
+            internal float Time;
+            internal float TimeDelta;
 
-             internal Vector4 TerrainTextureDistances;
+            internal Vector4 TerrainTextureDistances;
 
-             internal Vector2 TerrainDetailRange;
-             internal uint TilesNum;
-             internal uint TilesX;
+            internal Vector2 TerrainDetailRange;
+            internal uint TilesNum;
+            internal uint TilesX;
 
-             internal Vector4 FoliageClippingScaling;
-             internal Vector3 WindVector;
-             internal float Tau;
+            internal Vector4 FoliageClippingScaling;
+            internal Vector3 WindVector;
+            internal float Tau;
 
-             internal float BacklightMult;
-             internal float EnvMult;
-             internal float Contrast;
-             internal float Brightness;
+            internal float BacklightMult;
+            internal float EnvMult;
+            internal float Contrast;
+            internal float Brightness;
 
-             internal float MiddleGrey;
-             internal float LuminanceExposure;
-             internal float BloomExposure;
-             internal float BloomMult;
+            internal float MiddleGrey;
+            internal float LuminanceExposure;
+            internal float BloomExposure;
+            internal float BloomMult;
 
-             internal float MiddleGreyCurveSharpness;
-             internal float MiddleGreyAt0;
-             internal float BlueShiftRapidness;
-             internal float BlueShiftScale;
+            internal float MiddleGreyCurveSharpness;
+            internal float MiddleGreyAt0;
+            internal float BlueShiftRapidness;
+            internal float BlueShiftScale;
 
-             internal float FogDensity;
-             internal float FogMult;
-             internal float FogYOffset;
-             internal uint FogColor;
+            internal float FogDensity;
+            internal float FogMult;
+            internal float FogYOffset;
+            internal uint FogColor;
 
-             internal Vector3 DirectionalLightDir;
-             internal float SkyboxBlend;
+            internal Vector3 DirectionalLightDir;
+            internal float SkyboxBlend;
 
-             internal Vector3 DirectionalLightColor;
-             internal float ForwardPassAmbient;
+            internal Vector3 DirectionalLightColor;
+            internal float ForwardPassAmbient;
 
-             internal Vector3 AdditionalSunColor;
-             internal float AdditionalSunIntensity;
+            internal Vector3 AdditionalSunColor;
+            internal float AdditionalSunIntensity;
 
-             internal Vector4 SecondarySunDirection1;
-             internal Vector4 SecondarySunDirection2;
-             internal Vector4 SecondarySunDirection3;
-             internal Vector4 SecondarySunDirection4;
-             internal Vector4 SecondarySunDirection5;
-             internal int AdditionalSunCount;
-             internal Vector3 _Padding1;
+            internal Vector4 SecondarySunDirection1;
+            internal Vector4 SecondarySunDirection2;
+            internal Vector4 SecondarySunDirection3;
+            internal Vector4 SecondarySunDirection4;
+            internal Vector4 SecondarySunDirection5;
+            internal int AdditionalSunCount;
+            internal Vector3 _Padding1;
 
-             internal float Tonemapping_A;
-             internal float Tonemapping_B;
-             internal float Tonemapping_C;
-             internal float Tonemapping_D;
+            internal float Tonemapping_A;
+            internal float Tonemapping_B;
+            internal float Tonemapping_C;
+            internal float Tonemapping_D;
 
-             internal float Tonemapping_E;
-             internal float Tonemapping_F;
-             internal float LogLumThreshold;
-             internal float DebugVoxelLod;
+            internal float Tonemapping_E;
+            internal float Tonemapping_F;
+            internal float LogLumThreshold;
+            internal float DebugVoxelLod;
             
-             internal Vector4 VoxelLodRange0;
-             internal Vector4 VoxelLodRange1;
-             internal Vector4 VoxelLodRange2;
-             internal Vector4 VoxelLodRange3;
+            internal Vector4 VoxelLodRange0;
+            internal Vector4 VoxelLodRange1;
+            internal Vector4 VoxelLodRange2;
+            internal Vector4 VoxelLodRange3;
 
-             internal Vector4 VoxelMassiveLodRange0;
-             internal Vector4 VoxelMassiveLodRange1;
-             internal Vector4 VoxelMassiveLodRange2;
-             internal Vector4 VoxelMassiveLodRange3;
-             internal Vector4 VoxelMassiveLodRange4;
-             internal Vector4 VoxelMassiveLodRange5;
-             internal Vector4 VoxelMassiveLodRange6;
-             internal Vector4 VoxelMassiveLodRange7;
+            internal Vector4 VoxelMassiveLodRange0;
+            internal Vector4 VoxelMassiveLodRange1;
+            internal Vector4 VoxelMassiveLodRange2;
+            internal Vector4 VoxelMassiveLodRange3;
+            internal Vector4 VoxelMassiveLodRange4;
+            internal Vector4 VoxelMassiveLodRange5;
+            internal Vector4 VoxelMassiveLodRange6;
+            internal Vector4 VoxelMassiveLodRange7;
 
-             internal float SkyboxBrightness;
-			 internal float ShadowFadeout;
-             Vector2 _padding;
+            internal float SkyboxBrightness;
+			internal float ShadowFadeout;
+            internal float FrameTimeDelta;
+            internal float RandomSeed;
 
-             internal float EnableVoxelAo;
-             internal float VoxelAoMin;
-             internal float VoxelAoMax;
-             internal float VoxelAoOffset;
+            internal float EnableVoxelAo;
+            internal float VoxelAoMin;
+            internal float VoxelAoMax;
+            internal float VoxelAoOffset;
 
-             internal Matrix BackgroundOrientation;
-         }
+            internal Matrix BackgroundOrientation;
+
+            internal MyTextureDebugMultipliers TextureDebugMultipliers;
+
+            internal Vector3 CameraPositionDelta;
+            internal float _Padding2;
+        }
 
         internal static void MoveToNextFrame()
         {
@@ -206,6 +241,15 @@ namespace VRageRender
 
         static int m_lastGameplayFrame;
         static int m_lastFrameGameplayUpdate;
+        static MyRandom m_random = new MyRandom();
+        const float MAX_FRAMETIME = 66.0f;
+        static float m_lastFrameDelta = 0;
+        static float m_lastFrameTime = 0;
+        static Stopwatch m_timer;
+        static Vector3D m_lastCameraPosition;
+
+        internal static float TimerMs { get { return (float)(m_timer.ElapsedTicks / (double)Stopwatch.Frequency * 1000.0); } }
+        internal static float LastFrameDelta() { return m_lastFrameDelta; }
 
         internal static void UpdateFrameConstants()
         {
@@ -218,6 +262,8 @@ namespace VRageRender
             constants.InvViewProjection = Matrix.Transpose(MyEnvironment.InvViewProjectionAt0);
             constants.ViewProjectionWorld = Matrix.Transpose(MyEnvironment.ViewProjection);
             constants.WorldOffset = new Vector4(MyEnvironment.CameraPosition, 0);
+
+            float skyboxBlend = 1 - 2 * (float)(Math.Abs(-MyEnvironment.DayTime + 0.5));
             
             constants.Resolution = MyRender11.ResolutionF;
             constants.TerrainTextureDistances = new Vector4(
@@ -238,6 +284,13 @@ namespace VRageRender
                 m_lastGameplayFrame = currentGameplayFrame;
                 m_lastFrameGameplayUpdate = (int)FrameCounter;
             }
+
+            float time = TimerMs;
+            float delta = Math.Min(time - m_lastFrameTime, MAX_FRAMETIME);
+            m_lastFrameTime = time;
+            m_lastFrameDelta = delta / 1000.0f;
+            constants.FrameTimeDelta = m_lastFrameDelta;
+            constants.RandomSeed = m_random.NextFloat();
 
             constants.FoliageClippingScaling = new Vector4(
                 //MyRender.Settings.GrassGeometryClippingDistance,
@@ -269,7 +322,7 @@ namespace VRageRender
             constants.FogColor = MyEnvironment.FogSettings.FogColor.PackedValue;
             constants.ForwardPassAmbient = MyRender11.Postprocess.ForwardPassAmbient;
 
-            constants.LogLumThreshold = MyRender11.Postprocess.LogLumThreshold;
+            constants.LogLumThreshold = MyRender11.Postprocess.LogLumThreshold + (MyRender11.Postprocess.LogLumThreshold + 2 - MyRender11.Postprocess.LogLumThreshold) * skyboxBlend;
             constants.Tonemapping_A = MyRender11.Postprocess.Tonemapping_A;
             constants.Tonemapping_B = MyRender11.Postprocess.Tonemapping_B;
             constants.Tonemapping_C = MyRender11.Postprocess.Tonemapping_C;
@@ -327,7 +380,7 @@ namespace VRageRender
             else
                 constants.AdditionalSunCount = 0;
 
-            constants.SkyboxBlend = 1 - 2 * (float)(Math.Abs(-MyEnvironment.DayTime + 0.5));
+            constants.SkyboxBlend = skyboxBlend;
             constants.SkyboxBrightness = MathHelper.Lerp(1.0f, 0.01f, MyEnvironment.PlanetFactor);
 			constants.ShadowFadeout = MyRender11.Settings.ShadowFadeoutMultiplier;
 
@@ -338,6 +391,19 @@ namespace VRageRender
             constants.VoxelAoOffset = MyRenderSettings.VoxelAoOffset;
 
             constants.BackgroundOrientation = Matrix.CreateFromQuaternion(MyEnvironment.BackgroundOrientation);
+
+            constants.CameraPositionDelta = MyEnvironment.CameraPosition - m_lastCameraPosition;
+            m_lastCameraPosition = MyEnvironment.CameraPosition;
+
+            constants.TextureDebugMultipliers = new MyTextureDebugMultipliers
+            {
+                RgbMultiplier = MyRender11.Settings.RgbMultiplier,
+                MetalnessMultiplier = MyRender11.Settings.MetalnessMultiplier,
+                GlossMultiplier = MyRender11.Settings.GlossMultiplier,
+                AoMultiplier = MyRender11.Settings.AoMultiplier,
+                EmissiveMultiplier = MyRender11.Settings.EmissiveMultiplier,
+                ColorMaskMultiplier = MyRender11.Settings.ColorMaskMultiplier,
+            };
 
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 0, out constants.VoxelLodRange0.X, out constants.VoxelLodRange0.Y);
             MyClipmap.ComputeLodViewBounds(MyClipmapScaleEnum.Normal, 1, out constants.VoxelLodRange0.Z, out constants.VoxelLodRange0.W);

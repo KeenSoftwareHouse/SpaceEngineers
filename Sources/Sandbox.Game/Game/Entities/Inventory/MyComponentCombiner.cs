@@ -38,10 +38,9 @@ namespace Sandbox.Game.Entities.Inventory
                     {
                         amount += (int)inventory.GetItemAmount(providingComponent.Key) / providingComponent.Value;
                     }
-                    return amount;
                 }
 
-                return inventory.GetItemAmount(contentId);
+                return amount + inventory.GetItemAmount(contentId);
             }
             else
             {
@@ -178,6 +177,12 @@ namespace Sandbox.Game.Entities.Inventory
                             {
                                 break;
                             }
+                        }
+
+                        if (amountToRemove > 0)
+                        {
+                            var removed = inventory.RemoveItemsOfType(amountToRemove, material.Key);
+                            amountToRemove -= (int)removed;
                         }
                     }
                     else

@@ -14,14 +14,14 @@ using VRageMath;
 namespace VRage.Network
 {
     public class MyReplicationClient : MyReplicationLayer
-    {
+    {     
         bool m_clientReady;
         bool m_hasTypeTable;
         IReplicationClientCallback m_callback;
         CacheList<IMyStateGroup> m_tmpGroups = new CacheList<IMyStateGroup>(4);
         List<byte> m_acks = new List<byte>();
         byte m_lastStateSyncPacketId;
-        int m_frameIndex = 0;
+       
 
         // TODO: Maybe pool pending replicables?
         Dictionary<NetworkId, MyPendingReplicable> m_pendingReplicables = new Dictionary<NetworkId, MyPendingReplicable>(16);
@@ -31,6 +31,8 @@ namespace VRage.Network
         MyEventsBuffer.IsBlockedHandler m_isBlockedHandler;
 
         public MyClientStateBase ClientState;
+
+        uint m_currentTimeStamp = 0;
 
         public MyReplicationClient(IReplicationClientCallback callback, MyClientStateBase clientState)
             : base(false)
@@ -280,21 +282,16 @@ namespace VRage.Network
             if (!m_clientReady || !m_hasTypeTable || ClientState == null)
                 return;
 
-            m_frameIndex++;
-            if (m_frameIndex % 2 == 0) // Client updates once per 2 frames
-                return;
-
-
+            
             // Update state groups on client
             foreach (var obj in NetworkObjects)
             {
                 var stateGroup = obj as IMyStateGroup;
                 if (stateGroup != null)
                 {
-                    stateGroup.ClientUpdate();
+                    stateGroup.ClientUpdate(m_currentTimeStamp);
                 }
             }
-
             m_sendStream.ResetWrite();
 
             // Write last state sync packet id
@@ -309,9 +306,12 @@ namespace VRage.Network
             }
             m_acks.Clear();
 
+            ClientState.ClientTimeStamp = m_currentTimeStamp;
             // Write Client state
-            ClientState.Serialize(m_sendStream);
+            ClientState.Serialize(m_sendStream, ClientState.ClientTimeStamp);
             m_callback.SendClientUpdate(m_sendStream);
+
+            m_currentTimeStamp++;
             //Client.SendMessageToServer(m_sendStream, PacketReliabilityEnum.UNRELIABLE, PacketPriorityEnum.IMMEDIATE_PRIORITY, MyChannelEnum.StateDataSync);
         }
 
@@ -362,6 +362,7 @@ namespace VRage.Network
 
         protected override void ProcessEvent(BitStream stream, NetworkId networkId, NetworkId blockedNetId, uint eventId, EndpointId sender)
         {
+            LastMessageFromServer = DateTime.UtcNow;
             // Check if any of them is not blocked already.
             bool anyContainsEvents = m_eventBuffer.ContainsEvents(networkId) || m_eventBuffer.ContainsEvents(blockedNetId);
 
@@ -380,6 +381,7 @@ namespace VRage.Network
 
         internal override void ProcessEvent(BitStream stream, CallSite site, object obj, IMyNetObject sendAs, EndpointId source)
         {
+            LastMessageFromServer = DateTime.UtcNow;
             // Client blindly invokes everything received from server (without validation)
             Invoke(site, stream, obj, source, null, false);
         }
@@ -389,6 +391,7 @@ namespace VRage.Network
         /// </summary>
         public void ProcessStateSync(MyPacket packet)
         {
+            LastMessageFromServer = DateTime.UtcNow;
             // Simulated packet loss
             // if (MyRandom.Instance.NextFloat() > 0.3f) return;
 
@@ -417,20 +420,20 @@ namespace VRage.Network
                if(isStreaming && obj.GroupType != StateGroupEnum.Streamining)
                {
                    Debug.Fail("group type mismatch !");
-                   MyLog.Default.WriteLine("recieved streaming flag but group is not streaming !");
+                   MyLog.Default.WriteLine("received streaming flag but group is not streaming !");
                    return;
                }
 
                if (!isStreaming && obj.GroupType == StateGroupEnum.Streamining)
                {
                    Debug.Fail("group type mismatch !");
-                   MyLog.Default.WriteLine("recieved non streaming flag but group wants to stream !");
+                   MyLog.Default.WriteLine("received non streaming flag but group wants to stream !");
                    return;
                }
 
                 var pos = m_receiveStream.BytePosition;
                 NetProfiler.Begin(obj.GetType().Name);
-                obj.Serialize(m_receiveStream, null, m_lastStateSyncPacketId, 0);
+                obj.Serialize(m_receiveStream, ClientState.EndpointId,0, m_lastStateSyncPacketId, 0);
                 NetProfiler.End(m_receiveStream.ByteLength - pos);
             }
 
@@ -440,6 +443,47 @@ namespace VRage.Network
             }
         }
 
+        public JoinResultMsg OnJoinResult(MyPacket packet)
+        {
+            m_receiveStream.ResetRead(packet);
+            JoinResultMsg msg = VRage.Serialization.MySerializer.CreateAndRead<JoinResultMsg>(m_receiveStream);
+            return msg;
+        }
+
+        public ServerDataMsg OnWorldData(MyPacket packet)
+        {
+            m_receiveStream.ResetRead(packet);
+            ServerDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ServerDataMsg>(m_receiveStream);
+            return msg;
+        }
+
+        public ServerBattleDataMsg OnWorldBattleData(MyPacket packet)
+        {
+            m_receiveStream.ResetRead(packet);
+            ServerBattleDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ServerBattleDataMsg>(m_receiveStream);
+            return msg;
+        }
+
+        public ChatMsg OnChatMessage(MyPacket packet)
+        {
+            m_receiveStream.ResetRead(packet);
+            ChatMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ChatMsg>(m_receiveStream);
+            return msg;
+        }
+
+        public ConnectedClientDataMsg OnClientConnected(MyPacket packet)
+        {
+            m_receiveStream.ResetRead(packet);
+            ConnectedClientDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ConnectedClientDataMsg>(m_receiveStream);
+            return msg;
+        }
+
+        public void SendClientConnected(ref ConnectedClientDataMsg msg)
+        {
+            m_sendStream.ResetWrite();
+            VRage.Serialization.MySerializer.Write<ConnectedClientDataMsg>(m_sendStream, ref msg);
+            m_callback.SendConnectRequest(m_sendStream);
+        }
         #region Debug methods
 
         public override string GetMultiplayerStat()

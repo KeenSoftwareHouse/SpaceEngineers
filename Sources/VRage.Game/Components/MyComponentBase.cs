@@ -22,7 +22,7 @@ namespace VRage.Game.Components
         /// <param name="container">The new container of the component</param>
         public virtual void SetContainer(MyComponentContainer container)
         {
-            if (container == null)
+            if (m_container != null)
                 OnBeforeRemovedFromContainer();
 
             m_container = container;

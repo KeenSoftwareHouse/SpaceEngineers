@@ -47,7 +47,7 @@ namespace VRageRender.Resources
         {
         }
 
-        internal MyTextureArray(TexId[] mergeList)
+        internal MyTextureArray(TexId[] mergeList, string debugName)
         {
             var srcDesc = MyTextures.GetView(mergeList[0]).Description;
             Size = MyTextures.GetSize(mergeList[0]);
@@ -60,17 +60,24 @@ namespace VRageRender.Resources
             desc.Format = srcDesc.Format;
             desc.Height = (int)Size.Y;
             desc.Width = (int)Size.X;
-            desc.MipLevels = 0;
+            desc.MipLevels = srcDesc.Texture2D.MipLevels;
             desc.SampleDescription.Count = 1;
             desc.SampleDescription.Quality = 0;
             desc.Usage = ResourceUsage.Default;
             m_resource = new Texture2D(MyRender11.Device, desc);
+            m_resource.DebugName = debugName;
 
             // foreach mip
-            var mipmaps = (int)Math.Log(Size.X, 2) + 1;
+            var mipmaps = desc.MipLevels;// (int)Math.Log(Size.X, 2) + 1;
 
             for (int a = 0; a < ArrayLen; a++)
             {
+                var tex2D = MyTextures.Textures.Data[mergeList[a].Index].Resource as Texture2D;
+                MyRenderProxy.Assert(tex2D != null, "MyTextureArray supports only 2D textures");
+                MyRenderProxy.Assert(tex2D.Description.Format == desc.Format && tex2D.Description.MipLevels == desc.MipLevels &&
+                    tex2D.Description.Width == desc.Width && tex2D.Description.Height == desc.Height, 
+                    "All MyTextureArray has to have the same pixel format, width / height and # of mipmaps.");
+
                 for (int m = 0; m < mipmaps; m++)
                 {
 
@@ -98,7 +105,7 @@ namespace VRageRender.Resources
             base.Dispose();
         }
 
-        internal static MyTextureArray FromStringArray(string[] mergeList, MyTextureEnum type)
+        internal static MyTextureArray FromStringArray(string[] mergeList, MyTextureEnum type, string debugName)
         {
             if (mergeList == null)
             {
@@ -111,7 +118,7 @@ namespace VRageRender.Resources
                 ids[i] = MyTextures.GetTexture(mergeList[i], type, true);
             }
 
-            return new MyTextureArray(ids);
+            return new MyTextureArray(ids, debugName);
         }
     }
 }
@@ -262,7 +269,7 @@ namespace VRageRender
         static MyFreelist<MyHwBufferDesc> CBuffers = new MyFreelist<MyHwBufferDesc>(128);
         static MyConstantBufferData[] CBuffersData = new MyConstantBufferData[128];
 
-        internal static ConstantsBufferId CreateConstantsBuffer(int size)
+        internal static ConstantsBufferId CreateConstantsBuffer(int size, string debugName)
         {
             Debug.Assert(size == ((size + 15) / 16) * 16, "CB size not padded");
 
@@ -272,10 +279,10 @@ namespace VRageRender
             desc.SizeInBytes = size;
             desc.Usage = ResourceUsage.Dynamic;
 
-            return CreateConstantsBuffer(desc);
+            return CreateConstantsBuffer(desc, debugName);
         }
 
-        internal static ConstantsBufferId CreateConstantsBuffer(BufferDescription description, string debugName = null)
+        internal static ConstantsBufferId CreateConstantsBuffer(BufferDescription description, string debugName)
         {
             var id = new ConstantsBufferId { Index = CBuffers.Allocate() };
             MyArrayHelpers.Reserve(ref CBuffersData, id.Index + 1);
@@ -311,6 +318,23 @@ namespace VRageRender
                 stats.TotalBytes += CBuffers.Data[i].Description.SizeInBytes;
             }
         }
+        internal static void Destroy(ref ConstantsBufferId id)
+        {
+            if (id != ConstantsBufferId.NULL)
+            {
+                Destroy(id); id = ConstantsBufferId.NULL;
+            }
+        }
+        internal static void Destroy(ConstantsBufferId id)
+        {
+            CbIndices.Remove(id);
+            if (CBuffersData[id.Index].Buffer != null)
+            {
+                CBuffersData[id.Index].Buffer.Dispose();
+                CBuffersData[id.Index].Buffer = null;
+            }
+            CBuffers.Free(id.Index);
+        }
 
         #endregion
 
@@ -320,12 +344,12 @@ namespace VRageRender
         static MyFreelist<MyHwBufferDesc> VBuffers = new MyFreelist<MyHwBufferDesc>(128);
         static MyVertexBufferData[] VBuffersData = new MyVertexBufferData[128];
 
-        internal static VertexBufferId CreateVertexBuffer(int elements, int stride, IntPtr? data = null, string debugName = null)
+        internal static VertexBufferId CreateVertexBuffer(int elements, int stride, IntPtr? data, string debugName)
         {
             return CreateVertexBuffer(elements, stride, BindFlags.VertexBuffer, ResourceUsage.Default, data, debugName);
         }
 
-        internal static VertexBufferId CreateVertexBuffer(int elements, int stride, BindFlags bind, ResourceUsage usage, IntPtr? data = null, string debugName = null)
+        internal static VertexBufferId CreateVertexBuffer(int elements, int stride, BindFlags bind, ResourceUsage usage, IntPtr? data, string debugName)
         {
             if (elements == 0) return VertexBufferId.NULL;
 
@@ -340,7 +364,7 @@ namespace VRageRender
             return CreateVertexBuffer(desc, stride, data, debugName);
         }
 
-        internal static VertexBufferId CreateVertexBuffer(BufferDescription description, int stride, IntPtr? data = null, string debugName = null)
+        internal static VertexBufferId CreateVertexBuffer(BufferDescription description, int stride, IntPtr? data, string debugName)
         {
             if (description.SizeInBytes == 0) return VertexBufferId.NULL;
 
@@ -382,7 +406,7 @@ namespace VRageRender
             VBuffers.Data[id.Index].Description.SizeInBytes = VBuffersData[id.Index].Stride * size;
             InitVertexBuffer(id);
         }
-        internal static void ResizeAndUpdateStaticVertexBuffer(ref VertexBufferId id, int capacity, int stride, IntPtr data, string debugName = null)
+        internal static void ResizeAndUpdateStaticVertexBuffer(ref VertexBufferId id, int capacity, int stride, IntPtr data, string debugName)
         {
             if (id == VertexBufferId.NULL)
             {
@@ -466,12 +490,12 @@ namespace VRageRender
         static MyFreelist<MyHwBufferDesc> IBuffers = new MyFreelist<MyHwBufferDesc>(128);
         static MyIndexBufferData[] IBuffersData = new MyIndexBufferData[128];
 
-        internal static IndexBufferId CreateIndexBuffer(int elements, Format format, IntPtr? data = null, string debugName = null)
+        internal static IndexBufferId CreateIndexBuffer(int elements, Format format, IntPtr? data, string debugName)
         {
             return CreateIndexBuffer(elements, format, BindFlags.IndexBuffer, ResourceUsage.Default, data, debugName);
         }
 
-        internal static IndexBufferId CreateIndexBuffer(int elements, Format format, BindFlags bind, ResourceUsage usage, IntPtr? data = null, string debugName = null)
+        internal static IndexBufferId CreateIndexBuffer(int elements, Format format, BindFlags bind, ResourceUsage usage, IntPtr? data, string debugName)
         {
             bind |= BindFlags.IndexBuffer;
 
@@ -486,7 +510,7 @@ namespace VRageRender
             return CreateIndexBuffer(desc, format, data, debugName);
         }
 
-        internal static IndexBufferId CreateIndexBuffer(BufferDescription description, Format format, IntPtr ? data = null, string debugName = null)
+        internal static IndexBufferId CreateIndexBuffer(BufferDescription description, Format format, IntPtr ? data, string debugName)
         {
             var id = new IndexBufferId { Index = IBuffers.Allocate() };
             MyArrayHelpers.Reserve(ref IBuffersData, id.Index + 1);
@@ -524,7 +548,13 @@ namespace VRageRender
                 IBuffersData[id.Index].Buffer.DebugName = IBuffers.Data[id.Index].DebugName;
             }
         }
-
+        internal static void Destroy(ref IndexBufferId id)
+        {
+            if (id != IndexBufferId.NULL)
+            {
+                Destroy(id); id = IndexBufferId.NULL;
+            }
+        }
         internal static void Destroy(IndexBufferId id)
         {
             IbIndices.Remove(id);
@@ -570,10 +600,10 @@ namespace VRageRender
         static MyFreelist<MyHwBufferDesc> SBuffers = new MyFreelist<MyHwBufferDesc>(128);
         static MyStructuredBufferData[] SBuffersData = new MyStructuredBufferData[128];
 
-        internal static StructuredBufferId CreateStructuredBuffer(int elements, int stride, bool dynamic, IntPtr? data = null, string debugName = null)
+        internal static StructuredBufferId CreateStructuredBuffer(int elements, int stride, bool dynamic, IntPtr? data, string debugName, bool unordered = false)
         {
             return CreateStructuredBuffer(new BufferDescription { 
-                BindFlags = BindFlags.ShaderResource, 
+                BindFlags = BindFlags.ShaderResource | (unordered ? BindFlags.UnorderedAccess : 0), 
                 OptionFlags = ResourceOptionFlags.BufferStructured,
                 CpuAccessFlags = dynamic ? CpuAccessFlags.Write : CpuAccessFlags.None,
                 SizeInBytes = elements * stride,
@@ -582,7 +612,7 @@ namespace VRageRender
             }, data, debugName);
         }
 
-        internal static StructuredBufferId CreateStructuredBuffer(BufferDescription description, IntPtr? data = null, string debugName = null)
+        internal static StructuredBufferId CreateStructuredBuffer(BufferDescription description, IntPtr? data, string debugName)
         {
             var id = new StructuredBufferId { Index = SBuffers.Allocate() };
             MyArrayHelpers.Reserve(ref SBuffersData, id.Index + 1);
@@ -624,7 +654,7 @@ namespace VRageRender
                 SBuffersData[id.Index].Srv.DebugName = SBuffers.Data[id.Index].DebugName;
             }
         }
-        internal static void ResizeAndUpdateStaticStructuredBuffer(ref StructuredBufferId id, int capacity, int stride, IntPtr data, string debugName = null, DeviceContext context = null)
+        internal static void ResizeAndUpdateStaticStructuredBuffer(ref StructuredBufferId id, int capacity, int stride, IntPtr data, string debugName, DeviceContext context = null)
         {
             if (id == StructuredBufferId.NULL)
             {
@@ -646,6 +676,13 @@ namespace VRageRender
                         context = MyRender11.DeviceContext;
                     context.UpdateSubresource(new DataBox(data, stride * capacity, 0), id.Buffer);
                 }
+            }
+        }
+        internal static void Destroy(ref StructuredBufferId id)
+        {
+            if (id != StructuredBufferId.NULL)
+            {
+                Destroy(id); id = StructuredBufferId.NULL;
             }
         }
         internal static void Destroy(StructuredBufferId id)
@@ -896,7 +933,15 @@ namespace VRageRender
 
         internal static void InitBlendState(BlendId id)
         {
-            BlendObjects[id.Index] = new BlendState(MyRender11.Device, BlendStates.Data[id.Index]);
+            try
+            {
+                BlendObjects[id.Index] = new BlendState(MyRender11.Device, BlendStates.Data[id.Index]);
+            }
+            catch
+            {
+                MyRender11.ProcessDebugOutput();
+                throw;
+            }
         }
 
         internal static BlendState GetBlend(BlendId id)

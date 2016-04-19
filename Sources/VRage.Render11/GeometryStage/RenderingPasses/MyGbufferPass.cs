@@ -4,36 +4,6 @@ using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
-    struct MyMatrix4x3
-    {
-        internal Vector4 m_row0;
-        internal Vector4 m_row1;
-        internal Vector4 m_row2;
-
-        internal Matrix Matrix4x4
-        {
-            get
-            {
-                var row0 = m_row0;
-                var row1 = m_row1;
-                var row2 = m_row2;
-
-                return new Matrix(
-                    row0.X, row1.X, row2.X, 0,
-                    row0.Y, row1.Y, row2.Y, 0,
-                    row0.Z, row1.Z, row2.Z, 0,
-                    row0.W, row1.W, row2.W, 1);
-
-            }
-            set
-            {
-                m_row0 = new Vector4(value.M11, value.M21, value.M31, value.M41);
-                m_row1 = new Vector4(value.M12, value.M22, value.M32, value.M42);
-                m_row2 = new Vector4(value.M13, value.M23, value.M33, value.M43);
-            }
-        }
-    }
-
     [PooledObject]
     class MyGBufferPass : MyRenderingPass
     {
@@ -102,7 +72,8 @@ namespace VRageRender
                 Stats.Triangles += submesh.IndexCount / 3;
             }
             else
-            { 
+            {
+                //MyRender11.AddDebugQueueMessage("GbufferPass DrawIndexedInstanced " + proxy.Material.ToString());
                 RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 ++RC.Stats.DrawIndexedInstanced;
                 Stats.Instances += proxy.InstanceCount;
@@ -110,14 +81,16 @@ namespace VRageRender
             }
         }
 
-        internal override void RecordCommands(ref MyRenderableProxy_2 proxy)
+        protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)
         {
             RC.SetSRVs(ref proxy.ObjectSRVs);
             RC.BindVertexData(ref proxy.VertexData);
 
-            Debug.Assert(proxy.Shaders.VS != null);
+            Debug.Assert(proxy.Shaders.MultiInstance.VS != null);
 
-            RC.BindShaders(proxy.Shaders);
+            RC.BindShaders(proxy.Shaders.MultiInstance);
+
+            SetProxyConstants(ref proxy);
 
             for (int i = 0; i < proxy.Submeshes.Length; i++)
             {
@@ -146,6 +119,7 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
+                            //MyRender11.AddDebugQueueMessage("GbufferPass DrawIndexedInstanced " + proxy.VertexData.VB[0].DebugName);
                             RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                             break;
                         case MyDrawCommandEnum.Draw:
@@ -156,8 +130,6 @@ namespace VRageRender
                     }
                 }
             }
-
-            base.RecordCommands(ref proxy);
         }
 
         internal override void End()

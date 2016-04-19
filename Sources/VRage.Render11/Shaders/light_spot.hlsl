@@ -2,12 +2,20 @@
 
 #include <Lighting/light.h>
 
+cbuffer Spotlights : register(b1)
+{
+    SpotlightConstants Spotlight;
+}
+
 void __vertex_shader(float4 vertexPos : POSITION, out float4 svPos : SV_Position)
 {
 	float4 pos = unpack_position_and_scale(vertexPos);
 	pos.xyz *= 2;
 	svPos = mul(pos, Spotlight.worldViewProj);
 }
+
+Texture2D<float3> ReflectorMask : register(t13);
+Texture2D<float> SpotlightShadowmap : register(t14);
 
 static const float3 PCF_SHADOW_SAMPLES[] = {
 	float3( -0.024989, 0.005582, 0.182518),
@@ -52,19 +60,21 @@ void __pixel_shader(float4 svPos : SV_Position, out float3 output : SV_Target0
     float falloff = ldac / (1 - Spotlight.apertureCos);
 	float attenuation = pow(saturate(1-distance/Spotlight.range), 4);
 
-	float3 mask = ReflectorMask.Sample(TextureSampler, smPos.xy);
+    float3 mask = ReflectorMask.Sample(TextureSampler, smPos.xy);
 
 	float shadow = 1;
-	if(Spotlight.castsShadows) {
+	/*if(Spotlight.castsShadows > 0) 
+	{
 		smPos.z = min(smPos.z, 1 - pow(2, -20));
 		shadow = 0;
 
 		[unroll]
-		for(int i=0 ; i<PCF_SAMPLES_NUM ; i++) {
+		for(int i=0 ; i<PCF_SAMPLES_NUM ; i++) 
+		{
 			shadow += SpotlightShadowmap.SampleCmpLevelZero(ShadowmapSampler, smPos.xy + PCF_SHADOW_SAMPLES[i].xy / 512.f, smPos.z) * PCF_SHADOW_SAMPLES[i].z;
 		}
-	}
+	}*/
 
-	float3 light_factor = shadow * falloff * attenuation * Spotlight.color * mask;
-	output = light_factor * calculate_light(surface, L);
+    float3 light_factor = falloff * attenuation * mask * shadow;
+    output = light_factor * calculate_light(surface, L, Spotlight.color, Spotlight.glossFactor);
 }

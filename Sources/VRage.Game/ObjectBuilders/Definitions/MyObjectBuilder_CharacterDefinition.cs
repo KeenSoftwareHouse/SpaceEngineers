@@ -254,6 +254,9 @@ namespace VRage.Game
         public string RightHandItemBone;
 
         [ProtoMember]
+        public bool UsesAtmosphereDetector = false;
+
+        [ProtoMember]
         public bool NeedsOxygen = false;
 
         [ProtoMember]
@@ -322,9 +325,10 @@ namespace VRage.Game
         [ProtoMember]
         public float CharacterCollisionCrouchHeight = 1.25f;
 
-        [ProtoMember]
-        public string HelmetVariation;
-
+        // new astronaut does not use this variable
+        //[ProtoMember]
+        //public string HelmetVariation;
+        
         [ProtoMember]
         public string JumpSoundName = "";
         [ProtoMember]
@@ -343,6 +347,8 @@ namespace VRage.Game
         [ProtoMember]
         public string PainSoundName = "";
         [ProtoMember]
+        public string SuffocateSoundName = "";
+        [ProtoMember]
         public string DeathSoundName = "";
 
         [ProtoMember]
@@ -351,6 +357,15 @@ namespace VRage.Game
         public string IronsightDeactSoundName = "";
         [ProtoMember]
         public string FastFlySoundName = "";
+
+        [ProtoMember]
+        public string HelmetOxygenNormalSoundName = "";
+        [ProtoMember]
+        public string HelmetOxygenLowSoundName = "";
+        [ProtoMember]
+        public string HelmetOxygenCriticalSoundName = "";
+        [ProtoMember]
+        public string HelmetOxygenNoneSoundName = "";
 
         [ProtoMember]
         public bool LoopingFootsteps = false;

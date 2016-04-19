@@ -105,6 +105,24 @@ namespace VRage.Game.ObjectBuilders
         [ProtoMember]
         [XmlElement("Child")]
         public MyParameterAnimTreeNodeMapping[] Children = null;
+
+        /// <summary>
+        /// True if the value wraps around.
+        /// </summary>
+        [ProtoMember]
+        public bool Circular = false;
+
+        /// <summary>
+        /// Sensitivity to changes of parameter value. 1=immediate change, 0=no sensitivity.
+        /// </summary>
+        [ProtoMember]
+        public float Sensitivity = 1.0f;
+
+        /// <summary>
+        /// Threshold: maximum change of variable to take sensitivity in account, if crossed, value is set immediatelly.
+        /// </summary>
+        [ProtoMember]
+        public float? MaxChange;
     }
 
     /// <summary>

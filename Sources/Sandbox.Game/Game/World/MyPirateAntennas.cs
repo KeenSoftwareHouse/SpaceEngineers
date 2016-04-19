@@ -360,7 +360,7 @@ namespace Sandbox.Game.World
 
                         if (spawnPosition.HasValue)
                         {
-                            successfulSpawn = SpawnDrone(antenna.EntityId, antenna.OwnerId, spawnPosition.Value, spawnGroup);
+                            successfulSpawn = SpawnDrone(antenna, antenna.OwnerId, spawnPosition.Value, spawnGroup);
                             break;
                         }
 
@@ -444,12 +444,21 @@ namespace Sandbox.Game.World
             return true;
         }
 
-        private bool SpawnDrone(long antennaEntityId, long ownerId, Vector3D position, MySpawnGroupDefinition spawnGroup)
+        private bool SpawnDrone(MyRadioAntenna antenna, long ownerId, Vector3D position, MySpawnGroupDefinition spawnGroup)
         {
-            var planet = MyGravityProviderSystem.GetStrongestGravityWell(position);
+            long antennaEntityId = antenna.EntityId;
+            Vector3D antennaPos = antenna.PositionComp.GetPosition();
+
+            var planet = MyGravityProviderSystem.GetStrongestGravityWell( position );
+
             Vector3D upVector;
             if (planet != null && planet.IsPositionInGravityWell(position))
             {
+                if (!MyGravityProviderSystem.IsPositionInNaturalGravity(antennaPos))
+                {
+                    MySandboxGame.Log.WriteLine("Couldn't spawn drone; antenna is not in natural gravity but spawn location is.");
+                    return false;
+                }
                 planet.CorrectSpawnLocation(ref position, spawnGroup.SpawnRadius * 2.0);
                 upVector = -planet.GetWorldGravityNormalized(ref position);
             }
@@ -473,7 +482,7 @@ namespace Sandbox.Game.World
                     up: upVector,
                     initialLinearVelocity: default(Vector3),
                     beaconName: null,
-                    spawningOptions: Sandbox.ModAPI.SpawningOptions.None,
+                    spawningOptions: VRage.Game.ModAPI.SpawningOptions.None,
                     ownerId: ownerId,
                     updateSync: true);
 

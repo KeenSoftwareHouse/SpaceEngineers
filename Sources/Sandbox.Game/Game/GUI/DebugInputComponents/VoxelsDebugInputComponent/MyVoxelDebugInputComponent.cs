@@ -13,7 +13,8 @@ namespace Sandbox.Game.GUI.DebugInputComponents
             m_components = new MyDebugComponent[]{
                 new IntersectBBComponent(this),
                 new IntersectRayComponent(this),
-                new ToolsComponent(this), 
+                new ToolsComponent(this),
+                new StorageWriteCacheComponent(this),
             };
         }
 

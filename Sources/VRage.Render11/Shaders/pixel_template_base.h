@@ -54,7 +54,6 @@ struct MaterialOutputInterface
 	float ao;
 	float emissive;
 	uint coverage;
-	bool DISCARD;
 #ifdef CUSTOM_DEPTH
 	float depth;
 #endif
@@ -72,16 +71,13 @@ MaterialOutputInterface make_mat_interface()
 	result.ao = 1;
 	result.emissive = 0;
 	result.coverage = COVERAGE_MASK_ALL;
-	result.DISCARD = 0;
 #ifdef CUSTOM_DEPTH
 	result.depth = 0;
 #endif
 	return result;
 }
 
-#define DISCARD_PIXEL \
-	output.DISCARD = 1; \
-	return;
+#include <materials/pixel_utils.h>
 
 // TOKEN START
 __MATERIAL_PIXELPROGRAM__

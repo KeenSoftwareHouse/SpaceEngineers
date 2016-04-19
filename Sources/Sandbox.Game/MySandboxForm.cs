@@ -96,6 +96,7 @@ namespace Sandbox
 
         public void UpdateClip()
         {
+            MySandboxGame.GameWindowHandle = Handle;
             // TODO: OP! Some old implementation, try finding something more safe
             Control c = Control.FromHandle(WinApi.GetForegroundWindow());
 

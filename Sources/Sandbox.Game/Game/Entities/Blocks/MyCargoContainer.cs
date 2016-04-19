@@ -19,7 +19,7 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 
 namespace Sandbox.Game.Entities
 {
@@ -77,7 +77,8 @@ namespace Sandbox.Game.Entities
             // Backward compatibility - inventory component not defined in definition files and in entity container
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>(new MyInventory(m_cargoDefinition.InventorySize.Volume, m_cargoDefinition.InventorySize, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive, this));
+                MyInventory inventory = new MyInventory(m_cargoDefinition.InventorySize.Volume, m_cargoDefinition.InventorySize, MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive);
+                Components.Add<MyInventoryBase>(inventory);
                 
                 if (m_containerType != null && MyFakes.RANDOM_CARGO_PLACEMENT && (cargoBuilder.Inventory == null || cargoBuilder.Inventory.Items.Count == 0))
                     SpawnRandomCargo();
@@ -211,6 +212,20 @@ namespace Sandbox.Game.Entities
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

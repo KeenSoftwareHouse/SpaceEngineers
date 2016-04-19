@@ -41,7 +41,7 @@ namespace Sandbox.Game.Entities
         private MySoundPair m_openSound;
         private MySoundPair m_closeSound;
 
-        private float m_currOpening;
+        private readonly Sync<float> m_currOpening;
         private float m_currSpeed;
         private int m_lastUpdateTime;
 
@@ -67,7 +67,8 @@ namespace Sandbox.Game.Entities
 
         public MyDoor()
         {
-            m_currOpening = 0f;
+            m_currOpening.ValidateNever();
+            m_currOpening.Value = 0f;
             m_currSpeed = 0f;
             m_open.ValidateNever();
             m_open.ValueChanged += x => OnStateChange();
@@ -187,15 +188,15 @@ namespace Sandbox.Game.Entities
             m_open.Value = ob.State;
             if (ob.Opening == -1)
             {
-                m_currOpening = IsFunctional ? 0 : MaxOpen;
+                m_currOpening.Value = IsFunctional ? 0 : MaxOpen;
                 m_open.Value = !IsFunctional;
             }
             else
-                m_currOpening = ob.Opening;
+                m_currOpening.Value = ob.Opening;
 
 		
 			if (!Enabled || !ResourceSink.IsPowered)
-                UpdateSlidingDoorsPosition(true);
+                UpdateSlidingDoorsPosition();
 
             OnStateChange();
 
@@ -203,7 +204,7 @@ namespace Sandbox.Game.Entities
             {
                 // required when reinitializing a door after the armor beneath it is destroyed
                 if (Open && (m_currOpening == MaxOpen))
-                    UpdateSlidingDoorsPosition(true);
+                    UpdateSlidingDoorsPosition();
             }
             sinkComp.Update();
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -269,7 +270,10 @@ namespace Sandbox.Game.Entities
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            UpdateCurrentOpening();
+            if (Sync.IsServer)
+            {
+                UpdateCurrentOpening();
+            }
             UpdateSlidingDoorsPosition();
             var handle = DoorStateChanged;
             if (handle != null) handle(m_open);
@@ -279,7 +283,7 @@ namespace Sandbox.Game.Entities
         {
             if (m_soundEmitter == null)
                 return;
-            if ((m_soundEmitter.Sound != null) && (m_soundEmitter.Sound.IsPlaying) && (m_soundEmitter.SoundId == cuePair.SoundId))
+            if ((m_soundEmitter.Sound != null) && (m_soundEmitter.Sound.IsPlaying) && (m_soundEmitter.SoundId == cuePair.Arcade || m_soundEmitter.SoundId == cuePair.Realistic))
                 return;
 
             m_soundEmitter.StopSound(true);
@@ -289,8 +293,6 @@ namespace Sandbox.Game.Entities
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            if (m_soundEmitter != null)
-                m_soundEmitter.Update();
         }
 
         public override void UpdateAfterSimulation()
@@ -300,18 +302,18 @@ namespace Sandbox.Game.Entities
                 return;
 
             // Don't need to update the door when nothing is happening
-            if (m_currOpening == 0 || m_currOpening >= MaxOpen)
+            if (m_currOpening == 0 || m_currOpening > MaxOpen)
                 return;
 
             //Update door position because of inaccuracies in high velocities
-            UpdateSlidingDoorsPosition(this.CubeGrid.Physics.LinearVelocity.LengthSquared() > 10f);
+            UpdateSlidingDoorsPosition();
         }
 
         public override void UpdateBeforeSimulation()
         {
             if ((Open && (m_currOpening == MaxOpen)) || (!Open && (m_currOpening == 0f)))
             {
-                if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
+                if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop && (BlockDefinition.DamagedSound == null || m_soundEmitter.SoundId != BlockDefinition.DamagedSound.SoundId))
                     m_soundEmitter.StopSound(false);
                 return;
             }
@@ -325,7 +327,10 @@ namespace Sandbox.Game.Entities
             }
 
             base.UpdateBeforeSimulation();
-            UpdateCurrentOpening();
+            if (Sync.IsServer)
+            {
+                UpdateCurrentOpening();
+            }
 
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
@@ -336,11 +341,11 @@ namespace Sandbox.Game.Entities
             {
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastUpdateTime) / 1000f;
                 float deltaPos = m_currSpeed * timeDelta;
-                m_currOpening = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
+                m_currOpening.Value = MathHelper.Clamp(m_currOpening + deltaPos, 0f, MaxOpen);
             }
         }
 
-        private void UpdateSlidingDoorsPosition(bool forceUpdate = false)
+        private void UpdateSlidingDoorsPosition()
         {
             if (this.CubeGrid.Physics == null)
                 return;

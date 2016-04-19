@@ -13,7 +13,5 @@ namespace VRage.Game
         public float DropProbability;
 		[ProtoMember]
 		public float DeconstructionEfficiency = 1.0f;
-        [ProtoMember]
-        public int MaxStackAmount = 100;
     }
 }

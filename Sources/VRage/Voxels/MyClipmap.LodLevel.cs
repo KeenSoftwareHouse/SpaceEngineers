@@ -1044,6 +1044,15 @@ namespace VRage.Voxels
                     }
                 }
             }
+
+            internal void RequestMergeAll()
+            {
+                foreach (var cellData in m_nonEmptyCells.Values)
+                {
+                    if(cellData.InScene)
+                        cellData.CellHandler.AddToMergeBatch(cellData.Cell);
+                }
+            }
         }
     }
 }

@@ -158,7 +158,7 @@ namespace Sandbox.Game.Weapons
 
             MyHud.BlockInfo.MissingComponentIndex = 0;
             MyHud.BlockInfo.BlockName = block.BlockDefinition.DisplayNameText;
-            MyHud.BlockInfo.BlockIcon = block.BlockDefinition.Icon;
+            MyHud.BlockInfo.BlockIcons = block.BlockDefinition.Icons;
             MyHud.BlockInfo.BlockIntegrity = 0.01f;
             MyHud.BlockInfo.CriticalIntegrity = block.BlockDefinition.CriticalIntegrityRatio;
             MyHud.BlockInfo.CriticalComponentIndex = block.BlockDefinition.CriticalGroup;
@@ -173,7 +173,7 @@ namespace Sandbox.Game.Weapons
                 var component = new MyHudBlockInfo.ComponentInfo();
                 component.DefinitionId = info.Component.Id;
                 component.ComponentName = info.Component.DisplayNameText;
-                component.Icon = info.Component.Icon;
+                component.Icons = info.Component.Icons;
                 component.TotalCount = info.TotalCount;
                 component.MountedCount = 0;
                 component.StockpileCount = 0;
@@ -299,7 +299,7 @@ namespace Sandbox.Game.Weapons
                     var info = FindProjectedBlock();
                     if (info.raycastResult == MyProjectorBase.BuildCheckResult.OK)
                     {
-                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition)||MySession.Static.IsAdminModeEnabled)
+                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition) || MySession.Static.IsAdminModeEnabled(Sync.MyId))
                         {
                             info.cubeProjector.Build(info.hitCube, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, Owner.EntityId);
                         }

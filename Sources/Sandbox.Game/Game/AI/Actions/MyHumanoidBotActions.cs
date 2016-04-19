@@ -1,17 +1,8 @@
-﻿using Sandbox.Common.AI;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Game.Entities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using Sandbox.Game.Entities;
 using VRage.Game;
+using VRage.Game.AI;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
-using VRage.Voxels;
-using VRageMath;
 
 namespace Sandbox.Game.AI.Actions
 {
@@ -111,7 +102,7 @@ namespace Sandbox.Game.AI.Actions
 				switch(logic.ReservationStatus)
 				{
 					case Logic.MyReservationStatus.NONE:
-						switch (inTarget.TargetType)
+                        switch (inTarget.TargetType)
 						{
 							case MyAiTargetEnum.GRID:
 							case MyAiTargetEnum.CUBE:
@@ -148,29 +139,34 @@ namespace Sandbox.Game.AI.Actions
 																					   logic.ReservationEntityData.ReservationTimer, Bot.Player.Id.SerialId);
 								break;
 							default:
-								break;
+                                logic.ReservationStatus = Logic.MyReservationStatus.FAILURE;
+                                retStatus = MyBehaviorTreeState.FAILURE;
+                                break;
 						}
                         m_reservationTimeOut = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(RESERVATION_WAIT_TIMEOUT_SECONDS);
-						logic.ReservationStatus = Logic.MyReservationStatus.WAITING;
-						retStatus = MyBehaviorTreeState.RUNNING;
 						break;
 
 					case Logic.MyReservationStatus.SUCCESS:
-						retStatus = MyBehaviorTreeState.SUCCESS;
+					case Logic.MyReservationStatus.FAILURE:
 						break;
 
-					case Logic.MyReservationStatus.FAILURE:
-						retStatus = MyBehaviorTreeState.FAILURE;
-						break;
 					case Logic.MyReservationStatus.WAITING:
                         if (m_reservationTimeOut < MySandboxGame.Static.UpdateTime)
-							retStatus = MyBehaviorTreeState.FAILURE;
-						else
-							retStatus = MyBehaviorTreeState.RUNNING;
+							logic.ReservationStatus = Logic.MyReservationStatus.FAILURE;
 						break;
 				}
 			}
-			return retStatus;
+
+            switch (logic.ReservationStatus)
+            {
+                case Logic.MyReservationStatus.WAITING:
+                    return MyBehaviorTreeState.RUNNING;
+                case Logic.MyReservationStatus.SUCCESS:
+                    return MyBehaviorTreeState.SUCCESS;
+                case Logic.MyReservationStatus.FAILURE:
+                default:
+                    return MyBehaviorTreeState.FAILURE;
+            }
 		}
 
         [MyBehaviorTreeAction("TryReserveEntity", MyBehaviorTreeActionType.POST)]

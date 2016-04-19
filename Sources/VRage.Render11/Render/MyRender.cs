@@ -31,7 +31,7 @@ namespace VRageRender
 
         internal static uint GlobalMessageCounter = 0;
 
-        internal static MyRenderSettings Settings = new MyRenderSettings();
+        internal static readonly MyRenderSettings Settings = new MyRenderSettings();
 
 #if DEBUG
         internal const bool DebugMode = true;

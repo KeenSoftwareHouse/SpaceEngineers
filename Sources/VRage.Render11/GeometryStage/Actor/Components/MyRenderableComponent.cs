@@ -133,6 +133,7 @@ namespace VRageRender
     {
         NONE = 0,
         RGB_COLORING = 1,
+        NO_KEYCOLOR = 2
     }
 
     struct MyPerMaterialData
@@ -319,12 +320,9 @@ namespace VRageRender
 
         internal void SetLocalAabbToModelLod(int lod)
         {
-            bool isMergedMesh = MyMeshes.IsMergedVoxelMesh(Mesh);
-            var bb = !isMergedMesh ? MyMeshes.GetLodMesh(Mesh, lod).Info.BoundingBox : MyMeshes.GetMergedLodMesh(Mesh, 0).Info.BoundingBox;
-            if(bb.HasValue)
-            {
-                Owner.SetLocalAabb(bb.Value);
-            }
+            var boundingBox = Mesh.GetBoundingBox(lod);
+            if (boundingBox.HasValue)
+                Owner.SetLocalAabb(boundingBox.Value);
         }
 
         internal void SetModel(MeshId mesh)
@@ -379,10 +377,19 @@ namespace VRageRender
                 foreach (var renderableProxy in lod.RenderableProxies)
                 {
                     renderableProxy.WorldMatrix = Owner.WorldMatrix;
-                    renderableProxy.CommonObjectData.KeyColor = m_keyColor;
+                    
+                    UpdateKeyColor(ref renderableProxy.CommonObjectData, m_keyColor);
                     renderableProxy.CommonObjectData.DepthBias = m_depthBias;
                 }
             }
+        }
+
+        internal void UpdateKeyColor(ref MyObjectDataCommon data, Vector3 keyColor)
+        {
+            data.KeyColor = keyColor;
+            if (keyColor.X.IsZero() && keyColor.Y.IsEqual(-1) && keyColor.Z.IsEqual(-1))
+                data.MaterialFlags |= MyMaterialFlags.NO_KEYCOLOR;
+            else data.MaterialFlags &= ~MyMaterialFlags.NO_KEYCOLOR;
         }
 
         internal override void OnMatrixChange()
@@ -446,7 +453,7 @@ namespace VRageRender
             return Mesh;
         }
 
-        protected void SetLodPartShaders(int lodNum, int proxyIndex, MyShaderUnifiedFlags appendedFlags)
+        private void SetLodPartShaders(int lodNum, int proxyIndex, MyShaderUnifiedFlags appendedFlags)
         {
             Debug.Assert(!MyMeshes.IsVoxelMesh(Mesh));
 
@@ -468,21 +475,27 @@ namespace VRageRender
 
             var renderableProxy = lod.RenderableProxies[proxyIndex];
 
+            AssignShadersToProxy(renderableProxy, shaderMaterial, lod.VertexLayout1, lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+        }
+
+        protected void AssignShadersToProxy(MyRenderableProxy renderableProxy, MyStringId shaderMaterial, VertexLayoutId vertexLayoutId, MyShaderUnifiedFlags shaderFlags)
+        {
+            Debug.Assert(renderableProxy != null, "Renderable proxy cannot be null!");
             renderableProxy.DepthShaders = MyMaterialShaders.Get(
                 shaderMaterial,
                 MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_DEPTH_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MyShaderUnifiedFlags.DEPTH_ONLY | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+                vertexLayoutId,
+                shaderFlags | MyShaderUnifiedFlags.DEPTH_ONLY);
             renderableProxy.Shaders = MyMaterialShaders.Get(
                 shaderMaterial,
                 MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+                vertexLayoutId,
+                shaderFlags);
             renderableProxy.ForwardShaders = MyMaterialShaders.Get(
                 shaderMaterial,
                 MyStringId.GetOrCompute(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
-                lod.VertexLayout1,
-                lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | GetCurrentStateMaterialFlags(lodNum) | flags);
+                vertexLayoutId,
+                shaderFlags);
         }
         
         protected void SetLodShaders(int lodNum, MyShaderUnifiedFlags appendedFlags)
@@ -584,7 +597,7 @@ namespace VRageRender
 
             lod.RenderableProxies[partIndex].CommonObjectData.Emissive = MyModelProperties.DefaultEmissivity;
             lod.RenderableProxies[partIndex].CommonObjectData.ColorMul = MyModelProperties.DefaultColorMul;
-            lod.RenderableProxies[partIndex].CommonObjectData.MaterialFlags = MapTechniqueToMaterialFlags(technique);
+            MapTechniqueToMaterialFlags(ref lod.RenderableProxies[partIndex].CommonObjectData, technique);
             lod.RenderableProxies[partIndex].CommonObjectData.DepthBias = m_depthBias;
             lod.RenderableProxies[partIndex].NonVoxelObjectData.Facing = (byte)partId.Info.Material.Info.Facing;
             lod.RenderableProxies[partIndex].NonVoxelObjectData.WindScaleAndFreq = partId.Info.Material.Info.WindScaleAndFreq;
@@ -1253,7 +1266,7 @@ namespace VRageRender
 
                                     newProxy.CommonObjectData = oldProxy.CommonObjectData;
                                     newProxy.CommonObjectData.LocalMatrix = newProxy.WorldMatrix;
-                                    newProxy.CommonObjectData.KeyColor = new Vector3(instanceInfo.InstanceData[instanceIndex].ColorMaskHSV.ToVector4());
+                                    UpdateKeyColor(ref newProxy.CommonObjectData, new Vector3(instanceInfo.InstanceData[instanceIndex].ColorMaskHSV.ToVector4()));
 
                                     newProxy.NonVoxelObjectData.Facing = 0;
                                     newProxy.NonVoxelObjectData.WindScaleAndFreq = partId.Info.Material.Info.WindScaleAndFreq;
@@ -1436,15 +1449,17 @@ namespace VRageRender
 			return flags;
         }
 
-        internal static MyMaterialFlags MapTechniqueToMaterialFlags(string technique)
+        internal static void MapTechniqueToMaterialFlags(ref MyObjectDataCommon data, string technique)
         {
             switch(technique)
             {
                 case "CLOTH":
-                    return MyMaterialFlags.RGB_COLORING;
+                    data.MaterialFlags |= MyMaterialFlags.RGB_COLORING;
+                    break;
+                default:
+                    data.MaterialFlags &= ~MyMaterialFlags.RGB_COLORING;
+                    break;
             }
-
-            return MyMaterialFlags.NONE;
         }
 
         internal static MyRenderableProxyFlags MapTechniqueToRenderableFlags(string technique)

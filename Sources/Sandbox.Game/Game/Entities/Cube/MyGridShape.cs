@@ -637,13 +637,27 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 MyLog.Default.WriteLine("Grid Blocks count: " + m_grid.GetBlocks().Count);
+                MyLog.Default.WriteLine("Grid MarkedForClose: " + m_grid.MarkedForClose);
                 HashSet<MyDefinitionId> blockDefinitions = new HashSet<MyDefinitionId>();
                 foreach (var block in m_grid.GetBlocks())
                 {
-                    if (blockDefinitions.Count >= 10)
+                    if (block.FatBlock != null && block.FatBlock.MarkedForClose)
+                        MyLog.Default.WriteLine("Block marked for close: " + block.BlockDefinition.Id);
+
+                    if (blockDefinitions.Count >= 50)
                         break;
 
-                    blockDefinitions.Add(block.BlockDefinition.Id);
+                    if (block.FatBlock is MyCompoundCubeBlock)
+                    {
+                        foreach (var blockInCompound in (block.FatBlock as MyCompoundCubeBlock).GetBlocks())
+                        {
+                            blockDefinitions.Add(blockInCompound.BlockDefinition.Id);
+                            if (blockInCompound.FatBlock != null && blockInCompound.FatBlock.MarkedForClose)
+                                MyLog.Default.WriteLine("Block in compound marked for close: " + blockInCompound.BlockDefinition.Id);
+                        }
+                    }
+                    else
+                        blockDefinitions.Add(block.BlockDefinition.Id);
                 }
 
                 foreach (var def in blockDefinitions)

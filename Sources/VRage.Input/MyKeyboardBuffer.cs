@@ -1,7 +1,7 @@
 ﻿
 namespace VRage.Input
 {
-    struct MyKeyboardBuffer
+    public struct MyKeyboardBuffer
     {
         unsafe fixed byte m_data[32]; // 8b * 32 = 256b
 

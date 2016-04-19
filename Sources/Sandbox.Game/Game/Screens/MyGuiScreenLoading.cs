@@ -26,7 +26,7 @@ namespace Sandbox.Game.Gui
     using Vector2 = VRageMath.Vector2;
     using Vector4 = VRageMath.Vector4;
     
-    class MyGuiScreenLoading : MyGuiScreenBase
+    public class MyGuiScreenLoading : MyGuiScreenBase
     {
         //We have to ensure there is always only one loading screen instance
         public static MyGuiScreenLoading Static;

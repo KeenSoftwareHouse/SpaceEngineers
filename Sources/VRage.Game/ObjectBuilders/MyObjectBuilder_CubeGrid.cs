@@ -65,6 +65,18 @@ namespace VRage.Game
         [ProtoMember, DefaultValue(true)]
         public bool DampenersEnabled = true;
 
+        [ProtoMember, DefaultValue(false)]
+        public bool UsePositionForSpawn = false;
+
+        [ProtoMember, DefaultValue(0.3f)]
+        public float PlanetSpawnHeightRatio = 0.3f;
+
+        [ProtoMember, DefaultValue(500f)]
+        public float SpawnRangeMin = 500f;
+
+        [ProtoMember, DefaultValue(650f)]
+        public float SpawnRangeMax = 650f;
+
         [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]
         public List<MyObjectBuilder_ConveyorLine> ConveyorLines = new List<MyObjectBuilder_ConveyorLine>();

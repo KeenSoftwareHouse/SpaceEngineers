@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using IMyControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -28,7 +30,7 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        void IMyPlayerCollection.ExtendControl(ModAPI.Interfaces.IMyControllableEntity entityWithControl, IMyEntity entityGettingControl)
+        void IMyPlayerCollection.ExtendControl(IMyControllableEntity entityWithControl, IMyEntity entityGettingControl)
         {
             var e1 = entityWithControl as Sandbox.Game.Entities.IMyControllableEntity;
             var e2 = entityGettingControl as MyEntity;
@@ -36,7 +38,7 @@ namespace Sandbox.Game.Multiplayer
                 ExtendControl(e1, e2);
         }
 
-        bool IMyPlayerCollection.HasExtendedControl(ModAPI.Interfaces.IMyControllableEntity firstEntity, IMyEntity secondEntity)
+        bool IMyPlayerCollection.HasExtendedControl(IMyControllableEntity firstEntity, IMyEntity secondEntity)
         {
             var e1 = firstEntity as Sandbox.Game.Entities.IMyControllableEntity;
             var e2 = secondEntity as MyEntity;
@@ -45,7 +47,7 @@ namespace Sandbox.Game.Multiplayer
             return false;
         }
 
-        void IMyPlayerCollection.ReduceControl(ModAPI.Interfaces.IMyControllableEntity entityWhichKeepsControl, IMyEntity entityWhichLoosesControl)
+        void IMyPlayerCollection.ReduceControl(IMyControllableEntity entityWhichKeepsControl, IMyEntity entityWhichLoosesControl)
         {
             var e1 = entityWhichKeepsControl as Sandbox.Game.Entities.IMyControllableEntity;
             var e2 = entityWhichLoosesControl as MyEntity;
@@ -67,7 +69,7 @@ namespace Sandbox.Game.Multiplayer
                 SetControlledEntity(steamUserId, e);
         }
 
-        void IMyPlayerCollection.TryExtendControl(ModAPI.Interfaces.IMyControllableEntity entityWithControl, IMyEntity entityGettingControl)
+        void IMyPlayerCollection.TryExtendControl(IMyControllableEntity entityWithControl, IMyEntity entityGettingControl)
         {
             var e1 = entityWithControl as Sandbox.Game.Entities.IMyControllableEntity;
             var e2 = entityGettingControl as MyEntity;
@@ -75,7 +77,7 @@ namespace Sandbox.Game.Multiplayer
                 TryExtendControl(e1, e2);
         }
 
-        bool IMyPlayerCollection.TryReduceControl(ModAPI.Interfaces.IMyControllableEntity entityWhichKeepsControl, IMyEntity entityWhichLoosesControl)
+        bool IMyPlayerCollection.TryReduceControl(IMyControllableEntity entityWhichKeepsControl, IMyEntity entityWhichLoosesControl)
         {
             var e1 = entityWhichKeepsControl as Sandbox.Game.Entities.IMyControllableEntity;
             var e2 = entityWhichLoosesControl as MyEntity;
@@ -84,7 +86,7 @@ namespace Sandbox.Game.Multiplayer
             return false;
         }
 
-        ModAPI.IMyPlayer IMyPlayerCollection.GetPlayerControllingEntity(IMyEntity entity)
+        IMyPlayer IMyPlayerCollection.GetPlayerControllingEntity(IMyEntity entity)
         {
             var e = entity as MyEntity;        
             if (e != null)

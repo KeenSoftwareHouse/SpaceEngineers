@@ -326,7 +326,7 @@ namespace Sandbox.Engine.Networking
 
             steamItemFileName = WriteAndShareFileBlocking(tempFileFullPath);
             File.Delete(tempFileFullPath);
-            if (steamItemFileName == null)
+            if (steamItemFileName == null || steamItemFileName.Equals("FileNotFound"))
             {
                 MySandboxGame.Log.DecreaseIndent();
                 return 0;
@@ -359,7 +359,8 @@ namespace Sandbox.Engine.Networking
                     ulong updateHandle = steam.RemoteStorage.CreatePublishedFileUpdateRequest(workshopId.Value);
                     steam.RemoteStorage.UpdatePublishedFileTags(updateHandle, tags);
                     steam.RemoteStorage.UpdatePublishedFileFile(updateHandle, steamItemFileName);
-                    steam.RemoteStorage.UpdatePublishedFilePreviewFile(updateHandle, steamPreviewFileName);
+                    if (steamPreviewFileName.Equals("FileNotFound") == false)
+                        steam.RemoteStorage.UpdatePublishedFilePreviewFile(updateHandle, steamPreviewFileName);
                     steam.RemoteStorage.CommitPublishedFileUpdate(updateHandle, delegate(bool ioFailure, RemoteStorageUpdatePublishedFileResult data)
                     {
                         m_publishResult = data.Result;
@@ -418,7 +419,8 @@ namespace Sandbox.Engine.Networking
             // Erasing temporary file. No need for it to take up cloud storage anymore.
             MySandboxGame.Log.WriteLine("Deleting cloud files - START");
             steam.RemoteStorage.FileDelete(steamItemFileName);
-            steam.RemoteStorage.FileDelete(steamPreviewFileName);
+            if (steamPreviewFileName.Equals("FileNotFound") == false)
+                steam.RemoteStorage.FileDelete(steamPreviewFileName);
             MySandboxGame.Log.WriteLine("Deleting cloud files - END");
 
             MySandboxGame.Log.DecreaseIndent();
@@ -450,11 +452,13 @@ namespace Sandbox.Engine.Networking
 
             bool fileShareSuccess = false;
 
+            Result result = Result.Fail;
             using (var mrEvent = new ManualResetEvent(false))
             {
                 steam.RemoteStorage.FileShare(steamFileName, delegate(bool ioFailure, RemoteStorageFileShareResult data)
                 {
                     fileShareSuccess = !ioFailure && data.Result == Result.OK;
+                    result = data.Result;
                     if (fileShareSuccess)
                         m_asyncPublishScreen.ProgressText = MyCommonTexts.ProgressTextPublishingWorld;
                     else
@@ -467,8 +471,10 @@ namespace Sandbox.Engine.Networking
 
             MySandboxGame.Log.WriteLine(string.Format("Writing and sharing file '{0}' - END", steamFileName));
 
-            if (!fileShareSuccess)
+            if (!fileShareSuccess && result != Result.FileNotFound)
                 return null;
+            else if (result == Result.FileNotFound)
+                return result.ToString();
 
             return steamFileName;
         }
@@ -594,8 +600,23 @@ namespace Sandbox.Engine.Networking
             Dictionary<ulong, SubscribedItem> resultsByPublishedId = new Dictionary<ulong, SubscribedItem>(publishedFileIds.Count());
             using (ManualResetEvent mrEvent = new ManualResetEvent(false))
             {
+                bool hasDuplicates = false;
                 foreach (var id in publishedFileIds)
-                    resultsByPublishedId.Add(id, new SubscribedItem() { PublishedFileId = id });
+                {
+                    if (!resultsByPublishedId.ContainsKey(id))
+                    {
+                        resultsByPublishedId.Add(id, new SubscribedItem() { PublishedFileId = id });
+                    }
+                    else
+                    {
+                        MySandboxGame.Log.WriteLine(string.Format("MySteamWorkshop.GetItemsBlocking: Duplicate entry for item with id {0}", id));
+                        hasDuplicates = true;
+                    }
+                }
+
+                // If we have duplicates, return false.
+                // This return is delayed so that all duplicate mods get listed, this way the admin can find out which are duplicate.
+                if (hasDuplicates) return false;
 
                 // Retrieve details for each subscription.
                 int callResultCounter = 0;
@@ -880,13 +901,22 @@ namespace Sandbox.Engine.Networking
             if (!downloadSuccess)
                 return false;
 
-            using (var fs = new FileStream(localFullPath, FileMode.Create, FileAccess.Write))
+            // File I/O should always be exception handled
+            try
             {
-                for (uint offset = 0; offset < downloadSizeInBytes; offset += (uint)m_bufferSize)
+                using (var fs = new FileStream(localFullPath, FileMode.Create, FileAccess.Write))
                 {
-                    int bytesRead = MySteam.API.RemoteStorage.UGCRead(UGCHandle, buffer, m_bufferSize, offset);
-                    fs.Write(buffer, 0, bytesRead);
+                    for (uint offset = 0; offset < downloadSizeInBytes; offset += (uint)m_bufferSize)
+                    {
+                        int bytesRead = MySteam.API.RemoteStorage.UGCRead(UGCHandle, buffer, m_bufferSize, offset);
+                        fs.Write(buffer, 0, bytesRead);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MySandboxGame.Log.WriteLine(string.Format("Error downloading file: {0}, {1}", localFullPath, ex.Message));
+                return false;
             }
 
             return true;
@@ -970,28 +1000,68 @@ namespace Sandbox.Engine.Networking
         /// </summary>
         public static bool DownloadModsBlocking(List<SubscribedItem> mods)
         {
-            foreach (var mod in mods)
+            VRage.Collections.CachingList<SubscribedItem> failedMods = new VRage.Collections.CachingList<SubscribedItem>();
+            bool downloadingFailed = false;
+
+            long startTime = Stopwatch.GetTimestamp();
+            Parallel.ForEach<SubscribedItem>(mods, delegate(SubscribedItem mod)
             {
                 if (!MySteam.IsOnline)
-                    return false;
+                {
+                    downloadingFailed = true;
+                    return;
+                }
 
                 if (m_stop)
-                    return false;
+                {
+                    downloadingFailed = true;
+                    return;
+                }
 
                 var localPackedModFullPath = Path.Combine(m_workshopModsPath, mod.PublishedFileId + m_workshopModSuffix);
 
+                // If mod is up to date, no need to download it.
                 if (!IsModUpToDateBlocking(localPackedModFullPath, mod, true))
                 {
+                    // If the mod fails to download, we need to flag it for failure, log it, then stop
                     if (!DownloadItemBlocking(localPackedModFullPath, mod.UGCHandle))
                     {
-                        return false;
+                        failedMods.Add(mod);
+                        downloadingFailed = true;
+                        m_stop = true;
                     }
                 }
                 else
                 {
                     MySandboxGame.Log.WriteLineAndConsole(string.Format("Up to date mod: Id = {0}, title = '{1}'", mod.PublishedFileId, mod.Title));
                 }
+            });
+
+            long endTime = Stopwatch.GetTimestamp();
+
+            if (downloadingFailed)
+            {
+                failedMods.ApplyChanges();
+                if (failedMods.Count > 0)
+                {
+                    foreach (var mod in failedMods)
+                    {
+                        MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: Id = {0}, title = '{1}'", mod.PublishedFileId, mod.Title));
+                    }
+                }
+                else if (!m_stop)
+                {
+                    MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mods because Steam is not in Online Mode."));
+                }
+                else
+                {
+                    MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mods because download was stopped."));
+                }
+                return false;
             }
+
+            double duration = (double)(endTime - startTime) / (double)Stopwatch.Frequency;
+            MySandboxGame.Log.WriteLineAndConsole(string.Format("Mod download time: {0:0.00} seconds", duration));
             return true;
         }
 
@@ -1218,6 +1288,23 @@ namespace Sandbox.Engine.Networking
                         MySandboxGame.Log.WriteLineAndConsole("Local mods are not allowed in multiplayer.");
                         MySandboxGame.Log.DecreaseIndent();
                         return false;
+                    }
+                }
+
+                // Check if the world doesn't contain duplicate mods, if it does, log it and remove the duplicate entry
+                publishedFileIds.Sort();
+                for (int i = 0; i < publishedFileIds.Count - 1;)
+                {
+                    ulong id1 = publishedFileIds[i];
+                    ulong id2 = publishedFileIds[i + 1];
+                    if (id1 == id2)
+                    {
+                        MySandboxGame.Log.WriteLine(string.Format("Duplicate mod entry for id: {0}", id1));
+                        publishedFileIds.RemoveAt(i + 1);
+                    }
+                    else
+                    {
+                        i++;
                     }
                 }
 

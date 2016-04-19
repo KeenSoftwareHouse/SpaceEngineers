@@ -268,7 +268,7 @@ namespace VRage.Game.Models
             KeepInMemory = keepInMemory;
 
             var fsPath = Path.IsPathRooted(AssetName) ? AssetName : Path.Combine(MyFileSystem.ContentPath, AssetName);
-            System.Diagnostics.Debug.Assert(MyFileSystem.FileExists(fsPath), "Model data for " + m_assetName + " does not exists!");
+            //System.Diagnostics.Debug.Assert(MyFileSystem.FileExists(fsPath), "Model data for " + m_assetName + " does not exists!");
         }
 
         public List<MyMesh> GetMeshList()
@@ -638,7 +638,7 @@ namespace VRage.Game.Models
 
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Model - load data - load tag data");
                 Dictionary<string, object> tagData = m_importer.GetTagData();
-                Debug.Assert(tagData.Count != 0, String.Format("Uncompleted tagData for asset: {0}, path: {1}", m_assetName, AssetName));
+                //Debug.Assert(tagData.Count != 0, String.Format("Uncompleted tagData for asset: {0}, path: {1}", m_assetName, AssetName));
                 if (tagData.Count != 0)
                 {
                     DataVersion = m_importer.DataVersion;
@@ -793,6 +793,8 @@ namespace VRage.Game.Models
 
             HavokData = null;
             HavokDestructionData = null;
+
+            Animations = null;
 
             return res;
         }

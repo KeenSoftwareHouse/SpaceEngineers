@@ -108,13 +108,13 @@ namespace Sandbox.Game.Screens.Helpers
             changed |= SetEnabled(isValid && m_block.IsFunctional && (m_block.HasPlayerAccess(playerID) || m_block.HasPlayerAccess((owner as MyTerminalBlock).OwnerId)));
             if (m_block != null)
             {
-                changed |= SetIcon(m_block.BlockDefinition.Icon);
+                changed |= SetIcons(m_block.BlockDefinition.Icons);
             }
             if (isValid)
             {
                 if (!m_wasValid || ActionChanged)
                 {
-                    changed |= SetIcon(m_block.BlockDefinition.Icon);
+                    changed |= SetIcons(m_block.BlockDefinition.Icons);
                     changed |= SetSubIcon(action.Icon);
                     changed |= UpdateCustomName(action);
                 }

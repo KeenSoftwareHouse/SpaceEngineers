@@ -18,13 +18,6 @@ namespace VRage.Network
         {
         }
 
-        // CHECK-ME: Provisory flag (non-breaking), to be discussed. Defaults to false
-        public bool ExceptLocal
-        {
-            get;
-            set;
-        }
-
         public ServerAttribute(string validationMethod)
         {
             Validation = validationMethod;

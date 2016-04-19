@@ -133,8 +133,8 @@ namespace VRageRender
                 Table[index].FoliageArray_Texture = list[i].ExtensionTextureArray1;
                 Table[index].FoliageArray_NormalTexture = list[i].ExtensionTextureArray2;
 
-                Table[index].FoliageColorTextureArray = MyTextureArray.FromStringArray(list[i].FoliageColorTextureArray, MyTextureEnum.COLOR_METAL);
-                Table[index].FoliageNormalTextureArray = MyTextureArray.FromStringArray(list[i].FoliageNormalTextureArray, MyTextureEnum.NORMALMAP_GLOSS);
+                Table[index].FoliageColorTextureArray = MyTextureArray.FromStringArray(list[i].FoliageColorTextureArray, MyTextureEnum.COLOR_METAL, "CM Foliage");
+                Table[index].FoliageNormalTextureArray = MyTextureArray.FromStringArray(list[i].FoliageNormalTextureArray, MyTextureEnum.NORMALMAP_GLOSS, "NG Foliage");
 
                 Table[index].FoliageDensity = list[i].ExtensionDensity;
                 Table[index].FoliageScale = list[i].ExtensionScale;

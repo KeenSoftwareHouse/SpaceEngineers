@@ -139,9 +139,12 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     // TOKEN END
 
     VertexShaderInterface result = make_vs_interface();
-    matrix local_matrix = get_object_matrix();
     matrix view_proj = projection_.view_proj_matrix;
+
+#ifndef USE_MERGE_INSTANCING
+    matrix local_matrix = get_object_matrix();
     float3x3 normal_matrix = (float3x3)local_matrix;
+#endif
 
     float facing = 0;
     float windScale = 0;
@@ -165,10 +168,16 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     windFrequency = 0;
 
     // we load data from srv here
+#ifdef USE_SINGLE_INSTANCE
+    InstanceData instance_data = InstanceDataSRV[object_.instanceIndex];
+    uint index = IndexDataSRV[object_.startIndex + sv_vertex_id];
+#else
     uint instance_offset = sv_vertex_id / INDEX_PAGE_SIZE;
-    uint index_id = sv_vertex_id % INDEX_PAGE_SIZE;
     InstanceIndirection instance_ind = InstanceIndirectionSRV[instance_offset];
     InstanceData instance_data = InstanceDataSRV[instance_ind.id];
+    uint index_id = sv_vertex_id % INDEX_PAGE_SIZE;
+    uint index = IndexDataSRV[instance_ind.mesh_id * INDEX_PAGE_SIZE + index_id];
+#endif
 
     depthBias = instance_data.DepthBias;
 #else
@@ -187,16 +196,13 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 #endif
 
 #ifdef USE_MERGE_INSTANCING
-    
     matrix instance_matrix = construct_matrix_43(instance_data.row0, instance_data.row1, instance_data.row2);
-
-    uint index = IndexDataSRV[instance_ind.mesh_id * INDEX_PAGE_SIZE + index_id];
 
     VertexPosition packed_pos = VertexPositionSRV[index];
     __position_object = srv_unpack_position(packed_pos.packed_xy, packed_pos.packed_zw);
 
-    local_matrix = instance_matrix;
-    normal_matrix = (float3x3)local_matrix;
+    matrix local_matrix = instance_matrix;
+    float3x3 normal_matrix = (float3x3)local_matrix;
     // hack for now :(
     local_matrix._41_42_43 -= frame_.world_offset.xyz;
 
@@ -450,8 +456,10 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
     result.tangent_object = __tangent;
     result.tangent_world = float4(mul(__tangent.xyz, normal_matrix), __tangent.w);
 
+#ifndef USE_MERGE_INSTANCING
     result.key_color = object_.key_color;
     result.custom_alpha = object_.custom_alpha;
+#endif
 
     result._local_matrix = local_matrix;
     result._view_proj_matrix = view_proj;

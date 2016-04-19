@@ -282,7 +282,7 @@ namespace Sandbox.Game.Entities
                 return true;
             }
 
-            if (inventory != null && inventory.GetItemAmount(componentDefinition.Id) > 0)
+            if (inventory != null && MyCubeBuilder.BuildComponent.GetItemAmountCombined(inventory, componentDefinition.Id) > 0)
             {
                 return true;
             }

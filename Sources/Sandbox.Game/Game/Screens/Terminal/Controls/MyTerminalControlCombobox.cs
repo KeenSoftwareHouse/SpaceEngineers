@@ -118,8 +118,11 @@ namespace Sandbox.Game.Gui
 
         public void SetValue(TBlock block, long value)
         {
-            Setter(block, value);
-            block.NotifyTerminalValueChanged(this);
+            if (Getter(block) != value)
+            {
+                Setter(block, value);
+                block.NotifyTerminalValueChanged(this);
+            }
         }
 
         void OnItemSelected()

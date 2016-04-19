@@ -23,6 +23,7 @@ using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.Weapons
 {
@@ -443,7 +444,7 @@ namespace Sandbox.Game.Weapons
                     return;
                 }
 
-                bool canSeeEffect = MySector.MainCamera.GetDistanceWithFOV(PositionComp.GetPosition()) < 150;
+                bool canSeeEffect = MySector.MainCamera.GetDistanceFromPoint(PositionComp.GetPosition()) < 150;
                 if (canSeeEffect)
                 {
                     if (CurrentEffect == 1 && HasPrimaryEffect)
@@ -516,7 +517,8 @@ namespace Sandbox.Game.Weapons
             switch (CurrentEffect)
             {
                 case 0:
-                    StopLoopSound();
+                    if (m_soundEmitter.IsPlaying)
+                        StopLoopSound();
                     break;
                 case 1:
                     //MyRenderProxy.DebugDrawText2D(new Vector2(0.0f, 30.0f), "Primary", Color.Red, 1.0f);
@@ -613,7 +615,7 @@ namespace Sandbox.Game.Weapons
             CharacterInventory = null;
         }
 
-        public void DrawHud(Sandbox.ModAPI.Interfaces.IMyCameraController camera, long playerId)
+        public void DrawHud(IMyCameraController camera, long playerId)
         {
             MyHud.Crosshair.Recenter();
 
@@ -650,7 +652,7 @@ namespace Sandbox.Game.Weapons
 
             MyHud.BlockInfo.MissingComponentIndex = -1;
             MyHud.BlockInfo.BlockName = block.BlockDefinition.DisplayNameText;
-            MyHud.BlockInfo.BlockIcon = block.BlockDefinition.Icon;
+            MyHud.BlockInfo.BlockIcons = block.BlockDefinition.Icons;
             MyHud.BlockInfo.BlockIntegrity = block.Integrity / block.MaxIntegrity;
             MyHud.BlockInfo.CriticalIntegrity = block.BlockDefinition.CriticalIntegrityRatio;
             MyHud.BlockInfo.CriticalComponentIndex = block.BlockDefinition.CriticalGroup;

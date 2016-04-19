@@ -18,18 +18,18 @@ namespace Sandbox.Definitions
         public class MyWeaponAmmoData
         {
             public int RateOfFire; // rounds per minute (round == 1 bullet)
-            public int BurstFireRate;
+            public int ShotsInBurst;
             public MySoundPair ShootSound;
             public int ShootIntervalInMiliseconds; // derivative of Rate of fire
 
-            public MyWeaponAmmoData(MyObjectBuilder_WeaponDefinition.WeaponAmmoData data) : this(data.RateOfFire, data.ShootSoundName, data.BurstFireRate)
+            public MyWeaponAmmoData(MyObjectBuilder_WeaponDefinition.WeaponAmmoData data) : this(data.RateOfFire, data.ShootSoundName, data.ShotsInBurst)
             {
             }
 
-            public MyWeaponAmmoData(int rateOfFire, string soundName, int burstFireRate)
+            public MyWeaponAmmoData(int rateOfFire, string soundName, int shotsInBurst)
             {
                 this.RateOfFire = rateOfFire;
-                this.BurstFireRate = burstFireRate;
+                this.ShotsInBurst = shotsInBurst;
                 this.ShootSound = new MySoundPair(soundName);
                 this.ShootIntervalInMiliseconds = (int)(1000 / (RateOfFire * oneSixtieth));
             }
@@ -45,6 +45,7 @@ namespace Sandbox.Definitions
         public int MuzzleFlashLifeSpan;
         public MyDefinitionId[] AmmoMagazinesId;
         public MyWeaponAmmoData[] WeaponAmmoDatas;
+        public int ReloadTime = 2000;
 
         public bool HasProjectileAmmoDefined
         {
@@ -78,6 +79,7 @@ namespace Sandbox.Definitions
             this.DeviateShotAngle = MathHelper.ToRadians(ob.DeviateShotAngle);
             this.ReleaseTimeAfterFire = ob.ReleaseTimeAfterFire;
             this.MuzzleFlashLifeSpan = ob.MuzzleFlashLifeSpan;
+            this.ReloadTime = ob.ReloadTime;
 
             this.AmmoMagazinesId = new MyDefinitionId[ob.AmmoMagazines.Length];
             for (int i = 0; i < this.AmmoMagazinesId.Length; i++)

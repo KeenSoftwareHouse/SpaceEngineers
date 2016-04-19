@@ -304,19 +304,11 @@ namespace Sandbox.Engine.Multiplayer
             syncLayer.TransportLayer.Register(MyMessageId.SERVER_STATE_SYNC, ReplicationLayer.ProcessStateSync);
             syncLayer.TransportLayer.Register(MyMessageId.RPC, ReplicationLayer.ProcessEvent);
             syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_STREAM_BEGIN, OnReplicationBeginCreate);
-
-            //MySyncLayer.RegisterMessage<ChatMsg>(OnChatMessage, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            //MySyncLayer.RegisterMessage<SendServerDataMsg>(OnServerData, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-            //MySyncLayer.RegisterMessage<ConnectedPlayerDataMsg>(OnPlayerConnected, MyMessagePermissions.Any, MyTransportMessageEnum.Request);
-
-            RegisterControlMessage<ChatMsg>(MyControlMessageEnum.Chat, OnChatMessage, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            RegisterControlMessage<ServerDataMsg>(MyControlMessageEnum.ServerData, OnServerData, MyMessagePermissions.FromServer);
-            RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnUserJoined, MyMessagePermissions.FromServer);
-            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData, MyMessagePermissions.FromServer);
-
-            SyncLayer.RegisterMessageImmediate<ConnectedClientDataMsg>(this.OnConnectedClient, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
-
+            syncLayer.TransportLayer.Register(MyMessageId.JOIN_RESULT, OnJoinResult);
+            syncLayer.TransportLayer.Register(MyMessageId.WORLD_DATA, OnWorldData);
+            syncLayer.TransportLayer.Register(MyMessageId.WORLD_BATTLE_DATA, OnWorldBattleData);
+            syncLayer.TransportLayer.Register(MyMessageId.CLIENT_CONNNECTED,OnClientConnected);
+ 
             ClientJoined += MyMultiplayerClient_ClientJoined;
             ClientLeft += MyMultiplayerClient_ClientLeft;
             HostLeft += MyMultiplayerClient_HostLeft;
@@ -350,6 +342,33 @@ namespace Sandbox.Engine.Multiplayer
             ReplicationLayer.ProcessReplicationDestroy(packet);
         }
 
+        void OnWorldData(MyPacket packet)
+        {
+            ServerDataMsg msg = ReplicationLayer.OnWorldData(packet);
+            OnServerData(ref msg);
+        }
+
+        void OnWorldBattleData(MyPacket packet)
+        {
+            ServerBattleDataMsg msg = ReplicationLayer.OnWorldBattleData(packet);
+            OnServerBattleData(ref msg);
+        }
+
+        void OnJoinResult(MyPacket packet)
+        {
+           JoinResultMsg msg = ReplicationLayer.OnJoinResult(packet);
+
+           OnUserJoined(ref msg);
+        }
+
+        void OnClientConnected(MyPacket packet)
+        {
+            ConnectedClientDataMsg msg = ReplicationLayer.OnClientConnected(packet);
+            OnConnectedClient(ref msg);
+        }
+
+        
+
         public override void Dispose()
         {
             CloseClient();
@@ -371,6 +390,11 @@ namespace Sandbox.Engine.Multiplayer
         void IReplicationClientCallback.SendReplicableReady(BitStream stream)
         {
             SyncLayer.TransportLayer.SendMessage(MyMessageId.REPLICATION_READY, stream, true, new EndpointId(Sync.ServerId));
+        }
+
+        void IReplicationClientCallback.SendConnectRequest(BitStream stream)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_CONNNECTED, stream, true, new EndpointId(Sync.ServerId));
         }
 
         #endregion
@@ -444,7 +468,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public override bool IsCorrectVersion()
         {
-            return m_appVersion == Sandbox.Common.MyFinalBuildConstants.APP_VERSION;
+            return m_appVersion == MyFinalBuildConstants.APP_VERSION;
         }
 
         public override MyDownloadWorldResult DownloadWorld()
@@ -551,7 +575,7 @@ namespace Sandbox.Engine.Multiplayer
             m_membersLimit = limit;
         }
 
-        void OnChatMessage(ref ChatMsg msg, ulong sender)
+        protected override void OnChatMessage(ref ChatMsg msg)
         {
             RaiseChatMessageReceived(msg.Author, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }
@@ -562,11 +586,12 @@ namespace Sandbox.Engine.Multiplayer
             msg.Text = text;
             msg.Author = Sync.MyId;
 
-            OnChatMessage(ref msg, MySteam.AppId);
-            SendControlMessage(ServerId, ref msg);
+            OnChatMessage(ref msg);
+
+            SendChatMessage(ref msg);    
         }
 
-        void OnServerData(ref ServerDataMsg msg, ulong sender)
+        void OnServerData(ref ServerDataMsg msg)
         {
             m_worldName = msg.WorldName;
             m_gameMode = msg.GameMode;
@@ -582,7 +607,7 @@ namespace Sandbox.Engine.Multiplayer
             m_dataHash = msg.DataHash;
         }
 
-        void OnServerBattleData(ref ServerBattleDataMsg msg, ulong sender)
+        void OnServerBattleData(ref ServerBattleDataMsg msg)
         {
             Battle = true;
 
@@ -597,7 +622,7 @@ namespace Sandbox.Engine.Multiplayer
             m_battleData.LoadData(msg.BattleData);
         }
 
-        void OnUserJoined(ref JoinResultMsg msg, ulong sender)
+        void OnUserJoined(ref JoinResultMsg msg)
         {
             if (msg.JoinResult == JoinResult.OK)
             {
@@ -738,7 +763,7 @@ namespace Sandbox.Engine.Multiplayer
             return clientData.Name;
         }
 
-        public void OnConnectedClient(ref ConnectedClientDataMsg msg, MyNetworkClient sender)
+        protected void OnConnectedClient(ref ConnectedClientDataMsg msg)
         {
             MySandboxGame.Log.WriteLineAndConsole("Client connected: " + msg.Name + " (" + msg.SteamID.ToString() + ")");
             MyTrace.Send(TraceWindow.Multiplayer, "Client connected");
@@ -781,7 +806,7 @@ namespace Sandbox.Engine.Multiplayer
             msg.Token = new byte[length];
             Array.Copy(buffer, msg.Token, length);
 
-            SyncLayer.SendMessageToServer(ref msg);
+            ReplicationLayer.SendClientConnected(ref msg);
         }
 
         protected override void OnClientKick(ref MyControlKickClientMsg data, ulong sender)
@@ -847,7 +872,7 @@ namespace Sandbox.Engine.Multiplayer
                 Sync.Clients.SetLocalSteamId(Sync.MyId, createLocalClient: !Sync.Clients.HasClient(Sync.MyId));
         }
 
-        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
+        public override void OnAllMembersData(ref AllMembersDataMsg msg)
         {
             // Setup members and clients
             if (msg.Clients != null)

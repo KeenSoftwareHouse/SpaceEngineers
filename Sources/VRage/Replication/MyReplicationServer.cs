@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,10 +9,112 @@ using VRage.Library.Collections;
 using VRage.Library.Utils;
 using VRage.Replication;
 using VRage.Serialization;
+using VRage.Utils;
 using VRageMath;
 
 namespace VRage.Network
 {
+    public enum JoinResult
+    {
+        OK,
+        AlreadyJoined,
+        TicketInvalid,
+        SteamServersOffline,
+        NotInGroup,
+        GroupIdInvalid,
+        ServerFull,
+        BannedByAdmins,
+
+        TicketCanceled,
+        TicketAlreadyUsed,
+        LoggedInElseWhere,
+        NoLicenseOrExpired,
+        UserNotConnected,
+        VACBanned,
+        VACCheckTimedOut
+    }
+
+    public struct JoinResultMsg
+    {
+        public JoinResult JoinResult;
+
+        public ulong Admin;
+    }
+
+    public struct ServerDataMsg
+    {
+        [Serialize(MyObjectFlags.Nullable)]
+        public string WorldName;
+
+        public MyGameModeEnum GameMode;
+
+        public float InventoryMultiplier;
+
+        public float AssemblerMultiplier;
+
+        public float RefineryMultiplier;
+
+        [Serialize(MyObjectFlags.Nullable)]
+        public string HostName;
+
+        public ulong WorldSize;
+
+        public int AppVersion;
+
+        public int MembersLimit;
+
+        [Serialize(MyObjectFlags.Nullable)]
+        public string DataHash;
+
+        public float WelderMultiplier;
+
+        public float GrinderMultiplier;
+    }
+
+    public struct KeyValueDataMsg
+    {
+        public MyStringHash Key;
+        public string Value;
+    }
+
+    public struct ServerBattleDataMsg
+    {
+        public string WorldName;
+
+        public MyGameModeEnum GameMode;
+
+        public string HostName;
+
+        public ulong WorldSize;
+
+        public int AppVersion;
+
+        public int MembersLimit;
+
+        public string DataHash;
+
+        public List<KeyValueDataMsg> BattleData;
+    }
+
+    public struct ChatMsg
+    {
+        public string Text;
+        public ulong Author; // Ignored when sending message from client to server
+    }
+
+    public struct ConnectedClientDataMsg
+    {
+        public ulong SteamID;
+
+        [Serialize(MyObjectFlags.Nullable)]
+        public string Name;
+        
+        public bool IsAdmin;
+        public bool Join;
+        [Serialize(MyObjectFlags.Nullable)]
+        public byte[] Token;
+    }
+
     public class MyReplicationServer : MyReplicationLayer
     {
         internal class MyDestroyBlocker
@@ -46,6 +149,8 @@ namespace VRage.Network
             public byte LastStateSyncPacketId = 0;
 
             public bool WaitingForReset = false;
+
+            public bool IsReady = false;
 
             // 16 KB per client
             public readonly List<IMyStateGroup>[] PendingStateSyncAcks = Enumerable.Range(0, 256).Select(s => new List<IMyStateGroup>(8)).ToArray();
@@ -98,6 +203,8 @@ namespace VRage.Network
             }
         }
 
+
+        const int MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT = 5;
         private bool m_replicationPaused = false;
         private EndpointId? m_localClientEndpoint;
         private IReplicationServerCallback m_callback;
@@ -105,12 +212,12 @@ namespace VRage.Network
         private CacheList<IMyStateGroup> m_tmpGroups = new CacheList<IMyStateGroup>(4);
         private CacheList<MyStateDataEntry> m_tmpSortEntries = new CacheList<MyStateDataEntry>();
         private CacheList<MyStateDataEntry> m_tmpStreamingEntries = new CacheList<MyStateDataEntry>();
+        private CacheList<MyStateDataEntry> m_tmpSentEntries = new CacheList<MyStateDataEntry>();
         List<IMyReplicable> m_tmp = new List<IMyReplicable>();
-        HashSet<EndpointId> m_processedClients = new HashSet<EndpointId>();
 
         private MyBandwidthLimits m_limits = new MyBandwidthLimits();
         private HashSet<IMyReplicable> m_priorityUpdates = new HashSet<IMyReplicable>();
-        private int m_frameCounter;
+        private uint m_frameCounter = 1;
 
         // Packet received out of order with number preceding closely last packet is accepted.
         // When multiplied by 16.66ms, this gives you minimum time after which packet can be resent.
@@ -150,13 +257,6 @@ namespace VRage.Network
             m_timeFunc = updateTimeGetter;
             m_clientStates = new Dictionary<EndpointId, ClientData>();
             m_eventQueueSender = (s, e) => m_callback.SendEvent(s, false, e);
-
-            SetGroupLimit(StateGroupEnum.FloatingObjectPhysics, 136);
-        }
-
-        protected override bool IsLocal
-        {
-            get { return m_localClientEndpoint != null; }
         }
 
         public override void Dispose()
@@ -464,11 +564,27 @@ namespace VRage.Network
             }
         }
 
-        public void OnClientReady(EndpointId endpointId, MyClientStateBase clientState)
+        public void OnClientConnected(EndpointId endpointId, MyClientStateBase clientState)
         {
-            Debug.Assert(!m_clientStates.ContainsKey(endpointId), "Client entry already exists, bad call to OnClientJoined?");
-            clientState.EndpointId = endpointId;
+            bool hasClient = m_clientStates.ContainsKey(endpointId);
+            Debug.Assert(!hasClient, "Client entry already exists, bad call to OnClientJoined?");
+            if (hasClient)
+            {
+                return;
+            }
+
+            clientState.EndpointId = endpointId;       
             m_clientStates.Add(endpointId, new ClientData(clientState, m_eventQueueSender));
+        }
+
+        public void OnClientReady(EndpointId endpointId)
+        {
+            ClientData clientState;
+            if(m_clientStates.TryGetValue(endpointId,out clientState))
+            {
+                clientState.IsReady = true;
+            }
+         
             SendServerData(endpointId);
         }
 
@@ -494,18 +610,17 @@ namespace VRage.Network
             }
         }
 
+        public void OnClientJoined(EndpointId endpointId,MyClientStateBase clientState)
+        {
+            OnClientConnected(endpointId,clientState);
+        }
+
         public void OnClientUpdate(MyPacket packet)
         {
             ClientData clientData;
             if (!m_clientStates.TryGetValue(packet.Sender, out clientData))
                 return; // Unknown client, probably kicked
 
-            if (m_processedClients.Contains(packet.Sender))
-            {
-                return;
-            }
-
-            m_processedClients.Add(packet.Sender);
             m_receiveStream.ResetRead(packet);
 
             // Read last state sync packet id
@@ -544,8 +659,10 @@ namespace VRage.Network
             }
 
             // Read client state
-            clientData.State.Serialize(m_receiveStream);
+            clientData.State.Serialize(m_receiveStream, m_frameCounter);
         }
+
+
 
         void OnAck(byte ackId, ClientData clientData)
         {
@@ -585,11 +702,6 @@ namespace VRage.Network
 
         public override void Update()
         {
-            if (m_frameCounter % 2 == 0)
-            {
-                m_processedClients.Clear();
-            }
-
             m_frameCounter++;
             if (m_clientStates.Count == 0)
                 return;
@@ -626,7 +738,10 @@ namespace VRage.Network
             ProfilerShort.Begin("SendStateSync");
             foreach (var client in m_clientStates)
             {
-                SendStateSync(client.Value);
+                if (client.Value.IsReady)
+                {
+                    SendStateSync(client.Value);
+                }
             }
             ProfilerShort.End();
         }
@@ -639,6 +754,10 @@ namespace VRage.Network
 
             foreach (var client in m_clientStates)
             {
+                if(client.Value.IsReady == false)
+                {
+                    continue;
+                }
                 ProfilerShort.Begin("RefreshReplicablePerClient");
 
                 ProfilerShort.Begin("TryGetValue Replicables");
@@ -748,64 +867,28 @@ namespace VRage.Network
                         return;
                     }
 
-                    clientData.StateSyncPacketId++;
-
-                    m_sendStream.ResetWrite();
-                    m_sendStream.WriteBool(false);
-                    m_sendStream.WriteByte(clientData.StateSyncPacketId);
-
-                    int MTUBytes = (int)m_callback.GetMTUSize(endpointId);
-                    int messageBitSize = 8 * (MTUBytes - 8 - 1); // MTU - headers
-
-                    // TODO: Rewrite
-                    int maxToSend = MTUBytes / 8; // lets assume the shortest message is 8 Bytes long
-                    int sent = 0;
-
-                    m_limits.Clear();
-                    int numOverLoad = 0;
-                    ProfilerShort.Begin("serializing");
-                    // TODO:SK limit to N in panic entries per packet
-                    foreach (var entry in m_tmpSortEntries)
+                    int numSent = 0;
+                    while (SendStateSync(clientData, ref endpointId) && numSent <= MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT)
                     {
-                        ProfilerShort.Begin("serializing entry counter");
-                        var oldWriteOffset = m_sendStream.BitPosition;
-                        m_sendStream.WriteNetworkId(entry.GroupId);
-                        entry.Group.Serialize(m_sendStream, clientData.State, clientData.StateSyncPacketId, messageBitSize);
-
-                        int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
-                        if (bitsWritten > 0 && m_sendStream.BitPosition <= messageBitSize && m_limits.Add(entry.Group.GroupType, bitsWritten))
+                        foreach (var entry in m_tmpSentEntries)
                         {
-                            clientData.PendingStateSyncAcks[clientData.StateSyncPacketId].Add(entry.Group);
-                            sent++;
-                            entry.FramesWithoutSync = 0;
+                            m_tmpSortEntries.Remove(entry);
                         }
-                        else
-                        {
-                            numOverLoad++;
-                            // When serialize returns false, restore previous bit position and tell group it was not delivered
-                            entry.Group.OnAck(clientData.State, clientData.StateSyncPacketId, false);
-                            m_sendStream.SetBitPositionWrite(oldWriteOffset);
-                        }
-                        ProfilerShort.End();
-                        if (sent >= maxToSend || m_sendStream.BitPosition >= messageBitSize || numOverLoad >10)
-                        {
-                            break;
-                        }
+                        numSent++;
+                        m_tmpSentEntries.Clear();
                     }
-
-                    ProfilerShort.End();
-                    m_callback.SendStateSync(m_sendStream, endpointId,false);
-
+                    m_tmpSentEntries.Clear();
                     if (m_tmpStreamingEntries.Count > 0)
                     {
-                        messageBitSize = m_callback.GetMTRSize(endpointId) * 8;
+                        int  messageBitSize = m_callback.GetMTRSize(endpointId) * 8;
                         ProfilerShort.Begin("Sort streaming entities");
                         m_tmpStreamingEntries.Sort(MyStateDataEntryComparer.Instance);
                         clientData.StateSyncPacketId++;
                         ProfilerShort.End();
 
+                        
                         var entry = m_tmpStreamingEntries.FirstOrDefault();
-
+                   
                         m_sendStream.ResetWrite();
                         m_sendStream.WriteBool(true);
                         m_sendStream.WriteByte(clientData.StateSyncPacketId);
@@ -814,7 +897,7 @@ namespace VRage.Network
                         m_sendStream.WriteNetworkId(entry.GroupId);
 
                         ProfilerShort.Begin("serialize streaming entities");
-                        entry.Group.Serialize(m_sendStream, clientData.State, clientData.StateSyncPacketId, messageBitSize);
+                        entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
                         ProfilerShort.End();
 
                         int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
@@ -831,10 +914,73 @@ namespace VRage.Network
                             entry.Group.OnAck(clientData.State, clientData.StateSyncPacketId, false);
                         }
                         m_callback.SendStateSync(m_sendStream, endpointId,true);
+
+                        IMyReplicable groupReplicable = entry.Parent;
+                        if (groupReplicable != null)
+                        {
+                            foreach (var child in m_replicables.GetChildren(groupReplicable))
+                            {
+                                AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData)), false);
+                            }
+                        }
                     }
                     //Server.SendMessage(m_sendStream, guid, PacketReliabilityEnum.UNRELIABLE, PacketPriorityEnum.MEDIUM_PRIORITY, MyChannelEnum.StateDataSync);
                 }
             }
+        }
+
+        private bool SendStateSync(ClientData clientData, ref EndpointId endpointId)
+        {
+            clientData.StateSyncPacketId++;
+
+            m_sendStream.ResetWrite();
+            m_sendStream.WriteBool(false);
+            m_sendStream.WriteByte(clientData.StateSyncPacketId);
+
+            int MTUBytes = (int)m_callback.GetMTUSize(endpointId);
+            int messageBitSize = 8 * (MTUBytes - 8 - 1); // MTU - headers
+
+            // TODO: Rewrite
+            int maxToSend = MTUBytes / 8; // lets assume the shortest message is 8 Bytes long
+            int sent = 0;
+
+            m_limits.Clear();
+            int numOverLoad = 0;
+            ProfilerShort.Begin("serializing");
+            // TODO:SK limit to N in panic entries per packet
+            foreach (var entry in m_tmpSortEntries)
+            {
+                ProfilerShort.Begin("serializing entry counter");
+                var oldWriteOffset = m_sendStream.BitPosition;
+                m_sendStream.WriteNetworkId(entry.GroupId);
+                entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
+
+                int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
+                if (bitsWritten > 0 && m_sendStream.BitPosition <= messageBitSize && m_limits.Add(entry.Group.GroupType, bitsWritten))
+                {
+                    clientData.PendingStateSyncAcks[clientData.StateSyncPacketId].Add(entry.Group);
+                    sent++;
+                    entry.FramesWithoutSync = 0;
+                    m_tmpSentEntries.Add(entry);
+                }
+                else
+                {
+                    numOverLoad++;
+                    // When serialize returns false, restore previous bit position and tell group it was not delivered
+                    entry.Group.OnAck(clientData.State, clientData.StateSyncPacketId, false);
+                    m_sendStream.SetBitPositionWrite(oldWriteOffset);
+                }
+                ProfilerShort.End();
+                if (sent >= maxToSend || m_sendStream.BitPosition >= messageBitSize || numOverLoad > 10)
+                {
+                   
+                    break;
+                }
+            }
+
+            ProfilerShort.End();
+            m_callback.SendStateSync(m_sendStream, endpointId, false);
+            return numOverLoad >0;
         }
 
         private void AddForClient(IMyReplicable replicable, EndpointId clientEndpoint, ClientData clientData, float priority,bool force)
@@ -848,7 +994,7 @@ namespace VRage.Network
 
             ProfilerShort.Begin("SendReplicationCreate");
             SendReplicationCreate(replicable, clientData, clientEndpoint);
-            ProfilerShort.End();         
+            ProfilerShort.End();
         }
 
         private void RemoveForClient(IMyReplicable replicable, EndpointId clientEndpoint, ClientData clientData, bool sendDestroyToClient)
@@ -876,8 +1022,7 @@ namespace VRage.Network
         }
 
         void SendReplicationCreate(IMyReplicable obj, ClientData clientData, EndpointId clientEndpoint)
-        {
-            
+        {         
             if (m_replicationPaused)
             {
                 clientData.PausedReplicables.Add(obj);
@@ -935,7 +1080,7 @@ namespace VRage.Network
                 ProfilerShort.End();
             }
             ProfilerShort.End();
-       
+
             //Server.SendMessage(m_sendStream, clientId, PacketReliabilityEnum.RELIABLE, PacketPriorityEnum.LOW_PRIORITY, MyChannelEnum.Replication);
         }
 
@@ -976,13 +1121,7 @@ namespace VRage.Network
                     // Replicable can be destroyed for client or destroyed completely at this point
                     Debug.Assert(replicableClientData.IsPending == true, "Replicable ready from client, but it's not pending for client");
                     replicableClientData.IsPending = false;
-                    replicableClientData.IsStreaming = false;
-
-                    foreach (var child in m_replicables.GetChildren(replicable))
-                    {
-                        AddForClient(child, packet.Sender, clientData, replicableClientData.Priority,false);
-                    }
-
+                    replicableClientData.IsStreaming = false;               
                     m_tmp.Clear();
                     foreach (var forcedReplicable in clientData.ForcedReplicables)
                     {
@@ -1114,8 +1253,8 @@ namespace VRage.Network
                     }
                     parent = null;
                 }
-            
-                clientData.StateGroups.Add(group, new MyStateDataEntry(parent, netId, group));
+
+                clientData.StateGroups.Add(group, new MyStateDataEntry(parent, netId, group, replicable));
                 group.CreateClientData(clientData.State);
 
                 if (force)
@@ -1309,6 +1448,51 @@ namespace VRage.Network
             if (site.HasClientFlag || site.HasBroadcastFlag || site.HasBroadcastExceptFlag)
             {
                 DispatchEvent(stream, site, source, sendAs, 1.0f);
+            }
+        }
+
+        public void SendJoinResult(ref JoinResultMsg msg, ulong sendTo)
+        {
+            m_sendStream.ResetWrite();
+            m_sendStream.WriteUInt16((ushort)msg.JoinResult);
+            m_sendStream.WriteUInt64(msg.Admin);
+
+            m_callback.SendJoinResult(m_sendStream,new EndpointId(sendTo));
+        }
+
+        public void SendWorldData(ref ServerDataMsg msg)
+        {
+            foreach (var client in m_clientStates)
+            {
+                m_sendStream.ResetWrite();
+
+                VRage.Serialization.MySerializer.Write(m_sendStream, ref msg);
+                m_callback.SendWorldData(m_sendStream, client.Key);
+            }
+        }
+
+        public ConnectedClientDataMsg OnClientConnected(MyPacket packet)
+        {
+            m_receiveStream.ResetRead(packet);
+            ConnectedClientDataMsg msg = VRage.Serialization.MySerializer.CreateAndRead<ConnectedClientDataMsg>(m_receiveStream);
+            return msg;
+        }
+
+        public void SendClientConnected(ref ConnectedClientDataMsg msg,ulong sendTo)
+        {
+            m_sendStream.ResetWrite();
+            VRage.Serialization.MySerializer.Write<ConnectedClientDataMsg>(m_sendStream, ref msg);
+            m_callback.SentClientJoined(m_sendStream,new EndpointId(sendTo));
+        }
+
+        public void SendWorldBattleData(ref ServerBattleDataMsg msg)
+        {
+            foreach (var client in m_clientStates)
+            {
+                m_sendStream.ResetWrite();
+
+                VRage.Serialization.MySerializer.Write(m_sendStream, ref msg);
+                m_callback.SendWorldBattleData(m_sendStream, client.Key);
             }
         }
 

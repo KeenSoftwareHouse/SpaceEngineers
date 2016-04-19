@@ -63,7 +63,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyMotorAdvancedStator()
         {
-            m_canBeDetached = false;
+            m_canBeDetached = true;
         }
     }
 }

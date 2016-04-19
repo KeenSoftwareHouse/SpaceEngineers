@@ -1,5 +1,4 @@
-﻿using Sandbox.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -619,6 +618,26 @@ namespace Sandbox.Graphics.GUI
             base.OnSizeChanged();
             RefreshTextArea();
             RefreshSlidingWindow();
+        }
+
+        internal override void OnFocusChanged(bool focus)
+        {
+            if (focus)
+            {
+                if (MyInput.Static.IsNewKeyPressed(MyKeys.Tab))     // If we got here by Tab key
+                {
+                    // Highlight the text in the text box when tabbed to
+                    MoveCarriageToEnd();
+                    m_selection.SelectAll(this);
+                }
+            }
+            else
+            {
+                // Clear the selection when leaving
+                m_selection.Reset(this);
+            }
+
+            base.OnFocusChanged(focus);
         }
 
         public void MoveCarriageToEnd()

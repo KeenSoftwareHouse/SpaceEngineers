@@ -1510,6 +1510,16 @@ namespace VRageMath
             result.Z = num15;
         }
 
+        public static void Rotate(ref Vector3D vector, ref MatrixD rotationMatrix, out Vector3D result)
+        {
+            double num1 = (double)((double)vector.X * (double)rotationMatrix.M11 + (double)vector.Y * (double)rotationMatrix.M21 + (double)vector.Z * (double)rotationMatrix.M31);
+            double num2 = (double)((double)vector.X * (double)rotationMatrix.M12 + (double)vector.Y * (double)rotationMatrix.M22 + (double)vector.Z * (double)rotationMatrix.M32);
+            double num3 = (double)((double)vector.X * (double)rotationMatrix.M13 + (double)vector.Y * (double)rotationMatrix.M23 + (double)vector.Z * (double)rotationMatrix.M33);
+            result.X = num1;
+            result.Y = num2;
+            result.Z = num3;
+        }
+
         /// <summary>
         /// Transforms a source array of Vector3s by a specified Matrix and writes the results to an existing destination array.
         /// </summary>

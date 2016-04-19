@@ -899,7 +899,7 @@ namespace Sandbox.Game.Gui
             }
             else
             {
-                if (MySession.Static.SurvivalMode && MySession.Static.IsAdminModeEnabled == false && m_clipboard == Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard)
+                if (MySession.Static.SurvivalMode && MySession.Static.IsAdminModeEnabled(Sync.MyId) == false && m_clipboard == Sandbox.Game.Entities.MyCubeBuilder.Static.Clipboard)
                 {
                     CloseScreen();
                 }

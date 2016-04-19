@@ -121,9 +121,12 @@ namespace VRage.Game
 		public List<EnvironmentalParticleSettings> EnvironmentalParticles = new List<EnvironmentalParticleSettings>();
 
         [ProtoMember]
-        public Vector4 ContourHighlightColor = Color.Yellow.ToVector4();
+        public Vector4 ContourHighlightColor = new Vector4(1.0f, 1.0f, 0.0f, 0.05f);
 
         [ProtoMember]
         public float ContourHighlightThickness = 1;
+
+        [ProtoMember]
+        public float HighlightPulseInSeconds = 0;
     }
 }

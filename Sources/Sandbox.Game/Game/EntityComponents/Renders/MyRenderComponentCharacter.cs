@@ -476,6 +476,7 @@ namespace Sandbox.Game.Components
             m_light.UseInForwardRender = true;
             m_light.ReflectorTexture = definition.ReflectorTexture;
             m_light.Range = 1;
+            m_light.GlossFactor = 0;
 
             MyCharacterBone leftGlareBone = null;
             if (definition.LeftLightBone != String.Empty) leftGlareBone = m_skinnedEntity.AnimationController.FindBone(definition.LeftLightBone, out m_leftLightIndex);

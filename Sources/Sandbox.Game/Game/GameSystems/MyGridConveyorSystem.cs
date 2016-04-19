@@ -8,6 +8,7 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Sandbox.Game.EntityComponents;
 using VRage;
 using VRage.Algorithms;
@@ -19,6 +20,8 @@ using VRageRender;
 using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.ModAPI;
+using VRage.Game.ModAPI.Ingame;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -26,7 +29,8 @@ namespace Sandbox.Game.GameSystems
     {
         private static readonly float CONVEYOR_SYSTEM_CONSUMPTION = 0.005f;
 
-        readonly HashSet<MyCubeBlock> m_blocks = new HashSet<MyCubeBlock>();
+        readonly HashSet<MyCubeBlock> m_inventoryBlocks = new HashSet<MyCubeBlock>();
+        readonly HashSet<IMyConveyorEndpointBlock> m_conveyorEndpointBlocks = new HashSet<IMyConveyorEndpointBlock>();
         readonly HashSet<MyConveyorLine> m_lines = new HashSet<MyConveyorLine>();
 
         readonly HashSet<MyShipConnector> m_connectors = new HashSet<MyShipConnector>();
@@ -39,20 +43,38 @@ namespace Sandbox.Game.GameSystems
 
         private MyCubeGrid m_grid;
 
-        private static List<ConveyorLinePosition> m_tmpConveyorPositionList = new List<ConveyorLinePosition>(6);
-        private static List<MyPhysicalInventoryItem> m_tmpInventoryItems = new List<MyPhysicalInventoryItem>();
+        private bool m_needsRecomputation = true;
+        private HashSet<MyCubeGrid> m_tmpConnectedGrids = new HashSet<MyCubeGrid>();
 
-        private static List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>> m_tmpPullRequests = new List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>>();
-        private static PullRequestItemSet m_tmpRequestedItemSet = new PullRequestItemSet();
+        [ThreadStatic]
+        private static List<ConveyorLinePosition> m_tmpConveyorPositionListPerThread = new List<ConveyorLinePosition>(6);
+        private static List<ConveyorLinePosition> m_tmpConveyorPositionList { get { if (m_tmpConveyorPositionListPerThread == null) m_tmpConveyorPositionListPerThread = new List<ConveyorLinePosition>(6); return m_tmpConveyorPositionListPerThread; } }
 
+        [ThreadStatic]
+        private static List<MyPhysicalInventoryItem> m_tmpInventoryItemsPerThread;
+        private static List<MyPhysicalInventoryItem> m_tmpInventoryItems { get { if (m_tmpInventoryItemsPerThread == null) m_tmpInventoryItemsPerThread = new List<MyPhysicalInventoryItem>(); return m_tmpInventoryItemsPerThread; } }
+
+        [ThreadStatic]
+        private static List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>> m_tmpPullRequestsPerThread;
+        private static List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>> m_tmpPullRequests { get { if (m_tmpPullRequestsPerThread == null) m_tmpPullRequestsPerThread = new List<MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>>(); return m_tmpPullRequestsPerThread; } }
+
+        [ThreadStatic]
+        private static PullRequestItemSet m_tmpRequestedItemSetPerThread;
+        private static PullRequestItemSet m_tmpRequestedItemSet { get { if (m_tmpRequestedItemSetPerThread == null) m_tmpRequestedItemSetPerThread = new PullRequestItemSet(); return m_tmpRequestedItemSetPerThread; } }
+
+        [ThreadStatic]
         private static MyPathFindingSystem<IMyConveyorEndpoint> m_pathfinding = new MyPathFindingSystem<IMyConveyorEndpoint>();
-        public static MyPathFindingSystem<IMyConveyorEndpoint> Pathfinding
+        private static MyPathFindingSystem<IMyConveyorEndpoint> Pathfinding
         {
             get
             {
+                if (m_pathfinding == null)
+                    m_pathfinding = new MyPathFindingSystem<IMyConveyorEndpoint>();
                 return m_pathfinding;
             }
         }
+
+        private static Dictionary<Tuple<IMyConveyorEndpointBlock, IMyConveyorEndpointBlock>, ParallelTasks.Task> m_currentTransferComputationTasks = new Dictionary<Tuple<IMyConveyorEndpointBlock, IMyConveyorEndpointBlock>, ParallelTasks.Task>();
 
         private Dictionary<ConveyorLinePosition, MyConveyorLine> m_lineEndpoints;
         private Dictionary<Vector3I, MyConveyorLine> m_linePoints;
@@ -100,7 +122,7 @@ namespace Sandbox.Game.GameSystems
             m_linePoints = null;
             m_deserializedLines = null;
 
-			ResourceSink = new MyResourceSinkComponent();
+            ResourceSink = new MyResourceSinkComponent();
             ResourceSink.Init(
                 MyStringHash.GetOrCompute("Conveyors"),
                 CONVEYOR_SYSTEM_CONSUMPTION,
@@ -211,7 +233,7 @@ namespace Sandbox.Game.GameSystems
 
         public void Add(MyCubeBlock block)
         {
-            bool added = m_blocks.Add(block);
+            bool added = m_inventoryBlocks.Add(block);
             System.Diagnostics.Debug.Assert(added, "Double add");
 
             var handler = BlockAdded;
@@ -220,7 +242,7 @@ namespace Sandbox.Game.GameSystems
 
         public void Remove(MyCubeBlock block)
         {
-            bool removed = m_blocks.Remove(block);
+            bool removed = m_inventoryBlocks.Remove(block);
             System.Diagnostics.Debug.Assert(removed, "Double remove or removing something not added");
 
             var handler = BlockRemoved;
@@ -229,6 +251,10 @@ namespace Sandbox.Game.GameSystems
 
         public void AddConveyorBlock(IMyConveyorEndpointBlock endpointBlock)
         {
+            // Invalidate iterator and add block
+            m_endpointIterator = null;
+            m_conveyorEndpointBlocks.Add(endpointBlock);
+
             if (endpointBlock is MyShipConnector)
                 m_connectors.Add(endpointBlock as MyShipConnector);
 
@@ -317,8 +343,40 @@ namespace Sandbox.Game.GameSystems
             ResourceSink.Update();
         }
 
+        public void FlagForRecomputation()
+        {
+            // Get all connected grids
+            m_tmpConnectedGrids.Clear();
+            if (m_grid != null && m_grid.GridSystems != null && m_grid.GridSystems.TerminalSystem != null)
+            {
+                foreach (var block in m_grid.GridSystems.TerminalSystem.Blocks)
+                {
+                    if (!m_tmpConnectedGrids.Contains(block.CubeGrid))
+                        m_tmpConnectedGrids.Add(block.CubeGrid);
+                }
+            }
+
+            // Flag all of them for recomputation
+            m_needsRecomputation = true;
+            foreach (MyCubeGrid grid in m_tmpConnectedGrids)
+            {
+                if (grid.GridSystems != null && grid.GridSystems.ConveyorSystem != null)
+                    grid.GridSystems.ConveyorSystem.m_needsRecomputation = true;
+            }
+        }
+
+        public void UpdateAfterSimulation100()
+        {
+            if (m_needsRecomputation)
+            {
+                RecomputeConveyorEndpoints();
+                m_needsRecomputation = false;
+            }
+        }
+
         void Receiver_IsPoweredChanged()
         {
+            FlagForRecomputation();
             foreach (var line in m_lines)
             {
                 line.UpdateIsWorking();
@@ -344,6 +402,10 @@ namespace Sandbox.Game.GameSystems
 
         public void RemoveConveyorBlock(IMyConveyorEndpointBlock block)
         {
+            // Invalidate iterator and remove block
+            m_endpointIterator = null;
+            m_conveyorEndpointBlocks.Remove(block);
+
             if (block is MyShipConnector)
                 m_connectors.Remove(block as MyShipConnector);
 
@@ -545,18 +607,21 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
+        [ThreadStatic]
         private static long m_playerIdForAccessiblePredicate;
         private static void SetTraversalPlayerId(long playerId)
         {
             m_playerIdForAccessiblePredicate = playerId;
         }
 
+        [ThreadStatic]
         private static MyDefinitionId m_inventoryItemDefinitionId;
         private static void SetTraversalInventoryItemDefinitionId(MyDefinitionId item = new MyDefinitionId())
         {
             m_inventoryItemDefinitionId = item;
         }
 
+        [ThreadStatic]
         private static IMyConveyorEndpoint m_startingEndpoint;
 
         private static Predicate<IMyConveyorEndpoint> IsAccessAllowedPredicate = IsAccessAllowed;
@@ -586,13 +651,19 @@ namespace Sandbox.Game.GameSystems
             return !(conveyorLine is MyConveyorLine) || (conveyorLine as MyConveyorLine).Type == MyObjectBuilder_ConveyorLine.LineType.LARGE_LINE;
         }
 
+        private static Predicate<IMyPathEdge<IMyConveyorEndpoint>> IsConveyorSmallPredicate = IsConveyorSmall;
+        private static bool IsConveyorSmall(IMyPathEdge<IMyConveyorEndpoint> conveyorLine)
+        {
+            return !(conveyorLine is MyConveyorLine) || (conveyorLine as MyConveyorLine).Type == MyObjectBuilder_ConveyorLine.LineType.SMALL_LINE;
+        }
+
         private static bool NeedsLargeTube(MyDefinitionId itemDefinitionId)
         {
             MyPhysicalItemDefinition itemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(itemDefinitionId);
 
-			// A bit hacky but in this case better than adding something to the definitions
-			if (itemDefinitionId.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
-				return false;
+            // A bit hacky but in this case better than adding something to the definitions
+            if (itemDefinitionId.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
+                return false;
 
             return itemDef.Size.AbsMax() > 0.25f;
         }
@@ -604,18 +675,21 @@ namespace Sandbox.Game.GameSystems
             if (block == null)
                 return;
 
-            SetTraversalPlayerId(playerId);
-            var itemId = item.Content.GetId();
-            SetTraversalInventoryItemDefinitionId(itemId);
+            lock (Pathfinding)
+            {
+                SetTraversalPlayerId(playerId);
+                var itemId = item.Content.GetId();
+                SetTraversalInventoryItemDefinitionId(itemId);
 
-            m_pathfinding.FindReachable(block.ConveyorEndpoint, reachable, endpointFilter, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
+                Pathfinding.FindReachable(block.ConveyorEndpoint, reachable, endpointFilter, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
+            }
         }
 
-        public HashSetReader<MyCubeBlock> Blocks
+        public HashSetReader<MyCubeBlock> InventoryBlocks
         {
             get
             {
-                return new HashSetReader<MyCubeBlock>(m_blocks);
+                return new HashSetReader<MyCubeBlock>(m_inventoryBlocks);
             }
         }
 
@@ -668,11 +742,102 @@ namespace Sandbox.Game.GameSystems
 
         public static bool PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyInventoryConstraint requestedTypeIds)
         {
-            SetTraversalPlayerId(playerId);
+            MyCubeBlock startingBlock = start as MyCubeBlock;
+            if (startingBlock == null) return false;
+
             m_tmpRequestedItemSet.Set(requestedTypeIds);
-            bool ret=ItemPullAll(start, destinationInventory);
-            m_tmpRequestedItemSet.Clear();
-            return ret;
+
+            // Try and get the block from the cache
+            MyGridConveyorSystem conveyorSystem = startingBlock.CubeGrid.GridSystems.ConveyorSystem;
+            MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
+            if (endpoints.pullElements != null)
+            {
+                bool didTransfer = false;
+
+                // Iterate to the other elements, see if we can collect some amount of items to pull
+                for (int i = 0; i < endpoints.pullElements.Count; i++)
+                {
+                    MyCubeBlock sourceBlock = endpoints.pullElements[i] as MyCubeBlock;
+                    if (sourceBlock == null) continue;
+
+                    int inventoryCount = sourceBlock.InventoryCount;
+                    for (int inventoryIndex = 0; inventoryIndex < inventoryCount; inventoryIndex++)
+                    {
+                        MyInventory inventory = sourceBlock.GetInventory(inventoryIndex);
+                        if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                            continue;
+
+                        if (inventory == destinationInventory)
+                            continue;
+
+                        m_tmpInventoryItems.Clear();
+                        foreach (var item in inventory.GetItems())
+                        {
+                            m_tmpInventoryItems.Add(item);
+                        }
+
+                        foreach (var item in m_tmpInventoryItems)
+                        {
+                            if (destinationInventory.VolumeFillFactor >= 1.0f)
+                            {
+                                m_tmpInventoryItems.Clear();
+                                return true;
+                            }
+
+                            var itemId = item.Content.GetId();
+
+                            if (requestedTypeIds != null && !m_tmpRequestedItemSet.Contains(itemId))
+                                continue;
+
+                            // Verify that this item can, in fact, make it past sorters, etc
+                            if (!CanTransfer(start, endpoints.pullElements[i], itemId, false))
+                                continue;
+
+                            var transferedAmount = item.Amount;
+
+                            var oxygenBottle = item.Content as Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_GasContainerObject;
+                            if (oxygenBottle != null && oxygenBottle.GasLevel >= 1f)
+                                continue;
+
+                            if (!MySession.Static.CreativeMode)
+                            {
+                                var fittingAmount = destinationInventory.ComputeAmountThatFits(item.Content.GetId());
+                                if (item.Content.TypeId != typeof(MyObjectBuilder_Ore) &&
+                                    item.Content.TypeId != typeof(MyObjectBuilder_Ingot))
+                                {
+                                    fittingAmount = MyFixedPoint.Floor(fittingAmount);
+                                }
+                                transferedAmount = MyFixedPoint.Min(fittingAmount, transferedAmount);
+                            }
+                            if (transferedAmount == 0)
+                                continue;
+
+                            didTransfer = true;
+                            MyInventory.Transfer(inventory, destinationInventory, item.Content.GetId(), MyItemFlags.None, transferedAmount);
+
+                            if (destinationInventory.CargoPercentage >= 0.99f)
+                                break;
+                        }
+
+                        if (destinationInventory.CargoPercentage >= 0.99f)
+                            break;
+                    }
+
+                    if (destinationInventory.CargoPercentage >= 0.99f)
+                        break;
+                }
+
+                return didTransfer;
+            }
+
+            else
+            {
+                // Cache may need to be recomputed
+                if (!conveyorSystem.m_isRecomputingGraph)
+                    conveyorSystem.RecomputeConveyorEndpoints();
+            }
+
+            return false;
         }
 
         public static bool PullAllRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyObjectBuilderType? typeId = null)
@@ -695,13 +860,72 @@ namespace Sandbox.Game.GameSystems
 
         private static bool ItemPullAll(IMyConveyorEndpointBlock start, MyInventory destinationInventory)
         {
-            // First, search through small conveyor tubes and request only small items
-            PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate);
-            bool ret=ItemPullAllInternal(destinationInventory, m_tmpRequestedItemSet, true);
-            // Then, search again through all tubes and request all items
-            PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorLargePredicate);
-            ret|=ItemPullAllInternal(destinationInventory, m_tmpRequestedItemSet, false);
-            return ret;
+            MyCubeBlock startingBlock = start as MyCubeBlock;
+            if (startingBlock == null) return false;
+
+            bool itemsPulled = false;
+
+            // Try and get the block from the cache
+            MyGridConveyorSystem conveyorSystem = startingBlock.CubeGrid.GridSystems.ConveyorSystem;
+            MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
+            if (endpoints.pullElements != null)
+            {
+                // Iterate to the other elements, see if we can collect some amount of items to pull
+                for (int i = 0; i < endpoints.pullElements.Count; i++)
+                {
+                    MyCubeBlock sourceBlock = endpoints.pullElements[i] as MyCubeBlock;
+                    if (sourceBlock == null) continue;
+
+                    int inventoryCount = sourceBlock.InventoryCount;
+                    for (int inventoryIndex = 0; inventoryIndex < inventoryCount; inventoryIndex++)
+                    {
+                        MyInventory inventory = sourceBlock.GetInventory(inventoryIndex);
+                        if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                            continue;
+
+                        if (inventory == destinationInventory)
+                            continue;
+
+                        var items = inventory.GetItems().ToArray();
+                        for (int itemIndex = 0; itemIndex < items.Length; itemIndex++)
+                        {
+                            var item = items[itemIndex];
+                            var itemId = item.GetDefinitionId();
+
+                            var amountThatFits = destinationInventory.ComputeAmountThatFits(itemId);
+                            if (amountThatFits <= 0)
+                                continue;
+
+                            // Verify that this item can, in fact, make it past sorters, etc
+                            if (!CanTransfer(start, endpoints.pullElements[i], itemId, false))
+                                continue;
+
+                            var availableAmount = inventory.GetItemAmount(itemId);
+                            var transferAmount = MyFixedPoint.Min(availableAmount, amountThatFits);
+
+                            MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None, transferAmount);
+                            itemsPulled = true;
+
+                            if (destinationInventory.CargoPercentage >= 0.99f)
+                                break;
+                        }
+
+                        if (destinationInventory.CargoPercentage >= 0.99f)
+                            break;
+                    }
+
+                    if (destinationInventory.CargoPercentage >= 0.99f)
+                        break;
+                }
+            }
+
+            else
+            {
+                // Cache may need to be recomputed
+                if (!conveyorSystem.m_isRecomputingGraph)
+                    conveyorSystem.RecomputeConveyorEndpoints();
+            }
+            return itemsPulled;
         }
 
         public static void PrepareTraversal(
@@ -711,145 +935,149 @@ namespace Sandbox.Game.GameSystems
             Predicate<IMyPathEdge<IMyConveyorEndpoint>> edgeTraversable = null)
         {
             m_startingEndpoint = startingVertex;
-            m_pathfinding.PrepareTraversal(startingVertex, vertexFilter, vertexTraversable, edgeTraversable);
+            lock (Pathfinding)
+            {
+                Pathfinding.PrepareTraversal(startingVertex, vertexFilter, vertexTraversable, edgeTraversable);
+            }
         }
 
-        private static bool ItemPullAllInternal(MyInventory destinationInventory, PullRequestItemSet requestedTypeIds, bool onlySmall)
+        private class TransferData : ParallelTasks.WorkData
         {
-            bool pullCreated = false;
-            SetTraversalInventoryItemDefinitionId();
-            Debug.Assert(m_tmpPullRequests.Count == 0, "m_tmpPullRequests is not empty!");
-            using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
+            public IMyConveyorEndpointBlock m_start = null;
+            public IMyConveyorEndpointBlock m_endPoint = null;
+            public MyDefinitionId m_itemId;
+            public bool m_isPush = false;
+
+            public bool m_canTransfer = false;
+
+            public TransferData(IMyConveyorEndpointBlock start, IMyConveyorEndpointBlock endPoint, MyDefinitionId itemId, bool isPush)
             {
-                foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+                m_start = start;
+                m_endPoint = endPoint;
+                m_itemId = itemId;
+                m_isPush = isPush;
+            }
+
+            public void ComputeTransfer()
+            {
+                List<IMyConveyorEndpoint> reachable = new List<IMyConveyorEndpoint>();
+
+                lock (Pathfinding)
                 {
-                    MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
-                    if (owner == null) continue;
+                    SetTraversalPlayerId(m_start.ConveyorEndpoint.CubeBlock.OwnerId);
+                    SetTraversalInventoryItemDefinitionId(m_itemId);
 
-                    for (int i = 0; i < owner.InventoryCount; ++i)
+                    if (m_isPush)
                     {
-                        var inventory = owner.GetInventory(i) as MyInventory;
-                        System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
-                        if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
-                            continue;
-
-                        if (inventory == destinationInventory)
-                            continue;
-
-                        m_tmpInventoryItems.Clear();
-                        foreach (var item in inventory.GetItems())
-                        {
-                            m_tmpInventoryItems.Add(item);
-                        }
-
-                        foreach (var item in m_tmpInventoryItems)
-                        {
-                            if (destinationInventory.VolumeFillFactor >= 1.0f)
-                            {
-                                m_tmpInventoryItems.Clear();
-                                return pullCreated;
-                            }
-
-                            var itemId = item.Content.GetId();
-
-                            if (requestedTypeIds != null && !requestedTypeIds.Contains(itemId))
-                                continue;
-
-                            if (onlySmall && NeedsLargeTube(itemId))
-                                continue;
-
-                            var transferedAmount = item.Amount;
-
-                            var oxygenBottle = item.Content as Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_GasContainerObject;
-							if (oxygenBottle != null && oxygenBottle.GasLevel == 1f)
-                                continue;
-
-                            if (!MySession.Static.CreativeMode)
-                            {
-                                var fittingAmount = destinationInventory.ComputeAmountThatFits(item.Content.GetId());
-                                if (item.Content.TypeId != typeof(MyObjectBuilder_Ore) &&
-                                    item.Content.TypeId != typeof(MyObjectBuilder_Ingot))
-                                {
-                                    fittingAmount = MyFixedPoint.Floor(fittingAmount);
-                                }
-                                transferedAmount = MyFixedPoint.Min(fittingAmount, transferedAmount);
-                            }
-                            if (transferedAmount == 0)
-                                continue;
-
-                            // SK: this is mental
-                            m_tmpPullRequests.Add(new MyTuple<IMyConveyorEndpointBlock, MyPhysicalInventoryItem>(m_startingEndpoint.CubeBlock as IMyConveyorEndpointBlock, item));
-                            //MyInventory.Transfer(inventory, destinationInventory, item.Content.GetId(), MyItemFlags.None, transferedAmount);
-                        }
+                        Pathfinding.FindReachable(m_start.ConveyorEndpoint, reachable, b => b != null && b.CubeBlock == m_endPoint, IsAccessAllowedPredicate, NeedsLargeTube(m_itemId) ? IsConveyorLargePredicate : null);
+                    }
+                    else
+                    {
+                        Pathfinding.FindReachable(m_endPoint.ConveyorEndpoint, reachable, b => b != null && b.CubeBlock == m_start, IsAccessAllowedPredicate, NeedsLargeTube(m_itemId) ? IsConveyorLargePredicate : null);
                     }
                 }
+
+                m_canTransfer = (reachable.Count != 0);
             }
 
-            foreach (var tuple in m_tmpPullRequests)
+            public void StoreTransferState()
             {
-                if (destinationInventory.VolumeFillFactor >= 1.0f)
+                MyGridConveyorSystem conveyorSystem = (m_start as MyCubeBlock).CubeGrid.GridSystems.ConveyorSystem;
+                MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(m_start);
+
+                endpoints.AddTransfer(m_endPoint, m_itemId, false, m_canTransfer);
+            }
+        }
+
+        private static bool CanTransfer(IMyConveyorEndpointBlock start, IMyConveyorEndpointBlock endPoint, MyDefinitionId itemId, bool isPush)
+        {
+            MyGridConveyorSystem conveyorSystem = (start as MyCubeBlock).CubeGrid.GridSystems.ConveyorSystem;
+            MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
+
+            // Verify that this item can, in fact, make it past sorters, etc
+            bool canTransfer = true;
+            if (endpoints.TryGetTransfer(endPoint, itemId, false, out canTransfer))
+            {
+                return canTransfer;
+            }
+            else
+            {
+                Tuple<IMyConveyorEndpointBlock, IMyConveyorEndpointBlock> tuple = new Tuple<IMyConveyorEndpointBlock, IMyConveyorEndpointBlock>(start, endPoint);
+                lock (m_currentTransferComputationTasks)
                 {
-                    m_tmpPullRequests.Clear();
-                    return pullCreated;
+                    if (!m_currentTransferComputationTasks.ContainsKey(tuple))
+                    {
+                        TransferData transferData = new TransferData(start, endPoint, itemId, isPush);
+                        ParallelTasks.Task task = ParallelTasks.Parallel.Start(ComputeTransferData, OnTransferDataComputed, transferData);
+                        m_currentTransferComputationTasks.Add(tuple, task);
+                    }
                 }
+                return false;
+            }
+        }
 
-                var start = tuple.Item1;
-                var item = tuple.Item2;
-
-                var transferedAmount = item.Amount;
-                var fittingAmount = destinationInventory.ComputeAmountThatFits(item.Content.GetId());
-                if (item.Content.TypeId != typeof(MyObjectBuilder_Ore) &&
-                    item.Content.TypeId != typeof(MyObjectBuilder_Ingot))
-                {
-                    fittingAmount = MyFixedPoint.Floor(fittingAmount);
-                }
-                transferedAmount = MyFixedPoint.Min(fittingAmount, transferedAmount);
-
-                if (transferedAmount == 0)
-                    continue;
-
-                var itemId = item.Content.GetId();
-
-                SetTraversalInventoryItemDefinitionId(itemId);
-                ItemPullRequest(start, destinationInventory, m_playerIdForAccessiblePredicate, itemId, transferedAmount);
-                pullCreated = true;
+        private static void ComputeTransferData(ParallelTasks.WorkData workData)
+        {
+            TransferData transferData = workData as TransferData;
+            if (transferData == null)
+            {
+                workData.FlagAsFailed();
+                return;
             }
 
-            m_tmpPullRequests.Clear();
-            return pullCreated;
+            transferData.ComputeTransfer();
+        }
+
+        private static void OnTransferDataComputed(ParallelTasks.WorkData workData)
+        {
+            TransferData transferData = workData as TransferData;
+            if (transferData == null)
+            {
+                workData.FlagAsFailed();
+                return;
+            }
+
+            transferData.StoreTransferState();
+
+            Tuple<IMyConveyorEndpointBlock, IMyConveyorEndpointBlock> tuple = new Tuple<IMyConveyorEndpointBlock, IMyConveyorEndpointBlock>(transferData.m_start, transferData.m_endPoint);
+            lock (m_currentTransferComputationTasks)
+            {
+                m_currentTransferComputationTasks.Remove(tuple);
+            }
         }
 
         public static MyFixedPoint ItemPullRequest(IMyConveyorEndpointBlock start, MyInventory destinationInventory, long playerId, MyDefinitionId itemId, MyFixedPoint? amount = null, bool remove = false)
         {
+            MyCubeBlock startingBlock = start as MyCubeBlock;
+            if (startingBlock == null) return 0;
+
             MyFixedPoint transferred = 0;
-            using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
+            
+            // Try and get the block from the cache
+            MyGridConveyorSystem conveyorSystem = startingBlock.CubeGrid.GridSystems.ConveyorSystem;
+            MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
+            if (endpoints.pullElements != null)
             {
-                /*if (amount.HasValue)
-                    Debug.Assert(itemId.TypeId == typeof(MyObjectBuilder_Ore) ||
-                                 itemId.TypeId == typeof(MyObjectBuilder_Ingot) ||
-                                 MyFixedPoint.Floor(amount.Value) == amount.Value);*/
-
-                SetTraversalPlayerId(playerId);
-                SetTraversalInventoryItemDefinitionId(itemId);
-
-                PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
-                foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+                // Iterate to the other elements, see if we can collect some amount of items to pull
+                for (int i = 0; i < endpoints.pullElements.Count; i++)
                 {
-                    MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
-                    if (owner == null) continue;
+                    MyCubeBlock sourceBlock = endpoints.pullElements[i] as MyCubeBlock;
+                    if (sourceBlock == null) continue;
 
-                    for (int i = 0; i < owner.InventoryCount; ++i)
+                    int inventoryCount = sourceBlock.InventoryCount;
+                    for (int inventoryIndex = 0; inventoryIndex < inventoryCount; inventoryIndex++)
                     {
-                        var inventory = owner.GetInventory(i) as MyInventory;
-                        System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
+                        MyInventory inventory = sourceBlock.GetInventory(inventoryIndex);
                         if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
                             continue;
 
                         if (inventory == destinationInventory)
                             continue;
-                        
+
+                        // Verify that this item can, in fact, make it past sorters, etc
+                        if (!CanTransfer(start, endpoints.pullElements[i], itemId, false))
+                            continue;
+
                         var availableAmount = inventory.GetItemAmount(itemId);
                         if (amount.HasValue)
                         {
@@ -865,7 +1093,6 @@ namespace Sandbox.Game.GameSystems
                             {
                                 transferred += MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None, availableAmount);
                             }
-                            
 
                             amount -= availableAmount;
                             if (amount.Value == 0)
@@ -882,8 +1109,21 @@ namespace Sandbox.Game.GameSystems
                                 transferred += MyInventory.Transfer(inventory, destinationInventory, itemId, MyItemFlags.None, availableAmount);
                             }
                         }
+
+                        if (destinationInventory.CargoPercentage >= 0.99f)
+                            break;
                     }
+
+                    if (destinationInventory.CargoPercentage >= 0.99f)
+                        break;
                 }
+            }
+
+            else
+            {
+                // Cache may need to be recomputed
+                if (!conveyorSystem.m_isRecomputingGraph)
+                    conveyorSystem.RecomputeConveyorEndpoints();
             }
             return transferred;
         }
@@ -893,27 +1133,30 @@ namespace Sandbox.Game.GameSystems
             MyFixedPoint amount = 0;
             using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
             {
-                SetTraversalPlayerId(playerId);
-                SetTraversalInventoryItemDefinitionId(itemId);
-
-                PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
-                foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+                lock (Pathfinding)
                 {
-                    MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
-                    if (owner == null) continue;
+                    SetTraversalPlayerId(playerId);
+                    SetTraversalInventoryItemDefinitionId(itemId);
 
-                    for (int i = 0; i < owner.InventoryCount; ++i)
+                    PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(itemId) ? IsConveyorLargePredicate : null);
+                    foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
                     {
-                        var inventory = owner.GetInventory(i) as MyInventory;
-                        System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+                        MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
+                        if (owner == null) continue;
 
-                        if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
-                            continue;
+                        for (int i = 0; i < owner.InventoryCount; ++i)
+                        {
+                            var inventory = owner.GetInventory(i) as MyInventory;
+                            System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
-                        if (inventory == destinationInventory)
-                            continue;
+                            if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                                continue;
 
-                        amount += inventory.GetItemAmount(itemId);
+                            if (inventory == destinationInventory)
+                                continue;
+
+                            amount += inventory.GetItemAmount(itemId);
+                        }
                     }
                 }
             }
@@ -925,72 +1168,572 @@ namespace Sandbox.Game.GameSystems
             if (srcInventory.Empty())
                 return;
 
-            // try all items and stop on first successfull
-            foreach (var item in srcInventory.GetItems())
+            var itemArray = srcInventory.GetItems().ToArray();
+            foreach (var item in itemArray)
             {
-                if (ItemPushRequest(start, srcInventory, playerId, item))
-                    return;
+                ItemPushRequest(start, srcInventory, playerId, item);
             }
         }
 
         public static bool ItemPushRequest(IMyConveyorEndpointBlock start, MyInventory srcInventory, long playerId, MyPhysicalInventoryItem toSend, MyFixedPoint? amount = null)
         {
-            var itemBuilder = toSend.Content;
-            if (amount.HasValue)
-                Debug.Assert(toSend.Content.TypeId == typeof(MyObjectBuilder_Ore) ||
-                                toSend.Content.TypeId == typeof(MyObjectBuilder_Ingot) ||
-                                MyFixedPoint.Floor(amount.Value) == amount.Value);
-
-            MyFixedPoint remainingAmount = toSend.Amount;
-            if (amount.HasValue)
-            {
-                remainingAmount = amount.Value;
-            }
-
-            SetTraversalPlayerId(playerId);
-
-            var toSendContentId = toSend.Content.GetId();
-            SetTraversalInventoryItemDefinitionId(toSendContentId);
-
-            if (NeedsLargeTube(toSendContentId))
-            {
-                PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorLargePredicate);
-            }
-            else
-            {
-                PrepareTraversal(start.ConveyorEndpoint, null, IsAccessAllowedPredicate);
-            }
+            MyCubeBlock startingBlock = start as MyCubeBlock;
+            if (startingBlock == null) return false;
 
             bool success = false;
 
-            foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+            // Try and get the block from the cache
+            MyGridConveyorSystem conveyorSystem = startingBlock.CubeGrid.GridSystems.ConveyorSystem;
+            MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
+            if (endpoints.pushElements != null)
             {
-                MyCubeBlock owner = (conveyorEndpoint.CubeBlock != null && conveyorEndpoint.CubeBlock.HasInventory) ? conveyorEndpoint.CubeBlock : null;
-                if (owner == null) continue;
+                var toSendContentId = toSend.Content.GetId();
 
-                for (int i = 0; i < owner.InventoryCount; ++i)
+                MyFixedPoint remainingAmount = toSend.Amount;
+                if (amount.HasValue)
                 {
-                    var inventory = owner.GetInventory(i) as MyInventory;
-                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+                    remainingAmount = amount.Value;
+                }
 
-                    if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
-                        continue;
+                for (int i = 0; i<endpoints.pushElements.Count; i++)
+                {
+                    MyCubeBlock targetBlock = endpoints.pushElements[i] as MyCubeBlock;
+                    if (targetBlock == null) continue;
 
-                    if (inventory == srcInventory)
-                        continue;
+                    int inventoryCount = targetBlock.InventoryCount;
+                    for (int inventoryIndex = 0; inventoryIndex < inventoryCount; inventoryIndex++)
+                    {
+                        MyInventory inventory = targetBlock.GetInventory(inventoryIndex);
 
-                    var fittingAmount = inventory.ComputeAmountThatFits(toSendContentId);
-                    fittingAmount = MyFixedPoint.Min(fittingAmount, remainingAmount);
-                    if (!inventory.CheckConstraint(toSendContentId))
-                        continue;
-                    if (fittingAmount == 0)
-                        continue;
+                        if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
+                            continue;
 
-                    MyInventory.Transfer(srcInventory, inventory, toSend.ItemId, -1, fittingAmount);
-                    success = true;
+                        if (inventory == srcInventory)
+                            continue;
+
+                        var fittingAmount = inventory.ComputeAmountThatFits(toSendContentId);
+                        fittingAmount = MyFixedPoint.Min(fittingAmount, remainingAmount);
+                        if (!inventory.CheckConstraint(toSendContentId))
+                            continue;
+                        if (fittingAmount == 0)
+                            continue;
+
+                        // Verify that this item can, in fact, make it past sorters, etc
+                        if (!CanTransfer(start, endpoints.pushElements[i], toSend.GetDefinitionId(), true))
+                            continue;
+
+                        MyInventory.Transfer(srcInventory, inventory, toSend.ItemId, -1, fittingAmount);
+                        success = true;
+
+                        remainingAmount -= fittingAmount;
+                    }
+
+                    if (remainingAmount <= 0)
+                        break;
                 }
             }
+
+            else
+            {
+                // Cache may need to be recomputed
+                if (!conveyorSystem.m_isRecomputingGraph)
+                    conveyorSystem.RecomputeConveyorEndpoints();
+            }
+
             return success;
+        }
+
+
+        public class ConveyorEndpointMapping
+        {
+            public List<IMyConveyorEndpointBlock> pullElements = null;
+            public List<IMyConveyorEndpointBlock> pushElements = null;
+
+            public Dictionary<Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>, bool> testedTransfers = new Dictionary<Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>, bool>();
+
+            public void AddTransfer(IMyConveyorEndpointBlock block, MyDefinitionId itemId, bool isPush, bool canTransfer)
+            {
+                var tuple = new Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>(block, itemId, isPush);
+                testedTransfers[tuple] = canTransfer;
+            }
+
+            public bool TryGetTransfer(IMyConveyorEndpointBlock block, MyDefinitionId itemId, bool isPush, out bool canTransfer)
+            {
+                var tuple = new Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>(block, itemId, isPush);
+                return testedTransfers.TryGetValue(tuple, out canTransfer);
+            }
+        }
+
+        private Dictionary<IMyConveyorEndpointBlock, ConveyorEndpointMapping> m_conveyorConnections = new Dictionary<IMyConveyorEndpointBlock, ConveyorEndpointMapping>();
+        private bool m_isRecomputingGraph = false;
+        private bool m_isRecomputationInterrupted = false;
+        private bool m_isRecomputationIsAborted = false;
+        private const double MAX_RECOMPUTE_DURATION_MILLISECONDS = 10;
+
+        private Dictionary<IMyConveyorEndpointBlock, ConveyorEndpointMapping> m_conveyorConnectionsForThread = new Dictionary<IMyConveyorEndpointBlock, ConveyorEndpointMapping>();
+        private IEnumerator<IMyConveyorEndpointBlock> m_endpointIterator = null;
+
+        /// <summary>
+        /// Starts the conveyor endpoint mapping recomputation, aborts the current process if needed.
+        /// </summary>
+        void RecomputeConveyorEndpoints()
+        {
+            // Clear out the data completely, then recompute.
+            // If computation is already running, abort it, otherwise start
+            m_conveyorConnections.Clear();
+
+            if (m_isRecomputingGraph)
+            {
+                m_isRecomputationIsAborted = true;
+                return;
+            }
+
+            StartRecomputationThread();
+        }
+
+        /// <summary>
+        /// Starts the conveyor endpoint mapping recomputation.
+        /// </summary>
+        void StartRecomputationThread()
+        {
+            // Clear out data, reset thread state, begin iteration
+            m_conveyorConnectionsForThread.Clear();
+
+            m_isRecomputingGraph = true;
+            m_isRecomputationIsAborted = false;
+            m_isRecomputationInterrupted = false;
+
+            m_endpointIterator = null;
+            ParallelTasks.Parallel.Start(UpdateConveyorEndpointMapping, OnConveyorEndpointMappingUpdateCompleted);
+        }
+
+        public static void RecomputeMappingForBlock(IMyConveyorEndpointBlock processedBlock)
+        {
+            MyCubeBlock block = processedBlock as MyCubeBlock;
+            if (block == null
+                || block.CubeGrid == null
+                || block.CubeGrid.GridSystems == null
+                || block.CubeGrid.GridSystems.ConveyorSystem == null) return;
+
+            ConveyorEndpointMapping endpointMap = block.CubeGrid.GridSystems.ConveyorSystem.ComputeMappingForBlock(processedBlock);
+
+            // Update current mapping
+            if (block.CubeGrid.GridSystems.ConveyorSystem.m_conveyorConnections.ContainsKey(processedBlock))
+            {
+                block.CubeGrid.GridSystems.ConveyorSystem.m_conveyorConnections[processedBlock] = endpointMap;
+            }
+            else
+            {
+                block.CubeGrid.GridSystems.ConveyorSystem.m_conveyorConnections.Add(processedBlock, endpointMap);
+            }
+
+            // Update future mapping if recomputation is in progress
+            if (block.CubeGrid.GridSystems.ConveyorSystem.m_isRecomputingGraph)
+            {
+                if (block.CubeGrid.GridSystems.ConveyorSystem.m_conveyorConnectionsForThread.ContainsKey(processedBlock))
+                {
+                    block.CubeGrid.GridSystems.ConveyorSystem.m_conveyorConnectionsForThread[processedBlock] = endpointMap;
+                }
+                else
+                {
+                    block.CubeGrid.GridSystems.ConveyorSystem.m_conveyorConnectionsForThread.Add(processedBlock, endpointMap);
+                }
+            }
+        }
+
+        private ConveyorEndpointMapping ComputeMappingForBlock(IMyConveyorEndpointBlock processedBlock)
+        {
+            ConveyorEndpointMapping endpointMap = new ConveyorEndpointMapping();
+
+            // Process pull mapping
+            PullInformation pullInformation = processedBlock.GetPullInformation();
+            if (pullInformation != null)
+            {
+                endpointMap.pullElements = new List<IMyConveyorEndpointBlock>();
+
+                lock (Pathfinding)
+                {
+                    SetTraversalPlayerId(pullInformation.OwnerID);
+
+                    // Pulling one specific item?
+                    if (pullInformation.ItemDefinition != default(MyDefinitionId))
+                    {
+                        SetTraversalInventoryItemDefinitionId(pullInformation.ItemDefinition);
+
+                        using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
+                        {
+                            PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(pullInformation.ItemDefinition) ? IsConveyorLargePredicate : null);
+                            foreach (var conveyorEndpoint in Pathfinding)
+                            {
+                                // Ignore endpoints without a block
+                                if (conveyorEndpoint.CubeBlock == null) continue;
+
+                                // Ignore blocks without inventory
+                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
+
+                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
+                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
+                                if (endpointBlock == null) continue;
+
+                                // Iterate inventories to make sure we can take the items
+                                bool isInventoryAvailable = false;
+                                for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
+                                {
+                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
+                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                                    if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                                        continue;
+
+                                    isInventoryAvailable = true;
+                                    break;
+                                }
+
+                                if (isInventoryAvailable)
+                                    endpointMap.pullElements.Add(endpointBlock);
+                            }
+                        }
+                    }
+
+                    else if (pullInformation.Constraint != null)
+                    {
+                        SetTraversalInventoryItemDefinitionId();
+                        using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
+                        {
+                            // Once for small tubes
+                            PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorSmallPredicate);
+                            foreach (var conveyorEndpoint in Pathfinding)
+                            {
+                                // Ignore originating block
+                                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
+
+                                // Ignore endpoints without a block
+                                if (conveyorEndpoint.CubeBlock == null) continue;
+
+                                // Ignore blocks without inventory
+                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
+
+                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
+                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
+                                if (endpointBlock == null) continue;
+
+                                // Iterate inventories to make sure we can take the items
+                                bool isInventoryAvailable = false;
+                                for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
+                                {
+                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
+                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                                    if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                                        continue;
+
+                                    isInventoryAvailable = true;
+                                    break;
+                                }
+
+                                if (isInventoryAvailable)
+                                    endpointMap.pullElements.Add(endpointBlock);
+                            }
+
+                            // Once for large tubes
+                            PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, null);
+                            foreach (var conveyorEndpoint in Pathfinding)
+                            {
+                                // Ignore originating block
+                                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
+
+                                // Ignore endpoints without a block
+                                if (conveyorEndpoint.CubeBlock == null) continue;
+
+                                // Ignore blocks without inventory
+                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
+
+                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
+                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
+                                if (endpointBlock == null) continue;
+
+                                // Iterate inventories to make sure we can take the items
+                                bool isInventoryAvailable = false;
+                                for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
+                                {
+                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
+                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                                    if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
+                                        continue;
+
+                                    isInventoryAvailable = true;
+                                    break;
+                                }
+
+                                if (isInventoryAvailable)
+                                {
+                                    if (!endpointMap.pullElements.Contains(endpointBlock))
+                                        endpointMap.pullElements.Add(endpointBlock);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Process push mapping
+            PullInformation pushInformation = processedBlock.GetPushInformation();
+            if (pushInformation != null)
+            {
+                endpointMap.pushElements = new List<IMyConveyorEndpointBlock>();
+
+                lock (Pathfinding)
+                {
+                    SetTraversalPlayerId(pushInformation.OwnerID);
+
+                    HashSet<MyDefinitionId> definitions = new HashSet<MyDefinitionId>();
+                    if (pushInformation.ItemDefinition != default(MyDefinitionId))
+                    {
+                        definitions.Add(pushInformation.ItemDefinition);
+                    }
+
+                    if (pushInformation.Constraint != null)
+                    {
+                        foreach (MyDefinitionId definition in pushInformation.Constraint.ConstrainedIds)
+                            definitions.Add(definition);
+
+                        foreach (MyObjectBuilderType constrainedType in pushInformation.Constraint.ConstrainedTypes)
+                        {
+                            MyDefinitionManager.Static.TryGetDefinitionsByTypeId(constrainedType, definitions);
+                        }
+                    }
+
+                    // Empty constraint, no need to check, anything that can take items is okay, push requests will re-test anyway
+                    if (definitions.Count == 0 && (pushInformation.Constraint == null || pushInformation.Constraint.Description == "Empty constraint"))
+                    {
+                        SetTraversalInventoryItemDefinitionId();
+                        PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate);
+
+                        foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+                        {
+                            // Ignore originating block
+                            if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
+
+                            // Ignore endpoints without a block
+                            if (conveyorEndpoint.CubeBlock == null) continue;
+
+                            // Ignore blocks without inventory
+                            if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
+
+                            // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
+                            IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
+                            if (endpointBlock == null) continue;
+
+                            MyCubeBlock owner = conveyorEndpoint.CubeBlock;
+
+                            // Iterate inventories to make sure they can take the items
+                            bool isInventoryAvailable = false;
+                            for (int i = 0; i < owner.InventoryCount; ++i)
+                            {
+                                var inventory = owner.GetInventory(i) as MyInventory;
+                                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                                if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
+                                    continue;
+
+                                isInventoryAvailable = true;
+                                break;
+                            }
+
+                            if (isInventoryAvailable && !endpointMap.pushElements.Contains(endpointBlock))
+                                endpointMap.pushElements.Add(endpointBlock);
+                        }
+                    }
+                    else
+                    {
+                        // Iterate through all the constrained item definitions
+                        foreach (MyDefinitionId definitionId in definitions)
+                        {
+                            SetTraversalInventoryItemDefinitionId(definitionId);
+
+                            if (NeedsLargeTube(definitionId))
+                            {
+                                PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorLargePredicate);
+                            }
+                            else
+                            {
+                                PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate);
+                            }
+
+                            foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+                            {
+                                // Ignore originating block
+                                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
+
+                                // Ignore endpoints without a block
+                                if (conveyorEndpoint.CubeBlock == null) continue;
+
+                                // Ignore blocks without inventory
+                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
+
+                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
+                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
+                                if (endpointBlock == null) continue;
+
+                                MyCubeBlock owner = conveyorEndpoint.CubeBlock;
+
+                                // Iterate inventories to make sure they can take the items
+                                bool isInventoryAvailable = false;
+                                for (int i = 0; i < owner.InventoryCount; ++i)
+                                {
+                                    var inventory = owner.GetInventory(i) as MyInventory;
+                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                                    if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
+                                        continue;
+
+                                    // Make sure target inventory can take this item
+                                    if (!inventory.CheckConstraint(definitionId))
+                                        continue;
+
+                                    isInventoryAvailable = true;
+                                    break;
+                                }
+
+                                if (isInventoryAvailable && !endpointMap.pushElements.Contains(endpointBlock))
+                                    endpointMap.pushElements.Add(endpointBlock);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return endpointMap;
+        }
+
+        /// <summary>
+        /// Computes the conveyor endpoint mappings.
+        /// The conveyor endpoint blocks come from m_conveyorEndpointBlocks, and are processed iteratively.
+        /// It does not process all of them at once, it processes them until the task has been running longer than MAX_RECOMPUTE_DURATION_MILLISECONDS
+        /// If it exceeds this time, it will exit and restart itself the next frame.
+        /// 
+        /// The task can also be aborted, when it is aborted, it will throw away all intermediate data and restart.
+        /// 
+        /// Accessing the grid conveyor system will be slow until this has finished computing, after which a large performance gain should be had.
+        /// </summary>
+        void UpdateConveyorEndpointMapping()
+        {
+            long startTime = Stopwatch.GetTimestamp();
+
+            m_isRecomputationInterrupted = false;
+
+            if (m_endpointIterator == null)
+            {
+                m_endpointIterator = m_conveyorEndpointBlocks.GetEnumerator();
+                m_endpointIterator.MoveNext();
+            }
+
+            IMyConveyorEndpointBlock processedBlock = m_endpointIterator.Current;
+            while (processedBlock != null)
+            {
+                // Abort the task if requested
+                if (m_isRecomputationIsAborted)
+                {
+                    m_isRecomputationInterrupted = true;
+                    break;
+                }
+
+                // Stop iteration if the task has taken enough time for now
+                TimeSpan threadDuration = new TimeSpan(Stopwatch.GetTimestamp() - startTime);
+                if (threadDuration.TotalMilliseconds > MAX_RECOMPUTE_DURATION_MILLISECONDS)
+                {
+                    m_isRecomputationInterrupted = true;
+                    break;
+                }
+
+                // Compute mapping
+                ConveyorEndpointMapping endpointMap = ComputeMappingForBlock(processedBlock);
+                m_conveyorConnectionsForThread.Add(processedBlock, endpointMap);
+
+                // Next block, but check if iterator is still valid, can be invalidated when blocks are added/removed.
+                // Thread will abort if this happens
+                if (m_endpointIterator != null)
+                {
+                    m_endpointIterator.MoveNext();
+                    processedBlock = m_endpointIterator.Current;
+                }
+                else
+                {
+                    m_isRecomputationIsAborted = true;
+                    m_isRecomputationInterrupted = true;
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called when the computation finishes. If it was aborted, restarts with a clean slate.
+        /// Otherwise, adds the results of the computation to the main thread accessible connections map.
+        /// Will continue the task if it was interrupted by timeout.
+        /// </summary>
+        void OnConveyorEndpointMappingUpdateCompleted()
+        {
+            // If the thread is flagged as aborted, restart it again
+            // If the thread is flagged as interrupted, merge intermediate data, then continue where it left off
+            // If the thread is finished correctly, merge intermediate data, we are finished
+
+            if (m_isRecomputationIsAborted)
+            {
+                // Restart recomputation, don't store results
+                StartRecomputationThread();
+                return;
+            }
+
+            // Store results
+            foreach (var connectionsMapping in m_conveyorConnectionsForThread)
+            {
+                if (m_conveyorConnections.ContainsKey(connectionsMapping.Key))
+                {
+                    m_conveyorConnections[connectionsMapping.Key] = connectionsMapping.Value;
+                }
+                else
+                {
+                    m_conveyorConnections.Add(connectionsMapping.Key, connectionsMapping.Value);
+                }
+            }
+            m_conveyorConnectionsForThread.Clear();
+
+            // Continue if we have to, otherwise flag as finished
+            if (m_isRecomputationInterrupted)
+            {
+                ParallelTasks.Parallel.Start(UpdateConveyorEndpointMapping, OnConveyorEndpointMappingUpdateCompleted);
+            }
+            else
+            {
+                m_endpointIterator = null;
+                m_isRecomputingGraph = false;
+            }
+        }
+
+        public ConveyorEndpointMapping GetConveyorEndpointMapping(IMyConveyorEndpointBlock block)
+        {
+            if (m_conveyorConnections.ContainsKey(block))
+                return m_conveyorConnections[block];
+            return new ConveyorEndpointMapping();
+        }
+
+        public static void FindReachable(IMyConveyorEndpoint from, List<IMyConveyorEndpoint> reachableVertices, Predicate<IMyConveyorEndpoint> vertexFilter = null, Predicate<IMyConveyorEndpoint> vertexTraversable = null, Predicate<IMyPathEdge<IMyConveyorEndpoint>> edgeTraversable = null)
+        {
+            lock (Pathfinding)
+            {
+                Pathfinding.FindReachable(from, reachableVertices, vertexFilter, vertexTraversable, edgeTraversable);
+            }
+        }
+
+        public static bool Reachable(IMyConveyorEndpoint from, IMyConveyorEndpoint to)
+        {
+            bool isReachable = false;
+            lock (Pathfinding)
+            {
+                isReachable = Pathfinding.Reachable(from, to);
+            }
+            return isReachable;
         }
     }
 }

@@ -32,9 +32,9 @@ namespace Sandbox.Game.Screens.Helpers
         }
 
         public bool Enabled { get; private set; }
-        public string Icon { get; private set; }
+        public string[] Icons { get; private set; }
         public string SubIcon { get; private set; }
-        public StringBuilder IconText { get; private set; }
+        public virtual StringBuilder IconText { get; private set; }
         public StringBuilder DisplayName { get; private set; }
 
         //Each item type says whether or not it wants to be activated when dragged to toolbar (ie, yes for weapons/cube blocks, no for ship blocks/ship groups)
@@ -44,7 +44,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public MyToolbarItem()
         {
-            Icon = MyGuiConstants.TEXTURE_ICON_FAKE.Texture;
+            Icons = new string[] { MyGuiConstants.TEXTURE_ICON_FAKE.Texture };
             IconText = new StringBuilder();
             DisplayName = new StringBuilder();
         }
@@ -69,10 +69,10 @@ namespace Sandbox.Game.Screens.Helpers
             return ChangeInfo.Enabled;
         }
 
-        public ChangeInfo SetIcon(string newIcon)
+        public ChangeInfo SetIcons(string[] newIcons)
         {
-            if (newIcon == Icon) return ChangeInfo.None;
-            Icon = newIcon;
+            if (newIcons == Icons) return ChangeInfo.None;
+            Icons = newIcons;
             return ChangeInfo.Icon;
         }
 

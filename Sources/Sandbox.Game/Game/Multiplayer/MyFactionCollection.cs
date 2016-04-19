@@ -19,10 +19,10 @@ using VRage;
 using Sandbox.Definitions;
 using VRage.Game;
 using VRage.Network;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Multiplayer
 {
-    [PreloadRequired]
     [StaticEventOwner]
     public partial class MyFactionCollection : IEnumerable<KeyValuePair<long, MyFaction>>
     {
@@ -82,7 +82,6 @@ namespace Sandbox.Game.Multiplayer
             #endregion
         }
 
-        [MessageIdAttribute(3298, P2PMessageEnum.Reliable)]
         [ProtoContract]
         struct AddFactionMsg
         {
@@ -97,47 +96,13 @@ namespace Sandbox.Game.Multiplayer
             public string FactionTag;
             [ProtoMember]
             public string FactionName;
+            [Serialize(MyObjectFlags.Nullable)]
             [ProtoMember]
             public string FactionDescription;
             [ProtoMember]
             public string FactionPrivateInfo;
             [ProtoMember]
             public bool CreateFromDefinition;
-        }
-
-        [MessageIdAttribute(3300, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct EditFactionMsg
-        {
-            [ProtoMember]
-            public long FactionId;
-            [ProtoMember]
-            public string FactionTag;
-            [ProtoMember]
-            public string FactionName;
-            [ProtoMember]
-            public string FactionDescription;
-            [ProtoMember]
-            public string FactionPrivateInfo;
-        }
-
-        [MessageIdAttribute(3299, P2PMessageEnum.Reliable)]
-        struct FactionStateChangeMsg
-        {
-            public MyFactionStateChange Action;
-            public long FromFactionId;
-            public long ToFactionId;
-            public long PlayerId;
-            public long SenderId;
-        }
-
-        [MessageIdAttribute(3301, P2PMessageEnum.Reliable)]
-        struct ChangeAutoAcceptMsg
-        {
-            public long     FactionId;
-            public long     PlayerId;
-            public BoolBlit AutoAcceptMember;
-            public BoolBlit AutoAcceptPeace;
         }
 
         /// <summary>
@@ -160,21 +125,6 @@ namespace Sandbox.Game.Multiplayer
         /// Player in faction dictionary.
         /// </summary>
         private Dictionary<long, long> m_playerFaction = new Dictionary<long, long>();
-
-        static MyFactionCollection()
-        {
-            MySyncLayer.RegisterMessage<AddFactionMsg>(CreateFactionRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AddFactionMsg>(CreateFactionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
-            MySyncLayer.RegisterMessage<EditFactionMsg>(EditFactionRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<EditFactionMsg>(EditFactionSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
-            MySyncLayer.RegisterMessage<FactionStateChangeMsg>(FactionStateChangeRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<FactionStateChangeMsg>(FactionStateChangeSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-
-            MySyncLayer.RegisterMessage<ChangeAutoAcceptMsg>(ChangeAutoAcceptRequest, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<ChangeAutoAcceptMsg>(ChangeAutoAcceptSuccess, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-        }
 
         /// <summary>
         /// Checks if faction exists.
@@ -345,9 +295,15 @@ namespace Sandbox.Game.Multiplayer
 
         public void AddPlayerToFaction(long playerId, long factionId)
         {
-            m_playerFaction[playerId] = factionId;
+            AddPlayerToFactionInternal(playerId, factionId);
             foreach (var faction in m_factions)
                 faction.Value.CancelJoinRequest(playerId);
+        }
+
+        // NOTE: Called by MyFaction to avoid premature deletion of join requests
+        internal void AddPlayerToFactionInternal(long playerId, long factionId)
+        {
+            m_playerFaction[playerId] = factionId;
         }
 
         public void KickPlayerFromFaction(long playerId)
@@ -593,29 +549,24 @@ namespace Sandbox.Game.Multiplayer
 
         static void SendFactionChange(MyFactionStateChange action, long fromFactionId, long toFactionId, long playerId)
         {
-            var msg = new FactionStateChangeMsg();
-            msg.Action = action;
-            msg.FromFactionId = fromFactionId;
-            msg.ToFactionId = toFactionId;
-            msg.PlayerId = playerId;
-            msg.SenderId = MySession.Static.LocalPlayerId;
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+            MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.FactionStateChangeRequest, action, fromFactionId, toFactionId, playerId, MySession.Static.LocalPlayerId);
         }
 
-        static void FactionStateChangeRequest(ref FactionStateChangeMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void FactionStateChangeRequest(MyFactionStateChange action, long fromFactionId, long toFactionId, long playerId, long senderId)
         {
-            var fromFaction = MySession.Static.Factions.TryGetFactionById(msg.FromFactionId);
-            var toFaction   = MySession.Static.Factions.TryGetFactionById(msg.ToFactionId);
+            var fromFaction = MySession.Static.Factions.TryGetFactionById(fromFactionId);
+            var toFaction = MySession.Static.Factions.TryGetFactionById(toFactionId);
 
             if (fromFaction != null && toFaction != null &&
-                MySession.Static.Factions.CheckFactionStateChange(msg.Action, msg.FromFactionId, msg.ToFactionId, msg.PlayerId, msg.SenderId))
+                MySession.Static.Factions.CheckFactionStateChange(action, fromFactionId, toFactionId, playerId, senderId))
             {
-                if ((msg.Action == MyFactionStateChange.FactionMemberKick ||
-                     msg.Action == MyFactionStateChange.FactionMemberLeave) && fromFaction.Members.Count() == 1)
+                if ((action == MyFactionStateChange.FactionMemberKick ||
+                     action == MyFactionStateChange.FactionMemberLeave) && fromFaction.Members.Count() == 1)
                 {
-                    msg.Action = MyFactionStateChange.RemoveFaction;
+                    action = MyFactionStateChange.RemoveFaction;
                 }
-                else if (msg.Action == MyFactionStateChange.FactionMemberSendJoin)
+                else if (action == MyFactionStateChange.FactionMemberSendJoin)
                 {
                     bool canAccept = MySession.Static.Settings.ScenarioEditMode;
                     if (toFaction.AutoAcceptMember)
@@ -623,50 +574,54 @@ namespace Sandbox.Game.Multiplayer
                         canAccept = true;
                         if (!toFaction.AcceptHumans)
                         {
-                            // Check, whether the requesting player is human or bot
-                            var humanPlayer = sender.FirstPlayer;
-                            if (humanPlayer != null && humanPlayer.Identity.IdentityId == msg.PlayerId)
+                            ulong steamId;
+                            if (MyEventContext.Current.IsLocallyInvoked)
+                                steamId = Sync.MyId;
+                            else
+                                steamId = MyEventContext.Current.Sender.Value;
+
+                            // Check, whether the requesting player is human or bot, get first player
+                            var controllerId = new MyPlayer.PlayerId() { SteamId = steamId, SerialId = 0 };
+                            var humanPlayer = Sync.Players.GetPlayerById(controllerId);
+                            if (humanPlayer != null && humanPlayer.Identity.IdentityId == playerId)
                             {
                                 // You are a human. We dont like human!
                                 canAccept = false;
-                                msg.Action = MyFactionStateChange.FactionMemberCancelJoin;
+                                action = MyFactionStateChange.FactionMemberCancelJoin;
                             }
                         }
                     }
                     if (canAccept)
                     {
-                        msg.Action = MyFactionStateChange.FactionMemberAcceptJoin;
-                        msg.SenderId = 0; // no need to check who accepted this
+                        action = MyFactionStateChange.FactionMemberAcceptJoin;
+                        senderId = 0; // no need to check who accepted this
                     }
                 }
-                else if (msg.Action == MyFactionStateChange.SendPeaceRequest && toFaction.AutoAcceptPeace)
+                else if (action == MyFactionStateChange.SendPeaceRequest && toFaction.AutoAcceptPeace)
                 {
-                    msg.Action = MyFactionStateChange.AcceptPeace;
-                    msg.SenderId = 0; // no need to check who accepted this
+                    action = MyFactionStateChange.AcceptPeace;
+                    senderId = 0; // no need to check who accepted this
                 }
 
-                FactionStateChangeSuccess(ref msg, sender);
-                Sync.Layer.SendMessageToAll(ref msg, MyTransportMessageEnum.Success);
+                MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.FactionStateChangeSuccess, action, fromFactionId, toFactionId, playerId, senderId);
+                FactionStateChangeSuccess(action, fromFactionId, toFactionId, playerId, senderId);
             }
-            /*else
-            {
-                Sync.Layer.SendMessage(ref msg, SteamSDK.sender.SteamUserId, MyTransportMessageEnum.Failure);
-            }*/
         }
 
-        static void FactionStateChangeSuccess(ref FactionStateChangeMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void FactionStateChangeSuccess(MyFactionStateChange action, long fromFactionId, long toFactionId, long playerId, long senderId)
         {
-            var fromFaction = MySession.Static.Factions.TryGetFactionById(msg.FromFactionId);
-            var toFaction   = MySession.Static.Factions.TryGetFactionById(msg.ToFactionId);
+            var fromFaction = MySession.Static.Factions.TryGetFactionById(fromFactionId);
+            var toFaction = MySession.Static.Factions.TryGetFactionById(toFactionId);
 
             if (fromFaction != null && toFaction != null)
             {
-                MySession.Static.Factions.ApplyFactionStateChange(msg.Action, msg.FromFactionId, msg.ToFactionId, msg.PlayerId, msg.SenderId);
+                MySession.Static.Factions.ApplyFactionStateChange(action, fromFactionId, toFactionId, playerId, senderId);
 
                 var handler = MySession.Static.Factions.FactionStateChanged;
 
                 if (handler != null)
-                    handler(msg.Action, msg.FromFactionId, msg.ToFactionId, msg.PlayerId, msg.SenderId);
+                    handler(action, fromFactionId, toFactionId, playerId, senderId);
             }
         }
 
@@ -719,38 +674,30 @@ namespace Sandbox.Game.Multiplayer
 
         public void ChangeAutoAccept(long factionId, long playerId, bool autoAcceptMember, bool autoAcceptPeace)
         {
-            SendChangeAutoAccept(factionId, playerId, autoAcceptMember, autoAcceptPeace);
+            MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.ChangeAutoAcceptRequest, factionId, playerId, autoAcceptMember, autoAcceptPeace);
         }
 
-        void SendChangeAutoAccept(long factionId, long playerId, bool autoAcceptMember, bool autoAcceptPeace)
+        [Event, Reliable, Server]
+        static void ChangeAutoAcceptRequest(long factionId, long playerId, bool autoAcceptMember, bool autoAcceptPeace)
         {
-            var msg        = new ChangeAutoAcceptMsg();
-            msg.FactionId  = factionId;
-            msg.PlayerId   = playerId;
-            msg.AutoAcceptMember = autoAcceptMember;
-            msg.AutoAcceptPeace  = autoAcceptPeace;
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-        }
+            var faction = MySession.Static.Factions.TryGetFactionById(factionId);
 
-        static void ChangeAutoAcceptRequest(ref ChangeAutoAcceptMsg msg, MyNetworkClient sender)
-        {
-            var faction = MySession.Static.Factions.TryGetFactionById(msg.FactionId);
-
-            if (faction != null && faction.IsLeader(msg.PlayerId))
+            if (faction != null && faction.IsLeader(playerId))
             {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.ChangeAutoAcceptSuccess, factionId, autoAcceptMember, autoAcceptPeace);
             }
         }
 
-        static void ChangeAutoAcceptSuccess(ref ChangeAutoAcceptMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server, Broadcast]
+        static void ChangeAutoAcceptSuccess(long factionId, bool autoAcceptMember, bool autoAcceptPeace)
         {
-            MySession.Static.Factions[msg.FactionId].AutoAcceptMember = msg.AutoAcceptMember;
-            MySession.Static.Factions[msg.FactionId].AutoAcceptPeace  = msg.AutoAcceptPeace;
+            MySession.Static.Factions[factionId].AutoAcceptMember = autoAcceptMember;
+            MySession.Static.Factions[factionId].AutoAcceptPeace = autoAcceptPeace;
 
             var handler = MySession.Static.Factions.FactionAutoAcceptChanged;
 
             if (handler != null)
-                handler(msg.FactionId, msg.AutoAcceptMember, msg.AutoAcceptPeace);
+                handler(factionId, autoAcceptMember, autoAcceptPeace);
         }
 
         #endregion
@@ -761,53 +708,40 @@ namespace Sandbox.Game.Multiplayer
 
         public void EditFaction(long factionId, string tag, string name, string desc, string privateInfo)
         {
-            SendEditFaction(factionId, tag, name, desc, privateInfo);
+            MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.EditFactionRequest, factionId, tag, name, desc, privateInfo);
         }
 
-        void SendEditFaction(long factionId, string factionTag, string factionName, string factionDesc, string factionPrivate)
+        [Event, Reliable, Server]
+        static void EditFactionRequest(long factionId, string tag, string name, [Serialize(MyObjectFlags.Nullable)]string desc, string privateInfo)
         {
-            var msg                = new EditFactionMsg();
-            msg.FactionId          = factionId;
-            msg.FactionTag         = factionTag;
-            msg.FactionName        = factionName;
-            msg.FactionDescription = factionDesc;
-            msg.FactionPrivateInfo = factionPrivate;
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
-        }
+            var faction = MySession.Static.Factions.TryGetFactionById(factionId);
 
-        static void EditFactionRequest(ref EditFactionMsg msg, MyNetworkClient sender)
-        {
-            var faction = MySession.Static.Factions.TryGetFactionById(msg.FactionId);
-
-            if (faction != null && !MySession.Static.Factions.FactionTagExists(msg.FactionTag, faction) && !MySession.Static.Factions.FactionNameExists(msg.FactionName, faction))
+            if (faction != null && !MySession.Static.Factions.FactionTagExists(tag, faction) && !MySession.Static.Factions.FactionNameExists(name, faction))
             {
-                Sync.Layer.SendMessageToAllAndSelf(ref msg, MyTransportMessageEnum.Success);
+                MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.EditFactionSuccess, factionId, tag, name, desc, privateInfo);
             }
-            /*else
-            {
-                Sync.Layer.SendMessage(ref msg, SteamSDK.sender.SteamUserId, MyTransportMessageEnum.Failure);
-            }*/
         }
 
-        static void EditFactionSuccess(ref EditFactionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server, Broadcast]
+        static void EditFactionSuccess(long factionId, string tag, string name, [Serialize(MyObjectFlags.Nullable)]string desc, string privateInfo)
         {
-            var faction = MySession.Static.Factions.TryGetFactionById(msg.FactionId) as MyFaction;
+            var faction = MySession.Static.Factions.TryGetFactionById(factionId) as MyFaction;
             Debug.Assert(faction != null, "Editing a non-existent faction!");
             if (faction == null) return;
 
             MySession.Static.Factions.UnregisterFactionTag(faction);
 
-            faction.Tag = msg.FactionTag;
-            faction.Name = msg.FactionName;
-            faction.Description = msg.FactionDescription;
-            faction.PrivateInfo = msg.FactionPrivateInfo;
+            faction.Tag = tag;
+            faction.Name = name;
+            faction.Description = desc;
+            faction.PrivateInfo = privateInfo;
 
             MySession.Static.Factions.RegisterFactionTag(faction);
 
             var handler = MySession.Static.Factions.FactionEdited;
 
             if (handler != null)
-                handler(msg.FactionId);
+                handler(factionId);
         }
 
         #endregion
@@ -835,10 +769,12 @@ namespace Sandbox.Game.Multiplayer
             msg.FactionName        = factionName;
             msg.FactionDescription = factionDesc;
             msg.FactionPrivateInfo = factionPrivate;
-            Sync.Layer.SendMessageToServer(ref msg, MyTransportMessageEnum.Request);
+
+            MyMultiplayer.RaiseStaticEvent(s => MyFactionCollection.CreateFactionRequest, msg);
         }
 
-        static void CreateFactionRequest(ref AddFactionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Server]
+        static void CreateFactionRequest(AddFactionMsg msg)
         {
             CreateFactionServer(msg.FounderId, msg.FactionTag, msg.FactionName, msg.FactionDescription, msg.FactionPrivateInfo);
         }
@@ -884,7 +820,7 @@ namespace Sandbox.Game.Multiplayer
                 newMsg.FactionPrivateInfo = privateInfo;
                 newMsg.CreateFromDefinition = createFromDef;
 
-                Sync.Layer.SendMessageToAll(ref newMsg, MyTransportMessageEnum.Success);
+                MyMultiplayer.RaiseStaticEvent(x => CreateFactionSuccess, newMsg);
 
                 // Call myself.
                 SetDefaultFactionStates(factionId);
@@ -894,7 +830,8 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        static void CreateFactionSuccess(ref AddFactionMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Broadcast]
+        static void CreateFactionSuccess(AddFactionMsg msg)
         {
             if (msg.CreateFromDefinition)
             {

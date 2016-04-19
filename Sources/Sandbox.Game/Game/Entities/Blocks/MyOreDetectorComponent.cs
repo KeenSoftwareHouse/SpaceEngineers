@@ -346,7 +346,7 @@ namespace Sandbox.Game.Entities.Cube
             get { return WorkPriority.VeryLow; }
         }
 
-        void IWork.DoWork()
+        void IWork.DoWork(WorkData workData = null)
         {
             ProfilerShort.Begin("MyDepositQuery.DoWork");
             try

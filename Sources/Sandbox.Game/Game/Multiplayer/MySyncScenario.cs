@@ -11,82 +11,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Network;
 
 namespace Sandbox.Game.Multiplayer
 {
+    [StaticEventOwner]
     [PreloadRequired]
     public static class MySyncScenario
     {
-        [MessageId(5400, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct  PrepareScenarioFromLobbyMsg
-        {
-            [ProtoMember]
-            public ulong ServerPlayerSteamId;
-            [ProtoMember]
-            public long ServerPlayerIdentityId;
-            [ProtoMember]
-            public long PreparationStartTime;
-        }
-
-        [MessageId(5401, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct PlayerReadyToStartScenarioMsg
-        {
-            [ProtoMember]
-            public ulong PlayerSteamId;
-        }
-
-        [MessageId(5402, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct StartScenarioMsg
-        {
-            [ProtoMember]
-            public ulong ServerPlayerSteamId;
-            [ProtoMember]
-            public long ServerPlayerIdentityId;
-            [ProtoMember]
-            public long GameStartTime;
-
-        }
-
-        [MessageId(5403, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct SetTimeoutMsg
-        {
-            [ProtoMember]
-            public int Index;
-
-        }
-
-        [MessageId(5404, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AskInfoMsg
-        {
-            [ProtoMember]
-            public byte dummy;
-        }
-
-        [MessageId(5405, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct AnswerInfoMsg
-        {
-            [ProtoMember]
-            public bool IsRunning;
-
-            [ProtoMember]
-            public bool CanJoin;
-
-        }
-
-        [MessageId(5406, P2PMessageEnum.Reliable)]
-        [ProtoContract]
-        struct SetJoinRunningMsg
-        {
-            [ProtoMember]
-            public bool CanJoin;
-        }
-
         internal static event Action<bool, bool> InfoAnswer;
         internal static event Action<long> PrepareScenario;
         internal static event Action<ulong> PlayerReadyToStartScenario;
@@ -95,47 +27,50 @@ namespace Sandbox.Game.Multiplayer
         internal static event Action<int> TimeoutReceived;
         internal static event Action<bool> CanJoinRunningReceived;
         //internal static event Action<long, int> EndScenario;
-        
-        static MySyncScenario()
-        {
-            MySyncLayer.RegisterMessage<AskInfoMsg>(OnAskInfo, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<AnswerInfoMsg>(OnAnswerInfo, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-
-            MySyncLayer.RegisterMessage<PrepareScenarioFromLobbyMsg>(OnPrepareScenarioFromLobby, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<PlayerReadyToStartScenarioMsg>(OnPlayerReadyToStartScenario, MyMessagePermissions.ToServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<PlayerReadyToStartScenarioMsg>(OnPlayerReadyToStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Success);
-            MySyncLayer.RegisterMessage<StartScenarioMsg>(OnStartScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            //MySyncLayer.RegisterMessage<EndScenarioMsg>(OnEndScenario, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<SetTimeoutMsg>(OnSetTimeout, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-            MySyncLayer.RegisterMessage<SetJoinRunningMsg>(OnSetJoinRunning, MyMessagePermissions.FromServer, MyTransportMessageEnum.Request);
-        }
 
         //client connected, asks for latest info (like if the game is already running and gui should be used accordingly)
         internal static void AskInfo()
         {
-            var msg = new AskInfoMsg();
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnAskInfo);
         }
-        private static void OnAskInfo(ref AskInfoMsg msg, MyNetworkClient sender)
+
+        [Event, Reliable, Server]
+        private static void OnAskInfo()
         {
-            var answer = new AnswerInfoMsg();
-            answer.IsRunning = MyMultiplayer.Static.ScenarioStartTime > DateTime.MinValue;
-            answer.CanJoin = !answer.IsRunning || MySession.Static.Settings.CanJoinRunning;
-            Sync.Layer.SendMessage(ref answer, sender.SteamUserId);
+            EndpointId sender;
+            if (MyEventContext.Current.IsLocallyInvoked)
+                sender = new EndpointId(Sync.MyId);
+            else
+                sender = MyEventContext.Current.Sender;
 
-            var timeoutMsg = new SetTimeoutMsg();
-            timeoutMsg.Index = (int)MyGuiScreenScenarioMpBase.Static.TimeoutCombo.GetSelectedIndex();
-            Sync.Layer.SendMessage(ref timeoutMsg, sender.SteamUserId);
+            bool isRunning = MyMultiplayer.Static.ScenarioStartTime > DateTime.MinValue;
+            bool canJoin = !isRunning || MySession.Static.Settings.CanJoinRunning;
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnAnswerInfo, isRunning, canJoin, sender);
 
-            var outMsg = new SetJoinRunningMsg();
-            outMsg.CanJoin = MySession.Static.Settings.CanJoinRunning;
-            Sync.Layer.SendMessage(ref outMsg, sender.SteamUserId);
+            int index = (int)MyGuiScreenScenarioMpBase.Static.TimeoutCombo.GetSelectedIndex();
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnSetTimeoutClient, index, sender);
+
+            bool canJoinRunning = MySession.Static.Settings.CanJoinRunning;
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnSetJoinRunningClient, canJoinRunning, sender);
         }
 
-        private static void OnAnswerInfo(ref AnswerInfoMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnAnswerInfo(bool isRunning, bool canJoin)
         {
             if (InfoAnswer != null)
-                InfoAnswer(msg.IsRunning, msg.CanJoin);
+                InfoAnswer(isRunning, canJoin);
+        }
+
+        [Event, Reliable, Client]
+        private static void OnSetTimeoutClient(int index)
+        {
+            OnSetTimeout(index);
+        }
+
+        [Event, Reliable, Client]
+        private static void OnSetJoinRunningClient(bool canJoin)
+        {
+            OnSetJoinRunning(canJoin);
         }
 
         /// <summary>
@@ -148,23 +83,15 @@ namespace Sandbox.Game.Multiplayer
             if (!Sync.IsServer)
                 return;
 
-            var msg = new PrepareScenarioFromLobbyMsg();
-            msg.ServerPlayerSteamId = Sync.MyId;
-            msg.ServerPlayerIdentityId = MySession.Static.LocalPlayerId;
-            msg.PreparationStartTime = preparationStartTime;
-
-            Sync.Layer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnPrepareScenarioFromLobby, preparationStartTime);
         }
 
-        private static void OnPrepareScenarioFromLobby(ref PrepareScenarioFromLobbyMsg msg, MyNetworkClient sender)
-        {
-            Debug.Assert(!Sync.IsServer);
-            OnPrepareScenarioFromLobby(msg.PreparationStartTime);
-        }
+        [Event, Reliable, Broadcast]
         public static void OnPrepareScenarioFromLobby(long PrepStartTime)
         {
             if (PrepareScenario != null)
                 PrepareScenario(PrepStartTime);
+
             MyJoinGameHelper.DownloadScenarioWorld(MyMultiplayer.Static);
             MyGuiScreenLoadSandbox.ScenarioWorldLoaded += MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
         }                    
@@ -175,24 +102,20 @@ namespace Sandbox.Game.Multiplayer
 
             MyGuiScreenLoadSandbox.ScenarioWorldLoaded -= MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
 
-            var msg = new PlayerReadyToStartScenarioMsg();
-            msg.PlayerSteamId = Sync.MyId;
-
-            Sync.Layer.SendMessageToServer(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnPlayerReadyToStartScenario, Sync.MyId);
 
             if (ClientWorldLoaded != null)
                 ClientWorldLoaded();
         }
 
-        private static void OnPlayerReadyToStartScenario(ref PlayerReadyToStartScenarioMsg msg, MyNetworkClient sender)
+        // NOTE: Before the converstion to new MP events, at rev 68662, the code was really
+        // confusing. By static analysis and verify on specifc behavior with debugging, this
+        // is really a server only event and *not* client/broadcast
+        [Event, Reliable, Server]
+        private static void OnPlayerReadyToStartScenario(ulong playerSteamId)
         {
-            Debug.Assert(Sync.IsServer);
-
             if (PlayerReadyToStartScenario != null)
-                PlayerReadyToStartScenario(msg.PlayerSteamId);
-
-            if (Sync.IsServer)
-                Sync.Layer.SendMessageToAll(ref msg);
+                PlayerReadyToStartScenario(playerSteamId);
         }
 
         //internal static void StartScenarioRequest()
@@ -213,53 +136,50 @@ namespace Sandbox.Game.Multiplayer
         {
             Debug.Assert(Sync.IsServer);
 
-            var msg = new StartScenarioMsg();
-            msg.ServerPlayerSteamId = Sync.MyId;
-            msg.ServerPlayerIdentityId = MySession.Static.LocalPlayerId;
-            msg.GameStartTime = gameStartTime;
-
-            Sync.Layer.SendMessage(ref msg, playerSteamId);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnStartScenario, gameStartTime, new EndpointId(playerSteamId));
         }
 
-        private static void OnStartScenario(ref StartScenarioMsg msg, MyNetworkClient sender)
+        [Event, Reliable, Client]
+        private static void OnStartScenario(long gameStartTime)
         {
-            Debug.Assert(!Sync.IsServer);
-
             if (StartScenario != null)
-                StartScenario(msg.GameStartTime);
+                StartScenario(gameStartTime);
         }
-
 
         public static void SetTimeout(int index)
         {
             Debug.Assert(Sync.IsServer);
-
-            var msg = new SetTimeoutMsg();
-            msg.Index=index;
-            Sync.Layer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnSetTimeoutBroadcast, index);
         }
-        private static void OnSetTimeout(ref SetTimeoutMsg msg, MyNetworkClient sender)
-        {
-            Debug.Assert(!Sync.IsServer);
 
+        [Event, Reliable, Broadcast]
+        private static void OnSetTimeoutBroadcast(int index)
+        {
+            OnSetTimeout(index);
+        }
+
+        private static void OnSetTimeout(int index)
+        {
             if (TimeoutReceived != null)
-                TimeoutReceived(msg.Index);
+                TimeoutReceived(index);
         }
 
         public static void SetJoinRunning(bool canJoin)
         {
             Debug.Assert(Sync.IsServer);
-
-            var msg = new SetJoinRunningMsg();
-            msg.CanJoin = canJoin;
-            Sync.Layer.SendMessageToAll(ref msg);
+            MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnSetJoinRunningBroadcast, canJoin);
         }
-        private static void OnSetJoinRunning(ref SetJoinRunningMsg msg, MyNetworkClient sender)
-        {
-            Debug.Assert(!Sync.IsServer);
 
+        [Event, Reliable, Broadcast]
+        private static void OnSetJoinRunningBroadcast(bool canJoin)
+        {
+            OnSetJoinRunning(canJoin);
+        }
+
+        private static void OnSetJoinRunning(bool canJoin)
+        {
             if (CanJoinRunningReceived != null)
-                CanJoinRunningReceived(msg.CanJoin);
+                CanJoinRunningReceived(canJoin);
         }
 
     }

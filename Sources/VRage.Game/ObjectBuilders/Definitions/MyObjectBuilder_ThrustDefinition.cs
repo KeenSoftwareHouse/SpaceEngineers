@@ -30,6 +30,9 @@ namespace VRage.Game
         public float SlowdownFactor = 10;
 
         [ProtoMember]
+        public string ThrusterType = "Ion";
+
+        [ProtoMember]
         public float ForceMagnitude;
 
         [ProtoMember]

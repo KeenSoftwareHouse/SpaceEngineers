@@ -80,7 +80,7 @@ namespace VRageRender
                 MyImmediateRC.RC.DeviceContext.ClearDepthStencilView(m_cubemapDepth.SubresourceDsv(faceId), DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
                 MyImmediateRC.RC.DeviceContext.ClearRenderTargetView(workCubemap.SubresourceRtv(faceId), new Color4(0, 0, 0, 0));
 
-                var localViewProj = Matrix.CreateTranslation(MyEnvironment.CameraPosition - position) * PrepareLocalEnvironmentMatrix(Vector3.Zero, new Vector2I(CubeMapResolution, CubeMapResolution), faceId, 10000.0f);
+                var localViewProj = PrepareLocalEnvironmentMatrix(MyEnvironment.CameraPosition - position, new Vector2I(CubeMapResolution, CubeMapResolution), faceId, 10000.0f);
                 var viewProj = MatrixD.CreateTranslation(-position) * localViewProj;
 
                 cullQuery.AddForwardPass(ref localViewProj, ref viewProj, new MyViewport(0, 0, CubeMapResolution, CubeMapResolution), m_cubemapDepth.SubresourceDsv(faceId), workCubemap.SubresourceRtv(faceId));

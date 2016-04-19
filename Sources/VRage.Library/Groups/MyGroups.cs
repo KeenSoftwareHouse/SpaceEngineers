@@ -323,6 +323,10 @@ namespace VRage.Groups
                     foreach (var node in m_disconnectHelper)
                     {
                         // Remove from current group members
+                        if(node.m_group == null || node.m_group.m_members == null)
+                        {
+                            continue;
+                        }
                         bool removed = node.m_group.m_members.Remove(node);
                         Debug.Assert(removed, "Node is not in group members, inconsistency");
 

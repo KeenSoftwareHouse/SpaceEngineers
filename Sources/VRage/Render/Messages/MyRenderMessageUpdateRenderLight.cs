@@ -7,12 +7,13 @@ namespace VRageRender
     {
         public uint ID;
         public LightTypeEnum Type;
-        public Vector3D Position;
+        public Vector3D ReflectorPosition;
         public int ParentID;
-        public float Offset;
+        public float PointPositionOffset;
         public Color Color;
         public Color SpecularColor;
         public float Falloff;
+        public float GlossFactor;
         public float Range;
         public float Intensity;
         public bool LightOn;
@@ -25,6 +26,7 @@ namespace VRageRender
         public Color ReflectorColor;
         public float ReflectorRange;
         public float ReflectorFalloff;
+        public float ReflectorGlossFactor;
         public string ReflectorTexture;
         public float ShadowDistance;
         public bool CastShadows;

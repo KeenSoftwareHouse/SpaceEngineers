@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage.Animations;
-using VRage.Animations.AnimationNodes;
 using VRage.FileSystem;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Models;
@@ -17,6 +17,15 @@ namespace VRage.Game.Components
     // 
     public static class MyAnimationControllerComponentLoadFromDef
     {
+        private struct MyAnimationVirtualNodeData
+        {
+            public bool ExceptTarget;
+            public string AnyNodePrefix;
+        }
+        private class MyAnimationVirtualNodes
+        {
+            public readonly Dictionary<string, MyAnimationVirtualNodeData> NodesAny = new Dictionary<string, MyAnimationVirtualNodeData>();
+        }
         private static readonly char[] m_boneListSeparators = {' '};
 
         // Initialize this animation controller from given object builder.
@@ -57,16 +66,19 @@ namespace VRage.Game.Components
                     layer.BoneMaskStrIds.Clear();
                 }
                 layer.BoneMask = null; // this will build itself in animation controller when we know all character bones
-                result = InitLayerNodes(layer, objBuilderLayer.StateMachine, animControllerDefinition, thisController.Controller) && result;
-                layer.SetState(objBuilderLayer.InitialSMNode);
-                // todo: bone mask
+                MyAnimationVirtualNodes virtualNodes = new MyAnimationVirtualNodes();
+                result = InitLayerNodes(layer, objBuilderLayer.StateMachine, animControllerDefinition, thisController.Controller, layer.Name + "/", virtualNodes) && result;
+                layer.SetState(layer.Name + "/" + objBuilderLayer.InitialSMNode);
+                layer.SortTransitions();
             }
+            if (result)
+                thisController.MarkAsValid();
             return result;
         }
 
         // Initialize state machine of one layer.
-        private static bool InitLayerNodes(VRage.Animations.MyAnimationStateMachine layer, string stateMachineName, MyAnimationControllerDefinition animControllerDefinition,
-            VRage.Animations.MyAnimationController animationController, string currentNodeNamePrefix = "")
+        private static bool InitLayerNodes(MyAnimationStateMachine layer, string stateMachineName, MyAnimationControllerDefinition animControllerDefinition, 
+            MyAnimationController animationController, string currentNodeNamePrefix, MyAnimationVirtualNodes virtualNodes)
         {
             var objBuilderStateMachine = animControllerDefinition.StateMachines.FirstOrDefault(x => x.Name == stateMachineName);
             if (objBuilderStateMachine == null)
@@ -84,22 +96,44 @@ namespace VRage.Game.Components
                 if (objBuilderNode.StateMachineName != null)
                 {
                     // embedded state machine, copy its nodes
-                    if (!InitLayerNodes(layer, objBuilderNode.StateMachineName, animControllerDefinition, animationController, absoluteNodeName + "/"))
+                    if (!InitLayerNodes(layer, objBuilderNode.StateMachineName, animControllerDefinition, animationController, absoluteNodeName + "/", virtualNodes))
                         result = false;
                 }
                 else
                 {
-                    if (objBuilderNode.AnimationTree == null)
+                    var smNode = new VRage.Animations.MyAnimationStateMachineNode(absoluteNodeName);
+                    if (objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.PassThrough
+                        || objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.Any
+                        || objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.AnyExceptTarget)
                     {
-                        // no animation tree, just skip
-                        continue;
+                        smNode.PassThrough = true;
+                    }
+                    else
+                    {
+                        smNode.PassThrough = false;
                     }
 
-                    var smNode = new VRage.Animations.MyAnimationStateMachineNode(absoluteNodeName);
+                    if (objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.Any
+                        || objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.AnyExceptTarget)
+                    {
+                        virtualNodes.NodesAny.Add(absoluteNodeName, new MyAnimationVirtualNodeData()
+                        {
+                            AnyNodePrefix = currentNodeNamePrefix,
+                            ExceptTarget = (objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.AnyExceptTarget)
+                        });
+                    }
+
                     layer.AddNode(smNode);
 
-                    var smNodeAnimTree = InitNodeAnimationTree(objBuilderNode.AnimationTree.Child);
-                    smNode.RootAnimationNode = smNodeAnimTree;
+                    if (objBuilderNode.AnimationTree != null)
+                    {
+                        var smNodeAnimTree = InitNodeAnimationTree(objBuilderNode.AnimationTree.Child);
+                        smNode.RootAnimationNode = smNodeAnimTree;
+                    }
+                    else
+                    {
+                        smNode.RootAnimationNode = new MyAnimationTreeNodeDummy();
+                    }
                 }
             }
 
@@ -107,38 +141,67 @@ namespace VRage.Game.Components
             if (objBuilderStateMachine.Transitions != null)
             foreach (var objBuilderTransition in objBuilderStateMachine.Transitions)
             {
-                int conditionConjunctionIndex = 0;
-                do
+                string absoluteNameNodeFrom = currentNodeNamePrefix + objBuilderTransition.From;
+                string absoluteNameNodeTo = currentNodeNamePrefix + objBuilderTransition.To;
+
+                MyAnimationVirtualNodeData virtualNodeData;
+                if (virtualNodes.NodesAny.TryGetValue(absoluteNameNodeFrom, out virtualNodeData))
                 {
-                    // generate transition for each condition conjunction
-                    var transition = layer.AddTransition(objBuilderTransition.From, objBuilderTransition.To,
-                        new VRage.Animations.MyAnimationStateMachineTransition()) as
-                        VRage.Animations.MyAnimationStateMachineTransition;
-                    // if ok, fill in conditions
-                    if (transition != null)
+                    // nodes of type "any":
+                    // "any" node is source: we create transitions directly from all nodes
+                    // "any" node is target: we will use "any" node as pass through
+                    foreach (var nodeFromCandidate in layer.AllNodes)
                     {
-                        transition.Name = MyStringId.GetOrCompute(objBuilderTransition.Name);
-                        transition.TransitionTimeInSec = objBuilderTransition.TimeInSec;
-                        transition.Sync = objBuilderTransition.Sync;
-                        if (objBuilderTransition.Conditions != null &&
-                            objBuilderTransition.Conditions[conditionConjunctionIndex] != null)
+                        if (nodeFromCandidate.Key.StartsWith(virtualNodeData.AnyNodePrefix) // select nodes in the same SM
+                            && nodeFromCandidate.Key != absoluteNameNodeFrom)    // disallow from "any" to the same "any"
                         {
-                            var conjunctionOfConditions =
-                                objBuilderTransition.Conditions[conditionConjunctionIndex].Conditions;
-                            foreach (var objBuilderCondition in conjunctionOfConditions)
-                            {
-                                var condition = ParseOneCondition(animationController, objBuilderCondition);
-                                if (condition != null)
-                                    transition.Conditions.Add(condition);
-                            }
+                            // create transition if target is different from source or when we don't care about it
+                            if (!virtualNodeData.ExceptTarget || absoluteNameNodeTo != nodeFromCandidate.Key)
+                                CreateTransition(layer, animationController, nodeFromCandidate.Key, absoluteNameNodeTo, objBuilderTransition);
                         }
                     }
-                    conditionConjunctionIndex++;
-                } while (objBuilderTransition.Conditions != null &&
-                         conditionConjunctionIndex < objBuilderTransition.Conditions.Length);
+                }
+
+                CreateTransition(layer, animationController, absoluteNameNodeFrom, absoluteNameNodeTo, objBuilderTransition);
             }
 
             return result;
+        }
+
+        private static void CreateTransition(MyAnimationStateMachine layer, MyAnimationController animationController,
+            string absoluteNameNodeFrom, string absoluteNameNodeTo, MyObjectBuilder_AnimationSMTransition objBuilderTransition)
+        {
+            int conditionConjunctionIndex = 0;
+            do
+            {
+                // generate transition for each condition conjunction
+                var transition = layer.AddTransition(absoluteNameNodeFrom, absoluteNameNodeTo,
+                    new VRage.Animations.MyAnimationStateMachineTransition()) as
+                    VRage.Animations.MyAnimationStateMachineTransition;
+                // if ok, fill in conditions
+                if (transition != null)
+                {
+                    transition.Name =
+                        MyStringId.GetOrCompute(objBuilderTransition.Name != null ? objBuilderTransition.Name.ToLower() : null);
+                    transition.TransitionTimeInSec = objBuilderTransition.TimeInSec;
+                    transition.Sync = objBuilderTransition.Sync;
+                    transition.Priority = objBuilderTransition.Priority;
+                    if (objBuilderTransition.Conditions != null &&
+                        objBuilderTransition.Conditions[conditionConjunctionIndex] != null)
+                    {
+                        var conjunctionOfConditions =
+                            objBuilderTransition.Conditions[conditionConjunctionIndex].Conditions;
+                        foreach (var objBuilderCondition in conjunctionOfConditions)
+                        {
+                            var condition = ParseOneCondition(animationController, objBuilderCondition);
+                            if (condition != null)
+                                transition.Conditions.Add(condition);
+                        }
+                    }
+                }
+                conditionConjunctionIndex++;
+            } while (objBuilderTransition.Conditions != null &&
+                     conditionConjunctionIndex < objBuilderTransition.Conditions.Length);
         }
 
         // Convert one condition from object builder to in-game representation.
@@ -146,16 +209,13 @@ namespace VRage.Game.Components
             MyObjectBuilder_AnimationSMCondition objBuilderCondition)
         {
             MyCondition<float> condition;
-            if (objBuilderCondition.ValueLeft == null || objBuilderCondition.ValueRight == null)
-            {
-                Debug.Fail("Missing operand in transition condition.");
-                return null;
-            }
 
+            objBuilderCondition.ValueLeft = objBuilderCondition.ValueLeft != null ? objBuilderCondition.ValueLeft.ToLower() : "0";
+            objBuilderCondition.ValueRight = objBuilderCondition.ValueRight != null ? objBuilderCondition.ValueRight.ToLower() : "0";
             double lhs, rhs;
-            if (Double.TryParse(objBuilderCondition.ValueLeft, out lhs))
+            if (Double.TryParse(objBuilderCondition.ValueLeft, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out lhs))
             {
-                if (Double.TryParse(objBuilderCondition.ValueRight, out rhs))
+                if (Double.TryParse(objBuilderCondition.ValueRight, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rhs))
                 {
                     condition =
                         new VRage.Generics.StateMachine.MyCondition<float>(
@@ -174,7 +234,7 @@ namespace VRage.Game.Components
             }
             else
             {
-                if (Double.TryParse(objBuilderCondition.ValueRight, out rhs))
+                if (Double.TryParse(objBuilderCondition.ValueRight, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out rhs))
                 {
                     condition =
                         new VRage.Generics.StateMachine.MyCondition<float>(
@@ -195,17 +255,18 @@ namespace VRage.Game.Components
         }
 
         // Initialize animation tree of the state machine node.
-        private static VRage.Animations.MyAnimationTreeNode InitNodeAnimationTree(VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNode objBuilderNode)
+        private static MyAnimationTreeNode InitNodeAnimationTree(VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNode objBuilderNode)
         {
             // ------- tree node track -------
             var objBuilderNodeTrack = objBuilderNode as VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNodeTrack;
             if (objBuilderNodeTrack != null)
             {
-                var nodeTrack = new VRage.Animations.AnimationNodes.MyAnimationTreeNodeTrack();
-                MyModel modelAnimation = MyModels.GetModelOnlyAnimationData(objBuilderNodeTrack.PathToModel);
-                if (modelAnimation != null)
+                var nodeTrack = new MyAnimationTreeNodeTrack();
+                MyModel modelAnimation = objBuilderNodeTrack.PathToModel != null ? MyModels.GetModelOnlyAnimationData(objBuilderNodeTrack.PathToModel) : null;
+                if (modelAnimation != null && modelAnimation.Animations != null && modelAnimation.Animations.Clips != null && modelAnimation.Animations.Clips.Count > 0)
                 {
                     VRage.Animations.MyAnimationClip selectedClip = modelAnimation.Animations.Clips.FirstOrDefault(clipItem => clipItem.Name == objBuilderNodeTrack.AnimationName);
+                    selectedClip = selectedClip ?? modelAnimation.Animations.Clips[0]; // fallback
                     if (selectedClip == null)
                     {
                         Debug.Fail("File '" + objBuilderNodeTrack.PathToModel + "' does not contain animation clip '" 
@@ -222,7 +283,7 @@ namespace VRage.Game.Components
             var objBuilderNodeMix1D = objBuilderNode as MyObjectBuilder_AnimationTreeNodeMix1D;
             if (objBuilderNodeMix1D != null)
             {
-                var nodeMix1D = new VRage.Animations.AnimationNodes.MyAnimationTreeNodeMix1D();
+                var nodeMix1D = new MyAnimationTreeNodeMix1D();
                 if (objBuilderNodeMix1D.Children != null)
                 {
                     foreach (var mappingObjBuilder in objBuilderNodeMix1D.Children)
@@ -237,6 +298,11 @@ namespace VRage.Game.Components
                     nodeMix1D.ChildMappings.Sort((x, y) => x.ParamValueBinding.CompareTo(y.ParamValueBinding));
                 }
                 nodeMix1D.ParameterName = MyStringId.GetOrCompute(objBuilderNodeMix1D.ParameterName);
+                nodeMix1D.Circular = objBuilderNodeMix1D.Circular;
+                nodeMix1D.Sensitivity = objBuilderNodeMix1D.Sensitivity;
+                nodeMix1D.MaxChange = objBuilderNodeMix1D.MaxChange ?? float.PositiveInfinity;
+                if (nodeMix1D.MaxChange <= 0.0f)
+                    nodeMix1D.MaxChange = float.PositiveInfinity;
                 return nodeMix1D;
             }
             // ------ tree node add -----------------------

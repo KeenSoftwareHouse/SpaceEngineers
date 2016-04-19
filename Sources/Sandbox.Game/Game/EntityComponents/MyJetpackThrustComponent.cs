@@ -34,16 +34,12 @@ namespace Sandbox.Game.EntityComponents
             if (Character != null &&
                 Character.Physics != null &&
                 Jetpack.TurnedOn &&
-                (MySession.Static.LocalCharacter == Character || 
-                 MySession.Static.ControlledEntity == Character ||
-                 MySandboxGame.IsDedicated ||
-                (MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Entity && (MySector.MainCamera.IsInFrustum(Character.PositionComp.WorldAABB) ||
-                (Character.PositionComp.GetPosition() - MySector.MainCamera.Position).LengthSquared() < 100f))))
+                (!Character.ControllerInfo.IsRemotelyControlled() || Sync.IsServer))
             {
                 if (FinalThrust.LengthSquared() > 0.001f)
                 {
                     if (Character.Physics.IsInWorld)
-                    {
+                    {                
                         Character.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, FinalThrust, null, null);
 
                         if (MyPerGameSettings.EnableMultiplayerVelocityCompensation)
@@ -58,6 +54,7 @@ namespace Sandbox.Game.EntityComponents
                                 Character.Physics.LinearVelocity = velocity;
                             }
                         }
+                        
                     }
                 }
 
@@ -161,10 +158,11 @@ namespace Sandbox.Game.EntityComponents
         {
         }
 
-        override protected Vector3 ApplyThrustModifiers(ref MyDefinitionId fuelType, ref Vector3 thrust, ref Vector3 thrustOverride, MyResourceSinkComponentBase resourceSink)
+        protected override Vector3 ApplyThrustModifiers(ref MyDefinitionId fuelType, ref Vector3 thrust, ref Vector3 thrustOverride, MyResourceSinkComponentBase resourceSink)
         {
             thrust += thrustOverride;
-            if (MySession.Static.IsAdminModeEnabled == false || MySession.Static.LocalCharacter != Character)
+            if (Character.ControllerInfo.Controller == null || MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false || 
+                (MySession.Static.LocalCharacter != Character && Sync.IsServer == false))
             {
                 thrust *= resourceSink.SuppliedRatioByType(fuelType);
             }

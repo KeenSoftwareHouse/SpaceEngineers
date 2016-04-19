@@ -23,7 +23,6 @@ namespace Sandbox.Game.Replication
     {
         MyPropertySyncStateGroup m_propertySync;
         MyEntityInventoryStateGroup m_stateGroup;
-        HashSet<ulong> m_clientList;
 
         public MyInventory Inventory { get { return Instance; } }
         Action<MyEntity> m_destroyEntity;
@@ -63,21 +62,10 @@ namespace Sandbox.Game.Replication
 
         public override float GetPriority(MyClientInfo client)
         {
-            if (m_clientList == null)
-            {
-                m_clientList = new HashSet<ulong>();
-            }
-
-            if (m_clientList.Contains(client.EndpointId.Value))
-            {
-                return 1.0f;
-            }
-
             MyEntity owner = Inventory.Owner.GetTopMostParent();
             var parent = MyExternalReplicable.FindByObject(owner);
-            if (parent != null && client.HasReplicable(parent))
+            if (parent != null && client.HasReplicable(parent) && parent.GetPriority(client) > 0.0f)
             {
-                m_clientList.Add(client.EndpointId.Value);
                 return 1.0f;
             }
 

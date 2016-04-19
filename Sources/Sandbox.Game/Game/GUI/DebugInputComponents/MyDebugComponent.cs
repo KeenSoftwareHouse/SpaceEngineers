@@ -12,7 +12,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
-    public abstract class MyDebugComponent : IMyNamedComponent
+    public abstract class MyDebugComponent
     {
         #region Nested classes
 
@@ -143,7 +143,6 @@ namespace Sandbox.Game.Gui
         }
 
         #endregion
-
 
         #region Text Rendering
 

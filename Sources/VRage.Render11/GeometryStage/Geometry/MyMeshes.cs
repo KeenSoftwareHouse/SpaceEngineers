@@ -12,6 +12,7 @@ using VRageMath;
 using VRageMath.PackedVector;
 using VRageRender.Vertex;
 using VRage.FileSystem;
+using SharpDX.Direct3D11;
 
 namespace VRageRender
 {
@@ -296,6 +297,7 @@ namespace VRageRender
         internal int BaseVertex;
         internal int PartIndex;
         internal int PartSubmeshIndex;
+        internal MyMeshMaterialId Material;
     }
 
     struct MyLodMeshInfo
@@ -545,6 +547,12 @@ namespace VRageRender
         static HashSet<MeshId>[] State;
 
         internal static VertexLayoutId VoxelLayout = VertexLayoutId.NULL;
+
+        // Helpers to reduce allocations
+        static MyVertexFormatVoxel[] m_tmpVertices0;
+        static MyVertexFormatNormal[] m_tmpVertices1;
+        static uint[] m_tmpIndices;
+        static ushort[] m_tmpShortIndices;
 
         internal static void Init()
         {
@@ -1118,6 +1126,7 @@ namespace VRageRender
                         }
                     }
 
+                    Debug.Assert(baseVertex <= int.MaxValue);
                     parts[partIndex] = new MyMeshPartInfo1
                     {
                         IndexCount = indexCount,
@@ -1142,103 +1151,85 @@ namespace VRageRender
 
                 lodMeshInfo.IndicesNum = indices.Count;
 
-                // indices
+                // Create and fill index buffers
                 if (maxIndex <= ushort.MaxValue)
                 {
-                    var indices16 = new ushort[indices.Count];
-                    for (int i = 0; i < indices.Count; i++)
+                    MyArrayHelpers.InitOrReserveNoCopy(ref m_tmpShortIndices, lodMeshInfo.IndicesNum);
+                    uint[] sourceData = indices.GetInternalArray();
+
+                    fixed(uint* sourcePointer = sourceData)
                     {
-                        indices16[i] = (ushort)indices[i];
+                        fixed(void* destinationPointer = m_tmpShortIndices)
+                        {
+                            CopyIndices(sourcePointer, destinationPointer, 0, 0, sizeof(ushort), (uint)lodMeshInfo.IndicesNum);
+                        }
                     }
 
-                    //for (int i = 0; i < indices.Count; i+=3)
-                    //{
-                    //    indices16[i + 1] = (ushort)indices[i + 2];
-                    //    indices16[i + 2] = (ushort)indices[i + 1];
-                    //}
-
-
-                    FillIndex16Data(ref rawData, indices16);
+                    FillIndexData(ref rawData, m_tmpShortIndices, lodMeshInfo.IndicesNum);
                 }
                 else
                 {
-                    var indices32 = indices.ToArray();
-
-                    rawData.IndicesFmt = Format.R32_UInt;
-                    var byteSize = indices.Count * FormatHelper.SizeOfInBytes(rawData.IndicesFmt);
-                    rawData.Indices = new byte[byteSize];
-
-                    fixed (void* dst = rawData.Indices)
-                    {
-                        fixed (void* src = indices32)
-                        {
-                            SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                        }
-                    }
+                    FillIndexData(ref rawData, indices.GetInternalArray(), lodMeshInfo.IndicesNum);
                 }
 
-                var vertexComponents = new List<MyVertexInputComponent>();
+                int numComponents = 0;
+                if (!isAnimated) numComponents += 1; else numComponents += 3;
+                if (validStreams) numComponents += 3;
+                var vertexComponents = new List<MyVertexInputComponent>(numComponents);
 
                 // stream 0
                 if (!isAnimated)
                 {
-                    var vertices = new MyVertexFormatPositionH4[verticesNum];
-                    for (int i = 0; i < verticesNum; i++)
-                    {
-                        vertices[i] = new MyVertexFormatPositionH4(positions[i]);
-                    }
-
-                    FillStream0Data(ref rawData, vertices);
+                    Debug.Assert(sizeof(HalfVector4) == sizeof(MyVertexFormatPositionH4));                    
+                    FillStream0Data(ref rawData, positions, verticesNum);
 
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.POSITION_PACKED));
                 }
                 else
                 {
                     var vertices = new MyVertexFormatPositionSkinning[verticesNum];
-                    for (int i = 0; i < verticesNum; i++)
+                    fixed(MyVertexFormatPositionSkinning* destinationPointer = vertices)
                     {
-                        vertices[i] = new MyVertexFormatPositionSkinning(
-                            positions[i],
-                            new Byte4(boneIndices[i].X, boneIndices[i].Y, boneIndices[i].Z, boneIndices[i].W),
-                            boneWeights[i]);
-                    }
-
-                    rawData.Stride0 = sizeof(MyVertexFormatPositionSkinning);
-                    var byteSize = rawData.Stride0 * verticesNum;
-                    rawData.VertexStream0 = new byte[byteSize];
-
-                    fixed (void* dst = rawData.VertexStream0)
-                    {
-                        fixed (void* src = vertices)
+                        for(int vertexIndex = 0; vertexIndex < verticesNum; ++vertexIndex)
                         {
-                            SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
+                            destinationPointer[vertexIndex].Position = positions[vertexIndex];
+                            destinationPointer[vertexIndex].BoneIndices = new Byte4(boneIndices[vertexIndex].X, boneIndices[vertexIndex].Y, boneIndices[vertexIndex].Z, boneIndices[vertexIndex].W);
+                            destinationPointer[vertexIndex].BoneWeights = new HalfVector4(boneWeights[vertexIndex]);
                         }
                     }
 
+                    FillStream0Data(ref rawData, vertices, verticesNum);
 
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.POSITION_PACKED));
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.BLEND_WEIGHTS));
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.BLEND_INDICES));
                 }
 
-
                 // stream 1
                 if (validStreams)
                 {
                     var vertices = new MyVertexFormatTexcoordNormalTangent[verticesNum];
-                    for (int i = 0; i < verticesNum; i++)
+                    fixed (MyVertexFormatTexcoordNormalTangent* destinationPointer = vertices)
                     {
-                        vertices[i] = new MyVertexFormatTexcoordNormalTangent(texcoords[i], normals[i], storedTangents[i]);
+                        for (int vertexIndex = 0; vertexIndex < verticesNum; ++vertexIndex)
+                        {
+                            destinationPointer[vertexIndex].Normal = normals[vertexIndex];
+                            destinationPointer[vertexIndex].Tangent = storedTangents[vertexIndex];
+                            destinationPointer[vertexIndex].Texcoord = texcoords[vertexIndex];
+                        }
                     }
 
-                    FillStream1Data(ref rawData, vertices);
+                    FillStream1Data(ref rawData, vertices, vertices.Length);
 
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.NORMAL, 1));
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT, 1));
                     vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXCOORD0_H, 1));
                 }
 
-                rawData.VertexLayout = MyVertexLayouts.GetLayout(vertexComponents.ToArray());
+                Debug.Assert(vertexComponents.Count == vertexComponents.Capacity);
+                vertexComponents.Capacity = vertexComponents.Count;
+
+                rawData.VertexLayout = MyVertexLayouts.GetLayout(vertexComponents.GetInternalArray());
 
                 #endregion
 
@@ -1265,13 +1256,15 @@ namespace VRageRender
                     foreach (MyMeshSectionMeshInfo mesh in section.Meshes)
                     {
                         int partIndex = matsIndices[mesh.MaterialName];
+                        var matId = MyMeshMaterials1.GetMaterialId(mesh.MaterialName);
                         meshes[meshesIndex] = new MyMeshSectionPartInfo1()
                         {
                             IndexCount = mesh.IndexCount,
                             StartIndex = mesh.StartIndex + parts[partIndex].StartIndex,
                             BaseVertex = parts[partIndex].BaseVertex,
                             PartIndex = partIndex,
-                            PartSubmeshIndex = sectionSubmeshes[partIndex]
+                            PartSubmeshIndex = sectionSubmeshes[partIndex],
+                            Material = matId
                         };
 
                         sectionSubmeshes[partIndex]++;
@@ -1379,19 +1372,28 @@ namespace VRageRender
 
             var lodMeshId = LodMeshIndex[new MyLodMesh { Mesh = mesh, Lod = 0 }];
 
-            FillIndex16Data(ref LodMeshInfos.Data[lodMeshId.Index].Data, indices);
-            FillStream0Data(ref LodMeshInfos.Data[lodMeshId.Index].Data, stream0);
-            FillStream1Data(ref LodMeshInfos.Data[lodMeshId.Index].Data, stream1);
+            Debug.Assert(stream0.LongLength == stream1.LongLength);
+            long vertexCount = stream0.LongLength;
+            long indexCount = indices.LongLength;
+
+            Debug.Assert(vertexCount <= int.MaxValue && indexCount <= int.MaxValue);
+
+            FillIndexData(ref LodMeshInfos.Data[lodMeshId.Index].Data, indices, (int)indexCount);
+            FillStream0Data(ref LodMeshInfos.Data[lodMeshId.Index].Data, stream0, (int)vertexCount);
+            FillStream1Data(ref LodMeshInfos.Data[lodMeshId.Index].Data, stream1, (int)vertexCount);
 
             LodMeshInfos.Data[lodMeshId.Index].BoundingBox = aabb;
 
-            var vertexComponents = new List<MyVertexInputComponent>();
+            const int vertexComponentCount = 4;
+            var vertexComponents = new List<MyVertexInputComponent>(vertexComponentCount);
             vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.POSITION_PACKED));
             vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.NORMAL, 1));
             vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT, 1));
             vertexComponents.Add(new MyVertexInputComponent(MyVertexInputComponentType.TEXCOORD0_H, 1));
 
-            LodMeshInfos.Data[lodMeshId.Index].Data.VertexLayout = MyVertexLayouts.GetLayout(vertexComponents.ToArray());
+            Debug.Assert(vertexComponents.Count == vertexComponents.Capacity);
+            vertexComponents.Capacity = vertexComponents.Count;
+            LodMeshInfos.Data[lodMeshId.Index].Data.VertexLayout = MyVertexLayouts.GetLayout(vertexComponents.GetInternalArray());
 
             for (int i = 0; i < sections.Length; i++)
             {
@@ -1401,8 +1403,8 @@ namespace VRageRender
                 Parts.Data[part.Index].Material = MyMeshMaterials1.GetMaterialId(sections[i].MaterialName);
             }
 
-            LodMeshInfos.Data[lodMeshId.Index].IndicesNum = indices.Length;
-            LodMeshInfos.Data[lodMeshId.Index].VerticesNum = stream0.Length;
+            LodMeshInfos.Data[lodMeshId.Index].IndicesNum = (int)indexCount;
+            LodMeshInfos.Data[lodMeshId.Index].VerticesNum = (int)vertexCount;
 
             //if (mesh.Info.Dynamic && LodMeshInfos.Data[lod.Index].VerticesNum)
             //{
@@ -1414,122 +1416,15 @@ namespace VRageRender
             }
         }
 
-        unsafe static void FillIndex16Data(ref MyMeshRawData rawData, ushort[] indices)
-        {
-            rawData.IndicesFmt = Format.R16_UInt;
-            var byteSize = indices.Length * FormatHelper.SizeOfInBytes(rawData.IndicesFmt);
-            Array.Resize(ref rawData.Indices, byteSize);
-
-            fixed (void* dst = rawData.Indices)
-            {
-                fixed (void* src = indices)
-                {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                }
-            }
-        }
-
-        unsafe static void FillIndex32Data(ref MyMeshRawData rawData, uint[] indices)
-        {
-            rawData.IndicesFmt = Format.R32_UInt;
-            var byteSize = indices.Length * FormatHelper.SizeOfInBytes(rawData.IndicesFmt);
-            Array.Resize(ref rawData.Indices, byteSize);
-
-            fixed (void* dst = rawData.Indices)
-            {
-                fixed (void* src = indices)
-                {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                }
-            }
-        }
-
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionH4[] vertices)
-        {
-            rawData.Stride0 = sizeof(MyVertexFormatPositionH4);
-            var byteSize = rawData.Stride0 * vertices.Length;
-            Array.Resize(ref rawData.VertexStream0, byteSize);
-
-            fixed (void* dst = rawData.VertexStream0)
-            {
-                fixed (void* src = vertices)
-                {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                }
-            }
-        }
-
-        unsafe static void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatTexcoordNormalTangent[] vertices)
-        {
-            rawData.Stride1 = sizeof(MyVertexFormatTexcoordNormalTangent);
-            var byteSize = rawData.Stride1 * vertices.Length;
-            Array.Resize(ref rawData.VertexStream1, byteSize);
-
-            fixed (void* dst = rawData.VertexStream1)
-            {
-                fixed (void* src = vertices)
-                {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                }
-            }
-        }
-
-        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatVoxel[] vertices)
-        {
-            rawData.Stride0 = sizeof(MyVertexFormatVoxel);
-            var byteSize = rawData.Stride0 * vertices.Length;
-            Array.Resize(ref rawData.VertexStream0, byteSize);
-
-            fixed (void* dst = rawData.VertexStream0)
-            {
-                fixed (void* src = vertices)
-                {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                }
-            }
-        }
-
-        unsafe static void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatNormal[] vertices)
-        {
-            rawData.Stride1 = sizeof(MyVertexFormatNormal);
-            var byteSize = rawData.Stride1 * vertices.Length;
-            Array.Resize(ref rawData.VertexStream1, byteSize);
-
-            fixed (void* dst = rawData.VertexStream1)
-            {
-                fixed (void* src = vertices)
-                {
-                    SharpDX.Utilities.CopyMemory(new IntPtr(dst), new IntPtr(src), byteSize);
-                }
-            }
-        }
-
         unsafe static void MoveData(LodMeshId lodMeshId)
         {
             var info = LodMeshInfos.Data[lodMeshId.Index];
             if (info.NullLodMesh)
                 return;
 
-            var data = LodMeshInfos.Data[lodMeshId.Index].Data;
-            var verticesNum = lodMeshId.Info.VerticesNum;
-
             DisposeLodMeshBuffers(lodMeshId);
 
-            fixed (void* ptr = data.VertexStream0)
-            {
-                LodMeshBuffers[lodMeshId.Index].VB0 = MyHwBuffers.CreateVertexBuffer(verticesNum, data.Stride0, new IntPtr(ptr), lodMeshId.Info.FileName + " vb 0");
-            }
-            if (data.Stride1 > 0)
-            {
-                fixed (void* ptr = data.VertexStream1)
-                {
-                    LodMeshBuffers[lodMeshId.Index].VB1 = MyHwBuffers.CreateVertexBuffer(verticesNum, data.Stride1, new IntPtr(ptr), lodMeshId.Info.FileName + " vb 1");
-                }
-            }
-            fixed (void* ptr = data.Indices)
-            {
-                LodMeshBuffers[lodMeshId.Index].IB = MyHwBuffers.CreateIndexBuffer(lodMeshId.Info.IndicesNum, data.IndicesFmt, new IntPtr(ptr), lodMeshId.Info.FileName + " ib");
-            }
+            MoveData(lodMeshId.Info.VerticesNum, lodMeshId.Info.IndicesNum, ref LodMeshInfos.Data[lodMeshId.Index].Data, ref LodMeshBuffers[lodMeshId.Index]);
         }
 
         unsafe static void MoveData(MyMergedLodMeshId mergedLodMeshId)
@@ -1538,25 +1433,26 @@ namespace VRageRender
             if (info.NullMesh)
                 return;
 
-            var data = MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data;
-            var verticesNum = mergedLodMeshId.Info.VerticesNum;
-
             DisposeMergedLodMeshBuffers(mergedLodMeshId);
+            MoveData(mergedLodMeshId.Info.VerticesNum, mergedLodMeshId.Info.IndicesNum, ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, ref MergedLodMeshBuffers[mergedLodMeshId.Index]);
+        }
 
-            fixed (void* ptr = data.VertexStream0)
+        unsafe static void MoveData(int vertexCount, int indexCount, ref MyMeshRawData rawData, ref MyMeshBuffers meshBuffer)
+        {
+            fixed (void* ptr = rawData.VertexStream0)
             {
-                MergedLodMeshBuffers[mergedLodMeshId.Index].VB0 = MyHwBuffers.CreateVertexBuffer(verticesNum, data.Stride0, new IntPtr(ptr), "Merged vb 0");
+                meshBuffer.VB0 = MyHwBuffers.CreateVertexBuffer(vertexCount, rawData.Stride0, BindFlags.VertexBuffer, ResourceUsage.Immutable, new IntPtr(ptr), "vb 0");
             }
-            if (data.Stride1 > 0)
+            if (rawData.Stride1 > 0)
             {
-                fixed (void* ptr = data.VertexStream1)
+                fixed (void* ptr = rawData.VertexStream1)
                 {
-                    MergedLodMeshBuffers[mergedLodMeshId.Index].VB1 = MyHwBuffers.CreateVertexBuffer(verticesNum, data.Stride1, new IntPtr(ptr), "Merged vb 1");
+                    meshBuffer.VB1 = MyHwBuffers.CreateVertexBuffer(vertexCount, rawData.Stride1, BindFlags.VertexBuffer, ResourceUsage.Immutable, new IntPtr(ptr), "vb 1");
                 }
             }
-            fixed (void* ptr = data.Indices)
+            fixed (void* ptr = rawData.Indices)
             {
-                MergedLodMeshBuffers[mergedLodMeshId.Index].IB = MyHwBuffers.CreateIndexBuffer(mergedLodMeshId.Info.IndicesNum, data.IndicesFmt, new IntPtr(ptr), "Merged ib");
+                meshBuffer.IB = MyHwBuffers.CreateIndexBuffer(indexCount, rawData.IndicesFmt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(ptr), "ib");
             }
         }
 
@@ -1579,9 +1475,7 @@ namespace VRageRender
             MyMergedLodMeshId mergedLodMesh = NewMergedLodMesh(meshId);
             MergedMeshVoxelInfo[mergedLodMesh] = info;
 
-            MergedLodMeshInfos.Data[mergedLodMesh.Index].Data.VertexLayout = MyVertexLayouts.GetLayout(
-                new MyVertexInputComponent(MyVertexInputComponentType.VOXEL_POSITION_MAT),
-                new MyVertexInputComponent(MyVertexInputComponentType.VOXEL_NORMAL, 1));
+            MergedLodMeshInfos.Data[mergedLodMesh.Index].Data.VertexLayout = VoxelLayout;
 
             return meshId;
         }
@@ -1602,35 +1496,59 @@ namespace VRageRender
 
         internal static bool UpdateMergedVoxelCell(MeshId mesh, ref MyClipmapCellMeshMetadata metadata, List<MyClipmapCellBatch> batches)
         {
+            ProfilerShort.Begin("MyMeshes.UpdateMergedVoxelCell");
             var mergedLodMesh = new MyMergedLodMesh { Mesh = mesh, Lod = 0 };
 
-            Debug.Assert(MergedLodMeshIndex.ContainsKey(mergedLodMesh), "Lod mesh not found!");
-
-            var mergedLodMeshId = MergedLodMeshIndex[mergedLodMesh];
+            MyMergedLodMeshId mergedLodMeshId;
+            if (!MergedLodMeshIndex.TryGetValue(mergedLodMesh, out mergedLodMeshId))
+            {
+                Debug.Fail("Merged lod mesh not found!");
+                ProfilerShort.End();
+                return false;
+            }
 
             // We'd immediately need to recalculate, don't bother
             if (mergedLodMeshId.Info.PendingLodMeshes.Count > 0)
+            {
+                ProfilerShort.End();
                 return false;
-
-            MyVertexFormatVoxel[] vertices0 = null;
-            MyVertexFormatNormal[] vertices1 = null;
-            uint[] indices = null;
-
-            ResizeVoxelParts(mesh, mergedLodMeshId, batches.Count);
-            CombineBatchesToParts(mesh, batches, out vertices0, out vertices1, out indices);
-
-            FillMeshRawData(ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, vertices0, vertices1, indices);
-
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].VerticesNum = vertices0.Length;
-            MergedLodMeshInfos.Data[mergedLodMeshId.Index].IndicesNum = indices.Length;
-
-            MoveData(mergedLodMeshId);
+            }
 
             MyVoxelCellInfo info = new MyVoxelCellInfo { Coord = metadata.Cell.CoordInLod, Lod = metadata.Cell.Lod };
-
             MeshVoxelInfo[mesh] = info;
             MergedMeshVoxelInfo[mergedLodMeshId] = info;
 
+            ResizeVoxelParts(mesh, mergedLodMeshId, batches.Count);
+
+            long vertexCount, indexCount;
+            CalculateRequiredBufferCapacities(batches, out vertexCount, out indexCount);
+
+            if (vertexCount <= ushort.MaxValue)
+            {
+                ProfilerShort.Begin("MyMeshes.CombineBatchesToParts");
+                CombineBatchesToParts(mesh, batches, ref m_tmpVertices0, ref m_tmpVertices1, ref m_tmpShortIndices, vertexCount, indexCount);
+                ProfilerShort.BeginNextBlock("MyMeshes.FillMeshRawData");
+                FillMeshRawData(ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, m_tmpVertices0, m_tmpVertices1, m_tmpShortIndices, (int)vertexCount, (int)indexCount);
+            }
+            else if (vertexCount <= uint.MaxValue)
+            {
+                ProfilerShort.Begin("MyMeshes.CombineBatchesToParts");
+                CombineBatchesToParts(mesh, batches, ref m_tmpVertices0, ref m_tmpVertices1, ref m_tmpIndices, vertexCount, indexCount);
+                ProfilerShort.BeginNextBlock("MyMeshes.FillMeshRawData");
+                FillMeshRawData(ref MergedLodMeshInfos.Data[mergedLodMeshId.Index].Data, m_tmpVertices0, m_tmpVertices1, m_tmpIndices, (int)vertexCount, (int)indexCount);
+            }
+            else
+                Debug.Fail("Index overflow");
+
+            MergedLodMeshInfos.Data[mergedLodMeshId.Index].VerticesNum = (int)vertexCount;
+            MergedLodMeshInfos.Data[mergedLodMeshId.Index].IndicesNum = (int)indexCount;
+
+            ProfilerShort.BeginNextBlock("MyMeshes.MoveData");
+            MoveData(mergedLodMeshId);
+            ProfilerShort.End();
+
+
+            ProfilerShort.End();
             return true;
         }
 
@@ -1654,9 +1572,7 @@ namespace VRageRender
             MyMeshPartInfo1[] partsInfo = new MyMeshPartInfo1[0];
             var lodId = StoreLodMeshWithParts(id, lod, ref lodInfo, ref partsInfo);
 
-            LodMeshInfos.Data[lodId.Index].Data.VertexLayout = MyVertexLayouts.GetLayout(
-                new MyVertexInputComponent(MyVertexInputComponentType.VOXEL_POSITION_MAT),
-                new MyVertexInputComponent(MyVertexInputComponentType.VOXEL_NORMAL, 1));
+            LodMeshInfos.Data[lodId.Index].Data.VertexLayout = VoxelLayout;
 
             return id;
         }
@@ -1665,128 +1581,207 @@ namespace VRageRender
         {
             var lodMesh = new MyLodMesh { Mesh = mesh, Lod = 0 };
 
-            Debug.Assert(LodMeshIndex.ContainsKey(lodMesh), "Lod mesh not found!");
-            if (!LodMeshIndex.ContainsKey(lodMesh)) return;
-            var lodMeshId = LodMeshIndex[lodMesh];
+            LodMeshId lodMeshId;
+            if (!LodMeshIndex.TryGetValue(lodMesh, out lodMeshId))
+            {
+                Debug.Fail("Lod mesh not found!");
+                return;
+            }
 
             ResizeVoxelParts(mesh, lodMeshId, batches.Count);
 
-            MyVertexFormatVoxel[] vertices0 = null;
-            MyVertexFormatNormal[] vertices1 = null;
-            ushort[] indices = null;
-            CombineBatchesToParts(mesh, batches, out vertices0, out vertices1, out indices);
+            long vertexCount, indexCount;
+            CalculateRequiredBufferCapacities(batches, out vertexCount, out indexCount);
+
+            if (vertexCount <= ushort.MaxValue)
+            {
+                CombineBatchesToParts(mesh, batches, ref m_tmpVertices0, ref m_tmpVertices1, ref m_tmpShortIndices, vertexCount, indexCount);
+                FillMeshRawData(ref LodMeshInfos.Data[lodMeshId.Index].Data, m_tmpVertices0, m_tmpVertices1, m_tmpShortIndices, (int)vertexCount, (int)indexCount);
+            }
+            else if (vertexCount <= int.MaxValue)
+            {
+                CombineBatchesToParts(mesh, batches, ref m_tmpVertices0, ref m_tmpVertices1, ref m_tmpIndices, vertexCount, indexCount);
+                FillMeshRawData(ref LodMeshInfos.Data[lodMeshId.Index].Data, m_tmpVertices0, m_tmpVertices1, m_tmpIndices, (int)vertexCount, (int)indexCount);
+            }
+            else
+                Debug.Fail("Index overflow");
+
+            LodMeshInfos.Data[lodMeshId.Index].VerticesNum = (int)vertexCount;
+            LodMeshInfos.Data[lodMeshId.Index].IndicesNum = (int)indexCount;
+            LodMeshInfos.Data[lodMeshId.Index].BatchMetadata = metadata;
 
             for (int batchIndex = 0; batchIndex < batches.Count; ++batchIndex)
                 LodMeshInfos.Data[lodMeshId.Index].DataBatches[batchIndex] = batches[batchIndex];
 
-            FillMeshRawData(ref LodMeshInfos.Data[lodMeshId.Index].Data, vertices0, vertices1, indices);
-
-            LodMeshInfos.Data[lodMeshId.Index].VerticesNum = vertices0.Length;
-            LodMeshInfos.Data[lodMeshId.Index].IndicesNum = indices.Length;
-            LodMeshInfos.Data[lodMeshId.Index].BatchMetadata = metadata;
-
             MoveData(lodMeshId);
         }
 
-        private static void CombineBatchesToParts(MeshId mesh, List<MyClipmapCellBatch> batches, out MyVertexFormatVoxel[] vertices0, out MyVertexFormatNormal[] vertices1, out ushort[] indices)
+        private static void CalculateRequiredBufferCapacities(List<MyClipmapCellBatch> batches, out long vertexCapacity, out long indexCapacity)
         {
-            int vertexCapacity = 0;
-            int indexCapacity = 0;
-            int batchesNum = batches.Count;
+            vertexCapacity = 0;
+            indexCapacity = 0;
 
-            for (int i = 0; i < batchesNum; i++)
+            for (int batchIndex = 0; batchIndex < batches.Count; ++batchIndex)
             {
-                indexCapacity += batches[i].Indices.Length;
-                vertexCapacity += batches[i].Vertices.Length;
+                vertexCapacity += batches[batchIndex].Vertices.Length;
+                indexCapacity += batches[batchIndex].Indices.Length;
             }
-            Debug.Assert(vertexCapacity <= ushort.MaxValue, "Index overflow");
-            indices = new ushort[indexCapacity];
-            vertices0 = new MyVertexFormatVoxel[vertexCapacity];
-            vertices1 = new MyVertexFormatNormal[vertexCapacity];
+        }
 
-            int startIndex = 0;
-            int baseVertex = 0;
+        private struct MyVertexCopyHelper
+        {
+            public ulong LowBits;
+            public ulong HighBits;
 
-            for (int batchIndex = 0; batchIndex < batchesNum; ++batchIndex)
+            public static MyVertexCopyHelper operator+(MyVertexCopyHelper left, MyVertexCopyHelper right)   // Don't care about overflows as they don't happen in our use case
             {
-                var key = new MyVoxelMaterialTriple(batches[batchIndex].Material0, batches[batchIndex].Material1, batches[batchIndex].Material2);
+                return new MyVertexCopyHelper { LowBits = left.LowBits + right.LowBits, HighBits = left.HighBits + right.HighBits };
+            }
+        }
 
-                var batchIndices = batches[batchIndex].Indices;
-                for (int indexIndex = 0; indexIndex < batchIndices.Length; ++indexIndex)
-                {
-                    indices[startIndex + indexIndex] = (ushort)(batchIndices[indexIndex] + baseVertex);
-                }
+        private unsafe static void CopyVertices(MyVertexFormatVoxelSingleData* sourcePointer, MyVertexFormatVoxel* destinationPointer0, MyVertexFormatNormal* destinationPointer1, uint elementsToCopy)
+        {
+            MyVertexFormatVoxel* currentDestination0 = destinationPointer0;
+            MyVertexFormatNormal* currentDestination1 = destinationPointer1;
+            
+            const ulong ValueToAdd = (((ulong)short.MaxValue) << 0) + (((ulong)short.MaxValue) << 16) + (((ulong)short.MaxValue) << 32);
+            MyVertexCopyHelper ValueToAdd128 = new MyVertexCopyHelper { LowBits = ValueToAdd, HighBits = ValueToAdd };
+            for (int batchVertexIndex = 0; batchVertexIndex < elementsToCopy; ++batchVertexIndex)
+            {
+                MyVertexFormatVoxelSingleData* batchVertex = sourcePointer + batchVertexIndex;
 
-                var batchVertices = batches[batchIndex].Vertices;
-                for (int vertexIndex = 0; vertexIndex < batchVertices.Length; ++vertexIndex)
-                {
-                    vertices0[baseVertex + vertexIndex] = new MyVertexFormatVoxel
+                *((MyVertexCopyHelper*)currentDestination0) = (*((MyVertexCopyHelper*)batchVertex) + ValueToAdd128);
+                *((ulong*)currentDestination1) = *((ulong*)batchVertex + 2);
+
+                //currentDestination0->Position = batchVertex->Position;
+                //currentDestination0->PositionMorph = batchVertex->PositionMorph;
+                //currentDestination0->m_positionMaterials.W = (ushort)batchVertex->PackedPositionAndAmbientMaterial.W;
+                //currentDestination0->m_positionMaterialsMorph.W = (ushort)batchVertex->PackedPositionAndAmbientMaterialMorph.W;
+
+                //currentDestination1->Normal = batchVertex->PackedNormal;
+                //currentDestination1->NormalMorph = batchVertex->PackedNormalMorph;
+
+                ++currentDestination0;
+                ++currentDestination1;
+            }
+        }
+
+        private unsafe static void CopyIndices(uint* sourcePointer, void* destinationPointer, int startIndex, int baseVertex, int destinationIndexStride, uint elementsToCopy)
+        {
+            switch (destinationIndexStride)
+            {
+                case 2:
+                    ushort* shortIndices = ((ushort*)destinationPointer)+startIndex;
+                    ushort* endIndexPointer = shortIndices + elementsToCopy;
+
+                    while (shortIndices <= endIndexPointer)
                     {
-                        Position = batchVertices[vertexIndex].Position,
-                        PositionMorph = batchVertices[vertexIndex].PositionMorph,
-                        m_positionMaterials = { W = (ushort)batchVertices[vertexIndex].PackedPositionAndAmbientMaterial.W },
-                        m_positionMaterialsMorph = { W = (ushort)batchVertices[vertexIndex].PackedPositionAndAmbientMaterialMorph.W }
-                    };
+                        *shortIndices = (ushort)(*(sourcePointer++) + baseVertex);
+                        ++shortIndices;
+                    }
+                    break;
 
-                    vertices1[baseVertex + vertexIndex] = new MyVertexFormatNormal(batchVertices[vertexIndex].PackedNormal, batchVertices[vertexIndex].PackedNormalMorph);
-                }
+                case 4:
+                    uint* intIndices = ((uint*)destinationPointer)+startIndex;
+                    uint* endIntIndexPointer = intIndices + elementsToCopy;
 
-                VoxelPartId id = VoxelPartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = batchIndex }];
-                VoxelParts.Data[id.Index] = new MyVoxelPartInfo1
+                    while (intIndices <= endIntIndexPointer)
+                    {
+                        *intIndices = (uint)(*(sourcePointer++) + baseVertex);
+                        ++intIndices;
+                    }
+
+                    //SharpDX.Utilities.CopyMemory(new IntPtr(intIndices), new IntPtr(sourcePointer), (int)(elementsToCopy * destinationIndexStride));
+                    break;
+
+                default:
+                    Debug.Fail("Incorrect parameter");
+                    break;
+            }
+        }
+
+        // ushort overload
+        private unsafe static void CombineBatchesToParts(
+            MeshId mesh,
+            List<MyClipmapCellBatch> batches,
+            ref MyVertexFormatVoxel[] vertices0,
+            ref MyVertexFormatNormal[] vertices1,
+            ref ushort[] indices,
+            long vertexCount,
+            long indexCount)
+        {
+            MyArrayHelpers.InitOrReserveNoCopy(ref vertices0, (int)vertexCount);
+            MyArrayHelpers.InitOrReserveNoCopy(ref vertices1, (int)vertexCount);
+            MyArrayHelpers.InitOrReserveNoCopy(ref indices, (int)indexCount);
+
+            fixed (MyVertexFormatVoxel* vertexPointer0 = vertices0)
+            {
+                fixed (MyVertexFormatNormal* vertexPointer1 = vertices1)
                 {
-                    IndexCount = batches[batchIndex].Indices.Length,
-                    StartIndex = startIndex,
-                    BaseVertex = 0,
-                    MaterialTriple = key
-                };
-
-                baseVertex += batchVertices.Length;
-                startIndex += batchIndices.Length;
+                    fixed (void* indexPointer = indices)
+                    {
+                        CombineBatchesToParts(mesh, batches, vertexPointer0, vertexPointer1, indexPointer, sizeof(ushort));
+                    }
+                }
             }
         }
 
         // uint overload
-        private static void CombineBatchesToParts(MeshId mesh, List<MyClipmapCellBatch> batches, out MyVertexFormatVoxel[] vertices0, out MyVertexFormatNormal[] vertices1, out uint[] indices)
+        private unsafe static void CombineBatchesToParts(
+            MeshId mesh,
+            List<MyClipmapCellBatch> batches,
+            ref MyVertexFormatVoxel[] vertices0,
+            ref MyVertexFormatNormal[] vertices1,
+            ref uint[] indices,
+            long vertexCount,
+            long indexCount)
         {
-            long vertexCapacity = 0;
-            long indexCapacity = 0;
-            int batchesNum = batches.Count;
+            MyArrayHelpers.InitOrReserveNoCopy(ref vertices0, (int)vertexCount);
+            MyArrayHelpers.InitOrReserveNoCopy(ref vertices1, (int)vertexCount);
+            MyArrayHelpers.InitOrReserveNoCopy(ref indices, (int)indexCount);
 
-            for (int i = 0; i < batchesNum; i++)
+            fixed (MyVertexFormatVoxel* vertexPointer0 = vertices0)
             {
-                indexCapacity += batches[i].Indices.Length;
-                vertexCapacity += batches[i].Vertices.Length;
+                fixed (MyVertexFormatNormal* vertexPointer1 = vertices1)
+                {
+                    fixed (void* indexPointer = indices)
+                    {
+                        CombineBatchesToParts(mesh, batches, vertexPointer0, vertexPointer1, indexPointer, sizeof(uint));
+                    }
+                }
             }
-            Debug.Assert(vertexCapacity <= uint.MaxValue, "Index overflow");
-            indices = new uint[indexCapacity];
-            vertices0 = new MyVertexFormatVoxel[vertexCapacity];
-            vertices1 = new MyVertexFormatNormal[vertexCapacity];
+        }
+
+        // Overload that does the actual work
+        private unsafe static void CombineBatchesToParts(
+            MeshId mesh,
+            List<MyClipmapCellBatch> batches,
+            MyVertexFormatVoxel* vertices0,
+            MyVertexFormatNormal* vertices1,
+            void* indices,
+            int indexStride)
+        {
+            int batchCount = batches.Count;
 
             int startIndex = 0;
             int baseVertex = 0;
 
-            for (int batchIndex = 0; batchIndex < batchesNum; ++batchIndex)
+            for (int batchIndex = 0; batchIndex < batchCount; ++batchIndex)
             {
-                var key = new MyVoxelMaterialTriple(batches[batchIndex].Material0, batches[batchIndex].Material1, batches[batchIndex].Material2);
-
+                var batchVertices = batches[batchIndex].Vertices;
                 var batchIndices = batches[batchIndex].Indices;
-                for (int indexIndex = 0; indexIndex < batchIndices.Length; ++indexIndex)
+                var batchMaterial = new MyVoxelMaterialTriple(batches[batchIndex].Material0, batches[batchIndex].Material1, batches[batchIndex].Material2);
+
+                fixed (MyVertexFormatVoxelSingleData* sourcePointer = batchVertices)
                 {
-                    indices[startIndex + indexIndex] = (uint)(batchIndices[indexIndex] + baseVertex);
+                    MyVertexFormatVoxel* destinationPointer0 = vertices0 + baseVertex;
+                    MyVertexFormatNormal* destinationPointer1 = vertices1 + baseVertex;
+                    CopyVertices(sourcePointer, destinationPointer0, destinationPointer1, (uint)batchVertices.LongLength);
                 }
 
-                var batchVertices = batches[batchIndex].Vertices;
-                for (int vertexIndex = 0; vertexIndex < batchVertices.Length; ++vertexIndex)
+                fixed (uint* batchIndexPointer = batchIndices)
                 {
-                    vertices0[baseVertex + vertexIndex] = new MyVertexFormatVoxel
-                    {
-                        Position = batchVertices[vertexIndex].Position,
-                        PositionMorph = batchVertices[vertexIndex].PositionMorph,
-                        m_positionMaterials = { W = (ushort)batchVertices[vertexIndex].PackedPositionAndAmbientMaterial.W },
-                        m_positionMaterialsMorph = { W = (ushort)batchVertices[vertexIndex].PackedPositionAndAmbientMaterialMorph.W }
-                    };
-
-                    vertices1[baseVertex + vertexIndex] = new MyVertexFormatNormal(batchVertices[vertexIndex].PackedNormal, batchVertices[vertexIndex].PackedNormalMorph);
+                    CopyIndices(batchIndexPointer, indices, startIndex, baseVertex, indexStride, (uint)batchIndices.LongLength);
                 }
 
                 VoxelPartId id = VoxelPartIndex[new MyMeshPart { Mesh = mesh, Lod = 0, Part = batchIndex }];
@@ -1795,13 +1790,14 @@ namespace VRageRender
                     IndexCount = batches[batchIndex].Indices.Length,
                     StartIndex = startIndex,
                     BaseVertex = 0,
-                    MaterialTriple = key
+                    MaterialTriple = batchMaterial
                 };
 
                 baseVertex += batchVertices.Length;
                 startIndex += batchIndices.Length;
             }
         }
+
 
         public static void UnloadVoxelCell(MeshId mesh)
         {
@@ -1828,40 +1824,116 @@ namespace VRageRender
             var verticesNum = lodMeshId.Info.VerticesNum;
 
             if (LodMeshBuffers[lodMeshId.Index].VB0 == VertexBufferId.NULL)
+                MoveData(verticesNum, lodMeshId.Info.IndicesNum, ref data, ref LodMeshBuffers[lodMeshId.Index]);
+        }
+
+        private static void FillMeshRawData(ref MyMeshRawData meshRawData, List<MyClipmapCellBatch> batches)
+        {
+            long vertexCount, indexCount;
+            CalculateRequiredBufferCapacities(batches, out vertexCount, out indexCount);
+            
+        }
+
+        private static void FillMeshRawData(ref MyMeshRawData meshRawData, MyVertexFormatVoxel[] vertices0, MyVertexFormatNormal[] vertices1, ushort[] indices, int vertexCapacity, int indexCapacity)
+        {
+            FillStream0Data(ref meshRawData, vertices0, vertexCapacity);
+            FillStream1Data(ref meshRawData, vertices1, vertexCapacity);
+            FillIndexData(ref meshRawData, indices, indexCapacity);
+        }
+
+        private static void FillMeshRawData(ref MyMeshRawData meshRawData, MyVertexFormatVoxel[] vertices0, MyVertexFormatNormal[] vertices1, uint[] indices, int vertexCapacity, int indexCapacity)
+        {
+            FillStream0Data(ref meshRawData, vertices0, vertexCapacity);
+            FillStream1Data(ref meshRawData, vertices1, vertexCapacity);
+            FillIndexData(ref meshRawData, indices, indexCapacity);
+        }
+
+        unsafe static void FillStreamData(ref byte[] destinationData, void* sourcePointer, int elementCount, int elementStride)
+        {
+            var byteSize = elementCount * elementStride;
+            MyArrayHelpers.ResizeNoCopy(ref destinationData, byteSize);
+            fixed (void* destinationPointer = destinationData)
             {
-                fixed (void* ptr = data.VertexStream0)
-                {
-                    LodMeshBuffers[lodMeshId.Index].VB0 = MyHwBuffers.CreateVertexBuffer(verticesNum, data.Stride0,
-                        new IntPtr(ptr), lodMeshId.Info.FileName + " vb 0");
-                }
-                if (data.Stride1 > 0)
-                {
-                    fixed (void* ptr = data.VertexStream1)
-                    {
-                        LodMeshBuffers[lodMeshId.Index].VB1 = MyHwBuffers.CreateVertexBuffer(verticesNum, data.Stride1,
-                            new IntPtr(ptr), lodMeshId.Info.FileName + " vb 1");
-                    }
-                }
-                fixed (void* ptr = data.Indices)
-                {
-                    LodMeshBuffers[lodMeshId.Index].IB = MyHwBuffers.CreateIndexBuffer(lodMeshId.Info.IndicesNum,
-                        data.IndicesFmt, new IntPtr(ptr), lodMeshId.Info.FileName + " ib");
-                }
+                SharpDX.Utilities.CopyMemory(new IntPtr(destinationPointer), new IntPtr(sourcePointer), byteSize);
             }
         }
 
-        private static void FillMeshRawData(ref MyMeshRawData meshRawData, MyVertexFormatVoxel[] vertices0, MyVertexFormatNormal[] vertices1, ushort[] indices)
+        unsafe static void FillStream0Data(ref MyMeshRawData rawData, void* sourcePointer, int vertexCount, int vertexStride)
         {
-            FillStream0Data(ref meshRawData, vertices0);
-            FillStream1Data(ref meshRawData, vertices1);
-            FillIndex16Data(ref meshRawData, indices);
+            rawData.Stride0 = vertexStride;
+            FillStreamData(ref rawData.VertexStream0, sourcePointer, vertexCount, vertexStride);
         }
 
-        private static void FillMeshRawData(ref MyMeshRawData meshRawData, MyVertexFormatVoxel[] vertices0, MyVertexFormatNormal[] vertices1, uint[] indices)
+        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionH4[] vertices, int vertexCount)
         {
-            FillStream0Data(ref meshRawData, vertices0);
-            FillStream1Data(ref meshRawData, vertices1);
-            FillIndex32Data(ref meshRawData, indices);
+            fixed (void* sourcePointer = vertices)
+            {
+                FillStream0Data(ref rawData, sourcePointer, vertexCount, MyVertexFormatPositionH4.STRIDE);
+            }
+        }
+
+        unsafe static void FillStream0Data(ref MyMeshRawData rawData, HalfVector4[] vertices, int vertexCount)
+        {
+            fixed (void* sourcePointer = vertices)
+            {
+                FillStream0Data(ref rawData, sourcePointer, vertexCount, sizeof(HalfVector4));
+            }
+        }
+
+        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatPositionSkinning[] vertices, int vertexCount)
+        {
+            fixed (void* sourcePointer = vertices)
+            {
+                FillStream0Data(ref rawData, sourcePointer, vertexCount, MyVertexFormatPositionSkinning.STRIDE);
+            }
+        }
+
+        unsafe static void FillStream0Data(ref MyMeshRawData rawData, MyVertexFormatVoxel[] vertices, int vertexCount)
+        {
+            fixed (void* sourcePointer = vertices)
+            {
+                FillStream0Data(ref rawData, sourcePointer, vertexCount, MyVertexFormatVoxel.STRIDE);
+            }
+        }
+
+        unsafe static void FillStream1Data(ref MyMeshRawData rawData, void* sourcePointer, int vertexCount, int vertexStride)
+        {
+            rawData.Stride1 = vertexStride;
+            FillStreamData(ref rawData.VertexStream1, sourcePointer, vertexCount, vertexStride);
+        }
+
+        unsafe static void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatTexcoordNormalTangent[] vertices, int vertexCount)
+        {
+            fixed (void* sourcePointer = vertices)
+            {
+                FillStream1Data(ref rawData, sourcePointer, vertexCount, MyVertexFormatTexcoordNormalTangent.STRIDE);
+            }
+        }
+
+        unsafe static void FillStream1Data(ref MyMeshRawData rawData, MyVertexFormatNormal[] vertices, int vertexCount)
+        {
+            fixed (void* sourcePointer = vertices)
+            {
+                FillStream1Data(ref rawData, sourcePointer, vertexCount, MyVertexFormatNormal.STRIDE);
+            }
+        }
+
+        unsafe static void FillIndexData(ref MyMeshRawData rawData, ushort[] indices, int indexCapacity)
+        {
+            rawData.IndicesFmt = Format.R16_UInt;
+            fixed (void* sourceIndices = indices)
+            {
+                FillStreamData(ref rawData.Indices, sourceIndices, indexCapacity, FormatHelper.SizeOfInBytes(rawData.IndicesFmt));
+            }
+        }
+
+        unsafe static void FillIndexData(ref MyMeshRawData rawData, uint[] indices, int indexCapacity)
+        {
+            rawData.IndicesFmt = Format.R32_UInt;
+            fixed (void* sourceIndices = indices)
+            {
+                FillStreamData(ref rawData.Indices, sourceIndices, indexCapacity, FormatHelper.SizeOfInBytes(rawData.IndicesFmt));
+            }
         }
 
         private static void ResizeVoxelParts(MeshId mesh, LodMeshId lod, int num)

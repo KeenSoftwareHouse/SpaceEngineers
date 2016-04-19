@@ -152,7 +152,7 @@ namespace Sandbox.Game.Components
                 if (emitter != null)
                 {
                     emitter.SetPosition(position);
-                    emitter.PlaySound(throwSound);
+                    emitter.PlaySoundWithDistance(throwSound);
                 }
             }
         }

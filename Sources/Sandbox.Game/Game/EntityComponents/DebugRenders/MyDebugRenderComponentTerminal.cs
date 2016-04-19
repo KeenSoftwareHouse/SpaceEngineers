@@ -7,7 +7,7 @@ using Sandbox.Game.World;
 using Sandbox.Engine.Utils;
 using VRageRender;
 using VRageMath;
-using Sandbox.Common.Components;
+
 using VRage.Utils;
 
 namespace Sandbox.Game.Components

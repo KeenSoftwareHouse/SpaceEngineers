@@ -19,6 +19,20 @@ struct FoliageStreamGeometryOutputVertex
     uint NormalSeedMaterialId : TEXCOORD1;  // 16 bits for normal, 8 for seed, 8 for id
 };
 
+struct RenderingVertexInput
+{
+    float3 position : POSITION;
+    float4 NormalSeedMaterialId : TEXCOORD0; // First two elements for normal, third for seed, fourth for id
+};
+
+struct RenderingVertexOutput
+{
+    float4 position : POSITION;
+    float3 normal : NORMAL;
+    float4 InstancePosition : TEXCOORD0;
+    uint IdSeed : TEXCOORD1;    // First 8 bits for ID, last 24 for seed
+};
+
 struct RenderingPixelInput
 {
     float4 position : SV_Position;
@@ -27,13 +41,20 @@ struct RenderingPixelInput
     float3 texcoord : TEXCOORD0;
 };
 
+uint2 PackNormal(float3 normal)
+{
+    uint2 packedNormal = mad(0.5, normal.xz, 0.5) * uint2(255, 127);
+    packedNormal.y |= (1 << 7) * (normal.y > 0);
+    return packedNormal;
+}
+
 float3 UnpackNormal(float2 packedNormal)
 {
-    float2 xy = packedNormal * 255;
+    float2 xy = packedNormal * 0xFF;
     float zsign = xy.y > 127;
     xy.y -= zsign * 128;
     xy /= float2(255, 127);
-    xy = xy * 2 - 1;
+    xy = mad(2, xy, -1);
     float z = sqrt(1 - dot(xy, xy)) * (zsign ? 1 : -1);
     return float3(xy, z).xzy;
 }

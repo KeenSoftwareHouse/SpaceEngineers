@@ -10,10 +10,11 @@
         <CubeGrid>
           <EntityId>123687734709742621</EntityId>
           <PersistentFlags>CastShadows InScene</PersistentFlags>
+          <PlanetSpawnHeightRatio>0.005</PlanetSpawnHeightRatio>
           <PositionAndOrientation>
             <Position x="996602.62880573969" y="99869.904341933754" z="1673338.0319257686" />
-			<Forward x="0" y="0" z="-1" />
-			<Up x="0" y="1" z="0" />
+			      <Forward x="0" y="0" z="-1" />
+		      	<Up x="0" y="1" z="0" />
           </PositionAndOrientation>
           <EntityDefinitionId xsi:nil="true" />
           <GridSizeEnum>Large</GridSizeEnum>

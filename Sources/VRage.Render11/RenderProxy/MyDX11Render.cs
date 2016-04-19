@@ -135,7 +135,19 @@ namespace VRageRender
 
         public void Draw(bool draw = true)
         {
+#if DEBUG
+            try
+            {
+                MyRender11.Draw(draw);
+            }
+            catch (Exception ex)
+            {
+                MyRender11.ProcessDebugOutput();
+                System.Diagnostics.Debug.WriteLine(ex);
+            }
+#else
             MyRender11.Draw(draw);
+#endif
         }
 
         public MyRenderProfiler GetRenderProfiler()

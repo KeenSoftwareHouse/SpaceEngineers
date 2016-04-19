@@ -1,7 +1,6 @@
 ﻿#region Usings
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -30,6 +29,7 @@ using Sandbox.Game.Components;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 #endregion
 
@@ -438,7 +438,6 @@ namespace Sandbox.Game.Entities.Cube
 
             ProfilerShort.Begin("Grid contact point callback");
 
-            if (Sync.IsServer)
             {
                 var vel = Math.Abs(value.SeparatingVelocity);
                 bool enoughSpeed = vel > 3;
@@ -501,7 +500,7 @@ namespace Sandbox.Game.Entities.Cube
                             hitInfo.Position = hitPos + 0.1f * hitInfo.Normal;
                             impact1 -= mass1;
 
-                            if (impact1 > 0)
+                            if (Sync.IsServer && impact1 > 0)
                             {
                                 if (grid1 != null)
                                 {
@@ -521,6 +520,9 @@ namespace Sandbox.Game.Entities.Cube
 
                                 ReduceVelocities(info);
                             }
+
+                            MyDecals.HandleAddDecal(entity1, hitInfo);
+                            MyDecals.HandleAddDecal(entity2, hitInfo);
                         }
                     }
                 }
@@ -541,7 +543,7 @@ namespace Sandbox.Game.Entities.Cube
                             hitInfo.Position = hitPos + 0.1f * hitInfo.Normal;
                             impact2 -= mass2;
 
-                            if (impact2 > 0)
+                            if (Sync.IsServer && impact2 > 0)
                             {
                                 if (grid1 != null)
                                 {
@@ -561,6 +563,9 @@ namespace Sandbox.Game.Entities.Cube
 
                                 ReduceVelocities(info);
                             }
+
+                            MyDecals.HandleAddDecal(entity1, hitInfo);
+                            MyDecals.HandleAddDecal(entity2, hitInfo);
                         }
                     }
                 }

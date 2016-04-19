@@ -109,7 +109,7 @@ namespace Sandbox.Game.Gui
 
             AddButton(new StringBuilder("Play animation"), OnPlayButtonClick);
 
-            AddCheckBox("Draw damage and hit hapsules", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE));
+            AddCheckBox("Draw damage and hit hapsules", () => MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE, (s) => MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE = s);
 
             m_currentPosition.Y += 0.01f;
         }

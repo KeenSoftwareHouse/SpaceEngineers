@@ -7,6 +7,7 @@ using VRage.Utils;
 using System.ComponentModel.DataAnnotations;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
+using VRage.Library.Utils;
 
 namespace VRage.Game
 {
@@ -331,7 +332,7 @@ namespace VRage.Game
         [ProtoMember]
         [Display(Name = "Enable structural simulation")]
         [GameRelation(Game.MedievalEngineers)]
-        public bool EnableStructuralSimulation = true;
+        public bool EnableStructuralSimulation = false;
 
         [ProtoMember]
         [Display(Name = "Max active fracture pieces")]
@@ -404,12 +405,6 @@ namespace VRage.Game
         NORMAL,
         CATACLYSM,
         CATACLYSM_UNREAL,
-    }
-
-    public enum MyGameModeEnum
-    {
-        Creative,
-        Survival,
     }
 
     [XmlRoot("MyConfigDedicated")]

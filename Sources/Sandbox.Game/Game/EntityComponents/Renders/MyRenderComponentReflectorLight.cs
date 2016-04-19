@@ -6,7 +6,7 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Game.World;
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
 using VRage.Game.Components;
 using VRage.Game;
 
@@ -35,19 +35,19 @@ namespace Sandbox.Game.Components
         private void DrawReflectorCone()
         {
             var world = Container.Entity.PositionComp.WorldMatrix;
-
-            var toLocal = Container.Entity.PositionComp.WorldMatrixNormalizedInv;
             Vector3D position = Container.Entity.PositionComp.GetPosition();
             Vector3D forwardVector = world.Forward;
-            Vector3D leftVector = world.Left;
-            Vector3D upVector = world.Up;
+
+            // all light updates should go through MyLightingBlock, as it goes against each other
+            //var toLocal = Container.Entity.PositionComp.WorldMatrixNormalizedInv;
+            //Vector3D upVector = world.Up;
 
             if (m_reflectorLight.Light.ReflectorOn)
             {
-                m_reflectorLight.Light.ReflectorUp = upVector;
-                m_reflectorLight.Light.ReflectorDirection = Vector3D.TransformNormal(world.Forward, toLocal);
+                //m_reflectorLight.Light.ReflectorUp = upVector;
+                //m_reflectorLight.Light.ReflectorDirection = Vector3D.TransformNormal(world.Forward, toLocal);
                 m_reflectorLight.Light.ReflectorColor = m_reflectorLight.Color.ToVector4();
-                m_reflectorLight.Light.UpdateReflectorRangeAndAngle(m_reflectorLight.ShortReflectorForwardConeAngleDef, m_reflectorLight.ShortReflectorRangeDef);
+                m_reflectorLight.Light.UpdateReflectorRangeAndAngle(m_reflectorLight.ShortReflectorForwardConeAngleDef, m_reflectorLight.ReflectorRadius);
             }
 
             float reflectorLength = 20f;

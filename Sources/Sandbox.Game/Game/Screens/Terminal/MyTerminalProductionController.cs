@@ -191,7 +191,7 @@ namespace Sandbox.Game.Gui
                 size: new Vector2(46f, 46f) / MyGuiConstants.GUI_OPTIMAL_SIZE
             );
             xOffset += test.Size.X;
-            test.Icon = new MyGuiHighlightTexture() { Normal = classDef.Icon, Highlight = classDef.HighlightIcon, SizePx = new Vector2(46f, 46f) };
+            test.Icon = new MyGuiHighlightTexture() { Normal = classDef.Icons[0], Highlight = classDef.HighlightIcon, SizePx = new Vector2(46f, 46f) };
             test.UserData = classDef;
             test.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             if (classDef.DisplayNameEnum.HasValue)
@@ -366,7 +366,7 @@ namespace Sandbox.Game.Gui
                     .Append('x');
 
                 var item = new MyGuiControlGrid.Item(
-                    icon: queueItem.Blueprint.Icon,
+                    icons: queueItem.Blueprint.Icons,
                     toolTip: queueItem.Blueprint.DisplayNameText,
                     userData: queueItem);
                 item.AddText(text: m_textCache, textAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
@@ -400,7 +400,7 @@ namespace Sandbox.Game.Gui
             foreach (var blueprint in blueprintClass)
             {
                 var item = new MyGuiControlGrid.Item(
-                    icon: blueprint.Icon,
+                    icons: blueprint.Icons,
                     toolTip: blueprint.DisplayNameText,
                     userData: blueprint);
                 m_blueprintsGrid.Add(item);

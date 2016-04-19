@@ -18,7 +18,7 @@ namespace Sandbox.Game.Screens.Helpers
     public class MyGuiControlScenarioButton : MyGuiControlRadioButton
     {
         private MyGuiControlLabel m_titleLabel;
-        private MyGuiControlPanel m_previewPanel;
+        private MyGuiControlImage m_previewImage;
 
         public string Title
         {
@@ -38,16 +38,16 @@ namespace Sandbox.Game.Screens.Helpers
             OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
             Scenario = scenario;
             m_titleLabel = new MyGuiControlLabel(text: scenario.DisplayNameText, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
-            m_previewPanel = new MyGuiControlPanel(texture: scenario.Icon, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+            m_previewImage = new MyGuiControlImage(textures: scenario.Icons, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             MyGuiSizedTexture image = new MyGuiSizedTexture() { SizePx = new Vector2(229f, 128f), };
-            m_previewPanel.Size = image.SizeGui;
-            m_previewPanel.BorderEnabled = true;
-            m_previewPanel.BorderColor = MyGuiConstants.THEMED_GUI_LINE_COLOR.ToVector4();
+            m_previewImage.Size = image.SizeGui;
+            m_previewImage.BorderEnabled = true;
+            m_previewImage.BorderColor = MyGuiConstants.THEMED_GUI_LINE_COLOR.ToVector4();
             SetToolTip(scenario.DescriptionText);
-            Size = new Vector2(Math.Max(m_titleLabel.Size.X, m_previewPanel.Size.X),
-                               m_titleLabel.Size.Y + m_previewPanel.Size.Y);
+            Size = new Vector2(Math.Max(m_titleLabel.Size.X, m_previewImage.Size.X),
+                               m_titleLabel.Size.Y + m_previewImage.Size.Y);
             Elements.Add(m_titleLabel);
-            Elements.Add(m_previewPanel);
+            Elements.Add(m_previewImage);
         }
 
         protected override void OnSizeChanged()
@@ -59,7 +59,7 @@ namespace Sandbox.Game.Screens.Helpers
         private void UpdatePositions()
         {
             m_titleLabel.Position = Size * -0.5f;
-            m_previewPanel.Position = m_titleLabel.Position + new Vector2(0f, m_titleLabel.Size.Y);
+            m_previewImage.Position = m_titleLabel.Position + new Vector2(0f, m_titleLabel.Size.Y);
         }
 
         protected override void OnHasHighlightChanged()
@@ -68,12 +68,12 @@ namespace Sandbox.Game.Screens.Helpers
             if (HasHighlight)
             {
                 m_titleLabel.Font = MyFontEnum.White;
-                m_previewPanel.BorderColor = Vector4.One;
+                m_previewImage.BorderColor = Vector4.One;
             }
             else
             {
                 m_titleLabel.Font = MyFontEnum.Blue;
-                m_previewPanel.BorderColor = MyGuiConstants.THEMED_GUI_LINE_COLOR.ToVector4();
+                m_previewImage.BorderColor = MyGuiConstants.THEMED_GUI_LINE_COLOR.ToVector4();
             }
         }
     }

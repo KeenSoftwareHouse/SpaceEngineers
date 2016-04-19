@@ -27,6 +27,7 @@ using VRage;
 using Sandbox.Game.Localization;
 
 using Sandbox.ModAPI;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Multiplayer
 {
@@ -67,6 +68,19 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        public IMyGps GetGpsByName(long identityId, string gpsName)
+        {
+            Dictionary<int, MyGps> gpsList;
+            if (!m_playerGpss.TryGetValue(identityId, out gpsList))
+                return null;
+            foreach (var internalGps in gpsList.Values)
+            {
+                if (internalGps.Name == gpsName)
+                    return internalGps;
+            }
+            return null;
+        }
+
         void IMyGpsCollection.AddGps(long identityId, IMyGps gps)
         {
             var internalGps = (MyGps)gps;
@@ -102,8 +116,7 @@ namespace Sandbox.Game.Multiplayer
         void IMyGpsCollection.AddLocalGps(IMyGps gps)
         {
             var internalGps = (MyGps)gps;
-            AddPlayerGps(MySession.Static.LocalPlayerId, ref internalGps);
-            if (gps.ShowOnHud)
+            if (AddPlayerGps(MySession.Static.LocalPlayerId, ref internalGps) && gps.ShowOnHud)
                 MyHud.GpsMarkers.RegisterMarker(internalGps);
         }
 

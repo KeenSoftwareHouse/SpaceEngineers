@@ -180,6 +180,8 @@ namespace Sandbox.Game.Entities
 
             // Create a clip player and assign it to this model                        
             ActualPlayer.Initialize(animation, m_name, animationDefinition.ClipIndex, m_skinnedEntity, 1, timeScale, frameOption, m_bones, m_boneLODs);
+            ActualPlayer.AnimationMwmPathDebug = model;
+            ActualPlayer.AnimationNameDebug = animationDefinition.Id.SubtypeName;
 
             m_state = AnimationBlendState.BlendIn;
             m_currentBlendTime = 0;

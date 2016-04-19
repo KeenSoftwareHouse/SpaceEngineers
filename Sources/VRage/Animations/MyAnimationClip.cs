@@ -48,7 +48,7 @@ namespace VRage.Animations
             /// <summary>
             /// The keyframes for this bone
             /// </summary>
-            private List<Keyframe> m_keyframes = new List<Keyframe>();
+            private readonly List<Keyframe> m_keyframes = new List<Keyframe>();
 
             /// <summary>
             /// The bone name for these keyframes

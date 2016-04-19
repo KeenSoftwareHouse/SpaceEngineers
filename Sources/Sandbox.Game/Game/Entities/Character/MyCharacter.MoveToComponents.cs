@@ -2,7 +2,6 @@
 
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -39,16 +38,18 @@ using VRage.Audio;
 using VRage.Game.Components;
 using VRage.FileSystem;
 using VRage.Game.Entity.UseObject;
+using VRage.Game.ModAPI;
 using VRage.Game.ObjectBuilders;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.ModAPI;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
+using IMyModdingControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
 
 #endregion
 
@@ -77,7 +78,7 @@ namespace Sandbox.Game.Entities.Character
         IMyInventoryOwner, 
         IMyUseObject, 
         IMyDestroyableObject, 
-        Sandbox.ModAPI.IMyCharacter
+        IMyCharacter
     {
         private void UpdateChat()
         {
@@ -95,7 +96,7 @@ namespace Sandbox.Game.Entities.Character
                                 MyPlayer.PlayerId playerId;
                                 if (MySession.Static.Players.TryGetPlayerId(chatPlayerHistory.Key, out playerId))
                                 {
-                                    SyncObject.SendNewPlayerMessage(MySession.Static.LocalHumanPlayer.Id, playerId, chatItem.Text, chatItem.Timestamp);
+                                    SendNewPlayerMessage(MySession.Static.LocalHumanPlayer.Id, playerId, chatItem.Text, chatItem.Timestamp);
                                 }
                                 else
                                 {

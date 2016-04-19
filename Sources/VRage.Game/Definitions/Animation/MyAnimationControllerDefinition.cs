@@ -30,7 +30,7 @@ namespace VRage.Game.Definitions.Animation
             builder.Id = Id;
             builder.Description = (DescriptionEnum.HasValue) ? DescriptionEnum.Value.ToString() : DescriptionString != null ? DescriptionString.ToString() : null;
             builder.DisplayName = (DisplayNameEnum.HasValue) ? DisplayNameEnum.Value.ToString() : DisplayNameString != null ? DisplayNameString.ToString() : null;
-            builder.Icon = Icon;
+            builder.Icons = Icons;
             builder.Public = Public;
             builder.Enabled = Enabled;
             builder.AvailableInSurvival = AvailableInSurvival;

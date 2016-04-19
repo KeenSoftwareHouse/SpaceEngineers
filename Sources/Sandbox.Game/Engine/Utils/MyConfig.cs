@@ -35,10 +35,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 using ProtoBuf;
 using System.Diagnostics;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Engine.Utils
 {
-    public class MyConfig : MyConfigBase, Sandbox.ModAPI.IMyConfig
+    public class MyConfig : MyConfigBase, IMyConfig
     {
         //  Constants for mapping between our get/set properties and parameters inside the config file
         readonly string DX9_RENDER_QUALITY = "RenderQuality";
@@ -723,13 +724,13 @@ namespace Sandbox.Engine.Utils
 
         public float UIOpacity
         {
-            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_TRANSPARENCY), 0.0f); }
+            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_TRANSPARENCY), 1.0f); }
             set { SetParameterValue(UI_TRANSPARENCY, value); }
         }
 
         public float UIBkOpacity
         {
-            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_BK_TRANSPARENCY), 0.0f); }
+            get { return MyUtils.GetFloatFromString(GetParameterValue(UI_BK_TRANSPARENCY), 1.0f); }
             set { SetParameterValue(UI_BK_TRANSPARENCY, value); }
         }
 
@@ -928,127 +929,127 @@ namespace Sandbox.Engine.Utils
 
         
         #region ModAPI
-        MyTextureAnisoFiltering? ModAPI.IMyConfig.AnisotropicFiltering
+        MyTextureAnisoFiltering? IMyConfig.AnisotropicFiltering
         {
             get { return AnisotropicFiltering; }
         }
 
-        MyAntialiasingMode? ModAPI.IMyConfig.AntialiasingMode
+        MyAntialiasingMode? IMyConfig.AntialiasingMode
         {
             get { return AntialiasingMode; }
         }
 
-        bool ModAPI.IMyConfig.CompressSaveGames
+        bool IMyConfig.CompressSaveGames
         {
             get { return CompressSaveGames; }
         }
 
-        SerializableDictionary<string, object> ModAPI.IMyConfig.ControlsButtons
+        SerializableDictionary<string, object> IMyConfig.ControlsButtons
         {
             get { return ControlsButtons; }
         }
 
-        SerializableDictionary<string, object> ModAPI.IMyConfig.ControlsGeneral
+        SerializableDictionary<string, object> IMyConfig.ControlsGeneral
         {
             get { return ControlsGeneral; }
         }
 
-        bool ModAPI.IMyConfig.ControlsHints
+        bool IMyConfig.ControlsHints
         {
             get { return ControlsHints; }
         }
 
-        int ModAPI.IMyConfig.CubeBuilderBuildingMode
+        int IMyConfig.CubeBuilderBuildingMode
         {
             get { return CubeBuilderBuildingMode; }
         }
 
-        bool ModAPI.IMyConfig.CubeBuilderUseSymmetry
+        bool IMyConfig.CubeBuilderUseSymmetry
         {
             get { return CubeBuilderUseSymmetry; }
         }
 
-        SerializableDictionary<string, object> ModAPI.IMyConfig.DebugInputComponents
+        SerializableDictionary<string, object> IMyConfig.DebugInputComponents
         {
             get { return null; }
         }
 
-        bool ModAPI.IMyConfig.DisableHeadbob
+        bool IMyConfig.DisableHeadbob
         {
             get { return DisableHeadbob; }
         }
 
-        bool ModAPI.IMyConfig.EnableDamageEffects
+        bool IMyConfig.EnableDamageEffects
         {
             get { return EnableDamageEffects; }
         }
 
-        float ModAPI.IMyConfig.FieldOfView
+        float IMyConfig.FieldOfView
         {
             get { return FieldOfView; }
         }
 
-        MyFoliageDetails? ModAPI.IMyConfig.FoliageDetails
+        MyFoliageDetails? IMyConfig.FoliageDetails
         {
             get { return FoliageDetails; }
         }
 
-        float ModAPI.IMyConfig.GameVolume
+        float IMyConfig.GameVolume
         {
             get { return GameVolume; }
         }
 
-        bool ModAPI.IMyConfig.HardwareCursor
+        bool IMyConfig.HardwareCursor
         {
             get { return HardwareCursor; }
         }
 
-        bool ModAPI.IMyConfig.HudWarnings
+        bool IMyConfig.HudWarnings
         {
             get { return HudWarnings; }
         }
 
-        VRage.MyLanguagesEnum ModAPI.IMyConfig.Language
+        VRage.MyLanguagesEnum IMyConfig.Language
         {
             get { return Language; }
         }
 
-        bool ModAPI.IMyConfig.MemoryLimits
+        bool IMyConfig.MemoryLimits
         {
             get { return MemoryLimits; }
         }
 
-        bool ModAPI.IMyConfig.MinimalHud
+        bool IMyConfig.MinimalHud
         {
             get { return MinimalHud; }
         }
 
-        float ModAPI.IMyConfig.MusicVolume
+        float IMyConfig.MusicVolume
         {
             get { return MusicVolume; }
         }
 
-        bool ModAPI.IMyConfig.NeedShowTutorialQuestion
+        bool IMyConfig.NeedShowTutorialQuestion
         {
             get { return NeedShowTutorialQuestion; }
         }
 
-        int ModAPI.IMyConfig.RefreshRate
+        int IMyConfig.RefreshRate
         {
             get { return RefreshRate; }
         }
 
-        bool ModAPI.IMyConfig.RenderInterpolation
+        bool IMyConfig.RenderInterpolation
         {
             get { return RenderInterpolation; }
         }
 
-        MyRenderQualityEnum? ModAPI.IMyConfig.RenderQuality
+        MyRenderQualityEnum? IMyConfig.RenderQuality
         {
             get { return Dx9RenderQuality; }
         }
 
-        MyGraphicsRenderer ModAPI.IMyConfig.GraphicsRenderer
+        MyGraphicsRenderer IMyConfig.GraphicsRenderer
         {
             get
             {
@@ -1058,63 +1059,63 @@ namespace Sandbox.Engine.Utils
                     return MyGraphicsRenderer.DX11;
 
                 if (id == MySandboxGame.DirectX9RendererKey)
-                    return MyGraphicsRenderer.DX9;
+                    return MyGraphicsRenderer.DX11;
 
                 return MyGraphicsRenderer.NONE;
             }
         }
 
-        bool ModAPI.IMyConfig.RotationHints
+        bool IMyConfig.RotationHints
         {
             get { return RotationHints; }
         }
 
-        int? ModAPI.IMyConfig.ScreenHeight
+        int? IMyConfig.ScreenHeight
         {
             get { return ScreenHeight; }
         }
 
-        int? ModAPI.IMyConfig.ScreenWidth
+        int? IMyConfig.ScreenWidth
         {
             get { return ScreenWidth; }
         }
 
-        MyShadowsQuality? ModAPI.IMyConfig.ShadowQuality
+        MyShadowsQuality? IMyConfig.ShadowQuality
         {
             get { return ShadowQuality; }
         }
 
-        bool ModAPI.IMyConfig.ShowCrosshair
+        bool IMyConfig.ShowCrosshair
         {
             get { return ShowCrosshair; }
         }
 
-        bool ModAPI.IMyConfig.ShowPlayerNamesOnHud
+        bool IMyConfig.ShowPlayerNamesOnHud
         {
             get { return ShowPlayerNamesOnHud; }
         }
 
-        MyTextureQuality? ModAPI.IMyConfig.TextureQuality
+        MyTextureQuality? IMyConfig.TextureQuality
         {
             get { return TextureQuality; }
         }
 
-        bool ModAPI.IMyConfig.VerticalSync
+        bool IMyConfig.VerticalSync
         {
             get { return VerticalSync; }
         }
 
-        int ModAPI.IMyConfig.VideoAdapter
+        int IMyConfig.VideoAdapter
         {
             get { return VideoAdapter; }
         }
 
-        MyWindowModeEnum ModAPI.IMyConfig.WindowMode
+        MyWindowModeEnum IMyConfig.WindowMode
         {
             get { return WindowMode; }
         }
 
-        bool ModAPI.IMyConfig.CaptureMouse
+        bool IMyConfig.CaptureMouse
         {
             get { return CaptureMouse; }
         }

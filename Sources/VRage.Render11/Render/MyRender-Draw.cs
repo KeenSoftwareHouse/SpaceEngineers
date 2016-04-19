@@ -32,6 +32,8 @@ namespace VRageRender
 
         static MyScreenshot? m_screenshot;
 
+        static List<renderColoredTextureProperties> m_texturesToRender = new List<renderColoredTextureProperties>();
+
         internal static void Draw(bool draw = true)
         {
             //if (false) Debug.Assert(MyClipmap.LodLevel.DrewLastFrame);
@@ -46,6 +48,7 @@ namespace VRageRender
 
                 if (draw)
                 {
+                    MyRender11.ClearBackbuffer(new ColorBGRA(0.0f));
                     MyImmediateRC.RC.Clear();
                     GetRenderProfiler().StartProfilingBlock("ProcessDrawQueue");
                     ProcessDrawQueue();
@@ -61,6 +64,9 @@ namespace VRageRender
                     GetRenderProfiler().EndProfilingBlock();
 
                     MyTextures.Load();
+
+                    if (m_texturesToRender.Count > 0)
+                        VRage.Render11.PostprocessStage.MySaveExportedTextures.RenderColoredTextures(m_texturesToRender);
                 }
 
                 if (m_profilingStarted)
@@ -272,6 +278,8 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.DrawScene:
                     {
+                        AddDebugQueueMessage("Frame render start");
+
                         UpdateSceneFrame();
 
                         ProfilerShort.Begin("DrawScene");
@@ -336,6 +344,8 @@ namespace VRageRender
                             ProfilerShort.End();
                         }
 
+                        AddDebugQueueMessage("Frame render end");
+                        ProcessDebugOutput();
                         break;
                     }
             }

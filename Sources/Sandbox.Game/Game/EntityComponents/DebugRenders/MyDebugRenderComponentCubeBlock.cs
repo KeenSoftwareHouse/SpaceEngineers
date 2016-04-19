@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Threading;
 
 using Sandbox.Game.Entities;
-using Sandbox.Common.Components;
+
 using Sandbox.Graphics;
 using VRage.Game;
 

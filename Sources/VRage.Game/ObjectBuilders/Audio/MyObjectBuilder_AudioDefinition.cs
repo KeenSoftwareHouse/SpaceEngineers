@@ -62,6 +62,41 @@ namespace VRage.Game
             set { SoundData.PitchVariation = value; }
         }
 
+        [ProtoMember, DefaultValue(0.0f)]
+        public float Pitch
+        {
+            get { return SoundData.Pitch; }
+            set { SoundData.Pitch = value; }
+        }
+
+        [ProtoMember, DefaultValue(-1)]
+        public int PreventSynchronization
+        {
+            get { return SoundData.PreventSynchronization; }
+            set { SoundData.PreventSynchronization = value; }
+        }
+
+        [ProtoMember, DefaultValue(true)]
+        public bool ModifiableByHelmetFilters
+        {
+            get { return SoundData.ModifiableByHelmetFilters; }
+            set { SoundData.ModifiableByHelmetFilters = value; }
+        }
+
+        [ProtoMember, DefaultValue(false)]
+        public bool DisablePitchEffects
+        {
+            get { return SoundData.DisablePitchEffects; }
+            set { SoundData.DisablePitchEffects = value; }
+        }
+
+        [ProtoMember, DefaultValue(0)]
+        public int SoundLimit
+        {
+            get { return SoundData.SoundLimit; }
+            set { SoundData.SoundLimit = value; }
+        }
+
         [ProtoMember, DefaultValue(false)]
         public bool Loopable
         {
@@ -109,6 +144,13 @@ namespace VRage.Game
         {
             get { return SoundData.MusicTrack.MusicCategory.ToString(); }
             set { SoundData.MusicTrack.MusicCategory = MyStringId.GetOrCompute(value); }
+        }
+
+        [ProtoMember, DefaultValue("")]
+        public string RealisticFilter
+        {
+            get { return SoundData.RealisticFilter.String; }
+            set { SoundData.RealisticFilter = MyStringHash.GetOrCompute(value); }
         }
     }
 }

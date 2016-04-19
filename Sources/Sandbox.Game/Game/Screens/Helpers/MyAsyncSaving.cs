@@ -17,7 +17,7 @@ using VRage.Audio;
 
 namespace Sandbox.Game.Screens.Helpers
 {
-    static class MyAsyncSaving
+    public static class MyAsyncSaving
     {
         private static Action m_callbackOnFinished;
         private static int m_inProgressCount;
@@ -41,7 +41,9 @@ namespace Sandbox.Game.Screens.Helpers
         {
             PushInProgress();
             m_callbackOnFinished = callbackOnFinished;
-            MyHud.PushRotatingWheelVisible();
+
+            // CH: Uncomment to display rotating wheel while saving the game in the BG
+            //MyHud.PushRotatingWheelVisible();
 
             MySessionSnapshot snapshot;
             bool success = MySession.Static.Save(out snapshot, customName);
@@ -71,7 +73,8 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                     if (!MySandboxGame.IsDedicated)
                     {
-                        MyHud.PopRotatingWheelVisible();
+                        // CH: Uncomment to display rotating wheel while saving the game in the BG
+                        //MyHud.PopRotatingWheelVisible();
 
                         if (MySession.Static != null)
                         {

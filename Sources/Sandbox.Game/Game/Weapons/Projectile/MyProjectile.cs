@@ -24,6 +24,8 @@ using System.Collections.Generic;
 using VRage.Game.Models;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Weapons
 {
@@ -86,7 +88,8 @@ namespace Sandbox.Game.Weapons
         private List<MyLineSegmentOverlapResult<MyEntity>> m_entityRaycastResult = null;
 
         // Default 50% of energy is consumed by damage
-        private const float m_impulseMultiplier = 0.5f; 
+        private const float m_impulseMultiplier = 0.5f;
+        private static MyStringHash m_hashBolt = MyStringHash.GetOrCompute("Bolt");
 
         public MyProjectile()
         {
@@ -227,24 +230,21 @@ namespace Sandbox.Game.Weapons
                 MyStringHash materialType;
                 GetSurfaceAndMaterial(entity, ref  hitPosition, out surfaceImpact, out materialType);
 
-                PlayHitSound(materialType, entity, hitPosition);
-                DoDamage(headShot ? m_projectileAmmoDefinition.ProjectileHeadShotDamage : m_projectileAmmoDefinition.ProjectileMassDamage, hitPosition, entity);
+                PlayHitSound(materialType, entity, hitPosition, m_projectileAmmoDefinition.ProjectileMaterial);
+
+                MyHitInfo hitInfo = new MyHitInfo();
+                hitInfo.Normal = hitNormal;
+                hitInfo.Position = hitPosition;
+                hitInfo.Velocity = m_velocity;
+
+                DoDamage(headShot ? m_projectileAmmoDefinition.ProjectileHeadShotDamage : m_projectileAmmoDefinition.ProjectileMassDamage, hitInfo, entity);
                 //  Create smoke and debris particle at the place of voxel/model hit
                 if (surfaceImpact != MySurfaceImpactEnum.CHARACTER)
-                    m_projectileAmmoDefinition.ProjectileOnHitParticles(ref hitPosition, ref hitNormal, ref line.Direction, entity, m_weapon, 1, OwnerEntity);
+                    MyParticleEffects.CreateBasicHitParticles(m_projectileAmmoDefinition.ProjectileOnHitEffectName, ref hitPosition, ref hitNormal, ref line.Direction, entity, m_weapon, 1, OwnerEntity);
 
-                if (surfaceImpact == MySurfaceImpactEnum.CHARACTER && entity is MyCharacter)
-                {
-                    MyStringHash bullet = MyStringHash.GetOrCompute("RifleBullet");//temporary
-                    MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(
-                                        MyMaterialPropertiesHelper.CollisionType.Start,
-                                        hitPosition,
-                                        hitNormal,
-                                        bullet, materialType);
-                }
-
+                //particle effect defined in materialProperties.sbc
                 Vector3D particleHitPosition = hitPosition + line.Direction * -0.2;
-                m_projectileAmmoDefinition.ProjectileOnHitMaterialParticles(ref particleHitPosition, ref hitNormal, ref line.Direction, entity, surfaceImpact, m_weapon, 1);
+                MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Hit, particleHitPosition, hitNormal, m_projectileAmmoDefinition.ProjectileMaterial, materialType);
 
                 CreateDecal(materialType);
 
@@ -264,28 +264,11 @@ namespace Sandbox.Game.Weapons
             hitPosition = hitNormal = Vector3.Zero;
             hitHead = false;
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyEntities.GetIntersectionWithLine()");
-            //m_intersection = MyEntities.GetIntersectionWithLine(ref line, m_ignoreEntity, m_weapon, false, false, true, IntersectionFlags.ALL_TRIANGLES, VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * CHECK_INTERSECTION_INTERVAL);
-            m_intersection = null;
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-            if (m_intersection != null) 
-            { 
-                // will never trigger, see commented code above ^
-                entity = m_intersection.Value.Entity;
-                hitPosition = m_intersection.Value.IntersectionPointInWorldSpace;
-                hitNormal = m_intersection.Value.NormalInWorldSpace;
-            }
             // 1. rough raycast
             if (entity == null)
             {
                 ProfilerShort.Begin("MyGamePruningStructure::CastProjectileRay");
                 MyPhysics.HitInfo? hitInfo = MyPhysics.CastRay(line.From, line.To, MyPhysics.CollisionLayers.DefaultCollisionLayer);
-                //MyPhysics.HitInfo? hitInfo = null;
-                //if (Sandbox.Game.Gui.MyMichalDebugInputComponent.Static.CastLongRay)
-                //    hitInfo = MyPhysics.CastLongRay(line.From, line.To);
-                //else
-                //    hitInfo = MyPhysics.CastRay(line.From, line.To, MyPhysics.CollisionLayers.DefaultCollisionLayer);
                 ProfilerShort.End();
                 if (hitInfo.HasValue)
                 {
@@ -363,11 +346,25 @@ namespace Sandbox.Game.Weapons
             }
             else
             {
-                //entity = entity.GetTopMostParent();
+                MyCubeGrid grid = entity as MyCubeGrid;
+                if (grid != null)
+                {
+                    MyIntersectionResultLineTriangleEx? result;
+                    bool success = grid.GetIntersectionWithLine(ref line, out result);
+                    if (success)
+                    {
+                        hitPosition = result.Value.IntersectionPointInWorldSpace;
+                        hitNormal = result.Value.NormalInWorldSpace;
+                    }
+
+                    MyHitInfo info = new MyHitInfo();
+                    info.Position = hitPosition;
+                    info.Normal = hitNormal;
+                }
             }
         }
 
-        private void DoDamage(float damage, Vector3D hitPosition, IMyEntity damagedEntity)
+        private void DoDamage(float damage, MyHitInfo hitInfo, IMyEntity damagedEntity)
         {
             //damage tracking
             MyEntity ent = (MyEntity)MySession.Static.ControlledEntity;
@@ -379,31 +376,33 @@ namespace Sandbox.Game.Weapons
             if (!Sync.IsServer)
                 return;
 
-            if (m_projectileAmmoDefinition.ProjectileType == MyProjectileType.Bolt)
+            MyDecals.HandleAddDecal(damagedEntity, hitInfo, m_projectileAmmoDefinition.ProjectileMaterial, damage);
+
+            if (m_projectileAmmoDefinition.ProjectileMaterial == m_hashBolt)
             {
-                if (damagedEntity is IMyDestroyableObject && damagedEntity is MyCharacter)
-                    (damagedEntity as IMyDestroyableObject).DoDamage(damage, MyDamageType.Bolt, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+                IMyDestroyableObject destroyable = damagedEntity as IMyDestroyableObject;
+                if (destroyable != null && damagedEntity is MyCharacter)
+                    destroyable.DoDamage(damage, MyDamageType.Bolt, true, hitInfo, m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
             }
             else
             {
-                if (damagedEntity is MyCubeGrid)
+                var grid = damagedEntity as MyCubeGrid;
+                IMyDestroyableObject destroyable;
+                if (grid != null)
                 {
-                    var grid = damagedEntity as MyCubeGrid;
                     if (grid.Physics != null && grid.Physics.Enabled && grid.BlocksDestructionEnabled)
                     {
                         bool causeDeformation = false;
-                        Vector3I blockPos;
-                        grid.FixTargetCube(out blockPos, Vector3D.Transform(hitPosition, grid.PositionComp.WorldMatrixNormalizedInv) / grid.GridSize);
-                        var block = grid.GetCubeBlock(blockPos);
+                        var block = grid.GetTargetedBlock(hitInfo.Position);
                         if (block != null)
                         {
-                            (block as IMyDestroyableObject).DoDamage(damage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+                            block.DoDamage(damage, MyDamageType.Bullet, true, hitInfo, m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
                             if (block.FatBlock == null)
                                 causeDeformation = true;
                         }
 
                         if (causeDeformation)
-                            ApllyDeformationCubeGrid(hitPosition, grid);
+                            ApllyDeformationCubeGrid(hitInfo.Position, grid);
                     }
                 }
                 //By Gregory: When MyEntitySubpart (e.g. extended parts of pistons and doors) damage the whole parent component
@@ -412,12 +411,12 @@ namespace Sandbox.Game.Weapons
                 {
                     if (damagedEntity.Parent != null && damagedEntity.Parent.Parent is MyCubeGrid)
                     {
-                        DoDamage(damage, damagedEntity.Parent.WorldAABB.Center, damagedEntity.Parent.Parent);
+                        hitInfo.Position = damagedEntity.Parent.WorldAABB.Center;
+                        DoDamage(damage, hitInfo, damagedEntity.Parent.Parent);
                     }
-
                 }
-                else if (damagedEntity is IMyDestroyableObject)
-                    (damagedEntity as IMyDestroyableObject).DoDamage(damage, MyDamageType.Bullet, true, attackerId: m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
+                else if ((destroyable = damagedEntity as IMyDestroyableObject) != null)
+                    destroyable.DoDamage(damage, MyDamageType.Bullet, true, hitInfo, m_weapon != null ? GetSubpartOwner(m_weapon).EntityId : 0);
             }
 
             //Handle damage ?? some WIP code by Ondrej
@@ -535,41 +534,40 @@ namespace Sandbox.Game.Weapons
             //}
         }
 
-        private void PlayHitSound(MyStringHash materialType, IMyEntity entity, Vector3D position)
+        private void PlayHitSound(MyStringHash materialType, IMyEntity entity, Vector3D position, MyStringHash thisType)
         {
             if ((OwnerEntity == null) || !(OwnerEntity is MyWarhead)) // do not play bullet sound when coming from warheads
             {
-                var emitter = MyAudioComponent.TryGetSoundEmitter();
-                if (emitter == null)
-                    return;
-
                 ProfilerShort.Begin("Play projectile sound");
-                emitter.SetPosition(m_position);
-                emitter.SetVelocity(Vector3.Zero);
                 MyAutomaticRifleGun rifleGun = m_weapon as MyAutomaticRifleGun;
 
                 MySoundPair cueEnum = null;
-                MyStringHash thisType;
-                if (m_projectileAmmoDefinition.IsExplosive)
-                    thisType = MyMaterialType.EXPBULLET;
-                else if (rifleGun != null && rifleGun.GunBase.IsAmmoProjectile && m_projectileAmmoDefinition.ProjectileType == MyProjectileType.Bullet)
-                    thisType = MyMaterialType.RIFLEBULLET;
-                else if (m_projectileAmmoDefinition.ProjectileType == MyProjectileType.Bolt)
-                    thisType = MyMaterialType.BOLT;
-                else
-                    thisType = MyMaterialType.GUNBULLET;
 
-                cueEnum = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start,thisType, materialType);
+                cueEnum = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Hit,thisType, materialType);
+                if (cueEnum == null || cueEnum == MySoundPair.Empty)
+                    cueEnum = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, thisType, materialType);
                 if (cueEnum.SoundId.IsNull && entity is MyVoxelBase)    // Play rock sounds if we have a voxel material that doesn't have an assigned sound for thisType
                 {
                     materialType = MyMaterialType.ROCK;
                     cueEnum = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, thisType, materialType);
                 }
+                if(cueEnum == null || cueEnum == MySoundPair.Empty)
+                {
+                    ProfilerShort.End();
+                    return;
+                }
+
+                var emitter = MyAudioComponent.TryGetSoundEmitter();
+                if (emitter == null)
+                    return;
+                emitter.Entity = (MyEntity)entity;
+                emitter.SetPosition(m_position);
+                emitter.SetVelocity(Vector3.Zero);
 
                 if (MySession.Static != null && MySession.Static.Settings.RealisticSound)
                 {
                     Func<bool> canHear = () => MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity == entity;
-                    emitter.StoppedPlaying += (e) => { e.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Remove(canHear); } ;
+                    emitter.StoppedPlaying += (e) => { e.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Remove(canHear); };
                     emitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Add(canHear);
                 }
 

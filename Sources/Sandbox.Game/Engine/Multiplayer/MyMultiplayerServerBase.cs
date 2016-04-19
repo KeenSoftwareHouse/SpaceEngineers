@@ -43,6 +43,7 @@ namespace Sandbox.Engine.Multiplayer
             }
             SetReplicationLayer(replication);
             ClientLeft += (steamId, e) => ReplicationLayer.OnClientLeft(new EndpointId(steamId));
+            ClientJoined += (steamId) => ReplicationLayer.OnClientJoined(new EndpointId(steamId), CreateClientState());
 
             MyEntities.OnEntityCreate += CreateReplicableForObject;
             MyEntityComponentBase.OnAfterAddedToContainer += CreateReplicableForObject;
@@ -75,6 +76,12 @@ namespace Sandbox.Engine.Multiplayer
             if (obj is MyInventoryAggregate)
                 return;
 
+            MyEntity entity = obj as MyEntity;
+            if(entity != null && entity.IsPreview)
+            {
+                return;
+            }
+
             var type = m_factory.FindTypeFor(obj);
             if (type != null && ReplicationLayer.IsTypeReplicated(type))
             {
@@ -100,7 +107,7 @@ namespace Sandbox.Engine.Multiplayer
 
         void ClientReady(VRage.MyPacket packet)
         {
-            ReplicationLayer.OnClientReady(packet.Sender, CreateClientState());
+            ReplicationLayer.OnClientReady(packet.Sender);
             if (MyPerGameSettings.BlockForVoxels)
             {
                 foreach (var voxelMap in MySession.Static.VoxelMaps.Instances)
@@ -109,6 +116,9 @@ namespace Sandbox.Engine.Multiplayer
                 }
             }
         }
+
+
+
 
         #region ReplicationServer
         void IReplicationServerCallback.SendServerData(BitStream stream, EndpointId endpoint)
@@ -137,10 +147,32 @@ namespace Sandbox.Engine.Multiplayer
             SyncLayer.TransportLayer.SendMessage(MyMessageId.SERVER_STATE_SYNC, stream, reliable, endpoint);
         }
 
+        void IReplicationServerCallback.SendWorldData(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.WORLD_DATA, stream, true, endpoint);
+        }
+
+        void IReplicationServerCallback.SendWorldBattleData(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.WORLD_BATTLE_DATA, stream, true, endpoint);
+        }
+
+        void IReplicationServerCallback.SendJoinResult(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.JOIN_RESULT, stream, true, endpoint);
+        }
+
         void IReplicationServerCallback.SendEvent(BitStream stream, bool reliable, EndpointId endpoint)
         {
             SyncLayer.TransportLayer.SendMessage(MyMessageId.RPC, stream, reliable, endpoint);
         }
+
+
+        void IReplicationServerCallback.SentClientJoined(BitStream stream, EndpointId endpoint)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_CONNNECTED, stream, true, endpoint);
+        }
+
 
         int IReplicationServerCallback.GetMTUSize(EndpointId clientId)
         {
@@ -154,5 +186,8 @@ namespace Sandbox.Engine.Multiplayer
             return 1024*1024 - 1;
         }
         #endregion
+
+
+    
     }
 }

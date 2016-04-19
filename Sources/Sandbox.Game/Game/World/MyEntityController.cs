@@ -1,6 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,9 @@ using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 using VRageMath;
+using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
 
 namespace Sandbox.Game.World
 {
@@ -68,7 +69,7 @@ namespace Sandbox.Game.World
                         Player.Id,
                         old.Entity.EntityId,
                         firstPerson,
-                        MyThirdPersonSpectator.Static.GetDistance(),
+                        MyThirdPersonSpectator.Static.GetViewerDistance(),
                         headLocalXAngle,
                         headLocalYAngle);
                 }
@@ -80,7 +81,7 @@ namespace Sandbox.Game.World
                 ControlledEntity.Entity.OnClosing += m_controlledEntityClosing;
                 ControlledEntity.ControllerInfo.Controller = this; // This will call OnControlAcquired
 
-                if (!MySandboxGame.IsDedicated && ControlledEntity.Entity is Sandbox.ModAPI.Interfaces.IMyCameraController)
+                if (!MySandboxGame.IsDedicated && ControlledEntity.Entity is IMyCameraController)
                 {
                     MySession.Static.SetEntityCameraPosition(Player.Id, ControlledEntity.Entity);
                 }

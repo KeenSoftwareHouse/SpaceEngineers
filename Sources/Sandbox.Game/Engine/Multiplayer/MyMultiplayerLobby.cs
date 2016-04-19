@@ -272,17 +272,9 @@ namespace Sandbox.Engine.Multiplayer
 
             SyncLayer.RegisterClientEvents(this);
 
-            if (IsServer)
-            {
-                HostName = MySteam.UserName;
-            }
-            else
-            {
-                SyncLayer.TransportLayer.IsBuffering = true;
-            }
-
+            HostName = MySteam.UserName;
+           
             Debug.Assert(IsServer, "Wrong object created");
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer | MyMessagePermissions.FromServer);
 
             MySteam.API.Matchmaking.LobbyChatUpdate += Matchmaking_LobbyChatUpdate;
             MySteam.API.Matchmaking.LobbyChatMsg += Matchmaking_LobbyChatMsg;
@@ -325,8 +317,10 @@ namespace Sandbox.Engine.Multiplayer
                         RaiseClientJoined(changedUser);
 
                         // Battles - send all clients, identities, players, factions as first message to client
-                        if (Sync.IsServer && (Battle || Scenario) && changedUser != Sync.MyId)
+                        if ((Battle || Scenario) && changedUser != Sync.MyId)
+                        {
                             SendAllMembersDataToClient(changedUser);
+                        }
                     }
 
                     if (MySandboxGame.IsGameReady && changedUser != ServerId)
@@ -556,7 +550,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public static bool IsLobbyCorrectVersion(Lobby lobby)
         {
-            return GetLobbyAppVersion(lobby) == Sandbox.Common.MyFinalBuildConstants.APP_VERSION;
+            return GetLobbyAppVersion(lobby) == MyFinalBuildConstants.APP_VERSION;
         }
 
         public static MyGameModeEnum GetLobbyGameMode(Lobby lobby)
@@ -765,17 +759,6 @@ namespace Sandbox.Engine.Multiplayer
         protected override void OnPing(ref MyControlPingMsg data, ulong sender)
         {
             SendControlMessage(sender, ref data);
-        }
-
-        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
-        {
-            if (Sync.IsServer)
-            {
-                Debug.Fail("Members data cannot be sent to server");
-                return;
-            }
-
-            ProcessAllMembersData(ref msg);
         }
     }
 }

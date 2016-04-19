@@ -25,11 +25,15 @@ using VRage.Utils;
 using Sandbox.Engine.Utils;
 using VRage.Game;
 using VRage.Game.Entity;
+using System.Collections.Generic;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Replication;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_PistonBase))]
-    class MyPistonBase : MyFunctionalBlock, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyPistonBase
+    public partial class MyPistonBase : MyFunctionalBlock, IMyConveyorEndpointBlock
     {
         private HkConstraint m_subpartsConstraint;
         private HkConstraint m_constraint;
@@ -50,6 +54,13 @@ namespace Sandbox.Game.Entities.Blocks
         private bool m_welded = false;
         private Sync<bool> m_forceWeld;
         private Sync<float> m_weldSpeedSq; //squared
+        protected bool m_isAttached = false;
+        protected readonly Sync<long?> m_weldedEntityId;
+        protected long? m_weldedTopBlockId;
+        protected bool m_isWelding = false;
+
+        private static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
+        private static HashSet<MySlimBlock> m_tmpSet = new HashSet<MySlimBlock>();
 
         private MyAttachableConveyorEndpoint m_conveyorEndpoint;
         private bool m_posChanged;
@@ -57,11 +68,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         private float m_lastPosition = float.MaxValue;
         private readonly Sync<float> m_currentPos; // Necessary?
-        private readonly Sync<long> m_topBlockId;
+        private readonly Sync<long?> m_topBlockId;
         public readonly Sync<float> Velocity;
         public readonly Sync<float> MinLimit;
         public readonly Sync<float> MaxLimit;
-        
+        protected event Action<MyPistonBase> AttachedEntityChanged;
+
         private float Range { get { return BlockDefinition.Maximum - BlockDefinition.Minimum; } }
 
         new public MyPistonBaseDefinition BlockDefinition { get { return (MyPistonBaseDefinition)base.BlockDefinition; } }
@@ -147,13 +159,28 @@ namespace Sandbox.Game.Entities.Blocks
             weldForce.Setter = (x, v) => x.m_forceWeld.Value = v;
             weldForce.EnableAction();
             MyTerminalControlFactory.AddControl(weldForce);
+
+            var addPistonHead = new MyTerminalControlButton<MyPistonBase>("Add Piston Head", MySpaceTexts.BlockActionTitle_AddPistonHead, MySpaceTexts.BlockActionTooltip_AddPistonHead, (b) => b.RecreateTop());
+            addPistonHead.Enabled = (b) => (b.m_topBlock == null);
+            addPistonHead.EnableAction(MyTerminalActionIcons.STATION_ON);
+            MyTerminalControlFactory.AddControl(addPistonHead);
         }
 
         public MyPistonBase()
         {
             m_currentPos.ValueChanged += (o) => UpdatePosition(true);
             m_topBlockId.ValueChanged += (o) => OnAttachTargetChanged();
-            m_topBlockId.ValidateNever(); // Client can never set this, only server
+            m_topBlockId.Validate = ValidatePistonBlockId;
+        }
+
+        private bool ValidatePistonBlockId(long? newValue)
+        {
+            if (newValue == null)           // Always allow detach
+                return true;
+            else if (newValue.Value == 0)   // Only allow attach if already detached
+                return m_topBlockId.Value == null;
+            else
+                return false;
         }
 
         private static void OnExtendApplied(MyPistonBase piston)
@@ -205,14 +232,24 @@ namespace Sandbox.Game.Entities.Blocks
 
         void CubeGrid_OnPhysicsChanged(MyEntity obj)
         {
-            if (m_welded)
-                return;
+            if (m_welded && m_topBlock != null && (m_topBlock.Closed || m_topBlock.MarkedForClose))
+            {
+                UnweldGroup();
+                Detach();
+                m_topBlock = null;
+                m_topGrid = null;
+            }
             DisposeSubpartsPhysics();
-            LoadSubparts();
-            UpdatePosition(true);
-            UpdatePhysicsShape();
-            if(SafeConstraint == null)
-                TryAttach();
+
+            // If the physics isn't being changed because we are being closed, reload the subparts, and update physics
+            if (!Closed)
+            {
+                LoadSubparts();
+                UpdatePosition(true);
+                UpdatePhysicsShape();
+                if (SafeConstraint == null)
+                    Reattach();
+            }
         }
 
         void OnAttachTargetChanged()
@@ -244,7 +281,7 @@ namespace Sandbox.Game.Entities.Blocks
                     Detach();
                     if(Sync.IsServer)
                     {
-                        m_topBlockId.Value = 0;
+                        m_topBlockId.Value = null;
                     }
                 }
             }
@@ -257,7 +294,7 @@ namespace Sandbox.Game.Entities.Blocks
             ob.Velocity = Velocity / BlockDefinition.MaxVelocity;
             ob.MaxLimit = NormalizeDistance(MaxLimit);
             ob.MinLimit = NormalizeDistance(MinLimit);
-            ob.TopBlockId = m_topBlockId;
+            ob.TopBlockId = m_topBlockId.Value;
             ob.CurrentPosition = m_currentPos;
             ob.weldSpeed = (float)Math.Sqrt(m_weldSpeedSq);
             ob.forceWeld = m_forceWeld;
@@ -283,6 +320,11 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_subpart1 != null && m_subpart1.Physics != null)
             {
                 m_subpart1.Physics.Enabled = false;
+            }
+
+            if (m_welded || m_isWelding)
+            {
+                UnweldGroup();
             }
         }
 
@@ -314,6 +356,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (!m_subpart2.Subparts.TryGetValue("PistonSubpart3", out Subpart3))
                 return;
 
+            Debug.Assert(!this.Closed);
+            if( this.Closed )
+            {
+                // When closed, the welding callback will call this, but the model will already be unloaded
+                return;
+            }
             MyModelDummy dummy;
             if (Subpart3.Model.Dummies.TryGetValue("TopBlock", out dummy))
                 m_constraintBasePos = dummy.Matrix.Translation;
@@ -416,6 +464,41 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        public void RecreateTop(long? builderId = null)
+        {
+            if (this.m_topBlock != null || this.m_welded == true)
+            {
+                long builder = builderId.HasValue ? builderId.Value : MySession.Static.LocalPlayerId;
+                if (builder == MySession.Static.LocalPlayerId)
+                {
+                    MyHud.Notifications.Add(MyNotificationSingletons.HeadAlreadyExists);
+                }
+                return;
+            }
+
+            if (builderId.HasValue)
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateTop, builderId.Value);
+            }
+            else
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateTop, MySession.Static.LocalPlayerId);
+            }
+        }
+
+        [Event, Reliable, Server]
+        private void DoRecreateTop(long builderId)
+        {
+            if (m_topBlock != null) return;
+
+            CreateTopGrid(out m_topGrid, out m_topBlock, builderId);
+            if (m_topBlock != null) // No place for top part
+            {
+                m_topBlockId.Value = m_topBlock.EntityId;
+                Attach(m_topBlock);
+            }
+        }
+
         private void ComponentStack_IsFunctionalChanged()
         {
             ResourceSink.Update();
@@ -433,7 +516,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (Sync.IsServer)
             {
                 Sandbox.Engine.Multiplayer.MyMultiplayer.ReplicateImmediatelly(this, this.CubeGrid);
-                CreateTopGrid(out m_topGrid, out m_topBlock);
+                CreateTopGrid(out m_topGrid, out m_topBlock, builtBy);
                 if(m_topBlock != null) // No place for top part
                     Attach(m_topBlock);
             }
@@ -443,7 +526,10 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.UpdateBeforeSimulation10();
             if (CheckVelocities())
+            {
+                UpdateSoundState();
                 return;
+            }
 
             TryAttach();
             UpdatePhysicsShape();
@@ -519,8 +605,21 @@ namespace Sandbox.Game.Entities.Blocks
             if (CheckVelocities())
                 return;
 
+            if (m_topGrid == null || SafeConstraint == null)
+                return;
+
+            if (SafeConstraint.RigidBodyA == SafeConstraint.RigidBodyB) //welded
+            {
+                SafeConstraint.Enabled = false;
+                return;
+            }
+
             ProfilerShort.Begin("UpdatePos");
             UpdatePosition();
+            if (Sync.IsServer == false && m_topBlockId.Value.HasValue && m_topBlock == null)
+            {
+                TryAttach();
+            }
             ProfilerShort.End();
             if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_lastPosition.Equals(float.MaxValue))
             {
@@ -529,7 +628,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        private bool CheckVelocities()
+        protected bool CheckVelocities()
         {
             if (!MyFakes.WELD_PISTONS)
                 return false;
@@ -543,19 +642,15 @@ namespace Sandbox.Game.Entities.Blocks
                     return true;
                 else
                 {
-                    if (m_topGrid == null && m_topBlockId != 0)
+                    if (m_topGrid == null && m_topBlockId.Value.HasValue && m_topBlockId.Value.Value != 0)
                     {
-                        if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId, out m_topBlock))
+                        if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId.Value.Value, out m_topBlock))
                             m_topGrid = m_topBlock.CubeGrid;
                     }
                 }
                 if (m_topGrid != null && MyWeldingGroups.Static.GetGroup(CubeGrid) != MyWeldingGroups.Static.GetGroup(m_topGrid))
                 {
-                    m_welded = true;
-                    m_topBlockId.Value = m_topBlock.EntityId;
-                    var topGrid = m_topGrid;
-                    Detach();
-                    MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, topGrid);
+                    WeldGroup();
                     return true;
                 }
                 return false;
@@ -564,15 +659,60 @@ namespace Sandbox.Game.Entities.Blocks
             const float safeUnweldSpeedDif = 2*2;
             if (!m_forceWeld && velSq < m_weldSpeedSq - safeUnweldSpeedDif && m_welded)
             {
-                m_welded = false;
-                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_topGrid);
-                //if (m_topGrid == null && m_topBlockId != 0)
-                //    UpdateOnceBeforeFrame();
-                //NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                UnweldGroup();
             }
             return m_welded;
         }
-        
+
+        private void WeldGroup()
+        {
+            var topGrid = m_topGrid;
+            var topBlock = m_topBlock;
+
+            m_isWelding = true;
+
+            m_weldedTopBlockId = m_topBlock.EntityId;
+
+            if (Sync.IsServer)
+            {
+                MatrixD masterToSlave = topBlock.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
+
+                m_topBlockId.Value = m_weldedTopBlockId;
+                m_weldedEntityId.Value = m_weldedTopBlockId;
+            }
+
+            Detach(false);
+            MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, topGrid);
+            m_topGrid = topGrid;
+            m_topBlock = topBlock;
+            m_welded = true;
+
+            m_isWelding = false;
+            RaisePropertiesChanged();
+        }
+
+        private void UnweldGroup()
+        {
+            if (m_welded)
+            {
+                m_isWelding = true;
+
+                if (Sync.IsServer)
+                {
+                    m_weldedEntityId.Value = null;
+                }
+
+                m_weldedTopBlockId = null;
+
+                MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_topGrid);
+
+                Attach(m_topBlock, false);
+                m_welded = false;
+                m_isWelding = false;
+                RaisePropertiesChanged();
+            }
+        }
+
         private void UpdatePosition(bool forceUpdate = false)
         {
             if (SafeConstraint == null)
@@ -667,16 +807,29 @@ namespace Sandbox.Game.Entities.Blocks
         private void UpdateText()
         {
             DetailedInfo.Clear();
-            if (m_topBlockId.Value == 0)
-                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorDetached));
-            else if (m_constraint != null)
-                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorAttached));
-            else
-                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorAttachingSpecific));
-            DetailedInfo.AppendLine();
+            DetailedInfo.AppendStringBuilder(MyTexts.Get(GetAttachState())).AppendLine();
 
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_PistonCurrentPosition)).AppendDecimal(m_currentPos, 1).Append("m");
             RaisePropertiesChanged();
+        }
+
+        public MyStringId GetAttachState()
+        {
+            if ((m_welded || m_isWelding) && SafeConstraint == null)
+            {
+                return MySpaceTexts.BlockPropertiesText_MotorLocked;
+            }
+            else
+            {
+                if (m_topBlockId.Value == null)
+                    return MySpaceTexts.BlockPropertiesText_MotorDetached;
+                else if (m_topBlockId.Value == 0)
+                    return MySpaceTexts.BlockPropertiesText_HeadAttachingAny;
+                else if (SafeConstraint != null)
+                    return MySpaceTexts.BlockPropertiesText_MotorAttached;
+                else
+                    return MySpaceTexts.BlockPropertiesText_HeadAttachingSpecific;
+            }
         }
 
         private void UpdateAnimation()
@@ -713,18 +866,20 @@ namespace Sandbox.Game.Entities.Blocks
                 Subpart3.PositionComp.SetLocalMatrix(Matrix.CreateWorld(m_subpart3LocPos + Vector3.Up * offset, Vector3.Forward, Vector3.Up));
         }
 
-        private void CreateTopGrid(out MyCubeGrid topGrid, out MyPistonTop topBlock)
+        private void CreateTopGrid(out MyCubeGrid topGrid, out MyPistonTop topBlock, long ownerId)
         {
-            CreateTopGrid(out topGrid, out topBlock, MyDefinitionManager.Static.TryGetDefinitionGroup(BlockDefinition.TopPart));
+            CreateTopGrid(out topGrid, out topBlock, ownerId, MyDefinitionManager.Static.TryGetDefinitionGroup(BlockDefinition.TopPart));
         }
 
-        public void Attach(MyPistonTop topBlock)
+        public bool Attach(MyPistonTop topBlock, bool updateGroup = true)
         {
-            if (CubeGrid == topBlock.CubeGrid)
-                return;
             Debug.Assert(topBlock != null, "Top block cannot be null!");
+
+            if (CubeGrid == topBlock.CubeGrid)
+                return false;
+
             Debug.Assert(m_constraint == null, "Contraint already attached, call detach first!");
-            Debug.Assert(m_topBlockId.Value == topBlock.EntityId, "m_topBlockId must be set prior calling Attach!");
+            Debug.Assert(m_topBlockId.Value.HasValue && (m_topBlockId.Value.Value == 0 || m_topBlockId.Value.Value == topBlock.EntityId), "m_topBlockId must be set prior calling Attach!");
 
             UpdateAnimation();
 
@@ -732,7 +887,20 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_topBlock = topBlock;
                 m_topGrid = m_topBlock.CubeGrid;
-                var rotorBody = m_topGrid.Physics.RigidBody;
+                var topBody = m_topGrid.Physics.RigidBody;
+
+                if (m_topGrid.Physics == null)
+                    return false;
+                if (CubeGrid.Physics.RigidBody == m_topGrid.Physics.RigidBody)
+                {
+                    if (updateGroup && m_welded)
+                    {
+                        OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
+                        OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
+                    }
+                    m_isAttached = true;
+                    return true;
+                }
 
                 var matAD = MatrixD.CreateWorld(Vector3D.Transform(Vector3D.Transform(m_constraintBasePos, Subpart3.WorldMatrix), CubeGrid.PositionComp.WorldMatrixNormalizedInv), PositionComp.LocalMatrix.Forward, PositionComp.LocalMatrix.Up);
                 var matBD = MatrixD.CreateWorld(m_topBlock.Position * m_topBlock.CubeGrid.GridSize, m_topBlock.PositionComp.LocalMatrix.Forward, m_topBlock.PositionComp.LocalMatrix.Up);
@@ -748,7 +916,7 @@ namespace Sandbox.Game.Entities.Blocks
                 breakData.Threshold = BreakOffTreshold;
                 breakData.ReapplyVelocityOnBreak = true;
                 breakData.RemoveFromWorldOnBrake = false;
-                m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, breakData);
+                m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, topBody, breakData);
                 m_constraint.WantRuntime = true;
 
                 CubeGrid.Physics.AddConstraint(m_constraint);
@@ -760,22 +928,27 @@ namespace Sandbox.Game.Entities.Blocks
                     m_constraint = null;
                     m_fixedData.Dispose();
                     m_fixedData = null;
-                    return;
+                    return false;
                 }
                 m_constraint.Enabled = true;
 
                 m_topBlock.Attach(this);
-                m_topGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged;
+                m_isAttached = true;
 
-                OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
-                OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
-
+                if (updateGroup)
+                {
+                    OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
+                    OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
+                    m_topGrid.OnPhysicsChanged += CubeGrid_OnPhysicsChanged;
+                }
                 m_conveyorEndpoint.Attach(topBlock.ConveyorEndpoint as MyAttachableConveyorEndpoint);
                 UpdateText();
+                return true;
             }
+            return false;
         }
 
-        private void CreateTopGrid(out MyCubeGrid topGrid, out MyPistonTop topBlock, MyCubeBlockDefinitionGroup topGroup)
+        private void CreateTopGrid(out MyCubeGrid topGrid, out MyPistonTop topBlock, long builtBy, MyCubeBlockDefinitionGroup topGroup)
         {
             if (topGroup == null)
             {
@@ -805,22 +978,101 @@ namespace Sandbox.Game.Entities.Blocks
 
             topGrid = grid;
             topBlock = (MyPistonTop)topGrid.GetCubeBlock(Vector3I.Zero).FatBlock;
-            //topGrid.SetPosition(topGrid.WorldMatrix.Translation - (topBlock.WorldMatrix.Translation/*Vector3.Transform(topBlock.DummyPosLoc, topGrid.WorldMatrix) - topGrid.WorldMatrix.Translation*/));
 
+            if (!CanPlaceTop(topBlock, builtBy))
+            {
+                topGrid = null;
+                topBlock = null;
+                grid.Close();
+                return;
+            }
+            //topGrid.SetPosition(topGrid.WorldMatrix.Translation - (topBlock.WorldMatrix.Translation/*Vector3.Transform(topBlock.DummyPosLoc, topGrid.WorldMatrix) - topGrid.WorldMatrix.Translation*/));
+      
             MyEntities.Add(grid);
+            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
+            {
+                MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(grid), MyExternalReplicable.FindByObject(CubeGrid));
+            }
             m_topBlockId.Value = topBlock.EntityId;
         }
 
-        internal void Detach()
+        protected virtual bool CanPlaceTop(MyPistonTop topBlock, long builtBy)
         {
+            // Compute the rough actual position for the head, this improves the detection if it can be placed
+            float topDistance = (Subpart3.Model.BoundingBoxSize.Y);
+            Vector3D topPosition = this.Subpart3.WorldMatrix.Translation + this.WorldMatrix.Up * topDistance;
+            float topRadius = topBlock.ModelCollision.HavokCollisionShapes[0].ConvexRadius * 0.9f;
+
+            // First test if we intersect any blocks of our own grid
+            BoundingSphereD sphere = topBlock.Model.BoundingSphere;
+            sphere.Center = topPosition;
+            sphere.Radius = topRadius;
+            CubeGrid.GetBlocksInsideSphere(ref sphere, m_tmpSet);
+
+            // If we intersect more than 1 block (because top sometimes intersects piston), don't add top
+            if (m_tmpSet.Count > 1)
+            {
+                m_tmpSet.Clear();
+                if (builtBy == MySession.Static.LocalPlayerId)
+                    MyHud.Notifications.Add(MyNotificationSingletons.HeadNotPlaced);
+                return false;
+            }
+
+            m_tmpSet.Clear();
+
+            // Next test if we intersect any physics objects
+            HkSphereShape spShape = new HkSphereShape(topRadius);
+            Quaternion q = Quaternion.Identity;
+            MyPhysics.GetPenetrationsShape(topBlock.ModelCollision.HavokCollisionShapes[0], ref topPosition, ref q, m_penetrations, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+
+            // If we have any collisions with anything other than our own grid, don't add the head
+            // We already checked for inner-grid collisions in the previous case
+            for (int i = 0; i < m_penetrations.Count; i++)
+            {
+                MyCubeGrid grid = m_penetrations[i].GetCollisionEntity().GetTopMostParent() as MyCubeGrid;
+                if (grid == null || grid != CubeGrid)
+                {
+                    m_penetrations.Clear();
+                    if (builtBy == MySession.Static.LocalPlayerId)
+                        MyHud.Notifications.Add(MyNotificationSingletons.HeadNotPlaced);
+                    return false;
+                }
+            }
+
+            m_penetrations.Clear();
+
+            return true;
+        }
+
+        public bool Detach(bool updateGroup = true)
+        {
+            if (m_isAttached == false)
+            {
+                return false;
+            }
+
+            m_isAttached = false;
+
             if (m_constraint == null)
-                return;
+                return m_welded;
+
+            if (m_isWelding == false)
+            {
+                UnweldGroup();
+            }
 
             Debug.Assert(m_constraint != null);
             Debug.Assert(m_topGrid != null);
             Debug.Assert(m_topBlock != null);
 
             var tmpTopGrid = m_topGrid;
+            if (updateGroup)
+            {
+                tmpTopGrid.OnPhysicsChanged -= CubeGrid_OnPhysicsChanged;
+                OnConstraintRemoved(GridLinkTypeEnum.Physical, tmpTopGrid);
+                OnConstraintRemoved(GridLinkTypeEnum.Logical, tmpTopGrid);
+            }
+
             m_fixedData.Dispose();
             m_fixedData = null;
             CubeGrid.Physics.RemoveConstraint(m_constraint);
@@ -828,26 +1080,35 @@ namespace Sandbox.Game.Entities.Blocks
             m_constraint = null;
             m_topGrid = null;
             if (m_topBlock != null)
-                m_topBlock.Detach();
-            tmpTopGrid.OnPhysicsChanged -= CubeGrid_OnPhysicsChanged;
+                m_topBlock.Detach(m_welded || m_isWelding);
             m_conveyorEndpoint.Detach(m_topBlock.ConveyorEndpoint as MyAttachableConveyorEndpoint);
 
             m_topBlock = null;
 
-            OnConstraintRemoved(GridLinkTypeEnum.Physical, tmpTopGrid);
-            OnConstraintRemoved(GridLinkTypeEnum.Logical, tmpTopGrid);
             UpdateText();
+            return true;
+        }
+
+        public void SyncDetach()
+        {
+            m_topBlockId.Value = 0; // Look for anything to attach (to make grid split work correctly)
         }
 
         public override void UpdateOnceBeforeFrame()
         {
             TryAttach();
+            TryWeld();
 
             LoadSubparts();
 
             UpdateAnimation();
             UpdatePosition(true);
             UpdatePhysicsShape();
+
+            if (AttachedEntityChanged != null)
+            {
+                AttachedEntityChanged(this);
+            }
             base.UpdateOnceBeforeFrame();
         }
 
@@ -855,25 +1116,161 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!CubeGrid.InScene)
                 return;
-            NeedsUpdate &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
-            if (m_topBlockId.Value == 0) // Detached
+            var updateFlags = NeedsUpdate;
+            updateFlags &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+
+            if (m_topBlockId.Value.HasValue == false) // Detached
             {
                 if (m_constraint != null)
                 {
                     Detach();
                 }
             }
-            else if (m_topBlock == null || m_topBlock.EntityId != m_topBlockId) // Attached to something else or nothing
+            else if (m_topBlockId.Value.Value == 0) // Find anything to attach (only on server)
+            {
+                if (Sync.IsServer)
+                {
+                    var top = FindMatchingTop();
+                    if (top != null)
+                    {
+                        if (m_constraint != null)
+                        {
+                            Detach();
+                        }
+
+                        m_topBlockId.Value = top.EntityId;
+                        Attach(top);
+                    }
+                }
+            }
+            else if (m_topBlockId.Value.HasValue && ((false == m_welded && (m_topBlock == null || m_topBlock.EntityId != m_topBlockId.Value)) ||
+                     (m_welded && m_weldedTopBlockId != m_topBlockId.Value))) // Attached to something else or nothing
             {
                 Detach();
                 MyPistonTop top;
-                if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId.Value, out top) && !top.MarkedForClose && top.CubeGrid.InScene)
+                bool attached = false;
+                if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId.Value.Value, out top) && !top.MarkedForClose && top.CubeGrid.InScene)
                 {
-                    Attach(top);
+                    if (Sync.IsServer)
+                    {
+                        m_topBlockId.Value = top.EntityId;
+                    }
+                    attached = Attach(top);
                 }
             }
+            NeedsUpdate = updateFlags;
             RefreshConstraint();
+        }
+
+        protected void TryWeld()
+        {
+            if (m_weldedEntityId.Value == null)
+            {
+                if (m_welded)
+                {
+                    UnweldGroup();
+                }
+            }
+            else if (m_weldedEntityId.Value != m_weldedTopBlockId && m_topBlock != null)
+            {
+                WeldGroup();
+            }
+
+        }
+
+        protected MyPistonTop FindMatchingTop()
+        {
+            Debug.Assert(CubeGrid != null);
+            Debug.Assert(m_penetrations != null);
+            Debug.Assert(CubeGrid.Physics != null);
+            if (CubeGrid == null)
+            {
+                MySandboxGame.Log.WriteLine("MyPistonBase.FindMatchingTop(): Cube grid == null!");
+                return null;
+            }
+
+            if (m_penetrations == null)
+            {
+                MySandboxGame.Log.WriteLine("MyPistonBase.FindMatchingTop(): penetrations cache == null!");
+                return null;
+            }
+
+            if (CubeGrid.Physics == null)
+            {
+                MySandboxGame.Log.WriteLine("MyPistonBase.FindMatchingTop(): Cube grid physics == null!");
+                return null;
+            }
+
+            Quaternion orientation;
+            Vector3D pos;
+            Vector3 halfExtents;
+            ComputeTopQueryBox(out pos, out halfExtents, out orientation);
+            try
+            {
+                MyPhysics.GetPenetrationsBox(ref halfExtents, ref pos, ref orientation, m_penetrations, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                foreach (var obj in m_penetrations)
+                {
+                    var entity = obj.GetCollisionEntity();
+                    if (entity == null || entity == CubeGrid)
+                        continue;
+
+                    var grid = entity as MyCubeGrid;
+                    if (grid == null)
+                        continue;
+
+                    // Tops should always be on position [0,0,0];
+                    var blockPos = grid.RayCastBlocks(pos, pos + WorldMatrix.Up);
+                    if (blockPos.HasValue)
+                    {
+                        var slimBlock = grid.GetCubeBlock(blockPos.Value);
+                        if (slimBlock == null || slimBlock.FatBlock == null)
+                            continue;
+
+                        var top = slimBlock.FatBlock as MyPistonTop;
+                        if (top != null)
+                            return top;
+                    }
+                }
+            }
+            finally
+            {
+                m_penetrations.Clear();
+            }
+            return null;
+        }
+
+        public void Reattach(bool force = false)
+        {
+            if (m_topBlock == null || m_topBlock.Closed)
+            {
+                return;
+            }
+
+            if (force == false && (m_welded || m_isWelding))
+            {
+                return;
+            }
+
+            var head = m_topBlock;
+            bool detached = Detach(force);
+            if (MarkedForClose || Closed || head.MarkedForClose || head.Closed || CubeGrid.MarkedForClose || CubeGrid.Closed)
+            {
+                return;
+            }
+            bool attached = Attach(head, force);
+            //Debug.Assert(detached && attached);
+            if (!head.MarkedForClose && head.CubeGrid.Physics != null)
+                head.CubeGrid.Physics.ForceActivate();
+        }
+
+        public virtual void ComputeTopQueryBox(out Vector3D pos, out Vector3 halfExtents, out Quaternion orientation)
+        {
+            var world = this.WorldMatrix;
+            orientation = Quaternion.CreateFromRotationMatrix(world);
+            halfExtents = Vector3.One * CubeGrid.GridSize * 0.35f;
+            halfExtents.Y = CubeGrid.GridSize * 0.25f;
+            pos = Subpart3.WorldMatrix.Translation + Subpart3.PositionComp.WorldVolume.Radius * WorldMatrix.Up + 0.5f * CubeGrid.GridSize * WorldMatrix.Up;
         }
 
         public override void OnRemovedFromScene(object source)
@@ -921,27 +1318,18 @@ namespace Sandbox.Game.Entities.Blocks
             m_lastPosition = m_currentPos.Value;
         }
 
-        #region ModAPI implementation
-        event Action<bool> Sandbox.ModAPI.IMyPistonBase.LimitReached
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
         {
-            add { LimitReached += value; }
-            remove { LimitReached -= value; }
+            return null;
         }
 
-        float IMyPistonBase.Velocity
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
         {
-            get { return Velocity; }
+            return null;
         }
 
-        float IMyPistonBase.MinLimit
-        {
-            get { return MinLimit; }
-        }
-
-        float IMyPistonBase.MaxLimit
-        {
-            get { return MaxLimit; }
-        }
         #endregion
     }
 }

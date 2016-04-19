@@ -354,7 +354,7 @@ namespace Sandbox.Game.Entities
             {
                 m_currentOpening.Add(0f);
                 m_currentSpeed.Add(0f);
-                m_emitter.Add(new MyEntity3DSoundEmitter(this));
+                m_emitter.Add(new MyEntity3DSoundEmitter(this, true));
 
                 // make sure maxOpen is always positive and invert accordingly
                 if (m_openingSequence[i].MaxOpen < 0f)
@@ -434,7 +434,7 @@ namespace Sandbox.Game.Entities
 
         private void StartSound(int emitterId, MySoundPair cuePair)
         {
-            if ((m_emitter[emitterId].Sound != null) && (m_emitter[emitterId].Sound.IsPlaying) && (m_emitter[emitterId].SoundId == cuePair.SoundId))
+            if ((m_emitter[emitterId].Sound != null) && (m_emitter[emitterId].Sound.IsPlaying) && (m_emitter[emitterId].SoundId == cuePair.Arcade || m_emitter[emitterId].SoundId == cuePair.Realistic))
                 return;
 
             m_emitter[emitterId].StopSound(true);

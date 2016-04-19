@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using VRage.ModAPI;
 using VRageMath;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.ModAPI
 {

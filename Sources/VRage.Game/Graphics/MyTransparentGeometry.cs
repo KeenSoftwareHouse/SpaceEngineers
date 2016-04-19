@@ -34,13 +34,13 @@ namespace VRage.Game
         public static Color ColorizeColor { get; set; }
         public static Vector3 ColorizePlaneNormal { get; set; }
         public static float ColorizePlaneDistance { get; set; }
-        public static bool EnableColorize { get; set; }
+        //public static bool EnableColorize { get; set; }
 
         static bool IsEnabled
         {
             get
             {
-                return true;
+                return MyRenderProxy.DebugOverrides.BillboardsStatic;
                 // TODO: Par
                 //return MyRender.IsModuleEnabled(MyRenderStage.AlphaBlend, MyRenderModuleEnum.TransparentGeometry) 
                 //    || MyRender.IsModuleEnabled(MyRenderStage.AlphaBlendPreHDR, MyRenderModuleEnum.TransparentGeometry)
@@ -105,6 +105,8 @@ namespace VRage.Game
                 return;
 
             billboard.Priority = priority;
+            billboard.UVOffset = Vector2.Zero;
+            billboard.UVSize = Vector2.One;
 
             MyPolyLineD polyLine;
             polyLine.LineDirectionNormalized = directionNormalized;
@@ -313,10 +315,11 @@ namespace VRage.Game
            billboard.Position3 = quad.Point3;
 
            billboard.UVOffset = uvOffset;
+           billboard.UVSize = Vector2.One;
 
-           EnableColorize = colorize;
+           billboard.EnableColorize = colorize;
 
-           if (EnableColorize)
+           if (billboard.EnableColorize)
                billboard.Size = (float)(billboard.Position0 - billboard.Position2).Length();
 
            //  Distance for sorting
@@ -443,10 +446,12 @@ namespace VRage.Game
                     if (!sort)
                         effectBillboard.ContainedBillboards.Add(billboard);
 
+                    billboard.CustomViewProjection = -1;
+
                     MyPerformanceCounter.PerCameraDrawWrite.NewParticlesCount++;
                 }
-
-                billboard.CustomViewProjection = -1;
+                else
+                    billboard = null;
 
                 MyTransparentGeometry.EndParticleProfilingBlock();
             }

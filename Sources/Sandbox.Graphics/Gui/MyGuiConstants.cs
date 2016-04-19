@@ -11,6 +11,7 @@ namespace Sandbox.Graphics.GUI
     {
         public static readonly Vector2 GUI_OPTIMAL_SIZE = new Vector2(1600f, 1200f);
         public const float DOUBLE_CLICK_DELAY = 500;
+        public const float CLICK_RELEASE_DELAY = 500;
         public const float DEFAULT_TEXT_SCALE = 1f;
         public const float HUD_TEXT_SCALE = 0.8f;
         public const float HUD_LINE_SPACING = 0.025f;

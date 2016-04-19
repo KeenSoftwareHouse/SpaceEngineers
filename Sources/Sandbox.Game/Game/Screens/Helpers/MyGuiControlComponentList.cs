@@ -109,9 +109,10 @@ namespace Sandbox.Game.Screens.Helpers
                 MinSize = MaxSize = Size;
                 var padding = new MyGuiBorderThickness(0.0025f, 0.001f);
 
-                Elements.Add(new MyGuiControlPanel(
-                    size: Size - padding.SizeChange,
-                    texture: def.Icon));
+                for (int i = 0; i < def.Icons.Length; i++)
+                    Elements.Add(new MyGuiControlPanel(
+                        size: Size - padding.SizeChange,
+                        texture: def.Icons[0]));
 
                 if (def.IconSymbol.HasValue)
                 {

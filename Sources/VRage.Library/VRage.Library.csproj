@@ -106,6 +106,7 @@
     <Compile Include="Collections\CacheList.cs" />
     <Compile Include="Collections\CachingDictionary.cs" />
     <Compile Include="Collections\CachingHashSet.cs" />
+    <Compile Include="Collections\ConcurrentCachingList.cs" />
     <Compile Include="Collections\CachingList.cs" />
     <Compile Include="Collections\DynamicSerializerDelegate.cs" />
     <Compile Include="Collections\EmptyArray.cs" />
@@ -267,6 +268,7 @@
     <Compile Include="ParallelTasks\SpinLockRef.cs" />
     <Compile Include="ParallelTasks\Task.cs" />
     <Compile Include="ParallelTasks\TaskException.cs" />
+    <Compile Include="ParallelTasks\WorkData.cs" />
     <Compile Include="ParallelTasks\Worker.cs" />
     <Compile Include="ParallelTasks\WorkItem.cs" />
     <Compile Include="ParallelTasks\WorkOptions.cs" />
@@ -372,6 +374,10 @@
     <Compile Include="Serialization\BlitCollectionSerializer.cs" />
     <Compile Include="Serialization\BlitSerializer.cs" />
     <Compile Include="Memory\ByteStream.cs" />
+    <Compile Include="Serialization\MyObjectFlags.cs" />
+    <Compile Include="Serialization\MyPrimitiveFlags.cs" />
+    <Compile Include="Serialization\MySerializeKind.cs" />
+    <Compile Include="Serialization\SerializeAttribute.cs" />
     <Compile Include="Serialization\TupleSerializer.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\ProtoSerializer.cs" />

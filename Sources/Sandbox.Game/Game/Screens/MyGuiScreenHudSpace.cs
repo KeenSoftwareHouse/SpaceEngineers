@@ -185,6 +185,17 @@ namespace Sandbox.Game.Gui
                 MyHud.ObjectiveLine.AdvanceObjective();
             }
 
+            if (!MyHud.MinimalHud)
+            {
+                ProfilerShort.Begin("Marker rendering");
+                ProfilerShort.Begin("m_markerRender.Draw");
+                m_markerRender.Draw();
+                ProfilerShort.BeginNextBlock("DrawTexts");
+                DrawTexts();
+                ProfilerShort.End();
+                ProfilerShort.End();
+            }
+
             m_toolbarControl.Visible = !(m_hiddenToolbar || MyHud.MinimalHud);
             
             Vector2 position = new Vector2(0.99f, 0.75f);
@@ -201,7 +212,7 @@ namespace Sandbox.Game.Gui
 
             m_rotatingWheelControl.Visible = MyHud.RotatingWheelVisible && !MyHud.MinimalHud;
 
-            m_chatControl.Visible = !(MyScreenManager.GetScreenWithFocus() is MyGuiScreenScenarioMpBase);
+            m_chatControl.Visible = !(MyScreenManager.GetScreenWithFocus() is MyGuiScreenScenarioMpBase) && (!MyHud.MinimalHud || m_chatControl.HasFocus);
 
             if (!base.Draw())
                 return false;
@@ -216,16 +227,19 @@ namespace Sandbox.Game.Gui
             m_cameraInfoMultilineControl.Position = bgPos;
             m_cameraInfoMultilineControl.TextScale = 0.9f;
 
-			bool inNaturalGravity = false;
-			var cockpit = MySession.Static.ControlledEntity  as MyCockpit;
-			if (cockpit != null)
-			{
-				var characterPosition = cockpit.PositionComp.GetPosition();
-				inNaturalGravity = MyGravityProviderSystem.CalculateHighestNaturalGravityMultiplierInPoint(characterPosition) != 0;
-			}
+            if (!MyHud.MinimalHud)
+            {
+                bool inNaturalGravity = false;
+                var cockpit = MySession.Static.ControlledEntity as MyCockpit;
+                if (cockpit != null)
+                {
+                    var characterPosition = cockpit.PositionComp.GetPosition();
+                    inNaturalGravity = MyGravityProviderSystem.CalculateHighestNaturalGravityMultiplierInPoint(characterPosition) != 0;
+                }
 
-			if (!MyHud.MinimalHud && inNaturalGravity)
-				DrawArtificialHorizonAndAltitude();
+                if (inNaturalGravity)
+                    DrawArtificialHorizonAndAltitude();
+            }
 
             MyHud.Notifications.Draw();
 
@@ -286,7 +300,7 @@ namespace Sandbox.Game.Gui
 
                 //m_chatControl.Visible = !MyHud.MinimalHud;
 
-                    DrawCameraInfo(MyHud.CameraInfo);
+                DrawCameraInfo(MyHud.CameraInfo);
             }
             ProfilerShort.Begin("Draw netgraph");
             if (MyFakes.ENABLE_NETGRAPH && MyHud.IsNetgraphVisible)
@@ -798,14 +812,8 @@ namespace Sandbox.Game.Gui
             gpsMarkers.Sort();//re-sort by distance from new camera coordinates
             foreach (var gps in gpsMarkers.MarkerEntities)
             {
-                m_tmpHudEntityParams.Text.Clear().Append(gps.Name);//reuse single instance to reduce overhead
-                m_markerRender.DrawLocationMarker(
-                    m_gpsHudMarkerStyle,
-                    gps.Coords,
-                    m_tmpHudEntityParams,
-                    0, 0);
+                m_markerRender.AddGPS(gps.Coords, gps.Name);
             }
-            DrawTexts();
             ProfilerShort.End();
         }
 
@@ -814,19 +822,8 @@ namespace Sandbox.Game.Gui
             ProfilerShort.Begin("MyGuiScreenHud.DrawGpsMarkers");
             foreach (var buttonPanel in buttonPanelMarkers.MarkerEntities)
             {
-
-                m_tmpHudEntityParams.FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_TEXT;
-                m_tmpHudEntityParams.IconColor = MyHudConstants.GPS_COLOR;
-                m_tmpHudEntityParams.OffsetText = true;
-
-                m_tmpHudEntityParams.Text.Clear().Append(buttonPanel.Name);//reuse single instance to reduce overhead
-                m_markerRender.DrawLocationMarker(
-                    m_buttonPanelHudMarkerStyle,
-                    buttonPanel.Coords,
-                    m_tmpHudEntityParams,
-                    0, 0);
+                m_markerRender.AddButtonMarker(buttonPanel.Coords, buttonPanel.Name);
             }
-            DrawTexts();
             ProfilerShort.End();
         }
 
@@ -846,42 +843,33 @@ namespace Sandbox.Game.Gui
                 m_nearestDistanceSquared[i] = float.MaxValue;
             }
 
-            foreach (var oreMarker in oreMarkers)
+            Vector3D controlledEntityPosition = Vector3D.Zero;
+            if (MySession.Static != null && MySession.Static.ControlledEntity != null)
+                controlledEntityPosition = (MySession.Static.ControlledEntity as MyEntity).WorldMatrix.Translation;
+
+            foreach (MyEntityOreDeposit oreMarker in oreMarkers)
             {
-                bool debugBoxDrawn = false;
-                foreach (var depositData in oreMarker.Materials)
+                for (int i = 0; i<oreMarker.Materials.Count; i++)
                 {
+                    MyEntityOreDeposit.Data depositData = oreMarker.Materials[i];
+
                     var oreMaterial = depositData.Material;
                     Vector3D oreWorldPosition;
+                    //ProfilerShort.Begin("ComputeWorldPosition");
                     depositData.ComputeWorldPosition(oreMarker.VoxelMap, out oreWorldPosition);
 
-                    float distanceSquared = float.MaxValue;
-                    if (MySession.Static != null && MySession.Static.ControlledEntity != null)
-                    {
-                       distanceSquared = Vector3.DistanceSquared((Vector3)oreWorldPosition, (Vector3)((MyEntity)MySession.Static.ControlledEntity).WorldMatrix.Translation);
-                    }
+                    //ProfilerShort.BeginNextBlock("Distance");
+                    Vector3D diff = (controlledEntityPosition - oreWorldPosition);
+                    float distanceSquared = (float)diff.LengthSquared();
 
+                    //ProfilerShort.BeginNextBlock("Use");
                     float nearestDistanceSquared = m_nearestDistanceSquared[oreMaterial.Index];
                     if (distanceSquared < nearestDistanceSquared)
                     {
                         m_nearestOreDeposits[oreMaterial.Index] = MyTuple.Create(oreWorldPosition, oreMarker);
                         m_nearestDistanceSquared[oreMaterial.Index] = distanceSquared;
                     }
-
-                    if (false && !debugBoxDrawn)
-                    {
-                        const int shift = MyOreDetectorComponent.CELL_SIZE_IN_VOXELS_BITS + MyOreDetectorComponent.QUERY_LOD;
-                        var worldPosition = oreWorldPosition;
-                        Vector3I cellCoord;
-                        MyVoxelCoordSystems.WorldPositionToVoxelCoord(oreMarker.VoxelMap.PositionLeftBottomCorner, ref worldPosition, out cellCoord);
-                        cellCoord >>= shift;
-                        worldPosition = cellCoord * MyOreDetectorComponent.CELL_SIZE_IN_METERS + MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF;
-                        worldPosition += oreMarker.VoxelMap.PositionLeftBottomCorner;
-                        var bbox = new BoundingBoxD(worldPosition, worldPosition + MyOreDetectorComponent.CELL_SIZE_IN_METERS);
-
-                        VRageRender.MyRenderProxy.DebugDrawAABB(bbox, Vector3.One, 1f, 1f, false);
-                        debugBoxDrawn = true;
-                    }
+                    //ProfilerShort.End();
                 }
             }
 
@@ -895,24 +883,9 @@ namespace Sandbox.Game.Gui
 
                 MyVoxelMaterialDefinition voxelMaterial = MyDefinitionManager.Static.GetVoxelMaterialDefinition((byte)i);
                 string oreSubtype = voxelMaterial.MinedOre;
-
-                var hudParams = new MyHudEntityParams()
-                {
-                    FlagsEnum = MyHudIndicatorFlagsEnum.SHOW_ALL,
-                    Text = new StringBuilder(oreSubtype),
-                    OffsetText = true,
-                    Icon = MyHudTexturesEnum.HudOre,
-                    IconSize = new Vector2(0.02f, 0.02f)
-                };
-
-                m_markerRender.DrawLocationMarker(
-                    m_oreHudMarkerStyle,
-                    nearestOreDeposit.Item1,
-                    hudParams,
-                    0, 0);
+                
+                m_markerRender.AddOre(nearestOreDeposit.Item1, oreSubtype);
             }
-
-            DrawTexts();
 
             ProfilerShort.End();
         }
@@ -932,13 +905,7 @@ namespace Sandbox.Game.Gui
                 if (hudParams.ShouldDraw != null && !hudParams.ShouldDraw())
                     continue;
 
-                m_markerRender.DrawLocationMarker(
-                    m_markerRender.GetStyleForRelation(VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies),
-                    target.Key.PositionComp.WorldAABB.Center,
-                    hudParams,
-                    0,
-                    0
-                );
+                m_markerRender.AddTarget(target.Key.PositionComp.WorldAABB.Center);
             }
             
             ProfilerShort.End();
@@ -948,13 +915,7 @@ namespace Sandbox.Game.Gui
         {
             if (checker.WorldCenterHintVisible)
             {
-                m_markerRender.DrawLocationMarker(
-                    m_markerRender.GetStyleForRelation(VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies),
-                    Vector3.Zero,
-                    MyHudWorldBorderChecker.HudEntityParams,
-                    0.0f,
-                    1.0f
-                );
+                m_markerRender.AddPOI(Vector3D.Zero, MyHudWorldBorderChecker.HudEntityParams.Text, MyRelationsBetweenPlayerAndBlock.Enemies);
             }
         }
 
@@ -976,18 +937,8 @@ namespace Sandbox.Game.Gui
                     if (hudParams.ShouldDraw != null && !hudParams.ShouldDraw())
                         continue;
 
-                    var hudParams2 = hudParams;
-                    //hudParams2.Text = new StringBuilder("sdsdff");
-                    Vector3 position = hudParams2.Entity.PositionComp.GetPosition();
-
-                    m_markerRender.DrawLocationMarker(
-                        m_markerRender.GetStyleForRelation(hudParams.TargetMode),
-                        (Vector3)entity.LocationForHudMarker,
-                        hudParams2,
-                        0, 0);
+                    m_markerRender.AddHacking(entity.LocationForHudMarker, hudParams.Text);
                 }
-
-                DrawTexts();
             }
             finally
             {

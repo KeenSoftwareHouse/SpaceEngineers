@@ -16,7 +16,7 @@ using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
+    public class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
         where TBlock : MyTerminalBlock
     {
         public delegate void ListContentDelegate(TBlock block, ICollection<MyGuiControlListbox.Item> listBoxContent, ICollection<MyGuiControlListbox.Item> listBoxSelectedItems);

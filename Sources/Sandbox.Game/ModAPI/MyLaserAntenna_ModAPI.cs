@@ -21,7 +21,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (coords != null)
             {
-                this.sync.PasteCoordinates(coords);
+                PasteCoordinates(coords);
             }
         }
 

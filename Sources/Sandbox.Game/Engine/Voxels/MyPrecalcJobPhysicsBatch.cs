@@ -30,14 +30,16 @@ namespace Sandbox.Engine.Voxels
 
         public MyPrecalcJobPhysicsBatch() : base(true) { }
 
-        public static void Start(MyVoxelPhysicsBody targetPhysics, ref HashSet<Vector3I> cellBatchForSwap)
+        public static void Start(MyVoxelPhysicsBody targetPhysics, ref HashSet<Vector3I> cellBatchForSwap, int lod)
         {
             var job = m_instancePool.Allocate();
 
+            job.Lod = lod;
+
             job.m_targetPhysics = targetPhysics;
             MyUtils.Swap(ref job.CellBatch, ref cellBatchForSwap);
-            Debug.Assert(targetPhysics.RunningBatchTask == null);
-            targetPhysics.RunningBatchTask = job;
+            Debug.Assert(targetPhysics.RunningBatchTask[lod] == null);
+            targetPhysics.RunningBatchTask[lod] = job;
             MyPrecalcComponent.EnqueueBack(job);
         }
 
@@ -79,7 +81,7 @@ namespace Sandbox.Engine.Voxels
 
             if (MyPrecalcComponent.Loaded && !m_isCancelled)
             {
-                Debug.Assert(m_targetPhysics.RunningBatchTask == this);
+                Debug.Assert(m_targetPhysics.RunningBatchTask[Lod] == this);
                 m_targetPhysics.OnBatchTaskComplete(m_newShapes, Lod);
             }
 
@@ -89,8 +91,8 @@ namespace Sandbox.Engine.Voxels
                     newShape.Base.RemoveReference();
             }
 
-            if (m_targetPhysics.RunningBatchTask == this)
-                m_targetPhysics.RunningBatchTask = null;
+            if (m_targetPhysics.RunningBatchTask[Lod] == this)
+                m_targetPhysics.RunningBatchTask[Lod] = null;
             m_targetPhysics = null;
             CellBatch.Clear();
             m_newShapes.Clear();

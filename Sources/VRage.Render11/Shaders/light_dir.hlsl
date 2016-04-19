@@ -3,6 +3,13 @@
 
 #include <Lighting/light.h>
 
+Texture2D<float> ShadowsMainView : register(MERGE(t, SHADOW_SLOT));
+
+float3 GetSunColor(float3 L, float3 V, float3 color, float sizeMult)
+{
+    return (color + 0.5f + float3(0.5f, 0.35f, 0.0f)) * pow(saturate(dot(L, -V)), 4000.0f) * sizeMult;
+}
+
 void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 #ifdef SAMPLE_FREQ_PASS
 	, uint sample_index : SV_SampleIndex
@@ -31,26 +38,32 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 #endif
 	}
 
-    float shadowMultiplier = mad(frame_.shadowFadeout, -frame_.skyboxBrightness, frame_.shadowFadeout);
-    shadow = mad(shadow, 1 - shadowMultiplier, shadowMultiplier);
+	float shadowMultiplier = mad(frame_.shadowFadeout, -frame_.skyboxBrightness, frame_.shadowFadeout);
+	shadow = mad(shadow, 1 - shadowMultiplier, shadowMultiplier);
 #endif
 
 	if(depth_not_background(input.native_depth)) 
 	{
         float3 shaded = 0;
         float sqrtAo = sqrt(ao);
-        float global_ambient = min(frame_.skyboxBrightness * lerp(0.000075f, 1.0f, saturate(input.depth / 100000.0f)), 0.075f) + (1 - frame_.skyboxBrightness)*0.0015f;
 
+		// emissive
         shaded += input.base_color * input.emissive;
-		shaded += main_directional_light(input) * shadow * sqrtAo;
-        shaded += mad(input.albedo, ambient_diffuse(input.f0, input.gloss, input.N, input.V, global_ambient), ambient_specular(input.f0, input.gloss, input.N, input.V))*ao;
+		
+		// ambient diffuse & specular
+		shaded += ambient_diffuse(input.albedo, input.N, input.depth) * ao;
+		shaded += ambient_specular(input.f0, input.gloss, input.N, input.V) * ao;
 
-        float4 ambientSample = SkyboxIBLTex.SampleLevel(TextureSampler, input.N, mad(-input.gloss, IBL_MAX_MIPMAP, IBL_MAX_MIPMAP));
-        for ( int sunIndex = 0; sunIndex < frame_.additionalSunsInUse; ++sunIndex )
-            shaded += back_directional_light(input, sunIndex) * sqrtAo * ambientSample.w;
+		// main directional light diffuse & specular
+		shaded += main_directional_light(input) * shadow * sqrtAo;
+
+		// additional directional light diffuse & specular
+		// TODO: purpose of w?
+		/*float4 ambientSample = SkyboxIBLTex.SampleLevel(TextureSampler, input.N, mad(-input.gloss, IBL_MAX_MIPMAP, IBL_MAX_MIPMAP)) / 10000;
+		for (int sunIndex = 0; sunIndex < max(1, frame_.additionalSunsInUse); ++sunIndex)
+			shaded += back_directional_light(input, sunIndex) * sqrtAo * ambientSample.w;*/
 
 		output = add_fog(shaded, input.depth, -input.V, get_camera_position());
-		//output = global_ambient;
 	}
 	else 	
 	{

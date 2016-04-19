@@ -292,11 +292,11 @@ namespace Sandbox.Engine.Voxels
             m_pixelSizeRecip = 1f / m_pixelSize;
             m_pixelSizeRecip2 = .5f / m_pixelSize;
 
-            // Calculate maximum toelerable curvature deviation when approximating the surface by a line
+            // Calculate maximum tolerable curvature deviation when approximating the surface by a line
             // We use this for LOD1 raycasts so the maximum deviation is 8m(half a LOD1 cell)
 
-            // Find the angle theta that produces an arc whose secant aproximation deviates from the circle at most 8 meters
-            var theta = Math.Acos((radius - 1)/radius); // this produces theta/2 but we use that later and I refuce to multiply and divide
+            // Find the angle theta that produces an arc whose secant approximation deviates from the circle at most 8 meters
+            var theta = Math.Acos((radius - 1)/radius); // this produces theta/2 but we use that later anyways
 
             // Find the length of this secant segment.
             var threshold = Math.Sin(theta)*2*radius;
@@ -454,11 +454,11 @@ namespace Sandbox.Engine.Voxels
          * Catmull-Rom Patch:
          *
          * Given a matrix of points C = [(a0, a1, a2, a3), (a4, a5, a6, a7), (a8, a9, a10, a11), (a12, a13, a14, a15)]
-         * where each a_i is a controll point with coordinates (x,y,z). The patch is then aparameterized by steps s and t.
+         * where each a_i is a controll point with coordinates (x,y,z). The patch is then parametrized by steps s and t.
          *
          * We can divide the operation into per dimension operations using the coordinate matrices Cx, Cy, Cz.
          *
-         * For any given s and t the poisition on the curve is given by S * CR * C * CRt * T, where CR is the catmull-rom coefficient matrix,
+         * For any given s and t the position on the curve is given by S * CR * C * CRt * T, where CR is the catmull-rom coefficient matrix,
          * CRt is the transpose of the coefficient matrix and S = (1, s, s^2, s^3), T = (1, t, t^2, t^3).
          * 
          * Frequently the matrix CR * C * CRT is called G, and it's submatrices Gx, Gy, Gz.
@@ -466,11 +466,11 @@ namespace Sandbox.Engine.Voxels
          * When the controll points are in a regular grid we can map s and t to x and y.
          *  Then we can calculate the height using only Gz and the normal using Gz and the scale of the grid.
          * 
-         * Notice that the difference between this method and Bezier or B-Spline is simply the coefficient matrix.
+         * Notice that the difference between this method and Bézier or B-Spline is simply the coefficient matrix.
          * 
-         * Also the CR matrix is parameterazibale, we use the centripetal form (a = .5). This form provides the best smoothing.
+         * Also the CR matrix is parametrizable, we use the centripetal form (a = .5). This form provides the best smoothing.
          * 
-         * With this explanation in mind I have optimized the code heavily to remove redundant or unecessary multiplications.
+         * With this explanation in mind I have optimized the code heavily to remove redundant or unnecessary multiplications.
          *
          */
         private float SampleHeightBicubic(float s, float t, ref Matrix Gz, out Vector3 Normal)
@@ -539,13 +539,50 @@ namespace Sandbox.Engine.Voxels
 
         #endregion
 
+        #region Get Value Methods
+
+        private const bool ForceBilinear = false;
+
+        internal float SignedDistanceLocalCacheless(Vector3 position)
+        {
+            float distance = position.Length();
+
+            if (distance > .1 && distance >= InnerRadius - 1)
+            {
+                if (distance > OuterRadius + 1) return float.PositiveInfinity;
+
+                float signedDistance = distance - m_radius;
+                int face;
+                Vector2 tex;
+                MyCubemapHelpers.CalculateSampleTexcoord(ref position, out face, out tex);
+
+                Vector3 normal;
+
+                float value = GetValueForPositionCacheless(face, ref tex, out normal);
+
+                if (m_detail.Matches(normal.Z))
+                {
+                    float dtx = tex.X * m_detail.Factor;
+                    float dty = tex.Y * m_detail.Factor;
+
+                    dtx -= (float)Math.Floor(dtx);
+                    dty -= (float)Math.Floor(dty);
+
+                    value += m_detail.GetValue(dtx, dty, normal.Z);
+                }
+
+                return (signedDistance - value) * normal.Z;
+            }
+            return -1;
+        }
+
 
         /**
          * Gets the elevation for a position.
          *
          * Does not use the cache, does not consider details.
          */
-        public unsafe float GetValueForPosition(int face, ref Vector2 texcoord, out Vector3 localNormal)
+        public unsafe float GetValueForPositionCacheless(int face, ref Vector2 texcoord, out Vector3 localNormal)
         {
             if (m_heightmap == null)
             {
@@ -596,7 +633,7 @@ namespace Sandbox.Engine.Voxels
             MyCubemapHelpers.CalculateSampleTexcoord(ref localPos, out face, out tex);
 
             Vector3 norm;
-            float value = GetValueForPosition(face, ref tex, out norm);
+            float value = GetValueForPositionCacheless(face, ref tex, out norm);
 
             value += Radius;
 
@@ -604,14 +641,11 @@ namespace Sandbox.Engine.Voxels
         }
 
         /**
-         * Get the height for a position using the coefficient cache. Calculated positioin is for LOD0.
+         * Get the height for a position using the coefficient cache. Calculated position is for LOD0.
          */
         public unsafe float GetValueForPositionWithCache(int face, ref Vector2 texcoord, out Vector3 localNormal)
         {
             Vector2 coords = texcoord * m_mapResolutionMinusOne;
-
-            float s = coords.X - (float)Math.Floor(coords.X);
-            float t = coords.Y - (float)Math.Floor(coords.Y);
 
             int sx = (int)coords.X;
             int sy = (int)coords.Y;
@@ -644,7 +678,7 @@ namespace Sandbox.Engine.Voxels
             int sx = (int)coords.X;
             int sy = (int)coords.Y;
 
-            if (lodSize < m_pixelSize)
+            if (lodSize < m_pixelSize && !ForceBilinear)
             {
                 Vector3I cellCoord = new Vector3I(sx, sy, face);
 
@@ -715,6 +749,8 @@ namespace Sandbox.Engine.Voxels
             }
             return -lodVoxelSize;
         }
+
+        #endregion
 
         #endregion
 
@@ -998,7 +1034,7 @@ namespace Sandbox.Engine.Voxels
 
                 bool intersects;
 
-                if (!req.Flags.HasFlag(MyVoxelRequestFlags.DoNotCheck))
+                if (!req.Flags.HasFlags(MyVoxelRequestFlags.DoNotCheck))
                 {
                     BoundingSphere sphere = new BoundingSphere(
                     Vector3.Zero,
@@ -1080,7 +1116,7 @@ namespace Sandbox.Engine.Voxels
 
                 if (cont == ContainmentType.Disjoint)
                 {
-                    if (req.RequestFlags.HasFlag(MyVoxelRequestFlags.ContentChecked))
+                    if (req.RequestFlags.HasFlags(MyVoxelRequestFlags.ContentChecked))
                     {
                         flags |= MyVoxelRequestFlags.EmptyContent | MyVoxelRequestFlags.ContentCheckedDeep | MyVoxelRequestFlags.ContentChecked;
                     }
@@ -1091,7 +1127,7 @@ namespace Sandbox.Engine.Voxels
                 }
                 else if (cont == ContainmentType.Contains)
                 {
-                    if (req.RequestFlags.HasFlag(MyVoxelRequestFlags.ContentChecked))
+                    if (req.RequestFlags.HasFlags(MyVoxelRequestFlags.ContentChecked))
                     {
                         flags |= MyVoxelRequestFlags.FullContent | MyVoxelRequestFlags.ContentCheckedDeep | MyVoxelRequestFlags.ContentChecked;
                     }

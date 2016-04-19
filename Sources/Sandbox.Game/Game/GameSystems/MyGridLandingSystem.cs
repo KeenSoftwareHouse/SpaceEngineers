@@ -10,7 +10,7 @@ using Sandbox.Common.ObjectBuilders;
 
 namespace Sandbox.Game.GameSystems
 {
-    class MyGridLandingSystem
+    public class MyGridLandingSystem
     {
         static readonly int GEAR_MODE_COUNT = MyUtils.GetMaxValueFromEnum<LandingGearMode>() + 1;
         static readonly List<IMyLandingGear> m_gearTmpList = new List<IMyLandingGear>();

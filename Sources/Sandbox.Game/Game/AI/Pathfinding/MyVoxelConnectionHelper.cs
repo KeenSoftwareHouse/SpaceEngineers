@@ -172,7 +172,7 @@ namespace Sandbox.Game.AI.Pathfinding
             {
                 if (query.Current.EdgeIndex == edgeIndex && query.Current.FirstPoint == firstPoint)
                 {
-                    Debug.Assert(moved == false, "The point was already moved!");
+                    //Debug.Assert(moved == false, "The point was already moved!");
                     m_outerEdgePoints.MovePoint(query.StorageIndex, ref currentPosition);
                     moved = true;
                 }

@@ -14,6 +14,7 @@ namespace VRage.Audio
         float? CustomMaxDistance { get; }
         float? CustomVolume { get; }
 
+        bool Realistic { get; }
         bool Force3D { get; }
 
         bool Plays2D { get; }

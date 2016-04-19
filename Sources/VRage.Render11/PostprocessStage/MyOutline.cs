@@ -16,6 +16,7 @@ namespace VRageRender
         internal int SectionIndex;
         internal Color Color;
         internal float Thickness;
+        internal ulong PulseTimeInFrames;
     }
 
     class MyOutline : MyImmediateRC
@@ -29,28 +30,28 @@ namespace VRageRender
 
         /// <param name="sectionIndex">-1 for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleOutline(uint ID, string materialName, int sectionIndex, Color? outlineColor, float thickness)
+        internal static void HandleOutline(uint ID, int sectionIndex, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
         {
             if (thickness > 0)
-                Add(ID, materialName, sectionIndex, outlineColor.Value, thickness);
+                Add(ID, sectionIndex, outlineColor.Value, thickness, pulseTimeInFrames);
             else
                 Remove(ID);
         }
 
-        /// <param name="sectionIndex">-1 for all the mesh</param>
+        /// <param name="sectionIndices">null for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleOutline(uint ID, string materialName, int[] sectionIndices, Color? outlineColor, float thickness)
+        internal static void HandleOutline(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
         {
             if (thickness > 0)
             {
                 if (sectionIndices == null)
                 {
-                    Add(ID, materialName, -1, outlineColor.Value, thickness);
+                    Add(ID, -1, outlineColor.Value, thickness, pulseTimeInFrames);
                 }
                 else
                 {
                     foreach (int index in sectionIndices)
-                        Add(ID, materialName, index, outlineColor.Value, thickness);
+                        Add(ID, index, outlineColor.Value, thickness, pulseTimeInFrames);
                 }
             }
             else
@@ -59,12 +60,18 @@ namespace VRageRender
             }
         }
 
-        private static void Add(uint ID, string materialName, int sectionIndex, Color outlineColor, float thickness)
+        private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames)
         {
             if (!m_outlines.ContainsKey(ID))
                 m_outlines[ID] = new List<MyOutlineDesc>();
 
-            m_outlines[ID].Add(new MyOutlineDesc { Material = MyStringId.GetOrCompute(materialName), SectionIndex = sectionIndex, Color = outlineColor, Thickness = thickness });
+            m_outlines[ID].Add(new MyOutlineDesc
+            {
+                SectionIndex = sectionIndex,
+                Color = outlineColor,
+                Thickness = thickness,
+                PulseTimeInFrames = pulseTimeInFrames
+            });
         }
 
         private static void Remove(uint ID)
@@ -111,19 +118,19 @@ namespace VRageRender
                 RC.DeviceContext.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_1.m_RTV);
             }
 
-            OutlineConstantsLayout constants = new OutlineConstantsLayout();
             float maxThickness = 0f;
 
             foreach (var pair in m_outlines)
             {
                 MyActor actor = MyIDTracker<MyActor>.FindByID(pair.Key);
-                if (actor == null)  // If an actor has been removed without removing outlines, just remove the outlines too
+                MyRenderableComponent renderableComponent;
+                if (actor == null || (renderableComponent = actor.GetRenderable()) == null)
                 {
+                    // If an actor has been removed without removing outlines, just remove the outlines too
                     m_keysToRemove.Add(pair.Key);
                     continue;
                 }
 
-                var renderableComponent = actor.GetRenderable();
                 var renderLod = renderableComponent.Lods[renderableComponent.CurrentLod];
                 var model = renderableComponent.GetModel();
 
@@ -136,13 +143,25 @@ namespace VRageRender
 
                 foreach (MyOutlineDesc descriptor in pair.Value)
                 {
+
+                    if (!renderableComponent.IsRenderedStandAlone)
+                    {
+                        MyGroupLeafComponent leafComponent = actor.GetGroupLeaf();
+                        MyGroupRootComponent groupComponent = leafComponent.RootGroup;
+                        if (groupComponent != null)
+                            RecordMeshPartCommands(model, actor, groupComponent, groupComponent.m_proxy, descriptor, ref maxThickness);
+
+                        continue;
+
+                    }
+
                     if (descriptor.SectionIndex == -1)
                     {
-                        RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
+                        RecordMeshPartCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref maxThickness);
                     }
                     else
                     {
-                        RecordMeshSectionCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref constants, ref maxThickness);
+                        RecordMeshSectionCommands(model, currentModelId, renderableComponent, renderLod, descriptor, ref maxThickness);
                     }
                 }
             }
@@ -163,17 +182,50 @@ namespace VRageRender
                 MyBlur.Run(renderTargetview, MyRender11.m_rgba8_2.m_RTV, MyRender11.m_rgba8_2.m_SRV, initialSourceView,
                     (int)Math.Round(5 * maxThickness),
                     MyBlur.MyBlurDensityFunctionType.Exponential, 0.25f,
-                    null, MyFoliageRenderingPass.GrassStencilMask);
+                    null, MyFoliageRenderingPass.GrassStencilMask, MyRender11.Settings.BlurCopyOnDepthStencilFail);
             }
 
             MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();
         }
 
+        private static void RecordMeshPartCommands(MeshId model, MyActor actor, MyGroupRootComponent group,
+            MyCullProxy_2 proxy, MyOutlineDesc desc, ref float maxThickness)
+        {
+            MeshSectionId sectionId;
+            bool found = MyMeshes.TryGetMeshSection(model, 0, desc.SectionIndex, out sectionId);
+            if (!found)
+                return;
+
+            OutlineConstantsLayout constants = new OutlineConstantsLayout();
+            maxThickness = Math.Max(desc.Thickness, maxThickness);
+            constants.Color = desc.Color.ToVector4();
+            if (desc.PulseTimeInFrames > 0)
+                constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
+
+            MyMeshSectionInfo1 section = sectionId.Info;
+            MyMeshSectionPartInfo1[] meshes = section.Meshes;
+            for (int idx = 0; idx < meshes.Length; idx++)
+            {
+                MyMaterialMergeGroup materialGroup = group.GetMaterialGroup(meshes[idx].Material);
+                int actorIndex;
+                found = materialGroup.TryGetActorIndex(actor, out actorIndex);
+                if (!found)
+                    return;
+
+                var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
+                mapping.WriteAndPosition(ref constants);
+                mapping.Unmap();
+
+                MyOutlinePass.Instance.RecordCommands(ref proxy.Proxies[materialGroup.Index], actorIndex, meshes[idx].PartIndex);
+            }
+        }
+
         private static void RecordMeshPartCommands(MeshId model, LodMeshId lodModelId,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
-            MyOutlineDesc desc, ref OutlineConstantsLayout constants, ref float maxThickness)
+            MyOutlineDesc desc, ref float maxThickness)
         {
+            OutlineConstantsLayout constants = new OutlineConstantsLayout();
             var submeshCount = lodModelId.Info.PartsNum;
             for (int submeshIndex = 0; submeshIndex < submeshCount; ++submeshIndex)
             {
@@ -181,7 +233,9 @@ namespace VRageRender
 
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
-
+                if(desc.PulseTimeInFrames > 0)
+                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
+                
                 var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
@@ -194,19 +248,22 @@ namespace VRageRender
         /// <returns>True if the section was found</returns>
         private static bool RecordMeshSectionCommands(MeshId model, LodMeshId lodModelId,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
-            MyOutlineDesc desc, ref OutlineConstantsLayout constants, ref float maxThickness)
+            MyOutlineDesc desc, ref float maxThickness)
         {
             MeshSectionId sectionId;
             bool found = MyMeshes.TryGetMeshSection(model, rendercomp.CurrentLod, desc.SectionIndex, out sectionId);
             if (!found)
                 return false;
 
+            OutlineConstantsLayout constants = new OutlineConstantsLayout();
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
             for (int idx = 0; idx < meshes.Length; idx++)
             {
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
+                if (desc.PulseTimeInFrames > 0)
+                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
 
                 var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
                 mapping.WriteAndPosition(ref constants);

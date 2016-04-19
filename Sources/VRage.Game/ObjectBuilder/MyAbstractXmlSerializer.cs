@@ -221,7 +221,11 @@ namespace VRage.Game
             // Cast the Data back from the Abstract Type.
             string typeAttrib = reader.GetAttribute("xsi:type");
 
+#if DEBUG
+            if (typeAttrib == null || !MyObjectBuilderSerializer.IsSerializerAvailable(typeAttrib))
+#else
             if (typeAttrib == null)
+#endif
             {
                 typeAttrib = MyObjectBuilderSerializer.GetSerializedName(typeof(TAbstractBase));
             }

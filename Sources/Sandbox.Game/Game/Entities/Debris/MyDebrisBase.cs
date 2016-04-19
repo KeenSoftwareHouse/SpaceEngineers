@@ -9,11 +9,12 @@ using VRage.Generics;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.Components;
 using VRage.Game.Components;
 using VRage.ModAPI;
 using Sandbox.Game.GameSystems;
+using Sandbox.Game.Multiplayer;
 using VRage.Game.Entity;
 namespace Sandbox.Game.Entities.Debris
 {
@@ -186,7 +187,8 @@ namespace Sandbox.Game.Entities.Debris
                                                       MyUtils.GetRandomRadian());
                 MyEntities.Add(m_entity);
                 Container.Entity.Physics.Enabled = true;
-                Vector3D gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(position.Translation);
+                float simulationRatio = Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio * Sync.RelativeSimulationRatio;
+                Vector3D gravity = simulationRatio * MyGravityProviderSystem.CalculateNaturalGravityInPoint(position.Translation);
                 ((MyPhysicsBody)Container.Entity.Physics).RigidBody.Gravity = gravity;
                 (Container.Entity.Physics as MyPhysicsBody).HavokWorld.ActiveRigidBodies.Add((Container.Entity.Physics as MyPhysicsBody).RigidBody);
                 m_isStarted = true;

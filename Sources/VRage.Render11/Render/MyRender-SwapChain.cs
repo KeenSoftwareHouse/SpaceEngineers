@@ -49,6 +49,7 @@ namespace VRageRender
         {
             switch (shadowQuality)
             {
+                case MyShadowsQuality.DISABLED:
                 case MyShadowsQuality.LOW:
                     return 512;
 				case MyShadowsQuality.MEDIUM:
@@ -63,7 +64,8 @@ namespace VRageRender
 		{
 			switch(shadowQuality)
 			{
-				case MyShadowsQuality.LOW:
+                case MyShadowsQuality.DISABLED:
+                case MyShadowsQuality.LOW:
                     return (int)MyRenderProxy.Settings.ShadowCascadeZOffset;
 				case MyShadowsQuality.MEDIUM:
                     return (int)MyRenderProxy.Settings.ShadowCascadeZOffset;
@@ -234,8 +236,7 @@ namespace VRageRender
 
             if (settings.AnisotropicFiltering != prevSettings.AnisotropicFiltering)
             {
-                UpdateTextureSampler(m_textureSamplerState, TextureAddressMode.Wrap);
-                UpdateTextureSampler(m_alphamaskarraySamplerState, TextureAddressMode.Clamp);
+                InitilizeSamplerStates();
             }
             
             if(settings.TextureQuality != prevSettings.TextureQuality)
@@ -258,7 +259,7 @@ namespace VRageRender
         // helpers
         internal static bool MultisamplingEnabled { get { return RenderSettings.AntialiasingMode.IsMultisampled(); } }
         internal static int MultisamplingSampleCount { get { return RenderSettings.AntialiasingMode.SamplesCount(); } }
-        internal static bool FxaaEnabled { get { return RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA; } }
+        internal static bool FxaaEnabled { get { return RenderSettings.AntialiasingMode == MyAntialiasingMode.FXAA && m_debugOverrides.Postprocessing && m_debugOverrides.Fxaa; } }
 
         internal static bool CommandsListsSupported { get; set; }
         internal static bool IsIntelBrokenCubemapsWorkaround { get; set; }
@@ -420,7 +421,7 @@ namespace VRageRender
         {
             if (!m_changeToFullscreen.HasValue)
             {
-                if (!m_swapchain.IsFullScreen && m_settings.WindowMode == MyWindowModeEnum.Fullscreen)
+                if (m_swapchain != null && !m_swapchain.IsFullScreen && m_settings.WindowMode == MyWindowModeEnum.Fullscreen)
                 {
                     ModeDescription md = new ModeDescription();
                     md.Format = MyRender11Constants.DX11_BACKBUFFER_FORMAT;

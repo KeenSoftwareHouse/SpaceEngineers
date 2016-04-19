@@ -20,14 +20,14 @@ namespace VRage.Voxels
     }
 
     [Flags]
-    public enum MyStorageDataTypeFlags
+    public enum MyStorageDataTypeFlags : byte
     {
         None               = 0,
         Content            = 1 << MyStorageDataTypeEnum.Content,
         Material           = 1 << MyStorageDataTypeEnum.Material,
         ContentAndMaterial = Content | Material,
         Occlusion          = 1 << MyStorageDataTypeEnum.Occlusion,
-        All                = ~0,
+        All                = 0xFF,
     }
 
     public static class MyVoxelEnumExtensions

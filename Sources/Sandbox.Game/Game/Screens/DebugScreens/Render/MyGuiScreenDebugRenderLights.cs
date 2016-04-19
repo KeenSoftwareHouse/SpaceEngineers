@@ -69,13 +69,13 @@ namespace Sandbox.Game.Gui
 
             float maxIntensity = 8f;
             AddSlider("Additional Sun Intensity", 0f, maxIntensity, () => MySector.SunProperties.AdditionalSunIntensity[0], (float v) => MySector.SunProperties.AdditionalSunIntensity[0] = v);
-            /*
+            
             for (int lightIndex = 0; lightIndex < MySector.SunProperties.AdditionalSunDirection.Length; ++lightIndex)
             {
                 int capturedIndex = lightIndex;
                 AddSlider("Additional Sun " + (capturedIndex + 1).ToString() + " Phi", 0, 360.0f, () => MySector.SunProperties.AdditionalSunDirection[capturedIndex][0] * 180f / (float)Math.PI, (float v) => MySector.SunProperties.AdditionalSunDirection[capturedIndex][0] = v * (float)Math.PI / 180f);
                 AddSlider("Additional Sun " + (capturedIndex + 1).ToString() + " Theta", 0, 180, () => MySector.SunProperties.AdditionalSunDirection[capturedIndex][1] * 180f / (float)Math.PI, (float v) => MySector.SunProperties.AdditionalSunDirection[capturedIndex][1] = v * (float)Math.PI / 180f);
-            }*/
+            }
         }
 
         public override string GetFriendlyName()

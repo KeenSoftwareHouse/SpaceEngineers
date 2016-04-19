@@ -14,6 +14,9 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public SerializableBounds LightRadius = new SerializableBounds(2, 10, 2.8f);
 
         [ProtoMember]
+        public SerializableBounds LightReflectorRadius = new SerializableBounds(2, 120, 120.0f);
+
+        [ProtoMember]
         public SerializableBounds LightFalloff = new SerializableBounds(1, 3, 1.5f);
 
         [ProtoMember]

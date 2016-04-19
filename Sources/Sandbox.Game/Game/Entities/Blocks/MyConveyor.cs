@@ -35,5 +35,20 @@ namespace Sandbox.Game.Entities
         {
             base.Init(objectBuilder, cubeGrid);
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
+
     }
 }

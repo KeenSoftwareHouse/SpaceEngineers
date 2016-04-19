@@ -6,13 +6,13 @@ namespace VRageRender
     {
         public int Id;
         public byte[] PreallocatedBuffer;
-        public Vector2 Resolution;
+        public Vector2I Resolution;
 
         public override void Close()
         {
             Id = 0;
             PreallocatedBuffer = null;
-            Resolution = new Vector2();
+            Resolution = new Vector2I();
 
             base.Close();
         }

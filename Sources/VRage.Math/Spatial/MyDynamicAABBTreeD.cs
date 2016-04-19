@@ -1484,17 +1484,20 @@ namespace VRageMath
         {
             using (m_rwLock.AcquireExclusiveUsing())
             {
-                lock (m_StackCacheCollection)
-                {
-                    foreach (var item in m_StackCacheCollection)
-                    {
-                        item.Clear();
-                    }
+                ResetNodes();
+            }
+        }
 
-                    m_StackCacheCollection.Clear();
+        public static void Dispose()
+        {
+            lock (m_StackCacheCollection)
+            {
+                foreach (var item in m_StackCacheCollection)
+                {
+                    item.Clear();
                 }
 
-                ResetNodes();
+                m_StackCacheCollection.Clear();
             }
         }
     }

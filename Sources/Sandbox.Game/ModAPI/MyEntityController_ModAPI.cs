@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.World
 {

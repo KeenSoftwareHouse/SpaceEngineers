@@ -14582,7 +14582,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
-      <LightRadius Min="2" Max="120" Default="120" />
+      <LightRadius Min="2" Max="10" Default="5" />
+      <LightReflectorRadius Min="1" Max="160" Default="120" />
       <LightFalloff Min="1" Max="3" Default="1.5" />
       <LightIntensity Min="0.5" Max="5" Default="1" />
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
@@ -15291,8 +15292,8 @@
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
-      <PrimarySound>ArcBlockProjectorOn</PrimarySound>
-      <IdleSound>ArcBlockProjectorOff</IdleSound>
+      <PrimarySound>BlockProjectorOn</PrimarySound>
+      <IdleSound>BlockProjectorOff</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_ProjectorDefinition">
       <Id>
@@ -15335,8 +15336,8 @@
       <Public>true</Public>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
-      <PrimarySound>ArcBlockProjectorOn</PrimarySound>
-      <IdleSound>ArcBlockProjectorOff</IdleSound>
+      <PrimarySound>BlockProjectorOn</PrimarySound>
+      <IdleSound>BlockProjectorOff</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -15577,8 +15578,27 @@
       </BlueprintClasses>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
-      <GenerateSound>ArcBlockOxyGenProcess</GenerateSound>
-      <IdleSound>ArcBlockOxyGenIdle</IdleSound>
+      <GenerateSound>BlockOxyGenProcess</GenerateSound>
+      <IdleSound>BlockOxyGenIdle</IdleSound>
+      
+      <Effects>
+        <Effect Name="Damage" ParameterMin="0.5">
+          <ParticleEffects>
+            <ParticleEffect Origin="Damage_02" Name="SmokeWhite" Loop="true" Duration="3" SpawnTimeMin="2" SpawnTimeMax="5" />
+            <ParticleEffect Origin="Damage_04" Name="SmokeWhite" Loop="true" Duration="3" SpawnTimeMin="2" SpawnTimeMax="5" />
+          </ParticleEffects>
+        </Effect>
+        
+        
+        <Effect Name="Damage" ParameterMin="0" ParameterMax="0.5">
+          <ParticleEffects>
+            <ParticleEffect Origin="Damage_01" Name="SmokeBlack" Loop="true" Delay="2" />
+            <ParticleEffect Origin="Damage_02" Name="SmokeWhite" Loop="true" />
+            <ParticleEffect Origin="Damage_03" Name="SmokeBlack" Loop="true" Delay="4" />
+            <ParticleEffect Origin="Damage_04" Name="SmokeWhite" Loop="true" />
+          </ParticleEffects>
+        </Effect>
+      </Effects>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_RefineryDefinition">
       <Id>
@@ -16262,7 +16282,6 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\CockpitLarge.mwm</Model>
-      <PrimarySound>ArcBlockCockpitFlightSeat</PrimarySound>
       <CharacterAnimation>cockpit23</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="10" />
@@ -16294,6 +16313,8 @@
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <PrimarySound>BlockCockpitLrg</PrimarySound>
+      <GetInSound>ShipLrgCockpitIn</GetInSound>
+      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -16307,7 +16328,7 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\Cockpit.mwm</Model>
-      <PrimarySound>ArcBlockCockpitLrg</PrimarySound>
+      <PrimarySound>BlockCockpitLrg</PrimarySound>
       <InteriorModel>Models\Cubes\Large\CockpitInterior.mwm</InteriorModel>
       <GlassModel>Models\Cubes\Large\CockpitGlass.mwm</GlassModel>
       <CharacterAnimation>cockpit1_large</CharacterAnimation>
@@ -16341,6 +16362,8 @@
       <DamagedSound>ParticleElectrical</DamagedSound>
       <OxygenCapacity>60</OxygenCapacity>
       <IsPressurized>true</IsPressurized>
+      <GetInSound>ShipLrgCockpitIn</GetInSound>
+      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -16392,6 +16415,8 @@
       <PrimarySound>BlockCockpitSm</PrimarySound>
       <OxygenCapacity>60</OxygenCapacity>
       <IsPressurized>true</IsPressurized>
+      <GetInSound>ShipSmCockpitIn</GetInSound>
+      <GetOutSound>ShipSmCockpitOut</GetOutSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -16451,6 +16476,8 @@
       <OxygenCapacity>60</OxygenCapacity>
       <PrimarySound>BlockCockpitSm</PrimarySound>
       <IsPressurized>true</IsPressurized>
+      <GetInSound>ShipSmCockpitIn</GetInSound>
+      <GetOutSound>ShipSmCockpitOut</GetOutSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
@@ -16465,7 +16492,7 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\CockpitOpen.mwm</Model>
-      <PrimarySound>ArcBlockCockpitFlightSeat</PrimarySound>
+      <PrimarySound>BlockCockpitFlightSeat</PrimarySound>
       <CharacterAnimation>cockpit23</CharacterAnimation>
       <Components>
         <Component Subtype="InteriorPlate" Count="10" />
@@ -16495,6 +16522,8 @@
       <EnableBuilderCockpit>true</EnableBuilderCockpit>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <GetInSound>ShipLrgCockpitIn</GetInSound>
+      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <!-- End region Cockpits -->
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
@@ -16607,8 +16636,8 @@
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\CryoPodConstruction_1.mwm" />
-        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\CryoPodConstruction_1.mwm" />
-        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\CryoPodConstruction_2.mwm" />
+        <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\CryoPodConstruction_2.mwm" />
+        <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\CryoPodConstruction_3.mwm" />
       </BuildProgressModels>
       <BlockPairName>CryoChamber</BlockPairName>
       <OverlayTexture>Textures\GUI\Screens\cryopod_interior.dds</OverlayTexture>
@@ -16696,7 +16725,8 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>7</BuildTimeSeconds>
-      <LightRadius Min="1" Max="120" Default="120" />
+      <LightRadius Min="1" Max="5" Default="5" />
+      <LightReflectorRadius Min="1" Max="120" Default="120" />
       <LightFalloff Min="1" Max="3" Default="1.5" />
       <LightIntensity Min="0.5" Max="5" Default="3" />
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
@@ -17465,8 +17495,8 @@
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <BlockPairName>OxygenGenerator</BlockPairName>
-      <GenerateSound>ArcBlockOxyGenProcess</GenerateSound>
-      <IdleSound>ArcBlockOxyGenIdle</IdleSound>
+      <GenerateSound>BlockOxyGenProcess</GenerateSound>
+      <IdleSound>BlockOxyGenIdle</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TextPanelDefinition">     
       <Id>
@@ -17764,9 +17794,9 @@
       
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
-      <PressurizeSound>ArcBlockAirVentExhale</PressurizeSound>
-      <DepressurizeSound>ArcBlockAirVentDepressurize</DepressurizeSound>
-      <IdleSound>ArcBlockAirVentIdle</IdleSound>
+      <PressurizeSound>BlockAirVentExhale</PressurizeSound>
+      <DepressurizeSound>BlockAirVentDepressurize</DepressurizeSound>
+      <IdleSound>BlockAirVentIdle</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_AirVentDefinition">
       <Id>
@@ -17814,9 +17844,9 @@
 
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
-      <PressurizeSound>ArcBlockAirVentExhale</PressurizeSound>
-      <DepressurizeSound>ArcBlockAirVentDepressurize</DepressurizeSound>
-      <IdleSound>ArcBlockAirVentIdle</IdleSound>
+      <PressurizeSound>BlockAirVentExhale</PressurizeSound>
+      <DepressurizeSound>BlockAirVentDepressurize</DepressurizeSound>
+      <IdleSound>BlockAirVentIdle</IdleSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
       <Id>
@@ -18078,6 +18108,7 @@
           <ModifierType>Additive</ModifierType>
         </MyUpgradeModuleInfo>
       </Upgrades>
+      <PrimarySound>BlockModuleProductivity</PrimarySound>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -18126,6 +18157,7 @@
           <ModifierType>Multiplicative</ModifierType>
         </MyUpgradeModuleInfo>
       </Upgrades>
+      <PrimarySound>BlockModuleEffectiveness</PrimarySound>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -18174,6 +18206,7 @@
           <ModifierType>Multiplicative</ModifierType>
         </MyUpgradeModuleInfo>
       </Upgrades>
+      <PrimarySound>BlockModuleEfficiency</PrimarySound>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -18380,6 +18413,8 @@
       <Size x="1" y="1" z="2" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\ThrustSmall.mwm</Model>
+      <ThrusterType>Ion</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Thrust" Count="1" />
@@ -18452,6 +18487,8 @@
       <Size x="3" y="2" z="4" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\ThrustLarge.mwm</Model>
+      <ThrusterType>Ion</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
@@ -18527,6 +18564,8 @@
       <Size x="1" y="1" z="2" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\ThrustSmall.mwm</Model>
+      <ThrusterType>Ion</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="40" />
@@ -18601,6 +18640,8 @@
       <Size x="3" y="2" z="4" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\ThrustLarge.mwm</Model>
+      <ThrusterType>Ion</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="100" />
         <Component Subtype="Construction" Count="70" />
@@ -18679,6 +18720,8 @@
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\HydrogenThrusterLarge.mwm</Model>
+      <ThrusterType>Hydrogen</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="100" />
         <Component Subtype="Construction" Count="150" />
@@ -18740,7 +18783,7 @@
       <FlameVisibilityDistance>700</FlameVisibilityDistance>
       <FlameGlareSize>0.779</FlameGlareSize>
       <FlameGlareQuerySize>3</FlameGlareQuerySize>
-      <PrimarySound>ArcLrgShipLrgJetHydrogen</PrimarySound>
+      <PrimarySound>LrgShipLrgJetHydrogen</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -18757,6 +18800,8 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\HydrogenThrusterSmall.mwm</Model>
+      <ThrusterType>Hydrogen</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="40" />
@@ -18815,7 +18860,7 @@
       <FlameVisibilityDistance>500</FlameVisibilityDistance>
       <FlameGlareSize>0.585</FlameGlareSize>
       <FlameGlareQuerySize>2</FlameGlareQuerySize>
-      <PrimarySound>ArcLrgShipSmJetHydrogen</PrimarySound>
+      <PrimarySound>LrgShipSmJetHydrogen</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -18832,6 +18877,8 @@
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\HydrogenThrusterLarge.mwm</Model>
+      <ThrusterType>Hydrogen</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="20" />
         <Component Subtype="Construction" Count="20" />
@@ -18893,7 +18940,7 @@
       <FlameVisibilityDistance>700</FlameVisibilityDistance>
       <FlameGlareSize>0.779</FlameGlareSize>
       <FlameGlareQuerySize>3</FlameGlareQuerySize>
-      <PrimarySound>ArcSmShipLrgJetHydrogen</PrimarySound>
+      <PrimarySound>SmShipLrgJetHydrogen</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
     </Definition>
@@ -18909,6 +18956,8 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\HydrogenThrusterSmall.mwm</Model>
+      <ThrusterType>Hydrogen</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Construction" Count="10" />
@@ -18967,7 +19016,7 @@
       <FlameVisibilityDistance>500</FlameVisibilityDistance>
       <FlameGlareSize>0.585</FlameGlareSize>
       <FlameGlareQuerySize>2</FlameGlareQuerySize>
-      <PrimarySound>ArcSmShipSmJetHydrogen</PrimarySound>
+      <PrimarySound>SmShipSmJetHydrogen</PrimarySound>
       <DamageEffectId>213</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -18985,6 +19034,8 @@
       <Size x="3" y="3" z="5" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\AtmosphericThrusterLarge.mwm</Model>
+      <ThrusterType>Atmospheric</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="100" />
         <Component Subtype="Construction" Count="40" />
@@ -19047,12 +19098,12 @@
       <FlameGlareQuerySize>2</FlameGlareQuerySize>
       <PropellerUsesPropellerSystem>true</PropellerUsesPropellerSystem>
       <PropellerSubpartEntityName>Propeller</PropellerSubpartEntityName>
-      <PropellerRoundsPerSecondOnFullSpeed>1.9</PropellerRoundsPerSecondOnFullSpeed>
+      <PropellerRoundsPerSecondOnFullSpeed>4.2</PropellerRoundsPerSecondOnFullSpeed>
       <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
-      <PropellerAccelerationTime>3</PropellerAccelerationTime>
-      <PropellerDecelerationTime>6</PropellerDecelerationTime>
+      <PropellerAccelerationTime>5</PropellerAccelerationTime>
+      <PropellerDecelerationTime>10</PropellerDecelerationTime>
       <PropellerMaxVisibleDistance>100</PropellerMaxVisibleDistance>
-      <PrimarySound>ArcLrgShipSmJetAtmo</PrimarySound>
+      <PrimarySound>LrgShipSmJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -19069,6 +19120,8 @@
       <Size x="1" y="1" z="3" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\AtmosphericThrusterSmall.mwm</Model>
+      <ThrusterType>Atmospheric</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="30" />
@@ -19131,12 +19184,12 @@
       <FlameGlareQuerySize>2</FlameGlareQuerySize>
       <PropellerUsesPropellerSystem>true</PropellerUsesPropellerSystem>
       <PropellerSubpartEntityName>Propeller</PropellerSubpartEntityName>
-      <PropellerRoundsPerSecondOnFullSpeed>1.9</PropellerRoundsPerSecondOnFullSpeed>
+      <PropellerRoundsPerSecondOnFullSpeed>4.2</PropellerRoundsPerSecondOnFullSpeed>
       <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
-      <PropellerAccelerationTime>3</PropellerAccelerationTime>
-      <PropellerDecelerationTime>6</PropellerDecelerationTime>
+      <PropellerAccelerationTime>5</PropellerAccelerationTime>
+      <PropellerDecelerationTime>10</PropellerDecelerationTime>
       <PropellerMaxVisibleDistance>75</PropellerMaxVisibleDistance>
-      <PrimarySound>ArcLrgShipSmJetAtmo</PrimarySound>
+      <PrimarySound>LrgShipSmJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -19154,6 +19207,8 @@
       <Size x="3" y="3" z="5" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\AtmosphericThrusterLarge.mwm</Model>
+      <ThrusterType>Atmospheric</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="Construction" Count="20" />
@@ -19222,7 +19277,7 @@
       <PropellerAccelerationTime>3</PropellerAccelerationTime>
       <PropellerDecelerationTime>6</PropellerDecelerationTime>
       <PropellerMaxVisibleDistance>30</PropellerMaxVisibleDistance>
-      <PrimarySound>ArcSmShipLrgJetAtmo</PrimarySound>
+      <PrimarySound>SmShipLrgJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -19239,6 +19294,8 @@
       <Size x="1" y="1" z="3" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\AtmosphericThrusterSmall.mwm</Model>
+      <ThrusterType>Atmospheric</ThrusterType>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="LargeTube" Count="1" />
@@ -19305,7 +19362,7 @@
       <PropellerAccelerationTime>3</PropellerAccelerationTime>
       <PropellerDecelerationTime>6</PropellerDecelerationTime>
       <PropellerMaxVisibleDistance>20</PropellerMaxVisibleDistance>
-      <PrimarySound>ArcSmShipSmJetAtmo</PrimarySound>
+      <PrimarySound>SmShipSmJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
       <Public>true</Public>
@@ -19424,7 +19481,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>45</BuildTimeSeconds>
-      <PrimarySound>ArcBlockGyroscope</PrimarySound>
+      <PrimarySound>BlockGyroscope</PrimarySound>
       
       <ResourceSinkGroup>Gyro</ResourceSinkGroup>
       <ForceMagnitude>3.36E+07</ForceMagnitude>
@@ -19445,6 +19502,7 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\gyroscope.mwm</Model>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="5" />
@@ -19466,7 +19524,7 @@
       <MirroringZ>Y</MirroringZ>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
-      <PrimarySound>ArcBlockGyroscope</PrimarySound>
+      <PrimarySound>BlockGyroscope</PrimarySound>
 
       <ResourceSinkGroup>Gyro</ResourceSinkGroup>
       <ForceMagnitude>448000</ForceMagnitude>
@@ -19488,6 +19546,7 @@
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\GeneratorSmall.mwm</Model>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="10" />
@@ -19545,6 +19604,7 @@
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\GeneratorLarge.mwm</Model>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="40" />
         <Component Subtype="Construction" Count="9" />
@@ -20031,6 +20091,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\MotorSuspension.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="15" />
@@ -20086,6 +20147,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\MotorSuspensionLarge.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="40" />
         <Component Subtype="Construction" Count="40" />
@@ -20134,6 +20196,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\MotorSuspension1x1.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="15" />
         <Component Subtype="Construction" Count="15" />
@@ -20184,6 +20247,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\MotorSuspension.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="7" />
@@ -20232,6 +20296,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\MotorSuspensionLarge.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="Construction" Count="12" />
@@ -20278,6 +20343,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\MotorSuspension.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="7" />
@@ -20482,7 +20548,7 @@
       </Id>
       <DisplayName>DisplayName_Block_AdvancedRotorPart</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\AdvancedRotorPart.dds</Icon>
-      <Public>false</Public>
+      <Public>true</Public>
       <CubeSize>Large</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -20760,6 +20826,10 @@
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PrimarySound>ArcBlockTimer</PrimarySound>
+      <TimerSoundStart>ArcBlockTimerSignalA</TimerSoundStart>
+      <TimerSoundMid>ArcBlockTimerSignalB</TimerSoundMid>
+      <TimerSoundEnd>ArcBlockTimerSignalC</TimerSoundEnd>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_TimerBlockDefinition">
       <Id>
@@ -20791,6 +20861,10 @@
       <BuildTimeSeconds>2</BuildTimeSeconds>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
+      <PrimarySound>ArcBlockTimer</PrimarySound>
+      <TimerSoundStart>ArcBlockTimerSignalA</TimerSoundStart>
+      <TimerSoundMid>ArcBlockTimerSignalB</TimerSoundMid>
+      <TimerSoundEnd>ArcBlockTimerSignalC</TimerSoundEnd>
     </Definition>
     <Definition>
       <Id>
@@ -22550,6 +22624,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\WheelSuspension1x1.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <PhysicalMaterial>Wheel</PhysicalMaterial>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="5" />
@@ -22592,6 +22667,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\WheelSuspension3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <PhysicalMaterial>Wheel</PhysicalMaterial>
       <Components>
         <Component Subtype="SteelPlate" Count="3" />
         <Component Subtype="Construction" Count="10" />
@@ -22634,6 +22710,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\WheelSuspension5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <PhysicalMaterial>Wheel</PhysicalMaterial>
       <Components>
         <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Construction" Count="15" />
@@ -22676,6 +22753,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\large\WheelSuspension1x1.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <PhysicalMaterial>Wheel</PhysicalMaterial>
       <Components>
         <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Construction" Count="20" />
@@ -22719,6 +22797,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\WheelSuspension3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <PhysicalMaterial>Wheel</PhysicalMaterial>
       <Components>
         <Component Subtype="SteelPlate" Count="6" />
         <Component Subtype="Construction" Count="25" />
@@ -22762,6 +22841,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\WheelSuspension5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
+      <PhysicalMaterial>Wheel</PhysicalMaterial>
       <Components>
         <Component Subtype="SteelPlate" Count="8" />
         <Component Subtype="Construction" Count="30" />

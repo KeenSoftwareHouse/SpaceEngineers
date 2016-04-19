@@ -1,6 +1,6 @@
 ﻿using ParallelTasks;
 using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities.Cube;

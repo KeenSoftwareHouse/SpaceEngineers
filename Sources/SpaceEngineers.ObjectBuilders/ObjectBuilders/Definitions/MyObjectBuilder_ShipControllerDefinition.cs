@@ -15,5 +15,10 @@ namespace Sandbox.Common.ObjectBuilders.Definitions
         public bool EnableShipControl;
         [ProtoMember]
         public bool EnableBuilderCockpit;
+
+        [ProtoMember]
+        public string GetInSound;
+        [ProtoMember]
+        public string GetOutSound;
     }
 }

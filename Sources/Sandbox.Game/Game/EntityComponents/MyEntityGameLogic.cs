@@ -1,5 +1,5 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using System;

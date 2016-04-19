@@ -24,17 +24,17 @@ using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
 using VRageRender;
 using VRage.Game.Components;
-using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
+using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 using Sandbox.Engine.Utils;
 using VRage.Game.Entity;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenTank))]
-    class MyGasTank : MyFunctionalBlock, IMyGasBlock, IMyOxygenTank, VRage.ModAPI.Ingame.IMyInventoryOwner
+    class MyGasTank : MyFunctionalBlock, IMyGasBlock, IMyOxygenTank, VRage.Game.ModAPI.Ingame.IMyInventoryOwner
     {
         private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
         
@@ -136,15 +136,10 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>( new MyInventory(
-                    BlockDefinition.InventoryMaxVolume,
-                        BlockDefinition.InventorySize,
-                        MyInventoryFlags.CanReceive,
-                        this)
-                {
-                    Constraint = BlockDefinition.InputInventoryConstraint
-                });
-                this.GetInventory().Init(builder.Inventory);
+                MyInventory inventory = new MyInventory(BlockDefinition.InventoryMaxVolume, BlockDefinition.InventorySize, MyInventoryFlags.CanReceive);
+                inventory.Constraint = BlockDefinition.InputInventoryConstraint;
+                Components.Add<MyInventoryBase>(inventory);
+                inventory.Init(builder.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
             
@@ -435,7 +430,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 	        for (int nameIndex = 0; nameIndex < m_emissiveNames.Length; ++nameIndex)
 	        {
-		        MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[nameIndex], nameIndex < fillCount ? color : Color.Black, 1);
+                UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[nameIndex], nameIndex < fillCount ? color : Color.Black, 1);
 	        }
 	        m_prevColor = color;
 	        m_prevFillCount = fillCount;
@@ -646,6 +641,24 @@ namespace Sandbox.Game.Entities.Blocks
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return this.GetInventory(index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

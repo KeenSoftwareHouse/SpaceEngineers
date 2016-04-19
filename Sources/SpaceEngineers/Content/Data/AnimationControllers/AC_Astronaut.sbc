@@ -1,0 +1,3633 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Definition xsi:type="AnimationControllerDefinition">
+    <Id>
+      <TypeId>MyObjectBuilder_AnimationControllerDefinition</TypeId>
+      <SubtypeId>Default_Astronaut</SubtypeId>
+    </Id>
+    <Layers>
+      <Layer>
+        <Name>Body</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMBody</StateMachine>
+        <InitialSMNode>Idle</InitialSMNode>
+      </Layer>
+      <Layer>
+        <Name>Helmet</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMHelmet</StateMachine>
+        <InitialSMNode>HelmetClosed</InitialSMNode>
+        <BoneMask>SE_RigHelmetGlassBone</BoneMask>
+      </Layer>
+      <Layer>
+        <Name>LeftHand</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMLeftHand</StateMachine>
+        <InitialSMNode>Nothing</InitialSMNode>
+        <BoneMask>HeadDummy SE_RigHead SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Little_1 SE_RigL_Little_2 SE_RigL_Little_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Weapon_pin SE_RigLCollarbone SE_RigLForearm1 SE_RigLForearm2 SE_RigLForearm3 SE_RigLPalm SE_RigLUpperarm SE_RigLUpVectorNode SE_RigNeck</BoneMask>
+      </Layer>
+      <Layer>
+        <Name>RightHand</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMRightHand</StateMachine>
+        <InitialSMNode>Nothing</InitialSMNode>
+        <BoneMask>HeadDummy SE_RigHead SE_RigNeck SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Weapon_pin SE_RigRCollarbone SE_RigRForearm1 SE_RigRForearm2 SE_RigRForearm3 SE_RigRPalm SE_RigRUpperarm SE_RigRUpVectorNode</BoneMask>
+      </Layer>
+      <Layer>
+        <Name>LeftFingers</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMLeftFingers</StateMachine>
+        <InitialSMNode>Nothing</InitialSMNode>
+        <BoneMask>SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Little_1 SE_RigL_Little_2 SE_RigL_Little_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Weapon_pin SE_RigLPalm SE_RigLUpVectorNode</BoneMask>
+      </Layer>
+      <Layer>
+        <Name>RightFingers</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMRightFingers</StateMachine>
+        <InitialSMNode>Nothing</InitialSMNode>
+        <BoneMask>SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Weapon_pin SE_RigRPalm SE_RigRUpVectorNode</BoneMask>
+      </Layer>
+      <Layer>
+        <Name>Leaning</Name>
+        <Mode>Add</Mode>
+        <StateMachine>SMLean</StateMachine>
+        <InitialSMNode>Leaning</InitialSMNode>
+        <BoneMask>SE_RigNeck SE_RigSpine1 SE_RigSpine2 SE_RigSpine3 SE_RigSpine4</BoneMask>
+      </Layer>
+    </Layers>
+    <StateMachines>
+      <StateMachine>
+        <Name>SMBody</Name>
+        <Nodes>
+          <Node>
+            <Name>Idle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-92</X>
+                <Y>-55</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                <EdPos>
+                  <X>106</X>
+                  <Y>-103</Y>
+                </EdPos>
+                <ParameterName>turningspeed</ParameterName>
+                <Child>
+                  <Param>-400</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>530</X>
+                      <Y>-336</Y>
+                    </EdPos>
+                    <ParameterName>lean</ParameterName>
+                    <Child>
+                      <Param>-25</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>891</X>
+                          <Y>-349</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1.0099999904632568</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>5</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>895</X>
+                          <Y>-124</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\stand_leftturn.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_turns_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>0.149999991</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>-30</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>533</X>
+                      <Y>-8</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>30</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>532</X>
+                      <Y>171</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>400</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                    <EdPos>
+                      <X>536</X>
+                      <Y>357</Y>
+                    </EdPos>
+                    <ParameterName>lean</ParameterName>
+                    <Child>
+                      <Param>-25</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>911</X>
+                          <Y>211</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1.0099999904632568</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Child>
+                      <Param>5</Param>
+                      <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                        <EdPos>
+                          <X>916</X>
+                          <Y>432</Y>
+                        </EdPos>
+                        <PathToModel>Models\Characters\Animations\stand_rightturn.mwm</PathToModel>
+                        <AnimationName>AnimStack::Astronaut_character_turns_final</AnimationName>
+                        <Loop>true</Loop>
+                        <Speed>1</Speed>
+                        <Interpolate>true</Interpolate>
+                      </Node>
+                    </Child>
+                    <Circular>false</Circular>
+                    <Sensitivity>0.12</Sensitivity>
+                    <MaxChange xsi:nil="true" />
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>0.0899999961</Sensitivity>
+                <MaxChange xsi:nil="true" />
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>273</X>
+              <Y>389</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>JumpFall</Name>
+            <StateMachineName>SMBody_JumpFall</StateMachineName>
+            <EdPos>
+              <X>241</X>
+              <Y>164</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>WalkRun</Name>
+            <StateMachineName>SMBody_WalkRun</StateMachineName>
+            <EdPos>
+              <X>521</X>
+              <Y>382</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>867</X>
+              <Y>160</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>Dead</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>206</X>
+                  <Y>-15</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\died.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_death_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>910</X>
+              <Y>389</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Jetpack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>380</X>
+                  <Y>2</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\jetpack.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_jetpack_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+              <Orphans />
+            </AnimationTree>
+            <EdPos>
+              <X>611</X>
+              <Y>-9</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>CrouchIdle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-223</X>
+                <Y>-4</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                <EdPos>
+                  <X>-23</X>
+                  <Y>-16</Y>
+                </EdPos>
+                <ParameterName>turningspeed</ParameterName>
+                <Child>
+                  <Param>-15</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>365</X>
+                      <Y>-162</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouch_leftturn.mwm</PathToModel>
+                    <AnimationName>AnimStack::Astronaut_character_idle_final</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1.4199999570846558</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>0</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>369</X>
+                      <Y>20</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouchidle.mwm</PathToModel>
+                    <AnimationName>AnimStack::Astronaut_character_crouch_idle_final</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>15</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>355</X>
+                      <Y>208</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\crouch_rightturn.mwm</PathToModel>
+                    <AnimationName>AnimStack::Astronaut_character_idle_final</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1.3999999761581421</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>0.15</Sensitivity>
+                <MaxChange xsi:nil="true" />
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-43</X>
+              <Y>631</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Sit</Name>
+            <StateMachineName>SMSit</StateMachineName>
+            <EdPos>
+              <X>686</X>
+              <Y>533</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>CrouchWalk</Name>
+            <StateMachineName>SMCrouch</StateMachineName>
+            <EdPos>
+              <X>164</X>
+              <Y>746</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="jump" From="Idle" To="JumpFall/JumpStart" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Any" To="Dead" TimeInSec="0.25" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="dead" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition Name="(started falling)" From="Any" To="JumpFall/Fall" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="falling" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>4</Priority>
+          </Transition>
+          <Transition From="Any" To="Jetpack" TimeInSec="0.25" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Jetpack" To="JumpFall/Fall" TimeInSec="0.25" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="falling" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="jump" From="CrouchIdle" To="JumpFall/JumpStart" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Sit/AnySit" To="Idle" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="CrouchIdle" To="Idle" TimeInSec="0.4" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="crouch" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="sit" From="Any" To="Sit/Sit" TimeInSec="0" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Sit/AnySit" To="Jetpack" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="1" />
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="JumpFall/Fall" To="Idle" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="falling" Op="NotEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>11</Priority>
+          </Transition>
+          <Transition From="Idle" To="WalkRun/WalkRun" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="0.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="WalkRun/Any" To="Idle" TimeInSec="0.2" Sync="NoSynchonization">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="0.05" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="jump" From="WalkRun/Any" To="JumpFall/JumpStart" TimeInSec="0.15" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="CrouchWalk/Any" To="WalkRun/WalkRun" TimeInSec="0.4" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="crouch" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="CrouchWalk/Any" To="CrouchIdle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="LessOrEqual" Rhs="0.1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="jump" From="CrouchWalk/Any" To="JumpFall/JumpStart" TimeInSec="0.15" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="CrouchIdle" To="CrouchWalk/Crouch" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="0.1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="WalkRun/Any" To="CrouchWalk/Crouch" TimeInSec="0.4" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="crouch" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Idle" To="CrouchIdle" TimeInSec="0.4" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="crouch" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMBody_JumpFall</Name>
+        <Nodes>
+          <Node>
+            <Name>JumpStart</Name>
+            <EdPos>
+              <X>-376</X>
+              <Y>-38</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>JumpMid</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>448</X>
+                  <Y>-18</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\jump.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_jump_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-240</X>
+              <Y>-123</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Land</Name>
+            <EdPos>
+              <X>-91</X>
+              <Y>113</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Fall</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>276</X>
+                  <Y>-43</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\freefall.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_jump_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-92</X>
+              <Y>-39</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="JumpStart" To="JumpMid" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="JumpMid" To="Fall" TimeInSec="0.15" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>10</Priority>
+          </Transition>
+          <Transition From="Fall" To="Land" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="falling" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMBody_WalkRun</Name>
+        <Nodes>
+          <Node>
+            <Name>WalkRun</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>276</X>
+                  <Y>2</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_idle_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>-0</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-155</X>
+              <Y>-10</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Sprint</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-657</X>
+                <Y>9</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>-322</X>
+                  <Y>-12</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\sprint.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>488</X>
+              <Y>-4</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>20</X>
+              <Y>-112</Y>
+            </EdPos>
+            <Type>Any</Type>
+          </Node>
+          <Node>
+            <Name>Run</Name>
+            <StateMachineName>SMRun</StateMachineName>
+            <EdPos>
+              <X>-147</X>
+              <Y>-255</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Walk</Name>
+            <StateMachineName>SMWalk</StateMachineName>
+            <EdPos>
+              <X>-732</X>
+              <Y>-17</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="WalkRun" To="Sprint" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="5.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="WalkRun" To="Run/Run" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="LessOrEqual" Rhs="5.5" />
+                <Condition Lhs="speed" Op="Greater" Rhs="3" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Run/Any" To="WalkRun" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="5.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Sprint" To="WalkRun" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="WalkRun" To="Walk/Walk" TimeInSec="0.3" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk/Any" To="WalkRun" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="3" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMHelmet</Name>
+        <Nodes>
+          <Node>
+            <Name>HelmetClosed</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>258</X>
+                  <Y>-8</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\helmet_close.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut_Ver2.0_CloseHelmet</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-304</X>
+              <Y>-61</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>HelmetOpen</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>349</X>
+                  <Y>19</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\helmet_open.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut_Ver2.0</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>87</X>
+              <Y>-63</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="HelmetClosed" To="HelmetOpen" TimeInSec="0.1" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="helmetopen" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="HelmetOpen" To="HelmetClosed" TimeInSec="0.1" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="helmetopen" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMLeftHand</Name>
+        <Nodes>
+          <Node>
+            <Name>Nothing</Name>
+            <EdPos>
+              <X>0</X>
+              <Y>0</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>-287</X>
+              <Y>5</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>Victory</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>220</X>
+                  <Y>-6</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\victory.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_victory_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>286</X>
+              <Y>-10</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>EquipTool</Name>
+            <EdPos>
+              <X>-291</X>
+              <Y>-121</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Any" To="Nothing" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Victory" From="Nothing" To="Victory" TimeInSec="0.2" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="equip_left_tool" From="EquipTool" To="Nothing" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMRightHand</Name>
+        <Nodes>
+          <Node>
+            <Name>Nothing</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-194</X>
+                <Y>-156</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>45</X>
+                  <Y>-177</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-38</X>
+              <Y>-27</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Wave</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>255</X>
+                  <Y>-22</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\wave.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_wave_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>318</X>
+              <Y>79</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>ThumbUp</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>238</X>
+                  <Y>-8</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\thumbup.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_thumbsup_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>328</X>
+              <Y>-54</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>State1</Name>
+            <EdPos>
+              <X>-362</X>
+              <Y>-24</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>Victory</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>350</X>
+                  <Y>-22</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\victory.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_victory_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>274</X>
+              <Y>-246</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Facepalm</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>266</X>
+                  <Y>16</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\facepalm.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_facepalm_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>229</X>
+              <Y>238</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>AnyToolRight</Name>
+            <EdPos>
+              <X>-344</X>
+              <Y>131</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="Thumb-Up" From="Nothing" To="ThumbUp" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Wave" From="Nothing" To="Wave" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="State1" To="Nothing" TimeInSec="0.5" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Victory" From="Nothing" To="Victory" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Facepalm" From="Nothing" To="Facepalm" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="equip_right_tool" From="AnyToolRight" To="Nothing" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMSit</Name>
+        <Nodes>
+          <Node>
+            <Name>Sit</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>189</X>
+                  <Y>-69</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\cockpit1_small.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-24</X>
+              <Y>30</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>cockpit23</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>185</X>
+                  <Y>-36</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\cockpit23.mwm</PathToModel>
+                <AnimationName>AnimStack::Take 001</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-447</X>
+              <Y>-12</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>cockpit1_small</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>239</X>
+                  <Y>-3</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\cockpit1_small.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-326</X>
+              <Y>-170</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>FighterCockpitPosture</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>305</X>
+                  <Y>-4</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\cockpitfighter.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_cockpitfighter_01</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-30</X>
+              <Y>-205</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>passengerseat_large</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>279</X>
+                  <Y>-7</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\passengerseat_large.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_passenger_seat</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>278</X>
+              <Y>-135</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>passengerseat_small</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>237</X>
+                  <Y>-8</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\passengerseat_small.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_passenger_seat</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>393</X>
+              <Y>33</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>AnySit</Name>
+            <EdPos>
+              <X>74</X>
+              <Y>103</Y>
+            </EdPos>
+            <Type>Any</Type>
+          </Node>
+          <Node>
+            <Name>cockpit1_large</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>296</X>
+                  <Y>0</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\cockpit1_large.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_cockpitlarge_01</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-467</X>
+              <Y>101</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Default</Name>
+            <EdPos>
+              <X>-166</X>
+              <Y>163</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="cockpit23" From="Sit" To="cockpit23" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="cockpit1_small" From="Sit" To="cockpit1_small" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="FighterCockpitPosture" From="Sit" To="FighterCockpitPosture" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="passengerseat_large" From="Sit" To="passengerseat_large" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="passengerseat_small" From="Sit" To="passengerseat_small" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="cockpit1_large" From="Sit" To="cockpit1_large" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Sit" To="Default" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Default" To="cockpit1_large" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMLeftFingers</Name>
+        <Nodes>
+          <Node>
+            <Name>Nothing</Name>
+            <EdPos>
+              <X>-347</X>
+              <Y>4</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Equip</Name>
+            <EdPos>
+              <X>30</X>
+              <Y>3</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Unequip</Name>
+            <EdPos>
+              <X>-379</X>
+              <Y>-237</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>HoldingWeapon</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>307</X>
+                  <Y>1</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\holding_weapon.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_RIG_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>407</X>
+              <Y>-38</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>HoldingTool</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>302</X>
+                  <Y>0</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\holding_tool.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_RIG_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>409</X>
+              <Y>98</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="equip_left_tool" From="Nothing" To="Equip" TimeInSec="0.2" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="unequip_left_tool" From="Unequip" To="Nothing" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="HoldingWeapon" From="Equip" To="HoldingWeapon" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="HoldingTool" From="Equip" To="HoldingTool" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMRightFingers</Name>
+        <Nodes>
+          <Node>
+            <Name>Nothing</Name>
+            <EdPos>
+              <X>-347</X>
+              <Y>4</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Equip</Name>
+            <EdPos>
+              <X>30</X>
+              <Y>3</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Building</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>289</X>
+                  <Y>-15</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\sprint.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>0.17999999225139618</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>404</X>
+              <Y>-142</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Unequip</Name>
+            <EdPos>
+              <X>-379</X>
+              <Y>-237</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>HoldingWeapon</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>307</X>
+                  <Y>1</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\holding_weapon.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_RIG_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>407</X>
+              <Y>-38</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>HoldingTool</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>302</X>
+                  <Y>0</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\holding_tool.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_RIG_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>409</X>
+              <Y>98</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="equip_right_tool" From="Nothing" To="Equip" TimeInSec="0.2" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="UseCubePlacerFingers" From="Equip" To="Building" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="unequip_right_tool" From="Unequip" To="Nothing" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="HoldingWeapon" From="Equip" To="HoldingWeapon" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="HoldingTool" From="Equip" To="HoldingTool" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMLean</Name>
+        <Nodes>
+          <Node>
+            <Name>Leaning</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-126</X>
+                <Y>8</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                <EdPos>
+                  <X>70</X>
+                  <Y>-88</Y>
+                </EdPos>
+                <ParameterName>lean</ParameterName>
+                <Child>
+                  <Param>-36</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>453</X>
+                      <Y>-143</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\bend_forwards.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>-1</Param>
+                </Child>
+                <Child>
+                  <Param>10</Param>
+                </Child>
+                <Child>
+                  <Param>22</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>445</X>
+                      <Y>170</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\bend_backwards.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>0.199999988</Sensitivity>
+                <MaxChange xsi:nil="true" />
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-194</X>
+              <Y>3</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Crouch</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                <EdPos>
+                  <X>195</X>
+                  <Y>-40</Y>
+                </EdPos>
+                <ParameterName>lean</ParameterName>
+                <Child>
+                  <Param>-64</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>572</X>
+                      <Y>-127</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\bend_forwards.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>0</Param>
+                </Child>
+                <Child>
+                  <Param>18</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>577</X>
+                      <Y>146</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\bend_backwards.mwm</PathToModel>
+                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>170</X>
+              <Y>5</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Dead</Name>
+            <EdPos>
+              <X>0</X>
+              <Y>175</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>any</Name>
+            <EdPos>
+              <X>-44</X>
+              <Y>81</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Leaning" To="Crouch" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="crouch" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Crouch" To="Leaning" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="crouch" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="any" To="Dead" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="dead" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMRun</Name>
+        <Nodes>
+          <Node>
+            <Name>Run</Name>
+            <EdPos>
+              <X>-7</X>
+              <Y>62</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>RightFront</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>301</X>
+                  <Y>-4</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\run_rightfront.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>354</X>
+              <Y>-735</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Idle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>230</X>
+                  <Y>-103</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_idle_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>77</X>
+              <Y>-517</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Front</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>228</X>
+                  <Y>-25</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\run.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>82</X>
+              <Y>-804</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>LeftFront</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>269</X>
+                  <Y>-17</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\run_leftfront.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-213</X>
+              <Y>-807</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Left</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>260</X>
+                  <Y>-22</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\runstrafe_left.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-379</X>
+              <Y>-525</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>LeftBack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>194</X>
+                  <Y>-19</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\run_leftback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-369</X>
+              <Y>-216</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Right</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>230</X>
+                  <Y>-68</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\runstrafe_right.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>519</X>
+              <Y>-518</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>RightBack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>296</X>
+                  <Y>-11</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\run_rightback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>469</X>
+              <Y>-283</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Back</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>149</X>
+                  <Y>-10</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\runback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>105</X>
+              <Y>-310</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>233</X>
+              <Y>87</Y>
+            </EdPos>
+            <Type>Any</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Run" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Run" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
+                <Condition Lhs="speed" Op="Less" Rhs="5.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Right" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Front" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Left" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Back" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Right" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Back" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Left" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Front" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Front" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysFalse" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Left" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Back" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Right" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMWalk</Name>
+        <Nodes>
+          <Node>
+            <Name>Walk</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>155</X>
+                  <Y>-18</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_idle_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>0</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-19</X>
+              <Y>87</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>RightFront</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>301</X>
+                  <Y>-4</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\walk_rightfront.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>311</X>
+              <Y>-703</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Idle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>164</X>
+                  <Y>7</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\idle.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_idle_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>77</X>
+              <Y>-517</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Front</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>228</X>
+                  <Y>-25</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\walk.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-38</X>
+              <Y>-807</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>LeftFront</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>269</X>
+                  <Y>-17</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\walk_leftfront.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-255</X>
+              <Y>-728</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Left</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>260</X>
+                  <Y>-22</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-420</X>
+              <Y>-563</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>LeftBack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>194</X>
+                  <Y>-19</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\walk_leftback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-442</X>
+              <Y>-277</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Right</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>215</X>
+                  <Y>4</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>517</X>
+              <Y>-537</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>RightBack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>296</X>
+                  <Y>-11</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\walk_rightback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>561</X>
+              <Y>-273</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Back</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>149</X>
+                  <Y>-10</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\walkback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_walk_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>52</X>
+              <Y>-304</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>233</X>
+              <Y>87</Y>
+            </EdPos>
+            <Type>Any</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Walk" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Walk" To="Front" TimeInSec="0.4" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Right" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Front" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Left" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Back" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Right" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Back" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Left" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Front" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Front" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysFalse" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Left" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Back" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Right" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMCrouch</Name>
+        <Nodes>
+          <Node>
+            <Name>Crouch</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>164</X>
+                  <Y>-9</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchidle.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_idle_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-19</X>
+              <Y>87</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>RightFront</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>301</X>
+                  <Y>-4</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchwalk_rightfront.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>311</X>
+              <Y>-703</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Idle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>177</X>
+                  <Y>-3</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchidle.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_idle_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>31</X>
+              <Y>-510</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>Front</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>228</X>
+                  <Y>-25</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchwalk.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-38</X>
+              <Y>-807</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>LeftFront</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>269</X>
+                  <Y>-17</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchwalk_leftfront.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-255</X>
+              <Y>-728</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Left</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>260</X>
+                  <Y>-22</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchstrafe_left.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-420</X>
+              <Y>-563</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>LeftBack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>194</X>
+                  <Y>-19</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchwalk_leftback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-442</X>
+              <Y>-277</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Right</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>215</X>
+                  <Y>4</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchstrafe_right.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>517</X>
+              <Y>-537</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>RightBack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>296</X>
+                  <Y>-11</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchwalk_rightback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>561</X>
+              <Y>-273</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Back</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>149</X>
+                  <Y>-10</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\crouchwalkback.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_crouch_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>3</X>
+              <Y>-266</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>233</X>
+              <Y>87</Y>
+            </EdPos>
+            <Type>Any</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Crouch" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="Crouch" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>3</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Right" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Front" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Left" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Back" To="Idle" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Idle" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.05" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>2</Priority>
+          </Transition>
+          <Transition From="Right" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Back" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Left" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Front" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightFront" To="Front" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="337.5" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="Less" Rhs="22.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Front" To="LeftFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysFalse" />
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="292.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="337.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftFront" To="Left" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="247.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="292.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Left" To="LeftBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="202.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="247.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="LeftBack" To="Back" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="157.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="202.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Back" To="RightBack" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="112.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="157.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RightBack" To="Right" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="67.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="112.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Right" To="RightFront" TimeInSec="0.2" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed_angle" Op="GreaterOrEqual" Rhs="22.5" />
+                <Condition Lhs="speed_angle" Op="Less" Rhs="67.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+  </Definition>
+</Definitions>

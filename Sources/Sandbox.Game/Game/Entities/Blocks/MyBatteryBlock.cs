@@ -513,11 +513,11 @@ namespace Sandbox.Game.Entities
                 {
                     if (i < fillCount)
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], color, 1f);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], color, 1f);
                     }
                     else
                     {
-                        VRageRender.MyRenderProxy.UpdateColorEmissivity(Render.RenderObjectIDs[0], 0, m_emissiveNames[i], Color.Black, 0f);
+                        UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], Color.Black, 0f);
                     }
                 }
                 m_prevEmissiveColor = color;

@@ -38,7 +38,7 @@ namespace VRage.Game.Components
         {
             get 
             {
-                return this.m_worldMatrix; 
+                return m_worldMatrix; 
             }
             set { SetWorldMatrix(value); }
         }
@@ -51,7 +51,7 @@ namespace VRage.Game.Components
         /// </value>
         public Matrix LocalMatrix
         {
-            get { return this.m_localMatrix; }
+            get { return m_localMatrix; }
             set { SetLocalMatrix(value); }
         }
 
@@ -201,11 +201,11 @@ namespace VRage.Game.Components
         {
             get
             {
-                return this.m_localVolumeOffset;
+                return m_localVolumeOffset;
             }
             set
             {
-                this.m_localVolumeOffset = value;
+                m_localVolumeOffset = value;
                 m_worldVolumeDirty = true;
             }
         }
@@ -289,21 +289,21 @@ namespace VRage.Game.Components
                 return;
 
 
-            if (this.Container.Entity.Parent == null)
+            if (Container.Entity.Parent == null)
             {
-                this.m_worldMatrix = worldMatrix;
+                m_worldMatrix = worldMatrix;
                 m_localMatrix = worldMatrix;
             }
             else
             {
-                MatrixD matParentInv = MatrixD.Invert(this.Container.Entity.Parent.WorldMatrix);
+                MatrixD matParentInv = MatrixD.Invert(Container.Entity.Parent.WorldMatrix);
                 m_localMatrix = worldMatrix * matParentInv;
             }
 
             //if (!m_localMatrix.EqualsFast(ref localMatrix))
             {
                 //m_localMatrixChanged = true;
-                //this.m_localMatrix = localMatrix;
+                //m_localMatrix = localMatrix;
                 UpdateWorldMatrix(source);
             }       
         }
@@ -315,10 +315,10 @@ namespace VRage.Game.Components
         /// <param name="source">The source object that caused this change or null when not important.</param>
         public void SetLocalMatrix(MatrixD localMatrix, object source = null)
         {
-            if (this.m_localMatrix != localMatrix)
+            if (m_localMatrix != localMatrix)
             {
                 //m_localMatrixChanged = true;
-                this.m_localMatrix = localMatrix;
+                m_localMatrix = localMatrix;
                 UpdateWorldMatrix(source);
             }
         }
@@ -329,7 +329,7 @@ namespace VRage.Game.Components
         /// <returns></returns>
         public Vector3D GetPosition()
         {
-            return this.m_worldMatrix.Translation;
+            return m_worldMatrix.Translation;
         }
 
 
@@ -339,9 +339,9 @@ namespace VRage.Game.Components
         /// <param name="pos">The pos.</param>
         public void SetPosition(Vector3D pos)
         {
-            if (!MyUtils.IsZero(this.m_worldMatrix.Translation - pos))
+            if (!MyUtils.IsZero(m_worldMatrix.Translation - pos))
             {
-                this.m_worldMatrix.Translation = pos;
+                m_worldMatrix.Translation = pos;
                 UpdateWorldMatrix();
             }
         }
@@ -421,9 +421,9 @@ namespace VRage.Game.Components
         /// </summary>
         protected virtual void UpdateWorldMatrix(object source = null)
         {
-            if (this.Container.Entity.Parent != null)
+            if (Container.Entity.Parent != null)
             {
-                MatrixD parentWorldMatrix = this.Container.Entity.Parent.WorldMatrix;
+                MatrixD parentWorldMatrix = Container.Entity.Parent.WorldMatrix;
                 UpdateWorldMatrix(ref parentWorldMatrix, source);
                 return;
             }
@@ -439,21 +439,21 @@ namespace VRage.Game.Components
         /// </summary>
         public virtual void UpdateWorldMatrix(ref MatrixD parentWorldMatrix, object source = null)
         {
-            MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
+            MatrixD.Multiply(ref m_localMatrix, ref parentWorldMatrix, out m_worldMatrix);
             OnWorldPositionChanged(source);
 
 
             //MatrixD oldWorldMatrix = m_worldMatrix;
-            //MatrixD.Multiply(ref this.m_localMatrix, ref parentWorldMatrix, out this.m_worldMatrix);
+            //MatrixD.Multiply(ref m_localMatrix, ref parentWorldMatrix, out m_worldMatrix);
             //SetDirty();
             //return;
             ////parent matrix changed significantly 
             ////if (!m_worldMatrix.EqualsFast(ref oldWorldMatrix))
             //{
             //    OnWorldPositionChanged(source);
-            //    //if (this.m_physics != null && this.m_physics.Enabled && this.m_physics != source)
+            //    //if (m_physics != null && m_physics.Enabled && m_physics != source)
             //    //{
-            //    //    this.m_physics.OnWorldPositionChanged(source);
+            //    //    m_physics.OnWorldPositionChanged(source);
             //    //}
             //    m_normalizedInvMatrixDirty = true;
             //    m_invScaledMatrixDirty = true;
@@ -468,9 +468,9 @@ namespace VRage.Game.Components
         {
             BoundingBoxD oldWorldAABB = m_worldAABB;
 
-            m_worldAABB = m_localAABB.Transform(ref this.m_worldMatrix);
+            m_worldAABB = m_localAABB.Transform(ref m_worldMatrix);
             MatrixD mat = MatrixD.CreateTranslation((Vector3D)m_localVolume.Center);
-            MatrixD.Multiply(ref mat, ref m_worldMatrix, out mat); //mat = mat * this.WorldMatrix;
+            MatrixD.Multiply(ref mat, ref m_worldMatrix, out mat); //mat = mat * WorldMatrix;
 
             m_worldVolume = new BoundingSphereD(mat.Translation, m_localVolume.Radius);
 
@@ -484,7 +484,7 @@ namespace VRage.Game.Components
         {
             UpdateWorldVolume();
 
-            BoundingBoxD.CreateMerged(ref m_invalidBox, ref this.m_worldAABB, out m_worldAABBHr);
+            BoundingBoxD.CreateMerged(ref m_invalidBox, ref m_worldAABB, out m_worldAABBHr);
 
             m_worldVolumeHr = BoundingSphereD.CreateFromBoundingBox(m_worldAABBHr);
 

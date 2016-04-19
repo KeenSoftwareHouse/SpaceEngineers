@@ -100,7 +100,8 @@ namespace Sandbox.Game.World
                 if(planet == null || !planet.IsPositionInGravityWell(MySector.MainCamera.Position))
                     return;
 
-                var foundEnvironmentItems = planet.GetEnvironmentItemsAtPosition(ref MySector.MainCamera.Position);
+			    Vector3D cameraPosition = MySector.MainCamera.Position;
+                var foundEnvironmentItems = planet.GetEnvironmentItemsAtPosition(ref cameraPosition);
 
                 foreach(var environmentItems in foundEnvironmentItems)
                     environmentItems.GetAllItemsInRadius(searchPosition, m_particleSpawnDistance, m_tmpItemInfos);

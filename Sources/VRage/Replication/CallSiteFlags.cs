@@ -15,7 +15,5 @@ namespace VRage.Network
         RefreshReplicable = 0x10, // Will test conditions for replicable and optionally replicable it to clients before sending event
         BroadcastExcept = 0x20,
         Blocking = 0x40,
-        // CHECK-ME: Provisory flag (non-breaking), to be discussed
-        ExceptLocal = 0x80
     }
 }

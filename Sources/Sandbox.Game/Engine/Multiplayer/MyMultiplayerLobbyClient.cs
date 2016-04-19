@@ -275,25 +275,18 @@ namespace Sandbox.Engine.Multiplayer
 
             SyncLayer.RegisterClientEvents(this);
 
-            if (IsServer)
-            {
-                HostName = MySteam.UserName;
-            }
-            else
-            {
-                SyncLayer.TransportLayer.IsBuffering = true;
 
-                SetReplicationLayer(new MyReplicationClient(this, CreateClientState()));
-                syncLayer.TransportLayer.Register(MyMessageId.SERVER_DATA, ReplicationLayer.ProcessServerData);
-                syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_CREATE, ReplicationLayer.ProcessReplicationCreate);
-                syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_DESTROY, ReplicationLayer.ProcessReplicationDestroy);
-                syncLayer.TransportLayer.Register(MyMessageId.SERVER_STATE_SYNC, ReplicationLayer.ProcessStateSync);
-                syncLayer.TransportLayer.Register(MyMessageId.RPC, ReplicationLayer.ProcessEvent);
-                syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_STREAM_BEGIN, ReplicationLayer.ProcessReplicationCreateBegin);
-            }
+            SyncLayer.TransportLayer.IsBuffering = true;
+
+            SetReplicationLayer(new MyReplicationClient(this, CreateClientState()));
+            syncLayer.TransportLayer.Register(MyMessageId.SERVER_DATA, ReplicationLayer.ProcessServerData);
+            syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_CREATE, ReplicationLayer.ProcessReplicationCreate);
+            syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_DESTROY, ReplicationLayer.ProcessReplicationDestroy);
+            syncLayer.TransportLayer.Register(MyMessageId.SERVER_STATE_SYNC, ReplicationLayer.ProcessStateSync);
+            syncLayer.TransportLayer.Register(MyMessageId.RPC, ReplicationLayer.ProcessEvent);
+            syncLayer.TransportLayer.Register(MyMessageId.REPLICATION_STREAM_BEGIN, ReplicationLayer.ProcessReplicationCreateBegin);
 
             Debug.Assert(!IsServer, "Wrong object created");
-            SyncLayer.RegisterMessageImmediate<AllMembersDataMsg>(OnAllMembersData, MyMessagePermissions.ToServer|MyMessagePermissions.FromServer);
 
             MySteam.API.Matchmaking.LobbyChatUpdate += Matchmaking_LobbyChatUpdate;
             MySteam.API.Matchmaking.LobbyChatMsg += Matchmaking_LobbyChatMsg;
@@ -333,11 +326,7 @@ namespace Sandbox.Engine.Multiplayer
                     // (see function MySyncLayer.RegisterClientEvents which registers all Members in Lobby).
                     if (Sync.Clients == null || !Sync.Clients.HasClient(changedUser))
                     {
-                        RaiseClientJoined(changedUser);
-
-                        // Battles - send all clients, identities, players, factions as first message to client
-                        if (Sync.IsServer && (Battle || Scenario) && changedUser != Sync.MyId)
-                            SendAllMembersDataToClient(changedUser);
+                        RaiseClientJoined(changedUser);                 
                     }
 
                     if (MySandboxGame.IsGameReady && changedUser != ServerId)
@@ -565,7 +554,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public static bool IsLobbyCorrectVersion(Lobby lobby)
         {
-            return GetLobbyAppVersion(lobby) == Sandbox.Common.MyFinalBuildConstants.APP_VERSION;
+            return GetLobbyAppVersion(lobby) == MyFinalBuildConstants.APP_VERSION;
         }
 
         public static MyGameModeEnum GetLobbyGameMode(Lobby lobby)
@@ -771,7 +760,7 @@ namespace Sandbox.Engine.Multiplayer
             SendControlMessage(sender, ref data);
         }
 
-        public void OnAllMembersData(ref AllMembersDataMsg msg, MyNetworkClient sender)
+        public override void OnAllMembersData(ref AllMembersDataMsg msg)
         {
             if (Sync.IsServer)
             {
@@ -797,6 +786,12 @@ namespace Sandbox.Engine.Multiplayer
         {
             SyncLayer.TransportLayer.SendMessage(MyMessageId.REPLICATION_READY, stream, true, new EndpointId(Sync.ServerId));
         }
+
+        void IReplicationClientCallback.SendConnectRequest(BitStream stream)
+        {
+            SyncLayer.TransportLayer.SendMessage(MyMessageId.CLIENT_CONNNECTED, stream, true, new EndpointId(Sync.ServerId));
+        }
+
         #endregion
     }
 }

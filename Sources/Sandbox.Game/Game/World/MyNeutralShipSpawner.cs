@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.GameSystems;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
@@ -29,6 +30,7 @@ namespace Sandbox.Game.World
         public const float NEUTRAL_SHIP_FORBIDDEN_RADIUS = 2000.0f;
         public const float NEUTRAL_SHIP_DIRECTION_SPREAD = 0.5f;
         public const float NEUTRAL_SHIP_MINIMAL_ROUTE_LENGTH = 10000.0f;
+        public const float NEUTRAL_SHIP_SPAWN_OFFSET = 500.0f;
         public static TimeSpan NEUTRAL_SHIP_RESCHEDULE_TIME = TimeSpan.FromSeconds(10); // If spawning does not succeed, retry in 10 seconds
         public static TimeSpan NEUTRAL_SHIP_MIN_TIME = TimeSpan.FromMinutes(13); // Re-spawn time = 13-17 minutes
         public static TimeSpan NEUTRAL_SHIP_MAX_TIME = TimeSpan.FromMinutes(17);
@@ -272,11 +274,11 @@ namespace Sandbox.Game.World
 
             // Get the direction to the center and deviate it randomly
             Vector3D? origin = MyUtils.GetRandomBorderPosition(ref spawnBox);
-            origin = MyEntities.FindFreePlace(origin.Value, spawnGroup.SpawnRadius);
+            origin = MyEntities.TestPlaceInSpace(origin.Value, spawnGroup.SpawnRadius);
             if (!origin.HasValue)
             {
-            
-                MySandboxGame.Log.WriteLine("Could not spawn neutral ships - no free place found");
+                if (!MyFinalBuildConstants.IS_OFFICIAL)
+                    MySandboxGame.Log.WriteLine("Could not spawn neutral ships - no free place found");
                 MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
                 ProfilerShort.End();
                 return;
@@ -329,10 +331,37 @@ namespace Sandbox.Game.World
                 Vector3D shipDestination = shipPosition + directionMult;
                 float radius = prefabDef == null ? 10.0f : prefabDef.BoundingSphere.Radius;
 
+                //these point checks could be done in the trajectory intersect, but checking points is faster than ray intersect
+                if (MyGravityProviderSystem.IsPositionInNaturalGravity(shipPosition, spawnGroup.SpawnRadius))
+                {
+                    if (!MyFinalBuildConstants.IS_OFFICIAL)
+                        MySandboxGame.Log.WriteLine("Could not spawn neutral ships: spawn point is inside gravity well");
+                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    ProfilerShort.End();
+                    return;
+                }
+                if (MyGravityProviderSystem.IsPositionInNaturalGravity(shipDestination, spawnGroup.SpawnRadius))
+                {
+                    if (!MyFinalBuildConstants.IS_OFFICIAL)
+                        MySandboxGame.Log.WriteLine("Could not spawn neutral ships: destination point is inside gravity well");
+                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    ProfilerShort.End();
+                    return;
+                }
+                if (MyGravityProviderSystem.DoesTrajectoryIntersectNaturalGravity(shipPosition, shipDestination, spawnGroup.SpawnRadius + NEUTRAL_SHIP_SPAWN_OFFSET))
+                {
+                    if (!MyFinalBuildConstants.IS_OFFICIAL)
+                        MySandboxGame.Log.WriteLine("Could not spawn neutral ships: flight path intersects gravity well");
+                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    ProfilerShort.End();
+                    return;
+                }
+
                 MyPhysics.CastRay(shipPosition, shipDestination, m_raycastHits, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
                 if (m_raycastHits.Count > 0)
                 {
-                    MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
+                    if (!MyFinalBuildConstants.IS_OFFICIAL)
+                        MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
                     MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
                     ProfilerShort.End();
                     return;
@@ -345,7 +374,8 @@ namespace Sandbox.Game.World
 
                     if (m_raycastHits.Count > 0)
                     {
-                        MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
+                        if (!MyFinalBuildConstants.IS_OFFICIAL)
+                            MySandboxGame.Log.WriteLine("Could not spawn neutral ships due to collision");
                         MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
                         ProfilerShort.End();
                         return;
@@ -392,9 +422,9 @@ namespace Sandbox.Game.World
                     up: up,
                     initialLinearVelocity: shipPrefab.Speed * direction,
                     beaconName: shipPrefab.BeaconText,
-                    spawningOptions: Sandbox.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
-                                     Sandbox.ModAPI.SpawningOptions.SpawnRandomCargo |
-                                     Sandbox.ModAPI.SpawningOptions.DisableDampeners,
+                    spawningOptions: VRage.Game.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection |
+                                     VRage.Game.ModAPI.SpawningOptions.SpawnRandomCargo |
+                                     VRage.Game.ModAPI.SpawningOptions.DisableDampeners,
                                      ownerId: shipPrefab.ResetOwnership ? spawnGroupId : 0,
                     updateSync: true);
                 ProfilerShort.End();

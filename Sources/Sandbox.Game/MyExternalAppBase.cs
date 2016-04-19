@@ -157,9 +157,19 @@ namespace Sandbox.AppCode
             return MyParticlesManager.GenerationsPool.Allocate();
         }
 
+        public MyParticleGPUGeneration AllocateGPUGeneration()
+        {
+            return MyParticlesManager.GPUGenerationsPool.Allocate();
+        }
+
         public MyParticleLight AllocateParticleLight()
         {
             return MyParticlesManager.LightsPool.Allocate();
+        }
+
+        public MyParticleSound AllocateParticleSound()
+        {
+            return MyParticlesManager.SoundsPool.Allocate();
         }
 
         public MyParticleEffect CreateLibraryEffect()

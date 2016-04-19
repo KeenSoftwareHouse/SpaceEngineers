@@ -15,8 +15,8 @@
   <FogBacklightMultiplier>1</FogBacklightMultiplier>
   <FogColor x="1" y="1" z="1" />
   <FogDensity>0.0005</FogDensity>
-  <SunDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
-  <SunIntensity>0.6</SunIntensity>
+  <SunDiffuse x="1" y="1" z="1" />
+  <SunIntensity>1.0</SunIntensity>
   <SunSpecular x="0.784313738" y="0.784313738" z="0.784313738" />
   <BackLightDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
   <BackLightIntensity>2.0</BackLightIntensity>
@@ -44,6 +44,7 @@
       <W>0.05</W>
   </ContourHighlightColor>
   <ContourHighlightThickness>1.5</ContourHighlightThickness>
+  <HighlightPulseInSeconds>3</HighlightPulseInSeconds>
   <EnvironmentalParticles>
     <ParticleType>
       <Id>

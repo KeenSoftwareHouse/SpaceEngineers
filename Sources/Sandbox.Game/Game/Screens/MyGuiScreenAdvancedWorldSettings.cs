@@ -1022,7 +1022,6 @@ namespace Sandbox.Game.Gui
 
             m_autoHealing.IsChecked = settings.AutoHealing;
             m_cargoShipsEnabled.IsChecked = settings.CargoShipsEnabled;
-            m_cargoShipsEnabled.Enabled = !MyFakes.ENABLE_PLANETS;
             m_enableCopyPaste.IsChecked = settings.EnableCopyPaste;
             m_enableSpectator.IsChecked = settings.EnableSpectator;
             m_resetOwnership.IsChecked = settings.ResetOwnership;

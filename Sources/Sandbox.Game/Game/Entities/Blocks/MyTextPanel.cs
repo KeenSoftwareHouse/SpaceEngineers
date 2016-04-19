@@ -21,6 +21,10 @@ using VRage.Game.Entity.UseObject;
 using VRage.ModAPI;
 using VRage.Library.Utils;
 using VRage.Game.Components;
+using VRage.Game.GUI.TextPanel;
+using VRage.Network;
+using Sandbox.Engine.Multiplayer;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -39,8 +43,6 @@ namespace Sandbox.Game.Entities.Blocks
         private StringBuilder m_privateDescription;
         private StringBuilder m_privateTitle;
         private MyGuiScreenTextPanel m_textBox;
-        private TextPanelAccessFlag m_accessFlag;
-        private ShowTextOnScreenFlag m_showFlag;
         private bool m_isOpen;
         private ulong m_userId;
 
@@ -66,37 +68,33 @@ namespace Sandbox.Game.Entities.Blocks
         List<MyGuiControlListbox.Item> m_selectedTextures = null;
         List<MyGuiControlListbox.Item> m_selectedTexturesToRemove = null;
 
-        Color m_backgroundColor = Color.Black;
+        Sync<Color> m_backgroundColor;
         bool m_backgroundColorChanged = true;
         public Color BackgroundColor
         {
             get { return m_backgroundColor; }
-            set
-            {
-                if (m_backgroundColor != value)
-                {
-                    m_backgroundColorChanged = true;
-                    m_backgroundColor = value;
-                    RaisePropertiesChanged();
-                }
-            }
+            set { m_backgroundColor.Value = value; }
         }
 
-        Color m_fontColor = Color.White;
+        void m_backgroundColor_ValueChanged(SyncBase obj)
+            {
+                    m_backgroundColorChanged = true;
+                    RaisePropertiesChanged();
+                }
+
+        Sync<Color> m_fontColor;
         bool m_fontColorChanged = true;
         public Color FontColor
         {
             get { return m_fontColor; }
-            set
+            set { m_fontColor.Value = value; }
+        }
+
+        void m_fontColor_ValueChanged(SyncBase obj)
             {
-                if (m_fontColor != value)
-                {
                     m_fontColorChanged = true;
-                    m_fontColor = value;
                     RaisePropertiesChanged();
                 }
-            }
-        }
 
         bool m_descriptionChanged = true;
         public StringBuilder PublicDescription
@@ -174,27 +172,22 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
+        private Sync<TextPanelAccessFlag> m_accessFlag;
         public TextPanelAccessFlag AccessFlag
         {
             get { return m_accessFlag; }
-            set
-            {
-                if (m_accessFlag != value)
-                {
-                    m_accessFlag = value;
+            set { m_accessFlag.Value = value; }
                 }
-            }
-        }
 
+        private Sync<ShowTextOnScreenFlag> m_showFlag;
         public ShowTextOnScreenFlag ShowTextFlag
         {
             get { return m_showFlag; }
-            set
-            {
-                if (m_showFlag != value)
-                {
-                    m_showFlag = value;
+            set { m_showFlag.Value = value; }
+        }
 
+        void m_showFlag_ValueChanged(SyncBase obj)
+            {
                     if (m_showFlag != ShowTextOnScreenFlag.NONE)
                     {
                         m_forceUpdateText = true;
@@ -206,8 +199,6 @@ namespace Sandbox.Game.Entities.Blocks
                         m_previousTextureID = null;
                     }
                 }
-            }
-        }
 
         public bool IsAccessibleForOnlyOwner
         {
@@ -263,40 +254,31 @@ namespace Sandbox.Game.Entities.Blocks
             set { m_userId = value; }
         }
 
-        public new MySyncTextPanel SyncObject
-        {
-            get { return (MySyncTextPanel)base.SyncObject; }
-        }
-
-        float m_changeInterval = 0.0f;
+        private readonly Sync<float> m_changeInterval;
         public float ChangeInterval
         {
             get { return m_changeInterval; }
-            set
-            {
-                if (m_changeInterval != value)
-                {
-                    m_changeInterval = (float)Math.Round(value, NUM_DECIMALS);
-                    RaisePropertiesChanged();
-                }
-            }
+            set { m_changeInterval.Value = (float)Math.Round(value, NUM_DECIMALS); }
         }
 
+        void m_changeInterval_ValueChanged(SyncBase obj)
+        {
+                    RaisePropertiesChanged();
+                }
+
         bool m_fontSizeChanged = true;
-        float m_fontSize = 1.0f;
+        private readonly Sync<float> m_fontSize;
         public float FontSize
         {
             get { return m_fontSize; }
-            set
+            set { m_fontSize.Value = (float)Math.Round(value, NUM_DECIMALS); }
+        }
+
+        void m_fontSize_ValueChanged(SyncBase obj)
             {
-                if (m_fontSize != value)
-                {
                     m_fontSizeChanged = true;
-                    m_fontSize = (float)Math.Round(value, NUM_DECIMALS);
                     RaisePropertiesChanged();
                 }
-            }
-        }
 
         internal new MyRenderComponentTextPanel Render
         {
@@ -345,7 +327,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (IsBeingHacked)
             {
                 PrivateDescription.Clear();
-                SyncObject.SendChangeDescriptionMessage(PrivateDescription, false);
+                SendChangeDescriptionMessage(PrivateDescription, false);
             }
             ResourceSink.Update();
             if (IsFunctional && IsWorking)
@@ -434,7 +416,7 @@ namespace Sandbox.Game.Entities.Blocks
                     }
                 }
             }
-            SyncObject.SendAddImagesToSelectionRequest(selection);
+            SendAddImagesToSelectionRequest(selection);
         }
 
         public void RemoveImagesFromSelection()
@@ -461,7 +443,7 @@ namespace Sandbox.Game.Entities.Blocks
                     }
                 }
             }
-            SyncObject.SendRemoveSelectedImageRequest(selection);
+            SendRemoveSelectedImageRequest(selection);
         }
 
         public void SelectItems(int[] selection)
@@ -579,7 +561,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             var publicTitleField = new MyTerminalControlTextbox<MyTextPanel>("PublicTitle", MySpaceTexts.BlockPropertyTitle_TextPanelPublicTitle, MySpaceTexts.Blank);
             publicTitleField.Getter = (x) => x.PublicTitle;
-            publicTitleField.Setter = (x, v) => x.SyncObject.SendChangeTitleMessage(v, true);
+            publicTitleField.Setter = (x, v) => x.SendChangeTitleMessage(v, true);
             publicTitleField.SupportsMultipleBlocks = false;
             MyTerminalControlFactory.AddControl(publicTitleField);
 
@@ -592,7 +574,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             var titleField = new MyTerminalControlTextbox<MyTextPanel>("Title", MySpaceTexts.BlockPropertyTitle_TextPanelTitle, MySpaceTexts.Blank);
             titleField.Getter = (x) => x.PrivateTitle;
-            titleField.Setter = (x, v) => x.SyncObject.SendChangeTitleMessage(v, false);
+            titleField.Setter = (x, v) => x.SendChangeTitleMessage(v, false);
             titleField.SupportsMultipleBlocks = false;
 
             MyTerminalControlFactory.AddControl(titleField);
@@ -605,7 +587,7 @@ namespace Sandbox.Game.Entities.Blocks
             var comboAccess = new MyTerminalControlCombobox<MyTextPanel>("Access", MySpaceTexts.BlockPropertyTitle_TextPanelAccessType, MySpaceTexts.Blank);
             comboAccess.ComboBoxContent = (x) => FillComboBoxContent(x);
             comboAccess.Getter = (x) => (long)x.AccessFlag;
-            comboAccess.Setter = (x, y) => x.SyncObject.SendChangeAccessFlagMessage((byte)y);
+            comboAccess.Setter = (x, y) => x.AccessFlag = (TextPanelAccessFlag)y;
             comboAccess.Enabled = (x) => x.OwnerId != 0;
             comboAccess.SetSerializerRange(0, (int)TextPanelAccessFlag.READ_AND_WRITE_ALL);
             MyTerminalControlFactory.AddControl(comboAccess);
@@ -614,7 +596,7 @@ namespace Sandbox.Game.Entities.Blocks
             var showTextOnScreen = new MyTerminalControlCombobox<MyTextPanel>("ShowTextOnScreen", MySpaceTexts.BlockPropertyTitle_ShowTextOnScreen, MySpaceTexts.Blank);
             showTextOnScreen.ComboBoxContent = (x) => FillShowOnScreenComboBoxContent(x);
             showTextOnScreen.Getter = (x) => (long)x.ShowTextFlag;
-            showTextOnScreen.Setter = (x, y) => x.SyncObject.SendShowOnScreenChangeRequest((byte)y);
+            showTextOnScreen.Setter = (x, y) => x.ShowTextFlag = (ShowTextOnScreenFlag)y;
             showTextOnScreen.Enabled = (x) => x.OwnerId != 0;
 
             MyTerminalControlFactory.AddControl(showTextOnScreen);
@@ -623,19 +605,19 @@ namespace Sandbox.Game.Entities.Blocks
             changeFontSlider.SetLimits(0.1f, 10.0f);
             changeFontSlider.DefaultValue = 1.0f;
             changeFontSlider.Getter = (x) => x.FontSize;
-            changeFontSlider.Setter = (x, v) => x.SyncObject.SendFontSizeChangeRequest(v);
+            changeFontSlider.Setter = (x, v) => x.FontSize = v;
             changeFontSlider.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.FontSize, 1));
             changeFontSlider.EnableActions();
             MyTerminalControlFactory.AddControl(changeFontSlider);
 
             var fontColor = new MyTerminalControlColor<MyTextPanel>("FontColor", MySpaceTexts.BlockPropertyTitle_FontColor);
             fontColor.Getter = (x) => x.FontColor;
-            fontColor.Setter = (x, v) => x.SyncObject.SendChangeFontColorRequest(v);
+            fontColor.Setter = (x, v) => x.FontColor = v;
             MyTerminalControlFactory.AddControl(fontColor);
 
             var backgroundColor = new MyTerminalControlColor<MyTextPanel>("BackgroundColor", MySpaceTexts.BlockPropertyTitle_BackgroundColor);
             backgroundColor.Getter = (x) => x.BackgroundColor;
-            backgroundColor.Setter = (x, v) => x.SyncObject.SendChangeBackgroundColorRequest(v);
+            backgroundColor.Setter = (x, v) => x.BackgroundColor = v;
             MyTerminalControlFactory.AddControl(backgroundColor);
 
             MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyTextPanel>());
@@ -652,7 +634,7 @@ namespace Sandbox.Game.Entities.Blocks
             changeIntervalSlider.SetLimits(0, 30.0f);
             changeIntervalSlider.DefaultValue = 0;
             changeIntervalSlider.Getter = (x) => x.ChangeInterval;
-            changeIntervalSlider.Setter = (x, v) => x.SyncObject.SendIntervalChangeRequest(v);
+            changeIntervalSlider.Setter = (x, v) => x.ChangeInterval = v;
             changeIntervalSlider.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.ChangeInterval, NUM_DECIMALS)).Append(" s");
             changeIntervalSlider.EnableActions();
             MyTerminalControlFactory.AddControl(changeIntervalSlider);
@@ -683,6 +665,17 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_definitions.Add(textureDefinition);
             }
+
+            m_backgroundColor.Value = Color.Black;
+            m_fontColor.Value = Color.White;
+            m_changeInterval.Value = 0;
+            m_fontSize.Value = 1.0f;
+
+            m_backgroundColor.ValueChanged += m_backgroundColor_ValueChanged;
+            m_fontColor.ValueChanged += m_fontColor_ValueChanged;
+            m_showFlag.ValueChanged += m_showFlag_ValueChanged;
+            m_changeInterval.ValueChanged += m_changeInterval_ValueChanged;
+            m_fontSize.ValueChanged += m_fontSize_ValueChanged;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -706,7 +699,7 @@ namespace Sandbox.Game.Entities.Blocks
             PublicTitle.Append(ob.PublicTitle);
 
             m_currentPos = ob.CurrentShownTexture;
-            m_accessFlag = ob.AccessFlag;
+            AccessFlag = ob.AccessFlag;
 
             if (Sync.IsServer && Sync.Clients != null)
             {
@@ -774,7 +767,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override void OnOwnershipChanged()
         {
-            m_accessFlag = TextPanelAccessFlag.READ_AND_WRITE_ALL;
+            AccessFlag = TextPanelAccessFlag.READ_AND_WRITE_ALL;
             base.OnOwnershipChanged();
 
             //RaisePropertiesChanged();
@@ -794,7 +787,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (sync)
             {
-                SyncObject.SendChangeOpenMessage(true, isEditable, Sync.MyId, isPublic);
+                SendChangeOpenMessage(true, isEditable, Sync.MyId, isPublic);
                 return;
             }
             m_isEditingPublic = isPublic;
@@ -803,7 +796,7 @@ namespace Sandbox.Game.Entities.Blocks
             MyScreenManager.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = m_textBox);
         }
 
-        public void OnClosedTextBox(ModAPI.ResultEnum result)
+        public void OnClosedTextBox(ResultEnum result)
         {
             if (m_textBox.Description.Text.Length > MAX_NUMBER_CHARACTERS)
             {
@@ -843,16 +836,11 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (block.FatBlock != null && block.FatBlock.EntityId == EntityId)
                 {
-                    SyncObject.SendChangeDescriptionMessage(m_textBox.Description.Text, isPublic);
-                    SyncObject.SendChangeOpenMessage(false);
+                    SendChangeDescriptionMessage(m_textBox.Description.Text, isPublic);
+                    SendChangeOpenMessage(false);
                     return;
                 }
             }
-        }
-
-        protected override MySyncComponentBase OnCreateSync()
-        {
-            return new MySyncTextPanel(this);
         }
 
         public void Use(UseActionEnum actionEnum, IMyEntity entity)
@@ -1006,7 +994,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (playerId == m_userId)
             {
-                SyncObject.SendChangeOpenMessage(false);
+                SendChangeOpenMessage(false);
             }
         }
 
@@ -1114,5 +1102,140 @@ namespace Sandbox.Game.Entities.Blocks
                     m_forceUpdateText = ShowTextOnScreen;
                 }
         }
+
+        #region Sync
+
+        private void SendRemoveSelectedImageRequest(int[] selection)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnRemoveSelectedImageRequest, selection);
+    }
+
+        [Event, Reliable, Server, Broadcast]
+        void OnRemoveSelectedImageRequest(int[] selection)
+        {
+            RemoveItems(selection);
+}
+
+        private void SendAddImagesToSelectionRequest(int[] selection)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnSelectImageRequest, selection);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void OnSelectImageRequest(int[] selection)
+        {
+            SelectItems(selection);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void OnChangeDescription(string description, bool isPublic)
+        {
+            m_helperSB.Clear().Append(description);
+            if (isPublic)
+            {
+                PublicDescription = m_helperSB;
+            }
+            else
+            {
+                PrivateDescription = m_helperSB;
+            }
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void OnChangeTitle(string title, bool isPublic)
+        {
+            m_helperSB.Clear().Append(title);
+            if (isPublic)
+            {
+                PublicTitle = m_helperSB;
+            }
+            else
+            {
+                PrivateTitle = m_helperSB;
+            }
+        }
+
+        private void SendChangeOpenMessage(bool isOpen, bool editable = false, ulong user = 0, bool isPublic = false)
+        {
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeOpenRequest, isOpen, editable, user, isPublic);
+        }
+
+        [Event, Reliable, Server]
+        void OnChangeOpenRequest(bool isOpen, bool editable, ulong user, bool isPublic)
+        {
+            if (Sync.IsServer && IsOpen && isOpen)
+                return;
+
+            OnChangeOpen(isOpen, editable, user, isPublic);
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeOpenSuccess, isOpen, editable, user, isPublic);
+        }
+
+        [Event, Reliable, Broadcast]
+        void OnChangeOpenSuccess(bool isOpen, bool editable, ulong user, bool isPublic)
+        {
+            OnChangeOpen(isOpen, editable, user, isPublic);
+        }
+
+        void OnChangeOpen(bool isOpen, bool editable, ulong user, bool isPublic)
+        {
+            IsOpen = isOpen;
+            UserId = user;
+
+            if (!MySandboxGame.IsDedicated && user == Sync.MyId && isOpen)
+            {
+                OpenWindow(editable, false, isPublic);
+            }
+        }
+
+        private void SendChangeDescriptionMessage(StringBuilder description, bool isPublic)
+        {
+            if (description.CompareTo(PublicDescription) == 0 && isPublic)
+            {
+                return;
+            }
+
+            if (description.CompareTo(PrivateDescription) == 0 && isPublic == false)
+            {
+                return;
+            }
+
+            if(isPublic)
+            {
+                PublicDescription = description;
+            }
+            else
+            {
+                PrivateDescription = description;
+            }
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeDescription, description.ToString(), isPublic);
+        }
+
+        private void SendChangeTitleMessage(StringBuilder title, bool isPublic)
+        {
+            if (title.CompareTo(PublicTitle) == 0 && isPublic)
+            {
+                return;
+            }
+
+            if (title.CompareTo(PrivateTitle) == 0 && isPublic == false)
+            {
+                return;
+            }
+
+            if (isPublic)
+            {
+                PublicTitle = title;
+            }
+            else
+            {
+                PrivateTitle = title;
+            }
+
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeTitle, title.ToString(), isPublic);
+        }
+
+        #endregion
     }
 }

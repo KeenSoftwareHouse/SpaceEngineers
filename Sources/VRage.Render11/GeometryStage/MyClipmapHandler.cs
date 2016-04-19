@@ -8,13 +8,15 @@ namespace VRageRender
 {
     class MyClipmapHandler : IMyClipmapCellHandler
     {
+        const int MergeLodSubdivideCount = 3;
+
         private readonly MyClipmap m_clipmapBase;
         internal MyClipmap Base { get { return m_clipmapBase; } }
 
         readonly Vector3D m_massiveCenter;
         readonly float m_massiveRadius;
 
-        private readonly MyLodMeshMergeHandler m_mergeHandler;
+        private MyLodMeshMergeHandler m_mergeHandler;
 
         readonly RenderFlags m_renderFlags;
         public RenderFlags RenderFlags { get { return m_renderFlags; } }
@@ -24,14 +26,24 @@ namespace VRageRender
             m_clipmapBase = new MyClipmap(id, scaleGroup, worldMatrix, sizeLod0, this, massiveCenter, massiveRadius, prunningFunc);
             m_massiveCenter = massiveCenter;
             m_renderFlags = additionalFlags;
+            m_mergeHandler = null;
 
             if (spherize)
                 m_massiveRadius = massiveRadius;
 
-            const int mergeLodSubdivideCount = 3;
-            m_mergeHandler = new MyLodMeshMergeHandler(Base, MyCellCoord.MAX_LOD_COUNT, mergeLodSubdivideCount, ref worldMatrix, ref massiveCenter, massiveRadius, m_renderFlags);
+            if (MyLodMeshMergeHandler.ShouldAllocate(m_mergeHandler))
+                m_mergeHandler = AllocateMergeHandler();
 
             MyClipmap.AddToUpdate(MyEnvironment.CameraPosition, Base);
+        }
+
+        private MyLodMeshMergeHandler AllocateMergeHandler()
+        {
+            MyLodMeshMergeHandler mergeHandler;
+            MatrixD worldMatrix = Base.WorldMatrix;
+            Vector3D massiveCenter = m_massiveCenter;
+            mergeHandler = new MyLodMeshMergeHandler(Base, MyCellCoord.MAX_LOD_COUNT, MergeLodSubdivideCount, ref worldMatrix, ref massiveCenter, m_massiveRadius, m_renderFlags);
+            return mergeHandler;
         }
 
         public IMyClipmapCell CreateCell(MyClipmapScaleEnum scaleGroup, MyCellCoord cellCoord, ref MatrixD worldMatrix)
@@ -49,17 +61,27 @@ namespace VRageRender
 
         public void UpdateMerging()
         {
-            m_mergeHandler.Update();
+            if(m_mergeHandler != null)
+                m_mergeHandler.Update();
         }
 
         internal void UpdateMergedMesh(MyRenderMessageUpdateMergedVoxelMesh msg)
         {
-            m_mergeHandler.UpdateMesh(msg);
+            ProfilerShort.Begin("MyClipmapHandler.UpdateMergedMesh");
+
+            if(m_mergeHandler != null)
+                m_mergeHandler.UpdateMesh(msg);
+
+            ProfilerShort.End();
         }
 
         internal void ResetMergedMeshes()
         {
-            m_mergeHandler.ResetMeshes();
+            if (MyLodMeshMergeHandler.ShouldAllocate(m_mergeHandler))
+                m_mergeHandler = AllocateMergeHandler();
+
+            if(m_mergeHandler != null)
+                m_mergeHandler.ResetMeshes();
         }
 
         internal void UpdateWorldMatrix(ref MatrixD worldMatrix)
@@ -75,7 +97,7 @@ namespace VRageRender
             {
                 cellProxy.SetVisibility(true);
 
-                m_mergeHandler.OnAddedToScene(cellProxy);
+                AddToMergeBatch(cellProxy);
             }
         }
 
@@ -85,7 +107,8 @@ namespace VRageRender
             Debug.Assert(cellProxy != null, "Removing wrong type of clipmap cell from scene!");
             cellProxy.SetVisibility(false);
 
-            m_mergeHandler.OnRemovedFromScene(cellProxy);
+            if(m_mergeHandler != null)
+                m_mergeHandler.OnRemovedFromScene(cellProxy);
         }
 
         public void DeleteCell(IMyClipmapCell cell)
@@ -95,9 +118,16 @@ namespace VRageRender
 
             if (cellProxy.Actor != null)
 			{
-            	if(!m_mergeHandler.OnDeleteCell(cellProxy))
+            	if(m_mergeHandler == null || !m_mergeHandler.OnDeleteCell(cellProxy))
                 	cellProxy.Unload();
 			}
+        }
+
+        public void AddToMergeBatch(IMyClipmapCell cell)
+        {
+            var cellProxy = (MyClipmapCellProxy)cell;
+            if (m_mergeHandler != null)
+                m_mergeHandler.OnAddedToScene(cellProxy);
         }
 
         internal static void UpdateQueued()

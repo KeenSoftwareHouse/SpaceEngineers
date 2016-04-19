@@ -52,6 +52,7 @@ namespace Sandbox.Game
         public bool MultipleSpinningWheels;
         public Type HUDScreen;
         public Type ToolbarConfigScreen; // aka G-screen
+        public Type ToolbarControl;
         public Type OptionsScreen;
         public Type CustomWorldScreen;
         public Type ScenarioScreen;
@@ -128,7 +129,6 @@ namespace Sandbox.Game
         public static bool UseVolumeLimiter = false;
 
         public static bool UseSameSoundLimiter = false;
-        public static int SameSoundLimiterCount = 3;
 
         public static bool RestrictSpectatorFlyMode = false;
 
@@ -227,6 +227,7 @@ namespace Sandbox.Game
             LoadingScreenIndexRange = new Vector2I(1,24),
             HUDScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHudSpace),
             ToolbarConfigScreen = typeof(Sandbox.Game.Gui.MyGuiScreenCubeBuilder),
+            ToolbarControl = typeof(Sandbox.Game.Screens.Helpers.MyGuiControlToolbar),
             CustomWorldScreen = typeof(Sandbox.Game.Gui.MyGuiScreenWorldSettings),
             ScenarioScreen = typeof(Sandbox.Game.Gui.MyGuiScreenScenario),
             TutorialScreen = typeof(Sandbox.Game.Gui.MyGuiScreenTutorial),
@@ -316,6 +317,7 @@ namespace Sandbox.Game
         public static bool EnableMutePlayer = false;    // mute checkox on players page + muting of voicechat of selected players
 
         public static bool EnableJumpDrive = false;
+        public static bool EnableShipSoundSystem = false;
 
         public static Engine.Networking.IMyAnalytics AnalyticsTracker = null; // = MyInfinarioAnalytics.Instance;
         
@@ -329,6 +331,8 @@ namespace Sandbox.Game
         public static bool BlockForVoxels = false;
 
         public static float MaxAntennaDrawDistance = 500000;
+
+        public static bool EnableResearch = false;
 
         // Factions
         public static MyRelationsBetweenFactions DefaultFactionRelationship = MyRelationsBetweenFactions.Enemies;

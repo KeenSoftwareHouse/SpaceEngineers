@@ -18,6 +18,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRageMath;
+using Sandbox.Game.Multiplayer;
 
 namespace SpaceEngineers.Game.Entities
 {
@@ -73,7 +74,7 @@ namespace SpaceEngineers.Game.Entities
 
         public override bool HasBuildingMaterials(MyEntity builder)
         {
-            if (MySession.Static.CreativeMode || (MySession.Static.IsAdminModeEnabled && builder == MySession.Static.LocalCharacter))
+            if (MySession.Static.CreativeMode || (MySession.Static.IsAdminModeEnabled(Sync.MyId) && builder == MySession.Static.LocalCharacter))
                 return true;
 
             if (builder == null) return false;
@@ -99,10 +100,10 @@ namespace SpaceEngineers.Game.Entities
             bool result = true;
             foreach (var entry in m_materialList.RequiredMaterials)
             {
-                result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
+                result &=  GetItemAmountCombined(inventory, entry.Key) >= entry.Value;
                 if (!result && shipInventory != null)
                 {
-                    result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
+                    result = GetItemAmountCombined(shipInventory, entry.Key) >= entry.Value;
                     if (!result)
                     {
                         //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
@@ -165,45 +166,25 @@ namespace SpaceEngineers.Game.Entities
         {
         }
 
-        public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob)
+        public override void BeforeCreateBlock(MyCubeBlockDefinition definition, MyEntity builder, MyObjectBuilder_CubeBlock ob, bool buildAsAdmin)
         {
-            base.BeforeCreateBlock(definition, builder, ob);
+            base.BeforeCreateBlock(definition, builder, ob, buildAsAdmin);
 
-            if (builder != null && MySession.Static.SurvivalMode&&MySession.Static.IsAdminModeEnabled == false)
+            if (builder != null && MySession.Static.SurvivalMode && !buildAsAdmin)
             {
                 ob.IntegrityPercent = MyComponentStack.MOUNT_THRESHOLD;
                 ob.BuildPercent = MyComponentStack.MOUNT_THRESHOLD;
             }
         }
 
-        public override void AfterGridCreated(MyCubeGrid grid, MyEntity builder)
+        public override void AfterSuccessfulBuild(MyEntity builder, bool instantBuild)
         {
-            if (MySession.Static.SurvivalMode)
-            {
-                TakeMaterialsFromBuilder(builder);
-            }
-        }
-
-        public override void AfterGridsSpawn(Dictionary<MyDefinitionId, int> buildItems, MyEntity builder)
-        {
-        }
-
-        public override void AfterBlockBuild(MySlimBlock block, MyEntity builder)
-        {
-            if (builder == null) return;
+            if (builder == null || instantBuild) return;
 
             if (MySession.Static.SurvivalMode)
             {
                 TakeMaterialsFromBuilder(builder);
             }
-        }
-
-        public override void AfterBlocksBuild(HashSet<MyCubeGrid.MyBlockLocation> builtBlocks, MyEntity builder)
-        {
-        }
-
-        public override void AfterMultiBlockBuild(MyEntity builder)
-        {
         }
 
         private void ClearRequiredMaterials()
@@ -249,28 +230,28 @@ namespace SpaceEngineers.Game.Entities
             foreach (var entry in m_materialList.RequiredMaterials)
             {
                 VRage.MyFixedPoint toRemove = entry.Value;
-                hasAmount = inventory.GetItemAmount(entry.Key);
+                hasAmount = GetItemAmountCombined(inventory,entry.Key);
                 if (hasAmount > entry.Value)
                 {
-                    inventory.RemoveItemsOfType(toRemove, entry.Key);
+                    RemoveItemsCombined(inventory,(int)toRemove, entry.Key);
                     continue;
                 }
                 if (hasAmount>0)
                 {
-                    inventory.RemoveItemsOfType(hasAmount, entry.Key);
+                    RemoveItemsCombined(inventory, (int)hasAmount, entry.Key);
                     toRemove -= hasAmount;
                 }
                 if (shipInventory != null)
                 {
-                    hasAmountCockpit = shipInventory.GetItemAmount(entry.Key);
+                    hasAmountCockpit = GetItemAmountCombined(shipInventory,entry.Key);
                     if (hasAmountCockpit >= toRemove)
                     {
-                        shipInventory.RemoveItemsOfType(toRemove, entry.Key);
+                        RemoveItemsCombined(shipInventory, (int)toRemove, entry.Key);
                         continue;
                     }
                     if (hasAmountCockpit > 0)
                     {
-                        shipInventory.RemoveItemsOfType(hasAmountCockpit, entry.Key);
+                        RemoveItemsCombined(shipInventory, (int)hasAmountCockpit, entry.Key);
                         toRemove -= hasAmountCockpit;
                     }
                     var transferred = MyGridConveyorSystem.ItemPullRequest(cockpit, shipInventory, identityId, entry.Key, toRemove, true);

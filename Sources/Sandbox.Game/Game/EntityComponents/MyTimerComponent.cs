@@ -1,5 +1,4 @@
-﻿using Sandbox.Common.Components;
-using VRage.Game.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;

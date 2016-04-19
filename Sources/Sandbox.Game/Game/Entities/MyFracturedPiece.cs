@@ -1,7 +1,5 @@
 ﻿using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Models;
@@ -30,6 +28,8 @@ using VRage.ModAPI;
 using VRage.Game.Entity;
 using VRage.Library.Sync;
 using Sandbox.Engine.Multiplayer;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.Entities
 {
@@ -479,8 +479,11 @@ namespace Sandbox.Game.Entities
 
         private void SetFallSound()
         {
-            m_fallSound = new MySoundPair(m_fallSoundString.Value);
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            if (OriginalBlocks != null && OriginalBlocks[0].TypeId.ToString().Equals("MyObjectBuilder_Tree"))
+            {
+                m_fallSound = new MySoundPair(m_fallSoundString.Value);
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            }
         }
 
         public void StartFallSound(string sound)

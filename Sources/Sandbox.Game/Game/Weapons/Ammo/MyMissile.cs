@@ -1,7 +1,6 @@
 ﻿#region Using
 
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
@@ -23,6 +22,8 @@ using VRage.Utils;
 using VRageMath;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
 
 #endregion
 
@@ -169,6 +170,16 @@ namespace Sandbox.Game.Weapons
                                     100 * Physics.LinearVelocity, m_collisionPoint, null);
                             }
                         }
+                    }
+
+                    //by Gregory: added null check. Decal won't be added if m_collidedEntity not found
+                    if (m_collisionPoint.HasValue && m_collidedEntity != null)
+                    {
+                        MyHitInfo hitInfo = new MyHitInfo();
+                        hitInfo.Position = m_collisionPoint.Value;
+                        hitInfo.Normal = new Vector3D(1, 0, 0); // FIXME
+
+                        MyDecals.HandleAddDecal(m_collidedEntity, hitInfo, MyDamageType.Rocket);
                     }
 
                     Close();

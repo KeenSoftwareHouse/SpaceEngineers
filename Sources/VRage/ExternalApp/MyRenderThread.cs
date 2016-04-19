@@ -38,6 +38,7 @@ namespace VRage
         readonly WaitForTargetFrameRate m_waiter;
         MyTimeSpan m_messageProcessingStart; // Used for profiling message queue
         MyTimeSpan m_frameStart;
+        MyTimeSpan m_appEventsTime;
 
         volatile bool m_stopped = false;
 
@@ -115,7 +116,11 @@ namespace VRage
         {
             if (MyRenderProxy.EnableAppEventsCall)
             {
-                Application.DoEvents();
+                if ((m_timer.Elapsed - m_appEventsTime).Miliseconds > 10)
+                {
+                    Application.DoEvents();
+                    m_appEventsTime = m_timer.Elapsed;
+                }
             }
             RenderCallback();
         }
@@ -186,6 +191,8 @@ namespace VRage
             var control = System.Windows.Forms.Control.FromHandle(m_renderWindow.Handle);
 
             m_settings = MyRenderProxy.CreateDevice(this, m_renderWindow.Handle, startParams.SettingsToTry);
+            if (m_settings.AdapterOrdinal == -1)
+                return;
             MyRenderProxy.SendCreatedDeviceSettings(m_settings);
             m_currentQuality = startParams.RenderQuality;
             m_form = control;
@@ -414,7 +421,7 @@ namespace VRage
 
             ProfilerShort.Begin("Clear");
             // TODO: OP! This should be done only to prevent weird things on screen, not every frame
-            MyRenderProxy.ClearBackbuffer(new ColorBGRA(0.0f));
+            //MyRenderProxy.ClearBackbuffer(new ColorBGRA(0.0f));
             MyRenderProxy.ClearLargeMessages();
             ProfilerShort.End();
 

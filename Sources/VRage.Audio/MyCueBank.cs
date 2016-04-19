@@ -86,8 +86,7 @@ namespace VRage.Audio
         Dictionary<MyStringId, Dictionary<MyStringId, MyCueId>> m_musicTransitionCues;
         List<MyStringId> m_categories;
 
-        public bool useSameSoundLimiter = false;
-        public int sameSoundlimiterCount = 3;
+        public bool UseSameSoundLimiter = false;
 
 #if DEBUG
         public static List<StringBuilder> lastSounds = new List<StringBuilder>();
@@ -179,8 +178,7 @@ namespace VRage.Audio
                 foreach (MyWaveFormat waveFormat in waveFormats)
                 {
                     m_voicePools[waveFormat] = new MySourceVoicePool(m_audioEngine, waveFormat.WaveFormat, this);
-                    m_voicePools[waveFormat].useSameSoundLimiter = useSameSoundLimiter;
-                    m_voicePools[waveFormat].sameSoundlimiterCount = sameSoundlimiterCount;
+                    m_voicePools[waveFormat].UseSameSoundLimiter = UseSameSoundLimiter;
                 }
             }
         }
@@ -191,8 +189,7 @@ namespace VRage.Audio
             {
                 foreach (MySourceVoicePool voicePool in m_voicePools.Values)
                 {
-                    voicePool.useSameSoundLimiter = useSameSoundLimiter;
-                    voicePool.sameSoundlimiterCount = sameSoundlimiterCount;
+                    voicePool.UseSameSoundLimiter = UseSameSoundLimiter;
                 }
             }
         }
@@ -221,6 +218,15 @@ namespace VRage.Audio
             foreach (var voicePool in m_voicePools)
             {
                 voicePool.Value.Update();
+            }
+        }
+
+        public void ClearSounds()
+        {
+            foreach (var vp in m_voicePools)
+            {
+                // eventual stopping of playing
+                vp.Value.StopAll();
             }
         }
 
@@ -265,11 +271,13 @@ namespace VRage.Audio
             return m_musicTransitionCues.Keys.ElementAt(MyUtils.GetRandomInt(m_musicTransitionCues.Count));
         }
 
-        public MyStringId GetRandomTransitionCategory(ref MyStringId transitionEnum)
+        public MyStringId GetRandomTransitionCategory(ref MyStringId transitionEnum, ref MyStringId noRandom)
         {
             if (m_musicTransitionCues.ContainsKey(transitionEnum) == false)
             {
-                transitionEnum = GetRandomTransitionEnum();
+                do {
+                    transitionEnum = GetRandomTransitionEnum();
+                } while (transitionEnum == noRandom);
             }
             int randomIndex = MyUtils.GetRandomInt(m_musicTransitionCues[transitionEnum].Count);
             int currentIndex = 0;
@@ -461,7 +469,7 @@ namespace VRage.Audio
                 voicePool.Value.WritePlayingDebugInfo(stringBuilder);
             }
             stringBuilder.AppendLine("");
-            stringBuilder.Append("Paused: ");
+            stringBuilder.Append("Not playing: ");
             foreach (var voicePool in m_voicePools)
             {
                 voicePool.Value.WritePausedDebugInfo(stringBuilder);

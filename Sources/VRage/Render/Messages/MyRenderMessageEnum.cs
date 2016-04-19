@@ -73,6 +73,11 @@ namespace VRageRender
 
         RebuildCullingStructure,
 
+        CreateGPUEmitter,
+        UpdateGPUEmitters,
+        UpdateGPUEmittersPosition,
+        RemoveGPUEmitter,
+
         CreateRenderLight,
         UpdateRenderLight,
         SetLightShadowIgnore,
@@ -112,6 +117,7 @@ namespace VRageRender
         CreateDecal,
         CreateScreenDecal,
         RemoveDecal,
+        SetDecalGlobals,
         RegisterDecalsMaterials,
         HideDecals,
 
@@ -133,6 +139,8 @@ namespace VRageRender
         TakeScreenshot,
         ScreenshotTaken, //Output
         ExportToObjComplete, //Output
+
+        Error, //Output
 
         CreateRenderCharacter,
         SetCharacterSkeleton,
@@ -163,6 +171,7 @@ namespace VRageRender
         DebugDraw6FaceConvex,
         DebugWaitForPresent,
 
+        UpdateDebugOverrides,
 
         UnloadData,
 

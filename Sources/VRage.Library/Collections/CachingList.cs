@@ -56,6 +56,22 @@ namespace VRage.Collections
             }
         }
 
+        /// <summary>
+        /// Immediately removes an element at the specified index.
+        /// </summary>
+        /// <param name="index">Index of the element to remove immediately.</param>
+        public void RemoveAtImmediately(int index)
+        {
+            if (index < 0 || index >= m_list.Count) return;
+            m_list.RemoveAt(index);
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < m_list.Count; i++)
+                Remove(m_list[i]);
+        }
+
         public void ClearImmediate()
         {
             m_toAdd.Clear();

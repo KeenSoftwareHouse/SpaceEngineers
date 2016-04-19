@@ -1,5 +1,4 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.Components;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
@@ -53,15 +52,24 @@ namespace Sandbox.Game.World
             Scripts.Clear();
             EntityScripts.Clear();
             SubEntityScripts.Clear();
-            if(Sync.IsServer)
+            if (Sync.IsServer)
+            {
                 LoadScripts(MyFileSystem.ContentPath);
-            LoadScripts(MySession.Static.CurrentPath);
-            ReadScripts(MySession.Static.CurrentPath);
-            foreach (var mod in MySession.Static.Mods)
-                LoadScripts(Path.Combine(MyFileSystem.ModsPath, mod.Name), mod.Name);
+            }
+            if (MySession.Static.CurrentPath != null)
+            {
+                LoadScripts(MySession.Static.CurrentPath);
+                ReadScripts(MySession.Static.CurrentPath);
+            }
+            if (MySession.Static.Mods != null)
+            {
+                foreach (var mod in MySession.Static.Mods)
+                    LoadScripts(Path.Combine(MyFileSystem.ModsPath, mod.Name), mod.Name);
+            }
+
             foreach (var ass in Scripts.Values)
             {
-                MySession.Static.RegisterComponentsFromAssembly(ass);
+                MySession.Static.RegisterComponentsFromAssembly(ass, true);
                 MySandboxGame.Log.WriteLine(string.Format("Script loaded: {0}", ass.FullName));
             }
             MySandboxGame.Log.DecreaseIndent();

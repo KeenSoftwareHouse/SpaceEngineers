@@ -2474,24 +2474,19 @@
           </Slot>
         </Slots>
       </CreativeDefaultToolbar>
+      
       <PossibleStartingStates>
-        <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true">
-          <Transform>
-            <Position x="16753.240629495678" y="36680.468613601675" z="14070.47408505316" />
-            <Forward x="-0.5595269" y="0.5727671" z="0.5990555" />
-            <Up x="-0.6424482" y="0.156920686" z="-0.750090837" />
-          </Transform>
-        </StartingState>
+        <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="RespawnShip" />
       </PossibleStartingStates>
       <WorldGeneratorOperations>
         <Operation xsi:type="CreatePlanet" FolderName="EarthLike" DefinitionName ="EarthLike">
-          <PositionMinCorner x="0" y="0" z="0" />
+          <PositionCenter x="0" y="0" z="0" />
           <Diameter>120000</Diameter>
         </Operation>
 
         <Operation xsi:type="CreatePlanet" FolderName="Moon" DefinitionName ="Moon">
-          <PositionCenter x="0" y="0" z="100000" />
-          <Diameter> 19000</Diameter>
+          <PositionMinCorner x="0" y="120000" z="-130000" />
+          <Diameter>19000</Diameter>
         </Operation>
       </WorldGeneratorOperations>
     </ScenarioDefinition>

@@ -52,6 +52,8 @@ namespace VRageRender
 
         static VertexBufferId m_quadBuffer;
 
+        internal static PixelShaderId BlitTextureShader { get { return m_blitTextureShader; } }
+
         internal static void Init()
         {
             //MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
@@ -76,14 +78,20 @@ namespace VRageRender
             m_blitTextureArrayShader = MyShaders.CreatePs("debug_blitTextureArray.hlsl");
             m_inputLayout = MyShaders.CreateIL(m_screenVertexShader.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION2, MyVertexInputComponentType.TEXCOORD0));
 
-            m_quadBuffer = MyHwBuffers.CreateVertexBuffer(6, MyVertexFormatPosition2Texcoord.STRIDE, BindFlags.VertexBuffer, ResourceUsage.Dynamic);
+            m_quadBuffer = MyHwBuffers.CreateVertexBuffer(6, MyVertexFormatPosition2Texcoord.STRIDE, BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyDebugRenderer quad");
         }
 
-        internal static void DrawQuad(float x, float y, float w, float h)
+        internal static void DrawQuad(float x, float y, float w, float h, VertexShaderId? customVertexShader = null)
         {
             //RC.Context.PixelShader.Set(m_blitTextureShader);
 
-            RC.DeviceContext.VertexShader.Set(m_screenVertexShader);
+            VertexShaderId usedVertexShader;
+            if (!customVertexShader.HasValue)
+                usedVertexShader = m_screenVertexShader;
+            else
+                usedVertexShader = customVertexShader.Value;
+
+            RC.DeviceContext.VertexShader.Set(usedVertexShader);
             RC.DeviceContext.InputAssembler.InputLayout = m_inputLayout;
 
             var mapping = MyMapping.MapDiscard(m_quadBuffer.Buffer);
@@ -302,7 +310,7 @@ namespace VRageRender
 
                 foreach (var light in MyLightRendering.VisiblePointlights)
                 {
-                    batch.AddSphereRing(new BoundingSphere(light.Position, 0.5f), Color.White, Matrix.Identity);
+                    batch.AddSphereRing(new BoundingSphere(light.PointPosition, 0.5f), Color.White, Matrix.Identity);
                 }
                 batch.Commit();
             }

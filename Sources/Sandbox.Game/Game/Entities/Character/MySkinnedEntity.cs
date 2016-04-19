@@ -22,9 +22,11 @@ using Sandbox.Definitions;
 using Sandbox.Game.Components;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Animations;
+using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Entity;
+using VRage.Serialization;
 
 #endregion
 
@@ -34,10 +36,12 @@ namespace Sandbox.Game.Entities
 
     public struct MyAnimationCommand
     {
+        [Serialize(MyObjectFlags.Nullable)]
         public string AnimationSubtypeName;
         public MyPlaybackCommand PlaybackCommand;
         public MyBlendOption BlendOption;
         public MyFrameOption FrameOption;
+        [Serialize(MyObjectFlags.Nullable)]
         public string Area;
         public float BlendTime;
         public float TimeScale;
@@ -212,7 +216,7 @@ namespace Sandbox.Game.Entities
         /// Get the bones from the model and create a bone class object for
         /// each bone. We use our bone class to do the real animated bone work.
         /// </summary>
-        protected virtual void ObtainBones()
+        public virtual void ObtainBones()
         {
             MyCharacterBone[] characterBones = new MyCharacterBone[Model.Bones.Length];
             for (int i = 0; i < Model.Bones.Length; i++)
@@ -224,6 +228,7 @@ namespace Sandbox.Game.Entities
                 // Add to the bone array for this model
                 characterBones[i] = newBone;
             }
+
             // pass array of bones to animation controller
             m_compAnimationController.CharacterBones = characterBones;
         }
@@ -259,6 +264,11 @@ namespace Sandbox.Game.Entities
                 name = "";
 
             return m_animationPlayers.TryGetValue(name, out player);
+        }
+
+        internal DictionaryReader<string, MyAnimationPlayerBlendPair> GetAllAnimationPlayers()
+        {
+            return m_animationPlayers;
         }
 
         void PlayAnimationSet(MyAnimationSetData animationSetData)
@@ -374,16 +384,23 @@ namespace Sandbox.Game.Entities
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeAbsoluteTransforms");
             var characterBones = AnimationController.CharacterBones;
+            if (characterBones == null)
+            {
+                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+                ProfilerShort.End();
+                return;
+            }
+            
             for (int i = 0; i < characterBones.Length; i++)
             {
-                MyCharacterBone bone = characterBones[i];
-                bone.ComputeAbsoluteTransform();
-                AnimationController.BoneRelativeTransforms[i] = bone.ComputeBoneTransform();  // MOVE TO ANIM CONTROLLER
-                BoneAbsoluteTransforms[i] = bone.AbsoluteTransform;
+                AnimationController.BoneRelativeTransforms[i] = characterBones[i].RelativeTransform;
+            }
+            MyCharacterBone.ComputeAbsoluteTransforms(AnimationController.CharacterBonesSorted);
+            for (int i = 0; i < characterBones.Length; i++)
+            {
+                AnimationController.BoneAbsoluteTransforms[i] = characterBones[i].AbsoluteTransform;
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-
             ProfilerShort.End();
         }
 
@@ -545,6 +562,7 @@ namespace Sandbox.Game.Entities
         {
             m_actualWorldAABB = BoundingBoxD.CreateInvalid();
 
+            if (AnimationController.CharacterBones != null)
             for (int i = 1; i < Model.Bones.Length; i++)
             {
                 Vector3D p1 = Vector3D.Transform(AnimationController.CharacterBones[i].Parent.AbsoluteTransform.Translation, WorldMatrix);

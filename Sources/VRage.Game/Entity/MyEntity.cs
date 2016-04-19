@@ -204,6 +204,19 @@ namespace VRage.Game.Entity
             }
         }
 
+        bool m_isPreview = false;
+        public bool IsPreview
+        {
+            get
+            {
+                return m_isPreview;
+            }
+            set
+            {
+                m_isPreview = value;
+            }
+        }
+
         public MyEntityUpdateEnum NeedsUpdate
         {
             get
@@ -521,6 +534,16 @@ namespace VRage.Game.Entity
             SyncObject = OnCreateSync();
         }
 
+        public MyEntitySubpart GetSubpart(string name)
+        {
+            return Subparts[name];
+        }
+
+        public bool TryGetSubpart(string name, out MyEntitySubpart subpart)
+        {
+            return Subparts.TryGetValue(name, out subpart);
+        }
+
         #region Update
         public virtual void UpdateOnceBeforeFrame()
         {
@@ -551,7 +574,9 @@ namespace VRage.Game.Entity
         /// </summary>
         public virtual void UpdateBeforeSimulation10()
         {
+            ProfilerShort.Begin(m_gameLogic.GetType().Name);
             m_gameLogic.UpdateBeforeSimulation10();
+            ProfilerShort.End();
             Debug.Assert(!Closed, "Cannot update entity, entity is closed");
         }
         public virtual void UpdateAfterSimulation10()
@@ -1320,6 +1345,30 @@ namespace VRage.Game.Entity
         public virtual void AfterPaste()
         {
 
+        }
+
+        public void SetEmissiveParts(string emissiveName, Color emissivePartColor, float emissivity)
+        {
+            UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], emissiveName, emissivePartColor, emissivity);
+        }
+
+        public void SetEmissivePartsForSubparts(string emissiveName, Color emissivePartColor, float emissivity)
+        {
+            if (Subparts != null)
+            {
+                foreach (var subPart in Subparts)
+                {
+                    subPart.Value.SetEmissiveParts(emissiveName, emissivePartColor, emissivity);
+                }
+            }
+        }
+
+        protected static void UpdateNamedEmissiveParts(uint renderObjectId, string emissiveName, Color emissivePartColor, float emissivity)
+        {
+            if (renderObjectId != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                VRageRender.MyRenderProxy.UpdateColorEmissivity(renderObjectId, 0, emissiveName, emissivePartColor, emissivity);
+            }
         }
 
         #endregion

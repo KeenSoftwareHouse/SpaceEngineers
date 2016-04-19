@@ -28,7 +28,8 @@ using VRage.Game.Components;
 using System.Diagnostics;
 using VRage.Game.Entity;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.Weapons
 {
@@ -98,7 +99,7 @@ namespace Sandbox.Game.Weapons
             m_cannonMotorEndPlayed = true;
             m_rotationTimeout = (float)MyGatlingConstants.ROTATION_TIMEOUT + MyUtils.GetRandomFloat(-500, +500);
 
-            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
 
             m_gunBase = new MyGunBase();         
 
@@ -134,10 +135,13 @@ namespace Sandbox.Game.Weapons
 
             if (this.GetInventory() == null)
             {
+                MyInventory inventory = null;
                 if (weaponBlockDefinition != null)
-                    Components.Add<MyInventoryBase>(new MyInventory(weaponBlockDefinition.InventoryMaxVolume, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive, this));
+                    inventory = new MyInventory(weaponBlockDefinition.InventoryMaxVolume, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive);
                 else
-                    Components.Add<MyInventoryBase>(new MyInventory(64.0f / 1000, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive, this));
+                    inventory = new MyInventory(64.0f / 1000, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive);
+
+                Components.Add<MyInventoryBase>(inventory);
 
                 this.GetInventory().Init(ob.Inventory);
             }
@@ -244,19 +248,25 @@ namespace Sandbox.Game.Weapons
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-         
+
+            Debug.Assert(PositionComp != null, "MySmallGatlingGun Cubegrid is null");
+            if (PositionComp == null)
+                return;
+
             //  Cannon is rotating while shoting. After that, it will slow-down.
             float normalizedRotationSpeed = 1.0f - MathHelper.Clamp((float)(MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot) / m_rotationTimeout, 0, 1);
             normalizedRotationSpeed = MathHelper.SmoothStep(0, 1, normalizedRotationSpeed);
             float rotationAngle = normalizedRotationSpeed * MyGatlingConstants.ROTATION_SPEED_PER_SECOND * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
-            Matrix worldMatrix = this.PositionComp.WorldMatrix;
-
             if (rotationAngle != 0 && m_barrel != null)
-                m_barrel.PositionComp.LocalMatrix = Matrix.CreateRotationY(rotationAngle) * m_barrel.PositionComp.LocalMatrix;
+            {
+                Debug.Assert(m_barrel.PositionComp != null, "MySmallGatlingGun barrel PositionComp is null");
+                if (m_barrel.PositionComp != null)
+                    m_barrel.PositionComp.LocalMatrix = Matrix.CreateRotationY(rotationAngle) * m_barrel.PositionComp.LocalMatrix;
+            }
 
             //  Handle 'motor loop and motor end' cues
-            if (m_cannonMotorEndPlayed == false)
+            if (m_cannonMotorEndPlayed == false && m_gunBase != null)
             {
                 if (MySandboxGame.TotalGamePlayTimeInMilliseconds > m_lastTimeShoot + m_gunBase.ReleaseTimeAfterFire)
                 {
@@ -276,7 +286,7 @@ namespace Sandbox.Game.Weapons
 
                 if (m_smokesToGenerate > 0 && m_smokeEffect == null)
                 {
-                    if (MySector.MainCamera.GetDistanceWithFOV(PositionComp.GetPosition()) < 150)
+                    if (MySector.MainCamera.GetDistanceFromPoint(PositionComp.GetPosition()) < 150)
                     {
                         if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_Autocannon, out m_smokeEffect))
                         {
@@ -695,6 +705,24 @@ namespace Sandbox.Game.Weapons
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return MyEntityExtensions.GetInventory(this, index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

@@ -2,7 +2,7 @@
 
 namespace VRage.Input
 {
-    struct MyKeyboardState
+    public struct MyKeyboardState
     {   
         MyKeyboardBuffer m_buffer;
 

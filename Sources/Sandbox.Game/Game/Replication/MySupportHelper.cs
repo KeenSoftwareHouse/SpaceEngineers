@@ -15,6 +15,7 @@ namespace Sandbox.Game.Replication
 {
     static class MySupportHelper
     {
+        static List<MyEntity> m_entities = new List<MyEntity>();
         static readonly bool DEBUG_DRAW = false;
         const int MinBlockCount = 5; // More than 5 blocks
         const float MinSpeedSq = 10 * 10;
@@ -31,6 +32,42 @@ namespace Sandbox.Game.Replication
             }
 
             return support;
+        }
+
+        public static MyEntity FindSupportForCharacterAABB(MyEntity entity)
+        {
+            BoundingBoxD characterBox = entity.PositionComp.WorldAABB;
+            characterBox.Inflate(1.0);
+            m_entities.Clear();
+
+            MyEntities.GetTopMostEntitiesInBox(ref characterBox, m_entities);
+
+            float maxRadius = 0;
+            MyCubeGrid biggestGrid = null;
+            MyEntity voxel = null;
+            foreach(var parent in m_entities)
+            {
+                MyCubeGrid grid =  parent as MyCubeGrid;
+                if(parent is MyVoxelBase)
+                {
+                    voxel = (parent as MyVoxelBase).RootVoxel;
+                }
+                if(grid != null)
+                {
+                    var rad = grid.PositionComp.LocalVolume.Radius;
+                    if (rad > maxRadius || (rad == maxRadius && (biggestGrid == null || grid.EntityId > biggestGrid.EntityId)))
+                    {
+                        maxRadius = rad;
+                        biggestGrid = grid;
+                    }
+                }
+            }
+
+            if (biggestGrid == null)
+            {
+                 return voxel;
+            }
+            return biggestGrid;
         }
 
         public static MyEntityPhysicsStateGroup FindSupport(MyEntity entity)

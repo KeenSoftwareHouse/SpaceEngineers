@@ -20,7 +20,7 @@ namespace VRageRender
         public WorkPriority Priority { get { return WorkPriority.Normal; } }
         public WorkOptions Options { get { return Parallel.DefaultOptions; } }
 
-        public abstract void DoWork();
+        public abstract void DoWork(WorkData workData = null);
 
         protected void AddDeferredContext(MyRenderContext rc)
         {

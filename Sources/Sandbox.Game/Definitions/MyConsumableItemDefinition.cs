@@ -7,7 +7,7 @@ using VRage.Game.Definitions;
 namespace Sandbox.Definitions
 {
     [MyDefinitionType(typeof(MyObjectBuilder_ConsumableItemDefinition))]
-    public class MyConsumableItemDefinition : MyPhysicalItemDefinition
+    public class MyConsumableItemDefinition : MyUsableItemDefinition
     {
         public struct StatValue
         {
@@ -24,7 +24,6 @@ namespace Sandbox.Definitions
         }
 
         public List<StatValue> Stats;
-        public string EatingSound;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -40,8 +39,6 @@ namespace Sandbox.Definitions
                     Stats.Add(new StatValue(stat.Name, stat.Value, stat.Time));
                 }
             }
-
-            EatingSound = ob.EatingSound;
         }
     }
 }

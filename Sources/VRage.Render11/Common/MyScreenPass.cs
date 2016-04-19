@@ -20,6 +20,8 @@ namespace VRageRender
     {
         internal static VertexShaderId m_fullscreenQuadVS;
 
+        internal static VertexShaderId QuadVS { get { return m_fullscreenQuadVS; } }
+
         internal static void Init()
         {
             m_fullscreenQuadVS = MyShaders.CreateVs("postprocess_copy.hlsl");

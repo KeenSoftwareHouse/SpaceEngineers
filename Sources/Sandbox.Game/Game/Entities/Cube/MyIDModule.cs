@@ -24,6 +24,7 @@ using VRage.Groups;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using VRage.Game;
+using VRage.Game.ModAPI;
 
 #endregion
 

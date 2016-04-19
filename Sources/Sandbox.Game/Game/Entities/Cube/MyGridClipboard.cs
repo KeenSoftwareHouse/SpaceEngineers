@@ -630,7 +630,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            bool isAdmin = MySession.Static.IsAdminModeEnabled;
+            bool isAdmin = MySession.Static.IsAdminModeEnabled(Sync.MyId);
 
             if (isMergeNeeded && hitGrid != null)
             {
@@ -756,7 +756,7 @@ namespace Sandbox.Game.Entities.Cube
                 MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out blockDef);
                 if (blockDef == null) continue;
 
-                MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDef, GetClipboardBuilder(), block);
+                MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDef, GetClipboardBuilder(), block, buildAsAdmin: MySession.Static.IsAdminModeEnabled(Sync.MyId));
             }
         }
 
@@ -830,6 +830,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_visible = visible;
                 MyEntities.Add(previewGrid);
 
+                previewGrid.IsPreview = true;
                 previewGrid.Save = false;
                 DisablePhysicsRecursively(previewGrid);
                 m_previewGrids.Add(previewGrid);
@@ -962,7 +963,7 @@ namespace Sandbox.Game.Entities.Cube
             else
                 m_canBePlacedNeedsRefresh = true;
 
-            if (MySession.Static.IsAdminModeEnabled)
+            if (MySession.Static.IsAdminModeEnabled(Sync.MyId))
             {
                 m_characterHasEnoughMaterials = true;              
             }
@@ -1037,7 +1038,7 @@ namespace Sandbox.Game.Entities.Cube
         public virtual bool EntityCanPaste(MyEntity pastingEntity)
         {
             if (m_copiedGrids.Count < 1) return false;
-            if(MySession.Static.IsAdminModeEnabled)
+            if (MySession.Static.IsAdminModeEnabled(Sync.MyId))
             {
                 return true;
             }

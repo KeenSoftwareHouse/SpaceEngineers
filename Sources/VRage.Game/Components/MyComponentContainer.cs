@@ -21,6 +21,7 @@ namespace VRage.Game.Components
 
         public void Add(Type type, MyComponentBase component)
         {
+            System.Diagnostics.Debug.Assert(component == null || component.ContainerBase == null, "Component needs to be removed from a container before adding to a new one!");
             System.Diagnostics.Debug.Assert(typeof(MyComponentBase).IsAssignableFrom(type), "Unsupported type of component!");
             if (!typeof(MyComponentBase).IsAssignableFrom(type))
                 return;
@@ -46,6 +47,8 @@ namespace VRage.Game.Components
             MyComponentBase containedComponent;
             if (m_components.TryGetValue(type, out containedComponent))
             {
+                System.Diagnostics.Debug.Assert(containedComponent != component, "Adding a component to a container twice!");
+
                 if (containedComponent is IMyComponentAggregate)
                 {
                     (containedComponent as IMyComponentAggregate).AddComponent(component);
@@ -84,9 +87,37 @@ namespace VRage.Game.Components
             MyComponentBase c;
             if (m_components.TryGetValue(t, out c))
             {
-                c.SetContainer(null);
-                m_components.Remove(t);
-                OnComponentRemoved(t, c);
+                RemoveComponentInternal(t, c);
+            }
+        }
+
+        private void RemoveComponentInternal(Type t, MyComponentBase c)
+        {
+            c.SetContainer(null);
+            m_components.Remove(t);
+            OnComponentRemoved(t, c);
+        }
+
+        public void Remove(Type t, MyComponentBase component)
+        {
+            MyComponentBase storedComponent = null;
+            m_components.TryGetValue(t, out storedComponent);
+            if (storedComponent == null)
+            {
+                System.Diagnostics.Debug.Assert(false, "Removing component from a container, but that container does not contain the component!");
+                return;
+            }
+
+            IMyComponentAggregate storedAggregate = storedComponent as IMyComponentAggregate;
+            if (storedAggregate == null)
+            {
+                System.Diagnostics.Debug.Assert(storedComponent == component, "Removing component from a container, but that container does not contain the component!");
+                RemoveComponentInternal(t, component);
+            }
+            else
+            {
+                bool removed = storedAggregate.RemoveComponent(component);
+                System.Diagnostics.Debug.Assert(removed, "Component could not be removed because it was not present in the container!");
             }
         }
 

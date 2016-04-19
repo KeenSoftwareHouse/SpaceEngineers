@@ -12,6 +12,7 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Game.Definitions;
+using VRage.Game.SessionComponents;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -35,11 +36,15 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         private void SendSelectedTreeForDebug(MyBehaviorTree behaviorTree)
         {
+            if (MySessionComponentExtDebug.Static == null)
+                return;
             DebugSelectedTreeHashSent = true;
             DebugCurrentBehaviorTree = behaviorTree.BehaviorTreeName;
-            var msg = new MyCopyDataStructures.SelectedTreeMsg() { BehaviorTreeName = behaviorTree.BehaviorTreeName };
-            WinApi.SendMessage<MyCopyDataStructures.SelectedTreeMsg>(ref msg, m_toolWindowHandle);
-           // WinApi.PostMessage(m_toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_SELECT_TREE, new IntPtr(behaviorTree.BehaviorTreeName.GetHashCode()), IntPtr.Zero);
+            var msg = new MyExternalDebugStructures.SelectedTreeMsg()
+            {
+                BehaviorTreeName = behaviorTree.BehaviorTreeName
+            };
+            MySessionComponentExtDebug.Static.SendMessageToClients(msg);
         }
 
         private void SendDataToTool(IMyBot bot, MyPerTreeBotMemory botTreeMemory)

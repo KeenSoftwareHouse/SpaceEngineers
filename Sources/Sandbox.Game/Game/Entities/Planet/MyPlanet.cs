@@ -477,6 +477,9 @@ namespace Sandbox.Game.Entities
 
             base.Init(m_planetInitValues.StorageName, m_planetInitValues.Storage, m_planetInitValues.PositionMinCorner);
 
+            // Set storage as caching:
+            ((MyStorageBase)Storage).InitWriteCache();
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
             m_storage.RangeChanged += storage_RangeChangedPlanet;

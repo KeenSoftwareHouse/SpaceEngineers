@@ -24,11 +24,13 @@ using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 using VRage.Game.Components;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CameraBlock))]
-    class MyCameraBlock : MyFunctionalBlock, IMyCameraController, IMyCameraBlock
+    public class MyCameraBlock : MyFunctionalBlock, IMyCameraController, IMyCameraBlock
     {
         public new MyCameraBlockDefinition BlockDefinition
         {
@@ -110,9 +112,10 @@ namespace Sandbox.Game.Entities
             {
                 return;
             }
-            if (MySession.Static.CameraController is MyCameraBlock)
+            var block = MySession.Static.CameraController as MyCameraBlock;
+            if (block != null)
             {
-                var oldCamera = MySession.Static.CameraController as MyCameraBlock;
+                var oldCamera = block;
                 oldCamera.IsActive = false;
             }
 
@@ -315,9 +318,9 @@ namespace Sandbox.Game.Entities
         {
         }
 
-        MatrixD IMyCameraController.GetViewMatrix()
+        void IMyCameraController.ControlCamera(MyCamera currentCamera)
         {
-            return GetViewMatrix();
+            currentCamera.SetViewMatrix(GetViewMatrix());
         }
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
@@ -377,6 +380,11 @@ namespace Sandbox.Game.Entities
             {
                 return true;
             }
+        }
+
+        bool IMyCameraController.HandlePickUp()
+        {
+            return false;
         }
 
         bool IMyCameraController.AllowCubeBuilding

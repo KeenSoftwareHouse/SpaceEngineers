@@ -7,19 +7,9 @@ using VRageMath;
 namespace VRage.Game
 {
     [ProtoContract]
-    public class ContactPropertyParticleProperties
-    {
-        public Vector4 ColorMultiplier = new Vector4(1, 1, 1, 1);
-        public float SizeMultiplier = 1f;
-        public float Preload = 0f;
-    }
-
-    [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_MaterialPropertiesDefinition : MyObjectBuilder_DefinitionBase
     {
-        
-
         [ProtoContract]
         public struct ContactProperty
         {
@@ -32,7 +22,7 @@ namespace VRage.Game
             [ProtoMember]
             public string ParticleEffect;
             [ProtoMember]
-            public ContactPropertyParticleProperties ParticleProperties;
+            public List<AlternativeImpactSounds> AlternativeImpactSounds;
         }
 
         [ProtoContract]
@@ -54,4 +44,20 @@ namespace VRage.Game
         [ProtoMember]
         public string InheritFrom;
     }
+
+    [ProtoContract, XmlType("AlternativeImpactSound")]
+    public sealed class AlternativeImpactSounds
+    {
+        [ProtoMember, XmlAttribute]
+        public float mass = 0f;
+
+        [ProtoMember, XmlAttribute]
+        public string soundCue = "";
+
+        [ProtoMember, XmlAttribute]
+        public float minVelocity = 0f;
+
+        [ProtoMember, XmlAttribute]
+        public float maxVolumeVelocity = 0f;
+    };
 }

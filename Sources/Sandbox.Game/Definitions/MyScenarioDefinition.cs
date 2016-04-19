@@ -18,6 +18,8 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_ScenarioDefinition))]
     public class MyScenarioDefinition : MyDefinitionBase
     {
+        public MyDefinitionId GameDefinition;
+
         public BoundingBoxD WorldBoundaries;
         public MyWorldGeneratorStartingStateBase[] PossiblePlayerStarts;
         public MyWorldGeneratorOperationBase[] WorldGeneratorOperations;
@@ -33,6 +35,10 @@ namespace Sandbox.Definitions
         public StartingPhysicalItem[] SurvivalModePhysicalItems;
         public StartingItem[] CreativeModeAmmoItems;
         public StartingItem[] SurvivalModeAmmoItems;
+
+        public MyObjectBuilder_InventoryItem[] CreativeInventoryItems;
+        public MyObjectBuilder_InventoryItem[] SurvivalInventoryItems;
+
         public MyObjectBuilder_Toolbar CreativeDefaultToolbar;
         public MyObjectBuilder_Toolbar SurvivalDefaultToolbar;
         public MyStringId MainCharacterModel;
@@ -73,7 +79,9 @@ namespace Sandbox.Definitions
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
-            var ob = builder as MyObjectBuilder_ScenarioDefinition;
+            var ob = (MyObjectBuilder_ScenarioDefinition) builder;
+
+            GameDefinition = ob.GameDefinition;
 
             AsteroidClustersEnabled = ob.AsteroidClusters.Enabled;
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
@@ -184,6 +192,9 @@ namespace Sandbox.Definitions
                     SurvivalModeAmmoItems[i].itemName = MyStringId.GetOrCompute(ob.SurvivalModeAmmoItems[i].itemName);
                 }
             }
+
+            CreativeInventoryItems = ob.CreativeInventoryItems;
+            SurvivalInventoryItems = ob.SurvivalInventoryItems;
 
             WorldBoundaries.Min = ob.WorldBoundaries.Min;
             WorldBoundaries.Max = ob.WorldBoundaries.Max;

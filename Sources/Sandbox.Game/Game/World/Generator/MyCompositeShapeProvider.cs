@@ -453,6 +453,8 @@ namespace Sandbox.Game.World.Generator
                 ReadContentRange(req.Target, ref req.Offset, req.Lod, ref req.minInLod, ref req.maxInLod);
             else
                 ReadMaterialRange(req.Target, ref req.Offset, req.Lod, ref req.minInLod, ref req.maxInLod);
+
+            req.Flags = req.RequestFlags & (MyVoxelRequestFlags.RequestFlags);
         }
 
         public MyVoxelRequestFlags SupportedFlags()

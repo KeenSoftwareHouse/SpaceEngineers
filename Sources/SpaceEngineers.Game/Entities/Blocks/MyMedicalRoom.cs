@@ -1,37 +1,38 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.GameSystems.Electricity;
-using Sandbox.Game.Gui;
-
-using VRageMath;
-using System;
-using Sandbox.Game.World;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Engine.Multiplayer;
-using SteamSDK;
-using Sandbox.Common;
-using Sandbox.Game.Components;
-using Sandbox.Definitions;
-using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
-using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.Game.GameSystems;
-using VRage.Game.Entity.UseObject;
-using VRage.Import;
-using VRage.ModAPI;
-using Sandbox.Game.Localization;
-using Sandbox.Game.Screens.Terminal.Controls;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sandbox;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Definitions;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Engine.Utils;
+using Sandbox.Game;
+using Sandbox.Game.Components;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
-using VRage.Game.Components;
-using Sandbox.ModAPI;
-using VRage.Utils;
+using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.Conveyors;
+using Sandbox.Game.GameSystems.Electricity;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Screens.Terminal.Controls;
+using Sandbox.Game.World;
+using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI.Ingame;
 using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity.UseObject;
+using VRage.Game.ModAPI;
+using VRage.Import;
+using VRage.ModAPI;
 using VRage.Network;
+using VRage.Utils;
+using VRageMath;
 
-namespace Sandbox.Game.Entities.Cube
+namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MedicalRoom))]
     public partial class MyMedicalRoom : MyFunctionalBlock, IMyRechargeSocketOwner, IMyGasBlock, IMyMedicalRoom
@@ -177,8 +178,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyMedicalRoom()
         {
-            m_idleSoundEmitter = new MyEntity3DSoundEmitter(this);
-            m_progressSoundEmitter = new MyEntity3DSoundEmitter(this);
+            m_idleSoundEmitter = new MyEntity3DSoundEmitter(this, true);
+            m_progressSoundEmitter = new MyEntity3DSoundEmitter(this, true);
 
             m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.ShouldPlay2D].Add((Func<bool>) (() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
             if (MySession.Static != null && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)
@@ -453,6 +454,9 @@ namespace Sandbox.Game.Entities.Cube
                 return 0f;
             }
 
+            if (CubeGrid.GridSystems.GasSystem == null)
+                return 0;
+
             var oxygenBlock = CubeGrid.GridSystems.GasSystem.GetOxygenBlock(WorldMatrix.Translation);
 
             if (oxygenBlock.Room == null || !oxygenBlock.Room.IsPressurized)
@@ -512,5 +516,18 @@ namespace Sandbox.Game.Entities.Cube
             return ret;
         }
 
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

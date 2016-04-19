@@ -13,14 +13,15 @@ namespace VRage.Network
         private static DBNull e = DBNull.Value;
         protected readonly MyTypeTable m_typeTable = new MyTypeTable();
 
-        protected bool ShouldServerInvokeLocally(CallSite site, EndpointId? localClientEndpoint, EndpointId recipient)
+        public DateTime LastMessageFromServer { get; protected set; }
+
+        protected static bool ShouldServerInvokeLocally(CallSite site, EndpointId? localClientEndpoint, EndpointId recipient)
         {
             // Invoke locally when:
-            // A) Has server flag, but not except local flag
+            // A) Has server flag
             // B) Has client flag and recipient is serverEndpoint and server is also client (e.g. single player, normal server)
             // C) Has broadcast flag and recipient is serverEndpoint and server is also client (e.g. single player, normal server)
-            return (site.HasServerFlag && (!IsLocal || !site.HasExceptLocalFlag))
-                || (localClientEndpoint.HasValue && recipient == localClientEndpoint.Value && (site.HasClientFlag || site.HasBroadcastFlag));
+            return site.HasServerFlag || (localClientEndpoint.HasValue && recipient == localClientEndpoint.Value && (site.HasClientFlag || site.HasBroadcastFlag));
         }
 
         private bool TryGetInstanceCallSite<T>(Func<T, Delegate> callSiteGetter, T arg, out CallSite site)
@@ -142,11 +143,6 @@ namespace VRage.Network
                     m_typeTable.Register(type);
                 }
             }
-        }
-
-        protected virtual bool IsLocal
-        {
-            get { return true; }
         }
     }
 }

@@ -163,6 +163,7 @@ namespace Sandbox.Graphics.GUI
             UserDebugInputComponents.Add(new MyRenderDebugInputComponent());
             UserDebugInputComponents.Add(new MyComponentsDebugInputComponent());
             UserDebugInputComponents.Add(new MyVoxelDebugInputComponent());
+            UserDebugInputComponents.Add(new MyResearchDebugInputComponent());
             LoadDebugInputsFromConfig();
         }
 

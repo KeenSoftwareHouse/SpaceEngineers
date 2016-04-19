@@ -23,9 +23,11 @@ using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Network;
 
 namespace Sandbox.Game.GameSystems
 {
+    [StaticEventOwner]
     public class MyGridJumpDriveSystem
     {
         public const float JUMP_DRIVE_DELAY = 10.0f; // seconds
@@ -61,13 +63,10 @@ namespace Sandbox.Game.GameSystems
         private MySoundPair m_jumpOutSound = new MySoundPair("ShipJumpDriveJumpOut");
         protected MyEntity3DSoundEmitter m_soundEmitter;
 
-        private MySyncJumpDriveSystem SyncObject;
-
         public MyGridJumpDriveSystem(MyCubeGrid grid)
         {
             m_grid = grid;
 
-            SyncObject = new MySyncJumpDriveSystem(m_grid);
             m_soundEmitter = new MyEntity3DSoundEmitter(m_grid);
         }
 
@@ -207,7 +206,7 @@ namespace Sandbox.Game.GameSystems
         {
             if (m_isJumping && !m_jumped)
             {
-                SyncObject.SendAbortJump();
+                SendAbortJump();
                 AbortJump();
             }
         }
@@ -262,7 +261,7 @@ namespace Sandbox.Game.GameSystems
                     {
                         if (result == MyGuiScreenMessageBox.ResultEnum.YES && IsJumpValid(userId))
                         {
-                            SyncObject.RequestJump(m_selectedDestination, userId);
+                            RequestJump(m_selectedDestination, userId);
                         }
                         else
                             AbortJump();
@@ -601,7 +600,7 @@ namespace Sandbox.Game.GameSystems
                 else if (jumpTime > 0)
                 {
                     IsLocalCharacterAffectedByJump();
-                    if (m_soundEmitter.SoundId != m_jumpOutSound.SoundId)
+                    if (m_soundEmitter.SoundId != m_jumpOutSound.Arcade && m_soundEmitter.SoundId != m_jumpOutSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(m_jumpOutSound);
                     }
@@ -621,18 +620,18 @@ namespace Sandbox.Game.GameSystems
                             Vector3? suitableLocation = FindSuitableJumpLocation(m_shipInfo[m_grid]);
                             if (suitableLocation.HasValue)
                             {
-                                SyncObject.SendPerformJump(suitableLocation.Value);
+                                SendPerformJump(suitableLocation.Value);
                                 PerformJump(suitableLocation.Value);
                             }
                             else
                             {
-                                SyncObject.SendAbortJump();
+                                SendAbortJump();
                                 AbortJump();
                             }
                         }
                         else
                         {
-                            SyncObject.SendAbortJump();
+                            SendAbortJump();
                             AbortJump();
                         }
                     }
@@ -644,7 +643,7 @@ namespace Sandbox.Game.GameSystems
                 else
                 {
                     CleanupAfterJump();
-                    if (m_soundEmitter.SoundId != m_jumpInSound.SoundId)
+                    if (m_soundEmitter.SoundId != m_jumpInSound.Arcade && m_soundEmitter.SoundId != m_jumpInSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(m_jumpInSound);
                     }
@@ -686,8 +685,8 @@ namespace Sandbox.Game.GameSystems
 
             if (updateSpectator)
             {
-                MyThirdPersonSpectator.Static.ResetPosition(0.0, null);
-                MyThirdPersonSpectator.Static.ResetDistance();
+                MyThirdPersonSpectator.Static.ResetViewerAngle(null);
+                MyThirdPersonSpectator.Static.ResetViewerDistance();
                 MyThirdPersonSpectator.Static.RecalibrateCameraPosition();
             }
 
@@ -702,8 +701,8 @@ namespace Sandbox.Game.GameSystems
 
             if (updateSpectator)
             {
-                MyThirdPersonSpectator.Static.ResetPosition(0.0, null);
-                MyThirdPersonSpectator.Static.ResetDistance();
+                MyThirdPersonSpectator.Static.ResetViewerAngle(null);
+                MyThirdPersonSpectator.Static.ResetViewerDistance();
                 MyThirdPersonSpectator.Static.RecalibrateCameraPosition();
             }
         }
@@ -767,13 +766,14 @@ namespace Sandbox.Game.GameSystems
         }
 
         #region Sync
+
         private void OnRequestJumpFromClient(Vector3D jumpTarget, long userId)
         {
             Debug.Assert(Sync.IsServer);
 
             if (!IsJumpValid(userId))
             {
-                SyncObject.SendJumpFailure();
+                SendJumpFailure();
                 return;
             }
 
@@ -790,169 +790,104 @@ namespace Sandbox.Game.GameSystems
 
             if (actualDistance < MIN_JUMP_DISTANCE-200)
             {
-                SyncObject.SendJumpFailure();
+                SendJumpFailure();
                 return;
             }
 
             Vector3D? suitableJumpLocation = FindSuitableJumpLocation(jumpTarget);
             if (!suitableJumpLocation.HasValue)
             {
-                SyncObject.SendJumpFailure();
+                SendJumpFailure();
                 return;
             }
 
-            SyncObject.SendJumpSuccess(suitableJumpLocation.Value, userId);
+            SendJumpSuccess(suitableJumpLocation.Value, userId);
         }
 
-        [PreloadRequired]
-        internal class MySyncJumpDriveSystem
+        private void RequestJump(Vector3D jumpTarget, long userId)
         {
-            [MessageIdAttribute(8500, P2PMessageEnum.Reliable)]
-            protected struct RequestJumpMsg
+            MyMultiplayer.RaiseStaticEvent(s => MyGridJumpDriveSystem.OnJumpRequested, m_grid.EntityId, jumpTarget, userId);
+        }
+
+        [Event, Reliable, Server]
+        private static void OnJumpRequested(long entityId, Vector3D jumpTarget, long userId)
+        {
+            MyCubeGrid cubeGrid;
+            MyEntities.TryGetEntityById(entityId, out cubeGrid);
+            if (cubeGrid != null)
             {
-                public long EntityId;
-                public long UserId;
-                public Vector3D JumpTarget;
-            }
-
-            [MessageIdAttribute(8501, P2PMessageEnum.Reliable)]
-            protected struct JumpSuccessMsg
-            {
-                public long EntityId;
-                public long UserId;
-                public Vector3D JumpTarget;
-            }
-
-            [MessageIdAttribute(8502, P2PMessageEnum.Reliable)]
-            protected struct JumpFailureMsg
-            {
-                public long EntityId;
-            }
-
-            [MessageIdAttribute(8503, P2PMessageEnum.Reliable)]
-            protected struct PerformJumpMsg
-            {
-                public long EntityId;
-                public Vector3D JumpTarget;
-            }
-
-            [MessageIdAttribute(8504, P2PMessageEnum.Reliable)]
-            protected struct AbortJumpMsg
-            {
-                public long EntityId;
-            }
-
-            private MyCubeGrid m_grid;
-
-            static MySyncJumpDriveSystem()
-            {
-                MySyncLayer.RegisterMessage<RequestJumpMsg>(OnJumpRequested, MyMessagePermissions.ToServer);
-                MySyncLayer.RegisterMessage<JumpSuccessMsg>(OnJumpSuccess, MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<JumpFailureMsg>(OnJumpFailure, MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<PerformJumpMsg>(OnPerformJump, MyMessagePermissions.FromServer);
-                MySyncLayer.RegisterMessage<AbortJumpMsg>(OnAbortJump, MyMessagePermissions.FromServer);
-            }
-
-            public MySyncJumpDriveSystem(MyCubeGrid cubeGrid)
-            {
-                m_grid = cubeGrid;
-            }
-
-            public void RequestJump(Vector3D jumpTarget, long userId)
-            {
-                var msg = new RequestJumpMsg();
-                msg.EntityId = m_grid.EntityId;
-                msg.JumpTarget = jumpTarget;
-                msg.UserId = userId;
-
-                Sync.Layer.SendMessageToServer(ref msg);
-            }
-
-            private static void OnJumpRequested(ref RequestJumpMsg msg, MyNetworkClient sender)
-            {
-                MyCubeGrid cubeGrid;
-                MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
-                if (cubeGrid != null)
-                {
-                    cubeGrid.GridSystems.JumpSystem.OnRequestJumpFromClient(msg.JumpTarget, msg.UserId);
-                }
-            }
-
-            public void SendJumpSuccess(Vector3D jumpTarget, long userId)
-            {
-                var msg = new JumpSuccessMsg();
-                msg.EntityId = m_grid.EntityId;
-                msg.JumpTarget = jumpTarget;
-                msg.UserId = userId;
-
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
-            }
-
-            private static void OnJumpSuccess(ref JumpSuccessMsg msg, MyNetworkClient sender)
-            {
-                MyCubeGrid cubeGrid;
-                MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
-                if (cubeGrid != null)
-                {
-                    cubeGrid.GridSystems.JumpSystem.Jump(msg.JumpTarget, msg.UserId);
-                }
-            }
-
-            public void SendJumpFailure()
-            {
-                var msg = new JumpFailureMsg();
-                msg.EntityId = m_grid.EntityId;
-
-                Sync.Layer.SendMessageToAllAndSelf(ref msg);
-            }
-
-            private static void OnJumpFailure(ref JumpFailureMsg msg, MyNetworkClient sender)
-            {
-                MyCubeGrid cubeGrid;
-                MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
-                if (cubeGrid != null)
-                {
-                    //TODO(AF) Add a notification, maybe a reason
-                }
-            }
-
-            public void SendPerformJump(Vector3D jumpTarget)
-            {
-                var msg = new PerformJumpMsg();
-                msg.EntityId = m_grid.EntityId;
-                msg.JumpTarget = jumpTarget;
-
-                Sync.Layer.SendMessageToAll(ref msg);
-            }
-
-            private static void OnPerformJump(ref PerformJumpMsg msg, MyNetworkClient sender)
-            {
-                MyCubeGrid cubeGrid;
-                MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
-                if (cubeGrid != null)
-                {
-                    cubeGrid.GridSystems.JumpSystem.PerformJump(msg.JumpTarget);
-                }
-            }
-
-            public void SendAbortJump()
-            {
-                var msg = new AbortJumpMsg();
-                msg.EntityId = m_grid.EntityId;
-
-                Sync.Layer.SendMessageToAll(ref msg);
-            }
-
-            private static void OnAbortJump(ref AbortJumpMsg msg, MyNetworkClient sender)
-            {
-                MyCubeGrid cubeGrid;
-                MyEntities.TryGetEntityById(msg.EntityId, out cubeGrid);
-                if (cubeGrid != null)
-                {
-                    cubeGrid.GridSystems.JumpSystem.AbortJump();
-                }
+                cubeGrid.GridSystems.JumpSystem.OnRequestJumpFromClient(jumpTarget, userId);
             }
         }
+
+        private void SendJumpSuccess(Vector3D jumpTarget, long userId)
+        {
+            Debug.Assert(Sync.IsServer);
+            MyMultiplayer.RaiseStaticEvent(s => MyGridJumpDriveSystem.OnJumpSuccess, m_grid.EntityId, jumpTarget, userId);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private static void OnJumpSuccess(long entityId, Vector3D jumpTarget, long userId)
+        {
+            MyCubeGrid cubeGrid;
+            MyEntities.TryGetEntityById(entityId, out cubeGrid);
+            if (cubeGrid != null)
+            {
+                cubeGrid.GridSystems.JumpSystem.Jump(jumpTarget, userId);
+            }
+        }
+
+        private void SendJumpFailure()
+        {
+            Debug.Assert(Sync.IsServer);
+            MyMultiplayer.RaiseStaticEvent(s => MyGridJumpDriveSystem.OnJumpFailure, m_grid.EntityId);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private static void OnJumpFailure(long entityId)
+        {
+            MyCubeGrid cubeGrid;
+            MyEntities.TryGetEntityById(entityId, out cubeGrid);
+            if (cubeGrid != null)
+            {
+                //TODO(AF) Add a notification, maybe a reason
+            }
+        }
+
+        private void SendPerformJump(Vector3D jumpTarget)
+        {
+            Debug.Assert(Sync.IsServer);
+            MyMultiplayer.RaiseStaticEvent(s => MyGridJumpDriveSystem.OnPerformJump, m_grid.EntityId, jumpTarget);
+        }
+
+        [Event, Reliable, Broadcast]
+        private static void OnPerformJump(long entityId, Vector3D jumpTarget)
+        {
+            MyCubeGrid cubeGrid;
+            MyEntities.TryGetEntityById(entityId, out cubeGrid);
+            if (cubeGrid != null)
+            {
+                cubeGrid.GridSystems.JumpSystem.PerformJump(jumpTarget);
+            }
+        }
+
+        private void SendAbortJump()
+        {
+            Debug.Assert(Sync.IsServer);
+            MyMultiplayer.RaiseStaticEvent(s => MyGridJumpDriveSystem.OnAbortJump, m_grid.EntityId);
+        }
+
+        [Event, Reliable, Broadcast]
+        private static void OnAbortJump(long entityId)
+        {
+            MyCubeGrid cubeGrid;
+            MyEntities.TryGetEntityById(entityId, out cubeGrid);
+            if (cubeGrid != null)
+            {
+                cubeGrid.GridSystems.JumpSystem.AbortJump();
+            }
+        }
+
         #endregion
     }
 }

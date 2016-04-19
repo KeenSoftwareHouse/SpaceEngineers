@@ -182,6 +182,7 @@ namespace VRage.Game
                color,
                color,
                1,
+               0.75f,
                range,
                intensity,
                true,
@@ -192,6 +193,7 @@ namespace VRage.Game
                Vector3.Zero,
                0,
                Vector4.Zero,
+               0,
                0,
                0,
                null,
@@ -220,8 +222,11 @@ namespace VRage.Game
 
         private void CloseLight()
         {
-            VRageRender.MyRenderProxy.RemoveRenderObject(m_renderObjectID);
-            m_renderObjectID = MyRenderProxy.RENDER_ID_UNASSIGNED;
+            if (m_renderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                VRageRender.MyRenderProxy.RemoveRenderObject(m_renderObjectID);
+                m_renderObjectID = MyRenderProxy.RENDER_ID_UNASSIGNED;
+            }
         }
 
         #endregion
@@ -333,6 +338,7 @@ namespace VRage.Game
                 m_color,
                 m_color,
                 1,
+                0.75f,
                 m_range,
                 m_intensity,
                 true,
@@ -343,6 +349,7 @@ namespace VRage.Game
                 Vector3.Zero,
                 0,
                 Vector4.Zero,
+                0,
                 0,
                 0,
                 null,

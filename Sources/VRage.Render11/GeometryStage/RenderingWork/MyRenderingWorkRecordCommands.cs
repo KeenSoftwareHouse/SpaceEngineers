@@ -36,7 +36,7 @@ namespace VRageRender
             }
         }
 
-        public override void DoWork()
+        public override void DoWork(ParallelTasks.WorkData workData = null)
         {
             ProfilerShort.Begin("MyRenderingWorkRecordCommands::DoWork");
 

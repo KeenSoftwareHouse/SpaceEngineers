@@ -12,8 +12,9 @@ namespace VRage.Game
         [ProtoMember, DefaultValue(100f)]
         public float DestructionDamage = 100f;
 
-        [ProtoMember, DefaultValue("Textures\\GUI\\Icons\\Fake.dds")]
-        new public string Icon = "Textures\\GUI\\Icons\\Fake.dds";
+        [ProtoMember, DefaultValue(new string[] {"Textures\\GUI\\Icons\\Fake.dds"})]
+        [XmlElement("Icon")]
+        new public string[] Icons = new string[] {"Textures\\GUI\\Icons\\Fake.dds"};
 
         // Integrity ratio of converted fracture block part (original block and fracture component). Set when fracture block has full itegrity only.
         [ProtoMember, DefaultValue(0.75f)]

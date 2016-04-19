@@ -1,22 +1,19 @@
-﻿
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
 using Sandbox.Graphics.GUI;
-using Sandbox.Common;
-using Sandbox.Definitions;
-using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.Game.Entities.Blocks;
+using VRage.Game;
 using VRage.Game.Entity.UseObject;
 using VRage.Import;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
-using System.Collections.Generic;
-using VRage.Game;
 
-namespace Sandbox.Game.Entities.Cube
+namespace SpaceEngineers.Game.Entities.UseObjects
 {
     [MyUseObject("wardrobe")]
     class MyUseObjectWardrobe : MyUseObjectBase

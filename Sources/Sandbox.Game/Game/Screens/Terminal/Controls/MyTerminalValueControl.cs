@@ -85,33 +85,33 @@ namespace Sandbox.Game.Screens.Terminal.Controls
         public abstract TValue GetMinimum(TBlock block);
         public abstract TValue GetMaximum(TBlock block);
 
-        public TValue GetValue(ModAPI.Ingame.IMyCubeBlock block)
+        public TValue GetValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block)
         {
             return GetValue(((TBlock)block));
         }
 
-        public void SetValue(ModAPI.Ingame.IMyCubeBlock block, TValue value)
+        public void SetValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block, TValue value)
         {
             SetValue(((TBlock)block), value);
         }
 
-        public TValue GetDefaultValue(ModAPI.Ingame.IMyCubeBlock block)
+        public TValue GetDefaultValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block)
         {
             return GetDefaultValue(((TBlock)block));
         }
 
         [Obsolete("Use GetMinimum instead")]
-        public TValue GetMininum(ModAPI.Ingame.IMyCubeBlock block)
+        public TValue GetMininum(VRage.Game.ModAPI.Ingame.IMyCubeBlock block)
         {
             return GetMinimum(((TBlock)block));
         }
 
-        public TValue GetMinimum(ModAPI.Ingame.IMyCubeBlock block)
+        public TValue GetMinimum(VRage.Game.ModAPI.Ingame.IMyCubeBlock block)
         {
             return GetMinimum(((TBlock)block));
         }
 
-        public TValue GetMaximum(ModAPI.Ingame.IMyCubeBlock block)
+        public TValue GetMaximum(VRage.Game.ModAPI.Ingame.IMyCubeBlock block)
         {
             return GetMaximum(((TBlock)block));
         }

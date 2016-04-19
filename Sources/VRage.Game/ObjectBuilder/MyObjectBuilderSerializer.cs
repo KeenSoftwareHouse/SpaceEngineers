@@ -148,6 +148,10 @@ namespace VRage.ObjectBuilders
         {
             return m_serializersBySerializedName[serializedName];
         }
+        public static bool IsSerializerAvailable(string serializedName)
+        {
+            return m_serializersBySerializedName.ContainsKey(serializedName);
+        }
 
         #endregion
 

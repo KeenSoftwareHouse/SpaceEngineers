@@ -14,7 +14,7 @@ using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
-    abstract class MyDataReceiver : MyEntityComponentBase
+    public abstract class MyDataReceiver : MyEntityComponentBase
     {
         protected List<MyDataBroadcaster> m_broadcastersInRange = new List<MyDataBroadcaster>();
         protected HashSet<MyDataBroadcaster> m_relayedBroadcasters = new HashSet<MyDataBroadcaster>();

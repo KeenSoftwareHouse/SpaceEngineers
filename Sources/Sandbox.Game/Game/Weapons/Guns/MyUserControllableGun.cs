@@ -167,6 +167,22 @@ namespace Sandbox.Game.Weapons
                 EndShoot();
             }
         }
+
+        public override void OnRemovedByCubeBuilder()
+        {
+            MyInventory inventory = this.GetInventory();
+            if(inventory != null)
+                ReleaseInventory(inventory);
+            base.OnRemovedByCubeBuilder();
+        }
+
+        public override void OnDestroy()
+        {
+            MyInventory inventory = this.GetInventory();
+            if (inventory != null)
+                ReleaseInventory(inventory);
+            base.OnDestroy();
+        }
     }
 
 }

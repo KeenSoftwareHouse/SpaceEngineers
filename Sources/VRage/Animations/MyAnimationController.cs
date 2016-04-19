@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -22,7 +23,8 @@ namespace VRage.Animations
             private int m_boneCount = 0;
             private readonly List<List<MyAnimationClip.BoneState>> m_freeToUse = new List<List<MyAnimationClip.BoneState>>(8);
             private readonly List<List<MyAnimationClip.BoneState>> m_taken = new List<List<MyAnimationClip.BoneState>>(8);
-            MyAnimationClip.BoneState[] m_restPose = null;
+            private List<MyAnimationClip.BoneState> m_restPose = null;
+            private List<MyAnimationClip.BoneState> m_currentDefaultPose = null;
 
             /// <summary>
             /// Set the new bone count and default (rest) pose.
@@ -40,13 +42,30 @@ namespace VRage.Animations
 
                 int boneCount = restPoseBones.Length;
                 m_boneCount = boneCount;
-                m_restPose = new MyAnimationClip.BoneState[boneCount];
+                m_restPose = new List<MyAnimationClip.BoneState>(boneCount);
                 for (int i = 0; i < boneCount; i++)
                 {
-                    m_restPose[i] = new MyAnimationClip.BoneState();
-                    m_restPose[i].Translation = restPoseBones[i].BindTransform.Translation;
-                    m_restPose[i].Rotation = Quaternion.CreateFromRotationMatrix(restPoseBones[i].BindTransform);
+                    m_restPose.Add(new MyAnimationClip.BoneState
+                    {
+                        Translation = restPoseBones[i].BindTransform.Translation,
+                        Rotation = Quaternion.CreateFromRotationMatrix(restPoseBones[i].BindTransform)
+                    });
                 }
+                m_currentDefaultPose = m_restPose;
+            }
+
+            /// <summary>
+            /// Set the link to default pose = default bone positions and rotations given when using this allocator.
+            /// If null is given, rest pose is used.
+            /// </summary>
+            public void SetDefaultPose(List<MyAnimationClip.BoneState> linkToDefaultPose)
+            {
+                m_currentDefaultPose = linkToDefaultPose ?? m_restPose;
+            }
+
+            public bool IsValid()
+            {
+                return m_currentDefaultPose != null;
             }
 
             public void FreeAll()
@@ -70,10 +89,12 @@ namespace VRage.Animations
                     for (int i = 0; i < m_boneCount; i++)
                     {
                         // item not created yet
-                        rtn[i] = new MyAnimationClip.BoneState();
-                        // fill will default data
-                        rtn[i].Translation = m_restPose[i].Translation;
-                        rtn[i].Rotation = m_restPose[i].Rotation;
+                        // initialize will default data
+                        rtn[i] = new MyAnimationClip.BoneState
+                        {
+                            Translation = m_currentDefaultPose[i].Translation,
+                            Rotation = m_currentDefaultPose[i].Rotation
+                        };
                     }
                     m_taken.Add(rtn);
                     return rtn;
@@ -87,8 +108,8 @@ namespace VRage.Animations
                     {
                         // item is already created
                         // fill will default data
-                        rtn[i].Translation = m_restPose[i].Translation;
-                        rtn[i].Rotation = m_restPose[i].Rotation;
+                        rtn[i].Translation = m_currentDefaultPose[i].Translation;
+                        rtn[i].Rotation = m_currentDefaultPose[i].Rotation;
                     }
                     return rtn;
                 }
@@ -122,6 +143,8 @@ namespace VRage.Animations
         private readonly Dictionary<string, int> m_tableLayerNameToIndex;
         // allocation pool for results
         public readonly MyResultBonesPool ResultBonesPool;
+        // local frame counter
+        public int FrameCounter { get; private set; }
 
         // ----------------------------------------------------------------------
         #region Constructor
@@ -133,6 +156,7 @@ namespace VRage.Animations
             m_tableLayerNameToIndex = new Dictionary<string, int>(1);
             Variables = new MyAnimationVariableStorage();
             ResultBonesPool = new MyResultBonesPool();
+            FrameCounter = 0;
         }
         #endregion
 
@@ -163,8 +187,10 @@ namespace VRage.Animations
         // Get layer by index. Returns null if index is invalid.
         public MyAnimationStateMachine GetLayerByIndex(int index)
         {
-            Debug.Assert(index >= 0 && index < m_layers.Count);
-            return m_layers[index];
+            if (index >= 0 && index < m_layers.Count)
+                return m_layers[index];
+            else
+                return null;
         }
 
         /// <summary>
@@ -214,16 +240,20 @@ namespace VRage.Animations
         /// <param name="animationUpdateData">See commentary in MyAnimationUpdateData</param>
         public void Update(ref MyAnimationUpdateData animationUpdateData)
         {
-            if (animationUpdateData.CharacterBones == null)
+            FrameCounter++;
+            if (animationUpdateData.CharacterBones == null || !ResultBonesPool.IsValid())
                 return; // safety
             if (animationUpdateData.Controller == null)
                 animationUpdateData.Controller = this;
             ResultBonesPool.FreeAll(); // free all previous bone allocations, return them to pool
                                        // (this is a safe place to do that, nobody should use them by this time)
 
+            Variables.SetValue(MyAnimationVariableStorageHints.StrIdRandomStable, MyRandom.Instance.NextFloat());
+
             // Set the first layer.
             if (m_layers.Count > 0)
             {
+                ResultBonesPool.SetDefaultPose(null);
                 m_layers[0].Update(ref animationUpdateData);
             }
             // Other layers can replace some transforms or add them
@@ -233,8 +263,14 @@ namespace VRage.Animations
                 MyAnimationUpdateData animationUpdateDataLast = animationUpdateData;
                 animationUpdateData.LayerBoneMask = null;
                 animationUpdateData.BonesResult = null;
+                ResultBonesPool.SetDefaultPose(currentLayer.Mode == MyAnimationStateMachine.MyBlendingMode.Replace 
+                    ? animationUpdateDataLast.BonesResult
+                    : null);
                 m_layers[i].Update(ref animationUpdateData);
-                if (animationUpdateData.BonesResult == null)
+                if (animationUpdateData.BonesResult == null 
+                    || m_layers[i].CurrentNode == null  // optimization
+                    || ((MyAnimationStateMachineNode)m_layers[i].CurrentNode).RootAnimationNode == null // optimization
+                    || ((MyAnimationStateMachineNode)m_layers[i].CurrentNode).RootAnimationNode is MyAnimationTreeNodeDummy) // optimization
                 {
                     animationUpdateData = animationUpdateDataLast; // restore backup
                     continue;
@@ -269,7 +305,6 @@ namespace VRage.Animations
                                 out addTranslation, out addRotation);
                             bones[j].Translation = bonesLast[j].Translation + addTranslation;
                             bones[j].Rotation = bonesLast[j].Rotation * addRotation;
-                            // TODO: Check this math :)
                         }
                         else
                         {

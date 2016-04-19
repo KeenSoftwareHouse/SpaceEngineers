@@ -11,9 +11,9 @@ using System.Text;
 using VRage;
 using VRageMath;
 using Sandbox.ModAPI;
-using VRage;
 using Sandbox.Game.Localization;
 using VRage.Utils;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {

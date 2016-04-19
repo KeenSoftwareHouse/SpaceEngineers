@@ -23,6 +23,7 @@ using System.Diagnostics;
 using VRage;
 using Sandbox.Game.Replication;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -202,7 +203,7 @@ namespace Sandbox.Game.Entities.Blocks
             var jetpack = pilot.JetpackComp;
             m_pilotJetpack = jetpack.TurnedOn;
             if (jetpack != null)
-                jetpack.TurnOnJetpack(false, false, false, false);
+                jetpack.TurnOnJetpack(false);
 
             pilot.Sit(true, MySession.Static.LocalCharacter == pilot, false, BlockDefinition.CharacterAnimation);
 
@@ -408,14 +409,17 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (isUsed)
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
                     {
-                        m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
+                        if (m_soundEmitter.SoundId == BlockDefinition.OutsideSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Realistic)
+                            m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
+                        else
+                            m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true, true);
                     }
                 }
                 else
                 {
-                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.SoundId)
+                    if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
                     }

@@ -7,22 +7,22 @@ namespace ParallelTasks
 {
     public class ActionWork: IWork
     {
-        public readonly Action Action;
+        public readonly Action<WorkData> Action;
 
-        public ActionWork(Action action)
+        public ActionWork(Action<WorkData> action)
             :this(action, Parallel.DefaultOptions)
         {
         }
 
-        public ActionWork(Action action, WorkOptions options)
+        public ActionWork(Action<WorkData> action, WorkOptions options)
         {
             this.Action = action;
             this.Options = options;
         }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
-            Action();
+            Action(workData);
         }
 
         public WorkOptions Options

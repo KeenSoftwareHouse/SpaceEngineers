@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace Sandbox.Game.GameSystems
 {
-    partial class MyGridTerminalSystem
+    public partial class MyGridTerminalSystem
     {
         readonly HashSet<MyTerminalBlock> m_blocks = new HashSet<MyTerminalBlock>();
         readonly List<MyBlockGroup> m_blockGroups = new List<MyBlockGroup>();

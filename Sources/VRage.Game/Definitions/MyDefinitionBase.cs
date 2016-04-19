@@ -30,7 +30,10 @@ namespace VRage.Game
         /// </summary>
         public String DescriptionString;
 
-        public string Icon;
+        /// <summary>
+        /// Icons for the definition, they are used from top to bottom.
+        /// </summary>
+        public string[] Icons;
 
         /// <summary>
         /// Definition can be disabled by mod, then it will be removed from definition manager
@@ -86,7 +89,7 @@ namespace VRage.Game
             this.Public = builder.Public;
             this.Enabled = builder.Enabled;
 			this.AvailableInSurvival = builder.AvailableInSurvival;
-            this.Icon = builder.Icon;
+            this.Icons = builder.Icons;
 
             if (builder.DisplayName != null && builder.DisplayName.StartsWith("DisplayName_"))
             {
@@ -116,6 +119,8 @@ namespace VRage.Game
 
         /// <summary>
         /// Override this in case you want to do some postprocessing of the definition before the game starts.
+        /// 
+        /// TODO: Obsolete me
         /// <para>Postprocess is useful if you want to process the definition before the game begins,</para>
         /// <para>but you only want to do it when all the definitions are loaded and merged.</para>
         /// </summary>
@@ -128,7 +133,7 @@ namespace VRage.Game
             builder.Id          = Id;
             builder.Description = (DescriptionEnum.HasValue) ? DescriptionEnum.Value.ToString() : DescriptionString != null ? DescriptionString.ToString() : null;
             builder.DisplayName = (DisplayNameEnum.HasValue) ? DisplayNameEnum.Value.ToString() : DisplayNameString != null ? DisplayNameString.ToString() : null;
-            builder.Icon        = Icon;
+            builder.Icons        = Icons;
             builder.Public      = Public;
 			builder.Enabled		= Enabled;
 

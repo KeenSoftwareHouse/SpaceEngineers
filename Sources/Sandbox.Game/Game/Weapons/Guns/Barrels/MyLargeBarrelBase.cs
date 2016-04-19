@@ -1,21 +1,15 @@
 ﻿#region Using
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
 using Sandbox.Game.World;
+using VRage.Game;
+using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using VRage.Game.Entity;
-using VRage.Game;
 
 #endregion
 
-namespace Sandbox.Game.Weapons
+namespace Sandbox.Game.Weapons.Guns.Barrels
 {
     public abstract class MyLargeBarrelBase 
     {

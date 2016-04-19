@@ -343,26 +343,33 @@ namespace VRageRender
                 throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
             }
 
+            ShaderMacro[] macros = MyRender11.GlobalShaderMacro;
+            if (info.Macros != null && info.Macros.Length > 0 || MyRender11.DebugMode)
+            {
+                macros = new ShaderMacro[MyRender11.GlobalShaderMacro.Length + (info.Macros != null ? info.Macros.Length : 0)];
+                MyRender11.GlobalShaderMacro.CopyTo(macros, 0);
+                if (info.Macros != null)
+                    info.Macros.CopyTo(macros, MyRender11.GlobalShaderMacro.Length);
+            }
+            string shaderSource;
             using (var reader = new StreamReader(path))
             {
-                ShaderMacro[] macros = MyRender11.GlobalShaderMacro;
-                if (info.Macros != null && info.Macros.Length > 0 || MyRender11.DebugMode)
-                {
-                    macros = new ShaderMacro[MyRender11.GlobalShaderMacro.Length + (info.Macros != null ? info.Macros.Length : 0)];
-                    MyRender11.GlobalShaderMacro.CopyTo(macros, 0);
-                    if (info.Macros != null)
-                        info.Macros.CopyTo(macros, MyRender11.GlobalShaderMacro.Length); 
-                }
-                var compiled = Compile(reader.ReadToEnd(), macros, info.Profile, info.File.ToString(), false);
+                shaderSource = reader.ReadToEnd();
+            }
+            var compiled = Compile(shaderSource, macros, info.Profile, info.File.ToString(), false);
 
-                Bytecodes.Data[bytecode.Index].Bytecode = compiled ?? Bytecodes.Data[bytecode.Index].Bytecode;
+            Bytecodes.Data[bytecode.Index].Bytecode = compiled ?? Bytecodes.Data[bytecode.Index].Bytecode;
 
-                if (Bytecodes.Data[bytecode.Index].Bytecode == null)
+            if (compiled == null)
+            {
+                string message = "Failed to compile " + info.File + " @ profile " + info.Profile + " with defines " + macros.GetString();
+                MyRender11.Log.WriteLine(message);
+                if (Debugger.IsAttached)
                 {
-                    string message = "Failed to compile " + info.File + " @ profile " + info.Profile + " with defines " + macros.GetString();
-                    MyRender11.Log.WriteLine(message);
-                    throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
+                    Debugger.Break();
+                    Compile(bytecode, true);
                 }
+                else throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
             }
         }
 
@@ -383,12 +390,12 @@ namespace VRageRender
 
                 if (result != null)
                 {
-                    Debug.WriteLine(String.Format("Compilation of shader {0}: {1}", descriptor, compileLog));
+                    Debug.WriteLine(String.Format("Compilation of shader {0} notes:\n{1}", descriptor, compileLog));
                     
                 }
                 else
                 {
-                    string message = String.Format("Compilation of shader {0} failed: {1}", descriptor, compileLog);
+                    string message = String.Format("Compilation of shader {0} errors:\n{1}", descriptor, compileLog);
                     MyRender11.Log.WriteLine(message);
                     Debug.WriteLine(message);
                 }
@@ -449,7 +456,7 @@ namespace VRageRender
 
                 if (compilationResult.Message != null)
                 {
-                    compileLog = compilationResult.Message + "\n" + ExtendedErrorMessage(preprocessedSource, compilationResult.Message);
+                    compileLog = ExtendedErrorMessage(source, compilationResult.Message) + DumpShaderSource(key, preprocessedSource);
                 }
 
                 if (compilationResult.Bytecode.Data.Length > 0)
@@ -460,13 +467,23 @@ namespace VRageRender
             catch (CompilationException e)
             {
                 Debug.WriteLine(preprocessedSource);
-                compileLog = e.Message + "\n" + ExtendedErrorMessage(preprocessedSource, e.Message);
+                compileLog = ExtendedErrorMessage(source, e.Message) + DumpShaderSource(key, preprocessedSource);
             }
             finally
             {
                 ProfilerShort.End();
             }
             return null;
+        }
+
+        internal static string DumpShaderSource(string key, string preprocessedSource)
+        {
+            string fileName = Path.Combine(MyFileSystem.UserDataPath, MyShadersDefines.CachePath, Path.GetFileName(key + ".hlsl"));
+            using (var writer = new StreamWriter(fileName, false))
+            {
+                writer.Write(preprocessedSource);
+            }
+            return "Preprocessed source written to " + fileName + "\n";
         }
 
         internal static byte[] GetBytecode(ShaderBytecodeId id)
@@ -734,26 +751,62 @@ namespace VRageRender
             }
         }
 
-        private static string ExtendedErrorMessage(string code, string errorMsg)
+        private static string ExtendedErrorMessage(string originalCode, string errorMsg)
         {
+            Regex rx = new Regex(@"^(?<fileName>\S*)\((?<lineNo>\d+),\d+\):(?<message>.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var sb = new StringBuilder();
-            Regex rx = new Regex(@"\((?<lineNo>\d+),\d+\):",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            var match = rx.Match(errorMsg);
-
-            var lineStr = match.Groups["lineNo"].Value;
-            if (lineStr != "")
+            var errorLines = errorMsg.Split(new[] { "\n" }, StringSplitOptions.None);
+            for(int j = 0; j < errorLines.Length; j++)
             {
-                var line = Int32.Parse(lineStr) - 1;
-                var sourceLines = code.Split(new [] { "\r\n" }, StringSplitOptions.None);
-
-                for (int i = -2; i <= 2; i++)
+                var match = rx.Match(errorLines[j]);
+                if (match == null)
                 {
-                    var offseted = line + i;
-                    if (0 <= offseted && offseted < sourceLines.Length)
+                    sb.AppendLine(errorLines[j]);
+                    continue;
+                }
+
+                var lineStr = match.Groups["lineNo"].Value;
+                if (lineStr != "")
+                {
+                    var code = originalCode;
+                    var fileName = match.Groups["fileName"].Value;
+                    if (fileName != "")
                     {
-                        sb.AppendFormat("{0}: {1}\n", offseted + 1, sourceLines[offseted]);
+                        try
+                        {
+                            var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath));
+                            var stream = includes.Open(IncludeType.System, fileName, null);
+                            if (stream == null)
+                                return "";
+                            using (var reader = new StreamReader(stream, Encoding.UTF8))
+                            {
+                                code = reader.ReadToEnd();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            return "";
+                        }
                     }
+
+                    sb.AppendFormat("{0} @ {1}: {2}\n", fileName, lineStr, match.Groups["message"].Value);
+
+                    var line = Int32.Parse(lineStr) - 1;
+                    var sourceLines = code.Split(new[] { "\n" }, StringSplitOptions.None);
+
+                    for (int i = -2; i <= 2; i++)
+                    {
+                        var offseted = line + i;
+                        if (0 <= offseted && offseted < sourceLines.Length)
+                        {
+                            sb.AppendFormat("{0}: {1}\n", offseted + 1, sourceLines[offseted]);
+                        }
+                    }
+                    sb.AppendFormat("\n");
+                }
+                else
+                {
+                    sb.AppendLine(errorLines[j]);
                 }
             }
             return sb.ToString();

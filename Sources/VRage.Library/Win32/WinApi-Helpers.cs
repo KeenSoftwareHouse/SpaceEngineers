@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace VRage.Win32
 {
     public static partial class WinApi
     {
-        public static void SendMessage<T>(ref T data, IntPtr windowHandle)
+        public static void SendMessage<T>(ref T data, IntPtr windowHandle, IntPtr sourceWindowHandle = default(IntPtr))
                    where T : struct
         {
             try
@@ -19,7 +20,7 @@ namespace VRage.Win32
                 WinApi.MyCopyData copyData = new WinApi.MyCopyData();
                 copyData.DataSize = structSize;
                 copyData.DataPointer = structPtr;
-                SendMessage(windowHandle, (uint)WM.COPYDATA, IntPtr.Zero, ref copyData);
+                SendMessage(windowHandle, (uint)WM.COPYDATA, sourceWindowHandle, ref copyData);
                 Marshal.FreeHGlobal(structPtr);
             }
             catch (Exception)

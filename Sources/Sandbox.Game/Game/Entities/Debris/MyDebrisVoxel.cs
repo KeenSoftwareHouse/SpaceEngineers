@@ -14,7 +14,7 @@ using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using Sandbox.Common.Components;
+
 using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;

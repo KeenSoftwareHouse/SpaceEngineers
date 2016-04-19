@@ -34,6 +34,15 @@ namespace Sandbox.Game.Replication
             LinearMovingPriority = 1.0f,
         };
 
+
+        override protected bool IsMoving(MyEntity entity)
+        {
+            // Never know if somebody is moving entity when physics is null
+            return Entity.Physics == null
+                || Vector3.IsZero(entity.Physics.LinearVelocity, PRECISION) == false
+                || Entity.RotationSpeed > 0.0f;
+        }
+
         public new MyCharacter Entity { get { return (MyCharacter)base.Entity; } }
 
         public MyCharacterPhysicsStateGroup(MyEntity entity, IMyReplicable ownerReplicable)
@@ -59,6 +68,10 @@ namespace Sandbox.Game.Replication
         {
             const float HighQualityDistance = 8; // under 8m, character physics sync gets high priority to have smooth movement
 
+            if (ResponsibleForUpdate(Entity, client.EndpointId))
+            {
+                return 0.0f;
+            }
             var clientPos = ((MyClientState)client.State).Position;
             var characterPos = Entity.PositionComp.GetPosition();
             bool isHighQuality = Vector3D.DistanceSquared(clientPos, characterPos) < HighQualityDistance * HighQualityDistance;
@@ -68,9 +81,9 @@ namespace Sandbox.Game.Replication
             return priority;
         }
 
-        public override void Serialize(BitStream stream, MyClientStateBase forClient, byte packetId, int maxBitPosition)
+        public override void Serialize(BitStream stream, EndpointId forClient,uint timeStamp, byte packetId, int maxBitPosition)
         {
-            base.Serialize(stream, forClient, packetId, maxBitPosition);
+            base.Serialize(stream, forClient,timeStamp, packetId, maxBitPosition);
 
             if (stream.Writing)
             {

@@ -9,6 +9,7 @@ using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using VRage.Game;
+using VRage.Library.Utils;
 
 namespace Sandbox.Engine.Utils
 {

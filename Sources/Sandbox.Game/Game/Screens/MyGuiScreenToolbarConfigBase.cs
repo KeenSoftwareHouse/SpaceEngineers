@@ -421,7 +421,7 @@ namespace Sandbox.Game.Gui
 
             m_blocksLabel = (MyGuiControlLabel)Controls.GetControlByName("BlocksLabel");
 
-            m_toolbarControl = new MyGuiControlToolbar();
+            m_toolbarControl = (MyGuiControlToolbar) Activator.CreateInstance(MyPerGameSettings.GUI.ToolbarControl);
             m_toolbarControl.Position = new Vector2(0f, 0.49f);
             m_toolbarControl.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM;
             if (MyPerGameSettings.Game == GameEnum.ME_GAME)
@@ -578,6 +578,12 @@ namespace Sandbox.Game.Gui
                 if (MySession.Static.SurvivalMode && !category.Value.AvailableInSurvival)
                     continue;
 
+                if (MySession.Static.CreativeMode && !category.Value.ShowInCreative)
+                    continue;
+
+                if (!MyPerGameSettings.EnableResearch && category.Key.CompareTo("Schematics") == 0)
+                    continue;
+
                 if (true == category.Value.IsBlockCategory)
                 {
                     categories.Add(category.Value.Name, category.Value);
@@ -696,7 +702,7 @@ namespace Sandbox.Game.Gui
         #endregion
 
         #region grid block population - common
-        private void UpdateGridBlocksBySearchCondition(IMySearchCondition searchCondition)
+        protected virtual void UpdateGridBlocksBySearchCondition(IMySearchCondition searchCondition)
         {
             if (null != searchCondition)
             {
@@ -790,14 +796,14 @@ namespace Sandbox.Game.Gui
 				return;
 
             var gridItem = new MyGuiControlGrid.Item(
-                icon: definition.Icon,
+                icons: definition.Icons,
                 toolTip: definition.DisplayNameText,
                 userData: new GridItemUserData() { ItemData = data });
 
             grid.Add(gridItem);
         }
 
-        void AddDefinitionAtPosition(MyGuiControlGrid grid, MyDefinitionBase definition, Vector2I position, bool enabled = true, string subicon = null)
+        protected virtual void AddDefinitionAtPosition(MyGuiControlGrid grid, MyDefinitionBase definition, Vector2I position, bool enabled = true, string subicon = null)
         {
             if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 return;
@@ -805,7 +811,7 @@ namespace Sandbox.Game.Gui
 				return;
 
             var gridItem = new MyGuiControlGrid.Item(
-                icon: definition.Icon,
+                icons: definition.Icons,
                 toolTip: definition.DisplayNameText,
                 subicon: subicon,
                 userData: new GridItemUserData() { ItemData = MyToolbarItemFactory.ObjectBuilderFromDefinition(definition) },
@@ -1078,7 +1084,7 @@ namespace Sandbox.Game.Gui
 				weaponData.DefinitionId = definition.Id;
 
 				var gridItem = new MyGuiControlGrid.Item(
-					icon: definition.Icon,
+					icons: definition.Icons,
 					toolTip: definition.DisplayNameText,
 					userData: new GridItemUserData() { ItemData = weaponData },
                     enabled: enabled);
@@ -1174,7 +1180,7 @@ namespace Sandbox.Game.Gui
 
                 groupData.BlockEntityId = Owner;
                 m_gridBlocks.Add(new MyGuiControlGrid.Item(
-                    icon: MyToolbarItemFactory.GetIconForTerminalGroup(group),
+                    icons: MyToolbarItemFactory.GetIconForTerminalGroup(group),
                     toolTip: group.Name.ToString(),
                     userData: new GridItemUserData() { ItemData = groupData },
                     enabled: isGroupFunctional)
@@ -1226,7 +1232,7 @@ namespace Sandbox.Game.Gui
 
                 MyObjectBuilder_ToolbarItemTerminalBlock blockData = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
                 m_gridBlocks.Add(new MyGuiControlGrid.Item(
-                    icon: block.BlockDefinition.Icon,
+                    icons: block.BlockDefinition.Icons,
                     subicon: MyTerminalActionIcons.NONE,
                     toolTip: block.CustomName.ToString(),
                     userData: new GridItemUserData() { ItemData = blockData },
@@ -1509,7 +1515,6 @@ namespace Sandbox.Game.Gui
                     {
                         if (item.WantsToBeActivated)
                             currentToolbar.ActivateItemAtSlot(i, playActivationSound: false);
-                        MyGuiAudio.PlaySound(MyGuiSounds.HudItem);
                         itemSlot = i;
                         itemSet = true;
                         break;
@@ -1526,7 +1531,6 @@ namespace Sandbox.Game.Gui
                         currentToolbar.SetItemAtSlot(i, newItem);
                         if (newItem.WantsToBeActivated)
                             currentToolbar.ActivateItemAtSlot(i, playActivationSound: false);
-                        MyGuiAudio.PlaySound(MyGuiSounds.HudItem);
 
                         itemSlot = i;
                         itemSet = true;
@@ -1545,12 +1549,11 @@ namespace Sandbox.Game.Gui
 
                     if (newItem.WantsToBeActivated)
                         currentToolbar.ActivateItemAtSlot(i, playActivationSound: false);
-                    MyGuiAudio.PlaySound(MyGuiSounds.HudItem);
                     itemSet = true;
                 }
             });
         }
-
+        
         public static void RequestItemParameters(MyToolbarItem item, Action<bool> callback)
         {
             var itemTerminalBlock = item as MyToolbarItemTerminalBlock;

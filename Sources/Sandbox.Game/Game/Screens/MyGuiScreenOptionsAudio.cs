@@ -256,7 +256,7 @@ namespace Sandbox.Game.Gui
                 MyAudio.Static.VolumeGame = 0f;
             }
             MyAudio.Static.VolumeVoiceChat = settings.VoiceChatVolume;
-            MyAudio.Static.VolumeHud = settings.GameVolume;
+            MyAudio.Static.VolumeHud = MyAudio.Static.VolumeGame;
             MyAudio.Static.EnableVoiceChat = settings.EnableVoiceChat;
             MyGuiAudio.HudWarnings = settings.HudWarnings;
         }

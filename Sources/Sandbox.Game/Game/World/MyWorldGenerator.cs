@@ -288,6 +288,18 @@ namespace Sandbox.Game.World
                     }
                     inventory.nextItemId = itemId;
                 }
+
+                MyObjectBuilder_InventoryItem[] inventoryItems = MySession.Static.CreativeMode ? scenario.CreativeInventoryItems : scenario.SurvivalInventoryItems;
+                if (inventoryItems != null)
+                {
+                    foreach (var ob in inventoryItems)
+                    {
+                        var item = ob.Clone() as MyObjectBuilder_InventoryItem;
+                        item.ItemId = itemId++;
+                        inventory.Items.Add(item);
+                    }
+                    inventory.nextItemId = itemId;
+                }
             }
         }
 

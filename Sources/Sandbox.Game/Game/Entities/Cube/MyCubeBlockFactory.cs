@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.Components;
+
 using VRage.Game;
 using VRage.Plugins;
 using VRage.ObjectBuilders;

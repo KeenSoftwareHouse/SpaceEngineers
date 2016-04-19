@@ -98,7 +98,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public override bool PlayIndicatorSound
         {
-            get { return true; }
+            get
+            {
+                if (Cockpit is MyShipController)
+                    return (Cockpit as MyShipController).PlayDefaultUseSound;
+                return true;
+            }
         }
     }
 }

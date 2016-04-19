@@ -1,6 +1,5 @@
 ﻿#region Using
 
-using Sandbox.Common;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;

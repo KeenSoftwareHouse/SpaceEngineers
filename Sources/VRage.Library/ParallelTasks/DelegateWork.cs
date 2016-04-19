@@ -12,16 +12,25 @@ namespace ParallelTasks
         static MyConcurrentPool<DelegateWork> instances = new MyConcurrentPool<DelegateWork>();
 
         public Action Action { get; set; }
+        public Action<WorkData> DataAction { get; set; }
         public WorkOptions Options { get; set; }
 
         public DelegateWork()
         {
         }
 
-        public void DoWork()
+        public void DoWork(WorkData workData = null)
         {
-            Action();
-            Action = null;
+            if (Action != null)
+            {
+                Action();
+                Action = null;
+            }
+            if (DataAction != null)
+            {
+                DataAction(workData);
+                DataAction = null;
+            }
             instances.Return(this);
         }
 

@@ -10,38 +10,11 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
 using SteamSDK;
 using VRage.Game;
+using VRage.Library.Utils;
+using VRage.Network;
 
 namespace Sandbox.Engine.Multiplayer
 {
-    [ProtoBuf.ProtoContract]
-    [MessageId(13873, P2PMessageEnum.Reliable)]
-    public struct ServerBattleDataMsg
-    {
-        [ProtoBuf.ProtoMember]
-        public string WorldName;
-
-        [ProtoBuf.ProtoMember]
-        public MyGameModeEnum GameMode;
-
-        [ProtoBuf.ProtoMember]
-        public string HostName;
-
-        [ProtoBuf.ProtoMember]
-        public ulong WorldSize;
-
-        [ProtoBuf.ProtoMember]
-        public int AppVersion;
-
-        [ProtoBuf.ProtoMember]
-        public int MembersLimit;
-
-        [ProtoBuf.ProtoMember]
-        public string DataHash;
-
-        [ProtoBuf.ProtoMember]
-        public List<MyMultiplayerBattleData.KeyValueDataMsg> BattleData;
-    }
-
     public class MyDedicatedServerBattle : MyDedicatedServerBase
     {
         private MyMultiplayerBattleData m_battleData;
@@ -194,9 +167,6 @@ namespace Sandbox.Engine.Multiplayer
         internal MyDedicatedServerBattle(IPEndPoint serverEndpoint)
             : base(new MySyncLayer(new MyTransportLayer(MyMultiplayer.GameEventChannel)))
         {
-            RegisterControlMessage<ServerBattleDataMsg>(MyControlMessageEnum.BattleData, OnServerBattleData, MyMessagePermissions.FromServer);
-            RegisterControlMessage<JoinResultMsg>(MyControlMessageEnum.JoinResult, OnJoinResult, MyMessagePermissions.FromServer);
-
             Initialize(serverEndpoint);
 
             GameMode = MyGameModeEnum.Survival;
@@ -237,7 +207,7 @@ namespace Sandbox.Engine.Multiplayer
             msg.DataHash = m_dataHash;
             msg.BattleData = m_battleData.SaveData();
 
-            SendControlMessageToAll(ref msg);
+            ReplicationLayer.SendWorldBattleData(ref msg);
         }
 
         protected override void UserAccepted(ulong steamID)
@@ -251,12 +221,11 @@ namespace Sandbox.Engine.Multiplayer
             base.UserAccepted(steamID);
         }
 
-        protected override void OnChatMessage(ref ChatMsg msg, ulong sender)
+        protected override void OnChatMessage(ref ChatMsg msg)
         {
-            msg.Author = sender;
-            if (m_memberData.ContainsKey(sender))
+            if (m_memberData.ContainsKey(msg.Author))
             {
-                if (m_memberData[sender].IsAdmin)
+                if (m_memberData[msg.Author].IsAdmin)
                 {
                     if (msg.Text.ToLower().Contains("+unban"))
                     {
@@ -277,20 +246,7 @@ namespace Sandbox.Engine.Multiplayer
                 }
             }
 
-            SendControlMessageToAll(ref msg, msg.Author);            
-            RaiseChatMessageReceived(sender, msg.Text, ChatEntryTypeEnum.ChatMsg);
+            RaiseChatMessageReceived(msg.Author, msg.Text, ChatEntryTypeEnum.ChatMsg);
         }
-
-        void OnServerBattleData(ref ServerBattleDataMsg msg, ulong sender)
-        {
-            System.Diagnostics.Debug.Fail("None can send server data to server");
-        }
-
-        void OnJoinResult(ref JoinResultMsg msg, ulong sender)
-        {
-            System.Diagnostics.Debug.Fail("Server cannot join anywhere!");
-        }
-
-
     }
 }

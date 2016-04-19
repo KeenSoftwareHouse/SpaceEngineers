@@ -65,6 +65,8 @@ namespace VRage.Import
 
     public class MyModelDummy
     {
+        public const string SUBBLOCK_PREFIX = "subblock_";
+        public const string SUBPART_PREFIX = "subpart_";
         public const string ATTRIBUTE_FILE = "file";
         public const string ATTRIBUTE_HIGHLIGHT = "highlight";
         public const string ATTRIBUTE_HIGHLIGHT_SEPARATOR = ";";

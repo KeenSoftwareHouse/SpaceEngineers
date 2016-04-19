@@ -17,7 +17,7 @@ namespace Sandbox.Game.Gui
         public struct ComponentInfo
         {
             public MyDefinitionId DefinitionId;
-            public string Icon;
+            public string[] Icons;
             public String ComponentName;
             public int MountedCount;
             public int StockpileCount;
@@ -61,7 +61,7 @@ namespace Sandbox.Game.Gui
         public List<ComponentInfo> Components = new List<ComponentInfo>(12);
 
         public String BlockName;
-        public string BlockIcon;
+        public string[] BlockIcons;
         public float BlockIntegrity;
         public float CriticalIntegrity;
         public float OwnershipIntegrity;

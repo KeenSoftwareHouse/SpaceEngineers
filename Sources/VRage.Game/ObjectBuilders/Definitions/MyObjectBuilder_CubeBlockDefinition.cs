@@ -336,6 +336,61 @@ namespace VRage.Game
             public string BuilderType;
         }
 
+        [ProtoContract]
+        public class CubeBlockEffectBase
+        {
+            [XmlAttribute]
+            [ProtoMember]
+            public string Name = "";
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float ParameterMin = float.MinValue;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float ParameterMax = float.MaxValue;
+
+            [XmlArrayItem("ParticleEffect")]
+            [ProtoMember]
+            public CubeBlockEffect[] ParticleEffects;
+        }
+
+        [ProtoContract]
+        public class CubeBlockEffect
+        {
+            [XmlAttribute]
+            [ProtoMember]
+            public string Name = "";
+
+            [XmlAttribute]
+            [ProtoMember]
+            public string Origin = "";
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float Delay = 0f;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float Duration = 0f;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public bool Loop = false;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float SpawnTimeMin = 0f;
+
+            [XmlAttribute]
+            [ProtoMember]
+            public float SpawnTimeMax = 0f;
+        }
+
+        [ProtoMember, DefaultValue(false)]
+        public bool SilenceableByShipSoundSystem;
+
         [ProtoMember]
         public MyCubeSize CubeSize;
         
@@ -358,6 +413,10 @@ namespace VRage.Game
         [XmlArrayItem("Component")]
         [ProtoMember]
         public CubeBlockComponent[] Components;
+        
+        [XmlArrayItem("Effect")]
+        [ProtoMember]
+        public CubeBlockEffectBase[] Effects;
 
         [ProtoMember]
         public CriticalPart CriticalComponent;

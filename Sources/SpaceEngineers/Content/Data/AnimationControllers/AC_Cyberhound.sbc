@@ -40,6 +40,7 @@
               <X>10</X>
               <Y>10</Y>
             </EdPos>
+            <Type>Normal</Type>
           </Node>
           <Node>
             <Name>Move</Name>
@@ -50,10 +51,10 @@
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
-                  <X>-13</X>
+                  <X>-11</X>
                   <Y>-14</Y>
                 </EdPos>
-                <ParameterName>Speed</ParameterName>
+                <ParameterName>speed</ParameterName>
                 <Child>
                   <Param>4.1</Param>
                   <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
@@ -69,7 +70,7 @@
                   </Node>
                 </Child>
                 <Child>
-                  <Param>9.9</Param>
+                  <Param>8</Param>
                   <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                     <EdPos>
                       <X>468</X>
@@ -88,6 +89,7 @@
               <X>450</X>
               <Y>10</Y>
             </EdPos>
+            <Type>Normal</Type>
           </Node>
           <Node>
             <Name>Attack</Name>
@@ -112,6 +114,7 @@
               <X>10</X>
               <Y>380</Y>
             </EdPos>
+            <Type>Normal</Type>
           </Node>
           <Node>
             <Name>Death</Name>
@@ -136,6 +139,15 @@
               <X>450</X>
               <Y>380</Y>
             </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>all</Name>
+            <EdPos>
+              <X>419</X>
+              <Y>223</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
           </Node>
         </Nodes>
         <Transitions>
@@ -145,8 +157,11 @@
                 <Condition Lhs="Speed" Op="Greater" Rhs="0.95" />
               </Conjunction>
             </Conditions>
+            <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Attack" From="Move" To="Attack" TimeInSec="0.1" Sync="Restart" />
+          <Transition Name="Attack" From="Move" To="Attack" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
           <Transition From="Attack" To="Idle" TimeInSec="0.2" Sync="Restart">
             <Conditions>
               <Conjunction>
@@ -154,6 +169,7 @@
                 <Condition Lhs="Speed" Op="Less" Rhs="1.5" />
               </Conjunction>
             </Conditions>
+            <Priority xsi:nil="true" />
           </Transition>
           <Transition From="Attack" To="Move" TimeInSec="0.2" Sync="NoSynchonization">
             <Conditions>
@@ -162,6 +178,7 @@
                 <Condition Lhs="@AnimationFinished" Op="Greater" Rhs="0.5" />
               </Conjunction>
             </Conditions>
+            <Priority xsi:nil="true" />
           </Transition>
           <Transition From="Move" To="Idle" TimeInSec="0.3" Sync="Restart">
             <Conditions>
@@ -169,29 +186,19 @@
                 <Condition Lhs="Speed" Op="Less" Rhs="0.9" />
               </Conjunction>
             </Conditions>
+            <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Death" From="Idle" To="Death" TimeInSec="0.2" Sync="Restart">
+          <Transition Name="Attack" From="Idle" To="Attack" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="all" To="Death" TimeInSec="0.2" Sync="Restart">
             <Conditions>
               <Conjunction>
-                <Condition Lhs="Dead" Op="Equal" Rhs="1.0" />
+                <Condition Lhs="dead" Op="Equal" Rhs="1" />
               </Conjunction>
             </Conditions>
+            <Priority>1</Priority>
           </Transition>
-          <Transition Name="Death" From="Move" To="Death" TimeInSec="0.2" Sync="Restart">
-            <Conditions>
-              <Conjunction>
-                <Condition Lhs="Dead" Op="Equal" Rhs="1.0" />
-              </Conjunction>
-            </Conditions>
-          </Transition>
-          <Transition Name="Death" From="Attack" To="Death" TimeInSec="0.2" Sync="Restart">
-            <Conditions>
-              <Conjunction>
-                <Condition Lhs="Dead" Op="Equal" Rhs="1.0" />
-              </Conjunction>
-            </Conditions>
-          </Transition>
-          <Transition Name="Attack" From="Idle" To="Attack" TimeInSec="0.1" Sync="Restart" />
         </Transitions>
       </StateMachine>
     </StateMachines>

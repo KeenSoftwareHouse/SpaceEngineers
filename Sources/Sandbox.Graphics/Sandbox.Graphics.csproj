@@ -79,6 +79,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
+    <Compile Include="Gui\MyGuiControlCountdownWheel.cs" />
+    <Compile Include="Gui\MyGuiControlImage.cs" />
     <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
     <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />

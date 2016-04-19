@@ -626,7 +626,7 @@ namespace Sandbox.Game.Entities
                     Vector3D localPosition = spawnPosition - m_planet.PositionLeftBottomCorner;
 
                     MyPlanetStorageProvider.SurfaceProperties props;
-                    provider.ComputeCombinedMaterialAndSurface(localPosition, true, out props);
+                    provider.ComputeCombinedMaterialAndSurface(localPosition, false, out props);
 
                     spawnPosition = props.Position + m_planet.PositionLeftBottomCorner;
 
@@ -893,7 +893,7 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(HasPhysics);
 
-            if(OnPhysicsClose != null)
+            if (OnPhysicsClose != null)
                 OnPhysicsClose();
 
             if (m_spawners != null)
@@ -915,6 +915,13 @@ namespace Sandbox.Game.Entities
             }
 
             HasPhysics = false;
+
+            // Unraise entity, maybe someone is tracking us.
+            if (Sync.IsServer && EntityRaised)
+            {
+                MyEntities.RaiseEntityRemove(this);
+                EntityRaised = false;
+            }
         }
 
         public void CloseSector()
@@ -931,13 +938,6 @@ namespace Sandbox.Game.Entities
 
             if (HasPhysics)
                 CloseSectorPhysics();
-            
-            // Unraise entity, maybe someone is tracking us.
-            if (Sync.IsServer && EntityRaised)
-            {
-                MyEntities.RaiseEntityRemove(this);
-                EntityRaised = false;
-            }
 
             EntityId = 0;
 

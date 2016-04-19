@@ -2,7 +2,6 @@
 
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -46,7 +45,8 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
+using IMyModdingControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
+using VRage.Game.Models;
 
 #endregion
 
@@ -66,6 +66,17 @@ namespace Sandbox.Game.Entities.Character
 
         protected override void DoDetection(bool useHead)
         {
+            DoDetection(useHead, false);
+        }
+
+        // CHECK-ME Evaluate adding more query customization on the base class
+        public void DoDetectionModel()
+        {
+            DoDetection(!Character.TargetFromCamera, true);
+        }
+
+        private void DoDetection(bool useHead, bool doModelIntersection)
+        {
             if (Character == MySession.Static.ControlledEntity)
                 MyHud.SelectedObjectHighlight.RemoveHighlight();
 
@@ -78,8 +89,8 @@ namespace Sandbox.Game.Entities.Character
             if (!useHead)
             {
                 //Ondrej version
-                var cameraMatrix = MySector.MainCamera.WorldMatrix;
-                //var cameraMatrix = Character.Get3rdBoneMatrix(true, true);
+                //var cameraMatrix = MySector.MainCamera.WorldMatrix;
+                var cameraMatrix = Character.Get3rdBoneMatrix(true, true);
                 dir = cameraMatrix.Forward;
                 from = MyUtils.LinePlaneIntersection(headPos, (Vector3)dir, cameraMatrix.Translation, (Vector3)dir);
             }
@@ -90,7 +101,7 @@ namespace Sandbox.Game.Entities.Character
                 from = headPos;
             }
 
-            Vector3D to = from + dir * MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
+            Vector3D to = from + dir * 2.5;//MyConstants.DEFAULT_INTERACTIVE_DISTANCE;
 
             StartPosition = from;
 
@@ -119,23 +130,26 @@ namespace Sandbox.Game.Entities.Character
 
                     do
                     {
-                        isValidBlock = m_hits[index].HkHitInfo.Body != null && m_hits[index].HkHitInfo.GetHitEntity() != Character && m_hits[index].HkHitInfo.GetHitEntity() != null && !m_hits[index].HkHitInfo.Body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+                        IMyEntity entity = null;
+                        HkRigidBody body = m_hits[index].HkHitInfo.Body;
+                        isValidBlock = body != null && (entity = m_hits[index].HkHitInfo.GetHitEntity()) != null
+                            && entity != Character && !body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
 
-                        isPhysicalBlock = m_hits[index].HkHitInfo.GetHitEntity() != null && m_hits[index].HkHitInfo.GetHitEntity().Physics != null;
+                        isPhysicalBlock = entity != null && entity.Physics != null;
 
                         if (hitEntity == null && isValidBlock)
                         {
-                            hitEntity = m_hits[index].HkHitInfo.GetHitEntity();
+                            hitEntity = entity;
                             ShapeKey = m_hits[index].HkHitInfo.GetShapeKey(0);
                         }
 
                         // Set hit material etc. only for object's that have physical representation in the world, this exclude detectors
                         if (HitMaterial.Equals(MyStringHash.NullOrEmpty) && isValidBlock && isPhysicalBlock)
                         {
-                            HitBody = m_hits[index].HkHitInfo.Body;
-                            HitPosition = m_hits[index].Position;
+                            HitBody = body;
                             HitNormal = m_hits[index].HkHitInfo.Normal;
-                            HitMaterial = m_hits[index].HkHitInfo.Body.GetBody().GetMaterialAt(HitPosition + HitNormal * 0.1f);
+                            HitPosition = m_hits[index].GetFixedPosition();
+                            HitMaterial = body.GetBody().GetMaterialAt(HitPosition);
                         }
 
                         index++;
@@ -160,6 +174,24 @@ namespace Sandbox.Game.Entities.Character
                 if (useObject != null)
                 {
                     interactive = useObject.GetInteractiveObject(ShapeKey);
+                }
+
+                // Do accurate collision checking on model
+                if (doModelIntersection)
+                {
+                    var grid = hitEntity as MyCubeGrid;
+                    if (grid != null)
+                    {
+                        LineD line = new LineD(from, to);
+
+                        MyIntersectionResultLineTriangleEx? result;
+                        bool success = grid.GetIntersectionWithLine(ref line, out result);
+                        if (success)
+                        {
+                            HitPosition = result.Value.IntersectionPointInWorldSpace;
+                            HitNormal = result.Value.NormalInWorldSpace;
+                        }
+                    }
                 }
             }
 

@@ -76,7 +76,7 @@ namespace Sandbox.Engine.Multiplayer
             get { return MyFakes.MULTIPLAYER_REPLICATION_TEST ? 100 : MySession.Static.Settings.ViewDistance; }
         }
 
-        private static MyReplicationLayerBase ReplicationLayer
+        public static MyReplicationLayerBase ReplicationLayer
         {
             get
             {

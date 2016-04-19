@@ -291,7 +291,7 @@ namespace Sandbox.Game.Entities.Cube
             
             m_assemblerForPathfinding = this;
 
-            MyGridConveyorSystem.Pathfinding.FindReachable(this.ConveyorEndpoint, m_conveyorEndpoints, m_vertexPredicate, m_edgePredicate);
+            MyGridConveyorSystem.FindReachable(this.ConveyorEndpoint, m_conveyorEndpoints, m_vertexPredicate, m_edgePredicate);
 
             MyUtils.ShuffleList<IMyConveyorEndpoint>(m_conveyorEndpoints);
 
@@ -910,7 +910,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             m_inventoryOwners.Clear();
             List<IMyConveyorEndpoint> reachableVertices = new List<IMyConveyorEndpoint>();
-            MyGridConveyorSystem.Pathfinding.FindReachable(this.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null && FriendlyWithBlock(vertex.CubeBlock) && vertex.CubeBlock.HasInventory);
+            MyGridConveyorSystem.FindReachable(this.ConveyorEndpoint, reachableVertices, (vertex) => vertex.CubeBlock != null && FriendlyWithBlock(vertex.CubeBlock) && vertex.CubeBlock.HasInventory);
 
             foreach (var vertex in reachableVertices)
             {
@@ -983,6 +983,6 @@ namespace Sandbox.Game.Entities.Cube
                 if (Sync.IsServer)
                     OutputInventory.ContentsChanged -= OutputInventory_ContentsChanged;
             }
-        }     
+        }
     }
 }

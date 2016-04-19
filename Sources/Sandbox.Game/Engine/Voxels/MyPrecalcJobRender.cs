@@ -47,7 +47,6 @@ namespace Sandbox.Engine.Voxels
 
         private MyClipmapCellMeshMetadata m_metadata;
 
-
         public Args Arguments
         {
             get { return m_args; }

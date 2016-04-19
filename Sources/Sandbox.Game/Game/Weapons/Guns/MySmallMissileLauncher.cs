@@ -34,7 +34,8 @@ using VRage.Utils;
 using VRage;
 using VRage.Game.Entity;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.Weapons
 {
@@ -79,7 +80,7 @@ namespace Sandbox.Game.Weapons
         public MySmallMissileLauncher()
         {
             m_gunBase = new MyGunBase();
-            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_useConveyorSystem.Value = true;
             SyncType.Append(m_gunBase);
         }
@@ -115,17 +116,21 @@ namespace Sandbox.Game.Weapons
             var weaponBlockDefinition = BlockDefinition as MyWeaponBlockDefinition;
             if (weaponBlockDefinition != null && this.GetInventory() == null) 
             {
-                Components.Add<MyInventoryBase>(new MyInventory(weaponBlockDefinition.InventoryMaxVolume, new Vector3(1.2f, 0.98f, 0.98f), MyInventoryFlags.CanReceive, this));               
+                MyInventory inventory = new MyInventory(weaponBlockDefinition.InventoryMaxVolume, new Vector3(1.2f, 0.98f, 0.98f), MyInventoryFlags.CanReceive);
+                Components.Add<MyInventoryBase>(inventory);               
                 resourceSinkGroup = weaponBlockDefinition.ResourceSinkGroup;
             }
             else
             {
                 if (this.GetInventory() == null) // this could be already inicialized object builder
                 {
+                    MyInventory inventory = null;
                     if (cubeGrid.GridSizeEnum == MyCubeSize.Small)
-                        Components.Add<MyInventoryBase>(new MyInventory(240.0f / 1000, new Vector3(1.2f, 0.45f, 0.45f), MyInventoryFlags.CanReceive, this)); // 4 missiles
+                        inventory = new MyInventory(240.0f / 1000, new Vector3(1.2f, 0.45f, 0.45f), MyInventoryFlags.CanReceive); // 4 missiles
                     else
-                        Components.Add<MyInventoryBase>(new MyInventory(1140.0f / 1000, new Vector3(1.2f, 0.98f, 0.98f), MyInventoryFlags.CanReceive, this)); // 19 missiles
+                        inventory = new MyInventory(1140.0f / 1000, new Vector3(1.2f, 0.98f, 0.98f), MyInventoryFlags.CanReceive); // 19 missiles
+
+                    Components.Add(inventory);
                 }
 
                 resourceSinkGroup = MyStringHash.GetOrCompute("Defense");
@@ -598,6 +603,24 @@ namespace Sandbox.Game.Weapons
         IMyInventory IMyInventoryOwner.GetInventory(int index)
         {
             return MyEntityExtensions.GetInventory(this, index);
+        }
+
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            Sandbox.Game.GameSystems.Conveyors.PullInformation pullInformation = new Sandbox.Game.GameSystems.Conveyors.PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
         }
 
         #endregion

@@ -23,13 +23,13 @@ namespace Sandbox.Game.Gui
             get { return m_Inss; }
         }
 
-        internal void RegisterMarker(MyGps ins)
+        public void RegisterMarker(MyGps ins)
         {
             if (!m_Inss.Contains(ins))
                 m_Inss.Add(ins);
         }
 
-        internal void UnregisterMarker(MyGps ins)
+        public void UnregisterMarker(MyGps ins)
         {
             m_Inss.Remove(ins);
         }

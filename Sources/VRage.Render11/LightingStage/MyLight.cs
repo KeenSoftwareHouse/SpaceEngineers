@@ -22,12 +22,12 @@ namespace VRageRender
 {
     struct MyLightInfo
     {
-        internal Vector3D Position;
-        internal Vector3D PositionWithOffset;
+        internal Vector3D SpotPosition;
+        internal Vector3D PointPosition;
         internal float ShadowsDistance;
 
-        internal Vector3D LocalPosition;
-        internal Vector3D LocalPositionWithOffset;
+        internal Vector3D LocalSpotPosition;
+        internal Vector3D LocalPointPosition;
         
         internal int ParentGID;
         internal bool UsedInForward;
@@ -42,6 +42,7 @@ namespace VRageRender
         internal Vector3 Color;
         internal float Falloff;
         internal float SphereRadius;
+        internal float GlossFactor;
 
         internal Vector3D LastBvhUpdatePosition;
         internal int BvhProxyId;
@@ -56,6 +57,7 @@ namespace VRageRender
         internal Vector3 Color;
         internal float ApertureCos;
         internal float Falloff;
+        internal float GlossFactor;
         internal Vector3 Direction;
         internal Vector3 Up;
 
@@ -63,6 +65,9 @@ namespace VRageRender
         internal int BvhProxyId;
 
         internal TexId ReflectorTexture;
+
+        internal MatrixD ViewProjection;
+        internal bool ViewProjectionDirty;
     }
 
     struct MyHemisphericalLightInfo
@@ -89,13 +94,15 @@ namespace VRageRender
         internal MyGlareTypeEnum Type;
     }
 
-    [StructLayout(LayoutKind.Sequential, Size = 32)]
+    [StructLayout(LayoutKind.Sequential, Size = 48)]
     struct MyPointlightConstants
     {
         internal Vector3 VsPosition;
         internal float Range;
         internal Vector3 Color;
         internal float Falloff;
+        internal float GlossFactor;
+        internal Vector3 _pad;
     }
 
     struct LightId
@@ -114,14 +121,14 @@ namespace VRageRender
 
         internal static readonly LightId NULL = new LightId { Index = -1 };
 
-        internal Vector3D Position { get { return MyLights.Lights.Data[Index].Position; } }
-        internal Vector3D LocalPosition { get { return MyLights.Lights.Data[Index].LocalPosition; } }
-        internal Vector3D PositionWithOffset { get { return MyLights.Lights.Data[Index].PositionWithOffset; } }
-        internal Vector3D LocalPositionWithOffset { get { return MyLights.Lights.Data[Index].LocalPositionWithOffset; } }
+        internal Vector3D SpotPosition { get { return MyLights.Lights.Data[Index].SpotPosition; } }
+        internal Vector3D LocalSpotPosition { get { return MyLights.Lights.Data[Index].LocalSpotPosition; } }
+        internal Vector3D PointPosition { get { return MyLights.Lights.Data[Index].PointPosition; } }
+        internal Vector3D LocalPointPosition { get { return MyLights.Lights.Data[Index].LocalPointPosition; } }
         internal bool CastsShadows { get { return MyLights.Lights.Data[Index].CastsShadows; } }
         internal bool CastsShadowsThisFrame { get { return MyLights.Lights.Data[Index].CastsShadowsThisFrame; } }
         internal float ShadowDistance { get { return MyLights.Lights.Data[Index].ShadowsDistance; } }
-        internal float ViewerDistanceSquared { get { return (float)(PositionWithOffset - MyEnvironment.CameraPosition).LengthSquared(); } }
+        internal float ViewerDistanceSquared { get { return (float)(PointPosition - MyEnvironment.CameraPosition).LengthSquared(); } }
         internal int ParentGID { get { return MyLights.Lights.Data[Index].ParentGID; } }
 
         #region Equals
@@ -194,6 +201,14 @@ namespace VRageRender
             return IdIndex.Get(GID, LightId.NULL);
         }
 
+        private static uint FindGID(LightId id)
+        {
+            foreach (var item in IdIndex)
+                if (item.Value.Index == id.Index)
+                    return item.Key;
+            return MyRenderProxy.RENDER_ID_UNASSIGNED;
+        }
+
         internal static void Remove(uint GID, LightId light)
         {
             IdIndex.Remove(GID);
@@ -247,32 +262,32 @@ namespace VRageRender
         {
             Lights.Data[light.Index] = info;
 
-            Lights.Data[light.Index].LocalPosition = info.Position;
-            Lights.Data[light.Index].LocalPositionWithOffset = info.PositionWithOffset;
-            var position = info.Position;
-            var positionWithOffset = info.PositionWithOffset;
+            Lights.Data[light.Index].LocalSpotPosition = info.SpotPosition;
+            Lights.Data[light.Index].LocalPointPosition = info.PointPosition;
+            var spotPosition = info.SpotPosition;
+            var pointPosition = info.PointPosition;
             var gid = info.ParentGID;
             if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
             {
                 var matrix = MyIDTracker<MyActor>.FindByID((uint)gid).WorldMatrix;
-                Vector3D.Transform(ref position, ref matrix, out position);
-                Vector3D.Transform(ref positionWithOffset, ref matrix, out positionWithOffset);
+                Vector3D.Transform(ref spotPosition, ref matrix, out spotPosition);
+                Vector3D.Transform(ref pointPosition, ref matrix, out pointPosition);
             }
 
-            Lights.Data[light.Index].Position = position;
-            Lights.Data[light.Index].PositionWithOffset = positionWithOffset;
+            Lights.Data[light.Index].SpotPosition = spotPosition;
+            Lights.Data[light.Index].PointPosition = pointPosition;
         }
 
-        internal static void UpdatePointlight(LightId light, bool enabled, float range, Vector3 color, float falloff)
+        internal static void UpdatePointlight(LightId light, bool enabled, float range, Vector3 color, float falloff, float glossFactor)
         {
             Pointlights[light.Index].Range = range;
             Pointlights[light.Index].Color = color;
             Pointlights[light.Index].Falloff = falloff;
             Pointlights[light.Index].Enabled = enabled;
-
+            Pointlights[light.Index].GlossFactor = glossFactor;
             
             var proxy = Pointlights[light.Index].BvhProxyId;
-            var difference = Vector3D.RectangularDistance(ref Pointlights[light.Index].LastBvhUpdatePosition, ref Lights.Data[light.Index].PositionWithOffset);
+            var difference = Vector3D.RectangularDistance(ref Pointlights[light.Index].LastBvhUpdatePosition, ref Lights.Data[light.Index].PointPosition);
 
             bool dirty = (enabled && ((proxy == -1) || (difference > MOVE_TOLERANCE))) || (!enabled && proxy != -1);
 
@@ -286,9 +301,28 @@ namespace VRageRender
             }
         }
 
+        internal static MatrixD GetSpotlightViewProjection(LightId id)
+        {
+            if (Spotlights[id.Index].ViewProjectionDirty)
+            {
+                Spotlights[id.Index].ViewProjectionDirty = false;
+
+                var nearPlaneDistance = 0.5f;
+                var viewMatrix = MatrixD.CreateLookAt(Lights.Data[id.Index].SpotPosition, Lights.Data[id.Index].SpotPosition + Spotlights[id.Index].Direction, Spotlights[id.Index].Up);
+                var projectionMatrix = MatrixD.CreatePerspectiveFieldOfView((float)(Math.Acos(Spotlights[id.Index].ApertureCos) * 2), 1.0f, nearPlaneDistance, Math.Max(id.ShadowDistance, nearPlaneDistance));
+                Spotlights[id.Index].ViewProjection = viewMatrix * projectionMatrix;
+            }
+            return Spotlights[id.Index].ViewProjection;
+        }
+        internal static Matrix CreateShadowMatrix(LightId id)
+        {
+            var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
+            MatrixD worldViewProjection = worldMatrix * GetSpotlightViewProjection(id);
+            return Matrix.Transpose(worldViewProjection * MyMatrixHelpers.ClipspaceToTexture);
+        }
         internal static void UpdateSpotlight(LightId light, bool enabled, 
             Vector3 direction, float range, float apertureCos, Vector3 up,
-            Vector3 color, float falloff, TexId reflectorTexture)
+            Vector3 color, float falloff, float glossFactor, TexId reflectorTexture)
         {
             var info = Spotlights[light.Index];
 
@@ -308,11 +342,12 @@ namespace VRageRender
             Spotlights[light.Index].ApertureCos = apertureCos;
             Spotlights[light.Index].Up = up;
             Spotlights[light.Index].Falloff = falloff;
+            Spotlights[light.Index].GlossFactor = glossFactor;
             Spotlights[light.Index].Color = color;
             Spotlights[light.Index].ReflectorTexture = reflectorTexture;
 
             var proxy = Spotlights[light.Index].BvhProxyId;
-            var positionDifference = Vector3D.RectangularDistance(ref Spotlights[light.Index].LastBvhUpdatePosition, ref Lights.Data[light.Index].PositionWithOffset);
+            var positionDifference = Vector3D.RectangularDistance(ref Spotlights[light.Index].LastBvhUpdatePosition, ref Lights.Data[light.Index].SpotPosition);
 
             bool dirty = (enabled && ((proxy == -1) || (positionDifference > MOVE_TOLERANCE || aabbChanged))) || (!enabled && proxy != -1);
 
@@ -358,17 +393,19 @@ namespace VRageRender
             // touch all lights again, because they don't get updated always when parent is
             foreach (var light in IdIndex.Values)
             {   
-                var position = light.LocalPosition;
-                var positionWithOffset = light.LocalPositionWithOffset;
+                var spotPosition = light.LocalSpotPosition;
+                var pointPosition = light.LocalPointPosition;
                 var gid = light.ParentGID;
                 if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
                 {
                     var matrix = MyIDTracker<MyActor>.FindByID((uint)gid).WorldMatrix;
-                    Vector3D.Transform(ref position, ref matrix, out position);
-                    Vector3D.Transform(ref positionWithOffset, ref matrix, out positionWithOffset);
+                    Vector3D.Transform(ref spotPosition, ref matrix, out spotPosition);
+                    Vector3D.Transform(ref pointPosition, ref matrix, out pointPosition);
                 }
-                Lights.Data[light.Index].Position = position;
-                Lights.Data[light.Index].PositionWithOffset = positionWithOffset;
+                Lights.Data[light.Index].SpotPosition = spotPosition;
+                Lights.Data[light.Index].PointPosition = pointPosition;
+
+                Spotlights[light.Index].ViewProjectionDirty = true;
             }
 
             if(DirtyPointlights.Count > 0)
@@ -376,7 +413,7 @@ namespace VRageRender
                 foreach(var id in DirtyPointlights)
                 {
                     var proxy = Pointlights[id.Index].BvhProxyId;
-                    var position = Lights.Data[id.Index].PositionWithOffset;
+                    var position = Lights.Data[id.Index].PointPosition;
                     var range = Pointlights[id.Index].Range;
 
                     var aabb = new BoundingBoxD(position - range, position + range);
@@ -392,7 +429,7 @@ namespace VRageRender
                 foreach (var id in DirtySpotlights)
                 {
                     var proxy = Spotlights[id.Index].BvhProxyId;
-                    var position = Lights.Data[id.Index].PositionWithOffset;
+                    var position = Lights.Data[id.Index].SpotPosition;
                     var range = Spotlights[id.Index].Range;
 
                     var aabb = MakeAabbFromSpotlightCone(ref Spotlights[id.Index], position);
@@ -423,10 +460,11 @@ namespace VRageRender
                 return;
             }
 
-            data.VsPosition = Vector3.Transform(Lights.Data[lid.Index].PositionWithOffset - MyEnvironment.CameraPosition, ref MyEnvironment.ViewAt0);
+            data.VsPosition = Vector3.Transform(Lights.Data[lid.Index].PointPosition - MyEnvironment.CameraPosition, ref MyEnvironment.ViewAt0);
             data.Range = Pointlights[lid.Index].Range;
             data.Color = Pointlights[lid.Index].Color;
             data.Falloff = Pointlights[lid.Index].Falloff;
+            data.GlossFactor = Pointlights[lid.Index].GlossFactor;
         }
 
         internal static void WriteSpotlightConstants(LightId lid, ref SpotlightConstants data)
@@ -436,8 +474,9 @@ namespace VRageRender
             data.Color = Spotlights[lid.Index].Color;
             data.Direction = Spotlights[lid.Index].Direction;
             data.Up = Spotlights[lid.Index].Up;
+            data.GlossFactor = Spotlights[lid.Index].GlossFactor;
             data.ShadowsRange = Lights.Data[lid.Index].CastsShadowsThisFrame ? Lights.Data[lid.Index].ShadowsDistance : 0;
-            data.Position = Lights.Data[lid.Index].PositionWithOffset - MyEnvironment.CameraPosition;
+            data.Position = Lights.Data[lid.Index].SpotPosition - MyEnvironment.CameraPosition;
 
 
             float ratio = (float)Math.Sqrt(1 - data.ApertureCos * data.ApertureCos) / data.ApertureCos;
@@ -446,6 +485,8 @@ namespace VRageRender
             data.ProxyWorldViewProj = Matrix.Transpose(Matrix.CreateScale(2 * h, 2 * h, data.Range) *
                 Matrix.CreateWorld(data.Position, data.Direction, data.Up) *
                 MyEnvironment.ViewProjectionAt0);
+
+            data.ShadowMatrix = CreateShadowMatrix(lid);
         }
     }
 }

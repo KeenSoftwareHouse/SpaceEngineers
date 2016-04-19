@@ -629,8 +629,14 @@ namespace VRageRender
         {
             return new Vector3I(m_resolution.X, m_resolution.Y, 0);
         }
-
-        internal MyRWStructuredBuffer(int elements, int stride)
+        internal enum UAVType
+        {
+            None,
+            Default,
+            Append,
+            Counter
+        }
+        internal MyRWStructuredBuffer(int elements, int stride, UAVType uav, bool srv, string debugName)
         {
             m_resolution = new Vector2I(elements, 1);
 
@@ -638,11 +644,107 @@ namespace VRageRender
                 CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, stride);
 
             m_resource = new SharpDX.Direct3D11.Buffer(MyRender11.Device, bufferDesc);
-            m_UAV = new UnorderedAccessView(MyRender11.Device, m_resource);
-            m_SRV = new ShaderResourceView(MyRender11.Device, m_resource);
+            m_resource.DebugName = debugName;
+            if (uav != UAVType.None)
+            {
+                if (uav == UAVType.Default)
+                    m_UAV = new UnorderedAccessView(MyRender11.Device, m_resource);
+                else
+                {
+                    var description = new UnorderedAccessViewDescription()
+                    {
+                        Buffer = new UnorderedAccessViewDescription.BufferResource()
+                        {
+                            ElementCount = elements,
+                            FirstElement = 0,
+                            Flags = uav == UAVType.Append ? UnorderedAccessViewBufferFlags.Append : UnorderedAccessViewBufferFlags.Counter
+                        },
+                        Format = Format.Unknown,
+                        Dimension = UnorderedAccessViewDimension.Buffer
+                    };
+                    m_UAV = new UnorderedAccessView(MyRender11.Device, m_resource, description);
+                }
+                m_UAV.DebugName = debugName + "UAV";
+            }
+            if (srv)
+            {
+                m_SRV = new ShaderResourceView(MyRender11.Device, m_resource);
+                m_SRV.DebugName = debugName + "SRV";
+            }
         }
     }
+    class MyIndirectArgsBuffer : MyBindableResource, IUnorderedAccessBindable
+    {
+        internal UnorderedAccessView m_UAV;
 
+        internal Vector2I m_resolution;
+
+        internal SharpDX.Direct3D11.Buffer Buffer { get { return m_resource as SharpDX.Direct3D11.Buffer; } }
+        UnorderedAccessView IUnorderedAccessBindable.UAV
+        {
+            get { return m_UAV; }
+        }
+
+        internal override void Release()
+        {
+            if (m_UAV != null)
+            {
+                m_UAV.Dispose();
+                m_UAV = null;
+            }
+
+            base.Release();
+        }
+
+        internal override Vector3I GetSize()
+        {
+            return new Vector3I(m_resolution.X, m_resolution.Y, 0);
+        }
+        internal MyIndirectArgsBuffer(int elements, int stride, string debugName)
+        {
+            m_resolution = new Vector2I(elements, 1);
+
+            var bufferDesc = new BufferDescription(elements * stride, ResourceUsage.Default, BindFlags.UnorderedAccess,
+                CpuAccessFlags.None, ResourceOptionFlags.DrawIndirectArguments, stride);
+
+            m_resource = new SharpDX.Direct3D11.Buffer(MyRender11.Device, bufferDesc);
+            m_resource.DebugName = debugName;
+
+            var description = new UnorderedAccessViewDescription()
+            {
+                Buffer = new UnorderedAccessViewDescription.BufferResource()
+                {
+                    ElementCount = elements,
+                    FirstElement = 0,
+                    Flags = 0
+                },
+                Format = Format.R32_UInt,
+                Dimension = UnorderedAccessViewDimension.Buffer
+            };
+            m_UAV = new UnorderedAccessView(MyRender11.Device, m_resource, description);
+            m_UAV.DebugName = debugName + "UAV";
+        }
+    }
+    class MyReadStructuredBuffer : MyBindableResource
+    {
+        internal int m_resolution;
+
+        internal override Vector3I GetSize()
+        {
+            return new Vector3I(m_resolution, 1, 0);
+        }
+
+        internal MyReadStructuredBuffer(int elements, int stride, string debugName)
+        {
+            m_resolution = elements;
+
+            var bufferDesc = new BufferDescription(elements * stride, ResourceUsage.Staging, BindFlags.None, 
+                CpuAccessFlags.Read, ResourceOptionFlags.None, stride);
+
+            m_resource = new SharpDX.Direct3D11.Buffer(MyRender11.Device, bufferDesc);
+            m_resource.DebugName = debugName;
+        }
+    }
     class MyRenderTarget : MyBindableResource, IRenderTargetBindable, IShaderResourceBindable
     {
         internal ShaderResourceView m_SRV;

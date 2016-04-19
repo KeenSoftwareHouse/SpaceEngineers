@@ -42,8 +42,6 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
-        internal DateTime LastMessageFromServer { get; private set; }
-
         internal bool AutoRegisterGameEvents { get; set; }
 
         internal MySyncLayer(MyTransportLayer transportLayer)
@@ -110,24 +108,12 @@ namespace Sandbox.Game.Multiplayer
                     success = Sync.ServerId == target || Sync.IsServer;
                     break;
 
-                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf:
-                    success = Sync.ServerId == target || Sync.IsServer || Sync.MyId == target;
-                    break;
-
                 case MyMessagePermissions.FromServer:
                     success = Sync.IsServer;
                     break;
 
                 case MyMessagePermissions.ToServer:
                     success = Sync.ServerId == target;
-                    break;
-
-                case MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf:
-                    success = Sync.ServerId == target || Sync.MyId == target;
-                    break;
-
-                case MyMessagePermissions.ToSelf:
-                    success = Sync.MyId == target;
                     break;
 
                 default:
@@ -150,24 +136,12 @@ namespace Sandbox.Game.Multiplayer
                     success = Sync.ServerId == sender || Sync.IsServer;
                     break;
 
-                case MyMessagePermissions.ToServer | MyMessagePermissions.FromServer | MyMessagePermissions.ToSelf:
-                    success = Sync.ServerId == sender || Sync.IsServer || Sync.MyId == sender;
-                    break;
-
                 case MyMessagePermissions.FromServer:
                     success = Sync.ServerId == sender;
                     break;
 
                 case MyMessagePermissions.ToServer:
                     success = Sync.IsServer;
-                    break;
-
-                case MyMessagePermissions.ToServer | MyMessagePermissions.ToSelf:
-                    success = Sync.IsServer || Sync.MyId == sender;
-                    break;
-
-                case MyMessagePermissions.ToSelf:
-                    success = Sync.MyId == sender;
                     break;
 
                 default:

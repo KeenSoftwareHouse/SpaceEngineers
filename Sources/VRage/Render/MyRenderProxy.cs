@@ -48,6 +48,8 @@ namespace VRageRender
 
         public static MyRenderSettings Settings = new MyRenderSettings();
 
+        public static MyRenderDebugOverrides DebugOverrides = new MyRenderDebugOverrides();
+
         public static List<MyBillboard> BillboardsRead { get { return m_render.SharedData.Billboards.Read.Billboards; } }
         public static List<MyBillboard> BillboardsWrite { get { return m_render.SharedData.Billboards.Write.Billboards; } }
 
@@ -716,9 +718,7 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
-        public static void SetCameraViewMatrix(MatrixD viewMatrix, Matrix projectionMatrix, Matrix nearProjectionMatrix, float safenear, float nearFov, float fov,
-            float nearPlane, float farPlane, float nearObjectsNearPlane, float nearObjectsFarPlane,
-            Vector3D cameraPosition)
+        public static void SetCameraViewMatrix(MatrixD viewMatrix, Matrix projectionMatrix, float safenear, float fov, float nearPlane, float farPlane, float nearObjectsNearPlane, float nearObjectsFarPlane, Vector3D cameraPosition)
         {
             var message = MessagePool.Get<MyRenderMessageSetCameraViewMatrix>(MyRenderMessageEnum.SetCameraViewMatrix);
 
@@ -726,9 +726,7 @@ namespace VRageRender
 
             message.ViewMatrix = viewMatrix;
             message.ProjectionMatrix = projectionMatrix;
-            message.NearProjectionMatrix = nearProjectionMatrix;
             message.SafeNear = safenear;
-            message.NearFOV = nearFov;
             message.FOV = fov;
             message.NearPlane = nearPlane;
             message.FarPlane = farPlane;
@@ -779,10 +777,10 @@ namespace VRageRender
         }
 
 
-        public static void RemoveRenderObject(
-        uint id
-        )
+        public static void RemoveRenderObject(uint id)
         {
+            System.Diagnostics.Debug.Assert(id != MyRenderProxy.RENDER_ID_UNASSIGNED, "Removing unassigned id");
+
             var message = MessagePool.Get<MyRenderMessageRemoveRenderObject>(MyRenderMessageEnum.RemoveRenderObject);
 
             message.ID = id;
@@ -1054,7 +1052,8 @@ namespace VRageRender
           float? specularIntensity,
           float? emissivity,
           Color? outlineColor = null,
-          float thickness = -1
+          float thickness = -1,
+          ulong pulseTimeInFrames = 0
           )
         {
             if (id == MyRenderProxy.RENDER_ID_UNASSIGNED)
@@ -1080,6 +1079,7 @@ namespace VRageRender
             message.Emissivity = emissivity;
             message.OutlineColor = outlineColor;
             message.OutlineThickness = thickness;
+            message.PulseTimeInFrames = pulseTimeInFrames;
 
             EnqueueMessage(message);
         }
@@ -1087,24 +1087,22 @@ namespace VRageRender
         /// <param name="thickness">Zero or negative to remove highlight</param>
         public static void UpdateModelHighlight(
             uint id,
-            int lod,
-            string model,
             int[] sectionIndices,
-            string materialName,
+            uint[] subpartIndices,
             Color? outlineColor,
-            float thickness = -1)
+            float thickness = -1,
+            ulong pulseTimeInFrames = 0)
         {
             //Debug.Assert(id != MyRenderProxy.RENDER_ID_UNASSIGNED);
 
             var message = MessagePool.Get<MyRenderMessageUpdateModelHighlight>(MyRenderMessageEnum.UpdateModelHighlight);
 
             message.ID = id;
-            message.LOD = lod;
-            message.Model = model;
             message.SectionIndices = sectionIndices;
-            message.MaterialName = materialName;
+            message.SubpartIndices = subpartIndices;
             message.OutlineColor = outlineColor;
             message.Thickness = thickness;
+            message.PulseTimeInFrames = pulseTimeInFrames;
 
             EnqueueMessage(message);
         }
@@ -1196,11 +1194,11 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
-        public static int RequestScreenData(Vector2I resolution, byte[] preallocatedBuffer)
+        public static int RequestScreenData(int id, Vector2I resolution, byte[] preallocatedBuffer)
         {
             var message = MessagePool.Get<MyRenderMessageRequestScreenData>(MyRenderMessageEnum.RequestScreenData);
 
-            message.Id = 0;
+            message.Id = id;
             message.PreallocatedBuffer = preallocatedBuffer;
             message.Resolution = resolution;
 
@@ -1347,7 +1345,7 @@ namespace VRageRender
             EnqueueOutputMessage(message);
         }
 
-        public static void SendReadyScreenData(int id, byte[] screenData, Vector2 resolution)
+        public static void SendReadyScreenData(int id, byte[] screenData, Vector2I resolution)
         {
             var message = MessagePool.Get<MyRenderMessageScreenDataReady>(MyRenderMessageEnum.ScreenDataReady);
 
@@ -1370,6 +1368,7 @@ namespace VRageRender
             Color color,
             Color specularColor,
             float falloff,
+            float glossFactor,
             float range,
             float intensity,
             bool lightOn,
@@ -1382,6 +1381,7 @@ namespace VRageRender
             Color reflectorColor,
             float reflectorRange,
             float reflectorFalloff,
+            float reflectorGlossFactor,
             string reflectorTexture,
             float shadowDistance,
             bool castShadows,
@@ -1410,6 +1410,7 @@ namespace VRageRender
                 color,
                 specularColor,
                 falloff,
+                glossFactor,
                 range,
                 intensity,
                 lightOn,
@@ -1422,6 +1423,7 @@ namespace VRageRender
                 reflectorColor,
                 reflectorRange,
                 reflectorFalloff,
+                reflectorGlossFactor,
                 reflectorTexture,
                 shadowDistance,
                 castShadows,
@@ -1446,6 +1448,7 @@ namespace VRageRender
           Color color,
           Color specularColor,
           float falloff,
+          float glossFactor,
           float range,
           float intensity,
           bool lightOn,
@@ -1458,6 +1461,7 @@ namespace VRageRender
           Color reflectorColor,
           float reflectorRange,
           float reflectorFalloff,
+          float reflectorGlossFactor,
           string reflectorTexture,
           float shadowDistance,
           bool castShadows,
@@ -1474,12 +1478,13 @@ namespace VRageRender
 
             message.ID = id;
             message.Type = type;
-            message.Position = position;
+            message.ReflectorPosition = position;
             message.ParentID = renderObjectID;
-            message.Offset = offset;
+            message.PointPositionOffset = offset;
             message.Color = color;
             message.SpecularColor = specularColor;
             message.Falloff = falloff;
+            message.GlossFactor = glossFactor;
             message.Range = range;
             message.Intensity = intensity;
             message.LightOn = lightOn;
@@ -1492,6 +1497,7 @@ namespace VRageRender
             message.ReflectorColor = reflectorColor;
             message.ReflectorRange = reflectorRange;
             message.ReflectorFalloff = reflectorFalloff;
+            message.ReflectorGlossFactor = reflectorGlossFactor;
             message.ReflectorTexture = reflectorTexture;
             message.ShadowDistance = shadowDistance;
             message.CastShadows = castShadows;
@@ -2088,7 +2094,37 @@ namespace VRageRender
             message.texturesToRender = texturesToRender;
             EnqueueMessage(message);
         }
+        public static uint CreateGPUEmitter()
+        {
+            var message = MessagePool.Get<MyRenderMessageCreateGPUEmitter>(MyRenderMessageEnum.CreateGPUEmitter);
 
+            uint id = GetMessageId();
+            message.ID = id;
+
+            EnqueueMessage(message);
+
+            return id;
+        }
+        public static void UpdateGPUEmitters(MyGPUEmitter[] emitters)
+        {
+            var message = MessagePool.Get<MyRenderMessageUpdateGPUEmitters>(MyRenderMessageEnum.UpdateGPUEmitters);
+            message.Emitters = emitters;
+            EnqueueMessage(message);
+        }
+        public static void UpdateGPUEmittersPosition(uint[] GIDs, Vector3D[] positions)
+        {
+            var message = MessagePool.Get<MyRenderMessageUpdateGPUEmittersPosition>(MyRenderMessageEnum.UpdateGPUEmittersPosition);
+            message.GIDs = GIDs;
+            message.WorldPositions = positions;
+            EnqueueMessage(message);
+        }
+        public static void RemoveGPUEmitter(uint GID, bool instant)
+        {
+            var message = MessagePool.Get<MyRenderMessageRemoveGPUEmitter>(MyRenderMessageEnum.RemoveGPUEmitter);
+            message.GID = GID;
+            message.Instant = instant;
+            EnqueueMessage(message);
+        }
         public static void ScreenshotTaken(bool success, string filename, bool showNotification)
         {
             var message = MessagePool.Get<MyRenderMessageScreenshotTaken>(MyRenderMessageEnum.ScreenshotTaken);
@@ -2096,6 +2132,24 @@ namespace VRageRender
             message.Success = success;
             message.Filename = filename;
             message.ShowNotification = showNotification;
+
+            EnqueueOutputMessage(message);
+        }
+        [Conditional("DEBUG")]
+        public static void Assert(bool condition, string messageText = null)
+        {
+            if (!condition)
+            {
+                var stack = new System.Diagnostics.StackTrace(1);
+                Error(stack.ToString(), messageText);
+            }
+        }
+        public static void Error(string callstack, string messageText)
+        {
+            var message = MessagePool.Get<MyRenderMessageError>(MyRenderMessageEnum.Error);
+
+            message.Callstack = callstack;
+            message.Message = messageText;
 
             EnqueueOutputMessage(message);
         }
@@ -2681,6 +2735,14 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
+        public static void SetDecalGlobals(MyDecalGlobals globals)
+        {
+            var message = MessagePool.Get<MyRenderMessageSetDecalGlobals>(MyRenderMessageEnum.SetDecalGlobals);
+            message.Globals = globals;
+
+            EnqueueMessage(message);
+        }
+
         public static void RegisterDecals(List<string> names, List<MyDecalMaterialDesc> descriptions)
         {
             var message = MessagePool.Get<MyRenderMessageRegisterScreenDecalsMaterials>(MyRenderMessageEnum.RegisterDecalsMaterials);
@@ -2701,6 +2763,13 @@ namespace VRageRender
 
             message.Capture = capture;
 
+            EnqueueMessage(message);
+        }
+    
+        public static void UpdateDebugOverrides()
+        {
+            var message = MessagePool.Get<MyRenderMessageUpdateDebugOverrides>(MyRenderMessageEnum.UpdateDebugOverrides);
+            message.Overrides = DebugOverrides.Clone();
             EnqueueMessage(message);
         }
     }

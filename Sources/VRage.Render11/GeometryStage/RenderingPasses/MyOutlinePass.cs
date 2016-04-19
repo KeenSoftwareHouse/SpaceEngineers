@@ -87,9 +87,77 @@ namespace VRageRender
             }
         }
 
-        internal override void RecordCommands(ref MyRenderableProxy_2 proxy)
+        protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)
         {
+            RC.SetSRVs(ref proxy.ObjectSRVs);
+            RC.BindVertexData(ref proxy.VertexData);
+
+            Stats.Meshes++;
             
+            if (instanceIndex == -1)
+            {
+                RC.BindShaders(proxy.HighlightShaders.MultiInstance);
+                for (int it = 0; it < proxy.Submeshes.Length; it++)
+                {
+                    MyDrawSubmesh_2 submesh = proxy.Submeshes[it];
+                    DrawSubmesh(ref proxy, ref submesh, sectionIndex);
+                }
+            }
+            else
+            {
+                RC.BindShaders(proxy.HighlightShaders.SingleInstance);
+                MyDrawSubmesh_2 submesh;
+                if (sectionIndex == -1)
+                    submesh = proxy.Submeshes[instanceIndex];
+                else
+                    submesh = proxy.SectionSubmeshes[instanceIndex][sectionIndex];
+
+                DrawSubmesh(ref proxy, ref submesh, instanceIndex);
+            }
+        }
+
+        private void DrawSubmesh(ref MyRenderableProxy_2 proxy, ref MyDrawSubmesh_2 submesh, int instanceIndex)
+        {
+            var material = MyMaterials1.ProxyPool.Data[submesh.MaterialId.Index];
+            RC.MoveConstants(ref material.MaterialConstants);
+            RC.SetConstants(ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
+            RC.SetSRVs(ref material.MaterialSRVs);
+
+            MyMergeInstancingConstants constants = new MyMergeInstancingConstants();
+            constants.InstanceIndex = instanceIndex;
+            constants.StartIndex = submesh.Start;
+            SetProxyConstants(ref proxy, constants);
+
+            if (proxy.InstanceCount == 0)
+            {
+                switch (submesh.DrawCommand)
+                {
+                    case MyDrawCommandEnum.DrawIndexed:
+                        RC.DeviceContext.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
+                        break;
+                    case MyDrawCommandEnum.Draw:
+                        RC.DeviceContext.Draw(submesh.Count, submesh.Start);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                switch (submesh.DrawCommand)
+                {
+                    case MyDrawCommandEnum.DrawIndexed:
+                        RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
+                        break;
+                    case MyDrawCommandEnum.Draw:
+                        RC.DeviceContext.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            Stats.Submeshes++;
         }
 
         internal override void End()

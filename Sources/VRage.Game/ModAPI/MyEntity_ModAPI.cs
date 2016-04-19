@@ -516,6 +516,17 @@ namespace VRage.Game.Entity
                     subPart.Value.Render.ColorMaskHsv = colorMaskHsv;
                 }
             }
-        }        
+        }
+
+        void IMyEntity.SetEmissiveParts(string emissiveName, VRageMath.Color emissivePartColor, float emissivity)
+        {
+            SetEmissiveParts(emissiveName, emissivePartColor, emissivity);
+        }
+
+        void IMyEntity.SetEmissivePartsForSubparts(string emissiveName, VRageMath.Color emissivePartColor, float emissivity)
+        {
+            SetEmissivePartsForSubparts(emissiveName, emissivePartColor, emissivity);
+        }
+
     }
 }

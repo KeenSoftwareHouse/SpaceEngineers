@@ -82,7 +82,10 @@ namespace VRageRender.Profiler
 
             float textScale = 0.7f;
 
-            m_text.Clear().Append(blockIndex + 1).Append(" ").Append(profilerBlock.Name);
+            if (blockIndex >= 0)
+                m_text.Clear().Append(blockIndex + 1).Append(" ").Append(profilerBlock.Name);
+            else
+                m_text.Clear().Append("- ").Append(profilerBlock.Name);
             DrawTextShadow(new Vector2(20, textPosY), m_text, color, textScale);
 
             float length = 500;
@@ -251,6 +254,13 @@ namespace VRageRender.Profiler
                 DrawTextShadow(new Vector2(20, textOffsetY), m_text, Color.White, 0.7f);
                 textOffsetY += eventLineSize;
 
+                if (m_selectedProfiler.SelectedRoot != null)
+                {
+                    Color whiteColor = Color.White;
+                    DrawEvent(textOffsetY, m_selectedProfiler.SelectedRoot, -1, frameToDraw, lastFrameIndex, ref whiteColor);
+                    textOffsetY += eventLineSize;
+                }
+
                 if (sortedChildren.Count > 0)
                 {
                     // Draw the sorting order indicator
@@ -330,6 +340,12 @@ namespace VRageRender.Profiler
             // Next valid index
             int windowEnd = (lastFrameIndex + 1 + MyProfiler.UPDATE_WINDOW) % MyProfiler.MAX_FRAMES;
 
+            // Draw graph for selected event
+            if (m_selectedProfiler.SelectedRoot != null)
+            {
+                DrawBlockLineSeparated(m_selectedProfiler.SelectedRoot.Miliseconds, lastFrameIndex, windowEnd, m_milisecondsGraphScale, Color.White);
+            }
+
             // Draw graphs for selected events
             var children = m_selectedProfiler.SelectedRootChildren;
             for (int i = 0; i < children.Count; i++)
@@ -355,7 +371,7 @@ namespace VRageRender.Profiler
 
             int numDecimals = 0;
             float x = m_milisecondsGraphScale.y_legend_ms_increment;
-            while(x != (int)x && numDecimals < 5)
+            while (x != (int)x && numDecimals < 5)
             {
                 x *= 10;
                 numDecimals++;

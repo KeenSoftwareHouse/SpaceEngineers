@@ -169,19 +169,20 @@ namespace Sandbox.Game.GUI.DebugInputComponents
                             Text("Probe Size: {0}", m_probeSize);
                             cont = map.Storage.Intersect(ref bb, false);
                             Text("Result: {0}", cont.ToString());
-                            bbp = (BoundingBoxD) bb;
+                            bbp = (BoundingBoxD)bb;
                         }
                         else
                         {
-                            Vector3I min = Vector3I.Floor(bb.Min/lodSize + .5f);
-                            Vector3I max = min + ((int) m_probeSize >> m_probeLod) - 1;
+                            Vector3I min = Vector3I.Floor(bb.Min / lodSize + .5f);
+                            Vector3I max = min + ((int)m_probeSize >> m_probeLod) - 1;
 
                             bbp = new BoundingBoxD(min << m_probeLod, (max + 1) << m_probeLod);
+                            bbp.Translate(new Vector3D(-.5));
 
                             Text("Probe Size: {0}({1})", (max - min).X + 1, m_probeSize);
                             Text("Probe LOD: {0}", m_probeLod);
 
-                            var requestData = (MyStorageDataTypeEnum) (int) m_mode;
+                            var requestData = (MyStorageDataTypeEnum)(int)m_mode;
                             MyVoxelRequestFlags flags = MyVoxelRequestFlags.ContentChecked;
 
                             m_target.Resize(max - min + 1);
@@ -231,7 +232,6 @@ namespace Sandbox.Game.GUI.DebugInputComponents
                                 }
                             }
                         }
-
                     }
                     else
                     {

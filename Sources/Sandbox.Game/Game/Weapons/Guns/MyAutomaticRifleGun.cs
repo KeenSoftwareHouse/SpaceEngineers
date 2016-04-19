@@ -28,6 +28,8 @@ using VRage.Game.Models;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
+
 #endregion
 
 namespace Sandbox.Game.Weapons
@@ -269,7 +271,7 @@ namespace Sandbox.Game.Weapons
         {
             if (m_smokeEffect == null)
             {
-                if (MySector.MainCamera.GetDistanceWithFOV(PositionComp.GetPosition()) < 150)
+                if (MySector.MainCamera.GetDistanceFromPoint(PositionComp.GetPosition()) < 150)
                 {
                     if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_Autocannon, out m_smokeEffect))
                     {
@@ -374,11 +376,14 @@ namespace Sandbox.Game.Weapons
 
         public void OnControlReleased()
         {
-            var inventory = m_owner.GetInventory() as MyInventory;
-            System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned!");
-            if (inventory != null)
+            if (m_owner != null)
             {
-                inventory.ContentsChanged -= MyAutomaticRifleGun_ContentsChanged;
+                var inventory = m_owner.GetInventory() as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned!");
+                if (inventory != null)
+                {
+                    inventory.ContentsChanged -= MyAutomaticRifleGun_ContentsChanged;
+                }
             }
             m_owner = null;
         }

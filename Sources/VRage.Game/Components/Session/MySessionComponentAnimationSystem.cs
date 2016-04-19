@@ -12,14 +12,46 @@ namespace VRage.Game.SessionComponents
         // All registered skinned entity components.
         private HashSet<MyAnimationControllerComponent> m_skinnedEntityComponents = new HashSet<MyAnimationControllerComponent>();
 
+        private List<MyAnimationControllerComponent> m_skinnedEntityComponentsToAdd = new List<MyAnimationControllerComponent>(32);
+        private List<MyAnimationControllerComponent> m_skinnedEntityComponentsToRemove = new List<MyAnimationControllerComponent>(32);
+
+        private FastResourceLock m_lock = new FastResourceLock();
+
         public override void LoadData()
         {
+            m_skinnedEntityComponents.Clear();
+            m_skinnedEntityComponentsToAdd.Clear();
+            m_skinnedEntityComponentsToRemove.Clear();
             MySessionComponentAnimationSystem.Static = this;
+        }
+
+        protected override void UnloadData()
+        {
+            m_skinnedEntityComponents.Clear();
+            m_skinnedEntityComponentsToAdd.Clear();
+            m_skinnedEntityComponentsToRemove.Clear();
         }
 
         public override void UpdateBeforeSimulation()
         {
             ProfilerShort.Begin("New Animation System");
+
+            using (m_lock.AcquireExclusiveUsing())
+            {
+                foreach (var toRemove in m_skinnedEntityComponentsToRemove)
+                {
+                    if (m_skinnedEntityComponents.Contains(toRemove))
+                        m_skinnedEntityComponents.Remove(toRemove);
+                }
+                m_skinnedEntityComponentsToRemove.Clear();
+
+                foreach (var toAdd in m_skinnedEntityComponentsToAdd)
+                {
+                    m_skinnedEntityComponents.Add(toAdd);
+                }
+                m_skinnedEntityComponentsToAdd.Clear();
+            }
+
             foreach (MyAnimationControllerComponent skinnedEntityComp in m_skinnedEntityComponents)
                 skinnedEntityComp.Update();
             ProfilerShort.End();
@@ -30,8 +62,10 @@ namespace VRage.Game.SessionComponents
         /// </summary>
         internal void RegisterEntityComponent(MyAnimationControllerComponent entityComponent)
         {
-            Debug.Assert(m_skinnedEntityComponents.Contains(entityComponent) == false, "Entity component was already registered.");
-            m_skinnedEntityComponents.Add(entityComponent);
+            using (m_lock.AcquireExclusiveUsing())
+            {
+                m_skinnedEntityComponentsToAdd.Add(entityComponent);
+            }
         }
 
         /// <summary>
@@ -39,13 +73,9 @@ namespace VRage.Game.SessionComponents
         /// </summary>
         internal void UnregisterEntityComponent(MyAnimationControllerComponent entityComponent)
         {
-            if (m_skinnedEntityComponents.Contains(entityComponent))
+            using (m_lock.AcquireExclusiveUsing())
             {
-                m_skinnedEntityComponents.Remove(entityComponent);
-            }
-            else
-            {
-                Debug.Assert(false, "Entity component was not found, cannot be unregistered.");
+                m_skinnedEntityComponentsToRemove.Add(entityComponent);
             }
         }
     }

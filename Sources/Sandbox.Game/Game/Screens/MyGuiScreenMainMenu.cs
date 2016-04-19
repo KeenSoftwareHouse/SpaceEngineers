@@ -2,7 +2,6 @@
 
 using ParallelTasks;
 using Sandbox.Common;
-using Sandbox.Common.News;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -24,6 +23,7 @@ using VRage;
 using VRage;
 using VRage.Audio;
 using VRage.Game;
+using VRage.Game.News;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;

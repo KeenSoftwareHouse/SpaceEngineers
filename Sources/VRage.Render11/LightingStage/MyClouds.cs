@@ -159,7 +159,7 @@ namespace VRageRender
             m_modifiableCloudLayerData.Remove(ID);
         }
 
-        internal unsafe static void Render()
+        internal static unsafe void Render()
         {
             if (m_cloudLayers.Count == 0)
                 return;

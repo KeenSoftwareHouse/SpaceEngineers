@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Havok;
-using Sandbox.Common.Components;
+
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;

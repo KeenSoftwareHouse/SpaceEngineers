@@ -14,6 +14,8 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Utils;
 using VRage.Library.Utils;
+using VRage.Game.ModAPI;
+using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {

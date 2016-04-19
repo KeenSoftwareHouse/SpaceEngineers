@@ -18,7 +18,7 @@ namespace VRageRender
 
         internal unsafe static void Init()
         {
-            m_buffer = MyHwBuffers.CreateStructuredBuffer(4096, sizeof(MyPerMaterialData), true);
+            m_buffer = MyHwBuffers.CreateStructuredBuffer(4096, sizeof(MyPerMaterialData), true, null, "MySceneMaterials");
         }
 
         internal static void PreFrame()

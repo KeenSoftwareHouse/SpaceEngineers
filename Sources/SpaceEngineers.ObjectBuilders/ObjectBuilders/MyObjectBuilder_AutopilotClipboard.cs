@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace Sandbox.Common.ObjectBuilders
 {
@@ -16,6 +17,7 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember]
         public int FlightMode;
 
+        [Serialize(MyObjectFlags.Nullable)]
         [ProtoMember]
         public List<int> indexes;
 

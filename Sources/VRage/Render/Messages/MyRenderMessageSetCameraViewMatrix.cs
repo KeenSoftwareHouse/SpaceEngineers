@@ -11,9 +11,9 @@ namespace VRageRender
     {
         public MatrixD ViewMatrix;
         public Matrix ProjectionMatrix;
-        public Matrix NearProjectionMatrix;
         public float FOV;
-        public float NearFOV;
+        // public float NearFOV; // not used anymore
+        // public Matrix NearProjectionMatrix; // not used anymore
         public float SafeNear;
         public float NearPlane;
         public float FarPlane;

@@ -18,7 +18,7 @@ namespace VRage.Replication
         List<IMyReplicable> m_tmpList = new List<IMyReplicable>();
 
         HashSet<IMyReplicable> m_roots = new HashSet<IMyReplicable>();
-        Queue<IMyReplicable> m_updateQueue = new Queue<IMyReplicable>();
+        List<IMyReplicable> m_updateQueue = new List<IMyReplicable>();
 
         public HashSetReader<IMyReplicable> Roots
         {
@@ -45,12 +45,14 @@ namespace VRage.Replication
 
         public IMyReplicable GetNextForUpdate()
         {
-            IMyReplicable replicable;
-            while (m_updateQueue.TryDequeue(out replicable))
+            while (m_updateQueue.Count > 0)
             {
+                IMyReplicable replicable = m_updateQueue[0];
+                m_updateQueue.RemoveAt(0);
+
                 if (Refresh(replicable))
                 {
-                    m_updateQueue.Enqueue(replicable);
+                    m_updateQueue.Add(replicable);
                     return replicable;
                 }
             }
@@ -71,7 +73,7 @@ namespace VRage.Replication
             {
                 parent = null;
                 m_roots.Add(replicable);
-                m_updateQueue.Enqueue(replicable);
+                m_updateQueue.Add(replicable);
             }
         }
 
@@ -167,6 +169,7 @@ namespace VRage.Replication
             }
             Debug.Assert(!m_parentToChildren.ContainsKey(replicable), "Removing parent before children are removed");
             m_roots.Remove(replicable);
+            m_updateQueue.Remove(replicable);         
         }
 
         void AddChild(IMyReplicable replicable, IMyReplicable parent)

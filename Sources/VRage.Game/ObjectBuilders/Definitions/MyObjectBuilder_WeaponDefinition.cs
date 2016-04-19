@@ -18,7 +18,7 @@ namespace VRage.Game
             public string ShootSoundName;
 
             [XmlAttribute]
-            public int BurstFireRate;
+            public int ShotsInBurst;
         }
 
         [ProtoContract]
@@ -52,6 +52,9 @@ namespace VRage.Game
 
         [ProtoMember]
         public int MuzzleFlashLifeSpan = 0;
+
+        [ProtoMember]
+        public int ReloadTime = 2000;
 
         [XmlArrayItem("AmmoMagazine")]
         [ProtoMember]

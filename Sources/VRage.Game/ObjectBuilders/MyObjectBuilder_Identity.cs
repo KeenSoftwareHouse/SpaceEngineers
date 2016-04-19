@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System.Diagnostics;
 using VRage.ObjectBuilders;
+using VRage.Serialization;
 
 namespace VRage.Game
 {
@@ -9,6 +10,7 @@ namespace VRage.Game
     public class MyObjectBuilder_Identity : MyObjectBuilder_Base
     {
         //[ProtoMember] Obsolete!
+        [NoSerialize]
         public long PlayerId
         {
             get { Debug.Fail("Obsolete."); return IdentityId; }
@@ -20,12 +22,14 @@ namespace VRage.Game
         public long IdentityId;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string DisplayName;
 
         [ProtoMember]
         public long CharacterEntityId;
 
         [ProtoMember]
+        [Serialize(MyObjectFlags.Nullable)] 
         public string Model;
 
         [ProtoMember]

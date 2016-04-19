@@ -325,7 +325,11 @@ namespace Sandbox.Game.Screens.Terminal
 
         private float GetPlayerGridDistance(MyCubeGrid grid)
         {
-            return (float)Vector3D.Distance(MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition(), grid.GetBaseEntity().PositionComp.GetPosition());
+            if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity != null)
+            {
+                return (float)Vector3D.Distance(MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition(), grid.GetBaseEntity().PositionComp.GetPosition());
+            }
+            return float.MaxValue;
         }
 
         #endregion

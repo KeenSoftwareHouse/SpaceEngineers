@@ -2,7 +2,6 @@
 
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.ModAPI;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -46,7 +45,7 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
+using IMyModdingControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
 using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Game.Models;
@@ -281,7 +280,20 @@ namespace Sandbox.Game.Entities.Character
 
         protected static void HandleInteractiveObject(IMyUseObject interactive)
         {
-            if (MyFakes.ENABLE_USE_NEW_OBJECT_HIGHLIGHT)
+            if (MyFakes.ENABLE_ME_HIGHLIGHT_TEMPORARY_HACK)
+            {
+                if (interactive is MyFloatingObject)
+                {
+                    MyHud.SelectedObjectHighlight.HighlightAttribute = null;
+                    MyHud.SelectedObjectHighlight.HighlightStyle = MyHudObjectHighlightStyle.HighlightStyle2;
+                }
+                else
+                {
+                    MyHud.SelectedObjectHighlight.HighlightAttribute = null;
+                    MyHud.SelectedObjectHighlight.HighlightStyle = MyHudObjectHighlightStyle.HighlightStyle1;
+                }
+            }
+            else if (MyFakes.ENABLE_USE_NEW_OBJECT_HIGHLIGHT)
             {
                 if (!(interactive is MyFloatingObject))
                 {

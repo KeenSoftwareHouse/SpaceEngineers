@@ -60,6 +60,26 @@
     <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\$(Configuration)\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
     <HavokWrapperFullPath2>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath2>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x64'">
+    <OutputPath>bin\x64\Release Official\</OutputPath>
+    <DefineConstants>TRACE;OFFICIAL_BUILD</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'">
+    <OutputPath>bin\x86\Release Official\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
@@ -76,14 +96,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\MyBehaviorTreeActionAttribute.cs" />
+    <Compile Include="Common\MyExtDebugClient.cs" />
     <Compile Include="Components\Entity\Render\MyRenderComponentExtensions.cs" />
+    <Compile Include="Components\IMyComponentOwner.cs" />
+    <Compile Include="Components\MyIngameScript.cs" />
+    <Compile Include="Components\MyRespawnComponent.cs" />
     <Compile Include="Components\Session\MyPhysicsComponentSystem.cs" />
+    <Compile Include="Components\Session\MySessionComponentExtDebug.cs" />
     <Compile Include="Definitions\Animation\MyAnimationControllerDefinition.cs" />
     <Compile Include="Definitions\Animation\MyAnimationDefinition.cs" />
     <Compile Include="Definitions\MyDefinitionErrors.cs" />
     <Compile Include="Definitions\MyDefinitionManagerBase.cs" />
     <Compile Include="Definitions\MyDefinitionPostprocessor.cs" />
     <Compile Include="Definitions\MyDefinitionSet.cs" />
+    <Compile Include="Definitions\MyGameDefinition.cs" />
     <Compile Include="Entity\EntityComponents\MyAnimationControllerComponent.cs" />
     <Compile Include="Entity\EntityComponents\MyAnimationControllerComponent.LoadFromDef.cs" />
     <Compile Include="Entity\Inventory\MyComponentChange.cs" />
@@ -92,17 +119,69 @@
     <Compile Include="Entity\MyEntity.cs" />
     <Compile Include="Entity\MyEntitySubpart.cs" />
     <Compile Include="Entity\UseObject\MyUseObjectBase.cs" />
+    <Compile Include="Graphics\Particles\IMyParticleGeneration.cs" />
+    <Compile Include="Graphics\Particles\MyParticleGPUGeneration.cs" />
     <Compile Include="Graphics\Particles\MyParticleLight.cs" />
+    <Compile Include="Graphics\Particles\MyParticleSound.cs" />
     <Compile Include="GUI\MyHudEntityParams.cs" />
+    <Compile Include="GUI\TextPanel\TextPanelEnums.cs" />
     <Compile Include="ModAPI\IMyCamera.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyInventory.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyInventoryItem.cs" />
-    <Compile Include="ModAPI\Interfaces\IMyInventoryOwner.cs" />
+    <Compile Include="ModAPI\IMyCharacter.cs" />
+    <Compile Include="ModAPI\IMyConfig.cs" />
+    <Compile Include="ModAPI\IMyConfigDedicated.cs" />
+    <Compile Include="ModAPI\IMyControllerInfo.cs" />
+    <Compile Include="ModAPI\IMyCubeBlock.cs" />
+    <Compile Include="ModAPI\IMyCubeBuilder.cs" />
+    <Compile Include="ModAPI\IMyCubeGrid.cs" />
+    <Compile Include="ModAPI\IMyDamageSystem.cs" />
+    <Compile Include="ModAPI\IMyEntityController.cs" />
+    <Compile Include="ModAPI\IMyFaction.cs" />
+    <Compile Include="ModAPI\IMyFactionCollection.cs" />
+    <Compile Include="ModAPI\IMyFloatingObject.cs" />
+    <Compile Include="ModAPI\IMyGamePaths.cs" />
+    <Compile Include="ModAPI\IMyGps.cs" />
+    <Compile Include="ModAPI\IMyGpsCollection.cs" />
+    <Compile Include="ModAPI\IMyHudNotification.cs" />
+    <Compile Include="ModAPI\IMyHudObjectiveLine.cs" />
+    <Compile Include="ModAPI\IMyIdentity.cs" />
+    <Compile Include="ModAPI\IMyInventory.cs" />
+    <Compile Include="ModAPI\IMyMultiplayer.cs" />
+    <Compile Include="ModAPI\IMyNetworkClient.cs" />
+    <Compile Include="ModAPI\IMyParallelTask.cs" />
+    <Compile Include="ModAPI\IMyPlayer.cs" />
+    <Compile Include="ModAPI\IMyPlayerCollection.cs" />
+    <Compile Include="ModAPI\IMyPrefabManager.cs" />
+    <Compile Include="ModAPI\IMySession.cs" />
+    <Compile Include="ModAPI\IMySlimBlock.cs" />
+    <Compile Include="ModAPI\IMyUtilities.cs" />
+    <Compile Include="ModAPI\IMyVoxelMap.cs" />
+    <Compile Include="ModAPI\IMyVoxelMaps.cs" />
+    <Compile Include="ModAPI\IMyVoxelShape.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeBox.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeCapsule.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeRamp.cs" />
+    <Compile Include="ModAPI\IMyVoxelShapeSphere.cs" />
+    <Compile Include="ModAPI\Ingame\IMyCubeBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyCubeGrid.cs" />
+    <Compile Include="ModAPI\Ingame\IMySlimBlock.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInventory.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInventoryItem.cs" />
+    <Compile Include="ModAPI\Ingame\IMyInventoryOwner.cs" />
     <Compile Include="Entity\MyEntitiesInterface.cs" />
+    <Compile Include="ModAPI\Interfaces\IControllableEntity.cs" />
+    <Compile Include="ModAPI\Interfaces\IMyCameraController.cs" />
+    <Compile Include="ModAPI\Interfaces\IMyDecalProxy.cs" />
+    <Compile Include="ModAPI\Interfaces\IMyDestroyableObject.cs" />
+    <Compile Include="ModAPI\MyDamageInformation.cs" />
     <Compile Include="ModAPI\MyEntity_ModAPI.cs" />
+    <Compile Include="ModAPI\MyHitInfo.cs" />
     <Compile Include="ModAPI\MyInventoryItem_ModAPI.cs" />
     <Compile Include="MyEngineConstants.cs" />
     <Compile Include="Components\Session\MySessionComponentAnimationSystem.cs" />
+    <Compile Include="MyEnums.cs" />
+    <Compile Include="MyFinalBuildConstants.cs" />
+    <Compile Include="MyPlayerInfo.cs" />
+    <Compile Include="News\MyNews.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationControllerDefinition.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationLayer.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSM.cs" />
@@ -110,9 +189,12 @@
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSMTransitionConditions.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSMTransition.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSMNode.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_AtmosphereDetectorComponent.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterPickupComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractive.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractiveDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryComponentDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ShipSoundComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsBodyComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsBodyComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsComponentBase.cs" />
@@ -121,9 +203,17 @@
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_TimerComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_UseObjectsComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ItemAutoswitchComponent.cs" />
+    <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SessionComponentResearch.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlockBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionsToPreload.cs" />
     <Compile Include="ObjectBuilders\Definitions\AI\MyObjectBuilder_BarbarianWaveEventDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GameDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ResearchDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SchematicItemDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_UsableItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyPhysicsComponentDefinitionBase.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlImage.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_CubeBlockStackSizeDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_FracturedPiece.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_InventoryBagEntity.cs" />
@@ -138,7 +228,14 @@
     <Compile Include="Graphics\MySimpleObjectDraw.cs" />
     <Compile Include="Graphics\MyTransparentGeometry.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Rope.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_SchematicItem.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemConsumable.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemMedievalWeapon.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemUsable.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_UsableItem.cs" />
     <Compile Include="Utils\MyCamera.cs" />
+    <Compile Include="Utils\MyCameraShake.cs" />
+    <Compile Include="Utils\MyCameraSpring.cs" />
     <Compile Include="Utils\MyCameraZoomProperties.cs" />
     <Compile Include="Common\MyFactoryTagAttribute.cs" />
     <Compile Include="Components\Entity\MyHierarchyComponent.cs" />
@@ -476,7 +573,6 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAnimation.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemAreaMarker.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemBot.cs" />
-    <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemConsumable.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemCubeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemDefinition.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemEmpty.cs" />
@@ -520,6 +616,7 @@
     <Folder Include="Grid\" />
     <Folder Include="Inventory\" />
     <Folder Include="ObjectBuilders\Block\" />
+    <Folder Include="Physics\" />
     <Folder Include="VoxelMap\" />
   </ItemGroup>
   <ItemGroup>

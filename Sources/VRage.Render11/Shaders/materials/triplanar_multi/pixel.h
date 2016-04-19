@@ -11,9 +11,6 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 {
 	ProcessDithering(pixel, output);
 
-	if (output.DISCARD == 1)
-		return;
-
 #ifndef DEPTH_ONLY
 
 	float3 mat_weights = pixel.custom.mat_weights;

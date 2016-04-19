@@ -9,6 +9,7 @@ using VRage;
 using VRage.Input;
 using VRage.Utils;
 using VRage.Compiler;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Gui

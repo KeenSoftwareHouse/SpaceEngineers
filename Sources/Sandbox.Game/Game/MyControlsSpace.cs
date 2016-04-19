@@ -18,6 +18,7 @@ namespace Sandbox.Game
         public static readonly MyStringId CROUCH = MyStringId.GetOrCompute("CROUCH"); // move down, crouch
         public static readonly MyStringId SWITCH_WALK = MyStringId.GetOrCompute("SWITCH_WALK");
         public static readonly MyStringId USE = MyStringId.GetOrCompute("USE"); // interact
+        public static readonly MyStringId PICK_UP = MyStringId.GetOrCompute("PICK_UP"); // pick into inventory
         public static readonly MyStringId TERMINAL = MyStringId.GetOrCompute("TERMINAL");
         public static readonly MyStringId HELP_SCREEN = MyStringId.GetOrCompute("HELP_SCREEN");
         public static readonly MyStringId CONTROL_MENU = MyStringId.GetOrCompute("CONTROL_MENU");

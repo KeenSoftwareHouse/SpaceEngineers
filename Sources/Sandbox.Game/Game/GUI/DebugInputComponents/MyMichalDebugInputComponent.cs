@@ -414,7 +414,7 @@ namespace Sandbox.Game.Gui
 
         private bool ThrowFloatingObjectsFunc()
         {
-            var view = MySession.Static.CameraController.GetViewMatrix();
+            var view = MySector.MainCamera.ViewMatrix;
             var inv = Matrix.Invert(view);
 
             //MyPhysicalInventoryItem item = new MyPhysicalInventoryItem(100, 
@@ -447,8 +447,8 @@ namespace Sandbox.Game.Gui
             {
                 if (grid is MyCubeGrid)
                 {
-                    if ((grid as MyCubeGrid).GetFirstBlockOfType<MySpaceBall>() != null)
-                        grid.Close();
+                    //if ((grid as MyCubeGrid).GetFirstBlockOfType<MySpaceBall>() != null)
+                    //    grid.Close();
                 }
             }
             return true;

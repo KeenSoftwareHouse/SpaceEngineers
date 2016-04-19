@@ -22,6 +22,9 @@ namespace VRage.Audio
         bool IMyAudio.Mute { get { return true; } set { } }
         bool IMyAudio.MusicAllowed { get { return false; } set { } }
         bool IMyAudio.EnableVoiceChat { get { return false; } set { } }
+        bool IMyAudio.UseSameSoundLimiter { get { return false; } set { } }
+        bool IMyAudio.UseVolumeLimiter { get { return false; } set { } }
+        void IMyAudio.SetSameSoundLimiter() { }
         event Action<bool> IMyAudio.VoiceChatEnabled { add { } remove { } }
 
         bool IMyAudio.IsValidTransitionCategory(MyStringId transitionCategory, MyStringId musicCategory) { return false; }

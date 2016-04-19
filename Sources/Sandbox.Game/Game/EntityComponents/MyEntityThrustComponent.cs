@@ -183,6 +183,7 @@ namespace Sandbox.Game.GameSystems
         protected bool m_thrustsChanged;
 
         private Vector3 m_controlThrust;
+        private Vector3 m_controlThrustMagnitude;
         private bool m_controlThrustChanged = false;
         protected bool ControlThrustChanged { get { return m_controlThrustChanged; } set { m_controlThrustChanged = value; } }
 
@@ -208,6 +209,7 @@ namespace Sandbox.Game.GameSystems
         /// Torque and thrust wanted by player (from input).
         /// </summary>
         public Vector3 ControlThrust { get { return m_controlThrust; } set { if (m_controlThrust != value) m_controlThrustChanged = true; m_controlThrust = value; } }
+        public Vector3 ControlThrustMagnitude { get { return m_controlThrustMagnitude; } set { m_controlThrustMagnitude = value; } }
 
         /// <summary>
         /// Final thrust (clamped by available power, added anti-gravity, slowdown).
@@ -686,7 +688,7 @@ namespace Sandbox.Game.GameSystems
             for (int groupIndex = 0; groupIndex < groups.Count; ++groupIndex)
             {
                 var group = groups[groupIndex];
-                if (MyGridConveyorSystem.Pathfinding.Reachable(group.FirstEndpoint, segmentEndpoint))
+                if (MyGridConveyorSystem.Reachable(group.FirstEndpoint, segmentEndpoint))
                     outConnectedGroupIndices.Add(groupIndex);
             }
         }
@@ -704,7 +706,7 @@ namespace Sandbox.Game.GameSystems
                     Debug.Fail("First endpoint of group cannot be null!");
                     continue;
                 }
-                if (MyGridConveyorSystem.Pathfinding.Reachable(group.FirstEndpoint, block.ConveyorEndpoint))
+                if (MyGridConveyorSystem.Reachable(group.FirstEndpoint, block.ConveyorEndpoint))
                     outConnectedGroupIndices.Add(groupIndex);
             }
         }
@@ -765,7 +767,7 @@ namespace Sandbox.Game.GameSystems
                         if (endpointEntity == thrustEntity) // Leave the splitting block in the original group
                             continue;
 
-                        if (!MyGridConveyorSystem.Pathfinding.Reachable(endpoint, returnGroup.FirstEndpoint))
+                        if (!MyGridConveyorSystem.Reachable(endpoint, returnGroup.FirstEndpoint))
                         {
                             var fuelType = FuelType(thrustEntity);
                             returnGroup.ResourceSink.SetMaxRequiredInputByType(fuelType, returnGroup.ResourceSink.MaxRequiredInputByType(fuelType) - PowerAmountToFuel(ref fuelType, MaxPowerConsumption(thrustEntity), returnGroup));
@@ -793,7 +795,7 @@ namespace Sandbox.Game.GameSystems
                 foreach (var newGroup in m_tmpGroups)
                 {
                     // A group connected to this entity was already created
-                    if (MyGridConveyorSystem.Pathfinding.Reachable((entity as IMyConveyorEndpointBlock).ConveyorEndpoint, newGroup.FirstEndpoint))
+                    if (MyGridConveyorSystem.Reachable((entity as IMyConveyorEndpointBlock).ConveyorEndpoint, newGroup.FirstEndpoint))
                     {
                         int typeIndex;
                         // Initialize a new type for this group if necessary
@@ -1040,6 +1042,10 @@ namespace Sandbox.Game.GameSystems
 
         protected virtual void UpdateThrusts()
         {
+            if (ControlThrustMagnitude == Vector3.Zero)
+            {
+                ControlThrustMagnitude = Vector3.One;
+            }
             //if (direction != Vector3.Zero)
             //{
 
@@ -1197,6 +1203,8 @@ namespace Sandbox.Game.GameSystems
             Vector3 positiveControl = Vector3.Clamp(controlThrust, Vector3.Zero, Vector3.One);
             Vector3 negativeControl = Vector3.Clamp(controlThrust, -Vector3.One, Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
+
+           
             if (DampenersEnabled && (Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
             {
                 slowdownControl = Vector3.IsZeroVector(controlThrust, 0.001f) * Vector3.IsZeroVector(fuelData.ThrustOverride);
@@ -1215,11 +1223,13 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.End();
             ProfilerShort.Begin("ComputeBaseThrust B");
 
+            float relativeSpeed =  Sync.RelativeSimulationRatio;
+            float relativeSpeedOverOne = Math.Max(1.0f, relativeSpeed);
             Vector3 thrust = negativeControl * fuelData.MaxNegativeThrust + positiveControl * fuelData.MaxPositiveThrust;
-            thrust = Vector3.Clamp(thrust, -fuelData.MaxNegativeThrust, fuelData.MaxPositiveThrust);
+            thrust = Vector3.Clamp(thrust, -fuelData.MaxNegativeThrust * relativeSpeedOverOne, fuelData.MaxPositiveThrust * relativeSpeedOverOne);
+            thrust *= ControlThrustMagnitude * relativeSpeed;
 
-            Vector3 slowdownAcceleration = -localVelocity / stoppingTime;
-
+            Vector3 slowdownAcceleration = (-localVelocity / stoppingTime);
             Vector3 slowdownThrust = slowdownAcceleration * CalculateMass() * slowdownControl;
 
             ProfilerShort.End();
@@ -1230,7 +1240,7 @@ namespace Sandbox.Game.GameSystems
                 m_controlThrustChanged = true;
             }
 
-            thrust = Vector3.Clamp(thrust + slowdownThrust, -fuelData.MaxNegativeThrust * SlowdownFactor, fuelData.MaxPositiveThrust * SlowdownFactor);
+            thrust = Vector3.Clamp(thrust + slowdownThrust, -fuelData.MaxNegativeThrust * SlowdownFactor * relativeSpeedOverOne * ControlThrustMagnitude, fuelData.MaxPositiveThrust * relativeSpeedOverOne * SlowdownFactor * ControlThrustMagnitude);
 
             fuelData.CurrentThrust = thrust;
             ProfilerShort.End();
@@ -1257,21 +1267,27 @@ namespace Sandbox.Game.GameSystems
             Vector3 thrust = Vector3.Zero;
             if (max > 0.001f)
             {
-                Vector3 optimalPositive = positiveControl * max;
-                Vector3 optimalNegative = -negativeControl * max;
+                Vector3 optimalPositive = positiveControl * maxPositiveControl;
+                Vector3 optimalNegative = -negativeControl * maxNegativeControl;
 
                 Vector3 optimalPositiveRatio = maxPositiveThrustWithGravity / optimalPositive;
                 Vector3 optimalNegativeRatio = maxNegativeThrustWithGravity / optimalNegative;
 
-                FlipNegativeInfinity(ref optimalPositiveRatio);
-                FlipNegativeInfinity(ref optimalNegativeRatio);
+                if (!optimalPositiveRatio.X.IsValid())
+                    optimalPositiveRatio.X = 1;
+                if (!optimalPositiveRatio.Y.IsValid())
+                    optimalPositiveRatio.Y = 1;
+                if (!optimalPositiveRatio.Z.IsValid())
+                    optimalPositiveRatio.Z = 1;
 
-                float min = Math.Min(optimalPositiveRatio.Min(), optimalNegativeRatio.Min());
+                if (!optimalNegativeRatio.X.IsValid())
+                    optimalNegativeRatio.X = 1;
+                if (!optimalNegativeRatio.Y.IsValid())
+                    optimalNegativeRatio.Y = 1;
+                if (!optimalNegativeRatio.Z.IsValid())
+                    optimalNegativeRatio.Z = 1;
 
-                if (min > 1.0f)
-                    min = 1.0f;
-
-                thrust = -optimalNegative * min + optimalPositive * min;
+                thrust = -optimalNegative * optimalNegativeRatio + optimalPositive * optimalPositiveRatio;
                 thrust += positiveGravity + negativeGravity;
                 thrust = Vector3.Clamp(thrust, -fuelData.MaxNegativeThrust, fuelData.MaxPositiveThrust);
             }
@@ -1499,7 +1515,7 @@ namespace Sandbox.Game.GameSystems
                 {
                     foreach (var group in m_connectedGroups)
                     {
-                        if (!MyGridConveyorSystem.Pathfinding.Reachable(group.FirstEndpoint, entityEndpoint))
+                        if (!MyGridConveyorSystem.Reachable(group.FirstEndpoint, entityEndpoint))
                             continue;
 
                         entityGroup = group;

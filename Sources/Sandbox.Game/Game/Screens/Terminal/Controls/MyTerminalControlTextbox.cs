@@ -15,7 +15,7 @@ using VRage.Library.Collections;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
+    public class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
         where TBlock : MyTerminalBlock
     {
         public delegate StringBuilder GetterDelegate(TBlock block);

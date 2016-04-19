@@ -39,6 +39,17 @@ namespace VRage
 
         public void SetMouseCapture(bool capture)
         {
+            if (capture)
+            {
+                Cursor.Clip = Control.RectangleToScreen(Control.ClientRectangle);
+                Cursor.Hide();
+
+            }
+            else
+            {
+                Cursor.Clip = new System.Drawing.Rectangle(0, 0, SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);                
+                Cursor.Show();
+            }
         }
 
         public void OnModeChanged(VRageRender.MyWindowModeEnum mode, int width, int height)

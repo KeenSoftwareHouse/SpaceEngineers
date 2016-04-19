@@ -1,6 +1,5 @@
 ﻿#region Using
 
-using Sandbox.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1198,7 +1197,16 @@ namespace Sandbox.Graphics.GUI
             get { return m_focusedControl; }
             set
             {
-                m_focusedControl = value;
+                if( m_focusedControl != value )
+                {
+                    var tempControl = m_focusedControl;
+                    m_focusedControl = value;
+
+                    if (tempControl != null)
+                        tempControl.OnFocusChanged(false);
+                    if (m_focusedControl != null)
+                        m_focusedControl.OnFocusChanged(true);
+                }
             }
         }
 

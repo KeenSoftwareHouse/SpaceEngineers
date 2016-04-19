@@ -44,7 +44,11 @@ namespace Sandbox.Game.Entities.Cube
         private static List<HkBodyCollision> m_tmpList = new List<HkBodyCollision>();
         private static HashSet<MySlimBlock> m_tmpSet = new HashSet<MySlimBlock>();
         private bool m_wasAccelerating;
-       
+        bool m_updateBrakeNeeded = false;
+        bool m_updateFrictionNeeded = false;
+        bool m_updateDampingNeeded = false;
+        bool m_updateStrenghtNeeded = false;
+
         private readonly Sync<float> m_speedLimit;
         public float SpeedLimit
         {
@@ -113,11 +117,17 @@ namespace Sandbox.Game.Entities.Cube
         }
         private void PropagateFriction(float value)
         {
+            m_updateFrictionNeeded = false;
             var wheel = (m_rotorBlock as MyWheel);
             if (wheel != null)
             {
                 wheel.Friction = MathHelper.Lerp(0, 32, value);
                 wheel.CubeGrid.Physics.RigidBody.Friction = wheel.Friction;
+            }
+            else
+            {
+                m_updateFrictionNeeded = true;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             }
         }
 
@@ -400,6 +410,11 @@ namespace Sandbox.Game.Entities.Cube
             speed.EnableActionsWithReset();
             speed.Enabled = (x) => x.m_constraint != null;
             MyTerminalControlFactory.AddControl(speed);
+
+            var addWheel = new MyTerminalControlButton<MyMotorSuspension>("Add Wheel", MySpaceTexts.BlockActionTitle_AddWheel, MySpaceTexts.BlockActionTooltip_AddWheel, (b) => b.RecreateRotor());
+            addWheel.Enabled = (b) => (b.m_rotorBlock == null);
+            addWheel.EnableAction(MyTerminalActionIcons.STATION_ON);
+            MyTerminalControlFactory.AddControl(addWheel);
         }
 
         public MyMotorSuspension()
@@ -427,19 +442,32 @@ namespace Sandbox.Game.Entities.Cube
 
         void DampingChanged()
         {
+            m_updateDampingNeeded = false;
             if (SafeConstraint != null)
             {
-                (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionDamping(Sync.RelativeSimulationRatio * m_damping);
+                (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionDamping(m_damping);
+            }
+            else
+            {
+                m_updateDampingNeeded = true;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             }
         }
 
         void StrenghtChanged()
         {
+            m_updateStrenghtNeeded = false;
             if (SafeConstraint != null)
             {
-                (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionStrength(Sync.RelativeSimulationRatio * m_strenth);
+                (m_constraint.ConstraintData as HkWheelConstraintData).SetSuspensionStrength(m_strenth);
+            }
+            else
+            {
+                m_updateStrenghtNeeded = true;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             }
         }
+
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
@@ -533,42 +561,49 @@ namespace Sandbox.Game.Entities.Cube
 
         public void UpdateBrake()
         {
+            m_updateBrakeNeeded = false;
             if (SafeBody != null)
+            {
                 if (m_brake)
                     SafeBody.AngularDamping = BlockDefinition.PropulsionForce;
                 else
                 {
                     SafeBody.AngularDamping = CubeGrid.Physics.AngularDamping;
                 }
+            }
             else
+            {
+                m_updateBrakeNeeded = true;
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
                 NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            }
         }
 
-        public void InitControl()
+        public void InitControl(MyEntity controller)
         {
             //sets direction of angular force and steering for concrete block based on position in grid
-            var mat = MySession.Static.ControlledEntity.Entity.WorldMatrix * PositionComp.WorldMatrixNormalizedInv;
+            var mat = controller.WorldMatrix * PositionComp.WorldMatrixNormalizedInv;
             Vector3 revolveAxis;
             if (Base6Directions.GetClosestDirection(mat.Forward) == Base6Directions.Direction.Up || Base6Directions.GetClosestDirection(mat.Forward) == Base6Directions.Direction.Down)
-                revolveAxis = MySession.Static.ControlledEntity.Entity.WorldMatrix.Forward;
+                revolveAxis = controller.WorldMatrix.Forward;
             else if (Base6Directions.GetClosestDirection(mat.Up) == Base6Directions.Direction.Up || Base6Directions.GetClosestDirection(mat.Up) == Base6Directions.Direction.Down)
-                revolveAxis = MySession.Static.ControlledEntity.Entity.WorldMatrix.Up;
+                revolveAxis = controller.WorldMatrix.Up;
             else
-                revolveAxis = MySession.Static.ControlledEntity.Entity.WorldMatrix.Right;
+                revolveAxis = controller.WorldMatrix.Right;
             // - "epsilon"
-            var dotCockpit1 = Vector3.Dot(MySession.Static.ControlledEntity.Entity.WorldMatrix.Up, WorldMatrix.Translation - MySession.Static.ControlledEntity.Entity.WorldMatrix.Translation) - 0.0001 > 0;
+            var dotCockpit1 = Vector3.Dot(controller.WorldMatrix.Up, WorldMatrix.Translation - controller.WorldMatrix.Translation) - 0.0001 > 0;
 
             Vector3 steerAxis;
             if (Base6Directions.GetClosestDirection(mat.Forward) == Base6Directions.Direction.Forward || Base6Directions.GetClosestDirection(mat.Forward) == Base6Directions.Direction.Backward)
-                steerAxis = MySession.Static.ControlledEntity.Entity.WorldMatrix.Forward;
+                steerAxis = controller.WorldMatrix.Forward;
             else if (Base6Directions.GetClosestDirection(mat.Up) == Base6Directions.Direction.Forward || Base6Directions.GetClosestDirection(mat.Up) == Base6Directions.Direction.Backward)
-                steerAxis = MySession.Static.ControlledEntity.Entity.WorldMatrix.Up;
+                steerAxis = controller.WorldMatrix.Up;
             else
-                steerAxis = MySession.Static.ControlledEntity.Entity.WorldMatrix.Right;
+                steerAxis = controller.WorldMatrix.Right;
             // - "epsilon"
             if (CubeGrid.Physics != null)
             {
-                var dotMass = Vector3.Dot(MySession.Static.ControlledEntity.Entity.WorldMatrix.Forward, (WorldMatrix.Translation - CubeGrid.Physics.CenterOfMassWorld)) - 0.0001;
+                var dotMass = Vector3.Dot(controller.WorldMatrix.Forward, (WorldMatrix.Translation - CubeGrid.Physics.CenterOfMassWorld)) - 0.0001;
                 var dotCockpit = Vector3.Dot(WorldMatrix.Forward, steerAxis);
 
                 m_steerInvert = ((dotMass * dotCockpit) < 0) ^ dotCockpit1;
@@ -609,8 +644,8 @@ namespace Sandbox.Game.Entities.Cube
                 //empirical values because who knows what havoc sees behind this 
                 //docs say one value should mean same effect for 2 ton or 200 ton vehicle 
                 //but we have virtual mass blocks so real mass doesnt corespond to actual "weight" in game and varying gravity
-                data.SetSuspensionDamping(Sync.RelativeSimulationRatio * m_damping);
-                data.SetSuspensionStrength(Sync.RelativeSimulationRatio * m_strenth);
+                data.SetSuspensionDamping(m_damping);
+                data.SetSuspensionStrength(m_strenth);
                 //Min/MaxHeight also define the limits of the suspension and SuspensionTravel lowers this limit
                 data.SetSuspensionMinLimit((BlockDefinition.MinHeight - m_height) * SuspensionTravel);
                 data.SetSuspensionMaxLimit((BlockDefinition.MaxHeight - m_height) * SuspensionTravel);
@@ -629,8 +664,19 @@ namespace Sandbox.Game.Entities.Cube
                 m_constraint.Enabled = true;
 
                 m_rotorBlock.Attach(this);
+                m_isAttached = true;
                 PropagateFriction(m_friction);
                 UpdateIsWorking();
+
+                if (m_updateBrakeNeeded)
+                {
+                    UpdateBrake();
+                }
+                if (m_updateFrictionNeeded)
+                {
+                    FrictionChanged();
+                }
+
 
                 if (updateGroup)
                 {
@@ -655,23 +701,48 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override bool CanPlaceRotor(MyMotorRotor rotorBlock, long builtBy)
         {
+            // Compute the rough actual position for the wheel, this improves the detection if it can be placed
+            float wheelDistance = BlockDefinition.Size.Y * CubeGrid.GridSize - 0.2f * CubeGrid.GridSize;
+            Vector3D wheelPosition = this.WorldMatrix.Translation + this.WorldMatrix.Up * wheelDistance;
+            float wheelRadius = rotorBlock.ModelCollision.HavokCollisionShapes[0].ConvexRadius * 0.9f;
+
+            // First test if we intersect any blocks of our own grid
             BoundingSphereD sphere = rotorBlock.Model.BoundingSphere;
-            sphere.Center = Vector3D.Transform(sphere.Center, rotorBlock.WorldMatrix);
+            sphere.Center = wheelPosition;
+            sphere.Radius = wheelRadius;
             CubeGrid.GetBlocksInsideSphere(ref sphere, m_tmpSet);
-            HkSphereShape spShape = new HkSphereShape((float)sphere.Radius);
-            Quaternion q = Quaternion.Identity;//Quaternion.CreateFromForwardUp(rotorBlock.WorldMatrix.Forward, rotorBlock.WorldMatrix.Up);
-            var position = rotorBlock.WorldMatrix.Translation;
-            MyPhysics.GetPenetrationsShape(spShape, ref position, ref q, m_tmpList, MyPhysics.CollisionLayers.CharacterNetworkCollisionLayer);
-            if (m_tmpSet.Count > 1 || m_tmpList.Count > 0)
+
+            // If we intersect more than 1 block (because wheel sometimes intersects suspension), don't add wheel
+            if (m_tmpSet.Count > 1)
             {
-                m_tmpList.Clear();
-				m_tmpSet.Clear();
+                m_tmpSet.Clear();
                 if (builtBy == MySession.Static.LocalPlayerId)
                     MyHud.Notifications.Add(MyNotificationSingletons.WheelNotPlaced);
                 return false;
             }
+
+            m_tmpSet.Clear();
+
+            // Next test if we intersect any physics objects
+            HkSphereShape spShape = new HkSphereShape(wheelRadius);
+            Quaternion q = Quaternion.Identity;
+            MyPhysics.GetPenetrationsShape(rotorBlock.ModelCollision.HavokCollisionShapes[0], ref wheelPosition, ref q, m_tmpList, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+
+            // If we have any collisions with anything other than our own grid, don't add the wheel
+            // We already checked for inner-grid collisions in the previous case
+            for (int i = 0; i < m_tmpList.Count; i++)
+            {
+                MyCubeGrid grid = m_tmpList[i].GetCollisionEntity() as MyCubeGrid;
+                if (grid == null || grid != CubeGrid)
+                {
+                    m_tmpList.Clear();
+                    if (builtBy == MySession.Static.LocalPlayerId)
+                        MyHud.Notifications.Add(MyNotificationSingletons.WheelNotPlaced);
+                    return false;
+                }
+            }
+
             m_tmpList.Clear();
-			m_tmpSet.Clear();
 
             return true;
         }
@@ -692,10 +763,8 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             if (m_rotorGrid == null || m_rotorGrid.Physics == null)
                 return;
-            if (CubeGrid.Physics == null || MySession.Static.ControlledEntity == null)
-                return;
             //speed limiter
-            if (Math.Abs(CubeGrid.Physics.LinearVelocity.Dot(MySession.Static.ControlledEntity.Entity.WorldMatrix.Forward)) > SpeedLimit * (1 / 3.6f))
+            if (CubeGrid.Physics.LinearVelocity.LengthSquared() > SpeedLimit * (1 / 3.6f) * SpeedLimit * (1 / 3.6f))
                 return;
 
             var powerRatio = 1f;// m_rotorGrid.Physics.AngularVelocity.Length();
@@ -801,8 +870,6 @@ namespace Sandbox.Game.Entities.Cube
 
             UpdateSoundState();
             m_wasAccelerating = false;
-
-
         }
 
         protected override void UpdateSoundState()
@@ -825,6 +892,29 @@ namespace Sandbox.Game.Entities.Cube
             {
                 float semitones = 4f * (Math.Abs(RotorAngularVelocity.Length()) - 0.5f * MaxRotorAngularVelocity) / MaxRotorAngularVelocity;
                 m_soundEmitter.Sound.FrequencyRatio = MyAudio.Static.SemitonesToFrequencyRatio(semitones) * (m_wasAccelerating ? 1 : 0.95f);
+            }
+        }
+
+        public override void UpdateBeforeSimulation10()
+        {
+            base.UpdateBeforeSimulation10();
+            NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
+
+            if (m_updateBrakeNeeded)
+            {
+                UpdateBrake();
+            }
+            if (m_updateFrictionNeeded)
+            {
+                FrictionChanged();
+            }
+            if (m_updateDampingNeeded)
+            {
+                DampingChanged();
+            }
+            if (m_updateStrenghtNeeded)
+            {
+                StrenghtChanged();
             }
         }
 

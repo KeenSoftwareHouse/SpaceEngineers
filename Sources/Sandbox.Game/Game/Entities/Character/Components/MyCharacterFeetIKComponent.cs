@@ -146,7 +146,8 @@ namespace Sandbox.Game.Entities.Character.Components
             for (int i = 0; i < Bones.Length; i++)
             {
                 MyCharacterBone bone = Bones[i];
-                Character.BoneRelativeTransforms[i] = bone.ComputeBoneTransform();
+                bone.ComputeBoneTransform();
+                Character.BoneRelativeTransforms[i] = bone.RelativeTransform;
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();

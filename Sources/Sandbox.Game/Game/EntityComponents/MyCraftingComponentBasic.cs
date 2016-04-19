@@ -23,7 +23,6 @@ namespace Sandbox.Game.Components
     {
         // TODO: Move this to definition..
         private int m_lastUpdateTime;
-        private bool m_productionEnabled;
         private MyEntity3DSoundEmitter m_soundEmitter;
 
         public MySoundPair ActionSound { get; set; }
@@ -57,9 +56,6 @@ namespace Sandbox.Game.Components
 
         protected override void UpdateProduction_Implementation()
         {
-            if (!m_productionEnabled)
-                return;
-
             if (IsProducing)
             {
                 UpdateCurrentItem();
@@ -188,8 +184,6 @@ namespace Sandbox.Game.Components
                 entity.NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
             }
 
-            m_productionEnabled = true;
-
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
         }
 
@@ -197,7 +191,6 @@ namespace Sandbox.Game.Components
         {
             base.StopOperating_Implementation();
 
-            m_productionEnabled = false;
             if (m_soundEmitter != null) 
                 m_soundEmitter.StopSound(true);
         }

@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-using Sandbox.Common.ObjectBuilders;
+using VRage.Game.GUI.TextPanel;
 
 namespace Sandbox.ModAPI.Ingame
 {

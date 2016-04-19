@@ -631,15 +631,15 @@ namespace Sandbox.Game.Screens.Helpers
             return true;
         }
 
-        public string GetItemIcon(int idx)
+        public string[] GetItemIcons(int idx)
         {
             if (!IsValidIndex(idx))
-                return "";
+                return null;
 
             if (m_items[idx] != null)
-                return m_items[idx].Icon;
+                return m_items[idx].Icons;
 
-            return "";
+            return null;
         }
 
         public long GetControllerPlayerID()

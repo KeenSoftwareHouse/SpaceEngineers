@@ -12,6 +12,7 @@ using System.Linq;
 using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRageMath;
 
@@ -113,7 +114,6 @@ namespace Sandbox.Game.World
 
             if (Character != null)
             {
-                Character.SyncObject.CharacterModelSwitched -= character_CharacterModelSwitched;
                 Character.OnClosing -= character_OnClosing;
             }
 
@@ -122,7 +122,6 @@ namespace Sandbox.Game.World
             if (character != null)
             {
                 character.OnClosing += character_OnClosing;
-                character.SyncObject.CharacterModelSwitched += character_CharacterModelSwitched;
 
                 SaveModelAndColorFromCharacter();
 
@@ -165,7 +164,6 @@ namespace Sandbox.Game.World
 
         private void character_OnClosing(MyEntity obj)
         {
-            Character.SyncObject.CharacterModelSwitched -= character_CharacterModelSwitched;
             Character.OnClosing -= character_OnClosing;
             Character = null;
         }
@@ -176,22 +174,7 @@ namespace Sandbox.Game.World
             ColorMask = colorMaskHSV;
         }
 
-        public void ChangeToOxygenSafeSuit()
-        {
-            if (Model == null)
-            {
-                return;
-            }
-            MyCharacterDefinition characterDefinition;
-            MyDefinitionManager.Static.Characters.TryGetValue(Model, out characterDefinition);
-
-            if (characterDefinition != null && characterDefinition.NeedsOxygen)
-            {
-               Model = MyDefinitionManager.Static.Characters.First().Model;
-            }
-        }
-
-        private static List<MySyncGrid.MySingleOwnershipRequest> m_requests = new List<MySyncGrid.MySingleOwnershipRequest>();
+        private static List<MyCubeGrid.MySingleOwnershipRequest> m_requests = new List<MyCubeGrid.MySingleOwnershipRequest>();
         private static HashSet<IMyEntity> m_entitiesCache = new HashSet<IMyEntity>();
         public void TransferAllBlocksTo(long newOwnerIdentityId)
         {
@@ -201,7 +184,7 @@ namespace Sandbox.Game.World
                 var grid = ent as MyCubeGrid;
                 foreach (var block in grid.GetFatBlocks<MyTerminalBlock>())
                     if (block.IDModule != null && block.OwnerId == IdentityId)
-                        m_requests.Add(new MySyncGrid.MySingleOwnershipRequest()
+                        m_requests.Add(new MyCubeGrid.MySingleOwnershipRequest()
                         {
                             BlockId = block.EntityId,
                             Owner = newOwnerIdentityId
@@ -210,7 +193,8 @@ namespace Sandbox.Game.World
             m_entitiesCache.Clear();
 
             if (m_requests.Count > 0)
-                MySyncGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests,IdentityId);
+                MyCubeGrid.ChangeOwnersRequest(MyOwnershipShareModeEnum.None, m_requests, IdentityId);
+
             m_requests.Clear();
 
         }

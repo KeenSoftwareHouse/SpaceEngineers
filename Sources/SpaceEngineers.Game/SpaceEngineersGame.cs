@@ -1,4 +1,5 @@
-﻿using Multiplayer;
+﻿using System;
+using Multiplayer;
 using Sandbox;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
@@ -12,8 +13,12 @@ using Sandbox.Graphics.Render;
 using SpaceEngineers.Game.GUI;
 using SpaceEngineers.Game.VoiceChat;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using SpaceEngineers.Game.ModAPI;
+using VRage.Compiler;
 using VRage.Data.Audio;
+using VRage.FileSystem;
 using VRage.Game;
 using VRage.Utils;
 using VRageRender;
@@ -23,6 +28,14 @@ namespace SpaceEngineers.Game
 {
     public static partial class SpaceEngineersGame
     {
+        #region Constructor
+
+        static SpaceEngineersGame()
+        {
+            MySandboxGame.GameCustomInitialization = new MySpaceGameCustomInitialization();
+        }
+        #endregion
+
         public static void SetupPerGameSettings()
         {
             MyPerGameSettings.Game = GameEnum.SE_GAME;
@@ -34,12 +47,12 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.OffsetVoxelMapByHalfVoxel = true;
             MyPerGameSettings.EnablePregeneratedAsteroidHack = true;
             MySandboxGame.ConfigDedicated = new MyConfigDedicated<MyObjectBuilder_SessionSettings>("SpaceEngineers-Dedicated.cfg");
+            MySandboxGame.GameCustomInitialization = new MySpaceGameCustomInitialization();
             MyPerGameSettings.ShowObfuscationStatus = false;
 
             //limiters
             MyPerGameSettings.UseVolumeLimiter = false;
             MyPerGameSettings.UseSameSoundLimiter = true;
-            MyPerGameSettings.SameSoundLimiterCount = 3;
 
             MyPerGameSettings.CreationSettings = new MyPlacementSettings()
             {
@@ -107,6 +120,7 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.EnableTutorials = true;
 
             MyPerGameSettings.EnableJumpDrive = true;
+            MyPerGameSettings.EnableShipSoundSystem = true;
 			MyFakes.ENABLE_PLANETS_JETPACK_LIMIT_IN_CREATIVE = true;
 			MyFakes.ENABLE_DRIVING_PARTICLES = true;
 
@@ -186,7 +200,8 @@ namespace SpaceEngineers.Game
 				MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 3;
 				MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
 				MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
-				MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -6.0f;
+				MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -5.0f;
+                MyPostprocessSettingsWrapper.Settings.NightLogLumThreshold = MyPostprocessSettingsWrapper.Settings.LogLumThreshold;
 				MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
 				MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
 				MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.147f;
@@ -433,7 +448,7 @@ namespace SpaceEngineers.Game
             SetupSecrets();
 
             // Must be initialized after secrets are set
-            if (MyFinalBuildConstants.IS_OFFICIAL || MyFakes.ENABLE_INFINARIO)
+            if (MyFakes.ENABLE_INFINARIO)// if (MyFinalBuildConstants.IS_OFFICIAL || MyFakes.ENABLE_INFINARIO)
             {
                 MyPerGameSettings.AnalyticsTracker = MyInfinarioAnalytics.Instance;
             }

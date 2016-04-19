@@ -5,6 +5,7 @@ namespace VRage.Input
     {
         General,
         Navigation,
+        Navigation2,
         ToolsOrWeapons,
         ToolsOrWeapons2,
         Systems1,

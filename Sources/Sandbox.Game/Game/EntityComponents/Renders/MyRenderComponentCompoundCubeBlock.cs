@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Sandbox.Common.Components;
+
 using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
 using VRageRender;

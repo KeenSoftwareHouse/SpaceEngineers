@@ -31,8 +31,6 @@ namespace Sandbox.Game.Screens.Helpers
             Color m_criticalValueColorFrom;
             Color m_criticalValueColorTo;
 
-            MyHudNotification m_outOfStatNotification;
-
 			private static MyGuiCompositeTexture m_arrowUp = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_STAT_EFFECT_ARROW_UP.Texture);
 			private static MyGuiCompositeTexture m_arrowDown = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_STAT_EFFECT_ARROW_DOWN.Texture);
 
@@ -65,9 +63,6 @@ namespace Sandbox.Game.Screens.Helpers
 				if(m_stat != null)
 				{
 					m_stat.OnStatChanged += UpdateStatControl;
-                    m_stat.OnStatChanged += DisplayStatNotification;
-                    m_outOfStatNotification = new MyHudNotification(MyCommonTexts.NotificationStatZero, disappearTimeMs: 1000, font: MyFontEnum.Red, level: MyNotificationLevel.Important);
-                    m_outOfStatNotification.SetTextFormatArguments(m_stat.StatId.ToString());
 				}
             }
 
@@ -76,7 +71,6 @@ namespace Sandbox.Game.Screens.Helpers
 				if(m_stat != null)
 				{
                     m_stat.OnStatChanged -= UpdateStatControl;
-                    m_stat.OnStatChanged -= DisplayStatNotification;
 				}
 				base.OnRemoving();
 			}
@@ -160,14 +154,6 @@ namespace Sandbox.Game.Screens.Helpers
 				m_recalculatePotential = true;
 			}
 
-            private void DisplayStatNotification(float newValue, float oldValue, object statChangeData)
-            {
-                if (m_stat.StatDefinition.Name.Equals("Stamina") && m_stat.CurrentRatio < 0.01f)
-                {
-                    MyHud.Notifications.Add(m_outOfStatNotification);
-                }
-            }
-
 			private void RecalculateStatRegenLeft()
 			{
 				if (!Sync.IsServer)
@@ -231,20 +217,19 @@ namespace Sandbox.Game.Screens.Helpers
 				m_recalculatePotential = true;
 				Elements.Add(m_progressBar);
 
-                m_progressBarDivider = new MyGuiControlPanel(position: Size * new Vector2(barOffset, 0.0f) + new Vector2(barLength * statGuiDef.CriticalRatio, 0.0f),
+                m_progressBarDivider = new MyGuiControlPanel(position: Size * new Vector2(barOffset, 0.0f),
                                                             originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
-                                                            size: new Vector2(barLength / 100, Size.Y),
-                                                            backgroundColor: Color.Black,
-                                                            texture: MyGuiConstants.TEXTURE_HUD_STAT_BAR_BG.Texture);
+                                                            size: new Vector2(barLength * statGuiDef.CriticalRatio, Size.Y));
                 m_progressBarDivider.Visible = statGuiDef.DisplayCriticalDivider;
-                m_progressBarDivider.BorderEnabled = false;
+                m_progressBarDivider.BorderColor = Color.Black;
+                m_progressBarDivider.BorderSize = 1;
+                m_progressBarDivider.BorderEnabled = true;
                 Elements.Add(m_progressBarDivider);
 
 
                 m_progressBarBorder = new MyGuiControlPanel(position: Size * new Vector2(barOffset, 0.0f),
                                                             originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
                                                             size: new Vector2(barLength, Size.Y));
-
                 m_progressBarBorder.Visible = false;
                 m_progressBarBorder.BorderColor = Color.Black;
                 m_progressBarBorder.BorderSize = 2;
@@ -367,7 +352,8 @@ namespace Sandbox.Game.Screens.Helpers
         public void SetPotentialStatChange(MyDefinitionId consumableId)
         {
             var definition = MyDefinitionManager.Static.GetDefinition(consumableId) as MyConsumableItemDefinition;
-            Debug.Assert(definition != null, "Consumable definition not found!");
+            // no longer relevant since we are using MyUsableItemDefinition for food too
+            //Debug.Assert(definition != null, "Consumable definition not found!");
             if (definition == null)
                 return;
 
@@ -380,7 +366,8 @@ namespace Sandbox.Game.Screens.Helpers
         public void ClearPotentialStatChange(MyDefinitionId consumableId)
         {
             var definition = MyDefinitionManager.Static.GetDefinition(consumableId) as MyConsumableItemDefinition;
-            Debug.Assert(definition != null, "Consumable definition not found!");
+            // no longer relevant since we are using MyUsableItemDefinition for food too
+            //Debug.Assert(definition != null, "Consumable definition not found!");
             if (definition == null)
                 return;
 

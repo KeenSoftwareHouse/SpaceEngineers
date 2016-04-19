@@ -30,17 +30,21 @@ using VRage.Import;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
-using IMyCameraController = Sandbox.ModAPI.Interfaces.IMyCameraController;
-using IMyDestroyableObject = Sandbox.ModAPI.Interfaces.IMyDestroyableObject;
-using IMyInventoryOwner = VRage.ModAPI.Ingame.IMyInventoryOwner;
+using IMyCameraController = VRage.Game.ModAPI.Interfaces.IMyCameraController;
+using IMyDestroyableObject = VRage.Game.ModAPI.Interfaces.IMyDestroyableObject;
+using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 using VRage.Game.Models;
 using VRage.Game.Gui;
 using VRage.Game.Entity;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Weapons.Guns.Barrels;
 using VRage;
 using VRage.Game;
-using VRage.ModAPI.Ingame;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
+using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
 
 #endregion
 
@@ -60,7 +64,7 @@ namespace Sandbox.Game.Weapons
     }
 
     [MyCubeBlockType(typeof(MyObjectBuilder_TurretBase))]
-    public abstract partial class MyLargeTurretBase : MyUserControllableGun, IMyGunObject<MyGunBase>, VRage.ModAPI.Ingame.IMyInventoryOwner, IMyCameraController, IMyControllableEntity, IMyUsableEntity, IMyGunBaseUser
+    public abstract partial class MyLargeTurretBase : MyUserControllableGun, IMyGunObject<MyGunBase>, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, VRage.Game.ModAPI.Interfaces.IMyCameraController, IMyControllableEntity, IMyUsableEntity, IMyGunBaseUser
     {
         private bool m_hidetoolbar;
 
@@ -588,8 +592,8 @@ namespace Sandbox.Game.Weapons
             m_currentPrediction = m_targetPrediction;
             m_positionPrediction = new MyPositionPredictionType(this);
 
-            m_soundEmitter = new MyEntity3DSoundEmitter(this);
-            m_soundEmitterForRotation = new MyEntity3DSoundEmitter(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
+            m_soundEmitterForRotation = new MyEntity3DSoundEmitter(this, true);
 
             ControllerInfo.ControlReleased += OnControlReleased;
 
@@ -642,12 +646,15 @@ namespace Sandbox.Game.Weapons
 
             if (this.GetInventory() == null)
             {
+                MyInventory inventory = null;
                 if (weaponBlockDefinition != null)
-                    Components.Add<MyInventoryBase>(new MyInventory(weaponBlockDefinition.InventoryMaxVolume, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive, this));
+                    inventory = new MyInventory(weaponBlockDefinition.InventoryMaxVolume, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive);
                 else
-                    Components.Add<MyInventoryBase>(new MyInventory(6 * 64.0f / 1000, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive, this));
+                    inventory = new MyInventory(6 * 64.0f / 1000, new Vector3(0.4f, 0.4f, 0.4f), MyInventoryFlags.CanReceive);
 
-                this.GetInventory().Init(builder.Inventory);
+                Components.Add<MyInventoryBase>(inventory);
+
+                inventory.Init(builder.Inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
@@ -1027,7 +1034,7 @@ namespace Sandbox.Game.Weapons
             if (m_barrel != null)
                 m_barrel.UpdateAfterSimulation();
 
-            if (!active)
+            if (!active || (!m_isShooting && !m_isPlayerShooting && !(!IsPlayerControlled && AiEnabled)))
             {
                 StopShootingSound();
             }
@@ -1042,7 +1049,8 @@ namespace Sandbox.Game.Weapons
 
             if (targetDistance < m_searchingRange || m_currentPrediction.ManualTargetPosition)
             {
-                bool isAimed = RotationAndElevation() && CanShoot(out gunStatus) && Target != null && IsTargetVisible(Target);
+                //by Gregory RotationAndElevation uses target! maybe shouldn't?
+                bool isAimed = Target != null && RotationAndElevation() && CanShoot(out gunStatus) && IsTargetVisible(Target);
                 UpdateShooting(isAimed && !m_isPotentialTarget);
             }
             else
@@ -1050,7 +1058,7 @@ namespace Sandbox.Game.Weapons
                 if(!m_isShooting)
                     Deactivate();
 
-                if (MySector.MainCamera.GetDistanceWithFOV(PositionComp.GetPosition()) <= MAX_DISTANCE_FOR_RANDOM_ROTATING_LARGESHIP_GUNS)
+                if (MySector.MainCamera.GetDistanceFromPoint(PositionComp.GetPosition()) <= MAX_DISTANCE_FOR_RANDOM_ROTATING_LARGESHIP_GUNS)
                 {
                     RandomMovement();
                 }
@@ -1099,8 +1107,6 @@ namespace Sandbox.Game.Weapons
                 m_barrel.StopShooting();
                 m_canStopShooting = false;
             }
-            if (m_soundEmitterForRotation != null && m_soundEmitterForRotation.Sound != null && m_soundEmitterForRotation.IsPlaying)
-                m_soundEmitterForRotation.StopSound(true);
         }
 
         private void UpdateControlledWeapon()
@@ -1545,11 +1551,11 @@ namespace Sandbox.Game.Weapons
         private void PlayAimingSound()
         {
             if (m_soundEmitterForRotation != null && m_soundEmitterForRotation.IsPlaying == false)
-                m_soundEmitterForRotation.PlaySingleSound(m_rotatingCueEnum, true);
+                m_soundEmitterForRotation.PlaySound(m_rotatingCueEnum, true);
         }
 
 
-        internal void PlayShootingSound()
+        public void PlayShootingSound()
         {
             if (m_soundEmitter != null)
             {
@@ -1558,15 +1564,15 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        internal void StopShootingSound()
+        public void StopShootingSound()
         {
-            if (m_soundEmitter != null && m_soundEmitter.SoundId == m_shootingCueEnum.SoundId && m_soundEmitter.Loop)
+            if (m_soundEmitter != null && (m_soundEmitter.SoundId == m_shootingCueEnum.Arcade || m_soundEmitter.SoundId == m_shootingCueEnum.Realistic) && m_soundEmitter.Loop)
                 m_soundEmitter.StopSound(false);
         }
 
         internal void StopAimingSound()
         {
-            if (m_soundEmitterForRotation != null && m_soundEmitterForRotation.SoundId == m_rotatingCueEnum.SoundId)
+            if (m_soundEmitterForRotation != null && (m_soundEmitterForRotation.SoundId == m_rotatingCueEnum.Arcade || m_soundEmitterForRotation.SoundId == m_rotatingCueEnum.Realistic))
                 m_soundEmitterForRotation.StopSound(false);
         }
 
@@ -2835,10 +2841,7 @@ namespace Sandbox.Game.Weapons
             get { return false; }
         }
 
-
-        #region IMyCameraController implementation
-
-        MatrixD Sandbox.ModAPI.Interfaces.IMyCameraController.GetViewMatrix()
+        new MatrixD GetViewMatrix()
         {
             RotateModels();
 
@@ -2861,41 +2864,53 @@ namespace Sandbox.Game.Weapons
             return viewMatrix;
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
+        #region IMyCameraController implementation
+
+        void IMyCameraController.ControlCamera(MyCamera currentCamera)
+        {
+            currentCamera.SetViewMatrix(GetViewMatrix());
+        }
+
+        void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
         {
 
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyCameraController.RotateStopped()
+        void IMyCameraController.RotateStopped()
         {
 
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyCameraController.OnAssumeControl(Sandbox.ModAPI.Interfaces.IMyCameraController previousCameraController)
+        void IMyCameraController.OnAssumeControl(IMyCameraController previousCameraController)
         {
 
         }
-        void Sandbox.ModAPI.Interfaces.IMyCameraController.OnReleaseControl(Sandbox.ModAPI.Interfaces.IMyCameraController newCameraController)
+        void IMyCameraController.OnReleaseControl(IMyCameraController newCameraController)
         {
 
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyCameraController.HandleUse()
+        bool IMyCameraController.HandleUse()
         {
             if (MySession.Static.LocalCharacter != null)
             {
-                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter as MyEntity);
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
             }
             return false;
 
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyCameraController.IsInFirstPersonView
+        bool IMyCameraController.HandlePickUp()
+        {
+            return false;
+        }
+
+        bool IMyCameraController.IsInFirstPersonView
         {
             get { return true; }
             set { }
         }
-        bool Sandbox.ModAPI.Interfaces.IMyCameraController.ForceFirstPersonCamera { get; set; }
+        bool IMyCameraController.ForceFirstPersonCamera { get; set; }
 
         bool IMyCameraController.AllowCubeBuilding
         {
@@ -3032,6 +3047,18 @@ namespace Sandbox.Game.Weapons
         {
 
         }
+        public void PickUp()
+        {
+
+        }
+        public void PickUpContinues()
+        {
+
+        }
+        public void PickUpFinished()
+        {
+
+        }
         public void Sprint(bool enabled)
         {
 
@@ -3143,7 +3170,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public void DrawHud(Sandbox.ModAPI.Interfaces.IMyCameraController camera, long playerId)
+        public void DrawHud(IMyCameraController camera, long playerId)
         {
             MyGuiScreenHudSpace.Static.SetToolbarVisible(!m_hidetoolbar);
         }
@@ -3232,9 +3259,9 @@ namespace Sandbox.Game.Weapons
                         lineEnd = m_hitPosition;
                     }
 
-                    Vector3D closestPoint = Vector3D.Zero;
-                    closestPoint = MyUtils.GetClosestPointOnLine(ref lineStart, ref lineEnd, ref MySector.MainCamera.Position);
-                    float distance = (float)MySector.MainCamera.GetDistanceWithFOV(closestPoint);
+                    Vector3D cameraPosition = MySector.MainCamera.Position;
+                    Vector3D closestPoint = MyUtils.GetClosestPointOnLine(ref lineStart, ref lineEnd, ref cameraPosition);
+                    float distance = (float)MySector.MainCamera.GetDistanceFromPoint(closestPoint);
 
                     thickness *= Math.Min(distance, 10) * 0.05f;
 
@@ -3518,6 +3545,11 @@ namespace Sandbox.Game.Weapons
         bool IMyInventoryOwner.HasInventory
         {
             get { return HasInventory; }
+        }
+
+        void IMyControllableEntity.Teleport(Vector3D pos)
+        {
+
         }
     }
 

@@ -98,4 +98,39 @@ namespace VRageRender
             return ((MyTransparentMaterial) value1).Name == ((MyTransparentMaterial) value2).Name;
         }
     }
+
+    public class MyConstPropertyTransparentMaterial : MyConstProperty<MyTransparentMaterial>
+    {
+        public MyConstPropertyTransparentMaterial()
+        {
+        }
+
+        public MyConstPropertyTransparentMaterial(string name)
+            : base(name)
+        {
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+        }
+
+        public override IMyConstProperty Duplicate()
+        {
+            MyConstPropertyTransparentMaterial prop = new MyConstPropertyTransparentMaterial(Name);
+            Duplicate(prop);
+            return prop;
+        }
+
+        public override void SerializeValue(XmlWriter writer, object value)
+        {
+            writer.WriteValue(((MyTransparentMaterial)value).Name);
+        }
+
+        public override void DeserializeValue(XmlReader reader, out object value)
+        {
+            base.DeserializeValue(reader, out value);
+            value = MyTransparentMaterials.GetMaterial((string)value);
+        }
+    }
 }

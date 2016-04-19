@@ -9,8 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Multiplayer;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Network;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
@@ -65,7 +69,14 @@ namespace SpaceEngineers.Game.AI
                     MyCharacter botEntity = m_bot.AgentEntity;
                     if (botEntity != null) botEntity.EnableAnimationCommands();
                 }
-                if (attackTime > 500 && !m_attackPerformed)
+                else if (attackTime > 500 && m_bot.AgentEntity.UseNewAnimationSystem && !m_attackPerformed)
+                {
+                    MySpiderLogic.TriggerAnimationEvent(m_bot.AgentEntity.EntityId, "attack");
+                    if (Sync.IsServer)
+                        MyMultiplayer.RaiseStaticEvent(x => MySpiderLogic.TriggerAnimationEvent, m_bot.AgentEntity.EntityId, "attack");
+                    m_attackPerformed = true;
+                }
+                else if (attackTime > 500 && !m_attackPerformed)
                 {
                     MyCharacter botEntity = m_bot.AgentEntity;
                     if (botEntity != null)

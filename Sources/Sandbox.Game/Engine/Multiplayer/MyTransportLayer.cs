@@ -22,6 +22,7 @@ using VRage.Replication;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage.Library.Utils;
+using Sandbox.Game.World;
 
 namespace Sandbox.Engine.Multiplayer
 {
@@ -383,7 +384,7 @@ namespace Sandbox.Engine.Multiplayer
                 if (m_buffer != null)
                     m_buffer.Clear();
             }
-            else if (IsBuffering) // Buffer event
+            else if (IsBuffering && id != MyMessageId.JOIN_RESULT && id != MyMessageId.WORLD_DATA && id !=  MyMessageId.WORLD_BATTLE_DATA) // Buffer event
             {
                 var buff = new Buffer();
                 buff.Sender = sender;
@@ -406,6 +407,21 @@ namespace Sandbox.Engine.Multiplayer
             Debug.Assert(data.Length >= dataSize, "Wrong size");
 
             MyMessageId id = (MyMessageId)data[0];
+
+
+            if (id == MyMessageId.CLIENT_CONNNECTED)
+            {
+                MyNetworkClient player;
+                if (Sync.Layer != null && Sync.Layer.Clients != null)
+                {
+                    bool playerFound = Sync.Layer.Clients.TryGetClient(sender, out player);
+
+                    if (!playerFound)
+                    {
+                        Sync.Layer.Clients.AddClient(sender);
+                    }
+                }
+            }
 
             MyPacket p = new MyPacket();
             p.Data = data;

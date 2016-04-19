@@ -1,6 +1,7 @@
 ﻿using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
+using System.Collections.Generic;
 using VRage.Utils;
 using VRageMath;
 using Buffer = SharpDX.Direct3D11.Buffer;
@@ -261,17 +262,24 @@ namespace VRageRender
         internal int StartInstance;
 
         // shader material 
-        internal MyMaterialShadersBundleId DepthShaders;
-        internal MyMaterialShadersBundleId Shaders;
-        internal MyMaterialShadersBundleId ForwardShaders;
+        internal MyMergeInstancingShaderBundle DepthShaders;
+        internal MyMergeInstancingShaderBundle Shaders;
+        internal MyMergeInstancingShaderBundle HighlightShaders;
+        internal MyMergeInstancingShaderBundle ForwardShaders;
 
         // drawcalls + material
         internal MyDrawSubmesh_2[] SubmeshesDepthOnly;
         internal MyDrawSubmesh_2[] Submeshes;
-
+        internal MyDrawSubmesh_2[][] SectionSubmeshes;
 
         internal readonly static MyRenderableProxy_2[] EmptyList = new MyRenderableProxy_2[0];
         internal readonly static UInt64[] EmptyKeyList = new UInt64[0];
+    }
+
+    struct MyMergeInstancingShaderBundle
+    {
+        public MyMaterialShadersBundleId MultiInstance;
+        public MyMaterialShadersBundleId SingleInstance;
     }
 
     static class MyProxiesFactory

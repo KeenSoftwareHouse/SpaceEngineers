@@ -46,7 +46,7 @@ namespace Sandbox.Graphics.GUI
         public MyGuiControlGrid.Item Item { get; set; }
         public MySharedButtonsEnum DragButton;
     }
-    
+
     public delegate void OnItemDropped(object sender, MyDragAndDropEventArgs eventArgs);
 
     public class MyGuiControlGridDragAndDrop : MyGuiControlBase
@@ -110,9 +110,10 @@ namespace Sandbox.Graphics.GUI
                 Vector2 textPosition = itemPosition + m_textOffset;
                 textPosition.Y += (Size.Y / 2.0f);
                 // draw item's icon
-                if (m_supportIcon == true && m_draggingGridItem.Icon != null)
+                if (m_supportIcon == true && m_draggingGridItem.Icons != null)
                 {
-                    MyGuiManager.DrawSpriteBatch(m_draggingGridItem.Icon, itemPosition, Size, ApplyColorMaskModifiers(ColorMask, true, transitionAlpha), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                    for (int i = 0; i < m_draggingGridItem.Icons.Length; i++)
+                        MyGuiManager.DrawSpriteBatch(m_draggingGridItem.Icons[i], itemPosition, Size, ApplyColorMaskModifiers(ColorMask, true, transitionAlpha), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
                 }
                 ShowToolTip();
             }
@@ -215,10 +216,10 @@ namespace Sandbox.Graphics.GUI
 
             ItemDropped(this, new MyDragAndDropEventArgs()
             {
-                DragFrom    = m_draggingFrom,
-                DropTo      = dropTo,
+                DragFrom = m_draggingFrom,
+                DropTo = dropTo,
                 Item = m_draggingGridItem,
-                DragButton  = m_dragButton.Value,
+                DragButton = m_dragButton.Value,
             });
 
             Stop();

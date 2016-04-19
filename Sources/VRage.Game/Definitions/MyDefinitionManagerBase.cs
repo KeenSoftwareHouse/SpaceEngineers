@@ -9,7 +9,7 @@ using VRage.Utils;
 
 namespace VRage.Game
 {
-    public class MyDefinitionManagerBase
+    public abstract class MyDefinitionManagerBase
     {
         protected MyDefinitionSet m_definitions = new MyDefinitionSet();
 
@@ -96,10 +96,17 @@ namespace VRage.Game
             return m_definitions.GetDefinition<T>(subtypeId);
         }
 
+        public IEnumerable<T> GetDefinitions<T>() where T : MyDefinitionBase
+        {
+            return m_definitions.GetDefinitionsOfType<T>();
+        }
+
         public bool TryGetDefinition<T>(MyStringHash subtypeId, out T def) where T : MyDefinitionBase
         {
             if ((def = m_definitions.GetDefinition<T>(subtypeId)) != null) return true;
             return false;
         }
+
+        public abstract MyDefinitionSet GetLoadingSet();
     }
 }

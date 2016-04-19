@@ -20,6 +20,7 @@ using VRage.ObjectBuilders;
 using Sandbox.Engine.Networking;
 using Sandbox.Graphics;
 using VRage.Game;
+using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
@@ -203,7 +204,7 @@ namespace Sandbox.Game.Gui
             settings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
             settings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
             settings.VoxelGeneratorVersion = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
-            settings.CargoShipsEnabled = !MyFakes.ENABLE_PLANETS;
+            settings.CargoShipsEnabled = true;
             settings.EnableOxygen = true;
             settings.EnableSpiders = false;
             settings.EnableCyberhounds = false;

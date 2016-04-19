@@ -10,6 +10,7 @@ using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 using VRageMath;
 
 namespace Sandbox.Game.EntityComponents

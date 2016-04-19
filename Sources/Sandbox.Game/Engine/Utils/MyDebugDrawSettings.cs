@@ -1,9 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Graphics.GUI;
-using System;
 using VRage.Game;
 using VRage.Utils;
 

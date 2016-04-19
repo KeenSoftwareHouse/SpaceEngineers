@@ -10,30 +10,15 @@ namespace VRageRender
 {
     partial class MyRender11
     {
-        internal static SamplerId m_defaultSamplerState;
-        internal static SamplerId m_pointSamplerState;
-        internal static SamplerId m_linearSamplerState;
-        internal static SamplerId m_textureSamplerState;
-        internal static SamplerId m_shadowmapSamplerState;
-        internal static SamplerId m_alphamaskSamplerState;
-        internal static SamplerId m_alphamaskarraySamplerState;
+        internal static SamplerId m_defaultSamplerState { get; private set; }
+        internal static SamplerId m_pointSamplerState { get; private set; }
+        internal static SamplerId m_linearSamplerState { get; private set; }
+        internal static SamplerId m_textureSamplerState { get; private set; }
+        internal static SamplerId m_shadowmapSamplerState { get; private set; }
+        internal static SamplerId m_alphamaskSamplerState { get; private set; }
+        internal static SamplerId m_alphamaskarraySamplerState { get; private set; }
 
-        private static SamplerState[] StandardSamplerArray;
-        internal static SamplerState[] StandardSamplers 
-        { 
-            get {
-                Array.Resize(ref StandardSamplerArray, 6);
-                
-                StandardSamplerArray[0] = MyPipelineStates.GetSampler(m_defaultSamplerState);
-                StandardSamplerArray[1] = MyPipelineStates.GetSampler(m_pointSamplerState);
-                StandardSamplerArray[2] = MyPipelineStates.GetSampler(m_linearSamplerState);
-                StandardSamplerArray[3] = MyPipelineStates.GetSampler(m_textureSamplerState);
-                StandardSamplerArray[4] = MyPipelineStates.GetSampler(m_alphamaskSamplerState);
-                StandardSamplerArray[5] = MyPipelineStates.GetSampler(m_alphamaskarraySamplerState);
-
-                return StandardSamplerArray;
-            } 
-        }
+        internal static SamplerState[] StandardSamplers { get; private set; }
 
         internal static void UpdateTextureSampler(SamplerId samplerState, TextureAddressMode addressMode)
         {
@@ -116,6 +101,14 @@ namespace VRageRender
 
             UpdateTextureSampler(m_textureSamplerState, TextureAddressMode.Wrap);
             UpdateTextureSampler(m_alphamaskarraySamplerState, TextureAddressMode.Clamp);
+
+            StandardSamplers = new SamplerState[6];
+            StandardSamplers[0] = MyPipelineStates.GetSampler(m_defaultSamplerState);
+            StandardSamplers[1] = MyPipelineStates.GetSampler(m_pointSamplerState);
+            StandardSamplers[2] = MyPipelineStates.GetSampler(m_linearSamplerState);
+            StandardSamplers[3] = MyPipelineStates.GetSampler(m_textureSamplerState);
+            StandardSamplers[4] = MyPipelineStates.GetSampler(m_alphamaskSamplerState);
+            StandardSamplers[5] = MyPipelineStates.GetSampler(m_alphamaskarraySamplerState);
         }
     }
 }

@@ -23,6 +23,11 @@ IF NOT EXIST "%TextTransformPath%" (
     SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\10.0\TextTransform.exe"
 )
 
+IF NOT EXIST "%TextTransformPath%" (
+echo "TextTemplating not found (correct for Win10)"
+exit
+)
+
 echo Framework: %FrameworkPath%
 echo Text Template: %TextTransformPath%
 

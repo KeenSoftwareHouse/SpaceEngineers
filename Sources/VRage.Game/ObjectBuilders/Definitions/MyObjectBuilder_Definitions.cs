@@ -226,6 +226,9 @@ namespace VRage.Game
         [XmlElement(Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_BattleDefinition>))]
         public MyObjectBuilder_BattleDefinition Battle;
 
+        [ProtoMember]
+        public MyObjectBuilder_DecalGlobalsDefinition DecalGlobals;
+
         [XmlArrayItem("Decal")]
         [ProtoMember]
         public MyObjectBuilder_DecalDefinition[] Decals;

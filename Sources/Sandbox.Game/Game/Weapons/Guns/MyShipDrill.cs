@@ -4,29 +4,29 @@ using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Components;
+using Sandbox.Game.Debugging;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Weapons.Guns;
-
-using VRageMath;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
+using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.Gui;
-using Sandbox.ModAPI.Interfaces;
-using VRage.Utils;
-using Sandbox.ModAPI;
-using Sandbox.Game.World;
 using Sandbox.Game.Localization;
+using Sandbox.Game.Multiplayer;
+using Sandbox.Game.Weapons.Guns;
+using Sandbox.Game.World;
+using Sandbox.ModAPI;
 using VRage;
 using VRage.Game;
-using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
-using VRage.ModAPI.Ingame;
-using IMyInventory = VRage.ModAPI.Ingame.IMyInventory;
+using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.ModAPI;
+using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.Weapons
 {
@@ -51,7 +51,6 @@ namespace Sandbox.Game.Weapons
         private bool WantsToDrill { get { return m_wantsToDrill; } set { m_wantsToDrill = value; WantstoDrillChanged(); } }
 
         private bool m_wantsToCollect;
-        private bool drillStart = true;
 
         private MyCharacter m_owner;
         private readonly Sync<bool> m_useConveyorSystem;
@@ -61,7 +60,7 @@ namespace Sandbox.Game.Weapons
         static MyShipDrill()
         {
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipDrill>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConvSystem.Getter = x => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) =>(x).UseConveyorSystem = v;
             useConvSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConvSystem);
@@ -112,11 +111,8 @@ namespace Sandbox.Game.Weapons
                                        MyDrillConstants.DRILL_SHIP_SPARKS_EFFECT,
                                        new MyDrillSensorSphere(def.SensorRadius, def.SensorOffset),
                                        new MyDrillCutOut(def.SensorOffset, def.SensorRadius),
-                                       HEAD_SLOWDOWN_TIME_IN_SECONDS,
-                                       floatingObjectSpawnOffset: -0.4f,
-                                       floatingObjectSpawnRadius: 0.4f,
-                                       inventoryCollectionRatio: 0.7f
-         );
+                                       HEAD_SLOWDOWN_TIME_IN_SECONDS, -0.4f, 0.4f, 1
+            );
 
             base.Init(builder, cubeGrid);
             
@@ -128,7 +124,8 @@ namespace Sandbox.Game.Weapons
 
             if (this.GetInventory() == null)
             {
-                Components.Add<MyInventoryBase>( new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend, this));
+                MyInventory inventory = new MyInventory(inventoryVolume, inventorySize, MyInventoryFlags.CanSend);
+                Components.Add<MyInventoryBase>(inventory);
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
@@ -143,13 +140,13 @@ namespace Sandbox.Game.Weapons
             m_drillBase.IgnoredEntities.Add(this);
             m_drillBase.OnWorldPositionChanged(WorldMatrix);
             m_wantsToCollect = false;
-            AddDebugRenderComponent(new Components.MyDebugRenderCompomentDrawDrillBase(m_drillBase));
+            AddDebugRenderComponent(new MyDebugRenderCompomentDrawDrillBase(m_drillBase));
 
 			
 			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
 			ResourceSink.Update();
 
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
+            AddDebugRenderComponent(new MyDebugRenderComponentDrawPowerReciever(ResourceSink, this));
 
             var obDrill = (MyObjectBuilder_Drill)builder;
             this.GetInventory().Init(obDrill.Inventory);			
@@ -232,20 +229,19 @@ namespace Sandbox.Game.Weapons
 
         void WantstoDrillChanged()
         {
-            if ((Enabled || WantsToDrill) && IsFunctional && ResourceSink!=null && ResourceSink.IsPowered)
+            ResourceSink.Update();
+            if ((Enabled || WantsToDrill) && IsFunctional && ResourceSink != null && ResourceSink.IsPowered)
             {
                 // starts the animation
-                if(drillStart)
-                    m_drillBase.Drill(collectOre: false, performCutout: false);
-                NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
-                drillStart = false;
+                if (!m_drillBase.IsDrilling)
+                    m_drillBase.Drill(false, false);
+                NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
             }
             else
             {
                 NeedsUpdate &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
                 SetupDrillFrameCountdown();
                 m_drillBase.StopDrill();
-                drillStart = true;
             }
         }
 
@@ -281,6 +277,8 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateAfterSimulation100()
         {
+            ResourceSink.Update();
+
             base.UpdateAfterSimulation100();
             m_drillBase.UpdateAfterSimulation100();
 
@@ -304,27 +302,28 @@ namespace Sandbox.Game.Weapons
                 return;
             m_drillFrameCountdown += MyDrillConstants.DRILL_UPDATE_INTERVAL_IN_FRAMES;
             m_drillBase.IgnoredEntities.Add(Parent);
-            if (m_drillBase.Drill(collectOre: Enabled || m_wantsToCollect, performCutout: true))
+            if (m_drillBase.Drill(Enabled || m_wantsToCollect, true))
             {
-                foreach (var c in CubeGrid.GetBlocks())
+                foreach (MyCockpit cockpit in CubeGrid.GetFatBlocks<MyCockpit>())
                 {
-                    if (c.FatBlock != null && c.FatBlock is MyCockpit)
-                    {
-                        ((MyCockpit)c.FatBlock).AddShake(ShakeAmount);
-                    }
+                    cockpit.AddShake(ShakeAmount);
                 }
             }
         }
 
         public override void UpdateAfterSimulation()
         {
-            ResourceSink.Update();
             base.UpdateAfterSimulation();
 
             m_drillBase.UpdateAfterSimulation();
 
             if (WantsToDrill || m_drillBase.AnimationMaxSpeedRatio > 0f)
             {
+                if (Owner != null && Owner.ControllerInfo.IsLocallyControlled() && MySession.Static.CameraController != null 
+                    && (MySession.Static.CameraController.IsInFirstPersonView || MySession.Static.CameraController.ForceFirstPersonCamera)
+                    && HasObjectInDrillingRange())
+                    m_drillBase.PerformCameraShake();
+
                 if (MySession.Static.EnableToolShake && MyFakes.ENABLE_TOOL_SHAKE)
                 {
                     ApplyShakeForce();
@@ -339,6 +338,29 @@ namespace Sandbox.Game.Weapons
                 foreach (var subpart in Subparts)
                     subpart.Value.PositionComp.LocalMatrix = subpart.Value.PositionComp.LocalMatrix * rotationDeltaMatrix;
             }
+            else
+            {
+                // Don't want to drill and animation speed has hit 0, we can stop updating the drills every frame now
+                NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
+            }
+        }
+
+        private bool HasObjectInDrillingRange()
+        {
+            float distSq = MyDrillConstants.DRILL_SHIP_REAL_LENGTH * MyDrillConstants.DRILL_SHIP_REAL_LENGTH;
+            var origin = m_drillBase.Sensor.Center;
+            
+            foreach (var entry in m_drillBase.Sensor.EntitiesInRange)
+            {
+                const float sparksMoveDist = 0.1f;
+
+                var pt = entry.Value.DetectionPoint;
+                if (Vector3.DistanceSquared(pt, origin) < distSq)
+                {
+                   return true;
+                }
+            }
+            return false;
         }
 
         private void UpdateDetailedInfo()
@@ -387,10 +409,9 @@ namespace Sandbox.Game.Weapons
             if (action != MyShootActionEnum.PrimaryAction && action != MyShootActionEnum.SecondaryAction) return;
 
             WantsToDrill = true;
+            //NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
             m_wantsToCollect = action == MyShootActionEnum.PrimaryAction;
-            ShakeAmount = 2.5f;
-
-            ResourceSink.Update();
+            ShakeAmount = 1.25f;
         }
 
         public void EndShoot(MyShootActionEnum action)
@@ -416,7 +437,7 @@ namespace Sandbox.Game.Weapons
 
         public void DrawHud(IMyCameraController camera, long playerId)
         {
-        }               
+        }
 
         public override void OnDestroy()
         {
@@ -426,25 +447,29 @@ namespace Sandbox.Game.Weapons
 
         private void ApplyShakeForce(float standbyRotationRatio = 1.0f)
         {
+            if (CubeGrid.Physics == null || PositionComp == null)
+                return;
+
             const float PeriodA = 13.35f;
             const float PeriodB = 18.154f;
             const float ShakeForceStrength = 240.0f;
             int offset = GetHashCode(); // Different offset for each drill
 
-            float strength = this.CubeGrid.GridSizeEnum == MyCubeSize.Small ? 1.0f : 5.0f;
-            var axisA = this.WorldMatrix.Up;
-            var axisB = this.WorldMatrix.Right;
+            float strength = CubeGrid.GridSizeEnum == MyCubeSize.Small ? 1.0f : 5.0f;
+            var axisA = WorldMatrix.Up;
+            var axisB = WorldMatrix.Right;
             var force = Vector3.Zero;
-            float timeMs = (float)Sandbox.Game.Debugging.MyPerformanceCounter.TicksToMs(Sandbox.Game.Debugging.MyPerformanceCounter.ElapsedTicks);
+            float timeMs = (float)MyPerformanceCounter.TicksToMs(MyPerformanceCounter.ElapsedTicks);
             force += axisA * (float)Math.Sin(offset + timeMs * PeriodA / 5);
             force += axisB * (float)Math.Sin(offset + timeMs * PeriodB / 5);
             force *= standbyRotationRatio * strength * ShakeForceStrength * m_drillBase.AnimationMaxSpeedRatio * m_drillBase.AnimationMaxSpeedRatio; // Quadratic fade out looks better
-            this.CubeGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, force, PositionComp.GetPosition(), null);
+
+            CubeGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_IMPULSE_AND_WORLD_ANGULAR_IMPULSE, force, PositionComp.GetPosition(), null);
         }
 
         private Vector3 ComputeDrillSensorCenter()
         {
-            return WorldMatrix.Forward * (m_blockLength-2) * m_cubeSideLength + WorldMatrix.Translation;
+            return WorldMatrix.Forward * (m_blockLength - 2) * m_cubeSideLength + WorldMatrix.Translation;
         }
 
         private float ComputeMaxRequiredPower()
@@ -487,7 +512,7 @@ namespace Sandbox.Game.Weapons
         public void InitializeConveyorEndpoint()
         {
             m_multilineConveyorEndpoint = new MyMultilineConveyorEndpoint(this);
-            AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_multilineConveyorEndpoint));
+            AddDebugRenderComponent(new MyDebugRenderComponentDrawConveyorEndpoint(m_multilineConveyorEndpoint));
         }
 
         public bool IsShooting
@@ -518,7 +543,7 @@ namespace Sandbox.Game.Weapons
         {
             get { return null; }
         }
-        bool Sandbox.ModAPI.Ingame.IMyShipDrill.UseConveyorSystem
+        bool ModAPI.Ingame.IMyShipDrill.UseConveyorSystem
         {
             get
             {
@@ -527,7 +552,7 @@ namespace Sandbox.Game.Weapons
         }
 
         private float m_drillMultiplier = 1f;
-        float Sandbox.ModAPI.IMyShipDrill.DrillHarvestMultiplier
+        float IMyShipDrill.DrillHarvestMultiplier
         {
             get
             {
@@ -545,7 +570,7 @@ namespace Sandbox.Game.Weapons
         }
 
         private float m_powerConsumptionMultiplier = 1f;
-        float Sandbox.ModAPI.IMyShipDrill.PowerConsumptionMultiplier
+        float IMyShipDrill.PowerConsumptionMultiplier
         {
             get
             {
@@ -568,5 +593,23 @@ namespace Sandbox.Game.Weapons
                 }
             }
         }
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public PullInformation GetPushInformation()
+        {
+            PullInformation pullInformation = new PullInformation();
+            pullInformation.Inventory = this.GetInventory();
+            pullInformation.OwnerID = OwnerId;
+            pullInformation.Constraint = pullInformation.Inventory.Constraint;
+            return pullInformation;
+        }
+
+        #endregion
     }
 }

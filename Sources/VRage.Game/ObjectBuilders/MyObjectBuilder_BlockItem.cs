@@ -23,8 +23,7 @@ namespace VRage.Game
         public override bool CanStack(MyObjectBuilderType typeId, MyStringHash subtypeId, MyItemFlags flags)
         {
             MyDefinitionId defId = new MyDefinitionId(typeId, subtypeId);
-            MyDefinitionId myId = new MyDefinitionId(BlockDefId.TypeId, BlockDefId.SubtypeId);
-            return myId == BlockDefId && flags == this.Flags;
+            return defId == BlockDefId && flags == this.Flags;
         }
 
         public override MyDefinitionId GetObjectId()

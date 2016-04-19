@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Diagnostics;
 using System.Text;
+using VRage;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Utils;
@@ -20,6 +21,7 @@ namespace Sandbox.Definitions
         public string[] Models;
         public MyStringId? IconSymbol;
         public float Volume; // in m3
+        public float ModelVolume;
         public MyStringHash PhysicalMaterial;
         public MyStringHash VoxelMaterial;
         public bool CanSpawnFromScreen;
@@ -30,6 +32,7 @@ namespace Sandbox.Definitions
         public MyDefinitionId? DestroyedPieceId = null;
         public int DestroyedPieces = 0;
         public StringBuilder ExtraInventoryTooltipLine;
+        public MyFixedPoint MaxStackAmount;
 
         public bool HasIntegralAmounts
         {
@@ -58,7 +61,8 @@ namespace Sandbox.Definitions
             this.Mass = ob.Mass;
             this.Model = ob.Model;
             this.Models = ob.Models;
-            this.Volume = ob.Volume.HasValue? ob.Volume.Value / 1000f : ob.Size.Volume;
+            this.Volume = ob.Volume.HasValue ? ob.Volume.Value / 1000f : ob.Size.Volume;
+            this.ModelVolume = ob.ModelVolume.HasValue ? ob.ModelVolume.Value / 1000f : this.Volume;
             if (string.IsNullOrEmpty(ob.IconSymbol))
                 this.IconSymbol = null;
             else
@@ -79,6 +83,8 @@ namespace Sandbox.Definitions
                 ExtraInventoryTooltipLine = new StringBuilder().Append(Environment.NewLine).Append(ob.ExtraInventoryTooltipLine);
             else
                 ExtraInventoryTooltipLine = new StringBuilder();
+
+            this.MaxStackAmount = ob.MaxStackAmount;
         }
     }
 }

@@ -5,6 +5,7 @@ using Sandbox.Game.Entities;
 using System;
 using VRage.Common;
 using VRage.Common.Utils;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Engine.Utils

@@ -186,8 +186,8 @@ namespace Sandbox.Game.EntityComponents
 	        return Math.Min(m_dataPerType[typeIndex].MaxOutput, m_dataPerType[typeIndex].RemainingCapacity*m_dataPerType[typeIndex].ProductionToCapacityMultiplier*MyEngineConstants.UPDATE_STEPS_PER_SECOND);
 	    }
 
-		internal void SetMaxOutput(float newMaxOutput) { SetMaxOutputByType(m_resourceTypeToIndex.Keys.First(), newMaxOutput); }
-		internal void SetMaxOutputByType(MyDefinitionId resourceTypeId, float newMaxOutput)
+		public void SetMaxOutput(float newMaxOutput) { SetMaxOutputByType(m_resourceTypeToIndex.Keys.First(), newMaxOutput); }
+		public void SetMaxOutputByType(MyDefinitionId resourceTypeId, float newMaxOutput)
 		{
 			var typeIndex = GetTypeIndex(resourceTypeId);
 			if (m_dataPerType[typeIndex].MaxOutput != newMaxOutput)

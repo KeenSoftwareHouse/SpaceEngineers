@@ -24,7 +24,7 @@ namespace Sandbox.Game.Gui
                {
                    if (MySession.Static.CameraController == MySpectator.Static && MySession.Static.ControlledEntity != null)
                    {
-                       MySession.Static.ControlledEntity.Entity.GetTopMostParent().PositionComp.SetPosition(MySpectator.Static.Position);
+                       MySession.Static.ControlledEntity.Teleport(MySpectator.Static.Position);
                    }
                    return true;
                });

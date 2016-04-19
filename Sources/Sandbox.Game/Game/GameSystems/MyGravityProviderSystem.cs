@@ -163,6 +163,75 @@ namespace Sandbox.Game.GameSystems
             return nearestPlanet;
         }
 
+        /// <summary>
+        /// This quickly checks if a given position is in any natural gravity.
+        /// </summary>
+        /// <param name="position">Position to check</param>
+        /// <param name="sphereSize">Sphere size to test with.</param>
+        /// <returns>True if there is natural gravity at this position, false otherwise.</returns>
+        public static bool IsPositionInNaturalGravity(Vector3D position, double sphereSize = 0)
+        {
+            // Clamp sphere size to be at least 0.
+            sphereSize = MathHelper.Max(sphereSize, 0);
+
+            for (int i = 0; i < m_planetGenerators.Count; i++)
+            {
+                IMyGravityProvider provider = m_planetGenerators[i];
+                if (provider == null)
+                    continue;
+
+                MyPlanet planet = provider as MyPlanet;
+                if (planet == null) 
+                    continue;
+
+                //we don't really care which planet's gravity we're in, so return as soon as we find one
+                if (planet.IsPositionInGravityWell(position))
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the specified trajectory intersects any natural gravity wells.
+        /// </summary>
+        /// <param name="start">Starting point of the trajectory.</param>
+        /// <param name="end">Destination of the trajectory.</param>
+        /// <param name="raySize">Size of the ray to test with. (Cilinder test)</param>
+        /// <returns></returns>
+        public static bool DoesTrajectoryIntersectNaturalGravity(Vector3D start, Vector3D end, double raySize = 0)
+        {
+            // If the start and end point are identical, do a sphere test instead.
+            Vector3D direction = start - end;
+            if (Vector3D.IsZero(direction))
+                return IsPositionInNaturalGravity(start, raySize);
+
+            Ray trajectory = new Ray(start, Vector3.Normalize(direction));
+
+            // Clamp ray size to be at least 0.
+            raySize = MathHelper.Max(raySize, 0);
+
+            for (int i = 0; i < m_planetGenerators.Count; i++)
+            {
+                IMyGravityProvider provider = m_planetGenerators[i];
+                if (provider == null)
+                    continue;
+
+                MyPlanet planet = provider as MyPlanet;
+                if (planet == null)
+                    continue;
+
+                //create a bounding sphere to represent the gravity sphere around the planet
+                BoundingSphereD gravitySphere = new BoundingSphereD(planet.PositionComp.GetPosition(), planet.GravityLimit + raySize);
+
+                //check for intersections
+                float? intersect = trajectory.Intersects(gravitySphere);
+                if (intersect.HasValue)
+                    return true;
+            }
+            return false;
+        }
+
         public static void AddGravityGenerator(IMyGravityProvider gravityGenerator)
         {
             m_gravityGenerators.Add(gravityGenerator);

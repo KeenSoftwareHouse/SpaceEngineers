@@ -96,7 +96,8 @@ namespace VRageRender
         {
             m_shadowmapQueries.Clear();
 
-            PrepareSpotlights();
+            if (MyRender11.DebugOverrides.SpotLights)
+                PrepareSpotlights();
             m_cascadeHandler.PrepareQueries(m_shadowmapQueries);
 
             for (int shadowQueryIndex = 0; shadowQueryIndex < m_shadowmapQueries.Count; ++shadowQueryIndex)
@@ -118,22 +119,15 @@ namespace VRageRender
 
             if (MyLightRendering.VisibleSpotlights.Count == 0)
                 OtherShadowsTriangleCounter = 0;
-            
+            return;
             MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
             MyArrayHelpers.Reserve(ref MyLightRendering.Spotlights, MyLightRendering.VisibleSpotlights.Count);
 
             int index = 0;
             int casterIndex = 0;
+            var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
             foreach (var id in MyLightRendering.VisibleSpotlights)
             {
-                var nearPlaneDistance = 0.5f;
-                var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
-                var viewMatrix = MatrixD.CreateLookAt(id.Position, id.Position + MyLights.Spotlights[id.Index].Direction, MyLights.Spotlights[id.Index].Up);
-                var projectionMatrix = MatrixD.CreatePerspectiveFieldOfView((float)(Math.Acos(MyLights.Spotlights[id.Index].ApertureCos) * 2), 1.0f, nearPlaneDistance, Math.Max(id.ShadowDistance, nearPlaneDistance));
-                var viewProjection = viewMatrix * projectionMatrix;
-                MatrixD worldViewProjection = worldMatrix * viewProjection;
-                MyLightRendering.Spotlights[index].ShadowMatrix = Matrix.Transpose(worldViewProjection * MyMatrixHelpers.ClipspaceToTexture);
-
                 if (id.CastsShadows && casterIndex < MAX_SPOTLIGHT_SHADOWCASTERS)
                 {
                     if(ShadowmapsPool.Count <= casterIndex)
@@ -141,6 +135,7 @@ namespace VRageRender
 
                     MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
 
+                    MatrixD viewProjection = MyLights.GetSpotlightViewProjection(id);
                     var query = new MyShadowmapQuery
                     {
                         DepthBuffer = ShadowmapsPool[casterIndex].Dsv,
@@ -150,7 +145,7 @@ namespace VRageRender
                         {
                             WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
                             WorldToProjection = viewProjection,
-                            LocalToProjection = worldViewProjection
+                            LocalToProjection = worldMatrix * viewProjection 
                         },
                         IgnoredEntities = MyLights.IgnoredEntitites.ContainsKey(id) ? MyLights.IgnoredEntitites[id] : null,
                     };
@@ -161,7 +156,6 @@ namespace VRageRender
                 {
                     MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = false;
                 }
-                MyLights.WriteSpotlightConstants(id, ref MyLightRendering.Spotlights[index]);
 
                 index++;
             }

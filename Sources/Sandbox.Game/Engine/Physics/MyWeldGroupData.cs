@@ -11,7 +11,7 @@ using VRage.Groups;
 
 namespace Sandbox.Engine.Physics
 {
-    class MyWeldGroupData : IGroupData<MyEntity>
+    public class MyWeldGroupData : IGroupData<MyEntity>
     {
         MyGroups<MyEntity, MyWeldGroupData>.Group m_group;
         MyEntity m_weldParent;

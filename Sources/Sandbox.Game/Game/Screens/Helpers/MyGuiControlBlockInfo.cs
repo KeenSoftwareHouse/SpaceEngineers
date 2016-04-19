@@ -51,8 +51,9 @@ namespace Sandbox.Graphics.GUI
 
         class ComponentLineControl : MyGuiControlBase
         {
-            public MyGuiControlPanel IconPanel;
-            public MyGuiControlPanel IconPanelBackground;
+            //public MyGuiControlPanel IconPanel;
+            //public MyGuiControlPanel IconPanelBackground;
+            public MyGuiControlImage IconImage;
             public MyGuiControlPanel IconPanelProgress;
             public MyGuiControlLabel NameLabel;
             public MyGuiControlLabel NumbersLabel;
@@ -65,20 +66,26 @@ namespace Sandbox.Graphics.GUI
                 var middleRight = new Vector2(this.Size.X / 2, 0);
                 var iconPos = middleLeft - new Vector2(0, m_iconSize.Y / 2);
 
-                IconPanel = new MyGuiControlPanel();
-                IconPanelBackground = new MyGuiControlPanel();
+                //IconPanel = new MyGuiControlPanel();
+                //IconPanelBackground = new MyGuiControlPanel();
+                IconImage = new MyGuiControlImage();
                 IconPanelProgress = new MyGuiControlPanel();
                 NameLabel = new MyGuiControlLabel(text: String.Empty);
                 NumbersLabel = new MyGuiControlLabel(text: String.Empty);
                 
-                IconPanel.Size = m_iconSize;
-                IconPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-                IconPanel.Position = iconPos;
+                //IconPanel.Size = m_iconSize;
+                //IconPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                //IconPanel.Position = iconPos;
 
-                IconPanelBackground.Size = m_iconSize;
-                IconPanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-                IconPanelBackground.Position = iconPos;
-                IconPanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+                //IconPanelBackground.Size = m_iconSize;
+                //IconPanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                //IconPanelBackground.Position = iconPos;
+                //IconPanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+
+                IconImage.Size = m_iconSize;
+                IconImage.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+                IconImage.Position = iconPos;
+                IconImage.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
 
                 IconPanelProgress.Size = m_iconSize;
                 IconPanelProgress.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
@@ -95,8 +102,9 @@ namespace Sandbox.Graphics.GUI
                 NumbersLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER;
                 NumbersLabel.Position = middleRight + new Vector2(-0.033f, 0); //topRight + new Vector2(-0.02f, 0.004f);
 
-                Elements.Add(IconPanelBackground);
-                Elements.Add(IconPanel);
+                //Elements.Add(IconPanelBackground);
+                //Elements.Add(IconPanel);
+                Elements.Add(IconImage);
                 Elements.Add(IconPanelProgress);
                 Elements.Add(NameLabel);
                 Elements.Add(NumbersLabel);
@@ -112,7 +120,8 @@ namespace Sandbox.Graphics.GUI
 
             public void SetProgress(float val)
             {
-                IconPanelProgress.Size = IconPanel.Size * new Vector2(1, 1 - val);
+                //IconPanelProgress.Size = IconPanel.Size * new Vector2(1, 1 - val);
+                IconPanelProgress.Size = IconImage.Size * new Vector2(1, 1 - val);
             }
         }
 
@@ -122,8 +131,9 @@ namespace Sandbox.Graphics.GUI
         MyGuiControlLabel m_installedRequiredLabel;
         MyGuiControlLabel m_integrityLabel;
 
-        MyGuiControlPanel m_blockIconPanel;
-        MyGuiControlPanel m_blockIconPanelBackground;
+        //MyGuiControlPanel m_blockIconPanel;
+        //MyGuiControlPanel m_blockIconPanelBackground;
+        MyGuiControlImage m_blockIconImage;
 
         MyGuiControlPanel m_blockTypePanel;
         MyGuiControlPanel m_blockTypePanelBackground;
@@ -177,18 +187,25 @@ namespace Sandbox.Graphics.GUI
 				Elements.Add(m_integrityCriticalLine);
 			}
 
-			m_blockIconPanelBackground = new MyGuiControlPanel();
-			m_blockIconPanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-			m_blockIconPanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
-			m_blockIconPanelBackground.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
-			m_blockIconPanelBackground.Size *= new Vector2(0.75f, 1);
-			Elements.Add(m_blockIconPanelBackground);
+            //m_blockIconPanelBackground = new MyGuiControlPanel();
+            //m_blockIconPanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            //m_blockIconPanelBackground.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+            //m_blockIconPanelBackground.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            //m_blockIconPanelBackground.Size *= new Vector2(0.75f, 1);
+            //Elements.Add(m_blockIconPanelBackground);
 
-			m_blockIconPanel = new MyGuiControlPanel();
-			m_blockIconPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
-			m_blockIconPanel.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
-			m_blockIconPanel.Size *= new Vector2(0.75f, 1);
-			Elements.Add(m_blockIconPanel);
+            //m_blockIconPanel = new MyGuiControlPanel();
+            //m_blockIconPanel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            //m_blockIconPanel.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            //m_blockIconPanel.Size *= new Vector2(0.75f, 1);
+            //Elements.Add(m_blockIconPanel);
+
+            m_blockIconImage = new MyGuiControlImage();
+            m_blockIconImage.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            m_blockIconImage.BackgroundTexture = new MyGuiCompositeTexture(MyGuiConstants.TEXTURE_HUD_BG_MEDIUM_DEFAULT.Texture);
+            m_blockIconImage.Size = m_progressMode ? new Vector2(0.088f) : new Vector2(0.04f);
+            m_blockIconImage.Size *= new Vector2(0.75f, 1);
+            Elements.Add(m_blockIconImage);
 
 			m_blockTypePanelBackground = new MyGuiControlPanel();
 			m_blockTypePanelBackground.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
@@ -403,21 +420,24 @@ namespace Sandbox.Graphics.GUI
 
                 m_blockNameLabel.TextScale = 0.95f * baseScale;
                 m_blockNameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
-                m_blockNameLabel.Position = m_blockIconPanel.Position + m_blockIconPanel.Size + new Vector2(0.004f, 0);
+                //m_blockNameLabel.Position = m_blockIconPanel.Position + m_blockIconPanel.Size + new Vector2(0.004f, 0);
+                m_blockNameLabel.Position = m_blockIconImage.Position + m_blockIconImage.Size + new Vector2(0.004f, 0);
                
                 
                 m_blockTypeLabel.Visible = true;
                 m_blockTypeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
                 m_blockTypeLabel.TextScale = m_smallerFontSize * baseScale;
-                m_blockTypeLabel.Position = m_blockIconPanel.Position + new Vector2(m_blockIconPanel.Size.X, 0) + new Vector2(0.004f, -0.0025f);
+                //m_blockTypeLabel.Position = m_blockIconPanel.Position + new Vector2(m_blockIconPanel.Size.X, 0) + new Vector2(0.004f, -0.0025f);
+                m_blockTypeLabel.Position = m_blockIconImage.Position + new Vector2(m_blockIconImage.Size.X, 0) + new Vector2(0.004f, -0.0025f);
 
 				m_componentsLabel.Position = rightColumn + new Vector2(0.006f, 0.076f * baseScale);
             }
 
             m_installedRequiredLabel.Position = topRight + new Vector2(-0.011f, 0.076f * baseScale);
 
-            m_blockIconPanel.Position = topleft + new Vector2(0.0085f, 0.012f);
-            m_blockIconPanelBackground.Position = topleft + new Vector2(0.0085f, 0.012f);
+            //m_blockIconPanel.Position = topleft + new Vector2(0.0085f, 0.012f);
+            //m_blockIconPanelBackground.Position = topleft + new Vector2(0.0085f, 0.012f);
+            m_blockIconImage.Position = topleft + new Vector2(0.0085f, 0.012f);
 
             Vector2 listPos;
             if (m_progressMode)
@@ -429,7 +449,8 @@ namespace Sandbox.Graphics.GUI
             {
                 m_componentLines[i].Position = listPos + new Vector2(0, (BlockInfo.Components.Count - i - 1) * itemHeight);
                 m_componentLines[i].IconPanelProgress.Visible = ShowComponentProgress;
-                m_componentLines[i].IconPanel.BorderColor = CriticalComponentColor;
+                //m_componentLines[i].IconPanel.BorderColor = CriticalComponentColor;
+                m_componentLines[i].IconImage.BorderColor = CriticalComponentColor;
                 m_componentLines[i].NameLabel.TextScale = m_smallerFontSize * baseScale;
                 m_componentLines[i].NumbersLabel.TextScale = m_smallerFontSize * baseScale;
             }
@@ -479,7 +500,8 @@ namespace Sandbox.Graphics.GUI
                         m_componentLines[i].NameLabel.ColorMask = color;
                         m_componentLines[i].NameLabel.TextToDraw.Clear();
                         m_componentLines[i].NameLabel.TextToDraw.Append(info.ComponentName);
-                        m_componentLines[i].IconPanel.BackgroundTexture = new MyGuiCompositeTexture(info.Icon);
+                        //m_componentLines[i].IconPanel.BackgroundTexture = new MyGuiCompositeTexture(info.Icons[0]);
+                        m_componentLines[i].IconImage.Textures = info.Icons;
                         m_componentLines[i].NumbersLabel.Font = font;
                         m_componentLines[i].NumbersLabel.ColorMask = color;
                         m_componentLines[i].NumbersLabel.TextToDraw.Clear();
@@ -494,7 +516,8 @@ namespace Sandbox.Graphics.GUI
 							m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.TotalCount);
 						}
                         m_componentLines[i].NumbersLabel.Size = m_componentLines[i].NumbersLabel.GetTextSize();
-                        m_componentLines[i].IconPanel.BorderEnabled = ShowCriticalComponent && BlockInfo.CriticalComponentIndex == i;
+                        //m_componentLines[i].IconPanel.BorderEnabled = ShowCriticalComponent && BlockInfo.CriticalComponentIndex == i;
+                        m_componentLines[i].IconImage.BorderEnabled = ShowCriticalComponent && BlockInfo.CriticalComponentIndex == i;
                         m_componentLines[i].RecalcTextSize();
                     }
                     else
@@ -508,7 +531,8 @@ namespace Sandbox.Graphics.GUI
                     m_blockNameLabel.TextToDraw.Append(BlockInfo.BlockName);
                 m_blockNameLabel.TextToDraw.ToUpper();
 
-                m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcon);
+                //m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcons[0]);
+                m_blockIconImage.Textures = BlockInfo.BlockIcons;
             }
 
             base.Draw(transitionAlpha, backgroundTransitionAlpha);

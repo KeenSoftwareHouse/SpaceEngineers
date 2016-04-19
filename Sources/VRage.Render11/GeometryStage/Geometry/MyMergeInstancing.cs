@@ -1,21 +1,23 @@
 ﻿using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using VRageMath;
 using Matrix = VRageMath.Matrix;
 using Vector4 = VRageMath.Vector4;
 
 namespace VRageRender
 {
-    struct MyInstancedMeshPages
-    {
-        internal List<int> Pages;
-    }
-
     struct MyInstancingTableEntry
     {
         internal int InnerMeshId;
         internal int InstanceId;
+    }
+
+    struct MyInstanceEntityInfo
+    {
+        internal uint? EntityId;
+        internal int PageOffset;
     }
 
     struct MyPerInstanceData
@@ -57,24 +59,20 @@ namespace VRageRender
         Dictionary<uint, MyInstanceInfo> m_entities = new Dictionary<uint, MyInstanceInfo>();
 
         bool m_instancesDataDirty;
-        bool m_tablesDirty;
+        bool m_tableDirty;
 
         MyPackedPool<MyInstancingTableEntry> m_instancingTable = new MyPackedPool<MyInstancingTableEntry>(64);
         MyFreelist<MyPerInstanceData> m_perInstance = new MyFreelist<MyPerInstanceData>(16);
+        MyFreelist<MyInstanceEntityInfo> m_entityInfos = new MyFreelist<MyInstanceEntityInfo>(16);
 
         internal int VerticesNum { get { return m_meshTable.PageSize * m_instancingTable.Size; } }
-
-        internal static void Init()
-        {
-
-        }
 
         internal MyMergeInstancing(MyMeshTableSRV meshTable)
         {
             m_meshTable = meshTable;
 
             m_instancesDataDirty = false;
-            m_tablesDirty = false;
+            m_tableDirty = false;
         }
 
         internal bool IsMergable(MeshId model)
@@ -88,41 +86,60 @@ namespace VRageRender
                 model.Info.LodsNum == 1 && MyMeshes.GetLodMesh(model, 0).Info.PartsNum == 1 && m_meshTable.IsMergable(model);
         }
 
-        internal void AddEntity(uint ID, MeshId model)
+        internal void AddEntity(MyActor actor, MeshId model)
         {
+            uint ID = actor.ID;
             var instanceIndex = m_perInstance.Allocate();
+            var entityIndex = m_entityInfos.Allocate();
+            Debug.Assert(instanceIndex == entityIndex);
 
             m_entities[ID] = new MyInstanceInfo { InstanceIndex = instanceIndex, PageHandles = new List<MyPackedPoolHandle>() };
 
+            int pageOffset = -1;
             foreach (var id in m_meshTable.Pages(MyMeshTableSRV.MakeKey(model)))
             {
+                if (pageOffset == -1)
+                    pageOffset = id;
+
                 var pageHandle = m_instancingTable.Allocate();
 
                 m_instancingTable.Data[m_instancingTable.AsIndex(pageHandle)] = new MyInstancingTableEntry { InstanceId = instanceIndex, InnerMeshId = id };
+
                 m_entities[ID].PageHandles.Add(pageHandle);
             }
 
             m_perInstance.Data[instanceIndex] = MyPerInstanceData.FromWorldMatrix(ref MatrixD.Zero, 0);
+            m_entityInfos.Data[instanceIndex] = new MyInstanceEntityInfo { EntityId = ID, PageOffset = pageOffset };
 
-            m_tablesDirty = true;
+            m_tableDirty = true;
         }
 
-        internal void UpdateEntity(uint ID, ref MatrixD matrix, uint depthBias)
+        internal void UpdateEntity(MyActor actor, ref MatrixD matrix, uint depthBias)
         {
+            uint ID = actor.ID;
             m_perInstance.Data[m_entities[ID].InstanceIndex] = MyPerInstanceData.FromWorldMatrix(ref matrix, depthBias);
 
             m_instancesDataDirty = true;
         }
 
-        internal void RemoveEntity(uint ID)
+        internal void RemoveEntity(MyActor actor)
         {
-            m_perInstance.Free(m_entities[ID].InstanceIndex);
+            uint ID = actor.ID;
+            MyInstanceInfo info = m_entities[ID];
+            m_perInstance.Free(info.InstanceIndex);
+            m_entityInfos.Free(info.InstanceIndex);
             foreach (var page in m_entities[ID].PageHandles)
-            {
                 m_instancingTable.Free(page);
-            }
 
-            m_tablesDirty = true;
+            // CHECK-ME m_entities.Remove(ID) is missing
+
+            m_tableDirty = true;
+        }
+
+        public MyInstanceEntityInfo[] GetEntityInfos(out int filledSize)
+        {
+            filledSize = m_entityInfos.FilledSize;
+            return m_entityInfos.Data;
         }
 
         internal void OnDeviceReset()
@@ -137,7 +154,7 @@ namespace VRageRender
             m_instanceBuffer = StructuredBufferId.NULL;
             Array.Clear(m_SRVs, 0, m_SRVs.Length);
 
-            m_tablesDirty = true;
+            m_tableDirty = true;
             m_instancesDataDirty = true;
         }
 
@@ -145,7 +162,7 @@ namespace VRageRender
         {
             var context = MyImmediateRC.RC.DeviceContext;
 
-            if (m_tablesDirty)
+            if (m_tableDirty)
             {
                 var array = m_instancingTable.Data;
 
@@ -157,7 +174,7 @@ namespace VRageRender
                     m_SRVs[0] = m_indirectionBuffer.Srv;
                 }
 
-                m_tablesDirty = false;
+                m_tableDirty = false;
             }
 
             if (m_instancesDataDirty)
@@ -176,7 +193,7 @@ namespace VRageRender
                     }
                     if (m_instanceBuffer == StructuredBufferId.NULL)
                     {
-                        m_instanceBuffer = MyHwBuffers.CreateStructuredBuffer(array.Length, sizeof(MyPerInstanceData), true, intPtr);
+                        m_instanceBuffer = MyHwBuffers.CreateStructuredBuffer(array.Length, sizeof(MyPerInstanceData), true, intPtr, "MyMergeInstancing instances");
                         m_SRVs[1] = m_instanceBuffer.Srv;
                     }
                     else
@@ -189,6 +206,16 @@ namespace VRageRender
 
                 m_instancesDataDirty = false;
             }
+        }
+
+        public bool TableDirty
+        {
+            get { return m_tableDirty; }
+        }
+
+        public int TablePageSize
+        {
+            get { return m_meshTable.PageSize; }
         }
     }
 }

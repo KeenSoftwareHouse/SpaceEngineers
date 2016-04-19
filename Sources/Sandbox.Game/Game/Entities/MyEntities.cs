@@ -2,7 +2,7 @@
 
 using Havok;
 using Sandbox.Common;
-using Sandbox.Common.Components;
+
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
@@ -309,6 +309,31 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public static Vector3D? TestPlaceInSpace(Vector3D basePos, float radius)
+        {
+            List<MyVoxelBase> voxels = new List<MyVoxelBase>();
+
+            Vector3D currentPos = basePos;
+            Quaternion rot = Quaternion.Identity;
+            HkShape sphere = new HkSphereShape(radius);
+            try
+            {
+                if (MyEntities.IsInsideWorld(currentPos) && !IsShapePenetrating(sphere, ref currentPos, ref rot))
+                {
+                    BoundingSphereD boundingSphere = new BoundingSphereD(currentPos, radius);
+                    MySession.Static.VoxelMaps.GetAllOverlappingWithSphere(ref boundingSphere, voxels);
+
+                    if (voxels.Count == 0)
+                        return currentPos;
+                }
+                return null;
+            }
+            finally
+            {
+                sphere.RemoveReference();
+            }
+        }
+
         /// <returns>True if it a safe position is found</returns>
         private static bool FindFreePlaceVoxelMap(Vector3D currentPos, float radius, ref HkShape shape, ref Vector3D ret)
         {
@@ -494,6 +519,12 @@ namespace Sandbox.Game.Entities
         {
             MyGamePruningStructure.GetAllEntitiesInBox(ref boundingBox, foundElements);
         }
+
+        public static void GetTopMostEntitiesInBox(ref BoundingBoxD boundingBox, List<MyEntity> foundElements, MyEntityQueryType qtype = MyEntityQueryType.Both)
+        {
+            MyGamePruningStructure.GetAllTopMostStaticEntitiesInBox(ref boundingBox, foundElements, qtype);
+        }
+
 
         // Helper list for storing results of various operations, mostly used in intersections
         [ThreadStatic]
@@ -745,7 +776,6 @@ namespace Sandbox.Game.Entities
         /// Removes the specified entity from scene
         /// </summary>
         /// <param name="entity">The entity.</param>
-        /// <param name="skipIfNotExist">if set to <c>true</c> [skip if not exist].</param>
         public static void Remove(MyEntity entity)
         {
             System.Diagnostics.Debug.Assert(entity != null);
@@ -1851,9 +1881,21 @@ namespace Sandbox.Game.Entities
 
             MyEntity retVal = CreateFromObjectBuilder(objectBuilder);
 
+            
             if (retVal != null)
             {
-                Add(retVal, insertIntoScene);
+                //by Gregory: added Check if Entity.Id == 0.
+                //means that save is corrupted and not all entities will be loaded but at least the save game will run with warning message.
+                //Mostly for compatibility with old save games
+                if (retVal.EntityId == 0)
+                {
+                    //If set to null a waning will be printed disabled that now cause got a lot fo Entities with EntityId = 0.
+                    //retVal = null;
+                }
+                else
+                {
+                    Add(retVal, insertIntoScene);
+                }
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -2035,6 +2077,7 @@ namespace Sandbox.Game.Entities
                         //continue;
 
                         var temporaryEntity = MyEntities.CreateFromObjectBuilderAndAdd(objectBuilder);
+
                         allEntitiesAdded &= temporaryEntity != null;
                     }
                 }

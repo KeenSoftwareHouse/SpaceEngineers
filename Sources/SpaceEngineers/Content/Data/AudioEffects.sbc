@@ -148,8 +148,44 @@
             <SoundEffect>
               <Duration>0</Duration>
               <Filter>LowPass</Filter>
-              <Frequency>450</Frequency>
-              <Q>1.41</Q>
+              <Frequency>650</Frequency>
+              <Q>0.7</Q>
+            </SoundEffect>
+          </SoundEffects>
+        </Sound>
+      </Sounds>
+    </Effect>
+    <Effect>
+      <Id>
+        <TypeId>AudioEffectDefinition</TypeId>
+        <SubtypeId>LowPassNoHelmetNoOxy</SubtypeId>
+      </Id>
+      <Sounds>
+        <Sound>
+          <SoundEffects>
+            <SoundEffect>
+              <Duration>0</Duration>
+              <Filter>LowPass</Filter>
+              <Frequency>40</Frequency>
+              <Q>0.5</Q>
+            </SoundEffect>
+          </SoundEffects>
+        </Sound>
+      </Sounds>
+    </Effect>
+    <Effect>
+      <Id>
+        <TypeId>AudioEffectDefinition</TypeId>
+        <SubtypeId>realShipFilter</SubtypeId>
+      </Id>
+      <Sounds>
+        <Sound>
+          <SoundEffects>
+            <SoundEffect>
+              <Duration>0</Duration>
+              <Filter>LowPass</Filter>
+              <Frequency>400</Frequency>
+              <Q>0.6</Q>
             </SoundEffect>
           </SoundEffects>
         </Sound>

@@ -11,7 +11,7 @@ using Sandbox.Graphics.Render;
 
 namespace Sandbox.Game.Gui
 {
-    [MyDebugScreen("Render", "Cinematic FX")]
+    [MyDebugScreen("Render", "Cinematic FX", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugCinematicFX : MyGuiScreenDebugBase
     {
         public override string GetFriendlyName()

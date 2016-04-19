@@ -16,6 +16,7 @@ using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
+using System.IO;
 
 namespace Sandbox.Game.Gui
 {
@@ -26,6 +27,10 @@ namespace Sandbox.Game.Gui
         private MyGuiControlButton m_openInWorkshopButton;
         private MyGuiControlButton m_refreshButton;
         private MyGuiControlButton m_browseWorkshopButton;
+        private MyGuiControlButton m_copyButton;
+
+        private MyGuiControlButton m_currentButton;
+
         private int m_selectedRow;
         private bool m_listNeedsReload;
         private List<MySteamWorkshop.SubscribedItem> m_subscribedWorlds;
@@ -67,9 +72,10 @@ namespace Sandbox.Game.Gui
 
             // Load
             Controls.Add(m_loadButton = MakeButton(buttonOrigin + buttonDelta * 0, MyCommonTexts.ScreenLoadSubscribedWorldCopyAndLoad, MyCommonTexts.ToolTipWorkshopCopyAndLoad, OnLoadClick));
-            Controls.Add(m_openInWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 1, MyCommonTexts.ScreenLoadSubscribedWorldOpenInWorkshop, MyCommonTexts.ToolTipWorkshopOpenInWorkshop, OnOpenInWorkshopClick));
-            Controls.Add(m_refreshButton = MakeButton(buttonOrigin + buttonDelta * 2, MyCommonTexts.ScreenLoadSubscribedWorldRefresh, MyCommonTexts.ToolTipWorkshopRefresh, OnRefreshClick));
-            Controls.Add(m_browseWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 3, MyCommonTexts.ScreenLoadSubscribedWorldBrowseWorkshop, MyCommonTexts.ToolTipWorkshopBrowseWorkshop, OnBrowseWorkshopClick));
+            Controls.Add(m_copyButton = MakeButton(buttonOrigin + buttonDelta * 1, MyCommonTexts.ScreenLoadSubscribedWorldCopyWorld, MyCommonTexts.ToolTipWorkshopCopyWorld, OnCopyClick));
+            Controls.Add(m_openInWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 2, MyCommonTexts.ScreenLoadSubscribedWorldOpenInWorkshop, MyCommonTexts.ToolTipWorkshopOpenInWorkshop, OnOpenInWorkshopClick));
+            Controls.Add(m_refreshButton = MakeButton(buttonOrigin + buttonDelta * 3, MyCommonTexts.ScreenLoadSubscribedWorldRefresh, MyCommonTexts.ToolTipWorkshopRefresh, OnRefreshClick));
+            Controls.Add(m_browseWorkshopButton = MakeButton(buttonOrigin + buttonDelta * 4, MyCommonTexts.ScreenLoadSubscribedWorldBrowseWorkshop, MyCommonTexts.ToolTipWorkshopBrowseWorkshop, OnBrowseWorkshopClick));
 
             m_loadButton.DrawCrossTextureWhenDisabled = false;
             m_openInWorkshopButton.DrawCrossTextureWhenDisabled = false;
@@ -129,12 +135,20 @@ namespace Sandbox.Game.Gui
 
         private void OnLoadClick(MyGuiControlButton sender)
         {
+            m_currentButton = m_loadButton;
             CreateAndLoadFromSubscribedWorld();
         }
 
         private void OnTableItemConfirmedOrDoubleClick(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
         {
+            m_currentButton = m_loadButton;
             CreateAndLoadFromSubscribedWorld();
+        }
+
+        private void OnCopyClick(MyGuiControlButton sender)
+        {
+            m_currentButton = m_copyButton;
+            CopyWorldAndGoToLoadScreen();
         }
         #endregion
 
@@ -147,12 +161,63 @@ namespace Sandbox.Game.Gui
             var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
             if (world == null)
                 return;
-            MySteamWorkshop.CreateWorldInstanceAsync(world, MySteamWorkshop.MyWorkshopPathInfo.CreateWorldInfo(), false, delegate(bool success, string sessionPath)
-            {
-                if (success)
-                    MyGuiScreenLoadSandbox.LoadSingleplayerSession(sessionPath);
-            });
 
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, beginActionLoadSaves, endActionLoadSaves));
+        }
+
+        private void CopyWorldAndGoToLoadScreen()
+        {
+            var selectedRow = m_worldsTable.SelectedRow;
+            if (selectedRow == null)
+                return;
+
+            var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
+            if (world == null)
+                return;
+
+            //by Gregory: Changed functionality in order to add ovewrite dialog box. only one steam account is permitted right now
+            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, beginActionLoadSaves, endActionLoadSaves));
+        }
+
+        private void OnSuccess(string sessionPath)
+        {
+            if (m_currentButton == m_copyButton)
+            {
+                var loadScreen = new MyGuiScreenLoadSandbox();
+                MyGuiSandbox.AddScreen(new MyGuiScreenLoadSandbox());
+                loadScreen.SelectSteamWorld(sessionPath);
+            }
+            else if (m_currentButton == m_loadButton)
+            {
+                MyGuiScreenLoadSandbox.LoadSingleplayerSession(sessionPath);
+            }
+            m_currentButton = null;
+        }
+
+        private void OverwriteWorldDialog()
+        {
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                buttonType: MyMessageBoxButtonsType.YES_NO,
+
+                messageText: MyTexts.Get(m_currentButton == m_loadButton ? MyCommonTexts.MessageBoxTextWorldExistsDownloadOverwrite : MyCommonTexts.MessageBoxTextWorldExistsOverwrite),
+                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                callback: OnOverwriteWorld));
+        }
+
+        private void OnOverwriteWorld(MyGuiScreenMessageBox.ResultEnum callbackReturn)
+        {
+            if (callbackReturn == MyGuiScreenMessageBox.ResultEnum.YES)
+            {
+                var selectedRow = m_worldsTable.SelectedRow;
+                var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
+                MySteamWorkshop.CreateWorldInstanceAsync(world, MySteamWorkshop.MyWorkshopPathInfo.CreateWorldInfo(), true, delegate(bool success, string sessionPath)
+                {
+                    if (success)
+                    {
+                        OnSuccess(sessionPath);
+                    }
+                });
+            }
         }
 
         public override bool Update(bool hasFocus)
@@ -160,11 +225,13 @@ namespace Sandbox.Game.Gui
             if (m_worldsTable.SelectedRow != null)
             {
                 m_loadButton.Enabled = true;
+                m_copyButton.Enabled = true;
                 m_openInWorkshopButton.Enabled = true;
             }
             else
             {
                 m_loadButton.Enabled = false;
+                m_copyButton.Enabled = false;
                 m_openInWorkshopButton.Enabled = false;
             }
 
@@ -283,6 +350,38 @@ namespace Sandbox.Game.Gui
             m_subscribedWorlds = loadResult.SubscribedWorlds;
             RefreshGameList();
             screen.CloseScreen();
+        }
+
+        private IMyAsyncResult beginActionLoadSaves()
+        {
+            return new MyLoadWorldInfoListResult();
+        }
+
+        private void endActionLoadSaves(IMyAsyncResult result, MyGuiScreenProgressAsync screen)
+        {
+            screen.CloseScreen();
+
+            var selectedRow = m_worldsTable.SelectedRow;
+            var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
+
+
+
+            string safeName = MyUtils.StripInvalidChars(world.Title);
+            var tempSessionPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
+            if (Directory.Exists(tempSessionPath))
+            {
+                OverwriteWorldDialog();
+            }
+            else
+            {
+                MySteamWorkshop.CreateWorldInstanceAsync(world, MySteamWorkshop.MyWorkshopPathInfo.CreateWorldInfo(), false, delegate(bool success, string sessionPath)
+                {
+                    if (success)
+                    {
+                        OnSuccess(sessionPath);
+                    }
+                });
+            }
         }
 
         #endregion

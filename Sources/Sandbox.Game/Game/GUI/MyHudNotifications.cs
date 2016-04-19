@@ -51,7 +51,11 @@ namespace Sandbox.Game.Gui
         BuildingModeOn,
         BuildingModeOff,
         PlayerPromoted,
-        PlayerDemoted
+        PlayerDemoted,
+        
+        // Piston notifications
+        HeadNotPlaced,
+        HeadAlreadyExists,
     }
 
     public class MyHudNotifications
@@ -153,6 +157,10 @@ namespace Sandbox.Game.Gui
 
             Register(MyNotificationSingletons.BuildingModeOn, new MyHudNotification(MySpaceTexts.BuilderModeOn, 2500, MyFontEnum.White));
             Register(MyNotificationSingletons.BuildingModeOff, new MyHudNotification(MySpaceTexts.BuilderModeOff, 2500, MyFontEnum.White));
+
+            // Piston notifications
+            Register(MyNotificationSingletons.HeadNotPlaced, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.Notification_PistonHeadNotPlaced));
+            Register(MyNotificationSingletons.HeadAlreadyExists, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.Notification_PistonHeadAlreadyExists));
 
             if (MyPerGameSettings.Game == GameEnum.ME_GAME)
             {

@@ -43,7 +43,6 @@ namespace Sandbox.Game.Entities.Cube
 
         private HkVelocityConstraintMotor m_motor;
         private bool m_limitsActive;
-        private bool m_isAttached = false;
         protected bool m_canBeDetached = false;
         private float m_currentAngle;
         protected MyAttachableConveyorEndpoint m_conveyorEndpoint;
@@ -85,7 +84,7 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(reverse);
 
             var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = null, MasterToSlave = null});
-            detach.Enabled = (b) => b.m_rotorBlockId.Value.OtherEntityId.HasValue;
+            detach.Enabled = (b) => b.m_rotorBlockId.Value.OtherEntityId.HasValue && b.m_isWelding == false && b.m_welded == false;
             detach.Visible = (b) => b.m_canBeDetached;
             var actionDetach = detach.EnableAction(MyTerminalActionIcons.NONE);
             actionDetach.Enabled = (b) => b.m_canBeDetached;
@@ -175,7 +174,7 @@ namespace Sandbox.Game.Entities.Cube
         public MyMotorStator()
         {
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
-            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_canBeDetached = true;
 
             SyncType.PropertyChanged += SyncType_PropertyChanged;
@@ -590,7 +589,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         #region Motor API interface
-        bool IMyMotorStator.IsAttached { get { return m_isAttached; } }
+        bool IMyMotorStator.IsLocked { get { return m_welded || m_isWelding; } }
         float IMyMotorStator.Angle { get { return m_currentAngle; } }
         float IMyMotorStator.Torque { get { return Torque; } }
         float IMyMotorStator.BrakingTorque { get { return BrakingTorque; } }
@@ -599,6 +598,20 @@ namespace Sandbox.Game.Entities.Cube
         float IMyMotorStator.UpperLimit { get { return m_maxAngle; } }
         float IMyMotorStator.Displacement { get { return m_dummyDisplacement; } }
         event Action<bool> Sandbox.ModAPI.IMyMotorStator.LimitReached { add { LimitReached += value; } remove { LimitReached -= value; } }
+        #endregion
+
+        #region IMyConveyorEndpointBlock implementation
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPullInformation()
+        {
+            return null;
+        }
+
+        public Sandbox.Game.GameSystems.Conveyors.PullInformation GetPushInformation()
+        {
+            return null;
+        }
+
         #endregion
     }
 }

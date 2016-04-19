@@ -7,7 +7,7 @@ namespace Sandbox.ModAPI.Ingame
 {
     public interface IMyMotorStator : IMyMotorBase
     {
-        bool IsAttached { get; }
+        bool IsLocked { get; }
         float Angle { get; }
         float Torque { get; }
         float BrakingTorque { get; }

@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
 using VRage.ObjectBuilders;
 

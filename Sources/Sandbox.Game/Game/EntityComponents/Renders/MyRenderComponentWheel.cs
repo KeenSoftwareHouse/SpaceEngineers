@@ -31,7 +31,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 			m_lastEffectCreationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + 2*m_effectCreationInterval;
 		}
 
-        public bool TrySpawnParticle(Vector3D worldPosition, MyTuple<int, ContactPropertyParticleProperties> particle)
+        public bool TrySpawnParticle(Vector3D worldPosition, string particleName)
 		{
 			if (!MyFakes.ENABLE_DRIVING_PARTICLES)
 				return false;
@@ -49,7 +49,7 @@ namespace Sandbox.Game.EntityComponents.Renders
                 return false;
 
 			MyParticleEffect drivingEffect = null;
-            if (!MyParticlesManager.TryCreateParticleEffect(particle.Item1, out drivingEffect))
+            if (!MyParticlesManager.TryCreateParticleEffect(particleName, out drivingEffect))
 				return false;
 
 			m_lastEffectCreationTime = currentTime;
@@ -57,12 +57,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 
             drivingEffect.WorldMatrix = MatrixD.CreateTranslation(worldPosition);
             var speedScaleMultiplier = 1.0f + speedMultiplier * 6.0f;
-            if (particle.Item2 != null)
-            {
-                drivingEffect.UserScale = particle.Item2.SizeMultiplier * speedScaleMultiplier;
-                drivingEffect.UserColorMultiplier = particle.Item2.ColorMultiplier;
-                drivingEffect.SetPreload(particle.Item2.Preload);
-            }
+            drivingEffect.UserScale = speedScaleMultiplier;
 
 			return true;
 		}

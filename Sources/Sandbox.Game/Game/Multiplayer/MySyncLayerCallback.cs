@@ -49,7 +49,6 @@ namespace Sandbox.Game.Multiplayer
     {
         FromServer = 1,
         ToServer = 2,
-        ToSelf = 4,
     }
 
     public partial class MySyncLayer
@@ -120,22 +119,17 @@ namespace Sandbox.Game.Multiplayer
             }
 
             void Handle(ref TMsg msg, ulong sender, TimeSpan timestamp)
-            {
-                if (Sync.ServerId == sender)
-                {
-                    Layer.LastMessageFromServer = DateTime.UtcNow;
-                }
-                
+            {              
                 MyNetworkClient player;
                 bool playerFound = Layer.Clients.TryGetClient(sender, out player);
                 bool permissionsOk = MySyncLayer.CheckReceivePermissions(sender, Permission);
 
-                if (!playerFound && msg is ConnectedClientDataMsg)
+             /*   if (!playerFound && msg is ConnectedClientDataMsg)
                 {
                     var m = (ConnectedClientDataMsg)(object)msg;
                     player = Layer.Clients.AddClient(sender);
                     playerFound = true;
-                }
+                }*/
 
                 //TODO: This should be ok if client loads the scene, buffers another player messages
                 //and during that time is that player kicked

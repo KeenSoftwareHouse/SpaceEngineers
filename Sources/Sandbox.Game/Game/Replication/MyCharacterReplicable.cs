@@ -24,9 +24,11 @@ namespace Sandbox.Game.Replication
     class MyCharacterReplicable : MyEntityReplicableBaseEvent<MyCharacter>
     {
         private MyPropertySyncStateGroup m_propertySync;
+        MyEntityPositionVerificationStateGroup m_posVerGroup;
 
         protected override IMyStateGroup CreatePhysicsGroup()
         {
+            m_posVerGroup = new MyCharacterPositionVerificationStateGroup(Instance);
             return new MyCharacterPhysicsStateGroup(Instance, this);
         }
 
@@ -75,7 +77,10 @@ namespace Sandbox.Game.Replication
         {
             base.GetStateGroups(resultList);
             if (m_propertySync != null && m_propertySync.PropertyCount > 0)
+            {
                 resultList.Add(m_propertySync);
+            }
+            resultList.Add(m_posVerGroup);
         }
 
         public override IMyReplicable GetDependency()

@@ -97,7 +97,7 @@ namespace Sandbox.Game.Gui
             Stats.Timing.Write("GC Memory", GC.GetTotalMemory(false), VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             Stats.Timing.Write("Process memory", WinApi.WorkingSet, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             Stats.Timing.Write("Active parcticle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
-            Stats.Timing.Write("  particles total", MyParticlesManager.ParticlesTotal, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+            Stats.Timing.Write("Billboards total", VRageRender.MyPerformanceCounter.PerCameraDraw11Read.BillboardsDrawn, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 
             if (MyPhysics.Clusters != null)
             {

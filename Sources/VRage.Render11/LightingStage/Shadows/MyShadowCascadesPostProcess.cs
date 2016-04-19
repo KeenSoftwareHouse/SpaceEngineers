@@ -66,7 +66,7 @@ namespace VRageRender
         private unsafe void InitConstantBuffer()
         {
             if(m_inverseConstants == ConstantsBufferId.NULL)
-                m_inverseConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix));
+                m_inverseConstants = MyHwBuffers.CreateConstantsBuffer(sizeof(Matrix), "MyShadowCascadesPostProcess");
         }
 
         Vector2I GetThreadsPerThreadGroup(Vector2I textureSizeInPixels)
@@ -127,7 +127,7 @@ namespace VRageRender
         private unsafe void InitVertexBuffer(int numberOfCascades)
         {
             DestroyVertexBuffer();
-            m_cascadesBoundingsVertices = MyHwBuffers.CreateVertexBuffer(8 * numberOfCascades, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic);
+            m_cascadesBoundingsVertices = MyHwBuffers.CreateVertexBuffer(8 * numberOfCascades, sizeof(Vector3), BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyShadowCascadesPostProcess");
         }
 
         private void DestroyVertexBuffer()
@@ -158,7 +158,7 @@ namespace VRageRender
             indices[30] = 1; indices[31] = 0; indices[32] = 4;
             indices[33] = 1; indices[34] = 4; indices[35] = 5;
 
-            m_cubeIB = MyHwBuffers.CreateIndexBuffer(indexCount, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(indices));
+            m_cubeIB = MyHwBuffers.CreateIndexBuffer(indexCount, Format.R16_UInt, BindFlags.IndexBuffer, ResourceUsage.Immutable, new IntPtr(indices), "MyScreenDecals");
         }
 
         private void DestroyIndexBuffer()

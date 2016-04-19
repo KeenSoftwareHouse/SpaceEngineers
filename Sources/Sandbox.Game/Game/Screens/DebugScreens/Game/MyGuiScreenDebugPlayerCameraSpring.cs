@@ -28,16 +28,15 @@ namespace Sandbox.Game.Gui
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.02f, 0.10f);
 
             m_currentPosition.Y += 0.01f;
-              
-            var cockpit = MySession.Static.ControlledEntity as MyCockpit;
-
-            if (cockpit != null)
+            
+            if (MySector.MainCamera != null)
             {
-                AddSlider("MaxVelocity", 0, 1, cockpit.CameraSpring, MemberHelper.GetMember(() => cockpit.CameraSpring.MaxVelocity));
-                AddSlider("MaxAccel", 0, 80, cockpit.CameraSpring, MemberHelper.GetMember(() => cockpit.CameraSpring.MaxAccel));
-                AddSlider("MaxDistanceSpeed", 0, 500, cockpit.CameraSpring, MemberHelper.GetMember(() => cockpit.CameraSpring.MaxDistanceSpeed));
-                AddSlider("linearVelocityDumping", 0, 1, cockpit.CameraSpring, MemberHelper.GetMember(() => cockpit.CameraSpring.LinearVelocityDumping));
-                AddSlider("localTranslationDumping", 0, 1, cockpit.CameraSpring, MemberHelper.GetMember(() => cockpit.CameraSpring.LocalTranslationDumping));
+                var cameraSpring = MySector.MainCamera.CameraSpring;
+                AddLabel("Camera target spring", Color.Yellow.ToVector4(), 1);
+                AddSlider("Stiffness", 0, 50, () => cameraSpring.SpringStiffness, (s) => { cameraSpring.SpringStiffness = s; });
+                AddSlider("Dampening", 0, 1, () => cameraSpring.SpringDampening, (s) => { cameraSpring.SpringDampening = s; });
+                AddSlider("CenterMaxVelocity", 0, 10, () => cameraSpring.SpringMaxVelocity, (s) => { cameraSpring.SpringMaxVelocity = s; });
+                AddSlider("SpringMaxLength", 0, 2, () => cameraSpring.SpringMaxLength, (s) => { cameraSpring.SpringMaxLength = s; });
             }   
 
             m_currentPosition.Y += 0.01f;
@@ -49,22 +48,13 @@ namespace Sandbox.Game.Gui
                 m_currentPosition.Y += 0.01f;
 
                 AddLabel("Normal spring", Color.Yellow.ToVector4(), 0.7f);
-                AddSlider("Stiffness", 1, 50000, MyThirdPersonSpectator.Static.NormalSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.NormalSpring.Stiffness));
-                AddSlider("Damping", 1, 5000, MyThirdPersonSpectator.Static.NormalSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.NormalSpring.Damping));
-                AddSlider("Mass", 0.1f, 500, MyThirdPersonSpectator.Static.NormalSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.NormalSpring.Mass));
-
-                AddLabel("Strafing spring", Color.Yellow.ToVector4(), 0.7f);
-                AddSlider("Stiffness", 1, 50000, MyThirdPersonSpectator.Static.StrafingSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.StrafingSpring.Stiffness));
-                AddSlider("Damping", 1, 5000, MyThirdPersonSpectator.Static.StrafingSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.StrafingSpring.Damping));
-                AddSlider("Mass", 0.1f, 500, MyThirdPersonSpectator.Static.StrafingSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.StrafingSpring.Mass));
-
-                AddLabel("Angle spring", Color.Yellow.ToVector4(), 0.7f);
-                AddSlider("Stiffness", 1, 50000, MyThirdPersonSpectator.Static.AngleSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.AngleSpring.Stiffness));
-                AddSlider("Damping", 1, 5000, MyThirdPersonSpectator.Static.AngleSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.AngleSpring.Damping));
-                AddSlider("Mass", 0.1f, 500, MyThirdPersonSpectator.Static.AngleSpring, MemberHelper.GetMember(() => MyThirdPersonSpectator.Static.AngleSpring.Mass));
+                AddSlider("Stiffness", 1, 50000, () => MyThirdPersonSpectator.Static.NormalSpring.Stiffness,
+                    (s) => MyThirdPersonSpectator.Static.NormalSpring.Stiffness = s);
+                AddSlider("Damping", 1, 5000, () => MyThirdPersonSpectator.Static.NormalSpring.Dampening,
+                    (s) => MyThirdPersonSpectator.Static.NormalSpring.Dampening = s);
+                AddSlider("Mass", 0.1f, 500, () => MyThirdPersonSpectator.Static.NormalSpring.Mass,
+                    (s) => MyThirdPersonSpectator.Static.NormalSpring.Mass = s);
             }
-            
-
         }
 
         public override string GetFriendlyName()

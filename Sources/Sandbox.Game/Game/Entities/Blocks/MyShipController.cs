@@ -28,11 +28,16 @@ using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
-using IMyModdingControllableEntity = Sandbox.ModAPI.Interfaces.IMyControllableEntity;
+using IMyModdingControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using VRage.Network;
 using Sandbox.Game.Entities.UseObject;
+
+
+
+using Sandbox.Engine.Multiplayer;
+using System.Collections.Generic;
 using VRage.Game.Gui;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -40,7 +45,10 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game.AI;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 using VRage.Serialization;
+using Sandbox.Game.Replication;
+using VRage.Audio;
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -86,6 +94,8 @@ namespace Sandbox.Game.Entities
         MyHudNotification m_notificationLeave;
         MyHudNotification m_notificationTerminal;
         MyHudNotification m_inertiaDampenersNotification;
+        MyHudNotification m_landingGearsNotification;
+        MyHudNotification m_handbrakeNotification;
 
         MyHudNotification m_noWeaponNotification;
         MyHudNotification m_weaponSelectedNotification;
@@ -116,8 +126,29 @@ namespace Sandbox.Game.Entities
 
         protected MyEntity3DSoundEmitter m_soundEmitter;
         protected MySoundPair m_baseIdleSound;
+        protected MySoundPair GetOutOfCockpitSound = MySoundPair.Empty;// new MySoundPair("CockpitGetOut");
+        protected MySoundPair GetInCockpitSound = MySoundPair.Empty;//new MySoundPair("CockpitGetIn");
+        public bool PlayDefaultUseSound { get { return GetInCockpitSound == MySoundPair.Empty; } }
 
         protected static MyTerminalControlCheckbox<MyShipController>  m_horizonIndicator;
+
+        public Vector3 MoveIndicator
+        {
+            get;
+            set;
+        }
+
+        public Vector2 RotationIndicator
+        {
+            get;
+            set;
+        }
+
+        public float RollIndicator
+        {
+            get;
+            set;
+        }
 
         /// <summary>
         /// Raycaster used for showing block info when active.
@@ -149,6 +180,14 @@ namespace Sandbox.Game.Entities
                     return true;
             }
             return false;
+        }
+
+        public bool HasWheels
+        {
+            get
+            {
+                return ControlWheels && GridWheels.WheelCount > 0;
+            }
         }
 
         #endregion
@@ -236,6 +275,7 @@ namespace Sandbox.Game.Entities
         {
             get { return null; }
         }
+        protected MyCharacter m_lastPilot = null;
 
         protected virtual ControllerPriority Priority
         {
@@ -251,7 +291,7 @@ namespace Sandbox.Game.Entities
             ControllerInfo.ControlAcquired += OnControlAcquired;
             ControllerInfo.ControlReleased += OnControlReleased;
             GridSelectionSystem = new MyGridSelectionSystem(this);
-            m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
 
             m_isMainCockpit.ValueChanged += (x) => MainCockpitChanged();
             m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
@@ -309,6 +349,16 @@ namespace Sandbox.Game.Entities
             CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
             Components.ComponentAdded += OnComponentAdded;
             Components.ComponentRemoved += OnComponentRemoved;
+
+            if(EntityThrustComponent != null)
+            {
+                m_dampenersEnabled.Value = EntityThrustComponent.Enabled;
+            }
+            UpdateShipInfo();
+            if (BlockDefinition.GetInSound != null && BlockDefinition.GetInSound.Length > 0)
+                GetInCockpitSound = new MySoundPair(BlockDefinition.GetInSound);
+            if (BlockDefinition.GetOutSound != null && BlockDefinition.GetOutSound.Length > 0)
+                GetOutOfCockpitSound = new MySoundPair(BlockDefinition.GetOutSound);
         }
 
         protected virtual void ComponentStack_IsFunctionalChanged()
@@ -355,8 +405,23 @@ namespace Sandbox.Game.Entities
             get { return !m_enableShipControl; }
         }
 
+        public void CacheMoveAndRotate(ref Vector3 moveIndicator, ref Vector2 rotationIndicator, float roll)
+        {
+            MoveAndRotate(moveIndicator, rotationIndicator, roll);
+
+            GridGyroSystem.UpdateBeforeSimulation(true);
+            GridGyroSystem.ControlTorque = Vector3.Zero;
+
+            RotationIndicator = Vector2.Zero;
+            RollIndicator = 0.0f;
+        }
+
         public void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
+            MoveIndicator = moveIndicator;
+            RotationIndicator = rotationIndicator;
+            RollIndicator = rollIndicator;
+
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
                 if ((ControllerInfo.IsLocallyControlled() || Sync.IsServer) && GridWheels != null && ControlWheels && m_enableShipControl)
@@ -373,7 +438,7 @@ namespace Sandbox.Game.Entities
             if (m_enableShipControl && moveIndicator == Vector3.Zero && rotationIndicator == Vector2.Zero && rollIndicator == 0.0f)
             {
                 //if (ControllerInfo.Controller.IsLocalPlayer() || Sync.IsServer)
-                if ((ControllerInfo.IsLocallyControlled() && CubeGrid.GridSystems.ControlSystem.IsLocallyControlled) || (Sync.IsServer && false))
+                if ((ControllerInfo.IsLocallyControlled() && CubeGrid.GridSystems.ControlSystem.IsLocallyControlled) || (Sync.IsServer))
                 {
                     ClearMovementControl();
                 }
@@ -417,14 +482,19 @@ namespace Sandbox.Game.Entities
                     Orientation.GetMatrix(out orientMatrix);
 
                     var controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
-                    var controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator), orientMatrix);
+
+
+                    var controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X , -rotationIndicator.Y , -rollIndicator), orientMatrix);
                     Vector3.ClampToSphere(controlTorque, 1.0f);
 
-                    
-                    if(thrustComponent != null)
-                        thrustComponent.ControlThrust = controlThrust;
-                    if(GridGyroSystem != null)
-                        GridGyroSystem.ControlTorque = controlTorque;
+                    if (thrustComponent != null)
+                    {
+                        thrustComponent.ControlThrust += controlThrust;
+                        thrustComponent.ControlThrustMagnitude += Vector3.One;
+                    }
+
+                    if (GridGyroSystem != null)
+                        GridGyroSystem.ControlTorque += controlTorque;
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -438,12 +508,12 @@ namespace Sandbox.Game.Entities
             }
             finally
             {
-	            var controlThrust = Vector3.Zero;
-	            var controlTorque = Vector3.Zero;
+                var controlThrust = Vector3.Zero;
+                var controlTorque = Vector3.Zero;
                 if (thrustComponent != null)
                     controlThrust = thrustComponent.ControlThrust;
-	            if (GridGyroSystem != null)
-		            controlTorque = GridGyroSystem.ControlTorque;
+                if (GridGyroSystem != null)
+                    controlTorque = GridGyroSystem.ControlTorque;
 
                 // Need it every frame because of MP interpolation
                 CubeGrid.SendControlThrust(Vector3B.Round(controlThrust * 127.0f));
@@ -455,17 +525,28 @@ namespace Sandbox.Game.Entities
             ClearMovementControl();
         }
 
-        private void ClearMovementControl()
+        protected void ClearMovementControl()
         {
+            if (CubeGrid.GridSystems.ControlSystem != null && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
+            {
+                MoveIndicator = Vector3.Zero;
+                RotationIndicator = Vector2.Zero;
+                RollIndicator = 0.0f;
+            }
+
             if (!m_enableShipControl)
                 return;
 
             var thrustComponent = EntityThrustComponent;
-            if (thrustComponent != null)
-                 thrustComponent.ControlThrust = Vector3.Zero;
-            if (GridGyroSystem != null)
+            if (thrustComponent != null && thrustComponent.AutopilotEnabled == false)
+            {
+                thrustComponent.ControlThrust = Vector3.Zero;
+            }
+            if (GridGyroSystem != null && GridGyroSystem.AutopilotEnabled == false)
+            {
                 GridGyroSystem.ControlTorque = Vector3.Zero;
-            // Need it every frame because of MP interpolation
+            }
+
             CubeGrid.SendControlThrust(Vector3B.Zero);
 
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
@@ -473,6 +554,7 @@ namespace Sandbox.Game.Entities
                 if (GridWheels != null)
                     GridWheels.AngularVelocity = Vector3.Zero;
             }
+
         }
 
         public bool ForceFirstPersonCamera
@@ -511,9 +593,28 @@ namespace Sandbox.Game.Entities
             ClearMovementControl();
         }
 
-        public override void UpdateAfterSimulation()
+        public override void UpdateBeforeSimulation()
         {
+            base.UpdateBeforeSimulation();       
+        }
+
+        public override void UpdateAfterSimulation()
+        {   
             base.UpdateAfterSimulation();
+
+            if (CubeGrid.GridSystems.ControlSystem != null && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
+            {
+                if (EntityThrustComponent != null && EntityThrustComponent.AutopilotEnabled == false)
+                {
+                    EntityThrustComponent.ControlThrustMagnitude = Vector3.Zero;
+                    EntityThrustComponent.ControlThrust = Vector3.Zero;
+                }
+
+                if (GridGyroSystem != null && GridGyroSystem.AutopilotEnabled == false)
+                {
+                    GridGyroSystem.ControlTorque = Vector3.Zero;
+                }
+            }
 
             UpdateShipInfo();
 
@@ -615,6 +716,8 @@ namespace Sandbox.Game.Entities
                     MyHud.Notifications.Add(MyNotificationSingletons.BuildingModeOff);
                 }
             }
+
+            
         }
 
         public override void UpdateOnceBeforeFrame()
@@ -645,6 +748,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateShipInfo()
         {
+            hasPower = CubeGrid.GridSystems.ResourceDistributor != null && CubeGrid.GridSystems.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower;
             if (!MySandboxGame.IsDedicated && MySession.Static.LocalHumanPlayer != null)
             {
                 if (ControllerInfo.Controller != MySession.Static.LocalHumanPlayer.Controller)
@@ -652,7 +756,6 @@ namespace Sandbox.Game.Entities
                     return;
                 }
             }
-            hasPower = CubeGrid.GridSystems.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower;
             //These values are cached
             if (GridResourceDistributor != null)
             {
@@ -674,6 +777,7 @@ namespace Sandbox.Game.Entities
 
         protected virtual void UpdateShipInfo10(bool controlAcquired = false)
         {
+            hasPower = CubeGrid.GridSystems.ResourceDistributor != null && CubeGrid.GridSystems.ResourceDistributor.ResourceState != MyResourceStateEnum.NoPower;
             if (ControllerInfo.IsLocallyHumanControlled())
             {
                 if (GridResourceDistributor != null)
@@ -706,7 +810,7 @@ namespace Sandbox.Game.Entities
 
                 if (Parent.Physics != null)
                 {
-                    if (ControlWheels && GridWheels.WheelCount > 0)
+                    if (HasWheels)
                         MyHud.ShipInfo.SpeedInKmH = true;
                     else
                         MyHud.ShipInfo.SpeedInKmH = false;
@@ -997,12 +1101,12 @@ namespace Sandbox.Game.Entities
         {
             // Try to take control of ship
             // This won't be here at all
-            if (MySession.Static.LocalHumanPlayer == controller.Player)
+            if (MySession.Static.LocalHumanPlayer == controller.Player || Sync.IsServer)
             {
                 if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
-                    GridWheels.InitControl();
+                    GridWheels.InitControl(controller.ControlledEntity as MyEntity);
 
-                if (MySession.Static.CameraController is MyEntity && IsCameraController())
+                if (MySession.Static.CameraController is MyEntity && IsCameraController() && MySession.Static.LocalHumanPlayer == controller.Player)
                     MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, this);
 
                 //if (MyGuiScreenGamePlay.Static != null)
@@ -1227,8 +1331,18 @@ namespace Sandbox.Game.Entities
 
         public void Use()
         {
-            MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
+            if (GetOutOfCockpitSound == MySoundPair.Empty)
+                MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
             RaiseControlledEntityUsed();
+        }
+
+        public void PlayUseSound(bool getIn)
+        {
+            m_soundEmitter.VolumeMultiplier = 1f;
+            if (getIn)
+                m_soundEmitter.PlaySound(GetInCockpitSound, force2D: (MySession.Static.LocalCharacter != null && Pilot == MySession.Static.LocalCharacter));
+            else
+                m_soundEmitter.PlaySound(GetOutOfCockpitSound, force2D: (MySession.Static.LocalCharacter != null && m_lastPilot == MySession.Static.LocalCharacter));
         }
 
         public void RaiseControlledEntityUsed()
@@ -1241,6 +1355,18 @@ namespace Sandbox.Game.Entities
         }
 
         public void UseFinished()
+        {
+        }
+
+        public void PickUp()
+        {
+        }
+
+        public void PickUpContinues()
+        {
+        }
+
+        public void PickUpFinished()
         {
         }
 
@@ -1335,6 +1461,22 @@ namespace Sandbox.Game.Entities
                 CubeGrid.GridSystems.LandingSystem.Switch();
                 CubeGrid.GridSystems.ConveyorSystem.ToggleConnectors();
             }
+            if (ControllerInfo.IsLocallyHumanControlled())
+            {
+                //by Gregory: for siplaying message with handbrake
+                var handbrakeEnabled = GridWheels != null && GridWheels.WheelCount > 0 && IsMainCockpitFree();
+                if (CubeGrid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.NoObjects && handbrakeEnabled)
+                {
+                    m_handbrakeNotification = new MyHudNotification(CubeGrid.GridSystems.WheelSystem.HandBrake ? MySpaceTexts.NotificationHandbrakeOn : MySpaceTexts.NotificationHandbrakeOff);
+                    MyHud.Notifications.Add(m_handbrakeNotification);
+                    return;
+                }
+
+                if (m_landingGearsNotification == null)
+                    m_landingGearsNotification = new MyHudNotification();
+                m_landingGearsNotification.Text = (CubeGrid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.AllDisabled ? MySpaceTexts.NotificationLandingGearSwitchUnlocked : MySpaceTexts.NotificationLandingGearSwitchLocked);
+                MyHud.Notifications.Add(m_landingGearsNotification);
+            }
         }
 
         public void SwitchReactors()
@@ -1380,7 +1522,7 @@ namespace Sandbox.Game.Entities
 
                 MyHud.BlockInfo.MissingComponentIndex = -1;
                 MyHud.BlockInfo.BlockName = raycaster.HitBlock.BlockDefinition.DisplayNameText;
-                MyHud.BlockInfo.BlockIcon = raycaster.HitBlock.BlockDefinition.Icon;
+                MyHud.BlockInfo.BlockIcons = raycaster.HitBlock.BlockDefinition.Icons;
                 MyHud.BlockInfo.BlockIntegrity = raycaster.HitBlock.Integrity / raycaster.HitBlock.MaxIntegrity;
                 MyHud.BlockInfo.CriticalIntegrity = raycaster.HitBlock.BlockDefinition.CriticalIntegrityRatio;
                 MyHud.BlockInfo.CriticalComponentIndex = raycaster.HitBlock.BlockDefinition.CriticalGroup;
@@ -1713,6 +1855,8 @@ namespace Sandbox.Game.Entities
         protected void sync_ControlledEntity_Used()
         {
             OnControlledEntity_Used();
+            if(GetOutOfCockpitSound != MySoundPair.Empty)
+                PlayUseSound(false);
         }
 
         protected virtual void OnControlledEntity_Used() { }
@@ -1968,113 +2112,123 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        MatrixD Sandbox.ModAPI.Interfaces.IMyControllableEntity.GetHeadMatrix(bool includeY, bool includeX, bool forceHeadAnim, bool forceHeadBone)
+        MatrixD IMyModdingControllableEntity.GetHeadMatrix(bool includeY, bool includeX, bool forceHeadAnim, bool forceHeadBone)
         {
             return GetHeadMatrix(includeY, includeX, forceHeadAnim);
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
+        void IMyModdingControllableEntity.MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
             MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.MoveAndRotateStopped()
+        void IMyModdingControllableEntity.MoveAndRotateStopped()
         {
             MoveAndRotateStopped();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Use()
+        void IMyModdingControllableEntity.Use()
         {
             Use();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.UseContinues()
+        void IMyModdingControllableEntity.UseContinues()
         {
             UseContinues();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Jump()
+        void IMyModdingControllableEntity.PickUp()
+        {
+            PickUp();
+        }
+
+        void IMyModdingControllableEntity.PickUpContinues()
+        {
+            PickUpContinues();
+        }
+
+        void IMyModdingControllableEntity.Jump()
         {
             Jump();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Up()
+        void IMyModdingControllableEntity.Up()
         {
             Up();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Crouch()
+        void IMyModdingControllableEntity.Crouch()
         {
             Crouch();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Down()
+        void IMyModdingControllableEntity.Down()
         {
             Down();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.ShowInventory()
+        void IMyModdingControllableEntity.ShowInventory()
         {
             ShowInventory();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.ShowTerminal()
+        void IMyModdingControllableEntity.ShowTerminal()
         {
             ShowTerminal();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.SwitchThrusts()
+        void IMyModdingControllableEntity.SwitchThrusts()
         {
             SwitchThrusts();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.SwitchDamping()
+        void IMyModdingControllableEntity.SwitchDamping()
         {
             SwitchDamping();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.SwitchLights()
+        void IMyModdingControllableEntity.SwitchLights()
         {
             SwitchLights();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.SwitchLeadingGears()
+        void IMyModdingControllableEntity.SwitchLeadingGears()
         {
             SwitchLeadingGears();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.SwitchReactors()
+        void IMyModdingControllableEntity.SwitchReactors()
         {
             SwitchReactors();
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.SwitchHelmet()
+        void IMyModdingControllableEntity.SwitchHelmet()
         {
 
         }
 
-        void Sandbox.ModAPI.Interfaces.IMyControllableEntity.Die()
+        void IMyModdingControllableEntity.Die()
         {
             Die();
         }
 
 
-        bool Sandbox.ModAPI.Interfaces.IMyControllableEntity.EnabledThrusts
+        bool IMyModdingControllableEntity.EnabledThrusts
         {
             get { return false; }
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyControllableEntity.EnabledDamping
+        bool IMyModdingControllableEntity.EnabledDamping
         {
             get { return EntityThrustComponent != null && EntityThrustComponent.DampenersEnabled; }
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyControllableEntity.EnabledLights
+        bool IMyModdingControllableEntity.EnabledLights
         {
             get { return GridReflectorLights.ReflectorsEnabled == MyMultipleEnabledEnum.AllEnabled; }
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyControllableEntity.EnabledLeadingGears
+        bool IMyModdingControllableEntity.EnabledLeadingGears
         {
             get 
             {
@@ -2083,7 +2237,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyControllableEntity.EnabledReactors
+        bool IMyModdingControllableEntity.EnabledReactors
         {
             get { return GridResourceDistributor.SourcesEnabled == MyMultipleEnabledEnum.AllEnabled; }
         }
@@ -2093,7 +2247,7 @@ namespace Sandbox.Game.Entities
             get { return false; }
         }
 
-        bool Sandbox.ModAPI.Interfaces.IMyControllableEntity.EnabledHelmet
+        bool IMyModdingControllableEntity.EnabledHelmet
         {
             get { return false; }
         }
@@ -2183,22 +2337,26 @@ namespace Sandbox.Game.Entities
             get { return MySpaceBindingCreator.CX_SPACESHIP; }
         }
 
-        internal override void SetDamageEffect(bool show)
+        public override void SetDamageEffect(bool show)
         {
+            base.SetDamageEffect(show);
+            if (m_soundEmitter == null)
+                return;
             if (BlockDefinition.DamagedSound != null)
                 if (show)
                     m_soundEmitter.PlaySound(BlockDefinition.DamagedSound, true);
                 else
-                    if (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
+                    if (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.DamagedSound.Realistic)
                         m_soundEmitter.StopSound(false);
-            base.SetDamageEffect(show);
         }
 
-        internal override void StopDamageEffect()
+        public override void StopDamageEffect()
         {
-            if (BlockDefinition.DamagedSound != null && m_soundEmitter.SoundId == BlockDefinition.DamagedSound.SoundId)
-                m_soundEmitter.StopSound(true);
             base.StopDamageEffect();
+            if (m_soundEmitter == null)
+                return;
+            if (BlockDefinition.DamagedSound != null && (m_soundEmitter.SoundId == BlockDefinition.DamagedSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.DamagedSound.Realistic))
+                m_soundEmitter.StopSound(true);
         }
 
         void DampenersEnabledChanged()
@@ -2286,8 +2444,8 @@ namespace Sandbox.Game.Entities
 
             if (entityExists && (useResult = (this as IMyUsableEntity).CanUse(useAction, controllableEntity)) == UseActionResult.OK)
             {
-                MyMultiplayer.RaiseEvent(this, x => x.UseSuccessCallback, useAction, usedById, useResult);
                 UseSuccessCallback(useAction, usedById, useResult);
+                MyMultiplayer.RaiseEvent(this, x => x.UseSuccessCallback, useAction, usedById, useResult);
             }
             else
             {
@@ -2305,7 +2463,7 @@ namespace Sandbox.Game.Entities
                 Debug.Assert(controllableEntity != null, "Controllable entity needs to get control from another controllable entity");
 
                 if (controllableEntity != null)
-                {
+                {                  
                     VRage.Game.MyRelationsBetweenPlayerAndBlock relation = VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership;
                     var cubeBlock = this as MyCubeBlock;
                     if (cubeBlock != null && controllableEntity.ControllerInfo.Controller != null)
@@ -2314,7 +2472,7 @@ namespace Sandbox.Game.Entities
                     }
 
                     if (relation.IsFriendly())
-                    {
+                    {                    
                         sync_UseSuccess(useAction, controllableEntity);
                     }
                     else
@@ -2409,6 +2567,11 @@ namespace Sandbox.Game.Entities
             {
                 StopShooting(action);
             }
+        }
+
+        void IMyControllableEntity.Teleport(Vector3D pos)
+        {
+
         }
 
     }

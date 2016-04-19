@@ -16,6 +16,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(-1f)]
         public float Radius = -1f;
 
+        [ProtoMember, DefaultValue(-1f)]
+        public float ReflectorRadius = -1f;
+
         [ProtoMember, DefaultValue(1f)]
         public float ColorRed = 1f;
 

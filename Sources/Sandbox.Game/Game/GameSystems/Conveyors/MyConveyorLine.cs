@@ -154,6 +154,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
         private int m_length;
         private MyCubeGrid m_cubeGrid;
 
+        [ThreadStatic]
         private static bool m_invertedConductivity = false;
 
         public class InvertedConductivity : IDisposable

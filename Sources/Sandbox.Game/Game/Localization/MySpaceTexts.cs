@@ -370,7 +370,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Item_LargeSteelTube = MyStringId.GetOrCompute("DisplayName_Item_LargeSteelTube");
 
         ///<summary>
-        ///Large Thruster
+        ///Large Ion Thruster
         ///</summary>
         public static readonly MyStringId DisplayName_Block_LargeThrust = MyStringId.GetOrCompute("DisplayName_Block_LargeThrust");
 
@@ -540,7 +540,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Item_SmallSteelTube = MyStringId.GetOrCompute("DisplayName_Item_SmallSteelTube");
 
         ///<summary>
-        ///Small Thruster
+        ///Small Ion Thruster
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SmallThrust = MyStringId.GetOrCompute("DisplayName_Block_SmallThrust");
 
@@ -8110,7 +8110,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnableDrones = MyStringId.GetOrCompute("WorldSettings_EnableDrones");
 
         ///<summary>
-        ///Random NPC cargo ships can be encountered.
+        ///Random NPC ships will fly through world from time to time.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_CargoShipsEnabled = MyStringId.GetOrCompute("ToolTipWorldSettings_CargoShipsEnabled");
 
@@ -8125,7 +8125,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_Enable3rdPersonCamera = MyStringId.GetOrCompute("ToolTipWorldSettings_Enable3rdPersonCamera");
 
         ///<summary>
-        ///Random NPC ships will fly through world from time to time.
+        ///Random NPC cargo ships can be encountered.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableEncounters = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableEncounters");
 
@@ -8223,6 +8223,21 @@ namespace Sandbox.Game.Localization
         ///Looking for specific rotor to attach
         ///</summary>
         public static readonly MyStringId BlockPropertiesText_MotorAttachingSpecific = MyStringId.GetOrCompute("BlockPropertiesText_MotorAttachingSpecific");
+
+        ///<summary>
+        ///Looking for any Head to attach
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_HeadAttachingAny = MyStringId.GetOrCompute("BlockPropertiesText_HeadAttachingAny");
+
+        ///<summary>
+        ///Looking for specific Head to attach
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_HeadAttachingSpecific = MyStringId.GetOrCompute("BlockPropertiesText_HeadAttachingSpecific");
+
+        ///<summary>
+        ///Safety locked
+        ///</summary>
+        public static readonly MyStringId BlockPropertiesText_MotorLocked = MyStringId.GetOrCompute("BlockPropertiesText_MotorLocked");
 
         ///<summary>
         ///Detached
@@ -8653,5 +8668,125 @@ namespace Sandbox.Game.Localization
         ///Script execution halted temporarily. The combined execution between a calling programmable block and this script became too complex. This script has not been terminated, but the calling script has.
         ///</summary>
         public static readonly MyStringId ProgrammableBlock_Exception_NestedTooComplex = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NestedTooComplex");
+
+        ///<summary>
+        ///Open Helmet
+        ///</summary>
+        public static readonly MyStringId DisplayName_OpenHelmet = MyStringId.GetOrCompute("DisplayName_OpenHelmet");
+
+        ///<summary>
+        ///Close Helmet
+        ///</summary>
+        public static readonly MyStringId DisplayName_CloseHelmet = MyStringId.GetOrCompute("DisplayName_CloseHelmet");
+
+        ///<summary>
+        ///Open Helmet
+        ///</summary>
+        public static readonly MyStringId Description_OpenHelmet = MyStringId.GetOrCompute("Description_OpenHelmet");
+
+        ///<summary>
+        ///Close Helmet
+        ///</summary>
+        public static readonly MyStringId Description_CloseHelmet = MyStringId.GetOrCompute("Description_CloseHelmet");
+
+        ///<summary>
+        ///Body Location
+        ///</summary>
+        public static readonly MyStringId GPS_Body_Location_Name = MyStringId.GetOrCompute("GPS_Body_Location_Name");
+
+        ///<summary>
+        ///Last known body location
+        ///</summary>
+        public static readonly MyStringId GPS_Body_Location_Desc = MyStringId.GetOrCompute("GPS_Body_Location_Desc");
+
+        ///<summary>
+        ///Alien Planet Landing
+        ///</summary>
+        public static readonly MyStringId DisplayName_AlienLander = MyStringId.GetOrCompute("DisplayName_AlienLander");
+
+        ///<summary>
+        ///Mars Planet Landing
+        ///</summary>
+        public static readonly MyStringId DisplayName_MarsLander = MyStringId.GetOrCompute("DisplayName_MarsLander");
+
+        ///<summary>
+        ///Add Wheel
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_AddWheel = MyStringId.GetOrCompute("BlockActionTitle_AddWheel");
+
+        ///<summary>
+        ///Tries to add a wheel if no wheel is present.
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_AddWheel = MyStringId.GetOrCompute("BlockActionTooltip_AddWheel");
+
+        ///<summary>
+        ///Add Piston Head
+        ///</summary>
+        public static readonly MyStringId BlockActionTitle_AddPistonHead = MyStringId.GetOrCompute("BlockActionTitle_AddPistonHead");
+
+        ///<summary>
+        ///Tries to add a piston head if no head is present.
+        ///</summary>
+        public static readonly MyStringId BlockActionTooltip_AddPistonHead = MyStringId.GetOrCompute("BlockActionTooltip_AddPistonHead");
+
+        ///<summary>
+        ///Piston head could not be placed.
+        ///</summary>
+        public static readonly MyStringId Notification_PistonHeadNotPlaced = MyStringId.GetOrCompute("Notification_PistonHeadNotPlaced");
+
+        ///<summary>
+        ///Piston head already exists.
+        ///</summary>
+        public static readonly MyStringId Notification_PistonHeadAlreadyExists = MyStringId.GetOrCompute("Notification_PistonHeadAlreadyExists");
+
+        ///<summary>
+        ///Landing gears Locked
+        ///</summary>
+        public static readonly MyStringId NotificationLandingGearSwitchLocked = MyStringId.GetOrCompute("NotificationLandingGearSwitchLocked");
+
+        ///<summary>
+        ///Landing gears Unlocked
+        ///</summary>
+        public static readonly MyStringId NotificationLandingGearSwitchUnlocked = MyStringId.GetOrCompute("NotificationLandingGearSwitchUnlocked");
+
+        ///<summary>
+        ///Silent
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_Silent = MyStringId.GetOrCompute("BlockPropertyTitle_Silent");
+
+        ///<summary>
+        ///Turn off timer beep sounds
+        ///</summary>
+        public static readonly MyStringId ToolTipTimerBlock_Silent = MyStringId.GetOrCompute("ToolTipTimerBlock_Silent");
+
+        ///<summary>
+        ///This program has no valid constructor.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Exception_NoValidConstructor = MyStringId.GetOrCompute("ProgrammableBlock_Exception_NoValidConstructor");
+
+        ///<summary>
+        ///The constructor, called only once every session and always before any other method is called. Use it to initialize your script.       The constructor is optional and can be removed if not needed.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_DefaultScript_Constructor = MyStringId.GetOrCompute("ProgrammableBlock_DefaultScript_Constructor");
+
+        ///<summary>
+        ///The main entry point of the script, invoked every time one of the programmable block's Run actions are invoked.  The method itself is required, but the argument above can be removed if not needed.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_DefaultScript_Main = MyStringId.GetOrCompute("ProgrammableBlock_DefaultScript_Main");
+
+        ///<summary>
+        ///Called when the program needs to save its state. Use this method to save your state to the Storage field or some other means.   This method is optional and can be removed if not needed.
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_DefaultScript_Save = MyStringId.GetOrCompute("ProgrammableBlock_DefaultScript_Save");
+
+        ///<summary>
+        ///Handbrake off
+        ///</summary>
+        public static readonly MyStringId NotificationHandbrakeOff = MyStringId.GetOrCompute("NotificationHandbrakeOff");
+
+        ///<summary>
+        ///Handbrake on
+        ///</summary>
+        public static readonly MyStringId NotificationHandbrakeOn = MyStringId.GetOrCompute("NotificationHandbrakeOn");
     }
 }

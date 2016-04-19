@@ -16,6 +16,7 @@
         <ProjectileHitImpulse>3.2</ProjectileHitImpulse>
         <ProjectileMassDamage>12</ProjectileMassDamage>
         <ProjectileHealthDamage>12</ProjectileHealthDamage>
+        <ProjectileMaterial>RifleBullet</ProjectileMaterial>
       </ProjectileProperties>
     </Ammo>
     <Ammo xsi:type="MyObjectBuilder_ProjectileAmmoDefinition">
@@ -33,6 +34,7 @@
         <ProjectileHitImpulse>185</ProjectileHitImpulse>
         <ProjectileMassDamage>60</ProjectileMassDamage>
         <ProjectileHealthDamage>185</ProjectileHealthDamage>
+        <ProjectileMaterial>GunBullet</ProjectileMaterial>
       </ProjectileProperties>
     </Ammo>
     <Ammo xsi:type="MyObjectBuilder_MissileAmmoDefinition">
@@ -56,6 +58,9 @@
         <MissileSkipAcceleration>false</MissileSkipAcceleration>
         <MissileExplosionDamage>500</MissileExplosionDamage>
       </MissileProperties>
+      <ProjectileProperties>
+        <ProjectileMaterial>ExpBullet</ProjectileMaterial>
+      </ProjectileProperties>
     </Ammo>
  <!--   <Ammo>
       <Id>

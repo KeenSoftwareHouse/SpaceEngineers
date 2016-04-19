@@ -367,7 +367,7 @@ namespace Sandbox.Engine.Physics
             fracturedPiece.NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             //physicsBody.RigidBody.ContactPointCallbackDelay = 0;
             //physicsBody.RigidBody.ContactPointCallbackEnabled = true;
-            fracturedPiece.Physics = physicsBody;
+            //fracturedPiece.Physics = physicsBody;
             //FixPosition(fracturedPiece);
             fracturedPiece.SetDataFromHavok(shape);
             ProfilerShort.Begin("AddToWorld");

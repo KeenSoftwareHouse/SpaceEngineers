@@ -107,6 +107,23 @@ namespace Sandbox.Game.Gui
             m_controlTypeList = new MyGuiControlCombobox(cBoxPosition);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.General, MyCommonTexts.ControlTypeGeneral);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.Navigation, MyCommonTexts.ControlTypeNavigation);
+
+            //by Gregory this is temporary for Medieval Engineers. Do not show Navigation2 screen if Navigation2 tag is not found
+            var DoNotAddNavigation2 = true;
+            foreach (var control in MyInput.Static.GetGameControlsList())
+            {
+                if (control.GetControlTypeEnum() == MyGuiControlTypeEnum.Navigation2)
+                {
+                    DoNotAddNavigation2 = false;
+                    break;
+                }
+            }
+
+            if (!DoNotAddNavigation2)
+            {
+                m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.Navigation2, MyCommonTexts.ControlTypeNavigation2);
+            }
+            
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.ToolsOrWeapons, MyCommonTexts.ControlTypeToolsOrWeapons);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.ToolsOrWeapons2, MyCommonTexts.ControlTypeToolsOrWeapons2);
             m_controlTypeList.AddItem((int)MyGuiControlTypeEnum.Systems1, MyCommonTexts.ControlTypeSystems1);
@@ -138,6 +155,7 @@ namespace Sandbox.Game.Gui
 
             AddControlsByType(MyGuiControlTypeEnum.General);
             AddControlsByType(MyGuiControlTypeEnum.Navigation);
+            AddControlsByType(MyGuiControlTypeEnum.Navigation2);
             AddControlsByType(MyGuiControlTypeEnum.Systems1);
             AddControlsByType(MyGuiControlTypeEnum.Systems2);
             AddControlsByType(MyGuiControlTypeEnum.Systems3);

@@ -32,7 +32,6 @@ using VRage.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Engine.Physics;
-using Sandbox.Common.ModAPI;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Screens;
 using Sandbox.Game.Localization;

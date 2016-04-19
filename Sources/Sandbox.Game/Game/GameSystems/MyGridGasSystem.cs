@@ -249,11 +249,12 @@ namespace Sandbox.Game.GameSystems
         MyOxygenRoomLinkPool m_OxygenRoomLinkPool;
         
         Task m_backgroundTask;
-        bool m_bgTaskRunning=false;
+        bool m_bgTaskRunning = false;
         bool m_doPostProcess = false;
 		#endregion
 
         private int m_lastUpdateTime;
+        private bool isClosing = false;
 
         //Cannot use Base6Direction because it's not optimal to process neighbours in that order
         private readonly List<Vector3I> m_neighbours = new List<Vector3I>()
@@ -274,6 +275,40 @@ namespace Sandbox.Game.GameSystems
             cubeGrid.OnBlockRemoved += cubeGrid_OnBlockRemoved;
 
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+        }
+
+        public void OnGridClosing()
+        {
+            // This will invalidate any running thread
+            isClosing = true;
+
+            // Wait for the task to finish
+            if (m_bgTaskRunning)
+            {
+                // Wait can throw an exception; but since the thread will most likely be blocking at this point anyway it is okay to try-catch it, it shouldn't affect performance
+                try
+                {
+                    m_backgroundTask.Wait();
+                }
+                catch (Exception ex)
+                {
+                    MySandboxGame.Log.WriteLineAndConsole("MyGridGasSystem.OnGridClosing: " + ex.Message + ", " + ex.StackTrace);
+                }
+            }
+
+            m_cubeGrid.OnBlockAdded -= cubeGrid_OnBlockAdded;
+            m_cubeGrid.OnBlockRemoved -= cubeGrid_OnBlockRemoved;
+
+            foreach (var block in m_cubeGrid.GetFatBlocks())
+            {
+                IMyDoor door = block as IMyDoor;
+                if(door != null)
+                    door.DoorStateChanged -= OnDoorStateChanged;
+            }
+
+            // Clear out pool to release memory
+            if (m_OxygenRoomLinkPool != null && m_OxygenRoomLinkPool.pool != null)
+                m_OxygenRoomLinkPool.pool.DeallocateAll();
         }
 
         void cubeGrid_OnBlockAdded(MySlimBlock addedBlock)
@@ -382,8 +417,8 @@ namespace Sandbox.Game.GameSystems
                 }
                 else if (!m_bgTaskRunning)
                 {
-                    m_bgTaskRunning = true;
                     m_backgroundTask = Parallel.Start(BackgroundPressurizeStart, BackgroundPressurizeFinished);
+                    m_bgTaskRunning = true;
                 }
                 ProfilerShort.End();
             }
@@ -551,7 +586,7 @@ namespace Sandbox.Game.GameSystems
             }
             ProfilerShort.Begin("Oxygen PressurizeProcessQueue");
             int index = 0;
-            while (m_queue.Count > 0)
+            while (m_queue.Count > 0 && !isClosing)
             {
                 if (m_qMaxSize < m_queue.Count)
                     m_qMaxSize = m_queue.Count;
@@ -670,6 +705,9 @@ namespace Sandbox.Game.GameSystems
 
         private void PressurizePostProcess()
         {
+            // No need to post-process when closing
+            if (isClosing) return;
+
             ProfilerShort.Begin("Oxygen PressurizePostProcess");
             m_prevCubeRoom = m_tempPrevCubeRoom;
             m_prevCubeRoomDimensions = m_tempPrevCubeRoomDimensions;

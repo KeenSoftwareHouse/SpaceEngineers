@@ -24,6 +24,7 @@ using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using VRage.Game;
 using VRage.ObjectBuilders;
+using Sandbox.Game.Multiplayer;
 
 #endregion
 
@@ -114,7 +115,7 @@ namespace Sandbox.Game.Weapons
                 }
                 else
                 {
-                    if (!MySession.Static.Battle && MySession.Static.IsAdminModeEnabled==false)
+                    if (!MySession.Static.Battle && MySession.Static.IsAdminModeEnabled(Sync.MyId)==false)
                         OnMissingComponents(definition);
                 }
             }

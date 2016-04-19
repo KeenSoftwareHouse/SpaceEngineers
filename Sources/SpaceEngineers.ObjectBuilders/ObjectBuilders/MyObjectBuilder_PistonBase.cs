@@ -27,7 +27,7 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Reverse;
 
         [ProtoMember]
-        public long TopBlockId;
+        public long? TopBlockId;
 
         [ProtoMember]
         public float CurrentPosition;
@@ -41,7 +41,7 @@ namespace Sandbox.Common.ObjectBuilders
         public override void Remap(IMyRemapHelper remapHelper)
         {
             base.Remap(remapHelper);
-            if (TopBlockId != 0) TopBlockId = remapHelper.RemapEntityId(TopBlockId);
+            if (TopBlockId.HasValue && TopBlockId != 0) TopBlockId = remapHelper.RemapEntityId(TopBlockId.Value);
         }
     }
 }

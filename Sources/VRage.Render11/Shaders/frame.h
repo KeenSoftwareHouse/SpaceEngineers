@@ -3,7 +3,8 @@
 #include <common.h>
 #include <Math/math.h>
 
-struct FrameConstants {
+struct FrameConstants 
+{
 	//
 	matrix 	view_projection_matrix;
 	matrix	view_matrix;
@@ -83,7 +84,8 @@ struct FrameConstants {
 
 	float skyboxBrightness;
 	float shadowFadeout;
-	float2 _padding;
+	float 	frameTimeDelta;
+	float   randomSeed;
 
 	float EnableVoxelAo;
 	float VoxelAoMin;
@@ -91,6 +93,11 @@ struct FrameConstants {
 	float VoxelAoOffset;
 
 	matrix background_orientation;
+
+    TextureDebugMultipliersType TextureDebugMultipliers;
+
+	float3  cameraPositionDelta;
+	float   _padding2;
 };
 
 cbuffer Frame : register( MERGE(b,FRAME_SLOT) )

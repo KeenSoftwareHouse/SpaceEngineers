@@ -1,13 +1,10 @@
 ﻿using Sandbox.Common;
-using Sandbox.Common.AI;
+using VRage.Game.AI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Xml.Serialization;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.AI;
 using VRage.ObjectBuilders;

@@ -19,6 +19,7 @@ namespace VRageRender
         public Color Color;
         public float ColorIntensity;
         public Vector2 UVOffset;
+        public Vector2 UVSize;
 
         public int ParentID = -1;
 

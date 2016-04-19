@@ -74,12 +74,21 @@ namespace Sandbox.Game.Weapons
         public MySoundPair ShootSound { get { return m_weaponProperties.CurrentWeaponShootSound; } }
         public MySoundPair NoAmmoSound { get { return m_weaponProperties.WeaponDefinition.NoAmmoSound; } }
         public MySoundPair ReloadSound { get { return m_weaponProperties.WeaponDefinition.ReloadSound; } }
-        public float MechanicalDamage { get { return m_weaponProperties.AmmoDefinition.GetDamageForMechanicalObjects(); } }
+        public float MechanicalDamage 
+        { 
+            get 
+            {
+                if (WeaponProperties.AmmoDefinition != null)
+                    return m_weaponProperties.AmmoDefinition.GetDamageForMechanicalObjects();
+                return 0;
+            }
+        }
         public float DeviateAngle { get { return m_weaponProperties.WeaponDefinition.DeviateShotAngle; } }
         public bool HasAmmoMagazines { get { return m_weaponProperties.WeaponDefinition.HasAmmoMagazines(); } }
         public bool IsAmmoProjectile { get { return m_weaponProperties.IsAmmoProjectile; } }
         public bool IsAmmoMissile { get { return m_weaponProperties.IsAmmoMissile; } }
-        public int BurstFireRate { get { return WeaponProperties.CurrentBurstFireRate; } }
+        public int ShotsInBurst { get { return WeaponProperties.ShotsInBurst; } }
+        public int ReloadTime { get { return WeaponProperties.ReloadTime; } }
 
         public bool HasDummies { get { return m_dummiesByAmmoType.Count > 0; } }
         public MatrixD WorldMatrix
@@ -499,8 +508,11 @@ namespace Sandbox.Game.Weapons
 
         public override Vector3D GetMuzzleLocalPosition()
         {
+            if (m_weaponProperties.AmmoDefinition == null)
+                return Vector3D.Zero;
+
             MyDebug.AssertDebug(m_dummiesByAmmoType.ContainsKey((int)m_weaponProperties.AmmoDefinition.AmmoType), "Muzzle dummy missing for given ammo type");
-            
+
             DummyContainer container;
             if (m_dummiesByAmmoType.TryGetValue((int)m_weaponProperties.AmmoDefinition.AmmoType, out container))
             {
@@ -512,6 +524,9 @@ namespace Sandbox.Game.Weapons
 
         public override Vector3D GetMuzzleWorldPosition()
         {
+            if (m_weaponProperties.AmmoDefinition == null)
+                return m_worldMatrix.Translation;
+
             MyDebug.AssertDebug(m_dummiesByAmmoType.ContainsKey((int)m_weaponProperties.AmmoDefinition.AmmoType), "Muzzle dummy missing for given ammo type");
 
             DummyContainer container;
@@ -525,11 +540,14 @@ namespace Sandbox.Game.Weapons
                 return container.DummyInWorld.Translation;
             }
 
-            return Vector3D.Zero;
+            return m_worldMatrix.Translation;
         }
 
         public MatrixD GetMuzzleWorldMatrix()
         {
+            if (m_weaponProperties.AmmoDefinition == null)
+                return m_worldMatrix;
+
             MyDebug.AssertDebug(m_dummiesByAmmoType.ContainsKey((int)m_weaponProperties.AmmoDefinition.AmmoType), "Muzzle dummy missing for given ammo type");
 
             DummyContainer container;
@@ -543,7 +561,7 @@ namespace Sandbox.Game.Weapons
                 return container.DummyInWorld;
             }
 
-            return MatrixD.Identity;
+            return m_worldMatrix;
         }
 
         private void MoveToNextMuzzle(MyAmmoType ammoType)
@@ -572,14 +590,14 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        internal void StartShootSound(MyEntity3DSoundEmitter soundEmitter)
+        public void StartShootSound(MyEntity3DSoundEmitter soundEmitter)
         {
             if (ShootSound != null && soundEmitter != null)
             {
                 if (soundEmitter.IsPlaying)
                 {
                     if (!soundEmitter.Loop)
-                        soundEmitter.PlaySound(ShootSound, true);
+                        soundEmitter.PlaySound(ShootSound, false);
                 }
                 else
                     soundEmitter.PlaySound(ShootSound,true);

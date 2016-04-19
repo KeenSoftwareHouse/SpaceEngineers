@@ -36,7 +36,7 @@ namespace VRage.Audio
 
         private static  FilterParameters m_defaultFilter = new FilterParameters(){
                 Type = FilterType.LowPassFilter,
-                 Frequency = 1,
+                 Frequency = 1f,
                  OneOverQ = 1,};
         public MyEffectInstance(MyAudioEffect effect, IMySourceVoice input, MySourceVoice[] cues, float? duration, XAudio2 engine)
         {

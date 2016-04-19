@@ -25,16 +25,17 @@ namespace Sandbox.Game.Entities.Cube
 {
     public class MyCubeGridSystems
     {
-        internal MyResourceDistributorComponent ResourceDistributor { get; private set; }
-        internal MyGridTerminalSystem TerminalSystem { get; private set; }
-        internal MyGridConveyorSystem ConveyorSystem { get; private set; }
-        internal MyGridGyroSystem GyroSystem { get; private set; }
-        internal MyGridWeaponSystem WeaponSystem { get; private set; }
-        internal MyGridReflectorLightSystem ReflectorLightSystem { get; private set; }
-        internal MyGridWheelSystem WheelSystem { get; private set; }
-        internal MyGridLandingSystem LandingSystem { get; private set; }
-        internal MyGroupControlSystem ControlSystem { get; private set; }
-        internal MyGridCameraSystem CameraSystem { get; private set; }
+        public MyResourceDistributorComponent ResourceDistributor { get; private set; }
+        public MyGridTerminalSystem TerminalSystem { get; private set; }
+        public MyGridConveyorSystem ConveyorSystem { get; private set; }
+        public MyGridGyroSystem GyroSystem { get; private set; }
+        public MyGridWeaponSystem WeaponSystem { get; private set; }
+        public MyGridReflectorLightSystem ReflectorLightSystem { get; private set; }
+        public MyGridWheelSystem WheelSystem { get; private set; }
+        public MyGridLandingSystem LandingSystem { get; private set; }
+        public MyGroupControlSystem ControlSystem { get; private set; }
+        public MyGridCameraSystem CameraSystem { get; private set; }
+        public MyShipSoundComponent ShipSoundComponent { get; private set; }
         /// <summary>
         /// Can be null if Oxygen option is disabled
         /// </summary>
@@ -78,6 +79,10 @@ namespace Sandbox.Game.Entities.Cube
             {
                 JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
             }
+            if (MyPerGameSettings.EnableShipSoundSystem && (MyFakes.ENABLE_NEW_SMALL_SHIP_SOUNDS || MyFakes.ENABLE_NEW_LARGE_SHIP_SOUNDS))
+            {
+                ShipSoundComponent = new MyShipSoundComponent();
+            }
 
             m_blocksRegistered = true;
         }
@@ -89,11 +94,21 @@ namespace Sandbox.Game.Entities.Cube
 				thrustComp.DampenersEnabled = builder.DampenersEnabled;
 
             if (WheelSystem != null)
+            {
                 m_cubeGrid.SetHandbrakeRequest(builder.Handbrake);
+            }
 
             if (MySession.Static.Settings.EnableOxygen)
             {
                 GasSystem.Init(builder.OxygenAmount);
+            }
+            if (ShipSoundComponent != null)
+            {
+                if (ShipSoundComponent.InitComponent(m_cubeGrid) == false)
+                {
+                    ShipSoundComponent.DestroyComponent();
+                    ShipSoundComponent = null;
+                }
             }
 
             if (MyPerGameSettings.EnableJumpDrive)
@@ -119,13 +134,19 @@ namespace Sandbox.Game.Entities.Cube
 
         public void UpdateBeforeSimulation()
         {
-			ProfilerShort.Begin("Thrusters and Gyro");
+			ProfilerShort.Begin("Thrusters");
 	        MyEntityThrustComponent thrustComp;
 			if(CubeGrid.Components.TryGet(out thrustComp))
 				thrustComp.UpdateBeforeSimulation();
-
-            GyroSystem.UpdateBeforeSimulation();
             ProfilerShort.End();
+
+            // Only update gyros if there are gyros in the system
+            if (GyroSystem.GyroCount > 0)
+            {
+                ProfilerShort.Begin("Gyros");
+                GyroSystem.UpdateBeforeSimulation();
+                ProfilerShort.End();
+            }
 
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
@@ -134,9 +155,9 @@ namespace Sandbox.Game.Entities.Cube
                 ProfilerShort.End();
             }
 
-            ProfilerShort.Begin("Conveyors");
+            /*ProfilerShort.Begin("Conveyors");
             ConveyorSystem.UpdateBeforeSimulation();
-            ProfilerShort.End();
+            ProfilerShort.End();*/
 
             ProfilerShort.Begin("Control");
             ControlSystem.UpdateBeforeSimulation();
@@ -159,6 +180,11 @@ namespace Sandbox.Game.Entities.Cube
                 JumpSystem.UpdateBeforeSimulation();
                 ProfilerShort.End();
             }
+
+            ProfilerShort.Begin("Ship sounds");
+            if (ShipSoundComponent != null)
+                ShipSoundComponent.Update();
+            ProfilerShort.End();
         }
 
         public virtual void PrepareForDraw()
@@ -192,6 +218,14 @@ namespace Sandbox.Game.Entities.Cube
             {
                 GasSystem.UpdateBeforeSimulation100();
             }
+
+            if (ShipSoundComponent != null)
+                ShipSoundComponent.Update100();
+        }
+
+        public virtual void UpdateAfterSimulation100()
+        {
+            ConveyorSystem.UpdateAfterSimulation100();
         }
 
         public virtual void GetObjectBuilder(MyObjectBuilder_CubeGrid ob)
@@ -385,6 +419,18 @@ namespace Sandbox.Game.Entities.Cube
         {
             ConveyorSystem.IsClosing = true;
             ReflectorLightSystem.IsClosing = true;
+
+            if (ShipSoundComponent != null)
+            {
+                ShipSoundComponent.DestroyComponent();
+                ShipSoundComponent = null;
+            }
+
+            // Inform gas system we are going down
+            if (GasSystem != null)
+            {
+                GasSystem.OnGridClosing();
+            }
         }
 
         public virtual void AfterGridClose()
@@ -395,6 +441,9 @@ namespace Sandbox.Game.Entities.Cube
                 JumpSystem.AfterGridClose();
             }
             m_blocksRegistered = false;
+
+            // Clear out gas system
+            GasSystem = null;
         }
 
         public virtual void DebugDraw()
@@ -666,6 +715,50 @@ namespace Sandbox.Game.Entities.Cube
                 m_cubeGrid.BlockGroups.Add(gr);
                 m_cubeGrid.ModifyGroup(gr);
             }
+        }
+
+        public virtual void OnBlockAdded(MySlimBlock block)
+        {
+            IMyConveyorEndpointBlock conveyorEndpointBlock = block.FatBlock as IMyConveyorEndpointBlock;
+            if (conveyorEndpointBlock != null)
+                ConveyorSystem.FlagForRecomputation();
+
+            IMyConveyorSegmentBlock conveyorSegmentBlock = block.FatBlock as IMyConveyorSegmentBlock;
+            if (conveyorSegmentBlock != null)
+                ConveyorSystem.FlagForRecomputation();
+
+            if(ShipSoundComponent != null && block.FatBlock as MyThrust != null)
+                ShipSoundComponent.ShipHasChanged = true;
+        }
+
+        public virtual void OnBlockRemoved(MySlimBlock block)
+        {
+            IMyConveyorEndpointBlock conveyorEndpointBlock = block.FatBlock as IMyConveyorEndpointBlock;
+            if (conveyorEndpointBlock != null)
+                ConveyorSystem.FlagForRecomputation();
+
+            IMyConveyorSegmentBlock conveyorSegmentBlock = block.FatBlock as IMyConveyorSegmentBlock;
+            if (conveyorSegmentBlock != null)
+                ConveyorSystem.FlagForRecomputation();
+
+            if (ShipSoundComponent != null && block.FatBlock as MyThrust != null)
+                ShipSoundComponent.ShipHasChanged = true;
+        }
+
+        public virtual void OnBlockIntegrityChanged(MySlimBlock block)
+        {
+            IMyConveyorEndpointBlock conveyorEndpointBlock = block.FatBlock as IMyConveyorEndpointBlock;
+            if (conveyorEndpointBlock != null)
+                ConveyorSystem.FlagForRecomputation();
+
+            IMyConveyorSegmentBlock conveyorSegmentBlock = block.FatBlock as IMyConveyorSegmentBlock;
+            if (conveyorSegmentBlock != null)
+                ConveyorSystem.FlagForRecomputation();
+        }
+
+        public virtual void OnBlockOwnershipChanged(MyCubeGrid cubeGrid)
+        {
+            ConveyorSystem.FlagForRecomputation();
         }
     }
 }

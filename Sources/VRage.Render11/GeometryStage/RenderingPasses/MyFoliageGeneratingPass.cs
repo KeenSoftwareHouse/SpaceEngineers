@@ -93,10 +93,12 @@ namespace VRageRender
 
             float densityFactor = MyVoxelMaterials1.Table[voxelMatId].FoliageDensity * MyRender11.Settings.GrassDensityFactor;
 
+            float zero = 0;
             mapping = MyMapping.MapDiscard(Context, MyCommon.FoliageConstants);
             mapping.WriteAndPosition(ref densityFactor);
             mapping.WriteAndPosition(ref materialIndex);
             mapping.WriteAndPosition(ref voxelMatId);
+            mapping.WriteAndPosition(ref zero);
             mapping.Unmap();
 
             Context.DrawIndexed(indexCount, startIndex, baseVertex);

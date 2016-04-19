@@ -46,8 +46,11 @@ namespace Sandbox.Game.Replication
         {
             var builder = VRage.Serialization.MySerializer.CreateAndRead<MyObjectBuilder_EntityBase>(stream, MyObjectBuilderSerializer.Dynamic);
             T entity = (T)MyEntities.CreateFromObjectBuilder(builder);
-            entity.DebugCreatedBy = DebugCreatedBy.FromServer;
-            MyEntities.Add(entity);
+            if (entity != null)
+            {
+                entity.DebugCreatedBy = DebugCreatedBy.FromServer;
+                MyEntities.Add(entity);
+            }
             loadingDoneHandler(entity);
         }
 

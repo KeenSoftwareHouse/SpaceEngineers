@@ -50,11 +50,14 @@ namespace Sandbox.Game
 
         protected override void UnloadData()
         {
-            if (m_explosions != null)
+            if (m_explosions != null && m_explosions.ActiveCount > 0)
             {
                 foreach (MyExplosion explosion in m_explosions.Active)
                 {
-                    explosion.Close();
+                    if (explosion != null)
+                    {
+                        explosion.Close();
+                    }
                 }
 
                 m_explosions.DeallocateAll();

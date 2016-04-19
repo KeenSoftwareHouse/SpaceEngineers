@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.Entities.Character;
 using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Network;
@@ -70,10 +71,20 @@ namespace SpaceEngineers.Game.AI
 
         public void StartBurrowing()
         {
-            if (AgentBot.AgentEntity.HasAnimation("Burrow"))
+            if (AgentBot.AgentEntity.UseNewAnimationSystem)
             {
-                AgentBot.AgentEntity.PlayCharacterAnimation("Burrow", MyBlendOption.Immediate, MyFrameOption.Default, 0.0f, 1, sync: true);
-                AgentBot.AgentEntity.DisableAnimationCommands();
+                MySpiderLogic.TriggerAnimationEvent(AgentBot.AgentEntity.EntityId, "burrow");
+                if (Sync.IsServer)
+                    MyMultiplayer.RaiseStaticEvent(x => MySpiderLogic.TriggerAnimationEvent, AgentBot.AgentEntity.EntityId, "burrow");
+            }
+            else
+            {
+                if (AgentBot.AgentEntity.HasAnimation("Burrow"))
+                {
+                    AgentBot.AgentEntity.PlayCharacterAnimation("Burrow", MyBlendOption.Immediate, MyFrameOption.Default,
+                        0.0f, 1, sync: true);
+                    AgentBot.AgentEntity.DisableAnimationCommands();
+                }
             }
             AgentBot.AgentEntity.SoundComp.StartSecondarySound("ArcBotSpiderBurrowIn", true);
 
@@ -83,6 +94,13 @@ namespace SpaceEngineers.Game.AI
 
         public void StartDeburrowing()
         {
+            if (AgentBot.AgentEntity.UseNewAnimationSystem)
+            {
+                MySpiderLogic.TriggerAnimationEvent(AgentBot.AgentEntity.EntityId, "deburrow");
+                if (Sync.IsServer)
+                    MyMultiplayer.RaiseStaticEvent(x => MySpiderLogic.TriggerAnimationEvent, AgentBot.AgentEntity.EntityId, "deburrow");
+            }
+
             m_deburrowing = true;
             m_deburrowStart = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
@@ -183,6 +201,14 @@ namespace SpaceEngineers.Game.AI
                 burrowEffect.Stop(autodelete: true);
                 m_burrowEffectTable.Remove(position);
             }
+        }
+
+        [Event, Broadcast, Reliable]
+        public static void TriggerAnimationEvent(long entityId, string eventName)
+        {
+            MyCharacter character = MyEntities.GetEntityByIdOrDefault(entityId, null) as MyCharacter;
+            if (character != null)
+                character.AnimationController.TriggerAction(MyStringId.GetOrCompute(eventName));
         }
     }
 }

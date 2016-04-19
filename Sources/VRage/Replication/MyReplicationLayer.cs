@@ -47,6 +47,7 @@ namespace VRage.Network
             m_receiveStream.Dispose();
             m_networkIDToObject.Clear();
             m_objectToNetworkID.Clear();
+            m_proxyToTarget.Clear();
         }
 
         protected Type GetTypeByTypeId(TypeId typeId)
@@ -119,7 +120,8 @@ namespace VRage.Network
                 if (proxyTarget != null)
                 {
                     Debug.Assert(proxyTarget.Target != null, "IMyProxyTarget.Target is null!");
-                    if (proxyTarget.Target != null)
+                    Debug.Assert(!m_proxyToTarget.ContainsKey(proxyTarget.Target), "Proxy is already added to list!");
+                    if (proxyTarget.Target != null && !m_proxyToTarget.ContainsKey(proxyTarget.Target))
                     {
                         m_proxyToTarget.Add(proxyTarget.Target, proxyTarget);
                     }

@@ -437,7 +437,7 @@ namespace Sandbox.Game.Screens.Helpers
             var itemVolume = definition.Volume * 1000 * (double)item.Amount;
 
             var gridItem = new MyGuiControlGrid.Item(
-                icon: definition.Icon,
+                icons: definition.Icons,
                 userData: item,
                 toolTip: new StringBuilder().AppendFormat(MyTexts.GetString(MySpaceTexts.ToolTipTerminalInventory_ItemInfo),
                     definition.DisplayNameText,

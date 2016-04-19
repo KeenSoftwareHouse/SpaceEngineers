@@ -160,51 +160,54 @@ namespace Sandbox.Game.Entities.EnvironmentItems
         [Event, Reliable, Server, Broadcast]
         private static void PlaySound(Vector3D position, string cueName)
         {
+            MySoundPair sound = new MySoundPair(cueName);
+            if (sound == MySoundPair.Empty)
+                return;
             var emitter = MyAudioComponent.TryGetSoundEmitter();
             if (emitter == null)
                 return;
 
             emitter.SetPosition(position);
-            emitter.PlaySound(MySoundPair.GetCueId(cueName));            
+            emitter.PlaySound(sound);            
         }
 
         protected override MyEntity DestroyItem(int itemInstanceId)
         {
             int physicsInstanceId;
-            if (m_localIdToPhysicsShapeInstanceId.TryGetValue(itemInstanceId, out physicsInstanceId))
+            if (!m_localIdToPhysicsShapeInstanceId.TryGetValue(itemInstanceId, out physicsInstanceId))
             {
-                //Remove static tree
-                MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
-
-                RemoveItem(itemInstanceId, physicsInstanceId, sync: false, immediateUpdate: true);
-
-                ProfilerShort.Begin("Spawning tree");
-                // This is for SE when you hit a tree, it will create a floating object with the same model. In case it affects ME, it may be changed. Contact DusanA for it.
-                Debug.Assert(MyPerGameSettings.Game == GameEnum.SE_GAME);
-                //MyPhysicalInventoryItem Item = new MyPhysicalInventoryItem() { Amount = 1, Scale = 1f, Content = new MyObjectBuilder_TreeObject() { SubtypeName = itemData.SubtypeId.ToString() } };
-                Vector3D pos = itemData.Transform.Position;
-                var s = itemData.Model.AssetName.Insert(itemData.Model.AssetName.Length - 4, "_broken");
-                MyEntity debris;
-                bool hasBrokenModel = false;
-
-                if (VRage.Game.Models.MyModels.GetModelOnlyData(s) != null)
-                {
-                    hasBrokenModel = true;
-                    debris = MyDebris.Static.CreateDebris(s);
-                }
-                else
-                    debris = MyDebris.Static.CreateDebris(itemData.Model.AssetName);
-                var debrisLogic = (debris.GameLogic as Sandbox.Game.Entities.Debris.MyDebrisBase.MyDebrisBaseLogic);
-                debrisLogic.RandomScale = 1;
-                debrisLogic.LifespanInMiliseconds = BrokenTreeLifeSpan;
-                var m = MatrixD.CreateFromQuaternion(itemData.Transform.Rotation);
-                m.Translation = pos + m.Up * (hasBrokenModel ? 0 : 5);
-                debrisLogic.Start(m, Vector3.Zero, 1, false);
-                //MyFloatingObjects.Spawn(Item, pos + gravity, MyUtils.GetRandomPerpendicularVector(ref gravity), gravity);
-                ProfilerShort.End();
-                return debris;
+                physicsInstanceId = -1;
             }
-            return null;
+            //Remove static tree
+            MyEnvironmentItemData itemData = m_itemsData[itemInstanceId];
+
+            RemoveItem(itemInstanceId, physicsInstanceId, sync: false, immediateUpdate: true);
+
+            ProfilerShort.Begin("Spawning tree");
+            // This is for SE when you hit a tree, it will create a floating object with the same model. In case it affects ME, it may be changed. Contact DusanA for it.
+            Debug.Assert(MyPerGameSettings.Game == GameEnum.SE_GAME);
+            //MyPhysicalInventoryItem Item = new MyPhysicalInventoryItem() { Amount = 1, Scale = 1f, Content = new MyObjectBuilder_TreeObject() { SubtypeName = itemData.SubtypeId.ToString() } };
+            Vector3D pos = itemData.Transform.Position;
+            var s = itemData.Model.AssetName.Insert(itemData.Model.AssetName.Length - 4, "_broken");
+            MyEntity debris;
+            bool hasBrokenModel = false;
+
+            if (VRage.Game.Models.MyModels.GetModelOnlyData(s) != null)
+            {
+                hasBrokenModel = true;
+                debris = MyDebris.Static.CreateDebris(s);
+            }
+            else
+                debris = MyDebris.Static.CreateDebris(itemData.Model.AssetName);
+            var debrisLogic = (debris.GameLogic as Sandbox.Game.Entities.Debris.MyDebrisBase.MyDebrisBaseLogic);
+            debrisLogic.RandomScale = 1;
+            debrisLogic.LifespanInMiliseconds = BrokenTreeLifeSpan;
+            var m = MatrixD.CreateFromQuaternion(itemData.Transform.Rotation);
+            m.Translation = pos + m.Up*(hasBrokenModel ? 0 : 5);
+            debrisLogic.Start(m, Vector3.Zero, 1, false);
+            //MyFloatingObjects.Spawn(Item, pos + gravity, MyUtils.GetRandomPerpendicularVector(ref gravity), gravity);
+            ProfilerShort.End();
+            return debris;
         }
 
         private void CreateBreakableShape(MyEnvironmentItemDefinition itemDefinition, ref MyEnvironmentItemData itemData, ref Vector3D hitWorldPosition, Vector3 hitNormal, float forceMultiplier, string fallSound = "")

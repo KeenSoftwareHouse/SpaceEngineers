@@ -25,6 +25,8 @@ namespace VRage
         public static readonly MyFixedPoint MaxValue = new MyFixedPoint(long.MaxValue);
         public static readonly MyFixedPoint Zero = new MyFixedPoint(0L);
         public static readonly MyFixedPoint SmallestPossibleValue = new MyFixedPoint(1);
+        public static readonly MyFixedPoint MaxIntValue = (MyFixedPoint)int.MaxValue;
+        public static readonly MyFixedPoint MinIntValue = (MyFixedPoint)int.MinValue;
 
         [ProtoMember]
         public long RawValue;
@@ -252,6 +254,11 @@ namespace VRage
             return (MyFixedPoint)a * b;
         }
 
+        public static MyFixedPoint AddSafe(MyFixedPoint a, MyFixedPoint b)
+        {
+            return new MyFixedPoint(AddSafeInternal(a.RawValue, b.RawValue));
+        }
+
         public static MyFixedPoint MultiplySafe(MyFixedPoint a, float b)
         {
             return MultiplySafe(a, (MyFixedPoint)b);
@@ -305,6 +312,13 @@ namespace VRage
             if (Math.Sign(result) == sa) return result; // Same signs, but the result is also the same => no overflow
 
             return sa < 0 ? long.MinValue : long.MaxValue; // Overflow => return the correct max value
+        }
+
+        public int ToIntSafe()
+        {
+            if (RawValue > MaxIntValue.RawValue) return (int)MaxIntValue;
+            if (RawValue < MinIntValue.RawValue) return (int)MinIntValue;
+            return (int)this;
         }
 
         public override string ToString()

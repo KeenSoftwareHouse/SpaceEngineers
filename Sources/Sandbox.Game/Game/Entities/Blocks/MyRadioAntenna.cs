@@ -16,6 +16,7 @@ using Sandbox.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Game;
+using VRage.Game.Components;
 using VRage.Utils;
 using VRage.ModAPI;
 using VRage.Game.Gui;
@@ -25,7 +26,7 @@ using VRage.Game.Gui;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_RadioAntenna))]
-    class MyRadioAntenna : MyFunctionalBlock, IMyGizmoDrawableObject, IMyRadioAntenna
+    public class MyRadioAntenna : MyFunctionalBlock, IMyGizmoDrawableObject, IMyRadioAntenna
     {
         protected Color m_gizmoColor;
         protected const float m_maxGizmoDrawDistance = 10000.0f;
@@ -43,6 +44,7 @@ namespace Sandbox.Game.Entities.Cube
 
         readonly Sync<float> m_radius;
         private bool onceUpdated = false;
+        readonly Sync<bool> m_enableBroadcasting;
 
         private Sync<bool> m_showShipName;
         public bool ShowShipName
@@ -158,7 +160,7 @@ namespace Sandbox.Game.Entities.Cube
 
             var enableBroadcast = new MyTerminalControlCheckbox<MyRadioAntenna>("EnableBroadCast", MySpaceTexts.Antenna_EnableBroadcast, MySpaceTexts.Antenna_EnableBroadcast);
             enableBroadcast.Getter = (x) => x.RadioBroadcaster.Enabled;
-            enableBroadcast.Setter = (x, v) => x.RadioBroadcaster.Enabled = v;
+            enableBroadcast.Setter = (x, v) => x.m_enableBroadcasting.Value = v;
             enableBroadcast.EnableAction();
             MyTerminalControlFactory.AddControl(enableBroadcast);
 
@@ -173,11 +175,18 @@ namespace Sandbox.Game.Entities.Cube
         public MyRadioAntenna()
         {
             m_radius.ValueChanged += (obj) => ChangeRadius();
+            m_enableBroadcasting.ValueChanged += (obj) => ChangeEnableBroadcast();
         }
 
         void ChangeRadius()
         {
             RadioBroadcaster.BroadcastRadius = m_radius;
+        }
+
+        void ChangeEnableBroadcast()
+        {
+            RadioBroadcaster.Enabled = m_enableBroadcasting;
+            RaisePropertiesChanged();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -232,6 +241,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.OnAddedToScene(source);
 
+            m_enableBroadcasting.Value = RadioBroadcaster.WantsToBeEnabled;
             RadioBroadcaster.OnBroadcastRadiusChanged += OnBroadcastRadiusChanged;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -375,7 +385,7 @@ namespace Sandbox.Game.Entities.Cube
             if (RadioBroadcaster != null)
             {
                 if (IsWorking)
-                    RadioBroadcaster.Enabled = RadioBroadcaster.WantsToBeEnabled;
+                    RadioBroadcaster.Enabled = m_enableBroadcasting;
                 else
                     RadioBroadcaster.Enabled = false;
             }

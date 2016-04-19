@@ -5,6 +5,7 @@ using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using VRage;
 using Sandbox.Graphics.Render;
+using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
@@ -29,53 +30,39 @@ namespace Sandbox.Game.Gui
 
             m_currentPosition = -m_size.Value / 2.0f + new Vector2(0.02f, 0.1f);
 
-            //m_currentPosition.Y += 0.01f;
             AddLabel("Sun", Color.Yellow.ToVector4(), 1.2f);
 
             var sunObj = MySector.SunProperties;
-            //m_currentPosition.Y += 0.01f;
             AddSlider("Intensity", 0, 10.0f, sunObj, MemberHelper.GetMember(() => MySector.SunProperties.SunIntensity));
-
-            //m_currentPosition.Y += 0.01f;
             AddColor(new StringBuilder("Sun color"), sunObj, MemberHelper.GetMember(() => MySector.SunProperties.SunDiffuse));
 
-            //m_currentPosition.Y += 0.02f;
-            AddColor(new StringBuilder("Sun specular"), sunObj, MemberHelper.GetMember(() => MySector.SunProperties.SunSpecular));
-
-            //m_currentPosition.Y += 0.02f;
-            //AddSlider("Back sun intensity", 0, 5.0f, sunObj, MemberHelper.GetMember(() => MySector.SunProperties.AdditionalSunIntensity));
-
-            //m_currentPosition.Y += 0.01f;
-            //AddColor(new StringBuilder("Back sun color"), sunObj, MemberHelper.GetMember(() => MySector.SunProperties.AdditionalSunDiffuse));
-
-            //m_currentPosition.Y += 0.02f;
-            AddColor(new StringBuilder("Ambient color"), sunObj, MemberHelper.GetMember(() => MySector.SunProperties.AmbientColor));
-
-            //m_currentPosition.Y += 0.02f;
-            AddSlider("Ambient multiplier", 0, 5.0f, sunObj, MemberHelper.GetMember(() => MySector.SunProperties.AmbientMultiplier));
-
-            AddSlider("Env. ambient intensity", 0, 5.0f, sunObj, MemberHelper.GetMember(() => MySector.SunProperties.EnvironmentAmbientIntensity));
-
-            /*
-            //m_currentPosition.Y += 0.01f;
-            AddLabel(new StringBuilder("Player ship"), Color.Yellow.ToVector4(), 1.2f);
-
-            //m_currentPosition.Y += 0.01f;
-            AddSlider(new StringBuilder("Light range multiplier"), 0, 10, null, MemberHelper.GetMember(() => MySmallShip.LightRangeMultiplier));
-            AddSlider(new StringBuilder("Light intensity multiplier"), 0, 10, null, MemberHelper.GetMember(() => MySmallShip.LightIntensityMultiplier));
-            AddSlider(new StringBuilder("Reflector intensity multiplier"), 0, 10, null, MemberHelper.GetMember(() => MySmallShip.ReflectorIntensityMultiplier));
-            */
-            //m_currentPosition.Y += 0.01f;
-            AddLabel("Post process - Contrast", Color.Yellow.ToVector4(), 1.2f);
-            //m_currentPosition.Y += 0.01f;
+            bool rendererIsDirectX11 = MySandboxGame.Config.GraphicsRenderer.ToString().Equals("DirectX 11");
+            if (!rendererIsDirectX11)
             {
-                AddCheckBox("Enable", null, MemberHelper.GetMember(() => MyPostProcessContrast.Enabled));
-                AddSlider("Hue", -1, 5, null, MemberHelper.GetMember(() => MyPostProcessContrast.Hue));
-                AddSlider("Contrast", 0.1f, 2, null, MemberHelper.GetMember(() => MyPostProcessContrast.Contrast));
-                AddSlider("Saturation", 0, 3, null, MemberHelper.GetMember(() => MyPostProcessContrast.Saturation));
-            }
+                AddColor(new StringBuilder("Sun specular"), sunObj, MemberHelper.GetMember(() => MySector.SunProperties.SunSpecular));
+                AddColor(new StringBuilder("Ambient color"), sunObj, MemberHelper.GetMember(() => MySector.SunProperties.AmbientColor));
+                AddSlider("Ambient multiplier", 0, 5.0f, sunObj, MemberHelper.GetMember(() => MySector.SunProperties.AmbientMultiplier));
+                AddSlider("Env. ambient intensity", 0, 5.0f, sunObj, MemberHelper.GetMember(() => MySector.SunProperties.EnvironmentAmbientIntensity));
 
-            //m_currentPosition.Y += 0.01f;
+                AddLabel("Post process - Contrast", Color.Yellow.ToVector4(), 1.2f);
+                {
+                    AddCheckBox("Enable", null, MemberHelper.GetMember(() => MyPostProcessContrast.Enabled));
+                    AddSlider("Hue", -1, 5, null, MemberHelper.GetMember(() => MyPostProcessContrast.Hue));
+                    AddSlider("Contrast", 0.1f, 2, null, MemberHelper.GetMember(() => MyPostProcessContrast.Contrast));
+                    AddSlider("Saturation", 0, 3, null, MemberHelper.GetMember(() => MyPostProcessContrast.Saturation));
+                }
+            }
+            else
+            {
+                const float minMultiplier = 0.0f;
+                const float maxMultiplier = 4.0f;
+                AddSlider("RGB Multiplier", minMultiplier, maxMultiplier, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.RgbMultiplier));
+                AddSlider("Metalness Multiplier", minMultiplier, maxMultiplier, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.MetalnessMultiplier));
+                AddSlider("Gloss Multiplier", minMultiplier, maxMultiplier, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.GlossMultiplier));
+                AddSlider("AO Multiplier", minMultiplier, maxMultiplier, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.AoMultiplier));
+                AddSlider("Emissive Multiplier", minMultiplier, maxMultiplier, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.EmissiveMultiplier));
+                AddSlider("Color Mask Multiplier", minMultiplier, maxMultiplier, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.ColorMaskMultiplier));
+            }
         }
 
         public override string GetFriendlyName()

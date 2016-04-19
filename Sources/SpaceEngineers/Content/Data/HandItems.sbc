@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <HandItems>
-    <HandItem>
+    <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_AutomaticRifle</TypeId>
         <SubtypeId>RifleGun</SubtypeId>
@@ -60,7 +60,7 @@
       <RunMultiplier>3.22636747</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0.120745391</X>
-        <Y>0.04014123</Y>
+        <Y>0.0401412323</Y>
         <Z>0.01575381</Z>
         <W>0.9917465</W>
       </ItemWalkingOrientation3rd>
@@ -133,8 +133,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <ToolSounds />
     </HandItem>
-    <HandItem>
+    <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_AutomaticRifle</TypeId>
         <SubtypeId>RapidFireRifleGun</SubtypeId>
@@ -193,7 +194,7 @@
       <RunMultiplier>3.22636747</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0.120745391</X>
-        <Y>0.04014123</Y>
+        <Y>0.0401412323</Y>
         <Z>0.01575381</Z>
         <W>0.9917465</W>
       </ItemWalkingOrientation3rd>
@@ -266,8 +267,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <ToolSounds />
     </HandItem>
-    <HandItem>
+    <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_AutomaticRifle</TypeId>
         <SubtypeId>PreciseRifleGun</SubtypeId>
@@ -326,7 +328,7 @@
       <RunMultiplier>3.22636747</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0.120745391</X>
-        <Y>0.04014123</Y>
+        <Y>0.0401412323</Y>
         <Z>0.01575381</Z>
         <W>0.9917465</W>
       </ItemWalkingOrientation3rd>
@@ -399,8 +401,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <ToolSounds />
     </HandItem>
-    <HandItem>
+    <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_AutomaticRifle</TypeId>
         <SubtypeId>UltimateRifleGun</SubtypeId>
@@ -459,7 +462,7 @@
       <RunMultiplier>3.22636747</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0.120745391</X>
-        <Y>0.04014123</Y>
+        <Y>0.0401412323</Y>
         <Z>0.01575381</Z>
         <W>0.9917465</W>
       </ItemWalkingOrientation3rd>
@@ -532,6 +535,7 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id>
@@ -539,9 +543,9 @@
         <SubtypeId>Welder</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.7071079</X>
-        <Y>-3.9056124E-07</Y>
-        <Z>-1.6858759E-07</Z>
+        <X>-0.707107961</X>
+        <Y>-3.90561326E-07</Y>
+        <Z>-1.68587619E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -550,9 +554,9 @@
         <Z>-0.06793878</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.404110372</X>
-        <Y>-0.455362</Y>
-        <Z>-0.595675</Z>
+        <X>-0.404110253</X>
+        <Y>-0.455361873</Y>
+        <Z>-0.5956749</Z>
         <W>0.523938656</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -666,22 +670,20 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
-      
-      <!-- These are default values for welders - they are here for reference -->
       <ToolSounds>
         <ToolSound type="Main" subtype="Idle" sound="ToolPlayWeldIdle" />
         <ToolSound type="Main" subtype="Weld" sound="ToolPlayWeldMetal" />
       </ToolSounds>
-    </HandItem>    
+    </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Welder</TypeId>
         <SubtypeId>Welder2</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.7071079</X>
-        <Y>-3.9056124E-07</Y>
-        <Z>-1.6858759E-07</Z>
+        <X>-0.707107961</X>
+        <Y>-3.90561326E-07</Y>
+        <Z>-1.68587619E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -690,9 +692,9 @@
         <Z>-0.06793878</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.404110372</X>
-        <Y>-0.455362</Y>
-        <Z>-0.595675</Z>
+        <X>-0.404110253</X>
+        <Y>-0.455361873</Y>
+        <Z>-0.5956749</Z>
         <W>0.523938656</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -808,6 +810,7 @@
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
       <SpeedMultiplier>1.5</SpeedMultiplier>
       <DistanceMultiplier>1.2</DistanceMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id>
@@ -815,9 +818,9 @@
         <SubtypeId>Welder3</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.7071079</X>
-        <Y>-3.9056124E-07</Y>
-        <Z>-1.6858759E-07</Z>
+        <X>-0.707107961</X>
+        <Y>-3.90561326E-07</Y>
+        <Z>-1.68587619E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -826,9 +829,9 @@
         <Z>-0.06793878</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.404110372</X>
-        <Y>-0.455362</Y>
-        <Z>-0.595675</Z>
+        <X>-0.404110253</X>
+        <Y>-0.455361873</Y>
+        <Z>-0.5956749</Z>
         <W>0.523938656</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -944,6 +947,7 @@
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
       <SpeedMultiplier>2</SpeedMultiplier>
       <DistanceMultiplier>1.4</DistanceMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
       <Id>
@@ -951,9 +955,9 @@
         <SubtypeId>Welder4</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.7071079</X>
-        <Y>-3.9056124E-07</Y>
-        <Z>-1.6858759E-07</Z>
+        <X>-0.707107961</X>
+        <Y>-3.90561326E-07</Y>
+        <Z>-1.68587619E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -962,9 +966,9 @@
         <Z>-0.06793878</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.404110372</X>
-        <Y>-0.455362</Y>
-        <Z>-0.595675</Z>
+        <X>-0.404110253</X>
+        <Y>-0.455361873</Y>
+        <Z>-0.5956749</Z>
         <W>0.523938656</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1080,6 +1084,7 @@
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
       <SpeedMultiplier>5</SpeedMultiplier>
       <DistanceMultiplier>1.6</DistanceMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem  xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id>
@@ -1087,10 +1092,10 @@
         <SubtypeId />
       </Id>
       <LeftHandOrientation>
-        <X>-0.309815675</X>
-        <Y>-0.5912853</Y>
-        <Z>0.492289543</Z>
-        <W>0.558611453</W>
+        <X>-0.3098157</X>
+        <Y>-0.591285348</Y>
+        <Z>0.4922896</Z>
+        <W>0.5586115</W>
       </LeftHandOrientation>
       <LeftHandPosition>
         <X>-0.06780118</X>
@@ -1100,7 +1105,7 @@
       <RightHandOrientation>
         <X>0.929755</X>
         <Y>-0.07520178</Y>
-        <Z>0.360117048</Z>
+        <Z>0.360117078</Z>
         <W>0.01470316</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1139,10 +1144,10 @@
       <ZAmplitudeScale>0</ZAmplitudeScale>
       <RunMultiplier>1.80977166</RunMultiplier>
       <ItemWalkingOrientation3rd>
-        <X>0.6110043</X>
-        <Y>0.3843723</Y>
-        <Z>0.2879856</Z>
-        <W>0.629282057</W>
+        <X>0.6110045</X>
+        <Y>0.3843724</Y>
+        <Z>0.287985653</Z>
+        <W>0.629282</W>
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>-0.0862925053</X>
@@ -1151,10 +1156,10 @@
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
-        <X>0.5932535</X>
-        <Y>0.3471882</Y>
-        <Z>0.322974473</Z>
-        <W>0.6505369</W>
+        <X>0.5932536</X>
+        <Y>0.347188264</Y>
+        <Z>0.322974533</Z>
+        <W>0.6505368</W>
       </ItemOrientation3rd>
       <ItemPosition3rd>
         <X>0.0295847654</X>
@@ -1169,7 +1174,7 @@
         <W>0.952344537</W>
       </ItemShootOrientation>
       <ItemShootPosition>
-        <X>0.1</X>
+        <X>0.02301073</X>
         <Y>-0.233399391</Y>
         <Z>-0.272847</Z>
       </ItemShootPosition>
@@ -1213,11 +1218,9 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>2.5</ShakeAmountTarget>
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
-
-      <!-- These are default values for grinders - they are here for reference -->
       <ToolSounds>
         <ToolSound type="Main" subtype="Idle" sound="ToolPlayGrindIdle" />
-        <ToolSound type="Main" subtype="Soundset" sound="Grinder" /><!-- Physical material of grinder -->
+        <ToolSound type="Main" subtype="Soundset" sound="Grinder" />
       </ToolSounds>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
@@ -1226,10 +1229,10 @@
         <SubtypeId>AngleGrinder2</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.309815675</X>
-        <Y>-0.5912853</Y>
-        <Z>0.492289543</Z>
-        <W>0.558611453</W>
+        <X>-0.3098157</X>
+        <Y>-0.591285348</Y>
+        <Z>0.4922896</Z>
+        <W>0.5586115</W>
       </LeftHandOrientation>
       <LeftHandPosition>
         <X>-0.06780118</X>
@@ -1239,7 +1242,7 @@
       <RightHandOrientation>
         <X>0.929755</X>
         <Y>-0.07520178</Y>
-        <Z>0.360117048</Z>
+        <Z>0.360117078</Z>
         <W>0.01470316</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1278,10 +1281,10 @@
       <ZAmplitudeScale>0</ZAmplitudeScale>
       <RunMultiplier>1.80977166</RunMultiplier>
       <ItemWalkingOrientation3rd>
-        <X>0.6110043</X>
-        <Y>0.3843723</Y>
-        <Z>0.2879856</Z>
-        <W>0.629282057</W>
+        <X>0.6110045</X>
+        <Y>0.3843724</Y>
+        <Z>0.287985653</Z>
+        <W>0.629282</W>
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>-0.0862925053</X>
@@ -1290,10 +1293,10 @@
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
-        <X>0.5932535</X>
-        <Y>0.3471882</Y>
-        <Z>0.322974473</Z>
-        <W>0.6505369</W>
+        <X>0.5932536</X>
+        <Y>0.347188264</Y>
+        <Z>0.322974533</Z>
+        <W>0.6505368</W>
       </ItemOrientation3rd>
       <ItemPosition3rd>
         <X>0.0295847654</X>
@@ -1354,6 +1357,7 @@
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
       <SpeedMultiplier>1.5</SpeedMultiplier>
       <DistanceMultiplier>1.2</DistanceMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id>
@@ -1361,10 +1365,10 @@
         <SubtypeId>AngleGrinder3</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.309815675</X>
-        <Y>-0.5912853</Y>
-        <Z>0.492289543</Z>
-        <W>0.558611453</W>
+        <X>-0.3098157</X>
+        <Y>-0.591285348</Y>
+        <Z>0.4922896</Z>
+        <W>0.5586115</W>
       </LeftHandOrientation>
       <LeftHandPosition>
         <X>-0.06780118</X>
@@ -1374,7 +1378,7 @@
       <RightHandOrientation>
         <X>0.929755</X>
         <Y>-0.07520178</Y>
-        <Z>0.360117048</Z>
+        <Z>0.360117078</Z>
         <W>0.01470316</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1413,10 +1417,10 @@
       <ZAmplitudeScale>0</ZAmplitudeScale>
       <RunMultiplier>1.80977166</RunMultiplier>
       <ItemWalkingOrientation3rd>
-        <X>0.6110043</X>
-        <Y>0.3843723</Y>
-        <Z>0.2879856</Z>
-        <W>0.629282057</W>
+        <X>0.6110045</X>
+        <Y>0.3843724</Y>
+        <Z>0.287985653</Z>
+        <W>0.629282</W>
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>-0.0862925053</X>
@@ -1425,10 +1429,10 @@
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
-        <X>0.5932535</X>
-        <Y>0.3471882</Y>
-        <Z>0.322974473</Z>
-        <W>0.6505369</W>
+        <X>0.5932536</X>
+        <Y>0.347188264</Y>
+        <Z>0.322974533</Z>
+        <W>0.6505368</W>
       </ItemOrientation3rd>
       <ItemPosition3rd>
         <X>0.0295847654</X>
@@ -1489,6 +1493,7 @@
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
       <SpeedMultiplier>2</SpeedMultiplier>
       <DistanceMultiplier>1.4</DistanceMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
       <Id>
@@ -1496,10 +1501,10 @@
         <SubtypeId>AngleGrinder4</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.309815675</X>
-        <Y>-0.5912853</Y>
-        <Z>0.492289543</Z>
-        <W>0.558611453</W>
+        <X>-0.3098157</X>
+        <Y>-0.591285348</Y>
+        <Z>0.4922896</Z>
+        <W>0.5586115</W>
       </LeftHandOrientation>
       <LeftHandPosition>
         <X>-0.06780118</X>
@@ -1509,7 +1514,7 @@
       <RightHandOrientation>
         <X>0.929755</X>
         <Y>-0.07520178</Y>
-        <Z>0.360117048</Z>
+        <Z>0.360117078</Z>
         <W>0.01470316</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1548,10 +1553,10 @@
       <ZAmplitudeScale>0</ZAmplitudeScale>
       <RunMultiplier>1.80977166</RunMultiplier>
       <ItemWalkingOrientation3rd>
-        <X>0.6110043</X>
-        <Y>0.3843723</Y>
-        <Z>0.2879856</Z>
-        <W>0.629282057</W>
+        <X>0.6110045</X>
+        <Y>0.3843724</Y>
+        <Z>0.287985653</Z>
+        <W>0.629282</W>
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>-0.0862925053</X>
@@ -1560,10 +1565,10 @@
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
-        <X>0.5932535</X>
-        <Y>0.3471882</Y>
-        <Z>0.322974473</Z>
-        <W>0.6505369</W>
+        <X>0.5932536</X>
+        <Y>0.347188264</Y>
+        <Z>0.322974533</Z>
+        <W>0.6505368</W>
       </ItemOrientation3rd>
       <ItemPosition3rd>
         <X>0.0295847654</X>
@@ -1624,6 +1629,7 @@
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
       <SpeedMultiplier>5</SpeedMultiplier>
       <DistanceMultiplier>1.6</DistanceMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id>
@@ -1642,9 +1648,9 @@
         <Z>0.207100153</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1684,7 +1690,7 @@
       <RunMultiplier>1.27547634</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0.106684</Y>
+        <Y>0.106684007</Y>
         <Z>0</Z>
         <W>0.994293</W>
       </ItemWalkingOrientation3rd>
@@ -1757,11 +1763,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
-      
-      <!-- These are default values for drills - they are here for reference -->
       <ToolSounds>
         <ToolSound type="Main" subtype="Idle" sound="ToolPlayDrillIdle" />
-        <ToolSound type="Main" subtype="Soundset" sound="HandDrill" /><!-- Physical material of drill -->
+        <ToolSound type="Main" subtype="Soundset" sound="HandDrill" />
       </ToolSounds>
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
@@ -1781,9 +1785,9 @@
         <Z>0.207100153</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1823,7 +1827,7 @@
       <RunMultiplier>1.27547634</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0.106684</Y>
+        <Y>0.106684007</Y>
         <Z>0</Z>
         <W>0.994293</W>
       </ItemWalkingOrientation3rd>
@@ -1899,6 +1903,7 @@
       <SpeedMultiplier>1.2</SpeedMultiplier>
       <DistanceMultiplier>1</DistanceMultiplier>
       <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id>
@@ -1917,9 +1922,9 @@
         <Z>0.207100153</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -1959,7 +1964,7 @@
       <RunMultiplier>1.27547634</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0.106684</Y>
+        <Y>0.106684007</Y>
         <Z>0</Z>
         <W>0.994293</W>
       </ItemWalkingOrientation3rd>
@@ -2035,6 +2040,7 @@
       <SpeedMultiplier>1.4</SpeedMultiplier>
       <DistanceMultiplier>1.5</DistanceMultiplier>
       <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
+      <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
       <Id>
@@ -2053,9 +2059,9 @@
         <Z>0.207100153</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.472021937</X>
-        <Y>-0.4712831</Y>
-        <Z>-0.5155097</Z>
+        <X>-0.472021818</X>
+        <Y>-0.471283</Y>
+        <Z>-0.5155096</Z>
         <W>0.5379009</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -2095,7 +2101,7 @@
       <RunMultiplier>1.27547634</RunMultiplier>
       <ItemWalkingOrientation3rd>
         <X>0</X>
-        <Y>0.106684</Y>
+        <Y>0.106684007</Y>
         <Z>0</Z>
         <W>0.994293</W>
       </ItemWalkingOrientation3rd>
@@ -2171,8 +2177,9 @@
       <SpeedMultiplier>1.6</SpeedMultiplier>
       <DistanceMultiplier>2</DistanceMultiplier>
       <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
+      <ToolSounds />
     </HandItem>
-    <HandItem>
+    <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_CubePlacer</TypeId>
         <SubtypeId />
@@ -2180,7 +2187,7 @@
       <LeftHandOrientation>
         <X>0.317969531</X>
         <Y>0.45080924</Y>
-        <Z>0.3129707</Z>
+        <Z>0.312970668</Z>
         <W>0.773120761</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -2305,16 +2312,17 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <ToolSounds />
     </HandItem>
-    <HandItem>
+    <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_GoodAIControlHandTool</TypeId>
         <SubtypeId>GoodAIRewardPunishmentTool</SubtypeId>
       </Id>
       <LeftHandOrientation>
-        <X>-0.7071079</X>
-        <Y>-3.9056124E-07</Y>
-        <Z>-1.6858759E-07</Z>
+        <X>-0.707107961</X>
+        <Y>-3.90561326E-07</Y>
+        <Z>-1.68587619E-07</Z>
         <W>0.7071056</W>
       </LeftHandOrientation>
       <LeftHandPosition>
@@ -2323,9 +2331,9 @@
         <Z>-0.06793878</Z>
       </LeftHandPosition>
       <RightHandOrientation>
-        <X>-0.404110372</X>
-        <Y>-0.455362</Y>
-        <Z>-0.595675</Z>
+        <X>-0.404110253</X>
+        <Y>-0.455361873</Y>
+        <Z>-0.5956749</Z>
         <W>0.523938656</W>
       </RightHandOrientation>
       <RightHandPosition>
@@ -2439,6 +2447,7 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <ToolSounds />
     </HandItem>
   </HandItems>
 </Definitions>

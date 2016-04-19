@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 using VRage.Generics;
 
 namespace VRage.Animations
@@ -32,24 +28,38 @@ namespace VRage.Animations
         public MyAnimationStateMachineNode(string name, MyAnimationClip animationClip)
             : base(name)
         {
-            Debug.Assert(animationClip != null, "Creating single animation node in machine " + this.Name + ", node name " 
-                + name + ": Animation clip must not be null!");
             if (animationClip != null)
             {
-                var nodeTrack = new AnimationNodes.MyAnimationTreeNodeTrack();
+                var nodeTrack = new MyAnimationTreeNodeTrack();
                 nodeTrack.SetClip(animationClip);
                 m_rootAnimationNode = nodeTrack;
+            }
+            else
+            {
+                Debug.Fail("Creating single animation node in machine " + this.Name + ", node name "
+                + name + ": Animation clip must not be null!");            
             }
         }
 
         public override void OnUpdate(MyStateMachine stateMachine)
         {
-            Debug.Assert(stateMachine is MyAnimationStateMachine, "Animation machine nodes must be inside animation state machine.");
             MyAnimationStateMachine animStateMachine = stateMachine as MyAnimationStateMachine;
+            if (animStateMachine == null)
+            {
+                Debug.Fail("Animation machine nodes must be inside animation state machine.");
+                return;
+            }
             if (m_rootAnimationNode != null)
             {
+                animStateMachine.CurrentUpdateData.AddVisitedTreeNodesPathPoint(1);
                 m_rootAnimationNode.Update(ref animStateMachine.CurrentUpdateData);
             }
+            else
+            {
+                animStateMachine.CurrentUpdateData.BonesResult =
+                    animStateMachine.CurrentUpdateData.Controller.ResultBonesPool.Alloc();
+            }
+            animStateMachine.CurrentUpdateData.AddVisitedTreeNodesPathPoint(0); 
         }
     }
 }

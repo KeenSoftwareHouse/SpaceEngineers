@@ -12,9 +12,9 @@ namespace Sandbox.ModAPI.Interfaces
         string Id { get; }
         string Icon { get; }
         StringBuilder Name { get; }
-        void Apply(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
-        void Apply(Sandbox.ModAPI.Ingame.IMyCubeBlock block, ListReader<TerminalActionParameter> terminalActionParameters);
-        void WriteValue(Sandbox.ModAPI.Ingame.IMyCubeBlock block, StringBuilder appendTo);
-        bool IsEnabled(Sandbox.ModAPI.Ingame.IMyCubeBlock block);
+        void Apply(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
+        void Apply(VRage.Game.ModAPI.Ingame.IMyCubeBlock block, ListReader<TerminalActionParameter> terminalActionParameters);
+        void WriteValue(VRage.Game.ModAPI.Ingame.IMyCubeBlock block, StringBuilder appendTo);
+        bool IsEnabled(VRage.Game.ModAPI.Ingame.IMyCubeBlock block);
     }
 }

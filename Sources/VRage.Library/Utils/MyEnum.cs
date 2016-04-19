@@ -7,6 +7,12 @@ using VRage.Compiler;
 
 namespace VRage.Library.Utils
 {
+    public enum MyGameModeEnum
+    {
+        Creative,
+        Survival,
+    }
+
     public static class MyEnum<T>
         where T : struct, IComparable, IFormattable, IConvertible
     {

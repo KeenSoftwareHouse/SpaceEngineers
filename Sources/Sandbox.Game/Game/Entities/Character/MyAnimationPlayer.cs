@@ -108,6 +108,10 @@ namespace Sandbox.Game.Entities
 
         private int m_hash = 0;
 
+        // mwm path stored for debugging purposes
+        public string AnimationMwmPathDebug = null;
+        public string AnimationNameDebug = null;
+
         #endregion
 
         #region Properties
