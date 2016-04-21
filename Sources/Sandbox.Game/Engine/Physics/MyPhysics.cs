@@ -113,7 +113,7 @@ namespace Sandbox.Engine.Physics
 
         public static int ThreadId;
 
-        public static MyHavokCluster Clusters;
+        private static MyHavokCluster Clusters;
 
         private static HkJobThreadPool m_threadPool;
         private static HkJobQueue m_jobQueue;
@@ -401,6 +401,7 @@ namespace Sandbox.Engine.Physics
         HkWorld OnClusterCreated(int clusterId, BoundingBoxD bbox)
         {
             float broadPhaseSize = (float)bbox.Size.Max();
+            //Debug.Assert(false, "bbox.Center: " + bbox.Center + ", bbox.Size: " + bbox.Size + ", broadPhaseSize: " + broadPhaseSize);
             System.Diagnostics.Debug.Assert(broadPhaseSize > 10 && broadPhaseSize < 1000000);
             return CreateHkWorld(broadPhaseSize);
         }
@@ -881,11 +882,6 @@ namespace Sandbox.Engine.Physics
                     //}
                 }
             }
-        }
-
-        public void Debug_ReorderClusters()
-        {
-            MySession.Static.ControlledEntity.Entity.GetPhysicsBody().ReorderClusters();
         }
 
         #region Havok worlds wrapper
@@ -1435,5 +1431,77 @@ namespace Sandbox.Engine.Physics
             Debug.Fail("Cannot convert collision layer string - layer not found");
             return CollisionLayers.DefaultCollisionLayer;
         }
+
+        /// <summary>
+        /// Ensure aabb is inside only one subspace. If no, reorder.
+        /// </summary>
+        /// <param name="aabb"></param>
+        public static void EnsurePhysicsSpace(BoundingBoxD aabb)
+        {
+            Clusters.EnsureClusterSpace(aabb);
+        }
+
+        /// <summary>
+        /// Change position of object in world. Move object between subspaces if necessary.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="oldAabb"></param>
+        /// <param name="aabb"></param>
+        /// <param name="velocity"></param>
+        public static void MoveObject(ulong id, BoundingBoxD oldAabb, BoundingBoxD aabb, Vector3 velocity)
+        {
+            Clusters.MoveObject(id, oldAabb, aabb, velocity);
+        }
+
+        /// <summary>
+        /// Remove object from world, remove also subspace if empty.
+        /// </summary>
+        /// <param name="id"></param>
+        public static void RemoveObject(ulong id)
+        {
+            Clusters.RemoveObject(id);
+        }
+
+        /// <summary>
+        /// Return offset of objects subspace center.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static Vector3D GetObjectOffset(ulong id)
+        {
+            return Clusters.GetObjectOffset(id);
+        }
+
+        /// <summary>
+        /// Try add object to some subspace.
+        /// Create new subspace if allowed (!SingleCluster.HasValue) and needed (object is outside of existing subspaces).
+        /// If not allowed, mark object as left the world.
+        /// </summary>
+        /// <param name="bbox"></param>
+        /// <param name="velocity"></param>
+        /// <param name="activationHandler"></param>
+        /// <param name="customId"></param>
+        /// <returns></returns>
+        public static ulong AddObject(BoundingBoxD bbox, Vector3 velocity, MyPhysicsBody activationHandler, ulong? customId)
+        {
+            ulong tmp = Clusters.AddObject(bbox, velocity, activationHandler, customId);
+
+            if (tmp == MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED)
+            {
+                HavokWorld_EntityLeftWorld(activationHandler.RigidBody);
+                return MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+            }
+            return tmp;
+            
+        }
+
+        public static VRage.Collections.ListReader<object>? GetClusterList()
+        {
+            if (Clusters == null)
+                return null;
+            return Clusters.GetList();
+        }
+
     }
+
 }

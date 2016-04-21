@@ -51,6 +51,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private float m_defaultVolume;
 
+        private float MaxInput { get { return (float)(Math.Pow(BlockDefinition.MaxRadius, BlockDefinition.ConsumptionPower) / (float)(Math.Pow(DEFAULT_RADIUS, BlockDefinition.ConsumptionPower)) * BlockDefinition.BasePowerInput); } }
+
         public MyGravityGeneratorSphere()
         {
             m_radius.ValueChanged += (x) => UpdateFieldShape();
@@ -127,7 +129,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 			var sinkComp = new MyResourceSinkComponent();
 			sinkComp.Init(
 					BlockDefinition.ResourceSinkGroup,
-					CalculateRequiredPowerInputForRadius(BlockDefinition.MaxRadius),
+                    MaxInput,
 					CalculateRequiredPowerInput);
 		    ResourceSink = sinkComp;
 
@@ -156,8 +158,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 base.UpdateBeforeSimulation();
             }
         }
-
-       
 
         protected override float CalculateRequiredPowerInput()
         {

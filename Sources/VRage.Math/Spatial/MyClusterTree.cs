@@ -176,6 +176,9 @@ namespace VRageMath.Spatial
             else
                 if (m_returnedClusters.Count == 0)
                 {
+                    if (SingleCluster.HasValue)
+                        return VRageMath.Spatial.MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED;
+
                     if (!activationHandler.IsStaticForCluster)
                     {
                         var clusterBB = new BoundingBoxD(bbox.Center - IdealClusterSize / 2, bbox.Center + IdealClusterSize / 2);
@@ -355,6 +358,9 @@ namespace VRageMath.Spatial
 
         public void EnsureClusterSpace(BoundingBoxD aabb)
         {
+            if (SingleCluster.HasValue)
+                return;
+
             aabb.Inflate(3000);
             m_clusterTree.OverlapAllBoundingBox(ref aabb, m_returnedClusters);
 

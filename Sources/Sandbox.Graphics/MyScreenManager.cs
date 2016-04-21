@@ -416,6 +416,10 @@ namespace Sandbox.Graphics.GUI
 
                     for (int i = (m_screens.Count - 1); i >= 0; i--)
                     {
+                        if(m_screens.Count <= i)
+                        {
+                            continue;
+                        }
                         MyGuiScreenBase screen = m_screens[i];
                         ProfilerShort.Begin(screen.GetType().Name);
                         if (screen.CanShareInput())

@@ -675,7 +675,8 @@ namespace Sandbox.Game.GameSystems
             {
                 aggregateBox.Include(grid.PositionComp.WorldAABB);
             }
-            MyPhysics.Clusters.EnsureClusterSpace(aggregateBox + m_jumpDirection);
+
+            MyPhysics.EnsurePhysicsSpace(aggregateBox + m_jumpDirection);
 
             bool updateSpectator = false;
             if (IsLocalCharacterAffectedByJump())

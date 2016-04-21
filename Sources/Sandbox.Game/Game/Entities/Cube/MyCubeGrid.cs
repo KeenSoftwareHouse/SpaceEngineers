@@ -2344,6 +2344,7 @@ namespace Sandbox.Game.Entities
 
         private MySlimBlock AddCubeBlock(MyObjectBuilder_CubeBlock objectBuilder, bool testMerge, MyCubeBlockDefinition blockDefinition)
         {
+            //Debug.Assert(false, "AddCubeBlock");
             Vector3I min = objectBuilder.Min, max;
             MySlimBlock.ComputeMax(blockDefinition, objectBuilder.BlockOrientation, ref min, out max);
             if (!CanAddCubes(min, max))
@@ -4292,6 +4293,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         private void RemoveBlockInternal(MySlimBlock block, bool close, bool markDirtyDisconnects = true)
         {
+            //Debug.Assert(false, "RemoveBlockInternal");
             if (!m_cubeBlocks.Contains(block))
             {
                 Debug.Fail("Block being removed twice");
@@ -4401,6 +4403,7 @@ namespace Sandbox.Game.Entities
 
         public void RemoveBlock(MySlimBlock block, bool updatePhysics = false)
         {
+            //Debug.Assert(false, "RemoveBlock");
             // Client cannot remove blocks, only server
             if (!Sync.IsServer)
                 return;
@@ -4605,6 +4608,7 @@ namespace Sandbox.Game.Entities
         /// <returns>false if add failed (can be caused be block structure change during the development</returns>
         private bool AddCube(MySlimBlock block, ref Vector3I pos, Matrix rotation, MyCubeBlockDefinition cubeBlockDefinition)
         {
+            //Debug.Assert(false, "AddCube");
             MyCube c = new MyCube();
 
             c.Parts = MyCubeGrid.GetCubeParts(cubeBlockDefinition, pos, rotation, GridSize);
@@ -5448,6 +5452,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         private void AddBlockInternal(MySlimBlock block)
         {
+            //Debug.Assert(false, "AddBlockInternal");
             block.CubeGrid = this;
 
             // Try merge compound blocks together.
@@ -6268,7 +6273,7 @@ namespace Sandbox.Game.Entities
                 foreach (var fb in m_fatBlocks)
                 {
                     Debug.Assert(m_cubeBlocks.Contains(fb.SlimBlock));
-                    Debug.Assert(!fb.Closed);
+                    Debug.Assert(!fb.Closed,m_fatBlocks.Count+", "+m_cubeBlocks.Count);
                     if (fb.Closed) //TODO:investigate why there is closed block in the grid/m_fatblock list
                         continue; //it is possible to have marked for close block there but not closed
 

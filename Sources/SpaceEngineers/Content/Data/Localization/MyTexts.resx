@@ -5067,7 +5067,7 @@ These ships are enemies and will try to attack you with their drones.</value>
     <value>Enable drones</value>
   </data>
   <data name="ToolTipWorldSettings_CargoShipsEnabled" xml:space="preserve">
-    <value>Random NPC ships will fly through world from time to time.</value>
+    <value>Random NPC cargoships will fly through world from time to time.</value>
   </data>
   <data name="ToolTipWorldSettings_ClientCanSave" xml:space="preserve">
     <value>Client can save network game. If unchecked then only server can save.</value>
@@ -5076,7 +5076,7 @@ These ships are enemies and will try to attack you with their drones.</value>
     <value>Camera can be switched to 3rd person view, looking on your astronaut from behind.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableEncounters" xml:space="preserve">
-    <value>Random NPC cargo ships can be encountered.</value>
+    <value>Random abandoned ships and stations can be encountered.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableIngameScripts" xml:space="preserve">
     <value>If disabled, scripts will not be run in game. Scripts are used in programmable block
@@ -5489,5 +5489,8 @@ needed.</value>
   </data>
   <data name="NotificationHandbrakeOn" xml:space="preserve">
     <value>Handbrake on</value>
+  </data>
+  <data name="ScreenDebugAdminMenu_RemoveFloating" xml:space="preserve">
+    <value>Remove floating objects</value>
   </data>
 </root>

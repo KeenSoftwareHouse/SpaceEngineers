@@ -391,13 +391,10 @@ namespace Sandbox.Game.Entities
                 return;
             }
             
-            for (int i = 0; i < characterBones.Length; i++)
-            {
-                AnimationController.BoneRelativeTransforms[i] = characterBones[i].RelativeTransform;
-            }
             MyCharacterBone.ComputeAbsoluteTransforms(AnimationController.CharacterBonesSorted);
             for (int i = 0; i < characterBones.Length; i++)
             {
+                AnimationController.BoneRelativeTransforms[i] = characterBones[i].RelativeTransform;
                 AnimationController.BoneAbsoluteTransforms[i] = characterBones[i].AbsoluteTransform;
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();

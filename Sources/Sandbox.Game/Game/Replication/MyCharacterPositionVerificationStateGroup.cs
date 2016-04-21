@@ -224,6 +224,10 @@ namespace Sandbox.Game.Replication
 
                 if (clientTransform != null)
                 {
+                    if(m_supportTimeStamp == null)
+                    {
+                        return;
+                    }
                     MyTimeStampValues? supportTransform = m_supportTimeStamp.GetTransform(timeStamp);
 
                     Vector3D supportPosition = support.PositionComp.WorldMatrix.Translation;

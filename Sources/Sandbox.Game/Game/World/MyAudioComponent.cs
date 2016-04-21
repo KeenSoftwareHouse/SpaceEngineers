@@ -27,7 +27,7 @@ namespace Sandbox.Game.World
         private static int m_updateCounter = 0;
         private const int POOL_CAPACITY = 30;
         private static MyConcurrentQueue<MyEntity3DSoundEmitter> m_singleUseEmitterPool = new MyConcurrentQueue<MyEntity3DSoundEmitter>(POOL_CAPACITY);
-        private static List<MyEntity3DSoundEmitter> m_borrowedEmittors = new List<MyEntity3DSoundEmitter>(POOL_CAPACITY);
+        private static List<MyEntity3DSoundEmitter> m_borrowedEmittors = new List<MyEntity3DSoundEmitter>();
         private static int m_currentEmitters;
 
         public override void UpdateAfterSimulation()
@@ -73,22 +73,33 @@ namespace Sandbox.Game.World
 
         static void emitter_StoppedPlaying(MyEntity3DSoundEmitter emitter)
         {
+            if (emitter == null)
+                return;
             emitter.Entity = null;
-            m_borrowedEmittors.Remove(emitter);
             emitter.SoundId = new MyCueId(MyStringHash.NullOrEmpty);
+            if (m_borrowedEmittors.Count > 0)
+            {
+                int index = m_borrowedEmittors.IndexOf(emitter);
+                if (index >= 0 && index < m_borrowedEmittors.Count)
+                    m_borrowedEmittors.RemoveAt(index);
+            }
             m_singleUseEmitterPool.Enqueue(emitter);
         }
 
         private static void CleanUpEmitters()
         {
+            List<MyEntity3DSoundEmitter> emittersToReturn = new List<MyEntity3DSoundEmitter>();
             for (int i = 0; i < m_borrowedEmittors.Count; i++)
             {
-                if (!m_borrowedEmittors[i].IsPlaying)
-                {
-                    emitter_StoppedPlaying(m_borrowedEmittors[i]);
-                    i--;
-                }
+                if (m_borrowedEmittors[i] != null && !m_borrowedEmittors[i].IsPlaying)
+                    emittersToReturn.Add(m_borrowedEmittors[i]);
             }
+            foreach (MyEntity3DSoundEmitter emitter in emittersToReturn)
+            {
+                emitter_StoppedPlaying(emitter);
+                m_borrowedEmittors.Remove(emitter);
+            }
+            emittersToReturn.Clear();
         }
 
         protected override void UnloadData()

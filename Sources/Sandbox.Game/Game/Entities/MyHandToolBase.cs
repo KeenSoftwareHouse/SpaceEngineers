@@ -64,7 +64,7 @@ namespace Sandbox.Game.Entities
             {
                // Vector3 transformedCenter = Vector3.TransformNormal(Center, worldMatrix);
 
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
                 Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)(worldMatrix.Translation - (Vector3D)offset), worldMatrix.Forward, worldMatrix.Up);
 

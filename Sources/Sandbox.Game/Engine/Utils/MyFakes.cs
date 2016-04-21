@@ -99,8 +99,8 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_NEW_SOUNDS = false;
         public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
-        public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
-        public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
+        public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = false;
+        public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = false;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;

@@ -102,8 +102,8 @@ namespace Sandbox.Game.Gui
 
          
             ///////////////////// CYCLING /////////////////////
-            AddSubcaption(MyCommonTexts.ScreenDebugAdminMenu_CycleObjects, m_labelColor, new Vector2(-HIDDEN_PART_RIGHT, -0.02f));
-            m_currentPosition.Y -= 0.04f;
+            AddSubcaption(MyCommonTexts.ScreenDebugAdminMenu_CycleObjects, m_labelColor, new Vector2(-HIDDEN_PART_RIGHT, -0.03f));
+            m_currentPosition.Y -= 0.065f;
 
             CreateSelectionCombo();
             m_labelCurrentIndex = AddLabel(String.Empty, m_labelColor, 1);
@@ -144,8 +144,8 @@ namespace Sandbox.Game.Gui
             m_onlySmallGridsCheckbox.IsChecked = m_cyclingOtions.OnlySmallGrids;
 
             ///////////////////// TRASH /////////////////////
-            AddSubcaption(MyCommonTexts.ScreenDebugAdminMenu_TrashRemoval, m_labelColor, new Vector2(-HIDDEN_PART_RIGHT, -0.02f));
-            m_currentPosition.Y -= 0.04f;
+            AddSubcaption(MyCommonTexts.ScreenDebugAdminMenu_TrashRemoval, m_labelColor, new Vector2(-HIDDEN_PART_RIGHT, -0.03f));
+            m_currentPosition.Y -= 0.065f;
 
             //AddLabel("Select which objects WON'T be removed", white, 1);
             CreateTrashCheckBoxes(ref cbOffset, ref m_labelColor);
@@ -174,18 +174,9 @@ namespace Sandbox.Game.Gui
             m_currentPosition.Y = y;
             CreateDepowerButtonTrash(usableWidth,controlPadding.X,separatorSize);
 
-            // PREPARED FOR FLOATING REMOVAL
-            //y = m_currentPosition.Y;
-            //btn = CreateDebugButton(usableWidth / 3, MySpaceTexts.ScreenDebugAdminMenu_RemoveTrash, null);
-            //btn.PositionX = -usableWidth / 3 - controlPadding.X;
-
-            //m_currentPosition.Y = y;
-            //btn = CreateDebugButton(usableWidth / 3, MySpaceTexts.ScreenDebugAdminMenu_StopTrash, null);
-            //btn.PositionX = -controlPadding.X + separatorSize / 2;
-
-            //m_currentPosition.Y = y;
-            //btn = CreateDebugButton(usableWidth / 3, MySpaceTexts.ScreenDebugAdminMenu_DepowerTrash, null);
-            //btn.PositionX = usableWidth / 3 - controlPadding.X + separatorSize;
+            ///////////////////// REMOVE FLOATING OBJECTS /////////////////////
+            CreateDebugButton(usableWidth, MySpaceTexts.ScreenDebugAdminMenu_RemoveFloating, OnRemoveFloating, true);
+            
             CreateCustomButtons(usableWidth, controlPadding.X, separatorSize);
 
             UpdateSmallLargeGridSelection();
@@ -194,6 +185,13 @@ namespace Sandbox.Game.Gui
 
             bool isClient = Sync.IsServer == false;
             CreateDebugButton(usableWidth / 2, MyCommonTexts.ScreenDebugAdminMenu_ReplicateEverything, OnReplicateEverything, isClient, isClient ? MyCommonTexts.ScreenDebugAdminMenu_ReplicateEverything_Tooltip : MySpaceTexts.ScreenDebugAdminMenu_ReplicateEverythingServer_Tooltip);
+        }
+
+        private void OnRemoveFloating(MyGuiControlButton obj)
+        {
+            foreach (var entity in MyEntities.GetEntities())
+                if (entity is MyFloatingObject)
+                    entity.Close();
         }
 
         private void UpdateCyclingAndDepower()

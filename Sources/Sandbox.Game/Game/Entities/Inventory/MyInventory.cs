@@ -2261,5 +2261,13 @@ namespace Sandbox.Game
             RefreshVolumeAndMass();
             OnContentsChanged();
         }
+
+        public void FixInventoryVolume(float newValue)
+        {
+            if (m_maxVolume == MyFixedPoint.MaxValue)
+            {
+                m_maxVolume = (MyFixedPoint)newValue;
+            }
+        }
     }
 }

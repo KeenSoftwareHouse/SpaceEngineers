@@ -8110,7 +8110,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnableDrones = MyStringId.GetOrCompute("WorldSettings_EnableDrones");
 
         ///<summary>
-        ///Random NPC ships will fly through world from time to time.
+        ///Random NPC cargoships will fly through world from time to time.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_CargoShipsEnabled = MyStringId.GetOrCompute("ToolTipWorldSettings_CargoShipsEnabled");
 
@@ -8125,7 +8125,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_Enable3rdPersonCamera = MyStringId.GetOrCompute("ToolTipWorldSettings_Enable3rdPersonCamera");
 
         ///<summary>
-        ///Random NPC cargo ships can be encountered.
+        ///Random abandoned ships and stations can be encountered.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableEncounters = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableEncounters");
 
@@ -8788,5 +8788,10 @@ namespace Sandbox.Game.Localization
         ///Handbrake on
         ///</summary>
         public static readonly MyStringId NotificationHandbrakeOn = MyStringId.GetOrCompute("NotificationHandbrakeOn");
+
+        ///<summary>
+        ///Remove floating objects
+        ///</summary>
+        public static readonly MyStringId ScreenDebugAdminMenu_RemoveFloating = MyStringId.GetOrCompute("ScreenDebugAdminMenu_RemoveFloating");
     }
 }

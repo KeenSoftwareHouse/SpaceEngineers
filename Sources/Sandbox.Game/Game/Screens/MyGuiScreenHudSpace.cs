@@ -320,6 +320,12 @@ namespace Sandbox.Game.Gui
             return true;
         }
 
+        public override bool Update(bool hasFocus)
+        {
+            m_markerRender.Update();
+            return base.Update(hasFocus);
+        }
+
         public override string GetFriendlyName()
         {
             return "MyGuiScreenHudSpace";

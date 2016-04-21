@@ -1129,6 +1129,11 @@ namespace Sandbox.Game.Entities.Character
                     }
                 }
             }
+            else if (MyPerGameSettings.ConstrainInventory())
+            {
+                MyInventory inventory = this.GetInventory();
+                inventory.FixInventoryVolume(m_characterDefinition.InventoryDefinition.InventoryVolume);
+            }
 
             this.GetInventory().ContentsChanged += inventory_OnContentsChanged;
             this.GetInventory().BeforeContentsChanged += inventory_OnBeforeContentsChanged;
@@ -4130,16 +4135,19 @@ namespace Sandbox.Game.Entities.Character
                 matrixRotation = matrixRotation * Matrix.CreateFromAxisAngle(Vector3.Up, MathHelper.ToRadians(m_headLocalYAngle));
 
             Vector3 averageBob = Vector3.Zero;
-            if (MySandboxGame.Config.DisableHeadbob && !forceHeadBone && !ForceFirstPersonCamera)
-            {
-                foreach (var headTranslation in m_bobQueue)
-                {
-                    averageBob += headTranslation;
-                }
-                if (m_bobQueue.Count > 0)
-                    averageBob /= m_bobQueue.Count;
-            }
-            else
+            // MZ: hotfixed seeing face if MySandboxGame.Config.DisableHeadbob is true
+            //     we have a static camera dummy now, so in fact we need to ADD bouncing
+            //     headbob would be redone later
+            //if (MySandboxGame.Config.DisableHeadbob && !forceHeadBone && !ForceFirstPersonCamera)
+            //{
+            //    foreach (var headTranslation in m_bobQueue)
+            //    {
+            //        averageBob += headTranslation;
+            //    }
+            //    if (m_bobQueue.Count > 0)
+            //        averageBob /= m_bobQueue.Count;
+            //}
+            //else
             {
                 if (headBone != -1)
                 {
@@ -6928,7 +6936,7 @@ namespace Sandbox.Game.Entities.Character
 
         void UpdateWeaponPosition()
         {
-            var headMatrix = GetHeadMatrix(true,sync:true);
+            var headMatrix = (IsInFirstPersonView || ForceFirstPersonCamera) ? MatrixD.Invert(MySector.MainCamera.ViewMatrix) : GetHeadMatrix(true,sync:true);
             m_crosshairPoint = headMatrix.Translation + headMatrix.Forward * 2000;
 
             float IKRatio = m_currentAnimationToIKTime / m_animationToIKDelay;
@@ -7072,7 +7080,6 @@ namespace Sandbox.Game.Entities.Character
             Matrix spineMatrix = WorldMatrix;
             if (AnimationController.CharacterBones.IsValidIndex(m_spineBone))
                 spineMatrix = AnimationController.CharacterBones[m_spineBone].AbsoluteTransform;
-
 
             float middle = m_currentMovementState == MyCharacterMovementEnum.Sprinting ? runMedAmp : medAmp;
 
@@ -7535,7 +7542,7 @@ namespace Sandbox.Game.Entities.Character
         {
             MatrixD viewMatrix = GetViewMatrix();
             currentCamera.SetViewMatrix(viewMatrix);
-            currentCamera.CameraSpring.Enabled = true;
+            currentCamera.CameraSpring.Enabled = !(IsInFirstPersonView || ForceFirstPersonCamera);
             currentCamera.CameraSpring.SetCurrentCameraControllerVelocity(Physics != null ? Physics.LinearVelocity : Vector3.Zero);
             currentCamera.CameraShake.AddShake(m_currentCameraShakePower);
             m_currentCameraShakePower = 0;

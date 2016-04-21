@@ -166,7 +166,7 @@ namespace VRage.Game.Utils
                 Vector3D newCameraPosOffsetD = newCameraPosOffset;
                 Vector3D newCameraPosOffsetRotatedD;
                 Vector3D.Rotate(ref newCameraPosOffsetD, ref ViewMatrix, out newCameraPosOffsetRotatedD);
-                ViewMatrix.Translation -= newCameraPosOffsetRotatedD;
+                ViewMatrix.Translation += newCameraPosOffsetRotatedD;
             }
 
             UpdatePropertiesInternal(ViewMatrix);

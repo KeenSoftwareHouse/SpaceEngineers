@@ -555,7 +555,7 @@ namespace Sandbox.Engine.Physics
             if (rigidBody == null || force == null || MyUtils.IsZero(force.Value))
                 return;
 
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
             if (position.HasValue)
             {
@@ -571,7 +571,7 @@ namespace Sandbox.Engine.Physics
             if (rigidBody == null)
                 return;
 
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
             if (force.HasValue && position.HasValue)
                 rigidBody.ApplyPointImpulse(force.Value, (Vector3)(position.Value - offset));
@@ -696,7 +696,7 @@ namespace Sandbox.Engine.Physics
                 //if (!Enabled)
                 //    return;
 
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
                 if (RigidBody != null && BreakableBody != null)
                 {
@@ -981,7 +981,7 @@ false,
                     Unweld(false);
                 else
                 {
-                    MyPhysics.Clusters.RemoveObject(ClusterObjectID);
+                    MyPhysics.RemoveObject(ClusterObjectID);
                     ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
                     CheckRBNotInWorld();
                 }
@@ -1262,7 +1262,7 @@ false,
             Vector3 transformedCenter;
             MatrixD entityMatrix = MatrixD.Identity;
             Matrix rbWorld;
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
             if (RigidBody2 != null)
             {
@@ -1324,7 +1324,7 @@ false,
                 velocity = parentEntity.Physics.LinearVelocity;
             }
             if(!IsWelded)
-                MyPhysics.Clusters.MoveObject(ClusterObjectID, parentEntity.WorldAABB, parentEntity.WorldAABB, velocity);
+                MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, parentEntity.WorldAABB, velocity);
 
             Matrix rigidBodyMatrix = GetRigidBodyMatrix();
 
@@ -1375,7 +1375,7 @@ false,
 
             Vector3 transformedCenter = Vector3.TransformNormal(Center, Entity.WorldMatrix);
 
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
             Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)((Vector3D)transformedCenter + Entity.GetPosition() - (Vector3D)offset), Entity.WorldMatrix.Forward, Entity.WorldMatrix.Up);
             return rigidBodyMatrix;
@@ -1387,7 +1387,7 @@ false,
 
             Vector3 transformedCenter = Vector3.TransformNormal(Center, worldMatrix);
 
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
             Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)((Vector3D)transformedCenter + worldMatrix.Translation - (Vector3D)offset), worldMatrix.Forward, worldMatrix.Up);
             return rigidBodyMatrix;
@@ -1406,7 +1406,7 @@ false,
         {
             get
             {
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
                 return RigidBody.CenterOfMassWorld + offset;
             }
         }
@@ -1418,7 +1418,7 @@ false,
             ProfilerShort.Begin("PhysicsBody.OnContacPointCallback");
             if (ContactPointCallback != null)
             {
-                var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
 
                 MyPhysics.MyContactPointEvent ce = new MyPhysics.MyContactPointEvent()
                 {
@@ -1500,13 +1500,13 @@ false,
 
         public override Vector3D WorldToCluster(Vector3D worldPos)
         {
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
             return (Vector3D)(worldPos - offset);
         }
 
         public override Vector3D ClusterToWorld(Vector3 clusterPos)
         {
-            var offset = MyPhysics.Clusters.GetObjectOffset(ClusterObjectID);
+            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
             return (Vector3D)clusterPos + (Vector3D)offset;
         }
 
@@ -1520,7 +1520,7 @@ false,
 
             System.Diagnostics.Debug.Assert(!IsInWorld);
 
-            ClusterObjectID = MyPhysics.Clusters.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+            ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
         }
 
         public virtual void Activate(object world, ulong clusterObjectID)
@@ -1650,7 +1650,7 @@ false,
             {
                 var physics = Entity.GetTopMostParent().Physics;
                 if(physics != null)
-                    MyPhysics.Clusters.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB,
+                    MyPhysics.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB,
                         physics.LinearVelocity);
             }
         }
@@ -1688,14 +1688,6 @@ false,
         bool MyHavokCluster.IMyActivationHandler.IsStaticForCluster
         {
             get { return IsStaticForCluster; }
-        }
-
-        public void ReorderClusters()
-        {
-            if (IsWelded)
-                WeldInfo.Parent.ReorderClusters();
-            else
-                MyPhysics.Clusters.ReorderClusters(Entity.PositionComp.WorldAABB, ClusterObjectID);
         }
 
         #endregion

@@ -860,6 +860,15 @@ namespace Sandbox.Game.World
             Static.Scenario = generationArgs.Scenario;
             FixIncorrectSettings(Static.Settings);
             Static.WorldBoundaries = generationArgs.Scenario.WorldBoundaries;
+
+            double tmp = settings.WorldSizeKm * 500; //half size
+            if (tmp > 0)
+            {
+                MyPerGameSettings.SingleCluster = true;
+                Static.WorldBoundaries.Min = new Vector3D(-tmp, -tmp, -tmp);
+                Static.WorldBoundaries.Max = new Vector3D(tmp, tmp, tmp);
+            }
+
             Static.InGameTime = generationArgs.Scenario.GameDate;//MyObjectBuilder_Checkpoint.DEFAULT_DATE;
             Static.RequiresDX = generationArgs.Scenario.HasPlanets ? 11 : 9;
 
@@ -930,8 +939,8 @@ namespace Sandbox.Game.World
             MyDefinitionManager.Static.LoadData(world.Checkpoint.Mods);
 
             Static = new MySession(multiplayerSession.SyncLayer);
-
             
+
             Static.LoadGameDefinition(world.Checkpoint);
 
             Static.Mods = world.Checkpoint.Mods;
@@ -941,6 +950,10 @@ namespace Sandbox.Game.World
                 Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             FixIncorrectSettings(Static.Settings);
             Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
+
+            if (Static.WorldBoundaries.Min != Vector3D.Zero || Static.WorldBoundaries.Max != Vector3D.Zero)
+                MyPerGameSettings.SingleCluster = true;
+
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
             Static.LoadMembersFromWorld(world, multiplayerSession);
@@ -1027,6 +1040,10 @@ namespace Sandbox.Game.World
 
             ulong sectorSizeInBytes;
             ProfilerShort.Begin("MyLocalCache.LoadSector");
+
+            if (checkpoint.WorldBoundaries.Min != Vector3D.Zero || checkpoint.WorldBoundaries.Max != Vector3D.Zero)
+                MyPerGameSettings.SingleCluster = true;
+
             var sector = MyLocalCache.LoadSector(sessionPath, checkpoint.CurrentSector, out sectorSizeInBytes);
             ProfilerShort.End();
             if (sector == null)
@@ -1172,6 +1189,10 @@ namespace Sandbox.Game.World
                 Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             FixIncorrectSettings(Static.Settings);
             Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
+
+            if (Static.WorldBoundaries.Min != Vector3D.Zero || Static.WorldBoundaries.Max != Vector3D.Zero)
+                MyPerGameSettings.SingleCluster = true;
+
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
             Static.LoadDataComponents(false);

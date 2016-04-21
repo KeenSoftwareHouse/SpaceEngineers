@@ -264,7 +264,7 @@ namespace Sandbox.Game.Gui
                         if (entity.Physics != null)
                         {
                             Vector3D posDelta = entity.Physics.LinearVelocity * SI_DYNAMICS_MULTIPLIER;
-                            MyPhysics.Clusters.EnsureClusterSpace(entity.PositionComp.WorldAABB + posDelta);
+                            MyPhysics.EnsurePhysicsSpace(entity.PositionComp.WorldAABB + posDelta);
 
                             if (entity.Physics.LinearVelocity.Length() > 0.1f)
                             {
@@ -375,17 +375,6 @@ namespace Sandbox.Game.Gui
                 //        }
                 //    }
                 //}
-                 return true;
-             });
-
-              AddShortcut(MyKeys.NumPad1, true, false, false, false,
-             () => "Reorder clusters",
-             delegate
-             {
-                 if (MySession.Static.ControlledEntity != null)
-                 {
-                     MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody().ReorderClusters();
-                 }
                  return true;
              });
 

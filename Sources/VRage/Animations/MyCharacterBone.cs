@@ -243,9 +243,9 @@ namespace VRage.Animations
                 //Matrix.Multiply(ref rotationMatrix, ref translationMatrix, out m_transform);
 
                 Matrix.CreateFromQuaternion(ref m_rotation, out m_transform);
-                m_transform.M41 = m_transform.M11 * m_translation.X + m_transform.M12 * m_translation.Y + m_transform.M13 * m_translation.Z;
-                m_transform.M42 = m_transform.M21 * m_translation.X + m_transform.M22 * m_translation.Y + m_transform.M23 * m_translation.Z;
-                m_transform.M43 = m_transform.M31 * m_translation.X + m_transform.M32 * m_translation.Y + m_transform.M33 * m_translation.Z;
+                m_transform.M41 = m_translation.X;
+                m_transform.M42 = m_translation.Y;
+                m_transform.M43 = m_translation.Z;
                 Matrix.Multiply(ref m_transform, ref m_bindTransform, out m_transform);
 
                 m_changed = false;

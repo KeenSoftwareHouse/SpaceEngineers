@@ -22,12 +22,18 @@ namespace Sandbox.Game.GUI.HudViewers
 {
     public class MyHudMarkerRender
     {
-
         //const float MAX_ANTENNA_DRAW_DISTANCE = 500000;
         const double LS_METRES = 299792458.0001367;
         const double LY_METRES = 9.460730473e+15;
 
         static float m_friendAntennaRange = MyPerGameSettings.MaxAntennaDrawDistance;
+
+        private static bool m_disableFading = false;
+
+        public void Update()
+        {
+            m_disableFading = VRage.Input.MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND);
+        }
 
         public static float FriendAntennaRange 
         {
@@ -166,6 +172,25 @@ namespace Sandbox.Game.GUI.HudViewers
             ProfilerShort.End();
         }
 
+        private static MatrixD ActiveWorldMatrix
+        {
+            get
+            {
+                // Use player position if in first person mode and not in spectator
+                if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+                {
+                    if (MySession.Static.LocalCharacter.IsInFirstPersonView && !MySession.Static.IsCameraUserControlledSpectator())
+                        return MySession.Static.LocalCharacter.WorldMatrix;
+                }
+                
+                // Use main camera
+                if (MySector.MainCamera != null)
+                    return MySector.MainCamera.WorldMatrix;
+                
+                return MatrixD.Identity;
+            }
+        }
+
         private MyDynamicObjectPool<PointOfInterest> m_pointOfInterestPool = new MyDynamicObjectPool<PointOfInterest>(32);
         private List<PointOfInterest> m_pointsOfInterest = new List<PointOfInterest>();
         private class PointOfInterest
@@ -261,6 +286,11 @@ namespace Sandbox.Game.GUI.HudViewers
                 Text = new StringBuilder(MaxTextLength, MaxTextLength);
             }
 
+            public override string ToString()
+            {
+                return POIType.ToString() + ": " + Text + " (" + Distance + ")";
+            }
+
             /// <summary>
             /// Clears out all data and resets the POI for re-use.
             /// </summary>
@@ -288,7 +318,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 POIType = type;
                 Relationship = relationship;
 
-                Vector3D viewDirection = position - MySector.MainCamera.WorldMatrix.Translation;
+                Vector3D viewDirection = position - MyHudMarkerRender.ActiveWorldMatrix.Translation;
                 Distance = viewDirection.Length();
             }
 
@@ -344,12 +374,31 @@ namespace Sandbox.Game.GUI.HudViewers
 
                 Text.Clear();
                 Text.Append(m_group.Count);
-                Text.Append(" Points of Interest");
+
+                MyRelationsBetweenPlayerAndBlock groupRelation = GetGroupRelation();
+                switch (groupRelation)
+                {
+                    case MyRelationsBetweenPlayerAndBlock.Owner:
+                        Text.Append(" Own Signals");
+                        break;
+                    case MyRelationsBetweenPlayerAndBlock.FactionShare:
+                        Text.Append(" Friendly Signals");
+                        break;
+                    case MyRelationsBetweenPlayerAndBlock.Neutral:
+                        Text.Append(" Neutral Signals");
+                        break;
+                    case MyRelationsBetweenPlayerAndBlock.Enemies:
+                        Text.Append(" Enemy Signals");
+                        break;
+                    case MyRelationsBetweenPlayerAndBlock.NoOwnership:
+                        Text.Append(" Mixed Signals");
+                        break;
+                }
 
                 worldPosition += poi.WorldPosition;
                 WorldPosition = worldPosition / m_group.Count;
 
-                Vector3D viewDirection = WorldPosition - MySector.MainCamera.WorldMatrix.Translation;
+                Vector3D viewDirection = WorldPosition - MyHudMarkerRender.ActiveWorldMatrix.Translation;
                 Distance = viewDirection.Length();
 
                 if (poi.Relationship > Relationship)
@@ -479,18 +528,27 @@ namespace Sandbox.Game.GUI.HudViewers
                 fontColor = Color.White;
                 font = MyFontEnum.White;
 
-                GetColorAndFontForRelationship(Relationship, out poiColor, out fontColor, out font);
-
                 // Colour overrides for specific types
                 switch (POIType)
                 {
+                    default:
+                        GetColorAndFontForRelationship(Relationship, out poiColor, out fontColor, out font);
+                        break;
+
                     case PointOfInterestType.Ore:       // Ore markers are white
                     case PointOfInterestType.Unknown:   // Unknowns should be white
-                    case PointOfInterestType.Group:     // Groups are white too
                         poiColor = Color.White;
                         font = MyFontEnum.White;
                         fontColor = Color.White;
                         break;
+
+                        // Group colour depends on group make-up. If all of 1 type, use that type, else use mixed colour
+                    case PointOfInterestType.Group:
+                        {
+                            MyRelationsBetweenPlayerAndBlock groupRelation = GetGroupRelation();
+                            GetColorAndFontForRelationship(groupRelation, out poiColor, out fontColor, out font);
+                            break;
+                        }
 
                     // GPS is always blue
                     case PointOfInterestType.GPS:
@@ -499,6 +557,36 @@ namespace Sandbox.Game.GUI.HudViewers
                         font = MyFontEnum.Blue;
                         break;
                 }
+            }
+
+            private MyRelationsBetweenPlayerAndBlock GetGroupRelation()
+            {
+                if (m_group == null || m_group.Count == 0) return MyRelationsBetweenPlayerAndBlock.NoOwnership;
+                MyRelationsBetweenPlayerAndBlock firstRelation = m_group[0].Relationship;
+                for (int i = 1; i < m_group.Count; i++)
+                {
+                    if (m_group[i].Relationship == firstRelation)
+                        continue;
+
+                    if (firstRelation == MyRelationsBetweenPlayerAndBlock.Owner && m_group[i].Relationship == MyRelationsBetweenPlayerAndBlock.FactionShare)
+                    {
+                        firstRelation = MyRelationsBetweenPlayerAndBlock.FactionShare;
+                        continue;
+                    }
+
+                    if (firstRelation == MyRelationsBetweenPlayerAndBlock.FactionShare && m_group[i].Relationship == MyRelationsBetweenPlayerAndBlock.Owner)
+                    {
+                        firstRelation = MyRelationsBetweenPlayerAndBlock.FactionShare;
+                        continue;
+                    }
+
+                    return MyRelationsBetweenPlayerAndBlock.NoOwnership;
+                }
+
+                // If all signals have no ownership, return neutral. NoOwnership is used for mixed signal message
+                if (firstRelation == MyRelationsBetweenPlayerAndBlock.NoOwnership)
+                    return MyRelationsBetweenPlayerAndBlock.Neutral;
+                return firstRelation;
             }
 
             /// <summary>
@@ -543,6 +631,10 @@ namespace Sandbox.Game.GUI.HudViewers
                 //ProfilerShort.BeginNextBlock("Draw direction or marker");
                 if ((screenPosition.X < minVal || screenPosition.X > hudSize.X - minVal || screenPosition.Y < minVal || screenPosition.Y > hudSize.Y - minVal || transformedPoint.Z > 0))
                 {
+                    // Don't render targets when they are off-screen
+                    if (POIType == PointOfInterestType.Target)
+                        return;
+
                     //ProfilerShort.Begin("Draw direction");
                     Vector2 normalizedDir = Vector2.Normalize(direction);
                     screenPosition = center + center * normalizedDir * 0.77f; // 0.77f clamps the arrows to the screen without overlapping the toolbar
@@ -559,22 +651,28 @@ namespace Sandbox.Game.GUI.HudViewers
 
                     // Draw directional arrow, offset by direction
                     renderer.AddTexturedQuad(MyHudTexturesEnum.DirectionIndicator, screenPosition, direction,
-                           Color.White, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f);
+                           markerColor, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f);
 
                     screenPosition -= direction * MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 2.0f;
                     //ProfilerShort.End();
                 }
                 else
                 {
+                    if (POIType == PointOfInterestType.Target)
+                    {
+                        renderer.AddTexturedQuad(MyHudTexturesEnum.TargetTurret, screenPosition, -Vector2.UnitY, Color.White, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE);
+                        return;
+                    }
+
                     //ProfilerShort.Begin("Draw marker box");
                     // Draw [ ] box
                     renderer.AddTexturedQuad(MyHudTexturesEnum.Target_neutral, screenPosition, -Vector2.UnitY, markerColor, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE);
                     //ProfilerShort.End();
                 }
 
-                float fullFocus = 0.04f;
-                float focusNoText = 0.08f;
-                float focusEdge = 0.3f;
+                float fullFocus = 0.03f;
+                float focusNoText = 0.07f;
+                float focusEdge = 0.15f;
 
                 int edgeState = 0;
 
@@ -584,12 +682,16 @@ namespace Sandbox.Game.GUI.HudViewers
                 float directionLength = direction.Length();
                 if (directionLength <= fullFocus)
                 {
+                    // Inner circle
+
                     alphaValue = 1;
                     alphaValueSubtext = 1;
                     edgeState = 0;
                 }
                 else if (directionLength > fullFocus && directionLength < focusNoText)
                 {
+                    // Second circle
+
                     float fadeSize = focusEdge - fullFocus;
                     alphaValue = 1 - ((directionLength - fullFocus) / fadeSize);
                     alphaValue = alphaValue * alphaValue;
@@ -602,6 +704,8 @@ namespace Sandbox.Game.GUI.HudViewers
                 }
                 else if (directionLength >= focusNoText && directionLength < focusEdge)
                 {
+                    // Third circe
+
                     float fadeSize = focusEdge - fullFocus;
                     alphaValue = 1 - ((directionLength - fullFocus) / fadeSize);
                     alphaValue = alphaValue * alphaValue;
@@ -609,22 +713,35 @@ namespace Sandbox.Game.GUI.HudViewers
                     fadeSize = focusEdge - focusNoText;
                     alphaValueSubtext = 1 - ((directionLength - focusNoText) / fadeSize);
                     alphaValueSubtext = alphaValueSubtext * alphaValueSubtext;
-                    
+
                     edgeState = 2;
                 }
                 else
                 {
+                    // Outer circle
+
                     alphaValue = 0;
                     alphaValueSubtext = 0;
                     edgeState = 2;
                 }
 
+                float iconAlpha = (directionLength - 0.2f) / 0.5f;
+                iconAlpha = MathHelper.Clamp(iconAlpha, 0, 1);
+
                 alphaValue = MyMath.Clamp(alphaValue, 0, 1);
+
+                if (m_disableFading)
+                {
+                    alphaValue = 1;
+                    alphaValueSubtext = 1;
+                    iconAlpha = 1;
+                    edgeState = 0;
+                }
 
                 // Render name, but only if visible
                 //ProfilerShort.BeginNextBlock("Draw name");
                 Vector2 textLabelOffset = new Vector2(0, 24f / MyGuiManager.GetFullscreenRectangle().Width);
-                if (alphaValue > float.Epsilon)
+                if (alphaValue > float.Epsilon && this.Text.Length > 0)
                 {
                     MyHudText objectName = renderer.m_hudScreen.AllocateText();
                     if (objectName != null)
@@ -641,7 +758,7 @@ namespace Sandbox.Game.GUI.HudViewers
                     // Draw icon
                     //ProfilerShort.BeginNextBlock("Draw regular icon");
                     byte oldA = markerColor.A;
-                    markerColor.A = (byte)(255);
+                    markerColor.A = (byte)(255 * iconAlpha);
                     DrawIcon(renderer, POIType, Relationship, screenPosition, markerColor);
                     markerColor.A = oldA;
 
@@ -681,44 +798,100 @@ namespace Sandbox.Game.GUI.HudViewers
                 }
 
                 int index = 0;
-                MyRelationsBetweenPlayerAndBlock[] relations = { MyRelationsBetweenPlayerAndBlock.Owner, MyRelationsBetweenPlayerAndBlock.FactionShare, MyRelationsBetweenPlayerAndBlock.Neutral, MyRelationsBetweenPlayerAndBlock.Enemies };
-                //ProfilerShort.BeginNextBlock("Draw group elements");
-                for (int i = 0; i < relations.Length; i++)
+                if (significantPOIs.Count > 1)
                 {
-                    MyRelationsBetweenPlayerAndBlock relationship = relations[i];
-                    if (!significantPOIs.ContainsKey(relationship)) continue;
-                    
-                    PointOfInterest poi = significantPOIs[relationship];
-                    if (poi == null) continue;
-
-                    GetColorAndFontForRelationship(relationship, out markerColor, out fontColor, out font);
-
-                    float offsetVal = edgeState == 0 ? 1 : alphaValueSubtext;
-                    if (edgeState >= 2)
-                        offsetVal = 0;
-                    Vector2 offset = Vector2.Lerp(offsetsSquare[index], offsetsVertical[index], offsetVal);
-
-                    string icon = GetIconForRelationship(relationship);
-                    DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f);
-                    if (IsPoiAtHighAlert(poi))
-                        DrawIcon(renderer, "Textures\\HUD\\marker_alert.png", screenPosition + offset, Color.White, 0.75f);
-
-                    MyHudText objectName = renderer.m_hudScreen.AllocateText();
-                    if (objectName != null)
+                    MyRelationsBetweenPlayerAndBlock[] relations = { MyRelationsBetweenPlayerAndBlock.Owner, MyRelationsBetweenPlayerAndBlock.FactionShare, MyRelationsBetweenPlayerAndBlock.Neutral, MyRelationsBetweenPlayerAndBlock.Enemies };
+                    //ProfilerShort.BeginNextBlock("Draw group elements");
+                    for (int i = 0; i < relations.Length; i++)
                     {
-                        float alpha = 1;
-                        if (edgeState == 1)
-                            alpha = alphaValueSubtext;
-                        else if (edgeState > 1)
-                            alpha = 0;
+                        MyRelationsBetweenPlayerAndBlock relationship = relations[i];
+                        if (!significantPOIs.ContainsKey(relationship)) continue;
 
-                        fontColor.A = (byte)(255f * alpha);
-                        Vector2 horizontalOffset = new Vector2(8f / MyGuiManager.GetFullscreenRectangle().Width, 0);
-                        objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
-                        objectName.Append(poi.Text);
+                        var poiList = significantPOIs[relationship];
+                        if (poiList.Count == 0) continue;
+
+                        PointOfInterest poi = poiList[0];
+                        if (poi == null) continue;
+
+                        GetColorAndFontForRelationship(relationship, out markerColor, out fontColor, out font);
+
+                        float offsetVal = edgeState == 0 ? 1 : alphaValueSubtext;
+                        if (edgeState >= 2)
+                            offsetVal = 0;
+                        Vector2 offset = Vector2.Lerp(offsetsSquare[index], offsetsVertical[index], offsetVal);
+
+                        string icon = GetIconForRelationship(relationship);
+                        DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f);
+                        if (IsPoiAtHighAlert(poi))
+                            DrawIcon(renderer, "Textures\\HUD\\marker_alert.dds", screenPosition + offset, Color.White, 0.75f);
+
+                        if (poi.Text.Length > 0)
+                        {
+                            MyHudText objectName = renderer.m_hudScreen.AllocateText();
+                            if (objectName != null)
+                            {
+                                float alpha = 1;
+                                if (edgeState == 1)
+                                    alpha = alphaValueSubtext;
+                                else if (edgeState > 1)
+                                    alpha = 0;
+
+                                fontColor.A = (byte)(255f * alpha);
+                                Vector2 horizontalOffset = new Vector2(8f / MyGuiManager.GetFullscreenRectangle().Width, 0);
+                                objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                                objectName.Append(poi.Text);
+                            }
+                        }
+
+                        index++;
                     }
+                }
+                else
+                {
+                    foreach (var kvp in significantPOIs)
+                    {
+                        MyRelationsBetweenPlayerAndBlock relationship = kvp.Key;
+                        if (!significantPOIs.ContainsKey(relationship)) continue;
 
-                    index++;
+                        var poiList = kvp.Value;
+                        for (int i = 0; i < 4 && i < poiList.Count; i++)
+                        {
+                            PointOfInterest poi = poiList[i];
+                            if (poi == null) continue;
+
+                            GetColorAndFontForRelationship(relationship, out markerColor, out fontColor, out font);
+
+                            float offsetVal = edgeState == 0 ? 1 : alphaValueSubtext;
+                            if (edgeState >= 2)
+                                offsetVal = 0;
+                            Vector2 offset = Vector2.Lerp(offsetsSquare[index], offsetsVertical[index], offsetVal);
+
+                            string icon = GetIconForRelationship(relationship);
+                            DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f);
+                            if (IsPoiAtHighAlert(poi))
+                                DrawIcon(renderer, "Textures\\HUD\\marker_alert.png", screenPosition + offset, Color.White, 0.75f);
+
+                            if (poi.Text.Length > 0)
+                            {
+                                MyHudText objectName = renderer.m_hudScreen.AllocateText();
+                                if (objectName != null)
+                                {
+                                    float alpha = 1;
+                                    if (edgeState == 1)
+                                        alpha = alphaValueSubtext;
+                                    else if (edgeState > 1)
+                                        alpha = 0;
+
+                                    fontColor.A = (byte)(255f * alpha);
+                                    Vector2 horizontalOffset = new Vector2(8f / MyGuiManager.GetFullscreenRectangle().Width, 0);
+                                    objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                                    objectName.Append(poi.Text);
+                                }
+                            }
+
+                            index++;
+                        }
+                    }
                 }
 
                 //ProfilerShort.BeginNextBlock("Group GetPOIColorAndFontInformation");
@@ -751,28 +924,60 @@ namespace Sandbox.Game.GUI.HudViewers
             /// Returns the most significant POI for each relationship type within the group.
             /// </summary>
             /// <returns></returns>
-            private Dictionary<MyRelationsBetweenPlayerAndBlock, PointOfInterest> GetSignificantGroupPOIs()
+            private Dictionary<MyRelationsBetweenPlayerAndBlock, List<PointOfInterest>> GetSignificantGroupPOIs()
             {
-                Dictionary<MyRelationsBetweenPlayerAndBlock, PointOfInterest> pois = new Dictionary<MyRelationsBetweenPlayerAndBlock, PointOfInterest>();
+                Dictionary<MyRelationsBetweenPlayerAndBlock, List<PointOfInterest>> pois = new Dictionary<MyRelationsBetweenPlayerAndBlock, List<PointOfInterest>>();
+                if (m_group == null || m_group.Count == 0) return pois;
 
-                for (int i = 0; i < m_group.Count; i++)
+                bool allOfOneType = true;
+                MyRelationsBetweenPlayerAndBlock relationship = m_group[0].Relationship;
+                for (int i = 1; i < m_group.Count; i++)
                 {
-                    PointOfInterest poi = m_group[i];
-
-                    // No ownership is considered identical to neutral
-                    MyRelationsBetweenPlayerAndBlock relationship = poi.Relationship;
-                    if (relationship == MyRelationsBetweenPlayerAndBlock.NoOwnership)
-                        relationship = MyRelationsBetweenPlayerAndBlock.Neutral;
-
-                    if (pois.ContainsKey(relationship))
+                    if (m_group[i].Relationship != relationship)
                     {
-                        int poiComparisonResult = ComparePointOfInterest(poi, pois[relationship]);
-                        if (poiComparisonResult > 0)
-                            pois[relationship] = poi;
+                        allOfOneType = false;
+                        break;
                     }
-                    else
+                }
+
+                if (allOfOneType)
+                {
+                    // Return up to four of most significant POIs
+                    m_group.Sort(ComparePointOfInterest);
+                    pois[relationship] = new List<PointOfInterest>();
+                    for (int i = m_group.Count - 1; i >= 0; i--)
                     {
-                        pois[relationship] = poi;
+                        pois[relationship].Add(m_group[i]);
+                        if (pois[relationship].Count >= 4)
+                            break;
+                    }
+                }
+                else
+                {
+                    // Return 1 POI for each relationship type
+                    for (int i = 0; i < m_group.Count; i++)
+                    {
+                        PointOfInterest poi = m_group[i];
+
+                        // No ownership is considered identical to neutral
+                        relationship = poi.Relationship;
+                        if (relationship == MyRelationsBetweenPlayerAndBlock.NoOwnership)
+                            relationship = MyRelationsBetweenPlayerAndBlock.Neutral;
+
+                        if (pois.ContainsKey(relationship))
+                        {
+                            int poiComparisonResult = ComparePointOfInterest(poi, pois[relationship][0]);
+                            if (poiComparisonResult > 0)
+                            {
+                                pois[relationship].Clear();
+                                pois[relationship].Add(poi);
+                            }
+                        }
+                        else
+                        {
+                            pois[relationship] = new List<PointOfInterest>();
+                            pois[relationship].Add(poi);
+                        }
                     }
                 }
 
@@ -885,17 +1090,17 @@ namespace Sandbox.Game.GUI.HudViewers
                 switch (relationship)
                 {
                     case MyRelationsBetweenPlayerAndBlock.Owner:
-                        centerIconSprite = "Textures\\HUD\\marker_self.png";
+                        centerIconSprite = "Textures\\HUD\\marker_self.dds";
                         break;
                     case MyRelationsBetweenPlayerAndBlock.FactionShare:
-                        centerIconSprite = "Textures\\HUD\\marker_friendly.png";
+                        centerIconSprite = "Textures\\HUD\\marker_friendly.dds";
                         break;
                     case MyRelationsBetweenPlayerAndBlock.NoOwnership:
                     case MyRelationsBetweenPlayerAndBlock.Neutral:
-                        centerIconSprite = "Textures\\HUD\\marker_neutral.png";
+                        centerIconSprite = "Textures\\HUD\\marker_neutral.dds";
                         break;
                     case MyRelationsBetweenPlayerAndBlock.Enemies:
-                        centerIconSprite = "Textures\\HUD\\marker_enemy.png";
+                        centerIconSprite = "Textures\\HUD\\marker_enemy.dds";
                         break;
                 }
                 return centerIconSprite;
@@ -950,7 +1155,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 }
 
                 // Compute isBehind
-                Vector3D viewDirection = worldPosition - MySector.MainCamera.WorldMatrix.Translation;
+                Vector3D viewDirection = worldPosition - MyHudMarkerRender.ActiveWorldMatrix.Translation;
                 viewDirection.Normalize();
                 double dotProduct = Vector3D.Dot(MySector.MainCamera.ForwardVector, viewDirection);
                 isBehind = (dotProduct < 0);
@@ -994,7 +1199,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 }
 
                 // Closer by is more important than further away
-                return poiA.Distance.CompareTo(poiB.Distance);
+                return poiB.Distance.CompareTo(poiA.Distance);
             }
         }
 
@@ -1025,6 +1230,7 @@ namespace Sandbox.Game.GUI.HudViewers
                     return;
 
                 poiType = PointOfInterest.PointOfInterestType.Character;
+                worldPosition += entity.WorldMatrix.Up * 1.3f;
             }
             else
             {
@@ -1108,22 +1314,29 @@ namespace Sandbox.Game.GUI.HudViewers
 
             if (distance > LY_METRES)
             {
-                stringBuilder.Append(Math.Round(distance / LY_METRES, 2).ToString());
+                stringBuilder.Append(Math.Round(distance / LY_METRES, 2).ToString("N2"));
                 stringBuilder.Append("ly");
             }
             else if (distance > LS_METRES)
             {
-                stringBuilder.Append(Math.Round(distance / LS_METRES, 2).ToString());
+                stringBuilder.Append(Math.Round(distance / LS_METRES, 2).ToString("N2"));
                 stringBuilder.Append("ls");
             }
             else if (distance > 1000)
             {
-                stringBuilder.Append(Math.Round(distance / 1000, 2).ToString());
+                if (distance > 1000000)
+                {
+                    stringBuilder.Append(Math.Round(distance / 1000, 2).ToString("N1"));
+                }
+                else
+                {
+                    stringBuilder.Append(Math.Round(distance / 1000, 2).ToString("N2"));
+                }
                 stringBuilder.Append("km");
             }
             else
             {
-                stringBuilder.Append(Math.Round(distance, 2).ToString());
+                stringBuilder.Append(Math.Round(distance, 2).ToString("N1"));
                 stringBuilder.Append("m");
             }
         }
@@ -1134,67 +1347,77 @@ namespace Sandbox.Game.GUI.HudViewers
 
             ProfilerShort.Begin("Clustering");
             List<PointOfInterest> finalPOIs = new List<PointOfInterest>();
-            // N*N scan to cluster POIs
-            for (int i = 0; i<m_pointsOfInterest.Count; i++)
+            if (m_disableFading)
             {
-                PointOfInterest poi = m_pointsOfInterest[i];
-                PointOfInterest groupPOI = null;
-
-                if (poi.POIType != PointOfInterest.PointOfInterestType.Target)
+                finalPOIs.AddRange(m_pointsOfInterest);
+            }
+            else
+            {
+                // N*N scan to cluster POIs
+                for (int i = 0; i < m_pointsOfInterest.Count; i++)
                 {
-                    for (int j = i + 1; j < m_pointsOfInterest.Count; )
+                    PointOfInterest poi = m_pointsOfInterest[i];
+                    PointOfInterest groupPOI = null;
+
+                    if (poi.POIType != PointOfInterest.PointOfInterestType.Target)
                     {
-                        PointOfInterest poi2 = m_pointsOfInterest[j];
-                        if (poi2 == poi)
+                        for (int j = i + 1; j < m_pointsOfInterest.Count; )
                         {
-                            j++;
-                            continue;
-                        }
-
-                        if (poi2.POIType == PointOfInterest.PointOfInterestType.Target)
-                        {
-                            j++;
-                            continue;
-                        }
-
-                        if (poi.IsPOINearby(poi2, cameraPosition))
-                        {
-                            if (groupPOI == null)
+                            PointOfInterest poi2 = m_pointsOfInterest[j];
+                            if (poi2 == poi)
                             {
-                                groupPOI = m_pointOfInterestPool.Allocate();
-                                groupPOI.Reset();
-                                groupPOI.SetState(Vector3D.Zero, PointOfInterest.PointOfInterestType.Group, MyRelationsBetweenPlayerAndBlock.NoOwnership);
-                                groupPOI.AddPOI(poi);
+                                j++;
+                                continue;
                             }
 
-                            groupPOI.AddPOI(poi2);
-                            m_pointsOfInterest.RemoveAt(j);
-                        }
-                        else
-                        {
-                            j++;
+                            if (poi2.POIType == PointOfInterest.PointOfInterestType.Target)
+                            {
+                                j++;
+                                continue;
+                            }
+
+                            if (poi.IsPOINearby(poi2, cameraPosition))
+                            {
+                                if (groupPOI == null)
+                                {
+                                    groupPOI = m_pointOfInterestPool.Allocate();
+                                    groupPOI.Reset();
+                                    groupPOI.SetState(Vector3D.Zero, PointOfInterest.PointOfInterestType.Group, MyRelationsBetweenPlayerAndBlock.NoOwnership);
+                                    groupPOI.AddPOI(poi);
+                                }
+
+                                groupPOI.AddPOI(poi2);
+                                m_pointsOfInterest.RemoveAt(j);
+                            }
+                            else
+                            {
+                                j++;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    // Compute POI distance to camera
-                    Vector3D deltaPos = (cameraPosition - poi.WorldPosition);
-                    double distance = deltaPos.Length();
+                    else
+                    {
+                        // Compute POI distance to camera
+                        Vector3D deltaPos = (cameraPosition - poi.WorldPosition);
+                        double distance = deltaPos.Length();
 
-                    // Ignore targets that are too far out to see
-                    if (distance > PointOfInterest.MinimumTargetRange) continue;
-                }
+                        // Ignore targets that are too far out to see
+                        if (distance > PointOfInterest.MinimumTargetRange) continue;
+                    }
 
-                if (groupPOI != null)
-                {
-                    finalPOIs.Add(groupPOI);
-                }
-                else
-                {
-                    finalPOIs.Add(poi);
+                    if (groupPOI != null)
+                    {
+                        finalPOIs.Add(groupPOI);
+                    }
+                    else
+                    {
+                        finalPOIs.Add(poi);
+                    }
                 }
             }
+
+            // Sort furthest to nearest
+            finalPOIs.Sort(delegate(PointOfInterest a, PointOfInterest b) { return b.Distance.CompareTo(a.Distance); });
 
             ProfilerShort.BeginNextBlock("Drawing");
             foreach (PointOfInterest poi in finalPOIs)

@@ -239,7 +239,10 @@ namespace Sandbox.Game.Entities.Character
                 if (OxygenComponent != null)
                     variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdHelmetOpen, OxygenComponent.HelmetEnabled ? 0.0f : 1.0f);
 
-                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdLean, m_animLeaning);
+                if (Parent is MyCockpit)
+                    variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdLean, 0);
+                else
+                    variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdLean, m_animLeaning);
             }
 
             if (JetpackComp != null)

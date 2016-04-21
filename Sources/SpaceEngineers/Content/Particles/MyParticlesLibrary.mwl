@@ -44247,11 +44247,11 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>300</Value>
+                <Value>30</Value>
               </Key>
               <Key>
                 <Time>0.06286267</Time>
-                <Value>300</Value>
+                <Value>30</Value>
               </Key>
               <Key>
                 <Time>0.08704062</Time>
@@ -45327,11 +45327,11 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>750</Value>
+                <Value>75</Value>
               </Key>
               <Key>
                 <Time>0.06286267</Time>
-                <Value>750</Value>
+                <Value>75</Value>
               </Key>
               <Key>
                 <Time>0.08704062</Time>
@@ -45589,11 +45589,11 @@
             <Keys>
               <Key>
                 <Time>0</Time>
-                <Value>200</Value>
+                <Value>20</Value>
               </Key>
               <Key>
                 <Time>0.2030948</Time>
-                <Value>200</Value>
+                <Value>20</Value>
               </Key>
               <Key>
                 <Time>0.2224371</Time>

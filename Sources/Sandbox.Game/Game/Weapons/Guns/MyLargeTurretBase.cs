@@ -2966,21 +2966,21 @@ namespace Sandbox.Game.Weapons
                     return;
                 }
 
+                //By Gregory: Maybe 2 dt(tick) computations are excessive? We only need one as a frame of reference
                 m_rotationInterval_ms = (int)Math.Min(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 1000, MySandboxGame.TotalGamePlayTimeInMilliseconds - m_rotationInterval_ms);
-                m_elevationInterval_ms = (int)Math.Min(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 1000, MySandboxGame.TotalGamePlayTimeInMilliseconds - m_elevationInterval_ms);
+                //m_elevationInterval_ms = (int)Math.Min(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 1000, MySandboxGame.TotalGamePlayTimeInMilliseconds - m_elevationInterval_ms);
 
-                float slowDownCoeficient = m_rotationSpeed * 1000;
+                float slowDownCoeficient = 0.05f;
 
-                float step = m_rotationSpeed * m_rotationInterval_ms;
-                rotationIndicator.Y = (float)MathHelper.Clamp(rotationIndicator.Y / slowDownCoeficient, -1.0, 1.0);
+                //m_rotationSpeed should be fixed(from BlocDefinition)?
+                float step = slowDownCoeficient * m_rotationSpeed * m_rotationInterval_ms;
 
                 m_rotation -= rotationIndicator.Y * step;
 
-                step = m_elevationSpeed * m_elevationInterval_ms;
+                //step = slowDownCoeficient * m_elevationSpeed * m_elevationInterval_ms;
 
-                rotationIndicator.X = (float)MathHelper.Clamp(rotationIndicator.X / slowDownCoeficient, -1.0, 1.0);
-                m_elevation = MathHelper.Clamp(m_elevation - rotationIndicator.X * step,
-                    m_barrel.BarrelElevationMin, MathHelper.PiOver2 - MathHelper.Pi / 180);
+                m_elevation -= rotationIndicator.X * step;
+                m_elevation = MathHelper.Clamp(m_elevation, m_barrel.BarrelElevationMin, MathHelper.PiOver2 - MathHelper.Pi / 180);
 
                 RotateModels();
 

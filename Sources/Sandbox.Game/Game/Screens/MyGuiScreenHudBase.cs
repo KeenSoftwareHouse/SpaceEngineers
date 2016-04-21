@@ -304,6 +304,7 @@ namespace Sandbox.Game.Gui
             for (int i = 0; i < m_texts.GetAllocatedCount(); i++)
             {
                 MyHudText text = m_texts.GetAllocatedItem(i);
+                if (text.GetStringBuilder().Length == 0) continue;
 
                 var font = text.Font;
                 text.Position /= MyGuiManager.GetHudSize();
