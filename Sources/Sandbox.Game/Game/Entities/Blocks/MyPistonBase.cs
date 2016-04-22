@@ -706,10 +706,13 @@ namespace Sandbox.Game.Entities.Blocks
 
                 MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_topGrid);
 
-                Attach(m_topBlock, false);
-                m_welded = false;
+                if (m_topBlock != null && m_topBlock.Closed == false && m_topBlock.MarkedForClose == false)
+                {
+                    Attach(m_topBlock, false);
+                    m_welded = false;            
+                    RaisePropertiesChanged();
+                }
                 m_isWelding = false;
-                RaisePropertiesChanged();
             }
         }
 
@@ -874,6 +877,11 @@ namespace Sandbox.Game.Entities.Blocks
         public bool Attach(MyPistonTop topBlock, bool updateGroup = true)
         {
             Debug.Assert(topBlock != null, "Top block cannot be null!");
+
+            if (topBlock == null)
+            {
+                return false;
+            }
 
             if (CubeGrid == topBlock.CubeGrid)
                 return false;

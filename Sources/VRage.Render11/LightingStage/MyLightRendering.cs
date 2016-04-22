@@ -94,7 +94,8 @@ namespace VRageRender
 
         internal readonly static List<LightId> VisiblePointlights = new List<LightId>();
         internal readonly static List<LightId> VisibleSpotlights = new List<LightId>();
-        internal static SpotlightConstants[] Spotlights = new SpotlightConstants[32];
+        private const int SPOTLIGHTS_MAX = 32;
+        internal static SpotlightConstants[] Spotlights = new SpotlightConstants[SPOTLIGHTS_MAX];
 
         internal static void DrawGlares()
         {
@@ -330,6 +331,8 @@ namespace VRageRender
                 }
                 
                 index++;
+                if (index >= SPOTLIGHTS_MAX)
+                    break;
             }
 
             if (MyRender11.MultisamplingEnabled)

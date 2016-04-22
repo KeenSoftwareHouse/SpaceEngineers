@@ -2023,15 +2023,22 @@ namespace Sandbox.Game.EntityComponents
                 if (groupIndex == m_dataPerType[typeIndex].DistributionGroupsInUse)
                     return 0f;
 
-                return  m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource +
-                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RemainingAvailableResource -
-                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RequiredInput -
-                        m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RequiredInput;
+                return m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource
+                        //+ m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RemainingAvailableResource
+                        - m_dataPerType[typeIndex].DistributionGroups[groupIndex].SinkDataByPriority[priorityIndex].RequiredInput;
+                        //- m_dataPerType[typeIndex].DistributionGroups[groupIndex].InputOutputData.Item1.RequiredInput;
             }
             else
             {
-                return m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource + m_dataPerType[typeIndex].InputOutputData.Item1.RemainingAvailableResource
-                        - m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RequiredInput - m_dataPerType[typeIndex].InputOutputData.Item1.RequiredInput;
+                float availableForSink = m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RemainingAvailableResource;
+                //float availableForStorage = m_dataPerType[typeIndex].InputOutputData.Item1.RemainingAvailableResource;
+
+                float requiredInputForSink = m_dataPerType[typeIndex].SinkDataByPriority[priorityIndex].RequiredInput;
+                //float requiredInputForStorage = m_dataPerType[typeIndex].InputOutputData.Item1.RequiredInput;
+
+                float totalAvailable = availableForSink /*+ availableForStorage*/ - requiredInputForSink;// -requiredInputForStorage;
+
+                return totalAvailable;
             }
 	    }
 

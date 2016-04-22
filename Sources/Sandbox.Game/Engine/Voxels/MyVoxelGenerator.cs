@@ -685,10 +685,10 @@ namespace Sandbox.Engine.Voxels
 
             voxelsCountInPercent = (originalSum > 0f) ? (float)removedSum / (float)originalSum : 0f;
 
+            shape.Transformation = oldTranmsform;
+
             if (removedSum > 0)
                 OnVoxelChanged(MyVoxelBase.OperationType.Cut, voxelMap, shape);
-
-            shape.Transformation = oldTranmsform;
 
             ProfilerShort.End();
         }

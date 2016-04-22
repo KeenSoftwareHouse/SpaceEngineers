@@ -55,7 +55,10 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 MyVoxelBase voxel = value.CollidingEntity as MyVoxelBase;
                 Vector3D contactPosition = value.ContactPosition;
-                MyStringHash material = MyStringHash.GetOrCompute(voxel.GetMaterialAt(ref contactPosition).MaterialTypeName);
+                var vmat = voxel.GetMaterialAt(ref contactPosition);
+                if (vmat == null) return;
+
+                MyStringHash material = MyStringHash.GetOrCompute(vmat.MaterialTypeName);
                 particle = MyMaterialPropertiesHelper.Static.GetCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Start, m_wheelStringHash, material);
             }
             else if (value.CollidingEntity is MyCubeGrid && MyFakes.ENABLE_DRIVING_PARTICLES)

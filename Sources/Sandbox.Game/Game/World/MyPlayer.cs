@@ -152,12 +152,22 @@ namespace Sandbox.Game.World
 
         public bool IsAdmin
         {
-            get { return MySession.Static.IsUserAdmin( Client.SteamUserId ); }
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserAdmin( Client.SteamUserId );
+            }
         }
 
         public bool IsPromoted
         {
-            get { return MySession.Static.IsUserPromoted( Client.SteamUserId ); }
+            get
+            {
+                if (MySession.Static.OnlineMode == MyOnlineModeEnum.OFFLINE)
+                    return true;
+                return MySession.Static.IsUserPromoted( Client.SteamUserId );
+            }
         }
 
         public MyCharacter Character

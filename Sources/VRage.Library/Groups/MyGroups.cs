@@ -458,10 +458,18 @@ namespace VRage.Groups
 
         public override List<TNode> GetGroupNodes(TNode nodeInGroup)
         {
+            List<TNode> list = null;
             var g = GetGroup(nodeInGroup);
-            var list = new List<TNode>(g.Nodes.Count);
-            foreach (var node in g.Nodes)
-                list.Add(node.NodeData);
+            if (g != null)
+            {
+                list = new List<TNode>(g.Nodes.Count);
+                foreach (var node in g.Nodes)
+                    list.Add(node.NodeData);
+                return list;
+            }
+
+            list = new List<TNode>(1);
+            list.Add(nodeInGroup);
             return list;
         }
 

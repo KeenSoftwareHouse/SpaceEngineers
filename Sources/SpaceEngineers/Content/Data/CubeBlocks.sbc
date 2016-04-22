@@ -16211,8 +16211,8 @@
       <MinRadius>10</MinRadius>
       <MaxRadius>400</MaxRadius>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
-      <BasePowerInput>0.7</BasePowerInput>
-      <ConsumptionPower>3</ConsumptionPower>
+      <BasePowerInput>0.4</BasePowerInput>
+      <ConsumptionPower>1</ConsumptionPower>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>

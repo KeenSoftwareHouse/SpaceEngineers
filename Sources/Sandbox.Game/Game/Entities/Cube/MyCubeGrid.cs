@@ -672,6 +672,9 @@ namespace Sandbox.Game.Entities
                     m_ownershipManager = new MyCubeGridOwnershipManager();
                     m_ownershipManager.Init(this);
                 }
+
+                if (Hierarchy != null)
+                    Hierarchy.OnChildRemoved += Hierarchy_OnChildRemoved;
             }
 
             Render.CastShadows = true;
@@ -698,6 +701,11 @@ namespace Sandbox.Game.Entities
 
             IsRespawnGrid = builder.IsRespawnGrid;
             LocalCoordSystem = builder.LocalCoordSys;
+        }
+
+        void Hierarchy_OnChildRemoved(IMyEntity obj)
+        {
+            m_fatBlocks.Remove(obj as MyCubeBlock);
         }
 
         private static MyCubeGrid CreateForSplit(MyCubeGrid originalGrid, long newEntityId)
@@ -3724,7 +3732,7 @@ namespace Sandbox.Game.Entities
             return m_cubeBlocks;
         }
 
-        public List<MyCubeBlock> GetFatBlocks()
+        public ListReader<MyCubeBlock> GetFatBlocks()
         {
             return m_fatBlocks;
         }
@@ -4293,7 +4301,6 @@ namespace Sandbox.Game.Entities
         /// </summary>
         private void RemoveBlockInternal(MySlimBlock block, bool close, bool markDirtyDisconnects = true)
         {
-            //Debug.Assert(false, "RemoveBlockInternal");
             if (!m_cubeBlocks.Contains(block))
             {
                 Debug.Fail("Block being removed twice");
@@ -4403,7 +4410,6 @@ namespace Sandbox.Game.Entities
 
         public void RemoveBlock(MySlimBlock block, bool updatePhysics = false)
         {
-            //Debug.Assert(false, "RemoveBlock");
             // Client cannot remove blocks, only server
             if (!Sync.IsServer)
                 return;
@@ -5452,7 +5458,6 @@ namespace Sandbox.Game.Entities
         /// </summary>
         private void AddBlockInternal(MySlimBlock block)
         {
-            //Debug.Assert(false, "AddBlockInternal");
             block.CubeGrid = this;
 
             // Try merge compound blocks together.

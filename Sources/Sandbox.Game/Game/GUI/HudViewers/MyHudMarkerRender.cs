@@ -1060,9 +1060,14 @@ namespace Sandbox.Game.GUI.HudViewers
                     case PointOfInterestType.StaticEntity:
                     case PointOfInterestType.Unknown:
                     case PointOfInterestType.UnknownEntity:
-                    case PointOfInterestType.GPS:
                         {
                             string icon = GetIconForRelationship(relationship);
+                            DrawIcon(renderer, icon, screenPosition, markerColor);
+                            return;
+                        }
+                    case PointOfInterestType.GPS:
+                        {
+                            string icon = "Textures\\HUD\\marker_gps.dds";
                             DrawIcon(renderer, icon, screenPosition, markerColor);
                             return;
                         }
