@@ -998,6 +998,7 @@ namespace Sandbox.Game.Entities.Blocks
         void previewGrid_OnBlockAdded(MySlimBlock obj)
         {
             m_shouldUpdateProjection = true;
+            m_shouldUpdateTexts = true; // text should be updated always, not only when terminal block is added
 
             //Update groups
             if (m_originalGridBuilder == null || !IsProjecting())
@@ -1050,7 +1051,6 @@ namespace Sandbox.Game.Entities.Blocks
                         }
                     }
                 }
-                m_shouldUpdateTexts = true;
             }
         }
 
