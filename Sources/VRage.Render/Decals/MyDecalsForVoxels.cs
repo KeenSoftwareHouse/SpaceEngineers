@@ -102,7 +102,6 @@ namespace VRageRender
         }
         
         MyDecalForVoxelsState m_status;
-        int m_fadingOutStartTime;
         int m_capacity;
         int m_fadingOutStartLimit;
         int m_fadingOutBuffersCount;

@@ -14,10 +14,6 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
     {
         //private Vector3 m_muzzleFlashStartPosition;  // Position of the barrel muzzle flashes from the dummy
         private Vector3D m_muzzleFlashPosition;
-        float m_projectileMaxTrajectory;
-        Vector3 m_projectileColor;
-
-        float m_rotationAngle;                          //  Actual rotation angle (not rotation speed) around Z axis
         float m_rotationTimeout;
 
 

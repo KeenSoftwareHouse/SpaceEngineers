@@ -521,10 +521,6 @@ namespace VRageRender
             ray.Direction = ray.Direction - ray.Position;
         }
 
-        static Matrix m_proj;
-        static Matrix m_vp;
-        static Matrix m_invvp;
-
         internal static void DrawSceneDebug()
         {
             //if(true)
