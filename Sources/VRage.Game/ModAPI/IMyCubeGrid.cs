@@ -54,7 +54,7 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Returns true if there is any block occupying given position
         /// </summary>
-        bool CubeExists(VRageMath.Vector3I pos);
+        new bool CubeExists(VRageMath.Vector3I pos);
 
         /// <summary>
         /// Clamps fractional grid position to nearest cell (prefers neighboring occupied cell before empty) 
@@ -76,7 +76,7 @@ namespace VRage.Game.ModAPI
         /// </summary>
         /// <param name="pos">Block position</param>
         /// <returns>Block or null if none is present at given position</returns>
-        IMySlimBlock GetCubeBlock(VRageMath.Vector3I pos);
+        new IMySlimBlock GetCubeBlock(VRageMath.Vector3I pos);
 
         /// <summary>
         /// Returns point of intersection with line
@@ -95,22 +95,22 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Converts grid coordinates to world space
         /// </summary>
-        VRageMath.Vector3D GridIntegerToWorld(VRageMath.Vector3I gridCoords);
+        new VRageMath.Vector3D GridIntegerToWorld(VRageMath.Vector3I gridCoords);
 
         /// <summary>
         /// Grid size in meters
         /// </summary>
-        float GridSize { get; }
+        new float GridSize { get; }
 
         /// <summary>
         /// Grid size enumeration
         /// </summary>
-        MyCubeSize GridSizeEnum { get; set; }
+        new MyCubeSize GridSizeEnum { get; set; }
 
         /// <summary>
         /// Station = static
         /// </summary>
-        bool IsStatic { get; }
+        new bool IsStatic { get; }
 
         /// <summary>
         /// Finds out if given area has any neighboring block
@@ -128,7 +128,7 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Maximum coordinates of blocks in grid
         /// </summary>
-        VRageMath.Vector3I Max { get; }
+        new VRageMath.Vector3I Max { get; }
 
         /// <summary>
         /// Determines if merge between grids is possible with given offset
@@ -159,7 +159,7 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Minimum coordinates of blocks in grid
         /// </summary>
-        VRageMath.Vector3I Min { get; }
+        new VRageMath.Vector3I Min { get; }
 
         /// <summary>
         /// Returns cell with block intersecting given line
@@ -243,7 +243,7 @@ namespace VRage.Game.ModAPI
         event Action<IMyCubeGrid> OnBlockOwnershipChanged;
 
         void UpdateOwnership(long ownerId, bool isFunctional);
-        VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
+        new VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
 
         /// <summary>
         /// Add a cubeblock to the grid

@@ -1512,7 +1512,7 @@ namespace Sandbox.Game.Entities
             m_sectorFrustum = v;
         }
 
-        public void DebugDraw()
+        public new void DebugDraw()
         {
             if (IsClosed) return;
 

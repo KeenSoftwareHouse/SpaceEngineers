@@ -20,7 +20,7 @@ namespace Sandbox.Engine.Utils
         // Increases how far the light can reflect
         private const int REFLECTOR_RANGE_MULTIPLIER = 5;
 
-        public static MySpectatorCameraController Static;
+        public static new MySpectatorCameraController Static;
 
         private double m_yaw;
         private double m_pitch;

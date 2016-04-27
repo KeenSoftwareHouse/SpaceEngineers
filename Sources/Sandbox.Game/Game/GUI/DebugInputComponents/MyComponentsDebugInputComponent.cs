@@ -205,7 +205,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlButton m_cancelButton;
         MyGuiControlListbox m_addComponentsListBox;
         MyGuiControlCheckbox m_replicableEntityCheckBox;
-        Vector3 m_position;
+        new Vector3 m_position;
 
         public MyGuiScreenSpawnEntity(Vector3 position) :
             base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, null)
@@ -338,7 +338,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlButton m_cancelButton;
         MyGuiControlListbox m_containersListBox;
         MyGuiControlCheckbox m_replicableEntityCheckBox;
-        Vector3 m_position;
+        new Vector3 m_position;
 
         public MyGuiScreenSpawnDefinedEntity(Vector3 position) :
             base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, null)

@@ -160,7 +160,7 @@ namespace Sandbox.Game.Entities
             protected set { }
         }
 
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {
             get { return m_handItemDefinitionId; }
         }

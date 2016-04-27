@@ -122,7 +122,7 @@ namespace VRageRender
             DrawFullscreenQuad();
         }
 
-        internal static void Init()
+        internal static new void Init()
         {
             MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
         }

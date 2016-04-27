@@ -27,7 +27,7 @@ namespace Sandbox.Engine.Voxels
 
         void OverwriteAllMaterials(MyVoxelMaterialDefinition material);
 
-        void Save(out byte[] outCompressedData);
+        new void Save(out byte[] outCompressedData);
 
         /// <summary>
         /// Reads range of content and/or materials from specified LOD. If you want to write data back later, you must read LOD0 as that is the only writable one.

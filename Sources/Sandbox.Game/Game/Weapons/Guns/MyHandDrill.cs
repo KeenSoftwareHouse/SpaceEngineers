@@ -353,7 +353,7 @@ namespace Sandbox.Game.Weapons
         private bool m_tryingToDrill;
         private bool m_objectInDrillingRange;
 
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {
             get { return m_handItemDefId; }
         }

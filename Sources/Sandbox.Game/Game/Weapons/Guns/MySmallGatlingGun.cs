@@ -61,7 +61,7 @@ namespace Sandbox.Game.Weapons
         MyGunBase m_gunBase;
 
         List<HkWorld.HitInfo> m_hits = new List<HkWorld.HitInfo>();
-        bool m_isShooting = false;
+        new bool m_isShooting = false;
 
         protected override bool CheckIsWorking()
         {
@@ -365,7 +365,7 @@ namespace Sandbox.Game.Weapons
 
         public bool EnabledInWorldRules { get { return MySession.Static.WeaponsEnabled; } }
 
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {   
             get { return BlockDefinition.Id; }
         }

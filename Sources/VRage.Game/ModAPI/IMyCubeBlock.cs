@@ -13,7 +13,7 @@ namespace VRage.Game.ModAPI
     public interface IMyCubeBlock : Ingame.IMyCubeBlock, IMyEntity
     {
         event Action<IMyCubeBlock> IsWorkingChanged;
-        SerializableDefinitionId BlockDefinition { get; }
+        new SerializableDefinitionId BlockDefinition { get; }
 
         /// <summary>
         /// 
@@ -33,7 +33,7 @@ namespace VRage.Game.ModAPI
         /// Whether the grid should call the ConnectionAllowed method for this block 
         ///(ConnectionAllowed checks mount points and other per-block requirements)
         /// </summary>
-        bool CheckConnectionAllowed { get; set; }
+        new bool CheckConnectionAllowed { get; set; }
 
         //bool ConnectionAllowed(ref VRageMath.Vector3I otherBlockMinPos, ref VRageMath.Vector3I otherBlockMaxPos, ref VRageMath.Vector3I faceNormal, Sandbox.Definitions.MyCubeBlockDefinition def);
         //bool ConnectionAllowed(ref VRageMath.Vector3I otherBlockPos, ref VRageMath.Vector3I faceNormal, Sandbox.Definitions.MyCubeBlockDefinition def);
@@ -41,29 +41,29 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Grid in which the block is placed
         /// </summary>
-        IMyCubeGrid CubeGrid { get; }
+        new IMyCubeGrid CubeGrid { get; }
 
         /// <summary>
         /// Debug only method. Effects may wary through time.
         /// </summary>
         /// <returns></returns>
-        bool DebugDraw();
+        new bool DebugDraw();
 
         /// <summary>
         /// Definition name
         /// </summary>
-        String DefinitionDisplayNameText { get; }
+        new String DefinitionDisplayNameText { get; }
 
         /// <summary>
         /// Is set in definition
         /// Ratio at which is the block disassembled (grinding) 
         /// </summary>
-        float DisassembleRatio { get; }
+        new float DisassembleRatio { get; }
 
         /// <summary>
         /// Translated block name
         /// </summary>
-        String DisplayNameText { get; }
+        new String DisplayNameText { get; }
 
         /// <summary>
         /// Returns block object builder which can be serialized or added to grid
@@ -76,20 +76,20 @@ namespace VRage.Game.ModAPI
         /// 
         /// </summary>
         /// <returns>Tag of faction owning block</returns>
-        string GetOwnerFactionTag();
+        new string GetOwnerFactionTag();
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns>Relation of local player to the block</returns>
-        VRage.Game.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
+        new VRage.Game.MyRelationsBetweenPlayerAndBlock GetPlayerRelationToOwner();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="playerId">Id of player to check relation with (not steam id!)</param>
         /// <returns>Relation of defined player to the block</returns>
-        VRage.Game.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
+        new VRage.Game.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long playerId);
 
         //Sandbox.Game.Entities.MyIDModule IDModule { get; }
 
@@ -106,38 +106,38 @@ namespace VRage.Game.ModAPI
         void Init(MyObjectBuilder_CubeBlock builder, IMyCubeGrid cubeGrid);
 
 
-        bool IsBeingHacked { get; }
+        new bool IsBeingHacked { get; }
 
         /// <summary>
         /// True if integrity is above breaking threshold
         /// </summary>
-        bool IsFunctional { get; }
+        new bool IsFunctional { get; }
 
         /// <summary>
         /// True if block is able to do its work depening on block type (is functional, powered, enabled, etc...)
         /// </summary>
-        bool IsWorking { get; }
+        new bool IsWorking { get; }
 
         //event Action<IMyCubeBlock> IsWorkingChanged; //TODO: use Event set for this
         /// <summary>
         /// Maximum coordinates of grid cells occupied by this block
         /// </summary>
-        VRageMath.Vector3I Max { get; }
+        new VRageMath.Vector3I Max { get; }
         
         /// <summary>
         /// Block mass
         /// </summary>
-        float Mass { get; }
+        new float Mass { get; }
         /// <summary>
         /// Minimum coordinates of grid cells occupied by this block
         /// </summary>
-        VRageMath.Vector3I Min { get; }
+        new VRageMath.Vector3I Min { get; }
 
         /// <summary>
         /// Order in which were the blocks of same type added to grid
         /// Used in default display name
         /// </summary>
-        int NumberInGrid { get; set; }
+        new int NumberInGrid { get; set; }
 
         /// <summary>
         /// Method called when a block has been built (after adding to the grid).
@@ -176,17 +176,17 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Returns block orientation in base 6 directions
         /// </summary>
-        VRageMath.MyBlockOrientation Orientation { get; }
+        new VRageMath.MyBlockOrientation Orientation { get; }
 
         /// <summary>
         /// Id of player owning block (not steam Id)
         /// </summary>
-        long OwnerId { get; }
+        new long OwnerId { get; }
 
         /// <summary>
         /// Position in grid coordinates
         /// </summary>
-        VRageMath.Vector3I Position { get; }
+        new VRageMath.Vector3I Position { get; }
 
         /// <summary>
         /// Gets the name of interactive object intersected by defined line
@@ -206,12 +206,12 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Force refresh working state. Call if you change block state that could affect its working status.
         /// </summary>
-        void UpdateIsWorking();
+        new void UpdateIsWorking();
 
         /// <summary>
         /// Updates block visuals (ie. block emissivity)
         /// </summary>
-        void UpdateVisual();
+        new void UpdateVisual();
 
         /// <summary>
         /// Start or stop dammage effect on cube block

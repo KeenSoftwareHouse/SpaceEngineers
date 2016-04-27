@@ -71,7 +71,7 @@ namespace VRage.Game.Components
 
         #region Properties
 
-        public IMyEntity Entity { get; protected set; }
+        public new IMyEntity Entity { get; protected set; }
 
         public bool CanUpdateAccelerations { get; set; }
 

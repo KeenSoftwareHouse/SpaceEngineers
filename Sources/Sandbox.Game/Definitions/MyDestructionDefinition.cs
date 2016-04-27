@@ -13,7 +13,7 @@ namespace Sandbox.Definitions
     public class MyDestructionDefinition : MyDefinitionBase
     {
         public float DestructionDamage;
-        public string[] Icons;
+        public new string[] Icons;
         public float ConvertedFractureIntegrityRatio;
 
         public class MyFracturedPieceDefinition

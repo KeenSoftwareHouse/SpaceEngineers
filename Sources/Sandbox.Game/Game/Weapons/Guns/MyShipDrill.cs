@@ -81,7 +81,7 @@ namespace Sandbox.Game.Weapons
         {
             get { return true; }
         }
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {
             get { return m_defId; }
         }

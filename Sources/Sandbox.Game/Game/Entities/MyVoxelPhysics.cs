@@ -69,7 +69,7 @@ namespace Sandbox.Game.Entities
 
         }
 
-        public MyPlanet Parent
+        public new MyPlanet Parent
         {
             get { return m_parent; }
         }
