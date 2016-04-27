@@ -2028,7 +2028,7 @@ namespace Sandbox.Game.Entities
 
             return retval;
         }
-
+        
         float IMyRemoteControl.GetDistanceToSeaLevel() {
 
             var controlledEntity = MySession.Static.ControlledEntity as MyCubeBlock;
@@ -2042,6 +2042,29 @@ namespace Sandbox.Game.Entities
             Vector3D closestPoint = nearestPlanet.GetClosestSurfacePointGlobal(ref controlledEntityPosition);
             float distanceToSeaLevel = (float)Vector3D.Distance(closestPoint, controlledEntityPosition);
             return distanceToSeaLevel;
+        }
+        
+        Vector3D IMyRemoteControl.GetNearestCenter() {
+            var controlledEntity = MySession.Static.ControlledEntity as MyCubeBlock;
+            var controlledEntityPosition = controlledEntity.CubeGrid.Physics.CenterOfMassWorld;
+
+            MyPlanet nearestPlanet = MyGravityProviderSystem.GetNearestPlanet(controlledEntityPosition);
+            if (nearestPlanet == null)
+                return Vector3D.Zero;
+            else
+                return nearestPlanet.PositionComp.GetPosition();
+        }
+
+        bool IMyRemoteControl.HasPlanetNearby() {
+
+            var controlledEntity = MySession.Static.ControlledEntity as MyCubeBlock;
+            var controlledEntityPosition = controlledEntity.CubeGrid.Physics.CenterOfMassWorld;
+
+            MyPlanet nearestPlanet = MyGravityProviderSystem.GetNearestPlanet(controlledEntityPosition);            
+            if (nearestPlanet == null)
+                return false;
+            else
+                return true;
         }
 
         private float FindDistanceToNearestPlanetSeaLevel(Vector3D worldPoint, out MyPlanet closestPlanet) {

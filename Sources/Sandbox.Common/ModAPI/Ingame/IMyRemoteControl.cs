@@ -20,5 +20,7 @@ namespace Sandbox.ModAPI.Ingame
         Vector3D GetFreeDestination(Vector3D originalDestination, float checkRadius, float shipRadius);
 
         float GetDistanceToSeaLevel();
+        Vector3D GetNearestCenter();
+        bool HasPlanetNearby();
     }
 }
