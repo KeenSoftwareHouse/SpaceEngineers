@@ -352,7 +352,7 @@ namespace Sandbox.Game.Weapons
             
             foreach (var entry in m_drillBase.Sensor.EntitiesInRange)
             {
-                const float sparksMoveDist = 0.1f;
+                //const float sparksMoveDist = 0.1f;
 
                 var pt = entry.Value.DetectionPoint;
                 if (Vector3.DistanceSquared(pt, origin) < distSq)

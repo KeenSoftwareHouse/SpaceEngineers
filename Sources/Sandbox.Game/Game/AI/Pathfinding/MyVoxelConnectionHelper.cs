@@ -167,14 +167,13 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             OuterEdgePoint data = new OuterEdgePoint(edgeIndex, firstPoint);
             var query = m_outerEdgePoints.QueryPointsSphere(ref currentPosition, OUTER_EDGE_EPSILON * 3);
-            bool moved = false;
+
             while (query.MoveNext())
             {
                 if (query.Current.EdgeIndex == edgeIndex && query.Current.FirstPoint == firstPoint)
                 {
                     //Debug.Assert(moved == false, "The point was already moved!");
                     m_outerEdgePoints.MovePoint(query.StorageIndex, ref currentPosition);
-                    moved = true;
                 }
             }
         }

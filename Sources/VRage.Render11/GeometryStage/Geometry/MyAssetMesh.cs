@@ -356,7 +356,7 @@ namespace VRageRender
                 }
 
                 //indexBuffer.SetDebugName(assetName + " index buffer");
-                int c = 0;
+                //int c = 0;
                 //vertexBuffers.ForEach(x => x.SetDebugName(assetName + " vertex buffer " + c++));
 
                 //

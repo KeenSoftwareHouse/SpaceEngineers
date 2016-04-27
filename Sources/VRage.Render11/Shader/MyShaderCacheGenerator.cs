@@ -296,7 +296,6 @@ namespace VRage.Render11.Shader
             var compiled = MyShaders.Compile(source, macrosArray, profile, descriptor, true, false, out wasCached, out compileLog);
             if (onShaderCacheProgress != null)
             {
-                string message = "";
                 if (wasCached)
                     onShaderCacheProgress(progress, descriptor + vertexLayoutString, MyShadersDefines.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(), "skipped", false);
                 else if (compileLog != null)

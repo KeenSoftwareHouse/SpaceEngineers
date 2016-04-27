@@ -92,7 +92,6 @@ namespace Sandbox.Game.AI.Actions
         [MyBehaviorTreeAction("TryReserveEntity")]
         protected MyBehaviorTreeState TryReserveEntity([BTIn] ref MyBBMemoryTarget inTarget, [BTParam] int timeMs)
 		{
-			MyBehaviorTreeState retStatus = MyBehaviorTreeState.FAILURE;
 			if(Bot == null || Bot.Player == null)
 				return MyBehaviorTreeState.FAILURE;
 			
@@ -140,7 +139,6 @@ namespace Sandbox.Game.AI.Actions
 								break;
 							default:
                                 logic.ReservationStatus = Logic.MyReservationStatus.FAILURE;
-                                retStatus = MyBehaviorTreeState.FAILURE;
                                 break;
 						}
                         m_reservationTimeOut = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(RESERVATION_WAIT_TIMEOUT_SECONDS);
