@@ -5,8 +5,6 @@ using System.IO;
 using VRage.Collections;
 using VRage;
 using VRage.Utils;
-using VRage.Utils;
-using VRage.Library.Utils;
 using VRage.FileSystem;
 
 namespace Sandbox.Game.Localization

@@ -1,36 +1,17 @@
 ﻿#region Using
-using Sandbox.Common;
 
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
-using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
 
 using VRage;
 using VRage.Utils;
 using VRageMath;
-using Sandbox.Game.GUI;
-using System.Drawing;
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Platform.VideoMode;
-using SteamSDK;
 using Sandbox.Game.Multiplayer;
 using System.Diagnostics;
-using VRage;
-using Sandbox.Game.Localization;
 using VRage.Game;
-using VRage.Utils;
-using VRage.Library.Utils;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.World;
 #endregion

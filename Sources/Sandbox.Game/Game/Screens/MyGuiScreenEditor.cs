@@ -1,23 +1,14 @@
-﻿using Sandbox.Common;
-using Sandbox.Graphics.GUI;
-using Sandbox.ModAPI;
+﻿using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using VRage;
 using VRage.Utils;
 using VRage.Compiler;
 using VRageMath;
-
-using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
-using VRage;
 using Sandbox.Game.Localization;
-using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Screens;
 using VRage.Game;
@@ -217,7 +208,7 @@ namespace Sandbox.Game.Gui
                     return error;
                 }
             }
-            catch (Exception e) { };//unknown error format
+            catch (Exception){ };//unknown error format
             return error;
         }
 

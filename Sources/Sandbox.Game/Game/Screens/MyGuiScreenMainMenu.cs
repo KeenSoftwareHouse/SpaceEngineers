@@ -1,7 +1,6 @@
 ﻿#region Using
 
 using ParallelTasks;
-using Sandbox.Common;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -20,13 +19,10 @@ using System.Net;
 using System.Text;
 using System.Xml.Serialization;
 using VRage;
-using VRage;
 using VRage.Audio;
 using VRage.Game;
 using VRage.Game.News;
 using VRage.Input;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 

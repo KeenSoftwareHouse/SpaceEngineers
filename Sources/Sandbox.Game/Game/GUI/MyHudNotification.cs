@@ -1,20 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Sandbox.Engine.Utils;
-using Sandbox.Graphics.GUI;
-
-using Sandbox.Common;
-using Sandbox.ModAPI;
 using VRage;
 using Sandbox.Definitions;
-using Sandbox.Graphics;
 using VRage.Utils;
-using VRage;
 using VRage.Game;
-using VRage.Utils;
-using VRage.Library.Utils;
 
 namespace Sandbox.Game.Gui
 {
