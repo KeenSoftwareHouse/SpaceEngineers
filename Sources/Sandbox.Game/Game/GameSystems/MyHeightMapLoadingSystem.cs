@@ -481,7 +481,7 @@ namespace Sandbox.Game.GameSystems
                     {
                         return SharpDXImage.Load(sbm.GetFile(fileRelativeArchivePath).GetStream());
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MyDebug.FailRelease("Failed to load existing " + p + " file from .sbm archive. " + fullPath);
                         return null;

@@ -113,7 +113,7 @@ namespace Sandbox.Game.Gui
 
                        
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         m_handItemsCombo.SelectItemByIndex(0);
                     }

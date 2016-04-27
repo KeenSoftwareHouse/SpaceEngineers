@@ -531,7 +531,7 @@ namespace VRageRender
             {
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -552,7 +552,7 @@ namespace VRageRender
             {
                 PsObjects[id.Index] = new PixelShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
                 PsObjects[id.Index] = new PixelShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -573,7 +573,7 @@ namespace VRageRender
             {
                 CsObjects[id.Index] = new ComputeShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
                 CsObjects[id.Index] = new ComputeShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -605,7 +605,7 @@ namespace VRageRender
                     GsObjects[id.Index] = new GeometryShader(MyRender11.Device, GetBytecode(bytecodeId));
                 }
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
 
@@ -745,7 +745,7 @@ namespace VRageRender
                 var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath));
                 return ShaderBytecode.Preprocess(source, macros, includes);
             }
-            catch (CompilationException e)
+            catch (CompilationException)
             {
                 return null;
             }
@@ -783,7 +783,7 @@ namespace VRageRender
                                 code = reader.ReadToEnd();
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             return "";
                         }

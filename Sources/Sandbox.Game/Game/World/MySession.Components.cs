@@ -81,7 +81,7 @@ namespace Sandbox.Game.World
                     RegisterComponentsFromAssembly(plugin.GetType().Assembly, true);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             { }
 
             try { RegisterComponentsFromAssembly(MyPlugins.GameAssembly); }

@@ -175,7 +175,7 @@ namespace Sandbox.Engine.Voxels
                         job.DebugDraw(new Color((shade - p) / shade, 0.0f, p / shade, (max - xi) / max));
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 { }
             }
 

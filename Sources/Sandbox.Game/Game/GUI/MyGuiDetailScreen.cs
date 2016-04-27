@@ -538,7 +538,7 @@ namespace Sandbox.Game.Gui
                     {
                         Directory.Move(file, newFile);
                     }
-                    catch (System.IO.IOException ex)
+                    catch (System.IO.IOException)
                     {
 
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(

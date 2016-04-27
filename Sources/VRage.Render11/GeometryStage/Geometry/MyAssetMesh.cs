@@ -377,7 +377,7 @@ namespace VRageRender
                 importer.Clear();
                 return result;
             }
-            catch(Exception e)
+            catch (Exception)
             {
                 return MyAssetsLoader.GetDebugMesh().LODs[0].m_meshInfo;
             }
