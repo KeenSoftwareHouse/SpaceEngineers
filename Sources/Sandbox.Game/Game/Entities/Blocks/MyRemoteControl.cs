@@ -2028,6 +2028,34 @@ namespace Sandbox.Game.Entities
 
             return retval;
         }
+
+        float IMyRemoteControl.GetDistanceToSeaLevel() {
+
+            var controlledEntity = MySession.Static.ControlledEntity as MyCubeBlock;
+            var controlledEntityPosition = controlledEntity.CubeGrid.Physics.CenterOfMassWorld;
+
+            MyPlanet nearestPlanet;
+            FindDistanceToNearestPlanetSeaLevel(controlledEntityPosition, out nearestPlanet);
+            if (nearestPlanet == null)
+                return -1;
+
+            Vector3D closestPoint = nearestPlanet.GetClosestSurfacePointGlobal(ref controlledEntityPosition);
+            float distanceToSeaLevel = (float)Vector3D.Distance(closestPoint, controlledEntityPosition);
+            return distanceToSeaLevel;
+        }
+
+        private float FindDistanceToNearestPlanetSeaLevel(Vector3D worldPoint, out MyPlanet closestPlanet) {
+            ProfilerShort.Begin("FindNearestPointOnPlanet");
+            closestPlanet = MyGravityProviderSystem.GetNearestPlanet(worldPoint);
+            double closestDistance = double.MaxValue;
+            if (closestPlanet != null) {
+                closestDistance = ((worldPoint - closestPlanet.PositionComp.GetPosition()).Length() - closestPlanet.AverageRadius);
+            }
+            ProfilerShort.End();
+
+            return (float)closestDistance;
+        }
+
         #endregion
 
         private bool TryFindSavedEntity()
