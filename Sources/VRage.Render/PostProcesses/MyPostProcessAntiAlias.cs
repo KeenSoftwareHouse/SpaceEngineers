@@ -48,7 +48,6 @@ namespace VRageRender
                         MyRender.GetFullscreenQuad().Draw(effectAntiAlias);
                         return availableRenderTarget;
                     }
-                    break;
             }
             return source;
         }
