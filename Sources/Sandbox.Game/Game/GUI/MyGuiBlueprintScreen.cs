@@ -332,10 +332,10 @@ namespace Sandbox.Game.Gui
                 return false;
             if (info.SubtypeName == null)
                 return false;
-            if (info.WorkshopId == null)
-                return false;
-            if (info.SteamIDOwner == null)
-                return false;
+            //if (info.WorkshopId == null)
+            //    return false;
+            //if (info.SteamIDOwner == null)
+            //    return false;
             return true;
         }
 
