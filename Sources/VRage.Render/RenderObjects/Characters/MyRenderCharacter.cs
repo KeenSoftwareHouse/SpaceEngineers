@@ -171,32 +171,32 @@ namespace VRageRender
 
 			return;
 
-            if (m_skeletonIndices == null)
-                return;
+//            if (m_skeletonIndices == null)
+//                return;
             
-            int bonesCount = m_skeletonIndices.Length;
+//            int bonesCount = m_skeletonIndices.Length;
 
-            for (int i = 0; i < bonesCount; i++)
-            {
-                var bone2 = m_skeletonHierarchy[m_skeletonIndices[i]];
+//            for (int i = 0; i < bonesCount; i++)
+//            {
+//                var bone2 = m_skeletonHierarchy[m_skeletonIndices[i]];
 
-                if (bone2.Parent == -1)
-                    continue;
+//                if (bone2.Parent == -1)
+//                    continue;
 
 
 
-                Vector3D p2 = ((MatrixD)m_absoluteTransforms[m_skeletonIndices[i]] * WorldMatrix).Translation;
-                Vector3D p1 = ((MatrixD)m_absoluteTransforms[bone2.Parent] * WorldMatrix).Translation;
+//                Vector3D p2 = ((MatrixD)m_absoluteTransforms[m_skeletonIndices[i]] * WorldMatrix).Translation;
+//                Vector3D p1 = ((MatrixD)m_absoluteTransforms[bone2.Parent] * WorldMatrix).Translation;
 
-               MyDebugDraw.DrawLine3D(p1, p2, Color.Green, Color.Green, false);
+//               MyDebugDraw.DrawLine3D(p1, p2, Color.Green, Color.Green, false);
 
-  //              Vector3 pCenter = (p1 + p2) * 0.5f;
-//                VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2 + " (" + s.ToString() + ")", Color.White, 0.5f, false);
+//  //              Vector3 pCenter = (p1 + p2) * 0.5f;
+////                VRageRender.MyRenderProxy.DebugDrawText3D(pCenter, bone2 + " (" + s.ToString() + ")", Color.White, 0.5f, false);
     
-            }
+//            }
 
-            //DebugDrawOBB();
-            //MyDebugDraw.DrawAxis(WorldMatrix, m_localVolume.Radius, 1, false);
+//            //DebugDrawOBB();
+//            //MyDebugDraw.DrawAxis(WorldMatrix, m_localVolume.Radius, 1, false);
         }
 
         public BoundingBoxD ActualWorldAABB

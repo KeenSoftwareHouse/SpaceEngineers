@@ -252,7 +252,9 @@ namespace VRageRender
                 return;
 
             if (MyScene.SeparateGeometry)
+#pragma warning disable CS0162 // Unreachable code detected
                 m_btreeProxy = MyScene.StaticRenderablesDBVH.AddProxy(ref Owner.Aabb, m_cullProxy, 0);
+#pragma warning restore CS0162 // Unreachable code detected
             else
                 base.AddToRenderables();
         }
@@ -265,7 +267,9 @@ namespace VRageRender
             bool proxyMoved = false;
 
             if (MyScene.SeparateGeometry)
+#pragma warning disable CS0162 // Unreachable code detected
                 proxyMoved = MyScene.StaticRenderablesDBVH.MoveProxy(m_btreeProxy, ref Owner.Aabb, Vector3.Zero);
+#pragma warning restore CS0162 // Unreachable code detected
             else
                 proxyMoved = base.MoveRenderableAABB();
 
@@ -279,8 +283,10 @@ namespace VRageRender
 
             if (MyScene.SeparateGeometry)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 MyScene.StaticRenderablesDBVH.RemoveProxy(m_btreeProxy);
                 m_btreeProxy = MyDynamicAABBTreeD.NullNode;
+#pragma warning restore CS0162 // Unreachable code detected
             }
             else
                 base.RemoveFromRenderables();

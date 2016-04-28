@@ -120,45 +120,45 @@ namespace VRageRender
             if (MyLightRendering.VisibleSpotlights.Count == 0)
                 OtherShadowsTriangleCounter = 0;
             return;
-            MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
-            MyArrayHelpers.Reserve(ref MyLightRendering.Spotlights, MyLightRendering.VisibleSpotlights.Count);
+            //MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
+            //MyArrayHelpers.Reserve(ref MyLightRendering.Spotlights, MyLightRendering.VisibleSpotlights.Count);
 
-            int index = 0;
-            int casterIndex = 0;
-            var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
-            foreach (var id in MyLightRendering.VisibleSpotlights)
-            {
-                if (id.CastsShadows && casterIndex < MAX_SPOTLIGHT_SHADOWCASTERS)
-                {
-                    if(ShadowmapsPool.Count <= casterIndex)
-                        ShadowmapsPool.Add(MyRwTextures.CreateShadowmap(SpotlightShadowmapSize, SpotlightShadowmapSize));
+            //int index = 0;
+            //int casterIndex = 0;
+            //var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
+            //foreach (var id in MyLightRendering.VisibleSpotlights)
+            //{
+            //    if (id.CastsShadows && casterIndex < MAX_SPOTLIGHT_SHADOWCASTERS)
+            //    {
+            //        if(ShadowmapsPool.Count <= casterIndex)
+            //            ShadowmapsPool.Add(MyRwTextures.CreateShadowmap(SpotlightShadowmapSize, SpotlightShadowmapSize));
 
-                    MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
+            //        MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
 
-                    MatrixD viewProjection = MyLights.GetSpotlightViewProjection(id);
-                    var query = new MyShadowmapQuery
-                    {
-                        DepthBuffer = ShadowmapsPool[casterIndex].Dsv,
-                        Viewport = new MyViewport(SpotlightShadowmapSize, SpotlightShadowmapSize),
-                        QueryType = MyFrustumEnum.ShadowProjection,
-                        ProjectionInfo = new MyProjectionInfo
-                        {
-                            WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
-                            WorldToProjection = viewProjection,
-                            LocalToProjection = worldMatrix * viewProjection 
-                        },
-                        IgnoredEntities = MyLights.IgnoredEntitites.ContainsKey(id) ? MyLights.IgnoredEntitites[id] : null,
-                    };
-                    m_shadowmapQueries.Add(query);
-                    ++casterIndex;
-                }
-                else
-                {
-                    MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = false;
-                }
+            //        MatrixD viewProjection = MyLights.GetSpotlightViewProjection(id);
+            //        var query = new MyShadowmapQuery
+            //        {
+            //            DepthBuffer = ShadowmapsPool[casterIndex].Dsv,
+            //            Viewport = new MyViewport(SpotlightShadowmapSize, SpotlightShadowmapSize),
+            //            QueryType = MyFrustumEnum.ShadowProjection,
+            //            ProjectionInfo = new MyProjectionInfo
+            //            {
+            //                WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
+            //                WorldToProjection = viewProjection,
+            //                LocalToProjection = worldMatrix * viewProjection 
+            //            },
+            //            IgnoredEntities = MyLights.IgnoredEntitites.ContainsKey(id) ? MyLights.IgnoredEntitites[id] : null,
+            //        };
+            //        m_shadowmapQueries.Add(query);
+            //        ++casterIndex;
+            //    }
+            //    else
+            //    {
+            //        MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = false;
+            //    }
 
-                index++;
-            }
+            //    index++;
+            //}
         }
     }
 }

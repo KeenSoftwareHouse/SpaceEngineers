@@ -436,6 +436,7 @@ namespace VRageRender
 
                 if (DUMP_CODE)
                 {
+#pragma warning disable CS0162 // Unreachable code detected
                     var disassembly = compilationResult.Bytecode.Disassemble(DisassemblyFlags.EnableColorCode |
                                                                              DisassemblyFlags.EnableInstructionNumbering);
                     string asmPath;
@@ -452,6 +453,7 @@ namespace VRageRender
                     {
                         writer.Write(disassembly);
                     }
+#pragma warning restore CS0162 // Unreachable code detected
                 }
 
                 if (compilationResult.Message != null)

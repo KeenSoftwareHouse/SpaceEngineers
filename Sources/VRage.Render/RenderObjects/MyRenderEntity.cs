@@ -455,24 +455,24 @@ namespace VRageRender
         public override void DebugDraw()
         {
             return;
-            //if (MyMwcFinalBuildConstants.DrawHelperPrimitives)
-            {
-                // DebugDrawVolume();
-                DebugDrawOBB();
-                MyDebugDraw.DrawAxis(WorldMatrix, (float)m_localVolume.Radius, 1, false);
+            ////if (MyMwcFinalBuildConstants.DrawHelperPrimitives)
+            //{
+            //    // DebugDrawVolume();
+            //    DebugDrawOBB();
+            //    MyDebugDraw.DrawAxis(WorldMatrix, (float)m_localVolume.Radius, 1, false);
 
-            }
+            //}
 
-            /*
-            if (MyMwcFinalBuildConstants.DrawJLXCollisionPrimitives)
-            {
-                DebugDrawPhysics();
-            }
+            ///*
+            //if (MyMwcFinalBuildConstants.DrawJLXCollisionPrimitives)
+            //{
+            //    DebugDrawPhysics();
+            //}
 
-            if (MyMwcFinalBuildConstants.DrawNormalVectors)
-            {
-                DebugDrawNormalVectors();
-            } */
+            //if (MyMwcFinalBuildConstants.DrawNormalVectors)
+            //{
+            //    DebugDrawNormalVectors();
+            //} */
 
         }
 

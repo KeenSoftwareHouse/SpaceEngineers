@@ -171,7 +171,9 @@ namespace VRageRender
 
             if (LOG_MESH_STATISTICS)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 model.DebugWriteInfo();
+#pragma warning restore CS0162 // Unreachable code detected
             }
 
             m_meshes[assetName] = model;

@@ -38,7 +38,9 @@ namespace VRageRender
         {
             DynamicGeometryRenderer = new MyGeometryRenderer(MyScene.DynamicRenderablesDBVH, DynamicShadows);
             if (MyScene.SeparateGeometry)
+#pragma warning disable CS0162 // Unreachable code detected
                 StaticGeometryRenderer = new MyGeometryRenderer(MyScene.StaticRenderablesDBVH, StaticShadows);
+#pragma warning restore CS0162 // Unreachable code detected
 
             m_foliageGenerator = new MyFoliageGeneratingPass();
             m_foliageRenderer = new MyFoliageRenderingPass();
@@ -54,9 +56,11 @@ namespace VRageRender
 
                 if (MyScene.SeparateGeometry)
                 {
-                    StaticShadows.ShadowCascades.SetCascadeUpdateInterval(cascadeIndex,
+#pragma warning disable CS0162 // Unreachable code detected
+                    StaticShadows.ShadowCascades.SetCascadeUpdateInterval(cascadeIndex,                  
                         MyShadowCascades.VoxelShadowCascadeUpdateIntervals[cascadeIndex].Item1,
                         MyShadowCascades.VoxelShadowCascadeUpdateIntervals[cascadeIndex].Item2);
+#pragma warning restore CS0162 // Unreachable code detected
                 }
             }
         }
@@ -75,7 +79,9 @@ namespace VRageRender
             if (StaticShadows != null)
                 StaticShadows.Reset(cascadeCount, cascadeResolution);
             else if(MyScene.SeparateGeometry)
+#pragma warning disable CS0162 // Unreachable code detected
                 StaticShadows = new MyShadows(cascadeCount, cascadeResolution);
+#pragma warning restore CS0162 // Unreachable code detected
 
             InitShadowCascadeUpdateIntervals(cascadeCount);
         }
@@ -306,7 +312,9 @@ namespace VRageRender
             Debug.Assert(m_commandLists.Count == 0, "Not all command lists executed last frame!");
             DynamicGeometryRenderer.Render(m_commandLists, true);
             if (MyScene.SeparateGeometry)
+#pragma warning disable CS0162 // Unreachable code detected
                 StaticGeometryRenderer.Render(m_commandLists, false);
+#pragma warning restore CS0162 // Unreachable code detected
 
             SendGlobalOutputMessages();
             ExecuteCommandLists(m_commandLists);
@@ -356,7 +364,9 @@ namespace VRageRender
             MyGpuProfiler.IC_BeginBlock("Shadows");
             if (MyScene.SeparateGeometry)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 MyShadowCascadesPostProcess.Combine(MyShadowCascades.CombineShadowmapArray, DynamicShadows.ShadowCascades, StaticShadows.ShadowCascades);
+#pragma warning restore CS0162 // Unreachable code detected
                 DynamicShadows.ShadowCascades.PostProcess(MyRender11.PostProcessedShadows, MyShadowCascades.CombineShadowmapArray);
             }
             else

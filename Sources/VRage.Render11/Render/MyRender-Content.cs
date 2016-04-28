@@ -142,7 +142,9 @@ namespace VRageRender
 
             MyScene.DynamicRenderablesDBVH.Clear();
             if (MyScene.SeparateGeometry)
+#pragma warning disable CS0162 // Unreachable code detected
                 MyScene.StaticRenderablesDBVH.Clear();
+#pragma warning restore CS0162 // Unreachable code detected
             MyScene.GroupsDBVH.Clear();
             MyScene.FoliageDBVH.Clear();
             MyClipmapFactory.RemoveAll();
