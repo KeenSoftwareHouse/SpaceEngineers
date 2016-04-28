@@ -51,7 +51,6 @@ namespace VRageRender.Effects
 
         bool m_diffuseTextureSet = false;
         bool m_normalTextureSet = false;
-        bool m_specularTextureSet = false;
 
         //Techniques 
         EffectHandle m_lowTechnique;

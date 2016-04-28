@@ -172,8 +172,7 @@ namespace VRageRender
         {
             return -m_directionToSunNormalized;
         }
-
-        static private MyBillboardViewProjection m_viewProjection = new MyBillboardViewProjection();
+        
         private static void DrawGlow()
         {
             if (MyRender.Sun.Direction == Vector3.Zero)

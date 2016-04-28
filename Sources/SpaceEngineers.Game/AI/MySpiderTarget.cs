@@ -32,7 +32,6 @@ namespace SpaceEngineers.Game.AI
         private BoundingSphereD m_attackBoundingSphere;
 
         private static readonly int ATTACK_LENGTH = 1000;
-        private static readonly int ATTACK_ACTIVATION = 700;
         private static readonly int ATTACK_DAMAGE_TO_CHARACTER = 35; // spider attack (spider damage) to character
         private static readonly int ATTACK_DAMAGE_TO_GRID = 50; // spider attack (spider damage) to grid
 

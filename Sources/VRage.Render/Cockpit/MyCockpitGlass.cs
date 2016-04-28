@@ -21,9 +21,6 @@ namespace VRageRender
             return (int)MyRenderComponentID.CockpitGlass;
         }
 
-        //Bounding sphere used to calculate nearby lights
-        static BoundingSphereD m_boundingSphereForLights = new BoundingSphereD();
-
         private static MyInterpolationQueue<MatrixD> m_interpolation = new MyInterpolationQueue<MatrixD>(8, MatrixD.Slerp);
 
         private static MatrixD m_playerHeadForCockpit;

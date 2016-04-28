@@ -101,7 +101,6 @@ namespace VRageRender
             #endregion
         }
         
-        MyDecalForVoxelsState m_status;
         int m_capacity;
         int m_fadingOutStartLimit;
         int m_fadingOutBuffersCount;
@@ -114,7 +113,6 @@ namespace VRageRender
 
         public MyDecalsForVoxels(int capacity)
         {
-            m_status = MyDecalForVoxelsState.READY;
             m_capacity = capacity;
             m_fadingOutStartLimit = (int)(m_capacity * MyDecalsConstants.TEXTURE_LARGE_FADING_OUT_START_LIMIT_PERCENT);
             m_fadingOutBuffersCount = (int)(m_capacity * MyDecalsConstants.TEXTURE_LARGE_FADING_OUT_MINIMAL_TRIANGLE_COUNT_PERCENT);
