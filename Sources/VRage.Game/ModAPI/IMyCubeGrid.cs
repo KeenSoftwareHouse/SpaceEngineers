@@ -241,6 +241,7 @@ namespace VRage.Game.ModAPI
         event Action<IMySlimBlock> OnBlockAdded;
         event Action<IMySlimBlock> OnBlockRemoved;
         event Action<IMyCubeGrid> OnBlockOwnershipChanged;
+        event Action<IMyCubeGrid> OnGridChanged;
 
         void UpdateOwnership(long ownerId, bool isFunctional);
         VRageMath.Vector3I WorldToGridInteger(VRageMath.Vector3D coords);
