@@ -146,7 +146,7 @@ namespace Sandbox.Game.Gui
                     itemText = MyCommonTexts.JoinGame_Favorites_Add;
                 }
 
-                m_contextMenu.AddItem(MyTexts.Get(itemText), userData: new ContextMenuFavoriteActionItem() { Server = server, Action = action });
+                m_contextMenu.AddItem(MyTexts.Get(itemText), userData: new ContextMenuFavoriteActionItem() { Server = server, _Action = action });
                 m_contextMenu.Activate();
             }
             else

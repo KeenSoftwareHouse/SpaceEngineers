@@ -429,7 +429,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             // Don't shoot when the grid doesn't have physics.
             if (Parent.Physics == null)
@@ -670,7 +670,7 @@ namespace Sandbox.Game.Weapons
 
         public override void ShootFromTerminal(Vector3 direction)
         {
-            Shoot(MyShootActionEnum.PrimaryAction, direction, null);
+            Shoot(MyShootActionEnum.PrimaryAction, direction, null, null);
         }
 
         #region IMyInventoryOwner

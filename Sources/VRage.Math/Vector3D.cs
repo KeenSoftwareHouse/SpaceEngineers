@@ -230,6 +230,15 @@ namespace VRageMath
             return vector3;
         }
 
+        public static Vector3D operator +(Vector3D value1, float value2)
+        {
+            Vector3D vector3;
+            vector3.X = value1.X + value2;
+            vector3.Y = value1.Y + value2;
+            vector3.Z = value1.Z + value2;
+            return vector3;
+        }
+
         /// <summary>
         /// Subtracts a vector from a vector.
         /// </summary>
@@ -1116,7 +1125,8 @@ namespace VRageMath
             result.Z = num9;
         }
 
-        public static Vector3D ClampToSphere(Vector3D vector, double radius)
+		[Unsharper.UnsharperDisableReflection()]
+		public static Vector3D ClampToSphere(Vector3D vector, double radius)
         {
             double lsq = vector.LengthSquared();
             double rsq = radius * radius;
@@ -1127,7 +1137,8 @@ namespace VRageMath
             return vector;
         }
 
-        public static void ClampToSphere(ref Vector3D vector, double radius)
+		[Unsharper.UnsharperDisableReflection()]
+		public static void ClampToSphere(ref Vector3D vector, double radius)
         {
             double lsq = vector.LengthSquared();
             double rsq = radius * radius;
@@ -1878,14 +1889,16 @@ namespace VRageMath
             result.Z = value1.Z * num;
         }
 
-        public static Vector3D CalculatePerpendicularVector(Vector3D v)
+		[Unsharper.UnsharperDisableReflection()]
+		public static Vector3D CalculatePerpendicularVector(Vector3D v)
         {
             Vector3D result;
             v.CalculatePerpendicularVector(out result);
             return result;
         }
 
-        public void CalculatePerpendicularVector(out Vector3D result)
+		[Unsharper.UnsharperDisableReflection()]
+		public void CalculatePerpendicularVector(out Vector3D result)
         {
             const double threshold = 0.0001f;
             Debug.Assert(Math.Abs(1f - this.Length()) < threshold, "Input must be unit length vector.");

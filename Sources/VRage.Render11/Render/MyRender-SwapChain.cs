@@ -236,7 +236,7 @@ namespace VRageRender
 
             if (settings.AnisotropicFiltering != prevSettings.AnisotropicFiltering)
             {
-                InitilizeSamplerStates();
+                SamplerStates.UpdateFiltering();
             }
             
             if(settings.TextureQuality != prevSettings.TextureQuality)

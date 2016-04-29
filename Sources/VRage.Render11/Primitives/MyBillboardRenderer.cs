@@ -28,11 +28,11 @@ using VRage.FileSystem;
 
 namespace VRageRender
 {
-    struct MyBillboardBatch
+    struct MyBillboardRendererBatch
     {
         internal int Offset;
         internal int Num;
-        internal ShaderResourceView Texture;
+        internal IShaderResourceBindable Texture;
         internal bool Lit;
         internal bool AlphaCutout;
     }
@@ -188,7 +188,7 @@ namespace VRageRender
 
         static MyBillboardData[] m_billboardData = new MyBillboardData[MaxBillboards];
         static MyVertexFormatPositionTextureH[] m_vertexData = new MyVertexFormatPositionTextureH[MaxBillboards * 4];
-        static List<MyBillboardBatch> m_batches = new List<MyBillboardBatch>();
+        static List<MyBillboardRendererBatch> m_batches = new List<MyBillboardRendererBatch>();
         static MyBillboard[] m_sortBuffer = new MyBillboard[MaxBillboards];
         static int m_sortedBillboardsNum;
 
@@ -342,7 +342,7 @@ namespace VRageRender
 
             var N = m_sorted + m_unsorted;
 
-            var batch = new MyBillboardBatch();
+            var batch = new MyBillboardRendererBatch();
             //MyAssetTexture prevTexture = null;
             var prevTexId = TexId.NULL;
             int currentOffset = 0;
@@ -480,11 +480,11 @@ namespace VRageRender
 
                 if(closeBatch)
                 {
-                    batch = new MyBillboardBatch();
+                    batch = new MyBillboardRendererBatch();
 
                     batch.Offset = currentOffset;
                     batch.Num = i - currentOffset;
-                    batch.Texture = prevTexId != TexId.NULL ? MyTextures.Views[prevTexId.Index] : null;
+                    batch.Texture = prevTexId;
 
                     batch.Lit = prevMaterial.CanBeAffectedByOtherLights;
                     batch.AlphaCutout = prevMaterial.AlphaCutout;
@@ -499,10 +499,10 @@ namespace VRageRender
 
             if(N > 0)
             {
-                batch = new MyBillboardBatch();
+                batch = new MyBillboardRendererBatch();
                 batch.Offset = currentOffset;
                 batch.Num = N - currentOffset;
-                batch.Texture = prevTexId != TexId.NULL ? MyTextures.GetView(prevTexId) : null;
+                batch.Texture = prevTexId;
 
                 batch.Lit = prevMaterial.CanBeAffectedByOtherLights;
                 batch.AlphaCutout = prevMaterial.AlphaCutout;
@@ -569,18 +569,18 @@ namespace VRageRender
             RC.BindDepthRT(depth, DepthStencilAccess.ReadOnly, dst);
             RC.SetBS(MyRender11.BlendAlphaPremult);
             RC.SetRS(MyRender11.m_nocullRasterizerState);
-            RC.BindRawSRV(104, m_SB.Srv);
+            RC.BindRawSRV(104, m_SB);
             RC.BindSRV(1, depthRead);
             RC.SetCB(2, MyCommon.GetObjectCB(sizeof(Matrix) * MaxCustomProjections));
             RC.SetDS(MyDepthStencilState.DefaultDepthState);
 
             RC.SetCB(4, MyRender11.DynamicShadows.ShadowCascades.CascadeConstantBuffer);
-            RC.DeviceContext.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
-            RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.ShaderView);
-            RC.DeviceContext.VertexShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, SamplerStates.m_shadowmap);
+            RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.SRV);
+            RC.DeviceContext.VertexShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT,
-                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.ShaderView);
+                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.SRV);
             RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT,
                 MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
 

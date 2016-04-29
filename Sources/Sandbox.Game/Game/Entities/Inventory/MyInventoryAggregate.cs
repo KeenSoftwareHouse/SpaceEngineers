@@ -192,12 +192,12 @@ namespace Sandbox.Game.Entities.Inventory
             return (MyFixedPoint)amount;
         }
 
-        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
+        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool substitute = false)
         {
             float amount = 0;
             foreach (MyInventoryBase inventory in m_children.Reader)
             {
-                amount += (float)inventory.GetItemAmount(contentId, flags);
+                amount += (float)inventory.GetItemAmount(contentId, flags, substitute);
             }
             return (MyFixedPoint)amount;
         }

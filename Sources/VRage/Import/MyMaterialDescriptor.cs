@@ -107,7 +107,7 @@ namespace VRage.Import
             if (String.IsNullOrEmpty(MaterialName))
                 MaterialName = null;
 
-            if (version < 01052002)
+            if (version < 1052002)
             {
                 var diffuseTextureName = reader.ReadString();
                 if (!string.IsNullOrEmpty(diffuseTextureName))
@@ -132,7 +132,7 @@ namespace VRage.Import
                 }
             }
 
-            if (version >= 01068001)
+			if (version >= 1068001) // 01068001
             {
                 int userDataCount = reader.ReadInt32();
                 for (int i = 0; i < userDataCount; i++)
@@ -151,7 +151,7 @@ namespace VRage.Import
             ExtraData.Y = reader.ReadSingle();
             ExtraData.Z = reader.ReadSingle();
 
-            if (version < 01052001)
+            if (version < 1052001)
             {
                 Technique = ((MyMeshDrawTechnique)reader.ReadInt32()).ToString();
             }
@@ -160,7 +160,7 @@ namespace VRage.Import
 
             if (Technique == "GLASS")
             {
-                if (version >= 01043001)
+                if (version >= 1043001)
                 {
                     GlassCW = reader.ReadString();
                     GlassCCW = reader.ReadString();

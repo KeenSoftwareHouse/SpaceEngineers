@@ -401,20 +401,28 @@ namespace Sandbox.Game
             return sum;
         }
 
-        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None)
+        public override MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool substitute = false)
         {
             MyFixedPoint amount = 0;
+
             foreach (var item in m_items)
             {
-                var objectId = item.Content.GetObjectId();
+                var objectId = item.Content.GetId();
+
+                if (substitute && MySessionComponentEquivalency.Static != null)
+                    objectId = MySessionComponentEquivalency.Static.GetMainElement(objectId);
+
                 if (contentId != objectId && item.Content.TypeId == typeof(MyObjectBuilder_BlockItem))
                 {
-                    objectId = MyDefinitionManager.Static.GetComponentId(item.Content.GetObjectId());
+                    //objectId = MyDefinitionManager.Static.GetComponentId(item.Content.GetObjectId());
+                    objectId = item.Content.GetObjectId();
                 }
 
-                if (objectId == contentId &&
-                    item.Content.Flags == flags)
+                if (objectId == contentId && item.Content.Flags == flags)
                     amount += item.Amount;
+
+                //if (objectId == contentId && item.Content.Flags == flags)
+                //    amount += item.Amount;
             }
 
             return amount;
@@ -427,6 +435,17 @@ namespace Sandbox.Game
                 return m_items[itemPos.Value];
             else
                 return null;
+        }
+
+        public MyPhysicalInventoryItem? FindItem(Func<MyPhysicalInventoryItem, bool> predicate)
+        {
+            foreach (var item in m_items)
+            {
+                if (predicate(item))
+                    return item;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -1113,10 +1132,11 @@ namespace Sandbox.Game
 
                     MyPhysicalInventoryItem item = src.m_items[i];
 
-                    var objectId = item.Content.GetObjectId();
+                    var objectId = item.Content.GetId();
                     if (objectId != contentId && item.Content.TypeId == typeof(MyObjectBuilder_BlockItem))
                     {
-                        objectId = MyDefinitionManager.Static.GetComponentId(item.Content.GetObjectId());
+                        //objectId = MyDefinitionManager.Static.GetComponentId(item.Content.GetObjectId());
+                        objectId = item.Content.GetObjectId();
                     }
 
                     if (objectId != contentId)
@@ -1370,10 +1390,14 @@ namespace Sandbox.Game
                     continue;
                 }
 
-                MyComponentSubstitutionDefinition substitutionDefinition = null;
-                if (MyDefinitionManager.Static.TryGetProvidingComponentDefinition(id, out substitutionDefinition))
+                //MyComponentSubstitutionDefinition substitutionDefinition = null;
+                //if (MyDefinitionManager.Static.TryGetProvidingComponentDefinition(id, out substitutionDefinition))
+                //{
+                //    id = substitutionDefinition.RequiredComponent;
+                //}
+                if (MySessionComponentEquivalency.Static != null)
                 {
-                    id = substitutionDefinition.RequiredComponent;
+                    id = MySessionComponentEquivalency.Static.GetMainElement(id);
                 }
 
                 MyFixedPoint amount = 0;
@@ -1406,7 +1430,7 @@ namespace Sandbox.Game
                         MyDefinitionId id = item.Content.GetId();
                         if (id.TypeId == typeof(MyObjectBuilder_BlockItem))
                         {
-                            id = MyDefinitionManager.Static.GetComponentId(item.Content.GetObjectId());
+                            id = item.Content.GetObjectId();
                         }
 
                         if (change.ToRemove != id) continue;

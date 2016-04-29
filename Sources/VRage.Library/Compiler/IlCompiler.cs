@@ -11,9 +11,54 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 using VRage.FileSystem;
+#if UNSHARPER
+using System.Diagnostics;
+#endif
+
 
 namespace VRage.Compiler
 {
+#if UNSHARPER
+	[Unsharper.UnsharperDisableReflection()]
+	public class IlCompiler
+	{
+		static IlCompiler()
+		{
+
+		}
+        public static string[] UpdateCompatibility(string[] files)
+		{
+			Debug.Assert(false); return null;
+		}
+        public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+
+        public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+        private static bool CheckResultInternal(ref Assembly assembly, List<string> errors, CompilerResults result,bool isIngameScript)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+        public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<string> errors, bool isIngameScript)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+        public static bool Compile(string[] instructions, out Assembly assembly,bool isIngameScript, bool wrap = true)
+		{
+			assembly = null;
+			Debug.Assert(false); return false;
+		}
+		public static StringBuilder Buffer = new StringBuilder();
+	}
+#else
     public class IlCompiler
     {
         public static System.CodeDom.Compiler.CompilerParameters Options;
@@ -228,4 +273,5 @@ namespace VRage.Compiler
         private const String invokeWrapper = "public static class wrapclass{{ public static object run() {{ {0} return null;}} }}";
         public static StringBuilder Buffer = new StringBuilder();    
     }
+#endif
 }

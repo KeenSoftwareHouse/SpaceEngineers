@@ -48,7 +48,7 @@ namespace VRageRender
 
         internal static void DisplayHistogram(RenderTargetView rtv, ShaderResourceView avgLumSrv)
         {
-            RC.DeviceContext.PixelShader.SetShaderResources(0, m_histogram.ShaderView, avgLumSrv);
+            RC.DeviceContext.PixelShader.SetShaderResources(0, m_histogram.SRV, avgLumSrv);
             RC.DeviceContext.PixelShader.Set(m_drawHistogram);
             RC.DeviceContext.OutputMerger.SetRenderTargets(rtv);
             MyScreenPass.DrawFullscreenQuad(new MyViewport(64, 64, 512, 64));

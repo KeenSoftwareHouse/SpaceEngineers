@@ -10,6 +10,24 @@ using VRageRender;
 
 namespace VRage.Voxels
 {
+	public class MyClipmap_CellData
+	{
+		public MyClipmap.CellState State;
+		public IMyClipmapCell Cell;
+		public IMyClipmapCellHandler CellHandler;
+		public bool InScene;
+		public bool WasLoaded;
+		public bool ReadyInClipmap;
+		public bool DeleteAfterRemove;
+		public bool ClippedOut;
+		public bool HighPriority;
+
+		public int GetPriority()
+		{
+			return HighPriority ? int.MaxValue : 0;
+		}
+	}
+
     public partial class MyClipmap
     {
         public enum CellState
@@ -19,29 +37,12 @@ namespace VRage.Voxels
             Loaded
         }
 
-        public class CellData
-        {
-            public CellState State;
-            public IMyClipmapCell Cell;
-            public IMyClipmapCellHandler CellHandler;
-            public bool InScene;
-            public bool WasLoaded;
-            public bool ReadyInClipmap;
-            public bool DeleteAfterRemove;
-            public bool ClippedOut;
-            public bool HighPriority;
-
-            public int GetPriority()
-            {
-                return HighPriority ? int.MaxValue : 0;
-            }
-        }
 
         class LodLevel
         {
-            private Dictionary<UInt64, CellData> m_storedCellData = new Dictionary<UInt64, CellData>();
-            private Dictionary<UInt64, CellData> m_nonEmptyCells = new Dictionary<UInt64, CellData>();
-            private Dictionary<UInt64, CellData> m_clippedCells = new Dictionary<UInt64, CellData>();
+            private Dictionary<UInt64, MyClipmap_CellData> m_storedCellData = new Dictionary<UInt64, MyClipmap_CellData>();
+            private Dictionary<UInt64, MyClipmap_CellData> m_nonEmptyCells = new Dictionary<UInt64, MyClipmap_CellData>();
+            private Dictionary<UInt64, MyClipmap_CellData> m_clippedCells = new Dictionary<UInt64, MyClipmap_CellData>();
 
             enum BlendState
             {
@@ -51,7 +52,7 @@ namespace VRage.Voxels
 
             struct CellBlendData
             {
-                public CellData CellData;
+                public MyClipmap_CellData CellData;
                 public float TimeAdded; //seconds
                 public BlendState State;
                 public bool UndoAfterFinish;
@@ -106,10 +107,10 @@ namespace VRage.Voxels
   //              MyLog.Default.WriteLine("InvalidateRange Lod: " + m_lodIndex + " Min: " + lodMin + " Max: " + lodMax);
 
                 var cell = new MyCellCoord(m_lodIndex, lodMin);
-                for (var it = new Vector3I.RangeIterator(ref lodMin, ref lodMax);
+                for (var it = new Vector3I_RangeIterator(ref lodMin, ref lodMax);
                     it.IsValid(); it.GetNext(out cell.CoordInLod))
                 {
-                    CellData data;
+                    MyClipmap_CellData data;
                     var id = cell.PackId64();
 //                    MyLog.Default.WriteLine("Setting to: m_lodIndex " + cell.Lod + " Coord: " + cell.CoordInLod);
 
@@ -143,7 +144,7 @@ namespace VRage.Voxels
             internal void SetCellMesh(MyRenderMessageUpdateClipmapCell msg)
             {
                 var cellId = msg.Metadata.Cell.PackId64();
-                CellData data;
+                MyClipmap_CellData data;
                 var clipmapCellId = MyCellCoord.GetClipmapCellHash(m_clipmap.Id, cellId);
 
               //  MyCellCoord cellc = new MyCellCoord();
@@ -241,7 +242,7 @@ namespace VRage.Voxels
     //                var endF = m_localFarCameraBox.Max;
     //                Vector3I coordF = startF;
 
-    ////                for (var it = new Vector3I.RangeIterator(ref startF, ref endF);
+    ////                for (var it = new Vector3I_RangeIterator(ref startF, ref endF);
     ////it.IsValid(); it.GetNext(out coordF))
     ////                {
     ////                    Vector3D min = Vector3D.Transform((Vector3D)(sizeInMetres * coordF), m_parent.m_worldMatrix);
@@ -255,7 +256,7 @@ namespace VRage.Voxels
     ////                }
 
 
-    //                for (var it = new Vector3I.RangeIterator(ref start, ref end);
+    //                for (var it = new Vector3I_RangeIterator(ref start, ref end);
     //it.IsValid(); it.GetNext(out coord))
     //                {
     //                    Vector3D min = Vector3D.Transform((Vector3D)(sizeInMetres * coord), m_clipmap.m_worldMatrix);
@@ -454,7 +455,7 @@ namespace VRage.Voxels
 
                 var shiftToParent = MyVoxelCoordSystems.RenderCellSizeShiftToLessDetailed(thisLodCell.Lod);
                 var parentCell = new MyCellCoord(thisLodCell.Lod + 1, thisLodCell.CoordInLod >> shiftToParent);
-                CellData data;
+                MyClipmap_CellData data;
                 if (parentLod.m_storedCellData.TryGetValue(parentCell.PackId64(), out data))
                 {
                     return data.WasLoaded;
@@ -486,11 +487,11 @@ namespace VRage.Voxels
                 Vector3I.Max(ref childLod.m_lodSizeMinusOne, ref Vector3I.Zero, out childLod.m_lodSizeMinusOne);
                 Vector3I.Min(ref end, ref childLod.m_lodSizeMinusOne, out end);
                 childLodCell.CoordInLod = start;
-                for (var it = new Vector3I.RangeIterator(ref start, ref end);
+                for (var it = new Vector3I_RangeIterator(ref start, ref end);
                     it.IsValid(); it.GetNext(out childLodCell.CoordInLod))
                 {
                     var key = childLodCell.PackId64();
-                    CellData data;
+                    MyClipmap_CellData data;
                     if (!childLod.m_storedCellData.TryGetValue(key, out data) || !data.WasLoaded)
                     {
                         return false;
@@ -515,7 +516,7 @@ namespace VRage.Voxels
 
                 Vector3I.Min(ref end, ref childLod.m_lodSizeMinusOne, out end);
 
-                return new BoundingBox(start, end);
+                return new VRageMath.BoundingBox(start, end);
             }
 
             private bool AllSiblingsWereLoaded(ref MyCellCoord thisLodCell)
@@ -533,7 +534,7 @@ namespace VRage.Voxels
                         for (sibling.CoordInLod.X = start.X; sibling.CoordInLod.X <= end.X; ++sibling.CoordInLod.X)
                         {
                             var key = sibling.PackId64();
-                            CellData data;
+                            MyClipmap_CellData data;
                             if (!m_storedCellData.TryGetValue(key, out data))
                             {
                                 return false;
@@ -564,7 +565,7 @@ namespace VRage.Voxels
                         for (sibling.CoordInLod.X = start.X; sibling.CoordInLod.X <= end.X; ++sibling.CoordInLod.X)
                         {
                             var key = sibling.PackId64();
-                            CellData data;
+                            MyClipmap_CellData data;
                             if (!m_storedCellData.TryGetValue(key, out data) || !data.WasLoaded)
                             {
                                 continue;
@@ -577,7 +578,7 @@ namespace VRage.Voxels
                 return false;
             }
 
-            private void Delete(UInt64 key, CellData data = null, bool delete = true)
+            private void Delete(UInt64 key, MyClipmap_CellData data = null, bool del = true)
             {
                 data = data ?? m_storedCellData[key];
                 if (data.Cell != null)
@@ -585,7 +586,7 @@ namespace VRage.Voxels
                     if (UseDithering && data.InScene)
                     {
                         RemoveFromScene(key, data);
-                        if (delete)
+                        if (del )
                             data.DeleteAfterRemove = true;
 
                         return;
@@ -594,7 +595,7 @@ namespace VRage.Voxels
                     m_nonEmptyCells.Remove(key);
                     RemoveFromScene(key, data);
 
-                    if (delete)
+                    if (del )
                     {
                         m_clipmap.m_cellHandler.DeleteCell(data.Cell);
                     }
@@ -604,7 +605,7 @@ namespace VRage.Voxels
                 data.ReadyInClipmap = false;
             }
 
-            private void AddToScene(UInt64 key, CellData data = null)
+            private void AddToScene(UInt64 key, MyClipmap_CellData data = null)
             {
                // data = data ?? m_storedCellData[key];
                 CellBlendData blendData;
@@ -669,7 +670,7 @@ namespace VRage.Voxels
                            
             }
 
-            private void RemoveFromScene(UInt64 key, CellData data)
+            private void RemoveFromScene(UInt64 key, MyClipmap_CellData data = null)
             {
                // data = data ?? m_storedCellData[key];
 
@@ -734,7 +735,7 @@ namespace VRage.Voxels
                         {
                             float dither = 1 - ((frameTime - cellBlend.Value.TimeAdded) / CellsDitherTime);
                             cellBlend.Value.CellData.Cell.SetDithering(2 + 2 * dither);
-                            //cellBlend.Value.CellData.Cell.SetDithering(0);
+                            //cellBlend.Value.MyClipmap_CellData.Cell.SetDithering(0);
                         }
                     }
 
@@ -755,7 +756,7 @@ namespace VRage.Voxels
                             //System.Diagnostics.Debug.Assert(dither <= 1 && dither >= 0, "Invalid dither");
                             cellBlend.Value.CellData.Cell.SetDithering(2 * dither);
 
-                            //cellBlend.Value.CellData.Cell.SetDithering(0);
+                            //cellBlend.Value.MyClipmap_CellData.Cell.SetDithering(0);
                         }
                     }
                 }
@@ -832,8 +833,8 @@ namespace VRage.Voxels
                 Vector3I min, max;
                 // Vector3I ignoreMin, ignoreMax;
 
-                var minD = m_localPosition - m_farDistance;
-                var maxD = m_localPosition + m_farDistance;
+                var minD = m_localPosition - (double)m_farDistance;
+                var maxD = m_localPosition + (double)m_farDistance;
                 MyVoxelCoordSystems.LocalPositionToRenderCellCoord(lodIndex, ref minD, out min);
                 MyVoxelCoordSystems.LocalPositionToRenderCellCoord(lodIndex, ref maxD, out max);
 
@@ -895,7 +896,7 @@ namespace VRage.Voxels
 
                     MyCellCoord cell = new MyCellCoord(lodIndex, ref min);
 
-                    for (var it = new Vector3I.RangeIterator(ref min, ref max);
+                    for (var it = new Vector3I_RangeIterator(ref min, ref max);
                         it.IsValid(); it.GetNext(out cell.CoordInLod))
                     {
                         //if (intersectsNear &&
@@ -935,7 +936,7 @@ namespace VRage.Voxels
             {
                 var cellId = cell.PackId64();
                 var clipmapCellId = MyCellCoord.GetClipmapCellHash(m_clipmap.Id, cellId);
-                CellData data;
+                MyClipmap_CellData data;
 
                 if (isVisible)
                 {
@@ -956,7 +957,7 @@ namespace VRage.Voxels
 
                             if (data == null) //cache miss
                             {
-                                data = new CellData();
+                                data = new MyClipmap_CellData();
                                 ClippingCacheMisses++;
                             }
                             else
@@ -1015,7 +1016,7 @@ namespace VRage.Voxels
                     {
                         if (!PendingCacheCellData.TryGetValue(clipmapCellId, out data))
                         {
-                            data = new CellData();
+                            data = new MyClipmap_CellData();
                             PendingCacheCellData.Add(clipmapCellId, data);
                         }
 

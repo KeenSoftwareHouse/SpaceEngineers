@@ -4,6 +4,7 @@ struct PixelStageInput
 	MaterialVertexPayload custom;
 
 	float4 key_color_alpha : TEXCOORD7;
+	float custom_alpha : TEXCOORD9;
 #ifdef BUILD_TANGENT_IN_PIXEL
 	float3 position_ws : TEXCOORD8;
 #endif
@@ -18,10 +19,11 @@ void __pixel_shader(PixelStageInput input, out GbufferOutput output,
 	pixel.screen_position = input.position.xyz;
 	pixel.custom = input.custom;
 	init_ps_interface(pixel);
-	pixel.custom_alpha = input.key_color_alpha.w;
-
+	
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
 	pixel.key_color = input.key_color_alpha.xyz;
+	pixel.hologram = input.key_color_alpha.w;
+	pixel.custom_alpha = input.custom_alpha;
 #endif
 #ifdef BUILD_TANGENT_IN_PIXEL
 	pixel.position_ws = input.position_ws;

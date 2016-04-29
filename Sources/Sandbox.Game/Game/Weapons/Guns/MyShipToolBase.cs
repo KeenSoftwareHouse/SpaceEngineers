@@ -27,6 +27,8 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.Game.Audio;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Weapons
 {
@@ -240,6 +242,12 @@ namespace Sandbox.Game.Weapons
             }
             entities.Clear();
             VRage.ProfilerShort.End();
+        }
+
+        protected void SetBuildingMusic(int amount)
+        {
+            if (MySession.Static != null && controller == MySession.Static.LocalCharacter && MyMusicController.Static != null)
+                MyMusicController.Static.Building(amount);
         }
 
         protected virtual bool CanInteractWithSelf
@@ -553,7 +561,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction) return;
 

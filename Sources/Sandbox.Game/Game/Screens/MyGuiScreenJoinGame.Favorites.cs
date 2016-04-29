@@ -22,7 +22,7 @@ namespace Sandbox.Game.Gui
         struct ContextMenuFavoriteActionItem
         {
             public GameServerItem Server;
-            public ContextMenuFavoriteAction Action;
+            public ContextMenuFavoriteAction _Action;
         }
 
         #region Fields

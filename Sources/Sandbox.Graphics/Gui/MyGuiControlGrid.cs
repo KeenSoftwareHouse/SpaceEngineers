@@ -228,6 +228,11 @@ namespace Sandbox.Graphics.GUI
                 TextsByAlign.Remove(textAlign);
             }
 
+            public void ClearAllText()
+            {
+                TextsByAlign.Clear();
+            }
+
             public float blinkingTransparency()
             {
                 if (MyGuiManager.TotalTimeInMilliseconds - blinkCount > Item.MILISSECONDS_TO_BLINK)

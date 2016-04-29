@@ -411,7 +411,7 @@ namespace VRageRender
                     Vector3I lodSizeMinusOne = test - 1;
                     Vector3I lodDivision = Vector3I.One * (m_lodDivisions - 1);
 
-                    var cellIterator = new Vector3I.RangeIterator(ref Vector3I.Zero, ref lodDivision);
+                    var cellIterator = new Vector3I_RangeIterator(ref Vector3I.Zero, ref lodDivision);
                     for (; cellIterator.IsValid(); cellIterator.MoveNext())
                     {
                         Vector3I currentDivision = cellIterator.Current;

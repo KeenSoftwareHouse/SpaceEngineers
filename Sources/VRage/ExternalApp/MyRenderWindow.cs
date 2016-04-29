@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if !BLIT
 using System.Windows.Forms;
+#endif
 using VRageMath;
 
 namespace VRage
@@ -17,8 +19,12 @@ namespace VRage
 
     public class MyRenderWindow : IMyRenderWindow, IMyBufferedInputSource
     {
+#if !BLIT
         public Control Control;
         public Form TopLevelForm;
+#else
+		public SharpDX.Windows.RenderForm Control;
+#endif
 
         private FastResourceLock m_bufferedCharsLock = new FastResourceLock();
         private List<char> m_bufferedChars = new List<char>();

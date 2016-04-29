@@ -20,16 +20,14 @@ namespace Sandbox.Game.Screens.Helpers
     [MyToolbarItemDescriptor(typeof(MyObjectBuilder_ToolbarItemWeapon))]
     public class MyToolbarItemWeapon : MyToolbarItemDefinition
     {
-        private int m_lastAmmoCount = -1;
-        private bool m_needsWeaponSwitching = true;
-        private string m_lastTextValue = String.Empty;
+        protected int m_lastAmmoCount = -1;
+        protected bool m_needsWeaponSwitching = true;
+        protected string m_lastTextValue = String.Empty;
 
         public int AmmoCount
         {
             get { return m_lastAmmoCount; }
         }
-
-        public override StringBuilder IconText { get { return new StringBuilder(AmmoCount >= 0 ? AmmoCount.ToString(): ""); } }
 
         public MyToolbarItemWeapon()
             : base()
@@ -117,7 +115,7 @@ namespace Sandbox.Game.Screens.Helpers
                         if (m_lastAmmoCount != amount)
                         {
                             m_lastAmmoCount = amount;
-                            //IconText.Clear().AppendInt32(amount);
+                            IconText.Clear().AppendInt32(amount);
                             changed |= ChangeInfo.IconText;
                         }
                     }
@@ -143,7 +141,7 @@ namespace Sandbox.Game.Screens.Helpers
                         if (ammo != m_lastAmmoCount)
                         {
                             m_lastAmmoCount = ammo;
-                            //IconText.Clear().AppendInt32(ammo);
+                            IconText.Clear().AppendInt32(ammo);
                             changed |= ChangeInfo.IconText;
                         }
                     }

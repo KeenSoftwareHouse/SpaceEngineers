@@ -5,6 +5,7 @@ using System.Text;
 
 namespace VRage.Native
 {
+#if ! UNSHARPER
     public static class NativeMethod
     {
         public static unsafe IntPtr CalculateAddress(IntPtr instance, int methodOffset)
@@ -12,4 +13,5 @@ namespace VRage.Native
             return *(IntPtr*)instance.ToPointer() + methodOffset * sizeof(void*);
         }
     }
+#endif
 }

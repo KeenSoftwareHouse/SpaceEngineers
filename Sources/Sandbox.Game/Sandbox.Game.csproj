@@ -149,6 +149,7 @@
     <Compile Include="Definitions\MyComponentSubstitutionDefinition.cs" />
     <Compile Include="Definitions\MyDestructionDefinition.cs" />
     <Compile Include="Definitions\MyEngineerToolBaseDefinition.cs" />
+    <Compile Include="Definitions\MyEquivalencyGroupDefinition.cs" />
     <Compile Include="Definitions\MyFactionDefinition.cs" />
     <Compile Include="Definitions\MyGasProperties.cs" />
     <Compile Include="Definitions\MyHandDrillDefinition.cs" />
@@ -189,6 +190,8 @@
     <Compile Include="Definitions\MyRopeDefinition.cs" />
     <Compile Include="Definitions\MySchematicItemDefinition.cs" />
     <Compile Include="Definitions\MyScriptedGroupDefinition.cs" />
+    <Compile Include="Definitions\MyShipSoundsDefinition.cs" />
+    <Compile Include="Definitions\MyShipSoundSystemDefinition.cs" />
     <Compile Include="Definitions\MySoundBlockDefinition.cs" />
     <Compile Include="Definitions\MyTextPanelDefinition.cs" />
     <Compile Include="Definitions\MyLCDTextureDefinition.cs" />
@@ -446,6 +449,7 @@
     <Compile Include="Game\AI\Pathfinding\MyVoxelPathfindingLog.cs" />
     <Compile Include="Game\Audio\MyAudioExtensions.cs" />
     <Compile Include="Game\Audio\MyEntity3DSoundEmitter.cs" />
+    <Compile Include="Game\Audio\MyMusicController.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightSlideDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere3.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere2.cs" />
@@ -538,6 +542,7 @@
     <Compile Include="Game\Replication\MyFloatingObjectReplicable.cs" />
     <Compile Include="Game\Replication\MyGridPositionVerificationStateGroup.cs" />
     <Compile Include="Game\Replication\MyRopeReplicable.cs" />
+    <Compile Include="Game\Replication\MySmallObjectPhysicsStateGroup.cs" />
     <Compile Include="Game\Replication\MyStreamingEntityStateGroup.cs" />
     <Compile Include="Game\Replication\MySupportHelper.cs" />
     <Compile Include="Game\Replication\MyInventoryBagReplicable.cs" />
@@ -948,6 +953,7 @@
     <Compile Include="Game\SessionComponents\MySessionComponentArmorHand.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalGpsController.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentEntityTrigger.cs" />
+    <Compile Include="Game\SessionComponents\MySessionComponentEquivalency.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentMissionTriggers.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentPlanetAmbientSounds.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentResearch.cs" />

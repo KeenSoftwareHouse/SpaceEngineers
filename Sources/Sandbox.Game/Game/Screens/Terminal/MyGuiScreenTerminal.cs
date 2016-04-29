@@ -1654,7 +1654,9 @@ namespace Sandbox.Game.Gui
              originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
              position: new Vector2(left+ checkGpsShowOnHud.Size.X + spacingH, top),
              size: checkGpsShowOnHud.Size - new Vector2(0.01f, 0.01f)
-            ) { Name = "TerminalTab_INS_ShowOnHud" ,
+            )
+            {
+                Name = "labelInsShowOnHud",
                 Text = MyTexts.Get(MySpaceTexts.TerminalTab_GPS_ShowOnHud).ToString()
             };
 
@@ -1668,7 +1670,28 @@ namespace Sandbox.Game.Gui
                 Name = "buttonToClipboard"
             };
 
-            top += toClipboardButton.Size.Y;
+            top += toClipboardButton.Size.Y * 1.1f;
+            var checkGpsAlwaysVisible = new MyGuiControlCheckbox(
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+                position: new Vector2(left, top)
+            )
+            {
+                Name = "checkInsAlwaysVisible",
+            };
+            checkGpsAlwaysVisible.SetToolTip(MySpaceTexts.TerminalTab_GPS_AlwaysVisible_Tooltip);
+
+            var labelGpsAlwaysVisible = new MyGuiControlLabel(
+             originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+             position: new Vector2(left + checkGpsShowOnHud.Size.X + spacingH, top),
+             size: checkGpsShowOnHud.Size - new Vector2(0.01f, 0.01f)
+            )
+            {
+                Name = "labelInsAlwaysVisible",
+                Text = MyTexts.Get(MySpaceTexts.TerminalTab_GPS_AlwaysVisible).ToString()
+            };
+            labelGpsAlwaysVisible.SetToolTip(MySpaceTexts.TerminalTab_GPS_AlwaysVisible_Tooltip);
+
+            top += checkGpsShowOnHud.Size.Y;
             var labelIllegalDataWarning = new MyGuiControlLabel(
              originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
              position: new Vector2(left + spacingH, top),
@@ -1677,9 +1700,8 @@ namespace Sandbox.Game.Gui
             {
                 Name = "TerminalTab_GPS_SaveWarning",
                 Text = MyTexts.Get(MySpaceTexts.TerminalTab_GPS_SaveWarning).ToString(),
-                ColorMask=Color.Red.ToVector4()
+                ColorMask = Color.Red.ToVector4()
             };
-
 
             gpsPage.Controls.Add(gpsComposite);
             gpsPage.Controls.Add(gpsNamePanel);
@@ -1698,8 +1720,11 @@ namespace Sandbox.Game.Gui
 
             gpsPage.Controls.Add(checkGpsShowOnHud);
             gpsPage.Controls.Add(labelGpsShowOnHud);
+
             gpsPage.Controls.Add(labelIllegalDataWarning);
 
+            gpsPage.Controls.Add(checkGpsAlwaysVisible);
+            gpsPage.Controls.Add(labelGpsAlwaysVisible);
         }
         #endregion
 

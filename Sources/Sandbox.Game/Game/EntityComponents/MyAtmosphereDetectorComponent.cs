@@ -42,8 +42,7 @@ namespace Sandbox.Game.EntityComponents
                 if (gravity.LengthSquared() > 0f)
                 {
                     MyPlanet planet = MyGravityProviderSystem.GetNearestPlanet(pos);
-                    float d = (float)Vector3D.DistanceSquared(planet.PositionComp.GetPosition(), pos);
-                    if (planet != null && planet.HasAtmosphere && Vector3D.DistanceSquared(planet.PositionComp.GetPosition(), pos) < planet.AtmosphereRadius * planet.AtmosphereRadius)
+                    if (planet != null && planet.HasAtmosphere && planet.GetAirDensity(pos) > 0.5f)
                         m_atmosphereStatus = AtmosphereStatus.Atmosphere;//in atmosphere
                     else
                         m_atmosphereStatus = AtmosphereStatus.Space;

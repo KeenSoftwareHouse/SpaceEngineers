@@ -29,10 +29,17 @@ namespace Sandbox.Game.GUI.HudViewers
         static float m_friendAntennaRange = MyPerGameSettings.MaxAntennaDrawDistance;
 
         private static bool m_disableFading = false;
+        private bool m_disableFadingToggle = false;
 
         public void Update()
         {
-            m_disableFading = VRage.Input.MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND);
+            m_disableFading = m_disableFadingToggle;
+
+            if (!m_disableFading && VRage.Input.MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND))
+                m_disableFading = true;
+
+            if (VRage.Input.MyInput.Static.IsGameControlReleased(MyControlsSpace.TOGGLE_SIGNALS))
+                m_disableFadingToggle = !m_disableFadingToggle;
         }
 
         public static float FriendAntennaRange 
@@ -200,6 +207,7 @@ namespace Sandbox.Game.GUI.HudViewers
             public const double ClusterNearDistance = 3500;
             public const double ClusterScaleDistance = 20000;
             public const double MinimumTargetRange = 2000;
+            public const double OreDistance = 200;
 
             public enum PointOfInterestState
             {
@@ -277,6 +285,38 @@ namespace Sandbox.Game.GUI.HudViewers
 
             public double Distance { get; private set; }
 
+            private bool m_alwaysVisible = false;
+            public bool AlwaysVisible
+            {
+                get
+                {
+                    if (POIType == PointOfInterestType.Ore && Distance < OreDistance)
+                        return true;
+                    return m_alwaysVisible;
+                }
+                set
+                {
+                    m_alwaysVisible = value;
+                }
+            }
+
+            public bool AllowsCluster
+            {
+                get
+                {
+                    if (AlwaysVisible)
+                        return false;
+
+                    if (POIType == PointOfInterestType.Target)
+                        return false;
+
+                    if (POIType == PointOfInterestType.Ore && Distance < OreDistance)
+                        return false;
+
+                    return true;
+                }
+            }
+
             public PointOfInterest()
             {
                 WorldPosition = Vector3D.Zero;
@@ -304,6 +344,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 Text.Clear();
                 m_group.Clear();
                 Distance = 0;
+                AlwaysVisible = false;
             }
 
             /// <summary>
@@ -606,8 +647,11 @@ namespace Sandbox.Game.GUI.HudViewers
                     return;
                 }
 
+                Vector2 screen = new Vector2(MyGuiManager.GetSafeFullscreenRectangle().Width, MyGuiManager.GetSafeFullscreenRectangle().Height);
                 Vector2 hudSize = MyGuiManager.GetHudSize();
                 Vector2 center = MyGuiManager.GetHudSizeHalf();
+
+                float yScale = screen.Y / 1080f;
 
                 screenPosition *= hudSize;
 
@@ -649,24 +693,29 @@ namespace Sandbox.Game.GUI.HudViewers
                         direction = new Vector2(1f, 0f);
                     }
 
+                    float arrowSize = MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f;
+                    arrowSize /= yScale;
+                    arrowSize /= yScale;
+
                     // Draw directional arrow, offset by direction
-                    renderer.AddTexturedQuad(MyHudTexturesEnum.DirectionIndicator, screenPosition, direction,
-                           markerColor, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 0.8f);
+                    renderer.AddTexturedQuad(MyHudTexturesEnum.DirectionIndicator, screenPosition, direction, markerColor, arrowSize, arrowSize);
 
                     screenPosition -= direction * MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE * 2.0f;
                     //ProfilerShort.End();
                 }
                 else
                 {
+                    float size = MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE / yScale;
+                    size /= yScale;
                     if (POIType == PointOfInterestType.Target)
                     {
-                        renderer.AddTexturedQuad(MyHudTexturesEnum.TargetTurret, screenPosition, -Vector2.UnitY, Color.White, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE);
+                        renderer.AddTexturedQuad(MyHudTexturesEnum.TargetTurret, screenPosition, -Vector2.UnitY, Color.White, size, size);
                         return;
                     }
 
                     //ProfilerShort.Begin("Draw marker box");
                     // Draw [ ] box
-                    renderer.AddTexturedQuad(MyHudTexturesEnum.Target_neutral, screenPosition, -Vector2.UnitY, markerColor, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE, MyHudConstants.HUD_DIRECTION_INDICATOR_SIZE);
+                    renderer.AddTexturedQuad(MyHudTexturesEnum.Target_neutral, screenPosition, -Vector2.UnitY, markerColor, size, size);
                     //ProfilerShort.End();
                 }
 
@@ -730,7 +779,7 @@ namespace Sandbox.Game.GUI.HudViewers
 
                 alphaValue = MyMath.Clamp(alphaValue, 0, 1);
 
-                if (m_disableFading)
+                if (m_disableFading || AlwaysVisible)
                 {
                     alphaValue = 1;
                     alphaValueSubtext = 1;
@@ -741,13 +790,14 @@ namespace Sandbox.Game.GUI.HudViewers
                 // Render name, but only if visible
                 //ProfilerShort.BeginNextBlock("Draw name");
                 Vector2 textLabelOffset = new Vector2(0, 24f / MyGuiManager.GetFullscreenRectangle().Width);
+                textLabelOffset.Y /= yScale;
                 if (alphaValue > float.Epsilon && this.Text.Length > 0)
                 {
                     MyHudText objectName = renderer.m_hudScreen.AllocateText();
                     if (objectName != null)
                     {
                         fontColor.A = (byte)(255f * alphaValue);
-                        objectName.Start(font, screenPosition - textLabelOffset, fontColor, 0.7f, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                        objectName.Start(font, screenPosition - textLabelOffset, fontColor, 0.7f / yScale, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
                         objectName.Append(this.Text);
                     }
                 }
@@ -771,7 +821,7 @@ namespace Sandbox.Game.GUI.HudViewers
                         AppendDistance(stringBuilder, Distance);
 
                         fontColor.A = 255;
-                        distanceBuilder.Start(font, screenPosition + textLabelOffset * (0.7f + 0.3f * alphaValue), fontColor, 0.5f + 0.2f * alphaValue, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                        distanceBuilder.Start(font, screenPosition + textLabelOffset * (0.7f + 0.3f * alphaValue), fontColor, (0.5f + 0.2f * alphaValue) / yScale, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
                         distanceBuilder.Append(stringBuilder);
                     }
 
@@ -783,18 +833,23 @@ namespace Sandbox.Game.GUI.HudViewers
                 var significantPOIs = GetSignificantGroupPOIs();
 
                 //ProfilerShort.BeginNextBlock("Compute group offsets");
-                Vector2[] offsetsSquare = { new Vector2(-6, -6), new Vector2(6, -6), new Vector2(-6, 6), new Vector2(6, 6), new Vector2(0, 20) };
-                Vector2[] offsetsVertical = { new Vector2(16, -4), new Vector2(16, 12), new Vector2(16, 28), new Vector2(16, 44), new Vector2(16, 60) };
+                Vector2[] offsetsSquare = { new Vector2(-6, -4), new Vector2(6, -4), new Vector2(-6, 4), new Vector2(6, 4), new Vector2(0, 12) };
+                Vector2[] offsetsVertical = { new Vector2(16, -4), new Vector2(16, 4), new Vector2(16, 12), new Vector2(16, 20), new Vector2(16, 28) };
 
                 for (int i = 0; i < offsetsSquare.Length; i++)
                 {
                     float offsetVal = edgeState < 2 ? 1 : alphaValueSubtext;
 
-                    offsetsSquare[i].X = (offsetsSquare[i].X + 22 * offsetVal) / MyGuiManager.GetFullscreenRectangle().Width;
-                    offsetsSquare[i].Y = (offsetsSquare[i].Y / MyGuiManager.GetFullscreenRectangle().Height) * MyGuiManager.GetHudSize().Y;
+                    offsetsSquare[i].X = (offsetsSquare[i].X + (22 * offsetVal)) / MyGuiManager.GetFullscreenRectangle().Width / yScale;
+                    offsetsSquare[i].Y = (offsetsSquare[i].Y / 1080f) / yScale;
 
-                    offsetsVertical[i].X = offsetsVertical[i].X / MyGuiManager.GetFullscreenRectangle().Width;
-                    offsetsVertical[i].Y = (offsetsVertical[i].Y / MyGuiManager.GetFullscreenRectangle().Height) * MyGuiManager.GetHudSize().Y;
+                    offsetsVertical[i].X = offsetsVertical[i].X / MyGuiManager.GetFullscreenRectangle().Width / yScale;
+                    offsetsVertical[i].Y = (offsetsVertical[i].Y / 1080f) / yScale;
+                    if (MyVideoSettingsManager.IsTripleHead())
+                        offsetsSquare[i].X /= 0.33f;
+
+                    offsetsVertical[i].X = (offsetsVertical[i].X / MyGuiManager.GetFullscreenRectangle().Width) / yScale;
+                    offsetsVertical[i].Y = (offsetsVertical[i].Y / 1080f) / yScale;
                 }
 
                 int index = 0;
@@ -821,9 +876,9 @@ namespace Sandbox.Game.GUI.HudViewers
                         Vector2 offset = Vector2.Lerp(offsetsSquare[index], offsetsVertical[index], offsetVal);
 
                         string icon = GetIconForRelationship(relationship);
-                        DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f);
+                        DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f / yScale);
                         if (IsPoiAtHighAlert(poi))
-                            DrawIcon(renderer, "Textures\\HUD\\marker_alert.dds", screenPosition + offset, Color.White, 0.75f);
+                            DrawIcon(renderer, "Textures\\HUD\\marker_alert.dds", screenPosition + offset, Color.White, 0.75f / yScale);
 
                         if (poi.Text.Length > 0)
                         {
@@ -838,7 +893,8 @@ namespace Sandbox.Game.GUI.HudViewers
 
                                 fontColor.A = (byte)(255f * alpha);
                                 Vector2 horizontalOffset = new Vector2(8f / MyGuiManager.GetFullscreenRectangle().Width, 0);
-                                objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                                horizontalOffset.X /= yScale;
+                                objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f / yScale, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
                                 objectName.Append(poi.Text);
                             }
                         }
@@ -867,9 +923,9 @@ namespace Sandbox.Game.GUI.HudViewers
                             Vector2 offset = Vector2.Lerp(offsetsSquare[index], offsetsVertical[index], offsetVal);
 
                             string icon = GetIconForRelationship(relationship);
-                            DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f);
+                            DrawIcon(renderer, icon, screenPosition + offset, markerColor, 0.75f / yScale);
                             if (IsPoiAtHighAlert(poi))
-                                DrawIcon(renderer, "Textures\\HUD\\marker_alert.png", screenPosition + offset, Color.White, 0.75f);
+                                DrawIcon(renderer, "Textures\\HUD\\marker_alert.png", screenPosition + offset, Color.White, 0.75f / yScale);
 
                             if (poi.Text.Length > 0)
                             {
@@ -884,7 +940,8 @@ namespace Sandbox.Game.GUI.HudViewers
 
                                     fontColor.A = (byte)(255f * alpha);
                                     Vector2 horizontalOffset = new Vector2(8f / MyGuiManager.GetFullscreenRectangle().Width, 0);
-                                    objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+                                    horizontalOffset.X /= yScale;
+                                    objectName.Start(font, screenPosition + offset + horizontalOffset, fontColor, 0.55f / yScale, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
                                     objectName.Append(poi.Text);
                                 }
                             }
@@ -903,7 +960,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 if (edgeState >= 2)
                     distanceOffset = 0;
                 Vector2 distancePos = Vector2.Lerp(offsetsSquare[4], offsetsVertical[index], distanceOffset);
-                Vector2 horizontalDistanceOffset = Vector2.Lerp(Vector2.Zero, new Vector2(24f / MyGuiManager.GetFullscreenRectangle().Width, 0), distanceOffset);
+                Vector2 horizontalDistanceOffset = Vector2.Lerp(Vector2.Zero, new Vector2((24f / 1080f) / yScale, (4f / 1080f) / yScale), distanceOffset);
 
                 //ProfilerShort.BeginNextBlock("Draw group distance");
                 distanceBuilder = renderer.m_hudScreen.AllocateText();
@@ -913,7 +970,7 @@ namespace Sandbox.Game.GUI.HudViewers
                     AppendDistance(stringBuilder, Distance);
 
                     fontColor.A = 255;
-                    distanceBuilder.Start(font, screenPosition + distancePos + horizontalDistanceOffset, fontColor, 0.5f + 0.2f * alphaValue, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                    distanceBuilder.Start(font, screenPosition + distancePos + horizontalDistanceOffset, fontColor, (0.5f + 0.2f * alphaValue) / yScale, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
                     distanceBuilder.Append(stringBuilder);
                 }
 
@@ -1261,13 +1318,14 @@ namespace Sandbox.Game.GUI.HudViewers
             poi.SetText(entityName);
         }
 
-        public void AddGPS(Vector3D worldPosition, string name)
+        public void AddGPS(Vector3D worldPosition, string name, bool alwaysVisible)
         {
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
             poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.GPS, MyRelationsBetweenPlayerAndBlock.Owner);
             poi.SetText(name);
+            poi.AlwaysVisible = alwaysVisible;
         }
 
         public void AddButtonMarker(Vector3D worldPosition, string name)
@@ -1364,7 +1422,7 @@ namespace Sandbox.Game.GUI.HudViewers
                     PointOfInterest poi = m_pointsOfInterest[i];
                     PointOfInterest groupPOI = null;
 
-                    if (poi.POIType != PointOfInterest.PointOfInterestType.Target)
+                    if (poi.AllowsCluster)
                     {
                         for (int j = i + 1; j < m_pointsOfInterest.Count; )
                         {
@@ -1375,7 +1433,7 @@ namespace Sandbox.Game.GUI.HudViewers
                                 continue;
                             }
 
-                            if (poi2.POIType == PointOfInterest.PointOfInterestType.Target)
+                            if (!poi2.AllowsCluster)
                             {
                                 j++;
                                 continue;
@@ -1400,7 +1458,7 @@ namespace Sandbox.Game.GUI.HudViewers
                             }
                         }
                     }
-                    else
+                    else if (poi.POIType == PointOfInterest.PointOfInterestType.Target)
                     {
                         // Compute POI distance to camera
                         Vector3D deltaPos = (cameraPosition - poi.WorldPosition);
@@ -1453,11 +1511,18 @@ namespace Sandbox.Game.GUI.HudViewers
 
             MyAtlasTextureCoordinate textureCoord = m_hudScreen.GetTextureCoord(texture);
 
-            float hudSizeX = MyGuiManager.GetSafeFullscreenRectangle().Width / MyGuiManager.GetHudSize().X;
-            float hudSizeY = MyGuiManager.GetSafeFullscreenRectangle().Height / MyGuiManager.GetHudSize().Y;
+            Vector2 screen = new Vector2(MyGuiManager.GetSafeFullscreenRectangle().Width, MyGuiManager.GetSafeFullscreenRectangle().Height);
+
+            float hudSizeX = screen.X / MyGuiManager.GetHudSize().X;
+            float hudSizeY = screen.Y / MyGuiManager.GetHudSize().Y;
+
             var pos = position;
             if (MyVideoSettingsManager.IsTripleHead())
                 pos.X += 1.0f;
+
+            float yScale = screen.Y / 1080f;
+            halfWidth *= yScale;
+            halfHeight *= yScale;
 
             VRageRender.MyRenderProxy.DrawSpriteAtlas(
                 m_hudScreen.TextureAtlas,
@@ -1475,8 +1540,20 @@ namespace Sandbox.Game.GUI.HudViewers
         /// </summary>
         protected void AddTexturedQuad(string texture, Vector2 position, Vector2 upVector, Color color, float halfWidth, float halfHeight)
         {
-            position.X = MyGuiManager.GetFullscreenRectangle().Width * position.X;
-            position.Y = MyGuiManager.GetFullscreenRectangle().Height * position.Y / MyGuiManager.GetHudSize().Y;
+            Vector2 screen = new Vector2(MyGuiManager.GetSafeFullscreenRectangle().Width, MyGuiManager.GetSafeFullscreenRectangle().Height);
+
+            float hudSizeX = screen.X / MyGuiManager.GetHudSize().X;
+            float hudSizeY = screen.Y / MyGuiManager.GetHudSize().Y;
+
+            if (MyVideoSettingsManager.IsTripleHead())
+                position.X += 1.0f;
+
+            position.X *= hudSizeX;
+            position.Y *= hudSizeY;
+
+            float yScale = screen.Y / 1080f;
+            halfWidth *= yScale;
+            halfHeight *= yScale;
 
             RectangleF dest = new RectangleF(position.X - halfWidth, position.Y - halfHeight, halfWidth * 2, halfHeight * 2);
             Rectangle? source = null;

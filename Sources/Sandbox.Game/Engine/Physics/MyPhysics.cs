@@ -1502,6 +1502,11 @@ namespace Sandbox.Engine.Physics
             return Clusters.GetList();
         }
 
+        public static void GetAll(List<VRageMath.Spatial.MyClusterTree.MyClusterQueryResult> results)
+        {
+            Clusters.GetAll(results);
+        }
+
     }
 
 }

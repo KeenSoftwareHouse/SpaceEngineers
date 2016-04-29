@@ -22,6 +22,8 @@ namespace ProtoBuf
         , IComparable
 #if !NO_GENERICS
         , IComparable<ProtoMemberAttribute>
+#else
+		, IComparable
 #endif
 
     {
@@ -41,6 +43,21 @@ namespace ProtoBuf
             return result;
         }
 
+#if BLITCREMENTAL
+        /// <summary>
+        /// Creates a new ProtoMemberAttribute instance.
+        /// </summary>
+        /// <param name="tag">Specifies the unique tag used to identify this member within the type.</param>
+        public ProtoMemberAttribute(int tag = 1)
+            : this(false, tag)
+        { }
+
+        internal ProtoMemberAttribute(bool forced, [CallerLineNumber]int tag = 1)
+        {
+            if (tag <= 0 && !forced) throw new ArgumentOutOfRangeException("tag");
+            this.tag = tag;
+        }
+#else
         /// <summary>
         /// Creates a new ProtoMemberAttribute instance.
         /// </summary>
@@ -54,6 +71,7 @@ namespace ProtoBuf
             if (tag <= 0 && !forced) throw new ArgumentOutOfRangeException("tag");
             this.tag = tag;
         }
+#endif
 
 #if !NO_RUNTIME
         internal MemberInfo Member;
@@ -219,9 +237,14 @@ namespace ProtoBuf
         /// <param name="tag">Specifies the unique tag used to identify this member within the type.</param>
         /// <param name="memberName">Specifies the member to be serialized.</param>
         public ProtoPartialMemberAttribute(int tag, string memberName)
+#if FALSE
             : base(tag)
+#endif
         {
+#if BLITCREMENTAL
+#else
             if (Helpers.IsNullOrEmpty(memberName)) throw new ArgumentNullException("memberName");
+#endif
             this.memberName = memberName;
         }
         /// <summary>

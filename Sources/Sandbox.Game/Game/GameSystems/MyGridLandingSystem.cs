@@ -7,6 +7,7 @@ using VRage;
 using Sandbox.Game.Entities.Cube;
 using VRage.Utils;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.Localization;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -17,6 +18,8 @@ namespace Sandbox.Game.GameSystems
 
         HashSet<IMyLandingGear>[] m_gearStates;
         LockModeChangedHandler m_onStateChanged;
+
+        public MyStringId HudMessage = MyStringId.NullOrEmpty;
 
         public MyMultipleEnabledEnum Locked
         {
@@ -67,6 +70,13 @@ namespace Sandbox.Game.GameSystems
 
         void StateChanged(IMyLandingGear gear, LandingGearMode oldMode)
         {
+            if (oldMode == LandingGearMode.ReadyToLock && gear.LockMode == LandingGearMode.Locked)
+                HudMessage = MySpaceTexts.NotificationLandingGearSwitchLocked;
+            else if (oldMode == LandingGearMode.Locked && gear.LockMode == LandingGearMode.Unlocked)
+                HudMessage = MySpaceTexts.NotificationLandingGearSwitchUnlocked;
+            else //if (oldMode == LandingGearMode.ReadyToLock && gear.LockMode == LandingGearMode.Unlocked)
+                HudMessage = MyStringId.NullOrEmpty;
+
             m_gearStates[(int)oldMode].Remove(gear);
             m_gearStates[(int)gear.LockMode].Add(gear);
         }

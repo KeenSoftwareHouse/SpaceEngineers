@@ -281,15 +281,26 @@ namespace Sandbox.Game.Gui
                 selection.HalfSize / MyGuiManager.GetHudSize() * textureScale);
         }
 
+        public static void DrawFogNotification(ref Vector2 centerPosition, ref Vector2 textSize)
+        {
+            Vector2 fogFadeSize = textSize * new Vector2(1.6f, 8.0f);
+            DrawFogInternal(MyGuiConstants.FOG_SMALL, ref centerPosition, ref fogFadeSize, 1, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+        }
+
+        public static void DrawFog(ref Vector2 centerPosition, ref Vector2 textSize, float fogAlphaMultiplier = 1,
+            MyGuiDrawAlignEnum alignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
+        {
+            Vector2 fogFadeSize = textSize * new Vector2(1.5f, 3.0f);
+            DrawFogInternal(MyGuiConstants.FOG_SMALL1, ref centerPosition, ref fogFadeSize, fogAlphaMultiplier, alignment);
+        }
+
         /// <summary>
         /// Draws fog (eg. background for notifications) at specified position in normalized GUI coordinates.
         /// </summary>
-        public static void DrawFog(ref Vector2 centerPosition, ref Vector2 textSize, float fogAlphaMultiplier = 1, MyGuiDrawAlignEnum alignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
+        private static void DrawFogInternal(string texture, ref Vector2 centerPosition, ref Vector2 size, float fogAlphaMultiplier, MyGuiDrawAlignEnum alignment)
         {
             Color color = new Color(0, 0, 0, (byte)(255 * 0.85f * fogAlphaMultiplier));
-            Vector2 fogFadeSize = textSize * new Vector2(1.4f, 3.0f);
-
-            MyGuiManager.DrawSpriteBatch(MyGuiConstants.FOG_SMALL, centerPosition, fogFadeSize, color, alignment, MyVideoSettingsManager.IsTripleHead());
+            MyGuiManager.DrawSpriteBatch(texture, centerPosition, size, color, alignment, MyVideoSettingsManager.IsTripleHead());
         }
 
         public MyHudText AllocateText()

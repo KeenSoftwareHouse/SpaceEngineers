@@ -5,6 +5,7 @@ struct PixelStageInput
 	MaterialVertexPayload custom;
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
 	float4 key_color_alpha : TEXCOORD7;
+	float custom_alpha : TEXCOORD9;
 #endif
 };
 
@@ -28,7 +29,8 @@ void __pixel_shader(PixelStageInput input, out float4 shaded : SV_Target0 ) {
 
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
 	pixel.key_color = input.key_color_alpha.xyz;
-	pixel.custom_alpha = input.key_color_alpha.w;
+	pixel.hologram = input.key_color_alpha.w;
+	pixel.custom_alpha = input.custom_alpha;
 #endif
 
 	MaterialOutputInterface material_output = make_mat_interface();

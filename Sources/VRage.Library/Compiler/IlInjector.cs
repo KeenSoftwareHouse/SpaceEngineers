@@ -10,12 +10,41 @@ using System.Text;
 using System.Threading;
 using VRage.Library.Utils;
 
+
 namespace VRage.Compiler
 {
     public class ScriptOutOfRangeException : Exception
     {
     }
 
+#if UNSHARPER
+    public class IlInjector
+    {
+      
+
+
+        public static void RestartCountingInstructions(int maxInstructions)
+        {
+
+        }
+        public static void CountInstructions()
+        {
+
+        }
+        public static void RestartCountingMethods(int maxMethodCalls)
+        {
+
+        }
+        public static void CountMethodCalls()
+        {
+
+        }
+        public static Assembly InjectCodeToAssembly(string newAssemblyName, Assembly inputAssembly, MethodInfo method,MethodInfo methodToInjectMethodCheck, bool save = false)
+        {
+            return null;
+        }
+    }
+#else
     public class IlInjector
     {
         public interface ICounterHandle : IDisposable
@@ -707,4 +736,6 @@ namespace VRage.Compiler
             public int MaxMethodCallCount { get { return IlInjector.m_numMaxMethodCalls; } }
         }
     }
+#endif
 }
+

@@ -19,6 +19,7 @@ using VRage.Library.Utils;
 using VRage.Data.Audio;
 using Sandbox.Game.GameSystems;
 using VRage.Game.Entity;
+using Sandbox.Game.Audio;
 
 namespace Sandbox.Game.Entities
 {
@@ -760,6 +761,8 @@ namespace Sandbox.Game.Entities
             }
             if (Sound != null && Sound.IsPlaying)
             {
+                if (MyMusicController.Static != null && m_lastSoundData != null && m_lastSoundData.DynamicMusicCategory != MyStringId.NullOrEmpty && m_lastSoundData.DynamicMusicAmount > 0)
+                    MyMusicController.Static.IncreaseCategory(m_lastSoundData.DynamicMusicCategory, m_lastSoundData.DynamicMusicAmount);
                 m_baseVolume = Sound.Volume;
                 if (m_secondaryEnabled && m_secondaryCueEnum != null)
                 {
@@ -924,10 +927,7 @@ namespace Sandbox.Game.Entities
             {
                 if (m_velocity.HasValue)
                     return m_velocity.Value;
-                else if ((m_entity != null) && (m_entity.Physics != null))
-                    return m_entity.Physics.LinearVelocity;
-                else
-                    return Vector3.Zero;
+                return (m_entity != null && m_entity.Physics != null) ? m_entity.Physics.LinearVelocity : Vector3.Zero;
             }
         }
         public MyEntity Entity

@@ -308,7 +308,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 {
                     if (Character.Definition.VerticalPositionFlyingOnly)
                     {
-                        Character.SetHeadLocalXAngle(MathHelper.Clamp(Character.HeadLocalXAngle - rotationIndicator.X * Character.RotationSpeed, MyCharacter.MIN_HEAD_LOCAL_X_ANGLE, MyCharacter.MAX_HEAD_LOCAL_X_ANGLE));
+                        Character.SetHeadLocalXAngle(Character.HeadLocalXAngle - rotationIndicator.X * Character.RotationSpeed);
                     }
                     else
                     {

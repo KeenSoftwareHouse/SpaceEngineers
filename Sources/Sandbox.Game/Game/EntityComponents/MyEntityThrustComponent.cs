@@ -189,6 +189,8 @@ namespace Sandbox.Game.GameSystems
 
         private long m_lastPowerUpdate;
 
+        bool m_networkCommandApplied = false;
+
         #endregion
 
         #region Properties
@@ -913,14 +915,14 @@ namespace Sandbox.Game.GameSystems
             cubeGrid.GridSystems.ConveyorSystem.ResourceSink.IsPoweredChanged -= ConveyorSystem_OnPoweredChanged;
         }
 
-        public virtual void UpdateBeforeSimulation()
+        public virtual void UpdateBeforeSimulation(bool networkUpdate = false)
         {
             if (Entity == null)
                 return;
 
             ProfilerShort.Begin("EntityThrustComponent.UpdateBeforeSimulation");
 
-            if(Entity.InScene)
+            if (Entity.InScene && networkUpdate == false)
                 UpdateConveyorSystemChanges();
 
             if (ThrustCount == 0)
@@ -940,8 +942,9 @@ namespace Sandbox.Game.GameSystems
 
             ProfilerShort.BeginNextBlock("UpdateThrusts");
             if (Enabled && Entity.Physics != null)
-                UpdateThrusts();
+                UpdateThrusts(networkUpdate);
 
+            m_networkCommandApplied = networkUpdate;
             ProfilerShort.End();
         }
 
@@ -1040,7 +1043,7 @@ namespace Sandbox.Game.GameSystems
             fuelData.MaxRequiredPowerInput += Math.Max(fuelData.MaxRequirementsByDirection[Vector3I.Up], fuelData.MaxRequirementsByDirection[Vector3I.Down]);
         }
 
-        protected virtual void UpdateThrusts()
+        protected virtual void UpdateThrusts(bool networkUpdate = false)
         {
             if (ControlThrustMagnitude == Vector3.Zero)
             {
@@ -1063,7 +1066,7 @@ namespace Sandbox.Game.GameSystems
                 if (AutopilotEnabled)
                     ComputeAiThrust(AutoPilotControlThrust, fuelData);
                 else
-                    ComputeBaseThrust(ref m_controlThrust, fuelData);
+                    ComputeBaseThrust(ref m_controlThrust, fuelData, networkUpdate);
             }
 
             for (int i = 0; i < m_connectedGroups.Count; i++)
@@ -1077,7 +1080,7 @@ namespace Sandbox.Game.GameSystems
                     if (AutopilotEnabled)
                         ComputeAiThrust(AutoPilotControlThrust, fuelData);
                     else
-                        ComputeBaseThrust(ref m_controlThrust, fuelData);
+                        ComputeBaseThrust(ref m_controlThrust, fuelData, networkUpdate);
                 }
             }
             ProfilerShort.End();
@@ -1182,7 +1185,7 @@ namespace Sandbox.Game.GameSystems
             return finalThrust;
         }
 
-        private void ComputeBaseThrust(ref Vector3 controlThrust, FuelTypeData fuelData)
+        private void ComputeBaseThrust(ref Vector3 controlThrust, FuelTypeData fuelData,bool networkUpdate)
         {
             if (Entity.Physics == null)
             {
@@ -1198,8 +1201,11 @@ namespace Sandbox.Game.GameSystems
 
             // A hotfix for floating up/down in planetary gravity with dampeners. Should be removed and done properly
             float magicFactor = (float)(Entity is MyCharacter ? (1f - 1f / 30f) : 0.9919);
-            Vector3 gravityVector = Entity.Physics.Gravity * stoppingTime * magicFactor;
-            Vector3 localVelocity = Vector3.Transform(Entity.Physics.LinearVelocity + gravityVector, invWorldRot);
+            Vector3 gravityVector = networkUpdate ? Vector3.Zero : Entity.Physics.Gravity * stoppingTime * magicFactor;
+
+            bool applyLocalVelocity = networkUpdate || (m_networkCommandApplied == false && networkUpdate == false);
+
+            Vector3 localVelocity = Vector3.Transform((applyLocalVelocity ? Entity.Physics.LinearVelocity : Vector3.Zero) + gravityVector, invWorldRot);
             Vector3 positiveControl = Vector3.Clamp(controlThrust, Vector3.Zero, Vector3.One);
             Vector3 negativeControl = Vector3.Clamp(controlThrust, -Vector3.One, Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace VRageRender
 {
+#if !BLIT
     class MyVideoPlayerDx9 : DShowNET.VideoPlayer
     {
         /// <summary>
@@ -47,4 +48,5 @@ namespace VRageRender
         }
 
     }
+#endif
 }

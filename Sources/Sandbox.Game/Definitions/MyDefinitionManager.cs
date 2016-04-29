@@ -45,6 +45,7 @@ using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using Sandbox.Game.EntityComponents;
 
 #endregion
 
@@ -126,9 +127,29 @@ namespace Sandbox.Definitions
             MySandboxGame.Log.WriteLine("MyDefinitionManager.PreloadDefinitions() - END");
         }
 
+        public void PrepareBaseDefinitions()
+        {
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.PrepareBaseDefinitions() - START");
+
+            using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
+            {
+                //Pre-load base definitions
+                GetDefinitionBuilders(MyModContext.BaseGame);
+            }
+
+            MySandboxGame.Log.WriteLine("MyDefinitionManager.PrepareBaseDefinitions() - END");
+        }
+
         public void LoadScenarios()
         {
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadScenarios() - START");
+
+            ProfilerShort.Begin("Wait for preload to complete");
+            while (MySandboxGame.IsPreloading)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+            ProfilerShort.End();
 
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
             {
@@ -167,6 +188,13 @@ namespace Sandbox.Definitions
         public void LoadData(List<MyObjectBuilder_Checkpoint.ModItem> mods)
         {
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadData() - START");
+
+            ProfilerShort.Begin("Wait for preload to complete");
+            while (MySandboxGame.IsPreloading)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+            ProfilerShort.End();
 
             UnloadData();
             Loading = true;
@@ -324,12 +352,26 @@ namespace Sandbox.Definitions
 
         private void TestCubeBlockModels()
         {
+            //*
+
+            // Spread testing of models over the available workers
+            ParallelTasks.Parallel.ForEach<string>(GetDefinitionPairNames(), delegate(string pair)
+            {
+                var group = GetDefinitionGroup(pair);
+                TestCubeBlockModel(group.Small);
+                TestCubeBlockModel(group.Large);
+            });
+             
+            /*/
+
             foreach (var pair in GetDefinitionPairNames())
             {
                 var group = GetDefinitionGroup(pair);
                 TestCubeBlockModel(group.Small);
                 TestCubeBlockModel(group.Large);
             }
+
+            //*/
         }
 
         private void TestCubeBlockModel(MyCubeBlockDefinition block)
@@ -380,7 +422,58 @@ namespace Sandbox.Definitions
             }
 
             return preloadSet;
-        } 
+        }
+
+        private List<Tuple<MyObjectBuilder_Definitions, string>> m_preloadedDefinitionBuilders = null;
+        private List<Tuple<MyObjectBuilder_Definitions, string>> GetDefinitionBuilders(MyModContext context, HashSet<string> preloadSet = null)
+        {
+            if (m_preloadedDefinitionBuilders != null && context == MyModContext.BaseGame && preloadSet == null)
+                return m_preloadedDefinitionBuilders;
+
+            var definitionBuilders = new List<Tuple<MyObjectBuilder_Definitions, string>>(30);
+            foreach (var file in MyFileSystem.GetFiles(context.ModPathData, "*.sbc", VRage.FileSystem.MySearchOption.AllDirectories))
+            {
+                if (preloadSet != null && !preloadSet.Contains(Path.GetFileName(file))) continue;
+
+                if (Path.GetFileName(file) == "DefinitionsToPreload.sbc") continue;
+                context.CurrentFile = file;
+
+                ProfilerShort.Begin("Verify Integrity");
+                MyDataIntegrityChecker.HashInFile(file);
+                MyObjectBuilder_Definitions builder = null;
+
+                ProfilerShort.BeginNextBlock("Try Parse as Prefab");
+                try
+                {
+                    builder = CheckPrefabs(file);
+                }
+                catch (Exception e)
+                {
+                    FailModLoading(context, innerException: e);
+                    return null;
+                }
+
+                ProfilerShort.BeginNextBlock("Parse");
+                if (builder == null)
+                {
+                    builder = Load<MyObjectBuilder_Definitions>(file);
+                }
+
+                if (builder == null)
+                {
+                    FailModLoading(context);
+                    return null;
+                }
+
+                definitionBuilders.Add(new Tuple<MyObjectBuilder_Definitions, string>(builder, file));
+                ProfilerShort.End();
+            }
+
+            if (context == MyModContext.BaseGame && preloadSet == null)
+                m_preloadedDefinitionBuilders = definitionBuilders;
+
+            return definitionBuilders;
+        }
 
         private void LoadDefinitions(MyModContext context, DefinitionSet definitionSet, bool failOnDebug = true, bool isPreload = false)
         {
@@ -399,43 +492,9 @@ namespace Sandbox.Definitions
             definitionSet.Context = context;
 
             ProfilerShort.Begin("Load definitions from files");
-            var definitionsBuilders = new List<Tuple<MyObjectBuilder_Definitions, string>>(30);
-            foreach (var file in MyFileSystem.GetFiles(context.ModPathData, "*.sbc", VRage.FileSystem.MySearchOption.AllDirectories))
-            {
-                if (isPreload && !preloadSet.Contains(Path.GetFileName(file))) continue;
-                if (Path.GetFileName(file) == "DefinitionsToPreload.sbc") continue;
-                context.CurrentFile = file;
-
-                ProfilerShort.Begin("Verify Integrity");
-                MyDataIntegrityChecker.HashInFile(file);
-                MyObjectBuilder_Definitions builder = null;
-
-                ProfilerShort.BeginNextBlock("Try Parse as Prefab");
-                try
-                {
-                    builder = CheckPrefabs(file);
-                }
-                catch (Exception e)
-                {
-                    FailModLoading(context, innerException: e);
-                    return;
-                }
-
-                ProfilerShort.BeginNextBlock("Parse");
-                if (builder == null)
-                {
-                    builder = Load<MyObjectBuilder_Definitions>(file);
-                }
-
-                if (builder == null)
-                {
-                    FailModLoading(context);
-                    return;
-                }
-
-                definitionsBuilders.Add(new Tuple<MyObjectBuilder_Definitions, string>(builder, file));
-                ProfilerShort.End();
-            }
+            var definitionsBuilders = GetDefinitionBuilders(context, preloadSet);
+            if (definitionsBuilders == null)
+                return;
 
             ProfilerShort.BeginNextBlock("Postprocessing");
 
@@ -456,7 +515,8 @@ namespace Sandbox.Definitions
                     foreach (var builder in definitionsBuilders)
                     {
                         context.CurrentFile = builder.Item2;
-                        phases[i](builder.Item1, context, definitionSet, failOnDebug);
+						var phase = phases[i];
+                        phase(builder.Item1, context, definitionSet, failOnDebug);
                     }
                     ProfilerShort.End();
                 }
@@ -818,6 +878,18 @@ namespace Sandbox.Definitions
                 InitSoundCategories(context, definitionSet.m_definitionsById, objBuilder.SoundCategories, failOnDebug);
             }
 
+            if (objBuilder.ShipSoundGroups != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading ship sound groups");
+                InitShipSounds(context, definitionSet.m_shipSounds, objBuilder.ShipSoundGroups, failOnDebug);
+            }
+
+            if (objBuilder.ShipSoundSystem != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading ship sound groups");
+                InitShipSoundSystem(context, ref definitionSet.m_shipSoundSystem, objBuilder.ShipSoundSystem, failOnDebug);
+            }
+
             if (objBuilder.LCDTextures != null)
             {
                 MySandboxGame.Log.WriteLine("Loading LCD texture categories");
@@ -1177,6 +1249,8 @@ namespace Sandbox.Definitions
             PairPhysicalAndHandItems();
             ProfilerShort.BeginNextBlock("CheckWeaponRelatedDefinitions");
             CheckWeaponRelatedDefinitions();
+            ProfilerShort.BeginNextBlock("UpdateShipSounds");
+            SetShipSoundSystem();
             ProfilerShort.BeginNextBlock("MoveNonPublicBlocksToSpecialCategory");
             MoveNonPublicBlocksToSpecialCategory();
             if (MyAudio.Static != null)
@@ -1756,6 +1830,43 @@ namespace Sandbox.Definitions
                 Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
                 output[res[i].Id] = res[i];
             }
+        }
+
+        private static void InitShipSounds(MyModContext context,
+            DefinitionDictionary<MyShipSoundsDefinition> output, MyObjectBuilder_ShipSoundsDefinition[] shipGroups, bool failOnDebug = true)
+        {
+            var res = new MyShipSoundsDefinition[shipGroups.Length];
+
+            for (int i = 0; i < shipGroups.Length; ++i)
+            {
+                res[i] = InitDefinition<MyShipSoundsDefinition>(context, shipGroups[i]);
+
+                Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
+                output[res[i].Id] = res[i];
+            }
+        }
+
+        private static void InitShipSoundSystem(MyModContext context,
+            ref MyShipSoundSystemDefinition output, MyObjectBuilder_ShipSoundSystemDefinition shipSystem, bool failOnDebug = true)
+        {
+            var res = InitDefinition<MyShipSoundSystemDefinition>(context, shipSystem);
+            output = res;
+        }
+
+        public void SetShipSoundSystem()
+        {
+            MyShipSoundComponent.ClearShipSounds();
+            foreach (DefinitionSet LoadingSet in m_modDefinitionSets.Values)
+            {
+                if (LoadingSet.m_shipSounds != null)
+                {
+                    foreach (var set in LoadingSet.m_shipSounds)
+                        MyShipSoundComponent.AddShipSounds(set.Value);
+                }
+                if (LoadingSet.m_shipSoundSystem != null)
+                    MyShipSoundComponent.SetDefinition(LoadingSet.m_shipSoundSystem);
+            }
+            MyShipSoundComponent.ActualizeGroups();
         }
 
         private static void InitAnimations(MyModContext context,
@@ -2441,7 +2552,7 @@ namespace Sandbox.Definitions
                 }
                 else
                     materialDefinition.Init(material, context);
-                m_definitions.m_physicalMaterialsByName.Add(materialDefinition.Id.SubtypeName, materialDefinition);
+                m_definitions.m_physicalMaterialsByName[materialDefinition.Id.SubtypeName] = materialDefinition;
             }
         }
 
@@ -3404,6 +3515,18 @@ namespace Sandbox.Definitions
             Debug.Assert(m_definitions.m_definitionsById.ContainsKey(id));
             CheckDefinition<MyAmmoMagazineDefinition>(ref id);
             return m_definitions.m_definitionsById[id] as MyAmmoMagazineDefinition;
+        }
+
+        public MyShipSoundsDefinition GetShipSoundsDefinition(MyDefinitionId id)
+        {
+            Debug.Assert(m_definitions.m_definitionsById.ContainsKey(id));
+            CheckDefinition<MyShipSoundsDefinition>(ref id);
+            return m_definitions.m_definitionsById[id] as MyShipSoundsDefinition;
+        }
+
+        public MyShipSoundSystemDefinition GetShipSoundSystemDefinition
+        {
+            get { return m_definitions.m_shipSoundSystem; }
         }
 
         public MyWeaponDefinition GetWeaponDefinition(MyDefinitionId id)

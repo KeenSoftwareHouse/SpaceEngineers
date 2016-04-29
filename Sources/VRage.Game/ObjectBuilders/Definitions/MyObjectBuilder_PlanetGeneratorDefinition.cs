@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 using VRageRender;
 
@@ -23,7 +24,7 @@ namespace VRage.Game
     }
 
     [ProtoContract]
-    public class MyPlanetMaterialDefinition
+    public class MyPlanetMaterialDefinition : ICloneable
     {
         [ProtoMember]
         [XmlAttribute(AttributeName = "Material")]
@@ -60,6 +61,19 @@ namespace VRage.Game
                 else return null;
             }
         }
+
+        public object Clone()
+        {
+            MyPlanetMaterialDefinition clone = new MyPlanetMaterialDefinition();
+            clone.Material = Material;
+            clone.Value = Value;
+            clone.MaxDepth = MaxDepth;
+            if (Layers != null)
+                clone.Layers = Layers.Clone() as MyPlanetMaterialLayer[];
+            else
+                clone.Layers = null;
+            return clone;
+        }
     }
 
     /**
@@ -71,7 +85,7 @@ namespace VRage.Game
      * This means after the maths are done that what we have is the *sine*, so the latitude is stored as the sine.
      */
     [ProtoContract]
-    public class MyPlanetMaterialPlacementRule : MyPlanetMaterialDefinition
+    public class MyPlanetMaterialPlacementRule : MyPlanetMaterialDefinition, ICloneable
     {
         [ProtoMember]
         public MyRangeValue Height = new MyRangeValue(0, 1);
@@ -118,10 +132,16 @@ namespace VRage.Game
             return Height.ValueBetween(height) && Latitude.ValueBetween(latitude)
                    && Slope.ValueBetween(slope);
         }
+
+        public object Clone()
+        {
+            MyPlanetMaterialPlacementRule clonedRule = new MyPlanetMaterialPlacementRule(this);
+            return clonedRule;
+        }
     }
 
     [ProtoContract]
-    public class MyPlanetSurfaceRule
+    public class MyPlanetSurfaceRule : ICloneable
     {
         [ProtoMember]
         public MyRangeValue Height = new MyRangeValue(0, 1);
@@ -147,6 +167,16 @@ namespace VRage.Game
             return Height.ValueBetween(height) && Latitude.ValueBetween(latitude) && Longitude.ValueBetween(longitude)
                          && Slope.ValueBetween(slope);
         }
+
+        public object Clone()
+        {
+            MyPlanetSurfaceRule clonedRule = new MyPlanetSurfaceRule();
+            clonedRule.Height = Height;
+            clonedRule.Latitude = Latitude;
+            clonedRule.Longitude = Longitude;
+            clonedRule.Slope = Slope;
+            return clonedRule;
+        }
     }
 
     /**
@@ -154,7 +184,7 @@ namespace VRage.Game
      */
     [XmlType("MaterialGroup")]
     [ProtoContract]
-    public class MyPlanetMaterialGroup
+    public class MyPlanetMaterialGroup : ICloneable
     {
         [ProtoMember]
         [XmlAttribute(AttributeName = "Value")]
@@ -167,6 +197,17 @@ namespace VRage.Game
         [ProtoMember]
         [XmlElement("Rule")]
         public MyPlanetMaterialPlacementRule[] MaterialRules;
+
+        public object Clone()
+        {
+            MyPlanetMaterialGroup clonedGroup = new MyPlanetMaterialGroup();
+            clonedGroup.Value = Value;
+            clonedGroup.Name = Name;
+            clonedGroup.MaterialRules = new MyPlanetMaterialPlacementRule[MaterialRules.Length];
+            for (int i = 0; i < MaterialRules.Length; i++)
+                clonedGroup.MaterialRules[i] = MaterialRules[i].Clone() as MyPlanetMaterialPlacementRule;
+            return clonedGroup;
+        }
     }
 
     [ProtoContract]
@@ -305,6 +346,18 @@ namespace VRage.Game
 
         [ProtoMember]
         public string EnvironmentSound;
+    }
+
+    [ProtoContract]
+    public class MyMusicCategory
+    {
+        [ProtoMember]
+        [XmlAttribute(AttributeName = "Category")]
+        public string Category;
+
+        [ProtoMember]
+        [XmlAttribute(AttributeName = "Frequency")]
+        public float Frequency = 1.0f;
     }
 
     #region Environment Item Data
@@ -660,6 +713,10 @@ namespace VRage.Game
         [ProtoMember]
         [XmlArrayItem("SoundRule")]
         public MySerializablePlanetEnvironmentalSoundRule[] SoundRules;
+
+        [ProtoMember]
+        [XmlArrayItem("MusicCategory")]
+        public List<MyMusicCategory> MusicCategories = null;
 
         [ProtoMember]
         [XmlArrayItem("Ore")]

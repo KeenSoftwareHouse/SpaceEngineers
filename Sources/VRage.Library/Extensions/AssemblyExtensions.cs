@@ -8,6 +8,7 @@ namespace System.Reflection
 {
     public static class AssemblyExtensions
     {
+#if !BLIT
         public static ProcessorArchitecture ToProcessorArchitecture(this PortableExecutableKinds peKind)
         {
             switch (peKind &~PortableExecutableKinds.ILOnly)
@@ -62,5 +63,6 @@ namespace System.Reflection
                 return ProcessorArchitecture.None;
             }
         }
+#endif
     }
 }

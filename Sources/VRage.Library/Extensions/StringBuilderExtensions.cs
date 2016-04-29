@@ -6,11 +6,12 @@ using VRage;
 
 namespace System.Text
 {
-    public static partial class StringBuilderExtensions
+	[Unsharper.UnsharperDisableReflection()]
+	public static class StringBuilderExtensions_2
     {
         static private NumberFormatInfo m_numberFormatInfoHelper;
 
-        static StringBuilderExtensions()
+        static StringBuilderExtensions_2()
         {
             if (m_numberFormatInfoHelper == null)
             {

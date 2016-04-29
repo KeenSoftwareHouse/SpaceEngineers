@@ -26,7 +26,7 @@ namespace VRage.Game
                 Definitions[def.Id.TypeId] = dict;
             }
 
-            dict.Add(def.Id.SubtypeId, def);
+            dict[def.Id.SubtypeId] = def;
         }
 
         /**

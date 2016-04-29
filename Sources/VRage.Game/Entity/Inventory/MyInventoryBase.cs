@@ -73,7 +73,7 @@ namespace VRage.Game.Entity
         }
 
         public abstract MyFixedPoint ComputeAmountThatFits(MyDefinitionId contentId, float volumeRemoved = 0, float massRemoved = 0);
-        public abstract MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None);
+        public abstract MyFixedPoint GetItemAmount(MyDefinitionId contentId, MyItemFlags flags = MyItemFlags.None, bool substitute = false);
 
         public abstract bool ItemsCanBeAdded(MyFixedPoint amount, IMyInventoryItem item);
         public abstract bool ItemsCanBeRemoved(MyFixedPoint amount, IMyInventoryItem item);

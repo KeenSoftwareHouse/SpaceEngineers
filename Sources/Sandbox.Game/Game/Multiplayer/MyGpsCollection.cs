@@ -260,6 +260,7 @@ namespace Sandbox.Game.Multiplayer
                 if(result)
                 {
                     gps.ShowOnHud = show;
+                    if (!show) gps.AlwaysVisible = false;
                     gps.DiscardAt = null;//finalize
 
                     var handler = MySession.Static.Gpss.GpsChanged;
@@ -278,6 +279,59 @@ namespace Sandbox.Game.Multiplayer
             }
         }
         #endregion showOnHUD
+
+        #region alwaysVisib;e
+        //SHOW ON HUD:
+        public void ChangeAlwaysVisible(long identityId, int gpsHash, bool alwaysVisible)
+        {
+            SendChangeAlwaysVisible(identityId, gpsHash, alwaysVisible);
+        }
+        void SendChangeAlwaysVisible(long identityId, int gpsHash, bool alwaysVisible)
+        {
+            MyMultiplayer.RaiseStaticEvent(s => MyGpsCollection.AlwaysVisibleRequest, identityId, gpsHash, alwaysVisible);
+        }
+
+        [Event, Reliable, Server]
+        static void AlwaysVisibleRequest(long identityId, int gpsHash, bool alwaysVisible)
+        {
+            Dictionary<int, MyGps> gpsList;
+            var found = MySession.Static.Gpss.m_playerGpss.TryGetValue(identityId, out gpsList);
+
+            if (found)
+                MyMultiplayer.RaiseStaticEvent(s => MyGpsCollection.AlwaysVisibleSuccess, identityId, gpsHash, alwaysVisible);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        static void AlwaysVisibleSuccess(long identityId, int gpsHash, bool alwaysVisible)
+        {
+            Dictionary<int, MyGps> gpsList;
+            var result = MySession.Static.Gpss.m_playerGpss.TryGetValue(identityId, out gpsList);
+            if (result)
+            {
+                MyGps gps;
+                result = gpsList.TryGetValue(gpsHash, out gps);
+                if (result)
+                {
+                    gps.AlwaysVisible = alwaysVisible;
+                    gps.ShowOnHud = (gps.ShowOnHud || alwaysVisible);
+                    gps.DiscardAt = null;//finalize
+
+                    var handler = MySession.Static.Gpss.GpsChanged;
+                    if (handler != null)
+                        handler(identityId, gpsHash);
+
+                    if (identityId == MySession.Static.LocalPlayerId)
+                    {
+                        if (gps.ShowOnHud)
+                            MyHud.GpsMarkers.RegisterMarker(gps);
+                        else
+                            MyHud.GpsMarkers.UnregisterMarker(gps);
+                    }
+                }
+
+            }
+        }
+        #endregion alwaysVisib
         #endregion network
 
         //<IdentityId < hash of gps, gps > >
@@ -425,7 +479,8 @@ namespace Sandbox.Game.Multiplayer
                     description = gps.Description,
                     coords = gps.Coords,
                     isFinal = (gps.DiscardAt == null ? true : false),
-                    showOnHud = gps.ShowOnHud
+                    showOnHud = gps.ShowOnHud,
+                    alwaysVisible = gps.AlwaysVisible
                 };
 
         }

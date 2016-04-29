@@ -395,7 +395,7 @@ namespace Sandbox.Engine.Voxels
                 Vector3I coord0 = start;
 
 
-                for (var it = new Vector3I.RangeIterator(ref start, ref end); it.IsValid(); it.GetNext(out coord0))
+                for (var it = new Vector3I_RangeIterator(ref start, ref end); it.IsValid(); it.GetNext(out coord0))
                 {
                     int cubeIndex = 0;
                     if (m_cache.Content(coord0.X + 0, coord0.Y + 0, coord0.Z + 0) < MyVoxelConstants.VOXEL_ISO_LEVEL) cubeIndex |= 1;

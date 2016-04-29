@@ -42,6 +42,7 @@ namespace VRageRender
         static PixelShaderId m_edgeDebugShader;
         static PixelShaderId m_shadowsDebugShader;
         static PixelShaderId m_NDotLShader;
+        private static PixelShaderId m_depthShader;
         private static PixelShaderId m_stencilShader;
 
         static VertexShaderId m_screenVertexShader;
@@ -71,6 +72,7 @@ namespace VRageRender
             m_edgeDebugShader = MyShaders.CreatePs("debug_edge.hlsl");
             m_shadowsDebugShader = MyShaders.CreatePs("debug_cascades_shadow.hlsl");
             m_NDotLShader = MyShaders.CreatePs("debug_NDotL.hlsl");
+            m_depthShader = MyShaders.CreatePs("debug_Depth.hlsl");
             m_stencilShader = MyShaders.CreatePs("debug_Stencil.hlsl");
 
             m_blitTextureShader = MyShaders.CreatePs("debug_blitTexture.hlsl");
@@ -126,7 +128,7 @@ namespace VRageRender
             var tex = MyAtmosphereRenderer.AtmosphereLUT[ID].TransmittanceLut;
 
             RC.DeviceContext.PixelShader.Set(m_blitTextureShader);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, tex.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(0, tex.SRV);
 
             DrawQuad(256, 0, 256, 64);
 
@@ -155,7 +157,7 @@ namespace VRageRender
         private static void DrawCascadeArray(RwTexId textureArray, int quadStartX, int quadStartY, int quadSize)
         {
             RC.DeviceContext.PixelShader.Set(m_blitTextureArrayShader);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, textureArray.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(0, textureArray.SRV);
 
             var cb = MyCommon.GetMaterialCB(sizeof(uint));
             RC.DeviceContext.PixelShader.SetConstantBuffer(5, cb);
@@ -279,9 +281,13 @@ namespace VRageRender
                 context.PixelShader.Set(m_NDotLShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
-            else if(MyRender11.Settings.DisplayStencil)
+            else if(MyRender11.Settings.DisplayDepth)
             {
-                context.PixelShader.SetShaderResource(4, MyGBuffer.Main.DepthStencil.m_SRV_stencil);
+                context.PixelShader.Set(m_depthShader);
+                MyScreenPass.DrawFullscreenQuad();
+            }
+            else if (MyRender11.Settings.DisplayStencil)
+            {
                 context.PixelShader.Set(m_stencilShader);
                 MyScreenPass.DrawFullscreenQuad();
             }

@@ -256,8 +256,11 @@ namespace Sandbox.Game.Gui
 
         public static void RemoveSound(MyGuiSounds cueEnum)
         {
-            if (m_sound != null && m_sound.CueEnum == MyGuiAudio.GetCue(cueEnum))
+            if (m_sound != null && m_sound.CueEnum == MyGuiAudio.GetCue(cueEnum) && m_sound.IsPlaying == false)
+            {
                 m_sound.Stop();
+                m_sound = null;
+            }
             m_soundQueue.RemoveAll(new System.Predicate<MyGuiSounds>((cue) => { return cue == cueEnum; }));
         }
 

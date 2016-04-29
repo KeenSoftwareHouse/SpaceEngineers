@@ -49,7 +49,10 @@ namespace Sandbox.Game.Components
                 {
                     var classDefinition = MyDefinitionManager.Static.GetBlueprintClass(blueprintClass);
                     System.Diagnostics.Debug.Assert(classDefinition != null, blueprintClass + " blueprint class definition was not found.");
-                    m_blueprintClasses.Add(classDefinition);
+                    if (classDefinition != null)
+                    {
+                        m_blueprintClasses.Add(classDefinition);
+                    }
                 }
             }
         }
@@ -193,6 +196,18 @@ namespace Sandbox.Game.Components
 
             if (m_soundEmitter != null) 
                 m_soundEmitter.StopSound(true);
+        }
+
+        public override void OnAddedToContainer()
+        {
+            base.OnAddedToContainer();
+
+            var entity = Entity as MyEntity;
+
+            if (entity != null)
+            {
+                entity.NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
+            }
         }
     }
 }

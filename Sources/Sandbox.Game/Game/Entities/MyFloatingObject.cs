@@ -35,6 +35,7 @@ using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.Engine.Multiplayer;
 
 #endregion
 
@@ -620,6 +621,18 @@ namespace Sandbox.Game.Entities
         bool IMyUseObject.HandleInput() { return false; }
 
         void IMyUseObject.OnSelectionLost() { }
+
+
+        public void SendCloseRequest()
+        {
+            MyMultiplayer.RaiseEvent(this,x => x.OnClosedRequest);
+        }
+
+        [Event, Reliable, Server]
+        void OnClosedRequest()
+        {
+            Close();
+        }
 
     }
 }

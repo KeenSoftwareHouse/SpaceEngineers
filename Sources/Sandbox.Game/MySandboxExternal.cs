@@ -40,13 +40,19 @@ namespace Sandbox
             DrawThread = Thread.CurrentThread;
 
             MyRenderWindow wnd = new MyRenderWindow();
+#if BLIT
+			System.Diagnostics.Debug.Assert(false);
+            wnd.Control = (SharpDX.Windows.RenderForm)Control.FromHandle(WindowHandle);
+#else
             wnd.Control = Control.FromHandle(WindowHandle);
             wnd.TopLevelForm = (Form)wnd.Control.TopLevelControl;
 
             m_bufferedInputSource = wnd;
             m_windowCreatedEvent.Set();
             ((Form)wnd.TopLevelForm).FormClosed += (o, e) => ExitThreadSafe();
-            Action showCursor = () =>
+#endif
+
+			Action showCursor = () =>
             {
                 //if (!wnd.TopLevelForm.IsDisposed)
                 //wnd.TopLevelForm.ShowCursor = true;

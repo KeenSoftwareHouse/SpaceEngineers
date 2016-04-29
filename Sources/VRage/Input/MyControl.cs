@@ -67,9 +67,9 @@ namespace VRage.Input
             m_controlId = controlId;
             m_name = name;
             m_controlType = controlType;
-            m_mouseButton = defaultControlMouse ?? MyMouseButtonsEnum.None;
-            m_keyboardKey = defaultControlKey ?? MyKeys.None;
-            m_KeyboardKey2 = defaultControlKey2 ?? MyKeys.None;
+            m_mouseButton = defaultControlMouse.HasValue ? defaultControlMouse.Value : MyMouseButtonsEnum.None;
+            m_keyboardKey = defaultControlKey.HasValue ? defaultControlKey.Value : MyKeys.None;
+            m_KeyboardKey2 = defaultControlKey2.HasValue ? defaultControlKey2.Value : MyKeys.None;
             m_data.Description = description;
         }
 

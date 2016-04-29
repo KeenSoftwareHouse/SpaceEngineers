@@ -202,7 +202,7 @@
     <Compile Include="Render\MyRender-Messages.cs" />
     <Compile Include="Render\MyRender-MessageSwitch.cs" />
     <Compile Include="Render\MyRender-RasterizerStates.cs" />
-    <Compile Include="Render\MyRender-SamplerStates.cs" />
+    <Compile Include="Render\SamplerStates.cs" />
     <Compile Include="Render\MyRender-SwapChain.cs" />
     <Compile Include="Render\MyRender.cs" />
     <Compile Include="Render\Utils\MyRenderFont.cs" />
@@ -230,6 +230,7 @@
     <Content Include="Shaders\debug_blitTexture3D.hlsl" />
     <Content Include="Shaders\debug_blitTextureArray.hlsl" />
     <Content Include="Shaders\debug_cascades_shadow.hlsl" />
+    <Content Include="Shaders\debug_Depth.hlsl" />
     <Content Include="Shaders\debug_edge.hlsl" />
     <Content Include="Shaders\debug_emissive.hlsl" />
     <Content Include="Shaders\debug_glossiness.hlsl" />

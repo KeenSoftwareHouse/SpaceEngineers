@@ -110,7 +110,7 @@ namespace Sandbox.Game
             // For example support filtering basing genericallt on the entity, hithinfo, damage...
 
             // Cannon ball in ME
-            if (proxy.GetType().Name.Contains("MyRopeHookBlock"))
+            if (proxy.ToString().StartsWith("MyRopeHookBlock"))
                 return true;
 
             return false;

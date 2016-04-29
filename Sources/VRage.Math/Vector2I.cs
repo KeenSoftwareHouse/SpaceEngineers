@@ -140,7 +140,7 @@ namespace VRageMath
         {
             public bool Equals(Vector2I x, Vector2I y)
             {
-                return x.X == y.X & x.Y == y.Y;
+                return x.X == y.X && x.Y == y.Y;
             }
 
             public int GetHashCode(Vector2I obj)

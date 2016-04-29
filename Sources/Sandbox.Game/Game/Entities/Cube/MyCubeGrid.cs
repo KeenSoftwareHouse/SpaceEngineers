@@ -1554,7 +1554,10 @@ namespace Sandbox.Game.Entities
 
             if (Physics != null && Physics.Enabled)
             {
-                Physics.RigidBody.Gravity = m_gravity;
+                if (!Physics.IsWelded)
+                {
+                    Physics.RigidBody.Gravity = m_gravity;
+                }
 
                 if (m_inventoryMassDirty)
                 {
@@ -2027,7 +2030,7 @@ namespace Sandbox.Game.Entities
         public bool CanAddCubes(Vector3I min, Vector3I max)
         {
             Vector3I current = min;
-            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
+            for (var it = new Vector3I_RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
             {
                 if (m_cubes.ContainsKey(current))
                     return false;
@@ -2040,7 +2043,7 @@ namespace Sandbox.Game.Entities
             if (MyFakes.ENABLE_COMPOUND_BLOCKS && definition != null)
             {
                 Vector3I current = min;
-                for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
+                for (var it = new Vector3I_RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out current))
                 {
                     if (!CanAddCube(current, orientation, definition))
                         return false;
@@ -2169,7 +2172,7 @@ namespace Sandbox.Game.Entities
         public void SetBlockDirty(MySlimBlock cubeBlock)
         {
             Vector3I cube = cubeBlock.Min;
-            for (var it = new Vector3I.RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out cube))
+            for (var it = new Vector3I_RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out cube))
             {
                 m_dirtyRegion.AddCube(cube);
             }
@@ -2178,7 +2181,7 @@ namespace Sandbox.Game.Entities
         public void DebugDrawRange(Vector3I min, Vector3I max)
         {
             Vector3I currentMin = min;
-            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out currentMin))
+            for (var it = new Vector3I_RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out currentMin))
             {
                 var currentMax = currentMin + 1;
 
@@ -2420,7 +2423,7 @@ namespace Sandbox.Game.Entities
 
             bool blockAddSuccessfull = true;
             Vector3I temp = cubeBlock.Min;
-            for (var it = new Vector3I.RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out temp))
+            for (var it = new Vector3I_RangeIterator(ref cubeBlock.Min, ref cubeBlock.Max); it.IsValid(); it.GetNext(out temp))
             {
                 blockAddSuccessfull &= AddCube(cubeBlock, ref temp, rotationMatrix, blockDefinition);
             }
@@ -2437,7 +2440,7 @@ namespace Sandbox.Game.Entities
 
             Vector3I boneMax = (cubeBlock.Min + Vector3I.One) * Skeleton.BoneDensity;
             Vector3I bonePos = cubeBlock.Min * Skeleton.BoneDensity;
-            for (var it = new Vector3I.RangeIterator(ref bonePos, ref boneMax); it.IsValid(); it.GetNext(out bonePos))
+            for (var it = new Vector3I_RangeIterator(ref bonePos, ref boneMax); it.IsValid(); it.GetNext(out bonePos))
             {
                 Vector3 boneOffset = Skeleton.GetDefinitionOffsetWithNeighbours(cubeBlock.Min, bonePos, this);
 
@@ -3606,7 +3609,7 @@ namespace Sandbox.Game.Entities
             Vector3I max = Vector3I.Max(cubeOffset, new Vector3I(0, 0, 0));
 
             Vector3I temp = min;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out temp))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out temp))
                 m_dirtyRegion.AddCube(gridPosition + temp);
         }
 
@@ -4335,7 +4338,7 @@ namespace Sandbox.Game.Entities
             bool removed;
             ProfilerShort.Begin("Remove cubes");
             Vector3I temp = block.Min;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref block.Min, ref block.Max); it.IsValid(); it.GetNext(out temp))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref block.Min, ref block.Max); it.IsValid(); it.GetNext(out temp))
             {
                 removed = RemoveCube(temp);
                 Debug.Assert(removed, "Cube to remove was not found");
@@ -4387,7 +4390,7 @@ namespace Sandbox.Game.Entities
                 m_disconnectsDirty = true;
 
             Vector3I cube = block.Min;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref block.Min, ref block.Max); it.IsValid(); it.GetNext(out cube))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref block.Min, ref block.Max); it.IsValid(); it.GetNext(out cube))
                 Skeleton.MarkCubeRemoved(ref cube);
 
             ProfilerShort.Begin("OnBlockRemoved");
@@ -6069,7 +6072,7 @@ namespace Sandbox.Game.Entities
             var localSphere = new BoundingSphereD(box.Center, sphere.Radius);
             BoundingBoxD blockBox = new BoundingBoxD();
 
-            Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref startIt, ref endIt);
+            Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref startIt, ref endIt);
             var pos = it.Current;
             for (; it.IsValid(); it.GetNext(out pos))
             {
@@ -6194,7 +6197,7 @@ namespace Sandbox.Game.Entities
             // CH: Testing code to catch a crash:
             if (m_cubes == null) MyLog.Default.WriteLine("m_cubes null in MyCubeGrid.QuerySphere!");
 
-            Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref startIt, ref endIt);
+            Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref startIt, ref endIt);
             var pos = it.Current;
             for (; it.IsValid(); it.GetNext(out pos))
             {
@@ -6361,7 +6364,7 @@ namespace Sandbox.Game.Entities
             }
 
             MyCube block;
-            Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref startIt, ref endIt);
+            Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref startIt, ref endIt);
             var pos = it.Current;
             if (m_tmpQueryCubeBlocks == null) m_tmpQueryCubeBlocks = new HashSet<MyEntity>();
             for (; it.IsValid(); it.GetNext(out pos))

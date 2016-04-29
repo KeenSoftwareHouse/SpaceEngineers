@@ -1,4 +1,5 @@
-﻿#region Using
+﻿#if !UNSHARPER
+#region Using
 
 using SharpDX.DirectInput;
 using System;
@@ -156,6 +157,12 @@ namespace VRage.Input
             m_gameControlsSnapshot = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             CloneControls(m_defaultGameControlsList, m_gameControlsList);
             ENABLE_DEVELOPER_KEYS = enableDevKeys;
+        }
+
+        public void AddDefaultControl(MyStringId stringId, MyControl control)
+        {
+            m_gameControlsList[stringId] = control;
+            m_defaultGameControlsList[stringId] = control;
         }
 
         public void LoadData(SerializableDictionary<string, object> controlsGeneral, SerializableDictionary<string, object> controlsButtons)
@@ -2446,3 +2453,4 @@ namespace VRage.Input
         }
     }
 }
+#endif

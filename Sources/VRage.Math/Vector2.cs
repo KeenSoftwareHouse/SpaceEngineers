@@ -498,7 +498,8 @@ namespace VRageMath
             result.X = num3;
             result.Y = num6;
         }
-
+		
+		[Unsharper.UnsharperDisableReflection()]
         public static Vector2 ClampToSphere(Vector2 vector, float radius)
         {
             float lsq = vector.LengthSquared();
@@ -510,7 +511,8 @@ namespace VRageMath
             return vector;
         }
 
-        public static void ClampToSphere(ref Vector2 vector, float radius)
+		[Unsharper.UnsharperDisableReflection()]
+		public static void ClampToSphere(ref Vector2 vector, float radius)
         {
             float lsq = vector.LengthSquared();
             float rsq = radius * radius;

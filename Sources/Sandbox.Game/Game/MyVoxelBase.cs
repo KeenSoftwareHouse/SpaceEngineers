@@ -290,7 +290,7 @@ namespace Sandbox.Game.Entities
                     RangeChanged -= (StorageChanged)handler;
                 }
 
-            if (!Storage.Shared && !(this is MyVoxelPhysics))
+            if (Storage != null && !Storage.Shared && !(this is MyVoxelPhysics))
             {
                 Storage.Close();
             }
@@ -298,7 +298,7 @@ namespace Sandbox.Game.Entities
 
         VRage.ModAPI.IMyStorage IMyVoxelBase.Storage
         {
-            get { return (Storage as VRage.ModAPI.IMyStorage); }
+            get { return Storage; }
         }
 
         string IMyVoxelBase.StorageName

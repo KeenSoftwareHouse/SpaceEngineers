@@ -271,7 +271,8 @@ namespace Sandbox.Game.Gui
             slider.UserData = setter;
             slider.ValueChanged = delegate(MyGuiControlSlider sender)
             {
-                ((Action<float>)sender.UserData)(sender.Value);
+				var ac = (Action<float>)sender.UserData;
+                ac(sender.Value);
                 ValueChanged(sender);
             };
             return slider;

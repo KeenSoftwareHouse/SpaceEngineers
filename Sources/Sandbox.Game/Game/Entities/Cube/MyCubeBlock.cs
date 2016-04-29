@@ -627,7 +627,7 @@ namespace Sandbox.Game.Entities
         public virtual bool ConnectionAllowed(ref Vector3I otherBlockMinPos, ref Vector3I otherBlockMaxPos, ref Vector3I faceNormal, MyCubeBlockDefinition def)
         {
             Vector3I pos = otherBlockMinPos;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref otherBlockMinPos, ref otherBlockMaxPos); it.IsValid(); it.GetNext(out pos))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref otherBlockMinPos, ref otherBlockMaxPos); it.IsValid(); it.GetNext(out pos))
             {
                 if (ConnectionAllowed(ref pos, ref faceNormal, def)) return true;
             }

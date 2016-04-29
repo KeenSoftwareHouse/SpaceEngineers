@@ -19,7 +19,8 @@ struct VertexShaderInterface
     float4 tangent_world;
 
     float3 key_color;
-    float custom_alpha;
+	float hologram;
+	float custom_alpha;
 
     // in
     float morphing;
@@ -58,7 +59,8 @@ VertexShaderInterface make_vs_interface()
     data.tangent_object = 0;
     data.tangent_world = 0;
     data.key_color = 0;
-    data.custom_alpha = 0;
+	data.hologram = 0;
+	data.custom_alpha = 0;
     data.morphing = 0;
     data.cDir = 0;
     data.cPos = 0;
@@ -458,7 +460,7 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
 #ifndef USE_MERGE_INSTANCING
     result.key_color = object_.key_color;
-    result.custom_alpha = object_.custom_alpha;
+	result.custom_alpha = object_.custom_alpha;
 #endif
 
     result._local_matrix = local_matrix;
@@ -466,11 +468,13 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
     result.key_color = __colormask.xyz;
-    result.custom_alpha += __colormask.w;
+    result.hologram = __colormask.w;
 #endif
 
 #if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
-    result.custom_alpha = __colormask.w * (__packed_bone7.w ? -1 : 1) + object_.custom_alpha;
+	result.hologram = __colormask.w * (__packed_bone7.w ? -1 : 1);
+
+
 #endif
 
     return result;

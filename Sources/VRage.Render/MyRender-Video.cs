@@ -29,7 +29,47 @@ namespace VRageRender
     internal static partial class MyRender
     {
         static Dictionary<uint, Tuple<string, float>> m_reloadVideos = new Dictionary<uint, Tuple<string, float>>();
+#if BLIT
+        static void CloseVideo(uint id)
+		{
+            Debug.Assert(false);
+		}
+        static void DrawVideo(uint id, Rectangle rect, Color color, MyVideoRectangleFitMode fitMode)
+		{
+            Debug.Assert(false);
+		}
+        internal static VideoState GetVideoState(uint id)
+        {
+            Debug.Assert(false);
+			return VideoState.Stopped;
+        }
+        internal static bool IsVideoValid(uint id)
+        {
+            Debug.Assert(false);
+            return false;
+        }
+        static void SetVideoVolume(uint id, float volume)
+        {
+            Debug.Assert(false);
+        }
+        static void UpdateVideo(uint id)
+        {
+            Debug.Assert(false);
+        }
+        static void PlayVideo(uint id, string fileName, float volume)
+        {
+            Debug.Assert(false);
+        }
+        static void UnloadContent_Video()
+        {
+            Debug.Assert(false);
+        }
+        static void LoadContent_Video()
+        {
+            Debug.Assert(false);
+        }
 
+#else
         static Dictionary<uint, MyVideoPlayerDx9> m_videos = new Dictionary<uint, MyVideoPlayerDx9>();
 
         static void LoadContent_Video()
@@ -181,6 +221,6 @@ namespace VRageRender
 
             return VideoState.Stopped;
         }
-
+#endif
     }
 }

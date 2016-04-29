@@ -165,7 +165,7 @@ namespace VRageRender
 
         internal static readonly Dictionary<uint, HashSet<MyEntityMaterialKey>> EntityDisabledMaterials = new Dictionary<uint, HashSet<MyEntityMaterialKey>>();
 
-        internal static void Init()
+        static MyScene()
         {
             int treeCount = SeparateGeometry ? Enum.GetValues(typeof(MyRenderableTrees)).Length : 1;
             m_renderableTrees = new MyDynamicAABBTreeD[treeCount];
@@ -939,8 +939,9 @@ namespace VRageRender
                                     property.Value.CustomMaterialProxy = matProxy;
 
                                     MyMaterials1.ProxyPool.Data[matProxy.Index] = MyMaterials1.ProxyPool.Data[proxy.DrawSubmesh.MaterialId.Index];
-                                    MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs = (ShaderResourceView[])MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs.Clone();
-                                    MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs[0] = property.Value.CustomRenderedTexture.ShaderView;
+                                    var providers = (IShaderResourceBindable[])MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs.Clone();
+                                    providers[0] = property.Value.CustomRenderedTexture;
+                                    MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.SRVs = providers;
                                     MyMaterials1.ProxyPool.Data[matProxy.Index].MaterialSRVs.Version = (int)Owner.ID;
                                 }
 
@@ -957,7 +958,7 @@ namespace VRageRender
 
         public void UpdateColorEmissivity(int lod, string materialName, Color diffuse, float emissivity)
         {
-            var key = new MyEntityMaterialKey { LOD = lod, Material = X.TEXT(materialName) };
+            var key = new MyEntityMaterialKey { LOD = lod, Material = X.TEXT_(materialName) };
             MyModelProperties properties;
             if (!ModelProperties.TryGetValue(key, out properties))
             {
@@ -1024,7 +1025,7 @@ namespace VRageRender
                 {
                     float value = 0;
 
-                    if (m_objectDithering != 0 || (renderableProxy.Instancing != InstancingId.NULL && renderableProxy.Instancing.Info.Type == MyRenderInstanceBufferType.Cube))
+                    if (m_objectDithering != 0 && (renderableProxy.Instancing != InstancingId.NULL && renderableProxy.Instancing.Info.Type == MyRenderInstanceBufferType.Cube))
                     {
                         value = m_objectDithering;
                     }
@@ -1296,18 +1297,18 @@ namespace VRageRender
                                     forwardFlags &= ~MyShaderUnifiedFlags.USE_GENERIC_INSTANCING;
 
                                     newProxy.DepthShaders = MyMaterialShaders.Get(
-                                        X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                                        X.TEXT(MyGeometryRenderer.DEFAULT_DEPTH_PASS),
+                                        X.TEXT_(MapTechniqueToShaderMaterial(technique)),
+                                        X.TEXT_(MyGeometryRenderer.DEFAULT_DEPTH_PASS),
                                         m_lods[lodIndex].VertexLayout1,
                                         depthFlags);
                                     newProxy.Shaders = MyMaterialShaders.Get(
-                                        X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                                        X.TEXT(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
+                                        X.TEXT_(MapTechniqueToShaderMaterial(technique)),
+                                        X.TEXT_(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
                                         m_lods[lodIndex].VertexLayout1,
                                         shaderFlags);
                                     newProxy.ForwardShaders = MyMaterialShaders.Get(
-                                        X.TEXT(MapTechniqueToShaderMaterial(technique)),
-                                        X.TEXT(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
+                                        X.TEXT_(MapTechniqueToShaderMaterial(technique)),
+                                        X.TEXT_(MyGeometryRenderer.DEFAULT_FORWARD_PASS),
                                         m_lods[lodIndex].VertexLayout1,
                                         forwardFlags);
 

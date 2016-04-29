@@ -15,10 +15,15 @@ namespace VRage.Collections
         Queue<T> m_queue;
         SpinLockRef m_lock = new SpinLockRef();
 
-        public MyConcurrentQueue(int capacity = 0)
+        public MyConcurrentQueue(int capacity)
         {
             m_queue = new Queue<T>(capacity);
         }
+
+		public MyConcurrentQueue() //default.
+		{
+			m_queue = new Queue<T>(0);
+		}
 
         public int Count
         {

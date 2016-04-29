@@ -88,13 +88,15 @@ namespace VRageRender
                     m_processStopwatch.Stop();
                     if (m_processStopwatch.Elapsed.TotalSeconds > 0.5f)
                     {
+#if !BLIT
                         //Debug.WriteLine("DoEvents()");
                         if (MyRenderProxy.EnableAppEventsCall)
                         {
                             Application.DoEvents();
                         }
-                        m_processStopwatch.Reset();
-                    }
+#endif
+						m_processStopwatch.Reset();
+					}
                     m_processStopwatch.Start();
                 }
             }
@@ -126,12 +128,14 @@ namespace VRageRender
                         m_processStopwatch.Stop();
                         if (m_processStopwatch.Elapsed.TotalSeconds > 0.5f)
                         {
+#if !BLIT
                             //Debug.WriteLine("DoEvents()");
                             if (MyRenderProxy.EnableAppEventsCall)
                             {
                                 Application.DoEvents();
                             }
-                            m_processStopwatch.Reset();
+#endif
+							m_processStopwatch.Reset();
                         }
                         m_processStopwatch.Start();
                     }

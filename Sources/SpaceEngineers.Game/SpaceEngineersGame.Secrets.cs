@@ -1,4 +1,5 @@
-﻿using Sandbox.Engine.Utils;
+﻿using Sandbox;
+using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using Sandbox.Game.Entities.Cube;
 using System.Collections.Generic;
@@ -6,7 +7,7 @@ using System.Text;
 
 namespace SpaceEngineers.Game
 {
-    public static partial class SpaceEngineersGame
+    public partial class SpaceEngineersGame : MySandboxGame
     {
         static partial void SetupSecrets()
         {

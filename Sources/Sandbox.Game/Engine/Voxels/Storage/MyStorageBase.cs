@@ -366,10 +366,8 @@ namespace Sandbox.Engine.Voxels
             {
                 m_compressedData = null;
 
-                if (CachedWrites && m_pendingChunksToWrite.Count < WriteCacheCap)
+                if (CachedWrites && (m_pendingChunksToWrite.Count < WriteCacheCap || OverlapsAnyCachedCell(voxelRangeMin, voxelRangeMax)))
                 {
-                    bool enqueued = m_pendingChunksToWrite.Count > 0;
-
                     var lodDiff = VoxelChunk.SizeBits;
 
                     var chunkMin = voxelRangeMin >> lodDiff;
@@ -404,13 +402,7 @@ namespace Sandbox.Engine.Voxels
                                     chunk.Write(source, dataToWrite, ref targetOffset, ref lodCkStart, ref lodCkEnd);
                                     if (!dirty) m_pendingChunksToWrite.Enqueue(pos);
                                 }
-
                             }
-
-                    if (!enqueued)
-                    {
-                        OperationsComponent.Add(this);
-                    }
                 }
                 else
                 {
@@ -550,7 +542,6 @@ namespace Sandbox.Engine.Voxels
                         if ((chunk.Cached & dataToRead) != dataToRead && !readFromStorage)
                         {
                             using (m_storageLock.AcquireSharedUsing())
-                            using (chunk.Lock.AcquireExclusiveUsing())
                                 if ((chunk.Cached & dataToRead) != dataToRead)
                                     ReadDatForChunk(chunk, dataToRead);
                         }

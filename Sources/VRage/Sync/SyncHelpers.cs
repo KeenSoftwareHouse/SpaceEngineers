@@ -12,6 +12,17 @@ using VRage.Serialization;
 
 namespace VRage.Library.Sync
 {
+#if BLIT
+	public static class SyncHelpers
+	{
+        public static SyncType Compose(object obj, int firstId = 0)
+		{
+			System.Diagnostics.Debug.Assert(false);
+			return null;
+		}
+	}
+
+#else
     using Item = System.Tuple<SyncHelpers.Composer, MySerializeInfo>;
 
     public static class SyncHelpers
@@ -79,4 +90,5 @@ namespace VRage.Library.Sync
             return (Composer)composerMethod.CreateDelegate(typeof(Composer));
         }
     }
+#endif
 }

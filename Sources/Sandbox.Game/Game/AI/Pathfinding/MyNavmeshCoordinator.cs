@@ -128,7 +128,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 Vector3I max = grid.LocalToGridInteger(triBB.Max);
                 Vector3I pos = min - Vector3I.One;
                 Vector3I max2 = max + Vector3I.One;
-                for (var it = new Vector3I.RangeIterator(ref pos, ref max2); it.IsValid(); it.GetNext(out pos))
+                for (var it = new Vector3I_RangeIterator(ref pos, ref max2); it.IsValid(); it.GetNext(out pos))
                 {
                     if (grid.GetCubeBlock(pos) != null)
                     {

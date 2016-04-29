@@ -189,7 +189,7 @@ namespace Sandbox.Game.Gui
 
         void UpdateFromConfig(MyGuiScreenOptionsAudioSettings settings)
         {
-            if (MySandboxGame.Config.MusicVolume > 0f)
+            /*if (MySandboxGame.Config.MusicVolume > 0f)
             {
                 settings.MusicVolume = MathHelper.Clamp(MathHelper.InterpLogInv((float)MySandboxGame.Config.MusicVolume, 0.01f, 1f), 0.01f, 1f);
             }
@@ -204,7 +204,9 @@ namespace Sandbox.Game.Gui
             else
             {
                 settings.GameVolume = 0f;
-            }
+            }*/
+            settings.GameVolume = MySandboxGame.Config.GameVolume;
+            settings.MusicVolume = MySandboxGame.Config.MusicVolume;
             settings.VoiceChatVolume = MySandboxGame.Config.VoiceChatVolume;
             settings.HudWarnings = MySandboxGame.Config.HudWarnings;
             settings.EnableVoiceChat = MySandboxGame.Config.EnableVoiceChat;
@@ -239,7 +241,7 @@ namespace Sandbox.Game.Gui
 
         static void UpdateValues(MyGuiScreenOptionsAudioSettings settings)
         {
-            if (settings.MusicVolume > 0f)
+            /*if (settings.MusicVolume > 0f)
             {
                 MyAudio.Static.VolumeMusic = MathHelper.Clamp(MathHelper.InterpLog((float)settings.MusicVolume, 0.01f, 1f), 0.01f, 1f);
             }
@@ -254,7 +256,9 @@ namespace Sandbox.Game.Gui
             else
             {
                 MyAudio.Static.VolumeGame = 0f;
-            }
+            }*/
+            MyAudio.Static.VolumeGame = settings.GameVolume;
+            MyAudio.Static.VolumeMusic = settings.MusicVolume;
             MyAudio.Static.VolumeVoiceChat = settings.VoiceChatVolume;
             MyAudio.Static.VolumeHud = MyAudio.Static.VolumeGame;
             MyAudio.Static.EnableVoiceChat = settings.EnableVoiceChat;

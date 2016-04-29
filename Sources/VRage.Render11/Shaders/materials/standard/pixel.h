@@ -8,10 +8,10 @@ void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 
 #ifndef DEPTH_ONLY
 	// for hologram sampling in branch
-	if (pixel.custom_alpha < 0)
+	if (pixel.hologram < 0)
 	{
 		// discards pixels
-		pixel.color_mul *= Hologram(pixel.screen_position, pixel.custom_alpha);
+		pixel.color_mul *= Hologram(pixel.screen_position, pixel.hologram);
 		output.emissive = 1;
 	}
 

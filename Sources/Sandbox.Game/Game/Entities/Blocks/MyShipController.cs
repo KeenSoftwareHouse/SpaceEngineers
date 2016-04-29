@@ -103,6 +103,7 @@ namespace Sandbox.Game.Entities
         MyHudNotification m_weaponNotWorkingNotification;
 
         MyHudNotification m_noControlNotification;
+        MyHudNotification m_connectorsNotification;
 
         protected virtual MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCockpit; } }
 
@@ -225,7 +226,7 @@ namespace Sandbox.Game.Entities
 
                 var handBrake = new MyTerminalControlCheckbox<MyShipController>("HandBrake", MySpaceTexts.TerminalControlPanel_Cockpit_Handbrake, MySpaceTexts.TerminalControlPanel_Cockpit_Handbrake);
                 handBrake.Getter = (x) => x.CubeGrid.GridSystems.WheelSystem.HandBrake;
-                handBrake.Setter = (x, v) => x.CubeGrid.SetHandbrakeRequest(v);
+                handBrake.Setter = (x, v) => x.SwitchLeadingGears();
                 handBrake.Visible = (x) => x.m_enableShipControl;
                 handBrake.Enabled = (x) => x.GridWheels.WheelCount > 0 && x.IsMainCockpitFree();
                 action = handBrake.EnableAction();
@@ -409,9 +410,21 @@ namespace Sandbox.Game.Entities
         {
             MoveAndRotate(moveIndicator, rotationIndicator, roll);
 
-            GridGyroSystem.UpdateBeforeSimulation(true);
-            GridGyroSystem.ControlTorque = Vector3.Zero;
+            if (GridGyroSystem != null)
+            {
+                GridGyroSystem.UpdateBeforeSimulation(true);
+                GridGyroSystem.ControlTorque = Vector3.Zero;
+            }
 
+            var thrustComponent = EntityThrustComponent;
+            if (thrustComponent != null)
+            {
+                thrustComponent.UpdateBeforeSimulation(true);
+                thrustComponent.ControlThrust = Vector3.Zero;
+                thrustComponent.ControlThrustMagnitude = Vector3.One;
+            }
+
+            MoveIndicator = Vector3.Zero;
             RotationIndicator = Vector2.Zero;
             RollIndicator = 0.0f;
         }
@@ -430,8 +443,7 @@ namespace Sandbox.Game.Entities
                         CubeGrid.GridSystems.WheelSystem.Brake = true;
                     else
                         CubeGrid.GridSystems.WheelSystem.Brake = false;
-                    if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.LANDING_GEAR))
-                        CubeGrid.GridSystems.WheelSystem.HandBrake = !CubeGrid.GridSystems.WheelSystem.HandBrake;
+                    if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.LANDING_GEAR)){ }
                 }
             }
             // No movement, no change, early return
@@ -1460,24 +1472,48 @@ namespace Sandbox.Game.Entities
             {
                 CubeGrid.GridSystems.LandingSystem.Switch();
                 CubeGrid.GridSystems.ConveyorSystem.ToggleConnectors();
+                CubeGrid.SetHandbrakeRequest(!CubeGrid.GridSystems.WheelSystem.HandBrake);
             }
+
+            HudNotifications();
+        }
+
+        //Show notification for each case (maybe more than one)
+        public void HudNotifications()
+        {
             if (ControllerInfo.IsLocallyHumanControlled())
             {
-                //by Gregory: for siplaying message with handbrake
-                var handbrakeEnabled = GridWheels != null && GridWheels.WheelCount > 0 && IsMainCockpitFree();
-                if (CubeGrid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.NoObjects && handbrakeEnabled)
+                //handbrake
+                bool isHandbrakeMessage = MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT && GridWheels != null && GridWheels.WheelCount > 0 && IsMainCockpitFree() && CubeGrid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.NoObjects;
+                if (isHandbrakeMessage)
                 {
                     m_handbrakeNotification = new MyHudNotification(CubeGrid.GridSystems.WheelSystem.HandBrake ? MySpaceTexts.NotificationHandbrakeOn : MySpaceTexts.NotificationHandbrakeOff);
                     MyHud.Notifications.Add(m_handbrakeNotification);
-                    return;
+                    //return;
                 }
 
-                if (m_landingGearsNotification == null)
-                    m_landingGearsNotification = new MyHudNotification();
-                m_landingGearsNotification.Text = (CubeGrid.GridSystems.LandingSystem.Locked == MyMultipleEnabledEnum.AllDisabled ? MySpaceTexts.NotificationLandingGearSwitchUnlocked : MySpaceTexts.NotificationLandingGearSwitchLocked);
-                MyHud.Notifications.Add(m_landingGearsNotification);
+                //landing gears
+                if (CubeGrid.GridSystems.LandingSystem.HudMessage != MyStringId.NullOrEmpty)
+                {
+                    m_landingGearsNotification = new MyHudNotification(CubeGrid.GridSystems.LandingSystem.HudMessage);
+                    MyHud.Notifications.Add(m_landingGearsNotification);
+                    CubeGrid.GridSystems.LandingSystem.HudMessage = MyStringId.NullOrEmpty;
+                    //return;
+                }
+
+                //connectors
+                if (CubeGrid.GridSystems.ConveyorSystem.HudMessage != MyStringId.NullOrEmpty)
+                {
+                    m_connectorsNotification = new MyHudNotification(CubeGrid.GridSystems.ConveyorSystem.HudMessage);
+                    MyHud.Notifications.Add(m_connectorsNotification);
+                    CubeGrid.GridSystems.ConveyorSystem.HudMessage = MyStringId.NullOrEmpty;
+                }
+
+
             }
         }
+
+        
 
         public void SwitchReactors()
         {

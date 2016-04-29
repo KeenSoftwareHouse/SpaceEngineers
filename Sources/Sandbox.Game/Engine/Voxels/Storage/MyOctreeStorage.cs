@@ -497,7 +497,7 @@ namespace Sandbox.Engine.Voxels
             var leafCount = (Size / LeafSizeInVoxels);
             Vector3I leaf = Vector3I.Zero;
             var end = leafCount - 1;
-            for (var it = new Vector3I.RangeIterator(ref Vector3I.Zero, ref end);
+            for (var it = new Vector3I_RangeIterator(ref Vector3I.Zero, ref end);
                 it.IsValid();
                 it.GetNext(out leaf))
             {
@@ -940,7 +940,7 @@ namespace Sandbox.Engine.Voxels
                             if (startInChild != Vector3I.Zero || endInChild != rangeEnd) //if write is aligned you dont need to read (make write aligned everywhere possible)
                                 leaf.ReadRange(m_temporaryCache, args.DataType.ToFlags(),ref Vector3I.Zero, 0, ref Vector3I.Zero, ref rangeEnd, ref flags);
                             var inCell = startInChild;
-                            for (var it2 = new Vector3I.RangeIterator(ref startInChild, ref endInChild);
+                            for (var it2 = new Vector3I_RangeIterator(ref startInChild, ref endInChild);
                                 it2.IsValid(); it2.GetNext(out inCell))
                             {
                                 var read = readOffset + (inCell - startInChild);

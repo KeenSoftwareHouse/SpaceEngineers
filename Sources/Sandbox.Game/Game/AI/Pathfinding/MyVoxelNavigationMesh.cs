@@ -175,7 +175,7 @@ namespace Sandbox.Game.AI.Pathfinding
             MyVoxelCoordSystems.VoxelCoordToGeometryCellCoord(ref maxVoxelChanged, out maxCell);
 
             Vector3I currentCell = minCell;
-            for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out currentCell))
+            for (var it = new Vector3I_RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out currentCell))
             {
                 if (m_processedCells.Contains(ref(currentCell)))
                 {
@@ -212,7 +212,7 @@ namespace Sandbox.Game.AI.Pathfinding
             pos /= 1 << NAVMESH_LOD;
             end /= 1 << NAVMESH_LOD;
 
-            for (var it = new Vector3I.RangeIterator(ref pos, ref end); it.IsValid(); it.GetNext(out pos))
+            for (var it = new Vector3I_RangeIterator(ref pos, ref end); it.IsValid(); it.GetNext(out pos))
             {
                 float rectDistance = Vector3.RectangularDistance(pos, center);
                 if (rectDistance > 1)
@@ -462,7 +462,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
             Vector3I adjacentCell = minCell;
             m_adjacentBBoxes.Clear();
-            for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out adjacentCell))
+            for (var it = new Vector3I_RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out adjacentCell))
             {
                 if (adjacentCell.Equals(cellPos))
                     continue;

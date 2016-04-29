@@ -39,6 +39,8 @@ namespace VRage.Input
         //  being pressed. Reference page contains links to related code samples.
         void ModAPI.IMyInput.GetPressedKeys(List<MyKeys> keys) { ((IMyInput)this).GetPressedKeys(keys); }
 
+        public void AddDefaultControl(MyStringId stringId, MyControl control) { }
+
         #region Key Button States
 
         //  Return true if new key pressed right now. Don't care if it was pressed in previous update too.

@@ -2110,6 +2110,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyDescription_LightRadius = MyStringId.GetOrCompute("BlockPropertyDescription_LightRadius");
 
         ///<summary>
+        ///Reflector radius
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_LightReflectorRadius = MyStringId.GetOrCompute("BlockPropertyTitle_LightReflectorRadius");
+
+        ///<summary>
+        ///Reflector radius of influence of the light
+        ///</summary>
+        public static readonly MyStringId BlockPropertyDescription_LightReflectorRadius = MyStringId.GetOrCompute("BlockPropertyDescription_LightReflectorRadius");
+
+        ///<summary>
         ///Falloff
         ///</summary>
         public static readonly MyStringId BlockPropertyTitle_LightFalloff = MyStringId.GetOrCompute("BlockPropertyTitle_LightFalloff");
@@ -5595,6 +5605,16 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId TerminalTab_GPS_ShowOnHud = MyStringId.GetOrCompute("TerminalTab_GPS_ShowOnHud");
 
         ///<summary>
+        ///Always Visible
+        ///</summary>
+        public static readonly MyStringId TerminalTab_GPS_AlwaysVisible = MyStringId.GetOrCompute("TerminalTab_GPS_AlwaysVisible");
+
+        ///<summary>
+        ///Prevents this GPS coordinate from getting clustered or fading out.
+        ///</summary>
+        public static readonly MyStringId TerminalTab_GPS_AlwaysVisible_Tooltip = MyStringId.GetOrCompute("TerminalTab_GPS_AlwaysVisible_Tooltip");
+
+        ///<summary>
         ///X
         ///</summary>
         public static readonly MyStringId TerminalTab_GPS_X = MyStringId.GetOrCompute("TerminalTab_GPS_X");
@@ -8793,5 +8813,20 @@ namespace Sandbox.Game.Localization
         ///Remove floating objects
         ///</summary>
         public static readonly MyStringId ScreenDebugAdminMenu_RemoveFloating = MyStringId.GetOrCompute("ScreenDebugAdminMenu_RemoveFloating");
+
+        ///<summary>
+        ///Connectors Disabled
+        ///</summary>
+        public static readonly MyStringId NotificationConnectorsDisabled = MyStringId.GetOrCompute("NotificationConnectorsDisabled");
+
+        ///<summary>
+        ///Connectors Enabled
+        ///</summary>
+        public static readonly MyStringId NotificationConnectorsEnabled = MyStringId.GetOrCompute("NotificationConnectorsEnabled");
+
+        ///<summary>
+        ///Jump drives cannot be used to jump outside world limits.
+        ///</summary>
+        public static readonly MyStringId NotificationCannotJumpOutsideWorld = MyStringId.GetOrCompute("NotificationCannotJumpOutsideWorld");
     }
 }

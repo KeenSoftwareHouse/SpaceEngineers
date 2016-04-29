@@ -32,6 +32,7 @@ using BoundingFrustrum = VRageMath.BoundingFrustum;
 
 namespace VRageRender
 {
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     public static class MyRenderProxy
     {
         public static bool DRAW_RENDER_STATS = false;
@@ -230,7 +231,13 @@ namespace VRageRender
         private static uint GetMessageId() {
             using (m_messageIdLock.Acquire())
             {
+#if BLIT
+                uint v = m_render.GlobalMessageCounter;
+                m_render.GlobalMessageCounter = m_render.GlobalMessageCounter + 1;
+                return v;
+#else
                 return m_render.GlobalMessageCounter++;
+#endif
             }
         }
 
@@ -503,7 +510,8 @@ namespace VRageRender
 
             EnqueueMessage(message);
 
-            UpdateRenderEntity(id, Vector3.Zero, Vector3.Zero, dithering);
+            Color zeroColor = Vector3.Zero;
+            UpdateRenderEntity(id, zeroColor, Vector3.Zero, dithering);
 
             return id;
         }
@@ -1845,7 +1853,12 @@ namespace VRageRender
             EnqueueMessage(message);
         }
 
-        public static void DrawVideo(uint id, Rectangle rect, Color color, MyVideoRectangleFitMode fitMode = MyVideoRectangleFitMode.None)
+        public static void DrawVideo(uint id, Rectangle rect, Color color)
+        {
+            DrawVideo(id, rect, color, MyVideoRectangleFitMode.None);
+        }
+
+        public static void DrawVideo(uint id, Rectangle rect, Color color, MyVideoRectangleFitMode fitMode)
         {
             var message = MessagePool.Get<MyRenderMessageDrawVideo>(MyRenderMessageEnum.DrawVideo);
 
@@ -2485,7 +2498,7 @@ namespace VRageRender
 
             m = Matrix.CreateScale(diameter, height, diameter) * m;
             m.Translation = (vertexA + vertexB) * 0.5f;
-            m *= worldMatrix;
+            m = m * worldMatrix;
 
             DebugDrawCylinder(m, color, alpha, depthRead, smooth);
         }

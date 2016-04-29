@@ -208,7 +208,7 @@ namespace VRageRender
         //  Returns: Amount to kern (in pixels)
         protected int CalcKern(char chLeft, char chRight)
         {
-            sbyte kern;
+            sbyte kern = 0;
             m_kernByPair.TryGetValue(new KernPair(chLeft, chRight), out kern);
             return kern;
         }

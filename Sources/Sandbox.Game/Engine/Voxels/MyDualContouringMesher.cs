@@ -74,6 +74,8 @@ namespace Sandbox.Engine.Voxels
                 if (request.HasFlag(MyVoxelRequestFlags.EmptyContent) || request.HasFlag(MyVoxelRequestFlags.FullContent)
                     || (!request.HasFlag(MyVoxelRequestFlags.ContentChecked) && !m_cache.ContainsIsoSurface()))
                 {
+                    //if(generateMaterials && lod == 0) Debugger.Break();
+                    //storage.DebugDrawChunk(voxelStart, voxelEnd);
                     return null;
                 }
 
@@ -185,7 +187,7 @@ namespace Sandbox.Engine.Voxels
             var mcount = Sandbox.Definitions.MyDefinitionManager.Static.VoxelMaterialCount;
             voxelEnd = Vector3I.Min(voxelEnd - voxelStart, m_cache.Size3D);
             voxelStart = Vector3I.Zero;
-            var it = new Vector3I.RangeIterator(ref voxelStart, ref voxelEnd);
+            var it = new Vector3I_RangeIterator(ref voxelStart, ref voxelEnd);
             var pos = it.Current;
             for (; it.IsValid(); it.GetNext(out pos))
             {

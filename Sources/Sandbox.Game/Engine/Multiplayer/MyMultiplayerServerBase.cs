@@ -100,7 +100,7 @@ namespace Sandbox.Engine.Multiplayer
         public override void Dispose()
         {
             MyEntities.OnEntityCreate -= CreateReplicableForObject;
-            MyInventoryBase.OnAfterAddedToContainer -= CreateReplicableForObject;
+            MyEntityComponentBase.OnAfterAddedToContainer -= CreateReplicableForObject;
             MyExternalReplicable.Destroyed -= DestroyReplicable;
             base.Dispose();
         }

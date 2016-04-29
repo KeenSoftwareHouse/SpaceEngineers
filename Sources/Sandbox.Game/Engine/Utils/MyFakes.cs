@@ -99,8 +99,9 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_NEW_SOUNDS = false;
         public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
-        public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = false;
-        public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = false;
+        public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
+        public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
+        public static bool ENABLE_MUSIC_CONTROLLER = false;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;
@@ -283,9 +284,6 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_USE_OBJECT_HIGHLIGHT = true;
 
         public static bool ENABLE_USE_NEW_OBJECT_HIGHLIGHT = true;
-
-        // REMOVE-ME as soon as highlight is properly working for merged proxies
-        public static bool ENABLE_ME_HIGHLIGHT_TEMPORARY_HACK = false;
 
         public static float MAX_PRECALC_TIME_IN_MILLIS = 20f;
         public static bool ENABLE_YIELDING_IN_PRECALC_TASK = false;
@@ -657,6 +655,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_GATHERING_SMALL_BLOCK_FROM_GRID = false;
 
         public static bool ENABLE_COMPONENT_BLOCKS = true;
+        public static bool ENABLE_SMALL_GRID_BLOCK_INFO = true;
 
         public static bool ENABLE_MEDIEVAL_AREA_INVENTORY = false;
 

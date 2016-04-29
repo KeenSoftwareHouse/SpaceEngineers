@@ -10,21 +10,27 @@ namespace VRageRender
 {
     partial class MyRender11
     {
-        internal static unsafe void InitSubsystems()
+        internal static unsafe void InitSubsystemsOnce()
         {
             InitializeBlendStates();
             InitializeRasterizerStates();
-            InitilizeSamplerStates();
+            SamplerStates.InitOnce();
+            MyTextures.InitOnce();
+        }
 
-            MyScene.Init();
+        internal static unsafe void InitSubsystems()
+        {
+            MyRwTextures.Init();
+            MyHwBuffers.Init();
+            MyPipelineStates.Init();
+            ResetShadows(MyRenderProxy.Settings.ShadowCascadeCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
             MyRender11.Init();
             MyCommon.Init();
-            MyPipelineStates.Init();
+            SamplerStates.Init();
+            MyDepthStencilState.Init();
             MyTextures.Init();
             MyVertexLayouts.Init();
             MyShaders.Init();
-            MyRwTextures.Init();
-            MyHwBuffers.Init();
             MyMeshes.Init(); 
             MyMeshTableSRV.Init();
             MyLightRendering.Init();
@@ -71,6 +77,9 @@ namespace VRageRender
             MyPipelineStates.OnDeviceReset();
             MyTextures.OnDeviceReset();
             MyRwTextures.OnDeviceReset();
+
+            SamplerStates.OnDeviceReset();
+
             MyTransparentRendering.OnDeviceReset();
 
             ResetShadows(Settings.ShadowCascadeCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
@@ -78,8 +87,8 @@ namespace VRageRender
             MyBillboardRenderer.OnDeviceRestart();
             MyScreenDecals.OnDeviceReset();
 
-            MyMeshMaterials1.InvalidateMaterials();
-            MyVoxelMaterials1.InvalidateMaterials();
+            MyMeshMaterials1.OnDeviceReset();
+            MyVoxelMaterials1.OnDeviceReset();
 
             MyRenderableComponent.MarkAllDirty();
             foreach (var f in MyComponentFactory<MyFoliageComponent>.GetAll())

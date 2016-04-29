@@ -44,6 +44,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(DefaultStrength)]
         public float Strength = DefaultStrength;
 
+
+        public bool? IsMaster;
+
         public bool ShouldSerializeConnectedEntityId() { return ConnectedEntityId != 0; }
         public bool ShouldSerializeConnected() { return false; }
 

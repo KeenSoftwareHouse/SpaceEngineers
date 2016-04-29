@@ -22,6 +22,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.Game.ModAPI.Ingame;
+using Sandbox.Game.Localization;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -81,6 +82,8 @@ namespace Sandbox.Game.GameSystems
         private HashSet<MyConveyorLine> m_deserializedLines;
 
         public bool IsClosing = false;
+
+        public MyStringId HudMessage = MyStringId.NullOrEmpty;
 
         public MyResourceSinkComponent ResourceSink
         {
@@ -601,9 +604,19 @@ namespace Sandbox.Game.GameSystems
                 if (connector.GetPlayerRelationToOwner() == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies) continue;
 
                 if (connected && connector.Connected)
+                {
                     connector.TryDisconnect();
+                    HudMessage = MySpaceTexts.NotificationConnectorsDisabled;
+                }
                 if (!connected)
+                {
                     connector.TryConnect();
+
+                    if (connector.InConstraint)
+                        HudMessage = MySpaceTexts.NotificationConnectorsEnabled;
+                    else
+                        HudMessage = MyStringId.NullOrEmpty;
+                }
             }
         }
 

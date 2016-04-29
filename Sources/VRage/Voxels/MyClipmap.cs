@@ -55,8 +55,8 @@ namespace VRage.Voxels
 
         public static bool UseCache = true;
         public static bool NeedsResetCache = false;
-        public static LRUCache<UInt64, CellData> CellsCache;
-        protected static Dictionary<UInt64, CellData> PendingCacheCellData = new Dictionary<UInt64, CellData>();
+        public static LRUCache<UInt64, MyClipmap_CellData> CellsCache;
+        protected static Dictionary<UInt64, MyClipmap_CellData> PendingCacheCellData = new Dictionary<UInt64, MyClipmap_CellData>();
         protected static int ClippingCacheHits = 0;
         protected static int ClippingCacheMisses = 0;
 

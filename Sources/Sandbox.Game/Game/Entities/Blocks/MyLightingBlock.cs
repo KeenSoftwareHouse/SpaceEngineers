@@ -36,6 +36,7 @@ namespace Sandbox.Game.Entities.Blocks
         protected MyLight m_light;
         private readonly Sync<float> m_intesity;
         private readonly Sync<Color> m_lightColor;
+        private readonly Sync<float> m_lightRadius;
         private readonly Sync<float> m_lightReflectorRadius;
         private readonly Sync<float> m_lightFalloff;
 
@@ -127,13 +128,22 @@ namespace Sandbox.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(lightColor);
 
             var lightRadius = new MyTerminalControlSlider<MyLightingBlock>("Radius", MySpaceTexts.BlockPropertyTitle_LightRadius, MySpaceTexts.BlockPropertyDescription_LightRadius);
-            lightRadius.SetLimits((x) => x.ReflectorRadiusBounds.Min, (x) => x.ReflectorRadiusBounds.Max);
-            lightRadius.DefaultValueGetter = (x) => x.ReflectorRadiusBounds.Default;
-            lightRadius.Getter = (x) => x.ReflectorRadius;
-            lightRadius.Setter = (x, v) => x.m_lightReflectorRadius.Value = v;
-            lightRadius.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_light.ReflectorRange, 1)).Append(" m");
+            lightRadius.SetLimits((x) => x.RadiusBounds.Min, (x) => x.RadiusBounds.Max);
+            lightRadius.DefaultValueGetter = (x) => x.RadiusBounds.Default;
+            lightRadius.Getter = (x) => x.Radius;
+            lightRadius.Setter = (x, v) => x.m_lightRadius.Value = v;
+            lightRadius.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_light.Range, 1)).Append(" m");
             lightRadius.EnableActions();
             MyTerminalControlFactory.AddControl(lightRadius);
+
+            var lightReflectorRadius = new MyTerminalControlSlider<MyLightingBlock>("Reflector Radius", MySpaceTexts.BlockPropertyTitle_LightReflectorRadius, MySpaceTexts.BlockPropertyDescription_LightReflectorRadius);
+            lightReflectorRadius.SetLimits((x) => x.ReflectorRadiusBounds.Min, (x) => x.ReflectorRadiusBounds.Max);
+            lightReflectorRadius.DefaultValueGetter = (x) => x.ReflectorRadiusBounds.Default;
+            lightReflectorRadius.Getter = (x) => x.ReflectorRadius;
+            lightReflectorRadius.Setter = (x, v) => x.m_lightReflectorRadius.Value = v;
+            lightReflectorRadius.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.m_light.ReflectorRange, 1)).Append(" m");
+            lightReflectorRadius.EnableActions();
+            MyTerminalControlFactory.AddControl(lightReflectorRadius);
 
             var lightFalloff = new MyTerminalControlSlider<MyLightingBlock>("Falloff", MySpaceTexts.BlockPropertyTitle_LightFalloff, MySpaceTexts.BlockPropertyDescription_LightFalloff);
             lightFalloff.SetLimits((x) => x.FalloffBounds.Min, (x) => x.FalloffBounds.Max);
@@ -141,7 +151,7 @@ namespace Sandbox.Game.Entities.Blocks
             lightFalloff.Getter = (x) => x.Falloff;
             lightFalloff.Setter = (x, v) => x.m_lightFalloff.Value = v;
             lightFalloff.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.Falloff, 1));
-            lightRadius.EnableActions();
+            lightFalloff.EnableActions();
             MyTerminalControlFactory.AddControl(lightFalloff);
 
             var lightIntensity = new MyTerminalControlSlider<MyLightingBlock>("Intensity", MySpaceTexts.BlockPropertyTitle_LightIntensity, MySpaceTexts.BlockPropertyDescription_LightIntensity);
@@ -150,7 +160,7 @@ namespace Sandbox.Game.Entities.Blocks
             lightIntensity.Getter = (x) => x.Intensity;
             lightIntensity.Setter = (x, v) => x.Intensity = v;
             lightIntensity.Writer = (x, result) => result.Append(MyValueFormatter.GetFormatedFloat(x.Intensity, 1));
-            lightRadius.EnableActions();
+            lightIntensity.EnableActions();
             MyTerminalControlFactory.AddControl(lightIntensity);
 
             var lightBlinkTime = new MyTerminalControlSlider<MyLightingBlock>("Blink Interval", MySpaceTexts.BlockPropertyTitle_LightBlinkInterval, MySpaceTexts.BlockPropertyDescription_LightBlinkInterval);
@@ -397,6 +407,7 @@ namespace Sandbox.Game.Entities.Blocks
             this.Render = new MyRenderComponentLight();
 
             m_lightColor.ValueChanged += x => LightColorChanged();
+            m_lightRadius.ValueChanged += x => LightRadiusChanged();
             m_lightReflectorRadius.ValueChanged += x => LightReflectorRadiusChanged();
             m_lightFalloff.ValueChanged += x => LightFalloffChanged();
         }
@@ -404,6 +415,11 @@ namespace Sandbox.Game.Entities.Blocks
         void LightFalloffChanged()
         {
             Falloff = m_lightFalloff.Value;
+        }
+
+        void LightRadiusChanged()
+        {
+            Radius = m_lightRadius.Value;
         }
 
         void LightReflectorRadiusChanged()

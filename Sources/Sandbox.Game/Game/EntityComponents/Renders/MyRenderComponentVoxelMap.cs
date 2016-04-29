@@ -94,7 +94,7 @@ namespace Sandbox.Game.Components
                     var minCell = minCellLod0 >> i;
                     var maxCell = maxCellLod0 >> i;
                     var cellCoord = new MyCellCoord(i, ref minCell);
-                    for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell);
+                    for (var it = new Vector3I_RangeIterator(ref minCell, ref maxCell);
                         it.IsValid(); it.GetNext(out cellCoord.CoordInLod))
                     {
                         m_renderWorkTracker.Invalidate(cellCoord.PackId64());

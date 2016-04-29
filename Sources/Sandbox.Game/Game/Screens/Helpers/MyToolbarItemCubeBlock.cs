@@ -19,6 +19,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage;
 using Sandbox.Game.SessionComponents;
+using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -120,9 +121,15 @@ namespace Sandbox.Game.Screens.Helpers
                     }
 
                     if (MySession.Static.SurvivalMode)
+                    {
                         changed |= SetEnabled(m_lastAmount > 0);
+                    }
                     else
+                    {
                         changed |= SetEnabled(true);
+                        // so that we correctly set icontext when changing from enabled to disabled even when the amount is the same
+                        changed |= ChangeInfo.IconText;
+                    }
                 }
             }
             else
@@ -134,6 +141,15 @@ namespace Sandbox.Game.Screens.Helpers
                 changed |= SetEnabled(MySessionComponentResearch.Static.CanUse(character, Definition.Id));
 
             return changed;
+        }
+
+        public override void FillGridItem(MyGuiControlGrid.Item gridItem)
+        {
+            if (MyFakes.ENABLE_GATHERING_SMALL_BLOCK_FROM_GRID)
+                if (m_lastAmount > 0)
+                    gridItem.AddText(String.Format("{0}x", m_lastAmount), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
+                else
+                    gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
         }
     }
 }

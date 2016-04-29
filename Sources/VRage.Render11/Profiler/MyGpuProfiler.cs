@@ -99,7 +99,9 @@ namespace VRageRender
             bool ok = true;
             while (ok)
             {
-                ok = m_frames.ElementAt(0).IsFinished();
+				//this will fail if all frames are finished.
+				//ok = m_frames.ElementAt(0).IsFinished();
+                ok = m_frames.Count == 0 ? false : m_frames.ElementAt(0).IsFinished();
                 if (ok)
                 {
                     var frame = m_frames.Dequeue();
@@ -115,7 +117,11 @@ namespace VRageRender
         {
             QueryDataTimestampDisjoint disjoint = MyImmediateRC.RC.DeviceContext.GetData<QueryDataTimestampDisjoint>(frame.m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
 
+#if UNSHARPER
+            if (!disjoint.Disjoint.value)
+#else
             if (!disjoint.Disjoint)
+#endif
             {
                 var freq = disjoint.Frequency;
                 double invFreq = 1.0 / (double)freq;
@@ -160,6 +166,8 @@ namespace VRageRender
 
         internal static void IC_Enqueue(MyIssuedQuery q)
         {
+			if (m_currentFrame == null)
+				return;
             m_currentFrame.m_issued.Enqueue(q);
         }
 

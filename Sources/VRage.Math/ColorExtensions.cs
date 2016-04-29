@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace VRageMath
 {
@@ -9,6 +10,10 @@ namespace VRageMath
     {
         public static Vector3 ColorToHSV(this Color rgb)
         {
+#if BLITCREMENTAL
+			Debug.Assert(false);
+			return new Vector3(0,0,0);
+#else
             System.Drawing.Color color = System.Drawing.Color.FromArgb(rgb.R, rgb.G, rgb.B);
             int max = Math.Max(color.R, Math.Max(color.G, color.B));
             int min = Math.Min(color.R, Math.Min(color.G, color.B));
@@ -17,6 +22,7 @@ namespace VRageMath
             float saturation = (max == 0) ? 0 : 1f - (1f * min / max);
             float value = max / 255f;
             return new Vector3(hue, saturation, value);
+#endif
         }
 
 
@@ -25,6 +31,10 @@ namespace VRageMath
         /// </summary>
         public static Vector3 ColorToHSVDX11(this Color rgb)
         {
+#if BLITCREMENTAL
+			Debug.Assert(false);
+			return new Vector3(0,0,0);
+#else
             System.Drawing.Color color = System.Drawing.Color.FromArgb(rgb.R, rgb.G, rgb.B);
 
             int max = Math.Max(color.R, Math.Max(color.G, color.B));
@@ -34,7 +44,8 @@ namespace VRageMath
             float saturation = (max == 0) ? -1f : 1f - (2f * min / max);
             float value = -1f + 2f * max / 255f;
             return new Vector3(hue, saturation, value);
-        }
+#endif
+		}
 
         private static Vector3 Hue(float H)
         {

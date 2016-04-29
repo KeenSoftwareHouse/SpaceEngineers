@@ -2621,7 +2621,7 @@ namespace Sandbox.Game.Entities
                     if (MyEntities.TryGetEntityById<MyTerminalBlock>(item.EntityID, out block))
                     {
                         var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                        builder.Action = item.Action;
+                        builder._Action = item.Action;
                         builder.Parameters = item.Parameters;
                         toolbarItem = MyToolbarItemFactory.CreateToolbarItem(builder);
                     }
@@ -2637,7 +2637,7 @@ namespace Sandbox.Game.Entities
                         if (group != null)
                         {
                             var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                            builder.Action = item.Action;
+                            builder._Action = item.Action;
                             builder.BlockEntityId = item.EntityID;
                             builder.Parameters = item.Parameters;
                             toolbarItem = MyToolbarItemFactory.CreateToolbarItem(builder);

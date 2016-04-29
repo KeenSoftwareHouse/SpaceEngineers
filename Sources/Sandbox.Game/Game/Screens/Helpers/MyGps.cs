@@ -18,6 +18,7 @@ namespace Sandbox.Game.Screens.Helpers
         public string Description;
         public Vector3D Coords;
         public bool ShowOnHud;
+        public bool AlwaysVisible;
         public TimeSpan? DiscardAt;//final=null. Not final=time at which we should drop it from the list, relative to ElapsedPlayTime
         public int Hash
         {
@@ -60,6 +61,7 @@ namespace Sandbox.Game.Screens.Helpers
             Description = builder.description;
             Coords = builder.coords;
             ShowOnHud = builder.showOnHud;
+            AlwaysVisible = builder.alwaysVisible;
             if (!builder.isFinal)
                 SetDiscardAt();
             UpdateHash();

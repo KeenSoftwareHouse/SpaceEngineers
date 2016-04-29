@@ -25,6 +25,8 @@ namespace ParallelTasks
         WorkPriority Priority { get; }
     }
 
+
+#if !UNSHARPER
     public class FixedPriorityScheduler : IWorkScheduler
     {
         private readonly MyConcurrentQueue<Task>[] m_taskQueuesByPriority;
@@ -136,4 +138,7 @@ namespace ParallelTasks
             }
         }
     }
+
+#endif //UNSHARPER
+
 }

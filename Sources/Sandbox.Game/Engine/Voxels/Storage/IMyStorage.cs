@@ -2,10 +2,13 @@
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using System.Collections.Generic;
+using System.Linq;
+using Sandbox.Game.World;
 using VRage.Collections;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -151,6 +154,22 @@ namespace Sandbox.Engine.Voxels
             def = MyDefinitionManager.Static.GetVoxelMaterialDefinition(cache.Material(0));
 
             return def;
+        }
+
+        public static void DebugDrawChunk(this IMyStorage self, Vector3I start, Vector3I end, Color? c = null)
+        {
+            if (!c.HasValue) c = Color.Blue;
+
+            var vmaps = MySession.Static.VoxelMaps.Instances.Where(x => x.Storage == self);
+
+            var box = new BoundingBoxD(start, end + 1);
+
+            box.Translate(-((Vector3D)self.Size * .5) - .5);
+
+            foreach (var map in vmaps)
+            {
+                MyRenderProxy.DebugDrawOBB(new MyOrientedBoundingBoxD(box, map.WorldMatrix), c.Value, 0.5f, true, true);
+            }
         }
     }
 }

@@ -21,7 +21,11 @@ namespace VRage.Input
             }
 
             public KeyboardLayout(string keyboardLayoutID)
+#if UNSHARPER
+				:this(new IntPtr())
+#else
                 : this(WinApi.LoadKeyboardLayout(keyboardLayoutID, KLF_NOTELLSHELL))
+#endif
             {
             }
 
@@ -35,8 +39,11 @@ namespace VRage.Input
             {
                 if (IsDisposed)
                     return;
-
+#if UNSHARPER
+					System.Diagnostics.Debug.Assert(false);
+#else
                 WinApi.UnloadKeyboardLayout(Handle);
+#endif
                 IsDisposed = true;
             }
 
@@ -46,7 +53,12 @@ namespace VRage.Input
             {
                 get
                 {
-                    return new KeyboardLayout(WinApi.GetKeyboardLayout(IntPtr.Zero));
+#if UNSHARPER
+					System.Diagnostics.Debug.Assert(false);
+					return new KeyboardLayout();
+#else
+					return new KeyboardLayout(WinApi.GetKeyboardLayout(IntPtr.Zero));
+#endif
                 }
             }
         }

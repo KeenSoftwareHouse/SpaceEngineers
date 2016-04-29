@@ -233,7 +233,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             CalculateMergeArea(out minI, out maxI);
 
             Vector3I pos = minI;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref minI, ref maxI); it.IsValid(); it.GetNext(out pos))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref minI, ref maxI); it.IsValid(); it.GetNext(out pos))
             {
                 var block = this.CubeGrid.GetCubeBlock(pos);
                 if (block != null)
@@ -249,7 +249,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             CalculateMergeArea(out minI, out maxI);
 
             Vector3I pos = minI;
-            for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref minI, ref maxI); it.IsValid(); it.GetNext(out pos))
+            for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref minI, ref maxI); it.IsValid(); it.GetNext(out pos))
             {
                 var block = this.CubeGrid.GetCubeBlock(pos);
                 if (block != null && block.FatBlock != null)

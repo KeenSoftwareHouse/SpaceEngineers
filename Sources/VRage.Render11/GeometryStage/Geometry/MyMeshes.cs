@@ -283,6 +283,7 @@ namespace VRageRender
         internal MyMeshMaterialId Material;
     }
 
+
     [DebuggerDisplay("Name = {Name}, MeshCount = {Meshes.Length}")]
     struct MyMeshSectionInfo1
     {
@@ -299,6 +300,21 @@ namespace VRageRender
         internal int PartSubmeshIndex;
         internal MyMeshMaterialId Material;
     }
+
+
+	struct MyMeshRawData
+	{
+		internal VertexLayoutId VertexLayout;
+
+		internal byte[] Indices;
+		internal Format IndicesFmt;
+
+		internal byte[] VertexStream0;
+		internal int Stride0;
+
+		internal byte[] VertexStream1;
+		internal int Stride1;
+	}
 
     struct MyLodMeshInfo
     {
@@ -365,19 +381,6 @@ namespace VRageRender
         internal bool FileExists;
     }
 
-    struct MyMeshRawData
-    {
-        internal VertexLayoutId VertexLayout;
-
-        internal byte[] Indices;
-        internal Format IndicesFmt;
-
-        internal byte[] VertexStream0;
-        internal int Stride0;
-
-        internal byte[] VertexStream1;
-        internal int Stride1;
-    }
 
     struct MyMeshBuffers
     {
@@ -580,7 +583,7 @@ namespace VRageRender
 
         internal static bool Exists(string name)
         {
-            var x = X.TEXT(name);
+            var x = X.TEXT_(name);
             return MeshNameIndex.ContainsKey(x) || RuntimeMeshNameIndex.ContainsKey(x);
         }
 

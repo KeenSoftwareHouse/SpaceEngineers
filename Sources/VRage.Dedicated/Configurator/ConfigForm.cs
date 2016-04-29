@@ -314,12 +314,12 @@ namespace VRage.Dedicated
                 // Selects the value for EnvironmentHostility combobox according to the setting of the selected scenario
                 if (MyPerGameSettings.Game == GameEnum.SE_GAME && startGameButton.Checked)
                 {
-                    // Assigns the variable m_cbbEnvironmentHostility
                     m_cbbEnvironmentHostility = tableLayoutPanel1.Controls.Find("EnvironmentHostility", true)[0] as ComboBox;
-                    m_cbbEnvironmentHostility.SelectedItem = ((ScenarioItem)scenarioCB.SelectedItem).Definition.DefaultEnvironment;
+                    m_cbbEnvironmentHostility.SelectedItem = (scenarioCB.SelectedItem == null) ? MyEnvironmentHostilityEnum.NORMAL : ((ScenarioItem)scenarioCB.SelectedItem).Definition.DefaultEnvironment;
                     scenarioCB.SelectedIndexChanged += scenarioCB_SelectedIndexChanged;
                     // this variable was changed to true with the code above
                     m_isEnvironmentHostilityChanged = false;
+
                 }
             }
         }
@@ -650,10 +650,10 @@ namespace VRage.Dedicated
             {
                 // Assigns the variable m_cbbEnvironmentHostility
                 m_cbbEnvironmentHostility = tableLayoutPanel1.Controls.Find("EnvironmentHostility", true)[0] as ComboBox;
-                m_cbbEnvironmentHostility.SelectedItem = ((ScenarioItem)scenarioCB.SelectedItem).Definition.DefaultEnvironment;
+                m_cbbEnvironmentHostility.SelectedItem = (scenarioCB.SelectedItem == null) ? MyEnvironmentHostilityEnum.NORMAL : ((ScenarioItem)scenarioCB.SelectedItem).Definition.DefaultEnvironment;
                 scenarioCB.SelectedIndexChanged += scenarioCB_SelectedIndexChanged;
                 // this variable was changed to true with the code above
-                m_isEnvironmentHostilityChanged = false;
+                m_isEnvironmentHostilityChanged = false; 
             }
         }
 

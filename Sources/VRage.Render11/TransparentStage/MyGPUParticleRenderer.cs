@@ -71,12 +71,12 @@ namespace VRageRender
             RC.SetRS(MyRender11.m_nocullRasterizerState);
             RC.SetIL(null);
             RC.CSSetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-            RC.DeviceContext.ComputeShader.SetSamplers(0, MyRender11.StandardSamplers);
-            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.ComputeShader.SetSamplers(0, SamplerStates.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
             RC.SetCB(4, MyRender11.DynamicShadows.ShadowCascades.CascadeConstantBuffer);
-            RC.DeviceContext.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
-            RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.ShaderView);
-            RC.DeviceContext.VertexShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.VertexShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, SamplerStates.m_shadowmap);
+            RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.SRV);
+            RC.DeviceContext.VertexShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             // If we are resetting the particle system, then initialize the dead list
             if (m_resetSystem)
@@ -108,7 +108,7 @@ namespace VRageRender
             Render(textureArraySRV, depthRead);
             MyGpuProfiler.IC_EndBlock();
 
-            RC.DeviceContext.ComputeShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.ComputeShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             /*Debug.WriteLine(string.Format("dead particles @ start {0} dead after emit {1} dead after sim {2} active after sim {3}", 
                 m_numDeadParticlesOnInit, m_numDeadParticlesAfterEmit, 
@@ -174,8 +174,8 @@ namespace VRageRender
 
                 RC.CSSetCB(1, m_emitterConstantBuffer);
 
-                RC.CSBindRawSRV(0, Resources.MyTextures.Views[Resources.MyTextures.RandomTexId.Index]);
-                RC.CSBindRawSRV(1, m_emitterStructuredBuffer.Srv);
+                RC.CSBindRawSRV(0, Resources.MyTextures.RandomTexId);
+                RC.CSBindRawSRV(1, m_emitterStructuredBuffer);
 
                 RC.SetCS(m_csEmit);
                 RC.DeviceContext.Dispatch(numThreadGroupsX, numThreadGroupsY, 1);
@@ -197,7 +197,7 @@ namespace VRageRender
             RC.BindUAV(3, m_indirectDrawArgsBuffer);
 
             RC.BindSRV(0, depthRead);
-            RC.CSBindRawSRV(1, m_emitterStructuredBuffer.Srv);
+            RC.CSBindRawSRV(1, m_emitterStructuredBuffer);
 
             RC.SetCS(m_csSimulate);
 
@@ -225,11 +225,11 @@ namespace VRageRender
             RC.BindSRV(0, depthRead);
             RC.DeviceContext.PixelShader.SetShaderResources(1, textureArraySRV);
             
-            RC.VSBindRawSRV(0, m_particleBuffer.m_SRV);
-            RC.VSBindRawSRV(1, m_aliveIndexBuffer.m_SRV);
-            RC.VSBindRawSRV(2, m_emitterStructuredBuffer.Srv);
+            RC.VSBindRawSRV(0, m_particleBuffer);
+            RC.VSBindRawSRV(1, m_aliveIndexBuffer);
+            RC.VSBindRawSRV(2, m_emitterStructuredBuffer);
             RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT,
-                MyRender11.IsIntelBrokenCubemapsWorkaround ? Resources.MyTextures.GetView(Resources.MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.ShaderView);
+                MyRender11.IsIntelBrokenCubemapsWorkaround ? Resources.MyTextures.GetView(Resources.MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.SRV);
             RC.DeviceContext.VertexShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT,
                 Resources.MyTextures.GetView(Resources.MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, Resources.MyTextureEnum.CUBEMAP, true)));
 

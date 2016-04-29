@@ -13,6 +13,29 @@ using System.Threading;
 
 namespace VRageRender
 {
+#if BLIT
+	class MyMemory
+	{
+		//[DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+		public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
+	}
+	class MyVideoPlayer
+	{
+		public VideoState CurrentState
+		{
+			get { return VideoState.Stopped; }
+		}
+	}
+	class MyVideoFactory
+	{
+		internal static Dictionary<uint, MyVideoPlayer> Videos = new Dictionary<uint, MyVideoPlayer>();
+		internal static Mutex VideoMutex = new Mutex();
+		internal static void Create(uint id, string videoFile)
+		{
+			Debug.Assert(false);
+		}
+	}
+#else
     class MyMemory
     {
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
@@ -110,7 +133,7 @@ namespace VRageRender
             VRageMath.Rectangle? source = src;
             Vector2 origin = new Vector2(src.Width / 2 * 0, src.Height);
             
-            MySpritesRenderer.AddSingleSprite(m_texture.ShaderView, videoSize, color, origin, Vector2.UnitX, source, destination);
+            MySpritesRenderer.AddSingleSprite(m_texture, videoSize, color, origin, Vector2.UnitX, source, destination);
         }
     }
 
@@ -145,4 +168,5 @@ namespace VRageRender
             VideoMutex.ReleaseMutex();
         }
     }
+#endif
 }

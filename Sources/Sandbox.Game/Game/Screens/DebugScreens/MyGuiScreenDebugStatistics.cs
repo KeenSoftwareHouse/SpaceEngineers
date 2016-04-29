@@ -1,5 +1,6 @@
 ﻿using Sandbox.Common;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Audio;
 using Sandbox.Game.Replication;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
@@ -168,8 +169,15 @@ namespace Sandbox.Game.Gui
             }
 #endif
 
-            m_texts.Add(StringBuilderCache.GetFormatedInt("Sound Instances Total 2D: ", MyAudio.Static.GetSoundInstancesTotal2D()));
-            m_texts.Add(StringBuilderCache.GetFormatedInt("Sound Instances Total 3D: ", MyAudio.Static.GetSoundInstancesTotal3D()));
+            m_texts.Add(StringBuilderCache.GetFormatedInt("Sound Instances Total: ", MyAudio.Static.GetSoundInstancesTotal2D()).Append(" 2d / ").AppendInt32(MyAudio.Static.GetSoundInstancesTotal3D()).Append(" 3d"));
+            if(MyMusicController.Static != null)
+            {
+                if (MyMusicController.Static.CategoryPlaying.Equals(MyStringId.NullOrEmpty))
+                    m_texts.Add(StringBuilderCache.Append("No music playing, last category: " + MyMusicController.Static.CategoryLast.ToString() + ", next track in ")
+                        .AppendDecimal(Math.Max(0f,MyMusicController.Static.NextMusicTrackIn), 1).Append("s"));
+                else
+                    m_texts.Add(StringBuilderCache.Append("Playing music category: " + MyMusicController.Static.CategoryPlaying.ToString()));
+            }
 
             var tmp = StringBuilderCache;
             MyAudio.Static.WriteDebugInfo(tmp);

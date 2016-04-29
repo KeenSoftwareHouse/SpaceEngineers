@@ -1,6 +1,5 @@
 // @define USE_NORMALMAP_DECAL
 // @define USE_COLORMAP_DECAL
-// @define USE_DUAL_SOURCE_BLENDING
 
 #include <common.h>
 #include <frame.h>

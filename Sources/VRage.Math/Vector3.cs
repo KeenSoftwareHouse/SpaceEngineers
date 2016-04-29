@@ -13,6 +13,7 @@ namespace VRageMath
     /// Defines a vector with three components.
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
+	[Unsharper.UnsharperDisableReflection()]
     public struct Vector3 : IEquatable<Vector3>
     {
         public static Vector3 Zero = new Vector3();
@@ -1167,6 +1168,7 @@ namespace VRageMath
         //D3DXVECTOR3* WINAPI D3DXVec3TransformCoord
         //  ( D3DXVECTOR3 *pOut, CONST D3DXVECTOR3 *pV, CONST D3DXMATRIX *pM );
 
+#if NATIVE_SUPPORT
         /// <summary>Native Interop Function</summary>
         [DllImport("d3dx9_43.dll", EntryPoint = "D3DXVec3TransformCoord", CallingConvention = CallingConvention.StdCall, PreserveSig = true), SuppressUnmanagedCodeSecurityAttribute]
         private unsafe extern static Vector3* D3DXVec3TransformCoord_([Out] Vector3* pOut, [In] Vector3* pV,[In] Matrix* pM);
@@ -1182,7 +1184,7 @@ namespace VRageMath
                     D3DXVec3TransformCoord_(resultRef_, posRef_, matRef_);
             }
         }
-
+#endif
 
 
 

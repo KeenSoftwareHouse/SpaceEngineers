@@ -127,6 +127,7 @@ namespace Sandbox.Game
         public static bool OffsetVoxelMapByHalfVoxel = false;
 
         public static bool UseVolumeLimiter = false;
+        public static bool UseMusicController = false;
 
         public static bool UseSameSoundLimiter = false;
 

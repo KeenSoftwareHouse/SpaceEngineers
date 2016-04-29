@@ -265,6 +265,8 @@ namespace Sandbox.Game.Gui
 
         public static MyObjectBuilder_Definitions LoadWorkshopPrefab(string archive, ulong? publishedItemId)
         {
+#if !BLIT
+
             if (!File.Exists(archive) || publishedItemId == null)
                 return null;
             var subItem = MyGuiBlueprintScreen.m_subscribedItemsList.Find(item => item.PublishedFileId == publishedItemId);
@@ -292,7 +294,8 @@ namespace Sandbox.Game.Gui
                 objectBuilder.ShipBlueprints[0].CubeGrids[0].DisplayName = subItem.Title;
                 return objectBuilder;
             }
-            return null;
+#endif
+			return null;
         }
 
         public static MyObjectBuilder_Definitions LoadPrefab(string filePath)

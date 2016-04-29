@@ -70,7 +70,7 @@ namespace VRageRender.Profiler
         // Set to true to track memory in Render Profiler
         public const bool MemoryProfiling = VRage.MyCompilationSymbols.ProfileWorkingSetMemory;
 
-        protected static MyProfiler.MyProfilerBlock m_fpsBlock;
+        protected static MyProfilerBlock m_fpsBlock;
         protected static float m_fpsPctg;
 
         //{Color.Cyan, Color.Orange, new Color(208, 86, 255), Color.BurlyWood, Color.LightGray,
@@ -142,20 +142,21 @@ namespace VRageRender.Profiler
             }
         }
 
-        public static List<MyProfiler.MyProfilerBlock> GetSortedChildren(int frameToSortBy)
+
+        public static List<MyProfilerBlock> GetSortedChildren(int frameToSortBy)
         {
-            List<MyProfiler.MyProfilerBlock> sortedChildren = new List<MyProfiler.MyProfilerBlock>(m_selectedProfiler.SelectedRootChildren);
+            List<MyProfilerBlock> sortedChildren = new List<MyProfilerBlock>(m_selectedProfiler.SelectedRootChildren);
 
             switch (m_sortingOrder)
             {
                 case RenderProfilerSortingOrder.Id:
-                    sortedChildren.Sort(delegate(MyProfiler.MyProfilerBlock a, MyProfiler.MyProfilerBlock b)
+                    sortedChildren.Sort(delegate(MyProfilerBlock a, MyProfilerBlock b)
                     {
                         return a.Id.CompareTo(b.Id);
                     });
                     break;
                 case RenderProfilerSortingOrder.MillisecondsLastFrame:
-                    sortedChildren.Sort(delegate(MyProfiler.MyProfilerBlock a, MyProfiler.MyProfilerBlock b)
+                    sortedChildren.Sort(delegate(MyProfilerBlock a, MyProfilerBlock b)
                     {
                         // Sorts by milliseconds, in case of equal performance, sorts by ID instead
                         int comparisonResult = b.Miliseconds[frameToSortBy].CompareTo(a.Miliseconds[frameToSortBy]);
@@ -164,7 +165,7 @@ namespace VRageRender.Profiler
                     });
                     break;
                 case RenderProfilerSortingOrder.MillisecondsAverage:
-                    sortedChildren.Sort(delegate(MyProfiler.MyProfilerBlock a, MyProfiler.MyProfilerBlock b)
+                    sortedChildren.Sort(delegate(MyProfilerBlock a, MyProfilerBlock b)
                     {
                         // Sorts by average milliseconds, in case of equal performance, sorts by ID instead
                         int comparisonResult = b.averageMiliseconds.CompareTo(a.averageMiliseconds);
@@ -177,7 +178,7 @@ namespace VRageRender.Profiler
             return sortedChildren;
         }
 
-        public static MyProfiler.MyProfilerBlock FindBlockByIndex(int index)
+        public static MyProfilerBlock FindBlockByIndex(int index)
         {
             var children = GetSortedChildren(m_selectedFrame);
             if (index >= 0 && index < children.Count)
@@ -193,6 +194,29 @@ namespace VRageRender.Profiler
         {
             int wrappedIndex = frameIndex > lastValidFrame ? frameIndex : frameIndex + MyProfiler.MAX_FRAMES;
             return wrappedIndex > (lastValidFrame + MyProfiler.UPDATE_WINDOW); // Outside update window
+        }
+
+
+        public static MyProfilerBlock FindBlockByMax(int frameIndex, int lastValidFrame)
+        {
+            if (!IsValidIndex(frameIndex, lastValidFrame))
+                return null;
+
+            float max = float.MinValue;
+            MyProfilerBlock block = null;
+
+            var children = m_selectedProfiler.SelectedRootChildren;
+            for (int i = 0; i < children.Count; i++)
+            {
+                var profilerBlock = children[i];
+                float val = profilerBlock.Miliseconds[frameIndex];
+                if (val > max)
+                {
+                    max = val;
+                    block = profilerBlock;
+                }
+            }
+            return block;
         }
 
         public static void HandleInput(RenderProfilerCommand command, int index)
@@ -236,17 +260,12 @@ namespace VRageRender.Profiler
                         if (index == 0 && !m_enabled)
                         {
                             m_enabled = true;
-                            m_profilerProcessingEnabled = true;
+                            m_profilerProcessingEnabled = true; // Enable when disabled and keep enabled
                         }
                         else
-                        {
-                            MyProfiler.MyProfilerBlock nextBlock = FindBlockByIndex(index - 1); // On screen it's indexed from 1 (zero is level up)
-                            if (nextBlock != null || (m_selectedProfiler.SelectedRoot != null && m_selectedProfiler.SelectedRoot.Parent == null))
-                                m_selectedProfiler.SelectedRoot = nextBlock;
-                        }
+                            m_selectedProfiler.SelectedRoot = FindBlockByIndex(index - 1); // On screen it's indexed from 1 (zero is level up)
                         break;
                     }
-
                 case RenderProfilerCommand.Pause:
                     {
                         Paused = !Paused;
@@ -323,7 +342,7 @@ namespace VRageRender.Profiler
                 case RenderProfilerCommand.CopyPathToClipboard:
                     {
                         StringBuilder pathBuilder = new StringBuilder(200);
-                        MyProfiler.MyProfilerBlock currentBlock = m_selectedProfiler.SelectedRoot;
+                        MyProfilerBlock currentBlock = m_selectedProfiler.SelectedRoot;
 
                         while (currentBlock != null)
                         {
@@ -370,16 +389,16 @@ namespace VRageRender.Profiler
                         {
                             string[] split = fullPath.Split(new string[] { " > " }, StringSplitOptions.None);
 
-                            MyProfiler.MyProfilerBlock pathBlock = null;
-                            List<MyProfiler.MyProfilerBlock> blockSet = m_selectedProfiler.RootBlocks;
+                            MyProfilerBlock pathBlock = null;
+                            List<MyProfilerBlock> blockSet = m_selectedProfiler.RootBlocks;
                             for (int i = 0; i<split.Length; i++)
                             {
                                 string blockName = split[i];
-                                MyProfiler.MyProfilerBlock oldPath = pathBlock;
+                                MyProfilerBlock oldPath = pathBlock;
 
                                 for (int j = 0; j<blockSet.Count; j++)
                                 {
-                                    MyProfiler.MyProfilerBlock block = blockSet[j];
+                                    MyProfilerBlock block = blockSet[j];
                                     if (block.Name == blockName)
                                     {
                                         pathBlock = block;

@@ -1473,9 +1473,9 @@ namespace Sandbox.Game.Gui
 
             //Hard coded, will do it in a prettier way!
             MyObjectBuilder_ToolbarItemTerminal newData = (MyObjectBuilder_ToolbarItemTerminal)data.ItemData;
-            newData.Action = (string)args.UserData;
+            newData._Action = (string)args.UserData;
             AddGridItemToToolbar(newData);
-            newData.Action = null;
+            newData._Action = null;
         }
 
         void onDropContextMenu_ItemClicked(MyGuiControlContextMenu sender, MyGuiControlContextMenu.EventArgs args)

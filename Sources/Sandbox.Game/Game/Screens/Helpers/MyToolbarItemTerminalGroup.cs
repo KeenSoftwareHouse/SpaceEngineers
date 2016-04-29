@@ -253,7 +253,7 @@ namespace Sandbox.Game.Screens.Helpers
             this.m_blockEntityId = builder.BlockEntityId;
             this.m_groupName = new StringBuilder(builder.GroupName);
             m_wasValid = true;
-            SetAction(builder.Action);
+            SetAction(builder._Action);
             return true;
         }
 
@@ -262,7 +262,7 @@ namespace Sandbox.Game.Screens.Helpers
             MyObjectBuilder_ToolbarItemTerminalGroup output = (MyObjectBuilder_ToolbarItemTerminalGroup)MyToolbarItemFactory.CreateObjectBuilder(this);
             output.GroupName = this.m_groupName.ToString();
             output.BlockEntityId = this.m_blockEntityId;
-            output.Action = this.ActionId;
+            output._Action = this.ActionId;
             return output;
         }
     }

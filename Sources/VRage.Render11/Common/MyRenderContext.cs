@@ -569,71 +569,36 @@ namespace VRageRender
             }
         }
 
-        internal void BindRawSRV(int slot, ShaderResourceView srv)
+        internal void BindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResource(slot, srv);
-            DeviceContext.PixelShader.SetShaderResource(slot, srv);
+            DeviceContext.VertexShader.SetShaderResource(slot, srv.SRV);
+            DeviceContext.PixelShader.SetShaderResource(slot, srv.SRV);
 
             Stats.BindShaderResources++;
             Stats.BindShaderResources++;
             MyRender11.ProcessDebugOutput();
         }
 
-        internal void BindRawSRV(int slot, ShaderResourceView[] srvs)
+        internal void VSBindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResources(slot, srvs);
-            DeviceContext.PixelShader.SetShaderResources(slot, srvs);
+            DeviceContext.VertexShader.SetShaderResource(slot, srv.SRV);
 
             Stats.BindShaderResources++;
             Stats.BindShaderResources++;
             MyRender11.ProcessDebugOutput();
         }
 
-        internal void VSBindRawSRV(int slot, ShaderResourceView srv)
+        internal void CSBindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.VertexShader.SetShaderResource(slot, srv);
-
-            Stats.BindShaderResources++;
-            Stats.BindShaderResources++;
-            MyRender11.ProcessDebugOutput();
-        }
-
-        internal void VSBindRawSRV(int slot, ShaderResourceView[] srvs)
-        {
-            DeviceContext.VertexShader.SetShaderResources(slot, srvs);
-
-            Stats.BindShaderResources++;
-            Stats.BindShaderResources++;
-            MyRender11.ProcessDebugOutput();
-        }
-
-        internal void CSBindRawSRV(int slot, ShaderResourceView srv)
-        {
-            DeviceContext.ComputeShader.SetShaderResource(slot, srv);
+            DeviceContext.ComputeShader.SetShaderResource(slot, srv.SRV);
 
             Stats.BindShaderResources++;
             MyRender11.ProcessDebugOutput();
         }
 
-        internal void CSBindRawSRV(int slot, ShaderResourceView[] srvs)
+        internal void PSBindRawSRV(int slot, IShaderResourceBindable srv)
         {
-            DeviceContext.ComputeShader.SetShaderResources(slot, srvs);
-
-            Stats.BindShaderResources++;
-            MyRender11.ProcessDebugOutput();
-        }
-
-        internal void PSBindRawSRV(int slot, ShaderResourceView srv)
-        {
-            DeviceContext.PixelShader.SetShaderResources(0, srv);
-
-            Stats.BindShaderResources++;
-            MyRender11.ProcessDebugOutput();
-        }
-
-        internal void PSBindRawSRV(int slot, ShaderResourceView[] srvs)
-        {
-            DeviceContext.PixelShader.SetShaderResources(0, srvs);
+            DeviceContext.PixelShader.SetShaderResources(0, srv.SRV);
 
             Stats.BindShaderResources++;
             MyRender11.ProcessDebugOutput();
@@ -1000,11 +965,11 @@ namespace VRageRender
         }
 
         /// <summary>
-        /// Useful for dual-source blending
+        /// Bind the provided slot to SV_Target0. Useful for dual-source blending
         /// </summary>
-        internal void BindGBuffer0ForWrite(MyGBuffer gbuffer, DepthStencilAccess depthStencilFlags = DepthStencilAccess.ReadWrite)
+        internal void BindGBufferForWrite(MyGBuffer gbuffer, MyGbufferSlot slot, DepthStencilAccess depthStencilFlags = DepthStencilAccess.ReadWrite)
         {
-            m_tmpBinds1[0] = gbuffer.Get(MyGbufferSlot.GBuffer0);
+            m_tmpBinds1[0] = gbuffer.Get(slot);
             BindDepthRTInternal(gbuffer.Get(MyGbufferSlot.DepthStencil), depthStencilFlags, m_tmpBinds1);
 
             Array.Clear(m_tmpBinds1, 0, m_tmpBinds1.Length);
@@ -1119,13 +1084,15 @@ namespace VRageRender
                 State.m_srvTableBindings.Get(new MyStageSrvBinding { Stage = MyShaderStage.VS, Slot = desc.StartSlot }, NO_VERSION) != desc.Version)
             {
                 State.m_srvTableBindings[new MyStageSrvBinding { Stage = MyShaderStage.VS, Slot = desc.StartSlot }] = desc.Version;
-                DeviceContext.VertexShader.SetShaderResources(desc.StartSlot, desc.SRVs);
+                for (int i = 0; i < desc.SRVs.Length; i++)
+                    DeviceContext.VertexShader.SetShaderResource(desc.StartSlot + i, desc.SRVs[i].SRV);
             }
             if ((desc.BindFlag & MyBindFlag.BIND_PS) > 0 &&
                 State.m_srvTableBindings.Get(new MyStageSrvBinding { Stage = MyShaderStage.PS, Slot = desc.StartSlot }, NO_VERSION) != desc.Version)
             {
                 State.m_srvTableBindings[new MyStageSrvBinding { Stage = MyShaderStage.PS, Slot = desc.StartSlot }] = desc.Version;
-                DeviceContext.PixelShader.SetShaderResources(desc.StartSlot, desc.SRVs);
+                for (int i = 0; i < desc.SRVs.Length; i++)
+                    DeviceContext.PixelShader.SetShaderResource(desc.StartSlot + i, desc.SRVs[i].SRV);
             }
             MyRender11.ProcessDebugOutput();
         }

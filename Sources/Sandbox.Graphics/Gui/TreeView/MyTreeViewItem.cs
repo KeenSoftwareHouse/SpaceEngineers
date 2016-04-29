@@ -9,7 +9,7 @@ namespace Sandbox.Graphics.GUI
 {
     class MyTreeViewItem : MyTreeViewBase
     {
-        public EventHandler Action;
+        public EventHandler _Action;
         public EventHandler RightClick;
         public MyTreeViewItemDragAndDrop DragDrop { get; set; }
 
@@ -256,7 +256,7 @@ namespace Sandbox.Graphics.GUI
             // Double click - launch Action event
             if (Enabled && /*!captured && MyInput.Static.IsNewLeftMouseDoubleClick() && */TreeView.HooveredItem == this)
             {
-                if (Action != null)
+                if (_Action != null)
                 {
                     DoAction();
                 }
@@ -298,9 +298,9 @@ namespace Sandbox.Graphics.GUI
 
         public void DoAction()
         {
-            if (Action != null)
+            if (_Action != null)
             {
-                Action(this, EventArgs.Empty);
+                _Action(this, EventArgs.Empty);
             }
         }
     }

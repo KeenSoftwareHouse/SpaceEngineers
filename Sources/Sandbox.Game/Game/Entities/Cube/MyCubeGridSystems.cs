@@ -293,29 +293,27 @@ namespace Sandbox.Game.Entities.Cube
             TerminalSystem.GroupAdded += m_terminalSystem_GroupAdded;
             TerminalSystem.GroupRemoved += m_terminalSystem_GroupRemoved;
 
-            foreach (var block in m_cubeGrid.GetBlocks())
+            foreach (var block in m_cubeGrid.GetFatBlocks())
             {
-                if (block.FatBlock == null)
-                    continue;
-                if (!block.FatBlock.MarkedForClose)
+                if (!block.MarkedForClose)
                 {
-                    var functionalBlock = block.FatBlock as MyTerminalBlock;
+                    var functionalBlock = block as MyTerminalBlock;
                     if (functionalBlock != null)
                         TerminalSystem.Add(functionalBlock);
 
-                    var producer = block.FatBlock.Components.Get<MyResourceSourceComponent>();
+                    var producer = block.Components.Get<MyResourceSourceComponent>();
                     if (producer != null)
                         ResourceDistributor.AddSource(producer);
 
-                    var consumer = block.FatBlock.Components.Get<MyResourceSinkComponent>();
+                    var consumer = block.Components.Get<MyResourceSinkComponent>();
                     if (consumer != null)
                         ResourceDistributor.AddSink(consumer);
 
-                    var socketOwner = block.FatBlock as IMyRechargeSocketOwner;
+                    var socketOwner = block as IMyRechargeSocketOwner;
                     if (socketOwner != null)
                         socketOwner.RechargeSocket.ResourceDistributor = group.ResourceDistributor;
 
-                    var weapon = block.FatBlock as IMyGunObject<MyDeviceBase>;
+                    var weapon = block as IMyGunObject<MyDeviceBase>;
                     if (weapon != null)
                         WeaponSystem.Register(weapon);
                 }
@@ -334,28 +332,25 @@ namespace Sandbox.Game.Entities.Cube
                     TerminalSystem.RemoveGroup(g);
                 ProfilerShort.End();
 
-                foreach (var block in m_cubeGrid.GetBlocks())
+                foreach (var block in m_cubeGrid.GetFatBlocks())
                 {
-                    if (block.FatBlock == null)
-                        continue;
-
-                    var functionalBlock = block.FatBlock as MyTerminalBlock;
+                    var functionalBlock = block as MyTerminalBlock;
                     if (functionalBlock != null)
                         TerminalSystem.Remove(functionalBlock);
 
-                    var producer = block.FatBlock.Components.Get<MyResourceSourceComponent>();
+                    var producer = block.Components.Get<MyResourceSourceComponent>();
                     if (producer != null)
                         ResourceDistributor.RemoveSource(producer);
 
-                    var consumer = block.FatBlock.Components.Get<MyResourceSinkComponent>();
+                    var consumer = block.Components.Get<MyResourceSinkComponent>();
                     if (consumer != null)
-                        ResourceDistributor.RemoveSink(consumer, resetSinkInput: false, markedForClose: block.FatBlock.MarkedForClose);
+                        ResourceDistributor.RemoveSink(consumer, resetSinkInput: false, markedForClose: block.MarkedForClose);
 
-                    var socketOwner = block.FatBlock as IMyRechargeSocketOwner;
+                    var socketOwner = block as IMyRechargeSocketOwner;
                     if (socketOwner != null)
                         socketOwner.RechargeSocket.ResourceDistributor = null;
 
-                    var weapon = block.FatBlock as IMyGunObject<MyDeviceBase>;
+                    var weapon = block as IMyGunObject<MyDeviceBase>;
                     if (weapon != null)
                         WeaponSystem.Unregister(weapon);
                 }
@@ -378,15 +373,11 @@ namespace Sandbox.Game.Entities.Cube
         {
             ControlSystem = group.ControlSystem;
 
-            foreach (var block in m_cubeGrid.GetBlocks())
+            foreach (var block in m_cubeGrid.GetFatBlocks<MyShipController>())
             {
-                if (block.FatBlock == null)
-                    continue;
-
-                var controllerBlock = block.FatBlock as MyShipController;
-                if (controllerBlock != null && controllerBlock.ControllerInfo.Controller != null && controllerBlock.EnableShipControl)
+                if (block != null && block.ControllerInfo.Controller != null && block.EnableShipControl)
                 {
-                    ControlSystem.AddControllerBlock(controllerBlock);
+                    ControlSystem.AddControllerBlock(block);
                 }
             }
 
@@ -399,12 +390,8 @@ namespace Sandbox.Game.Entities.Cube
 
             if (m_blocksRegistered)
             {
-                foreach (var block in m_cubeGrid.GetBlocks())
+                foreach (var controllerBlock in m_cubeGrid.GetFatBlocks<MyShipController>())
                 {
-                    if (block.FatBlock == null)
-                        continue;
-
-                    var controllerBlock = block.FatBlock as MyShipController;
                     if (controllerBlock != null && controllerBlock.ControllerInfo.Controller != null && controllerBlock.EnableShipControl)
                     {
                         ControlSystem.RemoveControllerBlock(controllerBlock);

@@ -286,7 +286,7 @@ namespace VRageRender
             
             UpdateTextureArray();
             if (m_textureArray != null)
-                textureArraySRV = m_textureArray.ShaderView;
+                textureArraySRV = m_textureArray.SRV;
             else textureArraySRV = null;
 
             foreach (var id in m_idIndex.Values.ToArray())

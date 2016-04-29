@@ -25,7 +25,7 @@ namespace VRageRender.Resources
         public long TotalTextureMemory;
     }
 
-    struct TexId
+    struct TexId : IShaderResourceBindable
     {
         internal int Index;
 
@@ -40,6 +40,8 @@ namespace VRageRender.Resources
         }
 
         internal static readonly TexId NULL = new TexId { Index = -1 };
+
+        public ShaderResourceView SRV { get { return MyTextures.Views[Index]; } }
     }
 
     enum MyTextureEnum
@@ -96,7 +98,7 @@ namespace VRageRender.Resources
         internal static TexId IntelFallbackCubeTexId;
         internal static TexId RandomTexId;
 
-        internal static void Init()
+        internal static void InitOnce()
         {
             //MyCallbacks.RegisterDeviceEndListener(new OnDeviceEndDelegate(OnDeviceEnd));
             //MyCallbacks.RegisterDeviceResetListener(new OnDeviceResetDelegate(OnDeviceReset));
@@ -107,8 +109,6 @@ namespace VRageRender.Resources
             {
                 State[i] = new HashSet<TexId>();
             }
-
-            CreateCommonTextures();
         }
 
         internal static void InitState(TexId texId, MyTextureState state)
@@ -323,6 +323,7 @@ namespace VRageRender.Resources
                 Textures.Data[texId.Index].Resource = Textures.Data[replacingId.Index].Resource;
                 Textures.Data[texId.Index].Size = Textures.Data[replacingId.Index].Size;
                 Textures.Data[texId.Index].OwnsData = false;
+                MyRender11.Log.WriteLine("Missing or invalid texture: " + Textures.Data[texId.Index].Name);
             }
         }
 
@@ -338,7 +339,7 @@ namespace VRageRender.Resources
 
         internal static TexId GetTexture(string path, MyTextureEnum type, bool waitTillLoaded = false)
         {
-            var nameKey = X.TEXT(path);
+            var nameKey = X.TEXT_(path);
             return GetTexture(nameKey, null, type, waitTillLoaded);
         }
 
@@ -367,7 +368,7 @@ namespace VRageRender.Resources
                 var fullPath = Path.Combine(contentPath, nameKey.ToString());
                 if (MyFileSystem.FileExists(fullPath))
                 {
-                    nameKey = X.TEXT(fullPath);
+                    nameKey = X.TEXT_(fullPath);
                 }
                 else // take file from main content
                 {
@@ -434,7 +435,7 @@ namespace VRageRender.Resources
 
         internal static void UnloadTexture(string path)
         {
-            var nameKey = X.TEXT(path);
+            var nameKey = X.TEXT_(path);
             var texId = TexId.NULL;
             if (NameIndex.TryGetValue(nameKey, out texId))
                 UnloadResources(texId);
@@ -465,7 +466,7 @@ namespace VRageRender.Resources
 
         static TexId RegisterTexture(string name, string contentPath, MyTextureEnum type, Resource resource, Vector2 size, int bytes)
         {
-            var nameKey = X.TEXT(name);
+            var nameKey = X.TEXT_(name);
             if (!NameIndex.ContainsKey(nameKey))
             {
                 var texId = NameIndex[nameKey] = new TexId { Index = Textures.Allocate() };
@@ -491,11 +492,14 @@ namespace VRageRender.Resources
                 
                 if(Textures.Data[id.Index].Resource == null)
                 {
+                    Textures.Data[id.Index].Size = size;
                     Textures.Data[id.Index].Resource = resource;
                     resource.DebugName = name;
                     Views[id.Index] = new ShaderResourceView(MyRender11.Device, resource);
                     Views[id.Index].DebugName = name;
                 }
+                if (State[(int)MyTextureState.WAITING].Contains(id))
+                    MoveState(id, MyTextureState.WAITING, MyTextureState.LOADED);
             }
 
             return NameIndex[nameKey];
@@ -660,12 +664,18 @@ namespace VRageRender.Resources
                 }
             }
         }
-        
+
+        internal static void ReloadAllTextures()
+        {
+            foreach (var kv in NameIndex)
+                UnloadResources(kv.Value);
+        }
+
         internal static void ReloadAssetTextures()
         {
-            foreach(var kv in NameIndex)
+            foreach (var kv in NameIndex)
             {
-                if(Textures.Data[kv.Value.Index].Type != MyTextureEnum.SYSTEM)
+                if (Textures.Data[kv.Value.Index].Type != MyTextureEnum.SYSTEM)
                 {
                     UnloadResources(kv.Value);
                 }
@@ -683,6 +693,11 @@ namespace VRageRender.Resources
             }
         }
 
+        internal static void Init()
+        {
+            CreateCommonTextures();
+        }
+
         internal static void OnSessionEnd()
         {
             RemoveTextures(x => Textures.Data[x.Index].Type != MyTextureEnum.GUI && Textures.Data[x.Index].Type != MyTextureEnum.SYSTEM);
@@ -690,35 +705,13 @@ namespace VRageRender.Resources
 
         internal static void OnDeviceEnd()
         {
-            // drop all 
-            foreach (var texId in NameIndex.Values)
-            {
-                if (Textures.Data[texId.Index].OwnsData)
-                {
-                    if (Textures.Data[texId.Index].Resource != null)
-                    {
-                        Textures.Data[texId.Index].Resource.Dispose();
-                        Textures.Data[texId.Index].Resource = null;
-                    }
-                    if (Views[texId.Index] != null)
-                    {
-                        Views[texId.Index].Dispose();
-                        Views[texId.Index] = null;
-                    }
-                }
-                else
-                {
-                    Textures.Data[texId.Index].Resource = null;
-                    Views[texId.Index] = null;
-                }
-            }
+            ReloadAllTextures();
         }
 
         internal static void OnDeviceReset()
         {
-            OnDeviceEnd();
             ReloadAssetTextures();
-            CreateCommonTextures();
+            Load();
         }
 
         // i don't use it because I need to check if full paths are what is requested later from game
@@ -787,7 +780,7 @@ namespace VRageRender.Resources
         internal Resource Resource;
     }
 
-    struct RwTexId
+    struct RwTexId : IShaderResourceBindable
     {
         internal int Index;
 
@@ -820,7 +813,7 @@ namespace VRageRender.Resources
         internal static readonly RwTexId NULL = new RwTexId { Index = -1 };
 
         internal Resource Resource { get { return MyRwTextures.GetResource(this); } }
-        internal ShaderResourceView ShaderView { get { return MyRwTextures.GetSrv(this); } }
+        public ShaderResourceView SRV { get { return MyRwTextures.GetSrv(this); } }
         internal DepthStencilView SubresourceDsv(int subres) { return MyRwTextures.GetDsv(this, subres); }
         internal RenderTargetView SubresourceRtv(int subres) { return MyRwTextures.GetRtv(this, subres); }
         internal ShaderResourceView SubresourceSrv(int subres) { return MyRwTextures.GetSrv(this, subres); }
@@ -1458,7 +1451,8 @@ namespace VRageRender.Resources
             {
                 if (kv.Key.Id == id)
                 {
-                    kv.Value.View.Dispose();
+                    if (kv.Value.View != null)
+                        kv.Value.View.Dispose();
                     srvToRemove.Add(kv.Key);
                 }
             }
@@ -1466,7 +1460,8 @@ namespace VRageRender.Resources
             {
                 if(kv.Key.Id == id)
                 {
-                    kv.Value.View.Dispose();
+                    if (kv.Value.View != null)
+                        kv.Value.View.Dispose();
                     dsvToRemove.Add(kv.Key);
                 }
             }
@@ -1474,7 +1469,8 @@ namespace VRageRender.Resources
             {
                 if (kv.Key.Id == id)
                 {
-                    kv.Value.View.Dispose();
+                    if (kv.Value.View != null)
+                        kv.Value.View.Dispose();
                     rtvToRemove.Add(kv.Key);
                 }
             }
@@ -1482,7 +1478,8 @@ namespace VRageRender.Resources
             {
                 if (kv.Key.Id == id)
                 {
-                    kv.Value.View.Dispose();
+                    if (kv.Value.View != null)
+                        kv.Value.View.Dispose();
                     uavToRemove.Add(kv.Key);
                 }
             }

@@ -56,6 +56,8 @@ using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
+using Sandbox.Game.Audio;
+using Sandbox.Game.Screens;
 
 #endregion
 
@@ -97,6 +99,8 @@ namespace Sandbox
                 return IsUpdateReady && AreClipmapsReady;
             }
         }
+
+        public static bool IsPreloading { get; private set; }
 
         private static bool m_makeClipmapsReady = false;
         private static bool m_areClipmapsReady = true;
@@ -1100,6 +1104,10 @@ namespace Sandbox
             MySandboxGame.Log.WriteLine("MySandboxGame.LoadData() - START");
             MySandboxGame.Log.IncreaseIndent();
 
+            ProfilerShort.Begin("Start Preload");
+            StartPreload();
+            ProfilerShort.End();
+
             ProfilerShort.Begin("MyDefinitionManager.LoadSounds");
             MyDefinitionManager.Static.PreloadDefinitions();
 
@@ -1158,6 +1166,42 @@ namespace Sandbox
             InitModAPI();
 
             if (OnGameLoaded != null) OnGameLoaded(this, null);
+        }
+
+        public static void StartPreload()
+        {
+            IsPreloading = true;
+
+            Parallel.Start(PerformPreloading);
+        }
+
+        private static void PerformPreloading()
+        {
+            Sandbox.Engine.Multiplayer.MyMultiplayer.InitOfflineReplicationLayer();
+
+            try
+            {
+                MyDefinitionManager.Static.PrepareBaseDefinitions();
+            }
+            catch (MyLoadingException e)
+            {
+                string errorText = e.Message;
+                MySandboxGame.Log.WriteLineAndConsole(errorText);
+
+                var errorScreen = MyGuiSandbox.CreateMessageBox(
+                    messageText: new StringBuilder(errorText),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                    callback: ClosePopup);
+
+                var size = errorScreen.Size.Value;
+                size.Y *= 1.5f;
+                errorScreen.Size = size;
+                errorScreen.RecreateControls(false);
+
+                MyGuiSandbox.AddScreen(errorScreen);
+            }
+
+            IsPreloading = false;
         }
 
         private BoundingFrustumD GetCameraFrustum()
@@ -1219,9 +1263,14 @@ namespace Sandbox
             }
         }
 
-        private void OnDotNetHotfixPopupClosed(MyGuiScreenMessageBox.ResultEnum result)
+        private static void OnDotNetHotfixPopupClosed(MyGuiScreenMessageBox.ResultEnum result)
         {
             System.Diagnostics.Process.Start("https://support.microsoft.com/kb/3120241");
+            ClosePopup(result);
+        }
+
+        private static void ClosePopup(MyGuiScreenMessageBox.ResultEnum result)
+        {
             System.Diagnostics.Process.GetCurrentProcess().Kill();
         }
 
@@ -1701,7 +1750,8 @@ namespace Sandbox
                 VRageMath.Vector3 forward = VRageMath.Vector3.Forward;
                 GetListenerLocation(ref position, ref up, ref forward);
                 MyAudio.Static.Update(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS, position, up, forward);
-                ProfilerShort.End();
+                if (MyMusicController.Static != null && MyMusicController.Static.Active)
+                    MyMusicController.Static.Update();
 
                 //audio muting when game is not in focus
                 if (Config.EnableMuteWhenNotInFocus)
@@ -1726,6 +1776,7 @@ namespace Sandbox
                         hasFocus = true;
                     }
                 }
+                ProfilerShort.End();
             }
 
             ProfilerShort.Begin("Mods");

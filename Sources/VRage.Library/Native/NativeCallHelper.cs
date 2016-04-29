@@ -8,6 +8,7 @@ using System.Text;
 
 namespace VRage.Native
 {
+#if !UNSHARPER
     public class NativeCallHelper<TDelegate>
             where TDelegate : class
     {
@@ -48,4 +49,5 @@ namespace VRage.Native
             return m.CreateDelegate<TDelegate>();
         }
     }
+#endif
 }

@@ -9,6 +9,7 @@ using VRage.Library.Utils;
 
 namespace VRage.Library.Collections
 {
+	[Unsharper.UnsharperDisableReflection()]
     public unsafe partial class BitStream
     {
         private const long Int64Msb = ((long)1) << 63;

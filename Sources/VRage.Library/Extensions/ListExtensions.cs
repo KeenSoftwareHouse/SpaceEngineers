@@ -7,27 +7,20 @@ using System.Reflection.Emit;
 
 namespace System.Collections.Generic
 {
-    public static class ListExtensions
-    {
-        public struct ClearToken<T> : IDisposable
-        {
-            public List<T> List;
 
-            public void Dispose()
-            {
-                Debug.Assert(List != null, "List cannot be null");
-                List.Clear();
-            }
-        }
+	// TODO: OP! Create one generic IL, per-type is not necessary
+	static class ListInternalAccessor<T>
+	{
+#if !BLIT
+		public static Func<List<T>, T[]> GetArray;
+		public static Action<List<T>, int> SetSize;
+#endif
 
-        // TODO: OP! Create one generic IL, per-type is not necessary
-        static class ListInternalAccessor<T>
-        {
-            public static Func<List<T>, T[]> GetArray;
-            public static Action<List<T>, int> SetSize;
+		static ListInternalAccessor()
+		{
+#if BLIT
 
-            static ListInternalAccessor()
-            {
+#else
                 var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public, CallingConventions.Standard, typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListInternalAccessor<T>), true);
                 var il = dm.GetILGenerator();
                 il.Emit(OpCodes.Ldarg_0); // Load List<T> argument
@@ -52,8 +45,24 @@ namespace System.Collections.Generic
 
                 il2.Emit(OpCodes.Ret);
                 SetSize = (Action<List<T>, int>)dm2.CreateDelegate(typeof(Action<List<T>, int>));
-            }
-        }
+#endif
+		}
+	}
+
+
+	public struct ClearToken<T> : IDisposable
+	{
+		public List<T> List;
+
+		public void Dispose()
+		{
+			Debug.Assert(List != null, "List cannot be null");
+			List.Clear();
+		}
+	}
+
+    public static class ListExtensions
+    {
 
         public static ClearToken<T> GetClearToken<T>(this List<T> list)
         {
@@ -75,10 +84,18 @@ namespace System.Collections.Generic
             list.RemoveAt(lastPos);
         }
 
+#if BLIT
+		public static T[] GetInternalArray<T>(this List<T> list)
+		{
+			//not the same thing but will work for now.
+			return list.ToArray();
+		}
+#else
         public static T[] GetInternalArray<T>(this List<T> list)
         {
             return ListInternalAccessor<T>.GetArray(list);
         }
+#endif
 
         public static void AddOrInsert<T>(this List<T> list, T item, int index)
         {
@@ -90,9 +107,14 @@ namespace System.Collections.Generic
 
         public static void AddArray<T>(this List<T> list, T[] itemsToAdd)
         {
+#if BLIT
+			list.AddRange(itemsToAdd);
+#else
             AddArray(list, itemsToAdd, itemsToAdd.Length);
+#endif
         }
 
+#if !BLIT
         public static void AddArray<T>(this List<T> list, T[] itemsToAdd, int itemCount)
         {
             if (list.Capacity < list.Count + itemCount)
@@ -108,10 +130,14 @@ namespace System.Collections.Generic
         {
             ListInternalAccessor<T>.SetSize(list, newSize);
         }
-
+#endif
         public static void AddList<T>(this List<T> list, List<T> itemsToAdd)
         {
+#if BLIT
+			list.AddRange(itemsToAdd);
+#else
             AddArray(list, itemsToAdd.GetInternalArray(), itemsToAdd.Count);
+#endif
         }
 
         public static void AddHashset<T>(this List<T> list, HashSet<T> hashset)

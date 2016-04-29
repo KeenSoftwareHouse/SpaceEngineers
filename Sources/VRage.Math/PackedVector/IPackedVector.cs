@@ -17,15 +17,7 @@ namespace VRageMath.PackedVector
         /// <param name="vector">The vector to create the packed representation from.</param>
         void PackFromVector4(Vector4 vector);
     }
-}
 
-// Type: VRageMath.Graphics.PackedVector.IPackedVector
-
-
-
-
-namespace VRageMath.PackedVector
-{
     /// <summary>
     /// Converts packed vector types to and from Vector4 values.
     /// </summary>

@@ -278,7 +278,7 @@ namespace Sandbox.Engine.Voxels
                 {
                     MyCellCoord cell = new MyCellCoord();
                     cell.CoordInLod = minCellChanged;
-                    for (var it = new Vector3I.RangeIterator(ref minCellChanged, ref maxCellChanged); it.IsValid(); it.GetNext(out cell.CoordInLod))
+                    for (var it = new Vector3I_RangeIterator(ref minCellChanged, ref maxCellChanged); it.IsValid(); it.GetNext(out cell.CoordInLod))
                     {
                         var key = cell.PackId64();
                         m_cellsByCoordinate.Remove(key);

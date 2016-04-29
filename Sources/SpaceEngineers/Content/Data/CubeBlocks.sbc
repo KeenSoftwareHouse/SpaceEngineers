@@ -17434,6 +17434,7 @@
       <Size x="3" y="3" z="2" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\OxygenGenerator.mwm</Model>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="6" />
         <Component Subtype="Construction" Count="8" />

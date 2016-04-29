@@ -359,7 +359,7 @@ namespace Sandbox.Game.Gui
             var server = actionItem.Server;
             if (server != null)
             {
-                switch (actionItem.Action)
+                switch (actionItem._Action)
                 {
                     case ContextMenuFavoriteAction.Add:
                         UInt32 unixTimestamp = (UInt32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;

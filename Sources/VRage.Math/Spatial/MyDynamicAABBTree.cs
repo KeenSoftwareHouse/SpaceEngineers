@@ -1411,6 +1411,46 @@ namespace VRageMath
             }
         }
 
+        public bool OverlapsAnyLeafBoundingBox(ref BoundingBox bbox)
+        {
+            if (m_root == NullNode)
+                return false;
+
+            using (m_rwLock.AcquireSharedUsing())
+            {
+                Stack<int> stack = GetStack();
+                stack.Push(m_root);
+
+                while (stack.Count > 0)
+                {
+                    int nodeId = stack.Pop();
+                    if (nodeId == NullNode)
+                    {
+                        continue;
+                    }
+
+                    DynamicTreeNode node = m_nodes[nodeId];
+
+                    if (node.Aabb.Intersects(bbox))
+                    {
+                        if (node.IsLeaf())
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            stack.Push(node.Child1);
+                            stack.Push(node.Child2);
+                        }
+                    }
+                }
+
+                PushStack(stack);
+            }
+
+            return false;
+        }
+
         /**
          * Use the tree to produce a list of clusters aproximatelly the requested size, while intersecting those with the provided bounding box.
          */

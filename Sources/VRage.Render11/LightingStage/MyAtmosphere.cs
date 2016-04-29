@@ -226,7 +226,7 @@ namespace VRageRender
                 return;
             }
 
-            var sphereMesh = MyMeshes.GetMeshId(X.TEXT("Models/Debug/Sphere.mwm"));
+            var sphereMesh = MyMeshes.GetMeshId(X.TEXT_("Models/Debug/Sphere.mwm"));
             var buffers = MyMeshes.GetLodMesh(sphereMesh, 0).Buffers;
             RC.SetVB(0, buffers.VB0.Buffer, buffers.VB0.Stride);
             RC.SetIB(buffers.IB.Buffer, buffers.IB.Format);
@@ -240,7 +240,7 @@ namespace VRageRender
 
             var cb = MyCommon.GetObjectCB(sizeof(AtmosphereConstants));
             RC.SetCB(1, cb);
-            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
+            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, SamplerStates.m_shadowmap);
 
             // depth, 
             RC.BindGBufferForRead(0, MyGBuffer.Main);
@@ -297,7 +297,7 @@ namespace VRageRender
                 mapping.Unmap();
 
                 var luts = AtmosphereLUT[atmosphere.Key];
-                RC.DeviceContext.PixelShader.SetShaderResources(5, luts.TransmittanceLut.ShaderView);
+                RC.DeviceContext.PixelShader.SetShaderResources(5, luts.TransmittanceLut.SRV);
 
                 bool inside = worldMatrix.Translation.Length() < atmosphere.Value.AtmosphereRadius * atmosphere.Value.PlanetScaleFactor;
 

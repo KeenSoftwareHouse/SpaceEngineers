@@ -1418,6 +1418,12 @@ Volume: {2} L{4}</value>
   <data name="BlockPropertyDescription_LightRadius" xml:space="preserve">
     <value>Radius of influence of the light</value>
   </data>
+  <data name="BlockPropertyTitle_LightReflectorRadius" xml:space="preserve">
+    <value>Reflector radius</value>
+  </data>
+  <data name="BlockPropertyDescription_LightReflectorRadius" xml:space="preserve">
+    <value>Reflector radius of influence of the light</value>
+  </data>
   <data name="BlockPropertyTitle_LightFalloff" xml:space="preserve">
     <value>Falloff</value>
   </data>
@@ -3533,6 +3539,12 @@ Large view distances are not recommended on worlds with high asteroid densities.
   <data name="TerminalTab_GPS_ShowOnHud" xml:space="preserve">
     <value>Show on  HUD</value>
   </data>
+  <data name="TerminalTab_GPS_AlwaysVisible" xml:space="preserve">
+    <value>Always Visible</value>
+  </data>
+  <data name="TerminalTab_GPS_AlwaysVisible_Tooltip" xml:space="preserve">
+    <value>Prevents this GPS coordinate from getting clustered or fading out.</value>
+  </data>
   <data name="TerminalTab_GPS_X" xml:space="preserve">
     <value>X</value>
   </data>
@@ -5492,5 +5504,14 @@ needed.</value>
   </data>
   <data name="ScreenDebugAdminMenu_RemoveFloating" xml:space="preserve">
     <value>Remove floating objects</value>
+  </data>
+  <data name="NotificationConnectorsDisabled" xml:space="preserve">
+    <value>Connectors Disabled</value>
+  </data>
+  <data name="NotificationConnectorsEnabled" xml:space="preserve">
+    <value>Connectors Enabled</value>
+  </data>
+  <data name="NotificationCannotJumpOutsideWorld" xml:space="preserve">
+    <value>Jump drives cannot be used to jump outside world limits.</value>
   </data>
 </root>

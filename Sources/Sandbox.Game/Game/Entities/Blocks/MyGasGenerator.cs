@@ -617,7 +617,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void ConsumeFuel(ref MyDefinitionId gasTypeId, float amount)
         {
-            if (!((Sync.IsServer && !CubeGrid.GridSystems.ControlSystem.IsControlled) || CubeGrid.GridSystems.ControlSystem.IsLocallyControlled))
+            if (!((Sync.IsServer && CubeGrid.GridSystems.ControlSystem != null && !CubeGrid.GridSystems.ControlSystem.IsControlled) || (CubeGrid.GridSystems.ControlSystem != null && CubeGrid.GridSystems.ControlSystem.IsLocallyControlled)))
                 return;
 
             if (amount <= 0f)

@@ -6,6 +6,7 @@ using VRageMath.PackedVector;
 namespace VRage.Import
 {
     // Vertex Format Packer
+	[Unsharper.UnsharperDisableReflection()]
     public class VF_Packer
     {
         public static short PackAmbientAndAlpha(float ambient, byte alpha)

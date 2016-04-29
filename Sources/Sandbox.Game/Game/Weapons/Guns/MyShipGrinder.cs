@@ -131,7 +131,8 @@ namespace Sandbox.Game.Weapons
                         block.CubeGrid.RazeBlock(block.Min);
                     }
                 }
-                
+                if (targets.Count > 0)
+                    SetBuildingMusic(200);
             }
             m_wantsToShake = targets.Count != 0;
             return targets.Count != 0;

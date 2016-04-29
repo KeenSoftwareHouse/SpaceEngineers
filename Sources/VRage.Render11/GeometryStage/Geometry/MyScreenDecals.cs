@@ -139,7 +139,7 @@ namespace VRageRender
             decal.ID = ID;
             decal.ParentID = ParentID;
             decal.LocalOBB = localOBB;
-            decal.Material = X.TEXT(material);
+            decal.Material = X.TEXT_(material);
 
             DecalNode node = m_decals.AddLast(decal);
 
@@ -204,7 +204,7 @@ namespace VRageRender
 
             for (int i = 0; i < names.Count; ++i)
             {
-                m_materials[X.TEXT(names[i])] = new MyDecalTextures
+                m_materials[X.TEXT_(names[i])] = new MyDecalTextures
                 {
                     DecalType = descriptions[i].DecalType,
                     NormalmapTexture = MyTextures.GetTexture(descriptions[i].NormalmapTexture, MyTextureEnum.NORMALMAP_GLOSS),
@@ -372,7 +372,7 @@ namespace VRageRender
             
             RC.SetVS(m_vs);
             RC.SetDS(MyDepthStencilState.DepthTest);
-            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             var decalCb = MyCommon.GetObjectCB(sizeof(MyDecalConstants) * DECAL_BATCH_SIZE);
             RC.SetCB(2, decalCb);
@@ -442,12 +442,12 @@ namespace VRageRender
         static void BindResources(MyRenderContext RC, bool dualSourceBlending)
         {
             if (dualSourceBlending)
-                RC.BindGBuffer0ForWrite(MyGBuffer.Main, DepthStencilAccess.DepthReadOnly);
+                RC.BindGBufferForWrite(MyGBuffer.Main, MyGbufferSlot.GBuffer0, DepthStencilAccess.DepthReadOnly);
             else
                 RC.BindGBufferForWrite(MyGBuffer.Main, DepthStencilAccess.DepthReadOnly);
 
             RC.BindSRV(0, MyGBuffer.Main.DepthStencil.Depth);
-            RC.DeviceContext.PixelShader.SetShaderResource(1, MyRender11.m_gbuffer1Copy.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(1, MyRender11.m_gbuffer1Copy.SRV);
         }
     }
 }

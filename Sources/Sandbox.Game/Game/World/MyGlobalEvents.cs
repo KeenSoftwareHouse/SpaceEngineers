@@ -206,8 +206,10 @@ namespace Sandbox.Game.World
         private void StartGlobalEvent(MyGlobalEventBase globalEvent)
         {
             AddGlobalEventToEventLog(globalEvent);
-            if (globalEvent.IsHandlerValid)
-                globalEvent.Action(globalEvent);
+			if (globalEvent.IsHandlerValid)
+			{
+				globalEvent.Action.Invoke(this, new object[] { globalEvent });
+			}
         }
 
         private void AddGlobalEventToEventLog(MyGlobalEventBase globalEvent)

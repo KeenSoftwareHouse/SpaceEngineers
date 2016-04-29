@@ -704,6 +704,7 @@ namespace Sandbox.Graphics.GUI
         public const string CURSOR_HAND = "Textures\\GUI\\MouseCursorHand.dds";
 
         public const string FOG_SMALL = "Textures\\GUI\\FogSmall.dds";
+        public const string FOG_SMALL1 = "Textures\\GUI\\FogSmall1.dds";
         public const string FOG_SMALL2 = "Textures\\GUI\\FogSmall2.dds";
         public const string FOG_SMALL3 = "Textures\\GUI\\FogSmall3.dds";
 

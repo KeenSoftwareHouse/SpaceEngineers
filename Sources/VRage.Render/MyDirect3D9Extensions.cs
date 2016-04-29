@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using VRage.Native;
+using System.Diagnostics;
 
 namespace VRageRender
 {
@@ -48,7 +49,11 @@ namespace VRageRender
             const int GET_SURFACE_LEVEL = 18;
             IntPtr result = IntPtr.Zero;
             IntPtr resultPointer = new IntPtr((void*)&result); // We need address of pointer, because it's out pointer
+#if BLIT
+			Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method<int, IntPtr>(texture.NativePointer, GET_SURFACE_LEVEL, level, resultPointer)).CheckError();
+#endif
             return new RefCountedPointer(result);
         }
 
@@ -56,18 +61,26 @@ namespace VRageRender
         {
             using (var surface = GetSurface(renderTargetTexture, level))
             {
+#if BLIT
+			Debug.Assert(false);
+#else
                 const int SET_RENDER_TARGET = 37;
                 ((Result)NativeCall<int>.Method<int, IntPtr>(device.NativePointer, SET_RENDER_TARGET, index, surface)).CheckError();
-            }
+#endif
+			}
         }
 
         public static void SetDepthStencil(this Device device, Texture depthTexture, int level)
         {
             using (var surface = GetSurface(depthTexture, level))
             {
+#if BLIT
+			Debug.Assert(false);
+#else
                 const int SET_DEPTH_STENCIL = 39;
                 ((Result)NativeCall<int>.Method<IntPtr>(device.NativePointer, SET_DEPTH_STENCIL, surface)).CheckError();
-            }
+#endif
+			}
         }
     }
 }

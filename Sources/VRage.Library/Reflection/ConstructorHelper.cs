@@ -2,6 +2,8 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
+#if !BLIT
+
 namespace VRage
 {
     /// <summary>
@@ -85,3 +87,5 @@ namespace VRage
         }
     }
 }
+
+#endif

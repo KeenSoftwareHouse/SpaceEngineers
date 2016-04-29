@@ -9,6 +9,7 @@ namespace VRage.Win32
 {
     public static partial class WinApi
     {
+#if !UNSHARPER
         public static void SendMessage<T>(ref T data, IntPtr windowHandle, IntPtr sourceWindowHandle = default(IntPtr))
                    where T : struct
         {
@@ -91,6 +92,6 @@ namespace VRage.Win32
                 return m_workingSetDelegate();
             }
         }
-
+#endif
     }
 }

@@ -7,6 +7,7 @@ namespace VRage.Native
 {
     public static partial class NativeCall
     {
+#if !UNSHARPER
         public static void Method(IntPtr instance, int methodOffset)
         {
             NativeCallHelper<Action<IntPtr, IntPtr>>.Invoke(NativeMethod.CalculateAddress(instance, methodOffset), instance);
@@ -41,5 +42,6 @@ namespace VRage.Native
         {
             NativeCallHelper<Action<IntPtr, IntPtr, TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>>.Invoke(NativeMethod.CalculateAddress(instance, methodOffset), instance, arg1, arg2, arg3, arg4, arg5, arg6);
         }
-    }
+#endif
+	}
 }

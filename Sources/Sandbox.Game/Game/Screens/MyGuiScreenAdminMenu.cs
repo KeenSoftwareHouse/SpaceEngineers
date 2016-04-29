@@ -190,8 +190,20 @@ namespace Sandbox.Game.Gui
         private void OnRemoveFloating(MyGuiControlButton obj)
         {
             foreach (var entity in MyEntities.GetEntities())
-                if (entity is MyFloatingObject)
-                    entity.Close();
+            {
+                MyFloatingObject floating = entity as MyFloatingObject;
+                if (floating != null)
+                {
+                    if (Sync.IsServer)
+                    {
+                        floating.Close();
+                    }
+                    else
+                    {
+                        floating.SendCloseRequest();
+                    }
+                }
+            }
         }
 
         private void UpdateCyclingAndDepower()

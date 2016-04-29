@@ -12,7 +12,7 @@ namespace VRageRender
 {             
     internal static class X
     {
-        internal static MyStringId TEXT(string str)
+        internal static MyStringId TEXT_(string str)
         {
             return MyStringId.GetOrCompute(str);
         }
@@ -194,7 +194,7 @@ namespace VRageRender
             }
             return def;
         }
-
+#if !BLIT
         public static TValue Get<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> dictionary, TKey key, TValue def = default(TValue))
         {
             TValue value;
@@ -204,6 +204,7 @@ namespace VRageRender
             }
             return def;
         }
+#endif
 
         public static TValue SetDefault<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue def = default(TValue))
         {
@@ -247,7 +248,7 @@ namespace VRageRender
         /// <typeparam name="T"> Type of the object. </typeparam>
         /// <param name="item"> The instance that will be wrapped. </param>
         /// <returns> An IEnumerable&lt;T&gt; consisting of a single item. </returns>
-        public static IEnumerable<T> Yield<T>(this T item)
+        public static IEnumerable<T> Yield_<T>(this T item)
         {
             yield return item;
         }

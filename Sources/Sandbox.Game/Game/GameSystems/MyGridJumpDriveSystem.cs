@@ -231,6 +231,13 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
 
+            if (MySession.Static.Settings.WorldSizeKm > 0 && destination.Length() > MySession.Static.Settings.WorldSizeKm * 500)
+            {
+                var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpOutsideWorld, 1500);
+                MyHud.Notifications.Add(notification);
+                return;
+            }
+
             m_selectedDestination = destination;
             double maxJumpDistance = GetMaxJumpDistance(userId);
             m_jumpDirection = destination - m_grid.WorldMatrix.Translation;
@@ -324,10 +331,13 @@ namespace Sandbox.Game.GameSystems
         private double GetMass()
         {
             double mass = 0f;
-
+            Sandbox.Engine.Physics.MyPhysicsBody weldParent;
             foreach (var grid in m_connectedGrids)
             {
-                mass += grid.Physics.Mass;
+                // Get the weld parent for each grid and only add the mass if the grid has no parent or it is the root (it is its own parent).
+                weldParent = grid.Physics.WeldInfo.Parent;
+                if (weldParent == null || weldParent == grid.Physics)
+                    mass += grid.Physics.Mass;
             }
             return mass;
         }

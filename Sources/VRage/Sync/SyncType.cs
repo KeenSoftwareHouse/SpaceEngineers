@@ -40,6 +40,7 @@ namespace VRage
             m_properties = properties;
         }
 
+#if !BLIT
         public Sync<T> Add<T>(MySerializeInfo info = null)
         {
             var sync = new Sync<T>(m_properties.Count, info ?? MySerializeInfo.Default);
@@ -47,15 +48,18 @@ namespace VRage
             m_properties.Add(sync);
             return sync;
         }
+#endif
 
         public void Append(object obj)
         {
+#if !BLIT
             var num = m_properties.Count;
             SyncHelpers.Compose(obj, m_properties.Count, m_properties);
             for (int i = num; i < m_properties.Count; i++)
             {
                 m_properties[i].ValueChanged += m_registeredHandlers;
             }
+#endif
         }
     }
 }

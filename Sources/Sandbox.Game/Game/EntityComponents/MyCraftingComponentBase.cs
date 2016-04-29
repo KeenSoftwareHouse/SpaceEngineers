@@ -22,6 +22,7 @@ using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Game.SessionComponents;
 
 namespace Sandbox.Game.Components
 {
@@ -597,7 +598,7 @@ namespace Sandbox.Game.Components
 
             foreach (var requiredItem in blueprintDefinition.Prerequisites)
             {
-                var itemAmount = inventory.GetItemAmount( requiredItem.Id);
+                var itemAmount = inventory.GetItemAmount( requiredItem.Id, substitute: true);
                 var producableAmount = MyFixedPoint.Floor((MyFixedPoint)((float)itemAmount / (float)requiredItem.Amount));
                 maxProducableAmount = MyFixedPoint.Min(maxProducableAmount, producableAmount);
                 if (maxProducableAmount == 0)
@@ -634,11 +635,25 @@ namespace Sandbox.Game.Components
             foreach (var reqItem in definition.Prerequisites)
             {
                 var amountToRemove = reqItem.Amount * amountMult;
+                var itemId = reqItem.Id;
+                MyFixedPoint removed = 0;
 
-                System.Diagnostics.Debug.Assert(amountToRemove <= inventory.GetItemAmount(reqItem.Id), "Trying to remove higher amount than is present in inventory!");
+                if (MySessionComponentEquivalency.Static != null && MySessionComponentEquivalency.Static.HasEquivalents(itemId))
+                {
+                    var eqGroup = MySessionComponentEquivalency.Static.GetEquivalents(itemId);
+                    foreach (var element in eqGroup)
+                    {
+                        if (removed == amountToRemove)
+                            continue;
 
-                var removed = inventory.RemoveItemsOfType(amountToRemove, reqItem.Id);
-
+                        removed += inventory.RemoveItemsOfType(amountToRemove, element);
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.Assert(amountToRemove <= inventory.GetItemAmount(reqItem.Id, substitute: true), "Trying to remove higher amount than is present in inventory!");
+                    removed += inventory.RemoveItemsOfType(amountToRemove, itemId);
+                }
                 System.Diagnostics.Debug.Assert(removed == amountToRemove, "Removed different amount, than expected!");
             }
         }

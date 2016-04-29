@@ -22,7 +22,7 @@ namespace Sandbox.Engine.Voxels
 
             public readonly Vector3I Coords;
 
-            private byte m_maxLod;
+            public byte MaxLod;
 
             // Volume with lod data
             public static readonly int TotalVolume = Volume
@@ -64,13 +64,13 @@ namespace Sandbox.Engine.Voxels
             {
                 Debug.Assert(lod <= SizeBits);
 
-                for (int i = m_maxLod + 1; i <= lod; ++i)
+                for (int i = MaxLod + 1; i <= lod; ++i)
                 {
                     UpdateLodDataInternal(i, Content, MyOctreeNode.ContentFilter);
                     UpdateLodDataInternal(i, Material, MyOctreeNode.MaterialFilter);
                 }
 
-                m_maxLod = (byte)lod;
+                MaxLod = (byte)lod;
             }
 
             private static unsafe void UpdateLodDataInternal(int lod, byte[] dataArray, MyOctreeNode.FilterFunction filter)
@@ -140,7 +140,7 @@ namespace Sandbox.Engine.Voxels
 
                 //using (Lock.AcquireSharedUsing())
                 {
-                    if (lodIndex > m_maxLod)
+                    if (lodIndex > MaxLod)
                         UpdateLodData(lodIndex);
 
                     if (dataTypes.Requests(MyStorageDataTypeEnum.Content))
@@ -218,7 +218,7 @@ namespace Sandbox.Engine.Voxels
                     Cached |= dataTypes;
 
                     Dirty |= dataTypes;
-                    m_maxLod = 0;
+                    MaxLod = 0;
                 }
             }
 
@@ -371,22 +371,25 @@ namespace Sandbox.Engine.Voxels
                     using (m_storageLock.AcquireSharedUsing())
                         ReadDatForChunk(chunk, required & ~chunk.Cached);
                 }
-
             }
         }
 
         private void ReadDatForChunk(VoxelChunk chunk, MyStorageDataTypeFlags data)
         {
-            var rangeStart = chunk.Coords << VoxelChunk.SizeBits;
-            var rangeEnd = ((chunk.Coords + 1) << VoxelChunk.SizeBits) - 1;
+            using (chunk.Lock.AcquireExclusiveUsing())
+            {
+                var rangeStart = chunk.Coords << VoxelChunk.SizeBits;
+                var rangeEnd = ((chunk.Coords + 1) << VoxelChunk.SizeBits) - 1;
 
-            MyStorageData storage = chunk.MakeData();
+                MyStorageData storage = chunk.MakeData();
 
-            MyVoxelRequestFlags flags = 0;
+                MyVoxelRequestFlags flags = 0;
 
-            ReadRangeInternal(storage, ref Vector3I.Zero, data, 0, ref rangeStart, ref rangeEnd, ref flags);
+                ReadRangeInternal(storage, ref Vector3I.Zero, data, 0, ref rangeStart, ref rangeEnd, ref flags);
 
-            chunk.Cached |= data;
+                chunk.Cached |= data;
+                chunk.MaxLod = 0;
+            }
         }
 
         private void DequeueDirtyChunk(out VoxelChunk chunk, out Vector3I coords)
@@ -463,6 +466,13 @@ namespace Sandbox.Engine.Voxels
             stats.CachedChunks = m_cachedChunks.Count;
             stats.QueuedWrites = m_pendingChunksToWrite.Count;
             stats.Chunks = m_cachedChunks;
+        }
+
+        private bool OverlapsAnyCachedCell(Vector3I voxelRangeMin, Vector3I voxelRangeMax)
+        {
+            var querybb = new BoundingBox(voxelRangeMin, voxelRangeMax);
+
+            return m_cacheMap.OverlapsAnyLeafBoundingBox(ref querybb);
         }
     }
 }

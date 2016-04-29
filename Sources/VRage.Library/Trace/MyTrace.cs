@@ -6,6 +6,8 @@ using System.Text;
 
 namespace VRage.Trace
 {
+
+#if !UNSHARPER
     public enum TraceWindow
     {
         Default,
@@ -86,4 +88,6 @@ namespace VRage.Trace
             return trace;
         }
     }
+
+#endif
 }

@@ -25,6 +25,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Library.Utils;
+using Sandbox.Game.Audio;
 
 #endregion
 
@@ -135,11 +136,11 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             MyAnalyticsHelper.ReportActivityStartIf(!m_activated, this.Owner, "Grinding", "Character", "HandTools", "AngleGrinder", true);
 
-            base.Shoot(action, direction, gunAction);
+            base.Shoot(action, direction, overrideWeaponPos, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction && IsPreheated && Sync.IsServer && m_activated)
             {
@@ -216,6 +217,9 @@ namespace Sandbox.Game.Weapons
 
                 block.DecreaseMountLevel(damageInfo.Amount, CharacterInventory);
                 block.MoveItemsFromConstructionStockpile(CharacterInventory);
+
+                if (MySession.Static != null && Owner == MySession.Static.LocalCharacter && MyMusicController.Static != null)
+                    MyMusicController.Static.Building(250);
 
                 if (block.UseDamageSystem)
                     MyDamageSystem.Static.RaiseAfterDamageApplied(block, damageInfo);

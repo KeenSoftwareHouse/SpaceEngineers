@@ -76,30 +76,36 @@ namespace Sandbox.Engine.Multiplayer
             get { return MyFakes.MULTIPLAYER_REPLICATION_TEST ? 100 : MySession.Static.Settings.ViewDistance; }
         }
 
+        public static void InitOfflineReplicationLayer()
+        {
+            if (m_replicationOffline == null)
+            {
+                m_replicationOffline = new MyReplicationSingle(new EndpointId(Sync.MyId));
+                m_replicationOffline.RegisterFromGameAssemblies();
+            }
+        }
+
         public static MyReplicationLayerBase ReplicationLayer
         {
             get
             {
                 if (Static == null)
                 {
-                    if (m_replicationOffline == null)
-                    {
-                        m_replicationOffline = new MyReplicationSingle(new EndpointId(Sync.MyId));
-                        m_replicationOffline.RegisterFromGameAssemblies();
-                    }
+                    InitOfflineReplicationLayer();
                     return m_replicationOffline;
                 }
                 return Static.ReplicationLayer;
             }
         }
-
+        
         public static MyMultiplayerHostResult HostLobby(LobbyTypeEnum lobbyType, int maxPlayers, MySyncLayer syncLayer)
         {
             System.Diagnostics.Debug.Assert(syncLayer != null);
             MyTrace.Send(TraceWindow.Multiplayer, "Host game");
 
             MyMultiplayerHostResult ret = new MyMultiplayerHostResult();
-            SteamSDK.Lobby.Create(lobbyType, maxPlayers, (lobby, result) =>
+#if !BLIT
+			SteamSDK.Lobby.Create(lobbyType, maxPlayers, (lobby, result) =>
             {
                 if (!ret.Cancelled)
                 {
@@ -114,13 +120,15 @@ namespace Sandbox.Engine.Multiplayer
                     ret.RaiseDone(result, result == Result.OK ? MyMultiplayer.Static = new MyMultiplayerLobby(lobby, syncLayer) : null);
                 }
             });
-            return ret;
+#endif
+			return ret;
         }
 
         public static MyMultiplayerJoinResult JoinLobby(ulong lobbyId)
         {
             MyTrace.Send(TraceWindow.Multiplayer, "Join game");
             MyMultiplayerJoinResult ret = new MyMultiplayerJoinResult();
+#if !BLIT
             Lobby.Join(lobbyId, (info, result) =>
             {
                 if (!ret.Cancelled)
@@ -137,7 +145,9 @@ namespace Sandbox.Engine.Multiplayer
                     ret.RaiseJoined(result, info, success ? MyMultiplayer.Static = new MyMultiplayerLobbyClient(info.Lobby, new MySyncLayer(new MyTransportLayer(MyMultiplayer.GameEventChannel))) : null);
                 }
             });
-            return ret;
+#endif
+
+			return ret;
         }
 
         /// <summary>

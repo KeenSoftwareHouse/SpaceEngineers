@@ -204,7 +204,7 @@ namespace Sandbox.Game.Weapons
             return true;
         }
 
-        public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             MyAnalyticsHelper.ReportActivityStartIf(!IsShooting, this.Owner, "Drilling", "Character", "HandTools", "HandDrill", true);
 

@@ -23,14 +23,16 @@ using VRage.Game;
 using VRage.Utils;
 using VRageRender;
 using World;
+using VRage.Input;
 
 namespace SpaceEngineers.Game
 {
-    public static partial class SpaceEngineersGame
+    public partial class SpaceEngineersGame : MySandboxGame
     {
         #region Constructor
 
-        static SpaceEngineersGame()
+        public SpaceEngineersGame(VRageGameServices services, string[] commandlineArgs)
+            : base(services, commandlineArgs)
         {
             MySandboxGame.GameCustomInitialization = new MySpaceGameCustomInitialization();
         }
@@ -50,9 +52,10 @@ namespace SpaceEngineers.Game
             MySandboxGame.GameCustomInitialization = new MySpaceGameCustomInitialization();
             MyPerGameSettings.ShowObfuscationStatus = false;
 
-            //limiters
+            //audio
             MyPerGameSettings.UseVolumeLimiter = false;
             MyPerGameSettings.UseSameSoundLimiter = true;
+            MyPerGameSettings.UseMusicController = true;
 
             MyPerGameSettings.CreationSettings = new MyPlacementSettings()
             {
@@ -455,5 +458,16 @@ namespace SpaceEngineers.Game
         }
 
         static partial void SetupSecrets();
+
+        protected override void InitInput()
+        {
+            base.InitInput();
+
+            // Add signals render mode toggle control
+            MyGuiDescriptor helper = new MyGuiDescriptor(MyCommonTexts.ControlName_ToggleSignalsMode, MyCommonTexts.ControlName_ToggleSignalsMode_Tooltip);
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.TOGGLE_SIGNALS, helper);
+            MyControl control = new MyControl(MyControlsSpace.TOGGLE_SIGNALS, helper.NameEnum, MyGuiControlTypeEnum.Systems1, null, MyKeys.H, description: helper.DescriptionEnum);
+            MyInput.Static.AddDefaultControl(MyControlsSpace.TOGGLE_SIGNALS, control);
+        }
     }
 }

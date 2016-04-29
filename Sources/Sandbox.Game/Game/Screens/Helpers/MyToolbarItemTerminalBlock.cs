@@ -104,7 +104,7 @@ namespace Sandbox.Game.Screens.Helpers
 
             var action = GetCurrentAction();
 
-            bool isValid = m_block != null && action != null && MyCubeGridGroups.Static.Logical.HasSameGroup((owner as MyTerminalBlock).CubeGrid, m_block.CubeGrid);
+            bool isValid = m_block != null && action != null && MyCubeGridGroups.Static.Physical.HasSameGroup((owner as MyTerminalBlock).CubeGrid, m_block.CubeGrid);
             changed |= SetEnabled(isValid && m_block.IsFunctional && (m_block.HasPlayerAccess(playerID) || m_block.HasPlayerAccess((owner as MyTerminalBlock).OwnerId)));
             if (m_block != null)
             {
@@ -209,7 +209,7 @@ namespace Sandbox.Game.Screens.Helpers
                 return false;
             }
             TryGetBlock();
-            SetAction(builder.Action);
+            SetAction(builder._Action);
 
             if (builder.Parameters != null && builder.Parameters.Count > 0)
             {
@@ -258,7 +258,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             MyObjectBuilder_ToolbarItemTerminalBlock output = (MyObjectBuilder_ToolbarItemTerminalBlock)MyToolbarItemFactory.CreateObjectBuilder(this);
             output.BlockEntityId = this.m_blockEntityId;
-            output.Action = this.ActionId;
+            output._Action = this.ActionId;
             
             output.Parameters.Clear();
             foreach (var item in m_parameters)

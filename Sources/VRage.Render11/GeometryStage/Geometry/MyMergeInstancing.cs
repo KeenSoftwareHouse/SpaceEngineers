@@ -54,7 +54,7 @@ namespace VRageRender
 
         internal StructuredBufferId m_indirectionBuffer = StructuredBufferId.NULL;
         internal StructuredBufferId m_instanceBuffer = StructuredBufferId.NULL;
-        internal ShaderResourceView[] m_SRVs = new ShaderResourceView[2];
+        internal IShaderResourceBindable[] m_SRVs = new IShaderResourceBindable[2];
 
         Dictionary<uint, MyInstanceInfo> m_entities = new Dictionary<uint, MyInstanceInfo>();
 
@@ -171,7 +171,7 @@ namespace VRageRender
                     var intPtr = new IntPtr(ptr);
                     MyHwBuffers.ResizeAndUpdateStaticStructuredBuffer(ref m_indirectionBuffer, array.Length, sizeof(MyInstancingTableEntry), intPtr, 
                         "MyMergeInstancing/Tables", context);
-                    m_SRVs[0] = m_indirectionBuffer.Srv;
+                    m_SRVs[0] = m_indirectionBuffer;
                 }
 
                 m_tableDirty = false;
@@ -194,7 +194,7 @@ namespace VRageRender
                     if (m_instanceBuffer == StructuredBufferId.NULL)
                     {
                         m_instanceBuffer = MyHwBuffers.CreateStructuredBuffer(array.Length, sizeof(MyPerInstanceData), true, intPtr, "MyMergeInstancing instances");
-                        m_SRVs[1] = m_instanceBuffer.Srv;
+                        m_SRVs[1] = m_instanceBuffer;
                     }
                     else
                     {

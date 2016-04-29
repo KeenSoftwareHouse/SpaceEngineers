@@ -26,7 +26,7 @@ namespace VRageRender
         internal int Start;
         internal RectangleF? ScissorRectangle;
 
-        internal ShaderResourceView Texture;
+        internal IShaderResourceBindable Texture;
 
         internal void AddSprite(Vector2 clipOffset, Vector2 clipScale, Vector2 texOffset, Vector2 texScale, 
             Vector2 origin, Vector2 tangent, Byte4 color)
@@ -144,7 +144,7 @@ namespace VRageRender
             return new MySpritesBatch { Start = StackTop().m_instances.Count };
         }
 
-        static void AddSingleSprite(ShaderResourceView textureSrv, MyVertexFormatSpritePositionTextureRotationColor sprite)
+        static void AddSingleSprite(IShaderResourceBindable textureSrv, MyVertexFormatSpritePositionTextureRotationColor sprite)
         {
             if (StackTop().m_internalBatch.Texture != textureSrv && StackTop().m_internalBatch.Count > 0)
             {
@@ -157,10 +157,10 @@ namespace VRageRender
 
         internal static void AddSingleSprite(TexId texId, Color color, Vector2 origin, Vector2 tangent, Rectangle? sourceRect, RectangleF destinationRect)
         {
-            AddSingleSprite(MyTextures.Views[texId.Index], MyTextures.GetSize(texId), color, origin, tangent, sourceRect, destinationRect);
+            AddSingleSprite(texId, MyTextures.GetSize(texId), color, origin, tangent, sourceRect, destinationRect);
         }
 
-        internal static void AddSingleSprite(ShaderResourceView view, Vector2 textureSize, Color color, Vector2 origin, Vector2 tangent, Rectangle? sourceRect, RectangleF destinationRect)
+        internal static void AddSingleSprite(IShaderResourceBindable view, Vector2 textureSize, Color color, Vector2 origin, Vector2 tangent, Rectangle? sourceRect, RectangleF destinationRect)
         {
             if (StackTop().m_internalBatch.ScissorRectangle.HasValue)
             {
@@ -246,7 +246,7 @@ namespace VRageRender
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.GetObjectCB(64));
             RC.SetPS(m_ps);
-            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             //RC.BindDepthRT(null, DepthStencilAccess.DepthReadOnly, MyRender11.Backbuffer);
             // to reset state

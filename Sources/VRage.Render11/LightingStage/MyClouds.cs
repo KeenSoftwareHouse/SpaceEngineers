@@ -113,7 +113,7 @@ namespace VRageRender
             float angularVelocity,
             float radiansAroundAxis)
         {
-            MeshId mesh = MyMeshes.GetMeshId(X.TEXT(model));
+            MeshId mesh = MyMeshes.GetMeshId(X.TEXT_(model));
             MyCloudLayer.MyCloudTextureInfo textureInfo;
             if (textures != null && textures.Count > 0) // TODO: Multiple textures
             {
