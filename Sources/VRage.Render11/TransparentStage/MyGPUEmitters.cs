@@ -55,6 +55,14 @@ namespace VRageRender
                 return x.Index != y.Index;
             }
 
+            public override bool Equals(object obj)
+            {
+                if (obj is GPUEmitterId)
+                    return (this == (GPUEmitterId)obj);
+                else
+                    return false;
+            }
+
             public override int GetHashCode()
             {
                 return Index;

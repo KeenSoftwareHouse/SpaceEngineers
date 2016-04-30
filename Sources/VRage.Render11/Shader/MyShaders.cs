@@ -36,6 +36,14 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is ShaderBytecodeId)
+                return (this == (ShaderBytecodeId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -56,6 +64,14 @@ namespace VRageRender
         public static bool operator !=(InputLayoutId x, InputLayoutId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is InputLayoutId)
+                return (this == (InputLayoutId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()
@@ -84,6 +100,14 @@ namespace VRageRender
         public static bool operator !=(VertexShaderId x, VertexShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexShaderId)
+                return (this == (VertexShaderId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()
@@ -115,6 +139,14 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is PixelShaderId)
+                return (this == (PixelShaderId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -140,6 +172,14 @@ namespace VRageRender
         public static bool operator !=(ComputeShaderId x, ComputeShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ComputeShaderId)
+                return (this == (ComputeShaderId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()
@@ -171,6 +211,14 @@ namespace VRageRender
         public static bool operator !=(GeometryShaderId x, GeometryShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is GeometryShaderId)
+                return (this == (GeometryShaderId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()

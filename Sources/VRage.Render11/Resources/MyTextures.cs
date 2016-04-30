@@ -39,6 +39,14 @@ namespace VRageRender.Resources
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is TexId)
+                return (this == (TexId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -814,6 +822,14 @@ namespace VRageRender.Resources
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is RwTexId)
+                return (this == (RwTexId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -865,6 +881,14 @@ namespace VRageRender.Resources
         {
             return  x.Id != y.Id ||
                     x.Subresource != y.Subresource;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MySubresourceId)
+                return (this == (MySubresourceId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()

@@ -57,6 +57,14 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is MyMaterialShadersBundleId)
+                return (this == (MyMaterialShadersBundleId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;

@@ -35,7 +35,7 @@ namespace VRageRender
     {
         internal static Vector3 ColorFromMask(Vector3 hsv)
         {
-            return hsv;
+            return hsv; // << is it correct ?
             if (hsv != new Vector3(0, -1, 0) && hsv != new Vector3(0, 0, 0))
             {
                 var rgb = new Vector3(hsv.X, MathExt.Saturate(1 + hsv.Y), MathExt.Saturate(1 + hsv.Z)).HSVtoColor().ToVector3();
@@ -1405,7 +1405,7 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.ReloadEffects:
                 {
-                    m_reloadShaders = true;
+                    //m_reloadShaders = true;
 
                     //MyShaderBundleFactory.ClearCache();
                     //MyShaderMaterial.ClearCache();

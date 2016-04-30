@@ -45,6 +45,14 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is MeshId)
+                return (this == (MeshId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -83,6 +91,14 @@ namespace VRageRender
         public static bool operator !=(LodMeshId x, LodMeshId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is LodMeshId)
+                return (this == (LodMeshId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()
@@ -188,6 +204,14 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is MeshPartId)
+                return (this == (MeshPartId)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             return Index;
@@ -276,6 +300,14 @@ namespace VRageRender
         public static bool operator !=(VoxelPartId x, VoxelPartId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VoxelPartId)
+                return (this == (VoxelPartId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()
@@ -416,6 +448,14 @@ namespace VRageRender
         public static bool operator !=(MyMeshBuffers left, MyMeshBuffers right)
         {
             return left.VB0 != right.VB0 || left.VB1 != right.VB1 || left.IB == right.IB;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MyMeshBuffers)
+                return (this == (MyMeshBuffers)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()

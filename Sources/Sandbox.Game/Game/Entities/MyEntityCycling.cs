@@ -81,6 +81,14 @@ namespace Sandbox.Game.Entities
                 return !(a == b);
             }
 
+            public override bool Equals(object obj)
+            {
+                if (obj is Metric)
+                    return (this == (Metric)obj);
+                else
+                    return false;
+            }
+
             public override int GetHashCode()
             {
                 throw new InvalidOperationException("GetHashCode and Equals must be overridden");

@@ -53,6 +53,14 @@ namespace VRage.Game
             return a.Forward != b.Forward || a.Up != b.Up;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is SerializableBlockOrientation)
+                return (this == (SerializableBlockOrientation)obj);
+            else
+                return false;
+        }
+
         public override int GetHashCode()
         {
             throw new InvalidOperationException("GetHashCode and Equals must be overridden");
