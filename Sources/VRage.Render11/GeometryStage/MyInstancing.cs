@@ -30,6 +30,11 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         public class MyInstancingIdComparerType : IEqualityComparer<InstancingId>
         {
             public bool Equals(InstancingId left, InstancingId right)

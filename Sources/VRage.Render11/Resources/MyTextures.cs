@@ -39,6 +39,11 @@ namespace VRageRender.Resources
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly TexId NULL = new TexId { Index = -1 };
 
         public ShaderResourceView SRV { get { return MyTextures.Views[Index]; } }
@@ -807,6 +812,11 @@ namespace VRageRender.Resources
         public static bool operator !=(RwTexId x, RwTexId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
         #endregion
 

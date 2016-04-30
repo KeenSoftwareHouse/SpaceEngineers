@@ -119,6 +119,11 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly LightId NULL = new LightId { Index = -1 };
 
         internal Vector3D SpotPosition { get { return MyLights.Lights.Data[Index].SpotPosition; } }

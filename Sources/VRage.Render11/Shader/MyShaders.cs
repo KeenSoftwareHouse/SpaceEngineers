@@ -36,6 +36,11 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly ShaderBytecodeId NULL = new ShaderBytecodeId { Index = -1 };
     }
 
@@ -51,6 +56,11 @@ namespace VRageRender
         public static bool operator !=(InputLayoutId x, InputLayoutId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly InputLayoutId NULL = new InputLayoutId { Index = -1 };
@@ -74,6 +84,11 @@ namespace VRageRender
         public static bool operator !=(VertexShaderId x, VertexShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly VertexShaderId NULL = new VertexShaderId { Index = -1 };
@@ -100,6 +115,11 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly PixelShaderId NULL = new PixelShaderId { Index = -1 };
 
         public static implicit operator PixelShader(PixelShaderId id)
@@ -120,6 +140,11 @@ namespace VRageRender
         public static bool operator !=(ComputeShaderId x, ComputeShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly ComputeShaderId NULL = new ComputeShaderId { Index = -1 };
@@ -146,6 +171,11 @@ namespace VRageRender
         public static bool operator !=(GeometryShaderId x, GeometryShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly GeometryShaderId NULL = new GeometryShaderId { Index = -1 };

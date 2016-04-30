@@ -1,6 +1,7 @@
 ﻿using System.Xml.Serialization;
 using ProtoBuf;
 using VRageMath;
+using System;
 
 namespace VRage.Game
 {
@@ -52,6 +53,9 @@ namespace VRage.Game
             return a.Forward != b.Forward || a.Up != b.Up;
         }
 
-
+        public override int GetHashCode()
+        {
+            throw new InvalidOperationException("GetHashCode and Equals must be overridden");
+        }
     }
 }

@@ -31,6 +31,11 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly MyMaterialProxyId NULL = new MyMaterialProxyId { Index = -1 };
     }
 

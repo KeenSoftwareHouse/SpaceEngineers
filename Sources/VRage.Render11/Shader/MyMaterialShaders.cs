@@ -57,6 +57,11 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly MyMaterialShadersBundleId NULL = new MyMaterialShadersBundleId { Index = -1 };
 
         internal InputLayout IL { get { return MyMaterialShaders.Bundles[Index].IL; } }

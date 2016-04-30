@@ -80,6 +80,11 @@ namespace Sandbox.Game.Entities
             {
                 return !(a == b);
             }
+
+            public override int GetHashCode()
+            {
+                throw new InvalidOperationException("GetHashCode and Equals must be overridden");
+            }
         }
 
         public static float GetMetric(MyEntityCyclingOrder order, MyEntity entity)

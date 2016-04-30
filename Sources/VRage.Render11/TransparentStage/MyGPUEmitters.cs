@@ -55,6 +55,11 @@ namespace VRageRender
                 return x.Index != y.Index;
             }
 
+            public override int GetHashCode()
+            {
+                return Index;
+            }
+
             internal static readonly GPUEmitterId NULL = new GPUEmitterId { Index = -1 };
 
             #region Equals
