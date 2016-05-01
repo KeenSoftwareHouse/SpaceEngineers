@@ -106,8 +106,8 @@ namespace SpaceEngineers
             if (planet != null)
             {
                 var distanceFromPlanet = Vector3D.Distance(planet.PositionComp.GetPosition(), position);
-                if (distanceFromPlanet > planet.MaximumRadius + Math.Max(100, planet.MaximumRadius)) ;
-                planet = null; //too far planet
+                if (distanceFromPlanet > planet.MaximumRadius + Math.Max(100, planet.MaximumRadius))
+                    planet = null; //too far planet
             }
 
             if (m_closestPlanet != planet)
