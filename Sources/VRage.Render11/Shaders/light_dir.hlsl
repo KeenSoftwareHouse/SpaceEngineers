@@ -7,7 +7,7 @@ Texture2D<float> ShadowsMainView : register(MERGE(t, SHADOW_SLOT));
 
 float3 GetSunColor(float3 L, float3 V, float3 color, float sizeMult)
 {
-    return (color + 0.5f + float3(0.5f, 0.35f, 0.0f)) * pow(saturate(dot(L, -V)), 4000.0f) * sizeMult;
+    return color * 2 * pow(saturate(dot(L, -V)), 4000.0f) * sizeMult;
 }
 
 void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
