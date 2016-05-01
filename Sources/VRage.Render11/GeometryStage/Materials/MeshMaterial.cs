@@ -42,7 +42,20 @@ namespace VRageRender
 			return x.Index != y.Index;
 		}
 
-		internal static readonly MyMeshMaterialId NULL = new MyMeshMaterialId { Index = -1 };
+        public override bool Equals(object obj)
+        {
+            if (obj is MyMeshMaterialId)
+                return (this == (MyMeshMaterialId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
+        internal static readonly MyMeshMaterialId NULL = new MyMeshMaterialId { Index = -1 };
 
 		internal MyMeshMaterialInfo Info { get { return MyMeshMaterials1.Table[Index]; } }
 	}
