@@ -190,7 +190,9 @@ namespace VRageRender
             internal Vector4 SecondarySunDirection4;
             internal Vector4 SecondarySunDirection5;
             internal int AdditionalSunCount;
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             internal Vector3 _Padding1;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
             internal float Tonemapping_A;
             internal float Tonemapping_B;
@@ -231,7 +233,9 @@ namespace VRageRender
             internal MyTextureDebugMultipliers TextureDebugMultipliers;
 
             internal Vector3 CameraPositionDelta;
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             internal float _Padding2;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         }
 
         internal static void MoveToNextFrame()

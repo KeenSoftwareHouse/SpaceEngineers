@@ -30,7 +30,7 @@ namespace VRageRender
         internal static MyConcurrentPool<MyQuery> m_disjointQueries;
         internal static MyConcurrentPool<MyQuery> m_timestampQueries;
         
-        internal static List<MyOcclusionQuery> m_pool;
+        internal static List<MyOcclusionQuery> m_pool = null;
 
         static MyQueryFactory()
         {

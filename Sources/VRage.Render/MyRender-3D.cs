@@ -134,7 +134,7 @@ namespace VRageRender
             public MyRenderCallerEnum? CallerID;
 
             public Texture[] RenderTargets;
-            public Texture DepthTarget;
+            public Texture DepthTarget = null; //TODO
 
             public Vector3D? CameraPosition;
 

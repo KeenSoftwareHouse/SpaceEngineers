@@ -12,14 +12,18 @@ namespace VRageRender
         // GPUParticle structure is split into two sections for better cache efficiency - could even be SOA but would require creating more vertex buffers.
         private struct Particle
         {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             public Vector4 Params1, Params2, Params3, Params4;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         };
         private unsafe static readonly int PARTICLE_STRIDE = sizeof(Particle);
 
         private struct EmitterConstantBuffer
         {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             public int EmittersCount;
             public Vector3 Pad;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         };
         public unsafe static readonly int EMITTERCONSTANTBUFFER_SIZE = sizeof(EmitterConstantBuffer);
         public unsafe static readonly int EMITTERDATA_SIZE = sizeof(MyGPUEmitterData);
@@ -47,12 +51,14 @@ namespace VRageRender
 
 #if DEBUG
         private static MyReadStructuredBuffer m_debugCounterBuffer;
-#endif
 
+#pragma warning disable CS0169 // The field is never used
         private static int m_numDeadParticlesOnInit;
         private static int m_numDeadParticlesAfterEmit;
         private static int m_numDeadParticlesAfterSimulation;
         private static int m_numActiveParticlesAfterSimulation;
+#pragma warning restore CS0169 // The field is never used
+#endif
 
         private static MyGPUEmitterData[] m_emitterData = new MyGPUEmitterData[MyGPUEmitters.MAX_LIVE_EMITTERS];
         private static SharpDX.Direct3D11.ShaderResourceView[] m_emitterTextures = new SharpDX.Direct3D11.ShaderResourceView[MyGPUEmitters.MAX_LIVE_EMITTERS];

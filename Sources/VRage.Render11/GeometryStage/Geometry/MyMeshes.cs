@@ -415,11 +415,13 @@ namespace VRageRender
 
         internal MyMeshRawData Data;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal BoundingBox? BoundingBox;
 
         internal HashSet<LodMeshId> PendingLodMeshes;
         internal HashSet<LodMeshId> MergedLodMeshes;
         internal bool NullMesh;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     struct MyMeshInfo

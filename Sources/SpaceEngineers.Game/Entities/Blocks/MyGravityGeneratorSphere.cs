@@ -33,7 +33,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         }
 
         private const float DEFAULT_RADIUS = 100f;
-        private readonly Sync<float> m_radius;
+        private readonly Sync<float> m_radius = null;
         public float Radius
         {
             get { return m_radius; }

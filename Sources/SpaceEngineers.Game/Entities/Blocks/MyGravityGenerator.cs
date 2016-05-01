@@ -34,7 +34,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private BoundingBox m_gizmoBoundingBox = new BoundingBox();
 
-        private readonly Sync<Vector3> m_fieldSize;
+        private readonly Sync<Vector3> m_fieldSize = null;
         public Vector3 FieldSize
         {
             get { return m_fieldSize; }

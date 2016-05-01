@@ -34,10 +34,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         #region Fields
 
-        private readonly Sync<float> m_soundRadius;
-        private readonly Sync<float> m_volume;
-        private readonly Sync<MyCueId> m_cueId;
-        private readonly Sync<float> m_loopPeriod;
+        private readonly Sync<float> m_soundRadius = null;
+        private readonly Sync<float> m_volume = null;
+        private readonly Sync<MyCueId> m_cueId = null;
+        private readonly Sync<float> m_loopPeriod = null;
         private MySoundPair m_soundPair;
         private bool m_isLoopable;
         private MyEntity3DSoundEmitter[] m_soundEmitters;

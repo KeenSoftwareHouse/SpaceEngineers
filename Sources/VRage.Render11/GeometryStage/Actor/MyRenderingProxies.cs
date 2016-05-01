@@ -43,10 +43,12 @@ namespace VRageRender
 
     struct MyVertexDataProxy_2
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal Buffer[] VB;
         internal int[] VertexStrides;
         internal Buffer IB;
         internal Format IndexFormat;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     /// <summary>
@@ -234,6 +236,7 @@ namespace VRageRender
 
     struct MyDrawSubmesh_2
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal int Count;
         internal int Start;
         internal int BaseVertex;
@@ -241,6 +244,7 @@ namespace VRageRender
 
         internal MyMaterialProxyId MaterialId;
         internal int[] BonesMapping;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
         // possible optimization - pooling for 1-4 length array allocations (used a LOT)
         internal static readonly MyDrawSubmesh_2[] EmptyList = new MyDrawSubmesh_2[0];

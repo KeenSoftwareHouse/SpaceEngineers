@@ -35,7 +35,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private static MySoundPair METAL_SOUND = new MySoundPair("ToolLrgWeldMetal");
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolLrgWeldIdle");
         private const MyParticleEffectsIDEnum PARTICLE_EFFECT = MyParticleEffectsIDEnum.Welder;
-        private Sync<bool> m_helpOthers;
+        private Sync<bool> m_helpOthers = null;
 
         public static readonly float WELDER_AMOUNT_PER_SECOND = 2f;
         public static readonly float WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED = 0.6f;

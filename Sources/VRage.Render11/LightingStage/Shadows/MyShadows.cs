@@ -7,11 +7,11 @@ using VRageRender.Resources;
 
 namespace VRageRender
 {                     
-    struct MyViewTransformation
-    {
-        internal Matrix View3x3;
-        internal Vector3D CameraPosition;
-    }
+    //struct MyViewTransformation
+    //{
+    //    internal Matrix View3x3;
+    //    internal Vector3D CameraPosition;
+    //}
 
     partial class MyRender11
     {
@@ -38,7 +38,9 @@ namespace VRageRender
         internal MyFrustumEnum QueryType;
         internal int CascadeIndex;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal HashSet<uint> IgnoredEntities;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     class MyLightsCameraDistanceComparer : IComparer<LightId> {

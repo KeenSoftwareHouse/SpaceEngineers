@@ -190,7 +190,7 @@ namespace VRageRender
             GetRenderProfiler().EndProfilingBlock();
         }
 
-        class MyTypeStats
+       /* class MyTypeStats
         {
             public int Count;
             public int Tris;
@@ -205,7 +205,7 @@ namespace VRageRender
         {
             m_typesStats.Clear();
             m_prefabStats.Clear();
-        }
+        }*/
                                /*
         static private void ShowEnhancedRenderStats()
         {
@@ -335,7 +335,7 @@ namespace VRageRender
             return statsList;
         }
 
-        static List<KeyValuePair<string, MyTypeStats>> SortByCount(Dictionary<string, MyTypeStats> stats)
+        /*static List<KeyValuePair<string, MyTypeStats>> SortByCount(Dictionary<string, MyTypeStats> stats)
         {
             List<KeyValuePair<string, MyTypeStats>> statsList = stats.ToList();
             statsList.Sort(
@@ -347,7 +347,7 @@ namespace VRageRender
             );
 
             return statsList;
-        }
+        }*/
 
 
         #endregion

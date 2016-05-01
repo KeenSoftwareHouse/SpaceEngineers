@@ -24,7 +24,10 @@ namespace VRageRender
         {
             internal float DistributionWeight;
             internal int StencilRef;
+
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             internal Vector2 _padding;
+ #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         }
 
         private static ConstantsBufferId m_blurConstantBuffer;
