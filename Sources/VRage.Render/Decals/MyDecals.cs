@@ -41,7 +41,7 @@ namespace VRageRender
         public int RemainingTrianglesOfThisDecal;       //  This number tells us how many triangles of one decal are in the buffer after this triangleVertexes. If zero, this is the last triangleVertexes of a decal.
         public float RandomOffset;
 
-        public MyRenderLight Light;
+        //public MyRenderLight Light;
         public float Emissivity;
         public Vector3D Position;
 
@@ -285,14 +285,14 @@ namespace VRageRender
                            1.5f * emisivity,
                            0);                    
 
-                    if (decalTriangle.Light != null)
-                    {
-                        decalTriangle.Light.Color = color;
-                        decalTriangle.Light.SetPosition(position);
+                    //if (decalTriangle.Light != null)
+                    //{
+                    //    decalTriangle.Light.Color = color;
+                    //    decalTriangle.Light.SetPosition(position);
 
-                        float range = Math.Max(3 * emisivity * alpha, 0.1f);
-                        decalTriangle.Light.Range = range;
-                    }
+                    //    float range = Math.Max(3 * emisivity * alpha, 0.1f);
+                    //    decalTriangle.Light.Range = range;
+                    //}
                 }
             }
 
