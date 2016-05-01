@@ -249,7 +249,7 @@ namespace Sandbox.ModAPI
             }
         }
 
-        void IMyUtilities.ShowMissionScreen(string screenTitle, string currentObjectivePrefix, string currentObjective, string screenDescription, Action<ResultEnum> callback = null, string okButtonCaption = null)
+        void IMyUtilities.ShowMissionScreen(string screenTitle, string currentObjectivePrefix, string currentObjective, string screenDescription, Action<ResultEnum> callback, string okButtonCaption)
         {
             var missionScreen = new MyGuiScreenMission(missionTitle: screenTitle, 
                 currentObjectivePrefix: currentObjectivePrefix, 

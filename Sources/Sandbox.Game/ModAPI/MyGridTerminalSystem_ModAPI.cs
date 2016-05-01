@@ -31,7 +31,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        void IMyGridTerminalSystem.GetBlocksOfType<T>(List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect = null)
+        void IMyGridTerminalSystem.GetBlocksOfType<T>(List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect)
         {
             blocks.Clear();
             foreach (var block in m_blocks)
@@ -47,7 +47,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        void IMyGridTerminalSystem.SearchBlocksOfName(string name, List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect = null)
+        void IMyGridTerminalSystem.SearchBlocksOfName(string name, List<IMyTerminalBlock> blocks, Func<IMyTerminalBlock, bool> collect)
         {
             blocks.Clear();
             foreach (var block in m_blocks)

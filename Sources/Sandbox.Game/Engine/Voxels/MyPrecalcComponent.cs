@@ -330,7 +330,7 @@ namespace Sandbox.Engine.Voxels
                 set { m_workPriority = value; }
             }
 
-            void IWork.DoWork(ParallelTasks.WorkData workData = null)
+            void IWork.DoWork(ParallelTasks.WorkData workData)
             {
                 m_timer.Start();
                 MyPrecalcJob work;
