@@ -62,7 +62,7 @@ namespace VRage.Game
             }
         }
 
-        public object Clone()
+        public virtual object Clone()
         {
             MyPlanetMaterialDefinition clone = new MyPlanetMaterialDefinition();
             clone.Material = Material;
@@ -133,7 +133,7 @@ namespace VRage.Game
                    && Slope.ValueBetween(slope);
         }
 
-        public object Clone()
+        public override object Clone()
         {
             MyPlanetMaterialPlacementRule clonedRule = new MyPlanetMaterialPlacementRule(this);
             return clonedRule;
