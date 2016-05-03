@@ -18,6 +18,7 @@ namespace VRage.Game.ModAPI
         long Count { get; }
         IMyPlayer GetPlayerControllingEntity(IMyEntity entity);
         void GetAllIdentites(List<IMyIdentity> identities, Func<IMyIdentity, bool> collect = null);
+        IMyIdentity CreateNewNpcIdentity(string name);
         //void WriteDebugInfo();
     }
 }
