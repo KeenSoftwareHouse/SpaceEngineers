@@ -300,8 +300,10 @@ namespace VRageRender
                 DrawCascades(MyRender11.DynamicShadows.ShadowCascades, 100, 100, 200);
                 if (MyScene.SeparateGeometry)
                 {
+#pragma warning disable CS0162 // Unreachable code detected
                     DrawCascades(MyRender11.StaticShadows.ShadowCascades, 100, 300, 200);
                     DrawCombinedCascades(100, 500, 200);
+#pragma warning restore CS0162 // Unreachable code detected
                 }
             }
 
@@ -312,6 +314,7 @@ namespace VRageRender
 
             if (false)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 var batch = MyLinesRenderer.CreateBatch();
 
                 foreach (var light in MyLightRendering.VisiblePointlights)
@@ -319,6 +322,7 @@ namespace VRageRender
                     batch.AddSphereRing(new BoundingSphere(light.PointPosition, 0.5f), Color.White, Matrix.Identity);
                 }
                 batch.Commit();
+#pragma warning restore CS0162 // Unreachable code detected
             }
 
             // draw terrain lods
@@ -386,6 +390,7 @@ namespace VRageRender
             // draw lods
             if(false)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 var batch = MyLinesRenderer.CreateBatch();
 
                 //foreach (var renderable in MyComponentFactory<MyRenderableComponent>.GetAll().Where(x => ((x.GetMesh() as MyVoxelMesh) == null)))
@@ -398,6 +403,7 @@ namespace VRageRender
                 //}
 
                 batch.Commit();
+#pragma warning restore CS0162 // Unreachable code detected
             }
         }
 
@@ -521,10 +527,6 @@ namespace VRageRender
             ray.Direction = ray.Direction - ray.Position;
         }
 
-        static Matrix m_proj;
-        static Matrix m_vp;
-        static Matrix m_invvp;
-
         internal static void DrawSceneDebug()
         {
             //if(true)
@@ -606,9 +608,10 @@ namespace VRageRender
             //
             if (false)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 MyLinesBatch batch = MyLinesRenderer.CreateBatch();
 
-                foreach(var r in MyComponentFactory<MyRenderableComponent>.GetAll())
+                foreach (var r in MyComponentFactory<MyRenderableComponent>.GetAll())
                 {
                     if(r.Owner.GetInstanceLod() != null)
                     {
@@ -617,12 +620,14 @@ namespace VRageRender
                 }
 
                 batch.Commit();
+#pragma warning restore CS0162 // Unreachable code detected
             }
 
             if (false)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 MyLinesBatch batch = MyLinesRenderer.CreateBatch();
-                //var radius = new [] { 0, 40, 72, 128, 256 , 512 };
+                              //var radius = new [] { 0, 40, 72, 128, 256 , 512 };
                 var radius = new[] { 0, 50, 80, 128, 256, 512 };
                 float cellSize = 8;
 
@@ -691,6 +696,7 @@ namespace VRageRender
 
                 batch.Commit();
             }
+#pragma warning restore CS0162 // Unreachable code detected
         }
     }
 }

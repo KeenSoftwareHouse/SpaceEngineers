@@ -30,7 +30,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
     {
         private const string DETECTOR_NAME = "panel";
         private List<string> m_emissiveNames; // new string[] { "Emissive1", "Emissive2", "Emissive3", "Emissive4", "Emissive5", "Emissive6", "Emissive7", "Emissive8" };
-        private readonly Sync<bool> m_anyoneCanUse;
+        private readonly Sync<bool> m_anyoneCanUse = null;
         int m_selectedButton = -1;
 		
 

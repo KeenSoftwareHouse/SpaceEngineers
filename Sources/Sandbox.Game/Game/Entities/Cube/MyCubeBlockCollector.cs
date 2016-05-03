@@ -1,19 +1,9 @@
 ﻿using Havok;
-using Sandbox.Common.ObjectBuilders;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRageMath;
-using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
-using VRage.Utils;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Graphics;
-using VRage;
-using Sandbox.Common;
 using VRage;
 using VRage.Game;
 

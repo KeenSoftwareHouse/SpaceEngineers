@@ -38,7 +38,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private MySoundPair m_beepEnd = MySoundPair.Empty;
         private MyEntity3DSoundEmitter m_beepEmitter = null;
 
-        readonly Sync<bool> m_isCountingDown;
+        readonly Sync<bool> m_isCountingDown = null;
         public bool IsCountingDown 
         { 
             get
@@ -50,7 +50,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 m_isCountingDown.Value = value;
             }
         }
-        readonly Sync<bool> m_silent;
+        readonly Sync<bool> m_silent = null;
         public bool Silent
         {
             get
@@ -67,7 +67,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private static bool m_shouldSetOtherToolbars;
         bool m_syncing = false;
 
-        readonly Sync<int> m_timerSync;
+        readonly Sync<int> m_timerSync = null;
         public MyTimerBlock()
         {
             m_timerSync.ValueChanged += (x) => TimerChanged();

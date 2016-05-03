@@ -81,7 +81,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private float GasOutputPerUpdate { get { return GasOutputPerSecond * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
         private float GasInputPerUpdate { get { return GasInputPerSecond * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS; } }
 
-        private readonly Sync<bool> m_isDepressurizing;
+        private readonly Sync<bool> m_isDepressurizing = null;
         public bool IsDepressurizing { get { return m_isDepressurizing; } set { m_isDepressurizing.Value = value; } }
 
         private MyResourceSourceComponent m_sourceComp;

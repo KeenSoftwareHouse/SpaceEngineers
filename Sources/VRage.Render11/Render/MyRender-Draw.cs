@@ -28,7 +28,7 @@ namespace VRageRender
     {
         static Queue<MyRenderMessageBase> m_drawQueue = new Queue<MyRenderMessageBase>();
         static Queue<MyRenderMessageBase> m_debugDrawMessages = new Queue<MyRenderMessageBase>();
-        static bool m_reloadShaders;
+        //static bool m_reloadShaders;
 
         static MyScreenshot? m_screenshot;
 

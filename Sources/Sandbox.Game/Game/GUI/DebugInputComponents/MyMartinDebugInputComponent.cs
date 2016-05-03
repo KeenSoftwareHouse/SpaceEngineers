@@ -309,8 +309,6 @@ namespace Sandbox.Game.Gui
 
         public override bool HandleInput()
         {
-            bool handled = false;
-
             if (MySession.Static == null)
                 return false;// game isn't loaded yet
 
@@ -325,6 +323,8 @@ namespace Sandbox.Game.Gui
 
             // All of my keypresses require M to be pressed as well.
 #if false
+            bool handled = false;
+
             if (!MyInput.Static.IsKeyPress(MyKeys.M))
                 return handled;
 

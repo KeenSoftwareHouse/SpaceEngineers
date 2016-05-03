@@ -246,6 +246,7 @@ namespace VRageRender
         {
             if (VRage.MyCompilationSymbols.PerformanceProfiling)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 if (m_currentProfilingBlock_renderableType != -1)
                 {
                     // close material
@@ -253,6 +254,7 @@ namespace VRageRender
                     // close type
                     RC.EndProfilingBlock();
                 }
+#pragma warning restore CS0162 // Unreachable code detected
             }
         }
 

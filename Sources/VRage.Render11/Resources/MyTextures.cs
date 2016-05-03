@@ -39,6 +39,19 @@ namespace VRageRender.Resources
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is TexId)
+                return (this == (TexId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly TexId NULL = new TexId { Index = -1 };
 
         public ShaderResourceView SRV { get { return MyTextures.Views[Index]; } }
@@ -808,6 +821,19 @@ namespace VRageRender.Resources
         {
             return x.Index != y.Index;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is RwTexId)
+                return (this == (RwTexId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
         #endregion
 
         internal static readonly RwTexId NULL = new RwTexId { Index = -1 };
@@ -855,6 +881,14 @@ namespace VRageRender.Resources
         {
             return  x.Id != y.Id ||
                     x.Subresource != y.Subresource;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MySubresourceId)
+                return (this == (MySubresourceId)obj);
+            else
+                return false;
         }
 
         public override int GetHashCode()

@@ -112,12 +112,20 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
-        internal static readonly VertexLayoutId NULL = new VertexLayoutId { Index = -1 };
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexLayoutId)
+                return (this == (VertexLayoutId)obj);
+            else
+                return false;
+        }
 
         public override int GetHashCode()
         {
             return Index;
         }
+
+        internal static readonly VertexLayoutId NULL = new VertexLayoutId { Index = -1 };
 
         internal InputElement[] Elements { get { return MyVertexLayouts.GetElements(this); } }
         internal MyVertexLayoutInfo Info { get { return MyVertexLayouts.Layouts.Data[Index]; } }

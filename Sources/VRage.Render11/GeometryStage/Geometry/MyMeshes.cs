@@ -44,6 +44,19 @@ namespace VRageRender
         {
             return x.Index != y.Index;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MeshId)
+                return (this == (MeshId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
         #endregion
 
         internal static readonly MeshId NULL = new MeshId { Index = -1 };
@@ -78,6 +91,19 @@ namespace VRageRender
         public static bool operator !=(LodMeshId x, LodMeshId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is LodMeshId)
+                return (this == (LodMeshId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
         #endregion
 
@@ -177,6 +203,19 @@ namespace VRageRender
         {
             return x.Index != y.Index;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MeshPartId)
+                return (this == (MeshPartId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
         #endregion
 
         internal static readonly MeshPartId NULL = new MeshPartId { Index = -1 };
@@ -261,6 +300,19 @@ namespace VRageRender
         public static bool operator !=(VoxelPartId x, VoxelPartId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VoxelPartId)
+                return (this == (VoxelPartId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
         #endregion
 
@@ -363,11 +415,13 @@ namespace VRageRender
 
         internal MyMeshRawData Data;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal BoundingBox? BoundingBox;
 
         internal HashSet<LodMeshId> PendingLodMeshes;
         internal HashSet<LodMeshId> MergedLodMeshes;
         internal bool NullMesh;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     struct MyMeshInfo
@@ -396,6 +450,19 @@ namespace VRageRender
         public static bool operator !=(MyMeshBuffers left, MyMeshBuffers right)
         {
             return left.VB0 != right.VB0 || left.VB1 != right.VB1 || left.IB == right.IB;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is MyMeshBuffers)
+                return (this == (MyMeshBuffers)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            throw new InvalidOperationException("GetHashCode and Equals must be overridden");
         }
 
         internal static readonly MyMeshBuffers Empty = new MyMeshBuffers { IB = IndexBufferId.NULL, VB0 = VertexBufferId.NULL, VB1 = VertexBufferId.NULL };

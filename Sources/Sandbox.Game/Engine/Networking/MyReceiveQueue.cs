@@ -1,17 +1,10 @@
-﻿using Sandbox.Engine.Networking;
-using Sandbox.Game.Multiplayer;
-using SteamSDK;
+﻿using SteamSDK;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Text;
 using System.Threading;
 using VRage.Collections;
 using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 
 namespace Sandbox.Engine.Networking

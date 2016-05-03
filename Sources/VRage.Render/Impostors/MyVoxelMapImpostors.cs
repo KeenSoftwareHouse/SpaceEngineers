@@ -55,7 +55,6 @@ namespace VRageRender
             VertexBuffer m_vertexBuffer;
             int m_trianglesCount;
             MyVertexFormatPositionTextureColor[] m_vertices;
-            List<MyVoxelMapImpostor> m_voxelMapImpostors;
             Vector4 m_animationTime = Vector4.Zero;
 
             public void LoadContent()

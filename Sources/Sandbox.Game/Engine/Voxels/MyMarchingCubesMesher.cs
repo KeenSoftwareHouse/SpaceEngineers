@@ -593,7 +593,6 @@ namespace Sandbox.Engine.Voxels
         private void CreateTriangles(ref Vector3I coord0, int cubeIndex, ref Vector3I tempVoxelCoord0)
         {
             MyVoxelVertex tmpVertex = new MyVoxelVertex();
-            int g = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
             Vector3I edge = new Vector3I(coord0.X, coord0.Y, coord0.Z);
             for (int i = 0; MyMarchingCubesConstants.TriangleTable[cubeIndex, i] != -1; i += 3)
             {

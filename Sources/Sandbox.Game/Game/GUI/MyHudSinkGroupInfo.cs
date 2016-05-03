@@ -1,15 +1,10 @@
 ﻿#region Using
 
-using System.Collections.Generic;
-using Sandbox.Common;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using System.Text;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using VRage;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using System.Diagnostics;
 using VRage.Game;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -151,6 +151,19 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is ConstantsBufferId)
+                return (this == (ConstantsBufferId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly ConstantsBufferId NULL = new ConstantsBufferId { Index = -1 };
 
         //
@@ -173,6 +186,19 @@ namespace VRageRender
         public static bool operator !=(VertexBufferId x, VertexBufferId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexBufferId)
+                return (this == (VertexBufferId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly VertexBufferId NULL = new VertexBufferId { Index = -1 };
@@ -201,6 +227,19 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is IndexBufferId)
+                return (this == (IndexBufferId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly IndexBufferId NULL = new IndexBufferId { Index = -1 };
 
 
@@ -223,6 +262,19 @@ namespace VRageRender
         public static bool operator !=(StructuredBufferId x, StructuredBufferId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is StructuredBufferId)
+                return (this == (StructuredBufferId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly StructuredBufferId NULL = new StructuredBufferId { Index = -1 };
@@ -832,6 +884,19 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is RasterizerId)
+                return (this == (RasterizerId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly RasterizerId NULL = new RasterizerId { Index = -1 };
 
 
@@ -855,6 +920,19 @@ namespace VRageRender
         public static bool operator !=(SamplerId x, SamplerId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SamplerId)
+                return (this == (SamplerId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly SamplerId NULL = new SamplerId { Index = -1 };
@@ -901,7 +979,20 @@ namespace VRageRender
         {
             return x.Index != y.Index || x.Init != y.Init;
         }
- 
+        
+        public override bool Equals(object obj)
+        {
+            if (obj is BlendId)
+                return (this == (BlendId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         public static implicit operator BlendState(BlendId id)
         {
             return MyPipelineStates.GetBlend(id);
@@ -925,6 +1016,19 @@ namespace VRageRender
         private bool Init
         {
             get { return m_Init; }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is DepthStencilId)
+                return (this == (DepthStencilId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         public int Index

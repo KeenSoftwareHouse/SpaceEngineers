@@ -12,7 +12,7 @@ using VRageMath;
 namespace VRageRender
 {
     struct MyOutlineDesc {
-        internal MyStringId Material;
+        //internal MyStringId Material;
         internal int SectionIndex;
         internal Color Color;
         internal float Thickness;

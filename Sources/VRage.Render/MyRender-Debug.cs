@@ -48,52 +48,52 @@ namespace VRageRender
         {
             return;
             //Debug draw lights
-            foreach (MyRenderLight light in m_renderLightsForDraw)
-            {
-                //if (light.LightOn && light.Glare.Type == TransparentGeometry.MyLightGlare.GlareTypeEnum.Distant)
-                {
-                    if ((light.LightType & LightTypeEnum.PointLight) != 0)
-                    {
-                        MyDebugDraw.DrawSphereWireframe(MatrixD.CreateScale(light.Range) * MatrixD.CreateTranslation(light.PositionWithOffset), Color.Red, 1);
-                        MyDebugDraw.DrawAxis(MatrixD.CreateWorld(light.Position, light.ReflectorDirection, light.ReflectorUp), 2, 1, false);
-                        // MyDebugDraw.DrawText(light.PositionWithOffset, new System.Text.StringBuilder(light.ID.ToString()), Color.White, 1);
-                    }
-                    //if ((light.LightType & LightTypeEnum.Hemisphere) != 0)
-                    //{
-                    //    Matrix rotationHotfix = Matrix.CreateFromAxisAngle(Vector3.UnitX, MathHelper.PiOver2);
-                    //    Matrix world = Matrix.CreateScale(light.Range) * rotationHotfix * Matrix.CreateWorld(light.Position, light.ReflectorDirection, light.ReflectorUp);
-                    //    MyDebugDraw.DrawHemisphereWireframe(world, new Vector3(1, 0, 0), 1);
-                    //}
-                    if ((light.LightType & LightTypeEnum.Spotlight) != 0)
-                    {
-                        // Uncomment to show sphere for spot light
-                        //MyDebugDraw.DrawSphereWireframe(Matrix.CreateScale(light.ReflectorRange) * Matrix.CreateTranslation(light.Position), new Vector3(color.X, color.Y, color.Z), 0.25f);
+//            foreach (MyRenderLight light in m_renderLightsForDraw)
+//            {
+//                //if (light.LightOn && light.Glare.Type == TransparentGeometry.MyLightGlare.GlareTypeEnum.Distant)
+//                {
+//                    if ((light.LightType & LightTypeEnum.PointLight) != 0)
+//                    {
+//                        MyDebugDraw.DrawSphereWireframe(MatrixD.CreateScale(light.Range) * MatrixD.CreateTranslation(light.PositionWithOffset), Color.Red, 1);
+//                        MyDebugDraw.DrawAxis(MatrixD.CreateWorld(light.Position, light.ReflectorDirection, light.ReflectorUp), 2, 1, false);
+//                        // MyDebugDraw.DrawText(light.PositionWithOffset, new System.Text.StringBuilder(light.ID.ToString()), Color.White, 1);
+//                    }
+//                    //if ((light.LightType & LightTypeEnum.Hemisphere) != 0)
+//                    //{
+//                    //    Matrix rotationHotfix = Matrix.CreateFromAxisAngle(Vector3.UnitX, MathHelper.PiOver2);
+//                    //    Matrix world = Matrix.CreateScale(light.Range) * rotationHotfix * Matrix.CreateWorld(light.Position, light.ReflectorDirection, light.ReflectorUp);
+//                    //    MyDebugDraw.DrawHemisphereWireframe(world, new Vector3(1, 0, 0), 1);
+//                    //}
+//                    if ((light.LightType & LightTypeEnum.Spotlight) != 0)
+//                    {
+//                        // Uncomment to show sphere for spot light
+//                        //MyDebugDraw.DrawSphereWireframe(Matrix.CreateScale(light.ReflectorRange) * Matrix.CreateTranslation(light.Position), new Vector3(color.X, color.Y, color.Z), 0.25f);
 
-                        //MyDebugDraw.DrawCapsule(light.Position, light.Position + light.ReflectorDirection * light.ReflectorRange, 1, new Color(color.X, color.Y, color.Z), false);
+//                        //MyDebugDraw.DrawCapsule(light.Position, light.Position + light.ReflectorDirection * light.ReflectorRange, 1, new Color(color.X, color.Y, color.Z), false);
 
-                        //float reflectorConeAngle = (float)System.Math.Acos(1 - light.ReflectorConeMaxAngleCos);
-                        //float reflectorRadius = (float)System.Math.Tan(reflectorConeAngle) * light.ReflectorRange;
-                        //MyDebugDraw.DrawCylinder(light.Position, light.Position + light.ReflectorDirection * light.ReflectorRange, 0, reflectorRadius, new Color(color.X, color.Y, color.Z), false);
+//                        //float reflectorConeAngle = (float)System.Math.Acos(1 - light.ReflectorConeMaxAngleCos);
+//                        //float reflectorRadius = (float)System.Math.Tan(reflectorConeAngle) * light.ReflectorRange;
+//                        //MyDebugDraw.DrawCylinder(light.Position, light.Position + light.ReflectorDirection * light.ReflectorRange, 0, reflectorRadius, new Color(color.X, color.Y, color.Z), false);
 
-//                        MyDebugDraw.DrawText(light.Position, new System.Text.StringBuilder(light.ShadowMapIndex.ToString() + " (" + (light.SpotQuery != null ? light.QueryPixels.ToString() : "") + ")" ), Color.Yellow, 0.8f, false);
+////                        MyDebugDraw.DrawText(light.Position, new System.Text.StringBuilder(light.ShadowMapIndex.ToString() + " (" + (light.SpotQuery != null ? light.QueryPixels.ToString() : "") + ")" ), Color.Yellow, 0.8f, false);
 
-                        MyDebugDraw.DrawText(light.Position, new System.Text.StringBuilder(Vector3D.Distance(MyRenderCamera.Position, light.Position).ToString()), Color.Yellow, 0.8f, false);
+//                        MyDebugDraw.DrawText(light.Position, new System.Text.StringBuilder(Vector3D.Distance(MyRenderCamera.Position, light.Position).ToString()), Color.Yellow, 0.8f, false);
 
-                        MyStateObjects.WireframeClockwiseRasterizerState.Apply();
-                        DepthStencilState.None.Apply();
+//                        MyStateObjects.WireframeClockwiseRasterizerState.Apply();
+//                        DepthStencilState.None.Apply();
 
 
 
-                        MyDebugDraw.DrawModel(MyDebugDraw.ModelCone, light.SpotWorld, Color.White, false);
-                    }
+//                        MyDebugDraw.DrawModel(MyDebugDraw.ModelCone, light.SpotWorld, Color.White, false);
+//                    }
 
-                    //just glare
-                    if (light.LightType == LightTypeEnum.None)
-                    {
-                        MyDebugDraw.DrawSphereWireframe(MatrixD.CreateScale(light.Range) * MatrixD.CreateTranslation(light.PositionWithOffset), Color.Red, 1);
-                    }
-                }
-            }
+//                    //just glare
+//                    if (light.LightType == LightTypeEnum.None)
+//                    {
+//                        MyDebugDraw.DrawSphereWireframe(MatrixD.CreateScale(light.Range) * MatrixD.CreateTranslation(light.PositionWithOffset), Color.Red, 1);
+//                    }
+//                }
+//            }
         }
               
         internal static void DrawDebugEnvironmentRenderTargets()
@@ -190,7 +190,7 @@ namespace VRageRender
             GetRenderProfiler().EndProfilingBlock();
         }
 
-        class MyTypeStats
+       /* class MyTypeStats
         {
             public int Count;
             public int Tris;
@@ -205,7 +205,7 @@ namespace VRageRender
         {
             m_typesStats.Clear();
             m_prefabStats.Clear();
-        }
+        }*/
                                /*
         static private void ShowEnhancedRenderStats()
         {
@@ -335,7 +335,7 @@ namespace VRageRender
             return statsList;
         }
 
-        static List<KeyValuePair<string, MyTypeStats>> SortByCount(Dictionary<string, MyTypeStats> stats)
+        /*static List<KeyValuePair<string, MyTypeStats>> SortByCount(Dictionary<string, MyTypeStats> stats)
         {
             List<KeyValuePair<string, MyTypeStats>> statsList = stats.ToList();
             statsList.Sort(
@@ -347,7 +347,7 @@ namespace VRageRender
             );
 
             return statsList;
-        }
+        }*/
 
 
         #endregion

@@ -175,7 +175,7 @@ namespace Sandbox.Engine.Voxels
                         job.DebugDraw(new Color((shade - p) / shade, 0.0f, p / shade, (max - xi) / max));
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 { }
             }
 
@@ -330,7 +330,7 @@ namespace Sandbox.Engine.Voxels
                 set { m_workPriority = value; }
             }
 
-            void IWork.DoWork(ParallelTasks.WorkData workData = null)
+            void IWork.DoWork(ParallelTasks.WorkData workData)
             {
                 m_timer.Start();
                 MyPrecalcJob work;

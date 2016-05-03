@@ -316,7 +316,9 @@ namespace VRageRender
                     // draw cascade bounding primtiive
                     if (VISUALIZE_DEBUG)
                     {
+#pragma warning disable CS0162 // Unreachable code detected
                         var oldInvView = MatrixD.Invert(m_oldView);
+
                         Vector3D.Transform(m_frustumVerticesWS, ref oldInvView, m_frustumVerticesWS);
 
                         var verticesF = new Vector3[8];
@@ -332,6 +334,7 @@ namespace VRageRender
                         batch.AddBoundingBox(bb, Color.OrangeRed);
 
                         batch.Commit();
+#pragma warning restore CS0162 // Unreachable code detected
                     }
 
                     continue;
@@ -406,7 +409,9 @@ namespace VRageRender
             }
 
             if (VISUALIZE_DEBUG)
+#pragma warning disable CS0162 // Unreachable code detected
                 DebugDrawFrozen(cascadesMatrices);
+#pragma warning restore CS0162 // Unreachable code detected
 
             FillConstantBuffer(m_csmConstants);
 

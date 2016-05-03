@@ -203,10 +203,12 @@ namespace VRageRender.Vertex
 
     unsafe struct MyVertexFormatGenericInstance
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal HalfVector4 row0;
         internal HalfVector4 row1;
         internal HalfVector4 row2;
         internal HalfVector4 colorMaskHSV;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
 
         internal static int STRIDE = sizeof(MyVertexFormatGenericInstance);
     }

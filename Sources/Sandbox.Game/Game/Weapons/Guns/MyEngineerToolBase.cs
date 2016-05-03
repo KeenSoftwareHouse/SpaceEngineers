@@ -686,7 +686,7 @@ namespace Sandbox.Game.Weapons
             MyHud.BlockInfo.MissingComponentIndex = m_markedComponent;
         }
 
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {
             get { return m_handItemDef.Id; }
         }

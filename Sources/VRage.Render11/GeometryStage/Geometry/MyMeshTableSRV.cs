@@ -5,12 +5,12 @@ using VRageRender.Vertex;
 
 namespace VRageRender
 {
-    struct MyDraw
-    {
-        internal int Indices;
-        internal int StartI;
-        internal int BaseV;
-    }
+    //struct MyDraw
+    //{
+    //    internal int Indices;
+    //    internal int StartI;
+    //    internal int BaseV;
+    //}
 
     struct MyMeshTableSRV_Entry
     {

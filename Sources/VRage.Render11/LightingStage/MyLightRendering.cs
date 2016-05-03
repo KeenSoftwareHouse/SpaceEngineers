@@ -44,9 +44,9 @@ namespace VRageRender
     class MyLightRendering : MyImmediateRC
     {
         internal static ConstantsBufferId m_pointlightsConstants;
-        internal static int m_activePointlights;
+        //internal static int m_activePointlights;
         internal static ConstantsBufferId m_spotlightsConstants;
-        internal static int m_activeSpotlights;
+        //internal static int m_activeSpotlights;
         internal static ConstantsBufferId m_sunlightConstants;
 
         static PixelShaderId DirectionalEnvironmentLight_NoShadow = PixelShaderId.NULL;

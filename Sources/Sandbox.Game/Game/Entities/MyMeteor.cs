@@ -187,7 +187,7 @@ namespace Sandbox.Game.Entities
 
         public class MyMeteorGameLogic : MyEntityGameLogic
         {
-            internal MyMeteor Entity { get { return Container != null ? Container.Entity as MyMeteor : null; } }
+            internal new MyMeteor Entity { get { return Container != null ? Container.Entity as MyMeteor : null; } }
 
             public MyPhysicalInventoryItem Item;
             public MyVoxelMaterialDefinition VoxelMaterial { get; set; }

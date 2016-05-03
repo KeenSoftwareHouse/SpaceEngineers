@@ -1147,8 +1147,6 @@ namespace Sandbox.Game.EntityComponents
 		            RecreatePhysicalDistributionGroups(ref typeId, m_dataPerType[typeIndex].SinksByPriority, m_dataPerType[typeIndex].SourcesByPriority, m_dataPerType[typeIndex].InputOutputList);
 		        }
 
-		        MyResourceStateEnum totalState = MyResourceStateEnum.Ok;
-			    int powerOutCounter = 0;
                 for (int groupIndex = 0; groupIndex < m_dataPerType[typeIndex].DistributionGroupsInUse; ++groupIndex)
 			    {
                     MyPhysicalDistributionGroup group = m_dataPerType[typeIndex].DistributionGroups[groupIndex];

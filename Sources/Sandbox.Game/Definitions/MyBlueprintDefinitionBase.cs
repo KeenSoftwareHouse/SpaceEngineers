@@ -79,7 +79,7 @@ namespace Sandbox.Definitions
         /// <summary>
         /// Postprocess initialization. Should set PostprocessNeeded to false if initialization was successful.
         /// </summary>
-        public abstract void Postprocess();
+        public abstract override void Postprocess();
 
         /// <summary>
         /// Whether the Postprocess method still needs to be called.

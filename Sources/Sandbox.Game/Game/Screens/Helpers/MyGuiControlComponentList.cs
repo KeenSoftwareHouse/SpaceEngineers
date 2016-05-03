@@ -1,19 +1,9 @@
-﻿using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Utils;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using VRage;
 using VRageMath;
 using System.Globalization;
-using Sandbox.Graphics;
-using VRage;
 using VRage.Game;
 using VRage.Utils;
 

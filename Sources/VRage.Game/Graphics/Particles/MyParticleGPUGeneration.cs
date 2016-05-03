@@ -18,12 +18,6 @@ namespace VRage.Game
     
     public class MyParticleGPUGeneration : IMyParticleGeneration
     {
-        #region Static
-
-        static int m_globalCounter;
-
-        #endregion
-
         #region Members
 
         static readonly int Version = 1;

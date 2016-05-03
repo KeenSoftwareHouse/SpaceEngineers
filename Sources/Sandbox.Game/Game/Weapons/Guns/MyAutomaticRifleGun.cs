@@ -405,7 +405,7 @@ namespace Sandbox.Game.Weapons
         {
         }
 
-        public MyDefinitionId DefinitionId
+        public new MyDefinitionId DefinitionId
         {
             get { return m_handItemDefId; }
         }

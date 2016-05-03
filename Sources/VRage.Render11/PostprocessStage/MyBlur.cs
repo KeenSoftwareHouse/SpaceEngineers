@@ -24,7 +24,10 @@ namespace VRageRender
         {
             internal float DistributionWeight;
             internal int StencilRef;
+
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             internal Vector2 _padding;
+ #pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         }
 
         private static ConstantsBufferId m_blurConstantBuffer;
@@ -32,7 +35,7 @@ namespace VRageRender
         // Item1 is horizontal, Item2 is vertical pass
         private static Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>> m_blurShaders = null; 
 
-        internal static unsafe void Init()
+        internal static unsafe new void Init()
         {
             int typeCount = Enum.GetValues(typeof(MyBlurDensityFunctionType)).Length;
             m_blurShaders = new Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>>();

@@ -1,21 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using ParallelTasks;
-using Sandbox.Common;
 using Sandbox.Graphics.GUI;
 using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
 
 using VRage;
 using VRageMath;
 using VRage.Utils;
-using Sandbox.Game.Localization;
-using VRage;
 using VRage.Game;
-using VRage.Utils;
-using VRage.Library.Utils;
 using System.IO;
 
 namespace Sandbox.Game.Gui

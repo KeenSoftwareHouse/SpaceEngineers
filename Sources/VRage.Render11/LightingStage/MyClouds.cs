@@ -50,12 +50,14 @@ namespace VRageRender
 
     struct FogConstants
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal float LayerAltitude;
         internal float CameraAltitude;
         internal float LayerThickness;
         internal uint CameraTexelX;
         internal uint CameraTexelY;
         internal Vector3 _padding;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     public class MyCloudRenderer

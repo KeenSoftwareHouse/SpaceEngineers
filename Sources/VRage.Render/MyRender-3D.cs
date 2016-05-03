@@ -134,7 +134,7 @@ namespace VRageRender
             public MyRenderCallerEnum? CallerID;
 
             public Texture[] RenderTargets;
-            public Texture DepthTarget;
+            public Texture DepthTarget = null; //TODO
 
             public Vector3D? CameraPosition;
 
@@ -420,9 +420,6 @@ namespace VRageRender
         private static List<MyRenderLight> m_pointLights = new List<MyRenderLight>(128); // just references
         private static List<MyRenderLight> m_hemiLights = new List<MyRenderLight>(128); // just references
 
-
-        private static bool m_enableEnvironmentMapAmbient = true;
-        private static bool m_enableEnvironmentMapReflection = true;
 
         static readonly BaseTexture[] m_renderTargets = new BaseTexture[Enum.GetValues(typeof(MyRenderTargets)).GetLength(0)];
         static readonly BaseTexture[] m_spotShadowRenderTargets = new BaseTexture[MyRenderConstants.SPOT_SHADOW_RENDER_TARGET_COUNT];

@@ -36,6 +36,19 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is ShaderBytecodeId)
+                return (this == (ShaderBytecodeId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly ShaderBytecodeId NULL = new ShaderBytecodeId { Index = -1 };
     }
 
@@ -51,6 +64,19 @@ namespace VRageRender
         public static bool operator !=(InputLayoutId x, InputLayoutId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is InputLayoutId)
+                return (this == (InputLayoutId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly InputLayoutId NULL = new InputLayoutId { Index = -1 };
@@ -74,6 +100,19 @@ namespace VRageRender
         public static bool operator !=(VertexShaderId x, VertexShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is VertexShaderId)
+                return (this == (VertexShaderId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly VertexShaderId NULL = new VertexShaderId { Index = -1 };
@@ -100,6 +139,19 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is PixelShaderId)
+                return (this == (PixelShaderId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly PixelShaderId NULL = new PixelShaderId { Index = -1 };
 
         public static implicit operator PixelShader(PixelShaderId id)
@@ -120,6 +172,19 @@ namespace VRageRender
         public static bool operator !=(ComputeShaderId x, ComputeShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ComputeShaderId)
+                return (this == (ComputeShaderId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly ComputeShaderId NULL = new ComputeShaderId { Index = -1 };
@@ -146,6 +211,19 @@ namespace VRageRender
         public static bool operator !=(GeometryShaderId x, GeometryShaderId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is GeometryShaderId)
+                return (this == (GeometryShaderId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly GeometryShaderId NULL = new GeometryShaderId { Index = -1 };
@@ -436,6 +514,7 @@ namespace VRageRender
 
                 if (DUMP_CODE)
                 {
+#pragma warning disable CS0162 // Unreachable code detected
                     var disassembly = compilationResult.Bytecode.Disassemble(DisassemblyFlags.EnableColorCode |
                                                                              DisassemblyFlags.EnableInstructionNumbering);
                     string asmPath;
@@ -452,6 +531,7 @@ namespace VRageRender
                     {
                         writer.Write(disassembly);
                     }
+#pragma warning restore CS0162 // Unreachable code detected
                 }
 
                 if (compilationResult.Message != null)
@@ -531,7 +611,7 @@ namespace VRageRender
             {
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -552,7 +632,7 @@ namespace VRageRender
             {
                 PsObjects[id.Index] = new PixelShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
                 PsObjects[id.Index] = new PixelShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -573,7 +653,7 @@ namespace VRageRender
             {
                 CsObjects[id.Index] = new ComputeShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
                 CsObjects[id.Index] = new ComputeShader(MyRender11.Device, GetBytecode(bytecodeId));
@@ -605,7 +685,7 @@ namespace VRageRender
                     GsObjects[id.Index] = new GeometryShader(MyRender11.Device, GetBytecode(bytecodeId));
                 }
             }
-            catch (SharpDXException e)
+            catch (SharpDXException)
             {
                 Compile(bytecodeId, true);
 
@@ -745,7 +825,7 @@ namespace VRageRender
                 var includes = new MyIncludeProcessor(Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath));
                 return ShaderBytecode.Preprocess(source, macros, includes);
             }
-            catch (CompilationException e)
+            catch (CompilationException)
             {
                 return null;
             }
@@ -783,7 +863,7 @@ namespace VRageRender
                                 code = reader.ReadToEnd();
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             return "";
                         }

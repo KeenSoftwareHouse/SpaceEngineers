@@ -32,11 +32,14 @@ namespace VRageRender
         internal int ParentGID;
         internal bool UsedInForward;
         internal bool CastsShadows;
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal bool CastsShadowsThisFrame;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     struct MyPointlightInfo
     {
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
         internal bool Enabled;
         internal float Range;
         internal Vector3 Color;
@@ -48,6 +51,7 @@ namespace VRageRender
         internal int BvhProxyId;
 
         internal TexId StaticShadowTexture;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
     }
 
     struct MySpotlightInfo
@@ -70,15 +74,15 @@ namespace VRageRender
         internal bool ViewProjectionDirty;
     }
 
-    struct MyHemisphericalLightInfo
-    {
-        internal float Range;
-        internal Vector3 Color;
-        internal float Falloff;
-        internal float SphereRadius;
-        internal Vector3 Direction;
-        internal Vector3 Up;
-    }
+    //struct MyHemisphericalLightInfo
+    //{
+    //    internal float Range;
+    //    internal Vector3 Color;
+    //    internal float Falloff;
+    //    internal float SphereRadius;
+    //    internal Vector3 Direction;
+    //    internal Vector3 Up;
+    //}
 
     struct MyGlareDesc
     {
@@ -117,6 +121,19 @@ namespace VRageRender
         public static bool operator !=(LightId x, LightId y)
         {
             return x.Index != y.Index;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is LightId)
+                return (this == (LightId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
         }
 
         internal static readonly LightId NULL = new LightId { Index = -1 };

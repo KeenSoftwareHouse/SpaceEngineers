@@ -40,7 +40,7 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(m_postprocessBuilder != null);
         }
 
-        public void Postprocess()
+        public override void Postprocess()
         {
             bool valid = true;
 

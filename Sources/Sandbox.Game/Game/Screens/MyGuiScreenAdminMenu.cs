@@ -386,7 +386,7 @@ namespace Sandbox.Game.Gui
 
         void OnEntityRemoveClicked(MyTrashRemovalOperation operation)
         {
-            if (m_attachCamera != null)
+            //if (m_attachCamera != null)
             {
                 MyMultiplayer.RaiseStaticEvent(x => RemoveEntity_Implementation, m_attachCamera, operation);
             }

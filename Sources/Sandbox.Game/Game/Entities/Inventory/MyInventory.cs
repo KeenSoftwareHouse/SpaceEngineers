@@ -1778,7 +1778,6 @@ namespace Sandbox.Game
             {
                 return;
             }
-            MyCubeBlock block;
 
             Vector3D? hitPosition = null;
             MyCharacterDetectorComponent detectorComponent = Owner.Components.Get<MyCharacterDetectorComponent>();

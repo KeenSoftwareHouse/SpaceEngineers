@@ -52,7 +52,7 @@ namespace VRageRender
         internal MyVertexInputLayout VertexLayout;
         internal VertexBufferId[] VB;
         internal IndexBufferId IB = IndexBufferId.NULL;
-        internal int Id;
+        //internal int Id;
         internal Dictionary<string, MyDrawSubmesh[]> Parts = new Dictionary<string, MyDrawSubmesh[]>();
         internal Dictionary<string, MySubmeshInfo[]> PartsMetadata = new Dictionary<string, MySubmeshInfo[]>(); // well, we need this too after all
         internal int PartsNum { get { return Parts.Count; } }
@@ -156,7 +156,7 @@ namespace VRageRender
         static Dictionary<string, MyAssetMesh> m_meshes = new Dictionary<string, MyAssetMesh>();
         internal static Dictionary<string, string> ModelRemap = new Dictionary<string, string>();
 
-        internal static MyAssetMesh m_debugMesh;
+        //internal static MyAssetMesh m_debugMesh;
 
         internal static MyAssetMesh GetModel(string assetName)
         {
@@ -171,7 +171,9 @@ namespace VRageRender
 
             if (LOG_MESH_STATISTICS)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 model.DebugWriteInfo();
+#pragma warning restore CS0162 // Unreachable code detected
             }
 
             m_meshes[assetName] = model;

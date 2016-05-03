@@ -46,11 +46,13 @@ namespace VRageRender
         {
             if (VRage.MyCompilationSymbols.DX11Debug && VRage.MyCompilationSymbols.DX11DebugOutput)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 DebugInfoQueue = Device.QueryInterface<InfoQueue>();
                 DebugInfoQueue.SetBreakOnSeverity(MessageSeverity.Corruption, true);
                 DebugInfoQueue.SetBreakOnSeverity(MessageSeverity.Error, true);
                 DebugInfoQueue.MessageCountLimit = 4096;
                 DebugInfoQueue.ClearStorageFilter();
+#pragma warning restore CS0162 // Unreachable code detected
             }
         }
         private static long m_lastSkippedCount;
@@ -217,7 +219,9 @@ namespace VRageRender
       
 #if DEBUG
             if (VRage.MyCompilationSymbols.DX11Debug)
+#pragma warning disable CS0162 // Unreachable code detected
                 flags |= DeviceCreationFlags.Debug;
+#pragma warning restore CS0162 // Unreachable code detected
 #endif
 
             WinApi.DEVMODE mode = new WinApi.DEVMODE();
@@ -376,9 +380,11 @@ namespace VRageRender
 #if DEBUG
                 if (VRage.MyCompilationSymbols.DX11Debug)
                 {
+#pragma warning disable CS0162 // Unreachable code detected
                     var deviceDebug = new DeviceDebug(Device);
                     deviceDebug.ReportLiveDeviceObjects(ReportingLevel.Detail | ReportingLevel.Summary);
                     deviceDebug.Dispose();
+#pragma warning restore CS0162 // Unreachable code detected
                 }
 #endif
 

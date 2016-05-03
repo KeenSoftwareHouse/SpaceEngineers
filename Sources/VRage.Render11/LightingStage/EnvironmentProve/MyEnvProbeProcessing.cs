@@ -25,7 +25,9 @@ namespace VRageRender
             internal float AtmosphereScaleFactor;
             internal float Intensity;
             internal float FogIntensity;
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
             internal Vector2 __padding;
+#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
         }
 
         static PixelShaderId m_ps;
@@ -34,7 +36,7 @@ namespace VRageRender
         static ComputeShaderId m_prefilter;
         static ComputeShaderId m_blend;
 
-        internal static void Init()
+        internal static new void Init()
         {
             m_ps = MyShaders.CreatePs("ForwardPostprocess.hlsl");
             m_atmosphere = MyShaders.CreatePs("AtmospherePostprocess.hlsl");

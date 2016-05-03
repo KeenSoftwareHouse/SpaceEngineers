@@ -78,7 +78,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             (MyTerminalControlFactoryHelper.Static as IMyTerminalActionsHelper).GetActions(this.GetType(), resultList, collect);
         }
-        void ModAPI.Ingame.IMyTerminalBlock.SearchActionsOfName(string name, List<Sandbox.ModAPI.Interfaces.ITerminalAction> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalAction, bool> collect = null)
+        void ModAPI.Ingame.IMyTerminalBlock.SearchActionsOfName(string name, List<Sandbox.ModAPI.Interfaces.ITerminalAction> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalAction, bool> collect)
         {
             (MyTerminalControlFactoryHelper.Static as IMyTerminalActionsHelper).SearchActionsOfName(name, this.GetType(), resultList, collect);
         }

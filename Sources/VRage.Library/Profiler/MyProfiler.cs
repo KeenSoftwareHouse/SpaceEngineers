@@ -148,7 +148,7 @@ namespace VRage.Profiler
             if (ENABLE_PROFILER_LOG)
                 m_logWriter = new StreamWriter(@"c:\keenswh\profiler" + Thread.CurrentThread.ManagedThreadId + "_" + m_customName + ".csv");
 
-            for (int i = 0; i < 2000; i++)
+            for (int i = 0; i < INITIAL_PROFILER_BLOCK_COUNT; i++)
             {
                 blockPool.Add(new MyProfilerBlock());
             }

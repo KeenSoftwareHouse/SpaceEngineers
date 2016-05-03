@@ -29,7 +29,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
     {
         #region Properties
 
-        readonly Sync<float> m_friction;
+        readonly Sync<float> m_friction = null;
         public float Friction
         {
             get
@@ -43,7 +43,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        readonly Sync<float> m_virtualMass;
+        readonly Sync<float> m_virtualMass = null;
         public float VirtualMass
         {
             get
@@ -57,7 +57,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        readonly Sync<float> m_restitution;
+        readonly Sync<float> m_restitution = null;
         public float Restitution
         {
             get { return m_restitution; }
@@ -67,7 +67,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        readonly Sync<bool> m_broadcastSync;
+        readonly Sync<bool> m_broadcastSync = null;
 
         private new MySpaceBallDefinition BlockDefinition
         {

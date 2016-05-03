@@ -1,6 +1,4 @@
-﻿using VRage.Game;
-using VRage.Game;
-using VRage.ObjectBuilders;
+﻿using VRage.ObjectBuilders;
 
 namespace VRage.Game.ModAPI.Ingame
 {

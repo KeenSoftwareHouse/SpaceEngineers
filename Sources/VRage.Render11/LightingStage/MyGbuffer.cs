@@ -125,9 +125,9 @@ namespace VRageRender
         internal static MyGBuffer Main;
     }
 
-    class MyCubemapRenderer
-    {
-        internal MyGBuffer m_faceGbuffer;
+    //class MyCubemapRenderer
+    //{
+    //    internal MyGBuffer m_faceGbuffer;
         
-    }
+    //}
 }

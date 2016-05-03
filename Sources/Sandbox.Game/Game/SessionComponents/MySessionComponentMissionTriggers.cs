@@ -238,7 +238,7 @@ namespace Sandbox.Game.SessionComponents
                 }
         }
 
-        public MyObjectBuilder_SessionComponentMission GetObjectBuilder()
+        public new MyObjectBuilder_SessionComponentMission GetObjectBuilder() // "new" because can't override when return value is different
         {
             var builder = new MyObjectBuilder_SessionComponentMission();
 

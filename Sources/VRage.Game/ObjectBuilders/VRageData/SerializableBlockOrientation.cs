@@ -1,6 +1,7 @@
 ﻿using System.Xml.Serialization;
 using ProtoBuf;
 using VRageMath;
+using System;
 
 namespace VRage.Game
 {
@@ -52,6 +53,17 @@ namespace VRage.Game
             return a.Forward != b.Forward || a.Up != b.Up;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is SerializableBlockOrientation)
+                return (this == (SerializableBlockOrientation)obj);
+            else
+                return false;
+        }
 
+        public override int GetHashCode()
+        {
+            return ((int)Forward) | ((int)Up << 8);
+        }
     }
 }

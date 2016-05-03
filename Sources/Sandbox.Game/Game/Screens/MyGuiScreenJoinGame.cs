@@ -1,30 +1,15 @@
 ﻿#region Using
 
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading;
-using ParallelTasks;
-using Sandbox.Common;
 using Sandbox.Graphics.GUI;
-using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using SteamSDK;
 
 using VRageMath;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.World;
-using Sandbox.Engine.Multiplayer;
 using VRage;
 using VRage.Utils;
-using System.Diagnostics;
-using Sandbox.Game.Screens.Helpers;
-using VRage.Utils;
-using Sandbox.Game.Multiplayer;
 using System.IO;
-using Sandbox.Game.Localization;
-using VRage;
-using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.ObjectBuilders;

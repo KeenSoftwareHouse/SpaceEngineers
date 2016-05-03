@@ -19,7 +19,7 @@ namespace Sandbox.Definitions
         public bool SearchBlocks = true;
         public bool ShowAnimations = false;
         public bool ShowInCreative = true;
-        public bool Public = true;
+        public new bool Public = true;
 
         private class SubtypeComparer : IComparer<MyGuiBlockCategoryDefinition>
         {

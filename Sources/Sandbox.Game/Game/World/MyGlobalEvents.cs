@@ -57,7 +57,7 @@ namespace Sandbox.Game.World
             }
         }
 
-        public static MyObjectBuilder_GlobalEvents GetObjectBuilder()
+        public new static MyObjectBuilder_GlobalEvents GetObjectBuilder() // static from virtual ?
         {
             MyObjectBuilder_GlobalEvents objectBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_GlobalEvents>();
 

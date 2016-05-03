@@ -57,6 +57,19 @@ namespace VRageRender
             return x.Index != y.Index;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj is MyMaterialShadersBundleId)
+                return (this == (MyMaterialShadersBundleId)obj);
+            else
+                return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
         internal static readonly MyMaterialShadersBundleId NULL = new MyMaterialShadersBundleId { Index = -1 };
 
         internal InputLayout IL { get { return MyMaterialShaders.Bundles[Index].IL; } }
@@ -298,7 +311,7 @@ namespace VRageRender
                     Bundles[id.Index].PS = new PixelShader(MyRender11.Device, psBytecode);
                     Bundles[id.Index].IL = info.Layout.Elements.Length > 0 ? new InputLayout(MyRender11.Device, vsBytecode, info.Layout.Elements) : null;
                 }
-                catch (SharpDXException e)
+                catch (SharpDXException)
                 {
                     if (!invalidateCache)
                     {

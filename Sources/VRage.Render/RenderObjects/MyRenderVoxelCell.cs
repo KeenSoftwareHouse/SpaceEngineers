@@ -224,7 +224,9 @@ namespace VRageRender
             {
                 if (false)
                 {
+#pragma warning disable CS0162 // Unreachable code detected
                     MyDebugDraw.DrawAABBLine(ref m_aabb, ref LOD_COLORS[lod], 1f, true);
+#pragma warning restore CS0162 // Unreachable code detected
                 }
             }
         }

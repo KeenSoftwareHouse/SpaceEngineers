@@ -44,18 +44,18 @@ namespace Sandbox.Game.Screens.Helpers
             return init;
         }
 
-        public override bool Equals(object obj)
-        {
-            bool returnValue = base.Equals(obj);
+        //public override bool Equals(object obj)
+        //{
+        //    bool returnValue = base.Equals(obj);
 
-            if (returnValue)
-            {
-                var otherObj = obj as MyToolbarItemWeapon;
-                if (otherObj == null)
-                    returnValue = false;
-            }
-            return returnValue;
-        }
+        //    if (returnValue)
+        //    {
+        //        var otherObj = obj as MyToolbarItemWeapon;
+        //        if (otherObj == null)
+        //            returnValue = false;
+        //    }
+        //    return returnValue;
+        //}
 
         public override MyObjectBuilder_ToolbarItem GetObjectBuilder()
         {

@@ -26,7 +26,10 @@ namespace Sandbox.Game.Screens.Helpers
                 return true;
 
             var otherObj = obj as MyToolbarItemDefinition;
-            return otherObj != null && Definition != null && Definition.Id.Equals(otherObj.Definition.Id);
+            if (otherObj != null && Definition != null && Definition.Id.Equals(otherObj.Definition.Id))
+                return ((obj != null) && (obj.GetType() == this.GetType()));
+            else
+                return false;
         }
         
         public sealed override int GetHashCode()

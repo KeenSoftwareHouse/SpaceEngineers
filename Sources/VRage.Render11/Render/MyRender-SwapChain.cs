@@ -100,7 +100,9 @@ namespace VRageRender
         {
             if (MyRender11Options.NsightDebugging)
             {
+#pragma warning disable CS0162 // Unreachable code detected
                 return (int)Math.Max(0, (((uint)Math.Log(Math.Min(width, height), 2)) - 3));
+#pragma warning restore CS0162 // Unreachable code detected
             }
 
             switch( quality)

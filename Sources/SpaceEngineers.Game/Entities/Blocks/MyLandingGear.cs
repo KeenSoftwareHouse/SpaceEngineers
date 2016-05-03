@@ -64,7 +64,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        private readonly Sync<LandingGearMode> m_lockModeSync;
+        private readonly Sync<LandingGearMode> m_lockModeSync = null;
         LandingGearMode m_lockMode = LandingGearMode.Unlocked;
 
         Action<IMyEntity> m_physicsChangedHandler;
@@ -102,10 +102,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public event LockModeChangedHandler LockModeChanged;
         private float m_breakForce;
-        private readonly Sync<bool> m_autoLock;
-        private readonly Sync<State> m_attachedState;
+        private readonly Sync<bool> m_autoLock = null;
+        private readonly Sync<State> m_attachedState = null;
 
-        private readonly Sync<float> m_breakForceSync;
+        private readonly Sync<float> m_breakForceSync = null;
 
         private long? m_attachedEntityId;
 

@@ -111,9 +111,9 @@ namespace Sandbox.Game.Entities
 
         public long Pack64()
         {
-            long value = Position.X
-                         | ((long)Position.Y << 16)
-                         | ((long)Position.Z << 32);
+            long value = ((long)Position.X & 0xFFFF)
+                         | (((long)Position.Y & 0xFFFF) << 16)
+                         | (((long)Position.Z & 0xFFFF) << 32);
 
             Vector3I dirv = Direction;
             var dir = (long)Base6Directions.GetDirection(ref dirv);
@@ -1512,7 +1512,7 @@ namespace Sandbox.Game.Entities
             m_sectorFrustum = v;
         }
 
-        public void DebugDraw()
+        public new void DebugDraw()
         {
             if (IsClosed) return;
 

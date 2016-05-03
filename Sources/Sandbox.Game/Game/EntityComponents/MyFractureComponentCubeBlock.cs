@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using Havok;
 
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
-using Sandbox.Engine.Models;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
@@ -16,7 +13,6 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
 using VRage;
 using VRage.Game.Components;
-using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRageMath;
 
 namespace Sandbox.Game.EntityComponents
