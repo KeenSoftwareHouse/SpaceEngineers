@@ -63,7 +63,7 @@ namespace VRage.Game
 
         public override int GetHashCode()
         {
-            throw new InvalidOperationException("GetHashCode and Equals must be overridden");
+            return ((int)Forward) | ((int)Up << 8);
         }
     }
 }
