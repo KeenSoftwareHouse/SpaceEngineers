@@ -111,10 +111,5 @@ namespace Sandbox.Game.Multiplayer
                 }
             }
         }
-        IMyIdentity IMyPlayerCollection.CreateNewNpcIdentity(string name)
-        {
-            IMyIdentity identity = CreateNewNpcIdentity(name);
-            return identity;
-        }
     }
 }
