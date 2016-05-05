@@ -5520,4 +5520,10 @@ needed.</value>
   <data name="TerminalTab_GPS_ShowAll" xml:space="preserve">
     <value>Show all on HUD</value>
   </data>
+  <data name="TerminalTab_GPS_HideAll" xml:space="preserve">
+    <value>Hide all on HUD</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowAll" xml:space="preserve">
+    <value>Show all on HUD</value>
+  </data>
 </root>
