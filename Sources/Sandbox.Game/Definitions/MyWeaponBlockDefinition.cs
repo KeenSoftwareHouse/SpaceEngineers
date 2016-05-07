@@ -20,7 +20,7 @@ namespace Sandbox.Definitions
             base.Init(builder);
 
             var ob = builder as MyObjectBuilder_WeaponBlockDefinition;
-			Debug.Assert(builder != null);
+			Debug.Assert(ob != null);
 
             WeaponDefinitionId = new MyDefinitionId(ob.WeaponDefinitionId.Type, ob.WeaponDefinitionId.Subtype);
 			ResourceSinkGroup = MyStringHash.GetOrCompute(ob.ResourceSinkGroup);

@@ -9,7 +9,6 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.Lights;
 using Sandbox.Game.World;
-using Sandbox.Common;
 
 using VRage.Utils;
 using VRageMath;
@@ -23,16 +22,13 @@ using Sandbox.Game.Multiplayer;
 using System.Linq;
 using Sandbox.Game.Components;
 using VRage;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI;
 using VRage.Audio;
 using VRage.Game;
 using VRage.ModAPI;
-using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
 
@@ -163,10 +159,7 @@ namespace Sandbox.Game.Entities
 
                 Light.GlareOn = true;
 
-                if (((MyCubeGrid)Parent).GridSizeEnum == MyCubeSize.Large)
-                    Light.GlareIntensity = 0.5f + length * 2;
-                else
-                    Light.GlareIntensity = 0.5f + length * 2;
+                Light.GlareIntensity = 0.5f + length * 2;
 
                 Light.GlareType = VRageRender.Lights.MyGlareTypeEnum.Normal;
                 Light.GlareSize = (radius * 0.8f + length * 0.05f) * m_glareSize;

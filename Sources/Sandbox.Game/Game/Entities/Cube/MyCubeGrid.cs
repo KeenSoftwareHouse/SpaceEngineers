@@ -2775,7 +2775,7 @@ namespace Sandbox.Game.Entities
 
         private void BuildBlocksArea(ref MyCubeGrid.MyBlockBuildArea area, List<Vector3UByte> validOffsets, long builderEntityId, bool isAdmin, long ownerId, int entityIdSeed)
         {
-            var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(area.DefinitionId) as MyCubeBlockDefinition;
+            var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(area.DefinitionId);
             if (definition == null)
             {
                 Debug.Fail("Block definition not found");
@@ -4657,7 +4657,7 @@ namespace Sandbox.Game.Entities
         {
             MyCube cube;
             m_cubes.TryGetValue(cubePos, out cube);
-            MySlimBlock block = cube.CubeBlock as MySlimBlock;
+            MySlimBlock block = cube.CubeBlock;
             if (block != null)
             {
                 part.InstanceData.SetColorMaskHSV(new Vector4(block.ColorMaskHSV, block.Dithering));
@@ -5321,7 +5321,6 @@ namespace Sandbox.Game.Entities
                     var group = new MyBlockGroup(to);
 
                     // CH: TODO: This is to catch a nullref. Remove when not needed
-                    if (group == null) MySandboxGame.Log.WriteLine("group was null");
                     if (groupBuilder == null) MySandboxGame.Log.WriteLine("groupBuilder was null");
 
                     group.Init(groupBuilder);
@@ -7775,7 +7774,6 @@ namespace Sandbox.Game.Entities
                     if (!pastedGrid.IsStatic && MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null
                         && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
                     {
-                        if (MySession.Static.ControlledEntity != null)
                             pastedGrid.Physics.AngularVelocity = MySession.Static.ControlledEntity.Entity.Physics.AngularVelocity;
                     }
                 }

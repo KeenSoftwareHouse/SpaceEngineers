@@ -126,16 +126,16 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_valueSlider);
             Controls.Add(new MyGuiControlButton(
                 size: new Vector2(100f, 0.1f),
-				position: new Vector2(0 / 1600f, (y + 285 + (MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
+				position: new Vector2(0 / 1600f, (y + 285 + ((float)MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
                 text: new StringBuilder("Defaults"),
                 onButtonClick: OnDefaultsClick));
             Controls.Add(new MyGuiControlButton(
                 size: new Vector2 (100f,0.1f),
-				position: new Vector2(0 / 1600f, (y + 360 + (MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
+				position: new Vector2(0 / 1600f, (y + 360 + ((float)MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
                 text: new StringBuilder("OK"),
                 onButtonClick: OnOkClick));
             Controls.Add(new MyGuiControlButton(
-				position: new Vector2(0 / 1600f, (y + 435 + (MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
+				position: new Vector2(0 / 1600f, (y + 435 + ((float)MyPlayer.BuildColorSlotCount / 7 + 1) * 36) / 1200f),
                 text: new StringBuilder("Cancel"),
                 onButtonClick: OnCancelClick));
             

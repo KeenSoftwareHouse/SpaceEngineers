@@ -54,7 +54,7 @@ namespace Sandbox.Game.Entities
     {
         const int PHYSICS_SECTOR_SIZE_METERS = 1024;
 
-        private const double INTRASECTOR_OBJECT_CLUSTER_SIZE = PHYSICS_SECTOR_SIZE_METERS/2;
+        private const double INTRASECTOR_OBJECT_CLUSTER_SIZE = (double)PHYSICS_SECTOR_SIZE_METERS/2;
 
         const double GRAVITY_LIMIT_STRENGTH = 0.05;
 

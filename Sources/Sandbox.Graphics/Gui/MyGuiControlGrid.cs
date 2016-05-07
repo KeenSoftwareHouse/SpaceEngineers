@@ -501,8 +501,8 @@ namespace Sandbox.Graphics.GUI
             }
 
             // Recalculate row count
-            float count = (emptyIdx / this.m_columnsCount) + 1f;
-            this.RowsCount = Math.Max(this.RowsCount, (int)count);
+            int count = (emptyIdx / this.m_columnsCount) + 1;
+            this.RowsCount = Math.Max(this.RowsCount, count);
         }
 
         public Item GetItemAt(int index)
@@ -541,8 +541,8 @@ namespace Sandbox.Graphics.GUI
             }
 
             // Recalculate row count
-            float count = (index / this.m_columnsCount) + 1;
-            this.RowsCount = Math.Max(this.RowsCount, (int)count);
+            int count = (index / this.m_columnsCount) + 1;
+            this.RowsCount = Math.Max(this.RowsCount, count);
         }
 
         public void SetItemAt(int rowIdx, int colIdx, Item item)
@@ -607,8 +607,8 @@ namespace Sandbox.Graphics.GUI
             if (SelectedIndex.HasValue && !IsValidIndex(SelectedIndex.Value))
                 SelectedIndex = null;
 
-            float count = (index / this.m_columnsCount) + 1;
-            this.RowsCount = Math.Max(this.RowsCount, (int)count);
+            int count = (index / this.m_columnsCount) + 1;
+            this.RowsCount = Math.Max(this.RowsCount, count);
         }
 
         public Item TryGetItemAt(int rowIdx, int colIdx)
@@ -648,8 +648,8 @@ namespace Sandbox.Graphics.GUI
 
         public void RecalculateRowsCount()
         {
-            float count = m_items.Count / this.m_columnsCount;
-            this.RowsCount = Math.Max(this.RowsCount, (int)count);
+            int count = m_items.Count / this.m_columnsCount;
+            this.RowsCount = Math.Max(this.RowsCount, count);
         }
 
         #endregion

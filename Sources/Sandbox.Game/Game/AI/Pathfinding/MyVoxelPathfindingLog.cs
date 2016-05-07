@@ -184,7 +184,6 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public void PerformOneOperation(bool triggerPressed)
         {
-            if (!triggerPressed && m_ctr > int.MaxValue) return; // Modify the condition here to stop automatic replay at some operation
             if (m_ctr >= m_operations.Count) return;
             m_operations[m_ctr].Perform();
             m_ctr++;

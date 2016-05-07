@@ -272,7 +272,7 @@ namespace Sandbox.Game.Gui
 
         private void RecalculateAverageScaleLimit()
         {
-            if ((Stopwatch.GetTimestamp() - m_lastAverageScaleChange) / Stopwatch.Frequency > SCALE_CHANGE_DELAY)
+            if ((double)(Stopwatch.GetTimestamp() - m_lastAverageScaleChange) / Stopwatch.Frequency > SCALE_CHANGE_DELAY)
             {
                 if (m_averageMaximum > CurrentAverageScaleMaximumValue)
                 {
@@ -293,7 +293,7 @@ namespace Sandbox.Game.Gui
 
         private void RecalculatePacketScaleLimit()
         {
-            if ((Stopwatch.GetTimestamp() - m_lastPacketScaleChange) / Stopwatch.Frequency > SCALE_CHANGE_DELAY)
+            if ((double)(Stopwatch.GetTimestamp() - m_lastPacketScaleChange) / Stopwatch.Frequency > SCALE_CHANGE_DELAY)
             {
                 if (m_byteMaximumForPacketScale > CurrentPacketScaleMaximumValue)
                 {

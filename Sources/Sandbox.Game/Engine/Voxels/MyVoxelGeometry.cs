@@ -308,7 +308,6 @@ namespace Sandbox.Engine.Voxels
                 // this should never happen
                 if (i >= cachedDataCell.VoxelTriangles.Length)
                 {
-                    Debug.Assert(i < cachedDataCell.VoxelTriangles.Length);
                     continue;
                 }
 

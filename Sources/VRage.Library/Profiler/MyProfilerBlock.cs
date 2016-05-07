@@ -201,7 +201,7 @@ namespace VRage.Profiler
 
         internal void Dump(StringBuilder sb, int frame)
         {
-            if (NumCallsArray[frame] < 0.01)
+            if (NumCallsArray[frame] == 0)
                 return;
             sb.Append(string.Format("<Block Name=\"{0}\">\n", Name));
             sb.Append(string.Format("<Time>{0}</Time>\n<Calls>{1}</Calls>\n", Miliseconds[frame], NumCallsArray[frame]));

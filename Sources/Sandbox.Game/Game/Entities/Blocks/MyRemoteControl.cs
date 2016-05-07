@@ -1847,14 +1847,9 @@ namespace Sandbox.Game.Entities
                 maxSpeed = maxSpeed * Math.Max(coeff, 0.05);
 
                 double dot = m_currentInfo.PlanetVector.Dot(m_currentInfo.PlanetVector);
-                double deltaH = m_currentInfo.Elevation - m_currentInfo.Elevation;
                 double deltaPSq = perpDelta.LengthSquared();
 
                 // Add height difference compensation on long distances (to avoid flying off the planet)
-                if (dot < 0.99 && deltaPSq > 100.0)
-                {
-                    m_dbgDeltaH = -deltaH * m_currentInfo.GravityWorld;
-                }
 
                 delta += m_dbgDeltaH;
 

@@ -332,7 +332,7 @@ namespace Sandbox.Game.Gui
         {
             if (MySession.Static.CreativeMode || MySession.Static.ControlledEntity == null)
                 return false;
-            if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
+            if (MySession.Static.ControlledEntity == null || MySession.Static.ControlledEntity.Entity is MyCharacter )
             {
                 var character = MySession.Static.LocalCharacter;
                 if (character == null) return false;
@@ -410,7 +410,7 @@ namespace Sandbox.Game.Gui
             text = MySpaceTexts.Blank;
             if (!IsEnergyUnderTreshold(MyBattery.EnergyCriticalThreshold))
                 return false;
-            if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
+            if ( MySession.Static.ControlledEntity == null || MySession.Static.ControlledEntity.Entity is MyCharacter )
             {
                 cue = MyGuiSounds.HudVocEnergyCrit;
                 if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null

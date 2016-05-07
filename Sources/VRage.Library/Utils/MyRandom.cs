@@ -216,11 +216,7 @@ namespace VRage.Library.Utils
                 throw new ArgumentOutOfRangeException("minValue");
             }
             long num = maxValue - minValue;
-            if (num <= 0x7fffffffL)
-            {
-                return (((int)(this.Sample() * num)) + minValue);
-            }
-            return (((int)((long)(this.GetSampleForLargeRange() * num))) + minValue);
+            return (((int)(this.Sample() * num)) + minValue);
         }
 
         public long NextLong()

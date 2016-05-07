@@ -117,7 +117,7 @@ namespace VRageRender.Profiler
             }
             else // Else display in megabytes
             {
-                float managedMemoryKB = managedMemory / 1048576;
+                float managedMemoryKB = (float) managedMemory / 1048576;
                 m_text.Concat(managedMemoryKB, 3).Append(" MB");
             }
             DrawTextShadow(new Vector2(20 + length, textPosY), m_text, color, textScale);

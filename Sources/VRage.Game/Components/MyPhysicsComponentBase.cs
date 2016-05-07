@@ -152,15 +152,6 @@ namespace VRage.Game.Components
         public bool PlayCollisionCueEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the material.
-        /// </summary>
-        /// <value>
-        /// The type of the material.
-        /// </value>
-        //public MyMaterialType MaterialType { get; set; }
-
-
-        /// <summary>
         /// Gets or sets the mass.
         /// </summary>
         /// <value>

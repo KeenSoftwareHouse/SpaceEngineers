@@ -948,8 +948,7 @@ namespace Sandbox.Game.Gui
             {
                 MyScreenManager.RemoveScreen(m_detailScreen);
             }
-            else if (!m_activeDetail)
-            {
+            else { 
                 MyBlueprintItemInfo blueprintInfo = (m_selectedItem.UserData as MyBlueprintItemInfo);
                 if (blueprintInfo.Type == MyBlueprintTypeEnum.LOCAL)
                 {

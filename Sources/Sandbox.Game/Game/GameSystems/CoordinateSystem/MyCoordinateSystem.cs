@@ -544,11 +544,8 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
             {
                 this.m_drawBoundingBox = false;
             }
-            else if (this.m_selectedCoordSys != 0)// && this.m_lastSelectedCoordSys == 0)
-            {
+            else 
                 this.m_drawBoundingBox = true;
-            }
-
 
             if (m_drawBoundingBox)
             {

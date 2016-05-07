@@ -302,7 +302,7 @@ namespace Sandbox.Game.Entities.Cube
                 OffsetText = true,
                 TargetMode = GetPlayerRelationToOwner(),
                 Entity = this,
-                BlinkingTime = allowBlink && IsBeingHacked ? MyGridConstants.HACKING_INDICATION_TIME_MS / 1000 : 0
+                BlinkingTime = allowBlink && IsBeingHacked ? (float)MyGridConstants.HACKING_INDICATION_TIME_MS / 1000 : 0
             });
 
             return m_hudParams;

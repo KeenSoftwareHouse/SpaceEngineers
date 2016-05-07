@@ -190,8 +190,6 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            Debug.Assert(objectBuilder.Blocks == null && objectBuilder.BlockIds == null || objectBuilder.Blocks.Length == objectBuilder.BlockIds.Length);
-
             return objectBuilder;
         }
 

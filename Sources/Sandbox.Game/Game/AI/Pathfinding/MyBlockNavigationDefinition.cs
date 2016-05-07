@@ -170,8 +170,8 @@ namespace Sandbox.Game.AI.Pathfinding
             base.Init(ob);
 
             var objectBuilder = ob as MyObjectBuilder_BlockNavigationDefinition;
-            Debug.Assert(ob != null);
-            if (ob == null) return;
+            Debug.Assert(objectBuilder != null);
+            //if (ob == null) return;
 
             if (objectBuilder.NoEntry || objectBuilder.Triangles == null)
             {

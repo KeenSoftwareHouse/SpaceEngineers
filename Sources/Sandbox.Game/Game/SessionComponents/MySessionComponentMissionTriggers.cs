@@ -238,7 +238,7 @@ namespace Sandbox.Game.SessionComponents
                 }
         }
 
-        public MyObjectBuilder_SessionComponentMission GetObjectBuilder()
+new        public MyObjectBuilder_SessionComponentMission GetObjectBuilder()
         {
             var builder = new MyObjectBuilder_SessionComponentMission();
 

@@ -895,9 +895,6 @@ namespace Sandbox.Engine.Networking
                 mrEvent.WaitOne();
             }
 
-            if (m_stop)
-                return false;
-
             if (!downloadSuccess)
                 return false;
 

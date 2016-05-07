@@ -470,7 +470,7 @@ namespace Sandbox.Game.Gui
 				gravityTextAlignment = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM;
 				gravityNumberAlignment = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
 				totalGravityTextPos = backgroundPosition + backgroundSize * new Vector2(1 - 0.35f, -0.99f) + backgroundTexture.PaddingSizeGui * Vector2.UnitY * 0.2f;
-				totalGravityNumberPos = totalGravityNumberPos = totalGravityTextPos + new Vector2(0.0075f, 0.0025f);
+				totalGravityNumberPos = totalGravityTextPos + new Vector2(0.0075f, 0.0025f);
 				dividerLinePosition = new Vector2(backgroundPosition.X + backgroundTexture.PaddingSizeGui.X/2.0f, totalGravityTextPos.Y - 0.022f) + new Vector2(0.0f, 0.026f);
 
 				{

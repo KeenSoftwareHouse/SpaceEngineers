@@ -462,7 +462,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public float TriggerDelay
         {
-            get { return Math.Max(m_countdownMsStart, 1000) / 1000; }
+            get { return (float)Math.Max(m_countdownMsStart, 1000) / 1000; }
         }
         bool IMyTimerBlock.IsCountingDown { get { return IsCountingDown; } }
         float IMyTimerBlock.TriggerDelay { get { return TriggerDelay; } }

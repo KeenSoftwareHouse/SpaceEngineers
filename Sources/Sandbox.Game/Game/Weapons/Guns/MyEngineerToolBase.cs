@@ -155,7 +155,7 @@ namespace Sandbox.Game.Weapons
 
         public bool CanBeDrawn()
         {
-            return (Owner != null && Owner == MySession.Static.ControlledEntity && m_raycastComponent.HitCubeGrid != null && m_raycastComponent.HitCubeGrid != null && HasCubeHighlight && MyFakes.HIDE_ENGINEER_TOOL_HIGHLIGHT == false);
+            return (Owner != null && Owner == MySession.Static.ControlledEntity && m_raycastComponent.HitCubeGrid != null && HasCubeHighlight && MyFakes.HIDE_ENGINEER_TOOL_HIGHLIGHT == false);
         }
 
         public MyEngineerToolBase(int cooldownMs)
@@ -330,7 +330,7 @@ namespace Sandbox.Game.Weapons
             if (Owner != null)
             {
                 Debug.Assert(Owner != null && Owner is MyCharacter, "An engineer tool is not held by a character");
-                MyCharacter character = Owner as MyCharacter;
+                MyCharacter character = Owner;
                 MatrixD sensorWorldMatrix = character.GetHeadMatrix(false, true);
                 m_raycastComponent.OnWorldPosChanged(ref sensorWorldMatrix);
             }
@@ -602,7 +602,7 @@ namespace Sandbox.Game.Weapons
         {
             Owner = owner;
             System.Diagnostics.Debug.Assert(Owner.GetInventory() as MyInventory != null, "Null or unexpected inventory type returned!");
-            CharacterInventory = Owner.GetInventory() as MyInventory;
+            CharacterInventory = Owner.GetInventory();
 
             if (owner.ControllerInfo.IsLocallyHumanControlled())
             {

@@ -32,8 +32,7 @@ namespace Sandbox.Game.Replication
                 {
                   
                     stream.WriteBool(controller != null);
-                    if (controller != null)
-                    {
+
                         stream.WriteInt64(controller.EntityId);
 
                         Vector2 rotation = controller.RotationIndicator;
@@ -46,10 +45,8 @@ namespace Sandbox.Game.Replication
                         stream.WriteHalf(position.X);
                         stream.WriteHalf(position.Y);
                         stream.WriteHalf(position.Z);
-                    }
                 }
             }
-
         }
 
         protected override void ServerRead(VRage.Library.Collections.BitStream stream, ulong clientId,uint timestamp)

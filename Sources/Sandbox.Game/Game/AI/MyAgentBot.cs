@@ -289,8 +289,8 @@ namespace Sandbox.Game.AI
         private void StartRespawn()
         {
             m_lastCountdownTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
-            if (m_removeAfterDeath) m_deathCountdownMs = AgentDefinition.RemoveTimeMs;
-            else m_deathCountdownMs = AgentDefinition.RemoveTimeMs;
+            m_deathCountdownMs = AgentDefinition.RemoveTimeMs;
+   
         }
 
         private void EraseRespawn()
@@ -370,7 +370,7 @@ namespace Sandbox.Game.AI
 
             m_navigation.DebugDraw();
 
-            var aiTarget = m_actions.AiTargetBase as MyAiTargetBase;
+            MyAiTargetBase aiTarget = m_actions.AiTargetBase;
             if (aiTarget != null)
             {
                 if (aiTarget.HasTarget())

@@ -173,9 +173,7 @@ namespace VRageMath.Spatial
             else
             if (m_returnedClusters.Count > 1)
                 needReorder = true;
-            else
-                if (m_returnedClusters.Count == 0)
-                {
+            else {
                     if (SingleCluster.HasValue)
                         return VRageMath.Spatial.MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED;
 

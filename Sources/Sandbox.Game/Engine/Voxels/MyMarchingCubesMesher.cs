@@ -282,7 +282,7 @@ namespace Sandbox.Engine.Voxels
             byte materialA = cache.Material(inputVoxelA.IdxInCache);
             byte materialB = cache.Material(inputVoxelB.IdxInCache);
 
-            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentA) < 0.00001f)
+            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentA) == 0)
             {
                 edge.Position = inputVoxelA.Position;
                 edge.Normal = inputVoxelA.Normal;
@@ -291,7 +291,7 @@ namespace Sandbox.Engine.Voxels
                 return;
             }
 
-            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentB) < 0.00001f)
+            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentB) == 0)
             {
                 edge.Position = inputVoxelB.Position;
                 edge.Normal = inputVoxelB.Normal;

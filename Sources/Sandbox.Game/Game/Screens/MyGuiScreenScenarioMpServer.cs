@@ -29,8 +29,7 @@ namespace Sandbox.Game.Screens
             Debug.Assert(Sync.IsServer);
 
             MySession.Static.Settings.CanJoinRunning = false;
-            if (!MySession.Static.Settings.CanJoinRunning)
-                MyMultiplayer.Static.SetLobbyType(SteamSDK.LobbyTypeEnum.Private);
+            MyMultiplayer.Static.SetLobbyType(SteamSDK.LobbyTypeEnum.Private);
             MyScenarioSystem.Static.PrepareForStart();
             CloseScreen();
         }

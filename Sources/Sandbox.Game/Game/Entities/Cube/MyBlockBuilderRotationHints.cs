@@ -143,16 +143,9 @@ namespace Sandbox.Game.Entities.Cube
             m_viewProjection.DepthRead = false;
             m_viewProjection.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)hintsWidth / hintsHeight, 0.1f, 10);
 
-
-            
-
             worldBox = new BoundingBoxD(-new Vector3(MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large) * 0.5f), new Vector3(MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large)) * 0.5f);
-
             
             //m_rotationHintsViewProjection.Projection = MySector.MainCamera.ProjectionMatrix;
-
-
-            
 
             int projectionId = 0;
             VRageRender.MyRenderProxy.AddBillboardViewProjection(projectionId, m_viewProjection);

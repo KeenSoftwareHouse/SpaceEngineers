@@ -23,7 +23,7 @@ namespace VRage.Game
             int n = 0;
 
             //Assign our b loop to go through 90 degrees in intervals of our variable space
-            float space = 360 / steps;
+            float space = 360f / steps;
             float limitBeta = 90 - space;
             float limitAlpha = 360 - space;
             Vector3D vctTmp;

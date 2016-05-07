@@ -50,7 +50,6 @@ namespace VRageRender
 
                         return availableRenderTarget;
                     }
-                    break;
             }
 
             return source;
