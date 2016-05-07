@@ -67,7 +67,7 @@ namespace Sandbox.Game.AI
             actionDesc.ReturnsRunning = returnsRunning;
             for (int i = 0; i < parameters.Length; i++)
             {
-                var paramAttr = parameters[i].GetCustomAttribute<BTMemParamAttribute>(true);
+                BTMemParamAttribute paramAttr = (BTMemParamAttribute) parameters[i].GetCustomAttribute(typeof(BTMemParamAttribute), true);
                 if (paramAttr == null)
                     continue;
                 actionDesc.ParametersDesc.Add(i, new MyTuple<Type, MyMemoryParameterType>(parameters[i].ParameterType.GetElementType(), paramAttr.MemoryType));
@@ -243,7 +243,7 @@ namespace Sandbox.Game.AI
 
         private static void ExtractAction(ActionCollection actions, MethodInfo methodInfo)
         {
-            var btActionAttribute = methodInfo.GetCustomAttribute<MyBehaviorTreeActionAttribute>();
+            MyBehaviorTreeActionAttribute btActionAttribute = (MyBehaviorTreeActionAttribute)methodInfo.GetCustomAttribute(typeof(MyBehaviorTreeActionAttribute));
             if (btActionAttribute == null)
                 return;
             switch (btActionAttribute.ActionType)

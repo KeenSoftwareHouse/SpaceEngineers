@@ -226,7 +226,7 @@ namespace Sandbox.Game.Gui
         public static int FaceToRemove;
         public static int BinIndex = -1;
 
-        public static event Action TestAction;
+//        public static event Action TestAction;
         public static event Action<Vector3D, MyEntity> PlacedAction;
 
         private struct DebugDrawPoint

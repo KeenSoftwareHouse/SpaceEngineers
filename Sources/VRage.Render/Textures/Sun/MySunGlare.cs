@@ -6,11 +6,9 @@ using System.Diagnostics;
 using VRage.Utils;
 
 using VRageRender.Textures;
-using VRageRender;
 using VRageRender.Graphics;
 using VRageRender.Lights;
 using VRageMath;
-using VRageRender.Utils;
 
 #endregion
 
@@ -173,7 +171,7 @@ namespace VRageRender
             return -m_directionToSunNormalized;
         }
 
-        static private MyBillboardViewProjection m_viewProjection = new MyBillboardViewProjection();
+        //static private MyBillboardViewProjection m_viewProjection = new MyBillboardViewProjection();
         private static void DrawGlow()
         {
             if (MyRender.Sun.Direction == Vector3.Zero)

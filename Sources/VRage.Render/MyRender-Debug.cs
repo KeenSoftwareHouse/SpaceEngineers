@@ -82,8 +82,6 @@ namespace VRageRender
                         MyStateObjects.WireframeClockwiseRasterizerState.Apply();
                         DepthStencilState.None.Apply();
 
-
-
                         MyDebugDraw.DrawModel(MyDebugDraw.ModelCone, light.SpotWorld, Color.White, false);
                     }
 

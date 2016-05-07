@@ -433,8 +433,6 @@ namespace VRage.Game
         /// <param name="worldMatrix"></param>
         /// <param name="localbox"></param>
         /// <param name="color"></param>
-        /// <param name="bWireFramed"></param>
-        /// <param name="wireDivideRatio"></param>
         /// <param name="wireDivideRatio"></param>
         private static void DrawWireFramedBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, float fThickRatio, Vector3I wireDivideRatio, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
         {
@@ -753,10 +751,8 @@ namespace VRage.Game
         /// <summary>
         /// DrawTransparentSphere
         /// </summary>
-        /// <param name="vctPos"></param>
         /// <param name="radius"></param>
         /// <param name="color"></param>
-        /// <param name="bWireFramed"></param>
         /// <param name="wireDivideRatio"></param>
         public static void DrawTransparentSphere(ref MatrixD worldMatrix, float radius, ref Color color, MySimpleObjectRasterizer rasterization, int wireDivideRatio, string faceMaterial = null, string lineMaterial = null, float lineThickness = -1, int customViewProjectionMatrix = -1)
         {

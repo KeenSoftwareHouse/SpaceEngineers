@@ -23,7 +23,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             foreach (var method in typeof(MyServerDebugCommands).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                var attr = method.GetCustomAttribute<DisplayNameAttribute>();
+                DisplayNameAttribute attr = (DisplayNameAttribute) method.GetCustomAttribute(typeof(DisplayNameAttribute));
                 var par = method.GetParameters();
                 if (attr != null && method.ReturnType == typeof(void) && par.Length == 1 && par[0].ParameterType == typeof(string[]))
                 {

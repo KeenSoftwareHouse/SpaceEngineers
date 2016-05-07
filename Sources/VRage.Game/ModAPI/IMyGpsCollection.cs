@@ -33,7 +33,6 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Sends a network request to add the GPS entry for the said player, which will also save it to the server.
         /// </summary>
-        /// <param name="playerId"></param>
         /// <param name="gps">Use the Create() method to get this object</param>
         void AddGps(long identityId, IMyGps gps);
 

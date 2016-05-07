@@ -1,23 +1,16 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using VRage.Game.ObjectBuilders.ComponentSystem;
+﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.EntityComponents;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.Network;
-using VRage.ObjectBuilders;
-using VRageMath;
 using VRage.Game.Entity;
 
 namespace Sandbox.Game.Components

@@ -102,6 +102,6 @@ namespace Sandbox.Game.Gui
         {
             return "MyGuiScreenAdvancedScenarioSettings";
         }
-        public event System.Action OnOkButtonClicked;
+//        public event System.Action OnOkButtonClicked;
     }
 }

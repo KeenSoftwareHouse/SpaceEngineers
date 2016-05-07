@@ -309,8 +309,6 @@ namespace Sandbox.Game.Gui
 
         public override bool HandleInput()
         {
-            bool handled = false;
-
             if (MySession.Static == null)
                 return false;// game isn't loaded yet
 

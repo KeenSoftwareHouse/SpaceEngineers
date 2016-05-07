@@ -1,8 +1,5 @@
-﻿using Sandbox.Common;
-using Sandbox.Definitions;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Localization;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
@@ -12,12 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using VRage;
-using VRage;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Input;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 

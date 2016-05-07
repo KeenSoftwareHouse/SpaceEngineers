@@ -12,8 +12,8 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
 {
     class MyLargeInteriorBarrel : MyLargeBarrelBase
     {
-        float m_projectileMaxTrajectory;
-        Vector3 m_projectileColor;
+//        float m_projectileMaxTrajectory;
+//        Vector3 m_projectileColor;
         
         public MyLargeInteriorBarrel()
         {

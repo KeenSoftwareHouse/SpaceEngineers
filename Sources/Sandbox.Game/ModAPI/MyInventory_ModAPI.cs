@@ -182,11 +182,11 @@ namespace Sandbox.Game
             return null;
         }
 
-        bool VRage.Game.ModAPI.IMyInventory.TransferItemTo(IMyInventory dst, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection = false)
+        bool VRage.Game.ModAPI.IMyInventory.TransferItemTo(IMyInventory dst, int sourceItemIndex, int? targetItemIndex, bool? stackIfPossible, VRage.MyFixedPoint? amount, bool checkConnection)
         {
            return TransferItemsTo(dst, sourceItemIndex, targetItemIndex, amount, checkConnection);
         }
-        bool VRage.Game.ModAPI.IMyInventory.TransferItemFrom(IMyInventory sourceInventory, int sourceItemIndex, int? targetItemIndex = null, bool? stackIfPossible = null, VRage.MyFixedPoint? amount = null, bool checkConnection = false)
+        bool VRage.Game.ModAPI.IMyInventory.TransferItemFrom(IMyInventory sourceInventory, int sourceItemIndex, int? targetItemIndex, bool? stackIfPossible, VRage.MyFixedPoint? amount, bool checkConnection)
         {
            return TransferItemsFrom(sourceInventory, sourceItemIndex, targetItemIndex, stackIfPossible, amount, checkConnection);
         }

@@ -11,7 +11,6 @@ namespace VRage.Game
         /// <summary>
         /// GenerateSphere
         /// </summary>
-        /// <param name="vctPos"></param>
         /// <param name="radius"></param>
         /// <param name="steps"></param>
         public static void GenerateSphere(ref MatrixD worldMatrix, float radius, int steps, List<Vector3D> vertices)

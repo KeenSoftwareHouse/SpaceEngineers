@@ -252,7 +252,7 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        void IMyConfigDedicated.Save(string path = null)
+        void IMyConfigDedicated.Save(string path)
         {
             Save(path);
         }

@@ -1,16 +1,10 @@
 ﻿
 #region Using
 
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Engine.Utils;
-using Sandbox.Engine.Voxels;
-using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Screens;
-using Sandbox.Game.World.Generator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,13 +17,10 @@ using System.Xml;
 
 using VRage;
 using VRage.Collections;
-using VRage;
 using VRage.Audio;
-using VRage.Plugins;
 using VRage.Utils;
 using VRage.Data;
 using VRage.Filesystem.FindFilesRegEx;
-using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.Library.Utils;

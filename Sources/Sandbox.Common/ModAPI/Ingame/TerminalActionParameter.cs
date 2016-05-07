@@ -85,7 +85,6 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         /// Creates a <see cref="TerminalActionParameter"/> from the given value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="value"></param>
         /// <returns></returns>
         public static TerminalActionParameter Get(object value)

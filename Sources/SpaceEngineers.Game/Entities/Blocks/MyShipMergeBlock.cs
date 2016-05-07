@@ -74,7 +74,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public MyShipMergeBlock Other { get { return m_other; } }
         private HashSet<MyCubeGrid> m_gridList = new HashSet<MyCubeGrid>();
         public int GridCount { get { return m_gridList.Count; } }
-        private Vector3 m_pos;
+//        private Vector3 m_pos;
 
         private ushort m_frameCounter;
 

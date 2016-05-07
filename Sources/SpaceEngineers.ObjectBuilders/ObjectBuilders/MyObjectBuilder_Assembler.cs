@@ -1,6 +1,4 @@
 ﻿using ProtoBuf;
-using Sandbox.Common.ObjectBuilders.Definitions;
-using System.ComponentModel;
 using System.Xml.Serialization;
 using VRage.ObjectBuilders;
 using VRage.Serialization;

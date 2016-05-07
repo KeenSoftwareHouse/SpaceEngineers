@@ -1,19 +1,13 @@
 ﻿using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
-using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Game.Components;
-using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.Network;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Entities;
 using VRage.Game.Entity;
-using System.Diagnostics;
 using VRage.Game;
 using VRage.ModAPI;
 

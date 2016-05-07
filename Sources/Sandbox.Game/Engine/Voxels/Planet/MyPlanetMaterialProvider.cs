@@ -344,8 +344,6 @@ namespace Sandbox.Engine.Voxels
 
             float lodVoxelSize = 1 << req.Lod;
 
-            MyVoxelRequestFlags usedFlags = 0;
-
             bool computeOcclusion = req.RequestedData.Requests(MyStorageDataTypeEnum.Occlusion);
 
             // We don't bother determining where the surface is if we don't have the normal.
