@@ -531,7 +531,7 @@ namespace Sandbox.Game.Entities.Cube
             if (m_copiedGrids.Count == 0)
                 return false;
 
-            if ((m_copiedGrids.Count > 0) && !IsActive)
+            if (!IsActive)
             {
                 Activate();
                 return true;

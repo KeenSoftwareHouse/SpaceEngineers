@@ -17,8 +17,7 @@ namespace Sandbox.Game.Entities
 
         void VRage.Game.ModAPI.Interfaces.IMyControllableEntity.DrawHud(IMyCameraController camera, long playerId)
         {
-            if (camera is IMyCameraController)
-                DrawHud(camera as IMyCameraController, playerId);
+                DrawHud(camera, playerId);
         }
     }
 }

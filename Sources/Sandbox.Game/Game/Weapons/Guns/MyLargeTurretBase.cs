@@ -3357,7 +3357,7 @@ namespace Sandbox.Game.Weapons
 
         public void ForceTarget(MyEntity entity, bool usePrediction)
         {
-            this.Target = entity as MyEntity;
+            this.Target = entity;
             m_currentPrediction = usePrediction ? m_targetPrediction : m_targetNoPrediction;
             m_checkOtherTargets = false;
         }

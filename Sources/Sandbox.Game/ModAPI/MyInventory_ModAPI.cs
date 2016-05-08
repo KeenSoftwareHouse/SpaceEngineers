@@ -94,7 +94,7 @@ namespace Sandbox.Game
                 {
                     return false;
                 }
-                Transfer(this as MyInventory, dstInventory, this.GetItems()[sourceItemIndex].ItemId, targetItemIndex.HasValue ? targetItemIndex.Value : -1, amount);
+                Transfer(this, dstInventory, this.GetItems()[sourceItemIndex].ItemId, targetItemIndex.HasValue ? targetItemIndex.Value : -1, amount);
                 return true;
             }
             return false;

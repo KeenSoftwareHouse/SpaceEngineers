@@ -548,7 +548,7 @@ namespace Sandbox.Game.Entities.Cube
                     var gp = node.Physics as MyGridPhysics;
                     if (gp == null || gp.Entity.PositionComp.WorldAABB.Contains(pt.ContactPosition) == ContainmentType.Disjoint)
                         continue;
-                    destroyed |= gp.PerformDeformation(ref pt, false, separatingVelocity, other as MyEntity);
+                    destroyed |= gp.PerformDeformation(ref pt, false, separatingVelocity, other);
                 }
                 m_tmpEntities.Clear();
             }

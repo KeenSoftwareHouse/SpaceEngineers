@@ -114,7 +114,7 @@ namespace Sandbox.Game.Gui
 
                 var itemId = m_physicalItemDefinitions[(int)m_items.GetSelectedKey()].Id;
                 m_lastSelectedItem = (int)m_items.GetSelectedKey();
-                MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                MyInventory inventory = invObject.GetInventory(0);
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                 if (inventory != null)
@@ -301,7 +301,7 @@ namespace Sandbox.Game.Gui
 
                 var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Iron");
                 System.Diagnostics.Debug.Assert(invObject.GetInventory(0) as MyInventory != null,"Null or unexpected inventory type returned!");
-                MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                MyInventory inventory = invObject.GetInventory(0);
                 amount = inventory.ComputeAmountThatFits(oreBuilder.GetId());
 
                 inventory.AddItems(amount, oreBuilder);
@@ -320,7 +320,7 @@ namespace Sandbox.Game.Gui
             if (invObject != null && invObject.HasInventory)
             {
                 System.Diagnostics.Debug.Assert(invObject.GetInventory(0) as MyInventory != null, "Null or unexpected inventory type returned!");
-                MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                MyInventory inventory = invObject.GetInventory(0);
                 //inventory.Clear();
 
                 if (!componentsOnly)

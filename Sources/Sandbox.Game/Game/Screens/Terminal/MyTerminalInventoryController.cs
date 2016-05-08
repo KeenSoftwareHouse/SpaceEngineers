@@ -477,7 +477,7 @@ namespace Sandbox.Game.Gui
                 if (!(owner != null && owner.HasInventory))
                     continue;
 
-                if (filterType.HasValue && (owner as MyEntity).InventoryOwnerType() != filterType)
+                if (filterType.HasValue && owner.InventoryOwnerType() != filterType)
                     continue;
 
                 Vector4 labelColor = Color.White.ToVector4();
@@ -587,7 +587,7 @@ namespace Sandbox.Game.Gui
             MyInventory dstInventory = null;
             for (int i = 0; i < dstOwner.InventoryCount; ++i)
             {
-                var tmp = dstOwner.GetInventory(i) as MyInventory;
+                var tmp = dstOwner.GetInventory(i);
                 System.Diagnostics.Debug.Assert(tmp as MyInventory != null, "Null or unexpected inventory type!");
 
                 if (tmp.CheckConstraint(item.Content.GetId()))
@@ -764,7 +764,7 @@ namespace Sandbox.Game.Gui
         private void throwOutButton_OnButtonClick(MyGuiControlButton sender)
         {
             var owner = m_focusedOwnerControl.InventoryOwner;
-            var ownerAsEntity = owner as MyEntity;
+            var ownerAsEntity = owner;
             if (m_selectedInventoryItem.HasValue && ownerAsEntity != null)
             {
                 // Making copy, since removing this item from inventory will change selection to a different one.
@@ -1015,7 +1015,7 @@ namespace Sandbox.Game.Gui
                 foreach (var item in list.Controls)
                 {
                     var owner   = (item as MyGuiControlInventoryOwner).InventoryOwner;
-                    var tmp     = (owner as MyEntity).DisplayNameText.ToString().ToLower();
+                    var tmp     = owner.DisplayNameText.ToString().ToLower();
                     var add     = true;
                     var isEmpty = true;
 
@@ -1034,7 +1034,7 @@ namespace Sandbox.Game.Gui
                         {
                             System.Diagnostics.Debug.Assert(owner.GetInventory(i) as MyInventory != null, "Null or other inventory type!");
 
-                            foreach (var inventoryItem in (owner.GetInventory(i) as MyInventory).GetItems())
+                            foreach (var inventoryItem in owner.GetInventory(i).GetItems())
                             {
                                 bool matches = true;
                                 string inventoryItemName = MyDefinitionManager.Static.GetPhysicalItemDefinition(inventoryItem.Content).DisplayNameText.ToString().ToLower();

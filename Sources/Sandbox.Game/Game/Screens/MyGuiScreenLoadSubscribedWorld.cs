@@ -141,7 +141,7 @@ namespace Sandbox.Game.Gui
         private void OnCopyClick(MyGuiControlButton sender)
         {
             m_currentButton = m_copyButton;
-            CopyWorldAndGoToLoadScreen();
+            CreateAndLoadFromSubscribedWorld();
         }
         #endregion
 
@@ -155,20 +155,6 @@ namespace Sandbox.Game.Gui
             if (world == null)
                 return;
 
-            MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, beginActionLoadSaves, endActionLoadSaves));
-        }
-
-        private void CopyWorldAndGoToLoadScreen()
-        {
-            var selectedRow = m_worldsTable.SelectedRow;
-            if (selectedRow == null)
-                return;
-
-            var world = (MySteamWorkshop.SubscribedItem)selectedRow.UserData;
-            if (world == null)
-                return;
-
-            //by Gregory: Changed functionality in order to add ovewrite dialog box. only one steam account is permitted right now
             MyGuiSandbox.AddScreen(new MyGuiScreenProgressAsync(MyCommonTexts.LoadingPleaseWait, null, beginActionLoadSaves, endActionLoadSaves));
         }
 

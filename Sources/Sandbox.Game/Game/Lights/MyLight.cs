@@ -810,7 +810,7 @@ namespace Sandbox.Game.Lights
         /// <param name="range"></param>
         public void UpdateReflectorRangeAndAngle(float reflectorConeMaxAngleCos, float reflectorRange)
         {
-            SpotlightNotTooLarge(reflectorConeMaxAngleCos, reflectorRange);
+        //    SpotlightNotTooLarge(reflectorConeMaxAngleCos, reflectorRange);
             m_reflectorRange = reflectorRange;
             m_reflectorConeMaxAngleCos = reflectorConeMaxAngleCos;
         }

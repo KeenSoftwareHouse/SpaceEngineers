@@ -7007,11 +7007,6 @@ namespace Sandbox.Game.Entities
             if (Sync.IsServer || fromServer)
             {
                 Debug.Assert(Render is MyRenderComponentCubeGrid, "Invalid Render - cannot access grid generators");
-                if (!(Render is MyRenderComponentCubeGrid))
-                {
-                    m_generatorsEnabled = false;
-                    return false;
-                }
 
                 if (m_generatorsEnabled != enable)
                 {

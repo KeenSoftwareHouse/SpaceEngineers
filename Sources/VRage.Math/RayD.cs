@@ -169,7 +169,10 @@ namespace VRageMath
                         return;
                     }
                     else
+                    {
                         result = new double?(0.0f);
+                        return;
+                    }
                 }
                 result = new double?(intersection);
             }

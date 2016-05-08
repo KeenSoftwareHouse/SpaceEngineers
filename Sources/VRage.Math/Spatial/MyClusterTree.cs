@@ -211,7 +211,7 @@ namespace VRageMath.Spatial
                 StaticId = staticObjectId
             };
 
-            System.Diagnostics.Debug.Assert(!needReorder || (!SingleCluster.HasValue && needReorder), "Object cannot be added outside borders of a single cluster");
+            System.Diagnostics.Debug.Assert(!needReorder || !SingleCluster.HasValue, "Object cannot be added outside borders of a single cluster");
 
             if (needReorder && !SingleCluster.HasValue)
             {

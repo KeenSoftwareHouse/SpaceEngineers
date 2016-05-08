@@ -1159,7 +1159,7 @@ namespace Sandbox.Game.GameSystems
 
                         for (int i = 0; i < owner.InventoryCount; ++i)
                         {
-                            var inventory = owner.GetInventory(i) as MyInventory;
+                            var inventory = owner.GetInventory(i);
                             System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                             if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
@@ -1392,7 +1392,7 @@ namespace Sandbox.Game.GameSystems
                                 bool isInventoryAvailable = false;
                                 for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
                                 {
-                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
+                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i);
                                     System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                                     if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
@@ -1434,7 +1434,7 @@ namespace Sandbox.Game.GameSystems
                                 bool isInventoryAvailable = false;
                                 for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
                                 {
-                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
+                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) ;
                                     System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                                     if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
@@ -1469,7 +1469,7 @@ namespace Sandbox.Game.GameSystems
                                 bool isInventoryAvailable = false;
                                 for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
                                 {
-                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
+                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i);
                                     System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                                     if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
@@ -1544,7 +1544,7 @@ namespace Sandbox.Game.GameSystems
                             bool isInventoryAvailable = false;
                             for (int i = 0; i < owner.InventoryCount; ++i)
                             {
-                                var inventory = owner.GetInventory(i) as MyInventory;
+                                var inventory = owner.GetInventory(i);
                                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                                 if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
@@ -1595,7 +1595,7 @@ namespace Sandbox.Game.GameSystems
                                 bool isInventoryAvailable = false;
                                 for (int i = 0; i < owner.InventoryCount; ++i)
                                 {
-                                    var inventory = owner.GetInventory(i) as MyInventory;
+                                    var inventory = owner.GetInventory(i);
                                     System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                                     if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)

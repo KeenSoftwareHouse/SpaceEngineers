@@ -114,11 +114,9 @@ namespace Sandbox.Game.Entities
             {
                 if (voxelMap == ignoreVoxelMap)
                     continue;
-                if (voxelMap is MyVoxelBase)
-                {
+
                     if (voxelMap.IsBoxIntersectingBoundingBoxOfThisVoxelMap(ref boundingBox))
                         return voxelMap;
-                }
             }
 
             //  If we get here, no intersection was found

@@ -292,9 +292,6 @@ namespace VRageRender.Textures
         /// </summary>
         internal bool Load(TextureQuality quality = 0, bool canBeMissing = false)
         {
-            // TODO: !PetrM fix skipping mipmaps
-            quality = 0;
-
             Debug.Assert(this.LoadState != LoadState.Loaded);
 
             bool loaded = false;
