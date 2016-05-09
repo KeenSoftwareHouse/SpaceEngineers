@@ -76,10 +76,15 @@ namespace VRageRender
 
     }
 
-    class MyQuery
+    class MyQuery : IDisposable
     {
         internal Query m_query;
         QueryType ? m_type;
+
+        public void Dispose()
+        {
+            ((IDisposable)m_query).Dispose();
+        }
 
         internal void LazyInit(QueryType type)
         {
@@ -101,7 +106,7 @@ namespace VRageRender
         }
     }
 
-    class MyOcclusionQuery
+    class MyOcclusionQuery : IDisposable
     {
         Query m_query;
 
@@ -141,6 +146,11 @@ namespace VRageRender
                 }
                 return true;
             }
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)m_query).Dispose();
         }
     }
 }

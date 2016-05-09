@@ -46,7 +46,6 @@ namespace VRageRender
 
         private static void DebugDrawLights()
         {
-            return;
             //Debug draw lights
             foreach (MyRenderLight light in m_renderLightsForDraw)
             {

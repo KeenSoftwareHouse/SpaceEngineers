@@ -6,7 +6,7 @@ using System.Text;
 
 namespace VRageRender
 {
-    internal class MyHardwareOcclusionQuery
+    internal class MyHardwareOcclusionQuery : IDisposable
     {
         Query m_query;
 
@@ -16,6 +16,11 @@ namespace VRageRender
             queryDesc.Flags = QueryFlags.None;
             queryDesc.Type = QueryType.Occlusion;
             m_query = new Query(MyRender11.Device, queryDesc);
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)m_query).Dispose();
         }
 
         internal void IssueQuery(MyCullProxy cullProxy)

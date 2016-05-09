@@ -2603,11 +2603,11 @@ namespace Sandbox.Game.Entities
             }
             if (removeBlockWithIdQueueWithGenerators.Count > 0)
             {
-                BlocksWithIdRemovedWithGenerator(removeBlockWithIdQueueWithGenerators);
+                BlocksWithIdDestroyedWithGenerator(removeBlockWithIdQueueWithGenerators);
             }
             if (removeBlockWithIdQueueWithoutGenerators.Count > 0)
             {
-                BlocksWithIdRemovedWithoutGenerator(removeBlockWithIdQueueWithoutGenerators);
+                BlocksWithIdDestroyedWithoutGenerator(removeBlockWithIdQueueWithoutGenerators);
             }
         }
 
@@ -3695,19 +3695,23 @@ namespace Sandbox.Game.Entities
             m_neighborDistances[(int)NeighborOffsetIndex.XUP_YUP_ZUP] = (float)Math.Pow(dUp3.X + dUp3.Y + dUp3.Z, 1.0 / 3.0);
 
             // Bubble sort the face neighbors by distance
-            for (int i = 0; i < 25; ++i)
+            for (int i = 0; i < 25; ++i)  // looking at 3x3x3 cube - the center. 
             {
+                bool done = true;
+
                 for (int j = 0; j < 25 - i; ++j)
                 {
                     float distFirst = m_neighborDistances[(int)m_neighborOffsetIndices[j]];
                     float distSecond = m_neighborDistances[(int)m_neighborOffsetIndices[j + 1]];
                     if (distFirst > distSecond)
                     {
+                        done = false;
                         NeighborOffsetIndex swap = m_neighborOffsetIndices[j];
                         m_neighborOffsetIndices[j] = m_neighborOffsetIndices[j + 1];
                         m_neighborOffsetIndices[j + 1] = swap;
                     }
                 }
+                if (done) break;
             }
 
             // Find the first existing neighbor by distance
@@ -3918,7 +3922,7 @@ namespace Sandbox.Game.Entities
                 MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
                 MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
 
-                if (damageInfo.Amount == 0f)
+                if (damageInfo.Amount < 0.02f)
                     return 0;
             }
             m_totalBoneDisplacement = 0.0f;
@@ -4124,25 +4128,7 @@ namespace Sandbox.Game.Entities
 
             EnableGenerators(oldEnabled, true);
         }
-
-        void BlocksWithIdRemovedWithGenerator(List<MyCubeGrid.BlockPositionId> blocksToRemove)
-        {
-            bool oldEnabled = EnableGenerators(true, true);
-
-            BlocksWithIdRemoved(blocksToRemove);
-
-            EnableGenerators(oldEnabled, true);
-        }
-
-        void BlocksWithIdRemovedWithoutGenerator(List<MyCubeGrid.BlockPositionId> blocksToRemove)
-        {
-            bool oldEnabled = EnableGenerators(false, true);
-
-            BlocksWithIdRemoved(blocksToRemove);
-
-            EnableGenerators(oldEnabled, true);
-        }
-
+         
         /// <summary>
         /// Client only method, not called on server
         /// </summary>
@@ -7583,7 +7569,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var block in grid.CubeBlocks)
             {
-                if (!block.IsFullIntegrity || block.BuildLevelRatio != 1.0f)
+                if (!block.IsFullIntegrity || block.BuildLevelRatio <= 0.999f)
                     return false;
             }
 

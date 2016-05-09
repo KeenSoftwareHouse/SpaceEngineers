@@ -13,7 +13,7 @@ namespace VRageRender
     {
         static PixelShaderId m_ps;
 
-        internal static void Init()
+        internal static new void Init()
         {
             m_ps = MyShaders.CreatePs("depth_resolve.hlsl");
         }

@@ -16,7 +16,7 @@ namespace VRage.Render11.PostprocessStage
 
         static bool m_initialized;
 
-        private unsafe static void Init()
+        private unsafe static new void Init()
         {
             m_ps = MyShaders.CreatePs("postprocess_colorize_exported_texture.hlsl");
             m_cb = MyHwBuffers.CreateConstantsBuffer(sizeof(Vector4), "ExportedTexturesColor");

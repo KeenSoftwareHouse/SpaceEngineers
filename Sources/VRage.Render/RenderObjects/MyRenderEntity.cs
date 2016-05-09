@@ -454,13 +454,11 @@ namespace VRageRender
         /// <returns></returns>
         public override void DebugDraw()
         {
-            return;
             //if (MyMwcFinalBuildConstants.DrawHelperPrimitives)
             {
                 // DebugDrawVolume();
                 DebugDrawOBB();
                 MyDebugDraw.DrawAxis(WorldMatrix, (float)m_localVolume.Radius, 1, false);
-
             }
 
             /*
@@ -473,7 +471,6 @@ namespace VRageRender
             {
                 DebugDrawNormalVectors();
             } */
-
         }
 
         #region Intersection Methods

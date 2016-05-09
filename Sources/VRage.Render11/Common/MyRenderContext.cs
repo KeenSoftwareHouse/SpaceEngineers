@@ -319,7 +319,7 @@ namespace VRageRender
         }
     }
 
-    class MyRenderContext
+    class MyRenderContext : IDisposable
     {
         static readonly int[] ZeroOffsets = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -1143,6 +1143,11 @@ namespace VRageRender
                 MyLog.Default.WriteLine("m_constantBindings: " + State.m_constantBindings);
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)m_commandList).Dispose();
         }
     }
 

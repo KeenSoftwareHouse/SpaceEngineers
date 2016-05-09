@@ -169,8 +169,6 @@ namespace VRageRender
         {
             base.DebugDraw();
 
-			return;
-
             if (m_skeletonIndices == null)
                 return;
             
@@ -182,8 +180,6 @@ namespace VRageRender
 
                 if (bone2.Parent == -1)
                     continue;
-
-
 
                 Vector3D p2 = ((MatrixD)m_absoluteTransforms[m_skeletonIndices[i]] * WorldMatrix).Translation;
                 Vector3D p1 = ((MatrixD)m_absoluteTransforms[bone2.Parent] * WorldMatrix).Translation;
