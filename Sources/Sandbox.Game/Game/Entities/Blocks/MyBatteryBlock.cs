@@ -21,7 +21,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyBatteryBlock
+    class MyBatteryBlock : MyFunctionalBlock, Sandbox.ModAPI.IMyBatteryBlock
     {
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
