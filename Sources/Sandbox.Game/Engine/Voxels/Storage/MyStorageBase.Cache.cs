@@ -417,20 +417,12 @@ namespace Sandbox.Engine.Voxels
                 if (ck.Dirty == 0 && ck.HitCount <= MaximumHitsForDiscard)
                     using (ck.Lock.AcquireSharedUsing())
                     {
-                        if (ck.Dirty == 0 && ck.HitCount <= MaximumHitsForDiscard)
-                        {
                             using (m_cacheLock.AcquireExclusiveUsing())
                             {
                                 m_cachedChunks.Remove(coord);
                                 m_cacheMap.RemoveProxy(ck.TreeProxy);
                             }
-                        }
-                        else
-                        {
-                            // not removed, requeue, refresh age
-                            m_chunksbyAge.Enqueue(coord);
-                            ck.HitCount = 0; // reset hit count for next time.
-                        }
+
                     }
                 else
                 {

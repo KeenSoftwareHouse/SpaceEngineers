@@ -171,7 +171,7 @@ namespace Sandbox.Game.Weapons
 
         protected override MatrixD GetEffectMatrix(float muzzleOffset)
         {
-            if (m_raycastComponent.HitCubeGrid == null || m_raycastComponent.HitBlock == null || !(Owner is MyCharacter))
+            if (m_raycastComponent.HitCubeGrid == null || m_raycastComponent.HitBlock == null )
             {
                 return MatrixD.CreateWorld(m_gunBase.GetMuzzleWorldPosition(), WorldMatrix.Forward, WorldMatrix.Up);
             }

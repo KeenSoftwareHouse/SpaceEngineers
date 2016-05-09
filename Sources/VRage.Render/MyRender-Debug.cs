@@ -46,7 +46,6 @@ namespace VRageRender
 
         private static void DebugDrawLights()
         {
-            return;
             //Debug draw lights
             foreach (MyRenderLight light in m_renderLightsForDraw)
             {
@@ -82,8 +81,6 @@ namespace VRageRender
                         MyStateObjects.WireframeClockwiseRasterizerState.Apply();
                         DepthStencilState.None.Apply();
 
-
-
                         MyDebugDraw.DrawModel(MyDebugDraw.ModelCone, light.SpotWorld, Color.White, false);
                     }
 
@@ -100,8 +97,8 @@ namespace VRageRender
         {
             BlendState.Opaque.Apply();
 
-            int cubeSize = GetRenderTargetCube(MyRenderTargets.EnvironmentCube).GetLevelDescription(0).Width;
-            cubeSize = 128;
+            // int cubeSize = GetRenderTargetCube(MyRenderTargets.EnvironmentCube).GetLevelDescription(0).Width;
+            int cubeSize = 128;
 
             Vector2I delta = new Vector2I((int)(MyRenderCamera.Viewport.Height * 0.07f), (int)(MyRenderCamera.Viewport.Height * 0.015f));
             Vector2I size = new Vector2I(cubeSize, cubeSize);

@@ -460,14 +460,7 @@ namespace Sandbox.Game.World
         private static void OnServerSaving(bool saveStarted)
         {
             Static.ServerSaving = saveStarted;
-            if (Static.ServerSaving)
-            {
-                MySandboxGame.UserPauseToggle();
-            }
-            else
-            {
-                MySandboxGame.UserPauseToggle();
-            }
+            MySandboxGame.UserPauseToggle();
         }
 
         /// <summary>

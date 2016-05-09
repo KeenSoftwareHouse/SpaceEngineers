@@ -61,7 +61,7 @@ namespace VRageRender
 //          MyBlendTargets.Run(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer), MyScreenDependants.m_planetBlur2, MyRender11.BlendPlanetBlur);
         }
 
-        internal static void Init()
+        internal static new void Init()
         {
             Settings = MyPlanetBlurSettings.Defaults();
             MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));

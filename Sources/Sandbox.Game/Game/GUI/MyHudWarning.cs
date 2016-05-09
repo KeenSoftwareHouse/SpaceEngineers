@@ -1,26 +1,16 @@
-﻿using Sandbox;
-using Sandbox.Common;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Components;
+﻿using Sandbox.Game.Components;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Localization;
 using Sandbox.Game.World;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems.Electricity;
 using VRage;
 using VRage.Audio;
 using VRage.Game;
-using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Game.Components;
@@ -342,7 +332,7 @@ namespace Sandbox.Game.Gui
         {
             if (MySession.Static.CreativeMode || MySession.Static.ControlledEntity == null)
                 return false;
-            if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
+            if (MySession.Static.ControlledEntity == null || MySession.Static.ControlledEntity.Entity is MyCharacter )
             {
                 var character = MySession.Static.LocalCharacter;
                 if (character == null) return false;
@@ -420,7 +410,7 @@ namespace Sandbox.Game.Gui
             text = MySpaceTexts.Blank;
             if (!IsEnergyUnderTreshold(MyBattery.EnergyCriticalThreshold))
                 return false;
-            if (MySession.Static.ControlledEntity.Entity is MyCharacter || MySession.Static.ControlledEntity == null)
+            if ( MySession.Static.ControlledEntity == null || MySession.Static.ControlledEntity.Entity is MyCharacter )
             {
                 cue = MyGuiSounds.HudVocEnergyCrit;
                 if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null

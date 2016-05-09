@@ -1,13 +1,10 @@
-﻿using Sandbox.Common;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using ParallelTasks;
 using VRage;
-using VRage.Collections;
 using VRage.Game.Components;
 using VRage.Generics;
 using VRage.Library.Collections;
@@ -175,7 +172,7 @@ namespace Sandbox.Engine.Voxels
                         job.DebugDraw(new Color((shade - p) / shade, 0.0f, p / shade, (max - xi) / max));
                     }
                 }
-                catch (Exception e)
+                catch (Exception )
                 { }
             }
 
@@ -330,7 +327,7 @@ namespace Sandbox.Engine.Voxels
                 set { m_workPriority = value; }
             }
 
-            void IWork.DoWork(ParallelTasks.WorkData workData = null)
+            void IWork.DoWork(ParallelTasks.WorkData workData)
             {
                 m_timer.Start();
                 MyPrecalcJob work;

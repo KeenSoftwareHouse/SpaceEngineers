@@ -1,13 +1,8 @@
-﻿
-using Sandbox.Common;
-using Sandbox.Engine.Physics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using VRage;
 using VRage.Collections;
-using VRage;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -313,7 +308,6 @@ namespace Sandbox.Engine.Voxels
                 // this should never happen
                 if (i >= cachedDataCell.VoxelTriangles.Length)
                 {
-                    Debug.Assert(i < cachedDataCell.VoxelTriangles.Length);
                     continue;
                 }
 

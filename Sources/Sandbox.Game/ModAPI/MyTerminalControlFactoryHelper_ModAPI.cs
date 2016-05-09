@@ -42,7 +42,7 @@ namespace Sandbox.ModAPI
             }
             m_actionList.Clear();
         }
-        void IMyTerminalActionsHelper.SearchActionsOfName(string name, Type blockType, List<Sandbox.ModAPI.Interfaces.ITerminalAction> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalAction, bool> collect = null)
+        void IMyTerminalActionsHelper.SearchActionsOfName(string name, Type blockType, List<Sandbox.ModAPI.Interfaces.ITerminalAction> resultList, Func<Sandbox.ModAPI.Interfaces.ITerminalAction, bool> collect)
         {
             if (!typeof(MyTerminalBlock).IsAssignableFrom(blockType))
                 return;

@@ -238,7 +238,7 @@ namespace Sandbox.Game.Weapons
                                         invOwn = (m_drillEntity as MyHandDrill).Owner;
 
                                     System.Diagnostics.Debug.Assert((invOwn.GetInventory(0) as MyInventory) != null, "Null or unexpected inventory type!");
-                                    (invOwn.GetInventory(0) as MyInventory).TakeFloatingObject(flObj);
+                                    invOwn.GetInventory(0).TakeFloatingObject(flObj);
                                 }
                                 else
                                     (entity as MyFloatingObject).DoDamage(70, MyDamageType.Drill, true, attackerId: m_drillEntity != null ? m_drillEntity.EntityId : 0);

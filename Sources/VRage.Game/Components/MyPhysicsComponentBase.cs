@@ -152,15 +152,6 @@ namespace VRage.Game.Components
         public bool PlayCollisionCueEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the type of the material.
-        /// </summary>
-        /// <value>
-        /// The type of the material.
-        /// </value>
-        //public MyMaterialType MaterialType { get; set; }
-
-
-        /// <summary>
         /// Gets or sets the mass.
         /// </summary>
         /// <value>
@@ -306,7 +297,6 @@ namespace VRage.Game.Components
         /// <summary>
         /// Initializes a new instance of the <see cref="MyPhysicsBody"/> class.
         /// </summary>
-        /// <param name="entity">The entity.</param>
         //public MyPhysicsBody(MyEntity entity, RigidBodyFlag flags)
         //{
         //    //Debug.Assert(entity != null);
@@ -369,7 +359,6 @@ namespace VRage.Game.Components
         /// </summary>
         public abstract void Deactivate();
 
-        /// </summary>
         public abstract void ForceActivate();
 
         public abstract void UpdateAccelerations();

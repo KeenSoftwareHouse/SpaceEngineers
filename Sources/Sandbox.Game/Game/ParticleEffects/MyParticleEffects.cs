@@ -73,7 +73,7 @@ namespace Sandbox.Game
         private static short UpdateCount = 0;
         public static void UpdateEffects()
         {
-            int i, j;
+            int i;
             bool newSound;
             UpdateCount++;
 

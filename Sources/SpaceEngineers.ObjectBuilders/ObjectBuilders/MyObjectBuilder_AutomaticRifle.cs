@@ -1,5 +1,4 @@
 ﻿using ProtoBuf;
-using System.Xml.Serialization;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Serialization;

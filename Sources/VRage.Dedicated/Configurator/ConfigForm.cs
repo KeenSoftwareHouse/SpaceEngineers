@@ -1045,8 +1045,7 @@ namespace VRage.Dedicated
                 restartServiceButton.Enabled = m_serviceController.Status == ServiceControllerStatus.Running || m_serviceController.Status == ServiceControllerStatus.StartPending;
                 stopServiceButton.Enabled = m_serviceController.Status == ServiceControllerStatus.Running || m_serviceController.Status == ServiceControllerStatus.StartPending;
 
-                if (m_isService)
-                    startButton.Enabled = m_serviceController.Status == ServiceControllerStatus.Stopped;
+                startButton.Enabled = m_serviceController.Status == ServiceControllerStatus.Stopped;
             }
 
         }

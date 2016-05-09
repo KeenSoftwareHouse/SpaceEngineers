@@ -210,7 +210,6 @@ namespace VRageRender
             if (lod >= LOD_COLORS.Length)
                 return;
 
-            const double DRAW_DIST = 8.0;
             const double TARGET_DIST = 7.0;
             var targetPoint = MyRenderCamera.Position + (Vector3D)MyRenderCamera.ForwardVector * TARGET_DIST;
 
@@ -218,14 +217,6 @@ namespace VRageRender
             if (true)
             {
                 MyDebugDraw.DrawAABBLine(ref m_aabb, ref LOD_COLORS[lod], 1f, true);
-            }
-
-            if (worldAabb.Distance(targetPoint) < DRAW_DIST && lod == 0)
-            {
-                if (false)
-                {
-                    MyDebugDraw.DrawAABBLine(ref m_aabb, ref LOD_COLORS[lod], 1f, true);
-                }
             }
         }
 

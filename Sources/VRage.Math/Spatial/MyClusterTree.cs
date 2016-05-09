@@ -173,9 +173,7 @@ namespace VRageMath.Spatial
             else
             if (m_returnedClusters.Count > 1)
                 needReorder = true;
-            else
-                if (m_returnedClusters.Count == 0)
-                {
+            else {
                     if (SingleCluster.HasValue)
                         return VRageMath.Spatial.MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED;
 
@@ -213,7 +211,7 @@ namespace VRageMath.Spatial
                 StaticId = staticObjectId
             };
 
-            System.Diagnostics.Debug.Assert(!needReorder || (!SingleCluster.HasValue && needReorder), "Object cannot be added outside borders of a single cluster");
+            System.Diagnostics.Debug.Assert(!needReorder || !SingleCluster.HasValue, "Object cannot be added outside borders of a single cluster");
 
             if (needReorder && !SingleCluster.HasValue)
             {

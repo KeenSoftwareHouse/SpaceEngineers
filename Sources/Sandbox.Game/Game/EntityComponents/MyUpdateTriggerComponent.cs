@@ -34,7 +34,7 @@ namespace Sandbox.Game.Components
             { 
                 m_size = value;
                 if (Entity != null)
-                    m_triggerAABB = Entity.PositionComp.WorldAABB.Inflate(value / 2); 
+                    m_triggerAABB = Entity.PositionComp.WorldAABB.Inflate((double)value / 2); 
             }
         }
         int m_activeCounter = 0;
@@ -61,7 +61,7 @@ namespace Sandbox.Game.Components
         public override void OnAddedToContainer()
         {
             base.OnAddedToContainer();
-            m_triggerAABB = Entity.PositionComp.WorldAABB.Inflate(m_size / 2);
+            m_triggerAABB = Entity.PositionComp.WorldAABB.Inflate((double)m_size / 2);
             m_updateTick = MyRandom.Instance.Next(UpdateFrequency-1);
         }
 
@@ -185,7 +185,7 @@ namespace Sandbox.Game.Components
             if (Entity.Physics == null)
                 return;
 
-            m_triggerAABB = Entity.PositionComp.WorldAABB.Inflate(m_size / 2);
+            m_triggerAABB = Entity.PositionComp.WorldAABB.Inflate((double)m_size / 2);
 
             bool wasDisabled = m_needsUpdate.Count != 0;
             for (int i = m_queryResult.Count-1; i >= 0; i--)

@@ -59,7 +59,7 @@ namespace Sandbox.Common
                 {
                     OnDraw();
                 }
-                catch (Exception e)
+                catch (Exception )
                 {
                     OnDraw = null;
                 }

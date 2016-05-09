@@ -11,7 +11,6 @@ namespace VRage.Game
         /// <summary>
         /// GenerateSphere
         /// </summary>
-        /// <param name="vctPos"></param>
         /// <param name="radius"></param>
         /// <param name="steps"></param>
         public static void GenerateSphere(ref MatrixD worldMatrix, float radius, int steps, List<Vector3D> vertices)
@@ -24,7 +23,7 @@ namespace VRage.Game
             int n = 0;
 
             //Assign our b loop to go through 90 degrees in intervals of our variable space
-            float space = 360 / steps;
+            float space = 360f / steps;
             float limitBeta = 90 - space;
             float limitAlpha = 360 - space;
             Vector3D vctTmp;

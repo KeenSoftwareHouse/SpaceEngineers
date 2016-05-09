@@ -746,7 +746,7 @@ namespace Sandbox.Game.Entities.Cube
                                 bool smallStaticGrid = grid.GridSizeEnum == MyCubeSize.Small && grid.IsStatic;
                                 if (smallStaticGrid || !grid.IsStatic)
                                 {
-                                    var settings = i == 0 ? m_settings.GetGridPlacementSettings(grid, false) : MyPerGameSettings.BuildingSettings.SmallStaticGrid;
+                                    var settings = m_settings.GetGridPlacementSettings(grid, false) ;
                                     bool localRetVal = true;
 
                                     foreach (var block in grid.CubeBlocks)
@@ -764,7 +764,7 @@ namespace Sandbox.Game.Entities.Cube
                                 }
                                 else if (m_touchingGrids[i] == null)
                                 {
-                                    var settings = m_settings.GetGridPlacementSettings(grid, i == 0 ? true : grid.IsStatic);
+                                    var settings = m_settings.GetGridPlacementSettings(grid, true);
 
                                     MyCubeGrid touchingGridLocal = null;
 

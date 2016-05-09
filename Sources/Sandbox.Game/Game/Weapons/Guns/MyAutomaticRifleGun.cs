@@ -373,7 +373,7 @@ namespace Sandbox.Game.Weapons
         public void OnControlAcquired(MyCharacter owner)
         {
             m_owner = owner;
-            var inventory = m_owner.GetInventory() as MyInventory;
+            var inventory = m_owner.GetInventory();
             System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned!");
             if (inventory != null)
             {
@@ -391,7 +391,7 @@ namespace Sandbox.Game.Weapons
         {
             if (m_owner != null)
             {
-                var inventory = m_owner.GetInventory() as MyInventory;
+                var inventory = m_owner.GetInventory();
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned!");
                 if (inventory != null)
                 {
@@ -451,7 +451,7 @@ namespace Sandbox.Game.Weapons
             {
                 if (m_owner != null)
                 {
-                    return m_owner.GetInventory() as MyInventory;
+                    return m_owner.GetInventory();
                 }
 
                 return null;

@@ -1499,9 +1499,7 @@ namespace VRageRender
 
             int c = 0;
 
-            if (queryID == MyOcclusionQueryID.MAIN_RENDER)
-            {
-                //int ii = 0;
+            //int ii = 0;
                 while (c < renderObjectListForDraw.Count)
                 {
                     MyRenderLight renderLight = renderObjectListForDraw[c] as MyRenderLight;
@@ -1538,10 +1536,8 @@ namespace VRageRender
                     }
                     c++;
                 }
-            }
 
             GetRenderProfiler().EndProfilingBlock();
-
             GetRenderProfiler().EndProfilingBlock();
         }
 

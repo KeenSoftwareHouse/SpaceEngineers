@@ -72,7 +72,6 @@ namespace ProtoBuf.Meta
 
             this.member = member;
             this.parentType = parentType;
-            if (fieldNumber < 1 && !Helpers.IsEnum(parentType)) throw new ArgumentOutOfRangeException("fieldNumber");
 //#if WINRT
             if (defaultValue != null && model.MapType(defaultValue.GetType()) != memberType)
 //#else

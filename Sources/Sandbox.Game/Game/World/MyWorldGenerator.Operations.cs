@@ -310,7 +310,6 @@ namespace Sandbox.Game.World
                 var ob = builder as MyObjectBuilder_WorldGeneratorOperation_CreatePlanet;
 
                 DefinitionName = ob.DefinitionName;
-                DefinitionName = ob.DefinitionName;
                 AddGPS = ob.AddGPS;
                 Diameter = ob.Diameter;
                 PositionMinCorner = ob.PositionMinCorner;
@@ -321,7 +320,6 @@ namespace Sandbox.Game.World
             {
                 var ob = base.GetObjectBuilder() as MyObjectBuilder_WorldGeneratorOperation_CreatePlanet;
 
-                ob.DefinitionName = DefinitionName;
                 ob.DefinitionName = DefinitionName;
                 ob.AddGPS = AddGPS;
                 ob.Diameter = Diameter;

@@ -1621,7 +1621,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (weapon == null)
                 return;
-            if ((m_rightHandItemBone == -1 || weapon != null) && m_currentWeapon != null)
+            if ( m_currentWeapon != null)
             {
                 // First, dispose of the old weapon
                 DisposeWeapon();
@@ -5672,7 +5672,7 @@ namespace Sandbox.Game.Entities.Character
         {
             get
             {
-                return m_usingEntity as MyEntity;
+                return m_usingEntity;
             }
             set
             {
@@ -6681,7 +6681,7 @@ namespace Sandbox.Game.Entities.Character
 
             System.Diagnostics.Debug.Assert(character.GetInventory() as MyInventory != null, "Null or unexpected inventory type returned!");
             if (useInventory)
-                MyWorldGenerator.InitInventoryWithDefaults(character.GetInventory() as MyInventory);
+                MyWorldGenerator.InitInventoryWithDefaults(character.GetInventory());
             else if (botDefinition != null)
             {
                 // use inventory from bot definition
@@ -8182,7 +8182,7 @@ namespace Sandbox.Game.Entities.Character
                 if (player != null)
                 {
                     MyPlayerCollection.ChangePlayerCharacter(player, this, this);
-                    if (m_usingEntity != null && player != null)
+                    if (m_usingEntity != null)
                     {
                         Sync.Players.SetControlledEntityLocally(player.Id, m_usingEntity);
                     }

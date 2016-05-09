@@ -152,8 +152,7 @@ namespace VRageRender
         {
             if(array.Length < size)
             {
-                var newSize = size == 0 ? 1 : size;
-                Array.Resize(ref array, newSize < threshold ? newSize * 2 : (int)(newSize * allocScale));
+                Array.Resize(ref array, size < threshold ? size * 2 : (int)(size * allocScale));
             }
         }
 
@@ -161,8 +160,7 @@ namespace VRageRender
         {
             if (array.Length < size)
             {
-                var newSize = size == 0 ? 1 : size;
-                array = new T[newSize < threshold ? newSize * 2 : (int)(newSize * allocScale)];
+                array = new T[size < threshold ? size * 2 : (int)(size * allocScale)];
             }
         }
 

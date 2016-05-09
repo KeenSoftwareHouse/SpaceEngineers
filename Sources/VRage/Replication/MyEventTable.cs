@@ -105,7 +105,7 @@ namespace VRage.Network
         void RegisterEvents(Type type, BindingFlags flags)
         {
             var query = type.GetMethods(flags)
-                .Select(s => new EventReturn(s.GetCustomAttribute<EventAttribute>(), s))
+                .Select(s => new EventReturn((EventAttribute)s.GetCustomAttribute(typeof(EventAttribute)), s))
                 .Where(s => s.Event != null)
                 .OrderBy(s => s.Event.Order);
             
@@ -149,8 +149,9 @@ namespace VRage.Network
                 call = Expression.Call(p.First(), info, p.Skip(1).Where(s => s.Type != typeof(DBNull)).ToArray());
             var handler = Expression.Lambda<Action<T1, T2, T3, T4, T5, T6, T7>>(call, p).Compile();
 
-            var eventAttribute = info.GetCustomAttribute<EventAttribute>();
-            var serverAttribute = info.GetCustomAttribute<ServerAttribute>();
+
+            EventAttribute eventAttribute = (EventAttribute)info.GetCustomAttribute(typeof(EventAttribute));
+            ServerAttribute serverAttribute = (ServerAttribute)info.GetCustomAttribute(typeof(ServerAttribute));
 
             CallSiteFlags flags = CallSiteFlags.None;
             if (serverAttribute != null) flags |= CallSiteFlags.Server;

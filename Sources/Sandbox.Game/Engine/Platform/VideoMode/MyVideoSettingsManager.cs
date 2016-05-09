@@ -354,24 +354,20 @@ namespace Sandbox.Engine.Platform.VideoMode
             try
             {
                 ManagementObjectSearcher mosComputer = new System.Management.ManagementObjectSearcher("Select Manufacturer, Model from Win32_ComputerSystem");
-                if (mosComputer != null)
-                {
+
                     foreach (var item in mosComputer.Get())
                     {
                         MySandboxGame.Log.WriteLine("Win32_ComputerSystem.Manufacturer: " + item["Manufacturer"]);
                         MySandboxGame.Log.WriteLine("Win32_ComputerSystem.Model: " + item["Model"]);
                         MySandboxGame.Log.WriteLine("Virtualized: " + IsVirtualized(item["Manufacturer"].ToString(), item["Model"].ToString()));
                     }
-                }
 
                 ManagementObjectSearcher mos = new ManagementObjectSearcher("root\\CIMV2", "SELECT Name FROM Win32_Processor");
-                if (mos != null)
-                {
+
                     foreach (ManagementObject mo in mos.Get())
                     {
                         MySandboxGame.Log.WriteLine("Environment.ProcessorName: " + mo["Name"]);
                     }
-                }
 
                 //  Get info about memory
                 var memory = new WinApi.MEMORYSTATUSEX();

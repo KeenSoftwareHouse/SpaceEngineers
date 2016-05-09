@@ -91,7 +91,6 @@ namespace VRage.Game.Entity
         /// </summary>
         /// <param name="amount"></param>
         /// <param name="objectBuilder"></param>
-        /// <param name="index"></param>
         /// <returns>true if items were added, false if items didn't fit</returns>
         public abstract bool AddItems(MyFixedPoint amount, MyObjectBuilder_Base objectBuilder); 
 

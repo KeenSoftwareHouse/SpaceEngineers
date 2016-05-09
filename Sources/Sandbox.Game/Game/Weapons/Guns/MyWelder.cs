@@ -113,13 +113,13 @@ namespace Sandbox.Game.Weapons
             var block = GetTargetBlock();
             if (block == null) return false;
             
-            MyCharacter character = Owner as MyCharacter;
+            MyCharacter character = Owner;
             if (block.IsFullIntegrity)
             {
                 if (!block.HasDeformation) return false;
                 else return true;
             }
-            if (!MySession.Static.CreativeMode && !block.CanContinueBuild(character.GetInventory() as MyInventory)) return false;
+            if (!MySession.Static.CreativeMode && !block.CanContinueBuild(character.GetInventory())) return false;
 
             return true;
         }
@@ -244,13 +244,13 @@ namespace Sandbox.Game.Weapons
                 }
             }
 
-            MyCharacter character = Owner as MyCharacter;
+            MyCharacter character = Owner;
             System.Diagnostics.Debug.Assert(character.GetInventory() as MyInventory != null, "Null or unexpected inventory type returned!");
-            if (!block.CanContinueBuild(character.GetInventory() as MyInventory))
+            if (!block.CanContinueBuild(character.GetInventory()))
             {
                 status = MyGunStatusEnum.Failed;
                 if (!block.IsFullIntegrity)
-                    if (Owner != null && Owner == MySession.Static.LocalCharacter)
+                    if (character != null && Owner == MySession.Static.LocalCharacter)
                         BeginFailReactionLocal(0, 0);
                 return false;
             }

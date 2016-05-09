@@ -1,8 +1,6 @@
 ﻿#region Using
 
 using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Platform.VideoMode;
 using Sandbox.Engine.Utils;
@@ -16,12 +14,9 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using Sandbox.Game.GUI.DebugInputComponents;
-using VRage;
 using VRage;
 using VRage.Audio;
 using VRage.Input;

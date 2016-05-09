@@ -12,6 +12,7 @@ namespace VRageRender
     /// <summary>
     /// element flags
     /// </summary>
+    [System.Flags]
     public enum MyElementFlag
     {
         EF_AABB_DIRTY = 1 << 1,

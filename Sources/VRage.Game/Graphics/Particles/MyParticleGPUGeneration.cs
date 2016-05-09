@@ -20,7 +20,7 @@ namespace VRage.Game
     {
         #region Static
 
-        static int m_globalCounter;
+//        static int m_globalCounter;
 
         #endregion
 

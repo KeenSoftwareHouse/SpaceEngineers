@@ -436,7 +436,7 @@ namespace Sandbox.Game.Weapons
             {
                 if (m_owner != null)
                 {
-                    return m_owner.GetInventory() as MyInventory;
+                    return m_owner.GetInventory();
                 }
 
                 return null;

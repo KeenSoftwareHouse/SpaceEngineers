@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Library.Utils;
-using VRage.Utils;
 
 namespace VRage.Audio
 {

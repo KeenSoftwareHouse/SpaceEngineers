@@ -97,7 +97,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void Update(bool force=false)
         {
-            if (!Sandbox.Game.World.MySession.Static.Settings.RealisticSound || MySession.Static == null || MySession.Static.LocalCharacter != m_character)
+            if ( MySession.Static == null || !Sandbox.Game.World.MySession.Static.Settings.RealisticSound || MySession.Static.LocalCharacter != m_character)
                 return;
 
             if (CurrentState == State.Heated)

@@ -155,11 +155,6 @@ namespace VRageRender
                                 }
                             }
 
-                            if (bonesUsed.Count > MyRender11Constants.SHADER_MAX_BONES)
-                            {
-                                Debug.Assert(bonesUsed.Count <= MyRender11Constants.SHADER_MAX_BONES, "Model \"" + assetName + "\"'s part uses more than 60 bones, please split model on more parts");
-                            }
-
                             var partBones = new List<int>(bonesUsed.Keys);
                             partBones.Sort();
                             if (partBones.Count > 0 && partBones[partBones.Count - 1] >= MyRender11Constants.SHADER_MAX_BONES)
@@ -356,7 +351,7 @@ namespace VRageRender
                 }
 
                 //indexBuffer.SetDebugName(assetName + " index buffer");
-                int c = 0;
+                
                 //vertexBuffers.ForEach(x => x.SetDebugName(assetName + " vertex buffer " + c++));
 
                 //
@@ -377,7 +372,7 @@ namespace VRageRender
                 importer.Clear();
                 return result;
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 return MyAssetsLoader.GetDebugMesh().LODs[0].m_meshInfo;
             }

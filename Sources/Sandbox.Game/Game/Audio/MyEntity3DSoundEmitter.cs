@@ -75,9 +75,9 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (m_arcade.IsNull)
-                        string.Format("Could not find arcade sound for '{0}'", cueName);
+                        MySandboxGame.Log.WriteLine(string.Format("Could not find arcade sound for '{0}'", cueName));
                     if (m_realistic.IsNull)
-                        string.Format("Could not find realistic sound for '{0}'", cueName);
+                        MySandboxGame.Log.WriteLine(string.Format("Could not find realistic sound for '{0}'", cueName));
                 }
             }
         }
@@ -438,7 +438,7 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.SoundComp != null &&
-                        MySession.Static.LocalCharacter.SoundComp.StandingOnVoxel as MyVoxelBase == Entity as MyVoxelBase)
+                        MySession.Static.LocalCharacter.SoundComp.StandingOnVoxel == Entity as MyVoxelBase)
                         return true;
                 }
             }

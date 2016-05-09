@@ -122,8 +122,9 @@ namespace VRageRender
             DrawFullscreenQuad();
         }
 
-        internal static void Init()
+        internal static new void Init()
         {
+            // TODO: do we need to poke the parentclass?
             MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
         }
     }

@@ -232,7 +232,7 @@ namespace Sandbox.Graphics.GUI
         #region Events
         public event Action<MyGuiControlTable, EventArgs> ItemDoubleClicked;
 
-        public event Action<MyGuiControlTable, EventArgs> ItemRightClicked;
+//        public event Action<MyGuiControlTable, EventArgs> ItemRightClicked;
 
         public event Action<MyGuiControlTable, EventArgs> ItemSelected;
 

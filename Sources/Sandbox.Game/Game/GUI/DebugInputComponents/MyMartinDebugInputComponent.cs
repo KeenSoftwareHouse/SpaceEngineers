@@ -80,7 +80,7 @@ namespace Sandbox.Game.Gui
                 if (definition.DisplayNameText == something)
                 {
                     MyEntity invObject = MySession.Static.ControlledEntity as MyEntity;
-                    MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                    MyInventory inventory = invObject.GetInventory(0);
                     if (inventory != null)
                     {
                         var builder = (MyObjectBuilder_PhysicalObject)VRage.ObjectBuilders.MyObjectBuilderSerializer.CreateNewObject(definition.Id);
@@ -101,7 +101,7 @@ namespace Sandbox.Game.Gui
                 if (definition.DisplayNameText == something)
                 {
                     MyEntity invObject = MySession.Static.ControlledEntity as MyEntity;
-                    MyInventory inventory = invObject.GetInventory(0) as MyInventory;
+                    MyInventory inventory = invObject.GetInventory(0);
                     if (inventory != null)
                     {
                         var builder = (MyObjectBuilder_PhysicalObject)VRage.ObjectBuilders.MyObjectBuilderSerializer.CreateNewObject(definition.Id);
@@ -309,8 +309,6 @@ namespace Sandbox.Game.Gui
 
         public override bool HandleInput()
         {
-            bool handled = false;
-
             if (MySession.Static == null)
                 return false;// game isn't loaded yet
 
@@ -487,26 +485,9 @@ namespace Sandbox.Game.Gui
             }
 
             BoundingSphereD sphere;
-            BoundingBoxD box;
-            if (shapeType == 0)
-            {
+
                 sphere = new BoundingSphereD(targetPosition, size * 0.5f);
                 VRageRender.MyRenderProxy.DebugDrawSphere(targetPosition, size * 0.5f, Color.White, 1f, true);
-            }
-            else if (shapeType == 1)
-            {
-                box = new BoundingBoxD(
-                    targetPosition - size * 0.5f,
-                    targetPosition + size * 0.5f);
-                VRageRender.MyRenderProxy.DebugDrawAABB(box, Color.White, 1f, 1f, true);
-            }
-            else if (shapeType == 2)
-            {
-                MyVoxelCoordSystems.WorldPositionToVoxelCoord(targetVoxelMap.PositionLeftBottomCorner, ref targetPosition, out targetVoxel);
-                //targetVoxel = Vector3I.Zero;
-                MyVoxelCoordSystems.VoxelCoordToWorldAABB(targetVoxelMap.PositionLeftBottomCorner, ref targetVoxel, out box);
-                VRageRender.MyRenderProxy.DebugDrawAABB(box, Vector3.One, 1f, 1f, true);
-            }
 
             bool leftPressed = MyInput.Static.IsLeftMousePressed();
             if (leftPressed)
@@ -520,13 +501,7 @@ namespace Sandbox.Game.Gui
                         Radius = (float)sphere.Radius,
                     };
                 }
-                else if (shapeType == 1 || shapeType == 2)
-                {
-                    shape = new MyShapeBox()
-                    {
-                        Boundaries = box,
-                    };
-                }
+
                 if (shape != null)
                 {
                     float dummy;

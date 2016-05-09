@@ -313,8 +313,7 @@ namespace Sandbox.Graphics.GUI
         protected override int GetLineStartIndex(int idx)
         {
             string text = Text.ToString();
-            var output = text.Substring(0, idx).LastIndexOf(NEW_LINE) + 1;
-            return (output == -1) ? 0 : output;
+            return text.Substring(0, idx).LastIndexOf(NEW_LINE) + 1;
         }
 
         public int GetCurrentCarriageLine()

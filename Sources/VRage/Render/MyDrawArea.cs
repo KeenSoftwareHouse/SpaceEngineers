@@ -54,7 +54,7 @@ namespace VRageRender.Profiler
 
         void UpdateRange()
         {
-            y_range = (float)Math.Pow(2, m_index / 2) * (1 + (m_index % 2) * 0.5f);
+            y_range = (float)Math.Pow(2, (float) m_index / 2) * (1 + (m_index % 2) * 0.5f);
             y_legend_ms_count = m_index % 2 == 0 ? 8 : 12;
             y_legend_ms_increment = y_range / y_legend_ms_count;
             y_legend_increment = y_scale / y_range * y_legend_ms_increment;

@@ -2,9 +2,7 @@
 
 using Havok;
 using ProtoBuf;
-using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
@@ -15,11 +13,8 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
 using Sandbox.Game.GUI;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -41,7 +36,6 @@ using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Game.Replication;
 using VRage.Library.Sync;
 using Sandbox.Game.GameSystems.CoordinateSystem;
-using VRage.Game.Entity;
 using VRage.Game.Entity;
 using VRage.Game.Models;
 using Sandbox.Game.Weapons;
@@ -2609,11 +2603,11 @@ namespace Sandbox.Game.Entities
             }
             if (removeBlockWithIdQueueWithGenerators.Count > 0)
             {
-                BlocksWithIdRemovedWithGenerator(removeBlockWithIdQueueWithGenerators);
+                BlocksWithIdDestroyedWithGenerator(removeBlockWithIdQueueWithGenerators);
             }
             if (removeBlockWithIdQueueWithoutGenerators.Count > 0)
             {
-                BlocksWithIdRemovedWithoutGenerator(removeBlockWithIdQueueWithoutGenerators);
+                BlocksWithIdDestroyedWithoutGenerator(removeBlockWithIdQueueWithoutGenerators);
             }
         }
 
@@ -2781,7 +2775,7 @@ namespace Sandbox.Game.Entities
 
         private void BuildBlocksArea(ref MyCubeGrid.MyBlockBuildArea area, List<Vector3UByte> validOffsets, long builderEntityId, bool isAdmin, long ownerId, int entityIdSeed)
         {
-            var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(area.DefinitionId) as MyCubeBlockDefinition;
+            var definition = MyDefinitionManager.Static.GetCubeBlockDefinition(area.DefinitionId);
             if (definition == null)
             {
                 Debug.Fail("Block definition not found");
@@ -3701,19 +3695,23 @@ namespace Sandbox.Game.Entities
             m_neighborDistances[(int)NeighborOffsetIndex.XUP_YUP_ZUP] = (float)Math.Pow(dUp3.X + dUp3.Y + dUp3.Z, 1.0 / 3.0);
 
             // Bubble sort the face neighbors by distance
-            for (int i = 0; i < 25; ++i)
+            for (int i = 0; i < 25; ++i)  // looking at 3x3x3 cube - the center. 
             {
+                bool done = true;
+
                 for (int j = 0; j < 25 - i; ++j)
                 {
                     float distFirst = m_neighborDistances[(int)m_neighborOffsetIndices[j]];
                     float distSecond = m_neighborDistances[(int)m_neighborOffsetIndices[j + 1]];
                     if (distFirst > distSecond)
                     {
+                        done = false;
                         NeighborOffsetIndex swap = m_neighborOffsetIndices[j];
                         m_neighborOffsetIndices[j] = m_neighborOffsetIndices[j + 1];
                         m_neighborOffsetIndices[j + 1] = swap;
                     }
                 }
+                if (done) break;
             }
 
             // Find the first existing neighbor by distance
@@ -3924,7 +3922,7 @@ namespace Sandbox.Game.Entities
                 MyDamageInformation damageInfo = new MyDamageInformation(true, 1f, MyDamageType.Deformation, attackerId);
                 MyDamageSystem.Static.RaiseBeforeDamageApplied(block, ref damageInfo);
 
-                if (damageInfo.Amount == 0f)
+                if (damageInfo.Amount < 0.02f)
                     return 0;
             }
             m_totalBoneDisplacement = 0.0f;
@@ -4130,25 +4128,7 @@ namespace Sandbox.Game.Entities
 
             EnableGenerators(oldEnabled, true);
         }
-
-        void BlocksWithIdRemovedWithGenerator(List<MyCubeGrid.BlockPositionId> blocksToRemove)
-        {
-            bool oldEnabled = EnableGenerators(true, true);
-
-            BlocksWithIdRemoved(blocksToRemove);
-
-            EnableGenerators(oldEnabled, true);
-        }
-
-        void BlocksWithIdRemovedWithoutGenerator(List<MyCubeGrid.BlockPositionId> blocksToRemove)
-        {
-            bool oldEnabled = EnableGenerators(false, true);
-
-            BlocksWithIdRemoved(blocksToRemove);
-
-            EnableGenerators(oldEnabled, true);
-        }
-
+         
         /// <summary>
         /// Client only method, not called on server
         /// </summary>
@@ -4663,7 +4643,7 @@ namespace Sandbox.Game.Entities
         {
             MyCube cube;
             m_cubes.TryGetValue(cubePos, out cube);
-            MySlimBlock block = cube.CubeBlock as MySlimBlock;
+            MySlimBlock block = cube.CubeBlock;
             if (block != null)
             {
                 part.InstanceData.SetColorMaskHSV(new Vector4(block.ColorMaskHSV, block.Dithering));
@@ -5327,7 +5307,6 @@ namespace Sandbox.Game.Entities
                     var group = new MyBlockGroup(to);
 
                     // CH: TODO: This is to catch a nullref. Remove when not needed
-                    if (group == null) MySandboxGame.Log.WriteLine("group was null");
                     if (groupBuilder == null) MySandboxGame.Log.WriteLine("groupBuilder was null");
 
                     group.Init(groupBuilder);
@@ -7014,11 +6993,6 @@ namespace Sandbox.Game.Entities
             if (Sync.IsServer || fromServer)
             {
                 Debug.Assert(Render is MyRenderComponentCubeGrid, "Invalid Render - cannot access grid generators");
-                if (!(Render is MyRenderComponentCubeGrid))
-                {
-                    m_generatorsEnabled = false;
-                    return false;
-                }
 
                 if (m_generatorsEnabled != enable)
                 {
@@ -7595,7 +7569,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var block in grid.CubeBlocks)
             {
-                if (!block.IsFullIntegrity || block.BuildLevelRatio != 1.0f)
+                if (!block.IsFullIntegrity || block.BuildLevelRatio <= 0.999f)
                     return false;
             }
 
@@ -7781,7 +7755,6 @@ namespace Sandbox.Game.Entities
                     if (!pastedGrid.IsStatic && MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null
                         && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
                     {
-                        if (MySession.Static.ControlledEntity != null)
                             pastedGrid.Physics.AngularVelocity = MySession.Static.ControlledEntity.Entity.Physics.AngularVelocity;
                     }
                 }

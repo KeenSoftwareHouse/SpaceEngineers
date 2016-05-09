@@ -374,7 +374,7 @@ namespace Sandbox.Game.Entities
             {
                 System.Diagnostics.Debug.Assert((user.GetInventory() as MyInventory) != null, "Null or unexpected inventory type returned!");
 
-                MyFixedPoint amount = MyFixedPoint.Min(Item.Amount, (user.GetInventory() as MyInventory).ComputeAmountThatFits(Item.Content.GetId()));
+                MyFixedPoint amount = MyFixedPoint.Min(Item.Amount, user.GetInventory().ComputeAmountThatFits(Item.Content.GetId()));
                 if (amount == 0)
                 {
                     if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimePlayedSound > 2500)
@@ -395,7 +395,7 @@ namespace Sandbox.Game.Entities
                         lastTimeSound = DateTime.UtcNow;
                     }
                     System.Diagnostics.Debug.Assert((user.GetInventory() as MyInventory) != null, "Null or unexpected inventory type returned");
-                    (user.GetInventory() as MyInventory).PickupItem(this, amount);
+                    user.GetInventory().PickupItem(this, amount);
                 }
 
                 MyHud.Notifications.ReloadTexts();

@@ -95,7 +95,7 @@ namespace VRageRender
                 Vector3* points = stackalloc Vector3[2];
                 points[0] = pointA;
                 points[1] = pointB;
-                int vertexCounter = 0;
+                
                 for (int i = 0; i < 2; ++i)
                 {
                     int baseVertex = i * 4;

@@ -65,12 +65,12 @@ namespace Sandbox.Engine.AI
 
             foreach (var type in types)
             {
-                var descAttr = type.GetCustomAttribute<MyBehaviorDescriptorAttribute>();
+                MyBehaviorDescriptorAttribute descAttr = (MyBehaviorDescriptorAttribute)type.GetCustomAttribute(typeof(MyBehaviorDescriptorAttribute));
                 MethodInfo[] methods = null;
                 methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
                 foreach (var method in methods)
                 {
-                    var behaviorActionAttr = method.GetCustomAttribute<MyBehaviorTreeActionAttribute>();
+                    MyBehaviorTreeActionAttribute behaviorActionAttr = (MyBehaviorTreeActionAttribute)method.GetCustomAttribute(typeof(MyBehaviorTreeActionAttribute));
 
                     if (behaviorActionAttr == null)
                         continue;
@@ -84,8 +84,8 @@ namespace Sandbox.Engine.AI
                     // methods with parameters marked with attributes BTParam or BTIn/Out/In_Out are ONLY valid
                     foreach (var param in method.GetParameters())
                     {
-                        var paramAttr = param.GetCustomAttribute<BTParamAttribute>();
-                        var memParamAttr = param.GetCustomAttribute<BTMemParamAttribute>();
+                        var paramAttr = param.GetCustomAttribute(typeof(BTParamAttribute));
+                        var memParamAttr = param.GetCustomAttribute(typeof(BTMemParamAttribute));
 
                         if (paramAttr == null && memParamAttr == null)
                         {
@@ -126,7 +126,7 @@ namespace Sandbox.Engine.AI
                 foreach (var methodInfo in categoryPair.Value)
                 {
                     var actionData = new MyAIBehaviorData.ActionData();
-                    var btActionAttr = methodInfo.GetCustomAttribute<MyBehaviorTreeActionAttribute>();
+                    MyBehaviorTreeActionAttribute btActionAttr = (MyBehaviorTreeActionAttribute) methodInfo.GetCustomAttribute(typeof(MyBehaviorTreeActionAttribute));
                     actionData.ActionName = btActionAttr.ActionName;
                     actionData.ReturnsRunning = btActionAttr.ReturnsRunning;
 
@@ -136,8 +136,8 @@ namespace Sandbox.Engine.AI
                     int paramIdx = 0;
                     foreach (var param in methodParams)
                     {
-                        var memParamAttr = param.GetCustomAttribute<BTMemParamAttribute>();
-                        var paramAttr = param.GetCustomAttribute<BTParamAttribute>();
+                        var memParamAttr = param.GetCustomAttribute(typeof(BTMemParamAttribute));
+                        var paramAttr = param.GetCustomAttribute(typeof(BTParamAttribute));
                         var actionParam = new MyAIBehaviorData.ParameterData();
 
                         actionParam.Name = param.Name;
@@ -145,7 +145,7 @@ namespace Sandbox.Engine.AI
 
                         if (memParamAttr != null)
                         {
-                            actionParam.MemType = memParamAttr.MemoryType;
+                            actionParam.MemType = ((BTMemParamAttribute)memParamAttr).MemoryType;
                         }
                         else if (paramAttr != null)
                         {

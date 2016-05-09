@@ -538,7 +538,7 @@ namespace Sandbox.Game.Entities.Cube
             get { return UseDamageSystem; }
         }
 
-        public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }
+        public float DetonationTime { get { return (float)Math.Max(m_countdownMs, 1000) / 1000; } }
         bool IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
         float IMyWarhead.DetonationTime { get { return DetonationTime; } }
     }

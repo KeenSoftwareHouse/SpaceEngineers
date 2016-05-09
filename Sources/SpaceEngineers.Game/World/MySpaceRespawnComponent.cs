@@ -455,7 +455,7 @@ namespace SpaceEngineers.Game.World
                     resetIdentity = oldIdentity.FirstSpawnDone;
                 }
 
-                if (player == null)
+                if (player != null)
                 {
                     var identity = Sync.Players.CreateNewIdentity(player.DisplayName);
                     player = Sync.Players.CreateNewPlayer(identity, playerId, player.DisplayName);
@@ -862,7 +862,7 @@ namespace SpaceEngineers.Game.World
                 MyVoxelMap voxelMap = entity as MyVoxelMap;
 
                 // Only test against voxels
-                if (entity == null) continue;
+                if (voxelMap == null) continue;
 
                 distance = MathHelper.Max(distance, entity.PositionComp.WorldVolume.Center.Length() + entity.PositionComp.WorldVolume.Radius);
             }

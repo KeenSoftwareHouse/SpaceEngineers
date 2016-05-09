@@ -148,7 +148,6 @@ namespace Sandbox.Game.Components
 
         void DrawTrashAdminView()
         {
-            float metric;
             var state = MyTrashRemoval.GetTrashState(m_grid, MyTrashRemoval.PreviewSettings);
             var color = Color.Green;
             var aabb = m_grid.PositionComp.WorldAABB;

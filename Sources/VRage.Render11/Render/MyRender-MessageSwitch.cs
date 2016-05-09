@@ -1405,7 +1405,7 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.ReloadEffects:
                 {
-                    m_reloadShaders = true;
+                    //m_reloadShaders = true;
 
                     //MyShaderBundleFactory.ClearCache();
                     //MyShaderMaterial.ClearCache();

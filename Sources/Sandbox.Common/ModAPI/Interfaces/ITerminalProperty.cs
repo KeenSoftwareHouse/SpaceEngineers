@@ -148,7 +148,6 @@ namespace Sandbox.ModAPI.Interfaces
         /// <summary>
         /// Set float value of property
         /// </summary>
-        /// <typeparam name="T"><see cref="ITerminalProperty.TypeName"/></typeparam>
         /// <param name="block">block reference</param>
         /// <param name="propertyId">property id (name)</param>
         /// <param name="value">value to set</param>
@@ -169,7 +168,6 @@ namespace Sandbox.ModAPI.Interfaces
         /// <summary>
         /// Set bool value of property
         /// </summary>
-        /// <typeparam name="T"><see cref="ITerminalProperty.TypeName"/></typeparam>
         /// <param name="block">block reference</param>
         /// <param name="propertyId">property id (name)</param>
         /// <param name="value">value to set</param>
@@ -190,7 +188,6 @@ namespace Sandbox.ModAPI.Interfaces
         /// <summary>
         /// Set bool value of property
         /// </summary>
-        /// <typeparam name="T"><see cref="ITerminalProperty.TypeName"/></typeparam>
         /// <param name="block">block reference</param>
         /// <param name="propertyId">property id (name)</param>
         /// <param name="value">value to set</param>

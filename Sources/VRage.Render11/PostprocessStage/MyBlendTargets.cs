@@ -8,8 +8,9 @@ namespace VRageRender
         static PixelShaderId m_stencilTestPixelShader = PixelShaderId.NULL;
         static PixelShaderId m_stencilInverseTestPixelShader = PixelShaderId.NULL;
 
-        internal static void Init()
+        internal static new void Init()
         {
+            // todo: these are pixel shaders, do we need to poke the parent class?
             m_copyPixelShader = MyShaders.CreatePs("postprocess_copy.hlsl");
             m_stencilTestPixelShader = MyShaders.CreatePs("postprocess_copy_stencil.hlsl");
             m_stencilInverseTestPixelShader = MyShaders.CreatePs("postprocess_copy_inversestencil.hlsl");

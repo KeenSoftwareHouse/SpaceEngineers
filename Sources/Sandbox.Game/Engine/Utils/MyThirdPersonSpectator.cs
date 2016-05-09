@@ -181,7 +181,7 @@ namespace Sandbox.Engine.Utils
         // Updates spectator position (spring connected to desired position)
         public override void UpdateAfterSimulation()
         {
-            Sandbox.Game.Entities.IMyControllableEntity genericControlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Sandbox.Game.Entities.IMyControllableEntity genericControlledEntity = MySession.Static.ControlledEntity;
             if (genericControlledEntity == null)
                 return;
             var remotelyControlledEntity = genericControlledEntity as MyRemoteControl;
@@ -514,7 +514,7 @@ namespace Sandbox.Engine.Utils
             if (cameraController == null || !(cameraController is MyEntity))
                 return;
 
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity;
             if (controlledEntity == null)
                 return;
 
@@ -631,7 +631,7 @@ namespace Sandbox.Engine.Utils
             if (!headAngle.HasValue)
                 return false;
 
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity;
             if (controlledEntity == null)
                 return false;
 

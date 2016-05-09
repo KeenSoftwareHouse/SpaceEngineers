@@ -69,7 +69,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (Definition == null)
                 return false;
 
-            var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
+            var controlledObject = MySession.Static.ControlledEntity;
             if (controlledObject != null)
             {
                 if (m_needsWeaponSwitching)

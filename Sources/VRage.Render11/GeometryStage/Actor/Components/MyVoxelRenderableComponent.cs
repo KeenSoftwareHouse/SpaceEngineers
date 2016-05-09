@@ -100,10 +100,7 @@ namespace VRageRender
 
             lod.VertexShaderFlags = MyShaderUnifiedFlags.USE_VOXEL_DATA | MyShaderUnifiedFlags.USE_VOXEL_MORPHING | MyShaderUnifiedFlags.DITHERED;
 
-            bool initializeProxies = true;//isMergedMesh || !MyMeshes.IsLodMeshMerged(lodMesh);
-            bool initializeDepthProxy = true;//!isMergedMesh && Num > 0;
-
-            int numToInitialize = (initializeProxies ? partCount : 0) + (initializeDepthProxy ? 1 : 0);
+            int numToInitialize = partCount + 1;
             if (numToInitialize > 0)
                 lod.AllocateProxies(numToInitialize);
 
@@ -111,15 +108,12 @@ namespace VRageRender
 
             int constantBufferSize = GetConstantBufferSize(lod, skinningEnabled);
 
-            if (initializeProxies)
-            {
                 for (int partIndex = 0; partIndex < partCount; partIndex++)
                 {
                     CreateRenderableProxyForPart(lodNum, constantBufferSize, partIndex, partIndex, false);
                 }
-            }
-            if (initializeDepthProxy)
-                CreateRenderableProxyForPart(lodNum, constantBufferSize, numToInitialize - 1, 0, true);
+
+            CreateRenderableProxyForPart(lodNum, constantBufferSize, numToInitialize - 1, 0, true);
 
             return true;
         }
@@ -262,14 +256,10 @@ namespace VRageRender
             if (m_btreeProxy == MyDynamicAABBTreeD.NullNode)
                 return false;
 
-            bool proxyMoved = false;
-
             if (MyScene.SeparateGeometry)
-                proxyMoved = MyScene.StaticRenderablesDBVH.MoveProxy(m_btreeProxy, ref Owner.Aabb, Vector3.Zero);
+                return MyScene.StaticRenderablesDBVH.MoveProxy(m_btreeProxy, ref Owner.Aabb, Vector3.Zero);
             else
-                proxyMoved = base.MoveRenderableAABB();
-
-            return proxyMoved;
+                return base.MoveRenderableAABB();
         }
 
         protected override void RemoveFromRenderables()

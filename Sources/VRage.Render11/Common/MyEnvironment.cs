@@ -37,7 +37,7 @@ namespace VRageRender
         internal static BoundingFrustumD ViewFrustumD;
         internal static BoundingFrustumD ViewFrustumClippedD;
 
-        static Vector3 m_directionalLightIntensity;
+  //      static Vector3 m_directionalLightIntensity;
 
         internal static MyRenderFogSettings FogSettings;
 

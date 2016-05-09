@@ -41,7 +41,7 @@ namespace Sandbox.Game.World
             }
         }
 
-        public event Action ClientLeft;
+//        public event Action ClientLeft;
 
         public MyNetworkClient(ulong steamId)
         {

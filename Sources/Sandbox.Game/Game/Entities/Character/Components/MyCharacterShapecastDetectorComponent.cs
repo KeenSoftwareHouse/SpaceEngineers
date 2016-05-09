@@ -167,7 +167,7 @@ namespace Sandbox.Game.Entities.Character
             var interactive = hitEntity as IMyUseObject;
             DetectedEntity = hitEntity;
 
-            if (hitEntity != null)
+            if (interactive != null)
             {
                 MyUseObjectsComponentBase useObject = null;
                 hitEntity.Components.TryGet<MyUseObjectsComponentBase>(out useObject);

@@ -415,7 +415,7 @@ namespace Sandbox.Game.Entities
             // Ensure that if we went from not serializing to serializing, we have a valid entity id.
             if (builder.EntityId == 0)
                 EntityId = MyEntityIdentifier.AllocateId();
-            else if (builder.EntityId != 0)
+            else 
                 EntityId = builder.EntityId;
 
             NumberInGrid = cubeGrid.BlockCounter.GetNextNumber(builder.GetId());

@@ -276,7 +276,7 @@ namespace VRage.Utils
                 multiple *= 1024;
                 if (byteSize < multiple)
                 {
-                    byteSize = byteSize / (multiple / 1024);
+                    byteSize = byteSize / ((float)multiple / 1024);
                     return BYTE_SIZE_PREFIX[i];
                 }
             }

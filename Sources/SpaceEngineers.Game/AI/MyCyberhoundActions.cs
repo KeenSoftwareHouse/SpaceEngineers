@@ -262,10 +262,7 @@ namespace SpaceEngineers.Game.AI
                     planetTangent.Normalize();
                     planetBitangent.Normalize();
                     Vector3D runAwayPosCandidate = MyUtils.GetRandomDiscPosition(ref currentPosition, distance, distance, ref planetTangent, ref planetBitangent);
-                    if (planet != null)
-                        runAwayPos = planet.GetClosestSurfacePointGlobal(ref runAwayPosCandidate);
-                    else
-                        runAwayPos = runAwayPosCandidate;
+                    runAwayPos = planet.GetClosestSurfacePointGlobal(ref runAwayPosCandidate);
                 }
                 AiTargetBase.SetTargetPosition(runAwayPos.Value);
                 AimWithMovement();

@@ -222,10 +222,6 @@ namespace Sandbox.Game.Weapons
 
             m_position = hitPosition;
 
-            bool isProjectileGroupKilled = false;
-
-            if (!isProjectileGroupKilled)
-            {
                 MySurfaceImpactEnum surfaceImpact;
                 MyStringHash materialType;
                 GetSurfaceAndMaterial(entity, ref  hitPosition, out surfaceImpact, out materialType);
@@ -253,7 +249,6 @@ namespace Sandbox.Game.Weapons
 
                 StopEffect();
                 m_state = MyProjectileStateEnum.KILLED;
-            }
             ProfilerShort.End();
             return true;
         }
@@ -265,8 +260,7 @@ namespace Sandbox.Game.Weapons
             hitHead = false;
 
             // 1. rough raycast
-            if (entity == null)
-            {
+
                 ProfilerShort.Begin("MyGamePruningStructure::CastProjectileRay");
                 MyPhysics.HitInfo? hitInfo = MyPhysics.CastRay(line.From, line.To, MyPhysics.CollisionLayers.DefaultCollisionLayer);
                 ProfilerShort.End();
@@ -276,7 +270,6 @@ namespace Sandbox.Game.Weapons
                     hitPosition = hitInfo.Value.Position;
                     hitNormal = hitInfo.Value.HkHitInfo.Normal;
                 }
-            }
 
             // 2. prevent shooting through characters, retest trajectory between entity and player
             if (!(entity is MyCharacter) || entity == null)

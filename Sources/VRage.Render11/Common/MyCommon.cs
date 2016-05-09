@@ -360,7 +360,6 @@ namespace VRageRender
                 constants.AdditionalSunColor = MyEnvironment.AdditionalSunColors[0];
                 constants.AdditionalSunIntensity = MyEnvironment.AdditionalSunIntensities[0];
 
-                if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)
                     constants.SecondarySunDirection1 = new Vector4(MathHelper.CalculateVectorOnSphere(MyEnvironment.DirectionalLightDir, MyEnvironment.AdditionalSunDirections[lightIndex][0], MyEnvironment.AdditionalSunDirections[lightIndex][1]), 0);
                 ++lightIndex;
                 if (lightIndex < MyEnvironment.AdditionalSunDirections.Length)

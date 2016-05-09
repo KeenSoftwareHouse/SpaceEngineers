@@ -117,7 +117,7 @@ namespace VRageRender.Profiler
             }
             else // Else display in megabytes
             {
-                float managedMemoryKB = managedMemory / 1048576;
+                float managedMemoryKB = (float) managedMemory / 1048576;
                 m_text.Concat(managedMemoryKB, 3).Append(" MB");
             }
             DrawTextShadow(new Vector2(20 + length, textPosY), m_text, color, textScale);
@@ -215,7 +215,6 @@ namespace VRageRender.Profiler
                 m_text.AppendLine();
                 m_text.Append("Total calls: ").AppendInt32(IsValidIndex(frameToDraw, lastFrameIndex) ? m_selectedProfiler.TotalCalls[frameToDraw] : -1);
                 DrawText(new Vector2(20, textOffsetY), m_text, Color.Red, 1);
-                textOffsetY += largeTextLineSize;
 
                 m_text.Clear();
                 if (!VRage.MyCompilationSymbols.PerformanceProfiling)

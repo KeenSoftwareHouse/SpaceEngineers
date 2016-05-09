@@ -34,7 +34,7 @@ namespace VRageRender
         static ComputeShaderId m_prefilter;
         static ComputeShaderId m_blend;
 
-        internal static void Init()
+        internal static new void Init()
         {
             m_ps = MyShaders.CreatePs("ForwardPostprocess.hlsl");
             m_atmosphere = MyShaders.CreatePs("AtmospherePostprocess.hlsl");

@@ -49,10 +49,11 @@ namespace VRageRender
         private static MyReadStructuredBuffer m_debugCounterBuffer;
 #endif
 
-        private static int m_numDeadParticlesOnInit;
+/*        private static int m_numDeadParticlesOnInit;
         private static int m_numDeadParticlesAfterEmit;
         private static int m_numDeadParticlesAfterSimulation;
         private static int m_numActiveParticlesAfterSimulation;
+        */
 
         private static MyGPUEmitterData[] m_emitterData = new MyGPUEmitterData[MyGPUEmitters.MAX_LIVE_EMITTERS];
         private static SharpDX.Direct3D11.ShaderResourceView[] m_emitterTextures = new SharpDX.Direct3D11.ShaderResourceView[MyGPUEmitters.MAX_LIVE_EMITTERS];

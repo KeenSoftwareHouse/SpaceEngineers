@@ -1,23 +1,14 @@
-﻿using Sandbox.ModAPI;
-using Sandbox.Common;
-
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
+﻿using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using VRageMath;
 
 using Sandbox.Game.Screens.Helpers;
 using VRage;
-using Sandbox.Engine.Networking;
-using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 using System.Threading;
-using System.Text.RegularExpressions;
 using Sandbox.Game.Localization;
-using VRage;
 
 namespace Sandbox.Game.Gui
 {

@@ -282,7 +282,7 @@ namespace Sandbox.Engine.Voxels
             byte materialA = cache.Material(inputVoxelA.IdxInCache);
             byte materialB = cache.Material(inputVoxelB.IdxInCache);
 
-            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentA) < 0.00001f)
+            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentA) == 0)
             {
                 edge.Position = inputVoxelA.Position;
                 edge.Normal = inputVoxelA.Normal;
@@ -291,7 +291,7 @@ namespace Sandbox.Engine.Voxels
                 return;
             }
 
-            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentB) < 0.00001f)
+            if (Math.Abs(MyVoxelConstants.VOXEL_ISO_LEVEL - contentB) == 0)
             {
                 edge.Position = inputVoxelB.Position;
                 edge.Normal = inputVoxelB.Normal;
@@ -593,7 +593,6 @@ namespace Sandbox.Engine.Voxels
         private void CreateTriangles(ref Vector3I coord0, int cubeIndex, ref Vector3I tempVoxelCoord0)
         {
             MyVoxelVertex tmpVertex = new MyVoxelVertex();
-            int g = MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_VOXELS;
             Vector3I edge = new Vector3I(coord0.X, coord0.Y, coord0.Z);
             for (int i = 0; MyMarchingCubesConstants.TriangleTable[cubeIndex, i] != -1; i += 3)
             {

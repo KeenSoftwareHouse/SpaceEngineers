@@ -2115,7 +2115,7 @@ namespace Sandbox.Game.Entities
                     direction *= dotForward;
                 }
             }
-            else if (index >= 2 && index < 4)
+            else if ( index < 4)
             {
                 // Right axis - perpendicular to global Up and block.Forward (roll dir)
                 Vector3I rightAxis;
@@ -2153,11 +2153,9 @@ namespace Sandbox.Game.Entities
                     axis = 0;
                 }
             }
-            else if (index >= 4)
-            {
+            else 
                 // Roll uses local model Z axis
                 axis = 2;
-            }
 
             return axis;
         }
@@ -2207,8 +2205,6 @@ namespace Sandbox.Game.Entities
             float height = character.Definition.CharacterCollisionHeight * 0.7f;
             float width = character.Definition.CharacterCollisionWidth * 0.2f;
 
-            if (character != null)
-            {
                 if (character.IsCrouching)
                     height = character.Definition.CharacterCollisionCrouchHeight;
 
@@ -2227,7 +2223,6 @@ namespace Sandbox.Game.Entities
                     outList.Add(bottomPoint + upVec);
                     angle += (float)Math.PI / 3.0f;
                 }
-            }
         }
 
         #endregion
@@ -4084,8 +4079,8 @@ namespace Sandbox.Game.Entities
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudDeleteBlock);
 
-                Vector3I min = startRemove.Value;
-                Vector3I max = startRemove.Value;
+//                Vector3I min = startRemove.Value;
+//                Vector3I max = startRemove.Value;
 
                 Vector3I stepDelta;
                 Vector3I counter;
@@ -4095,8 +4090,8 @@ namespace Sandbox.Game.Entities
 
                 ComputeSteps(startRemove.Value, continueBuild.Value, Vector3I.One, out stepDelta, out counter, out stepCount);
 
-                min = Vector3I.Min(startRemove.Value, continueBuild.Value);
-                max = Vector3I.Max(startRemove.Value, continueBuild.Value);
+                Vector3I min = Vector3I.Min(startRemove.Value, continueBuild.Value);
+                Vector3I max = Vector3I.Max(startRemove.Value, continueBuild.Value);
                 var size = new Vector3UByte(max - min);
                 CurrentGrid.RazeBlocks(ref min, ref size);
             }

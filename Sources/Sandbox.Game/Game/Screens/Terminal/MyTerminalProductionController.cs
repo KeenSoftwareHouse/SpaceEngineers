@@ -14,12 +14,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Input;
 using VRage.Library.Utils;
-using VRage.Utils;
 using VRage.Utils;
 using VRageMath;
 

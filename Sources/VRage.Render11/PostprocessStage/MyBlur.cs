@@ -32,7 +32,7 @@ namespace VRageRender
         // Item1 is horizontal, Item2 is vertical pass
         private static Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>> m_blurShaders = null; 
 
-        internal static unsafe void Init()
+        internal static unsafe new void Init()
         {
             int typeCount = Enum.GetValues(typeof(MyBlurDensityFunctionType)).Length;
             m_blurShaders = new Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>>();

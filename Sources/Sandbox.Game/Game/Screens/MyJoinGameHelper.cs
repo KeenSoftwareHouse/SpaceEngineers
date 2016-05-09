@@ -354,7 +354,7 @@ namespace Sandbox.Game.Gui
                 {
                     if (MyFakes.ENABLE_JOIN_STARTED_BATTLE)
                     {
-                        status = status = MyTexts.GetString(MyCommonTexts.MultiplayerErrorSessionEnded);
+                        status = MyTexts.GetString(MyCommonTexts.MultiplayerErrorSessionEnded);
                         statusFullMessage = true;
                     }
                     else

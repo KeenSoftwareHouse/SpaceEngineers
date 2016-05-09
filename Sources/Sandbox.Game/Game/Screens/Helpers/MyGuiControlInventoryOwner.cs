@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
-using Sandbox.Game;
 using VRageMath;
 using System.Diagnostics;
-using Sandbox.Game.Gui;
 using VRage;
 using Sandbox.Graphics.GUI;
 using Sandbox.Game.World;
 using VRage.Utils;
-using VRage;
 using Sandbox.Game.Localization;
-using VRage.Utils;
-using VRage.Library.Utils;
-using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Entities;
 using VRage.Game;
 using VRage.Game.Entity;
@@ -147,7 +136,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override void Update()
         {
-            m_nameLabel.Text = (m_inventoryOwner as MyEntity).DisplayNameText;
+            m_nameLabel.Text = m_inventoryOwner.DisplayNameText;
             m_nameLabel.Size = new Vector2(Size.X - m_internalPadding.X * 2, m_nameLabel.Size.Y);
             base.Update();
         }
@@ -192,7 +181,7 @@ namespace Sandbox.Game.Screens.Helpers
             Debug.Assert(m_inventoryOwner.InventoryCount == m_volumeLabels.Count);
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                var inventory = m_inventoryOwner.GetInventory(i);
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
                 if (inventory == null) continue;
 
@@ -314,12 +303,12 @@ namespace Sandbox.Game.Screens.Helpers
                 return;
             }
 
-            m_nameLabel.Text = (owner as MyEntity).DisplayNameText;
+            m_nameLabel.Text = owner.DisplayNameText;
             Debug.Assert(m_nameLabel.Text != null, "DisplayNameText text!");
             
             for (int i = 0; i < owner.InventoryCount; ++i)
             {
-                var inventory = owner.GetInventory(i) as MyInventory;
+                var inventory = owner.GetInventory(i);
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                 inventory.UserData = this;
@@ -350,7 +339,7 @@ namespace Sandbox.Game.Screens.Helpers
 
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                var inventory = m_inventoryOwner.GetInventory(i);
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                 if (inventory.UserData == this)
@@ -463,7 +452,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                var inventory = m_inventoryOwner.GetInventory(i);
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                 inventory.UserData = this;
@@ -475,7 +464,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             for (int i = 0; i < m_inventoryOwner.InventoryCount; ++i)
             {
-                var inventory = m_inventoryOwner.GetInventory(i) as MyInventory;
+                var inventory = m_inventoryOwner.GetInventory(i);
                 System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
 
                 inventory.ContentsChanged -= inventory_OnContentsChanged;

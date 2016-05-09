@@ -42,7 +42,7 @@ namespace Sandbox.Definitions
             }
         }
 
-        public void Postprocess()
+override        public void Postprocess()
         {
             List<MySpawnGroupDefinition> spawnGroups = new List<MySpawnGroupDefinition>();
             List<float> frequencies = new List<float>();

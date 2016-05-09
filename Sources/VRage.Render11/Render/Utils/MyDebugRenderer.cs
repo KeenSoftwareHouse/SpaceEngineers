@@ -310,18 +310,7 @@ namespace VRageRender
                 DrawHierarchyDebug();
             }
 
-            if (false)
-            {
-                var batch = MyLinesRenderer.CreateBatch();
-
-                foreach (var light in MyLightRendering.VisiblePointlights)
-                {
-                    batch.AddSphereRing(new BoundingSphere(light.PointPosition, 0.5f), Color.White, Matrix.Identity);
-                }
-                batch.Commit();
-            }
-
-            // draw terrain lods
+              // draw terrain lods
             if (MyRender11.Settings.DebugRenderClipmapCells)
             {
                 //var batch = MyLinesRenderer.CreateBatch();
@@ -384,21 +373,7 @@ namespace VRageRender
             //}
 
             // draw lods
-            if(false)
-            {
-                var batch = MyLinesRenderer.CreateBatch();
 
-                //foreach (var renderable in MyComponentFactory<MyRenderableComponent>.GetAll().Where(x => ((x.GetMesh() as MyVoxelMesh) == null)))
-                //{
-
-                //    if (renderable.CurrentLodNum >= LOD_COLORS.Length || renderable.m_lods.Length == 1)
-                //        continue;
-
-                //    batch.AddBoundingBox(renderable.m_owner.Aabb, new Color(LOD_COLORS[renderable.CurrentLodNum]));
-                //}
-
-                batch.Commit();
-            }
         }
 
        private static readonly Vector4[]  LOD_COLORS = 
@@ -521,9 +496,9 @@ namespace VRageRender
             ray.Direction = ray.Direction - ray.Position;
         }
 
-        static Matrix m_proj;
-        static Matrix m_vp;
-        static Matrix m_invvp;
+//        static Matrix m_proj;
+//        static Matrix m_vp;
+//        static Matrix m_invvp;
 
         internal static void DrawSceneDebug()
         {
@@ -603,22 +578,6 @@ namespace VRageRender
             //    batch.Commit();
             //}
 
-            //
-            if (false)
-            {
-                MyLinesBatch batch = MyLinesRenderer.CreateBatch();
-
-                foreach(var r in MyComponentFactory<MyRenderableComponent>.GetAll())
-                {
-                    if(r.Owner.GetInstanceLod() != null)
-                    {
-                        batch.AddBoundingBox((BoundingBox)r.Owner.Aabb, Color.Blue);
-                    }
-                }
-
-                batch.Commit();
-            }
-
             if (false)
             {
                 MyLinesBatch batch = MyLinesRenderer.CreateBatch();
@@ -645,27 +604,6 @@ namespace VRageRender
                     var pmin = (positionG - radiusMax - levelCellSize * 2).Snap(levelCellSize * 2);
                     var pmax = (positionG + radiusMax + levelCellSize * 2).Snap(levelCellSize * 2);
 
-                    //if(i==0)
-                    //{
-                    //    for (var x = pmin.X; x < pmax.X; x += levelCellSize)
-                    //    {
-                    //        for (var y = pmin.Y; y < pmax.Y; y += levelCellSize)
-                    //        {
-                    //            for (var z = pmin.Z; z < pmax.Z; z += levelCellSize)
-                    //            {
-                    //                var cell = new Vector3(x, y, z);
-                    //                var rep = cell.Snap(levelCellSize * 2);
-
-                    //                var inLevelGrid = (rep - positionG).Length() < radiusMax;
-                    //                if(inLevelGrid)
-                    //                {
-                    //                    batch.AddBoundingBox(new BoundingBox(cell, cell + levelCellSize), colors[i]);
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //else 
                     { 
                         for (var x = pmin.X; x < pmax.X; x += levelCellSize)
                         {

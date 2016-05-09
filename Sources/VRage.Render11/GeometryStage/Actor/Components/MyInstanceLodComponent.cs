@@ -230,7 +230,7 @@ namespace VRageRender
                     float distance = (float)(MyEnvironment.CameraPosition - m_lastCameraPosition).Length();
                     if (distance < 0.01f)
                         distance = m_lastCameraSpeed;
-                    delta = distance * 0.01f;// MyLodUtils.GetTransitionDelta(distance * 0.1f, pair.Value.Time, m_instances[pair.Key].CurrentLod);
+          //          delta = distance * 0.01f;// MyLodUtils.GetTransitionDelta(distance * 0.1f, pair.Value.Time, m_instances[pair.Key].CurrentLod);
                     delta = Math.Max(distance * 0.01f, 0.025f);
                     delta *= Math.Sign(lodTransitionData.Delta);
                     m_lastCameraPosition = MyEnvironment.CameraPosition;

@@ -1,7 +1,6 @@
 ﻿
 using ParallelTasks;
 using Sandbox.Engine.Networking;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
@@ -11,11 +10,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using VRage;
-using VRage;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -462,7 +459,7 @@ namespace Sandbox.Game.Gui
             {
                 MyScreenManager.RemoveScreen(m_detailScreen);
             }
-            else if (!m_activeDetail)
+            else 
             {
                 if ((m_selectedItem.UserData as MyBlueprintItemInfo).Type == MyBlueprintTypeEnum.LOCAL)
                 {

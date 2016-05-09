@@ -9,14 +9,14 @@ IF "%CommonProgramFiles(x86)%"=="" (
 	SET "BasePath=%CommonProgramFiles(x86)%"
 )
 
-SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\11.0\TextTransform.exe"
+SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe"
 
 IF NOT EXIST "%TextTransformPath%" (
     SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\12.0\TextTransform.exe"
 )
 
 IF NOT EXIST "%TextTransformPath%" (
-    SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\14.0\TextTransform.exe"
+    SET "TextTransformPath=%BasePath%\Microsoft Shared\TextTemplating\11.0\TextTransform.exe"
 )
 
 IF NOT EXIST "%TextTransformPath%" (

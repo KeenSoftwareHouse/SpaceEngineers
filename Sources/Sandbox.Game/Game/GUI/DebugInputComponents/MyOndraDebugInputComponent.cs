@@ -376,8 +376,8 @@ namespace Sandbox.Game.Gui
                     MyFixedPoint amount = 20000;
 
                     var oreBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("Stone");
-                    MyInventory inventory = invObject.GetInventory(0) as MyInventory;
-                    System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected type returned!");
+                    MyInventory inventory = invObject.GetInventory(0);
+
                     inventory.AddItems(amount, oreBuilder);
                 }
 

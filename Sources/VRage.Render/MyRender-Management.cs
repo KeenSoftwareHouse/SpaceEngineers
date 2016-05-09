@@ -1033,10 +1033,10 @@ namespace VRageRender
                     }
                 }
 
+                {
+                    int axis = bestAxis;
                 // find the best split perpendicular to the longest axis (nicest results)
                 // nice to have (not needed): try all three axes
-                for (int axis = bestAxis; axis <= bestAxis; axis++)
-                {
                     double axisSpan = caabb.Max.GetDim(axis) - caabb.Min.GetDim(axis);
                     double axisCenter = 0.5f * (caabb.Max.GetDim(axis) + caabb.Min.GetDim(axis));
 
@@ -1056,7 +1056,7 @@ namespace VRageRender
                     // find the dividing plane that minimizes split badness
                     int leftCount = 0, cutCount = 0, rightCount = llist.Count;
 
-                    for (int l = 0, h = 0; h < hi.Count - 1; )  // don't put everything on one side, that would be silly
+                    for (int l = 0, h = 0; h < hi.Count - 1;)  // don't put everything on one side, that would be silly
                     {
                         // find split interval
                         double thisEventPos;

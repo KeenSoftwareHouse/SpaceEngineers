@@ -963,23 +963,13 @@ namespace Sandbox.Game
                 {
                     if (spawn)
                     {
-                        MyEntity owner;
-                        if (Owner is MyEntity)
-                        {
-                            owner = Owner as MyEntity;
-                        }
-                        else
-                        {
-                            owner = Container.Entity as MyEntity;
-                        }
-
                         if (!spawnPos.HasValue)
-                            spawnPos = MatrixD.CreateWorld(owner.PositionComp.GetPosition() + owner.PositionComp.WorldMatrix.Forward + owner.PositionComp.WorldMatrix.Up, owner.PositionComp.WorldMatrix.Forward, owner.PositionComp.WorldMatrix.Up);
-                        spawned = item.Value.Spawn(am, spawnPos.Value, owner);
+                            spawnPos = MatrixD.CreateWorld(Owner.PositionComp.GetPosition() + Owner.PositionComp.WorldMatrix.Forward + Owner.PositionComp.WorldMatrix.Up, Owner.PositionComp.WorldMatrix.Forward, Owner.PositionComp.WorldMatrix.Up);
+                        spawned = item.Value.Spawn(am, spawnPos.Value, Owner);
 
                         if (spawned != null && spawnPos.HasValue)
                         {
-                            if (owner == MySession.Static.LocalCharacter)
+                            if (Owner == MySession.Static.LocalCharacter)
                             {
                                 MyGuiAudio.PlaySound(MyGuiSounds.PlayDropItem);
                             }
@@ -1337,7 +1327,7 @@ namespace Sandbox.Game
                 {
                     if (spawn)
                     {
-                        MyEntity e = (dst.Owner as MyEntity);
+                        MyEntity e = dst.Owner;
                         Matrix m = e.WorldMatrix;
                         MyFloatingObjects.Spawn(new MyPhysicalInventoryItem(remove - space, srcItem.Value.Content), e.PositionComp.GetPosition() + m.Forward + m.Up, m.Forward, m.Up, e.Physics);
                     }
@@ -1778,7 +1768,6 @@ namespace Sandbox.Game
             {
                 return;
             }
-            MyCubeBlock block;
 
             Vector3D? hitPosition = null;
             MyCharacterDetectorComponent detectorComponent = Owner.Components.Get<MyCharacterDetectorComponent>();
@@ -1931,7 +1920,7 @@ namespace Sandbox.Game
             if (!MyEntities.EntityExists(destinationOwnerId)) return;
 
             var destOwner = MyEntities.GetEntityById(destinationOwnerId);
-            MyInventory dst = destOwner.GetInventory(destInventoryIndex) as MyInventory;
+            MyInventory dst = destOwner.GetInventory(destInventoryIndex);
 
             MyInventory.TransferItemsInternal(this, dst, itemId, false, destinationIndex, amount);
         }
