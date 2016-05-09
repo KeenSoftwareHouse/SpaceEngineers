@@ -52,7 +52,7 @@ namespace Sandbox.Game.Replication
         static Vector3 m_readLinearVelocity = new Vector3();
         static Vector3 m_readAngularVelocity = new Vector3();
 
-        public const int NUM_DECIMAL_PRECISION = 1;
+        public const int NUM_DECIMAL_PRECISION = 3;
         static protected float PRECISION = 1/(float)Math.Pow(10,NUM_DECIMAL_PRECISION);
         const float epsilonSq = 0.05f * 0.05f;
 
@@ -226,7 +226,7 @@ namespace Sandbox.Game.Replication
             return Sync.Players == null ? null : Sync.Players.GetControllingPlayer(Entity);
         }
 
-        public virtual void Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
+        public virtual bool Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             bool moving = false;
             if (stream.Writing)
@@ -241,7 +241,9 @@ namespace Sandbox.Game.Replication
 
             // When controlled by local player, don't apply what came from server
             SerializeTransform(stream, Entity, null, m_lowPrecisionOrientation, !IsControlledLocally, moving, timestamp, null, MoveHandler);
-            SerializeVelocities(stream, Entity, EffectiveSimulationRatio, !IsControlledLocally, moving,VelocityHandler);         
+            SerializeVelocities(stream, Entity, EffectiveSimulationRatio, !IsControlledLocally, moving,VelocityHandler);
+
+            return true;
         }
 
         /// <summary>
@@ -282,7 +284,7 @@ namespace Sandbox.Game.Replication
             }
             else
             {
-                stream.Write((HalfVector3)(Vector3)(matrix.Translation - deltaPosBase.Value)); // 6 B
+                stream.Write((Vector3)(matrix.Translation - deltaPosBase.Value)); // 6 B
             }
             var orientation = Quaternion.CreateFromForwardUp(matrix.Forward, matrix.Up);
             stream.WriteBool(lowPrecisionOrientation);
@@ -305,11 +307,15 @@ namespace Sandbox.Game.Replication
             }
             else
             {
-                HalfVector3 pos = stream.ReadHalfVector3(); // 6 B
+                Vector3 pos = stream.ReadVector3(); // 6 B
                 if (deltaPosBase != null)
+                {
                     position = pos + deltaPosBase.Value;
+                }
                 else
-                    position = pos.ToVector3();
+                {
+                    position = pos;
+                }
             }
             Quaternion orientation;
             bool lowPrecisionOrientation = stream.ReadBool();
@@ -328,21 +334,17 @@ namespace Sandbox.Game.Replication
 
                 if (movingOnServer && applyWhenReading && (posValidation == null || posValidation(entity, position)))
                 {
+                    MatrixD matrix = MatrixD.CreateFromQuaternion(orientation);
+                    if (matrix.IsValid())
                     {
-                        var old = entity.PositionComp.WorldMatrix;
+                        matrix.Translation = position;
 
-                        MatrixD matrix = MatrixD.CreateFromQuaternion(orientation);
-                        if (matrix.IsValid())
-                        {
-                            matrix.Translation = position;
-
-                            outPosition = matrix.Translation;
-                            outOrientation = orientation;
-                            outWorldMartix = matrix;
-                            return true;
-                        }
-                        return false;
+                        outPosition = matrix.Translation;
+                        outOrientation = orientation;
+                        outWorldMartix = matrix;
+                        return true;
                     }
+                    return false;
                 }
             }
             return false;
@@ -375,9 +377,17 @@ namespace Sandbox.Game.Replication
             {
                 ReadVelocities(stream, entity, simulationRatio,movingOnServer, ref m_readLinearVelocity, ref m_readAngularVelocity);
 
-                if (applyWhenReading && entity.Physics != null)
-                {
+                float linearVelocityDiff = 0.0f;
+                float angularVelocityDiff = 0.0f;
 
+                if (entity != null && entity.Physics != null)
+                {
+                    linearVelocityDiff = (entity.Physics.LinearVelocity - m_readLinearVelocity).LengthSquared();
+                    angularVelocityDiff = (entity.Physics.AngularVelocity - m_readAngularVelocity).LengthSquared();
+                }
+
+                if ((linearVelocityDiff > 0.001f || angularVelocityDiff > 0.001f || applyWhenReading) && entity.Physics != null)
+                {
                     Vector3 oldLinear = entity.Physics.LinearVelocity;
                     entity.Physics.LinearVelocity = m_readLinearVelocity;
                     entity.Physics.AngularVelocity = m_readAngularVelocity;

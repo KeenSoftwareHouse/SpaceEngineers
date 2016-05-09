@@ -3649,6 +3649,24 @@ namespace Sandbox.Definitions
             return m_definitions.m_handItemsByPhysicalItemId.ContainsKey(physicalItemId);
         }
 
+        public MyDefinitionId? ItemIdFromWeaponId(MyDefinitionId weaponDefinition)
+        {
+            MyDefinitionId? retval = null;
+            if (weaponDefinition.TypeId != typeof(MyObjectBuilder_PhysicalGunObject))
+            {
+                var physItem = MyDefinitionManager.Static.GetPhysicalItemForHandItem(weaponDefinition);
+                if (physItem != null)
+                {
+                    retval = physItem.Id;
+                }
+            }
+            else
+            {
+                retval = weaponDefinition;
+            }
+            return retval;
+        }
+
         public float GetCubeSize(MyCubeSize gridSize)
         {
             return m_definitions.m_cubeSizes[(int)gridSize];

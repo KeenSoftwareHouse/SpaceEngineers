@@ -1163,6 +1163,9 @@ World size: {1}</value>
   <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
     <value>You have been kicked from the game by its owner.</value>
   </data>
+  <data name="NotificationPasteFailed" xml:space="preserve">
+    <value>Paste operation failed, selected area is occupied.</value>
+  </data>
   <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
     <value>Friends</value>
   </data>
@@ -2403,5 +2406,17 @@ Do you want to continue?</value>
   </data>
   <data name="ToolTipWorkshopCopyWorld" xml:space="preserve">
     <value>Download selected world to save games without loading it (Use to Edit Settings before playing world)</value>
+  </data>
+  <data name="SignalMode_Switch_DefaultMode" xml:space="preserve">
+    <value>Signals switched to normal display.</value>
+  </data>
+  <data name="SignalMode_Switch_FullDisplay" xml:space="preserve">
+    <value>Signals switched to fully visible.</value>
+  </data>
+  <data name="SignalMode_Switch_NoNames" xml:space="preserve">
+    <value>Signals switched to no names.</value>
+  </data>
+  <data name="SignalMode_Switch_Off" xml:space="preserve">
+    <value>Signals switched off.</value>
   </data>
 </root>

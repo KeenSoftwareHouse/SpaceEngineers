@@ -63,12 +63,12 @@ namespace VRageRender
         internal float ExtensionDetailScale1;
         internal float ExtensionDetailScale2;
 
-        float _padding;        
+        float _padding;
     }
 
     class MyVoxelMaterials1
     {
-        internal static Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId> MaterialProxyTripleIndex = new Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId>();
+        internal static Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId> MaterialProxyTripleIndex = new Dictionary<MyVoxelMaterialTriple, MyMaterialProxyId>(MyVoxelMaterialTriple.Comparer);
         internal static MyVoxelMaterial1[] Table = new MyVoxelMaterial1[0];
         // not hash set but list
         internal static List<int> MaterialQueryResourcesTable = new List<int>();
@@ -156,7 +156,7 @@ namespace VRageRender
                 }
 
                 array[i] = new MaterialFoliageConstantsElem {
-                    Scale = Table[i].FoliageScale, 
+                    Scale = Table[i].FoliageScale,
                     ScaleVar = Table[i].FoliageScaleVariation,
                     TexturesNum = arraySize
                 };
@@ -169,12 +169,13 @@ namespace VRageRender
 
         internal static MyMaterialProxyId GetMaterialProxyId(MyVoxelMaterialTriple materialSet)
         {
-            if (!MaterialProxyTripleIndex.ContainsKey(materialSet))
+            MyMaterialProxyId pid;
+            if (!MaterialProxyTripleIndex.TryGetValue(materialSet, out pid))
             {
-                var matId = MaterialProxyTripleIndex[materialSet] = MyMaterials1.AllocateProxy();
-                MyMaterials1.ProxyPool.Data[matId.Index] = CreateProxy(materialSet);
+                pid = MaterialProxyTripleIndex[materialSet] = MyMaterials1.AllocateProxy();
+                MyMaterials1.ProxyPool.Data[pid.Index] = CreateProxy(materialSet);
             }
-            return MaterialProxyTripleIndex[materialSet];
+            return pid;
         }
 
         static unsafe MyMaterialProxy_2 CreateProxy(MyVoxelMaterialTriple triple)

@@ -217,7 +217,7 @@ namespace VRage.Utils
         //  Return random float in range <minValue...maxValue>
         public static float GetRandomFloat(float minValue, float maxValue)
         {
-            return (float)m_random.NextDouble() * (maxValue - minValue) + minValue;
+            return VRage.Library.Utils.MyRandom.Instance.NextFloat() * (maxValue - minValue) + minValue;
         }
 
         //  Return random double in range <minValue...maxValue>

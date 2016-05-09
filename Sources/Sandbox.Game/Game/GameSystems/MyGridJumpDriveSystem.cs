@@ -24,6 +24,8 @@ using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
+using VRage.ModAPI;
+using VRage.Utils;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -213,6 +215,7 @@ namespace Sandbox.Game.GameSystems
 
         public void RequestJump(string destinationName, Vector3D destination, long userId)
         {
+
             if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.WorldMatrix.Translation)))
             {
                 var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpFromGravity, 1500);
@@ -250,19 +253,55 @@ namespace Sandbox.Game.GameSystems
                 m_jumpDirection *= ratio;
             }
 
+            //By Gregory: Check for obstacle not that fast but happens rarely(on Jump drive enable)
+            //TODO: make compatible with GetMaxJumpDistance and refactor to much code checks for actual jump
+            var direction = Vector3D.Normalize(destination - m_grid.WorldMatrix.Translation);
+            var startPos = m_grid.WorldMatrix.Translation + m_grid.PositionComp.LocalAABB.Extents.Max() * direction;
+            var line = new LineD(startPos, destination);
+
+
+            var intersection = MyEntities.GetIntersectionWithLine(ref line, m_grid, null, ignoreObjectsWithoutPhysics: false);
+
+            Vector3D newDestination = Vector3D.Zero;
+            Vector3D newDirection = Vector3D.Zero;
+            if (intersection.HasValue)
+            {
+                MyEntity MyEntity = intersection.Value.Entity as MyEntity;
+
+                var targetPos = MyEntity.WorldMatrix.Translation;
+                var obstaclePoint = MyUtils.GetClosestPointOnLine(ref startPos, ref destination, ref targetPos);
+
+                MyPlanet MyEntityPlanet = intersection.Value.Entity as MyPlanet;
+                if (MyEntityPlanet != null)
+                {
+                    var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpIntoGravity, 1500);
+                    MyHud.Notifications.Add(notification);
+                    return;
+                }
+
+                //var Radius = MyEntityPlanet != null ? MyEntityPlanet.MaximumRadius : MyEntity.PositionComp.LocalAABB.Extents.Length();
+                var Radius = MyEntity.PositionComp.LocalAABB.Extents.Length();
+
+                destination = obstaclePoint - direction * (Radius + m_grid.PositionComp.LocalAABB.HalfExtents.Length());
+                m_selectedDestination = destination;
+                m_jumpDirection = m_selectedDestination - startPos;
+                actualDistance = m_jumpDirection.Length();
+            }
+
             if (actualDistance < MIN_JUMP_DISTANCE)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.OK,
-                    messageText: GetWarningText(actualDistance),
+                    messageText: GetWarningText(actualDistance, intersection.HasValue),
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning)
                     ));
             }
             else
             {
+                
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
+                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId, intersection.HasValue),
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
                     size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
                     {
@@ -278,7 +317,7 @@ namespace Sandbox.Game.GameSystems
 
         }
 
-        private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId)
+        private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId, bool obstacleDetected)
         {
             int totalJumpDrives = m_jumpDrives.Count;
             int operationalJumpDrives = m_jumpDrives.Count((x) => x.CanJumpAndHasAccess(userId));
@@ -309,10 +348,10 @@ namespace Sandbox.Game.GameSystems
             m_characters.Clear();
 
             StringBuilder result = new StringBuilder();
-
+            var obstacleDetectedStr = obstacleDetected ? "(Obstacle Detected)" : "";
             result.Append("Jump destination: ").Append(name).Append("\n");
             result.Append("Distance to the proximity of coordinate: ").Append(distance.ToString("N")).Append(" Kilometers\n");
-            result.Append("Achievable percentage of the jump: ").Append(percent.ToString("P")).Append(" (").Append(actualDistance.ToString("N")).Append(" Kilometers)\n");
+            result.Append("Achievable percentage of the jump " + obstacleDetectedStr + ": ").Append(percent.ToString("P")).Append(" (").Append(actualDistance.ToString("N")).Append(" Kilometers)\n");
 			result.Append("Weight of transported mass: ").Append(MyHud.ShipInfo.Mass.ToString("N")).Append(" kg\n");
             result.Append("Operational jump drives: ").Append(operationalJumpDrives).Append("/").Append(totalJumpDrives).Append("\n");
             result.Append("Seated crew on board: ").Append(seatedCharacters).Append("/").Append(totalCharacters).Append("\n");
@@ -320,9 +359,11 @@ namespace Sandbox.Game.GameSystems
             return result;
         }
 
-        private StringBuilder GetWarningText(double actualDistance)
+        private StringBuilder GetWarningText(double actualDistance, bool obstacleDetected)
         {
             StringBuilder result = new StringBuilder();
+            if (obstacleDetected)
+                result.Append("Obstacle Detected! Jump Distance will be truncated. \n");
             result.Append("Distance to destination: ").Append(actualDistance.ToString("N")).Append(" Meters\n");
             result.Append("Minimum jump distance: ").Append(MIN_JUMP_DISTANCE.ToString("N")).Append(" Meters\n");
             return result;

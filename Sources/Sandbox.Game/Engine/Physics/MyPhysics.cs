@@ -1507,6 +1507,17 @@ namespace Sandbox.Engine.Physics
             Clusters.GetAll(results);
         }
 
+        public static void UpdateGravity(float ratio)
+        {
+            Clusters.GetAll(m_resultWorlds);
+
+            foreach (var world in m_resultWorlds)
+            {
+                ((HkWorld)world.UserData).Gravity = new Vector3(0.0f, -9.81f, 0.0f) * ratio;
+            }
+            m_resultWorlds.Clear();
+        }
+
     }
 
 }

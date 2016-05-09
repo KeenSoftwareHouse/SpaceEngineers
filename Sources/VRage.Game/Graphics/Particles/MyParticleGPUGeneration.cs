@@ -77,10 +77,12 @@ namespace VRage.Game
             Collide,
             SleepState,
             Light,
-            VolumetricLight
+            VolumetricLight,
+
+            NumMembers
         }
 
-        IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyGPUGenerationPropertiesEnum)).Length];
+        IMyConstProperty[] m_properties = new IMyConstProperty[(int) MyGPUGenerationPropertiesEnum.NumMembers];
         
 
         /// <summary>

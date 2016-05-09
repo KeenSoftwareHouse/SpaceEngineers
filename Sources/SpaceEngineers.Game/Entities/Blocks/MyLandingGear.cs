@@ -663,7 +663,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 //hack for floating objects (they can be on different position on server and client and have scale !!!)
                 if ((body is MyFloatingObject) == false)
                 {
-                    WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, body.WorldMatrix);
+                    CubeGrid.WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, body.WorldMatrix);
                 }
 
                 Attach(body, state.GearPivotPosition.Value, state.OtherPivot.Value.Matrix);

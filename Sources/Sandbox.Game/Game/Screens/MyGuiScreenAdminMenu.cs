@@ -274,6 +274,10 @@ namespace Sandbox.Game.Gui
 
         void RecalcTrash()
         {
+            if (Sync.IsServer == false)
+            {
+                MyMultiplayer.RaiseStaticEvent(x => UploadSettingsToServer, MyTrashRemoval.PreviewSettings);
+            }
             int num = MyTrashRemoval.Calculate(MyTrashRemoval.PreviewSettings);
             m_labelNumVisible.TextToDraw.Clear().ConcatFormat(MyTexts.GetString(MyCommonTexts.ScreenDebugAdminMenu_NumberOfLocalTrash), num);
         }
@@ -390,6 +394,12 @@ namespace Sandbox.Game.Gui
             {
                 MyMultiplayer.RaiseStaticEvent(x => RemoveEntity_Implementation, m_attachCamera, operation);
             }
+        }
+
+        [Event, Reliable, Server]
+        static void UploadSettingsToServer(MyTrashRemovalSettings newSettings)
+        {
+            MyTrashRemoval.PreviewSettings = newSettings;
         }
 
         [Event, Reliable, Server]

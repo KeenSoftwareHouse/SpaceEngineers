@@ -52,6 +52,7 @@ namespace Sandbox.Game.Gui
         BuildingModeOff,
         PlayerPromoted,
         PlayerDemoted,
+        PasteFailed,
         
         // Piston notifications
         HeadNotPlaced,
@@ -142,6 +143,8 @@ namespace Sandbox.Game.Gui
 
             Register(MyNotificationSingletons.PlayerPromoted, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerPromoted, font: MyFontEnum.Blue));
             Register(MyNotificationSingletons.PlayerDemoted, new MyHudNotification(disappearTimeMs: 10000, level: MyNotificationLevel.Important, text: MySpaceTexts.NotificationPlayerDemoted, font: MyFontEnum.Red));
+
+            Register(MyNotificationSingletons.PasteFailed, new MyHudNotification(disappearTimeMs: 1300, level: MyNotificationLevel.Important, text: MyCommonTexts.NotificationPasteFailed, font: MyFontEnum.Red));
 
             Register(MyNotificationSingletons.ClientCannotSave, new MyHudNotification(font: MyFontEnum.Red, text: MyCommonTexts.NotificationClientCannotSave));
             Register(MyNotificationSingletons.WheelNotPlaced, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.NotificationWheelNotPlaced));

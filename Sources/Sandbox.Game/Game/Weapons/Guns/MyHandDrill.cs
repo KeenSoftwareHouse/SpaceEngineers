@@ -443,6 +443,16 @@ namespace Sandbox.Game.Weapons
             }
         }
 
+        MyDefinitionId IMyGunBaseUser.PhysicalItemId
+        {
+            get { return new MyDefinitionId(); }
+        }
+
+        MyInventory IMyGunBaseUser.WeaponInventory
+        {
+            get { return null; }
+        }
+
         long IMyGunBaseUser.OwnerId
         {
             get

@@ -409,13 +409,16 @@ namespace Sandbox.Game
             {
                 var objectId = item.Content.GetId();
 
-                if (substitute && MySessionComponentEquivalency.Static != null)
-                    objectId = MySessionComponentEquivalency.Static.GetMainElement(objectId);
-
                 if (contentId != objectId && item.Content.TypeId == typeof(MyObjectBuilder_BlockItem))
                 {
                     //objectId = MyDefinitionManager.Static.GetComponentId(item.Content.GetObjectId());
                     objectId = item.Content.GetObjectId();
+                }
+
+                if (substitute && MySessionComponentEquivalency.Static != null)
+                {
+                    objectId = MySessionComponentEquivalency.Static.GetMainElement(objectId);
+                    contentId = MySessionComponentEquivalency.Static.GetMainElement(contentId);
                 }
 
                 if (objectId == contentId && item.Content.Flags == flags)
@@ -760,6 +763,11 @@ namespace Sandbox.Game
             var adapter = MyInventoryItemAdapter.Static;
             adapter.Adapt(objectBuilder.GetObjectId());
             maxStack = adapter.MaxStackAmount;
+
+            // If this object can't even stack with itself, the max stack size would be 1
+            bool canStackSelf = objectBuilder.CanStack(objectBuilder);
+            if (!canStackSelf)
+                maxStack = 1;
 
             // This is hack if we don't have entity created yet, components weren't intialized yet and OB don't contains thi and thus updated health points
             // TODO: This would reaquire in future to init also components when creating OB for entities, no just init components when creating entity instances

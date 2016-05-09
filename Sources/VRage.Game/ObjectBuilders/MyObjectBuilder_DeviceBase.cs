@@ -7,5 +7,8 @@ namespace VRage.Game
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_DeviceBase : MyObjectBuilder_Base
     {
+        [ProtoMember]
+        public uint? InventoryItemId = null;
+        public bool ShouldSerializeInventoryItemId() { return InventoryItemId.HasValue; }
     }
 }

@@ -81,7 +81,7 @@ namespace Sandbox.Game.Replication
             return priority;
         }
 
-        public override void Serialize(BitStream stream, EndpointId forClient,uint timeStamp, byte packetId, int maxBitPosition)
+        public override bool Serialize(BitStream stream, EndpointId forClient,uint timeStamp, byte packetId, int maxBitPosition)
         {
             base.Serialize(stream, forClient,timeStamp, packetId, maxBitPosition);
 
@@ -143,6 +143,7 @@ namespace Sandbox.Game.Replication
                     Entity.MoveIndicator = move;
                 }             
             }
+            return true;
         }
 
         public static void ReadAndSkipCharacterState(BitStream stream)

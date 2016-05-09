@@ -97,11 +97,13 @@ namespace Sandbox.Engine.Utils
 
         public static bool SHOW_INVALID_TRIANGLES = false;
 
+        //Sound Myfakes
         public static bool ENABLE_NEW_SOUNDS = false;
         public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
         public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
         public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
-        public static bool ENABLE_MUSIC_CONTROLLER = false;
+        public static bool ENABLE_MUSIC_CONTROLLER = true;
+        public static bool ENABLE_REALISTIC_LIMITER = true;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;
@@ -675,5 +677,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_SEPARATE_USE_AND_PICK_UP_KEY = false;
 
         public static bool ENABLE_USE_DEFAULT_DAMAGE_DECAL = false;
+
+        public static bool ENABLE_QUICK_WARDROBE = false;
     }
 }

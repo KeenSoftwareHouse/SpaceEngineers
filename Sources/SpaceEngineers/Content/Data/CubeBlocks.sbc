@@ -13430,7 +13430,6 @@
         <CubeTopology>Corner2Base</CubeTopology>
         <ShowEdges>true</ShowEdges>
         <Sides>
-          CornerTriangleLeftPlateCorner2Base
           <Side Model="Models\Cubes\Small\Armor\HeavySlopePlateCorner2BaseTop.mwm" PatternWidth="4" PatternHeight="2" />
           <Side Model="Models\Cubes\Small\Armor\HeavyCornerLeftPlate.mwm" PatternWidth="1" PatternHeight="1" />
           <Side Model="Models\Cubes\Small\Armor\HeavyCornerTriangleRightPlateCorner2Base.mwm" PatternWidth="1" PatternHeight="1" />
@@ -16819,7 +16818,7 @@
       <Center x="0" y="0" z="1" />
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <EdgeType>Light</EdgeType>
-      <WeaponDefinitionId Subtype="SmallMissileLauncher" />
+      <WeaponDefinitionId Subtype="LargeMissileLauncher" />
       <ResourceSinkGroup>Defense</ResourceSinkGroup>
       <InventoryMaxVolume>1.14</InventoryMaxVolume>
       <DamageEffectId>213</DamageEffectId>
@@ -19103,7 +19102,7 @@
       <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
       <PropellerAccelerationTime>5</PropellerAccelerationTime>
       <PropellerDecelerationTime>10</PropellerDecelerationTime>
-      <PropellerMaxVisibleDistance>100</PropellerMaxVisibleDistance>
+      <PropellerMaxVisibleDistance>400</PropellerMaxVisibleDistance>
       <PrimarySound>LrgShipSmJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -19189,7 +19188,7 @@
       <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
       <PropellerAccelerationTime>5</PropellerAccelerationTime>
       <PropellerDecelerationTime>10</PropellerDecelerationTime>
-      <PropellerMaxVisibleDistance>75</PropellerMaxVisibleDistance>
+      <PropellerMaxVisibleDistance>250</PropellerMaxVisibleDistance>
       <PrimarySound>LrgShipSmJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -19277,7 +19276,7 @@
       <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
       <PropellerAccelerationTime>3</PropellerAccelerationTime>
       <PropellerDecelerationTime>6</PropellerDecelerationTime>
-      <PropellerMaxVisibleDistance>30</PropellerMaxVisibleDistance>
+      <PropellerMaxVisibleDistance>200</PropellerMaxVisibleDistance>
       <PrimarySound>SmShipLrgJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -19362,7 +19361,7 @@
       <PropellerRoundsPerSecondOnIdleSpeed>0.3</PropellerRoundsPerSecondOnIdleSpeed>
       <PropellerAccelerationTime>3</PropellerAccelerationTime>
       <PropellerDecelerationTime>6</PropellerDecelerationTime>
-      <PropellerMaxVisibleDistance>20</PropellerMaxVisibleDistance>
+      <PropellerMaxVisibleDistance>60</PropellerMaxVisibleDistance>
       <PrimarySound>SmShipSmJetAtmo</PrimarySound>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -22887,8 +22886,7 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="4" />
-        <Component Subtype="MetalGrid" Count="8" />
-        <Component Subtype="Construction" Count="40" />
+        <Component Subtype="Construction" Count="20" />
         <Component Subtype="LargeTube" Count="4" />
         <Component Subtype="SteelPlate" Count="4" />
       </Components>
@@ -22932,7 +22930,6 @@
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
         <Component Subtype="SteelPlate" Count="1" />
-        <Component Subtype="MetalGrid" Count="2" />
         <Component Subtype="Construction" Count="5" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="SteelPlate" Count="1" />
@@ -22975,11 +22972,10 @@
       <Model>Models\Cubes\Large\Wheel3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="10" />
-        <Component Subtype="MetalGrid" Count="20" />
-        <Component Subtype="Construction" Count="80" />
-        <Component Subtype="LargeTube" Count="10" />
-        <Component Subtype="SteelPlate" Count="10" />
+        <Component Subtype="SteelPlate" Count="6" />
+        <Component Subtype="Construction" Count="25" />
+        <Component Subtype="LargeTube" Count="6" />
+        <Component Subtype="SteelPlate" Count="6" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <BuildProgressModels>
@@ -23020,10 +23016,9 @@
       <Model>Models\Cubes\Small\Wheel3x3.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="2" />
-        <Component Subtype="MetalGrid" Count="3" />
-        <Component Subtype="Construction" Count="15" />
-        <Component Subtype="LargeTube" Count="2" />
+        <Component Subtype="SteelPlate" Count="3" />
+        <Component Subtype="Construction" Count="10" />
+        <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="SteelPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
@@ -23064,11 +23059,10 @@
       <Model>Models\Cubes\Large\Wheel5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="40" />
-        <Component Subtype="MetalGrid" Count="80" />
-        <Component Subtype="Construction" Count="280" />
-        <Component Subtype="LargeTube" Count="40" />
-        <Component Subtype="SteelPlate" Count="40" />
+        <Component Subtype="SteelPlate" Count="8" />
+        <Component Subtype="Construction" Count="30" />
+        <Component Subtype="LargeTube" Count="8" />
+        <Component Subtype="SteelPlate" Count="8" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <BuildProgressModels>
@@ -23109,10 +23103,9 @@
       <Model>Models\Cubes\Small\Wheel5x5.mwm</Model>
       <UseModelIntersection>true</UseModelIntersection>
       <Components>
-        <Component Subtype="SteelPlate" Count="3" />
-        <Component Subtype="MetalGrid" Count="6" />
-        <Component Subtype="Construction" Count="30" />
-        <Component Subtype="LargeTube" Count="3" />
+        <Component Subtype="SteelPlate" Count="4" />
+        <Component Subtype="Construction" Count="15" />
+        <Component Subtype="LargeTube" Count="2" />
         <Component Subtype="SteelPlate" Count="3" />
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />

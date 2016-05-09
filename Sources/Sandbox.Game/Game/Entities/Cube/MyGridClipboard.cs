@@ -29,7 +29,6 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.GameSystems.CoordinateSystem;
 using VRage.Game;
 using VRage.Game.Entity;
-using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Cube
 {

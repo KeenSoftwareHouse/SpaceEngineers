@@ -69,7 +69,7 @@
         <SubtypeId>ShipSmallEngine</SubtypeId>
       </Id>
       <Category>SHIP</Category>
-      <MaxDistance>500</MaxDistance>
+      <MaxDistance>0</MaxDistance>
       <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
@@ -246,6 +246,7 @@
       <Volume>1</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
+      <DisablePitchEffects>true</DisablePitchEffects>
       <Waves>
         <Wave Type="D2">
           <Loop>ARC\SHIP_SYS\ArcShipThrusterAtmoFast2d.wav</Loop>
@@ -262,7 +263,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>100</MaxDistance>
-      <Volume>0.5</Volume>
+      <Volume>1</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -319,7 +320,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>500</MaxDistance>
-      <Volume>0.85</Volume>
+      <Volume>1</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -381,7 +382,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>400</MaxDistance>
-      <Volume>0.85</Volume>
+      <Volume>0.3</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -400,7 +401,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>1000</MaxDistance>
-      <Volume>0.35</Volume>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -419,7 +420,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>1000</MaxDistance>
-      <Volume>0.75</Volume>
+      <Volume>0.9</Volume>
       <Loopable>true</Loopable>
       <DisablePitchEffects>true</DisablePitchEffects>
       <RealisticFilter>realShipFilter</RealisticFilter>
@@ -439,7 +440,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>400</MaxDistance>
-      <Volume>0.7</Volume>
+      <Volume>0.75</Volume>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
         <Wave Type="D2">
@@ -465,25 +466,6 @@
         </Wave>
         <Wave Type="D3">
           <Start>ARC\SHIP_SYS\ArcShipLargeEnd3d.wav</Start>
-        </Wave>
-      </Waves>
-    </Sound>
-    <Sound>
-      <Id>
-        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ShipThrusterIon</SubtypeId>
-      </Id>
-      <Category>SHIP</Category>
-      <MaxDistance>500</MaxDistance>
-      <Volume>0.225</Volume>
-      <Loopable>true</Loopable>
-      <RealisticFilter>realShipFilter</RealisticFilter>
-      <Waves>
-        <Wave Type="D2">
-          <Loop>ARC\SHIP_SYS\ArcShipThrusterIon2d.wav</Loop>
-        </Wave>
-        <Wave Type="D3">
-          <Loop>ARC\SHIP_SYS\ArcShipThrusterIon3d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>
@@ -530,7 +512,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>1000</MaxDistance>
-      <Volume>0.06</Volume>
+      <Volume>0.04</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -549,7 +531,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>400</MaxDistance>
-      <Volume>0.1</Volume>
+      <Volume>0.09</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -625,7 +607,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>400</MaxDistance>
-      <Volume>0.35</Volume>
+      <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -644,7 +626,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>1000</MaxDistance>
-      <Volume>0.2</Volume>
+      <Volume>0.1</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>
@@ -663,7 +645,7 @@
       </Id>
       <Category>SHIP</Category>
       <MaxDistance>400</MaxDistance>
-      <Volume>1</Volume>
+      <Volume>0.5</Volume>
       <Loopable>true</Loopable>
       <RealisticFilter>realShipFilter</RealisticFilter>
       <Waves>

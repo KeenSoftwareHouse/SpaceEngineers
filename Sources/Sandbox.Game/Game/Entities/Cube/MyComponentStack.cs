@@ -508,6 +508,10 @@ namespace Sandbox.Game.Entities
             Debug.Assert(!IsDestroyed, "Applying damage to an already destroyed stack. Block should have been removed.");
 
             UnmountInternal(damage, outputStockpile, true);
+
+            float buildIntegrityRatio = BuildIntegrity / Integrity; // Save the original build integrity ratio
+            // Following function calls CheckFunctionalState itself
+            UpdateBuildIntegrityDown(buildIntegrityRatio);
         }
 
 		private float GetDeconstructionEfficiency(int groupIndex, bool useDefault)

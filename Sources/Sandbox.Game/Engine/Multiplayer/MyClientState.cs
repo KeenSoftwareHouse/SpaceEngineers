@@ -182,7 +182,7 @@ namespace Sandbox.Engine.Multiplayer
             stream.WriteBool(isResponsible);
             if (isResponsible)
             {
-                stateGroup.Serialize(stream, EndpointId, ClientTimeStamp, 0, 65535);   
+                stateGroup.Serialize(stream, EndpointId, ClientTimeStamp, 0, 1024*1024);   
             }
         }
 

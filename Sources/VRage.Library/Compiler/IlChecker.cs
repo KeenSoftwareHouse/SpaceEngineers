@@ -55,7 +55,7 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.DateTime), null);
             AllowedOperands.Add(typeof(System.TimeSpan), null);
             AllowedOperands.Add(typeof(System.Array),null);
-
+            AllowedOperands.Add(typeof(System.DateTimeOffset), null);
 
             AllowedOperands.Add(typeof(System.Xml.Serialization.XmlElementAttribute), null);
             AllowedOperands.Add(typeof(System.Xml.Serialization.XmlAttributeAttribute), null);
@@ -89,7 +89,7 @@ namespace VRage.Compiler
             AllowedOperands.Add(typeof(System.IO.TextReader), null);
             AllowedOperands.Add(typeof(System.IO.BinaryReader), null);
             AllowedOperands.Add(typeof(System.IO.BinaryWriter), null);
-            AllowedOperands.Add(typeof(System.Runtime.CompilerServices.CompilerHelper), null); // We use this in tests
+            //AllowedOperands.Add(typeof(System.Runtime.CompilerServices.CompilerHelper), null); // We use this in tests
             members = new HashSet<MemberInfo>();
             members.Add(typeof(Type).GetMethod("GetTypeFromHandle"));
             AllowedOperands.Add(typeof(System.Type), members);

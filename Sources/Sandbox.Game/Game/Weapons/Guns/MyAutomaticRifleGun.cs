@@ -458,6 +458,24 @@ namespace Sandbox.Game.Weapons
             }
         }
 
+        MyDefinitionId IMyGunBaseUser.PhysicalItemId
+        {
+            get { return m_physicalItemDef.Id; }
+        }
+
+        MyInventory IMyGunBaseUser.WeaponInventory
+        {
+            get
+            {
+                if (m_owner != null)
+                {
+                    return m_owner.GetInventory() as MyInventory;
+                }
+
+                return null;
+            }
+        }
+
         long IMyGunBaseUser.OwnerId
         {
             get

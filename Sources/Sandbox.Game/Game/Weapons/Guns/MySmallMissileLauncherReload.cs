@@ -47,7 +47,7 @@ namespace Sandbox.Game.Weapons
         public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             //small reloadable launcher have cooldown 
-            if ((BurstFireRate == m_numRocketsShot) && (COOLDOWN_TIME_MILISECONDS > MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot))
+            if ((BurstFireRate == m_numRocketsShot) && (MySandboxGame.TotalGamePlayTimeInMilliseconds < m_nextShootTime))
             {
                 return;
             }
@@ -58,11 +58,6 @@ namespace Sandbox.Game.Weapons
             m_numRocketsShot++;
 
             base.Shoot(action, direction, overrideWeaponPos, gunAction);
-
-            if (m_numRocketsShot == BurstFireRate)
-            {
-                MyHud.Notifications.Add(MISSILE_RELOAD_NOTIFICATION);
-            }
         }
     }
 }

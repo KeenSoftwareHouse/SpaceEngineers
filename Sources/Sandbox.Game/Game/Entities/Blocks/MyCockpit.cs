@@ -20,6 +20,7 @@ using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using VRage.Audio;
 using VRage.FileSystem;
 using VRageMath;
@@ -156,7 +157,7 @@ namespace Sandbox.Game.Entities
 
         bool ShouldPlay2D()
         {
-            return Pilot == MySession.Static.LocalCharacter;
+            return MySession.Static.LocalCharacter != null && Pilot == MySession.Static.LocalCharacter;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -414,6 +415,9 @@ namespace Sandbox.Game.Entities
                     m_headLocalYAngle = m_headLocalYAngle - rotationIndicator.Y * sensitivity;
             }
 
+            if (!IsInFirstPersonView)
+                MyThirdPersonSpectator.Static.Rotate(rotationIndicator, roll);
+
             rotationIndicator = Vector2.Zero;
         }
 
@@ -633,8 +637,7 @@ namespace Sandbox.Game.Entities
 
         public override void ShowInventory()
         {
-            if (m_enableShipControl)
-                MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, m_pilot, this);
+            MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, m_pilot, this);
         }
 
         public override void ShowTerminal()
@@ -872,9 +875,6 @@ namespace Sandbox.Game.Entities
             {
                 UpdateCockpitModel();
                 UpdateCockpitGlass();
-
-                if (Pilot != null)
-                    Pilot.EnableHead(!Render.NearFlag);
             }
         }
 
@@ -906,10 +906,6 @@ namespace Sandbox.Game.Entities
             {
                 UpdateCockpitModel();
                 UpdateCockpitGlass();
-
-                //Pilot can be null when quiting the game and the player was remote controlling a ship from the same cockpit
-                if (Pilot != null)
-                    Pilot.EnableHead(!Render.NearFlag);
             }
         }
 
@@ -1096,7 +1092,7 @@ namespace Sandbox.Game.Entities
             Hierarchy.AddChild(m_pilot, true, true);
 
             var gunEntity = m_pilot.CurrentWeapon as MyEntity;
-            if (gunEntity != null)
+            if (gunEntity != null && !m_forgetTheseWeapons.Contains(m_pilot.CurrentWeapon.DefinitionId))
             {
                 m_pilotGunDefinition = m_pilot.CurrentWeapon.DefinitionId;
             }
@@ -1146,6 +1142,14 @@ namespace Sandbox.Game.Entities
         }
 
         bool? m_lastNearFlag = null;
+
+        // These weapons will not be remembered when sitting inside the cockpit
+        // TODO: move to SBC
+        private static readonly MyDefinitionId[] m_forgetTheseWeapons = new MyDefinitionId[]
+        {
+            new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer))
+        };
+
         internal void UpdateCockpitGlass()
         {
             if (string.IsNullOrEmpty(m_cockpitGlassModel))
@@ -1370,6 +1374,11 @@ namespace Sandbox.Game.Entities
 
         void IMyCameraController.ControlCamera(MyCamera currentCamera)
         {
+            if (!m_enableFirstPerson)
+            {
+                IsInFirstPersonView = false;
+            }
+
             currentCamera.SetViewMatrix(GetViewMatrix());
             
             currentCamera.CameraSpring.Enabled = true;
@@ -1380,6 +1389,9 @@ namespace Sandbox.Game.Entities
                 currentCamera.CameraShake.AddShake(m_currentCameraShakePower);
                 m_currentCameraShakePower = 0;
             }
+
+            if (Pilot != null && Pilot.InScene && ControllerInfo.IsLocallyControlled())
+                Pilot.EnableHead(!IsInFirstPersonView && !ForceFirstPersonCamera);
         }
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
@@ -1400,6 +1412,8 @@ namespace Sandbox.Game.Entities
         void IMyCameraController.OnReleaseControl(IMyCameraController newCameraController)
         {
             OnReleaseControl(newCameraController);
+            if (Pilot != null && Pilot.InScene)
+                Pilot.EnableHead(true);
         }
 
         bool IMyCameraController.IsInFirstPersonView

@@ -117,6 +117,8 @@ namespace SpaceEngineers.Game.AI
                                 if (Vector3D.DistanceSquared(m_attackBoundingSphere.Center, characterVolume.Center) >
                                     touchDistSq) continue;
 
+                                //Designers do not want cyberhounds stealing inventory...
+                                /*
                                 if (character.IsDead)
                                 {
                                     var inventory = character.GetInventory();
@@ -129,9 +131,11 @@ namespace SpaceEngineers.Game.AI
                                 }
                                 else
                                 {
-                                    character.DoDamage(ATTACK_DAMAGE_TO_CHARACTER, MyDamageType.Bolt, updateSync: true,
-                                        attackerId: botEntity.EntityId);
+                                    character.DoDamage(ATTACK_DAMAGE_TO_CHARACTER, MyDamageType.Bolt, updateSync: true, attackerId: botEntity.EntityId);
                                 }
+                                */
+
+                                character.DoDamage(ATTACK_DAMAGE_TO_CHARACTER, MyDamageType.Bolt, updateSync: true, attackerId: botEntity.EntityId);
                             }
                             else if (hitEntity is MyCubeGrid && hitEntity.Physics != null)
                             {

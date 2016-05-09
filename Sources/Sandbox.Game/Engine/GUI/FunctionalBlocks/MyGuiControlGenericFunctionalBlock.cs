@@ -165,7 +165,7 @@ namespace Sandbox.Graphics.GUI
 
             if (m_currentBlocks.Length > 0)
             {
-                m_currentBlocks[0].PropertiesChanged += block_PropertiesChanged;
+                m_currentBlocks[0].PropertiesChanged -= block_PropertiesChanged;
             }
 
             foreach (var block in m_currentBlocks)

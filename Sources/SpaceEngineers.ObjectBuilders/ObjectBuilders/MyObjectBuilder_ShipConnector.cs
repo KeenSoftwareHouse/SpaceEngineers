@@ -44,6 +44,9 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(DefaultStrength)]
         public float Strength = DefaultStrength;
 
+        [Serialize(MyObjectFlags.Nullable)]
+        public MyDeltaTransform? MasterToSlaveGrid;
+
 
         public bool? IsMaster;
 

@@ -53,7 +53,7 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.ShowObfuscationStatus = false;
 
             //audio
-            MyPerGameSettings.UseVolumeLimiter = false;
+            MyPerGameSettings.UseVolumeLimiter = MyFakes.ENABLE_NEW_SOUNDS && MyFakes.ENABLE_REALISTIC_LIMITER;
             MyPerGameSettings.UseSameSoundLimiter = true;
             MyPerGameSettings.UseMusicController = true;
 

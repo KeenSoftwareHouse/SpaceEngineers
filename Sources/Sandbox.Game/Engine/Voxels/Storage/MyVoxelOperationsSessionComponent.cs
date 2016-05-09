@@ -23,7 +23,14 @@ namespace Sandbox.Engine.Voxels.Storage
 
         private volatile int m_scheduledCount = 0;
 
-        private int m_wait = 0;
+        private int m_waitForFlush = 0;
+        private int m_waitForWrite = 0;
+
+        public MyVoxelOperationsSessionComponent()
+        {
+            m_flushCachesCallback = FlushCaches;
+            m_writePendingCallback = WritePending;
+        }
 
         public override void BeforeStart()
         {
@@ -64,29 +71,33 @@ namespace Sandbox.Engine.Voxels.Storage
         {
             if (m_storagesWithCache.Count != m_scheduledCount)
             {
-                m_wait++;
-                if (m_wait >= WaitForLazy && ShouldFlush)
+                m_waitForWrite++;
+                if (m_waitForWrite > 10)
+                    m_waitForWrite = 0;
+
+                m_waitForFlush++;
+                if (m_waitForFlush >= WaitForLazy && ShouldFlush)
                 {
-                    m_wait = 0;
+                    m_waitForFlush = 0;
                     foreach (var storage in m_storagesWithCache)
                     {
-                        if (!storage.Scheduled)
+                        if (!storage.Scheduled && storage.Storage.HasCachedChunks)
                         {
                             Interlocked.Increment(ref m_scheduledCount);
                             storage.Scheduled = true;
-                            Parallel.Start(FlushCaches, null, storage);
+                            Parallel.Start(m_flushCachesCallback, null, storage);
                         }
                     }
                 }
-                else if (ShouldWrite)
+                else if (m_waitForWrite == 0 && ShouldWrite)
                 {
                     foreach (var storage in m_storagesWithCache)
                     {
-                        if (!storage.Scheduled)
+                        if (!storage.Scheduled && storage.Storage.HasPendingWrites)
                         {
                             Interlocked.Increment(ref m_scheduledCount);
                             storage.Scheduled = true;
-                            Parallel.Start(WritePending, null, storage);
+                            Parallel.Start(m_writePendingCallback, null, storage);
                         }
                     }
                 }
@@ -100,6 +111,7 @@ namespace Sandbox.Engine.Voxels.Storage
             m_storagesWithCache.Add(sdata);
         }
 
+        private Action<WorkData> m_writePendingCallback;
         public void WritePending(WorkData data)
         {
             var storageData = (StorageData)data;
@@ -110,6 +122,7 @@ namespace Sandbox.Engine.Voxels.Storage
             Interlocked.Decrement(ref m_scheduledCount);
         }
 
+        private Action<WorkData> m_flushCachesCallback;
         public void FlushCaches(WorkData data)
         {
             var storageData = (StorageData)data;

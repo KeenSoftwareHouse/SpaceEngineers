@@ -1283,9 +1283,10 @@ namespace Sandbox.Game.Entities.Cube
                 m_componentStack.ApplyDamage(AccumulatedDamage, null);
             }
 
-            if (BlockDefinition.RatioEnoughForOwnership(Integrity / MaxIntegrity) && !BlockDefinition.RatioEnoughForOwnership((Integrity - AccumulatedDamage) / BlockDefinition.MaxIntegrity))
+            //by Gregory: BuildRatio is not updated for this!!! For now check this way TODO
+            if (BlockDefinition.RatioEnoughForDamageEffect((Integrity) / MaxIntegrity))
             {
-                if (FatBlock != null)
+                if (FatBlock != null && FatBlock.OwnerId != 0 && FatBlock.OwnerId != MySession.Static.LocalPlayerId)
                 {
                     FatBlock.OnIntegrityChanged(BuildIntegrity, Integrity, false, MySession.Static.LocalPlayerId);
                 }
@@ -1395,9 +1396,11 @@ namespace Sandbox.Game.Entities.Cube
             float oldPercentage = m_componentStack.BuildRatio;
             float oldDamage = CurrentDamage;
 
-            if (!BlockDefinition.RatioEnoughForOwnership(BuildLevelRatio) && BlockDefinition.RatioEnoughForOwnership((BuildIntegrity + welderMountAmount) / BlockDefinition.MaxIntegrity))
+
+            //Add ownership check in order for the IntegrityChanged not to be called many times
+            if (BlockDefinition.RatioEnoughForOwnership(BuildLevelRatio))
             {
-                if (FatBlock != null && outputInventory != null && !isHelping)
+                if (FatBlock != null && FatBlock.OwnerId == 0 && outputInventory != null && !isHelping)
                 {
                     FatBlock.OnIntegrityChanged(BuildIntegrity, Integrity, true, welderOwnerPlayerId, sharing);
                 }
@@ -1429,7 +1432,7 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             ProfilerShort.Begin("ModelChange");
-            MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
+            MyIntegrityChangeEnum integrityChangeType = MyIntegrityChangeEnum.Damage;
             if (BlockDefinition.ModelChangeIsNeeded(oldPercentage, m_componentStack.BuildRatio) || BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldPercentage))
             {
                 removeDecals = true;
@@ -1438,7 +1441,7 @@ namespace Sandbox.Game.Entities.Cube
                     // this needs to be detected here because for cubes the following call to UpdateVisual() set FatBlock to null when the construction is complete
                     if (m_componentStack.IsFunctional)
                     {
-                        integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd;
+                        integrityChangeType = MyIntegrityChangeEnum.ConstructionEnd;
                     }
                 }
 
@@ -1448,11 +1451,11 @@ namespace Sandbox.Game.Entities.Cube
                     int buildProgressID = CalculateCurrentModelID();
                     if (buildProgressID == 0)
                     {
-                        integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.ConstructionBegin;
+                        integrityChangeType = MyIntegrityChangeEnum.ConstructionBegin;
                     }
                     else if (!m_componentStack.IsFunctional)
                     {
-                        integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.ConstructionProcess;
+                        integrityChangeType = MyIntegrityChangeEnum.ConstructionProcess;
                     }
                 }
 
@@ -1503,9 +1506,10 @@ namespace Sandbox.Game.Entities.Cube
 
             float newBuildRatio = (BuildIntegrity - grinderAmount) / BlockDefinition.MaxIntegrity;
 
-            if (BlockDefinition.RatioEnoughForOwnership(BuildLevelRatio) && !BlockDefinition.RatioEnoughForOwnership(newBuildRatio))
+            //Call Integrity Changed if owner is nobody or is not local player
+            if (BlockDefinition.RatioEnoughForDamageEffect(BuildLevelRatio))
             {
-                if (FatBlock != null)
+                if (FatBlock != null && FatBlock.OwnerId != 0 && FatBlock.OwnerId != MySession.Static.LocalPlayerId)
                 {
                     FatBlock.OnIntegrityChanged(BuildIntegrity, Integrity, false, MySession.Static.LocalPlayerId);
                 }
@@ -1538,7 +1542,7 @@ namespace Sandbox.Game.Entities.Cube
 
             bool modelChangeNeeded = BlockDefinition.ModelChangeIsNeeded(m_componentStack.BuildRatio, oldBuildRatio);
 
-            MyCubeGrid.MyIntegrityChangeEnum integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.Damage;
+            MyIntegrityChangeEnum integrityChangeType = MyIntegrityChangeEnum.Damage;
             if (modelChangeNeeded)
             {
                 UpdateVisual();
@@ -1548,15 +1552,15 @@ namespace Sandbox.Game.Entities.Cube
                     int buildProgressID = CalculateCurrentModelID();
                     if ((buildProgressID == -1) || (BuildLevelRatio == 0f))
                     {
-                        integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd;
+                        integrityChangeType = MyIntegrityChangeEnum.ConstructionEnd;
                     }
                     else if (buildProgressID == BlockDefinition.BuildProgressModels.Length - 1)
                     {
-                        integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.ConstructionBegin;
+                        integrityChangeType = MyIntegrityChangeEnum.ConstructionBegin;
                     }
                     else
                     {
-                        integrityChangeType = MyCubeGrid.MyIntegrityChangeEnum.ConstructionProcess;
+                        integrityChangeType = MyIntegrityChangeEnum.ConstructionProcess;
                     }
                 }
 
@@ -1595,7 +1599,7 @@ namespace Sandbox.Game.Entities.Cube
             if (modelChangeNeeded)
             {
                 UpdateVisual();
-                PlayConstructionSound(MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd, true);
+                PlayConstructionSound(MyIntegrityChangeEnum.ConstructionEnd, true);
                 CreateConstructionSmokes();
             }
 
@@ -1706,7 +1710,7 @@ namespace Sandbox.Game.Entities.Cube
             max = min + size;
         }
 
-        public void SetIntegrity(float buildIntegrity, float integrity, MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
+        public void SetIntegrity(float buildIntegrity, float integrity, MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
         {
             float oldRatio = m_componentStack.BuildRatio;
             m_componentStack.SetIntegrity(buildIntegrity, integrity);
@@ -1729,7 +1733,7 @@ namespace Sandbox.Game.Entities.Cube
                 removeDecals = true;
                 UpdateVisual();
 
-                if (integrityChangeType != MyCubeGrid.MyIntegrityChangeEnum.Damage)
+                if (integrityChangeType != MyIntegrityChangeEnum.Damage)
                     CreateConstructionSmokes();
 
                 PlayConstructionSound(integrityChangeType);
@@ -1761,7 +1765,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
 
-        public void PlayConstructionSound(MyCubeGrid.MyIntegrityChangeEnum integrityChangeType, bool deconstruction = false)
+        public void PlayConstructionSound(MyIntegrityChangeEnum integrityChangeType, bool deconstruction = false)
         {
             MyEntity3DSoundEmitter emitter = MyAudioComponent.TryGetSoundEmitter();
             if (emitter == null)
@@ -1772,21 +1776,21 @@ namespace Sandbox.Game.Entities.Cube
                 emitter.SetPosition(CubeGrid.PositionComp.GetPosition() + (Position - 1) * CubeGrid.GridSize);
             switch (integrityChangeType)
             {
-                case MyCubeGrid.MyIntegrityChangeEnum.ConstructionBegin:
+                case MyIntegrityChangeEnum.ConstructionBegin:
                     if (deconstruction)
                         emitter.PlaySound(DECONSTRUCTION_START, true, alwaysHearOnRealistic: true);
                     else
                         emitter.PlaySound(CONSTRUCTION_START, true, alwaysHearOnRealistic: true);
                     break;
 
-                case MyCubeGrid.MyIntegrityChangeEnum.ConstructionEnd:
+                case MyIntegrityChangeEnum.ConstructionEnd:
                     if (deconstruction)
                         emitter.PlaySound(DECONSTRUCTION_END, true, alwaysHearOnRealistic: true);
                     else
                         emitter.PlaySound(CONSTRUCTION_END, true, alwaysHearOnRealistic: true);
                     break;
 
-                case MyCubeGrid.MyIntegrityChangeEnum.ConstructionProcess:
+                case MyIntegrityChangeEnum.ConstructionProcess:
                     if (deconstruction)
                         emitter.PlaySound(DECONSTRUCTION_PROG, true, alwaysHearOnRealistic: true);
                     else

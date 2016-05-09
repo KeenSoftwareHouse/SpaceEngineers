@@ -38,7 +38,7 @@ namespace Sandbox.Game.Entities
 {
     [StaticEventOwner]
     [MyEntityType(typeof(MyObjectBuilder_HandToolBase))]
-    public class MyHandToolBase : MyEntity, IMyHandheldGunObject<MyDeviceBase>, IStoppableAttackingTool
+    public class MyHandToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IStoppableAttackingTool
     {
         #region Nested
 
@@ -165,10 +165,7 @@ namespace Sandbox.Game.Entities
             get { return m_handItemDefinitionId; }
         }
 
-        public MyDeviceBase GunBase
-        {
-            get { return null; }
-        }
+        public MyToolBase GunBase { get; private set; } 
 
         public virtual bool ForceAnimationInsteadOfIK { get { return true; } }
         public bool IsBlocking { get { return m_shotToolAction.HasValue && m_shotToolAction.Value.Name == MyStringId.GetOrCompute("Block"); } }
@@ -194,6 +191,7 @@ namespace Sandbox.Game.Entities
         public MyHandToolBase()
         {          
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
+            GunBase = new MyToolBase();
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -218,6 +216,11 @@ namespace Sandbox.Game.Entities
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
 			var builder = objectBuilder as MyObjectBuilder_HandToolBase;
+
+            if (builder.DeviceBase != null)
+            {
+                GunBase.Init(builder.DeviceBase);
+            }
         }
 
         protected virtual void InitToolComponents()
@@ -226,8 +229,9 @@ namespace Sandbox.Game.Entities
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
-            var ob = base.GetObjectBuilder(copy);
+            var ob = base.GetObjectBuilder(copy) as MyObjectBuilder_HandToolBase;
             ob.SubtypeName = m_handItemDefinitionId.SubtypeName;
+            ob.DeviceBase = GunBase.GetObjectBuilder();
             return ob;
         }
 

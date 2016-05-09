@@ -439,6 +439,17 @@ namespace Sandbox.Game.Audio
             m_musicCuesAll = musicCues;
         }
 
+        public void Unload()
+        {
+            if(m_musicSourceVoice != null)
+            {
+                m_musicSourceVoice.Stop();
+                m_musicSourceVoice = null;
+            }
+            Active = false;
+            ClearMusicCues();
+        }
+
         #endregion
     }
 }

@@ -231,7 +231,7 @@ namespace Sandbox.Game.Replication
             return 0;
         }
 
-        public void Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
+        public bool Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
         {
             if (stream.Writing)
             {
@@ -283,6 +283,8 @@ namespace Sandbox.Game.Replication
             {
                 ReadInventory(stream);
             }
+
+            return true;
         }
 
         private void ReadInventory(BitStream stream)

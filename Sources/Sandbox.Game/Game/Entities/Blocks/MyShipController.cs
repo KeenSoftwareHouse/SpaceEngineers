@@ -712,7 +712,7 @@ namespace Sandbox.Game.Entities
         {
             if ((BuildingMode && MySession.Static.IsCameraControlledObject() == false) ||
                 (MyInput.Static.IsNewKeyPressed(MyKeys.G) && MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyMousePressed() && !(MySession.Static.ControlledEntity is MyRemoteControl)
-                && m_enableBuilderCockpit && CanBeMainCockpit() && MySession.Static.IsCameraControlledObject() == true))
+                && m_enableBuilderCockpit && CanBeMainCockpit() && MySession.Static.IsCameraControlledObject() == true) && MySession.Static.ControlledEntity == this)
             {
                 BuildingMode = !BuildingMode;
                 MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
@@ -2004,6 +2004,11 @@ namespace Sandbox.Game.Entities
             CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
             Components.ComponentAdded -= OnComponentAdded;
             Components.ComponentRemoved -= OnComponentRemoved;
+            if(m_soundEmitter != null)
+            {
+                m_soundEmitter.StopSound(true);
+                m_soundEmitter = null;
+            }
             base.Closing();
         }
 

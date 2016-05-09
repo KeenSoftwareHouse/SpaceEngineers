@@ -8,6 +8,8 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
 using System.Linq;
 using Sandbox.Definitions;
+using Sandbox.Game.Multiplayer;
+using VRage;
 using VRage.Animations;
 using VRage.Game;
 using VRage.Game.Components;
@@ -53,6 +55,22 @@ namespace Sandbox.Game.Gui
                    return true;
                });
 
+            AddShortcut(MyKeys.NumPad1, false, false, false, false,
+               () => "Kill everyone around you",
+               delegate
+               {
+                   KillEveryoneAround();
+                   return true;
+               });
+
+            AddShortcut(MyKeys.NumPad5, true, false, false, false,
+               () => "Reconnect to the AC editor",
+               delegate
+               {
+                   SendControllerNameToEditor();
+                   return true;
+               });
+
             AddShortcut(MyKeys.NumPad7, true, true, false, false,
                () => "Use next ship",
                delegate
@@ -69,14 +87,6 @@ namespace Sandbox.Game.Gui
                    return true;
                });
 
-            AddShortcut(MyKeys.NumPad5, true, false, false, false,
-               () => "Reconnect to the AC editor",
-               delegate
-               {
-                   SendControllerNameToEditor();
-                   return true;
-               });
-
             AddShortcut(MyKeys.NumPad9, true, false, false, false,
                 () => "Reload animations (old system)",
                 delegate
@@ -86,6 +96,31 @@ namespace Sandbox.Game.Gui
                 });
 
             AddShortcut(MyKeys.NumPad3, true, false, false, false, () => "Toggle character movement status", () => { ShowMovementState(); return true; });
+        }
+
+        private void KillEveryoneAround()
+        {
+            if (MySession.Static.LocalCharacter == null || !Sync.IsServer || !MySession.Static.IsAdmin ||
+                !MySession.Static.IsAdminMenuEnabled)
+                return;
+
+            Vector3D myPosition = MySession.Static.LocalCharacter.PositionComp.GetPosition();
+            Vector3D offset = new Vector3D(25, 25, 25);
+            BoundingBoxD bb = new BoundingBoxD(myPosition - offset, myPosition + offset);
+
+            List<MyEntity> entities = new List<MyEntity>();
+            MyGamePruningStructure.GetAllEntitiesInBox(ref bb, entities);
+
+            foreach (var entity in entities)
+            {
+                var character = entity as MyCharacter;
+                if (character != null && entity != MySession.Static.LocalCharacter)
+                {
+                    character.DoDamage(1000000, MyDamageType.Unknown, true);
+                }
+            }
+
+            MyRenderProxy.DebugDrawAABB(bb, Color.Red, 0.5f, 1f, true, true);
         }
 
         public override bool HandleInput()
@@ -165,6 +200,7 @@ namespace Sandbox.Game.Gui
                             MyCharacter character = entity as MyCharacter;
                             if (character != null && character.Definition.AnimationController == acName)
                             {
+                                character.AnimationController.Clear();
                                 character.AnimationController.InitFromDefinition(animationControllerDefinition);
                                 character.ObtainBones();
                             }
@@ -413,35 +449,58 @@ namespace Sandbox.Game.Gui
                 return;
             List<MyAnimationClip.BoneState> bones = character.AnimationController.LastRawBoneResult;
             MyCharacterBone[] characterBones = character.AnimationController.CharacterBones;
-            if (bones == null)
-                return;
             m_boneRefToIndex.Clear();
-            for (int i = 0; i < bones.Count; i++)
+            for (int i = 0; i < characterBones.Length; i++)
             {
                 m_boneRefToIndex.Add(character.AnimationController.CharacterBones[i], i);
             }
 
 
-            for (int i = 0; i < bones.Count; i++)
+            for (int i = 0; i < characterBones.Length; i++)
                 if (characterBones[i].Parent == null)
                 {
                     MatrixD worldMatrix = character.PositionComp.WorldMatrix;
-                    DrawBoneHierarchy(ref worldMatrix, characterBones, bones, i);
+                    DrawBoneHierarchy(character, ref worldMatrix, characterBones, bones, i);
                 }
         }
 
-        private void DrawBoneHierarchy(ref MatrixD parentTransform, MyCharacterBone[] characterBones, List<MyAnimationClip.BoneState> rawBones, int boneIndex)
+        private void DrawBoneHierarchy(MyCharacter character, ref MatrixD parentTransform, MyCharacterBone[] characterBones, List<MyAnimationClip.BoneState> rawBones, int boneIndex)
         {
-            MatrixD currentTransform = Matrix.CreateTranslation(rawBones[boneIndex].Translation) * parentTransform;
-            currentTransform = Matrix.CreateFromQuaternion(rawBones[boneIndex].Rotation) * currentTransform;
-            MyRenderProxy.DebugDrawLine3D(currentTransform.Translation, parentTransform.Translation, Color.Green, Color.Green, false);
-            if (characterBones[boneIndex].Parent == null)
-                MyRenderProxy.DebugDrawText3D(currentTransform.Translation, characterBones[boneIndex].Name, Color.Green, 1.0f, false);
+            // ----------------------------
+            // raw animation data
+            MatrixD currentTransform = rawBones != null ? Matrix.CreateTranslation(rawBones[boneIndex].Translation) * parentTransform : MatrixD.Identity;
+            currentTransform = rawBones != null ? Matrix.CreateFromQuaternion(rawBones[boneIndex].Rotation) * currentTransform : currentTransform;
+            if (rawBones != null)
+            {
+                MyRenderProxy.DebugDrawLine3D(currentTransform.Translation, parentTransform.Translation, Color.Green, Color.Green, false);
+            }
+            bool anyChildren = false;
             for (int i = 0; characterBones[boneIndex].GetChildBone(i) != null; i++)
             {
                 var childBone = characterBones[boneIndex].GetChildBone(i);
-                DrawBoneHierarchy(ref currentTransform, characterBones, rawBones,
+                DrawBoneHierarchy(character, ref currentTransform, characterBones, rawBones,
                     m_boneRefToIndex[childBone]);
+                anyChildren = true;
+            }
+            if (!anyChildren && rawBones != null)
+            {
+                MyRenderProxy.DebugDrawLine3D(currentTransform.Translation, currentTransform.Translation + currentTransform.Left * 0.05f, Color.Green, Color.Cyan, false);
+            }
+
+            // ----------------------------
+            // final animation data - after IK, ragdoll...
+            MyRenderProxy.DebugDrawText3D(Vector3D.Transform(characterBones[boneIndex].AbsoluteTransform.Translation, character.PositionComp.WorldMatrix), characterBones[boneIndex].Name, Color.Lime, 0.4f, false);
+            if (characterBones[boneIndex].Parent != null)
+            {
+                Vector3D boneStartPos = Vector3D.Transform(characterBones[boneIndex].AbsoluteTransform.Translation, character.PositionComp.WorldMatrix);
+                Vector3D boneEndPos = Vector3D.Transform(characterBones[boneIndex].Parent.AbsoluteTransform.Translation, character.PositionComp.WorldMatrix);
+                MyRenderProxy.DebugDrawLine3D(boneStartPos, boneEndPos, Color.Purple, Color.Purple, false);
+            }
+            if (!anyChildren)
+            {
+                Vector3D boneStartPos = Vector3D.Transform(characterBones[boneIndex].AbsoluteTransform.Translation, character.PositionComp.WorldMatrix);
+                Vector3D boneEndPos = Vector3D.Transform(characterBones[boneIndex].AbsoluteTransform.Translation + characterBones[boneIndex].AbsoluteTransform.Left * 0.05f, character.PositionComp.WorldMatrix);
+                MyRenderProxy.DebugDrawLine3D(boneStartPos, boneEndPos, Color.Purple, Color.Red, false);
             }
         }
     }

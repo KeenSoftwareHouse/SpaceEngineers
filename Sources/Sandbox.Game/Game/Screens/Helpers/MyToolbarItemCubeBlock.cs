@@ -82,6 +82,7 @@ namespace Sandbox.Game.Screens.Helpers
         public override ChangeInfo Update(MyEntity owner, long playerID = 0)
         {
             ChangeInfo changed = ChangeInfo.None;
+            bool enable = true;
 
             if (MyCubeBuilder.Static == null)
                 return changed;
@@ -122,23 +123,20 @@ namespace Sandbox.Game.Screens.Helpers
 
                     if (MySession.Static.SurvivalMode)
                     {
-                        changed |= SetEnabled(m_lastAmount > 0);
+                        enable &= m_lastAmount > 0;
                     }
                     else
                     {
-                        changed |= SetEnabled(true);
                         // so that we correctly set icontext when changing from enabled to disabled even when the amount is the same
                         changed |= ChangeInfo.IconText;
                     }
                 }
             }
-            else
-            {
-                changed |= SetEnabled(true);
-            }
 
             if (MyPerGameSettings.EnableResearch && MySessionComponentResearch.Static != null && (blockDef.CubeSize == MyCubeSize.Large))
-                changed |= SetEnabled(MySessionComponentResearch.Static.CanUse(character, Definition.Id));
+                enable &= MySessionComponentResearch.Static.CanUse(character, Definition.Id);
+
+            changed |= SetEnabled(enable);
 
             return changed;
         }

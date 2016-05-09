@@ -171,7 +171,7 @@ namespace VRage.Audio
                     currentCueId = m_distancedVoices[0].CueEnum;
                     i = 0;
                     cueDefinition = MyAudio.Static.GetCue(currentCueId);
-                    limit = cueDefinition.SoundLimit;
+                    limit = cueDefinition != null ? cueDefinition.SoundLimit : 0;
                     for (j = 0; j < m_distancedVoices.Count; j++)
                     {
                         if (m_distancedVoices[j].CueEnum.Equals(currentCueId))

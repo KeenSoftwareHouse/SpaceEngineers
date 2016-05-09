@@ -36,7 +36,6 @@ namespace Sandbox.Game.Entities.Cube
             if (m_soundEmitter != null)
                 m_soundEmitter.StopSound(true, true);
                 
-            m_soundEmitter = null;
             base.OnRemovedFromScene(source);
         }
 

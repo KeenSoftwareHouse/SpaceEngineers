@@ -29,6 +29,17 @@ namespace Sandbox.Game.Weapons
             return definition.DisplayNameText;
         }
 
+        /// <summary>
+        /// Reference to the inventory item that this device originated from.
+        /// Can be used to update the inventory item (when ammo changes etc...)
+        /// </summary>
+        public uint? InventoryItemId { get; set; }
+
+        public void Init(MyObjectBuilder_DeviceBase objectBuilder)
+        {
+            InventoryItemId = objectBuilder.InventoryItemId;
+        }
+
         #region Methods
         public abstract Vector3D GetMuzzleLocalPosition();
         public abstract Vector3D GetMuzzleWorldPosition();

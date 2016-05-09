@@ -3318,6 +3318,16 @@ namespace Sandbox.Game.Weapons
             get { return this.GetInventory(); }
         }
 
+        MyDefinitionId IMyGunBaseUser.PhysicalItemId
+        {
+            get { return new MyDefinitionId(); }
+        }
+
+        MyInventory IMyGunBaseUser.WeaponInventory
+        {
+            get { return null; }
+        }
+
         long IMyGunBaseUser.OwnerId
         {
             get { return this.OwnerId; }

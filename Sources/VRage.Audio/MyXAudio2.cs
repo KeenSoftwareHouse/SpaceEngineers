@@ -107,6 +107,8 @@ namespace VRage.Audio
         public bool GameSoundIsPaused { get; private set; }
         private bool m_useVolumeLimiter = false;
         private bool m_useSameSoundLimiter = false;
+        private bool m_soundLimiterReady = false;
+        private bool m_soundLimiterSet = false;
         bool IMyAudio.UseVolumeLimiter
         { 
             get
@@ -197,10 +199,12 @@ namespace VRage.Audio
             {
                 var limiter = new SharpDX.XAPO.Fx.MasteringLimiter();
                 var param = limiter.Parameter;
-                param.Loudness = 20;
+                param.Loudness = 0;
                 limiter.Parameter = param;
                 m_masterVoice.SetEffectChain(new EffectDescriptor[] { new EffectDescriptor(limiter) });
-                m_masterVoice.EnableEffect(0);
+                m_soundLimiterReady = true;
+                m_masterVoice.DisableEffect(0);
+                //m_masterVoice.EnableEffect(0);
                 //limiter.Dispose();
             }
 
@@ -223,6 +227,18 @@ namespace VRage.Audio
             { // keep sounds muted 
                 m_gameAudioVoice.SetVolume(0);
                 m_musicAudioVoice.SetVolume(0);
+            }
+        }
+
+        public void EnableMasterLimiter(bool enable)
+        {
+            if (m_useVolumeLimiter && m_soundLimiterReady && enable != m_soundLimiterSet)
+            {
+                if (enable)
+                    m_masterVoice.EnableEffect(0);
+                else
+                    m_masterVoice.DisableEffect(0);
+                m_soundLimiterSet = enable;
             }
         }
 

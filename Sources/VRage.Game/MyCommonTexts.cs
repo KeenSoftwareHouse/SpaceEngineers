@@ -1739,6 +1739,11 @@ using VRage.Utils;
         public static readonly MyStringId MessageBoxTextYouHaveBeenKicked = MyStringId.GetOrCompute("MessageBoxTextYouHaveBeenKicked");
 
         ///<summary>
+        ///Paste operation failed, selected area is occupied.
+        ///</summary>
+        public static readonly MyStringId NotificationPasteFailed = MyStringId.GetOrCompute("NotificationPasteFailed");
+
+        ///<summary>
         ///Friends
         ///</summary>
         public static readonly MyStringId WorldSettings_OnlineModeFriends = MyStringId.GetOrCompute("WorldSettings_OnlineModeFriends");
@@ -3792,4 +3797,24 @@ using VRage.Utils;
         ///Download selected world to save games without loading it (Use to Edit Settings before playing world)
         ///</summary>
         public static readonly MyStringId ToolTipWorkshopCopyWorld = MyStringId.GetOrCompute("ToolTipWorkshopCopyWorld");
+
+        ///<summary>
+        ///Signals switched to normal display.
+        ///</summary>
+        public static readonly MyStringId SignalMode_Switch_DefaultMode = MyStringId.GetOrCompute("SignalMode_Switch_DefaultMode");
+
+        ///<summary>
+        ///Signals switched to fully visible.
+        ///</summary>
+        public static readonly MyStringId SignalMode_Switch_FullDisplay = MyStringId.GetOrCompute("SignalMode_Switch_FullDisplay");
+
+        ///<summary>
+        ///Signals switched to no names.
+        ///</summary>
+        public static readonly MyStringId SignalMode_Switch_NoNames = MyStringId.GetOrCompute("SignalMode_Switch_NoNames");
+
+        ///<summary>
+        ///Signals switched off.
+        ///</summary>
+        public static readonly MyStringId SignalMode_Switch_Off = MyStringId.GetOrCompute("SignalMode_Switch_Off");
     }

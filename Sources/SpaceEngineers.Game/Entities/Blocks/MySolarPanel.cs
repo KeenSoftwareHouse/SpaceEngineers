@@ -137,6 +137,16 @@ namespace SpaceEngineers.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
+        protected override void Closing()
+        {
+            base.Closing();
+            if (m_soundEmitter != null)
+            {
+                m_soundEmitter.StopSound(true);
+                m_soundEmitter = null;
+            }
+        }
+
         public override void SetDamageEffect(bool show)
         {
             base.SetDamageEffect(show);

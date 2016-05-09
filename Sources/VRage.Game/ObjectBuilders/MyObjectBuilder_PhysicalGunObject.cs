@@ -26,6 +26,5 @@ namespace VRage.Game
         {
             return false; // weapons shouldn't stack
         }
-
     }
 }

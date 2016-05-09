@@ -17,6 +17,12 @@ namespace VRage.Game.ObjectBuilders.Definitions
 
         [ProtoMember]
         public float LargeShipDetectionRadius = 15;
+
+        [ProtoMember]
+        public float WheelStartUpdateRange = 500;
+
+        [ProtoMember]
+        public float WheelStopUpdateRange = 750;
     }
 
     [ProtoContract]

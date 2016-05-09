@@ -856,10 +856,14 @@ namespace Sandbox.Graphics.GUI
             public void CopyText(MyGuiControlMultilineText sender)
             {
                 ClipboardText = Regex.Replace(sender.Text.ToString().Substring(Start, Length), "\n", "\r\n");
-                Thread myth;
-                myth = new Thread(new System.Threading.ThreadStart(CopyToClipboard));
-                myth.ApartmentState = ApartmentState.STA;
-                myth.Start();
+
+                if (!string.IsNullOrEmpty(ClipboardText))
+                {
+                    Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(ClipboardText));
+                    thread.SetApartmentState(ApartmentState.STA);
+                    thread.Start();
+                    thread.Join();
+                }
             }
 
             public void CutText(MyGuiControlMultilineText sender)
@@ -875,11 +879,11 @@ namespace Sandbox.Graphics.GUI
             {
                 //First we erase the selection
                 EraseText(sender);
+
                 var prefix = sender.Text.ToString().Substring(0, sender.CarriagePositionIndex);
                 var suffix = sender.Text.ToString().Substring(sender.CarriagePositionIndex);
-                Thread myth;
 
-                myth = new Thread(new System.Threading.ThreadStart(PasteFromClipboard));
+                Thread myth = new Thread(new System.Threading.ThreadStart(PasteFromClipboard));
                 myth.ApartmentState = ApartmentState.STA;
                 myth.Start();
 
@@ -895,13 +899,6 @@ namespace Sandbox.Graphics.GUI
             {
                 ClipboardText = Clipboard.GetText();
             }
-
-            void CopyToClipboard()
-            {
-                if (ClipboardText != "")
-                    Clipboard.SetText(ClipboardText);
-            }
-
         }
         #endregion
 

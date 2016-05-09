@@ -331,7 +331,19 @@ namespace Sandbox.Game.Weapons
             {
                 Debug.Assert(Owner != null && Owner is MyCharacter, "An engineer tool is not held by a character");
                 MyCharacter character = Owner as MyCharacter;
-                MatrixD sensorWorldMatrix = character.GetHeadMatrix(false, true);
+
+                MatrixD sensorWorldMatrix = MatrixD.Identity;
+                if (character.ControllerInfo.IsLocallyControlled())
+                {
+                    sensorWorldMatrix = character.GetHeadMatrix(false, true);
+                    character.SyncHeadToolTransform(ref sensorWorldMatrix);
+                }
+                else
+                {
+                    sensorWorldMatrix = character.GetSyncedToolTransform();
+                }
+
+
                 m_raycastComponent.OnWorldPosChanged(ref sensorWorldMatrix);
             }
         }

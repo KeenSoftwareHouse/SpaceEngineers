@@ -121,13 +121,22 @@ namespace Sandbox.Game.GameSystems
             var fp = obj as MyFracturedPiece;
             if (fp != null)
             {
-                MyTimeSpan age = GetPieceAgeLength(obj as MyFracturedPiece);
-                m_piecesTimesOfDeath[fp] = MySandboxGame.Static.UpdateTime + age;
-                m_addedThisFrame++;
-                if (!fp.Physics.RigidBody.IsActive)
-                    m_inactivePieces.Add(fp);
-                fp.Physics.RigidBody.Activated += RigidBody_Activated;
-                fp.Physics.RigidBody.Deactivated += RigidBody_Deactivated;
+                Debug.Assert(fp.Physics != null && fp.Physics.RigidBody != null);
+                MyTimeSpan age = GetPieceAgeLength(fp);
+                if (age.Ticks == 0)
+                {
+                    if (Sync.IsServer)
+                        RemoveInternal(fp);
+                }
+                else
+                {
+                    m_piecesTimesOfDeath[fp] = MySandboxGame.Static.UpdateTime + age;
+                    m_addedThisFrame++;
+                    if (!fp.Physics.RigidBody.IsActive)
+                        m_inactivePieces.Add(fp);
+                    fp.Physics.RigidBody.Activated += RigidBody_Activated;
+                    fp.Physics.RigidBody.Deactivated += RigidBody_Deactivated;
+                }
             }
         }
 
@@ -330,7 +339,7 @@ namespace Sandbox.Game.GameSystems
             }
         }
 
-        private void RemoveInternal(MyFracturedPiece fp)
+        private void RemoveInternal(MyFracturedPiece fp,bool fromServer = false)
         {
             if (fp.Physics != null && fp.Physics.RigidBody != null)
             {
@@ -364,7 +373,14 @@ namespace Sandbox.Game.GameSystems
 
             var bb = fp.Physics.BreakableBody;
             bb.AfterReplaceBody -= fp.Physics.FracturedBody_AfterReplaceBody;
-            MyFracturedPiecesManager.Static.ReturnToPool(bb);
+            if (fromServer == false)
+            {
+                MyFracturedPiecesManager.Static.ReturnToPool(bb);
+            }
+            else
+            {
+                bb.Dispose();
+            }
 
             
             fp.Physics.Enabled = false;
@@ -540,7 +556,7 @@ namespace Sandbox.Game.GameSystems
             {
                 Debug.Assert((Sync.IsServer && sync) || fromServer, "Server must sync Fracture Piece removal!");
 
-                RemoveInternal(piece);
+                RemoveInternal(piece, fromServer);
                 return;
             }
 

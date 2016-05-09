@@ -450,7 +450,7 @@ namespace Sandbox
             MyGuiGameControlsHelpers.Add(MyControlsSpace.SPECTATOR_FREE, new MyGuiDescriptor(MyCommonTexts.SpectatorControls_Free, MySpaceTexts.SpectatorControls_Free_Desc));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.SPECTATOR_STATIC, new MyGuiDescriptor(MyCommonTexts.SpectatorControls_Static, MySpaceTexts.SpectatorControls_Static_Desc));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.TOGGLE_HUD, new MyGuiDescriptor(MyCommonTexts.ControlName_HudOnOff));
-            //MyGuiGameControlsHelpers.Add(MyControlsSpace.VOXEL_HAND_SETTINGS, new MyGuiDescriptor(MyCommonTexts.ControlName_VoxelHandSettings));
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.VOXEL_HAND_SETTINGS, new MyGuiDescriptor(MyCommonTexts.ControlName_VoxelHandSettings));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.CONTROL_MENU, new MyGuiDescriptor(MyCommonTexts.ControlName_ControlMenu));
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
@@ -505,7 +505,7 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_COLOR_CHANGE, MyMouseButtonsEnum.Middle, null);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.SYMMETRY_SWITCH, null, MyKeys.M);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.USE_SYMMETRY, null, MyKeys.N);
-            //AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.VOXEL_HAND_SETTINGS, null, MyKeys.H);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.VOXEL_HAND_SETTINGS, null, MyKeys.K);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CONTROL_MENU);
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.MISSION_SETTINGS, null, MyKeys.U);
@@ -1179,6 +1179,8 @@ namespace Sandbox
         {
             Sandbox.Engine.Multiplayer.MyMultiplayer.InitOfflineReplicationLayer();
 
+            MyMath.InitializeFastSin();
+
             try
             {
                 MyDefinitionManager.Static.PrepareBaseDefinitions();
@@ -1401,6 +1403,9 @@ namespace Sandbox
             IlChecker.AllowedOperands.Add(typeof(VRage.Input.MyGuiInputDeviceEnum), null);
 
             #region Power/Gas Resources
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.Character.Components.MyCharacterOxygenComponent));
+
             // Allow resource checking in ingame script
 
             // Get the generic overloaded TryGet method
@@ -1808,7 +1813,7 @@ namespace Sandbox
                 up = -MySector.MainCamera.UpVector;
                 forward = MySector.MainCamera.ForwardVector;
             }
-            const float epsilon = 0.00001f;
+            const float epsilon = 0.00005f;
             Debug.Assert(up.Dot(forward) < epsilon && Math.Abs(up.LengthSquared() - 1) < epsilon && Math.Abs(forward.LengthSquared() - 1) < epsilon, "Invalid direction vectors for audio");
         }
 

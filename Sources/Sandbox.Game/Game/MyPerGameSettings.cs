@@ -292,7 +292,7 @@ namespace Sandbox.Game
         public static bool SimplePlayerNames = false;
         public static Type CharacterDetectionComponent;
 
-        public static string BugReportUrl = "https://steamcommunity.com/openid/login?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=http%3A%2F%2Fforums.keenswh.com%2Fregister%2Fsteam%3Fredirect%3Dhttp%253A%252F%252Fforums.keenswh.com%252Fforums%252Fbug-reports.326950%252F&openid.realm=http%3A%2F%2Fforums.keenswh.com&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select";
+        public static string BugReportUrl = "http://forum.keenswh.com/forums/bug-reports.326950";
 
         public static bool EnableScenarios = false;
         public static bool EnableTutorials = false;

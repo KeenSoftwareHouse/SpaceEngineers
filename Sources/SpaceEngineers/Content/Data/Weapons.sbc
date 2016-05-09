@@ -12,6 +12,15 @@
       <DeviateShotAngle>3</DeviateShotAngle>
       <ReleaseTimeAfterFire>50</ReleaseTimeAfterFire>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <!--
+      Testing values - replace particle with real ones (Dummy and Action are correct)
+      
+      <UseDefaultMuzzleFlash>false</UseDefaultMuzzleFlash>
+      <Effects>
+        <Effect Action="Shoot" Dummy="muzzle_projectile" Particle="MaterialHit_Metal" />
+        <Effect Action="Shoot" Dummy="Shell_Casings" Particle="Blood_Spider" />
+      </Effects>
+      -->
       <AmmoMagazines>
 		<AmmoMagazine Subtype="NATO_5p56x45mm" />
       <!--  <AmmoMagazine Subtype="Missile200mm" />  -->
@@ -91,7 +100,22 @@
         <TypeId>WeaponDefinition</TypeId>
         <SubtypeId>SmallMissileLauncher</SubtypeId>
       </Id>
-      <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" ShotsInBurst="4" />
+      <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" ShotsInBurst="0" />
+      <DeviateShotAngle>0.1</DeviateShotAngle>
+      <NoAmmoSoundName>WepShipGatlingNoAmmo</NoAmmoSoundName>
+      <AmmoMagazines>
+       <AmmoMagazine Subtype="Missile200mm" />
+      </AmmoMagazines>
+      <ReloadTime>2000</ReloadTime>
+    </Weapon>
+    
+    <Weapon>
+      <Id>
+        <TypeId>WeaponDefinition</TypeId>
+        <SubtypeId>LargeMissileLauncher</SubtypeId>
+      </Id>
+      <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" ShotsInBurst="0" />
+      <DeviateShotAngle>0.1</DeviateShotAngle>
       <NoAmmoSoundName>WepShipGatlingNoAmmo</NoAmmoSoundName>
       <AmmoMagazines>
        <AmmoMagazine Subtype="Missile200mm" />
@@ -105,10 +129,11 @@
         <SubtypeId>LargeMissileTurret</SubtypeId>
       </Id>
       <MissileAmmoData RateOfFire="67" ShootSoundName="WepTurretMissileShot" ShotsInBurst="6" />
+      <DeviateShotAngle>0.5</DeviateShotAngle>
       <AmmoMagazines>
         <AmmoMagazine Subtype="Missile200mm" />
       </AmmoMagazines>
-      <ReloadTime>2000</ReloadTime>
+      <ReloadTime>2500</ReloadTime>
     </Weapon>
     
     <Weapon>
@@ -117,6 +142,7 @@
         <SubtypeId>SmallMissileTurret</SubtypeId>
       </Id>
       <MissileAmmoData RateOfFire="60" ShootSoundName="WepTurretMissileShot" ShotsInBurst="2" />
+      <DeviateShotAngle>0.5</DeviateShotAngle>
       <AmmoMagazines>
         <AmmoMagazine Subtype="Missile200mm" />
       </AmmoMagazines>
@@ -130,9 +156,10 @@
       </Id>
       <ProjectileAmmoData RateOfFire="700" ShootSoundName="WepShipGatlingShot" />
       <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
-	    <DeviateShotAngle>0.2</DeviateShotAngle>
+	    <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
       <NoAmmoSoundName>WepShipGatlingNoAmmo</NoAmmoSoundName>
+      <SecondarySoundName>ArcWepShipGatlingRotation</SecondarySoundName>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
       </AmmoMagazines>
@@ -145,6 +172,7 @@
       </Id>
       <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepGatlingTurretShot" />
       <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
+      <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
@@ -158,6 +186,7 @@
       </Id>
       <ProjectileAmmoData RateOfFire="300" ShootSoundName="WepGatlingTurretShot" />
       <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
+      <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
@@ -170,6 +199,7 @@
         <SubtypeId>LargeInteriorTurret</SubtypeId>
       </Id>
       <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepTurretInteriorFire" />
+      <DeviateShotAngle>0.3</DeviateShotAngle>
       <MuzzleFlashLifeSpan>30</MuzzleFlashLifeSpan>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_5p56x45mm" />

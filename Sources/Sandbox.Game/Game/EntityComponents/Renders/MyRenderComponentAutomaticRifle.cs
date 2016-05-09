@@ -24,7 +24,7 @@ namespace Sandbox.Game.Components
             //  Draw muzzle flash
             int deltaTime = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_rifleGun.LastTimeShoot;
             MyGunBase rifleBase = m_rifleGun.GunBase;
-            if (deltaTime <= rifleBase.MuzzleFlashLifeSpan)
+            if (rifleBase.UseDefaultMuzzleFlash && deltaTime <= rifleBase.MuzzleFlashLifeSpan)
             {
                 if (MySandboxGame.Config.GraphicsRenderer == MySandboxGame.DirectX9RendererKey)
                 {

@@ -1058,8 +1058,8 @@ namespace Sandbox.Game.Multiplayer
         {
             Sync.Players.SetControlledEntityInternal(player.Id, controlledEntity);
 
-            if (player == MySession.Static.LocalHumanPlayer)
-                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
+            //if (player == MySession.Static.LocalHumanPlayer)
+            //    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
         }
 
         public void SetPlayerCharacter(MyPlayer player, MyCharacter newCharacter, MyEntity spawnedBy)

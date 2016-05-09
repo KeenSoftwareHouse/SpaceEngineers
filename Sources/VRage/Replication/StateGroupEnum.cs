@@ -11,9 +11,9 @@ namespace VRage.Network
     public enum StateGroupEnum
     {
         PositionVerification,
+        Terminal,
         Properties,   
         Inventory, 
-        Terminal,
 
         Physics,
        

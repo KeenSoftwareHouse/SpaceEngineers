@@ -79,7 +79,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 JumpSystem = new MyGridJumpDriveSystem(m_cubeGrid);
             }
-            if (MyPerGameSettings.EnableShipSoundSystem && (MyFakes.ENABLE_NEW_SMALL_SHIP_SOUNDS || MyFakes.ENABLE_NEW_LARGE_SHIP_SOUNDS))
+            if (MyPerGameSettings.EnableShipSoundSystem && (MyFakes.ENABLE_NEW_SMALL_SHIP_SOUNDS || MyFakes.ENABLE_NEW_LARGE_SHIP_SOUNDS) && MySandboxGame.IsDedicated == false)
             {
                 ShipSoundComponent = new MyShipSoundComponent();
             }

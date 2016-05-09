@@ -171,6 +171,8 @@ namespace Sandbox.Game.Entities.Blocks
             m_currentPos.ValueChanged += (o) => UpdatePosition(true);
             m_topBlockId.ValueChanged += (o) => OnAttachTargetChanged();
             m_topBlockId.Validate = ValidatePistonBlockId;
+            m_weldedEntityId.ValidateNever();
+            m_weldedEntityId.ValueChanged += (o) => OnWeldedEntityIdChanged();
         }
 
         private bool ValidatePistonBlockId(long? newValue)
@@ -232,7 +234,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         void CubeGrid_OnPhysicsChanged(MyEntity obj)
         {
-            if (m_welded && m_topBlock != null && (m_topBlock.Closed || m_topBlock.MarkedForClose))
+            if (m_isWelding == false && m_welded && m_topBlock != null && (m_topBlock.Closed || m_topBlock.MarkedForClose))
             {
                 UnweldGroup();
                 Detach();
@@ -532,6 +534,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             TryAttach();
+            TryWeld();
             UpdatePhysicsShape();
             UpdateSoundState();
         }
@@ -630,8 +633,9 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected bool CheckVelocities()
         {
-            if (!MyFakes.WELD_PISTONS)
+            if (!MyFakes.WELD_PISTONS || Sync.IsServer == false)
                 return false;
+
             if (CubeGrid.Physics == null)
                 return false;
 
@@ -683,6 +687,17 @@ namespace Sandbox.Game.Entities.Blocks
 
             Detach(false);
             MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, topGrid);
+
+            if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Physical).LinkExists(EntityId, CubeGrid, m_topGrid) == false)
+            {
+                OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
+            }
+
+            if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Logical).LinkExists(EntityId, CubeGrid, m_topGrid) == false)
+            {
+                OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
+            }
+
             m_topGrid = topGrid;
             m_topBlock = topBlock;
             m_welded = true;
@@ -706,9 +721,19 @@ namespace Sandbox.Game.Entities.Blocks
 
                 MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_topGrid);
 
+                if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Physical).LinkExists(EntityId, CubeGrid, m_topGrid))
+                {
+                    OnConstraintRemoved(GridLinkTypeEnum.Physical, m_topGrid);
+                }
+
+                if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Logical).LinkExists(EntityId, CubeGrid, m_topGrid))
+                {
+                    OnConstraintRemoved(GridLinkTypeEnum.Logical, m_topGrid);
+                }
+
                 if (m_topBlock != null && m_topBlock.Closed == false && m_topBlock.MarkedForClose == false)
                 {
-                    Attach(m_topBlock, false);
+                    Attach(m_topBlock);
                     m_welded = false;            
                     RaisePropertiesChanged();
                 }
@@ -878,7 +903,8 @@ namespace Sandbox.Game.Entities.Blocks
         {
             Debug.Assert(topBlock != null, "Top block cannot be null!");
 
-            if (topBlock == null)
+            if (topBlock == null || topBlock.CubeGrid == null || MarkedForClose || Closed || CubeGrid.MarkedForClose || CubeGrid.Closed || topBlock.MarkedForClose || topBlock.Closed ||
+                topBlock.CubeGrid.MarkedForClose || topBlock.CubeGrid.Closed)
             {
                 return false;
             }
@@ -1054,21 +1080,23 @@ namespace Sandbox.Game.Entities.Blocks
 
         public bool Detach(bool updateGroup = true)
         {
-            if (m_isAttached == false)
+            if (m_isAttached == false && m_welded == false)
             {
                 return false;
             }
 
             m_isAttached = false;
 
-            if (m_constraint == null)
-                return m_welded;
-
             if (m_isWelding == false)
             {
                 UnweldGroup();
             }
 
+
+            if (m_constraint == null)
+                return m_welded;
+
+         
             Debug.Assert(m_constraint != null);
             Debug.Assert(m_topGrid != null);
             Debug.Assert(m_topBlock != null);
@@ -1324,6 +1352,11 @@ namespace Sandbox.Game.Entities.Blocks
             else
                 m_soundEmitter.StopSound(false);
             m_lastPosition = m_currentPos.Value;
+        }
+
+        void OnWeldedEntityIdChanged()
+        {
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         #region IMyConveyorEndpointBlock implementation

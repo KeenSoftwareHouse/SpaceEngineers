@@ -402,7 +402,7 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             var tmpRotorGrid = m_rotorGrid;
-            if (updateGroup)
+            if (updateGroup && m_rotorGrid != null && (m_welded == false || m_isWelding == false))
             {
                 OnConstraintRemoved(GridLinkTypeEnum.Physical, tmpRotorGrid);
                 OnConstraintRemoved(GridLinkTypeEnum.Logical, tmpRotorGrid);
@@ -473,7 +473,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected void TryAttach()
         {
-            if (!CubeGrid.InScene)
+            if (!CubeGrid.InScene || CubeGrid.Physics.IsInWorld == false)
                 return;
             var updateFlags = NeedsUpdate;
             updateFlags &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -510,7 +510,7 @@ namespace Sandbox.Game.Entities.Cube
                 Detach();
                 MyMotorRotor rotor;
                 bool attached = false;
-                if (MyEntities.TryGetEntityById<MyMotorRotor>(m_rotorBlockId.Value.OtherEntityId.Value, out rotor) && !rotor.MarkedForClose && rotor.CubeGrid.InScene)
+                if (MyEntities.TryGetEntityById<MyMotorRotor>(m_rotorBlockId.Value.OtherEntityId.Value, out rotor) && !rotor.MarkedForClose && rotor.CubeGrid.InScene && rotor.CubeGrid.Physics.IsInWorld)
                 {
                     if (Sync.IsServer == false)
                     {
@@ -727,6 +727,17 @@ namespace Sandbox.Game.Entities.Cube
       
             Detach(false);
             MyWeldingGroups.Static.CreateLink(EntityId, CubeGrid, topGrid);
+
+            if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Physical).LinkExists(EntityId, CubeGrid, topGrid) == false)
+            {
+                OnConstraintAdded(GridLinkTypeEnum.Physical, topGrid);
+            }
+
+            if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Logical).LinkExists(EntityId, CubeGrid, topGrid) == false)
+            {
+                OnConstraintAdded(GridLinkTypeEnum.Logical, topGrid);
+            }
+
             m_rotorGrid = topGrid;
             m_rotorBlock = topBlock;
             m_welded = true;
@@ -749,8 +760,19 @@ namespace Sandbox.Game.Entities.Cube
                 m_weldedRotorBlockId = null;
               
                 MyWeldingGroups.Static.BreakLink(EntityId, CubeGrid, m_rotorGrid);
+
+
+                if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Physical).LinkExists(EntityId, CubeGrid, m_rotorGrid))
+                {
+                    OnConstraintRemoved(GridLinkTypeEnum.Physical, m_rotorGrid);
+                }
+
+                if (MyCubeGridGroups.Static.GetGroups(GridLinkTypeEnum.Logical).LinkExists(EntityId, CubeGrid, m_rotorGrid))
+                {
+                    OnConstraintRemoved(GridLinkTypeEnum.Logical, m_rotorGrid);
+                }
         
-                Attach(m_rotorBlock,false);
+                Attach(m_rotorBlock);
                 m_welded = false;
                 m_isWelding = false;
                 RaisePropertiesChanged();

@@ -35,8 +35,8 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0936874151</X>
-        <Y>-0.08382714</Y>
+        <X>0.12</X>
+        <Y>-0.14</Y>
         <Z>-0.22</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
@@ -66,7 +66,7 @@
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>0.14792788</X>
-        <Y>0.0295847654</Y>
+        <Y>-0.0995847654</Y>
         <Z>-0.13806808</Z>
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
@@ -169,8 +169,8 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0936874151</X>
-        <Y>-0.08382714</Y>
+        <X>0.12</X>
+        <Y>-0.14</Y>
         <Z>-0.22</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
@@ -200,7 +200,7 @@
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>0.14792788</X>
-        <Y>0.0295847654</Y>
+        <Y>-0.0995847654</Y>
         <Z>-0.13806808</Z>
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
@@ -303,8 +303,8 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0936874151</X>
-        <Y>-0.08382714</Y>
+        <X>0.12</X>
+        <Y>-0.14</Y>
         <Z>-0.22</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
@@ -334,7 +334,7 @@
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>0.14792788</X>
-        <Y>0.0295847654</Y>
+        <Y>-0.0995847654</Y>
         <Z>-0.13806808</Z>
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
@@ -437,8 +437,8 @@
         <W>1</W>
       </ItemOrientation>
       <ItemPosition>
-        <X>0.0936874151</X>
-        <Y>-0.08382714</Y>
+        <X>0.12</X>
+        <Y>-0.14</Y>
         <Z>-0.22</Z>
       </ItemPosition>
       <ItemWalkingOrientation>
@@ -468,7 +468,7 @@
       </ItemWalkingOrientation3rd>
       <ItemWalkingPosition3rd>
         <X>0.14792788</X>
-        <Y>0.0295847654</Y>
+        <Y>-0.0995847654</Y>
         <Z>-0.13806808</Z>
       </ItemWalkingPosition3rd>
       <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>

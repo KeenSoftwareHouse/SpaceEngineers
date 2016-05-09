@@ -339,6 +339,12 @@ namespace VRageRender
             return m_materialGroups[rootMaterialRK];
         }
 
+        public bool TryGetMaterialGroup(MyMeshMaterialId matId, out MyMaterialMergeGroup group)
+        {
+            int rootMaterialRK = MyMeshMaterials1.Table[matId.Index].RepresentationKey;
+            return m_materialGroups.TryGetValue(rootMaterialRK, out group);
+        }
+
         internal void OnDeviceReset()
         {
             foreach(var mg in m_materialGroups.Values)

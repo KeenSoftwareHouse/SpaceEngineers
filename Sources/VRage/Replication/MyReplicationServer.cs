@@ -204,7 +204,7 @@ namespace VRage.Network
         }
 
 
-        const int MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT = 5;
+        const int MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT = 7;
         private bool m_replicationPaused = false;
         private EndpointId? m_localClientEndpoint;
         private IReplicationServerCallback m_callback;
@@ -953,7 +953,8 @@ namespace VRage.Network
                 ProfilerShort.Begin("serializing entry counter");
                 var oldWriteOffset = m_sendStream.BitPosition;
                 m_sendStream.WriteNetworkId(entry.GroupId);
-                entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
+
+                bool fullyWritten = entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
 
                 int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
                 if (bitsWritten > 0 && m_sendStream.BitPosition <= messageBitSize && m_limits.Add(entry.Group.GroupType, bitsWritten))
@@ -961,7 +962,14 @@ namespace VRage.Network
                     clientData.PendingStateSyncAcks[clientData.StateSyncPacketId].Add(entry.Group);
                     sent++;
                     entry.FramesWithoutSync = 0;
-                    m_tmpSentEntries.Add(entry);
+                    if (fullyWritten)
+                    {
+                        m_tmpSentEntries.Add(entry);
+                    }
+                    else
+                    {
+                        numOverLoad++;
+                    }
                 }
                 else
                 {

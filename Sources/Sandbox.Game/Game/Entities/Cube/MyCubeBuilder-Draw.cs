@@ -96,7 +96,11 @@ namespace Sandbox.Game.Entities
                 m_multiBlockCreationClipboard.CalculateRotationHints(m_rotationHints, false);
             }
 
-            if (!BuildInputValid || MultiBlockCreationIsActivated || ShipCreationIsActivated || CopyPasteIsActivated || CopyPasteFloatingObjectIsActivated)
+            //By Gregory: Ignore update in case we are on cockpit and build is disabled
+            var shipController = MySession.Static.ControlledEntity as MyShipController;
+            bool isInCockpitAndBuildFromCockpitDisabled = shipController != null ? !shipController.BuildingMode : false;
+
+            if (!BuildInputValid || MultiBlockCreationIsActivated || ShipCreationIsActivated || CopyPasteIsActivated || CopyPasteFloatingObjectIsActivated || isInCockpitAndBuildFromCockpitDisabled)
             {
                 m_renderData.ClearInstanceData();
                 m_renderData.UpdateRenderInstanceData();

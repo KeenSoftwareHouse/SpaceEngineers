@@ -142,13 +142,8 @@ namespace Sandbox.Game.Entities.Character
                     if (m_rightHandItemBone != -1)
                     {
                         //use animation for right hand item
-                        MatrixD rightHandItemMatrix = AnimationController.CharacterBones[m_rightHandItemBone].AbsoluteTransform * WorldMatrix;
-                        //var rightHandItemMatrix = ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix; //use with UpdateWeaponPosition() but not working for barbarians
-                        Vector3D up = rightHandItemMatrix.Up;
-                        rightHandItemMatrix.Up = rightHandItemMatrix.Forward;
-                        rightHandItemMatrix.Forward = up;
-                        rightHandItemMatrix.Right = -rightHandItemMatrix.Right;
-                        ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = rightHandItemMatrix;
+                        MyCharacterBone boneRightHand = AnimationController.CharacterBones[m_rightHandItemBone];
+                        ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = boneRightHand.AbsoluteTransform * PositionComp.WorldMatrix;
                     }
                 }
             }
@@ -340,20 +335,20 @@ namespace Sandbox.Game.Entities.Character
                     m_leftHandItem.Close();
                 }
 
-                m_leftHandItem = MyEntityFactory.CreateEntity(animDefinition.LeftHandItem.TypeId);
-                var ob = MyEntityFactory.CreateObjectBuilder(m_leftHandItem);
-                m_leftHandItem.Init(ob);
+                // CH: TODO: The entity id is not synced, but it never was in this place. It should be fixed later
+                long handItemId = MyEntityIdentifier.AllocateId();
+                uint? inventoryItemId = null;
+                var builder = GetObjectBuilderForWeapon(animDefinition.LeftHandItem, ref inventoryItemId, handItemId);
+                var leftHandItem = CreateGun(builder, inventoryItemId);
 
-                var leftHandTool = m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>;
-                if (leftHandTool != null)
+                if (leftHandItem != null)
                 {
-                    leftHandTool.OnControlAcquired(this);
+                    m_leftHandItem = leftHandItem as MyEntity;
+                    leftHandItem.OnControlAcquired(this);
+                    UpdateLeftHandItemPosition();
+
+                    MyEntities.Add(m_leftHandItem);
                 }
-
-                (m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>).OnControlAcquired(this);
-                UpdateLeftHandItemPosition();
-
-                MyEntities.Add(m_leftHandItem);
             }
         }
 

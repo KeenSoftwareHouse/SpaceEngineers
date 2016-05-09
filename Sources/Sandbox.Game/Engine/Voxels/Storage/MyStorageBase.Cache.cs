@@ -303,6 +303,16 @@ namespace Sandbox.Engine.Voxels
             set { m_cachedWrites = value; }
         }
 
+        public bool HasPendingWrites
+        {
+            get { return m_pendingChunksToWrite.Count > 0; }
+        }
+
+        public bool HasCachedChunks
+        {
+            get { return m_chunksbyAge.Count - m_pendingChunksToWrite.Count > 0; }
+        }
+
         private bool m_cachedWrites = false;
 
         public void InitWriteCache(int prealloc = 128)

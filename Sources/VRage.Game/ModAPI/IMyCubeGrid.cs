@@ -281,4 +281,16 @@ namespace VRage.Game.ModAPI
         //void DebugDrawPositions(System.Collections.Generic.List<VRageMath.Vector3I> positions);
         //void DebugDrawRange(VRageMath.Vector3I min, VRageMath.Vector3I max);
     }
+
+    /// <summary>
+    /// Types of block integrity change that can occur
+    /// </summary>
+    public enum MyIntegrityChangeEnum
+    {
+        Damage,
+        ConstructionBegin,
+        ConstructionEnd,
+        ConstructionProcess,
+        Repair
+    }
 }

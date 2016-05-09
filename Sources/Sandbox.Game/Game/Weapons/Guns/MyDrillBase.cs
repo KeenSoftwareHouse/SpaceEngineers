@@ -531,17 +531,6 @@ namespace Sandbox.Game.Weapons
             MySector.MainCamera.CameraShake.AddShake(intensity);
         }
 
-        //Do one frame heatup only in singleplayer, lag will solve it in multiplayer
-        protected bool InitialHeatup()
-        {
-            if (m_initialHeatup && !Sync.MultiplayerActive)
-            {
-                m_initialHeatup = false;
-                return true;
-            }
-            return false;
-        }
-
         /// <summary>
         /// Converts voxel material to ore material and puts it into the inventory. If there is no
         /// corresponding ore for given voxel type, nothing happens.
@@ -550,10 +539,6 @@ namespace Sandbox.Game.Weapons
         {
             if (string.IsNullOrEmpty(material.MinedOre))
                 return false;
-
-            //Do one frame heatup only in singleplayer, lag will solve it in multiplayer
-            if (InitialHeatup())
-                return true;
 
             if (!onlyCheck)
             {

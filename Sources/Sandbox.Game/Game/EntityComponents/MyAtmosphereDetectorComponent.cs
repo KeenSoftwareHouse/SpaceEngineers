@@ -1,7 +1,9 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.World;
+using VRage.Audio;
 using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRageMath;
@@ -14,6 +16,7 @@ namespace Sandbox.Game.EntityComponents
     {
         private enum AtmosphereStatus
         {
+            NotSet,
             Space,
             ShipOrStation,
             Atmosphere
@@ -22,7 +25,7 @@ namespace Sandbox.Game.EntityComponents
         private MyCharacter m_character = null;
         private bool m_localPlayer = true;
         private bool m_inAtmosphere = false;
-        private AtmosphereStatus m_atmosphereStatus = AtmosphereStatus.Space;
+        private AtmosphereStatus m_atmosphereStatus = AtmosphereStatus.NotSet;
         public bool InAtmosphere { get { return m_atmosphereStatus == AtmosphereStatus.Atmosphere; } }
         public bool InShipOrStation { get { return m_atmosphereStatus == AtmosphereStatus.ShipOrStation; } }
 
@@ -37,6 +40,7 @@ namespace Sandbox.Game.EntityComponents
         {
             if (m_character != null && (m_localPlayer == false || (MySession.Static != null && m_character == MySession.Static.LocalCharacter)))
             {
+                AtmosphereStatus original = m_atmosphereStatus;
                 Vector3D pos = m_character.PositionComp.GetPosition();
                 Vector3 gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(pos);
                 if (gravity.LengthSquared() > 0f)
@@ -80,6 +84,9 @@ namespace Sandbox.Game.EntityComponents
                         m_atmosphereStatus = AtmosphereStatus.ShipOrStation;//in pressurized environment
                     }
                 }
+
+                if (MyFakes.ENABLE_REALISTIC_LIMITER && MyFakes.ENABLE_NEW_SOUNDS && original != m_atmosphereStatus && MySession.Static != null && MySession.Static.Settings.RealisticSound)
+                    MyAudio.Static.EnableMasterLimiter(!(InAtmosphere || InShipOrStation));
             }
         }
 

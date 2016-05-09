@@ -54,6 +54,7 @@ namespace Sandbox.Game.Entities
 
         private static readonly MyHudNotification m_hudNotification;
         private bool m_requestActivateAfterLoad = false;
+        private IMyCameraController m_previousCameraController = null;
 
         readonly Sync<float> m_syncFov;
 
@@ -335,6 +336,9 @@ namespace Sandbox.Game.Entities
 
         void IMyCameraController.OnAssumeControl(IMyCameraController previousCameraController)
         {
+            if (!(previousCameraController is MyCameraBlock))
+                MyGridCameraSystem.PreviousNonCameraBlockController = previousCameraController;
+
             OnAssumeControl(previousCameraController);
         }
 

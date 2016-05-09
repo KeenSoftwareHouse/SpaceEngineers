@@ -11,7 +11,7 @@ namespace VRage.Animations
     /// </summary>
     public class MyAnimationVariableStorage : IMyVariableStorage<float>
     {
-        readonly Dictionary<MyStringId, float> m_storage = new Dictionary<MyStringId, float>();
+        readonly Dictionary<MyStringId, float> m_storage = new Dictionary<MyStringId, float>(MyStringId.Comparer);
         readonly MyRandom m_random = new MyRandom();
         readonly FastResourceLock m_lock = new FastResourceLock();
 

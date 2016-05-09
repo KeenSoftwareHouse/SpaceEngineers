@@ -484,7 +484,8 @@ namespace Sandbox.Game.Entities.Cube
             Debug.Assert(m_constraint == null, "Already attached, call detach first!");
             Debug.Assert(m_rotorBlockId.Value.OtherEntityId == 0 || m_rotorBlockId.Value.OtherEntityId == rotor.EntityId, "m_rotorBlockId must be set prior calling Attach");
 
-            if (rotor == null || MarkedForClose || Closed || rotor.MarkedForClose || rotor.Closed || CubeGrid.MarkedForClose || CubeGrid.Closed)
+            if (rotor == null || rotor.CubeGrid == null || MarkedForClose || Closed || CubeGrid.MarkedForClose || CubeGrid.Closed || rotor.MarkedForClose || rotor.Closed || 
+                rotor.CubeGrid.MarkedForClose || rotor.CubeGrid.Closed)
             {
                 return false;
             }
@@ -553,7 +554,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public override bool Detach(bool updateGroup = true)
         {
-            if(m_isAttached == false)
+            if (m_isAttached == false && m_welded==false)
             {
                 return false;
             }

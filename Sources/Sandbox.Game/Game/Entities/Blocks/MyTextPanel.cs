@@ -1199,7 +1199,8 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 return;
             }
-
+            //This causes text changed twice. Other fix will be to remove CompareUpdate from public or private description set method above
+            /*
             if(isPublic)
             {
                 PublicDescription = description;
@@ -1208,7 +1209,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 PrivateDescription = description;
             }
-
+            */
             MyMultiplayer.RaiseEvent(this, x => x.OnChangeDescription, description.ToString(), isPublic);
         }
 

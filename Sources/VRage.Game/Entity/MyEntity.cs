@@ -122,6 +122,8 @@ namespace VRage.Game.Entity
         public bool StaticForPruningStructure = false;
         public int TargetPruningProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
+        bool m_raisePhysicsCalled = false;
+
         #endregion
 
         #region Properties
@@ -935,6 +937,11 @@ namespace VRage.Game.Entity
         //jn:TODO this should be on Physics component
         public void RaisePhysicsChanged()
         {
+            if (m_raisePhysicsCalled)
+            {
+                return;
+            }
+            m_raisePhysicsCalled = true;
             // TODO: JanN, this should be done cleaner imho
             if (!InScene)
             {
@@ -953,6 +960,7 @@ namespace VRage.Game.Entity
                 }
                 m_tmpOnPhysicsChanged.Clear();
             }
+            m_raisePhysicsCalled = false;
         }
 
         #region Drawing, objectbuilder, init & close

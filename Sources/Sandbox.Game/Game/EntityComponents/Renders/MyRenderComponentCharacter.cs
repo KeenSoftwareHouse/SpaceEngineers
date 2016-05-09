@@ -5,6 +5,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Lights;
 using Sandbox.Game.World;
+using Sandbox.Game.Weapons;
 using Sandbox.Graphics;
 using System;
 using System.Collections.Generic;
@@ -278,7 +279,11 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            if (MySession.Static.ControlledEntity == character)
+            //Maybe this check is not needed at all? In every case we want the DrawBlood effect when damaged
+            if ( MySession.Static.ControlledEntity == character ||
+                 MySession.Static.ControlledEntity is MyCockpit && ((MyCockpit)MySession.Static.ControlledEntity).Pilot == character ||
+                 MySession.Static.ControlledEntity is MyLargeTurretBase && ((MyLargeTurretBase)MySession.Static.ControlledEntity).Pilot == character
+                )
             {
                 if (character.IsDead && character.CurrentRespawnCounter > 0)
                 {

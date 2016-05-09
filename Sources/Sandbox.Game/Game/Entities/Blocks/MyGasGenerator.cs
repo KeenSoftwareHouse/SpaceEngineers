@@ -337,14 +337,11 @@ namespace Sandbox.Game.Entities.Blocks
                 }
                 else if (m_soundEmitter.SoundId != BlockDefinition.IdleSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.IdleSound.Realistic)
                 {
-                    if (m_soundEmitter.SoundId == BlockDefinition.GenerateSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.GenerateSound.Realistic)
-                    {
-                        m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true, true);
-                    }
-                    else
-                    {
+                    if ((m_soundEmitter.SoundId == BlockDefinition.GenerateSound.Arcade || m_soundEmitter.SoundId == BlockDefinition.GenerateSound.Realistic) && m_soundEmitter.Loop)
+                        m_soundEmitter.StopSound(false);
+
+                    if (m_soundEmitter.IsPlaying == false)
                         m_soundEmitter.PlaySound(BlockDefinition.IdleSound, true);
-                    }
                 }
             }
             else if (m_soundEmitter.IsPlaying)

@@ -44,6 +44,8 @@ using VRage.Network;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.Utils;
 
 namespace Sandbox.Game.Entities
 {
@@ -2277,6 +2279,8 @@ namespace Sandbox.Game.Entities
                 }
             }
 
+            //MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, this);
+
             if (MyCubeBuilder.Static.IsActivated)
             {
                 MyCubeBuilder.Static.Deactivate();
@@ -2324,6 +2328,11 @@ namespace Sandbox.Game.Entities
         {
             base.OnUnregisteredFromGridSystems();
             RequestRelease(false);
+
+            //if (MySession.Static.CameraController == this && Pilot == MySession.Static.LocalCharacter)
+            //{
+            //    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, Pilot);
+            //}  
 
             if (m_autoPilotEnabled)
             {
@@ -2680,5 +2689,76 @@ namespace Sandbox.Game.Entities
                 return true;
             }
         }
+
+        //void IMyCameraController.ControlCamera(MyCamera currentCamera)
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        pilotCameraController.ControlCamera(currentCamera);
+        //}
+
+        //void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        pilotCameraController.Rotate(rotationIndicator, rollIndicator);
+        //}
+
+        //void IMyCameraController.RotateStopped()
+        //{
+        //    MyEntity pilotParent = Pilot;
+        //    while (pilotParent != null && pilotParent.Parent is IMyCameraController)
+        //        pilotParent = pilotParent.Parent;
+
+        //    IMyCameraController pilotCameraController = (IMyCameraController)pilotParent;
+        //    if (pilotCameraController != null)
+        //        pilotCameraController.RotateStopped();
+        //}
+
+        //void IMyCameraController.OnAssumeControl(IMyCameraController previousCameraController)
+        //{
+        //}
+
+        //void IMyCameraController.OnReleaseControl(IMyCameraController newCameraController)
+        //{
+        //}
+
+        //bool IMyCameraController.HandleUse()
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        return pilotCameraController.HandleUse();
+        //    return false;
+        //}
+
+        //bool IMyCameraController.HandlePickUp()
+        //{
+        //    IMyCameraController pilotCameraController = Pilot;
+        //    if (pilotCameraController != null)
+        //        return pilotCameraController.HandlePickUp();
+        //    return false;
+        //}
+
+        //bool IMyCameraController.IsInFirstPersonView
+        //{
+        //    get
+        //    {
+        //        IMyCameraController pilotCameraController = Pilot;
+        //        if (pilotCameraController != null)
+        //            return pilotCameraController.IsInFirstPersonView;
+        //        return true;
+        //    }
+        //    set
+        //    {
+        //        IMyCameraController pilotCameraController = Pilot;
+        //        if (pilotCameraController != null)
+        //            pilotCameraController.IsInFirstPersonView = value;
+        //    }
+        //}
+
+        //bool IMyCameraController.AllowCubeBuilding
+        //{
+        //    get { return false; }
+        //}
     }
 }

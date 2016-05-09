@@ -87,6 +87,12 @@ namespace Sandbox.Game.Entities
             this.Render = new MyRenderComponentReflectorLight();
         }
 
+        protected override void LightRadiusChanged()
+        {
+            base.LightRadiusChanged();
+            Radius = ReflectorRadius * (RadiusBounds.Max / ReflectorRadiusBounds.Max);
+        }
+
         private static readonly Color COLOR_OFF  = new Color(30, 30, 30);
         private bool m_wasWorking=true;
         protected override void UpdateEmissivity(bool force=false)

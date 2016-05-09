@@ -191,7 +191,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        public override void Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
+        public override bool Serialize(BitStream stream, EndpointId forClient,uint timestamp, byte packetId, int maxBitPosition)
         {
             if (MyFakes.ENABLE_MULTIPLAYER_ENTITY_SUPPORT)
             {
@@ -201,6 +201,8 @@ namespace Sandbox.Game.Replication
             {
                 base.Serialize(stream, forClient,timestamp, packetId, maxBitPosition);
             }
+
+            return true;
         }
     }
 }

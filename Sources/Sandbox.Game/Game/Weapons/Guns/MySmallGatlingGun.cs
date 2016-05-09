@@ -53,6 +53,7 @@ namespace Sandbox.Game.Weapons
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;
         int m_smokesToGenerate;
+        MyEntity3DSoundEmitter m_soundEmitterRotor;
 
         MyEntity m_barrel;
 
@@ -132,6 +133,7 @@ namespace Sandbox.Game.Weapons
             {
                 FixSingleInventory();
             }
+            m_soundEmitterRotor = new MyEntity3DSoundEmitter(this);
 
             if (this.GetInventory() == null)
             {
@@ -206,6 +208,8 @@ namespace Sandbox.Game.Weapons
         {
             if (m_soundEmitter != null)
                 m_soundEmitter.StopSound(true);
+            if (m_soundEmitterRotor != null)
+                m_soundEmitterRotor.StopSound(true);
 
             if (m_smokeEffect != null)
             {
@@ -555,13 +559,17 @@ namespace Sandbox.Game.Weapons
 
         private void StopLoopSound()
         {
-            if(m_soundEmitter != null)
+            if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                 m_soundEmitter.StopSound(true);
+            if(m_soundEmitterRotor != null)
+                m_soundEmitterRotor.StopSound(false);
         }
 
         private void StartLoopSound()
         {
             m_gunBase.StartShootSound(m_soundEmitter);
+            if (m_soundEmitterRotor != null && m_soundEmitterRotor.IsPlaying == false && m_gunBase.SecondarySound != MySoundPair.Empty)
+                m_soundEmitterRotor.PlaySound(m_gunBase.SecondarySound); 
         }
 
         #region Inventory
@@ -641,6 +649,16 @@ namespace Sandbox.Game.Weapons
         MyInventory IMyGunBaseUser.AmmoInventory
         {
             get { return this.GetInventory(); }
+        }
+
+        MyDefinitionId IMyGunBaseUser.PhysicalItemId
+        {
+            get { return new MyDefinitionId(); }
+        }
+
+        MyInventory IMyGunBaseUser.WeaponInventory
+        {
+            get { return null; }
         }
 
         long IMyGunBaseUser.OwnerId

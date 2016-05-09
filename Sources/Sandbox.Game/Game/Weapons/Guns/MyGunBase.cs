@@ -23,6 +23,8 @@ using VRage.Library.Sync;
 using Sandbox.Common;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders;
+using System.Diagnostics;
 
 namespace Sandbox.Game.Weapons
 {
@@ -52,6 +54,7 @@ namespace Sandbox.Game.Weapons
 
         #region Properties
 
+        private Dictionary<string, MyModelDummy> dummies = null;
         public int CurrentAmmo { get; set; }
         private MyWeaponPropertiesWrapper WeaponProperties { get { return m_weaponProperties; } }
         public MyAmmoMagazineDefinition CurrentAmmoMagazineDefinition { get { return WeaponProperties.AmmoMagazineDefinition; } }
@@ -61,8 +64,10 @@ namespace Sandbox.Game.Weapons
         {
             get
             {
-                if (WeaponProperties.AmmoDefinition != null)
+                if (WeaponProperties != null && WeaponProperties.AmmoDefinition != null)
+                {
                     return WeaponProperties.AmmoDefinition.BackkickForce;
+                }
                 return 0;
             }
         }
@@ -74,6 +79,8 @@ namespace Sandbox.Game.Weapons
         public MySoundPair ShootSound { get { return m_weaponProperties.CurrentWeaponShootSound; } }
         public MySoundPair NoAmmoSound { get { return m_weaponProperties.WeaponDefinition.NoAmmoSound; } }
         public MySoundPair ReloadSound { get { return m_weaponProperties.WeaponDefinition.ReloadSound; } }
+        public MySoundPair SecondarySound { get { return m_weaponProperties.WeaponDefinition.SecondarySound; } }
+        public bool UseDefaultMuzzleFlash { get { return m_weaponProperties.WeaponDefinition.UseDefaultMuzzleFlash; } }
         public float MechanicalDamage 
         { 
             get 
@@ -133,6 +140,7 @@ namespace Sandbox.Game.Weapons
                 copy.Amount = ammoMagazineRemaining.Value;
                 gunBaseObjectBuilder.RemainingAmmosList.Add(copy);
             }
+            gunBaseObjectBuilder.InventoryItemId = this.InventoryItemId;
             return gunBaseObjectBuilder;
         }
 
@@ -153,6 +161,11 @@ namespace Sandbox.Game.Weapons
 
         public void Init(MyObjectBuilder_GunBase objectBuilder, MyDefinitionId weaponDefinitionId, IMyGunBaseUser gunBaseUser)
         {
+            if (objectBuilder != null)
+            {
+                base.Init(objectBuilder);
+            }
+
             m_user = gunBaseUser;
             m_weaponProperties = new MyWeaponPropertiesWrapper(weaponDefinitionId);
             //MyDebug.AssertDebug(m_weaponProperties.AmmoMagazinesCount > 0, "Weapon definition has no ammo magazines attached.");
@@ -293,9 +306,32 @@ namespace Sandbox.Game.Weapons
 
             MoveToNextMuzzle(ammoDef.AmmoType);
 
+            CreateEffects(MyWeaponDefinition.WeaponEffectAction.Shoot);
+
             LastShootTime = DateTime.UtcNow;
         }
 
+        protected void CreateEffects(MyWeaponDefinition.WeaponEffectAction action)
+        {
+            if (dummies != null && dummies.Count > 0 && WeaponProperties.WeaponDefinition.WeaponEffects.Length > 0)
+            {
+                for (int i = 0; i < WeaponProperties.WeaponDefinition.WeaponEffects.Length; i++)
+                {
+                    if (WeaponProperties.WeaponDefinition.WeaponEffects[i].Action == action)
+                    {
+                        MyModelDummy dummy;
+                        if (dummies.TryGetValue(WeaponProperties.WeaponDefinition.WeaponEffects[i].Dummy, out dummy))
+                        {
+                            MyParticleEffect effect;
+                            if (MyParticlesManager.TryCreateParticleEffect(WeaponProperties.WeaponDefinition.WeaponEffects[i].Particle, out effect))
+                            {
+                                effect.WorldMatrix = MatrixD.Multiply(MatrixD.Normalize(dummy.Matrix), WorldMatrix);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         public MyInventoryConstraint CreateAmmoInventoryConstraints(String displayName)
         {
@@ -436,8 +472,49 @@ namespace Sandbox.Game.Weapons
 
                         m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
                     }
+
+                    RefreshAmmunitionAmount();
                 }
-                RefreshAmmunitionAmount();
+
+                var weaponInventory = m_user.AmmoInventory;
+                if (weaponInventory != null)
+                {
+                    MyPhysicalInventoryItem? inventoryItem = null;
+                    if (InventoryItemId.HasValue)
+                    {
+                        inventoryItem = weaponInventory.GetItemByID(InventoryItemId.Value);
+                    }
+                    else
+                    {
+                        inventoryItem = weaponInventory.FindUsableItem(m_user.PhysicalItemId);
+                        if (inventoryItem.HasValue)
+                        {
+                            InventoryItemId = inventoryItem.Value.ItemId;
+                        }
+                    }
+
+                    if (inventoryItem.HasValue)
+                    {
+                        var pgo = inventoryItem.Value.Content as MyObjectBuilder_PhysicalGunObject;
+                        if (pgo != null)
+                        {
+                            var gunBaseObjectBuilder = pgo.GunEntity as IMyObjectBuilder_GunObject<MyObjectBuilder_GunBase>;
+                            Debug.Assert(gunBaseObjectBuilder != null, "ObjectBuilder of an entity implementing IMyGunObject probably does not implement IMyObjectBuilder_GunObject!");
+
+                            if (gunBaseObjectBuilder != null)
+                            {
+                                if (gunBaseObjectBuilder.DeviceBase == null)
+                                {
+                                    gunBaseObjectBuilder.InitializeDeviceBase(GetObjectBuilder());
+                                }
+                                else
+                                {
+                                    gunBaseObjectBuilder.GetDevice().RemainingAmmo = CurrentAmmo;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -453,10 +530,11 @@ namespace Sandbox.Game.Weapons
 
         public void RefreshAmmunitionAmount()
         {
-            if(Sync.IsServer == false)
+            if (Sync.IsServer == false)
             {
                 return;
             }
+
             if (m_user != null && m_user.AmmoInventory != null && m_weaponProperties.WeaponDefinition.HasAmmoMagazines())
             {
                 m_cachedAmmunitionAmount.Value = CurrentAmmo + (int)m_user.AmmoInventory.GetItemAmount(CurrentAmmoMagazineId) * m_weaponProperties.AmmoMagazineDefinition.Capacity;
@@ -497,6 +575,7 @@ namespace Sandbox.Game.Weapons
 
         public void LoadDummies(Dictionary<string, MyModelDummy> dummies)
         {
+            this.dummies = dummies;
             m_dummiesByAmmoType.Clear();
             foreach (var dummy in dummies)
             {

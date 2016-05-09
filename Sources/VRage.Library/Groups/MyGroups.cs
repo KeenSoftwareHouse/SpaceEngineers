@@ -84,7 +84,8 @@ namespace VRage.Groups
 
         HashSet<Node> m_disconnectHelper = new HashSet<Node>();
         MajorGroupComparer m_groupSelector;
-
+        bool m_isRecalculating = false;
+        
         /// <summary>
         /// Initializes a new instance of MyGroups class.
         /// </summary>
@@ -344,6 +345,10 @@ namespace VRage.Groups
         // Recalculates consistency, splits groups when disconnected and remove ophrans (Nodes with no links)
         private void RecalculateConnectivity(Node parent, Node child)
         {
+            if (m_isRecalculating)
+            {
+                return;
+            }
             if (parent == null || parent.Group==null || child == null || child.Group == null)
             {
                 Debug.Fail("Null in RecalculateConnectivity");
@@ -351,6 +356,8 @@ namespace VRage.Groups
             }
             try
             {
+
+                m_isRecalculating = true;
                 // When no ophran was removed
                 if (SupportsOphrans || (!TryReleaseNode(parent) & !TryReleaseNode(child)))
                 {
@@ -393,6 +400,7 @@ namespace VRage.Groups
             finally
             {
                 m_disconnectHelper.Clear();
+                m_isRecalculating = false;
             }
         }
 

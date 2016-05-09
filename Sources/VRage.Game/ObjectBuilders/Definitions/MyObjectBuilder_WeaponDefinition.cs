@@ -45,6 +45,9 @@ namespace VRage.Game
         public string ReloadSoundName = null;
 
         [ProtoMember]
+        public string SecondarySoundName = null;
+
+        [ProtoMember]
         public float DeviateShotAngle = 0;
 
         [ProtoMember]
@@ -59,5 +62,25 @@ namespace VRage.Game
         [XmlArrayItem("AmmoMagazine")]
         [ProtoMember]
         public WeaponAmmoMagazine[] AmmoMagazines;
+
+        [XmlArrayItem("Effect")]
+        [ProtoMember]
+        public WeaponEffect[] Effects;
+
+        [ProtoMember]
+        public bool UseDefaultMuzzleFlash = true;
+
+        [ProtoContract]
+        public class WeaponEffect
+        {
+            [XmlAttribute, ProtoMember]
+            public string Action = "";
+
+            [XmlAttribute, ProtoMember]
+            public string Dummy = "";
+
+            [XmlAttribute, ProtoMember]
+            public string Particle = "";
+        }
     }
 }

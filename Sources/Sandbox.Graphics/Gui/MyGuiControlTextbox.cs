@@ -811,27 +811,24 @@ namespace Sandbox.Graphics.GUI
             {
                 ClipboardText = sender.Text.Substring(Start, Length);
 
-                Thread myth;
-                myth = new Thread(new System.Threading.ThreadStart(CopyToClipboard));
-                myth.ApartmentState = ApartmentState.STA;
-                myth.Start();
-            }
-
-            void CopyToClipboard()
-            {
-                if(ClipboardText != "")
-                    Clipboard.SetText(ClipboardText);
+                if (!string.IsNullOrEmpty(ClipboardText))
+                {
+                    Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(ClipboardText));
+                    thread.SetApartmentState(ApartmentState.STA);
+                    thread.Start();
+                    thread.Join();
+                }
             }
 
             public void PasteText(MyGuiControlTextbox sender)
             {
                 //First we erase the selection
                 EraseText(sender);
+                
                 var prefix = sender.Text.Substring(0, sender.CarriagePositionIndex);
                 var suffix = sender.Text.Substring(sender.CarriagePositionIndex);
-                Thread myth;
                 
-                myth = new Thread(new System.Threading.ThreadStart(PasteFromClipboard));
+                Thread myth = new Thread(new System.Threading.ThreadStart(PasteFromClipboard));
                 myth.ApartmentState = ApartmentState.STA;
                 myth.Start();
                 

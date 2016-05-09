@@ -105,9 +105,10 @@ namespace Sandbox.Game.Entities
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
+            this.GetInventory().Constraint = m_reactorDefinition.InventoryConstraint;
+
             if (Sync.IsServer)
             {
-                this.GetInventory().Constraint = m_reactorDefinition.InventoryConstraint;
                 RefreshRemainingCapacity();
             }
             

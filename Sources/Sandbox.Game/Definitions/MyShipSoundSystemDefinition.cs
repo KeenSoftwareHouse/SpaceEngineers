@@ -20,6 +20,8 @@ namespace Sandbox.Definitions
     {
         public float MaxUpdateRange = 2000f;
         public float MaxUpdateRange_sq = 2000 * 2000;
+        public float WheelsCallbackRangeCreate_sq = 500 * 500;
+        public float WheelsCallbackRangeRemove_sq = 750 * 750;
         public float FullSpeed = 96f;
         public float FullSpeed_sq = 96 * 96;
         public float SpeedThreshold1 = 32;
@@ -40,6 +42,8 @@ namespace Sandbox.Definitions
             this.SpeedThreshold2 = (ob.FullSpeed * 0.66f);
             this.LargeShipDetectionRadius = ob.LargeShipDetectionRadius;
             this.MaxUpdateRange_sq = ob.MaxUpdateRange * ob.MaxUpdateRange;
+            this.WheelsCallbackRangeCreate_sq = ob.WheelStartUpdateRange * ob.WheelStartUpdateRange;
+            this.WheelsCallbackRangeRemove_sq = ob.WheelStopUpdateRange * ob.WheelStopUpdateRange;
         }
     }
 }

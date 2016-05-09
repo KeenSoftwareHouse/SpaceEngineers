@@ -71,8 +71,8 @@ namespace Sandbox.Engine.Voxels
 
                 storage.ReadRange(m_cache, MyStorageDataTypeFlags.Content, lod, ref voxelStart, ref voxelEnd, ref request);
 
-                if (request.HasFlag(MyVoxelRequestFlags.EmptyContent) || request.HasFlag(MyVoxelRequestFlags.FullContent)
-                    || (!request.HasFlag(MyVoxelRequestFlags.ContentChecked) && !m_cache.ContainsIsoSurface()))
+                if (request.HasFlags(MyVoxelRequestFlags.EmptyContent) || request.HasFlags(MyVoxelRequestFlags.FullContent)
+                    || (!request.HasFlags(MyVoxelRequestFlags.ContentChecked) && !m_cache.ContainsIsoSurface()))
                 {
                     //if(generateMaterials && lod == 0) Debugger.Break();
                     //storage.DebugDrawChunk(voxelStart, voxelEnd);
@@ -125,7 +125,7 @@ namespace Sandbox.Engine.Voxels
                         fixed (byte* content = m_cache[MyStorageDataTypeEnum.Content])
                         fixed (byte* material = m_cache[MyStorageDataTypeEnum.Material])
                         {
-                            int materialOverride = request.HasFlag(MyVoxelRequestFlags.OneMaterial) ? m_cache.Material(0) : -1;
+                            int materialOverride = request.HasFlags(MyVoxelRequestFlags.OneMaterial) ? m_cache.Material(0) : -1;
                             var size3d = m_cache.Size3D;
                             Debug.Assert(size3d.X == size3d.Y && size3d.Y == size3d.Z);
 

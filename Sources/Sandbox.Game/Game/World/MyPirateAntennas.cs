@@ -323,10 +323,13 @@ namespace Sandbox.Game.World
                 MyRadioAntenna antenna = null;
                 MyEntities.TryGetEntityById(antennaEntry.Key, out antenna);
                 Debug.Assert(antenna != null, "Could not find antenna for spawning enemy drones!");
+                if( antennaInfo.AntennaDefinition.SpawnGroupSampler == null)
+                {
+                    return;
+                }
 
                 var spawnGroup = antennaInfo.AntennaDefinition.SpawnGroupSampler.Sample();
                 Debug.Assert(spawnGroup != null, "Could not find spawnGroup for spawning enemy drones!");
-
                 if
                 (
                     !MySession.Static.Settings.EnableDrones ||
