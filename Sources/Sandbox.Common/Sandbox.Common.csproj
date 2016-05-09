@@ -125,6 +125,7 @@
     <Compile Include="ModAPI\IMyPistonBase.cs" />
     <Compile Include="ModAPI\IMyPistonTop.cs" />
     <Compile Include="ModAPI\IMyProductionBlock.cs" />
+    <Compile Include="ModAPI\IMyProjector.cs" />
     <Compile Include="ModAPI\IMyReactor.cs" />
     <Compile Include="ModAPI\IMyMotorRotor.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
