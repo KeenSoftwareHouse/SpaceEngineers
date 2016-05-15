@@ -1312,7 +1312,7 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
         }
 
-        public void UpdateVisual()
+        public void UpdateVisual(bool physicsChanged = true)
         {
             UpdateShowParts();
 
@@ -1338,7 +1338,7 @@ namespace Sandbox.Game.Entities.Cube
                 FatBlock = null;
             }
             CubeGrid.SetBlockDirty(this);
-            if (CubeGrid.Physics != null)
+            if (CubeGrid.Physics != null && physicsChanged)
             {
                 CubeGrid.Physics.AddDirtyArea(Min, Max);
             }

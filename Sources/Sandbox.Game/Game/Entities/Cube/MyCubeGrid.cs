@@ -4688,7 +4688,7 @@ namespace Sandbox.Game.Entities
                 if (block.ColorMaskHSV == newHSV)
                     return false;
                 block.ColorMaskHSV = newHSV;
-                block.UpdateVisual();
+                block.UpdateVisual(false); //Physics wasn't affected by color change
                 return true;
             }
             finally
