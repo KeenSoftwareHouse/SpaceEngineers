@@ -13,11 +13,18 @@ using VRage.Game.Definitions;
 using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRageMath;
+using VRage.Collections;
 
 namespace Sandbox.Game.Screens.Helpers
 {
     public class MyToolbar
     {
+        public interface IMyToolbarExtension
+        {
+            void Update();
+            void AddedToToolbar(MyToolbar toolbar);
+        }
+
         public struct SlotArgs
         {
             public int? SlotNumber;
@@ -41,6 +48,8 @@ namespace Sandbox.Game.Screens.Helpers
         public int ItemCount { get { return SlotCount * PageCount; } }
 
         private MyToolbarItem[] m_items;
+
+        private CachingDictionary<Type, IMyToolbarExtension> m_extensions;
 
         private MyToolbarType m_toolbarType;
         public MyToolbarType ToolbarType
@@ -342,13 +351,13 @@ namespace Sandbox.Game.Screens.Helpers
             if (m_items[i] != null)
             {
                 oldEnabledState = m_items[i].Enabled;
-                m_items[i].OnClose();
+                m_items[i].OnRemovedFromToolbar(this);
             }
 
             m_items[i] = item;
-
-            if (m_items[i] != null)
+            if (item != null)
             {
+                item.OnAddedToToolbar(this);
                 newEnabledState = true;
             }
 
@@ -365,6 +374,36 @@ namespace Sandbox.Game.Screens.Helpers
                 if (IsValidSlot(slot))
                     SlotEnabledChanged(slot);
             }
+        }
+
+        public void AddExtension(IMyToolbarExtension newExtension)
+        {
+            if (m_extensions == null)
+            {
+                m_extensions = new CachingDictionary<Type, IMyToolbarExtension>();
+            }
+
+            m_extensions.Add(newExtension.GetType(), newExtension);
+            newExtension.AddedToToolbar(this);
+        }
+
+        public bool TryGetExtension<T>(out T extension)
+            where T: class, IMyToolbarExtension
+        {
+            extension = null;
+
+            if (m_extensions == null) return false;
+            IMyToolbarExtension retval = null;
+            if (m_extensions.TryGetValue(typeof(T), out retval))
+            {
+                extension = retval as T;
+            }
+            return extension != null;
+        }
+
+        public void RemoveExtension(IMyToolbarExtension toRemove)
+        {
+            m_extensions.Remove(toRemove.GetType());
         }
 
         void ToolbarItemUpdated(int index, MyToolbarItem.ChangeInfo changed)
@@ -420,7 +459,7 @@ namespace Sandbox.Game.Screens.Helpers
                 {
                     if (m_items[i] == null) continue;
 
-                    m_items[i].OnClose();
+                    m_items[i].OnRemovedFromToolbar(this);
                     m_items[i] = null;
                 }
                 return;
@@ -716,6 +755,15 @@ namespace Sandbox.Game.Screens.Helpers
                 SelectedSlotChanged(this, new SlotArgs() { SlotNumber = m_selectedSlot });
 
             EnabledOverride = null;
+
+            if (m_extensions != null)
+            {
+                foreach (var extension in m_extensions.Values)
+                {
+                    extension.Update();
+                }
+                m_extensions.ApplyChanges();
+            }
 
             ProfilerShort.End();
         }

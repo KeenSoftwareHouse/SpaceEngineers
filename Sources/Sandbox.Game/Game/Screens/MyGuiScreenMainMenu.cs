@@ -407,6 +407,7 @@ namespace Sandbox.Game.Gui
             {
                 MyMusicController.Static.Unload();
                 MyMusicController.Static = null;
+                MyAudio.Static.MusicAllowed = true;
             }
 
             if(MyMultiplayer.Static != null)

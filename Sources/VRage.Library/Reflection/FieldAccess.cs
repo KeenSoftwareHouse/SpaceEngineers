@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 
-#if !BLITCREMENTAL
+#if !UNSHARPER_TMP
 
 namespace System.Reflection
 {

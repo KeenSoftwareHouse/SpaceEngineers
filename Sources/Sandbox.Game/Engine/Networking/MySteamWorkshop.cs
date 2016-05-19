@@ -1726,7 +1726,7 @@ namespace Sandbox.Engine.Networking
             // make sure we don't overwrite another save
             while (Directory.Exists(sessionPath))
                 sessionPath = Path.Combine(workshopBattleWorldsPath, safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"));
-#if BLITCREMENTAL
+#if XB1_TMP
 			System.Diagnostics.Debug.Assert(false);
 #else
             MyZipArchive.ExtractToDirectory(localPackedWorldFullPath, sessionPath);

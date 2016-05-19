@@ -33,7 +33,7 @@ using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenGenerator))]
-    class MyGasGenerator : MyFunctionalBlock, IMyGasBlock, IMyOxygenGenerator, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, IMyEventProxy
+    public class MyGasGenerator : MyFunctionalBlock, IMyGasBlock, IMyOxygenGenerator, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, IMyEventProxy
     {
         private Color? m_prevEmissiveColor = null;
         private readonly Sync<bool> m_useConveyorSystem;
@@ -71,11 +71,21 @@ namespace Sandbox.Game.Entities.Blocks
         private new MyOxygenGeneratorDefinition BlockDefinition { get { return (MyOxygenGeneratorDefinition)base.BlockDefinition; } }
 
         #region Initialization
-        static MyGasGenerator()
+	    public MyGasGenerator()
+	    {
+            CreateTerminalControls();
+			SourceComp = new MyResourceSourceComponent(2);
+			ResourceSink = new MyResourceSinkComponent();
+	    }
+
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyGasGenerator>())
+                return;
+
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyGasGenerator>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
-            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v ;
+            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v;
             useConveyorSystem.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConveyorSystem);
 
@@ -90,12 +100,6 @@ namespace Sandbox.Game.Entities.Blocks
             autoRefill.EnableAction();
             MyTerminalControlFactory.AddControl(autoRefill);
         }
-
-	    public MyGasGenerator()
-	    {
-			SourceComp = new MyResourceSourceComponent(2);
-			ResourceSink = new MyResourceSinkComponent();
-	    }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {

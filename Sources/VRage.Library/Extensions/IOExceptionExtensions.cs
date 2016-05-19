@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-#if BLIT
+#if XB1
 using System.Diagnostics;
 #endif
 
@@ -13,7 +13,7 @@ namespace System.IO
     {
         public static bool IsFileLocked(this System.IO.IOException e)
         {
-#if BLIT
+#if XB1
 			Debug.Assert(false, "Implement per platform");
 			return false;
 #else

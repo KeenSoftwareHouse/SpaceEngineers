@@ -2113,6 +2113,7 @@ namespace VRageRender
 
             int modelLods = 1;
 
+            if (lodDescriptors != null)
             for (int i = 0; i < lodDescriptors.Length; i++)
             {
                 var meshFile = lodDescriptors[i].Model;

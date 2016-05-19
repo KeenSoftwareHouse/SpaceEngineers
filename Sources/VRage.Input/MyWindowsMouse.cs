@@ -1,4 +1,6 @@
-﻿using SharpDX.Win32;
+﻿#if !XB1
+
+using SharpDX.Win32;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -119,3 +121,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

@@ -11,6 +11,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Global FX")]
     class MyGuiScreenDebugRenderGlobalFX : MyGuiScreenDebugBase
     {
@@ -88,4 +90,6 @@ namespace Sandbox.Game.Gui
                MySector.FogProperties.FogColor);
         }
     }
+
+#endif
 }

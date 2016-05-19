@@ -219,6 +219,10 @@ namespace Sandbox.Game.EntityComponents
                 else if (MySession.Static.ControlledEntity != null && MySession.Static.IsCameraUserControlledSpectator() == false && MySession.Static.ControlledEntity.Entity != null && MySession.Static.ControlledEntity.Entity.Parent == m_shipGrid)
                 {
                     m_shouldPlay2D = ((MySession.Static.ControlledEntity.Entity is MyCockpit) && (MySession.Static.ControlledEntity.Entity as MyCockpit).IsInFirstPersonView)
+
+                        || ((MySession.Static.ControlledEntity.Entity is MyRemoteControl) && MySession.Static.LocalCharacter != null
+                            && MySession.Static.LocalCharacter.IsUsing is MyCockpit && (MySession.Static.LocalCharacter.IsUsing as MyCockpit).Parent == m_shipGrid)
+
                         || (MySession.Static.CameraController is MyCameraBlock && (MySession.Static.CameraController as MyCameraBlock).Parent == m_shipGrid);
                 }
                 else

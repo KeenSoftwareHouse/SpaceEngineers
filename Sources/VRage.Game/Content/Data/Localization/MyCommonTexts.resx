@@ -2419,4 +2419,10 @@ Do you want to continue?</value>
   <data name="SignalMode_Switch_Off" xml:space="preserve">
     <value>Signals switched off.</value>
   </data>
+  <data name="Notification_CannotManipulateDoor" xml:space="preserve">
+    <value>Cannot open or close the door. Check for blocking objects!</value>
+  </data>
+  <data name="AudioSettings_UseMusicController" xml:space="preserve">
+    <value>Use contextual music</value>
+  </data>
 </root>

@@ -44,6 +44,8 @@ namespace Sandbox.Game.Entities.Blocks
         private float m_lightTurningOnSpeed = 0.05f;
         private bool m_positionDirty = true;
 
+        MatrixD m_oldWorldMatrix = MatrixD.Zero;
+
         #region Properties
 
         public new MyLightingBlockDefinition BlockDefinition
@@ -119,8 +121,11 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Terminal properties
-        static MyLightingBlock()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyLightingBlock>())
+                return;
+
             var lightColor = new MyTerminalControlColor<MyLightingBlock>("Color", MySpaceTexts.BlockPropertyTitle_LightColor);
             lightColor.Getter = (x) => x.Color;
             lightColor.Setter = (x, v) => x.m_lightColor.Value = v;
@@ -395,6 +400,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyLightingBlock()
         {
+            CreateTerminalControls();
+
             this.Render = new MyRenderComponentLight();
 
             m_lightColor.ValueChanged += x => LightColorChanged();
@@ -573,6 +580,13 @@ namespace Sandbox.Game.Entities.Blocks
                     m_light.MarkPropertiesDirty();
             }
             oldWorldPosition = worldPosition;
+
+            if (m_oldWorldMatrix.Forward != WorldMatrix.Forward)
+            {
+                if (m_light != null)
+                    m_light.MarkPropertiesDirty();
+            }
+            m_oldWorldMatrix = WorldMatrix;
         }
 
         private void UpdateLightPosition()

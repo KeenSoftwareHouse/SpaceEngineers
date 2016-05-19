@@ -1,4 +1,4 @@
-﻿#if !UNSHARPER
+﻿#if !XB1
 #region Using
 
 using SharpDX.DirectInput;

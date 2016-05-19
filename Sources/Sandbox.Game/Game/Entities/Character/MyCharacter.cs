@@ -494,6 +494,8 @@ namespace Sandbox.Game.Entities.Character
         float m_currentAnimationToIKTime = 0.3f;
         int m_animationToIKState = 0; //0 - none, -1 IK to Animation, 1 AnimationToIK
 
+        private static bool? m_localCharacterWasInThirdPerson = null;
+
         MyCharacterDefinition m_characterDefinition;
 
         public MyCharacterDefinition Definition
@@ -553,6 +555,14 @@ namespace Sandbox.Game.Entities.Character
             set
             {
                 m_targetFromCamera = value;
+            }
+        }
+
+        public MyToolbar Toolbar
+        {
+            get
+            {
+                return MyToolbarComponent.CharacterToolbar;
             }
         }
 
@@ -928,8 +938,8 @@ namespace Sandbox.Game.Entities.Character
 
             // Setup first person view for local player from previous state before die.
             IsInFirstPersonView = MySession.Static.Settings.Enable3rdPersonView == false
-                || (MyThirdPersonSpectator.Static.LocalCharacterWasInThirdPerson != null
-                ? characterOb.IsInFirstPersonView && !MyThirdPersonSpectator.Static.LocalCharacterWasInThirdPerson.Value : characterOb.IsInFirstPersonView);
+                || (m_localCharacterWasInThirdPerson != null
+                ? characterOb.IsInFirstPersonView && !m_localCharacterWasInThirdPerson.Value : characterOb.IsInFirstPersonView);
 
             m_breath = new MyCharacterBreath(this);
 
@@ -4268,6 +4278,7 @@ namespace Sandbox.Game.Entities.Character
 
 
                 m_localHeadTransform.Value = transformToBeSent;
+
                 return headMatrix;
             }
             else
@@ -5198,43 +5209,21 @@ namespace Sandbox.Game.Entities.Character
         {
             if (m_currentMovementState != MyCharacterMovementEnum.Died)
             {
-                //MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
-
-                //if (detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.OpenInventory))
-                //{
-                //    detectorComponent.UseObject.Use(UseActionEnum.OpenInventory, this);
-                //}
-                //else if (MyPerGameSettings.TerminalEnabled)
-                //{
-                //    MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, this, null);
-                //}
-                //else
-                //{
-                //    MyInventoryBase interactedInventory = null;
-                //    var detectedEntity = detectorComponent.DetectedEntity as MyEntity;
-                //    if (detectedEntity != null && (!(detectedEntity is MyCharacter) || (detectedEntity as MyCharacter).IsDead))
-                //    {
-                //        detectedEntity.TryGetInventory(out interactedInventory);
-                //    }
-                //    if (interactedInventory == null && HasInventory)
-                //    {
-                //        interactedInventory = this.GetInventory();
-                //    }
-                //    if (interactedInventory != null)
-                //    {
-                //        ShowAggregateInventoryScreen(interactedInventory);
-                //    }
-                //}
-
-                if (MyPerGameSettings.TerminalEnabled)
+                if (m_currentMovementState != MyCharacterMovementEnum.Died)
                 {
-                    MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, this, null);
-                }
-                else if (HasInventory)
-                {
-                    var inventory = this.GetInventory();
-                    if (inventory != null)
-                        ShowAggregateInventoryScreen(this.GetInventory());
+                    MyCharacterDetectorComponent detectorComponent = Components.Get<MyCharacterDetectorComponent>();
+
+                    //Then for each case and game check below
+                    if (detectorComponent.UseObject != null && detectorComponent.UseObject.IsActionSupported(UseActionEnum.OpenInventory))
+                        detectorComponent.UseObject.Use(UseActionEnum.OpenInventory, this);
+                    else if (MyPerGameSettings.TerminalEnabled)
+                        MyGuiScreenTerminal.Show(MyTerminalPageEnum.Inventory, this, null);
+                    else if (HasInventory)
+                    {
+                        var inventory = this.GetInventory();
+                        if (inventory != null)
+                            ShowAggregateInventoryScreen(this.GetInventory());
+                    }
                 }
             }
         }
@@ -5856,6 +5845,15 @@ namespace Sandbox.Game.Entities.Character
                     TriggerCharacterAnimationEvent(m_handItemDefinition.FingersAnimation.ToLower(), true);
                 }
             }
+            else if (m_handItemDefinition != null)
+            {
+                if (UseNewAnimationSystem)
+                {
+                    TriggerCharacterAnimationEvent("equip_left_tool", true);
+                    TriggerCharacterAnimationEvent("equip_right_tool", true);
+                    TriggerCharacterAnimationEvent(m_handItemDefinition.Id.SubtypeName.ToLower(), true);
+                }
+            }
             else
             {
                 StopFingersAnimation(0);
@@ -6163,6 +6161,11 @@ namespace Sandbox.Game.Entities.Character
             if (UseDamageSystem)
                 MyDamageSystem.Static.RaiseAfterDamageApplied(this, damageInfo);
 
+            if (updateSync)
+                TriggerCharacterAnimationEvent("hurt", true);
+            else
+                AnimationController.TriggerAction(MyAnimationVariableStorageHints.StrIdActionHurt);
+
             return true;
         }
 
@@ -6234,7 +6237,7 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
             if (MySession.Static.LocalCharacter == this)
-                MyThirdPersonSpectator.Static.LocalCharacterWasInThirdPerson = !IsInFirstPersonView;
+                m_localCharacterWasInThirdPerson = !IsInFirstPersonView;
 
             MyHud.CharacterInfo.HealthRatio = 0f;
             SoundComp.PlayDeathSound(StatComp != null ? StatComp.LastDamage.Type : MyStringHash.NullOrEmpty);
@@ -7018,6 +7021,7 @@ namespace Sandbox.Game.Entities.Character
 
         void UpdateWeaponPosition()
         {
+            bool isInFirstPerson = IsInFirstPersonView || ForceFirstPersonCamera;
             bool isLocallyControlled = ControllerInfo.IsLocallyControlled();
 
             var headMatrix = GetHeadMatrix(false, false, true, true, preferLocalOverSync: true);
@@ -7030,7 +7034,7 @@ namespace Sandbox.Game.Entities.Character
             //MatrixD weaponMatrixPositioned = GetHeadMatrix(!isLocallyControlled, true, false, true, preferLocalOverSync: true);
             MatrixD weaponMatrixPositioned = GetHeadMatrix(false, !canFly, false, true, preferLocalOverSync: true);
             if (isLocallyControlled && MyInput.Static.IsGameControlPressed(Sandbox.Game.MyControlsSpace.LOOKAROUND)
-                && !IsInFirstPersonView && !ForceFirstPersonCamera)
+                && !IsInFirstPersonView && !ForceFirstPersonCamera && !canFly)
             {
                 // restore orientation from backup (user rotates camera around chracter)
                 Vector3D translationBackup = weaponMatrixPositioned.Translation;
@@ -7070,9 +7074,9 @@ namespace Sandbox.Game.Entities.Character
             float shootBlendTime = m_handItemDefinition.ShootBlend;
 
             bool isWalkingState = IsWalkingState(m_currentMovementState);
-            MatrixD standingMatrix = isLocallyControlled && m_isInFirstPerson ? m_handItemDefinition.ItemLocation : m_handItemDefinition.ItemLocation3rd;
-            MatrixD walkingMatrix = isLocallyControlled && m_isInFirstPerson ? m_handItemDefinition.ItemWalkingLocation : m_handItemDefinition.ItemWalkingLocation3rd;
-            MatrixD shootingMatrix = isLocallyControlled && m_isInFirstPerson ? m_handItemDefinition.ItemShootLocation : m_handItemDefinition.ItemShootLocation3rd;
+            MatrixD standingMatrix = isLocallyControlled && isInFirstPerson ? m_handItemDefinition.ItemLocation : m_handItemDefinition.ItemLocation3rd;
+            MatrixD walkingMatrix = isLocallyControlled && isInFirstPerson ? m_handItemDefinition.ItemWalkingLocation : m_handItemDefinition.ItemWalkingLocation3rd;
+            MatrixD shootingMatrix = isLocallyControlled && isInFirstPerson ? m_handItemDefinition.ItemShootLocation : m_handItemDefinition.ItemShootLocation3rd;
 
             
             if (m_currentHandItemWalkingBlend != -1 && totalBlendTime > 0)
@@ -7189,7 +7193,7 @@ namespace Sandbox.Game.Entities.Character
             float runScale = 1.0f;
             if (m_currentMovementState == MyCharacterMovementEnum.Sprinting)
                 runScale = m_handItemDefinition.RunMultiplier;
-            if (!m_isInFirstPerson || !isLocallyControlled)
+            if (!isInFirstPerson || !isLocallyControlled)
                 runScale *= m_handItemDefinition.AmplitudeMultiplier3rd;
 
             MatrixD ironsightMatrixPositioned = ironsightMatrix * weaponMatrixPositioned;
@@ -8847,7 +8851,7 @@ namespace Sandbox.Game.Entities.Character
 
         void ToolHeadTransformChanged()
         {
-            MyEngineerToolBase tool = m_currentWeapon as MyEngineerToolBase;
+            MyEngineerToolBase tool =  m_currentWeapon as MyEngineerToolBase;
             if (tool != null && ControllerInfo.IsLocallyControlled() == false)
             {
                 tool.UpdateSensorPosition();

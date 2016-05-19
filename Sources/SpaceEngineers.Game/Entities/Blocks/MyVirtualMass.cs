@@ -20,7 +20,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_VirtualMass))]
-    class MyVirtualMass : MyFunctionalBlock, IMyVirtualMass
+    public class MyVirtualMass : MyFunctionalBlock, IMyVirtualMass
     {
         #region Properties
 

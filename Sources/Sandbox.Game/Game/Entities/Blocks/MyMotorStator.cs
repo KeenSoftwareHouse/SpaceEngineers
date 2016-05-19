@@ -25,7 +25,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorStator))]
-    class MyMotorStator : MyMotorBase, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyMotorStator
+    public class MyMotorStator : MyMotorBase, IMyConveyorEndpointBlock, Sandbox.ModAPI.IMyMotorStator
     {
         const float NormalizedToRadians = (float)(2.0f * Math.PI);
         const float DegreeToRadians = (float)(Math.PI / 180.0f);
@@ -77,20 +77,34 @@ namespace Sandbox.Game.Entities.Cube
 
         event Action<bool> LimitReached;
 
-        static MyMotorStator()
+        public MyMotorStator()
         {
+            CreateTerminalControls();
+
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
+            m_canBeDetached = true;
+
+            SyncType.PropertyChanged += SyncType_PropertyChanged;
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyMotorStator>())
+                return;
+
             var reverse = new MyTerminalControlButton<MyMotorStator>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (b) => b.TargetVelocityRPM = -b.TargetVelocityRPM);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
 
-            var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = null, MasterToSlave = null});
+            var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = null, MasterToSlave = null });
             detach.Enabled = (b) => b.m_rotorBlockId.Value.OtherEntityId.HasValue && b.m_isWelding == false && b.m_welded == false;
             detach.Visible = (b) => b.m_canBeDetached;
             var actionDetach = detach.EnableAction(MyTerminalActionIcons.NONE);
             actionDetach.Enabled = (b) => b.m_canBeDetached;
             MyTerminalControlFactory.AddControl(detach);
 
-            var attach = new MyTerminalControlButton<MyMotorStator>("Attach", MySpaceTexts.BlockActionTitle_Attach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = 0, MasterToSlave = null});
+            var attach = new MyTerminalControlButton<MyMotorStator>("Attach", MySpaceTexts.BlockActionTitle_Attach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = 0, MasterToSlave = null });
             attach.Enabled = (b) => !b.m_rotorBlockId.Value.OtherEntityId.HasValue;
             attach.Visible = (b) => b.m_canBeDetached;
             var actionAttach = attach.EnableAction(MyTerminalActionIcons.NONE);
@@ -169,15 +183,6 @@ namespace Sandbox.Game.Entities.Cube
             weldForce.Setter = (x, v) => x.m_forceWeld.Value = v;
             weldForce.EnableAction();
             MyTerminalControlFactory.AddControl(weldForce);
-        }
-
-        public MyMotorStator()
-        {
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
-            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
-            m_canBeDetached = true;
-
-            SyncType.PropertyChanged += SyncType_PropertyChanged;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)

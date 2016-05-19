@@ -104,8 +104,22 @@ namespace Sandbox.Game.Entities.Blocks
 
         event Action<bool> LimitReached;
 
-        static MyPistonBase()
+        public MyPistonBase()
         {
+            CreateTerminalControls();
+
+            m_currentPos.ValueChanged += (o) => UpdatePosition(true);
+            m_topBlockId.ValueChanged += (o) => OnAttachTargetChanged();
+            m_topBlockId.Validate = ValidatePistonBlockId;
+            m_weldedEntityId.ValidateNever();
+            m_weldedEntityId.ValueChanged += (o) => OnWeldedEntityIdChanged();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyPistonBase>())
+                return;
+
             var reverse = new MyTerminalControlButton<MyPistonBase>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (x) => x.Velocity.Value = -x.Velocity);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
@@ -164,15 +178,6 @@ namespace Sandbox.Game.Entities.Blocks
             addPistonHead.Enabled = (b) => (b.m_topBlock == null);
             addPistonHead.EnableAction(MyTerminalActionIcons.STATION_ON);
             MyTerminalControlFactory.AddControl(addPistonHead);
-        }
-
-        public MyPistonBase()
-        {
-            m_currentPos.ValueChanged += (o) => UpdatePosition(true);
-            m_topBlockId.ValueChanged += (o) => OnAttachTargetChanged();
-            m_topBlockId.Validate = ValidatePistonBlockId;
-            m_weldedEntityId.ValidateNever();
-            m_weldedEntityId.ValueChanged += (o) => OnWeldedEntityIdChanged();
         }
 
         private bool ValidatePistonBlockId(long? newValue)
@@ -649,7 +654,9 @@ namespace Sandbox.Game.Entities.Blocks
                     if (m_topGrid == null && m_topBlockId.Value.HasValue && m_topBlockId.Value.Value != 0)
                     {
                         if (MyEntities.TryGetEntityById<MyPistonTop>(m_topBlockId.Value.Value, out m_topBlock))
+                        {
                             m_topGrid = m_topBlock.CubeGrid;
+                        }
                     }
                 }
                 if (m_topGrid != null && MyWeldingGroups.Static.GetGroup(CubeGrid) != MyWeldingGroups.Static.GetGroup(m_topGrid))
@@ -1215,6 +1222,25 @@ namespace Sandbox.Game.Entities.Blocks
 
         }
 
+        MyPistonTop FindTopInGrid(IMyEntity entity, Vector3D pos)
+        {
+            var grid = entity as MyCubeGrid;
+            if (grid != null)
+            {
+                var blockPos = grid.RayCastBlocks(pos, pos + WorldMatrix.Up);
+                if (blockPos.HasValue)
+                {
+                    var slimBlock = grid.GetCubeBlock(blockPos.Value);
+                    if (slimBlock != null && slimBlock.FatBlock != null)
+                    {
+                        return slimBlock.FatBlock as MyPistonTop;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         protected MyPistonTop FindMatchingTop()
         {
             Debug.Assert(CubeGrid != null);
@@ -1251,21 +1277,24 @@ namespace Sandbox.Game.Entities.Blocks
                     if (entity == null || entity == CubeGrid)
                         continue;
 
-                    var grid = entity as MyCubeGrid;
-                    if (grid == null)
-                        continue;
+                    MyPistonTop top =  FindTopInGrid(entity,pos);
 
-                    // Tops should always be on position [0,0,0];
-                    var blockPos = grid.RayCastBlocks(pos, pos + WorldMatrix.Up);
-                    if (blockPos.HasValue)
+                    if (top != null)
                     {
-                        var slimBlock = grid.GetCubeBlock(blockPos.Value);
-                        if (slimBlock == null || slimBlock.FatBlock == null)
-                            continue;
+                        return top;
+                    }
 
-                        var top = slimBlock.FatBlock as MyPistonTop;
-                        if (top != null)
-                            return top;
+                    MyPhysicsBody body = entity.Physics as MyPhysicsBody;
+                    if (body != null)
+                    {
+                        foreach (var child in body.WeldInfo.Children)
+                        {
+                            top = FindTopInGrid(child.Entity, pos);
+                            if (top != null)
+                            {
+                                return top;
+                            }
+                        }
                     }
                 }
             }

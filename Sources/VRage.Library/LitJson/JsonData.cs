@@ -19,7 +19,7 @@ using System.IO;
 
 namespace LitJson
 {
-#if !BLIT
+#if !XB1
     public class JsonData : IJsonWrapper, IEquatable<JsonData>
     {
         #region Fields

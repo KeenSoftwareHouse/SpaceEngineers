@@ -235,8 +235,10 @@ namespace Sandbox.Game.Gui
             MyAudio.Static.VolumeGame = MySandboxGame.Config.GameVolume;
             MyAudio.Static.VolumeHud = MySandboxGame.Config.GameVolume;
 
-            if (MyPerGameSettings.UseMusicController && MyFakes.ENABLE_MUSIC_CONTROLLER && MySandboxGame.IsDedicated == false)
+            if (MyPerGameSettings.UseMusicController && MyFakes.ENABLE_MUSIC_CONTROLLER && MySandboxGame.Config.EnableDynamicMusic && MySandboxGame.IsDedicated == false)
                 MyMusicController.Static = new MyMusicController(MyAudio.Static.GetAllMusicCues());
+
+            MyAudio.Static.MusicAllowed = (MyMusicController.Static == null);
             if (MyMusicController.Static != null)
                 MyMusicController.Static.Active = true;
             else
@@ -637,7 +639,7 @@ namespace Sandbox.Game.Gui
                     }
                 }
             }
-            if ((!MyCompilationSymbols.ProfileFromStart || !VRageRender.Profiler.MyRenderProfiler.ProfilerProcessingEnabled) && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            if (!VRageRender.Profiler.MyRenderProfiler.ProfilerVisible && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
             {
                 if (MyGuiScreenChat.Static == null)
                 {
@@ -855,10 +857,14 @@ namespace Sandbox.Game.Gui
                     else
                     {
                         // Stop the controlled entity from rolling when the character tries to in freelook mode
-                        if (MySession.Static.ControlledEntity is MyRemoteControl || MySession.Static.ControlledEntity is MyCockpit || !MySession.Static.CameraController.IsInFirstPersonView)
+                        if (MySession.Static.ControlledEntity is MyRemoteControl)
                         {
                             rotationIndicator = Vector2.Zero;
                             rollIndicator = 0f;
+                        }
+                        else if (MySession.Static.ControlledEntity is MyCockpit || !MySession.Static.CameraController.IsInFirstPersonView)
+                        {
+                            rotationIndicator = Vector2.Zero;
                         }
 
                         MySession.Static.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
@@ -1181,6 +1187,8 @@ namespace Sandbox.Game.Gui
                 MySector.SunProperties.AmbientMultiplier,
                 MySector.SunProperties.EnvironmentAmbientIntensity,
                 MySector.SunProperties.BackgroundColor,
+                MySector.BackgroundTexture,
+                MySector.BackgroundTexture,
                 MySector.BackgroundTexture,
                 MySector.BackgroundOrientation,
                 MySector.SunProperties.SunSizeMultiplier,

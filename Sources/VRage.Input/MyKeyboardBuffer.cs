@@ -1,4 +1,4 @@
-﻿
+﻿#if !XB1
 namespace VRage.Input
 {
     public struct MyKeyboardBuffer
@@ -41,3 +41,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

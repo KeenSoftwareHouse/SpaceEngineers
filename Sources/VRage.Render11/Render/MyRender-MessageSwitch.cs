@@ -1257,8 +1257,11 @@ namespace VRageRender
                     MyEnvironment.SunSizeMultiplier = rMessage.SunSizeMultiplier;
                     MyEnvironment.SunBillboardEnabled = rMessage.SunBillboardEnabled;
                     MyEnvironment.PlanetFactor = rMessage.PlanetFactor;
-                    MyEnvironment.DaySkybox = rMessage.BackgroundTexture;
+                    MyEnvironment.DaySkybox = rMessage.DayBackgroundTexture;
+                    MyEnvironment.NightSkybox = rMessage.NightBackgroundTexture;
+                    MyEnvironment.NightSkyboxPrefiltered = rMessage.NightBackgroundPrefilteredTexture;
                     MyEnvironment.BackgroundOrientation = rMessage.BackgroundOrientation;
+					MyEnvironment.BackgroundColor = rMessage.BackgroundColor;
 
                     m_resetEyeAdaptation = m_resetEyeAdaptation || rMessage.ResetEyeAdaptation;
 

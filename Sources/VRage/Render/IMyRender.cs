@@ -62,7 +62,7 @@ namespace VRageRender
         void ApplySettings(MyRenderDeviceSettings settings);
 
         void Present();
-        void ClearBackbuffer(ColorBGRA clearColor);
+        void ClearBackbuffer(VRageMath.Color clearColor);
         MyViewport MainViewport { get; }
         Vector2I BackBufferResolution { get; }
 

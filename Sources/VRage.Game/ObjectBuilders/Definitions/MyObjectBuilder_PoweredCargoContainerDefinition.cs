@@ -9,5 +9,8 @@ namespace VRage.Game
 	{
 		[ProtoMember]
 		public string ResourceSinkGroup;
-	}
+    
+        [ProtoMember]
+        public float RequiredPowerInput;
+    }
 }

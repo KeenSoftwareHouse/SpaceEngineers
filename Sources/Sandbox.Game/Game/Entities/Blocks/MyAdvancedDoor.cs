@@ -68,6 +68,8 @@ namespace Sandbox.Game.Entities
 
         public MyAdvancedDoor()
         {
+            CreateTerminalControls();
+
             m_subparts.Clear();
             m_subpartIDs.Clear();
             m_currentOpening.Clear();
@@ -167,8 +169,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        static MyAdvancedDoor()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyAdvancedDoor>())
+                return;
+
             var open = new MyTerminalControlOnOffSwitch<MyAdvancedDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
             open.Getter = (x) => x.Open;
             open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);

@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using System;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -120,8 +121,8 @@ namespace Sandbox.Game.Entities
         //        MyGunTypeEnum? m_selectedGunType;
         MyDefinitionId? m_selectedGunId;
 
-        public MyToolbar Toolbar;
-        public MyToolbar BuildToolbar;
+        private MyToolbar m_toolbar;
+        private MyToolbar m_buildToolbar;
         public bool BuildingMode = false;
         public bool hasPower = false;
 
@@ -149,6 +150,17 @@ namespace Sandbox.Game.Entities
         {
             get;
             set;
+        }
+
+        public MyToolbar Toolbar
+        {
+            get
+            {
+                if (BuildingMode)
+                    return m_buildToolbar;
+                else
+                    return m_toolbar;
+            }
         }
 
         /// <summary>
@@ -200,8 +212,39 @@ namespace Sandbox.Game.Entities
 
         #region Init
 
-        static MyShipController()
+        public virtual MyCharacter Pilot
         {
+            get { return null; }
+        }
+        protected MyCharacter m_lastPilot = null;
+
+        protected virtual ControllerPriority Priority
+        {
+            get
+            {
+                return ControllerPriority.Primary;
+            }
+        }
+
+        public MyShipController()
+        {
+            CreateTerminalControls();
+
+            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
+            ControllerInfo.ControlAcquired += OnControlAcquired;
+            ControllerInfo.ControlReleased += OnControlReleased;
+            GridSelectionSystem = new MyGridSelectionSystem(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
+
+            m_isMainCockpit.ValueChanged += (x) => MainCockpitChanged();
+            m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyShipController>())
+                return;
+
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
                 var controlThrusters = new MyTerminalControlCheckbox<MyShipController>("ControlThrusters", MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters, MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters);
@@ -263,39 +306,13 @@ namespace Sandbox.Game.Entities
 
             MyTerminalControlFactory.AddControl(mainCockpit);
 
-			m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
-			m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
-			m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
-			m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
-			m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
-			m_horizonIndicator.EnableAction();
-			MyTerminalControlFactory.AddControl(m_horizonIndicator);           
-        }
-
-        public virtual MyCharacter Pilot
-        {
-            get { return null; }
-        }
-        protected MyCharacter m_lastPilot = null;
-
-        protected virtual ControllerPriority Priority
-        {
-            get
-            {
-                return ControllerPriority.Primary;
-            }
-        }
-
-        public MyShipController()
-        {
-            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
-            ControllerInfo.ControlAcquired += OnControlAcquired;
-            ControllerInfo.ControlReleased += OnControlReleased;
-            GridSelectionSystem = new MyGridSelectionSystem(this);
-            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
-
-            m_isMainCockpit.ValueChanged += (x) => MainCockpitChanged();
-            m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
+            m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
+            m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
+            m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
+            m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
+            m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
+            m_horizonIndicator.EnableAction();
+            MyTerminalControlFactory.AddControl(m_horizonIndicator);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -327,11 +344,11 @@ namespace Sandbox.Game.Entities
             }
 
 			HorizonIndicatorEnabled = shipControllerOb.HorizonIndicatorEnabled;
-            Toolbar = new MyToolbar(ToolbarType); ;
-            Toolbar.Init(shipControllerOb.Toolbar, this);
+            m_toolbar = new MyToolbar(ToolbarType);
+            m_toolbar.Init(shipControllerOb.Toolbar, this);
 
-            BuildToolbar = new MyToolbar(MyToolbarType.BuildCockpit);
-            BuildToolbar.Init(shipControllerOb.BuildToolbar, this);
+            m_buildToolbar = new MyToolbar(MyToolbarType.BuildCockpit);
+            m_buildToolbar.Init(shipControllerOb.BuildToolbar, this);
 
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -375,7 +392,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.ControlThrusters = m_controlThrusters;
             objectBuilder.ControlWheels = m_controlWheels;
             objectBuilder.Toolbar = Toolbar.GetObjectBuilder();
-            objectBuilder.BuildToolbar = BuildToolbar.GetObjectBuilder();
+            objectBuilder.BuildToolbar = m_buildToolbar.GetObjectBuilder();
             objectBuilder.IsMainCockpit = m_isMainCockpit;
 			objectBuilder.HorizonIndicatorEnabled = HorizonIndicatorEnabled;
 
@@ -569,7 +586,7 @@ namespace Sandbox.Game.Entities
 
         }
 
-        public bool ForceFirstPersonCamera
+        public virtual bool ForceFirstPersonCamera
         {
             get
             {
@@ -2614,7 +2631,6 @@ namespace Sandbox.Game.Entities
         {
 
         }
-
     }
 }
 

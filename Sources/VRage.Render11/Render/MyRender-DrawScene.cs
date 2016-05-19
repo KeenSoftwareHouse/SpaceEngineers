@@ -231,7 +231,9 @@ namespace VRageRender
             ResetStats();
 
             ProfilerShort.BeginNextBlock("GBuffer clear");
-            MyGBuffer.Main.Clear();
+            MyGBuffer.Main.Clear(VRageMath.Color.Black);
+            //TODO: Find out why clearing to White affects result image
+            //MyGBuffer.Main.Clear(MyEnvironment.BackgroundColor);
 
             ProfilerShort.BeginNextBlock("Constants");
             MySceneMaterials.PreFrame();
@@ -310,7 +312,10 @@ namespace VRageRender
 
             SendGlobalOutputMessages();
             ExecuteCommandLists(m_commandLists);
+
+#if !UNSHARPER_TMP
             MyEnvironmentProbe.FinalizeEnvProbes();
+#endif
 
             // cleanup context atfer deferred lists
             if (MyRender11.DeferredContextsEnabled)

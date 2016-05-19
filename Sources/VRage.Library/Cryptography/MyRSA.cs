@@ -13,7 +13,7 @@ namespace VRage.Common.Utils
 {
     public class MyRSA
 	{
-#if BLIT
+#if XB1
 #else
         private HashAlgorithm m_hasher;
 

@@ -36,7 +36,7 @@ using VRage.Game.ModAPI.Ingame;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ShipConnector))]
-    partial class MyShipConnector : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipConnector
+    public partial class MyShipConnector : MyFunctionalBlock, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipConnector
     {
         /// <summary>
         /// Represents connector state, atomic for sync, 8 B + 1b + 1b/12.5B
@@ -112,8 +112,21 @@ namespace Sandbox.Game.Entities.Cube
 
         public int DetectedGridCount { get { return m_detectedGrids.Count; } }
 
-        static MyShipConnector()
+        public MyShipConnector()
         {
+            CreateTerminalControls();
+
+            m_connectionState.ValueChanged += (o) => OnConnectionStateChanged();
+            m_connectionState.ValidateNever(); // Never set by client
+            m_manualDisconnectTime = new MyTimeSpan(-DisconnectSleepTime.Ticks);
+            Strength.Validate = (o) => Strength >= 0 && Strength <= 1;
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyShipConnector>())
+                return;
+
             var throwOut = new MyTerminalControlOnOffSwitch<MyShipConnector>("ThrowOut", MySpaceTexts.Terminal_ThrowOut);
             throwOut.Getter = (block) => block.ThrowOut;
             throwOut.Setter = (block, value) => block.ThrowOut.Value = value;
@@ -163,14 +176,6 @@ namespace Sandbox.Game.Entities.Cube
                     result.AppendFormatedDecimal("", x.Strength * 100, 4, " %");
             };
             MyTerminalControlFactory.AddControl(strength);
-        }
-
-        public MyShipConnector()
-        {
-            m_connectionState.ValueChanged += (o) => OnConnectionStateChanged();
-            m_connectionState.ValidateNever(); // Never set by client
-            m_manualDisconnectTime = new MyTimeSpan(-DisconnectSleepTime.Ticks);
-            Strength.Validate = (o) => Strength >= 0 && Strength <= 1;
         }
 
         private void OnConnectionStateChanged()

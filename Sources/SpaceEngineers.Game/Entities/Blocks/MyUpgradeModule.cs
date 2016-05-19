@@ -19,7 +19,7 @@ using SpaceEngineers.Definitions;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_UpgradeModule))]
-    class MyUpgradeModule : MyFunctionalBlock, ModAPI.IMyUpgradeModule
+    public class MyUpgradeModule : MyFunctionalBlock, ModAPI.IMyUpgradeModule
     {
         private ConveyorLinePosition[] m_connectionPositions;
         private Dictionary<ConveyorLinePosition, MyCubeBlock> m_connectedBlocks;

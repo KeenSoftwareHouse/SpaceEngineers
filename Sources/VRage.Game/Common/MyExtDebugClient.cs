@@ -118,10 +118,13 @@ namespace VRage.Game.Common
 
                 try
                 {
+                    if (m_client.Client == null)
+                        continue;
+
                     m_client.Client.Receive(m_arrayBuffer, 0, MyExternalDebugStructures.MsgHeaderSize, SocketFlags.None);
                     Marshal.Copy(m_arrayBuffer, 0, m_tempBuffer, MyExternalDebugStructures.MsgHeaderSize);
                     MyExternalDebugStructures.CommonMsgHeader header = (MyExternalDebugStructures.CommonMsgHeader)
-                        Marshal.PtrToStructure(m_tempBuffer, typeof (MyExternalDebugStructures.CommonMsgHeader));
+                        Marshal.PtrToStructure(m_tempBuffer, typeof(MyExternalDebugStructures.CommonMsgHeader));
                     if (header.IsValid)
                     {
                         m_client.Client.Receive(m_arrayBuffer, header.MsgSize, SocketFlags.None);
@@ -133,6 +136,14 @@ namespace VRage.Game.Common
                                 if (handler != null)
                                     handler(header, m_tempBuffer);
                         }
+                    }
+                }
+                catch (SocketException e)
+                {
+                    if (m_client.Client != null)
+                    {
+                        m_client.Client.Close();
+                        m_client.Client = null;
                     }
                 }
                 catch (Exception)

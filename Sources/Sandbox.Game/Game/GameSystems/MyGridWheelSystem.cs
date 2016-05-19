@@ -107,10 +107,7 @@ namespace Sandbox.Game.GameSystems
         {
             Debug.Assert(m_wheels.Contains(motor), "Removing wheel which was not registered.");
             if (motor != null && motor.RotorGrid != null && OnMotorUnregister != null)
-            {
                 OnMotorUnregister(motor.RotorGrid);
-            }
-
             m_wheels.Remove(motor);
             m_wheelsChanged = true;
             motor.EnabledChanged -= motor_EnabledChanged;

@@ -3608,6 +3608,8 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.Begin("m_shipCreationClipboard.Update");
             m_shipCreationClipboard.Update();
+            if (m_shipCreationClipboard.IsActive)
+                m_shipCreationClipboard.UpdateColor(MyPlayer.SelectedColor);
             ProfilerShort.End();
 
             ProfilerShort.Begin("m_multiBlockCreationClipboard.Update");

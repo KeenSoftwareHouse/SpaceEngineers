@@ -10,7 +10,7 @@ namespace VRage.Win32
 
     public static partial class WinApi
     {
-#if BLIT // from winapi-structures
+#if XB1 // from winapi-structures
 		public delegate bool ConsoleEventHandler(CtrlType sig);
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 

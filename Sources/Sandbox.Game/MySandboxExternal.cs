@@ -40,7 +40,7 @@ namespace Sandbox
             DrawThread = Thread.CurrentThread;
 
             MyRenderWindow wnd = new MyRenderWindow();
-#if BLIT
+#if XB1
 			System.Diagnostics.Debug.Assert(false);
             wnd.Control = (SharpDX.Windows.RenderForm)Control.FromHandle(WindowHandle);
 #else

@@ -157,6 +157,7 @@ namespace VRage.Compiler
         {
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
+            Options.TempFiles = new TempFileCollection(null, false);
             string[] sources = UpdateCompatibility(files);
             var result = m_cp.CompileAssemblyFromSource(Options, sources);
             return CheckResultInternal(out assembly, errors, result, false);
@@ -168,6 +169,7 @@ namespace VRage.Compiler
             Options.GenerateInMemory = true;
             Options.GenerateExecutable = false;
             Options.IncludeDebugInformation = false;
+            Options.TempFiles = new TempFileCollection(null, false);
             var result = m_cp.CompileAssemblyFromSource(Options, source);
             return CheckResultInternal(out assembly, errors, result,true);
         }
@@ -234,6 +236,7 @@ namespace VRage.Compiler
         public static bool Compile(string assemblyName, string[] fileContents, out Assembly assembly, List<string> errors, bool isIngameScript)
         {
             Options.OutputAssembly = assemblyName;
+            Options.TempFiles = new TempFileCollection(null, false);
             var result = m_cp.CompileAssemblyFromSource(Options, fileContents);
             return CheckResultInternal(out assembly, errors, result,isIngameScript);
         }
@@ -248,6 +251,7 @@ namespace VRage.Compiler
                 m_cache.AppendFormat(invokeWrapper, instructions);
             else
                 m_cache.Append(instructions[0]);
+            Options.TempFiles = new TempFileCollection(null, false);
             var result = m_cp.CompileAssemblyFromSource(Options, m_cache.ToString());
             if (result.Errors.HasErrors)
                 return false;

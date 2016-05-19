@@ -7,9 +7,11 @@
         <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Space_spider_black</SubtypeId>
       </Id>
+	  
+	  <AnimationController>Space_spider</AnimationController>
 
       <Name>Space_spider_black</Name>
-      <Model>Models\Characters\Wildlife\SE_spider_black.mwm</Model>
+      <Model>Models\Characters\Wildlife\SE_spider_black.mwm</Model>	  
       <DeathSoundName>ArcBotSpiderDeath</DeathSoundName>
       <LoopingFootsteps>true</LoopingFootsteps>
       <PhysicalMaterial>Spider</PhysicalMaterial>
@@ -278,6 +280,8 @@
         <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Space_spider_brown</SubtypeId>
       </Id>
+	  
+	  <AnimationController>Space_spider</AnimationController>
 
       <Name>Space_spider_brown</Name>
       <Model>Models\Characters\Wildlife\SE_spider_brown.mwm</Model>
@@ -548,6 +552,8 @@
         <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Space_spider_green</SubtypeId>
       </Id>
+	  
+	  <AnimationController>Space_spider</AnimationController>
 
       <Name>Space_spider_green</Name>
       <Model>Models\Characters\Wildlife\SE_spider_green.mwm</Model>
@@ -818,6 +824,8 @@
         <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Space_spider</SubtypeId>
       </Id>
+	  
+	  <AnimationController>Space_spider</AnimationController>
 
       <Name>Space_spider</Name>
       <Model>Models\Characters\Wildlife\SE_spider.mwm</Model>

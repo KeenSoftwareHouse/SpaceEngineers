@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+#if !XB1
 using System.Windows.Forms;
+#endif
 using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
@@ -820,8 +822,19 @@ namespace Sandbox.Graphics.GUI
                 }
             }
 
+            void CopyToClipboard()
+            {
+#if !XB1
+                if(ClipboardText != "")
+                    Clipboard.SetText(ClipboardText);
+#else
+                Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
+            }
+
             public void PasteText(MyGuiControlTextbox sender)
             {
+#if !XB1
                 //First we erase the selection
                 EraseText(sender);
                 
@@ -838,11 +851,18 @@ namespace Sandbox.Graphics.GUI
                 sender.Text = new StringBuilder(prefix).Append(ClipboardText).Append(suffix).ToString();
                 sender.CarriagePositionIndex = prefix.Length + ClipboardText.Length;
                 Reset(sender);
+#else
+                Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
             }
 
             void PasteFromClipboard()
             {
+#if !XB1
                 ClipboardText = Clipboard.GetText();
+#else
+                Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
             }
         }
 

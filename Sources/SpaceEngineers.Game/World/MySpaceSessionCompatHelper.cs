@@ -15,6 +15,8 @@ namespace World
 	{
 		public override void FixSessionObjectBuilders(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
 		{
+            base.FixSessionObjectBuilders(checkpoint, sector);
+
 			if (sector.AppVersion == 0)
 			{
 				HashSet<String> previouslyColored = new HashSet<String>();

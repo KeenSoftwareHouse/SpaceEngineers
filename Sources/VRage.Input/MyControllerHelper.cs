@@ -49,6 +49,8 @@ namespace VRage.Input
             { MyJoystickButtonsEnum.JDUp, '\xe011' },
             { MyJoystickButtonsEnum.JDRight, '\xe012' },
             { MyJoystickButtonsEnum.JDDown, '\xe013' },
+            { MyJoystickButtonsEnum.J11, '\xe007' },
+            { MyJoystickButtonsEnum.J12, '\xe008' },
         };
         #endregion
 

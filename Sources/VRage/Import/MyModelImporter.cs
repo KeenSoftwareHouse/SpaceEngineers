@@ -38,7 +38,7 @@ namespace VRage.Import
             {
                 m_tagReader = tagReader;
             }
-#if !BLIT
+#if !XB1
             T ReadTag(BinaryReader reader, int version)
             {
                 return m_tagReader(reader, version);
@@ -46,7 +46,7 @@ namespace VRage.Import
 #endif
             public object Read(BinaryReader reader, int version)
             {
-#if BLIT
+#if XB1
 				return m_tagReader(reader, version);
 #else
 				return ReadTag(reader, version);

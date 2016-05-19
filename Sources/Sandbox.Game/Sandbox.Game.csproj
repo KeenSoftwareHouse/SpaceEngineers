@@ -73,6 +73,49 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
   <PropertyGroup>
     <HavokDir>HavokWrapper_SE</HavokDir>
   </PropertyGroup>
@@ -468,6 +511,7 @@
     <Compile Include="Game\EntityComponents\MyShipSoundComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyResearchDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\VoxelsDebugInputComponent\MyVoxelDebugInputComponent.StorageWriteCache.cs" />
+    <Compile Include="Game\GUI\HudViewers\MyHudMarkerRenderBase.cs" />
     <Compile Include="Game\Multiplayer\MySyncDamage.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPhysicalDynamicGroupData.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPhysics.Destruction.cs" />
@@ -932,6 +976,8 @@
     <Compile Include="Game\Screens\Terminal\Controls\ITerminalValueControl.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlCombobox.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlLabel.cs" />
+    <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControlProperty.cs" />
+    <Compile Include="Game\Screens\Terminal\Controls\MyTerminalControls.cs" />
     <Compile Include="Game\Screens\Terminal\Controls\MyTerminalValueControl.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalChatController.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTrigger.cs" />
@@ -1006,8 +1052,10 @@
     <Compile Include="ModAPI\MyGridTerminalSystem_ModAPI.cs" />
     <Compile Include="ModAPI\MyLargeTurretBase_ModAPI.cs" />
     <Compile Include="ModAPI\MyLaserAntenna_ModAPI.cs" />
+    <Compile Include="ModAPI\MyProjectorBase_ModAPI.cs" />
     <Compile Include="ModAPI\MyVoxelShapes_ModAPI.cs" />
     <Compile Include="Game\EntityComponents\Renders\MyRenderComponentEnvironmentItems.cs" />
+    <Compile Include="MyCommonProgramStartup.cs" />
     <Compile Include="MySplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>

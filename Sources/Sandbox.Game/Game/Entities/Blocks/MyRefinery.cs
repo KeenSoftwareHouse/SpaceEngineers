@@ -20,7 +20,7 @@ using VRage.Game.Entity;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Refinery))]
-    class MyRefinery : MyProductionBlock, IMyRefinery
+    public class MyRefinery : MyProductionBlock, IMyRefinery
     {
         private MyEntity m_currentUser;
         private MyRefineryDefinition m_refineryDef;

@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using Sandbox.Game.EntityComponents;
+using Sandbox.ModAPI;
 using VRage;
 using VRage.FileSystem;
 using VRage.Game;
@@ -30,17 +31,8 @@ using VRage.Network;
 
 namespace Sandbox.Game.Entities.Blocks
 {
-    public abstract class MyProjectorBase : MyFunctionalBlock, ModAPI.Ingame.IMyProjector
+    public abstract partial class MyProjectorBase : MyFunctionalBlock
     {
-        public enum BuildCheckResult
-        {
-            OK,
-            NotConnected,
-            IntersectedWithGrid,
-            IntersectedWithSomethingElse,
-            AlreadyBuilt,
-            NotFound,
-        }
 
         public new MyProjectorDefinition BlockDefinition
         {
@@ -1385,50 +1377,5 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         #endregion
-
-        #region ModAPI
-        int ModAPI.Ingame.IMyProjector.ProjectionOffsetX { get { return this.m_projectionOffset.X; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionOffsetY { get { return this.m_projectionOffset.Y; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionOffsetZ { get { return this.m_projectionOffset.Z; } }
-
-        int ModAPI.Ingame.IMyProjector.ProjectionRotX { get { return this.m_projectionRotation.X*90; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionRotY { get { return this.m_projectionRotation.Y * 90; } }
-        int ModAPI.Ingame.IMyProjector.ProjectionRotZ { get { return this.m_projectionRotation.Z* 90; } }
-
-        int ModAPI.Ingame.IMyProjector.RemainingBlocks { get { return this.m_remainingBlocks; } }
-
-
-        bool ModAPI.Ingame.IMyProjector.LoadRandomBlueprint(string searchPattern)
-        {
-            bool success = false;
-            string[] files = System.IO.Directory.GetFiles(Path.Combine(MyFileSystem.ContentPath, "Data", "Blueprints"), searchPattern);
-
-            if (files.Length > 0)
-            {
-                var index = MyRandom.Instance.Next() % files.Length;
-                success = LoadBlueprint(files[index]);
-            }
-            return success;
-        }
-
-        bool ModAPI.Ingame.IMyProjector.LoadBlueprint(string path)
-        {
-            return LoadBlueprint(path);
-        }
-
-        private bool LoadBlueprint(string path)
-        {
-            bool success = false;
-            MyObjectBuilder_Definitions blueprint;
-            blueprint = MyGuiBlueprintScreenBase.LoadPrefab(path);
-
-            if (blueprint != null)
-                success = MyGuiBlueprintScreen.CopyBlueprintPrefabToClipboard(blueprint, m_clipboard);
-
-            OnBlueprintScreen_Closed(null);
-            return success;
-        }
-        #endregion
-
     }
 }

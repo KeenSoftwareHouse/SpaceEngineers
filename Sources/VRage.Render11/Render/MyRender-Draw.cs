@@ -48,7 +48,7 @@ namespace VRageRender
 
                 if (draw)
                 {
-                    MyRender11.ClearBackbuffer(new ColorBGRA(0.0f));
+                    MyRender11.ClearBackbuffer(MyEnvironment.BackgroundColor);
                     MyImmediateRC.RC.Clear();
                     GetRenderProfiler().StartProfilingBlock("ProcessDrawQueue");
                     ProcessDrawQueue();

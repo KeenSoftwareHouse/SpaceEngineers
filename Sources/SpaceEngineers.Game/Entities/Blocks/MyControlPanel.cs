@@ -6,7 +6,7 @@ using SpaceEngineers.Game.ModAPI.Ingame;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ControlPanel))]
-    class MyControlPanel : MyTerminalBlock, IMyControlPanel
+    public class MyControlPanel : MyTerminalBlock, IMyControlPanel
     {
     }
 }

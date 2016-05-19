@@ -42,7 +42,8 @@ namespace Sandbox.Game.Screens.Helpers
             DisplayName = new StringBuilder();
         }
 
-        public virtual void OnClose() { }
+        public virtual void OnRemovedFromToolbar(MyToolbar toolbar) { }
+        public virtual void OnAddedToToolbar(MyToolbar toolbar) { }
 
         public abstract bool Activate();
         public abstract bool Init(MyObjectBuilder_ToolbarItem data);

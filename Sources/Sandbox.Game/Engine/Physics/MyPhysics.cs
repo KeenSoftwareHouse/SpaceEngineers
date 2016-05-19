@@ -34,6 +34,7 @@ namespace Sandbox.Engine.Physics
     using VRage.Game.Components;
     using VRage.Game.Entity;
     using VRage.Game;
+    using ParallelTasks;
 
     [MySessionComponentDescriptor(MyUpdateOrder.Simulation, 500)]
     public class MyPhysics : MySessionComponentBase
@@ -152,6 +153,8 @@ namespace Sandbox.Engine.Physics
                 return MyPerGameSettings.BallFriendlyPhysics ? 3 : float.MaxValue;
             }
         }
+
+        private static SpinLockRef m_raycastLock = new SpinLockRef();
 
         static void InitCollisionFilters(HkWorld world)
         {
@@ -914,27 +917,33 @@ namespace Sandbox.Engine.Physics
 
         public static void CastRay(Vector3D from, Vector3D to, List<HitInfo> toList, int raycastFilterLayer = 0)
         {
-            m_resultWorlds.Clear();
-            Clusters.CastRay(from, to, m_resultWorlds);
-
-            toList.Clear();
-
-            foreach (var world in m_resultWorlds)
+            using (m_raycastLock.Acquire())
             {
-                Vector3 fromF = from - world.AABB.Center;
-                Vector3 toF = to - world.AABB.Center;
+                m_resultWorlds.Clear();
+                Clusters.CastRay(from, to, m_resultWorlds);
 
-                m_resultHits.Clear();
-                ((HkWorld)world.UserData).CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
+                toList.Clear();
 
-                foreach (var hit in m_resultHits)
+                foreach (var world in m_resultWorlds)
                 {
-                    toList.Add(new HitInfo()
+                    Vector3 fromF = from - world.AABB.Center;
+                    Vector3 toF = to - world.AABB.Center;
+
+                    m_resultHits.Clear();
+
+
+                    HkWorld havokWorld = (HkWorld)(world.UserData);
+                    havokWorld.CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
+
+                    foreach (var hit in m_resultHits)
                     {
-                        HkHitInfo = hit,
-                        Position = hit.Position + world.AABB.Center
+                        toList.Add(new HitInfo()
+                        {
+                            HkHitInfo = hit,
+                            Position = hit.Position + world.AABB.Center
+                        }
+                        );
                     }
-                    );
                 }
             }
 

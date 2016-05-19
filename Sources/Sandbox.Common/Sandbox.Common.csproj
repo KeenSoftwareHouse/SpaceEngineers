@@ -107,6 +107,45 @@
     <NoWarn>1591,1572,1571,1573,1587,1570</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -125,12 +164,14 @@
     <Compile Include="ModAPI\IMyPistonBase.cs" />
     <Compile Include="ModAPI\IMyPistonTop.cs" />
     <Compile Include="ModAPI\IMyProductionBlock.cs" />
+    <Compile Include="ModAPI\IMyProjector.cs" />
     <Compile Include="ModAPI\IMyReactor.cs" />
     <Compile Include="ModAPI\IMyMotorRotor.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
     <Compile Include="ModAPI\IMyShipDrill.cs" />
     <Compile Include="ModAPI\IMyShipWelder.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
+    <Compile Include="ModAPI\IMyTerminalControls.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
     <Compile Include="ModAPI\IMyUpgradableBlock.cs" />
     <Compile Include="ModAPI\Ingame\IMyGridProgramRuntimeInfo.cs" />
@@ -193,6 +234,21 @@
     <Compile Include="ModAPI\Ingame\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\Interfaces\ITerminalProperty.cs" />
     <Compile Include="ModAPI\Interfaces\ITerminalAction.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalAction.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControl.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlButton.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlCheckbox.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlColor.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlCombobox.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlLabel.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlListbox.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlOnOffSwitch.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlProperty.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlSeparator.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlSlider.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlTextbox.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlTitleTool.cs" />
+    <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalValueControl.cs" />
     <Compile Include="ModAPI\MyAPIGateway.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

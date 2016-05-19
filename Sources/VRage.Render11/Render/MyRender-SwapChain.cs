@@ -385,10 +385,13 @@ namespace VRageRender
             }
         }
 
-        internal static void ClearBackbuffer(ColorBGRA clearColor)
+        internal static void ClearBackbuffer(VRageMath.Color clearColor)
         {
             if(Backbuffer != null)
-                DeviceContext.ClearRenderTargetView((Backbuffer as IRenderTargetBindable).RTV, new Color4(0.005f, 0, 0.01f, 1));            
+			{
+				var v3 = clearColor.ToVector3();
+                DeviceContext.ClearRenderTargetView((Backbuffer as IRenderTargetBindable).RTV, new Color4(v3.X, v3.Y, v3.Z, 1));            
+			}
         }
 
         internal static bool SettingsChanged(MyRenderDeviceSettings settings)

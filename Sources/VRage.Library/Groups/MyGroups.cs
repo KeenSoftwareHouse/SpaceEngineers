@@ -11,7 +11,7 @@ namespace VRage.Groups
         where TGroupData : IGroupData<TNode>, new()
         where TNode : class
 	{
-#if BLIT
+#if XB1
 		// Internal members starting with 'm_' are for internal use only, there's no friends in c#
         public class Node
         {
@@ -42,6 +42,16 @@ namespace VRage.Groups
             public DictionaryValuesReader<long, Node> Children
             {
                 get { return new DictionaryValuesReader<long, Node>(m_children); }
+            }
+
+            public DictionaryReader<long, Node> ChildLinks
+            {
+                get { return new DictionaryReader<long, Node>(m_children); }
+            }
+
+            public DictionaryReader<long, Node> ParentLinks
+            {
+                get { return new DictionaryReader<long, Node>(m_parents); }
             }
 
             public override string ToString()

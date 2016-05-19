@@ -13,16 +13,19 @@ using VRage.Library.Utils;
 using System.Diagnostics;
 using VRage.Game;
 using VRage.Library.Collections;
+using Sandbox.ModAPI.Interfaces.Terminal;
+using Sandbox.ModAPI;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
+    public class MyTerminalControlListbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync, IMyTerminalControlTitleTooltip, IMyTerminalControlListbox
         where TBlock : MyTerminalBlock
     {
         public delegate void ListContentDelegate(TBlock block, ICollection<MyGuiControlListbox.Item> listBoxContent, ICollection<MyGuiControlListbox.Item> listBoxSelectedItems);
         public delegate void SelectItemDelegate(TBlock block, List<MyGuiControlListbox.Item> items);
-        public readonly MyStringId Title;
-        public readonly MyStringId Tooltip;
+        public MyStringId Title;
+        public MyStringId Tooltip;
 
         public ListContentDelegate ListContent;
         public SelectItemDelegate ItemSelected;
@@ -61,13 +64,107 @@ namespace Sandbox.Game.Gui
 
         void OnItemsSelected(MyGuiControlListbox obj)
         {
-            if (ItemSelected != null && obj.SelectedItems.Count >0 )
+            if (ItemSelected != null && obj.SelectedItems.Count > 0)
             {
                 foreach (var block in TargetBlocks)
                 {
                     ItemSelected(block, obj.SelectedItems);
                 }
-            }                 
+            }
+        }
+
+        /// <summary>
+        /// Implements IMyTerminalControlListBox for Mods
+        /// </summary>
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
+        }
+
+        bool IMyTerminalControlListbox.Multiselect
+        {
+            get
+            {
+                return m_enableMultiSelect;
+            }
+
+            set
+            {
+                m_enableMultiSelect = value;
+            }
+        }
+
+        int IMyTerminalControlListbox.VisibleRowsCount
+        {
+            get
+            {
+                return m_visibleRowsCount;
+            }
+
+            set
+            {
+                m_visibleRowsCount = value;
+            }
+        }
+
+        Action<IMyTerminalBlock, List<MyTerminalControlListBoxItem>, List<MyTerminalControlListBoxItem>> IMyTerminalControlListbox.ListContent
+        {
+            set
+            {
+                ListContent = new ListContentDelegate((block, contentList, selectedList) =>
+                {
+                    List<MyTerminalControlListBoxItem> wrapList = new List<MyTerminalControlListBoxItem>();
+                    List<MyTerminalControlListBoxItem> wrapSelectedList = new List<MyTerminalControlListBoxItem>();
+                    value(block, wrapList, wrapSelectedList);
+                    foreach(var wrapItem in wrapList)
+                    {
+                        var item = new MyGuiControlListbox.Item(text: new StringBuilder(wrapItem.Text.ToString()), toolTip: wrapItem.Tooltip.ToString(), userData: wrapItem.UserData);
+                        contentList.Add(item);
+                        if (wrapSelectedList.Contains(wrapItem))
+                            selectedList.Add(item);
+                    }
+                });
+            }
+        }
+
+        Action<IMyTerminalBlock, List<MyTerminalControlListBoxItem>> IMyTerminalControlListbox.ItemSelected
+        {
+            set
+            {
+                ItemSelected = new SelectItemDelegate((block, selectedList) =>
+                {
+                    List<MyTerminalControlListBoxItem> wrapSelectedList = new List<MyTerminalControlListBoxItem>();
+                    foreach (var selectedItem in selectedList)
+                    {
+                        string toolTip = selectedItem.ToolTip != null && selectedItem.ToolTip.ToolTips.Count > 0 ? selectedItem.ToolTip.ToolTips.First().ToString() : null;
+                        var wrapItem = new MyTerminalControlListBoxItem(MyStringId.GetOrCompute(selectedItem.Text.ToString()), MyStringId.GetOrCompute(toolTip), selectedItem.UserData);
+                        wrapSelectedList.Add(wrapItem);
+                    }
+
+                    value(block, wrapSelectedList);
+                });
+            }
         }
 
         protected override void OnUpdateVisual()

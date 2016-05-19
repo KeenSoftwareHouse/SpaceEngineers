@@ -53,6 +53,7 @@ namespace Sandbox.Game.Gui
         PlayerPromoted,
         PlayerDemoted,
         PasteFailed,
+        ManipulatingDoorFailed,
         
         // Piston notifications
         HeadNotPlaced,
@@ -170,6 +171,8 @@ namespace Sandbox.Game.Gui
                 Register(MyNotificationSingletons.GameplayOptions, new MyHudNotification(MyCommonTexts.Notification_GameplayOptions, 0, level: MyNotificationLevel.Control));
                 Add(MyNotificationSingletons.GameplayOptions);
             }
+
+            Register(MyNotificationSingletons.ManipulatingDoorFailed, new MyHudNotification(disappearTimeMs: 2500, level: MyNotificationLevel.Important, text: MyCommonTexts.Notification_CannotManipulateDoor, font: MyFontEnum.Red));
 
             Add(MyNotificationSingletons.HelpHint);
             Add(MyNotificationSingletons.HideHints);

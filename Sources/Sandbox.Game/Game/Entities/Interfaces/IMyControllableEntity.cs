@@ -58,6 +58,8 @@ namespace Sandbox.Game.Entities
         MyStringId ControlContext { get; }
 
         void Teleport(Vector3D pos);
+
+        MyToolbar Toolbar { get; }
     }
 
     public struct MoveInformation

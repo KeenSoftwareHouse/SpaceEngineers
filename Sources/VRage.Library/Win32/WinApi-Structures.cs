@@ -8,7 +8,7 @@ namespace VRage.Win32
 {
     public static partial class WinApi
     {
-#if !UNSHARPER
+#if !XB1
         public delegate bool ConsoleEventHandler(CtrlType sig);
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 

@@ -184,7 +184,10 @@ namespace Sandbox.Game.Weapons
             if (Owner != null)
             {
                 if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
-                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f); 
+                {
+                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
+                    Owner.TriggerCharacterAnimationEvent("building", false);
+                }
                 if (Owner.ControllerInfo.IsLocallyHumanControlled())
                 {
                     BlockBuilder.Activate();

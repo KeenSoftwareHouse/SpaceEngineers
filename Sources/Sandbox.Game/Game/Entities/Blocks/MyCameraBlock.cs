@@ -52,14 +52,24 @@ namespace Sandbox.Game.Entities
         }
         public bool ForceFirstPersonCamera { get; set; }
 
-        private static readonly MyHudNotification m_hudNotification;
+        private static MyHudNotification m_hudNotification;
         private bool m_requestActivateAfterLoad = false;
         private IMyCameraController m_previousCameraController = null;
 
         readonly Sync<float> m_syncFov;
 
-        static MyCameraBlock()
+        public MyCameraBlock()
         {
+            CreateTerminalControls();
+
+            m_syncFov.ValueChanged += (x) => OnSyncFov();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyCameraBlock>())
+                return;
+
             var viewBtn = new MyTerminalControlButton<MyCameraBlock>("View", MySpaceTexts.BlockActionTitle_View, MySpaceTexts.Blank, (b) => b.RequestSetView());
             viewBtn.Enabled = (b) => b.CanUse();
             viewBtn.SupportsMultipleBlocks = false;
@@ -74,11 +84,6 @@ namespace Sandbox.Game.Entities
             var controlName = MyInput.Static.GetGameControl(MyControlsSpace.USE).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard);
             m_hudNotification = new MyHudNotification(MySpaceTexts.NotificationHintPressToExitCamera);
             m_hudNotification.SetTextFormatArguments(controlName);
-        }
-
-        public MyCameraBlock()
-        {
-            m_syncFov.ValueChanged += (x) => OnSyncFov();
         }
 
         public bool CanUse()

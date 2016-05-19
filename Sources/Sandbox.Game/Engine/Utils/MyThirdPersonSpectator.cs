@@ -1,23 +1,18 @@
 ﻿using Havok;
-using Sandbox.Common;
 using Sandbox.Engine.Physics;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.World;
-using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Sandbox.Game.Multiplayer;
-using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Input;
 using VRage.ModAPI;
-using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Engine.Utils
@@ -33,21 +28,19 @@ namespace Sandbox.Engine.Utils
         // Maximum distance camera-ship (also used for quick zoom)
         public const float MAX_VIEWER_DISTANCE = 200.0f;
         // "Size" of the camera.
-        public const float CAMERA_RADIUS = 0.2f;
+        public const float CAMERA_RADIUS = 0.25f;
 
         // Direction in which we are looking. View space.
-        public readonly Vector3D LOOK_AT_DIRECTION = Vector3D.Normalize(new Vector3D(0, 5, 12));
+        private readonly Vector3D m_lookAtDirection = Vector3D.Normalize(new Vector3D(0, 5, 12));
         // Vertical camera offset (both target and viewer).
-        public const float LOOK_AT_OFFSET_Y = 0.0f;
+        private const float m_lookAtOffsetY = 0.0f;
         // Default camera distance.
-        public const double LOOK_AT_DEFAULT_LENGTH = 50;
+        private const double m_lookAtDefaultLength = 1;
+        private const float m_backwardCutoff = 3.0f;
+        // Default timeout in ms before zooming out.
+        private int m_positionSafeZoomingOutDefaultTimeoutMs = 500;
 
-        private const int SHAPE_CAST_MAX_STEP_COUNT = 10;
-        private const float SHAPE_CAST_STEP = MAX_VIEWER_DISTANCE / SHAPE_CAST_MAX_STEP_COUNT;
-        public const float BACKWARD_CUTOFF = 3.0f;
-
-        // Intensity of head shaking.
-        public const float HEADSHAKE_POWER = 0.5f;
+        public bool m_disableSpringThisFrame = false;
 
         enum MyCameraRaycastResult
         {
@@ -112,6 +105,8 @@ namespace Sandbox.Engine.Utils
         Vector3D m_positionSafe;
         // Zooming out when there is no obstacle => speed
         private float m_positionSafeZoomingOutSpeed = 0;
+        // Zooming out when there is no obstacle => timeout remaining
+        private int m_positionSafeZoomingOutTimeout = 0;
         // Zooming out when there is no obstacle => last distance between m_position and m_safeposition
         private float m_lastRaycastDist = float.PositiveInfinity;
         // Is m_position safe? collision free?
@@ -123,39 +118,24 @@ namespace Sandbox.Engine.Utils
         //public SpringInfo AngleSpring;
 
         // Desired spring parameters
-        SpringInfo m_targetSpring;
+        //SpringInfo m_targetSpring;
 
         float m_springChangeTime;
         // Current spring parameters, we interpolate values in case StrafingSpring->NormalSpring
-        SpringInfo m_currentSpring;
+        readonly SpringInfo m_currentSpring;
 
         Vector3 m_velocity;
         float m_angleVelocity;
         Quaternion m_orientation;
         Matrix m_orientationMatrix;
 
-        readonly List<MyPhysics.HitInfo> m_raycastList = new List<MyPhysics.HitInfo>(64);
+        private readonly List<MyPhysics.HitInfo> m_raycastList = new List<MyPhysics.HitInfo>(64);
 
         bool m_saveSettings;
         bool m_debugDraw = false;
 
-        /// <summary>
-        /// Optimization.
-        /// Used to step long shape casts so their AABBs are not huge,
-        /// causing asteroids to generate too many physics shapes.
-        /// </summary>
-        uint m_updateCount;
-
-        readonly float[] m_lastShapeCastDistance = new float[SHAPE_CAST_MAX_STEP_COUNT];
-
-        private bool? m_localCharacterWasInThirdPerson;
         private double m_safeMinimumDistance = MIN_VIEWER_DISTANCE;
-
-        public bool? LocalCharacterWasInThirdPerson
-        {
-            get { return m_localCharacterWasInThirdPerson; }
-            set { m_localCharacterWasInThirdPerson = value; }
-        }
+        //private readonly List<HkBodyCollision> m_hkBodyCollisions = new List<HkBodyCollision>(32);
 
         public MyThirdPersonSpectator()
         {
@@ -164,26 +144,21 @@ namespace Sandbox.Engine.Utils
             //StrafingSpring = new SpringInfo(36000, 2683, 50);
             //AngleSpring = new SpringInfo(30, 14.5f, 2);
 
-            m_targetSpring = NormalSpring;
+            //m_targetSpring = NormalSpring;
             m_currentSpring = new SpringInfo(NormalSpring);
 
-            m_lookAt = LOOK_AT_DIRECTION * LOOK_AT_DEFAULT_LENGTH;
+            m_lookAt = m_lookAtDirection * m_lookAtDefaultLength;
             m_clampedlookAt = m_lookAt;
 
             m_saveSettings = false;
 
             ResetViewerDistance();
-
-            for (int i = 0; i < m_lastShapeCastDistance.Length; ++i)
-            {
-                m_lastShapeCastDistance[i] = float.PositiveInfinity;
-            }
         }
 
         // Updates spectator position (spring connected to desired position)
         public override void UpdateAfterSimulation()
         {
-            Sandbox.Game.Entities.IMyControllableEntity genericControlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Game.Entities.IMyControllableEntity genericControlledEntity = MySession.Static.ControlledEntity;
             if (genericControlledEntity == null)
                 return;
             var remotelyControlledEntity = genericControlledEntity as MyRemoteControl;
@@ -196,7 +171,7 @@ namespace Sandbox.Engine.Utils
                 float localY = positionComp.LocalAABB.Max.Y - positionComp.LocalAABB.Min.Y;
                 Vector3D lastTarget = m_target;
                 var headMatrix = remotelyControlledEntity == null ? genericControlledEntity.GetHeadMatrix(true) : remotelyControlledEntity.Pilot.GetHeadMatrix(true);
-                m_target = controlledEntity is MyCharacter ? ((positionComp.GetPosition() + (localY + LOOK_AT_OFFSET_Y) * positionComp.WorldMatrix.Up)) : headMatrix.Translation;
+                m_target = controlledEntity is MyCharacter ? ((positionComp.GetPosition() + (localY + m_lookAtOffsetY) * positionComp.WorldMatrix.Up)) : headMatrix.Translation;
                 m_targetOrientation = headMatrix.GetOrientation();
                 m_targetUpVec = m_positionCurrentIsSafe ? (Vector3D)m_targetOrientation.Up : positionComp.WorldMatrix.Up;
                 m_transformedLookAt = Vector3D.Transform(m_clampedlookAt, m_targetOrientation);
@@ -225,18 +200,25 @@ namespace Sandbox.Engine.Utils
 
             // Apply acceleration
             Vector3 acceleration = (Vector3)force / m_currentSpring.Mass;
-            m_velocity += acceleration * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_velocity += acceleration * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_velocity.AssertIsValid();
 
             // Apply velocity
-            m_position += m_velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            m_position += m_velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             m_position.AssertIsValid();
 
-            // Limit backward distance from target
-            double backward = Vector3D.Dot((Vector3D)m_targetOrientation.Backward, (m_target - m_position));
-            if (backward > -BACKWARD_CUTOFF)
+            if (m_disableSpringThisFrame)
             {
-                m_position += (Vector3D)m_targetOrientation.Backward * (backward + BACKWARD_CUTOFF);
+                double smoothCoeff = 0.8;
+                m_position = Vector3D.Lerp(m_position, m_desiredPosition, smoothCoeff);
+                m_disableSpringThisFrame = false;
+            }
+
+            // Limit backward distance from target
+            double backward = Vector3D.Dot(m_targetOrientation.Backward, (m_target - m_position));
+            if (backward > -m_backwardCutoff)
+            {
+                m_position += (Vector3D)m_targetOrientation.Backward * (backward + m_backwardCutoff);
             }
 
             // -------- raycast, prevent camera being inside things ------
@@ -258,7 +240,6 @@ namespace Sandbox.Engine.Utils
                 MySession.Static.SaveControlledEntityCameraSettings(false);
                 m_saveSettings = false;
             }
-            ++m_updateCount;
         }
 
         // ------------------------- basic methods of camera --------------------------------------
@@ -303,6 +284,7 @@ namespace Sandbox.Engine.Utils
             //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_positionSafe, m_target + m_targetOrientation.Up, Color.Green, Color.Red, false);
             //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_positionSafe, m_target, Color.Yellow, Color.Red, false);
 
+            /*
             Vector3D shipVerticalOffset = Vector3D.Zero;
             var cameraControllerEntity = cameraController as MyEntity;
             if (cameraControllerEntity != null)
@@ -315,6 +297,7 @@ namespace Sandbox.Engine.Utils
                     shipVerticalOffset = m_targetUpVec * shipVerticalShift;
                 }
             }
+            */
 
             //VRageRender.MyRenderProxy.DebugDrawArrow3D(m_positionSafe - shipVerticalOffset, m_target - shipVerticalOffset, Color.Green, Color.Green, false);
             return MatrixD.CreateLookAt(m_positionSafe, m_target, m_targetUpVec);
@@ -344,7 +327,7 @@ namespace Sandbox.Engine.Utils
             bool positionChanged = false;
             
             // ray cast - very close objects
-            Physics.MyPhysics.CastRay(raycastOrigin, raycastOrigin + CAMERA_RADIUS * rayDirection, m_raycastList);
+            MyPhysics.CastRay(raycastOrigin, raycastOrigin + CAMERA_RADIUS * rayDirection, m_raycastList);
             foreach (MyPhysics.HitInfo rb in m_raycastList)
             {
                 if (rb.HkHitInfo.Body == null
@@ -352,7 +335,7 @@ namespace Sandbox.Engine.Utils
                     || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody)
                     || rb.HkHitInfo.GetHitEntity() == controlledEntity)
                     continue;
-                if (rb.HkHitInfo.GetHitEntity() is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>) // ignore player weapons
+                if (rb.HkHitInfo.GetHitEntity() is IMyHandheldGunObject<Game.Weapons.MyDeviceBase>) // ignore player weapons
                     continue;
 
                 double distSq = Vector3D.DistanceSquared(rb.Position, raycastOrigin);
@@ -377,8 +360,9 @@ namespace Sandbox.Engine.Utils
                 HkShape shapeSphere = new HkSphereShape(CAMERA_RADIUS);
                 MatrixD raycastOriginTransform = MatrixD.Identity;
                 raycastOriginTransform.Translation = raycastOrigin + CAMERA_RADIUS * rayDirection;
-                Physics.MyPhysics.CastShapeReturnContactBodyDatas(raycastEnd, shapeSphere, ref raycastOriginTransform, 0,
+                MyPhysics.CastShapeReturnContactBodyDatas(raycastEnd, shapeSphere, ref raycastOriginTransform, 0,
                     0, m_raycastList);
+                //MyPhysics.CastRay(raycastOrigin + CAMERA_RADIUS * rayDirection, raycastEnd, m_raycastList, 0);
                 foreach (MyPhysics.HitInfo rb in m_raycastList)
                 {
                     IMyEntity hitEntity = rb.HkHitInfo.GetHitEntity();
@@ -387,7 +371,7 @@ namespace Sandbox.Engine.Utils
                         || hitEntity == controlledEntity
                         || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody))
                         continue;
-                    if (hitEntity is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>)
+                    if (hitEntity is IMyHandheldGunObject<Game.Weapons.MyDeviceBase>)
                         // ignore player weapons
                         continue;
 
@@ -409,9 +393,31 @@ namespace Sandbox.Engine.Utils
                     VRageRender.MyRenderProxy.DebugDrawSphere(raycastResult.Position, CAMERA_RADIUS, Color.Red, 1, false);
                 }
 
+            
             if (closestDistanceSquared < (raycastSafeCameraStart - raycastOrigin).LengthSquared() + CAMERA_RADIUS)
             {
                 return MyCameraRaycastResult.FoundOccluderNoSpace; // obstacle too close, switch to first person
+            }
+
+            // last check - isn't there voxel between safe pos and entity pos
+            if (!positionChanged)
+            {
+                //Vector3D entityPos = controlledEntity.PositionComp.GetPosition();
+                MyPhysics.CastRay(m_target, raycastSafeCameraStart, m_raycastList);
+
+                if (m_debugDraw)
+                {
+                    BoundingBoxD bb = new BoundingBoxD(m_target, raycastSafeCameraStart);
+                    VRageRender.MyRenderProxy.DebugDrawAABB(bb, Color.Magenta);
+                }
+
+                foreach (var collision in m_raycastList)
+                {
+                    if (collision.HkHitInfo.GetHitEntity() is MyVoxelBase)
+                    {
+                        return MyCameraRaycastResult.FoundOccluderNoSpace;
+                    }
+                }
             }
 
             return positionChanged ? MyCameraRaycastResult.FoundOccluder : MyCameraRaycastResult.Ok;
@@ -421,21 +427,18 @@ namespace Sandbox.Engine.Utils
         /// Handles camera collisions with environment
         /// </summary>
         /// <returns>False if no correct position was found</returns>
-        private bool HandleIntersection(MyEntity controlledEntity)
+        private void HandleIntersection(MyEntity controlledEntity)
         {
             Debug.Assert(controlledEntity != null);
-            var parentEntity = controlledEntity.GetTopMostParent() ?? controlledEntity;
+            MyEntity parentEntity = controlledEntity.GetTopMostParent() ?? controlledEntity;
 
             // line from target to eye
-            var line = new LineD(m_target, m_position);
+            LineD line = new LineD(m_target, m_position);
             // oriented bb of the entity
-            var safeObb = GetEntitySafeOBB(parentEntity);
+            MyOrientedBoundingBoxD safeObb = GetEntitySafeOBB(parentEntity);
             // oriented bb of the entity + camera radius
-            MyOrientedBoundingBoxD safeObbWithCollisionExtents;
-            if (controlledEntity.Parent == null)
-                safeObbWithCollisionExtents = new MyOrientedBoundingBoxD(safeObb.Center, safeObb.HalfExtent + 0.5 * CAMERA_RADIUS, safeObb.Orientation);
-            else
-                safeObbWithCollisionExtents = new MyOrientedBoundingBoxD(safeObb.Center, safeObb.HalfExtent + 2.0 * CAMERA_RADIUS, safeObb.Orientation);
+            MyOrientedBoundingBoxD safeObbWithCollisionExtents = 
+                new MyOrientedBoundingBoxD(safeObb.Center, safeObb.HalfExtent + (controlledEntity.Parent == null ? 0.5 : 2.0) * CAMERA_RADIUS, safeObb.Orientation);
 
             // start = target, end = eye
             // find safe start...
@@ -445,8 +448,27 @@ namespace Sandbox.Engine.Utils
 
             if (controlledEntity.Parent != null && safeIntersection != null)
             {
-                var hitInfo = Physics.MyPhysics.CastRay(castStartSafe, m_target);
-                if (hitInfo.HasValue)
+                HkShape hkSphere = new HkSphereShape(CAMERA_RADIUS * 2);
+                //var hitInfo = MyPhysics.CastRay(castStartSafe, m_target);
+
+                MatrixD shapeCastStart = MatrixD.CreateTranslation(castStartSafe);
+                var hitInfo = MyPhysics.CastShapeReturnContactBodyData(m_target, hkSphere, ref shapeCastStart, 0, 0);
+                
+                MyEntity hitEntity = hitInfo.HasValue ? hitInfo.Value.HkHitInfo.GetHitEntity() as MyEntity : null;
+                MyEntity entity = controlledEntity;
+
+                var hitEntityWeldingGroup = hitEntity != null ? MyWeldingGroups.Static.GetGroup(hitEntity) : null;
+                bool weldingGroupEquals = false;
+
+                while (entity != null && !weldingGroupEquals)
+                {
+                    if (hitEntityWeldingGroup == MyWeldingGroups.Static.GetGroup(entity))
+                        weldingGroupEquals = true;
+
+                    entity = entity.Parent;
+                }
+
+                if (hitInfo.HasValue && hitEntityWeldingGroup != null && weldingGroupEquals)
                 {
                     castStartSafe = hitInfo.Value.Position + line.Direction;
                 }
@@ -457,7 +479,22 @@ namespace Sandbox.Engine.Utils
                     safeIntersection = safeObbWithCollisionExtents.Intersects(ref safeOBBLine);
                     castStartSafe = safeIntersection != null ? (safeOBBLine.From + safeOBBLine.Direction * safeIntersection.Value) : m_target;
                 }
+                hkSphere.RemoveReference();
             }
+
+            // raycast against occluders
+            Vector3D safePositionCandidate;
+            //double lastSafeMinimumDistance = m_safeMinimumDistance;
+            m_safeMinimumDistance = controlledEntity is MyCharacter ? 0 : (castStartSafe - m_target).Length(); // store current safe minimum dist
+            m_safeMinimumDistance = Math.Max(m_safeMinimumDistance, MIN_VIEWER_DISTANCE);
+            //if (lastSafeMinimumDistance + 30.0f < m_safeMinimumDistance)
+            //{
+            //    castStartSafe = m_target + (castStartSafe - m_target) / m_safeMinimumDistance * lastSafeMinimumDistance;
+            //    m_safeMinimumDistance = lastSafeMinimumDistance;
+            //}
+            Vector3D raycastOrigin = (controlledEntity is MyCharacter) ? m_target : castStartSafe;
+            MyCameraRaycastResult raycastResult = RaycastOccludingObjects(controlledEntity, ref raycastOrigin, ref m_position,
+                ref castStartSafe, out safePositionCandidate);
 
             // visual debugging :)
             if (m_debugDraw)
@@ -469,15 +506,9 @@ namespace Sandbox.Engine.Utils
                 VRageRender.MyRenderProxy.DebugDrawArrow3D(safeOBBLine.From, castStartSafe, Color.White, Color.Red,
                     false);
                 VRageRender.MyRenderProxy.DebugDrawArrow3D(castStartSafe, m_position, Color.White, Color.Orange, false);
-            }
 
-            // raycast against occluders
-            Vector3D safePositionCandidate;
-            m_safeMinimumDistance = controlledEntity is MyCharacter ? 0 : (castStartSafe - m_target).Length(); // store current safe minimum dist
-            m_safeMinimumDistance = Math.Max(m_safeMinimumDistance, MIN_VIEWER_DISTANCE);
-            Vector3D raycastOrigin = (controlledEntity is MyCharacter) ? m_target : castStartSafe;
-            MyCameraRaycastResult raycastResult = RaycastOccludingObjects(controlledEntity, ref raycastOrigin, ref m_position,
-                ref castStartSafe, out safePositionCandidate);
+                VRageRender.MyRenderProxy.DebugDrawSphere(castStartSafe, 0.2f, Color.Green, 1.0f, false, true);
+            }
 
             switch (raycastResult)
             {
@@ -485,21 +516,46 @@ namespace Sandbox.Engine.Utils
                 case MyCameraRaycastResult.FoundOccluder:
                     m_positionCurrentIsSafe = true;
                     {
-                        double newDist = (safePositionCandidate - m_position).Length();
-                        if (newDist < m_lastRaycastDist - CAMERA_RADIUS || newDist < m_safeMinimumDistance)
+                        double distFromCandidateToTarget = (safePositionCandidate - m_target).Length();
+                        if ((distFromCandidateToTarget > m_lastRaycastDist + CAMERA_RADIUS && distFromCandidateToTarget > m_safeMinimumDistance)
+                            || raycastResult == MyCameraRaycastResult.Ok)
                         {
-                            // new safe position is further from target => change over time
-                            float distDiffZoomSpeed = 1 - MathHelper.Clamp((float)(m_lastRaycastDist - newDist), 0.0f, 1.0f - MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
-                            m_positionSafeZoomingOutSpeed += distDiffZoomSpeed;
-                            m_positionSafeZoomingOutSpeed = MathHelper.Clamp(m_positionSafeZoomingOutSpeed, 0.0f, 1.0f);
+                            // now we need it from the other side
+                            double newDist = (safePositionCandidate - m_position).Length();
+                            // new safe position is further from target => change over time (zoom out)
+                            if (m_positionSafeZoomingOutTimeout <= 0)
+                            {
+                                float distDiffZoomSpeed = 1 -
+                                                          MathHelper.Clamp((float) Math.Abs(m_lastRaycastDist - newDist), 0.0f,
+                                                              1.0f - MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+                                m_positionSafeZoomingOutSpeed += distDiffZoomSpeed;
+                                m_positionSafeZoomingOutSpeed = MathHelper.Clamp(m_positionSafeZoomingOutSpeed, 0.0f,
+                                    1.0f);
 
-                            m_positionSafe = Vector3D.Lerp(m_positionSafe, safePositionCandidate, m_positionSafeZoomingOutSpeed);
+                                Vector3D targetToPosSafe = m_positionSafe - m_target;
+                                double lenTargetToPosSafe = targetToPosSafe.Length();
+                                Vector3D rotatedPositionSafe = m_target +
+                                                               Vector3D.Normalize(safePositionCandidate - m_target) *
+                                                               lenTargetToPosSafe;
+                                m_positionSafe = Vector3D.Lerp(rotatedPositionSafe, safePositionCandidate,
+                                    m_positionSafeZoomingOutSpeed);
+                            }
+                            else
+                            {
+                                m_positionSafeZoomingOutTimeout -= MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
+
+                                Vector3D targetToPosSafe = m_positionSafe - m_target;
+                                double lenTargetToPosSafe = targetToPosSafe.Length();
+                                m_positionSafe = m_target + Vector3D.Normalize(safePositionCandidate - m_target) * lenTargetToPosSafe;
+                            }
                         }
                         else
                         {
                             // new safe position is closer or closer than safe distance => instant change
                             m_positionSafeZoomingOutSpeed = 0.0f;    // set zooming out speed to zero for next time
                             m_positionSafe = safePositionCandidate;
+                            m_positionSafeZoomingOutTimeout = 0;// controlledEntity.Parent != null ? m_positionSafeZoomingOutDefaultTimeoutMs : 0;
+                            m_disableSpringThisFrame = true;
                         }
                     }
                     break;
@@ -514,10 +570,9 @@ namespace Sandbox.Engine.Utils
 
             if (m_debugDraw)
             {
-                VRageRender.MyRenderProxy.DebugDrawSphere(m_positionSafe, 0.2f, Color.Purple, 1, false);
+                VRageRender.MyRenderProxy.DebugDrawSphere(m_positionSafe, 0.225f, Color.Purple, 1, false);
                 VRageRender.MyRenderProxy.DebugDrawSphere(safePositionCandidate, 0.2f, Color.Azure, 1, false);
             }
-            return m_positionCurrentIsSafe;
         }
 
         private static MyOrientedBoundingBoxD GetEntitySafeOBB(MyEntity controlledEntity)
@@ -534,10 +589,10 @@ namespace Sandbox.Engine.Utils
             //    return;
 
             IMyCameraController cameraController = MySession.Static.CameraController;
-            if (cameraController == null || !(cameraController is MyEntity))
+            if (!(cameraController is MyEntity))  // also checks for not null
                 return;
 
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity;
             if (controlledEntity == null)
                 return;
 
@@ -545,7 +600,7 @@ namespace Sandbox.Engine.Utils
             if (!isCharacter)
             {
                 var headMatrix = controlledEntity.GetHeadMatrix(true);
-                m_targetOrientation = (Matrix) headMatrix.GetOrientation();
+                m_targetOrientation = headMatrix.GetOrientation();
                 m_target = headMatrix.Translation;
             }
 
@@ -567,9 +622,9 @@ namespace Sandbox.Engine.Utils
             double projectedHalfExtent = Math.Abs(Vector3D.Dot(localAABBHr.HalfExtents, backVec));
             double finalLength = projectedHalfExtent - projectedCenterToTarget;
 
-            Vector3D targetWithOffset = centerToTarget + (finalLength * backVec);
+            //Vector3D targetWithOffset = centerToTarget + (finalLength * backVec);
 
-            double width = LOOK_AT_DEFAULT_LENGTH; // some default value
+            double width = m_lookAtDefaultLength; // some default value
             if (Math.Abs(backVec.Z) > 0.0001)
                 width = localAABBHr.HalfExtents.X * 1.5f;
             else if (Math.Abs(backVec.X) > 0.0001)
@@ -582,7 +637,7 @@ namespace Sandbox.Engine.Utils
 
             double clampDist = MathHelper.Clamp(offset, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
 
-            Vector3D lookAt = LOOK_AT_DIRECTION * clampDist;
+            Vector3D lookAt = m_lookAtDirection * clampDist;
 
             SetPositionAndLookAt(lookAt);
         }
@@ -591,7 +646,7 @@ namespace Sandbox.Engine.Utils
 
         public void UpdateZoom()
         {
-            bool canZoom = (!MyPerGameSettings.ZoomRequiresLookAroundPressed || MyInput.Static.IsGameControlPressed(Sandbox.Game.MyControlsSpace.LOOKAROUND)) && !MySession.Static.Battle;
+            bool canZoom = (!MyPerGameSettings.ZoomRequiresLookAroundPressed || MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND)) && !MySession.Static.Battle;
 
             if (canZoom && !MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
             {
@@ -601,7 +656,7 @@ namespace Sandbox.Engine.Utils
                 if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null)
                     velocity = MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
 
-                Vector3D positionSafe = m_positionSafe + (Vector3D) velocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                Vector3D positionSafe = m_positionSafe + (Vector3D) velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
                 if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {
@@ -652,7 +707,7 @@ namespace Sandbox.Engine.Utils
             if (!newDistance.HasValue)
                 return false;
             newDistance = MathHelper.Clamp(newDistance.Value, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
-            Vector3D lookAt = LOOK_AT_DIRECTION * newDistance.Value;
+            Vector3D lookAt = m_lookAtDirection * newDistance.Value;
             SetPositionAndLookAt(lookAt);
             return true;
         }
@@ -666,7 +721,7 @@ namespace Sandbox.Engine.Utils
             if (!headAngle.HasValue)
                 return false;
 
-            Sandbox.Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity as Sandbox.Game.Entities.IMyControllableEntity;
+            Game.Entities.IMyControllableEntity controlledEntity = MySession.Static.ControlledEntity;
             if (controlledEntity == null)
                 return false;
 

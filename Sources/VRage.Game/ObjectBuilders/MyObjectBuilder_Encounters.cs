@@ -58,7 +58,7 @@ namespace VRage.Game
 
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_Encounters : MyObjectBuilder_Base
+    public class MyObjectBuilder_Encounters : MyObjectBuilder_SessionComponent
     {
         [ProtoMember]
         public HashSet<MyEncounterId> SavedEcounters;

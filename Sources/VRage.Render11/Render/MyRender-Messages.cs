@@ -88,7 +88,7 @@ namespace VRageRender
                     m_processStopwatch.Stop();
                     if (m_processStopwatch.Elapsed.TotalSeconds > 0.5f)
                     {
-#if !BLIT
+#if !XB1
                         //Debug.WriteLine("DoEvents()");
                         if (MyRenderProxy.EnableAppEventsCall)
                         {
@@ -128,7 +128,7 @@ namespace VRageRender
                         m_processStopwatch.Stop();
                         if (m_processStopwatch.Elapsed.TotalSeconds > 0.5f)
                         {
-#if !BLIT
+#if !XB1
                             //Debug.WriteLine("DoEvents()");
                             if (MyRenderProxy.EnableAppEventsCall)
                             {

@@ -3817,4 +3817,14 @@ using VRage.Utils;
         ///Signals switched off.
         ///</summary>
         public static readonly MyStringId SignalMode_Switch_Off = MyStringId.GetOrCompute("SignalMode_Switch_Off");
+
+        ///<summary>
+        ///Cannot open or close the door. Check for blocking objects!
+        ///</summary>
+        public static readonly MyStringId Notification_CannotManipulateDoor = MyStringId.GetOrCompute("Notification_CannotManipulateDoor");
+
+        ///<summary>
+        ///Use contextual music
+        ///</summary>
+        public static readonly MyStringId AudioSettings_UseMusicController = MyStringId.GetOrCompute("AudioSettings_UseMusicController");
     }

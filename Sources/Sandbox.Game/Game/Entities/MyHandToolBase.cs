@@ -346,6 +346,7 @@ namespace Sandbox.Game.Entities
                 // Stop upper character animation called because character can have some animation set (blocking, ...).
                 m_owner.StopUpperCharacterAnimation(0.1f);
                 m_owner.PlayCharacterAnimation(m_shotHitCondition.Animation, MyBlendOption.Immediate, frameOption, 0.2f, m_shotHitCondition.AnimationTimeScale, false, null, true);
+                m_owner.TriggerCharacterAnimationEvent(m_shotHitCondition.Animation.ToLower(), false);
 
                 if (m_owner.StatComp != null)
                 {

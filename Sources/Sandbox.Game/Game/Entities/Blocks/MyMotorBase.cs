@@ -473,7 +473,7 @@ namespace Sandbox.Game.Entities.Cube
 
         protected void TryAttach()
         {
-            if (!CubeGrid.InScene || CubeGrid.Physics.IsInWorld == false)
+            if (!CubeGrid.InScene || CubeGrid.Physics == null || CubeGrid.Physics.RigidBody == null || CubeGrid.Physics.RigidBody.InWorld == false)
                 return;
             var updateFlags = NeedsUpdate;
             updateFlags &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -507,7 +507,10 @@ namespace Sandbox.Game.Entities.Cube
             else if (m_rotorBlockId.Value.OtherEntityId.HasValue && ((false == m_welded && (m_rotorBlockId.Value.Force || m_rotorBlock == null || m_rotorBlock.EntityId != m_rotorBlockId.Value.OtherEntityId)) ||
                      (m_welded && m_weldedRotorBlockId != m_rotorBlockId.Value.OtherEntityId))) // Attached to something else or nothing
             {
-                Detach();
+                if (m_rotorBlock != null || m_welded)
+                {
+                    Detach();
+                }
                 MyMotorRotor rotor;
                 bool attached = false;
                 if (MyEntities.TryGetEntityById<MyMotorRotor>(m_rotorBlockId.Value.OtherEntityId.Value, out rotor) && !rotor.MarkedForClose && rotor.CubeGrid.InScene && rotor.CubeGrid.Physics.IsInWorld)
@@ -573,22 +576,24 @@ namespace Sandbox.Game.Entities.Cube
                     if (entity == null || entity == CubeGrid)
                         continue;
 
-                    var grid = entity as MyCubeGrid;
-                    if (grid == null)
-                        continue;
+                    MyMotorRotor rotor = FindRotorInGrid(entity);
 
-                    // Rotor should always be on position [0,0,0];
-                    var pos2 = Vector3.Transform(DummyPosition, CubeGrid.WorldMatrix);
-                    var blockPos = grid.RayCastBlocks(pos2, pos2 + WorldMatrix.Up);
-                    if (blockPos.HasValue)
+                    if(rotor != null)
                     {
-                        var slimBlock = grid.GetCubeBlock(blockPos.Value);
-                        if (slimBlock == null || slimBlock.FatBlock == null)
-                            continue;
+                        return rotor;
+                    }
 
-                        var rotor = slimBlock.FatBlock as MyMotorRotor;
-                        if (rotor != null)
-                            return rotor;
+                    MyPhysicsBody body = entity.Physics as MyPhysicsBody;
+                    if(body != null)
+                    {
+                        foreach(var child in  body.WeldInfo.Children)
+                        {
+                            rotor = FindRotorInGrid(child.Entity);
+                            if(rotor != null)
+                            {
+                                return rotor;
+                            }
+                        }
                     }
                 }
             }
@@ -596,6 +601,27 @@ namespace Sandbox.Game.Entities.Cube
             {
                 m_penetrations.Clear();
             }
+            return null;
+        }
+
+        MyMotorRotor FindRotorInGrid(IMyEntity entity)
+        {
+            var grid = entity as MyCubeGrid;
+            if (grid != null)
+            {
+                // Rotor should always be on position [0,0,0];
+                var pos2 = Vector3.Transform(DummyPosition, CubeGrid.WorldMatrix);
+                var blockPos = grid.RayCastBlocks(pos2, pos2 + WorldMatrix.Up);
+                if (blockPos.HasValue)
+                {
+                    var slimBlock = grid.GetCubeBlock(blockPos.Value);
+                    if (slimBlock != null && slimBlock.FatBlock != null)
+                    {
+                        return slimBlock.FatBlock as MyMotorRotor;
+                    }
+                }
+            }
+
             return null;
         }
 
@@ -676,6 +702,14 @@ namespace Sandbox.Game.Entities.Cube
 
         protected bool CheckVelocities()
         {
+            if (m_forceWeld && m_rotorBlock == null && m_weldedEntityId.Value.HasValue)
+            {
+                if (MyEntities.TryGetEntityById<MyMotorRotor>(m_weldedEntityId.Value.Value, out m_rotorBlock))
+                {
+                    m_rotorGrid = m_rotorBlock.CubeGrid;
+                }
+            }
+
             if (!MyFakes.WELD_ROTORS || Sync.IsServer == false)
                 return false;
 

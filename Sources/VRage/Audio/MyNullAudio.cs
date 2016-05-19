@@ -39,7 +39,7 @@ namespace VRage.Audio
         void IMyAudio.PauseGameSounds() { }
         void IMyAudio.ResumeGameSounds() { }
         void IMyAudio.PlayMusic(MyMusicTrack? track, int priorityForRandom) { }
-        IMySourceVoice IMyAudio.PlayMusicCue(MyCueId musicCue) { return null; }
+        IMySourceVoice IMyAudio.PlayMusicCue(MyCueId musicCue, bool overrideMusicAllowed) { return null; }
         void IMyAudio.StopMusic() { }
         void IMyAudio.MuteHud(bool mute) { }
         bool IMyAudio.HasAnyTransition() { return false; }

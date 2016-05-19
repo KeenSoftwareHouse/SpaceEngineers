@@ -24,7 +24,7 @@ using VRage.Game.ModAPI;
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ShipGrinder))]
-    class MyShipGrinder : MyShipToolBase, IMyShipGrinder
+    public class MyShipGrinder : MyShipToolBase, IMyShipGrinder
     {
         private static MySoundPair IDLE_SOUND = new MySoundPair("ToolPlayGrindIdle");
         private static MySoundPair METAL_SOUND = new MySoundPair("ToolPlayGrindMetal");

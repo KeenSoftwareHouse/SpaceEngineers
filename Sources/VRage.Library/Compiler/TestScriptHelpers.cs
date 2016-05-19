@@ -9,7 +9,7 @@ namespace System
 {
     public struct TestScriptHelpers
     {
-#if BLIT
+#if XB1
 		public static uint MessageBox(IntPtr hWndle, String text, String caption, int buttons)
 		{
 			return 0;

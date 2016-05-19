@@ -178,7 +178,7 @@ namespace Sandbox.Game.Gui
                 ColumnsCount = 5,
             };
             float PlayerNameWidth = 0.3f;
-            float FactionTagWidth = 0.1f;
+            float FactionTagWidth = 0.12f;
             float FactionNameWidth = MyPerGameSettings.EnableMutePlayer ? 0.3f : 0.34f;
             float MutedWidth = MyPerGameSettings.EnableMutePlayer ? 0.13f : 0;
             m_playersTable.SetCustomColumnWidths(new float[] { PlayerNameWidth, FactionTagWidth, FactionNameWidth, MutedWidth, 1 - PlayerNameWidth - FactionTagWidth - FactionNameWidth - MutedWidth });

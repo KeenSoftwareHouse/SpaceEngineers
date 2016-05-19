@@ -9,7 +9,7 @@ using VRage.Reflection;
 
 namespace VRage.Compression
 {
-#if BLIT
+#if XB1
 	public class MyZipArchiveReflection
 	{
 		public static readonly BindingFlags StaticBind = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;

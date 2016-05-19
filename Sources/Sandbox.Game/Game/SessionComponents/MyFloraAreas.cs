@@ -152,8 +152,6 @@ namespace Sandbox.Game.SessionComponents
         private double m_currentForestArea;
         private double m_forestsPercent;
 
-        private MyRandom m_random;
-
         private Dictionary<long, MyEnvironmentItems> m_envItems;
         private List<Area> m_forestAreas;
         private List<BoundingBoxD> m_highLevelBoxes;
@@ -246,8 +244,6 @@ namespace Sandbox.Game.SessionComponents
             m_tmpSectors = new List<Vector3I>();
 
             m_aabbTree = new MyDynamicAABBTreeD(Vector3D.Zero);
-
-            m_random = MyFakes.DEBUG_AVOID_RANDOM_AI ? new MyRandom(0): new MyRandom();
 
             // MW:TODO growing items on allowed materials
             m_allowedMaterials = new HashSet<MyStringHash>();
@@ -1081,7 +1077,7 @@ namespace Sandbox.Game.SessionComponents
             desiredHalfSize.Y = 0;
 
             int areaIdx = 0;
-            int randomStartIdx = m_random.Next() % m_tmpAreas.Count;
+            int randomStartIdx = MyUtils.GetRandomInt(m_tmpAreas.Count);
             while (areaIdx < m_tmpAreas.Count)
             {
                 var spawnArea = m_tmpAreas[randomStartIdx];
@@ -1185,7 +1181,7 @@ namespace Sandbox.Game.SessionComponents
                 }
 
                 int areaIdx = 0;
-                int randomStartIdx = m_random.Next() % m_tmpAreas.Count;
+                int randomStartIdx = MyUtils.GetRandomInt(m_tmpAreas.Count);
                 while (areaIdx < m_tmpAreas.Count)
                 {
                     var spawnArea = m_tmpAreas[randomStartIdx];

@@ -16,9 +16,15 @@ namespace Entities.Blocks
     [MyCubeBlockType(typeof(MyObjectBuilder_Projector))]
     public class MySpaceProjector : MyProjectorBase
     {
-
-        static MySpaceProjector()
+        public MySpaceProjector()
         {
+            CreateTerminalControls();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySpaceProjector>())
+                return;
 
             if (!MyFakes.ENABLE_PROJECTOR_BLOCK)
             {

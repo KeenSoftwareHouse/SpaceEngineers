@@ -29,7 +29,7 @@ using VRage.Game.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TextPanel))]
-    partial class MyTextPanel : MyFunctionalBlock
+    public partial class MyTextPanel : MyFunctionalBlock
     {
         private const int NUM_DECIMALS = 1;
         public const double MAX_DRAW_DISTANCE = 100.0;
@@ -557,8 +557,42 @@ namespace Sandbox.Game.Entities.Blocks
             ComponentStack_IsFunctionalChanged();//after merging grids...
         }
 
-        static MyTextPanel()
+        public MyTextPanel()
         {
+            CreateTerminalControls();
+
+            m_publicDescription = new StringBuilder();
+            m_textBox = null;
+            m_publicTitle = new StringBuilder();
+            m_isOpen = false;
+
+            m_privateDescription = new StringBuilder();
+            m_privateTitle = new StringBuilder();
+
+            Render = new MyRenderComponentTextPanel();
+            m_definitions.Clear();
+            foreach (var textureDefinition in MyDefinitionManager.Static.GetLCDTexturesDefinitions())
+            {
+                m_definitions.Add(textureDefinition);
+            }
+
+            m_backgroundColor.Value = Color.Black;
+            m_fontColor.Value = Color.White;
+            m_changeInterval.Value = 0;
+            m_fontSize.Value = 1.0f;
+
+            m_backgroundColor.ValueChanged += m_backgroundColor_ValueChanged;
+            m_fontColor.ValueChanged += m_fontColor_ValueChanged;
+            m_showFlag.ValueChanged += m_showFlag_ValueChanged;
+            m_changeInterval.ValueChanged += m_changeInterval_ValueChanged;
+            m_fontSize.ValueChanged += m_fontSize_ValueChanged;
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyTextPanel>())
+                return;
+
             var publicTitleField = new MyTerminalControlTextbox<MyTextPanel>("PublicTitle", MySpaceTexts.BlockPropertyTitle_TextPanelPublicTitle, MySpaceTexts.Blank);
             publicTitleField.Getter = (x) => x.PublicTitle;
             publicTitleField.Setter = (x, v) => x.SendChangeTitleMessage(v, true);
@@ -647,35 +681,6 @@ namespace Sandbox.Game.Entities.Blocks
             var removeSelectedButton = new MyTerminalControlButton<MyTextPanel>("RemoveSelectedTextures", MySpaceTexts.BlockPropertyTitle_LCDScreenRemoveSelectedTextures, MySpaceTexts.Blank, (x) => x.RemoveImagesFromSelection());
             MyTerminalControlFactory.AddControl(removeSelectedButton);
 
-        }
-
-        public MyTextPanel()
-        {
-            m_publicDescription = new StringBuilder();
-            m_textBox = null;
-            m_publicTitle = new StringBuilder();
-            m_isOpen = false;
-
-            m_privateDescription = new StringBuilder();
-            m_privateTitle = new StringBuilder();
-
-            Render = new MyRenderComponentTextPanel();
-            m_definitions.Clear();
-            foreach (var textureDefinition in MyDefinitionManager.Static.GetLCDTexturesDefinitions())
-            {
-                m_definitions.Add(textureDefinition);
-            }
-
-            m_backgroundColor.Value = Color.Black;
-            m_fontColor.Value = Color.White;
-            m_changeInterval.Value = 0;
-            m_fontSize.Value = 1.0f;
-
-            m_backgroundColor.ValueChanged += m_backgroundColor_ValueChanged;
-            m_fontColor.ValueChanged += m_fontColor_ValueChanged;
-            m_showFlag.ValueChanged += m_showFlag_ValueChanged;
-            m_changeInterval.ValueChanged += m_changeInterval_ValueChanged;
-            m_fontSize.ValueChanged += m_fontSize_ValueChanged;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -973,20 +978,20 @@ namespace Sandbox.Game.Entities.Blocks
             ReleaseRenderTexture();
         }
 
-        public static void FillComboBoxContent(List<TerminalComboBoxItem> items)
+        public static void FillComboBoxContent(List<MyTerminalControlComboBoxItem> items)
         {
-            items.Add(new TerminalComboBoxItem() { Key = (long)TextPanelAccessFlag.NONE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessOnlyOwner });
-            items.Add(new TerminalComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_FACTION, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadFaction });
-            items.Add(new TerminalComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_AND_WRITE_FACTION, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadWriteFaction });
-            items.Add(new TerminalComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_ALL, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadAll });
-            items.Add(new TerminalComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_AND_WRITE_ALL, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadWriteAll });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)TextPanelAccessFlag.NONE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessOnlyOwner });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_FACTION, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadFaction });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_AND_WRITE_FACTION, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadWriteFaction });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_ALL, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadAll });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)TextPanelAccessFlag.READ_AND_WRITE_ALL, Value = MySpaceTexts.BlockComboBoxValue_TextPanelAccessReadWriteAll });
         }
 
-        public static void FillShowOnScreenComboBoxContent(List<TerminalComboBoxItem> items)
+        public static void FillShowOnScreenComboBoxContent(List<MyTerminalControlComboBoxItem> items)
         {
-            items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.NONE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextNone });
-            items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PUBLIC, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPublic });
-            items.Add(new TerminalComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PRIVATE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPrivate });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)ShowTextOnScreenFlag.NONE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextNone });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PUBLIC, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPublic });
+            items.Add(new MyTerminalControlComboBoxItem() { Key = (long)ShowTextOnScreenFlag.PRIVATE, Value = MySpaceTexts.BlockComboBoxValue_TextPanelShowTextPrivate });
 
         }
 

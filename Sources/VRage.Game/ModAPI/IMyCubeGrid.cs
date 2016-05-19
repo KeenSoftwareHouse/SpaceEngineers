@@ -253,6 +253,13 @@ namespace VRage.Game.ModAPI
         /// <returns></returns>
         IMySlimBlock AddBlock(MyObjectBuilder_CubeBlock objectBuilder, bool testMerge);
 
+        /// <summary>
+        /// Checks if removing a block will cause the grid to split
+        /// </summary>
+        /// <param name="testBlock"></param>
+        /// <returns></returns>
+        bool WillRemoveBlockSplitGrid(IMySlimBlock testBlock);
+
         //Missing dependencies
         //void BuildBlocks(long buildBy, ref IMyCubeGrid.MyBlockBuildArea area);
         //void BuildBlocks(VRageMath.Vector3 colorMaskHsv, System.Collections.Generic.HashSet<IMyCubeGrid.MyBlockLocation> locations);

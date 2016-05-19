@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-#if BLIT
+#if XB1
 using System.Diagnostics;
 #endif
 
@@ -24,7 +24,7 @@ namespace KeenSoftwareHouse.Library.IO
         public static List<Process> GetProcessesLockingFile(string filePath)
         {
             var procs = new List<Process>();
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
             var processListSnapshot = Process.GetProcesses();
@@ -44,7 +44,7 @@ namespace KeenSoftwareHouse.Library.IO
         public static List<string> GetFilesLockedBy(Process process)
         {
             var outp = new List<string>();
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
             ThreadStart ts = delegate
@@ -76,7 +76,7 @@ namespace KeenSoftwareHouse.Library.IO
             return outp;
         }
 
-#if !BLIT
+#if !XB1
 
 //        #region Inner Workings
         private static void Ignore() { }
@@ -210,7 +210,7 @@ namespace KeenSoftwareHouse.Library.IO
 
         private static string GetRegularFileNameFromDevice(string strRawName)
         {
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 			return strRawName;
 #else
@@ -233,7 +233,7 @@ namespace KeenSoftwareHouse.Library.IO
 #endif
 		}
 
-#if !BLIT
+#if !XB1
         private static IEnumerable<Win32API.SYSTEM_HANDLE_INFORMATION> GetHandles(Process process)
         {
             var nHandleInfoSize = 0x10000;

@@ -21843,6 +21843,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
+      <RequiredPowerInput>0.002</RequiredPowerInput>
       <InventorySize>
         <X>2.5</X>
         <Y>2.5</Y>
@@ -21891,6 +21892,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <ResourceSinkGroup>Conveyors</ResourceSinkGroup>
+      <RequiredPowerInput>0.002</RequiredPowerInput>
       <InventorySize>
         <X>1.5</X>
         <Y>1.5</Y>

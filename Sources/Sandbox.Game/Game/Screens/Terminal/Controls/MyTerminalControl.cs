@@ -7,7 +7,8 @@ using System.Text;
 using VRage.Extensions;
 using Sandbox.Game.World;
 using VRage.Library.Collections;
-
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
@@ -15,7 +16,7 @@ namespace Sandbox.Game.Gui
     /// Terminal control for specified block type.
     /// E.g. Torque slider for stator
     /// </summary>
-    public abstract class MyTerminalControl<TBlock> : ITerminalControl
+    public abstract class MyTerminalControl<TBlock> : ITerminalControl, IMyTerminalControl
         where TBlock : MyTerminalBlock
     {
         public delegate void WriterDelegate(TBlock block, StringBuilder writeTo);
@@ -101,6 +102,12 @@ namespace Sandbox.Game.Gui
             }
         }
 
+        public void RedrawControl()
+        {
+            if (m_control != null)
+                m_control = CreateGui();
+        }
+
         bool ITerminalControl.IsVisible(MyTerminalBlock block)
         {
             return Visible((TBlock)block);
@@ -110,5 +117,21 @@ namespace Sandbox.Game.Gui
 
         ITerminalAction[] ITerminalControl.Actions { get { return Actions; } }
         string ITerminalControl.Id { get { return Id; } }
+        string IMyTerminalControl.Id { get { return Id; } }
+        Func<IMyTerminalBlock, bool> IMyTerminalControl.Enabled
+        {
+            set
+            {
+                Enabled = value;
+            }
+        }
+
+        Func<IMyTerminalBlock, bool> IMyTerminalControl.Visible
+        {
+            set
+            {
+                Visible = value;
+            }
+        }
     }
 }

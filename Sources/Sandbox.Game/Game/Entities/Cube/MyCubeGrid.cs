@@ -460,7 +460,7 @@ namespace Sandbox.Game.Entities
             Components.Add(new MyGridTargeting());
 
             SyncType = SyncHelpers.Compose(this);
-            m_handBrakeSync.ValueChanged +=  (x)=> HandBrakeChanged();
+            m_handBrakeSync.ValueChanged += (x) => HandBrakeChanged();
         }
 
         private MyCubeGrid(MyCubeSize gridSize)
@@ -599,7 +599,7 @@ namespace Sandbox.Game.Entities
 
                 m_tmpOccupiedCockpits.Clear();
 
-                for (int i = 0; i<builder.CubeBlocks.Count; i++)
+                for (int i = 0; i < builder.CubeBlocks.Count; i++)
                 {
                     MyObjectBuilder_CubeBlock cubeBlock = builder.CubeBlocks[i];
 
@@ -856,6 +856,11 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public static void CreateSplits(MyCubeGrid originalGrid, List<MySlimBlock> splitBlocks, List<MyDisconnectHelper.Group> groups, bool sync = true)
         {
+            if (originalGrid == null || originalGrid.Physics == null || groups == null || splitBlocks == null)
+            {
+                return;
+            }
+
             Vector3 oldCenterOfMass = originalGrid.Physics.CenterOfMassWorld;
 
             try
@@ -869,9 +874,10 @@ namespace Sandbox.Game.Entities
 
                 // Create new grids, move blocks
                 ProfilerShort.Begin("Create grids and move");
+                var array = groups.GetInternalArray();
                 for (int i = 0; i < groups.Count; i++)
                 {
-                    CreateSplitForGroup(originalGrid, splitBlocks, ref groups.GetInternalArray()[i]);
+                    CreateSplitForGroup(originalGrid, splitBlocks, ref array[i]);
                 }
                 ProfilerShort.End();
 
@@ -889,8 +895,8 @@ namespace Sandbox.Game.Entities
                     {
                         newGrid.TestDynamic = true;
                         originalGrid.TestDynamic = true;
-
                     }
+
                     newGrid.Physics.AngularVelocity = originalGrid.Physics.AngularVelocity;
                     newGrid.Physics.LinearVelocity = originalGrid.Physics.GetVelocityAtPoint(newGrid.Physics.CenterOfMassWorld);
                     ProfilerShort.End();
@@ -919,7 +925,9 @@ namespace Sandbox.Game.Entities
                 }
 
                 foreach (var newGrid in originalGrid.m_tmpGrids)
+                {
                     newGrid.GridSystems.UpdatePower();
+                }
 
                 if (sync)
                 {
@@ -1390,24 +1398,33 @@ namespace Sandbox.Game.Entities
 
         public int GetCurrentMass(MyCharacter pilot = null)
         {
+            int baseMass;
+            return GetCurrentMass(out baseMass, pilot);
+        }
+
+        public int GetCurrentMass(out int baseMass, MyCharacter pilot = null)
+        {
+            baseMass = 0;
             int currentMass = 0;
             var physicalGroup = MyCubeGridGroups.Static.Physical.GetGroup(this);
             if (physicalGroup != null)
             {
-                foreach (var cubeGrid in physicalGroup.Nodes)
+                foreach (var node in physicalGroup.Nodes)
                 {
-                    if (cubeGrid.NodeData == null || cubeGrid.NodeData.Physics == null || cubeGrid.NodeData.Physics.Shape == null)
+                    var cubeGrid = node.NodeData;
+                    if (cubeGrid == null || cubeGrid.Physics == null || cubeGrid.Physics.Shape == null)
                         continue;
 
-                    var massProperties = cubeGrid.NodeData.Physics.Shape.MassProperties;
-                    var baseMassProperties = cubeGrid.NodeData.Physics.Shape.BaseMassProperties;
+                    var massProperties = cubeGrid.Physics.Shape.MassProperties;
+                    var baseMassProperties = cubeGrid.Physics.Shape.BaseMassProperties;
                     if (IsStatic || !massProperties.HasValue || !baseMassProperties.HasValue)
                         continue;
 
-                    float totalMass = (int)massProperties.Value.Mass;
-                    float baseMass = (int)baseMassProperties.Value.Mass;
-                    float inventoryMass = totalMass - baseMass;
-                    currentMass += (int)(baseMass + inventoryMass * MySession.Static.Settings.InventorySizeMultiplier - (MySession.Static.Settings.InventorySizeMultiplier - 1) * (pilot != null ? pilot.BaseMass : 0.0f));
+                    float gridTotalMass = massProperties.Value.Mass;
+                    float gridBaseMass = baseMassProperties.Value.Mass;
+                    float inventoryMass = gridTotalMass - gridBaseMass;
+                    baseMass += (int)gridBaseMass;
+                    currentMass += (int)(gridBaseMass + inventoryMass * MySession.Static.Settings.InventorySizeMultiplier - (pilot != null ? pilot.BaseMass : 0.0f));
                 }
             }
             return currentMass;
@@ -2367,7 +2384,7 @@ namespace Sandbox.Game.Entities
         {
             //Debug.Assert(false, "AddCubeBlock");
             ProfilerShort.Begin("CanAddCubes");
-            
+
             Vector3I min = objectBuilder.Min, max;
             MySlimBlock.ComputeMax(blockDefinition, objectBuilder.BlockOrientation, ref min, out max);
             if (!CanAddCubes(min, max))
@@ -3008,7 +3025,7 @@ namespace Sandbox.Game.Entities
             if (CanPlaceBlock(location.Min, location.Max, ori, blockDefinition, ignoreMultiblockId: ignoreMultiBlockId)
                 && MyCubeGrid.CheckConnectivity(this, blockDefinition, mountPoints, ref orientation, ref center))
             {
-                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, instantBuilt ? null: builder, objectBuilder);
+                var block = BuildBlock(blockDefinition, colorMaskHsv, location.Min, orientation, location.Owner, location.EntityId, instantBuilt ? null : builder, objectBuilder);
 
                 if (block != null)
                 {
@@ -3875,7 +3892,7 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
         }
 
-        [Event,Reliable,Broadcast]
+        [Event, Reliable, Broadcast]
         public void ConvertToDynamic()
         {
             Debug.Assert(IsStatic);
@@ -4272,7 +4289,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        [Event,Reliable,Broadcast]
+        [Event, Reliable, Broadcast]
         private void BlockIntegrityChanged(Vector3I pos, ushort subBlockId, float buildIntegrity, float integrity, MyIntegrityChangeEnum integrityChangeType, long grinderOwner)
         {
             MyCompoundCubeBlock compoundBlock = null;
@@ -6172,7 +6189,7 @@ namespace Sandbox.Game.Entities
                     Debug.Assert(m_cubeBlocks.Contains(fb.SlimBlock));
                     // Assert commented since this will happen a lot in AI School, scenario 2, when the fixing bot is fixing 
                     //Debug.Assert(!fb.Closed);
-                    if(fb.Closed) //TODO:investigate why there is closed block in the grid/m_fatblock list
+                    if (fb.Closed) //TODO:investigate why there is closed block in the grid/m_fatblock list
                         continue; //it is possible to have marked for close block there but not closed
                     blocks.Add(fb);
 
@@ -6319,7 +6336,7 @@ namespace Sandbox.Game.Entities
                 foreach (var fb in m_fatBlocks)
                 {
                     Debug.Assert(m_cubeBlocks.Contains(fb.SlimBlock));
-                    Debug.Assert(!fb.Closed,m_fatBlocks.Count+", "+m_cubeBlocks.Count);
+                    Debug.Assert(!fb.Closed, m_fatBlocks.Count + ", " + m_cubeBlocks.Count);
                     if (fb.Closed) //TODO:investigate why there is closed block in the grid/m_fatblock list
                         continue; //it is possible to have marked for close block there but not closed
 
@@ -7545,7 +7562,7 @@ namespace Sandbox.Game.Entities
                 var location = locations[i];
                 var blockBuilder = blockBuilders[i];
 
-                MyMultiplayer.RaiseEvent(this, x => x.BuildBlockRequest, MyPlayer.SelectedColor.PackHSVToUint(), location, blockBuilder, builderEntityId,false,MySession.Static.LocalPlayerId);
+                MyMultiplayer.RaiseEvent(this, x => x.BuildBlockRequest, MyPlayer.SelectedColor.PackHSVToUint(), location, blockBuilder, builderEntityId, false, MySession.Static.LocalPlayerId);
             }
 
             return true;
@@ -7631,6 +7648,11 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
+        public bool WillRemoveBlockSplitGrid( MySlimBlock testBlock )
+        {
+            return m_disconnectHelper.TryDisconnect( testBlock );
+        }
+
         /// <param name="position">In world coordinates</param>
         public MySlimBlock GetTargetedBlock(Vector3 position)
         {
@@ -7691,15 +7713,15 @@ namespace Sandbox.Game.Entities
 
                 // This does not work, because EntityCreation is not supported on separate thread
                 //MyEntities.CreateAsync(entity, false, (e) => results.Add((MyCubeGrid)e));
-               
+
                 MyCubeGrid grid = MyEntities.CreateFromObjectBuilder(entity) as MyCubeGrid;
                 results.Add(grid);
-              
+
                 if (instantBuild && isAdmin)
                 {
                     ChangeOwnership(inventoryEntityId, grid);
                 }
-            
+
                 MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(entity.EntityId) + ") InScene(" + ((entity.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
             }
 
@@ -7792,13 +7814,13 @@ namespace Sandbox.Game.Entities
                     grid.Close();
                 }
 
-                if(!MyEventContext.Current.IsLocallyInvoked)
+                if (!MyEventContext.Current.IsLocallyInvoked)
                 {
-                    MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.ShowPasteFailedOperation,MyEventContext.Current.Sender);
+                    MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.ShowPasteFailedOperation, MyEventContext.Current.Sender);
                 }
             }
         }
-        
+
         [Event, Reliable, Client]
         public static void ShowPasteFailedOperation()
         {
@@ -7960,7 +7982,7 @@ namespace Sandbox.Game.Entities
 
         public void SendIntegrityChanged(MySlimBlock mySlimBlock, MyIntegrityChangeEnum integrityChangeType, long toolOwner)
         {
-            MyMultiplayer.RaiseEvent(this, x => x.BlockIntegrityChanged,mySlimBlock.Position,GetSubBlockId(mySlimBlock), mySlimBlock.BuildIntegrity,mySlimBlock.Integrity, integrityChangeType, toolOwner);
+            MyMultiplayer.RaiseEvent(this, x => x.BlockIntegrityChanged, mySlimBlock.Position, GetSubBlockId(mySlimBlock), mySlimBlock.BuildIntegrity, mySlimBlock.Integrity, integrityChangeType, toolOwner);
         }
 
         public void SendStockpileChanged(MySlimBlock mySlimBlock, List<MyStockpileItem> list)
@@ -8025,7 +8047,7 @@ namespace Sandbox.Game.Entities
         }
 
         [Event, Reliable, Server]
-        private void OnSetToConstructionRequest(Vector3I blockPosition,long ownerEntityId, byte inventoryIndex,long requestingPlayer)
+        private void OnSetToConstructionRequest(Vector3I blockPosition, long ownerEntityId, byte inventoryIndex, long requestingPlayer)
         {
             var block = GetCubeBlock(blockPosition);
             Debug.Assert(block != null, "Could not find block to set to construction site");
@@ -8060,13 +8082,13 @@ namespace Sandbox.Game.Entities
             MyMultiplayer.RaiseEvent(this, x => x.OnPowerProducerStateRequest, enabledState, playerId);
         }
 
-        [Event, Reliable, Server,Broadcast]
+        [Event, Reliable, Server, Broadcast]
         private void OnPowerProducerStateRequest(MyMultipleEnabledEnum enabledState, long playerId)
         {
             this.GridSystems.SyncObject_PowerProducerStateChanged(enabledState, playerId);
 
         }
-           
+
         [Event, Reliable, Server, BroadcastExcept]
         private void OnZeroThrustReceived()
         {
@@ -8084,8 +8106,8 @@ namespace Sandbox.Game.Entities
 
         [Event, Reliable, Server]
         public void OnConvertedToShipRequest()
-        { 
-            if(IsStatic == false)
+        {
+            if (IsStatic == false)
             {
                 return;
             }
@@ -8095,10 +8117,10 @@ namespace Sandbox.Game.Entities
 
         public void ChangeOwnerRequest(MyCubeGrid grid, MyCubeBlock block, long playerId, MyOwnershipShareModeEnum shareMode)
         {
-            MyMultiplayer.RaiseEvent(this, x => x.OnChangeOwnerRequest,block.EntityId,playerId,shareMode);
+            MyMultiplayer.RaiseEvent(this, x => x.OnChangeOwnerRequest, block.EntityId, playerId, shareMode);
         }
 
-        [Event,Reliable,Server]
+        [Event, Reliable, Server]
         void OnChangeOwnerRequest(long blockId, long owner, MyOwnershipShareModeEnum shareMode)
         {
             MyCubeBlock block = null;
@@ -8106,7 +8128,7 @@ namespace Sandbox.Game.Entities
             {
                 if (Sync.IsServer && ((MyFakes.ENABLE_BATTLE_SYSTEM && MySession.Static.Battle && block.IDModule == null) || (block.IDModule.Owner == 0) || block.IDModule.Owner == owner || (owner == 0)))
                 {
-                    OnChangeOwner(blockId,owner,shareMode);
+                    OnChangeOwner(blockId, owner, shareMode);
                     MyMultiplayer.RaiseEvent(this, x => x.OnChangeOwner, blockId, owner, shareMode);
                 }
                 else
@@ -8117,7 +8139,7 @@ namespace Sandbox.Game.Entities
         }
 
         [Event, Reliable, Broadcast]
-        void OnChangeOwner(long blockId, long owner,MyOwnershipShareModeEnum shareMode)
+        void OnChangeOwner(long blockId, long owner, MyOwnershipShareModeEnum shareMode)
         {
             MyCubeBlock block = null;
             if (MyEntities.TryGetEntityById<MyCubeBlock>(blockId, out block))
@@ -8189,7 +8211,7 @@ namespace Sandbox.Game.Entities
             MyMultiplayer.RaiseEvent(this, x => x.OnChangeDisplayNameRequest, displayName);
         }
 
-        [Event, Reliable, Server,Broadcast]
+        [Event, Reliable, Server, Broadcast]
         void OnChangeDisplayNameRequest(String displayName)
         {
             DisplayName = displayName;
@@ -8206,7 +8228,7 @@ namespace Sandbox.Game.Entities
         }
 
         [Event, Reliable, Server, BroadcastExcept]
-        void OnModifyGroupSuccess(String name,List<long> blocks)
+        void OnModifyGroupSuccess(String name, List<long> blocks)
         {
             if (blocks == null || blocks.Count == 0)
             {

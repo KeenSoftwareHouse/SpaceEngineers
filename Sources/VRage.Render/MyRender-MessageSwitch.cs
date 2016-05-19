@@ -1115,7 +1115,7 @@ namespace VRageRender
                         MyRender.AmbientMultiplier = rMessage.AmbientMultiplier;
                         MyRender.EnvAmbientIntensity = rMessage.EnvAmbientIntensity;
 
-                        MyBackgroundCube.Filename = rMessage.BackgroundTexture;
+                        MyBackgroundCube.Filename = rMessage.DayBackgroundTexture;
                         MyBackgroundCube.BackgroundColor = rMessage.BackgroundColor;
                         MyBackgroundCube.BackgroundOrientation = rMessage.BackgroundOrientation;
                         Sun.SunMaterial = rMessage.SunMaterial;

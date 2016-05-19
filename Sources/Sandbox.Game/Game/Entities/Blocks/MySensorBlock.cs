@@ -47,7 +47,7 @@ namespace Sandbox.Game.Entities.Blocks
 
 
     [MyCubeBlockType(typeof(MyObjectBuilder_SensorBlock))]
-    class MySensorBlock : MyFunctionalBlock, Sandbox.ModAPI.IMySensorBlock, IMyGizmoDrawableObject
+    public class MySensorBlock : MyFunctionalBlock, Sandbox.ModAPI.IMySensorBlock, IMyGizmoDrawableObject
     {
         private new MySensorBlockDefinition BlockDefinition
         {
@@ -289,12 +289,24 @@ namespace Sandbox.Game.Entities.Blocks
         private static bool m_shouldSetOtherToolbars;
         bool m_syncing = false;
 
-        static MySensorBlock()
+        public MySensorBlock()     
         {
+            CreateTerminalControls();
+
+            m_active.ValueChanged += (x) => IsActiveChanged();
+            m_fieldMax.ValueChanged += (x) => UpdateField();
+            m_fieldMin.ValueChanged +=(x) => UpdateField();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySensorBlock>())
+                return;
+
             m_openedToolbars = new List<MyToolbar>();
 
             var toolbarButton = new MyTerminalControlButton<MySensorBlock>("Open Toolbar", MySpaceTexts.BlockPropertyTitle_SensorToolbarOpen, MySpaceTexts.BlockPropertyDescription_SensorToolbarOpen,
-                delegate(MySensorBlock self)
+                delegate (MySensorBlock self)
                 {
                     m_openedToolbars.Add(self.Toolbar);
                     if (MyGuiScreenCubeBuilder.Static == null)
@@ -304,10 +316,10 @@ namespace Sandbox.Game.Entities.Blocks
                         MyGuiScreenBase screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.ToolbarConfigScreen, 0, self);
                         MyToolbarComponent.AutoUpdate = false;
                         screen.Closed += (source) =>
-                            {
-                                MyToolbarComponent.AutoUpdate = true;
-                                m_openedToolbars.Clear();
-                            };
+                        {
+                            MyToolbarComponent.AutoUpdate = true;
+                            m_openedToolbars.Clear();
+                        };
                         MyGuiSandbox.AddScreen(screen);
                     }
                 });
@@ -418,7 +430,7 @@ namespace Sandbox.Game.Entities.Blocks
             detectPlayProximitySoundSwitch.Setter = (x, v) =>
             {
                 x.PlayProximitySound = v;
-            };                   
+            };
             MyTerminalControlFactory.AddControl(detectPlayProximitySoundSwitch);
 
             var detectPlayersSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Players", MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers, MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers);
@@ -504,7 +516,7 @@ namespace Sandbox.Game.Entities.Blocks
             detectFriendlySwitch.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(detectFriendlySwitch);
 
-            var detectNeutralSwitch = new  MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Neutral", MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral, MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral);
+            var detectNeutralSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Neutral", MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral, MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral);
             detectNeutralSwitch.Getter = (x) => x.DetectNeutral;
             detectNeutralSwitch.Setter = (x, v) =>
             {
@@ -523,13 +535,6 @@ namespace Sandbox.Game.Entities.Blocks
             detectEnemySwitch.EnableToggleAction();
             detectEnemySwitch.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(detectEnemySwitch);
-        }
-
-        public MySensorBlock()     
-        {
-            m_active.ValueChanged += (x) => IsActiveChanged();
-            m_fieldMax.ValueChanged += (x) => UpdateField();
-            m_fieldMin.ValueChanged +=(x) => UpdateField();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -825,7 +830,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (DetectFloatingObjects)
                 if (entity is MyFloatingObject)
                     return true;
+            
             var grid = entity as MyCubeGrid;
+            //if grids are physically connected return false (mostly for not detecting Piston and Rotor top parts)
+            if ( grid != null && MyCubeGridGroups.Static.Physical.HasSameGroup(grid, CubeGrid) )
+                return false;
+
             if (DetectSmallShips)
                 if (grid != null && grid.GridSizeEnum == MyCubeSize.Small)
                     return ShouldDetectGrid(grid);

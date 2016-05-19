@@ -64,7 +64,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (m_block == null) return ListReader<ITerminalAction>.Empty;
 
             m_tmpEnabledActions.Clear();
-            foreach (var action in MyTerminalControlFactory.GetActions(m_block.GetType()))
+            foreach (var action in MyTerminalControls.Static.GetActions(m_block))
             {
                 if (action.IsEnabled(m_block))
                 {
@@ -247,11 +247,11 @@ namespace Sandbox.Game.Screens.Helpers
             m_block = null;
         }
 
-        public override void OnClose()
+        public override void OnRemovedFromToolbar(MyToolbar toolbar)
         {
             if (m_block != null) UnregisterEvents();
 
-            base.OnClose();
+            base.OnRemovedFromToolbar(toolbar);
         }
 
         public override MyObjectBuilder_ToolbarItem GetObjectBuilder()

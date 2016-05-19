@@ -16,7 +16,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Weapons.Guns         
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_LargeMissileTurret))]
-    class MyLargeMissileTurret : MyLargeConveyorTurretBase, IMyLargeMissileTurret
+    public class MyLargeMissileTurret : MyLargeConveyorTurretBase, IMyLargeMissileTurret
     {
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {

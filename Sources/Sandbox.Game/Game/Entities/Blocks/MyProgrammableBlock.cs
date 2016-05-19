@@ -82,7 +82,7 @@ namespace Sandbox.Game.Entities.Blocks
     }
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
-    class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock
+    public class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock
     {
         /// <summary>
         /// Determines why (if at all) a script was terminated.
@@ -168,6 +168,11 @@ public void Main(string argument) {{
             set { this.m_terminalRunArgument = value ?? string.Empty; }
         }
 
+        public MyProgrammableBlock()
+        {
+            CreateTerminalControls();
+        }
+
         bool IMyProgrammableBlock.TryRun(string argument)
         {
             // If we find some reason why a run couldn't possibly work, return false
@@ -194,8 +199,12 @@ public void Main(string argument) {{
             get { return m_userId; }
             set { m_userId = value; }
         }
-        static MyProgrammableBlock()
+
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyProgrammableBlock>())
+                return;
+
             var console = new MyTerminalControlButton<MyProgrammableBlock>("Edit", MySpaceTexts.TerminalControlPanel_EditCode, MySpaceTexts.TerminalControlPanel_EditCode_Tooltip, (b) => b.SendOpenEditorRequest());
             console.Visible = (b) => MyFakes.ENABLE_PROGRAMMABLE_BLOCK && MySession.Static.EnableIngameScripts;
             MyTerminalControlFactory.AddControl(console);

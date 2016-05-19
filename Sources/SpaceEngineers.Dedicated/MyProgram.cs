@@ -21,6 +21,7 @@ namespace SpaceEngineersDedicated
         [STAThread]
         static void Main(string[] args)
         {
+            SpaceEngineersGame.SetupBasicGameInfo();
             SpaceEngineersGame.SetupPerGameSettings();
 
             MyPerGameSettings.SendLogToKeen = DedicatedServer.SendLogToKeen;
@@ -38,9 +39,10 @@ namespace SpaceEngineersDedicated
             ConfigForm<MyObjectBuilder_SessionSettings>.GameAttributes = Game.SpaceEngineers;
             ConfigForm<MyObjectBuilder_SessionSettings>.OnReset = delegate
             {
+                SpaceEngineersGame.SetupBasicGameInfo();
                 SpaceEngineersGame.SetupPerGameSettings();
             };
-
+            MyFinalBuildConstants.APP_VERSION = MyPerGameSettings.BasicGameInfo.GameVersion;
 
             DedicatedServer.Run<MyObjectBuilder_SessionSettings>(args);
         }
@@ -57,6 +59,7 @@ namespace SpaceEngineersDedicated
         /// </summary>
         public WindowsServiceInstaller()
         {
+            SpaceEngineersGame.SetupBasicGameInfo();
             SpaceEngineersGame.SetupPerGameSettings();
 
             ServiceProcessInstaller serviceProcessInstaller =

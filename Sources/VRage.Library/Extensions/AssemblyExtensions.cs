@@ -8,7 +8,7 @@ namespace System.Reflection
 {
     public static class AssemblyExtensions
     {
-#if !BLIT
+#if !UNSHARPER
         public static ProcessorArchitecture ToProcessorArchitecture(this PortableExecutableKinds peKind)
         {
             switch (peKind &~PortableExecutableKinds.ILOnly)

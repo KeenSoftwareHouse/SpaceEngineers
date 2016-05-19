@@ -28,7 +28,7 @@ namespace VRage.Game.Entity
             ItemId = 0;
             Amount = item.Amount;
             Scale = item.Scale;
-            Content = item.PhysicalContent;
+            Content = item.PhysicalContent.Clone() as MyObjectBuilder_PhysicalObject;
         }
 
         public MyObjectBuilder_InventoryItem GetObjectBuilder()

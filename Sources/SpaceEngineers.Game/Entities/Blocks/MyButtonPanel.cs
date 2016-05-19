@@ -26,7 +26,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ButtonPanel))]
-    internal class MyButtonPanel : MyFunctionalBlock, IMyButtonPanel
+    public class MyButtonPanel : MyFunctionalBlock, IMyButtonPanel
     {
         private const string DETECTOR_NAME = "panel";
         private List<string> m_emissiveNames; // new string[] { "Emissive1", "Emissive2", "Emissive3", "Emissive4", "Emissive5", "Emissive6", "Emissive7", "Emissive8" };
@@ -58,9 +58,16 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         bool m_syncing = false;
 
-        static MyButtonPanel()
+        public MyButtonPanel()
         {
+            CreateTerminalControls();
             m_openedToolbars = new List<MyToolbar>();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyButtonPanel>())
+                return;
 
             var checkAccess = new MyTerminalControlCheckbox<MyButtonPanel>("AnyoneCanUse", MySpaceTexts.BlockPropertyText_AnyoneCanUse, MySpaceTexts.BlockPropertyDescription_AnyoneCanUse);
             checkAccess.Getter = (x) => x.AnyoneCanUse;

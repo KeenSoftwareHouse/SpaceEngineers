@@ -90,6 +90,10 @@ namespace Sandbox.Game.Entities
 
         private float m_currentCameraShakePower = 0f;
 
+        bool? m_lastNearFlag = null;
+        private int m_forcedFpsTimeoutMs = 0;
+        private const int m_forcedFpsTimeoutDefaultMs = 500;
+
         protected Action<MyEntity> m_pilotClosedHandler;
 
         public float GlassDirt = 1.0f;
@@ -108,6 +112,20 @@ namespace Sandbox.Game.Entities
                 {
                     UpdateCameraAfterChange();
                 }
+            }
+        }
+
+        public override bool ForceFirstPersonCamera
+        {
+            get
+            {
+                return base.ForceFirstPersonCamera && m_forcedFpsTimeoutMs <= 0;
+            }
+            set
+            {
+                if (value && !base.ForceFirstPersonCamera)
+                    m_forcedFpsTimeoutMs = m_forcedFpsTimeoutDefaultMs;
+                base.ForceFirstPersonCamera = value;
             }
         }
 
@@ -490,6 +508,9 @@ namespace Sandbox.Game.Entities
             base.UpdateBeforeSimulation();
             if (m_soundEmitter != null && m_soundEmitter.VolumeMultiplier < 1f)
                 m_soundEmitter.VolumeMultiplier = Math.Min(1f, m_soundEmitter.VolumeMultiplier + 0.005f);
+
+            if (m_forcedFpsTimeoutMs > 0)
+                m_forcedFpsTimeoutMs -= MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS;
         }
 
         public override void UpdateBeforeSimulation10()
@@ -1140,8 +1161,6 @@ namespace Sandbox.Game.Entities
             m_pilot.Sit(m_enableFirstPerson, pilotIsLocal, m_isLargeCockpit || !m_enableShipControl, BlockDefinition.CharacterAnimation);
             CubeGrid.SetInventoryMassDirty();
         }
-
-        bool? m_lastNearFlag = null;
 
         // These weapons will not be remembered when sitting inside the cockpit
         // TODO: move to SBC

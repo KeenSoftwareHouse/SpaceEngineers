@@ -22,7 +22,7 @@ namespace VRage.Game
         }
 
         [ProtoMember]
-        public List<BotData> BotBrains;
+        public List<BotData> BotBrains = new List<BotData>();
         public bool ShouldSerializeBotBrains() { return BotBrains != null && BotBrains.Count > 0; }
     }
 }

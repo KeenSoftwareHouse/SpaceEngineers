@@ -124,6 +124,9 @@ namespace VRage.Utils
             // file path
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1024)]
             public string ACAddress;
+            // file path
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1024)]
+            public string ACContentAddress;
 
             string IExternalDebugMsg.GetTypeStr() { return "AC_LOAD"; }
         }

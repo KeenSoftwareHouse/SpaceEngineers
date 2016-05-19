@@ -103,6 +103,8 @@ namespace VRage.Game
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
 
+        public MyObjectBuilder_ScriptManager ScriptManagerData;
+
         [ProtoMember]
         public int AppVersion = 0;
 

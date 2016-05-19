@@ -9,6 +9,7 @@ using System;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
     [MyDebugScreen("Render", "Sector FX", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugRenderSectorFX : MyGuiScreenDebugBase
     {
@@ -124,4 +125,5 @@ namespace Sandbox.Game.Gui
         }
 
     }
+#endif
 }

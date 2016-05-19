@@ -764,10 +764,15 @@ namespace Sandbox.Graphics.GUI
             var screenWithFocus = MyScreenManager.GetScreenWithFocus();
             if (((screenWithFocus != null) && (screenWithFocus.GetDrawMouseCursor() == true)) || (MyScreenManager.InputToNonFocusedScreens && MyScreenManager.GetScreensCount() > 1))
             {
+#if XB1
+                SetMouseCursorVisibility(false, false);
+                DrawMouseCursor(GetMouseOverTexture(screenWithFocus));
+#else
                 SetMouseCursorVisibility(hwCursor, false);
 
                 if (!hwCursor || MyFakes.FORCE_SOFTWARE_MOUSE_DRAW)
                     DrawMouseCursor(GetMouseOverTexture(screenWithFocus));
+#endif
             }
             else
             {

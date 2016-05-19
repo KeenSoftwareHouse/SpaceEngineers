@@ -86,12 +86,6 @@ namespace ParallelTasks
 		}
 	}
 
-
-    /// <summary>
-    /// A thread safe hashtable.
-    /// </summary>
-    /// <typeparam name="TKey">The type of item to use as keys.</typeparam>
-    /// <typeparam name="TData">The type of data stored.</typeparam>
     public class Hashtable<TKey, TData>
         : IEnumerable<KeyValuePair<TKey, TData>>
     {
@@ -100,7 +94,7 @@ namespace ParallelTasks
         // object.Equals() casts value types to object and can therefore create "garbage".
         private static readonly EqualityComparer<TKey> KeyComparer = EqualityComparer<TKey>.Default;
 
-#if BLIT
+#if UNSHARPER_TMP
 		public HashtableNode<TKey, TData>[] array;
 #else
         public volatile HashtableNode<TKey,TData>[] array;
@@ -128,7 +122,7 @@ namespace ParallelTasks
         /// <param name="data">The data to add.</param>
         public void Add(TKey key, TData data)
         {
-#if BLIT
+#if UNSHARPER_TMP
 			try
 			{
 				writeLock.Enter();

@@ -1,10 +1,7 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Definition xsi:type="AnimationControllerDefinition">
-    <Id>
-      <TypeId>MyObjectBuilder_AnimationControllerDefinition</TypeId>
-      <SubtypeId>Default_Astronaut</SubtypeId>
-    </Id>
+    <Id Type="MyObjectBuilder_AnimationControllerDefinition" Subtype="Default_Astronaut" />
     <Layers>
       <Layer>
         <Name>Body</Name>
@@ -893,7 +890,7 @@
             <Type>AnyExceptTarget</Type>
           </Node>
           <Node>
-            <Name>State1</Name>
+            <Name>Victory</Name>
             <AnimationTree>
               <EdPos>
                 <X>0</X>
@@ -912,16 +909,16 @@
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>418</X>
-              <Y>9</Y>
+              <X>448</X>
+              <Y>0</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
           <Node>
-            <Name>State2</Name>
+            <Name>BeforeVictory</Name>
             <EdPos>
-              <X>178</X>
-              <Y>-21</Y>
+              <X>226</X>
+              <Y>-31</Y>
             </EdPos>
             <Type>PassThrough</Type>
           </Node>
@@ -938,10 +935,10 @@
           <Transition Name="equip_left_tool" From="EquipTool" To="Nothing" TimeInSec="0.25" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Victory" From="Nothing" To="State2" TimeInSec="0" Sync="Restart">
+          <Transition Name="Victory" From="Nothing" To="BeforeVictory" TimeInSec="0" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition From="State2" To="Nothing" TimeInSec="0" Sync="Restart">
+          <Transition From="BeforeVictory" To="Nothing" TimeInSec="0" Sync="Restart">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="0" />
@@ -949,7 +946,7 @@
             </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition From="State2" To="State1" TimeInSec="0.25" Sync="Restart">
+          <Transition From="BeforeVictory" To="Victory" TimeInSec="0.25" Sync="Restart">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="1" />
@@ -957,7 +954,7 @@
             </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition From="State1" To="Nothing" TimeInSec="0" Sync="Restart">
+          <Transition From="Victory" To="Nothing" TimeInSec="0" Sync="Restart">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="@animationfinished" Op="Equal" Rhs="1" />
@@ -1113,7 +1110,7 @@
             <Type>Normal</Type>
           </Node>
           <Node>
-            <Name>State3</Name>
+            <Name>BeforeVictory</Name>
             <EdPos>
               <X>155</X>
               <Y>-183</Y>
@@ -1142,10 +1139,10 @@
           <Transition Name="equip_right_tool" From="AnyToolRight" To="Nothing" TimeInSec="0.25" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Victory" From="Nothing" To="State3" TimeInSec="0" Sync="Restart">
+          <Transition Name="Victory" From="Nothing" To="BeforeVictory" TimeInSec="0" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition From="State3" To="Nothing" TimeInSec="0" Sync="Restart">
+          <Transition From="BeforeVictory" To="Nothing" TimeInSec="0" Sync="Restart">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="0" />
@@ -1153,7 +1150,7 @@
             </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition From="State3" To="Victory" TimeInSec="0.25" Sync="Restart">
+          <Transition From="BeforeVictory" To="Victory" TimeInSec="0.25" Sync="Restart">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="1" />

@@ -16,6 +16,7 @@ namespace Sandbox.Game.Replication
 {
     public class MyCharacterPositionVerificationStateGroup : MyEntityPositionVerificationStateGroup
     {
+        private MyEntityPhysicsStateGroup m_supportPhysics;
         MyCharacter m_character;
         MyTimestampHelper m_supportTimeStamp;
 
@@ -61,10 +62,26 @@ namespace Sandbox.Game.Replication
 
         protected override void ClientWrite(VRage.Library.Collections.BitStream stream)
         {
+                 
             base.ClientWrite(stream);
 
+            stream.WriteBool(m_character != null);
             if (m_character != null)
             {
+                var physGroup = MyExternalReplicable.FindByObject(m_character).FindStateGroup<MyCharacterPhysicsStateGroup>();
+                long? supportId = null;
+                if (physGroup != null)
+                {
+                    physGroup.SetSupport(physGroup.FindSupportDelegate());
+                    supportId = physGroup.GetSupportId();
+                }
+
+                stream.WriteBool(supportId.HasValue);
+                if (supportId.HasValue)
+                {
+                    stream.WriteInt64(supportId.Value);
+                }
+
                 Vector3 position = m_character.MoveIndicator;
                 stream.WriteHalf(position.X);
                 stream.WriteHalf(position.Y);
@@ -102,11 +119,28 @@ namespace Sandbox.Game.Replication
         }
 
         protected override void ServerRead(VRage.Library.Collections.BitStream stream, ulong clientId, uint timestamp)
-        {
+        {       
             base.ServerRead(stream, clientId, timestamp);
-
-            if (m_character != null)
+            bool clientHasCharacter = stream.ReadBool();
+            if (clientHasCharacter)
             {
+                MyEntity support;
+                if (stream.ReadBool())
+                {
+                    bool apply = MyEntities.TryGetEntityById(stream.ReadInt64(), out support);
+
+                    if (m_character != null)
+                    {
+
+                        var physGroup = MyExternalReplicable.FindByObject(m_character).FindStateGroup<MyCharacterPhysicsStateGroup>();
+                        if (physGroup != null && apply)
+                        {
+                            physGroup.SetSupport(MySupportHelper.FindPhysics(support));
+                        }
+                    }
+                }
+               
+
                 Vector3 move = new Vector3();
                 move.X = stream.ReadHalf();
                 move.Y = stream.ReadHalf();
@@ -135,6 +169,11 @@ namespace Sandbox.Game.Replication
                 if (Jetpack == false)
                 {
                     rotation = stream.ReadQuaternionNorm();
+                }
+
+                if(m_character == null)
+                {
+                    return;
                 }
 
                 if (m_character.IsDead || m_character.IsUsing != null)
@@ -176,7 +215,6 @@ namespace Sandbox.Game.Replication
 
                
                 m_character.CacheMove(ref move, ref rotate, ref roll);
-
 
                 if (Jetpack == false)
                 {
@@ -281,21 +319,25 @@ namespace Sandbox.Game.Replication
                 clientNormalized.Normalize();
 
                 double eps = 0.001;
-                if (Math.Abs(Quaternion.Dot(serverPositionAndOrientation.Transform.Rotation, clientNormalized)) < 1 - eps && m_character.IsDead == false)
+                bool hasJetpack = m_character.JetpackComp != null;
+                if (hasJetpack && m_character.JetpackComp.TurnedOn && m_character.IsDead == false)
                 {
-                    Quaternion currentOrientation = Quaternion.CreateFromForwardUp(m_character.WorldMatrix.Forward, m_character.WorldMatrix.Up);
-                    Quaternion.Multiply(ref delta.Transform.Rotation, ref currentOrientation, out currentOrientation);
-
-                    MatrixD matrix = MatrixD.CreateFromQuaternion(currentOrientation);
-                    MatrixD currentMatrix = m_character.PositionComp.WorldMatrix;
-                    currentMatrix.Translation = Vector3D.Zero;
-
-                    if (currentMatrix.EqualsFast(ref matrix) == false)
+                    if (Math.Abs(Quaternion.Dot(serverPositionAndOrientation.Transform.Rotation, clientNormalized)) < 1 - eps )
                     {
-                        if (m_character.Physics.CharacterProxy != null)
+                        Quaternion currentOrientation = Quaternion.CreateFromForwardUp(m_character.WorldMatrix.Forward, m_character.WorldMatrix.Up);
+                        Quaternion.Multiply(ref delta.Transform.Rotation, ref currentOrientation, out currentOrientation);
+
+                        MatrixD matrix = MatrixD.CreateFromQuaternion(currentOrientation);
+                        MatrixD currentMatrix = m_character.PositionComp.WorldMatrix;
+                        currentMatrix.Translation = Vector3D.Zero;
+
+                        if (currentMatrix.EqualsFast(ref matrix) == false)
                         {
-                            m_character.Physics.CharacterProxy.Forward = matrix.Forward;
-                            m_character.Physics.CharacterProxy.Up = matrix.Up;
+                            if (m_character.Physics.CharacterProxy != null)
+                            {
+                                m_character.Physics.CharacterProxy.Forward = matrix.Forward;
+                                m_character.Physics.CharacterProxy.Up = matrix.Up;
+                            }
                         }
                     }
                 }
@@ -323,5 +365,6 @@ namespace Sandbox.Game.Replication
                 base.CustomClientRead(timeStamp, ref serverPositionAndOrientation, stream);
             }
         }
+
     }
 }

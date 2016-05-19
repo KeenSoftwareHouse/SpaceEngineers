@@ -56,12 +56,12 @@ namespace VRageRender
         internal static Vector2[] AdditionalSunDirections;
         internal static float   PlanetFactor;
 
-        internal static string DaySkybox = "Textures/BackgroundCube/Final/BackgroundCube_skybox.dds";
-        internal static string DaySkyboxPrefiltered = "Textures/BackgroundCube/Final/BackgroundCube_skybox_prefiltered.dds";
+        internal static string DaySkybox = null;
 
-        internal static string NightSkybox = "Textures/BackgroundCube/Final/night/BackgroundCube_skybox.dds";
-        internal static string NightSkyboxPrefiltered = "Textures/BackgroundCube/Final/night/BackgroundCube_skybox_prefiltered.dds";
+		internal static string NightSkybox = null;
+		internal static string NightSkyboxPrefiltered = null;
 
         internal static Quaternion BackgroundOrientation;
+		internal static Color BackgroundColor = Color.Black;
     }
 }

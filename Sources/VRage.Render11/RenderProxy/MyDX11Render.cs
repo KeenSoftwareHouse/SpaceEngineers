@@ -79,7 +79,7 @@ namespace VRageRender
             MyRender11.Present();
         }
 
-        public void ClearBackbuffer(ColorBGRA clearColor)
+        public void ClearBackbuffer(VRageMath.Color clearColor)
         {
             MyRender11.ClearBackbuffer(clearColor);
         }

@@ -474,10 +474,10 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
         }
 
-        private static Vector3 GetGridPosition(HkContactPointEvent value, MyCubeGrid grid, int body)
+        private static Vector3 GetGridPosition(HkContactPoint contactPoint, HkRigidBody gridBody, MyCubeGrid grid, int body)
         {
-            var position = value.ContactPoint.Position + (body == 0 ? 0.1f : -0.1f) * value.ContactPoint.Normal;
-            var local = Vector3.Transform(position, Matrix.Invert(value.Base.GetRigidBody(body).GetRigidBodyMatrix()));
+            var position = contactPoint.Position + (body == 0 ? 0.1f : -0.1f) * contactPoint.Normal;
+            var local = Vector3.Transform(position, Matrix.Invert(gridBody.GetRigidBodyMatrix()));
             return local;
         }
 

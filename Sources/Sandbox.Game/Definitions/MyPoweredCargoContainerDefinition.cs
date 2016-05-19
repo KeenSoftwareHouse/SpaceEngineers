@@ -9,6 +9,7 @@ namespace Sandbox.Definitions
 	public class MyPoweredCargoContainerDefinition : MyCargoContainerDefinition
 	{
 		public string ResourceSinkGroup;
+        public float RequiredPowerInput;
 
 		protected override void Init(MyObjectBuilder_DefinitionBase builder)
 		{
@@ -18,6 +19,7 @@ namespace Sandbox.Definitions
 			MyDebug.AssertDebug(cargoBuilder != null);
 
 			ResourceSinkGroup = cargoBuilder.ResourceSinkGroup;
+            RequiredPowerInput = cargoBuilder.RequiredPowerInput;
 		}
 	}
 }

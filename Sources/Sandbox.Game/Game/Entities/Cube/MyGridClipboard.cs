@@ -1163,6 +1163,24 @@ namespace Sandbox.Game.Entities.Cube
             }
             
         }
+        
+        /// <summary>
+        /// Used to update the color of a new ship/station block when the player switches it
+        /// </summary>
+        public virtual void UpdateColor(Vector3 newHSV)
+        {
+            for (int i = 0; i < m_previewGrids.Count; ++i)
+            {
+                foreach (var block in m_previewGrids[i].CubeBlocks)
+                {
+                    if (block.ColorMaskHSV != newHSV)
+                    {
+                        block.ColorMaskHSV = newHSV;
+                        block.UpdateVisual();
+                    }
+                }
+            }
+        }
 
         protected static MatrixD GetPasteMatrix()
         {

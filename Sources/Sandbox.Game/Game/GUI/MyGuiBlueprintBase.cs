@@ -265,7 +265,7 @@ namespace Sandbox.Game.Gui
 
         public static MyObjectBuilder_Definitions LoadWorkshopPrefab(string archive, ulong? publishedItemId)
         {
-#if !BLIT
+#if !XB1
 
             if (!File.Exists(archive) || publishedItemId == null)
                 return null;

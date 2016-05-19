@@ -191,8 +191,26 @@ namespace Sandbox.Game.Entities
 
         #endregion
 
-        static MyThrust()
+        public MyThrust()
         {
+            CreateTerminalControls();
+
+            Render.NeedsDrawFromParent = true;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            m_flameCollisionsList = new List<HkBodyCollision>();
+            m_damagedEntities = new List<IMyEntity>();
+            m_gridRayCastLst = new List<MyPhysics.HitInfo>();
+            Render = new MyRenderComponentThrust();
+            AddDebugRenderComponent(new MyDebugRenderComponentThrust(this));
+            m_thrustOverride.ValueChanged += (x) => ThrustOverrideValueChanged();
+        }
+
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyThrust>())
+                return;
+
             float threshold = 1f;
             var thrustOverride = new MyTerminalControlSlider<MyThrust>("Override", MySpaceTexts.BlockPropertyTitle_ThrustOverride, MySpaceTexts.BlockPropertyDescription_ThrustOverride);
             thrustOverride.Getter = (x) => x.m_thrustOverride;
@@ -213,18 +231,6 @@ namespace Sandbox.Game.Entities
                         MyValueFormatter.AppendForceInBestUnit(x.ThrustOverride * x.m_thrustComponent.GetLastThrustMultiplier(x), result);
                 };
             MyTerminalControlFactory.AddControl(thrustOverride);
-        }
-
-        public MyThrust()
-        {
-            Render.NeedsDrawFromParent = true;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
-            m_flameCollisionsList = new List<HkBodyCollision>();
-            m_damagedEntities = new List<IMyEntity>();
-            m_gridRayCastLst = new List<MyPhysics.HitInfo>();
-            Render = new MyRenderComponentThrust();
-            AddDebugRenderComponent(new MyDebugRenderComponentThrust(this));
-            m_thrustOverride.ValueChanged += (x) => ThrustOverrideValueChanged();
         }
 
         private void ThrustOverrideValueChanged()

@@ -435,6 +435,12 @@ namespace Sandbox.Engine.Platform.VideoMode
             return m_currentDeviceIsTripleHead;
         }
 
+        public static bool IsTripleHead(Vector2I screenSize)
+        {
+            float aspectRatio = (float)screenSize.X / (float)screenSize.Y;
+            return GetAspectRatio(GetClosestAspectRatio(aspectRatio)).IsTripleHead;
+        }
+
         public static bool IsHardwareCursorUsed()
         {
             // Never use hardware cursor in the exteral editor
@@ -559,6 +565,9 @@ namespace Sandbox.Engine.Platform.VideoMode
         internal static void OnCreatedDeviceSettings(MyRenderMessageCreatedDeviceSettings message)
         {
             m_currentDeviceSettings = message.Settings;
+
+            float aspectRatio = (float)m_currentDeviceSettings.BackBufferWidth / (float)m_currentDeviceSettings.BackBufferHeight;
+            m_currentDeviceIsTripleHead = GetAspectRatio(GetClosestAspectRatio(aspectRatio)).IsTripleHead;
         }
 
         public static void SaveCurrentSettings()

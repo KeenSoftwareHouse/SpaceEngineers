@@ -57,15 +57,19 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         protected override MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCryoChamber; } }
-        static MyCryoChamber()
+
+        public MyCryoChamber()
+        {
+            CreateTerminalControls();
+
+            ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
+            m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
+        }
+
+        static void CreateTerminalControls()
         {
             m_horizonIndicator.Enabled = (x) => false;
             m_horizonIndicator.Visible = (x) => false;
-        }
-        public MyCryoChamber()
-        {
-            ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
-            m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)

@@ -114,6 +114,8 @@ namespace Sandbox.Game.Entities.Character
             HitMaterial = MyStringHash.NullOrEmpty;
             m_hits.Clear();
 
+            Vector3 interactivePosition = Vector3D.Zero;
+
             try
             {
                 EnableDetectorsInArea(from);
@@ -150,6 +152,12 @@ namespace Sandbox.Game.Entities.Character
                             HitNormal = m_hits[index].HkHitInfo.Normal;
                             HitPosition = m_hits[index].GetFixedPosition();
                             HitMaterial = body.GetBody().GetMaterialAt(HitPosition);
+
+                            interactivePosition = HitPosition;
+                        }
+                        else if (body != null)
+                        {
+                            interactivePosition = m_hits[index].GetFixedPosition();
                         }
 
                         index++;
@@ -200,7 +208,7 @@ namespace Sandbox.Game.Entities.Character
                 UseObject.OnSelectionLost();
             }
 
-            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, HitPosition)) < interactive.InteractiveDistance && Character == MySession.Static.ControlledEntity)
+            if (interactive != null && interactive.SupportedActions != UseActionEnum.None && (Vector3D.Distance(from, interactivePosition)) < interactive.InteractiveDistance && Character == MySession.Static.ControlledEntity)
             {
                 HandleInteractiveObject(interactive);
 

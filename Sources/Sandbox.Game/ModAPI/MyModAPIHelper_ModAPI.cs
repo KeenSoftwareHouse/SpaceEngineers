@@ -13,6 +13,7 @@ using VRage.Game.ModAPI;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using MyMultiplayerMain = Sandbox.Engine.Multiplayer.MyMultiplayer;
+using Sandbox.Game.Gui;
 
 namespace Sandbox.ModAPI
 {
@@ -31,6 +32,7 @@ namespace Sandbox.ModAPI
             MyAPIGateway.Multiplayer = MyMultiplayer.Static;
             MyAPIGateway.PrefabManager = MyPrefabManager.Static;
             MyAPIGateway.Input = (VRage.ModAPI.IMyInput)VRage.Input.MyInput.Static;
+            MyAPIGateway.TerminalControls = MyTerminalControls.Static;
         }
 
         [StaticEventOwner]

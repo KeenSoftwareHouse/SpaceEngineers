@@ -116,6 +116,7 @@ namespace Sandbox.Game.Entities
             Render.SkipIfTooSmall = false;
 
             m_compAnimationController = new MyAnimationControllerComponent();
+            m_compAnimationController.ReloadBonesNeeded = ObtainBones;
             Components.Add(m_compAnimationController);
         }
 

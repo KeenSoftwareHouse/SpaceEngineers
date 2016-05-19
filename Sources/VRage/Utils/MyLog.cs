@@ -35,7 +35,16 @@ namespace VRage.Utils
         ALL = (SESSION_SETTINGS << 1) - 1,
     }
 
-	[Unsharper.UnsharperDisableReflection()]
+    public enum MyLogSeverity
+    {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Critical
+    }
+
+    [Unsharper.UnsharperDisableReflection()]
     public class MyLog
     {
         public struct IndentToken : IDisposable
@@ -89,6 +98,8 @@ namespace VRage.Utils
             }
         }
 
+
+        public static MyLogSeverity AssertLevel = (MyLogSeverity) (byte.MaxValue);
         private bool LogForMemoryProfiler = false;
         private bool m_enabled = false;             //  Must be false, beuuase MW web site must not write into log file
         private Stream m_stream;                    //  Used for opening and closing the file
@@ -399,7 +410,7 @@ namespace VRage.Utils
         //  Log info about ThreadPool
         public void LogThreadPoolInfo()
         {
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
             if (m_enabled == false) return;
@@ -495,5 +506,89 @@ namespace VRage.Utils
 
             return retVal;
         }
+
+        public void Log(MyLogSeverity severity, string format, params object[] args)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("{0}: ", severity);
+            sb.AppendFormat(format, args);
+            sb.Append('\n');
+
+            WriteStringBuilder(sb);
+
+            if ((int)severity >= (int)AssertLevel)
+                SystemTrace.Fail(sb.ToString());
+        }
+
+        public void Log(MyLogSeverity severity, StringBuilder builder)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("{0}: ", severity);
+            sb.AppendStringBuilder(builder);
+            sb.Append('\n');
+
+            WriteStringBuilder(sb);
+
+            if ((int)severity >= (int)AssertLevel)
+                SystemTrace.Fail(sb.ToString());
+        }
+    }
+
+    public static class MyLogExtensions
+    {
+        [Conditional("DEBUG")]
+        public static void Debug(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Debug, message, args);
+        }
+
+        [Conditional("DEBUG")]
+        public static void Debug(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Debug, buillder);
+        }
+
+        public static void Info(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Info, message, args);
+        }
+
+        public static void Info(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Info, buillder);
+        }
+
+        public static void Warning(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Warning, message, args);
+        }
+
+        public static void Warning(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Warning, buillder);
+        }
+
+        public static void Error(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Error, message, args);
+        }
+
+        public static void Error(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Error, buillder);
+        }
+
+        public static void Critical(this MyLog self, string message, params object[] args)
+        {
+            self.Log(MyLogSeverity.Critical, message, args);
+        }
+
+        public static void Critical(this MyLog self, StringBuilder buillder)
+        {
+            self.Log(MyLogSeverity.Critical, buillder);
+        }
+
     }
 }

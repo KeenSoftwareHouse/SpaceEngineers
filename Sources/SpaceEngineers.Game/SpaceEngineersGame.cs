@@ -29,6 +29,8 @@ namespace SpaceEngineers.Game
 {
     public partial class SpaceEngineersGame : MySandboxGame
     {
+        const int SE_VERSION = 01135001;
+
         #region Constructor
 
         public SpaceEngineersGame(VRageGameServices services, string[] commandlineArgs)
@@ -38,10 +40,21 @@ namespace SpaceEngineers.Game
         }
         #endregion
 
+        public static void SetupBasicGameInfo()
+        {
+            MyPerGameSettings.BasicGameInfo.GameVersion = SE_VERSION;
+
+            MyPerGameSettings.BasicGameInfo.GameName = "Space Engineers";
+            MyPerGameSettings.BasicGameInfo.GameNameSafe = "SpaceEngineers";
+            MyPerGameSettings.BasicGameInfo.ApplicationName = "SpaceEngineers";
+            MyPerGameSettings.BasicGameInfo.GameAcronym = "SE";
+            MyPerGameSettings.BasicGameInfo.MinimumRequirementsWeb = "http://www.spaceengineersgame.com";
+            MyPerGameSettings.BasicGameInfo.SplashScreenImage = "..\\Content\\Textures\\Logo\\splashscreen.png";
+        }
+
         public static void SetupPerGameSettings()
         {
             MyPerGameSettings.Game = GameEnum.SE_GAME;
-            MyPerGameSettings.GameName = "Space Engineers";
             MyPerGameSettings.GameIcon = "SpaceEngineers.ico";
             MyPerGameSettings.EnableGlobalGravity = false;
             MyPerGameSettings.GameModAssembly = "SpaceEngineers.Game.dll";
@@ -181,7 +194,7 @@ namespace SpaceEngineers.Game
             MyFakesLocal.SetupLocalPerGameSettings();
         }
 
-		static void SetupRender()
+		public static void SetupRender()
 		{
 			// Video settings manager has not been initialized yet, so accessing config file directly.
 			if (MySandboxGame.Config != null && // Dedicated server calls this as first thing, even before it has loaded config ... doesn't need render though.

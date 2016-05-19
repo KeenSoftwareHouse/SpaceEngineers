@@ -16,7 +16,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SolarPanel))]
-    class MySolarPanel : MyTerminalBlock, IMySolarPanel
+    public class MySolarPanel : MyTerminalBlock, IMySolarPanel
     {
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 

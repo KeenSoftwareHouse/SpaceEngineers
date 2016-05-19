@@ -85,18 +85,47 @@ namespace Sandbox.Game
         ME_GAME
     }
 
-    public static class MyPerGameSettings
+    public struct MyBasicGameInfo
     {
-        public static GameEnum Game = GameEnum.UNKNOWN_GAME;
-        public static string GameName = "Unknown great game";
+        public int? GameVersion;
+        public string GameName;
         /// <summary>
         /// Game name without any spaces and generally usable for folder names.
         /// </summary>
-        public static string GameNameSafe = "SpaceEngineers";
+        public string GameNameSafe;
+        public string ApplicationName;
+        public string GameAcronym;
+        public string MinimumRequirementsWeb;
+        public string SplashScreenImage;
+
+        public bool CheckIsSetup()
+        {
+            bool retval = true;
+
+            var fields = this.GetType().GetFields();
+            foreach (var field in fields)
+            {
+                bool fieldIsSetup = field.GetValue(this) != null;
+                Debug.Assert(fieldIsSetup, "The field " + field.Name + " of MyperGameSettings.BasicGameInfo was not initialized!");
+
+                retval = retval && fieldIsSetup;
+            }
+
+            return retval;
+        }
+    }
+
+    public static class MyPerGameSettings
+    {
+        public static MyBasicGameInfo BasicGameInfo = new MyBasicGameInfo();
+
+        public static GameEnum Game = GameEnum.UNKNOWN_GAME;
+        public static string GameName { get { return BasicGameInfo.GameName; } }
+        public static string GameNameSafe { get { return BasicGameInfo.GameNameSafe; } }
         public static string GameWebUrl = "www.SpaceEngineersGame.com";
         public static string LocalizationWebUrl = "http://www.spaceengineersgame.com/localization.html";
         public static string ChangeLogUrl = "http://mirror.keenswh.com/SpaceEngineersChangelog.xml";
-        public static string MinimumRequirementsPage = "http://www.spaceengineersgame.com/system-requirements.html";
+        public static string MinimumRequirementsPage { get { return BasicGameInfo.MinimumRequirementsWeb; } }
         public static bool RequiresDX11 = false;
         public static string GameIcon;
         public static bool EnableGlobalGravity;

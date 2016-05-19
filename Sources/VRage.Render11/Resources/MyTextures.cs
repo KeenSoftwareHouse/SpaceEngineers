@@ -222,7 +222,7 @@ namespace VRageRender.Resources
                 }
                 catch(Exception e)
                 {
-                    MyRender11.Log.WriteLine("Could not load texture: " + path + ", exception: " + e);
+					MyRender11.Log.WriteLine("Error while loading texture: " + path + ", exception: " + e);
                 }
             }
 
@@ -318,6 +318,8 @@ namespace VRageRender.Resources
                         replacingId = MissingCubeTexId;
                         break;
                 }
+
+				MyRender11.Log.WriteLine("Could not load texture: " + path);
 
                 Views[texId.Index] = Views[replacingId.Index];
                 Textures.Data[texId.Index].Resource = Textures.Data[replacingId.Index].Resource;

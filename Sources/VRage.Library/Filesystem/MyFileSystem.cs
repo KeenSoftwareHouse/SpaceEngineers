@@ -36,7 +36,7 @@ namespace VRage.FileSystem
         private static void CheckInitialized()
         {
             if (m_contentPath == null)
-#if BLIT
+#if XB1
                 MyFileSystem.Init(".", ".");
 #else
                 throw new InvalidOperationException("Paths are not initialized, call 'Init'");
@@ -52,7 +52,7 @@ namespace VRage.FileSystem
         public static void Init(string contentPath, string userData, string modDirName = "Mods")
         {
             if (m_contentPath != null)
-#if BLIT
+#if XB1
                 return;
 #else
                 throw new InvalidOperationException("Paths already initialized");

@@ -34,7 +34,7 @@ using VRage.Game.ModAPI.Interfaces;
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SmallGatlingGun))]
-    class MySmallGatlingGun : MyUserControllableGun, IMyGunObject<MyGunBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyGunBaseUser, IMySmallGatlingGun
+    public class MySmallGatlingGun : MyUserControllableGun, IMyGunObject<MyGunBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyGunBaseUser, IMySmallGatlingGun
     {
         float m_rotationAngle;                          //  Actual rotation angle (not rotation speed) around Z axis
         int m_lastTimeShoot;                            //  When was this gun last time shooting
@@ -53,7 +53,7 @@ namespace Sandbox.Game.Weapons
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;
         int m_smokesToGenerate;
-        MyEntity3DSoundEmitter m_soundEmitterRotor;
+        //MyEntity3DSoundEmitter m_soundEmitterRotor;
 
         MyEntity m_barrel;
 
@@ -82,17 +82,10 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new MyDebugRenderComponentDrawConveyorEndpoint(m_conveyorEndpoint));
         }
 
-        static MySmallGatlingGun()
-        {
-            var useConvSystem = new MyTerminalControlOnOffSwitch<MySmallGatlingGun>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
-            useConvSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
-            useConvSystem.EnableToggleAction();
-            MyTerminalControlFactory.AddControl(useConvSystem);     
-        }
-
         public MySmallGatlingGun()
         {
+            CreateTerminalControls();
+
             m_rotationAngle = MyUtils.GetRandomRadian();
             m_lastTimeShoot = MyConstants.FAREST_TIME_IN_PAST;
             m_smokeLastTime = MyConstants.FAREST_TIME_IN_PAST;
@@ -111,6 +104,18 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new MyDebugRenderComponentSmallGatlingGun(this));
 
             SyncType.Append(m_gunBase);
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySmallGatlingGun>())
+                return;
+
+            var useConvSystem = new MyTerminalControlOnOffSwitch<MySmallGatlingGun>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
+            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConvSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
+            useConvSystem.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(useConvSystem);
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -133,7 +138,7 @@ namespace Sandbox.Game.Weapons
             {
                 FixSingleInventory();
             }
-            m_soundEmitterRotor = new MyEntity3DSoundEmitter(this);
+            //m_soundEmitterRotor = new MyEntity3DSoundEmitter(this);
 
             if (this.GetInventory() == null)
             {
@@ -208,8 +213,8 @@ namespace Sandbox.Game.Weapons
         {
             if (m_soundEmitter != null)
                 m_soundEmitter.StopSound(true);
-            if (m_soundEmitterRotor != null)
-                m_soundEmitterRotor.StopSound(true);
+            /*if (m_soundEmitterRotor != null)
+                m_soundEmitterRotor.StopSound(true);*/
 
             if (m_smokeEffect != null)
             {
@@ -561,15 +566,15 @@ namespace Sandbox.Game.Weapons
         {
             if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                 m_soundEmitter.StopSound(true);
-            if(m_soundEmitterRotor != null)
-                m_soundEmitterRotor.StopSound(false);
+            /*if(m_soundEmitterRotor != null)
+                m_soundEmitterRotor.StopSound(false);*/
         }
 
         private void StartLoopSound()
         {
             m_gunBase.StartShootSound(m_soundEmitter);
-            if (m_soundEmitterRotor != null && m_soundEmitterRotor.IsPlaying == false && m_gunBase.SecondarySound != MySoundPair.Empty)
-                m_soundEmitterRotor.PlaySound(m_gunBase.SecondarySound); 
+            /*if (m_soundEmitterRotor != null && m_soundEmitterRotor.IsPlaying == false && m_gunBase.SecondarySound != MySoundPair.Empty)
+                m_soundEmitterRotor.PlaySound(m_gunBase.SecondarySound); */
         }
 
         #region Inventory

@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-#if !BLIT //Expressions not supported.
+#if !UNSHARPER //Expressions not supported.
 
 namespace System.Reflection
 {

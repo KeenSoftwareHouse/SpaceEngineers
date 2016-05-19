@@ -10,30 +10,29 @@ using VRage.Library.Collections;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRage.ModAPI;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    public struct TerminalComboBoxItem
-    {
-        public long Key;
-        public MyStringId Value;
-    }
-
-    class MyTerminalControlCombobox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
+    class MyTerminalControlCombobox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync, IMyTerminalControlCombobox
         where TBlock : MyTerminalBlock
     {
         public delegate void SerializerDelegate(BitStream stream, ref long value);
 
-        private static List<TerminalComboBoxItem> m_handlerItems = new List<TerminalComboBoxItem>();
+        private static List<MyTerminalControlComboBoxItem> m_handlerItems = new List<MyTerminalControlComboBoxItem>();
 
-        public readonly MyStringId Title;
-        public readonly MyStringId Tooltip;
+        public MyStringId Title;
+        public MyStringId Tooltip;
 
         private MyGuiControlCombobox m_comboBox;
 
-        public Action<List<TerminalComboBoxItem>> ComboBoxContent;
+        public Action<List<MyTerminalControlComboBoxItem>> ComboBoxContent;
         public Func<TBlock, long> Getter { private get; set; }
         public Action<TBlock, long> Setter { private get; set; }
+
         public SerializerDelegate Serializer;
 
         public MyTerminalControlCombobox(string id, MyStringId title, MyStringId tooltip)
@@ -162,6 +161,95 @@ namespace Sandbox.Game.Gui
                 }
             }
         }
+
+        /// <summary>
+        /// Implements IMyTerminalControlCombobox for Mods
+        /// </summary>
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
+        }
+
+        Action<List<MyTerminalControlComboBoxItem>> IMyTerminalControlCombobox.ComboBoxContent
+        {
+            get
+            {
+                Action<List<MyTerminalControlComboBoxItem>> oldComboBoxContent = ComboBoxContent;
+                Action<List<MyTerminalControlComboBoxItem>> action = (x) =>
+                {
+                    oldComboBoxContent(x);
+                };
+
+                return action;
+            }
+
+            set
+            {
+                ComboBoxContent = value;
+            }
+        }
+
+        Func<IMyTerminalBlock, long> IMyTerminalValueControl<long>.Getter
+        {
+            get
+            {
+                Func<TBlock, long> oldGetter = Getter;
+                Func<IMyTerminalBlock, long> func = (x) =>
+                {
+                    return oldGetter((TBlock)x);
+                };
+
+                return func;
+            }
+
+            set
+            {
+                Getter = value;
+            }
+        }
+
+        Action<IMyTerminalBlock, long> IMyTerminalValueControl<long>.Setter
+        {
+            get
+            {
+                Action<TBlock, long> oldSetter = Setter;
+                Action<IMyTerminalBlock, long> action = (x, y) =>
+                {
+                    oldSetter((TBlock)x, y);
+                };
+
+                return action;
+            }
+
+            set
+            {
+                Setter = value;
+            }
+        }
+
+        string ITerminalProperty.Id { get { return Id; } }
+        string ITerminalProperty.TypeName { get { return typeof(TBlock).Name; } }
 
         public void Serialize(BitStream stream, MyTerminalBlock block)
         {

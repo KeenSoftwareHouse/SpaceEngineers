@@ -159,5 +159,9 @@ namespace VRage.Input
         string IMyInput.GetName(MyJoystickAxesEnum joystickAxis) { return ""; }
         string IMyInput.GetUnassignedName() { return ""; }
         string IMyInput.GetKeyName(MyKeys key) { return ""; }
+
+#if XB1
+        void IMyInput.SetMouseLimits(Vector2 mins, Vector2 maxs) { }
+#endif
     }
 }

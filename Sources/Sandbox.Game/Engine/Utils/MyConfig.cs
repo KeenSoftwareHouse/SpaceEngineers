@@ -82,6 +82,7 @@ namespace Sandbox.Engine.Utils
         readonly string WINDOW_MODE = "WindowMode";
         readonly string MOUSE_CAPTURE = "CaptureMouse";
         readonly string HUD_WARNINGS = "HudWarnings";
+        readonly string DYNAMIC_MUSIC = "EnableDynamicMusic";
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
@@ -766,6 +767,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_MUTE_WHEN_NOT_IN_FOCUS), true); }
             set { SetParameterValue(ENABLE_MUTE_WHEN_NOT_IN_FOCUS, value); }
+        }
+
+        public bool EnableDynamicMusic
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(DYNAMIC_MUSIC), true); }
+            set { SetParameterValue(DYNAMIC_MUSIC, value); }
         }
 
         public MyStringId GraphicsRenderer

@@ -10,7 +10,7 @@ namespace VRageMath
     {
         public static Vector3 ColorToHSV(this Color rgb)
         {
-#if BLITCREMENTAL
+#if UNSHAPER_TMP
 			Debug.Assert(false);
 			return new Vector3(0,0,0);
 #else
@@ -31,7 +31,7 @@ namespace VRageMath
         /// </summary>
         public static Vector3 ColorToHSVDX11(this Color rgb)
         {
-#if BLITCREMENTAL
+#if UNSHAPER_TMP
 			Debug.Assert(false);
 			return new Vector3(0,0,0);
 #else

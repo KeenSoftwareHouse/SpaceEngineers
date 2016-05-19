@@ -371,8 +371,11 @@ namespace Sandbox.Game.Gui
 
         public void SetToolbarVisible(bool visible)
         {
-            m_toolbarControl.Visible = visible;
-            m_hiddenToolbar = !visible;
+            if (m_toolbarControl != null)
+            {
+                m_toolbarControl.Visible = visible;
+                m_hiddenToolbar = !visible;
+            }
         }
 
         private void DrawGravityIndicator(MyHudGravityIndicator indicator, MyHudCharacterInfo characterInfo)

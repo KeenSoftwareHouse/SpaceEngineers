@@ -6,6 +6,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
+
+#if !XB1_TMP
     [MyDebugScreen("Render", "Shadow settings", MyDirectXSupport.ALL)]
     class MyGuiScreenDebugRenderShadows : MyGuiScreenDebugBase
     {
@@ -64,4 +66,6 @@ namespace Sandbox.Game.Gui
         }
 
     }
+
+#endif
 }

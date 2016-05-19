@@ -77,8 +77,6 @@ namespace Sandbox.Game.AI
         public MyPathfinding Pathfinding { get { return m_pathfinding; } }
         public MyBehaviorTreeCollection BehaviorTrees { get { return m_behaviorTreeCollection; } }
 
-        public MyRandom Random;
-
         private Dictionary<int, MyObjectBuilder_Bot> m_loadedBotObjectBuildersByHandle;
         private List<int> m_loadedLocalPlayers;
         private List<Vector3D> m_tmpSpawnPoints = new List<Vector3D>();
@@ -110,7 +108,6 @@ namespace Sandbox.Game.AI
         {
             Static = this;
             BotFactory = Activator.CreateInstance(MyPerGameSettings.BotFactoryType) as MyBotFactoryBase;
-            Random = MyFakes.DEBUG_AVOID_RANDOM_AI ? new MyRandom(0): new MyRandom();
         }
 
         public override void LoadData()
@@ -759,11 +756,6 @@ namespace Sandbox.Game.AI
                 var player = Sync.Players.GetPlayerById(new MyPlayer.PlayerId(Sync.MyId, m_botCollection.GetHandleToFirstBot()));
                 Sync.Players.RemovePlayer(player);
             }
-        }
-
-        public double GetRandomDouble(double min, double max)
-        {
-            return Random.NextDouble() * (max - min) + min;
         }
 
         #region Tool message handling

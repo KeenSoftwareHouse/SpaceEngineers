@@ -30,10 +30,20 @@ using VRage.Game.ModAPI.Ingame;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Collector))]
-    class MyCollector : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyCollector, IMyInventoryOwner
+    public class MyCollector : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyCollector, IMyInventoryOwner
     {
-        static MyCollector()
+        public new MyPoweredCargoContainerDefinition BlockDefinition { get { return SlimBlock.BlockDefinition as MyPoweredCargoContainerDefinition; } }
+
+        public MyCollector()
         {
+            CreateTerminalControls();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyCollector>())
+                return;
+
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyCollector>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => x.UseConveyorSystem = v;
@@ -43,6 +53,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected override bool CheckIsWorking()
         {
+            if (ResourceSink == null) return false;
             return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
@@ -51,18 +62,16 @@ namespace Sandbox.Game.Entities.Blocks
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
-            var def = BlockDefinition as MyPoweredCargoContainerDefinition;
+            var ob = objectBuilder as MyObjectBuilder_Collector;
+
             var sinkComp = new MyResourceSinkComponent();
             sinkComp.Init(
-                MyStringHash.GetOrCompute(def.ResourceSinkGroup),
-                MyEnergyConstants.MAX_REQUIRED_POWER_COLLECTOR,
-                () => base.CheckIsWorking() ? ResourceSink.MaxRequiredInput : 0f);
+                MyStringHash.GetOrCompute(BlockDefinition.ResourceSinkGroup),
+                BlockDefinition.RequiredPowerInput,
+                ComputeRequiredPower);
             ResourceSink = sinkComp;
-            ResourceSink.Update();
 
             base.Init(objectBuilder, cubeGrid);
-           
-            var ob = objectBuilder as MyObjectBuilder_Collector;
 
             m_useConveyorSystem.Value = true;
             if (MyFakes.ENABLE_INVENTORY_FIX)
@@ -72,7 +81,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (this.GetInventory() == null)
             {
-                MyInventory inventory = new MyInventory(def.InventorySize.Volume, def.InventorySize, MyInventoryFlags.CanSend);
+                MyInventory inventory = new MyInventory(BlockDefinition.InventorySize.Volume, BlockDefinition.InventorySize, MyInventoryFlags.CanSend);
                 Components.Add<MyInventoryBase>(inventory);
                 inventory.Init(ob.Inventory);
             }
@@ -81,14 +90,22 @@ namespace Sandbox.Game.Entities.Blocks
             if (Sync.IsServer && CubeGrid.CreatePhysics)
                 LoadDummies();
 
-			
-			ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
+            ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawPowerReciever(ResourceSink,this));
 
             SlimBlock.ComponentStack.IsFunctionalChanged += UpdateReceiver;
             base.EnabledChanged += UpdateReceiver;
 
             m_useConveyorSystem.Value = ob.UseConveyorSystem;
+
+            ResourceSink.Update();
+        }
+
+        protected float ComputeRequiredPower()
+        {
+            if (!(Enabled && IsFunctional))
+                return 0;
+            return BlockDefinition.RequiredPowerInput;
         }
 
         void UpdateReceiver(MyTerminalBlock block)

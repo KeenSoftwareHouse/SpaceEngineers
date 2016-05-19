@@ -22,7 +22,7 @@ namespace VRageRender
         public bool VSync;
         public bool DebugDrawOnly;
 
-#if BLIT
+#if XB1
         public MyRenderDeviceSettings(int adapter)
         {
             this.AdapterOrdinal = adapter;

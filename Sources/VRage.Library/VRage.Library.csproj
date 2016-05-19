@@ -66,6 +66,48 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS;FEAT_COMPILER;FEAT_SERVICEMODEL;PLAT_BINARYFORMATTER;PLAT_XMLSERIALIZER;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
@@ -394,6 +436,12 @@
     <Compile Include="Stats\MyStat.cs" />
     <Compile Include="Stats\MyStats.cs" />
     <Compile Include="Stats\MyStatToken.cs" />
+    <Compile Include="SteamSDK\SteamSDK_blit.cs" />
+    <Compile Include="SteamSDK\SteamSDK_blit_base.cs" />
+    <Compile Include="SteamSDK\SteamSDK_blit_common.cs" />
+    <Compile Include="SteamSDK\SteamSDK_blit_lobby.cs" />
+    <Compile Include="SteamSDK\SteamSDK_blit_p2p.cs" />
+    <Compile Include="SteamSDK\SteamSDK_blit_ugc.cs" />
     <Compile Include="Trace\ITrace.cs" />
     <Compile Include="Trace\MyNullTrace.cs" />
     <Compile Include="Trace\MyTrace.cs" />

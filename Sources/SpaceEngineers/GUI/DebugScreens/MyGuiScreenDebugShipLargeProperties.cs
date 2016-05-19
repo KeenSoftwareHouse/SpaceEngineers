@@ -14,6 +14,7 @@ using VRage.Game.Entity;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
     [MyDebugScreen("Game", "Large Ship properties")]
     class MyGuiScreenDebugShipLargeProperties : MyGuiScreenDebugBase
     {
@@ -113,4 +114,5 @@ namespace Sandbox.Game.Gui
             return entity as MyCubeGrid;
         }
     }
+#endif
 }

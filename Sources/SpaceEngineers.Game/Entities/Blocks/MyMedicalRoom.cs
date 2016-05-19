@@ -152,8 +152,25 @@ namespace SpaceEngineers.Game.Entities.Blocks
         /// </summary>
         public bool SpawnWithoutOxygenEnabled { set { m_spawnWithoutOxygenEnabled = value; } get { return m_spawnWithoutOxygenEnabled; } }
 
-        static MyMedicalRoom()
+        public MyMedicalRoom()
         {
+            CreateTerminalControls();
+
+            m_idleSoundEmitter = new MyEntity3DSoundEmitter(this, true);
+            m_progressSoundEmitter = new MyEntity3DSoundEmitter(this, true);
+
+            m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.ShouldPlay2D].Add((Func<bool>)(() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
+            if (MySession.Static != null && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)
+            {
+                m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Add((Func<bool>)(() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
+            }
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyMedicalRoom>())
+                return;
+
             //terminal:
             var label = new MyTerminalControlLabel<MyMedicalRoom>(MySpaceTexts.TerminalScenarioSettingsLabel);
             var ownershipCheckbox = new MyTerminalControlCheckbox<MyMedicalRoom>("TakeOwnership", MySpaceTexts.MedicalRoom_ownershipAssignmentLabel, MySpaceTexts.MedicalRoom_ownershipAssignmentTooltip);
@@ -174,18 +191,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
             };
             factionCheckbox.Enabled = (x) => MySession.Static.Settings.ScenarioEditMode;
             MyTerminalControlFactory.AddControl(factionCheckbox);
-        }
-
-        public MyMedicalRoom()
-        {
-            m_idleSoundEmitter = new MyEntity3DSoundEmitter(this, true);
-            m_progressSoundEmitter = new MyEntity3DSoundEmitter(this, true);
-
-            m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.ShouldPlay2D].Add((Func<bool>) (() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
-            if (MySession.Static != null && MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)
-            {
-                m_progressSoundEmitter.EmitterMethods[MyEntity3DSoundEmitter.MethodsEnum.CanHear].Add((Func<bool>) (() => MySession.Static.ControlledEntity != null && m_user == MySession.Static.ControlledEntity.Entity));
-            }
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)

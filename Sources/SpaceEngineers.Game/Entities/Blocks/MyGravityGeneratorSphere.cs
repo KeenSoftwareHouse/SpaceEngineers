@@ -55,11 +55,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyGravityGeneratorSphere()
         {
+            CreateTerminalControls();
             m_radius.ValueChanged += (x) => UpdateFieldShape();
         }
 
-        static MyGravityGeneratorSphere()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyGravityGeneratorSphere>())
+                return;
+
             if (MyFakes.ENABLE_GRAVITY_GENERATOR_SPHERE)
             {
                 var fieldRadius = new MyTerminalControlSlider<MyGravityGeneratorSphere>("Radius", MySpaceTexts.BlockPropertyTitle_GravityFieldRadius, MySpaceTexts.BlockPropertyDescription_GravityFieldRadius);

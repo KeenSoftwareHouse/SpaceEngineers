@@ -104,7 +104,7 @@ namespace VRageRender
 
         internal MyDepthStencil DepthStencil { get { return m_resources[(int)MyGbufferSlot.DepthStencil] as MyDepthStencil; } }
 
-        internal void Clear()
+        internal void Clear(VRageMath.Color clearColor)
         {
             MyRender11.DeviceContext.ClearDepthStencilView(DepthStencil.m_DSV,
                 DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, MyRender11.DepthClearValue, 0);
@@ -113,8 +113,12 @@ namespace VRageRender
             {
                 var rt = res as IRenderTargetBindable;
                 if(rt != null)
-                    MyRender11.DeviceContext.ClearRenderTargetView(rt.RTV, 
-                        new Color4(0, 0, 0, 0));
+				{
+					var v3 = clearColor.ToVector3();
+                    MyRender11.DeviceContext.ClearRenderTargetView(rt.RTV,
+						new Color4(v3.X, v3.Y, v3.Z,1
+							));
+				}
 
                 var uav = res as IUnorderedAccessBindable;
                 if (uav != null)

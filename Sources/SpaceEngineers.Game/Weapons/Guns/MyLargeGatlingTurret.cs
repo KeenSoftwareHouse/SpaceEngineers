@@ -14,7 +14,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Weapons.Guns
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_LargeGatlingTurret))]
-    class MyLargeGatlingTurret : MyLargeConveyorTurretBase, IMyLargeGatlingTurret
+    public class MyLargeGatlingTurret : MyLargeConveyorTurretBase, IMyLargeGatlingTurret
     {
         public int Burst { get; private set; }
     

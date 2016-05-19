@@ -39,7 +39,7 @@ namespace VRage.Game.Components
             if (container != null)
                 OnAddedToContainer();
         }
-#if !BLIT
+#if !UNSHARPER
         public virtual T GetAs<T>() where T : MyComponentBase
         {
             return this as T;

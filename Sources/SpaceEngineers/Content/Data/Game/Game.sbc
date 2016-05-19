@@ -69,6 +69,7 @@
 			<Component>MyMissiles</Component>
 			<Component>MyProjectiles</Component>
 			<Component>MyNeutralShipSpawner</Component>
+			<Component Type="MyObjectBuilder_DemoComponentDefinition" Subtype="Default">DemoComponent</Component>
 		</SessionComponents>
 	</Definition>
 </Definitions>

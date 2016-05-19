@@ -6,6 +6,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Debug draw settings 3")]
     class MyGuiScreenDebugDrawSettings3 : MyGuiScreenDebugBase
     {
@@ -31,6 +33,11 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddShareFocusHint();
 
             AddCheckBox("Decals", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DebugDrawDecals));
+
+            AddCheckBox("Decals", () => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES, x => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES = x);
         }
     }
+
+#endif
+
 }

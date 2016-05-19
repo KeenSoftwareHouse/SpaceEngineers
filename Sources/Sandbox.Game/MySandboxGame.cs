@@ -533,8 +533,11 @@ namespace Sandbox
 
             MyInput.Initialize(IsDedicated
                 ? (VRage.Input.IMyInput)new MyNullInput()
+#if !XB1
                 : (VRage.Input.IMyInput)new MyDirectXInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
-
+#else
+                : (VRage.Input.IMyInput)new MyXInputInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
+#endif
             MySpaceBindingCreator.CreateBinding();
         }
 
@@ -991,7 +994,7 @@ namespace Sandbox
             ScreenSizeHalf = new Vector2I(ScreenSize.X / 2, ScreenSize.Y / 2);
             ScreenViewport = viewport;
 
-            MyGuiManager.UpdateScreenSize(MySandboxGame.ScreenSize, MySandboxGame.ScreenSizeHalf, MyVideoSettingsManager.IsTripleHead());
+            MyGuiManager.UpdateScreenSize(MySandboxGame.ScreenSize, MySandboxGame.ScreenSizeHalf, MyVideoSettingsManager.IsTripleHead(MySandboxGame.ScreenSize));
             MyScreenManager.RecreateControls();
 
             if (MySector.MainCamera != null)
@@ -1363,6 +1366,8 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeCommon(typeof(VRage.Game.ModAPI.Ingame.IMyInventoryItem));
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Lights.MyLight));
+
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.Interfaces.Terminal.IMyTerminalAction));
 
             var serializerType = typeof(MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new HashSet<MemberInfo>()
@@ -1861,7 +1866,7 @@ namespace Sandbox
                 MyEntities.DebugDraw();
             }
 
-            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+            if (MyDebugDrawSettings.DEBUG_DRAW_PARTICLES)
                 MyParticlesLibrary.DebugDraw();
         }
 

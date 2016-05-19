@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using VRage.FileSystem;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
 
@@ -51,6 +53,52 @@ namespace VRage.Game.Definitions.Animation
     {
         public override void AfterLoaded(ref Bundle definitions)
         {
+            foreach (var def in definitions.Definitions)
+            {
+                MyAnimationControllerDefinition animationController = def.Value as MyAnimationControllerDefinition;
+                if (animationController == null || animationController.StateMachines == null || def.Value.Context.IsBaseGame
+                    || def.Value.Context == null || def.Value.Context.ModPath == null)
+                    continue;
+
+                foreach (var sm in animationController.StateMachines)
+                    foreach (var node in sm.Nodes)
+                        if (node.AnimationTree != null && node.AnimationTree.Child != null)
+                            ResolveMwmPaths(def.Value.Context, node.AnimationTree.Child);
+            }
+        }
+
+        private void ResolveMwmPaths(MyModContext modContext, MyObjectBuilder_AnimationTreeNode objBuilderNode)
+        {
+            // ------- tree node track -------
+            var objBuilderNodeTrack = objBuilderNode as VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNodeTrack;
+            if (objBuilderNodeTrack != null)
+            {
+                string testMwmPath = Path.Combine(modContext.ModPath, objBuilderNodeTrack.PathToModel);
+                if (MyFileSystem.FileExists(testMwmPath))
+                {
+                    objBuilderNodeTrack.PathToModel = testMwmPath;
+                }
+            }
+            // ------ tree node mix -----------------------
+            var objBuilderNodeMix1D = objBuilderNode as MyObjectBuilder_AnimationTreeNodeMix1D;
+            if (objBuilderNodeMix1D != null)
+            {
+                if (objBuilderNodeMix1D.Children != null)
+                {
+                    foreach (var mappingObjBuilder in objBuilderNodeMix1D.Children)
+                        if (mappingObjBuilder.Node != null)
+                            ResolveMwmPaths(modContext, mappingObjBuilder.Node);
+                }
+            }
+            // ------ tree node add -----------------------
+            var objBuilderNodeAdd = objBuilderNode as MyObjectBuilder_AnimationTreeNodeAdd;
+            if (objBuilderNodeAdd != null)
+            {
+                if (objBuilderNodeAdd.BaseNode.Node != null)
+                    ResolveMwmPaths(modContext, objBuilderNodeAdd.BaseNode.Node);
+                if (objBuilderNodeAdd.AddNode.Node != null)
+                    ResolveMwmPaths(modContext, objBuilderNodeAdd.AddNode.Node);
+            }
         }
 
         public override void AfterPostprocess(MyDefinitionSet set, Dictionary<MyStringHash, MyDefinitionBase> definitions)
@@ -71,13 +119,39 @@ namespace VRage.Game.Definitions.Animation
                         if (originalAnimationController != null)
                         {
                             foreach (var sm in modifyingAnimationController.StateMachines)
-                                if (originalAnimationController.StateMachines.All(x => x.Name != sm.Name))
+                            {
+                                bool found = false;
+                                foreach (var smOrig in originalAnimationController.StateMachines)
+                                    if (sm.Name == smOrig.Name)
+                                    {
+                                        smOrig.Nodes = sm.Nodes;
+                                        smOrig.Transitions = sm.Transitions;
+                                        found = true;
+                                        break;
+                                    }
+
+                                if (!found)
                                     originalAnimationController.StateMachines.Add(sm);
+                            }
 
                             foreach (var layer in modifyingAnimationController.Layers)
-                                if (originalAnimationController.Layers.All(x => x.Name != layer.Name))
+                            {
+                                bool found = false;
+                                foreach (var layerOrig in originalAnimationController.Layers)
+                                    if (layer.Name == layerOrig.Name)
+                                    {
+                                        layerOrig.Name = layer.Name;
+                                        layerOrig.BoneMask = layer.BoneMask;
+                                        layerOrig.InitialSMNode = layer.InitialSMNode;
+                                        layerOrig.StateMachine = layer.StateMachine;
+                                        layerOrig.Mode = layer.Mode;
+                                        found = true;
+                                    }
+
+                                if (!found)
                                     originalAnimationController.Layers.Add(layer);
-                            
+                            }
+
                             justCopy = false;
                         }
                     }

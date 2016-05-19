@@ -290,14 +290,22 @@ namespace Sandbox.Game.GameSystems
             {
                 float blend = (float)(m_piecesTimesOfDeath[piece] - MySandboxGame.Static.UpdateTime).Seconds / BLEND_TIME;
 
-                foreach (var id in piece.Render.RenderObjectIDs)
+                if (piece.Render != null)
                 {
-                    VRageRender.MyRenderProxy.UpdateRenderEntity(
-                        id,
-                        null,
-                        null,
-                        1 - blend);
+                    foreach (var id in piece.Render.RenderObjectIDs)
+                    {
+                        VRageRender.MyRenderProxy.UpdateRenderEntity(
+                            id,
+                            null,
+                            null,
+                            1 - blend);
+                    }
                 }
+                else
+                {
+                    Debug.Assert(false);
+                }
+
                 if (Sync.IsServer && m_piecesTimesOfDeath[piece] <= MySandboxGame.Static.UpdateTime)
                 {
                     m_tmpToRemove.Add(piece);

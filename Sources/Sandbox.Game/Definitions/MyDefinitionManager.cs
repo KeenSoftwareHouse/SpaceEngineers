@@ -134,7 +134,8 @@ namespace Sandbox.Definitions
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
             {
                 //Pre-load base definitions
-                GetDefinitionBuilders(MyModContext.BaseGame);
+                if(MyFakes.ENABLE_PRELOAD_DEFINITIONS)
+                    GetDefinitionBuilders(MyModContext.BaseGame);
             }
 
             MySandboxGame.Log.WriteLine("MyDefinitionManager.PrepareBaseDefinitions() - END");
@@ -144,12 +145,12 @@ namespace Sandbox.Definitions
         {
             MySandboxGame.Log.WriteLine("MyDefinitionManager.LoadScenarios() - START");
 
-            ProfilerShort.Begin("Wait for preload to complete");
+            //ProfilerShort.Begin("Wait for preload to complete");
             while (MySandboxGame.IsPreloading)
             {
                 System.Threading.Thread.Sleep(1);
             }
-            ProfilerShort.End();
+            //ProfilerShort.End();
 
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
             {
@@ -258,6 +259,8 @@ namespace Sandbox.Definitions
                 }
 
                 CheckCharacterPickup();
+                CheckEntityComponents();
+                CheckComponentContainers();
 
                 if (MyFakes.ENABLE_ALL_IN_SURVIVAL)
                 {
@@ -469,7 +472,7 @@ namespace Sandbox.Definitions
                 ProfilerShort.End();
             }
 
-            if (context == MyModContext.BaseGame && preloadSet == null)
+            if (context == MyModContext.BaseGame && preloadSet == null && MyFakes.ENABLE_PRELOAD_DEFINITIONS)
                 m_preloadedDefinitionBuilders = definitionBuilders;
 
             return definitionBuilders;
@@ -534,9 +537,6 @@ namespace Sandbox.Definitions
             AfterLoad(context, definitionSet);
 
             ProfilerShort.End();
-
-            CheckEntityComponents();
-            CheckComponentContainers();
         }
 
         private void AfterLoad(MyModContext context, DefinitionSet definitionSet)
@@ -683,8 +683,31 @@ namespace Sandbox.Definitions
         {
             MyObjectBuilder_PrefabDefinition definition = new MyObjectBuilder_PrefabDefinition();
             definition.PrefabPath = file;
-            Debug.Assert(reader.ReadToFollowing("Id"));
+            bool found = reader.ReadToFollowing("Id");
+            Debug.Assert(found);
 
+            bool useAttrs = false;
+
+            if (reader.AttributeCount >= 2)
+            {
+                for (int i = 0; i < reader.AttributeCount; ++i)
+                {
+                    reader.MoveToAttribute(i);
+
+                    switch (reader.Name)
+                    {
+                        case "Type":
+                            definition.Id.TypeIdString = reader.Value;
+                            useAttrs = true;
+                            break;
+                        case "Subtype":
+                            definition.Id.SubtypeId = reader.Value;
+                            break;
+                    }
+                }
+            }
+
+            if (!useAttrs)
             while (reader.Read())
             {
                 if (reader.IsStartElement())
@@ -706,6 +729,7 @@ namespace Sandbox.Definitions
                     break;
                 }
             }
+
             prefabs.Add(definition);
         }
 

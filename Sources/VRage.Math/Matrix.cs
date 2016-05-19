@@ -26,7 +26,7 @@ namespace VRageMath
         public static Matrix Zero = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
-#if !BLIT
+#if !XB1
 
         /// <summary>
         /// Matrix values

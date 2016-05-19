@@ -42,7 +42,7 @@ namespace Sandbox.Game.Entities
 
         private readonly  Sync<bool> m_isRecharging;
         public bool IsJumping = false;
-        private static readonly MyGuiControlListbox m_gpsGuiControl;
+        private static MyGuiControlListbox m_gpsGuiControl;
 
         public new MyJumpDriveDefinition BlockDefinition
         {
@@ -83,6 +83,8 @@ namespace Sandbox.Game.Entities
         #region UI
         public MyJumpDrive()
         {
+            CreateTerminalControls();
+
             m_isRecharging.ValueChanged += x => RaisePropertiesChangedJumpDrive();
             m_targetSync.ValueChanged += x => TargetChanged();
             m_storedPower.ValidateNever();
@@ -101,8 +103,11 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChangedJumpDrive();
         }
 
-        static MyJumpDrive()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyJumpDrive>())
+                return;
+
             var jumpButton = new MyTerminalControlButton<MyJumpDrive>("Jump", MySpaceTexts.BlockActionTitle_Jump, MySpaceTexts.Blank, (x) => x.RequestJump());
             jumpButton.Enabled = (x) => x.CanJump;
             jumpButton.SupportsMultipleBlocks = false;
@@ -156,6 +161,7 @@ namespace Sandbox.Game.Entities
             gpsList.ListContent = (x, list1, list2) => x.FillGpsList(list1, list2);
             gpsList.ItemSelected = (x, y) => x.SelectGps(y);
             MyTerminalControlFactory.AddControl(gpsList);
+
             if (!MySandboxGame.IsDedicated)
             {
                 m_gpsGuiControl = (MyGuiControlListbox)((MyGuiControlBlockProperty)gpsList.GetGuiControl()).PropertyControl;

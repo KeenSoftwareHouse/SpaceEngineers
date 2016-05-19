@@ -54,11 +54,16 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyGravityGenerator()
         {
+            CreateTerminalControls();
+
             m_fieldSize.ValueChanged += (x) => UpdateFieldShape();
         }
 
-        static MyGravityGenerator()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyGravityGenerator>())
+                return;
+
             var fieldWidth = new MyTerminalControlSlider<MyGravityGenerator>("Width", MySpaceTexts.BlockPropertyTitle_GravityFieldWidth, MySpaceTexts.BlockPropertyDescription_GravityFieldWidth);
             fieldWidth.SetLimits(1, 150);
             fieldWidth.DefaultValue = 150;

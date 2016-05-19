@@ -19,20 +19,8 @@ using VRage.ModAPI;
 namespace SpaceEngineers.Game.Weapons.Guns
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_ConveyorTurretBase))]
-    abstract class MyLargeConveyorTurretBase : MyLargeTurretBase, IMyConveyorEndpointBlock, IMyLargeConveyorTurretBase, IMyInventoryOwner
+    public abstract class MyLargeConveyorTurretBase : MyLargeTurretBase, IMyConveyorEndpointBlock, IMyLargeConveyorTurretBase, IMyInventoryOwner
     {
-
-        static MyLargeConveyorTurretBase()
-        {
-            var separator = new MyTerminalControlSeparator<MyLargeConveyorTurretBase>();
-            MyTerminalControlFactory.AddControl(separator);
-            var useConvSystem = new MyTerminalControlOnOffSwitch<MyLargeConveyorTurretBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
-            useConvSystem.Setter = (x, v) => x.UseConveyorSystem =  v;
-            useConvSystem.EnableToggleAction();
-            MyTerminalControlFactory.AddControl(useConvSystem);
-        }
-
         protected readonly Sync<bool> m_useConveyorSystem;
 
         private MyMultilineConveyorEndpoint m_endpoint;
@@ -44,9 +32,24 @@ namespace SpaceEngineers.Game.Weapons.Guns
         public MyLargeConveyorTurretBase()
             : base()
         {
+            CreateTerminalControls();
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
-  
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyLargeConveyorTurretBase>())
+                return;
+
+            var separator = new MyTerminalControlSeparator<MyLargeConveyorTurretBase>();
+            MyTerminalControlFactory.AddControl(separator);
+            var useConvSystem = new MyTerminalControlOnOffSwitch<MyLargeConveyorTurretBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
+            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConvSystem.Setter = (x, v) => x.UseConveyorSystem = v;
+            useConvSystem.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(useConvSystem);
+        }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);

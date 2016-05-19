@@ -113,8 +113,26 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         bool m_converted = false;
 
-        static MyLandingGear()
+        public MyLandingGear()
         {
+            CreateTerminalControls();
+
+            m_physicsChangedHandler = new Action<IMyEntity>(PhysicsChanged);
+            m_attachedState.ValidateNever();
+            m_attachedState.ValueChanged += x => AttachedValueChanged();
+            m_autoLock.ValueChanged += x => AutolockChanged();
+
+            m_breakForceSync.ValueChanged += x => BreakForceChanged();
+
+            m_lockModeSync.ValidateNever();
+            m_lockModeSync.ValueChanged += x => OnLockModeChanged();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyLandingGear>())
+                return;
+
             var stateWriter = new MyTerminalControl<MyLandingGear>.WriterDelegate((b, sb) => b.WriteLockStateValue(sb));
 
             var lockBtn = new MyTerminalControlButton<MyLandingGear>("Lock", MySpaceTexts.BlockActionTitle_Lock, MySpaceTexts.Blank, (b) => b.RequestLandingGearLock());
@@ -155,19 +173,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 brakeForce.EnableActions();
                 MyTerminalControlFactory.AddControl(brakeForce);
             }
-        }
-
-        public MyLandingGear()
-        {
-            m_physicsChangedHandler = new Action<IMyEntity>(PhysicsChanged);
-            m_attachedState.ValidateNever();
-            m_attachedState.ValueChanged += x => AttachedValueChanged();
-            m_autoLock.ValueChanged += x => AutolockChanged();
-
-            m_breakForceSync.ValueChanged += x => BreakForceChanged();
-
-            m_lockModeSync.ValidateNever();
-            m_lockModeSync.ValueChanged += x => OnLockModeChanged();
         }
 
         void OnLockModeChanged()

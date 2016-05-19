@@ -127,7 +127,7 @@ namespace Sandbox
 
         public static void InitCheckSum()
         {
-#if BLIT
+#if XB1
 			return; //everything's fine.
 #else
             try

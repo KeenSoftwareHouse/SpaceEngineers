@@ -23,7 +23,7 @@ using VRageRender;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenFarm))]
-    class MyOxygenFarm : MyFunctionalBlock, IMyOxygenFarm, IMyGasBlock
+    public class MyOxygenFarm : MyFunctionalBlock, IMyOxygenFarm, IMyGasBlock
     {
         static readonly string[] m_emissiveNames = { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 

@@ -73,8 +73,10 @@ namespace Sandbox.ModAPI
         /// </summary>
         public static IMyTerminalActionsHelper TerminalActionsHelper;
         /// <summary>
-        /// IMyUtilities is helper for loading/saving files , showing messages to players
+        /// IMyTerminalControls allows access to adding and removing controls from a block's terminal screen
         /// </summary>
+        public static IMyTerminalControls TerminalControls;
+
         public static IMyUtilities Utilities;
         /// <summary>
         /// IMyMultiplayer  contains multiplayer related things
@@ -96,6 +98,8 @@ namespace Sandbox.ModAPI
         private static IMyEntities m_entitiesStorage;
         // Storage for property Session.
         private static IMySession m_sessionStorage;
+
+
 
         [Conditional("DEBUG")] 
         public static void GetMessageBoxPointer(ref IntPtr pointer)
@@ -123,6 +127,27 @@ namespace Sandbox.ModAPI
             Multiplayer = null;
             PrefabManager = null;
             Input = null;
+            TerminalControls = null;
+        }
+
+        public static StringBuilder DoorBase(string name)
+        {
+            StringBuilder doorbase = new StringBuilder();
+
+            foreach (var c in name)
+            {
+                if (c == ' ') doorbase.Append(c);
+
+                byte b = (byte)c;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    doorbase.Append((b & 0x80) != 0 ? "Door" : "Base");
+                    b <<= 1;
+                }
+            }
+
+            return doorbase;
         }
     }
 }

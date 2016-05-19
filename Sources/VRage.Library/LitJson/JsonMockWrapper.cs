@@ -17,7 +17,7 @@ using System.Collections.Specialized;
 
 namespace LitJson
 {
-#if !BLIT
+#if !XB1
 
     public class JsonMockWrapper : IJsonWrapper
     {

@@ -14,7 +14,7 @@ using VRageMath;
 namespace Sandbox.Game.GameSystems.Conveyors
 {
     [MyEntityType(typeof(MyObjectBuilder_ConveyorPacket))]
-    class MyConveyorPacket : MyEntity
+    public class MyConveyorPacket : MyEntity
     {
         public MyPhysicalInventoryItem Item;
         public int LinePosition;

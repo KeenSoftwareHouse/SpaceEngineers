@@ -23,6 +23,7 @@ using Sandbox.Engine.Networking;
 using VRage.Game;
 using VRage.Game.Entity;
 using Sandbox.Game.Audio;
+using Sandbox.ModAPI;
 
 #endregion
 
@@ -51,11 +52,11 @@ namespace Sandbox.Game.Weapons
 
         public struct ProjectionRaycastData
         {
-            public MyProjectorBase.BuildCheckResult raycastResult;
+            public BuildCheckResult raycastResult;
             public MySlimBlock hitCube;
             public MyProjectorBase cubeProjector;
 
-            public ProjectionRaycastData(MyProjectorBase.BuildCheckResult result, MySlimBlock cubeBlock, MyProjectorBase projector)
+            public ProjectionRaycastData(BuildCheckResult result, MySlimBlock cubeBlock, MyProjectorBase projector)
             {
                 raycastResult = result;
                 hitCube = cubeBlock;
@@ -210,7 +211,7 @@ namespace Sandbox.Game.Weapons
             if (block == null)
             {
                 var info = FindProjectedBlock();
-                if (info.raycastResult == MyProjectorBase.BuildCheckResult.OK)
+                if (info.raycastResult == BuildCheckResult.OK)
                 {
                     return true;
                 }
@@ -238,7 +239,7 @@ namespace Sandbox.Game.Weapons
 
             {
                 var info = FindProjectedBlock();
-                if (info.raycastResult == MyProjectorBase.BuildCheckResult.OK)
+                if (info.raycastResult == BuildCheckResult.OK)
                 {
                     return true;
                 }
@@ -298,7 +299,7 @@ namespace Sandbox.Game.Weapons
                 else if (Owner == MySession.Static.LocalCharacter)
                 {
                     var info = FindProjectedBlock();
-                    if (info.raycastResult == MyProjectorBase.BuildCheckResult.OK)
+                    if (info.raycastResult == BuildCheckResult.OK)
                     {
                         if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition) || MySession.Static.IsAdminModeEnabled(Sync.MyId))
                         {
@@ -454,9 +455,9 @@ namespace Sandbox.Game.Weapons
             }
 
             var info = FindProjectedBlock();
-            if (info.raycastResult != MyProjectorBase.BuildCheckResult.NotFound)
+            if (info.raycastResult != BuildCheckResult.NotFound)
             {
-                if (info.raycastResult == MyProjectorBase.BuildCheckResult.OK)
+                if (info.raycastResult == BuildCheckResult.OK)
                 {
                     MyCubeBuilder.DrawSemiTransparentBox(info.hitCube.CubeGrid, info.hitCube, Color.Green.ToVector4(), true);
                     m_targetProjectionCube = info.hitCube.Position;
@@ -464,11 +465,11 @@ namespace Sandbox.Game.Weapons
 
                     return;
                 }
-                else if (info.raycastResult == MyProjectorBase.BuildCheckResult.IntersectedWithGrid || info.raycastResult == MyProjectorBase.BuildCheckResult.IntersectedWithSomethingElse)
+                else if (info.raycastResult == BuildCheckResult.IntersectedWithGrid || info.raycastResult == BuildCheckResult.IntersectedWithSomethingElse)
                 {
                     MyCubeBuilder.DrawSemiTransparentBox(info.hitCube.CubeGrid, info.hitCube, Color.Red.ToVector4(), true);
                 }
-                else if (info.raycastResult == MyProjectorBase.BuildCheckResult.NotConnected)
+                else if (info.raycastResult == BuildCheckResult.NotConnected)
                 {
                     MyCubeBuilder.DrawSemiTransparentBox(info.hitCube.CubeGrid, info.hitCube, Color.Yellow.ToVector4(), true);
                 }
@@ -506,7 +507,7 @@ namespace Sandbox.Game.Weapons
                         {
                             var projectionBlock = blocks[i];
                             var canBuild = projector.CanBuild(projectionBlock.CubeBlock, true);
-                            if (canBuild == MyProjectorBase.BuildCheckResult.OK)
+                            if (canBuild == BuildCheckResult.OK)
                             {
                                 farthestVisibleBlock = new ProjectionRaycastData
                                 {
@@ -515,7 +516,7 @@ namespace Sandbox.Game.Weapons
                                     cubeProjector = projector,
                                 };
                             }
-                            else if (canBuild == MyProjectorBase.BuildCheckResult.AlreadyBuilt)
+                            else if (canBuild == BuildCheckResult.AlreadyBuilt)
                             {
                                 farthestVisibleBlock = null;
                             }
@@ -530,7 +531,7 @@ namespace Sandbox.Game.Weapons
             }
             return new ProjectionRaycastData
             {
-                raycastResult = MyProjectorBase.BuildCheckResult.NotFound,
+                raycastResult = BuildCheckResult.NotFound,
             };
         }
 

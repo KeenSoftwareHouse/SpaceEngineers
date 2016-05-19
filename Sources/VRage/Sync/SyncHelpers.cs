@@ -12,7 +12,7 @@ using VRage.Serialization;
 
 namespace VRage.Library.Sync
 {
-#if BLIT
+#if UNSHARPER
 	public static class SyncHelpers
 	{
         public static SyncType Compose(object obj, int firstId = 0)

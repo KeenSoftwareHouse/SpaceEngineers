@@ -18,7 +18,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_CubePlacer))]
-    class MyCubePlacer : MyBlockPlacerBase
+    public class MyCubePlacer : MyBlockPlacerBase
     {
         private static MyDefinitionId m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_CubePlacer));
 

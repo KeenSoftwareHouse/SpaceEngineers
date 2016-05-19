@@ -40,7 +40,7 @@ namespace VRage
             m_properties = properties;
         }
 
-#if !BLIT
+#if !UNSHAPER_TMP
         public Sync<T> Add<T>(MySerializeInfo info = null)
         {
             var sync = new Sync<T>(m_properties.Count, info ?? MySerializeInfo.Default);
@@ -52,7 +52,7 @@ namespace VRage
 
         public void Append(object obj)
         {
-#if !BLIT
+#if !UNSHAPER_TMP
             var num = m_properties.Count;
             SyncHelpers.Compose(obj, m_properties.Count, m_properties);
             for (int i = num; i < m_properties.Count; i++)

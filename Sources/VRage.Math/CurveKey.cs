@@ -128,7 +128,7 @@ namespace VRageMath
         /// <param name="a">CurveKey on the left of the equal sign.</param><param name="b">CurveKey on the right of the equal sign.</param>
         public static bool operator ==(CurveKey a, CurveKey b)
         {
-#if BLITCREMENTAL
+#if UNSHARPER_TMP
 			bool flag1 = null == a;
 			bool flag2 = null == b;
 #else

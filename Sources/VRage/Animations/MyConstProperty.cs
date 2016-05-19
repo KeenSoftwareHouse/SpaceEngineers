@@ -286,7 +286,7 @@ namespace VRage.Animations
     }
 
     public class MyConstPropertyEnum : MyConstPropertyInt
-#if !BLIT
+#if !UNSHARPER
         , IMyConstProperty
 #endif
     {
@@ -337,7 +337,7 @@ namespace VRage.Animations
             return prop;
         }
 
-#if BLIT
+#if UNSHARPER
         protected override Type GetValueTypeInternal()
         {
             return m_enumType;

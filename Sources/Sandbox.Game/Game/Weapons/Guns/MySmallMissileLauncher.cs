@@ -40,7 +40,7 @@ using VRage.Game.ModAPI.Interfaces;
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SmallMissileLauncher))]
-    class MySmallMissileLauncher : MyUserControllableGun, IMyMissileGunObject, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyGunBaseUser, IMySmallMissileLauncher
+    public class MySmallMissileLauncher : MyUserControllableGun, IMyMissileGunObject, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyGunBaseUser, IMySmallMissileLauncher
     {
         protected int m_shotsLeftInBurst = 0;
         protected int m_nextShootTime = 0;
@@ -80,22 +80,27 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_endpoint));
         }
 
-        static MySmallMissileLauncher()
+        public MySmallMissileLauncher()
         {
+            CreateTerminalControls();
+
+            m_gunBase = new MyGunBase();
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
+            m_useConveyorSystem.Value = true;
+            SyncType.Append(m_gunBase);
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySmallMissileLauncher>())
+                return;
+
             var useConveyor = new MyTerminalControlOnOffSwitch<MySmallMissileLauncher>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyor.Getter = (x) => (x).UseConveyorSystem;
             useConveyor.Setter = (x, v) => (x).UseConveyorSystem = v;
             useConveyor.Visible = (x) => x.CubeGrid.GridSizeEnum == MyCubeSize.Large; // Only large missile launchers can use conveyor system
             useConveyor.EnableToggleAction();
             MyTerminalControlFactory.AddControl(useConveyor);
-        }
-
-        public MySmallMissileLauncher()
-        {
-            m_gunBase = new MyGunBase();
-            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
-            m_useConveyorSystem.Value = true;
-            SyncType.Append(m_gunBase);
         }
 
         //[TerminalValues(MySpaceTexts.SwitchText_On, MySpaceTexts.SwitchText_Off)]

@@ -32,7 +32,7 @@ using VRage.Game.ModAPI.Interfaces;
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_HandDrill))]
-    class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyGunBaseUser
+    public class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyGunBaseUser
     {
 	    private const float SPIKE_THRUST_DISTANCE_HALF = 0.2f;
         private const float SPIKE_THRUST_PERIOD_IN_SECONDS = 0.05f;

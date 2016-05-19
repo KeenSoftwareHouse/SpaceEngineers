@@ -28,6 +28,9 @@ using SearchOption = VRage.FileSystem.MySearchOption;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+
+#if !XB1_TMP
+
     [MyDebugScreen("Game", "Voxels")]
     public class MyGuiScreenDebugVoxels : MyGuiScreenDebugBase
     {
@@ -256,4 +259,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             }
         }
     }
+
+#endif
 }

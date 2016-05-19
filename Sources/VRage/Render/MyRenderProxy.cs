@@ -157,7 +157,7 @@ namespace VRageRender
             m_render.Present();
         }
 
-        public static void ClearBackbuffer(ColorBGRA clearColor)
+        public static void ClearBackbuffer(Color clearColor)
         {
             m_render.ClearBackbuffer(clearColor);
         }
@@ -231,7 +231,7 @@ namespace VRageRender
         private static uint GetMessageId() {
             using (m_messageIdLock.Acquire())
             {
-#if BLIT
+#if XB1
                 uint v = m_render.GlobalMessageCounter;
                 m_render.GlobalMessageCounter = m_render.GlobalMessageCounter + 1;
                 return v;
@@ -1556,7 +1556,9 @@ namespace VRageRender
             float ambientMultiplier,
             float envAmbientIntensity,
             Color backgroundColor,
-            string backgroundTexture,
+            string dayBackgroundTexture,
+            string nightBackgroundTexture,
+            string nightBackgroundPrefilteredTexture,
             Quaternion backgroundOrientation,
             float sunSizeMultiplier,
             float distanceToSun,
@@ -1590,7 +1592,9 @@ namespace VRageRender
             message.AmbientMultiplier = ambientMultiplier;
             message.EnvAmbientIntensity = envAmbientIntensity;
             message.BackgroundColor = backgroundColor;
-            message.BackgroundTexture = backgroundTexture;
+            message.DayBackgroundTexture = dayBackgroundTexture;
+            message.NightBackgroundTexture = nightBackgroundTexture;
+            message.NightBackgroundPrefilteredTexture = nightBackgroundPrefilteredTexture;
             message.BackgroundOrientation = backgroundOrientation;
             message.SunSizeMultiplier = sunSizeMultiplier;
             message.DistanceToSun = distanceToSun;

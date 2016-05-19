@@ -67,6 +67,9 @@ namespace Sandbox.Game.Weapons
     public abstract partial class MyLargeTurretBase : MyUserControllableGun, IMyGunObject<MyGunBase>, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, VRage.Game.ModAPI.Interfaces.IMyCameraController, IMyControllableEntity, IMyUsableEntity, IMyGunBaseUser
     {
         private bool m_hidetoolbar;
+        
+        //Should be empty added for consistency with checks for other Entities with toolbae (e.g. Character, MyCockpit see MyToolbarComponent)
+        private MyToolbar m_toolbar;
 
         interface IMyPredicionType
         {
@@ -572,6 +575,8 @@ namespace Sandbox.Game.Weapons
         public MyLargeTurretBase()
             : base()
         {
+            CreateTerminalControls();
+
             m_status = MyLargeShipGunStatus.MyWeaponStatus_Deactivated;
             m_randomStandbyChange_ms = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             m_randomStandbyChangeConst_ms = MyUtils.GetRandomInt(3500, 4500);
@@ -608,6 +613,8 @@ namespace Sandbox.Game.Weapons
             m_rotationAndElevationSync.ValueChanged += (x) => RotationAndElevationSync();
             m_targetSync.ValidateNever();
             m_targetSync.ValueChanged +=  (x) => TargetChanged();
+
+            m_toolbar = new MyToolbar(ToolbarType);
         }
 
         void TargetChanged()
@@ -734,6 +741,7 @@ namespace Sandbox.Game.Weapons
             m_enableIdleRotation.Value &= builder.EnableIdleRotation;
 
             m_previousIdleRotationState = builder.PreviousIdleRotationState;
+
         }
 
         float NormalizeAngle(int angle)
@@ -1099,6 +1107,8 @@ namespace Sandbox.Game.Weapons
 
         private void Deactivate()
         {
+            CreateTerminalControls();
+
             m_status = MyLargeShipGunStatus.MyWeaponStatus_Deactivated;
             if (m_soundEmitter == null)
                 return;
@@ -2236,10 +2246,12 @@ namespace Sandbox.Game.Weapons
         #endregion
 
         #region Control panel
-
-
-        static MyLargeTurretBase()
+    
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyLargeTurretBase>())
+                return;
+
             if (MyFakes.ENABLE_TURRET_CONTROL)
             {
                 var controlBtn = new MyTerminalControlButton<MyLargeTurretBase>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (t) => t.RequestControl());
@@ -3172,7 +3184,11 @@ namespace Sandbox.Game.Weapons
 
         public void DrawHud(IMyCameraController camera, long playerId)
         {
-            MyGuiScreenHudSpace.Static.SetToolbarVisible(!m_hidetoolbar);
+            if (MyGuiScreenHudSpace.Static != null)
+            {
+                //Do not show toolbar component at all if in turret
+                MyGuiScreenHudSpace.Static.SetToolbarVisible(false);
+            }
         }
 
         public void SwitchReactors()
@@ -3197,6 +3213,15 @@ namespace Sandbox.Game.Weapons
                 return MyToolbarType.LargeCockpit;
             }
         }
+
+        public MyToolbar Toolbar
+        {
+            get
+            {
+                return m_toolbar;
+            }
+        }
+
         #endregion
 
         #endregion

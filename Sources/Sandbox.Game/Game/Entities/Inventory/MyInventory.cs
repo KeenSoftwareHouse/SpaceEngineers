@@ -1210,6 +1210,9 @@ namespace Sandbox.Game
         //this is from client only
         public static void TransferByUser(MyInventory src, MyInventory dst, uint srcItemId, int dstIdx = -1, MyFixedPoint? amount = null)
         {
+            // CH: TODO: Remove if date > 15.5.2016 :-) It's only to catch a nullref
+            if (dst.Owner == null) MyLog.Default.WriteLine("dst.Owner == null");
+
             if (src == null)
             {
                 return;
@@ -1220,6 +1223,10 @@ namespace Sandbox.Game
                 return;
 
             var item = itemNullable.Value;
+            
+            // CH: TODO: Remove if date > 15.5.2016 :-) It's only to catch a nullref
+            if (item.Content == null) MyLog.Default.WriteLine("item.Content == null");
+
             if (dst != null && !dst.CheckConstraint(item.Content.GetObjectId()))
                 return;
 
@@ -1232,6 +1239,12 @@ namespace Sandbox.Game
             }
 
             //TransferItemsInternal(src, dst, srcItemId, false, dstIdx, transferAmount);
+
+            // CH: TODO: Remove if date > 15.5.2016 :-) It's only to catch a nullref
+            for (int i = 0; i < dst.Owner.InventoryCount; i++)
+            {
+                if (dst.Owner.GetInventory(i) == null) MyLog.Default.WriteLine("dst.Owner.GetInventory(i) == null");
+            }
 
             byte inventoryIndex = 0;
             for (byte i = 0; i < dst.Owner.InventoryCount; i++)

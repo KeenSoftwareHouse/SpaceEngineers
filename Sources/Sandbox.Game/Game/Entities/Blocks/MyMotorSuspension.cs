@@ -277,8 +277,23 @@ namespace Sandbox.Game.Entities.Cube
         public new MyMotorSuspensionDefinition BlockDefinition { get { return (MyMotorSuspensionDefinition)base.BlockDefinition; } }
         public new float MaxRotorAngularVelocity { get { return 6 * MathHelper.TwoPi; } }
 
-        static MyMotorSuspension()
+        public MyMotorSuspension()
         {
+            CreateTerminalControls();
+
+            m_brake.ValueChanged += (x) => UpdateBrake();
+            m_friction.ValueChanged += (x) =>FrictionChanged();
+            m_damping.ValueChanged += (x) => DampingChanged();
+            m_strenth.ValueChanged += (x) => StrenghtChanged();
+            m_height.ValueChanged += (x) => ReattachConstraint();
+            m_suspensionTravel.ValueChanged += (x) => ReattachConstraint();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyMotorSuspension>())
+                return;
+
             var steering = new MyTerminalControlCheckbox<MyMotorSuspension>("Steering", MySpaceTexts.BlockPropertyTitle_Motor_Steering, MySpaceTexts.BlockPropertyDescription_Motor_Steering);
             steering.Getter = (x) => x.Steering;
             steering.Setter = (x, v) => x.Steering = v;
@@ -415,16 +430,6 @@ namespace Sandbox.Game.Entities.Cube
             addWheel.Enabled = (b) => (b.m_rotorBlock == null);
             addWheel.EnableAction(MyTerminalActionIcons.STATION_ON);
             MyTerminalControlFactory.AddControl(addWheel);
-        }
-
-        public MyMotorSuspension()
-        {
-            m_brake.ValueChanged += (x) => UpdateBrake();
-            m_friction.ValueChanged += (x) =>FrictionChanged();
-            m_damping.ValueChanged += (x) => DampingChanged();
-            m_strenth.ValueChanged += (x) => StrenghtChanged();
-            m_height.ValueChanged += (x) => ReattachConstraint();
-            m_suspensionTravel.ValueChanged += (x) => ReattachConstraint();
         }
 
         void ReattachConstraint()

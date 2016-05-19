@@ -108,9 +108,10 @@ namespace VRageRender
             }
         }
 
-        public void ClearBackbuffer(ColorBGRA clearColor)
+        public void ClearBackbuffer(VRageMath.Color clearColor)
         {
-            MyRender.Device.Clear(ClearFlags.Target, clearColor, 1, 0);
+            var v3 = clearColor.ToVector3();
+            MyRender.Device.Clear(ClearFlags.Target, new ColorBGRA(v3.X, v3.Y, v3.Z, 1) , 1, 0);
         }
 
         public MyViewport MainViewport 

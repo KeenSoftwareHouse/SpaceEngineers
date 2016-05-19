@@ -321,7 +321,6 @@ namespace Sandbox.Engine.Utils
         public static bool SHOW_PATH_EXPANSION_ASSERTS = false;
         public static bool BARBARIANS_SPAWN_AT_DAY = false;
         public static int BARBARIAN_STARTING_DAY = 1;
-        public static bool DEBUG_AVOID_RANDOM_AI = false;
         public static bool DEBUG_ONE_AI_STEP_SETTING = false;    // allow only one step od AI (by setting of flag DEBUG_ONE_AI_STEP)
         public static bool DEBUG_ONE_AI_STEP = false;
         public static bool DEBUG_ONE_VOXEL_PATHFINDING_STEP_SETTING = false;// allow only one step of voxel pathfinding (and 5 steps of other AI stuff) - it has higher priority than DEBUG_ONE_AI_STEP_SETTING
@@ -648,7 +647,11 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_MEDIEVAL_FACTIONS = false;
 
+#if XB1_TMP
+        public static bool ENABLE_RUN_WITHOUT_STEAM = true;
+#else
         public static bool ENABLE_RUN_WITHOUT_STEAM = false;
+#endif
 
         public static bool ENABLE_SIMSPEED_LOCKING = false;
 
@@ -679,5 +682,9 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_USE_DEFAULT_DAMAGE_DECAL = false;
 
         public static bool ENABLE_QUICK_WARDROBE = false;
+        public static bool ENABLE_TYPES_FROM_MODS = false;
+
+        public static bool ENABLE_PRELOAD_DEFINITIONS = true;
+        public static bool ENABLE_ME_DOOR_COLLISION_CHECK = true;
     }
 }

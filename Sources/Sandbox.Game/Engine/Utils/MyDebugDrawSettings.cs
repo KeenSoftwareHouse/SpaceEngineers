@@ -146,5 +146,7 @@ namespace Sandbox.Engine.Utils
 
         public static float DEBUG_DRAW_MODEL_DUMMIES_DISTANCE = 0f;
         public static bool DEBUG_DRAW_PLANET_SECTORS = false;
+
+        public static bool DEBUG_DRAW_PARTICLES = false;
     }
 }

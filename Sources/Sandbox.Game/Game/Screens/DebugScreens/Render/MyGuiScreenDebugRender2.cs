@@ -7,6 +7,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Render debug")]
     class MyGuiScreenDebugRender2 : MyGuiScreenDebugBase
     {
@@ -96,4 +98,6 @@ namespace Sandbox.Game.Gui
         }
 
     }
+
+#endif
 }

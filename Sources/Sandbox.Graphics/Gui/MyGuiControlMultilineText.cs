@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+#if !XB1
 using System.Windows.Forms;
+#endif
 using VRage;
 using VRage.Game;
 using VRage.Input;
@@ -897,8 +899,24 @@ namespace Sandbox.Graphics.GUI
 
             void PasteFromClipboard()
             {
+#if !XB1
                 ClipboardText = Clipboard.GetText();
+#else
+                Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
+                
             }
+
+            void CopyToClipboard()
+            {
+#if !XB1
+                if (ClipboardText != "")
+                    Clipboard.SetText(ClipboardText);          
+#else
+                Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
+            }
+
         }
         #endregion
 

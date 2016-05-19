@@ -190,6 +190,9 @@ namespace Sandbox.Game.World
                 return false;
             }
         }
+
+        public MyScriptManager ScriptManager;
+
         public bool IsScenario { get { return Settings.Scenario; } }
         public bool LoadedAsMission { get; private set; }
         public bool PersistentEditMode { get; private set; }
@@ -496,6 +499,8 @@ namespace Sandbox.Game.World
             MultiplayerDirect = true;
 
             Factions.FactionStateChanged += OnFactionsStateChanged;
+
+            ScriptManager = new MyScriptManager();
 
             GC.Collect(2, GCCollectionMode.Forced);
             MySandboxGame.Log.WriteLine(String.Format("GC Memory: {0} B", GC.GetTotalMemory(false).ToString("##,#")));
@@ -846,17 +851,12 @@ namespace Sandbox.Game.World
 
             MyEntityContainerEventExtensions.InitEntityEvents();
 
-            MyDefinitionManager.Static.LoadData(mods);
-
             Static = new MySession();
-
-            Static.LoadGameDefinition(generationArgs.Scenario != null ? generationArgs.Scenario.GameDefinition : default(MyDefinitionId?));
-
             Static.Name = name;
+            Static.Mods = mods;
             Static.Description = description;
             Static.Password = password;
             Static.Settings = settings;
-            Static.Mods = mods;
             Static.Scenario = generationArgs.Scenario;
             FixIncorrectSettings(Static.Settings);
             Static.WorldBoundaries = generationArgs.Scenario.WorldBoundaries;
@@ -872,22 +872,25 @@ namespace Sandbox.Game.World
             Static.InGameTime = generationArgs.Scenario.GameDate;//MyObjectBuilder_Checkpoint.DEFAULT_DATE;
             Static.RequiresDX = generationArgs.Scenario.HasPlanets ? 11 : 9;
 
-            string safeName = MyUtils.StripInvalidChars(name);
-            Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
-
             if (Static.OnlineMode != MyOnlineModeEnum.OFFLINE)
                 StartServerRequest();
-
-            Static.LoadDataComponents();
 
             Static.IsCameraAwaitingEntity = true;
 
             // Find new non existing folder. The game folder name may be different from game name, so we have to
             // make sure we don't overwrite another save
+            string safeName = MyUtils.StripInvalidChars(name);
+            Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
+
             while (Directory.Exists(Static.CurrentPath))
             {
                 Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"), false, false);
             }
+
+            Static.PrepareComponents(mods, generationArgs.Scenario != null ? generationArgs.Scenario.GameDefinition : default(MyDefinitionId?));
+
+            //TODO: This is from broken merge from MEPlanets, when we do merge I will fixorz
+            //MySector.EnvironmentDefinition = MyDefinitionManager.Static.GetDefinition<MyEnvironmentDefinition>(generationArgs.Scenario.Environment);
 
             MyWorldGenerator.GenerateWorld(generationArgs);
 
@@ -936,12 +939,7 @@ namespace Sandbox.Game.World
         internal static void LoadMultiplayer(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
         {
             //MyAudio.Static.Mute = true;
-            MyDefinitionManager.Static.LoadData(world.Checkpoint.Mods);
-
             Static = new MySession(multiplayerSession.SyncLayer);
-            
-
-            Static.LoadGameDefinition(world.Checkpoint);
 
             Static.Mods = world.Checkpoint.Mods;
             Static.Settings = world.Checkpoint.Settings;
@@ -958,8 +956,9 @@ namespace Sandbox.Game.World
 
             Static.LoadMembersFromWorld(world, multiplayerSession);
 
-            Static.LoadDataComponents();
-            Static.LoadObjectBuildersComponents(world.Checkpoint.SessionComponents);
+            MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(world.Checkpoint, world.Sector);
+
+            Static.PrepareComponents(world.Checkpoint);
 
             // No controlled object
             long hostObj = world.Checkpoint.ControlledObject;
@@ -1056,10 +1055,6 @@ namespace Sandbox.Game.World
 
             ulong voxelsSizeInBytes = GetVoxelsSizeInBytes(sessionPath);
 
-            ProfilerShort.Begin("MyDefinitionManager.Static.LoadData");
-            MyDefinitionManager.Static.LoadData(checkpoint.Mods);
-            ProfilerShort.End();
-
 #if false
             if ( MyFakes.DEBUG_AVOID_RANDOM_AI )
                 MyBBSetSampler.ResetRandomSeed();
@@ -1069,31 +1064,16 @@ namespace Sandbox.Game.World
 
             Static = new MySession();
 
-            Static.LoadGameDefinition(checkpoint);
-
             Static.Mods = checkpoint.Mods;
             Static.Settings = checkpoint.Settings;
             Static.CurrentPath = sessionPath;
-            if (!MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Static.Scenario))
-                Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
-            FixIncorrectSettings(Static.Settings);
-            Static.WorldBoundaries = checkpoint.WorldBoundaries;
-            // Use whatever setting is in scenario if there was nothing in the file (0 min and max).
-            // SE scenarios have nothing while ME scenarios have size defined.
-            if (Static.WorldBoundaries.Min == Vector3D.Zero &&
-                Static.WorldBoundaries.Max == Vector3D.Zero)
-                Static.WorldBoundaries = Static.Scenario.WorldBoundaries;
-
+            
             if (Static.OnlineMode != MyOnlineModeEnum.OFFLINE)
                 StartServerRequest();
 
-            ProfilerShort.Begin("MySession.Static.LoadDataComponents");
-            Static.LoadDataComponents();
-            ProfilerShort.End();
+            MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(checkpoint, sector);
 
-            ProfilerShort.Begin("MySession.Static.LoadObjectBuildersComponents");
-            Static.LoadObjectBuildersComponents(checkpoint.SessionComponents);
-            ProfilerShort.End();
+            Static.PrepareComponents(checkpoint);
 
             ProfilerShort.Begin("MySession.Static.LoadWorld");
             Static.LoadWorld(checkpoint, sector);
@@ -1133,12 +1113,8 @@ namespace Sandbox.Game.World
         {
             Debug.Assert(!Sync.IsServer);
 
-            MyDefinitionManager.Static.LoadData(new List<MyObjectBuilder_Checkpoint.ModItem>());
-
             Static = new MySession(multiplayerSession.SyncLayer, false);
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
-
-            Static.LoadGameDefinition();
 
             MyHud.Chat.RegisterChat(multiplayerSession);
             Static.Gpss.RegisterChat(multiplayerSession);
@@ -1151,9 +1127,9 @@ namespace Sandbox.Game.World
 
             Static.IsCameraAwaitingEntity = true;
 
-            multiplayerSession.StartProcessingClientMessagesWithEmptyWorld();
+            Static.PrepareComponents(new List<MyObjectBuilder_Checkpoint.ModItem>());
 
-            Static.LoadDataComponents();
+            multiplayerSession.StartProcessingClientMessagesWithEmptyWorld();
 
             if (Sync.IsServer)
             {
@@ -1178,10 +1154,6 @@ namespace Sandbox.Game.World
 
             MyDefinitionManager.Static.UnloadData();
 
-            MyDefinitionManager.Static.LoadData(world.Checkpoint.Mods);
-
-            Static.LoadGameDefinition(world.Checkpoint);
-
             Static.Mods = world.Checkpoint.Mods;
             Static.Settings = world.Checkpoint.Settings;
             Static.CurrentPath = MyLocalCache.GetSessionSavesPath(MyUtils.StripInvalidChars(world.Checkpoint.SessionName), false, false);
@@ -1195,8 +1167,9 @@ namespace Sandbox.Game.World
 
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
-            Static.LoadDataComponents(false);
-            Static.LoadObjectBuildersComponents(world.Checkpoint.SessionComponents);
+            MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(world.Checkpoint, world.Sector);
+
+            Static.PrepareComponents(world.Checkpoint);
 
             // No controlled object
             long hostObj = world.Checkpoint.ControlledObject;
@@ -1329,7 +1302,7 @@ namespace Sandbox.Game.World
 
         private void LoadWorld(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
         {
-            // Backward compatibility:
+            // Run compatibility helper.
             MySandboxGame.Static.SessionCompatHelper.FixSessionObjectBuilders(checkpoint, sector);
 
             //MyAudio.Static.Mute = true
@@ -2084,6 +2057,8 @@ namespace Sandbox.Game.World
             checkpoint.NonPlayerIdentities = Sync.Players.SaveNpcIdentities();
 
             SaveSessionComponentObjectBuilders(checkpoint);
+
+            checkpoint.ScriptManagerData = ScriptManager.GetObjectBuilder();
 
             ProfilerShort.End();
 

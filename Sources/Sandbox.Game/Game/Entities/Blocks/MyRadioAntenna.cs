@@ -124,8 +124,18 @@ namespace Sandbox.Game.Entities.Cube
             return false;
         }
 
-        static MyRadioAntenna()
+        public MyRadioAntenna()
         {
+            CreateTerminalControls();
+
+            m_radius.ValueChanged += (obj) => ChangeRadius();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyRadioAntenna>())
+                return;
+
             MyTerminalControlFactory.RemoveBaseClass<MyRadioAntenna, MyTerminalBlock>();
 
             var show = new MyTerminalControlOnOffSwitch<MyRadioAntenna>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
@@ -170,12 +180,6 @@ namespace Sandbox.Game.Entities.Cube
             showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
-        }
-
-        public MyRadioAntenna()
-        {
-            m_radius.ValueChanged += (obj) => ChangeRadius();
-            m_enableBroadcasting.ValueChanged += (obj) => ChangeEnableBroadcast();
         }
 
         void ChangeRadius()

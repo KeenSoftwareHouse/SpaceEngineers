@@ -81,6 +81,7 @@ namespace Sandbox.Game.Gui
                     Section("Cube Position");
                     Text("Face: {0}", MyCubemapHelpers.GetNameForFace(properties.Face));
                     Text("Texcoord: {0}", properties.Texcoord);
+                    Text("Texcoord Position: {0}", (Vector2I)(properties.Texcoord * 2048));
 
                     Section("Material");
                     Text("Material: {0}", properties.Material != null ? properties.Material.Id.SubtypeName : "null");

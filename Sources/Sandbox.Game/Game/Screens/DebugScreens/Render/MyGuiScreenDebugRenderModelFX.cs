@@ -11,6 +11,7 @@ using VRage.Game.Models;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
     [MyDebugScreen("Render", "Model FX", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugRenderModelFX : MyGuiScreenDebugBase
     {
@@ -171,4 +172,5 @@ namespace Sandbox.Game.Gui
         }
 
     }
+#endif
 }

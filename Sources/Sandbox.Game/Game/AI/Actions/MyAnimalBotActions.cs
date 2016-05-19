@@ -10,6 +10,7 @@ using VRage.Game;
 using VRage.Game.AI;
 using VRage.Game.Entity;
 using VRage.Library.Utils;
+using VRage.Utils;
 using VRageMath;
 
 namespace Medieval.AI
@@ -51,9 +52,9 @@ namespace Medieval.AI
         {
             m_bot.Navigation.StopImmediate(true);
             m_eatCounter = (long)(Stopwatch.GetTimestamp() + (m_eatTimeInS * Stopwatch.Frequency));
-            if ((MyAIComponent.Static.Random.Next() & 1) == 1)
+            if (MyUtils.GetRandomInt(2) == 0)
             {
-                var randomSoundValue = ((MyAIComponent.Static.Random.NextLong() % (m_eatTimeInS - 2)) + 1);
+                var randomSoundValue = ((MyUtils.GetRandomLong() % (m_eatTimeInS - 2)) + 1);
                 m_soundCounter = (long)(Stopwatch.GetTimestamp() + (randomSoundValue * Stopwatch.Frequency));
             }
             else

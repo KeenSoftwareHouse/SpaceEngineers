@@ -17,7 +17,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Wheel))]
-    class MyWheel : MyMotorRotor
+    public class MyWheel : MyMotorRotor
     {
         private MyStringHash m_wheelStringHash = MyStringHash.GetOrCompute("Wheel");
         public float Friction { get; set; }

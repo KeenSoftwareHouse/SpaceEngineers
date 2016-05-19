@@ -32,7 +32,7 @@ namespace Sandbox.Game.Entities.Cube
     using Sandbox.ModAPI.Ingame;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorAdvancedStator))]
-    class MyMotorAdvancedStator : MyMotorStator, IMyMotorAdvancedStator
+    public class MyMotorAdvancedStator : MyMotorStator, IMyMotorAdvancedStator
     {
         public override bool Attach(MyMotorRotor rotor, bool updateGroup = true)
         {

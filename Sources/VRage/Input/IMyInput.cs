@@ -346,5 +346,10 @@ namespace VRage.Input
         bool IsNewGamepadKeyUpPressed();
         void GetActualJoystickState(StringBuilder text);
         bool IsNewGameControlJoystickOnlyPressed(MyStringId controlId);
+
+#if XB1
+        void SetMouseLimits(Vector2 mins, Vector2 maxs);
+#endif
+
     }
 }

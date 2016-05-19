@@ -31,7 +31,7 @@ using VRageMath;
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Drill))]
-    class MyShipDrill : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipDrill
+    public class MyShipDrill : MyFunctionalBlock, IMyGunObject<MyToolBase>, IMyInventoryOwner, IMyConveyorEndpointBlock, IMyShipDrill
     {
         private const float HEAD_MAX_ROTATION_SPEED = MathHelper.TwoPi*2f;
         private const float HEAD_SLOWDOWN_TIME_IN_SECONDS = 0.5f;
@@ -88,9 +88,23 @@ namespace Sandbox.Game.Weapons
 
         public MyShipDrill()
         {
+            CreateTerminalControls();
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             Debug.Assert((NeedsUpdate & MyEntityUpdateEnum.EACH_10TH_FRAME) == 0, "Base class of ship drill uses Update10, and ship drill turns it on and off. Things might break!");
             SetupDrillFrameCountdown();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyShipDrill>())
+                return;
+
+            var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipDrill>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
+            useConvSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConvSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
+            useConvSystem.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(useConvSystem);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)

@@ -32,7 +32,7 @@ using Sandbox.Game.Audio;
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_AngleGrinder))]
-    class MyAngleGrinder : MyEngineerToolBase
+    public class MyAngleGrinder : MyEngineerToolBase
     {
         private MySoundPair m_idleSound = new MySoundPair("ToolPlayGrindIdle");
         private MySoundPair m_actualSound = new MySoundPair("ToolPlayGrindMetal");

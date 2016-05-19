@@ -3,6 +3,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -26,6 +27,9 @@ namespace Sandbox.Game
         /// <param name="damage">Not used for now but could be used as a multiplier instead of random decal size</param>
         public static void HandleAddDecal(IMyEntity entity, MyHitInfo hitInfo, MyStringHash source = default(MyStringHash), float damage = -1)
         {
+            if (entity == null)
+                DebugNullEntity();
+
             IMyDecalProxy proxy = entity as IMyDecalProxy;
             if (proxy != null)
             {
@@ -110,10 +114,17 @@ namespace Sandbox.Game
             // For example support filtering basing genericallt on the entity, hithinfo, damage...
 
             // Cannon ball in ME
-            if (proxy.ToString().StartsWith("MyRopeHookBlock"))
+            string tostring = proxy.ToString();
+            if (tostring != null && tostring.StartsWith("MyRopeHookBlock"))
                 return true;
 
             return false;
+        }
+
+        private static void DebugNullEntity()
+        {
+            MyLog.Default.WriteLine("MyDecals.HandleAddDecal(): entity was null");
+            Debug.Assert(false, "MyDecals.HandleAddDecal(): entity was null. Call Francesco");
         }
     }
 }

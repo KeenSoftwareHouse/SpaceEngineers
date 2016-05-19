@@ -62,6 +62,11 @@ namespace VRage.ObjectBuilders
                 && MyPlugins.GameAssembly != null && MyPlugins.GameObjectBuildersAssembly != null;
         }
 
+        public static void RegisterFromAssembly(Assembly assembly)
+        {
+            m_objectFactory.RegisterFromAssembly(assembly);
+        }
+
         // Are the types already registered?
         public static bool IsReady()
         {
@@ -304,7 +309,7 @@ namespace VRage.ObjectBuilders
             return result;
         }
 
-        private static bool DeserializeXML(Stream reader, out MyObjectBuilder_Base objectBuilder, Type builderType)
+        public static bool DeserializeXML(Stream reader, out MyObjectBuilder_Base objectBuilder, Type builderType)
         {
             Debug.Assert(typeof(MyObjectBuilder_Base).IsAssignableFrom(builderType));
             Debug.Assert(reader != null);

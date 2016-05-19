@@ -710,6 +710,11 @@ namespace Sandbox.Graphics
             m_minMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left, m_fullscreenRectangle.Top));
             m_maxMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left + m_fullscreenRectangle.Width, m_fullscreenRectangle.Top + m_fullscreenRectangle.Height));
 
+#if XB1
+            MyInput.Static.SetMouseLimits( new Vector2(m_safeFullscreenRectangle.Left, m_safeFullscreenRectangle.Top),
+                new Vector2(m_safeFullscreenRectangle.Left + m_safeFullscreenRectangle.Width, m_safeFullscreenRectangle.Top + m_safeFullscreenRectangle.Height) );
+#endif
+
             //  Normalized coordinates where width is always 1.0 and height something like 0.8
             //  Don't confuse with GUI normalized coordinates. They are different.
             //  HUD - get normalized screen size -> width is always 1.0, but height depends on aspect ratio, so usualy it is 0.8 or something.
@@ -720,12 +725,14 @@ namespace Sandbox.Graphics
 
         public static void SetHWCursorBitmap(System.Drawing.Bitmap b)
         {
+#if !XB1
             System.Windows.Forms.Form f = System.Windows.Forms.Control.FromHandle(MyInput.Static.WindowHandle) as System.Windows.Forms.Form;
             if (f != null)
             {
                 // TODO: OP! Make this in thread safe way and optimized
                 f.Invoke(new Action(() => f.Cursor = new System.Windows.Forms.Cursor(b.GetHicon())));
             }
+#endif
         }
 
 

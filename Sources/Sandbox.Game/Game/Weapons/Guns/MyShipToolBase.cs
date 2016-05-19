@@ -69,13 +69,21 @@ namespace Sandbox.Game.Weapons
         protected MyCharacter controller = null;
         public int HeatUpFrames { get; protected set; }
 
+        public MyShipToolBase()
+        {
+            CreateTerminalControls();
+        }
+
         protected override bool CheckIsWorking()
         {
 			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
-        static MyShipToolBase()
+        internal static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyShipToolBase>())
+                return;
+
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipToolBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => (x).UseConveyorSystem =  v;

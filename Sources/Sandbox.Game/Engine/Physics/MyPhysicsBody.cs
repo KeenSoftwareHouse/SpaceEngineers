@@ -663,9 +663,15 @@ namespace Sandbox.Engine.Physics
                     var pos = ClusterToWorld(pivotA);
                     MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
                     MyRenderProxy.DebugDrawText3D(pos, i.ToString(), Color.White, 0.7f, true);
-                    i++;
+
+                    Vector3 pos1 = pos;
+                  
                     pos = ClusterToWorld(pivotB);
                     MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
+                    MyRenderProxy.DebugDrawText3D(pos, i.ToString(), Color.White, 0.7f, true);
+
+                    MyRenderProxy.DebugDrawLine3D(pos1,pos,col,col,false);
+                    i++;
                 }
             }
 

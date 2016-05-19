@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.EntityComponents.Renders
 {
-	class MyRenderComponentWheel : MyRenderComponentCubeBlock
+	public class MyRenderComponentWheel : MyRenderComponentCubeBlock
 	{
 		private int m_lastEffectCreationTime = 0;
 		private int m_effectCreationInterval = 125;

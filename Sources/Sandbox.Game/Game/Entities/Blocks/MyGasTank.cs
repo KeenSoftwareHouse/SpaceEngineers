@@ -34,7 +34,7 @@ using VRage.Network;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_OxygenTank))]
-    class MyGasTank : MyFunctionalBlock, IMyGasBlock, IMyOxygenTank, VRage.Game.ModAPI.Ingame.IMyInventoryOwner
+    public class MyGasTank : MyFunctionalBlock, IMyGasBlock, IMyOxygenTank, VRage.Game.ModAPI.Ingame.IMyInventoryOwner
     {
         private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
         
@@ -79,41 +79,46 @@ namespace Sandbox.Game.Entities.Blocks
             m_conveyorEndpoint = new MyMultilineConveyorEndpoint(this);
         }
 
-        static MyGasTank()
-        {
-	        var isStockpiling = new MyTerminalControlOnOffSwitch<MyGasTank>("Stockpile", MySpaceTexts.BlockPropertyTitle_Stockpile, MySpaceTexts.BlockPropertyDescription_Stockpile)
-	        {
-		        Getter = (x) => x.IsStockpiling,
-		        Setter = (x, v) => x.ChangeStockpileMode(v)
-	        };
-	        isStockpiling.EnableToggleAction();
-            isStockpiling.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(isStockpiling);
-
-	        var refillButton = new MyTerminalControlButton<MyGasTank>("Refill", MySpaceTexts.BlockPropertyTitle_Refill, MySpaceTexts.BlockPropertyTitle_Refill, OnRefillButtonPressed)
-	        {
-		        Enabled = (x) => x.CanRefill()
-	        };
-	        refillButton.EnableAction();
-            MyTerminalControlFactory.AddControl(refillButton);
-
-	        var autoRefill = new MyTerminalControlCheckbox<MyGasTank>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill)
-	        {
-		        Getter = (x) => x.m_autoRefill,
-		        Setter = (x, v) => x.ChangeAutoRefill(v)
-	        };
-	        autoRefill.EnableAction();
-            MyTerminalControlFactory.AddControl(autoRefill);
-
-        }
-
 	    public MyGasTank()
 	    {
+            CreateTerminalControls();
+
 			SourceComp = new MyResourceSourceComponent();
 			ResourceSink = new MyResourceSinkComponent(2);
 	    }
 
-		public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyGasTank>())
+                return;
+
+            var isStockpiling = new MyTerminalControlOnOffSwitch<MyGasTank>("Stockpile", MySpaceTexts.BlockPropertyTitle_Stockpile, MySpaceTexts.BlockPropertyDescription_Stockpile)
+            {
+                Getter = (x) => x.IsStockpiling,
+                Setter = (x, v) => x.ChangeStockpileMode(v)
+            };
+            isStockpiling.EnableToggleAction();
+            isStockpiling.EnableOnOffActions();
+            MyTerminalControlFactory.AddControl(isStockpiling);
+
+            var refillButton = new MyTerminalControlButton<MyGasTank>("Refill", MySpaceTexts.BlockPropertyTitle_Refill, MySpaceTexts.BlockPropertyTitle_Refill, OnRefillButtonPressed)
+            {
+                Enabled = (x) => x.CanRefill()
+            };
+            refillButton.EnableAction();
+            MyTerminalControlFactory.AddControl(refillButton);
+
+            var autoRefill = new MyTerminalControlCheckbox<MyGasTank>("Auto-Refill", MySpaceTexts.BlockPropertyTitle_AutoRefill, MySpaceTexts.BlockPropertyTitle_AutoRefill)
+            {
+                Getter = (x) => x.m_autoRefill,
+                Setter = (x, v) => x.ChangeAutoRefill(v)
+            };
+            autoRefill.EnableAction();
+            MyTerminalControlFactory.AddControl(autoRefill);
+
+        }
+
+        public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
 		{
 			SyncFlag = true;
 

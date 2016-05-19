@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -13,9 +15,7 @@ namespace VRage.Input
         public List<MyKeys> Keys = new List<MyKeys>(10);
         public Md5.Hash Hash = new Md5.Hash();
 
-#if !BLIT
         SHA256 m_hasher = MySHA256.Create();
-#endif
         byte[] m_tmpHashData = new byte[256];
 
         public unsafe void ComputeHash(string salt)
@@ -63,3 +63,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

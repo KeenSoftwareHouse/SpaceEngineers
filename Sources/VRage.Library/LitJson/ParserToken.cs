@@ -11,7 +11,7 @@
 
 namespace LitJson
 {
-#if !BLIT
+#if !XB1
 
     internal enum ParserToken
     {

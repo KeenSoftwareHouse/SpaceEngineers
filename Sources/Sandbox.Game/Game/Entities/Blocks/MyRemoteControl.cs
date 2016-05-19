@@ -360,8 +360,18 @@ namespace Sandbox.Game.Entities
 
         bool m_syncing = false;
 
-        static MyRemoteControl()
+        public MyRemoteControl()
         {
+            CreateTerminalControls();
+
+            m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyRemoteControl>())
+                return;
+
             var controlBtn = new MyTerminalControlButton<MyRemoteControl>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (b) => b.RequestControl());
             controlBtn.Enabled = r => r.CanControl();
             controlBtn.SupportsMultipleBlocks = false;
@@ -373,7 +383,7 @@ namespace Sandbox.Game.Entities
             }
             MyTerminalControlFactory.AddControl(controlBtn);
 
-            
+
             var autoPilotSeparator = new MyTerminalControlSeparator<MyRemoteControl>();
             MyTerminalControlFactory.AddControl(autoPilotSeparator);
 
@@ -425,7 +435,7 @@ namespace Sandbox.Game.Entities
 
 
             var toolbarButton = new MyTerminalControlButton<MyRemoteControl>("Open Toolbar", MySpaceTexts.BlockPropertyTitle_AutoPilotToolbarOpen, MySpaceTexts.BlockPropertyPopup_AutoPilotToolbarOpen,
-                delegate(MyRemoteControl self)
+                delegate (MyRemoteControl self)
                 {
                     var actions = self.m_selectedWaypoints[0].Actions;
                     if (actions != null)
@@ -511,11 +521,6 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(pasteButton);
         }
 
-        public MyRemoteControl()
-        {
-            m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
-        }
-
         private static void OnAction(MyRemoteControl block, ListReader<TerminalActionParameter> paramteres)
         {
             var firstParameter = paramteres.FirstOrDefault();
@@ -552,7 +557,7 @@ namespace Sandbox.Game.Entities
             m_currentFlightMode.Value = (FlightMode)remoteOb.FlightMode;
             m_currentDirection.Value = (Base6Directions.Direction)remoteOb.Direction;
 
-            m_stuckDetection = new MyStuckDetection(0.03f, 0.01f);
+            m_stuckDetection = new MyStuckDetection(0.03f, 0.01f, this.CubeGrid.PositionComp.WorldAABB);
 
             if (remoteOb.Coords == null || remoteOb.Coords.Count == 0)
             {
@@ -670,18 +675,18 @@ namespace Sandbox.Game.Entities
             return IsWorking && m_previousControlledEntity == null;
         }
 
-        private static void FillFlightModeCombo(List<TerminalComboBoxItem> list)
+        private static void FillFlightModeCombo(List<MyTerminalControlComboBoxItem> list)
         {
-            list.Add(new TerminalComboBoxItem() { Key = 0, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Patrol });
-            list.Add(new TerminalComboBoxItem() { Key = 1, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Circle });
-            list.Add(new TerminalComboBoxItem() { Key = 2, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_OneWay });
+            list.Add(new MyTerminalControlComboBoxItem() { Key = 0, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Patrol });
+            list.Add(new MyTerminalControlComboBoxItem() { Key = 1, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_Circle });
+            list.Add(new MyTerminalControlComboBoxItem() { Key = 2, Value = MySpaceTexts.BlockPropertyTitle_FlightMode_OneWay });
         }
 
-        private static void FillDirectionCombo(List<TerminalComboBoxItem> list)
+        private static void FillDirectionCombo(List<MyTerminalControlComboBoxItem> list)
         {
             foreach (var direction in m_directionNames)
             {
-                list.Add(new TerminalComboBoxItem() { Key = (long)direction.Key, Value = direction.Value });
+                list.Add(new MyTerminalControlComboBoxItem() { Key = (long)direction.Key, Value = direction.Value });
             }
         }
 
@@ -694,12 +699,18 @@ namespace Sandbox.Game.Entities
         {
             if (CanEnableAutoPilot())
             {
-                if(enabled == false)
+                if (enabled == false)
                 {
                     ClearMovementControl();
                 }
+                m_autoPilotEnabled.Value = enabled;
             }
-            m_autoPilotEnabled.Value = enabled;
+            
+        }
+
+        bool IMyRemoteControl.IsAutoPilotEnabled
+        {
+            get { return m_autoPilotEnabled.Value; }
         }
 
         void RemoveAutoPilot()
@@ -980,6 +991,8 @@ namespace Sandbox.Game.Entities
             {
                 m_currentFlightMode.Value = flightMode;
             }
+
+            SetAutoPilotEnabled(m_autoPilotEnabled);
         }
 
         private void ChangeDirection(Base6Directions.Direction direction)
@@ -1143,6 +1156,18 @@ namespace Sandbox.Game.Entities
             if (Sync.IsServer == false)
             {
                 ClearWaypoints_Implementation();
+            }
+        }
+
+        void IMyRemoteControl.GetWaypointInfo(List<MyWaypointInfo> waypoints)
+        {
+            if (waypoints == null)
+                return;
+            waypoints.Clear();
+            for (int index = 0; index < m_waypoints.Count; index++)
+            {
+                var waypoint = m_waypoints[index];
+                waypoints.Add(new MyWaypointInfo(waypoint.Name, waypoint.Coords));
             }
         }
 
@@ -1324,7 +1349,7 @@ namespace Sandbox.Game.Entities
                         }
                     }
 
-                    m_stuckDetection.Update(this.WorldMatrix.Translation, this.WorldMatrix.Forward);
+                    m_stuckDetection.Update(this.WorldMatrix.Translation, this.WorldMatrix.Forward, CurrentWaypoint == null ? Vector3D.Zero : CurrentWaypoint.Coords);
                 }
             }
         }
@@ -1338,7 +1363,7 @@ namespace Sandbox.Game.Entities
             {
                 cubesErrorAllowed = 0.25;
             }
-
+            var temp = (WorldMatrix.Translation - CurrentWaypoint.Coords).LengthSquared();
             return (WorldMatrix.Translation - CurrentWaypoint.Coords).LengthSquared() < CubeGrid.GridSize * CubeGrid.GridSize * cubesErrorAllowed * cubesErrorAllowed;
         }
 
@@ -1435,9 +1460,16 @@ namespace Sandbox.Game.Entities
                                 m_actionToolbar.UpdateItem(0);
                                 m_actionToolbar.ActivateItemAtSlot(0);
 
+                                var action = m_actionToolbar.GetItemAtSlot(0);
+
+                                //The action activated maybe to activate autopilot. Then we must take this into account
+                                if (Sync.IsServer && action != null && action.DisplayName.ToString().Contains("Autopilot"))
+                                {
+                                    enableAutopilot = m_autoPilotEnabled.Value;
+                                }
                                 
                                 //by Gregory temporary fix in order not to get the action looping for one waypoint
-                                if (m_waypoints.Count == 1)
+                                if (Sync.IsServer && m_waypoints.Count == 1)
                                 {
                                     enableAutopilot = false;
                                 }
@@ -1844,7 +1876,7 @@ namespace Sandbox.Game.Entities
                 // Below 50m, the speed will be minimal, Above 150m, it will be maximal
                 // coeff(50) = 0, coeff(150) = 1
                 double coeff = (distanceToGround - 50.0) * 0.01;
-                if (coeff < 0.05) coeff = 0.05;
+                if (coeff < 0.05) coeff = 0.15;
                 if (coeff > 1.0f) coeff = 1.0f;
                 maxSpeed = maxSpeed * Math.Max(coeff, 0.05);
 
@@ -1860,10 +1892,11 @@ namespace Sandbox.Game.Entities
 
                 delta += m_dbgDeltaH;
 
+                //For now remove this (causes cubegrid to get stuck at a height)
                 // If we are very close to the ground, just thrust upward to avoid crashing.
                 // The coefficient is set-up that way that at 50m, this thrust will overcome the thrust to the target.
-                double groundAvoidanceCoeff = Math.Max(0.0, Math.Min(1.0, distanceToGround * 0.01));
-                delta = Vector3D.Lerp(-m_currentInfo.GravityWorld * delta.Length(), delta, groundAvoidanceCoeff);
+                //double groundAvoidanceCoeff = Math.Max(0.0, Math.Min(1.0, distanceToGround * 0.1));
+                //delta = Vector3D.Lerp(-m_currentInfo.GravityWorld * delta.Length(), delta, groundAvoidanceCoeff);
             }
 
             m_dbgDelta = delta;
@@ -1903,7 +1936,7 @@ namespace Sandbox.Game.Entities
 
             if (m_dockingModeEnabled)
             {
-                timeToStop *= 2.5f;
+               timeToStop *= 2.5f;
             }
 
             if ((double.IsInfinity(timeToReachTarget) || double.IsNaN(timeToStop) || timeToReachTarget > timeToStop) && velocity.LengthSquared() < (maxSpeed * maxSpeed))

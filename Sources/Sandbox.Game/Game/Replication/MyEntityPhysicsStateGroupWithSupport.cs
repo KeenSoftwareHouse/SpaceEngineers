@@ -204,5 +204,14 @@ namespace Sandbox.Game.Replication
 
             return true;
         }
+
+        public long? GetSupportId()
+        {
+              if(m_supportPhysics != null)
+              {
+                  return m_supportPhysics.Entity.EntityId;
+              }
+              return null;
+        }
     }
 }

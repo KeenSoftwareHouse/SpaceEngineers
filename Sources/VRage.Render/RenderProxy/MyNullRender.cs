@@ -40,7 +40,7 @@ namespace VRageRender
         public MySharedData SharedData { get { return null; } }
         public MyTimeSpan CurrentDrawTime { set; get; }
 
-        public void ClearBackbuffer(ColorBGRA clearColor)
+        public void ClearBackbuffer(VRageMath.Color clearColor)
         {
             return;
         }

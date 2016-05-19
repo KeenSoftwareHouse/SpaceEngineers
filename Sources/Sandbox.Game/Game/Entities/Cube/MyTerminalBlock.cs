@@ -29,30 +29,6 @@ namespace Sandbox.Game.Entities.Cube
     [MyCubeBlockType(typeof(MyObjectBuilder_TerminalBlock))]
     public partial class MyTerminalBlock : MySyncedBlock
     {
-        static MyTerminalBlock()
-        {
-            var show = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
-            show.Getter = (x) => x.m_showInTerminal;
-            show.Setter = (x, v) => x.ShowInTerminal = v;
-            MyTerminalControlFactory.AddControl(show);
-
-            var showConfig = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
-            showConfig.Getter = (x) => x.m_showInToolbarConfig;
-            showConfig.Setter = (x, v) => x.ShowInToolbarConfig = v;
-            MyTerminalControlFactory.AddControl(showConfig);
-
-            var customName = new MyTerminalControlTextbox<MyTerminalBlock>("Name", MyCommonTexts.Name, MySpaceTexts.Blank);
-            customName.Getter = (x) => x.CustomName;
-            customName.Setter = (x, v) => x.SetCustomName(v);
-            customName.SupportsMultipleBlocks = false;
-            MyTerminalControlFactory.AddControl(customName);
-
-            var onOffSwitch = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowOnHUD", MySpaceTexts.Terminal_ShowOnHUD, MySpaceTexts.Terminal_ShowOnHUDToolTip);
-            onOffSwitch.Getter = (x) => x.ShowOnHUD;
-            onOffSwitch.Setter = (x, v) => x.ShowOnHUD = v;
-            MyTerminalControlFactory.AddControl(onOffSwitch);
-        }
-
         private Sync<bool> m_showOnHUD;
         private Sync<bool> m_showInTerminal;
         private Sync<bool> m_showInToolbarConfig;
@@ -126,6 +102,8 @@ namespace Sandbox.Game.Entities.Cube
         
         public MyTerminalBlock()
         {
+            CreateTerminalControls();
+
             DetailedInfo = new StringBuilder();
             CustomInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
@@ -365,5 +343,38 @@ namespace Sandbox.Game.Entities.Cube
 
         #endregion
 
+        /// <summary>
+        /// Control creation was moved from the static ctor into this static function.  Control creation should still be static, but static ctors
+        /// only ever get called once, which means we can never modify these controls (remove), since they will be removed forever.  All classes
+        /// that inherit MyTerminalBlock should put terminal control creation in a function called CreateTerminalControls, as MyTerminalControlFactory 
+        /// will properly ensure their base classes' controls are added in.  I can't make this virtual because terminal controls don't deal with instances
+        /// directly (this should probably change)
+        /// </summary>
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyTerminalBlock>())
+                return;
+
+            var show = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
+            show.Getter = (x) => x.m_showInTerminal;
+            show.Setter = (x, v) => x.ShowInTerminal = v;
+            MyTerminalControlFactory.AddControl(show);
+
+            var showConfig = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowInToolbarConfig", MySpaceTexts.Terminal_ShowInToolbarConfig, MySpaceTexts.Terminal_ShowInToolbarConfigToolTip);
+            showConfig.Getter = (x) => x.m_showInToolbarConfig;
+            showConfig.Setter = (x, v) => x.ShowInToolbarConfig = v;
+            MyTerminalControlFactory.AddControl(showConfig);
+
+            var customName = new MyTerminalControlTextbox<MyTerminalBlock>("Name", MyCommonTexts.Name, MySpaceTexts.Blank);
+            customName.Getter = (x) => x.CustomName;
+            customName.Setter = (x, v) => x.SetCustomName(v);
+            customName.SupportsMultipleBlocks = false;
+            MyTerminalControlFactory.AddControl(customName);
+
+            var onOffSwitch = new MyTerminalControlOnOffSwitch<MyTerminalBlock>("ShowOnHUD", MySpaceTexts.Terminal_ShowOnHUD, MySpaceTexts.Terminal_ShowOnHUDToolTip);
+            onOffSwitch.Getter = (x) => x.ShowOnHUD;
+            onOffSwitch.Setter = (x, v) => x.ShowOnHUD = v;
+            MyTerminalControlFactory.AddControl(onOffSwitch);
+        }
     }
 }

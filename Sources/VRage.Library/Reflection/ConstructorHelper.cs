@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Reflection.Emit;
 
-#if !BLIT
+#if !UNSHARPER_TMP
 
 namespace VRage
 {

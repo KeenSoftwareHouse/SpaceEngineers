@@ -6,6 +6,9 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Render Overrides")]
     class MyGuiScreenDebugRenderOverrides : MyGuiScreenDebugBase
     {
@@ -107,4 +110,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             m_tonemapping.Enabled = m_postprocess.IsChecked;
         }
     }
+
+#endif
 }

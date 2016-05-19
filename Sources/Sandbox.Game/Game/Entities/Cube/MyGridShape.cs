@@ -287,6 +287,19 @@ namespace Sandbox.Game.Entities.Cube
                         var b = m_grid.GetCubeBlock(dirty);
                         if (b == null || newBlocks.Contains(b))
                             continue;
+
+                        // Remove the shape for a block if it spans more cubes
+                        if (b.Position != dirty)
+                        {
+                            if (m_blocksShapes.ContainsKey(b.Position))
+                            {
+                                var toRemove = m_blocksShapes[b.Position];
+                                toRemove.Shape.RemoveReference();
+                                toRemove.RemoveReference();
+                                m_blocksShapes.Remove(b.Position);
+                            }
+                        }
+
                         newBlocks.Add(b);
                         newShapes++;
                     }
@@ -1159,7 +1172,7 @@ namespace Sandbox.Game.Entities.Cube
 
         private void UpdateMass(HkRigidBody rigidBody, bool setMass = true)
         {
-            if (!m_grid.IsStatic && !rigidBody.IsFixed && rigidBody.GetMotionType() != HkMotionType.Keyframed)
+            if (rigidBody.GetMotionType() != HkMotionType.Keyframed)
             {
                 ProfilerShort.Begin("Update mass");
                 if (!MyPerGameSettings.Destruction)
@@ -1228,7 +1241,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void UpdateMassFromInventories(HashSet<MySlimBlock> blocks, MyPhysicsBody rb)
         {
-            if (rb.RigidBody.IsFixedOrKeyframed)
+            if (!rb.RigidBody.IsFixed && rb.RigidBody.IsFixedOrKeyframed)
                 return;
 
 			float cargoMassMultiplier = MySession.Static.Settings.InventorySizeMultiplier;

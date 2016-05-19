@@ -19,7 +19,7 @@ using Sandbox.Game.Localization;
 namespace Sandbox.Game.Weapons
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SmallMissileLauncherReload))]
-    class MySmallMissileLauncherReload : MySmallMissileLauncher, IMySmallMissileLauncherReload
+    public class MySmallMissileLauncherReload : MySmallMissileLauncher, IMySmallMissileLauncherReload
     {
         const int COOLDOWN_TIME_MILISECONDS = 5000;
         int m_numRocketsShot = 0;
@@ -34,8 +34,16 @@ namespace Sandbox.Game.Weapons
             }
         }
 
-        static MySmallMissileLauncherReload()
+        public MySmallMissileLauncherReload()
         {
+            CreateTerminalControls();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySmallMissileLauncher>())
+                return;
+
             var useConveyor = new MyTerminalControlOnOffSwitch<MySmallMissileLauncher>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyor.Getter = (x) => x.UseConveyorSystem;
             useConveyor.Setter = (x, v) => x.UseConveyorSystem = v;

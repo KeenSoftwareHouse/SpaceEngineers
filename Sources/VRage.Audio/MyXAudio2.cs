@@ -711,7 +711,7 @@ namespace VRage.Audio
 
         public void PlayMusic(MyMusicTrack? track = null, int priorityForRandom = 0)
         {
-            if (!m_canPlay)
+            if (!m_canPlay || !m_musicAllowed)
                 return;
             Mute = false;
             bool playRandom = false;
@@ -736,9 +736,9 @@ namespace VRage.Audio
             }
         }
 
-        public IMySourceVoice PlayMusicCue(MyCueId musicCue)
+        public IMySourceVoice PlayMusicCue(MyCueId musicCue, bool overrideMusicAllowed = false)
         {
-            if (!m_canPlay)
+            if (!m_canPlay || (!m_musicAllowed && !overrideMusicAllowed))
                 return null;
             Mute = false;
             m_musicCue = PlaySound(musicCue);
@@ -988,7 +988,7 @@ namespace VRage.Audio
 
         private void PlayMusicByTransition(MyMusicTransition transition)
         {
-            if (m_cueBank != null)
+            if (m_cueBank != null && m_musicAllowed)
             {
                 m_musicCue = PlaySound(m_cueBank.GetTransitionCue(transition.TransitionEnum, transition.Category));
                 if (m_musicCue != null)

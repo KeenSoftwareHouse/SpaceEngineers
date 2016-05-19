@@ -35,7 +35,7 @@ using VRage.Game.ModAPI.Interfaces;
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_AutomaticRifle))]
-    class MyAutomaticRifleGun : MyEntity, IMyHandheldGunObject<MyGunBase>, IMyGunBaseUser, IMyEventProxy
+    public class MyAutomaticRifleGun : MyEntity, IMyHandheldGunObject<MyGunBase>, IMyGunBaseUser, IMyEventProxy
     {
         int m_lastTimeShoot;
         public int LastTimeShoot { get { return m_lastTimeShoot;} }

@@ -13,18 +13,57 @@ using System.Threading;
 
 namespace VRageRender
 {
-#if BLIT
+#if XB1_TMP
 	class MyMemory
 	{
-		//[DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+#if !UNSHARPER_TMP
+		[DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
+#endif
 		public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
-	}
+    }
+
 	class MyVideoPlayer
 	{
 		public VideoState CurrentState
 		{
-			get { return VideoState.Stopped; }
+            get { return videoState; }
 		}
+
+		float m_volume;
+        VideoState videoState;
+
+		public float Volume { get { return m_volume; } set { m_volume = value; } }
+
+		public void Stop()
+        {
+            videoState = VideoState.Stopped;
+        }
+
+        public void Play()
+        {
+            videoState = VideoState.Playing;
+        }
+
+        public void Dispose()
+        {
+            //Debug.Assert(false, "Video Dispose Not Supported yet on XB1!");
+        }
+		public void Update()
+        {
+            //Debug.Assert(false, "Video Update Not Supported yet on XB1!");
+        }
+        internal void Draw(Rectangle rect, Color color, MyVideoRectangleFitMode fitMode)
+		{
+            //Debug.Assert(false, "Video DRAW Not Supported yet on XB1!");
+		}
+
+        public MyVideoPlayer(string filename)
+         //   : base(filename)
+        {
+            //m_texture = MyRwTextures.CreateDynamicTexture(VideoWidth, VideoHeight, VideoFormat);
+            videoState = VideoState.Stopped;
+        }
+
 	}
 	class MyVideoFactory
 	{
@@ -32,8 +71,29 @@ namespace VRageRender
 		internal static Mutex VideoMutex = new Mutex();
 		internal static void Create(uint id, string videoFile)
 		{
-			Debug.Assert(false);
-		}
+            Debug.Assert(false, "Video Not Supported yet on XB1!");
+            VideoMutex.WaitOne();
+
+            if(Videos.ContainsKey(id))
+            {
+                Videos[id].Stop();
+                Videos[id].Dispose();
+                Videos.Remove(id);
+            }
+
+            try
+            {
+                var video = Videos[id] = new MyVideoPlayer(videoFile);
+                video.Play();
+            }
+            catch(Exception e)
+            {
+                MyRender11.Log.WriteLine(e);
+            }
+
+            VideoMutex.ReleaseMutex();
+        }
+
 	}
 #else
     class MyMemory

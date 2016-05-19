@@ -14,6 +14,8 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Game", "AI")]
     class MyGuiScreenDebugAi : MyGuiScreenDebugBase
     {
@@ -120,4 +122,6 @@ namespace Sandbox.Game.Screens.DebugScreens
 
         }
     }
+
+#endif
 }

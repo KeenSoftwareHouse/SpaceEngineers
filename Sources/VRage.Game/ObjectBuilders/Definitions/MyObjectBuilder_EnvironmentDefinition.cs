@@ -69,7 +69,7 @@ namespace VRage.Game
         public float EnvironmentAmbientIntensity = 0.500f;
 
         [ProtoMember]
-        public SerializableVector3 BackgroundColor = new SerializableVector3(1, 1, 1);
+        public SerializableVector3 BackgroundColor = new SerializableVector3(0, 0, 0);
 
         [ProtoMember]
         public string SunMaterial = "SunDisk";

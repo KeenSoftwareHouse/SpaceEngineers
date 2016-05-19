@@ -104,7 +104,7 @@ namespace Sandbox.Engine.Multiplayer
             MyTrace.Send(TraceWindow.Multiplayer, "Host game");
 
             MyMultiplayerHostResult ret = new MyMultiplayerHostResult();
-#if !BLIT
+#if !XB1
 			SteamSDK.Lobby.Create(lobbyType, maxPlayers, (lobby, result) =>
             {
                 if (!ret.Cancelled)
@@ -128,7 +128,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyTrace.Send(TraceWindow.Multiplayer, "Join game");
             MyMultiplayerJoinResult ret = new MyMultiplayerJoinResult();
-#if !BLIT
+#if !XB1
             Lobby.Join(lobbyId, (info, result) =>
             {
                 if (!ret.Cancelled)

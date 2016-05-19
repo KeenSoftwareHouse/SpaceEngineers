@@ -14,6 +14,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Atmosphere", MyDirectXSupport.DX11)]
     public class MyGuiScreenDebugRenderAtmosphere : MyGuiScreenDebugBase
     {
@@ -342,4 +344,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             //MySector.SunProperties.SunDirectionNormalized = -sunDirection;
         }
     }
+
+#endif
 }
