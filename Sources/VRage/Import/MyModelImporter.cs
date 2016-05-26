@@ -907,11 +907,10 @@ namespace VRage.Import
             m_version = 0;
         }
 
-        private bool LoadTagData(BinaryReader reader, string[] tags)
+        private void LoadTagData(BinaryReader reader, string[] tags)
         {
             //m_retTagData
-            string tagName;
-            tagName = reader.ReadString();
+            string tagName = reader.ReadString();
             string[] strArr = ReadArrayOfString(reader);
             m_retTagData.Add(tagName, strArr);
 
@@ -945,8 +944,6 @@ namespace VRage.Import
             }
             else
                 LoadOldVersion(reader);
-
-            return true;
         }
 
         Dictionary<string, int> ReadIndexDictionary(BinaryReader reader)

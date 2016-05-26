@@ -496,9 +496,11 @@
     <Compile Include="Game\Audio\MyEntity3DSoundEmitter.cs" />
     <Compile Include="Game\Audio\MyMusicController.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightSlideDoor.cs" />
+    <Compile Include="Game\Entities\Blocks\MyAttachableTopBlockBase.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere3.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere2.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere1.cs" />
+    <Compile Include="Game\Entities\Blocks\MyMechanicalConnectionBlockBase.cs" />
     <Compile Include="Game\Entities\Blocks\MyTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\ToolbarItemCache.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterComponentTypes.cs" />
@@ -1372,7 +1374,7 @@
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugBase.cs" />
     <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugColors.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugInput.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPlayerCameraSpring.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPlayerCamera.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPlayerShake.cs" />
     <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRender.cs" />
     <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderGlobalFX.cs" />

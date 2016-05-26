@@ -8,7 +8,7 @@
     </Id>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto4</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_4</Texture>
       <Size>384</Size>
       <Scale>5</Scale>
       <Slope Min="30" Max="80" />
@@ -1490,7 +1490,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="true" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto4</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_4</Texture>
       <Size>384</Size>
       <Scale>15</Scale>
       <Slope Min="30" Max="80" />
@@ -2867,7 +2867,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="false" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_1</Texture>
       <Size>64</Size>
       <Scale>1</Scale>
       <Slope Min="30" Max="90" />
@@ -3264,7 +3264,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="true" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_1</Texture>
       <Size>256</Size>
       <Scale>2</Scale>
       <Slope Min="30" Max="90" />
@@ -3613,7 +3613,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="false" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_1</Texture>
       <Size>384</Size>
       <Scale>5</Scale>
       <Slope Min="30" Max="90" />
@@ -3911,7 +3911,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="false" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_1</Texture>
       <Size>32</Size>
       <Scale>4</Scale>
       <Slope Min="30" Max="90" />
@@ -6000,7 +6000,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="false" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_1</Texture>
       <Size>256</Size>
       <Scale>5</Scale>
       <Slope Min="30" Max="90" />
@@ -6353,7 +6353,7 @@
     <PlanetMaps Material="true" Ores="true" Biome="false" Occlusion="true"/>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_1</Texture>
       <Size>64</Size>
       <Scale>1</Scale>
       <Slope Min="30" Max="90" />
@@ -6750,7 +6750,7 @@
     </Id>
 
     <SurfaceDetail>
-      <Texture>Textures/Miscellaneous/MaterialDetailProto4</Texture>
+      <Texture>Data/PlanetDataFiles/Extra/material_detail_4</Texture>
       <Size>512</Size>
       <Scale>1</Scale>
       <Slope Min="20" Max="80" />

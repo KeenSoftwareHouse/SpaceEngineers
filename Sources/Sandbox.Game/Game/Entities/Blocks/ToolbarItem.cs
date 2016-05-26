@@ -5,6 +5,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Screens.Helpers;
 using VRage.Game;
 using VRage.Serialization;
+using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -22,6 +23,9 @@ namespace Sandbox.Game.Entities.Blocks
         [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]
         public List<MyObjectBuilder_ToolbarItemActionParameter> Parameters;
+
+        [Serialize(MyObjectFlags.Nullable)]
+        public SerializableDefinitionId? GunId;
 
         public static ToolbarItem FromItem(MyToolbarItem item)
         {
@@ -43,13 +47,24 @@ namespace Sandbox.Game.Entities.Blocks
                 tItem.GroupName = block.GroupName;
                 tItem.Parameters = block.Parameters;
             }
+            else if ( item is MyToolbarItemWeapon)
+            {
+                var weapon = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemWeapon;
+                tItem.GunId = weapon.DefinitionId;
+            }
             return tItem;
         }
 
         public static MyToolbarItem ToItem(ToolbarItem msgItem)
         {
             MyToolbarItem item = null;
-            if (string.IsNullOrEmpty(msgItem.GroupName))
+             if (msgItem.GunId.HasValue)
+            {
+                MyObjectBuilder_ToolbarItemWeapon builder = MyToolbarItemFactory.WeaponObjectBuilder();
+                builder.defId = msgItem.GunId.Value;
+                item = MyToolbarItemFactory.CreateToolbarItem(builder);
+            }
+            else if (string.IsNullOrEmpty(msgItem.GroupName))
             {
                 MyTerminalBlock block;
                 if (MyEntities.TryGetEntityById(msgItem.EntityID, out block))

@@ -50,6 +50,7 @@ using VRage.Game.ModAPI.Interfaces;
 using VRage.Serialization;
 using Sandbox.Game.Replication;
 using VRage.Audio;
+using Sandbox.Game.Entities.Blocks;
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -132,8 +133,6 @@ namespace Sandbox.Game.Entities
         protected MySoundPair GetInCockpitSound = MySoundPair.Empty;//new MySoundPair("CockpitGetIn");
         public bool PlayDefaultUseSound { get { return GetInCockpitSound == MySoundPair.Empty; } }
 
-        protected static MyTerminalControlCheckbox<MyShipController>  m_horizonIndicator;
-
         public Vector3 MoveIndicator
         {
             get;
@@ -202,6 +201,9 @@ namespace Sandbox.Game.Entities
                 return ControlWheels && GridWheels.WheelCount > 0;
             }
         }
+
+        private static bool m_shouldSetOtherToolbars;
+        bool m_syncing = false;
 
         #endregion
 
@@ -303,16 +305,15 @@ namespace Sandbox.Game.Entities
             mainCockpit.Enabled = (x) => x.IsMainCockpitFree();
             mainCockpit.Visible = (x) => x.CanBeMainCockpit();
             mainCockpit.EnableAction();
-
             MyTerminalControlFactory.AddControl(mainCockpit);
 
-            m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
-            m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
-            m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
-            m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
-            m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
-            m_horizonIndicator.EnableAction();
-            MyTerminalControlFactory.AddControl(m_horizonIndicator);
+            var horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
+            horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
+            horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
+            horizonIndicator.Enabled = (x) => true;
+            horizonIndicator.Visible = (x) => x.CanHaveHorizon();
+            horizonIndicator.EnableAction();
+            MyTerminalControlFactory.AddControl(horizonIndicator);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -346,6 +347,7 @@ namespace Sandbox.Game.Entities
 			HorizonIndicatorEnabled = shipControllerOb.HorizonIndicatorEnabled;
             m_toolbar = new MyToolbar(ToolbarType);
             m_toolbar.Init(shipControllerOb.Toolbar, this);
+            m_toolbar.ItemChanged += Toolbar_ItemChanged;
 
             m_buildToolbar = new MyToolbar(MyToolbarType.BuildCockpit);
             m_buildToolbar.Init(shipControllerOb.BuildToolbar, this);
@@ -2128,6 +2130,11 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
+        protected virtual bool CanHaveHorizon()
+        {
+            return true;
+        }
+
         protected bool IsMainCockpitFree()
         {
             return CubeGrid.HasMainCockpit() == false || CubeGrid.IsMainCockpit(this);
@@ -2142,12 +2149,6 @@ namespace Sandbox.Game.Entities
 			{
 				m_horizonIndicatorEnabled.Value = value;
 			}
-		}
-
-		protected void SetHorizonIndicator(bool newValue)
-		{
-			if (HorizonIndicatorEnabled == newValue)
-				return;
 		}
 
         public virtual MyToolbarType ToolbarType
@@ -2630,6 +2631,33 @@ namespace Sandbox.Game.Entities
         void IMyControllableEntity.Teleport(Vector3D pos)
         {
 
+        }
+
+
+        void Toolbar_ItemChanged(MyToolbar self, MyToolbar.IndexArgs index)
+        {
+            if (m_syncing)
+            {
+                return;
+            }
+
+            Debug.Assert(self == Toolbar);
+
+            var tItem = ToolbarItem.FromItem(self.GetItemAtIndex(index.ItemIndex));
+            MyMultiplayer.RaiseEvent(this, x => x.SendToolbarItemChanged, tItem, index.ItemIndex);     
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void SendToolbarItemChanged(ToolbarItem sentItem, int index)
+        {
+            m_syncing = true;
+            MyToolbarItem item = null;
+            if (sentItem.EntityID != 0 || sentItem.GunId.HasValue)
+            {
+                item = ToolbarItem.ToItem(sentItem);
+            }
+            Toolbar.SetItemAtIndex(index, item);
+            m_syncing = false;
         }
     }
 }

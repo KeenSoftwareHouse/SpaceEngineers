@@ -656,6 +656,7 @@ namespace Sandbox.Game.Entities.Character
         //Vector3 m_averageBob;
         readonly Sync<Vector3> m_localHeadPosition;  // only for character rotation
         readonly Sync<float> m_animLeaning;
+        readonly Sync<float> m_animTurningSpeed;
         readonly Sync<MyTransform> m_localHeadTransform;
         readonly Sync<MyTransform> m_localHeadTransformTool;
 
@@ -1906,18 +1907,7 @@ namespace Sandbox.Game.Entities.Character
             if (MyInput.Static.IsNewGameControlReleased(Sandbox.Game.MyControlsSpace.LOOKAROUND)
                 && MySandboxGame.Config.ReleasingAltResetsCamera)
             {
-                // prevent rotating back many loops -> limit y rot to -180.0f,+180.0f
-                if (m_headLocalYAngle < 0)
-                {
-                    m_headLocalYAngle = -m_headLocalYAngle;
-                    m_headLocalYAngle = (m_headLocalYAngle + 180.0f) % 360.0f - 180.0f;
-                    m_headLocalYAngle = -m_headLocalYAngle;
-                }
-                else
-                {
-                    m_headLocalYAngle = (m_headLocalYAngle + 180.0f) % 360.0f - 180.0f;
-                }
-                // and now we can safely set rotation to 0... animated over 0.3 sec
+                // set rotation to 0... animated over 0.3 sec
                 SetLocalHeadAnimation(0, 0, 0.3f);
             }
 
@@ -2857,7 +2847,7 @@ namespace Sandbox.Game.Entities.Character
                     PlayCharacterAnimation("Jump", MyBlendOption.Immediate, MyFrameOption.StayOnLastFrame, 0.0f, 1.3f);
 
                     if (UseNewAnimationSystem)
-                        AnimationController.TriggerAction(MyAnimationVariableStorageHints.StrIdActionJump);
+                        TriggerCharacterAnimationEvent("jump", true);
 
                     if (StatComp != null)
                     {
@@ -6635,6 +6625,20 @@ namespace Sandbox.Game.Entities.Character
 
         public void SetLocalHeadAnimation(float? targetX, float? targetY, float length)
         {
+            if (length > 0)
+            {
+                // prevent rotating back many loops -> limit y rot to -180.0f,+180.0f
+                if (m_headLocalYAngle < 0)
+                {
+                    m_headLocalYAngle = -m_headLocalYAngle;
+                    m_headLocalYAngle = (m_headLocalYAngle + 180.0f) % 360.0f - 180.0f;
+                    m_headLocalYAngle = -m_headLocalYAngle;
+                }
+                else
+                {
+                    m_headLocalYAngle = (m_headLocalYAngle + 180.0f) % 360.0f - 180.0f;
+                }
+            }
             m_currentLocalHeadAnimation = 0;
             m_localHeadAnimationLength = length;
             if (targetX.HasValue)
@@ -7984,12 +7988,12 @@ namespace Sandbox.Game.Entities.Character
         public static void Preload()
         {
             var animations = MyDefinitionManager.Static.GetAnimationDefinitions();
-            foreach (var animation in animations)
+            foreach (MyAnimationDefinition animation in animations)
             {
-                string model = ((MyAnimationDefinition)animation).AnimationModel;
+                string model = animation.AnimationModel;
                 if (!string.IsNullOrEmpty(model))
                 {
-                    MyModel animationModel = VRage.Game.Models.MyModels.GetModelOnlyAnimationData(model);
+                    MyModels.GetModelOnlyAnimationData(model);
                 }
             }
 

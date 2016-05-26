@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
@@ -97,15 +98,15 @@ namespace Sandbox.Game.Entities.Cube
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
 
-            var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = null, MasterToSlave = null });
-            detach.Enabled = (b) => b.m_rotorBlockId.Value.OtherEntityId.HasValue && b.m_isWelding == false && b.m_welded == false;
+            var detach = new MyTerminalControlButton<MyMotorStator>("Detach", MySpaceTexts.BlockActionTitle_Detach, MySpaceTexts.Blank, (b) => b.m_connectionState.Value = new State() { TopBlockId = null, MasterToSlave = null });
+            detach.Enabled = (b) => b.m_connectionState.Value.TopBlockId.HasValue && b.m_isWelding == false && b.m_welded == false;
             detach.Visible = (b) => b.m_canBeDetached;
             var actionDetach = detach.EnableAction(MyTerminalActionIcons.NONE);
             actionDetach.Enabled = (b) => b.m_canBeDetached;
             MyTerminalControlFactory.AddControl(detach);
 
-            var attach = new MyTerminalControlButton<MyMotorStator>("Attach", MySpaceTexts.BlockActionTitle_Attach, MySpaceTexts.Blank, (b) => b.m_rotorBlockId.Value = new State() { OtherEntityId = 0, MasterToSlave = null });
-            attach.Enabled = (b) => !b.m_rotorBlockId.Value.OtherEntityId.HasValue;
+            var attach = new MyTerminalControlButton<MyMotorStator>("Attach", MySpaceTexts.BlockActionTitle_Attach, MySpaceTexts.Blank, (b) => b.m_connectionState.Value = new State() { TopBlockId = 0, MasterToSlave = null });
+            attach.Enabled = (b) => !b.m_connectionState.Value.TopBlockId.HasValue;
             attach.Visible = (b) => b.m_canBeDetached;
             var actionAttach = attach.EnableAction(MyTerminalActionIcons.NONE);
             actionAttach.Enabled = (b) => b.m_canBeDetached;
@@ -421,7 +422,7 @@ namespace Sandbox.Game.Entities.Cube
             if (CheckVelocities())
                 return;
 
-            if (m_rotorGrid == null || SafeConstraint == null)
+            if (m_topGrid == null || SafeConstraint == null)
                 return;
 
             if (SafeConstraint.RigidBodyA == SafeConstraint.RigidBodyB) //welded
@@ -452,7 +453,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 // Activate even when motor is stopped, so it fixes it's limits
                 CubeGrid.Physics.RigidBody.Activate();
-                m_rotorGrid.Physics.RigidBody.Activate();
+                m_topGrid.Physics.RigidBody.Activate();
             }
             if (m_limitsActive)
             {
@@ -476,111 +477,95 @@ namespace Sandbox.Game.Entities.Cube
                 data.SetMotorEnabled(m_constraint, motorRunning);
             }
 
-            if (motorRunning && m_rotorGrid != null && !m_motor.VelocityTarget.IsZero())
+            if (motorRunning && m_topGrid != null && !m_motor.VelocityTarget.IsZero())
             {
                 CubeGrid.Physics.RigidBody.Activate();
-                m_rotorGrid.Physics.RigidBody.Activate();
+                m_topGrid.Physics.RigidBody.Activate();
             }
         }
 
-        public override bool Attach(MyMotorRotor rotor, bool updateGroup = true)
+        protected override bool Attach(MyAttachableTopBlockBase rotor, bool updateGroup = true)
         {
-            Debug.Assert(rotor != null, "Rotor cannot be null!");
-            Debug.Assert(m_constraint == null, "Already attached, call detach first!");
-            Debug.Assert(m_rotorBlockId.Value.OtherEntityId == 0 || m_rotorBlockId.Value.OtherEntityId == rotor.EntityId, "m_rotorBlockId must be set prior calling Attach");
-
-            if (rotor == null || rotor.CubeGrid == null || MarkedForClose || Closed || CubeGrid.MarkedForClose || CubeGrid.Closed || rotor.MarkedForClose || rotor.Closed || 
-                rotor.CubeGrid.MarkedForClose || rotor.CubeGrid.Closed)
+            if (rotor is MyMotorRotor)
             {
-                return false;
-            }
+                Debug.Assert(rotor != null, "Rotor cannot be null!");
+                Debug.Assert(m_constraint == null, "Already attached, call detach first!");
+                Debug.Assert(m_connectionState.Value.TopBlockId == 0 || m_connectionState.Value.TopBlockId == rotor.EntityId, "m_rotorBlockId must be set prior calling Attach");
 
-            if (CubeGrid.Physics != null && CubeGrid.Physics.Enabled)
-            {
-                m_rotorBlock = rotor;
-                m_rotorGrid = m_rotorBlock.CubeGrid;
-                if (m_rotorGrid.Physics == null)
-                    return false;
-                if (CubeGrid.Physics.RigidBody == m_rotorGrid.Physics.RigidBody)
+                if (CubeGrid.Physics != null && CubeGrid.Physics.Enabled)
                 {
-                    if (updateGroup && m_welded)
+                    m_topBlock = rotor;
+                    m_topGrid = m_topBlock.CubeGrid;
+                    if (m_topGrid.Physics == null)
+                        return false;
+                    if (CubeGrid.Physics.RigidBody == m_topGrid.Physics.RigidBody)
                     {
-                        OnConstraintAdded(GridLinkTypeEnum.Physical, m_rotorGrid);
-                        OnConstraintAdded(GridLinkTypeEnum.Logical, m_rotorGrid);
-                   }
+                        if (updateGroup && m_welded)
+                        {
+                            OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
+                            OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
+                        }
+                        m_isAttached = true;
+                        return true;
+                    }
+                    var rotorBody = m_topGrid.Physics.RigidBody;
+                    var data = new HkLimitedHingeConstraintData();
+                    m_motor = new HkVelocityConstraintMotor(1.0f, 1000000f);
+
+                    data.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
+                    data.Motor = m_motor;
+                    data.DisableLimits();
+
+                    var posA = DummyPosition;
+                    var posB = rotor.Position * rotor.CubeGrid.GridSize;
+                    var axisA = PositionComp.LocalMatrix.Up;
+                    var axisAPerp = PositionComp.LocalMatrix.Forward;
+                    var axisB = rotor.PositionComp.LocalMatrix.Up;
+                    var axisBPerp = rotor.PositionComp.LocalMatrix.Forward;
+                    data.SetInBodySpace(posA, posB, axisA, axisB, axisAPerp, axisBPerp, CubeGrid.Physics, m_topGrid.Physics);
+                    m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, data);
+
+                    m_constraint.WantRuntime = true;
+                    CubeGrid.Physics.AddConstraint(m_constraint);
+                    if (!m_constraint.InWorld)
+                    {
+                        CubeGrid.Physics.RemoveConstraint(m_constraint);
+                        m_constraint.Dispose();
+                        m_constraint = null;
+                        return false;
+                    }
+                    m_constraint.Enabled = true;
+
+                    SetAngleToPhysics();
+
+                    m_topBlock.Attach(this);
+
+                    if (updateGroup)
+                    {
+                        OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
+                        OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
+                        m_topGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
+                    }
                     m_isAttached = true;
+                    UpdateText();
                     return true;
                 }
-                var rotorBody = m_rotorGrid.Physics.RigidBody;
-                var data = new HkLimitedHingeConstraintData();
-                m_motor = new HkVelocityConstraintMotor(1.0f, 1000000f);
-
-                data.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-                data.Motor = m_motor;
-                data.DisableLimits();
-
-                var posA = DummyPosition;
-                var posB = rotor.Position * rotor.CubeGrid.GridSize;
-                var axisA = PositionComp.LocalMatrix.Up;
-                var axisAPerp = PositionComp.LocalMatrix.Forward;
-                var axisB = rotor.PositionComp.LocalMatrix.Up;
-                var axisBPerp = rotor.PositionComp.LocalMatrix.Forward;
-                data.SetInBodySpace(posA, posB, axisA, axisB, axisAPerp, axisBPerp, CubeGrid.Physics, m_rotorGrid.Physics);
-                m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, data);
-
-                m_constraint.WantRuntime = true;
-                CubeGrid.Physics.AddConstraint(m_constraint);
-                if(!m_constraint.InWorld)
-                {
-                    CubeGrid.Physics.RemoveConstraint(m_constraint);
-                    m_constraint.Dispose();
-                    m_constraint = null;
-                    return false;
-                }
-                m_constraint.Enabled = true;
-
-                SetAngleToPhysics();
-
-                m_rotorBlock.Attach(this);
-
-                if (updateGroup)
-                {
-                    OnConstraintAdded(GridLinkTypeEnum.Physical, m_rotorGrid);
-                    OnConstraintAdded(GridLinkTypeEnum.Logical, m_rotorGrid);
-                    m_rotorGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
-                }
-                m_isAttached = true;
-                UpdateText();
-                return true;
             }
-
             return false;
         }
 
-        public override bool Detach(bool updateGroup = true)
+        protected override void DisposeConstraint()
         {
-            if (m_isAttached == false && m_welded==false)
+           // Debug.Assert(m_motor != null);
+          
+            if (m_constraint != null)
             {
-                return false;
+                CubeGrid.Physics.RemoveConstraint(m_constraint);
+                m_constraint.Dispose();
+                m_constraint = null;
+
+                m_motor.Dispose();
             }
-
-            m_isAttached = false;
-            if (m_constraint == null)
-            {
-                base.Detach(updateGroup);
-                return m_welded;
-            }
-
-            if (updateGroup)
-            {
-                m_rotorGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
-            }
-
-            Debug.Assert(m_motor != null);
-            m_motor.Dispose();
-            base.Detach(updateGroup);
-
-            return true;
         }
 
         public void InitializeConveyorEndpoint()
@@ -591,7 +576,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool CanDebugDraw()
         {
-            return (m_rotorGrid != null && m_rotorGrid.Physics != null);
+            return (m_topGrid != null && m_topGrid.Physics != null);
         }
 
         #region Motor API interface

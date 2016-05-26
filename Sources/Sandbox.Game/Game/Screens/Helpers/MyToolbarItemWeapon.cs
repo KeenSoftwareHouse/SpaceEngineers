@@ -38,9 +38,6 @@ namespace Sandbox.Game.Screens.Helpers
         {
             bool init = base.Init(data);
             ActivateOnClick = false;
-
-            var objectBuilder = data as MyObjectBuilder_ToolbarItemWeapon;
-
             return init;
         }
 

@@ -201,6 +201,12 @@ namespace Sandbox.Game.Screens.Helpers
             return output;
         }
 
+        public static MyObjectBuilder_ToolbarItemWeapon WeaponObjectBuilder()
+        {
+            MyObjectBuilder_ToolbarItemWeapon output = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemWeapon>();
+            return output;
+        }
+
         #endregion
     }
 }

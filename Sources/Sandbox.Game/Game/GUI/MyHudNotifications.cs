@@ -85,6 +85,8 @@ namespace Sandbox.Game.Gui
         private List<StringBuilder> m_texts;
         private List<Vector2> m_textSizes;
         private MyObjectsPool<StringBuilder> m_textsPool;
+
+        private object m_lockObject = new object();
         #endregion
 
         #region Singleton notifications
@@ -191,16 +193,20 @@ namespace Sandbox.Game.Gui
 
         public void Add(MyHudNotificationBase notification)
         {
+
             Debug.Assert(notification != null);
             Debug.Assert(notification.Priority <= MAX_PRIORITY);
             Debug.Assert(notification.Priority >= 0);
-            var group = GetNotificationGroup(notification.Priority);
-            if (!group.Contains(notification))
+            lock (m_lockObject)
             {
-                notification.BeforeAdd();
-                group.Add(notification);
+                var group = GetNotificationGroup(notification.Priority);
+                if (!group.Contains(notification))
+                {
+                    notification.BeforeAdd();
+                    group.Add(notification);
+                }
+                notification.ResetAliveTime();
             }
-            notification.ResetAliveTime();
         }
 
         public void Remove(MyHudNotificationBase notification)
@@ -208,16 +214,22 @@ namespace Sandbox.Game.Gui
             if (notification == null)
                 return;
 
-            var group = GetNotificationGroup(notification.Priority);
-            //Debug.Assert(group.Contains(notification));
-            group.Remove(notification);
+            lock (m_lockObject)
+            {
+                var group = GetNotificationGroup(notification.Priority);
+                //Debug.Assert(group.Contains(notification));
+                group.Remove(notification);
+            }
         }
 
         public void Clear()
         {
             MyInput.Static.JoystickConnected -= Static_JoystickConnected;
-            foreach (var entry in m_notificationsByPriority)
-                entry.Value.Clear();
+            lock (m_lockObject)
+            {
+                foreach (var entry in m_notificationsByPriority)
+                    entry.Value.Clear();
+            }
         }
 
         public void Draw()
@@ -231,31 +243,37 @@ namespace Sandbox.Game.Gui
         public void ReloadTexts()
         {
             FormatNotifications(MyInput.Static.IsJoystickConnected() && MyFakes.ENABLE_CONTROLLER_HINTS);
-            foreach (var entry in m_notificationsByPriority)
+            lock (m_lockObject)
             {
-                foreach (var item in entry.Value)
-                    item.SetTextDirty();
+                foreach (var entry in m_notificationsByPriority)
+                {
+                    foreach (var item in entry.Value)
+                        item.SetTextDirty();
+                }
             }
         }
 
         public void UpdateBeforeSimulation()
         {
-            foreach (var entry in m_notificationsByPriority)
+            lock (m_lockObject)
             {
-                foreach (var item in entry.Value)
-                    item.AddAliveTime(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS);
-            }
-
-            foreach (var entry in m_notificationsByPriority)
-            {
-                foreach (var notification in entry.Value)
+                foreach (var entry in m_notificationsByPriority)
                 {
-                    if (m_disappearedPredicate(notification))
-                    {
-                        notification.BeforeRemove();
-                    }
+                    foreach (var item in entry.Value)
+                        item.AddAliveTime(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS);
                 }
-                entry.Value.RemoveAll(m_disappearedPredicate);
+
+                foreach (var entry in m_notificationsByPriority)
+                {
+                    foreach (var notification in entry.Value)
+                    {
+                        if (m_disappearedPredicate(notification))
+                        {
+                            notification.BeforeRemove();
+                        }
+                    }
+                    entry.Value.RemoveAll(m_disappearedPredicate);
+                }
             }
         }
 
@@ -287,30 +305,34 @@ namespace Sandbox.Game.Gui
             ClearTexts();
 
             visibleCount = 0;
-            for (int i = MAX_PRIORITY; i >= 0; --i)
+            lock (m_lockObject)
             {
-                List<MyHudNotificationBase> notifications;
-                m_notificationsByPriority.TryGetValue(i, out notifications);
-                if (notifications == null)
-                    continue;
-
-                foreach (var notification in notifications)
+                for (int i = MAX_PRIORITY; i >= 0; --i)
                 {
-                    if (!IsDrawn(notification))
+                    List<MyHudNotificationBase> notifications;
+                    m_notificationsByPriority.TryGetValue(i, out notifications);
+                    if (notifications == null)
                         continue;
 
-                    StringBuilder messageStringBuilder = m_textsPool.Allocate();
-                    Debug.Assert(messageStringBuilder != null);
 
-                    messageStringBuilder.Append(notification.GetText());
+                    foreach (var notification in notifications)
+                    {
+                        if (!IsDrawn(notification))
+                            continue;
 
-                    Vector2 textSize = MyGuiManager.MeasureString(notification.Font, messageStringBuilder, MyGuiSandbox.GetDefaultTextScaleWithLanguage());
+                        StringBuilder messageStringBuilder = m_textsPool.Allocate();
+                        Debug.Assert(messageStringBuilder != null);
 
-                    m_textSizes.Add(textSize);
-                    m_texts.Add(messageStringBuilder);
-                    ++visibleCount;
-                    if (visibleCount == MyNotificationConstants.MAX_DISPLAYED_NOTIFICATIONS_COUNT)
-                        return;
+                        messageStringBuilder.Append(notification.GetText());
+
+                        Vector2 textSize = MyGuiManager.MeasureString(notification.Font, messageStringBuilder, MyGuiSandbox.GetDefaultTextScaleWithLanguage());
+
+                        m_textSizes.Add(textSize);
+                        m_texts.Add(messageStringBuilder);
+                        ++visibleCount;
+                        if (visibleCount == MyNotificationConstants.MAX_DISPLAYED_NOTIFICATIONS_COUNT)
+                            return;
+                    }
                 }
             }
         }
@@ -329,28 +351,32 @@ namespace Sandbox.Game.Gui
 
         private void DrawNotifications(int visibleCount)
         {
-            var notificationPosition = Position;
-            int textIdx = 0;
-            for (int i = MAX_PRIORITY; i >= 0; --i)
+            lock (m_lockObject)
             {
-                List<MyHudNotificationBase> notifications;
-                m_notificationsByPriority.TryGetValue(i, out notifications);
-                if (notifications == null)
-                    continue;
-
-                foreach (var notification in notifications)
+                var notificationPosition = Position;
+                int textIdx = 0;
+                for (int i = MAX_PRIORITY; i >= 0; --i)
                 {
-                    if (!IsDrawn(notification))
+
+                    List<MyHudNotificationBase> notifications;
+                    m_notificationsByPriority.TryGetValue(i, out notifications);
+                    if (notifications == null)
                         continue;
 
-                    MyGuiManager.DrawString(notification.Font, m_texts[textIdx], notificationPosition,
-                                            MyGuiSandbox.GetDefaultTextScaleWithLanguage(), Color.White,
-                                            MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyVideoSettingsManager.IsTripleHead());
-                    notificationPosition.Y += m_textSizes[textIdx].Y;
-                    ++textIdx;
-                    --visibleCount;
-                    if (visibleCount == 0)
-                        return;
+                    foreach (var notification in notifications)
+                    {
+                        if (!IsDrawn(notification))
+                            continue;
+
+                        MyGuiManager.DrawString(notification.Font, m_texts[textIdx], notificationPosition,
+                                                MyGuiSandbox.GetDefaultTextScaleWithLanguage(), Color.White,
+                                                MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyVideoSettingsManager.IsTripleHead());
+                        notificationPosition.Y += m_textSizes[textIdx].Y;
+                        ++textIdx;
+                        --visibleCount;
+                        if (visibleCount == 0)
+                            return;
+                    }
                 }
             }
         }

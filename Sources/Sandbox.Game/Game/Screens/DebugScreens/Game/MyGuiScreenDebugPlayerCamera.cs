@@ -8,10 +8,10 @@ using VRage;
 
 namespace Sandbox.Game.Gui
 {
-    [MyDebugScreen("Game", "Player Camera Spring")]
-    class MyGuiScreenDebugPlayerCameraSpring : MyGuiScreenDebugBase
+    [MyDebugScreen("Game", "Player Camera")]
+    class MyGuiScreenDebugPlayerCamera : MyGuiScreenDebugBase
     {
-        public MyGuiScreenDebugPlayerCameraSpring()
+        public MyGuiScreenDebugPlayerCamera()
         {
             RecreateControls(true);
         }
@@ -46,6 +46,8 @@ namespace Sandbox.Game.Gui
                 AddLabel("Third person spectator", Color.Yellow.ToVector4(), 1);
 
                 m_currentPosition.Y += 0.01f;
+                AddCheckBox("Debug draw", () => MyThirdPersonSpectator.Static.EnableDebugDraw,
+                    (s) => MyThirdPersonSpectator.Static.EnableDebugDraw = s);
 
                 AddLabel("Normal spring", Color.Yellow.ToVector4(), 0.7f);
                 AddSlider("Stiffness", 1, 50000, () => MyThirdPersonSpectator.Static.NormalSpring.Stiffness,

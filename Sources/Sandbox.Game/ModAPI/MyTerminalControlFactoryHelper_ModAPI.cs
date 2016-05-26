@@ -35,7 +35,7 @@ namespace Sandbox.ModAPI
             MyTerminalControlFactory.GetActions(blockType, m_actionList);
             foreach (var action in m_actionList)
             {
-                if ((collect == null || collect(action))&& action.IsValidForToolbarType(MyToolbarType.ButtonPanel))
+                if ((collect == null || collect(action)) && action.IsValidForToolbarType(MyToolbarType.ButtonPanel))
                 {
                     resultList.Add(action);
                 }

@@ -221,13 +221,13 @@ public void Main(string argument) {{
             MyTerminalControlFactory.AddControl(terminalRun);
             
             var runAction = new MyTerminalAction<MyProgrammableBlock>("Run", MyTexts.Get(MySpaceTexts.TerminalControlPanel_RunCode), OnRunApplied, null, MyTerminalActionIcons.START);
-            runAction.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
+            runAction.Enabled = (b) => b.IsFunctional == true;
             runAction.DoUserParameterRequest = RequestRunArgument;
             runAction.ParameterDefinitions.Add(TerminalActionParameter.Get(string.Empty));
             MyTerminalControlFactory.AddAction(runAction);
 
             var runwithDefault = new MyTerminalAction<MyProgrammableBlock>("RunWithDefaultArgument", MyTexts.Get(MySpaceTexts.TerminalControlPanel_RunCodeDefault), OnRunDefaultApplied, MyTerminalActionIcons.START);
-            runwithDefault.Enabled = (b) => b.IsWorking == true && b.IsFunctional == true;
+            runwithDefault.Enabled = (b) => b.IsFunctional == true;
             MyTerminalControlFactory.AddAction(runwithDefault);
         }
 

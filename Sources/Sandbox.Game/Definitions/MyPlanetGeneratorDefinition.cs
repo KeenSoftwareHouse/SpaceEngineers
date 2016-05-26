@@ -227,7 +227,7 @@ namespace Sandbox.Definitions
 
         public MyPlanetMaterialBlendSettings MaterialBlending = new MyPlanetMaterialBlendSettings()
         {
-            Texture = "Textures/Miscellaneous/material_blend_grass",
+            Texture = "Data/PlanetDataFiles/Extra/material_blend_grass",
             CellSize = 64
         };
 

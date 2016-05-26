@@ -95,6 +95,7 @@ namespace Sandbox.Game.Entities
         private const int m_forcedFpsTimeoutDefaultMs = 500;
 
         protected Action<MyEntity> m_pilotClosedHandler;
+        private bool? m_pilotJetpackEnabledBackup;
 
         public float GlassDirt = 1.0f;
 
@@ -804,6 +805,9 @@ namespace Sandbox.Game.Entities
                 if (m_pilot.Physics.CharacterProxy != null)
                     m_pilot.Physics.CharacterProxy.ImmediateSetWorldTransform = false;
 
+                if (m_pilotJetpackEnabledBackup.HasValue && m_pilot.JetpackComp != null)
+                    m_pilot.JetpackComp.TurnOnJetpack(m_pilotJetpackEnabledBackup.Value);
+
                 if (Parent != null && Parent.Physics != null) // Cockpit could be removing the pilot after it no longer belongs to any grid (e.g. during a split)
                 {
                     m_pilot.Physics.LinearVelocity = Parent.Physics.LinearVelocity;
@@ -942,7 +946,10 @@ namespace Sandbox.Game.Entities
             {
                 var jetpack = m_pilot.JetpackComp;
                 if (jetpack != null)
+                {
                     jetpack.SwitchThrusts();
+                    m_pilotJetpackEnabledBackup = null;
+                }
             }
         }
 
@@ -1147,6 +1154,17 @@ namespace Sandbox.Game.Entities
             {               
                 m_attachedCharacterId.Value = m_pilot.EntityId;
                 m_storeOriginalPlayerWorldMatrix.Value = storeOriginalPilotWorld;
+            }
+
+            var jetpack = m_pilot.JetpackComp;
+            if (jetpack != null)
+            {
+                m_pilotJetpackEnabledBackup = jetpack.Running;
+                m_pilot.JetpackComp.TurnOnJetpack(false);
+            }
+            else
+            {
+                m_pilotJetpackEnabledBackup = null;
             }
 
             m_lastPilot = pilot;

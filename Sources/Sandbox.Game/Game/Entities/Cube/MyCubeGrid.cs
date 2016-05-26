@@ -5091,7 +5091,7 @@ namespace Sandbox.Game.Entities
                 if (grid != null && grid != this && grid.Physics != null && grid.Physics.Enabled && grid != ignore && grid.IsStatic && grid.GridSizeEnum == mergingGrid.GridSizeEnum
                     && mergingGrid.IsMergePossible_Static(block, grid, out gridOffset))
                 {
-                    MyCubeGrid localMergedGrid = mergingGrid.MergeGrid_Static(grid, gridOffset, block);
+                    MyCubeGrid localMergedGrid = grid.MergeGrid_Static(mergingGrid, -gridOffset, block);
                     if (localMergedGrid != null)
                         retval = localMergedGrid;
                 }
@@ -5196,12 +5196,6 @@ namespace Sandbox.Game.Entities
         private MyCubeGrid MergeGrid_Static(MyCubeGrid gridToMerge, Vector3I gridOffset, MySlimBlock triggeringMergeBlock)
         {
             Debug.Assert(this.IsStatic && gridToMerge.IsStatic, "Grids to merge must be static");
-
-            // Always merge smaller grid to larger
-            if (this.BlocksCount < gridToMerge.BlocksCount)
-            {
-                return gridToMerge.MergeGrid_Static(this, -gridOffset, triggeringMergeBlock);
-            }
 
             // We have to force replicate grids before merging them on client. Otherwise he won't have one of them and fails tragically.
             MyMultiplayer.ReplicateImmediatelly(gridToMerge, this);
@@ -7873,6 +7867,15 @@ namespace Sandbox.Game.Entities
                     pastedGrid.DetectDisconnectsAfterFrame();
                 }
                 MySession.Static.TotalBlocksCreated += (uint)pastedGrid.BlocksCount;
+
+                if (pastedGrid.IsStatic)
+                {
+                    foreach (var block in pastedGrid.CubeBlocks)
+                    {
+                        if (pastedGrid.DetectMerge(block) != null)
+                            break;
+                    }
+                }
             }
 
             MatrixD worldMatrix = grids[0].PositionComp.WorldMatrix;

@@ -207,12 +207,12 @@ namespace Sandbox.Game.Gui
 
         private Type FindTerminalTypeFromInterface<TBlock>()
         {
-            var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(x => typeof(TBlock).IsAssignableFrom(x));
-            if(type == null)
+            var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(x => typeof(TBlock).IsAssignableFrom(x) && !x.IsInterface);
+            if (type == null)
             {
                 var gameAssembly = MyPlugins.GameAssembly;
-                if(gameAssembly != null)
-                    type = gameAssembly.GetTypes().FirstOrDefault(x => typeof(TBlock).IsAssignableFrom(x));
+                if (gameAssembly != null)
+                    type = gameAssembly.GetTypes().FirstOrDefault(x => typeof(TBlock).IsAssignableFrom(x) && !x.IsInterface);
             }
 
             return type;

@@ -1,4 +1,5 @@
 ﻿using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -8,13 +9,11 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorRotor))]
-    public class MyMotorRotor : MyCubeBlock, IMyMotorRotor
+    public class MyMotorRotor : MyAttachableTopBlockBase, IMyMotorRotor
     {
         public Vector3 DummyPosLoc { get; private set; }
 
-        private MyMotorBase m_statorBlock;
-
-        public MyMotorBase Stator { get { return m_statorBlock; } }
+        public MyMechanicalConnectionBlockBase Stator { get { return m_parentBlock; } }
 
         public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
@@ -39,57 +38,10 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        internal void Attach(MyMotorBase stator)
-        {
-            m_statorBlock = stator;
-        }
-
-        internal void Detach(bool isWelding)
-        {
-            if (isWelding == false)
-            {
-                m_statorBlock = null;
-            }
-        }
-
-        public override void OnUnregisteredFromGridSystems()
-        {
-            if (m_statorBlock != null)
-            {
-                var statorBlock = m_statorBlock;          
-                statorBlock.Detach();
-                statorBlock.SyncDetach();
-            }
-            base.OnUnregisteredFromGridSystems();
-
-            if (Sync.IsServer)
-            {
-                CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
-            }
-        }
-
-        public override void OnRegisteredToGridSystems()
-        {
-            base.OnRegisteredToGridSystems();
-
-            if (Sync.IsServer)
-            {
-                CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
-            }
-        }
-
-        protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
-        {
-            if (m_statorBlock != null)
-            {
-                m_statorBlock.OnGridSplit();
-            }
-        }
-
         #region ModAPI implementation
         ModAPI.IMyMotorBase ModAPI.IMyMotorRotor.Stator
         {
-            get { return Stator; }
+            get { return Stator as MyMotorStator; }
         }
 
         bool ModAPI.Ingame.IMyMotorRotor.IsAttached

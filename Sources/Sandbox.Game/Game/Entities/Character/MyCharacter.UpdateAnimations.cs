@@ -229,7 +229,9 @@ namespace Sandbox.Game.Entities.Character
                     speedangle += 360.0f;
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedAngle, speedangle);
 
-                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdTurningSpeed, RotationIndicator.Y * 180.0f / (float)Math.PI);
+                if (ControllerInfo.IsLocallyControlled())
+                    m_animTurningSpeed.Value = RotationIndicator.Y * 180.0f / (float)Math.PI;
+                variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdTurningSpeed, m_animTurningSpeed);
 
                 if (OxygenComponent != null)
                     variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdHelmetOpen, OxygenComponent.HelmetEnabled ? 0.0f : 1.0f);

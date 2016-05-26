@@ -60,16 +60,14 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyCryoChamber()
         {
-            CreateTerminalControls();
-
             ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
             m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
         }
 
-        static void CreateTerminalControls()
+        //override this in order not to show horizon
+        protected override bool CanHaveHorizon()
         {
-            m_horizonIndicator.Enabled = (x) => false;
-            m_horizonIndicator.Visible = (x) => false;
+            return false;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)

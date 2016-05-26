@@ -67,6 +67,8 @@ namespace Sandbox.Game.Entities
 
         public MyDoor()
         {
+            CreateTerminalControls();
+
             m_currOpening.ValidateNever();
             m_currOpening.Value = 0f;
             m_currSpeed = 0f;

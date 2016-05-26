@@ -440,7 +440,7 @@ namespace Sandbox.Engine.Voxels
                 if (entity.MarkedForClose)
                     continue;
 
-                if (entity.Physics.LinearVelocity.Length() < 2f)
+                if (entity.Physics == null || entity.Physics.LinearVelocity.Length() < 2f)
                     continue;
 
                 BoundingBoxD aabb;

@@ -164,12 +164,11 @@ namespace Sandbox.Game.Entities
             animationDefinition.Status = MyAnimationDefinition.AnimationStatus.OK;
 
             MyModel animation = VRage.Game.Models.MyModels.GetModelOnlyAnimationData(model);
-
-            System.Diagnostics.Debug.Assert(animation.Animations != null && animation.Animations.Clips.Count > 0);
-            if (animation.Animations == null || animation.Animations.Clips.Count == 0)
+            Debug.Assert(animation != null && animation.Animations != null && animation.Animations.Clips.Count > 0);
+            if (animation != null && animation.Animations == null || animation.Animations.Clips.Count == 0)
                 return;
 
-            System.Diagnostics.Debug.Assert(animationDefinition.ClipIndex < animation.Animations.Clips.Count);
+            Debug.Assert(animationDefinition.ClipIndex < animation.Animations.Clips.Count);
             if (animation.Animations.Clips.Count <= animationDefinition.ClipIndex)
                 return;
 

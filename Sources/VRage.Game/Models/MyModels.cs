@@ -1,9 +1,11 @@
 ﻿#define USE_SERIAL_MODEL_LOAD
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Diagnostics;
 using VRage.Collections;
+using VRage.Utils;
 
 namespace VRage.Game.Models
 {
@@ -91,6 +93,7 @@ namespace VRage.Game.Models
         }
 
         //  Lazy-loading and then returning reference to model
+        //  May return null on failure.
         public static MyModel GetModelOnlyAnimationData(string modelAsset)
         {
             MyModel model;
@@ -100,8 +103,17 @@ namespace VRage.Game.Models
                 m_models[modelAsset] = model;
             }
 
-            model.LoadAnimationData();
-            return model;
+            try
+            {
+                model.LoadAnimationData();
+                return model;
+            }
+            catch (Exception e)
+            {
+                MyLog.Default.WriteLine(e);
+                Debug.Fail("Cannot load asset \"" + modelAsset + "\".\n" + e.Message);
+                return null;
+            }
         }
 
 

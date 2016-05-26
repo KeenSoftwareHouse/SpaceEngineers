@@ -29,5 +29,9 @@ namespace Sandbox.ModAPI.Interfaces.Terminal
         /// Recreates the control GUI.  This allows you to update the Title of some controls.
         /// </summary>
         void RedrawControl();
+        /// <summary>
+        /// This updates a control that is currently displayed, allowing you to refresh it's state
+        /// </summary>
+        void UpdateVisual();
     }
 }
