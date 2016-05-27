@@ -1,0 +1,2175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
+    <value>Ești sigur că dorești să ieși?</value>
+  </data>
+  <data name="AssignControlKeyboard" xml:space="preserve">
+    <value>Vă rugăm să apăsați o tastă</value>
+  </data>
+  <data name="AssignControlMouse" xml:space="preserve">
+    <value>Vă rugăm să faceți clic pe un buton al mouse-ului</value>
+  </data>
+  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
+    <value>Opţiuni sunet</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Anulează</value>
+  </data>
+  <data name="CanNotAssignControl" xml:space="preserve">
+    <value>NU SE POATE ATRIBUI CONTROLUL</value>
+  </data>
+  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
+    <value>Continuă ultimul joc</value>
+  </data>
+  <data name="ControlAlreadyAssigned" xml:space="preserve">
+    <value>{0} este deja atribuit la {1}.
+Scot controlul original?</value>
+  </data>
+  <data name="ControlIsNotValid" xml:space="preserve">
+    <value>Tasta apăsată nu poate fi atribuită la controale.</value>
+  </data>
+  <data name="ScreenCaptionControls" xml:space="preserve">
+    <value>Controale</value>
+  </data>
+  <data name="ScreenMenuButtonCredits" xml:space="preserve">
+    <value>Credite</value>
+  </data>
+  <data name="KeysDelete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="KeysDown" xml:space="preserve">
+    <value>Jos</value>
+  </data>
+  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
+    <value>Vrei să păstrezi aceste setări? {0} secunde rămase.</value>
+  </data>
+  <data name="KeysEnd" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
+    <value>Ieşi în meniul principal</value>
+  </data>
+  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
+    <value>Ieşi în Windows</value>
+  </data>
+  <data name="FieldOfView" xml:space="preserve">
+    <value>Câmp de vedere</value>
+  </data>
+  <data name="ScreenOptionsButtonGame" xml:space="preserve">
+    <value>Joc</value>
+  </data>
+  <data name="ScreenCaptionGameOptions" xml:space="preserve">
+    <value>Opţiunile jocului</value>
+  </data>
+  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
+    <value>Gamepad</value>
+  </data>
+  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
+    <value>Analogic</value>
+  </data>
+  <data name="GameVolume" xml:space="preserve">
+    <value>Volumul Sunetului</value>
+  </data>
+  <data name="ControlTypeGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="HardwareCursor" xml:space="preserve">
+    <value>Cursor hardware</value>
+  </data>
+  <data name="ControlName_Help" xml:space="preserve">
+    <value>Ajutor</value>
+  </data>
+  <data name="KeysHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="KeysInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="InvertMouseX" xml:space="preserve">
+    <value>Inversează axa X mouse-ului</value>
+  </data>
+  <data name="InvertMouseY" xml:space="preserve">
+    <value>Inversează axa Y mouse-ului</value>
+  </data>
+  <data name="Joystick" xml:space="preserve">
+    <value>Joystick sau gamepad</value>
+  </data>
+  <data name="JoystickButtonLeft" xml:space="preserve">
+    <value>JDStânga</value>
+  </data>
+  <data name="JoystickButtonRight" xml:space="preserve">
+    <value>JDDreapta</value>
+  </data>
+  <data name="JoystickButtonUp" xml:space="preserve">
+    <value>JDSus</value>
+  </data>
+  <data name="JoystickButtonDown" xml:space="preserve">
+    <value>JDJos</value>
+  </data>
+  <data name="JoystickDeadzone" xml:space="preserve">
+    <value>Lățimea zonei moarte joystick-ului</value>
+  </data>
+  <data name="JoystickExponent" xml:space="preserve">
+    <value>Precizie graduală joystick-ului</value>
+  </data>
+  <data name="JoystickSensitivity" xml:space="preserve">
+    <value>Sensibilitatea joystick-ului</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
+    <value>Tastatură</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Limbă</value>
+  </data>
+  <data name="KeysLeft" xml:space="preserve">
+    <value>Stânga</value>
+  </data>
+  <data name="KeysLeftAlt" xml:space="preserve">
+    <value>LAlt</value>
+  </data>
+  <data name="KeysLeftControl" xml:space="preserve">
+    <value>LCtrl</value>
+  </data>
+  <data name="LeftMouseButton" xml:space="preserve">
+    <value>BMS</value>
+  </data>
+  <data name="KeysLeftShift" xml:space="preserve">
+    <value>LShift</value>
+  </data>
+  <data name="LoadScreenButtonLoad" xml:space="preserve">
+    <value>Încărcaţi</value>
+  </data>
+  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
+    <value>SE ÎNCARCĂ ... VĂ RUGĂM AŞTEPTAŢI</value>
+  </data>
+  <data name="MessageBoxCaptionError" xml:space="preserve">
+    <value>EROARE</value>
+  </data>
+  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
+    <value>VĂ RUGĂM SĂ CONFIRMAȚI</value>
+  </data>
+  <data name="MessageBoxCaptionExit" xml:space="preserve">
+    <value>IEȘIRE</value>
+  </data>
+  <data name="MiddleMouseButton" xml:space="preserve">
+    <value>BMM</value>
+  </data>
+  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
+    <value>Mouse</value>
+  </data>
+  <data name="MouseSensitivity" xml:space="preserve">
+    <value>Sensibilitatea mouse-ului</value>
+  </data>
+  <data name="MouseXButton1" xml:space="preserve">
+    <value>BMX1</value>
+  </data>
+  <data name="MouseXButton2" xml:space="preserve">
+    <value>BMX2</value>
+  </data>
+  <data name="ControlTypeNavigation" xml:space="preserve">
+    <value>Navigație</value>
+  </data>
+  <data name="ScreenCaptionNewWorld" xml:space="preserve">
+    <value>Lume Nouă</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Nu</value>
+  </data>
+  <data name="KeysNumPad0" xml:space="preserve">
+    <value>Num 0</value>
+  </data>
+  <data name="KeysNumPad1" xml:space="preserve">
+    <value>Num 1</value>
+  </data>
+  <data name="KeysNumPad2" xml:space="preserve">
+    <value>Num 2</value>
+  </data>
+  <data name="KeysNumPad3" xml:space="preserve">
+    <value>Num 3</value>
+  </data>
+  <data name="KeysNumPad4" xml:space="preserve">
+    <value>Num 4</value>
+  </data>
+  <data name="KeysNumPad5" xml:space="preserve">
+    <value>Num 5</value>
+  </data>
+  <data name="KeysNumPad6" xml:space="preserve">
+    <value>Num 6</value>
+  </data>
+  <data name="KeysNumPad7" xml:space="preserve">
+    <value>Num 7</value>
+  </data>
+  <data name="KeysNumPad8" xml:space="preserve">
+    <value>Num 8</value>
+  </data>
+  <data name="KeysNumPad9" xml:space="preserve">
+    <value>Num 9</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ScreenCaptionOptions" xml:space="preserve">
+    <value>Opţiuni</value>
+  </data>
+  <data name="KeysPageDown" xml:space="preserve">
+    <value>PgDown</value>
+  </data>
+  <data name="KeysPageUp" xml:space="preserve">
+    <value>PgUp</value>
+  </data>
+  <data name="RecommendedAspectRatio" xml:space="preserve">
+    <value>Raport aspect recomandat: {0}</value>
+  </data>
+  <data name="Revert" xml:space="preserve">
+    <value>Setări Prestabilite</value>
+  </data>
+  <data name="KeysRight" xml:space="preserve">
+    <value>Dreaptă</value>
+  </data>
+  <data name="KeysRightAlt" xml:space="preserve">
+    <value>RAlt</value>
+  </data>
+  <data name="KeysRightControl" xml:space="preserve">
+    <value>RCtrl</value>
+  </data>
+  <data name="RightMouseButton" xml:space="preserve">
+    <value>BMD</value>
+  </data>
+  <data name="KeysRightShift" xml:space="preserve">
+    <value>RShift</value>
+  </data>
+  <data name="SelectControl" xml:space="preserve">
+    <value>SELECTEAZĂ CONTROL</value>
+  </data>
+  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
+    <value>ÎNCHIDERE SERVER PROGRAMATĂ</value>
+  </data>
+  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
+    <value>Ne pare rău, dar aceste setări nu sunt suportate de hardware-ul dumneavoastră.</value>
+  </data>
+  <data name="KeysSpace" xml:space="preserve">
+    <value>Spaţiu</value>
+  </data>
+  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
+    <value>Jocul se porneşte ... vă rugăm aşteptaţi.</value>
+  </data>
+  <data name="ControlName_StrafeLeft" xml:space="preserve">
+    <value>Deplasare laterală stânga</value>
+  </data>
+  <data name="ControlName_StrafeRight" xml:space="preserve">
+    <value>Deplasare laterală dreaptă</value>
+  </data>
+  <data name="ControlTypeSystems1" xml:space="preserve">
+    <value>Sisteme 1</value>
+  </data>
+  <data name="ControlTypeSystems2" xml:space="preserve">
+    <value>Sisteme 2</value>
+  </data>
+  <data name="KeysTab" xml:space="preserve">
+    <value>Tab</value>
+  </data>
+  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
+    <value>Eşuare start browser.</value>
+  </data>
+  <data name="UnknownControl_None" xml:space="preserve">
+    <value>nimic</value>
+  </data>
+  <data name="KeysUp" xml:space="preserve">
+    <value>Sus</value>
+  </data>
+  <data name="ControlName_UseOrInteract" xml:space="preserve">
+    <value>Folosește / Interacționează</value>
+  </data>
+  <data name="VerticalSync" xml:space="preserve">
+    <value>Sincronizare verticală</value>
+  </data>
+  <data name="VideoMode" xml:space="preserve">
+    <value>Mod video</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
+    <value>Unelte / Arme</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Da</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Dezactivat</value>
+  </data>
+  <data name="JoystickRotationXpos" xml:space="preserve">
+    <value>JRX+</value>
+  </data>
+  <data name="JoystickRotationYpos" xml:space="preserve">
+    <value>JRY+</value>
+  </data>
+  <data name="JoystickRotationZpos" xml:space="preserve">
+    <value>JRZ+</value>
+  </data>
+  <data name="JoystickSlider1pos" xml:space="preserve">
+    <value>JS1+</value>
+  </data>
+  <data name="JoystickSlider2pos" xml:space="preserve">
+    <value>JS2+</value>
+  </data>
+  <data name="JoystickRotationXneg" xml:space="preserve">
+    <value>JRX-</value>
+  </data>
+  <data name="JoystickRotationYneg" xml:space="preserve">
+    <value>JRY-</value>
+  </data>
+  <data name="JoystickRotationZneg" xml:space="preserve">
+    <value>JRZ-</value>
+  </data>
+  <data name="JoystickSlider1neg" xml:space="preserve">
+    <value>JS1-</value>
+  </data>
+  <data name="JoystickSlider2neg" xml:space="preserve">
+    <value>JS2-</value>
+  </data>
+  <data name="KeysDecimal" xml:space="preserve">
+    <value>Num .</value>
+  </data>
+  <data name="KeysBackslash" xml:space="preserve">
+    <value>Bară pe spate</value>
+  </data>
+  <data name="KeysComma" xml:space="preserve">
+    <value>Virgulă</value>
+  </data>
+  <data name="KeysMinus" xml:space="preserve">
+    <value>Minus</value>
+  </data>
+  <data name="KeysOpenBracket" xml:space="preserve">
+    <value>[</value>
+  </data>
+  <data name="KeysCloseBracket" xml:space="preserve">
+    <value>]</value>
+  </data>
+  <data name="KeysPeriod" xml:space="preserve">
+    <value>Punct</value>
+  </data>
+  <data name="KeysPipe" xml:space="preserve">
+    <value>Ţeavă</value>
+  </data>
+  <data name="KeysPlus" xml:space="preserve">
+    <value>Plus</value>
+  </data>
+  <data name="KeysQuestion" xml:space="preserve">
+    <value>Bară</value>
+  </data>
+  <data name="KeysQuotes" xml:space="preserve">
+    <value>Ghilimele</value>
+  </data>
+  <data name="KeysSemicolon" xml:space="preserve">
+    <value>Coloană</value>
+  </data>
+  <data name="KeysTilde" xml:space="preserve">
+    <value>~</value>
+  </data>
+  <data name="KeysMultiply" xml:space="preserve">
+    <value>Num *</value>
+  </data>
+  <data name="KeysDivide" xml:space="preserve">
+    <value>Num /</value>
+  </data>
+  <data name="KeysAdd" xml:space="preserve">
+    <value>Num +</value>
+  </data>
+  <data name="KeysSubtract" xml:space="preserve">
+    <value>Num -</value>
+  </data>
+  <data name="KeysCapsLock" xml:space="preserve">
+    <value>Caps Lock</value>
+  </data>
+  <data name="KeysEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="KeysBackspace" xml:space="preserve">
+    <value>Backsp.</value>
+  </data>
+  <data name="ApplyingPleaseWait" xml:space="preserve">
+    <value>Aplic modificările... așteptați vă rog</value>
+  </data>
+  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
+    <value>Aţi fost ucis</value>
+  </data>
+  <data name="MusicVolume" xml:space="preserve">
+    <value>Volumul muzicii</value>
+  </data>
+  <data name="VideoAdapter" xml:space="preserve">
+    <value>Adaptor video</value>
+  </data>
+  <data name="DefaultFOV" xml:space="preserve">
+    <value>Prestabilit: {0:F1}</value>
+  </data>
+  <data name="WorldLoaded" xml:space="preserve">
+    <value>Lume {0} încărcată</value>
+  </data>
+  <data name="ControlName_Screenshot" xml:space="preserve">
+    <value>Captură de ecran</value>
+  </data>
+  <data name="ControlName_PreviousColor" xml:space="preserve">
+    <value>Culoarea sau Camera Anterioară</value>
+  </data>
+  <data name="ControlName_NextColor" xml:space="preserve">
+    <value>Culoarea sau Camera Următoare</value>
+  </data>
+  <data name="WorldSaved" xml:space="preserve">
+    <value>Lume "{0}" salvată</value>
+  </data>
+  <data name="Blueprints" xml:space="preserve">
+    <value>Planuri</value>
+  </data>
+  <data name="Factions" xml:space="preserve">
+    <value>Facțiuni</value>
+  </data>
+  <data name="BlueprintMaterials" xml:space="preserve">
+    <value>Materiale pentru Planuri</value>
+  </data>
+  <data name="ProductionQueue" xml:space="preserve">
+    <value>Coadă de Producție</value>
+  </data>
+  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
+    <value>Editare Setări</value>
+  </data>
+  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
+    <value>Lume Personalizată</value>
+  </data>
+  <data name="ErrorNameTooLong" xml:space="preserve">
+    <value>Numele este prea lung (maxim 128 de caractere permise)</value>
+  </data>
+  <data name="ErrorNameTooShort" xml:space="preserve">
+    <value>Numele este prea scurt (min 5 caractere necesare)</value>
+  </data>
+  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
+    <value>Supraviețuire</value>
+  </data>
+  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
+    <value>Intră în Lume</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nume</value>
+  </data>
+  <data name="WorldSettings_OnlineMode" xml:space="preserve">
+    <value>Mod online</value>
+  </data>
+  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
+    <value>Pornire rapidă</value>
+  </data>
+  <data name="ToolTipWorldSettingsName" xml:space="preserve">
+    <value>Numele trebuie să fie de la {0} la {1} în caractere alfanumerice.</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
+    <value>Ești sigur că dorești să ștergi '{0}'?</value>
+  </data>
+  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
+    <value>Încărcare Lume</value>
+  </data>
+  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
+    <value>Salvează ca</value>
+  </data>
+  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
+    <value>Creativ</value>
+  </data>
+  <data name="PlayerCharacter" xml:space="preserve">
+    <value>Jucător</value>
+  </data>
+  <data name="WorldSettings_AutoSave" xml:space="preserve">
+    <value>Salvare automată</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
+    <value>Salvarea automată salvează starea lumii la fiecare {0} minute sau la ieșire din joc.</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
+    <value>Doriţi să salvaţi progresul?</value>
+  </data>
+  <data name="SaveWorld" xml:space="preserve">
+    <value>Salvează Lume</value>
+  </data>
+  <data name="ScreenMenuButtonSave" xml:space="preserve">
+    <value>Salvează</value>
+  </data>
+  <data name="SavingPleaseWait" xml:space="preserve">
+    <value>Se salvează...vă rugăm aşteptaţi</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avansat</value>
+  </data>
+  <data name="AdvancedControls" xml:space="preserve">
+    <value>Controale Avansate</value>
+  </data>
+  <data name="ControlName_Backward" xml:space="preserve">
+    <value>Înapoi</value>
+  </data>
+  <data name="BasicControls" xml:space="preserve">
+    <value>Controale Fundamentale</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Închide</value>
+  </data>
+  <data name="ControlName_DownOrCrouch" xml:space="preserve">
+    <value>Jos sau aplecare</value>
+  </data>
+  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
+    <value>Persoana întâi / Persoana a treia</value>
+  </data>
+  <data name="ControlName_Forward" xml:space="preserve">
+    <value>Înainte</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Pagina Urmatoare</value>
+  </data>
+  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
+    <value>Apăsă pe {0} pentru ajutor și tutoriale</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Pagina Precedentă</value>
+  </data>
+  <data name="ShowControlsHints" xml:space="preserve">
+    <value>Arată sugestii controale</value>
+  </data>
+  <data name="SteamGuide" xml:space="preserve">
+    <value>Ghiduri</value>
+  </data>
+  <data name="ControlName_UpOrJump" xml:space="preserve">
+    <value>Sus sau a sari</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
+    <value>Roteşte pe verticală -</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
+    <value>Roteşte pe verticală +</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
+    <value>Roteşte pe orizontală -</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
+    <value>Roteşte pe orizontală +</value>
+  </data>
+  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
+    <value>Rostogolește bloc -</value>
+  </data>
+  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
+    <value>Rostogolește bloc +</value>
+  </data>
+  <data name="ControlName_Slot0" xml:space="preserve">
+    <value>Dezechipa</value>
+  </data>
+  <data name="ControlName_Slot1" xml:space="preserve">
+    <value>Echipeaza elementul din slot 1</value>
+  </data>
+  <data name="ControlName_Slot2" xml:space="preserve">
+    <value>Echipeaza elementul din slot 2</value>
+  </data>
+  <data name="ControlName_Slot3" xml:space="preserve">
+    <value>Echipeaza elementul din slot 3</value>
+  </data>
+  <data name="ControlName_Slot4" xml:space="preserve">
+    <value>Echipeaza elementul din slot 4</value>
+  </data>
+  <data name="ControlName_Slot5" xml:space="preserve">
+    <value>Echipeaza elementul din slot 5</value>
+  </data>
+  <data name="ControlName_Slot6" xml:space="preserve">
+    <value>Echipeaza elementul din slot 6</value>
+  </data>
+  <data name="ControlName_Slot7" xml:space="preserve">
+    <value>Echipeaza elementul din slot 7</value>
+  </data>
+  <data name="ControlName_Slot8" xml:space="preserve">
+    <value>Echipeaza elementul din slot 8</value>
+  </data>
+  <data name="ControlName_Slot9" xml:space="preserve">
+    <value>Echipeaza elementul din slot 9</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
+    <value>Ești sigur că dorești încărcare rapidă?</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
+    <value>Ești sigur că dorești salvare rapidă?</value>
+  </data>
+  <data name="ControlName_ToolbarConfig" xml:space="preserve">
+    <value>Configurarea barei de instumente</value>
+  </data>
+  <data name="ControlName_HoldToLookAround" xml:space="preserve">
+    <value>Ţine apăsat să te uiţi în jur</value>
+  </data>
+  <data name="ControlName_HoldToSprint" xml:space="preserve">
+    <value>Țineți pentru a alerga</value>
+  </data>
+  <data name="LoadingPleaseWait" xml:space="preserve">
+    <value>Se încarcă...vă rugăm aşteptaţi</value>
+  </data>
+  <data name="NoPlaceToCreateGrid" xml:space="preserve">
+    <value>Nu este loc pentru a crea un bloc nou. Uitaţi-vă în direcţia unui spaţiu gol.</value>
+  </data>
+  <data name="ControlName_HudOnOff" xml:space="preserve">
+    <value>HUD activ / inactiv</value>
+  </data>
+  <data name="ScreenCubeBuilderHint" xml:space="preserve">
+    <value>Sugestie: Trageți o pictogramă la un slot de bară de instrumente și activaţi cu o cheie numerică</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Salvat</value>
+  </data>
+  <data name="HideWeapon" xml:space="preserve">
+    <value>Ascunde arma</value>
+  </data>
+  <data name="Thrust" xml:space="preserve">
+    <value>Propulsie</value>
+  </data>
+  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
+    <value>Una dintre salvările lumii este coruptă şi nu poate fi încărcată. 
+Vezi log-ul pentru detalii.</value>
+  </data>
+  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
+    <value>Fișierul lumii este corupt și nu poate fi încărcat.</value>
+  </data>
+  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
+    <value>Creaza o lume nouă personalizată</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
+    <value>O calitate mai mare de randare înseamnă imagini mai bune, vizualizare la o distanţă mai mare şi mai multe
+efecte speciale - cu toate acestea, este mult mai exigent asupra performanței computerului (CPU și GPU).
+Dacă jocul nu rulează bine, reduceţi calitatea.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
+    <value>Alege un adaptor grafic și/sau un monitor</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
+    <value>Selecati o rezoluţie. Noi recomandăm să folosiţi o raţie de aspect compatibilă cu monitorul.
+Dacă jocul nu rulează bine, micşoraţi rezoluţia ecranului.</value>
+  </data>
+  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
+    <value>Cursorul HW mouse-ului este independent din framerate-ul jocului. Vă recomandăm să-l activați.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
+    <value>Jocul se va sincroniza cu rata de reîmprospătare a ecranului. Vă recomandăm să fie închis.</value>
+  </data>
+  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
+    <value>Câmp de vedere orizontal</value>
+  </data>
+  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
+    <value>Afișează controalele pe ecran în timpul jocului</value>
+  </data>
+  <data name="WorldNotSaved" xml:space="preserve">
+    <value>Lumea '{0}' nu s-a salvat. Cauză ar putea fi lipsa de spaţiu liber la scrierea fişierelor. Lucrul la această lume în continuare ar putea rezulta în pierderea progresului. Poţi să vizualizezi log-ul pentru a afla mai multe despre cauză.</value>
+  </data>
+  <data name="NotificationMemoryOverload" xml:space="preserve">
+    <value>Insuficientă memorie pentru a adăuga obiecte noi</value>
+  </data>
+  <data name="BetterGCIsAvailable" xml:space="preserve">
+    <value>Am detectat o placa video mai bună în computerul dvs. decât cea pe care jocul rulează acum. Vă rugăm să va verificați setările din panoul de control NVIDIA/AMD.</value>
+  </data>
+  <data name="MessageBoxCaptionWarning" xml:space="preserve">
+    <value>AVERTISMENT</value>
+  </data>
+  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
+    <value>Asta va deschide {0} în navigatorul dvs. Jocul va continua să meargă. Doriți să continuați ?</value>
+  </data>
+  <data name="Loaded" xml:space="preserve">
+    <value>Încărcată</value>
+  </data>
+  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
+    <value>Nu există lumi salvate încă. Vă rugăm începeţi prin crearea unei lumi noi.</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
+    <value>Ghid video</value>
+  </data>
+  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
+    <value>Salvaţi modificările înainte de ieşire?</value>
+  </data>
+  <data name="ErrorNameAlreadyExists" xml:space="preserve">
+    <value>Numele este deja alocat. Vă rugăm alegeţi un nume diferit.</value>
+  </data>
+  <data name="NotificationBuildingFormat" xml:space="preserve">
+    <value>Apăsă {0} pentru a plasa blocul</value>
+  </data>
+  <data name="NotificationColorFormat" xml:space="preserve">
+    <value>Apăsă {0} sau {1} pentru a schimba culoarea. Ține apăsat {2} pentru a aplica culoarea. Ține apăsat {3} sau {4} pentru a crește dimensiunea pensulei.</value>
+  </data>
+  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
+    <value>Puteți ascunde aceste indicii în Opțiuni de Joc</value>
+  </data>
+  <data name="NotificationHudHideFormat" xml:space="preserve">
+    <value>Apăsă pe {0} pentru a ascunde / reafișa HUD</value>
+  </data>
+  <data name="NotificationRotationFormat" xml:space="preserve">
+    <value>Apăsă pe {0}, {1}, {2}, {3}, {4}, {5} pentru a roti</value>
+  </data>
+  <data name="NotificationScreenFormat" xml:space="preserve">
+    <value>Apăsați {0} pentru a configura bara de instrumente sau pentru a crea obiecte noi.</value>
+  </data>
+  <data name="NotificationSlotEquipFormat" xml:space="preserve">
+    <value>Apăsă pe {0}, {1}, {2}, ... pentru a echipa din slot</value>
+  </data>
+  <data name="NotificationToolDisabled" xml:space="preserve">
+    <value>Acest instrument/armă este dezactivat</value>
+  </data>
+  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Apăsați {0} pentru a pune bloc, apăsați {1} pentru a șterge bloc. Tineți {2} apăsat pentru a construi rapid.</value>
+  </data>
+  <data name="ControlDescQuickLoad" xml:space="preserve">
+    <value>Încărcare Rapidă</value>
+  </data>
+  <data name="ControlDescQuickSave" xml:space="preserve">
+    <value>Salvare Rapidă</value>
+  </data>
+  <data name="MouseWheel" xml:space="preserve">
+    <value>Rotiţă mouse</value>
+  </data>
+  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
+    <value>Conținut:</value>
+  </data>
+  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
+    <value>Mod creativ</value>
+  </data>
+  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
+    <value>Configurează bară de instrumente (atribuie-i blocuri pentru construcţie, unelte şi arme)</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
+    <value>Bară de instrumente</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
+    <value>Configurarea barei de instrumente</value>
+  </data>
+  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
+    <value>Deschide Interfața Suplimentară Steam pe ecranul Atelier.</value>
+  </data>
+  <data name="LoadScreenButtonPublish" xml:space="preserve">
+    <value>Publică</value>
+  </data>
+  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
+    <value>Publicarea a fost completată cu succes. Dacă aveţi Interfața Suplimentară Steam activată, o pagină se va deschide şi veţi putea edita atribute precum titlul, descrierea sau vizibilitatea (este public în mod implicit).</value>
+  </data>
+  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
+    <value>Publicarea pe Atelierul Steam a eșuat</value>
+  </data>
+  <data name="MessageBoxTextModPublished" xml:space="preserve">
+    <value>Publicarea a fost completată cu succes. Dacă aveţi Interfața Suplimentară Steam activată, o pagină se va deschide şi veţi putea edita atribute precum titlul, descrierea sau vizibilitatea (este public în mod implicit).</value>
+  </data>
+  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
+    <value>Publicarea pe Atelier Steam a eșuat</value>
+  </data>
+  <data name="ProgressTextPublishingWorld" xml:space="preserve">
+    <value>Se publică...vă rugăm aşteptaţi.</value>
+  </data>
+  <data name="ProgressTextUploadingWorld" xml:space="preserve">
+    <value>Se încarcă... vă rugăm așteptați.</value>
+  </data>
+  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
+    <value>Atelier</value>
+  </data>
+  <data name="ProgressTextCreatingWorld" xml:space="preserve">
+    <value>Lumea se crează... vă rugăm așteptați.</value>
+  </data>
+  <data name="ScreenCaptionWorkshop" xml:space="preserve">
+    <value>Atelier</value>
+  </data>
+  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
+    <value>Recomandă</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
+    <value>LUME PUBLICATĂ</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
+    <value>PUBLICAREA LUMII NU A REUŞIT</value>
+  </data>
+  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
+    <value>MOD PUBLICAT</value>
+  </data>
+  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
+    <value>PUBLICAREA MODULUI A EȘUAT</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
+    <value>Copiază &amp; Încarcă</value>
+  </data>
+  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
+    <value>Publică lumea selectată pe Atelierul Steam</value>
+  </data>
+  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
+    <value>Vizualizați lista de lumi la care sunteți abonat pe Atelierul Steam</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
+    <value>PUBLICĂ LUME</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>ACTUALIZEAZĂ LUME</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
+    <value>Sunteți sigur că doriti să publicați lumea selectată pe Atelierul Steam ?
+Publicând aceasta lume sunteți de acord cu termenii de serviciu al atelierului (vedeți http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>Sunteți sigur că doriți să încărcați și să înlocuiți lumea selectată pe Atelierul Steam ?</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
+    <value>PUBLICĂ MOD</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
+    <value>ACTUALIZEAZĂ MOD</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
+    <value>Sunteți sigur că doriti să publicați modul selectat pe Atelierul Steam ?
+Publicând acest mod sunteți de acord cu termenii de serviciu al atelierului (vedeți http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
+    <value>Sunteți sigur că doriți să încărcați și să înlocuiți modul selectat pe Atelierul Steam ?</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
+    <value>Răsfoiește Atelierul</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
+    <value>Reîmprospătează</value>
+  </data>
+  <data name="NotificationNoWeaponSelected" xml:space="preserve">
+    <value>Nici o armă selectată</value>
+  </data>
+  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
+    <value>Tipul de arma '{0}' selectat.</value>
+  </data>
+  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
+    <value>Amortizoare inerțiale dezactivate</value>
+  </data>
+  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
+    <value>Amortizoare inerțiale activate</value>
+  </data>
+  <data name="LoadScreenButtonDelete" xml:space="preserve">
+    <value>Şterge</value>
+  </data>
+  <data name="ScreenCaptionEditSettings" xml:space="preserve">
+    <value>Editare Setări</value>
+  </data>
+  <data name="ScreenCaptionSaveAs" xml:space="preserve">
+    <value>Salvare ca</value>
+  </data>
+  <data name="ScreenMenuButtonHelp" xml:space="preserve">
+    <value>Ajutor</value>
+  </data>
+  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
+    <value>Încărca Lume</value>
+  </data>
+  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
+    <value>Lume Nouă</value>
+  </data>
+  <data name="ScreenMenuButtonOptions" xml:space="preserve">
+    <value>Opţiuni</value>
+  </data>
+  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
+    <value>Lume Personalizată</value>
+  </data>
+  <data name="ScreenOptionsButtonControls" xml:space="preserve">
+    <value>Controale</value>
+  </data>
+  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
+    <value>RESETARE CONTROALELOR</value>
+  </data>
+  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
+    <value>Ești sigur că dorești să resetezi atribuţiile controalelor la valorile prestabilite?</value>
+  </data>
+  <data name="ScreenshotFailed" xml:space="preserve">
+    <value>Captura de ecran nu a reușit</value>
+  </data>
+  <data name="ScreenshotSaved" xml:space="preserve">
+    <value>Captura de ecran {0} salvată</value>
+  </data>
+  <data name="ExportToObjComplete" xml:space="preserve">
+    <value>Exportat către: {0}</value>
+  </data>
+  <data name="ExportToObjFailed" xml:space="preserve">
+    <value>Exportarea către fișier obj a eșuat.</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
+    <value>Deschide în Atelier</value>
+  </data>
+  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
+    <value>Deschide Interfața Suplimentară Steam pe ecranul Atelier.</value>
+  </data>
+  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
+    <value>Descarcă lume selectată în computerul tău și încărcă</value>
+  </data>
+  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
+    <value>Deschide lumea selectată în Atelier pe Interfața Suplimentară Steam</value>
+  </data>
+  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
+    <value>Actualizează lista de lumi subscrise</value>
+  </data>
+  <data name="SettingSymmetryX" xml:space="preserve">
+    <value>Simetrie pe plan X: {0} pentru a seta. {1} pentru a reseta</value>
+  </data>
+  <data name="SettingSymmetryXOffset" xml:space="preserve">
+    <value>Simetrie pe plan X (compensaţie): {0} pentru a seta, {1} pentru a reseta</value>
+  </data>
+  <data name="SettingSymmetryY" xml:space="preserve">
+    <value>Simetrie pe plan Y: {0} pentru a seta. {1} pentru a reseta</value>
+  </data>
+  <data name="SettingSymmetryYOffset" xml:space="preserve">
+    <value>Simetrie pe plan (compensaţie): {0} pentru a seta. {1} pentru a reseta</value>
+  </data>
+  <data name="SettingSymmetryZ" xml:space="preserve">
+    <value>Simetrie pe plan Z: {0} pentru a seta. {1} pentru a reseta</value>
+  </data>
+  <data name="SettingSymmetryZOffset" xml:space="preserve">
+    <value>Simetrie pe plan Z (compensaţie): {0} pentru a seta, {1} pentru a reseta</value>
+  </data>
+  <data name="NotificationPickupObject" xml:space="preserve">
+    <value>Apăsați {0} pentru a lua {1}</value>
+  </data>
+  <data name="CubeBuilderPasteNotification" xml:space="preserve">
+    <value>Apasă BMS sau Ctrl+V pentru a lipi obiectul</value>
+  </data>
+  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
+    <value>A apărut o eroare în timpul adăugarii lui unu sau mai multe obiecte. Vezi fișier de log pentru mai mulţi detalii.</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
+    <value>Ești sigur că dorești să ștergi obiectul selectat? (o copie va fi stocată pe clipboard)</value>
+  </data>
+  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
+    <value>Limita de memorie a fost atinsă în timp ce lumea se încărca și unele obiecte nu au fost adăugate. Dacă folositi Large World fix și jocul a fost recent actualizat, ar putea fi dezactivat.</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
+    <value>Tastatură 2</value>
+  </data>
+  <data name="DialogTextDownloadingWorld" xml:space="preserve">
+    <value>Descărcare lume: {0}% 
+Dimensiunea lumii: {1}</value>
+  </data>
+  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
+    <value>Descărcarea lumii a eșuat!</value>
+  </data>
+  <data name="DialogTextJoiningWorld" xml:space="preserve">
+    <value>Conectare la lume</value>
+  </data>
+  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
+    <value>Conectare la lume eşuată, motiv: {0}</value>
+  </data>
+  <data name="GpuUnderMinimumNotification" xml:space="preserve">
+    <value>Am detectat ca placa dumneavoastră video este sub cerinţele minime, iar aceasta poate cauza probleme de performanţă sau crash-uri. Vă mulţumim pentru înţelegere.</value>
+  </data>
+  <data name="ShowRotationHints" xml:space="preserve">
+    <value>Arată indicii de rotație</value>
+  </data>
+  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
+    <value>Arată indicii de rotație în timpul construirii</value>
+  </data>
+  <data name="UnknownControl_Unassigned" xml:space="preserve">
+    <value>[neatribuit]</value>
+  </data>
+  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
+    <value>Mod construire</value>
+  </data>
+  <data name="ScreenOptionsGame_Line" xml:space="preserve">
+    <value>Linie</value>
+  </data>
+  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
+    <value>Un singur bloc</value>
+  </data>
+  <data name="ControlName_Suicide" xml:space="preserve">
+    <value>Sinucidere</value>
+  </data>
+  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
+    <value>Server-ul online nu poate fi pornit, eroare: {0}</value>
+  </data>
+  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
+    <value>Obiectul este folosit de altcineva</value>
+  </data>
+  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
+    <value>Jocurile prietenilor</value>
+  </data>
+  <data name="ScreenCaptionPlayers" xml:space="preserve">
+    <value>Jucători</value>
+  </data>
+  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
+    <value>Prieteni</value>
+  </data>
+  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
+    <value>Public</value>
+  </data>
+  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
+    <value>Gazda jocului</value>
+  </data>
+  <data name="ScreenPlayers_Invite" xml:space="preserve">
+    <value>Invită</value>
+  </data>
+  <data name="ScreenPlayers_Kick" xml:space="preserve">
+    <value>Dă afară</value>
+  </data>
+  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
+    <value>Nume jucător</value>
+  </data>
+  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
+    <value>Server-ul nu mai există.</value>
+  </data>
+  <data name="MessageBoxCaptionKicked" xml:space="preserve">
+    <value>DAT AFARĂ</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
+    <value>Ați fost dat afară de către gazda jocului.</value>
+  </data>
+  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
+    <value>Prieteni</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
+    <value>Sunteți sigur că doriți să vă reconectați la acest server ?</value>
+  </data>
+  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
+    <value>Sunteți în mod offline și modul multiplayer este dezactivat. Trebuie să schimbați setările din meniul principal.</value>
+  </data>
+  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
+    <value>Steam este deconectat. Vă rugăm să rulați Steam în mod normal sau reporniți Steam dacă problema persistă</value>
+  </data>
+  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
+    <value>Versiuni compatibile</value>
+  </data>
+  <data name="MaxPlayers" xml:space="preserve">
+    <value>Număr maxim jucători</value>
+  </data>
+  <data name="DialogWaitingForWorldData" xml:space="preserve">
+    <value>Aștept datele lumii</value>
+  </data>
+  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
+    <value>Conectarea către server a eșuat: {0}</value>
+  </data>
+  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
+    <value>Conectare la server</value>
+  </data>
+  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
+    <value>Aștept ca server-ul să răspundă</value>
+  </data>
+  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
+    <value>Tipul de joc ales este mai limitat decât cel anterior. Asta inseamnă că inventarul dumneavoastră poate fi trunchiat și ați putea pierde unele objecte din inventar! Sigur doriți să schimbați tipul de joc?</value>
+  </data>
+  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
+    <value>Lumile prietenilor</value>
+  </data>
+  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
+    <value>Lumi publice</value>
+  </data>
+  <data name="ControlName_CubeColorChange" xml:space="preserve">
+    <value>Schimbă culoarea blocului</value>
+  </data>
+  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
+    <value>Această armă nu este permisă de setările lumii</value>
+  </data>
+  <data name="ControlDescPlayersList" xml:space="preserve">
+    <value>Listă jucători (doar la multiplayer)</value>
+  </data>
+  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
+    <value>Jucători</value>
+  </data>
+  <data name="ItemDamagedDescription" xml:space="preserve">
+    <value>(Avariat)</value>
+  </data>
+  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
+    <value>Server-ul nu răspunde</value>
+  </data>
+  <data name="UnsupportedAspectRatio" xml:space="preserve">
+    <value>Raport de aspect neacceptat</value>
+  </data>
+  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
+    <value>Numai prietenii se pot alătura jocului</value>
+  </data>
+  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
+    <value>O descriere a lumii</value>
+  </data>
+  <data name="CompressSaveGames" xml:space="preserve">
+    <value>Comprimă lumile salvate</value>
+  </data>
+  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
+    <value>Dacă lumile salvate să fie comprimate pe disc pentru a economisii spațiu</value>
+  </data>
+  <data name="Headbob" xml:space="preserve">
+    <value>Dezactivare mișcarea capului</value>
+  </data>
+  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
+    <value>Afișează numele jucătorilor</value>
+  </data>
+  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
+    <value>Arată numele jucătorilor deasupra caracterelor. Aceasta opțiune trebuie de asemenea activată în setările lumii.</value>
+  </data>
+  <data name="NotificationInventoryFull" xml:space="preserve">
+    <value>Inventar plin</value>
+  </data>
+  <data name="OutOfAmmo" xml:space="preserve">
+    <value>{0} nu mai are muniție</value>
+  </data>
+  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
+    <value>Aveți nevoie de {0} pentru a construi {1}</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
+    <value>Mod joc</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
+    <value>Jucători</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
+    <value>Nume utilizator</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
+    <value>Lume</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
+    <value>Mărimea lumii</value>
+  </data>
+  <data name="MessageBoxTextSuicide" xml:space="preserve">
+    <value>Sunteți sigur că vreți să vă sinucideti ?</value>
+  </data>
+  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
+    <value>Gazda de server a părăsit jocul.</value>
+  </data>
+  <data name="NotificationRespawn" xml:space="preserve">
+    <value>Ați murit. Înviere în {0} secunde</value>
+  </data>
+  <data name="HudBlockInfo_Required" xml:space="preserve">
+    <value>Necesare</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
+    <value>Mărime inventar: {0}x
+Eficiență montator: {1}x
+Viteză rafinărie: {2}x</value>
+  </data>
+  <data name="NotificationClientConnected" xml:space="preserve">
+    <value>Jucător conectat: {0}</value>
+  </data>
+  <data name="NotificationClientDisconnected" xml:space="preserve">
+    <value>Jucător deconectat: {0}</value>
+  </data>
+  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
+    <value>Server-ul are o versiune diferită a jocului, versiunea dvs. {0}, versiune server: {1}</value>
+  </data>
+  <data name="ShowCrosshair" xml:space="preserve">
+    <value>Afișează ținta</value>
+  </data>
+  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
+    <value>Dacă ținta pentru arme trebuie să fie vizibilă</value>
+  </data>
+  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
+    <value>Jocul se salvează deja.</value>
+  </data>
+  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
+    <value>* Tradus de comunitate.</value>
+  </data>
+  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
+    <value>Clic pentru mai multe informații</value>
+  </data>
+  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
+    <value>O conexiune directă nu este disponibilă.</value>
+  </data>
+  <data name="Multiplayer_NoConnection" xml:space="preserve">
+    <value>Nu există conexiune către server.</value>
+  </data>
+  <data name="GamePaused" xml:space="preserve">
+    <value>Joc pe pauză</value>
+  </data>
+  <data name="ControlDescPauseGame" xml:space="preserve">
+    <value>Pune pauză (numai offline)</value>
+  </data>
+  <data name="ControlName_PauseGame" xml:space="preserve">
+    <value>Pune pauză</value>
+  </data>
+  <data name="KeysPause" xml:space="preserve">
+    <value>Pause</value>
+    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
+  </data>
+  <data name="NotificationWeaponNotWorking" xml:space="preserve">
+    <value>{0} nu funcționează</value>
+  </data>
+  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
+    <value>Adăugare sumă</value>
+  </data>
+  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
+    <value>Setare valoare</value>
+  </data>
+  <data name="NotificationHealthCritical" xml:space="preserve">
+    <value>Stare critică de sănătate. Căutați atenție medicală imediat.</value>
+  </data>
+  <data name="NotificationHealthLow" xml:space="preserve">
+    <value>Sănătate scăzută.</value>
+  </data>
+  <data name="MultiplayerError_DifferentData" xml:space="preserve">
+    <value>Acest server are date de joc diferite față de jocul dvs.</value>
+  </data>
+  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
+    <value>Jocurile marcate cu * au date de joc incompatibile</value>
+  </data>
+  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
+    <value>Administrator joc</value>
+  </data>
+  <data name="MultiplayerJoinServers" xml:space="preserve">
+    <value>Numai dedicate</value>
+  </data>
+  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
+    <value>Utilizatorul este deja în joc</value>
+  </data>
+  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
+    <value>Nu sunteți in grupul {0}. Doriți să vizitați pagina web a grupului?</value>
+  </data>
+  <data name="MultiplayerErrorServerFull" xml:space="preserve">
+    <value>Serverul este plin</value>
+  </data>
+  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
+    <value>Serverele Steam sunt deconectate sau grupul serverului nu există</value>
+  </data>
+  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
+    <value>Bilet invalid</value>
+  </data>
+  <data name="MultiplayerJoinLANServers" xml:space="preserve">
+    <value>Numai LAN</value>
+  </data>
+  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
+    <value>Prieteni</value>
+  </data>
+  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
+    <value>LAN</value>
+  </data>
+  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
+    <value>Jocuri</value>
+  </data>
+  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
+    <value>Servere</value>
+  </data>
+  <data name="JoinGame_Title" xml:space="preserve">
+    <value>Intră în lume</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
+    <value>Latență</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
+    <value>Autentificat în altă parte</value>
+  </data>
+  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
+    <value>Nu aveți licență sau licența a expirat</value>
+  </data>
+  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
+    <value>Biletul este deja folosit</value>
+  </data>
+  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
+    <value>Biletul a fost anulat</value>
+  </data>
+  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
+    <value>Utilizatorul nu este conectat</value>
+  </data>
+  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
+    <value>Interzis prin VAC</value>
+  </data>
+  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
+    <value>Verificarea VAC nu a răspuns</value>
+  </data>
+  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
+    <value>Grupuri permise</value>
+  </data>
+  <data name="NewsDownloadingFailed" xml:space="preserve">
+    <value>Descărcarea știrilor a eșuat</value>
+  </data>
+  <data name="MessageBoxCaptionInfo" xml:space="preserve">
+    <value>INFO</value>
+  </data>
+  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
+    <value>ID-ul grupului ales de server nu este valid, administratorul serverului ar trebui să pună un ID adecvat in configurația serverului
+(sau zero pentru a dezactiva verificarea de grup)</value>
+  </data>
+  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
+    <value>Lista serverelor dedicate locale</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
+    <value>Lista serverelor găzduite de jucatori</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
+    <value>Lista serverelor dedicate de pe internet</value>
+  </data>
+  <data name="PlayerCharacterColor" xml:space="preserve">
+    <value>Culoare jucător</value>
+  </data>
+  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
+    <value>Apăsați {0} pentru a vă schimba aspectul</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
+    <value>Mod fereastră</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
+    <value>Pe tot ecranul</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
+    <value>Fereastră pe tot ecranul</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
+    <value>Fereastră</value>
+  </data>
+  <data name="SpectatorControls" xml:space="preserve">
+    <value>Controale Spectator</value>
+  </data>
+  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
+    <value>Spectator cu unghi fix spre obiectul controlat</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
+    <value>Sunteți interzis pe acest server</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
+    <value>Sunteți interzis pe acest server.
+Deschid profilul administratorului?</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
+    <value>Ați fost interzis pe acest server de către administratorul lui.</value>
+  </data>
+  <data name="ScreenPlayers_Ban" xml:space="preserve">
+    <value>Interzice
+</value>
+  </data>
+  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
+    <value>Întoarceti-vă la zona jocului!</value>
+  </data>
+  <data name="NotificationLeavingWorld" xml:space="preserve">
+    <value>Avertizare: O să muriți în {0:F1} metrii !</value>
+  </data>
+  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
+    <value>Setări lume avansate</value>
+  </data>
+  <data name="Spectator" xml:space="preserve">
+    <value>Spectator</value>
+  </data>
+  <data name="SpectatorControls_Delta" xml:space="preserve">
+    <value>Spectator delta</value>
+  </data>
+  <data name="SpectatorControls_Free" xml:space="preserve">
+    <value>Spectator liber</value>
+  </data>
+  <data name="SpectatorControls_None" xml:space="preserve">
+    <value>Control jucator</value>
+  </data>
+  <data name="SpectatorControls_Static" xml:space="preserve">
+    <value>Spectator static</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
+    <value>Numele de facțiune introdus deja există</value>
+  </data>
+  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
+    <value>Given faction tag already exists</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
+    <value>Faction name must be at least 4 characters long</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editare</value>
+  </data>
+  <data name="Kick" xml:space="preserve">
+    <value>Dă afară</value>
+  </data>
+  <data name="Leader" xml:space="preserve">
+    <value>Lider</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Membru</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
+    <value>Sunteți sigur că doriți să dați afară jucatorul '{0}' din facțiunea dvs. ?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
+    <value>Sunteți sigur că doriți să părăsiți facțiunea '{0}'?</value>
+  </data>
+  <data name="Promote" xml:space="preserve">
+    <value>Promovează</value>
+  </data>
+  <data name="Demote" xml:space="preserve">
+    <value>Retrogradează</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Acces refuzat</value>
+  </data>
+  <data name="Founder" xml:space="preserve">
+    <value>Fondator</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Statut</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Acceptă</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
+    <value>Sunteți sigur că doriți să acceptați jucătorul '{0}' în facțiunea dvs. ?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
+    <value>Sunteți sigur că doriți să retrogradați pe '{0}' la membru ?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
+    <value>Sunteți sigur că doriți să promovați pe '{0}' la lider ?</value>
+  </data>
+  <data name="Applicant" xml:space="preserve">
+    <value>Aplicant</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>Marcaj</value>
+  </data>
+  <data name="SessionDeleteFailed" xml:space="preserve">
+    <value>Ștergerea sesiunii a eșuat</value>
+  </data>
+  <data name="Medicals_Title" xml:space="preserve">
+    <value>Cabinete Medicale</value>
+  </data>
+  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
+    <value>Sunteți sigur că doriți să schimbati proprietarul cu {0} ?</value>
+  </data>
+  <data name="Respawn" xml:space="preserve">
+    <value>Inviere</value>
+  </data>
+  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
+    <value>Date joc exacte</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Actualizează</value>
+  </data>
+  <data name="PlayerInfo_Dead" xml:space="preserve">
+    <value>mort</value>
+  </data>
+  <data name="ScreenMods_ActiveMods" xml:space="preserve">
+    <value>Moduri active</value>
+  </data>
+  <data name="ScreenMods_AvailableMods" xml:space="preserve">
+    <value>Moduri disponibile</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
+    <value>Dezactivează mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
+    <value>Dezactivează toate modurile</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
+    <value>Activează mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
+    <value>Activează toate modurile</value>
+  </data>
+  <data name="WorldSettings_Mods" xml:space="preserve">
+    <value>Moduri</value>
+  </data>
+  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
+    <value>Deschide modul selectat în Atelier pe Interfața Suplimentară Steam</value>
+  </data>
+  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
+    <value>Actualizează lista de moduri subscrise</value>
+  </data>
+  <data name="JoinGame_SearchLabel" xml:space="preserve">
+    <value>Caută joc</value>
+  </data>
+  <data name="JoinGame_SearchTooltip" xml:space="preserve">
+    <value>Cel puțin 3 caractere trebuie introduse pentru a începe căutarea</value>
+  </data>
+  <data name="ProgressTextDownloadingMods" xml:space="preserve">
+    <value>Descarc moduri... vă rugăm așteptați.</value>
+  </data>
+  <data name="NotificationClientCannotSave" xml:space="preserve">
+    <value>Salvarea de către clienți este dezactivată în acest server</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
+    <value>Mută mod în jos</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
+    <value>Mută mod în sus</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
+    <value>Mută mod la coadă</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
+    <value>Mută mod la început</value>
+  </data>
+  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
+    <value>Nu puteți crea un grup cu blocuri la care nu aveți acces.</value>
+  </data>
+  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
+    <value>Nu puteți șterge un grup cu blocuri la care nu aveți acces.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
+    <value>Ați fost dat afară din facțiune.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
+    <value>Ați fost acceptat în facțiune.</value>
+  </data>
+  <data name="ControlName_ToolbarDown" xml:space="preserve">
+    <value>Bara de unelte anterioară</value>
+  </data>
+  <data name="ControlName_ToolbarUp" xml:space="preserve">
+    <value>Bara de unelte următoare</value>
+  </data>
+  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
+    <value>Descărcarea modurilor a eșuat! Vă rugăm să verificați modurile în setările lumii.</value>
+  </data>
+  <data name="ProgressTextCheckingMods" xml:space="preserve">
+    <value>Se verifică actualizari la moduri ... vă rugăm așteptați.</value>
+  </data>
+  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
+    <value>Afișaj depanare</value>
+  </data>
+  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
+    <value>Activează afișaj depanare</value>
+  </data>
+  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
+    <value>Jurnal erori încărcare:</value>
+  </data>
+  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
+    <value>Manechine modele</value>
+  </data>
+  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
+    <value>Puncte de montare</value>
+  </data>
+  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
+    <value>Nu au fost erori la încărcare</value>
+  </data>
+  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
+    <value>Primitive fizice</value>
+  </data>
+  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
+    <value>Deschide într-o fereastră nouă</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
+    <value>Reîncarcă texturile</value>
+  </data>
+  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
+    <value>Modurile locale nu sunt permise în multiplayer. Folosiți în schimb moduri de pe atelier.</value>
+  </data>
+  <data name="ScreenMods_LocalMod" xml:space="preserve">
+    <value>Mod local</value>
+  </data>
+  <data name="ScreenMods_MissingDetails" xml:space="preserve">
+    <value>Nu s-au putut prelua detaliile modului de pe Steam</value>
+  </data>
+  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
+    <value>Mod local lipsă</value>
+  </data>
+  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
+    <value>Mod atelier</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
+    <value>Reîncarcă modelele</value>
+  </data>
+  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
+    <value>Copie jurnalul în memoria sistemului</value>
+  </data>
+  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
+    <value>Atenție: Toate navele vor fi șterse în {0:F1} metrii!</value>
+  </data>
+  <data name="PlayerCharacterModel" xml:space="preserve">
+    <value>Model jucător</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
+    <value>Moduri</value>
+  </data>
+  <data name="NotificationHintPressToUse" xml:space="preserve">
+    <value>Apăsați {0} pentru a utiliza {1}</value>
+  </data>
+  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
+    <value>Alege server pentru a vedea lista modurilor</value>
+  </data>
+  <data name="ScreenMods_SearchLabel" xml:space="preserve">
+    <value>Caută</value>
+  </data>
+  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
+    <value>Nu am putut obține lista de moduri de la server</value>
+  </data>
+  <data name="HudWarnings" xml:space="preserve">
+    <value>Avertismente pe ecran</value>
+  </data>
+  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
+    <value>Această lume nu poate fi încărcată. A fost creată într-o versiune mai nouă a jocului.</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
+    <value>Acest obiect de pe atelier pare să nu vă aparțină. Asigurați-vă că v-ați autentificat pe contul corect.</value>
+  </data>
+  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
+    <value>Exportă memoria către fișier</value>
+  </data>
+  <data name="ToolTipSaveShip" xml:space="preserve">
+    <value>Salvează navele din memorie în fișier</value>
+  </data>
+  <data name="AddNewNPC" xml:space="preserve">
+    <value>Adaugă o nouă identitate inamică</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Unelte</value>
+  </data>
+  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
+    <value>Etichete selectate</value>
+  </data>
+  <data name="WorkshopTag_Animation" xml:space="preserve">
+    <value>Animații</value>
+  </data>
+  <data name="WorkshopTag_Block" xml:space="preserve">
+    <value>Bloc</value>
+  </data>
+  <data name="WorkshopTag_Character" xml:space="preserve">
+    <value>Personaj</value>
+  </data>
+  <data name="WorkshopTag_Other" xml:space="preserve">
+    <value>Altele</value>
+  </data>
+  <data name="WorkshopTag_Skybox" xml:space="preserve">
+    <value>Fundal cer</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
+    <value>Nu am putut actualiza deoarece nu sunteți proprietarul acestui mod.</value>
+  </data>
+  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
+    <value>Unele moduri nu au fost încărcate din cauza erorilor. Vedeți fișierul jurnal pentru detalii sau rulați jocul in modul offline ca să puteți accesa ecranul de depanare.</value>
+  </data>
+  <data name="RenderIterpolation" xml:space="preserve">
+    <value>Interpolare randare</value>
+  </data>
+  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
+    <value>Reduce blocajele și face jocul mai lin.</value>
+  </data>
+  <data name="WorkshopTag_ModPack" xml:space="preserve">
+    <value>Pachet moduri</value>
+  </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
+    <value>Categorii unelte și obiecte:</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
+    <value>Căutare:</value>
+  </data>
+  <data name="ControlDescCopyPasteMove" xml:space="preserve">
+    <value>Mută obiectul lipit</value>
+  </data>
+  <data name="WorkshopTag_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
+    <value>Unele blocuri din nava lipită nu există în această lume</value>
+  </data>
+  <data name="ConvertingObjs" xml:space="preserve">
+    <value>Conversie modele. Vă rugăm așteptați.</value>
+  </data>
+  <data name="ConvertToObjDone" xml:space="preserve">
+    <value>Toate modelele au fost convertite.</value>
+  </data>
+  <data name="ExportingToObj" xml:space="preserve">
+    <value>Modelul este exportat. Vă rugăm așteptați.</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
+    <value>Nava lipită conține unele blocuri care nu există în această lume. Aceste blocuri nu vor fi create, care probabil vor cauza nava să se despartă. Sunteți sigur că doriti să lipiți această navă ?</value>
+  </data>
+  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
+    <value>Obiectul nu exista in aceasta lume</value>
+  </data>
+  <data name="ShipWelder_HelpOthers" xml:space="preserve">
+    <value>Ajută pe Alții</value>
+  </data>
+  <data name="PlacingObjectsToScene" xml:space="preserve">
+    <value>Obiectele se pun în lume. Vă rugăm așteptați.</value>
+  </data>
+  <data name="ControlTypeSystems3" xml:space="preserve">
+    <value>Sisteme 3</value>
+  </data>
+  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
+    <value>Arma schimbată la: {0}</value>
+  </data>
+  <data name="Thrust_Back" xml:space="preserve">
+    <value>Înapoi</value>
+  </data>
+  <data name="Thrust_Down" xml:space="preserve">
+    <value>Jos</value>
+  </data>
+  <data name="Thrust_Forward" xml:space="preserve">
+    <value>Înainte</value>
+  </data>
+  <data name="Thrust_Left" xml:space="preserve">
+    <value>Stânga</value>
+  </data>
+  <data name="Thrust_Right" xml:space="preserve">
+    <value>Dreapta</value>
+  </data>
+  <data name="Thrust_Up" xml:space="preserve">
+    <value>Sus</value>
+  </data>
+  <data name="SelectBlueprint" xml:space="preserve">
+    <value>Alege</value>
+  </data>
+  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
+    <value>Rușine</value>
+  </data>
+  <data name="AvailableBlueprints" xml:space="preserve">
+    <value>Planuri Disponibile</value>
+  </data>
+  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
+    <value>Rază</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
+    <value>Lățime</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
+    <value>Adâncime</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
+    <value>Înălțime</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
+    <value>Distanță</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
+    <value>Setări Pensulă</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
+    <value>Transparență</value>
+  </data>
+  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
+    <value>Setări Formă</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
+    <value>Lungime</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
+    <value>Rază</value>
+  </data>
+  <data name="ExportToObjModded" xml:space="preserve">
+    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
+    <value>Fixare pe grila voxel</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
+    <value>Zonă</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
+    <value>Alege axă</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
+    <value>Axa X</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
+    <value>Axa Y</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
+    <value>Axa Z</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
+    <value>Mesaj nou în chat-ul facțiunii {0}</value>
+  </data>
+  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
+    <value>Mesaj nou in chat-ul global</value>
+  </data>
+  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
+    <value>Mesaj nou de la {0}</value>
+  </data>
+  <data name="ErrorDescriptionTooLong" xml:space="preserve">
+    <value>Descrierea este prea lungă (maxim 8000 caractere permise)</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Descriere</value>
+  </data>
+  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
+    <value>Alegeți categorii</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
+    <value>Distanță vedere: {0}m</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
+    <value>Proiectează ca voxel</value>
+  </data>
+  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
+    <value>Materialul voxel următor</value>
+  </data>
+  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
+    <value>Deschide setări mănuși voxel</value>
+  </data>
+  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
+    <value>Materialul voxel anterior</value>
+  </data>
+  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
+    <value>Sunteți sigur că doriți să înlocuiți această schiță cu schița din memorie ?</value>
+  </data>
+  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
+    <value>Înlocuiește</value>
+  </data>
+  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
+    <value>Panoul text este numai pentru citire</value>
+  </data>
+  <data name="MessageBoxTextTooLongText" xml:space="preserve">
+    <value>Textul este prea lung. Doriți ca textul sa fie tăiat?</value>
+  </data>
+  <data name="ControlDescExportModel" xml:space="preserve">
+    <value>Exportează model</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
+    <value>Arată cubul delimitant</value>
+  </data>
+  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
+    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
+Do you want to continue?</value>
+  </data>
+  <data name="NotificationRotationFormatCombined" xml:space="preserve">
+    <value>Press {0} to rotate the block</value>
+  </data>
+  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} or {1} to toggle compound building</value>
+  </data>
+  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
+    <value>Press {0} to toggle dynamic building</value>
+  </data>
+  <data name="ControlName_SwitchWalk" xml:space="preserve">
+    <value>Switch walk</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
+    <value>Lista de servere favorite</value>
+  </data>
+  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
+    <value>Favorite</value>
+  </data>
+  <data name="JoinGame_TabTitle_History" xml:space="preserve">
+    <value>Istoric</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
+    <value>The list of friends servers</value>
+  </data>
+  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
+    <value>The list of previously visited servers</value>
+  </data>
+  <data name="JoinGame_Favorites_Add" xml:space="preserve">
+    <value>Adaugă serverul la favorite</value>
+  </data>
+  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
+    <value>Șterge serverul de la favorite</value>
+  </data>
+  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
+    <value>Open voxel hand settings</value>
+  </data>
+  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
+    <value>Press {0} to open voxel hand settings</value>
+  </data>
+  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} or {1} to change voxel material</value>
+  </data>
+  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
+    <value>Enable bots debugging</value>
+  </data>
+  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
+    <value>Next bot</value>
+  </data>
+  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
+    <value>Previous bot</value>
+  </data>
+  <data name="BotSettingsScreen_Title" xml:space="preserve">
+    <value>Bots settings</value>
+  </data>
+  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
+    <value>Bots settings</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+</root>

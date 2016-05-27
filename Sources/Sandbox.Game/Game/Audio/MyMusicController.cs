@@ -373,16 +373,18 @@ namespace Sandbox.Game.Audio
 
         private void PlayMusic(MyCueId cue, MyStringHash effect, int effectDuration = 2000, MyCueId[] cueIds = null, bool play = true)
         {
+            if (MyAudio.Static == null)
+                return;
             if(play)
                 m_musicSourceVoice = MyAudio.Static.PlayMusicCue(cue, true);
             if (m_musicSourceVoice != null)
             {
                 if (effect != MyStringHash.NullOrEmpty)
                 {
-                    var effectSourceVoice = MyAudio.Static.ApplyEffect(m_musicSourceVoice, effect, cueIds, effectDuration);
-                    m_musicSourceVoice = effectSourceVoice.OutputSound;
+                    m_musicSourceVoice = MyAudio.Static.ApplyEffect(m_musicSourceVoice, effect, cueIds, effectDuration).OutputSound;
                 }
-                m_musicSourceVoice.StoppedPlaying += MusicStopped;
+                if (m_musicSourceVoice != null)
+                    m_musicSourceVoice.StoppedPlaying += MusicStopped;
             }
             m_lastMusicData = MyAudio.Static.GetCue(cue);
         }

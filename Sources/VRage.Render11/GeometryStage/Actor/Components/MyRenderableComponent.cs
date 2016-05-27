@@ -1025,7 +1025,7 @@ namespace VRageRender
                 {
                     float value = 0;
 
-                    if (m_objectDithering != 0 && (renderableProxy.Instancing != InstancingId.NULL && renderableProxy.Instancing.Info.Type == MyRenderInstanceBufferType.Cube))
+                    if (m_objectDithering != 0)
                     {
                         value = m_objectDithering;
                     }
@@ -1035,7 +1035,8 @@ namespace VRageRender
                         // This is done so that when blending between two lod levels, one pixel will be from current lod
                         // and the other from the next lod and there are no missing pixels.
                         // Could not use negative because that currently means hologram rendering.
-                        value = (renderableProxy.Lod == m_lod ? Math.Abs(m_lodTransitionState) : (2.0f - Math.Abs(m_lodTransitionState)));
+                        // SL: Moved inversed dithering to values of 2 to 3 instead of 1 to 2 to make sure the values don't overlap
+                        value = (renderableProxy.Lod == m_lod ? Math.Abs(m_lodTransitionState) : (3.0f - Math.Abs(m_lodTransitionState)));
                     }
 
                     renderableProxy.CommonObjectData.CustomAlpha = value;

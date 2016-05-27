@@ -1,0 +1,2174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
+    <value>Tiešām vēlies iziet?</value>
+  </data>
+  <data name="AssignControlKeyboard" xml:space="preserve">
+    <value>Nospied izvēlēto taustiņu </value>
+  </data>
+  <data name="AssignControlMouse" xml:space="preserve">
+    <value>Lūdzu nospied peles pogu</value>
+  </data>
+  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
+    <value>Skaņa</value>
+  </data>
+  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
+    <value>Skaņas iestatījumi</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Atcelt</value>
+  </data>
+  <data name="CanNotAssignControl" xml:space="preserve">
+    <value>NEVAR PIEŠĶIRT TAUSTIŅU</value>
+  </data>
+  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
+    <value>Turpināt pēdējo</value>
+  </data>
+  <data name="ControlAlreadyAssigned" xml:space="preserve">
+    <value>{0} jau tiek izmantots {1}.
+Izdzēst esošo uzstādījumu?</value>
+  </data>
+  <data name="ControlIsNotValid" xml:space="preserve">
+    <value>Nospiesto taustiņu nevar izmantot vadībai.</value>
+  </data>
+  <data name="ScreenCaptionControls" xml:space="preserve">
+    <value>Vadība</value>
+  </data>
+  <data name="ScreenMenuButtonCredits" xml:space="preserve">
+    <value>Autori</value>
+  </data>
+  <data name="KeysDelete" xml:space="preserve">
+    <value>Dzēst</value>
+  </data>
+  <data name="KeysDown" xml:space="preserve">
+    <value>Uz leju</value>
+  </data>
+  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
+    <value>Vai vēlies saglabāt izmaiņas? Palikušas {0} sekundes. </value>
+  </data>
+  <data name="KeysEnd" xml:space="preserve">
+    <value>Beigas</value>
+  </data>
+  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
+    <value>Iziet uz galveno izvēlni</value>
+  </data>
+  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
+    <value>Iziet no spēles pilnībā</value>
+  </data>
+  <data name="FieldOfView" xml:space="preserve">
+    <value>Redzes lauks (FOV)</value>
+  </data>
+  <data name="ScreenOptionsButtonGame" xml:space="preserve">
+    <value>Spēle</value>
+  </data>
+  <data name="ScreenCaptionGameOptions" xml:space="preserve">
+    <value>Spēles iestatījumi</value>
+  </data>
+  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
+    <value>Geimpads</value>
+  </data>
+  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
+    <value>Analogās</value>
+  </data>
+  <data name="GameVolume" xml:space="preserve">
+    <value>Skaņu skaļums</value>
+  </data>
+  <data name="ControlTypeGeneral" xml:space="preserve">
+    <value>Pamata</value>
+  </data>
+  <data name="HardwareCursor" xml:space="preserve">
+    <value>Aparatūras kursors</value>
+  </data>
+  <data name="ControlName_Help" xml:space="preserve">
+    <value>Palīdzība</value>
+  </data>
+  <data name="KeysHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="KeysInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="InvertMouseX" xml:space="preserve">
+    <value>Invertēt peles X asi</value>
+  </data>
+  <data name="InvertMouseY" xml:space="preserve">
+    <value>Invertēt peles Y asi</value>
+  </data>
+  <data name="Joystick" xml:space="preserve">
+    <value>Džoistiks vai geimpads</value>
+  </data>
+  <data name="JoystickButtonLeft" xml:space="preserve">
+    <value>JDLeft</value>
+  </data>
+  <data name="JoystickButtonRight" xml:space="preserve">
+    <value>JDRight</value>
+  </data>
+  <data name="JoystickButtonUp" xml:space="preserve">
+    <value>JDUp</value>
+  </data>
+  <data name="JoystickButtonDown" xml:space="preserve">
+    <value>JDDown</value>
+  </data>
+  <data name="JoystickDeadzone" xml:space="preserve">
+    <value>Džoistika aklā zona</value>
+  </data>
+  <data name="JoystickExponent" xml:space="preserve">
+    <value>Džoistika precizitāte</value>
+  </data>
+  <data name="JoystickSensitivity" xml:space="preserve">
+    <value>Džoistika jutība</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
+    <value>Tastatūra</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Valoda</value>
+  </data>
+  <data name="KeysLeft" xml:space="preserve">
+    <value>Pa kreisi</value>
+  </data>
+  <data name="KeysLeftAlt" xml:space="preserve">
+    <value>Kreisais Alt</value>
+  </data>
+  <data name="KeysLeftControl" xml:space="preserve">
+    <value>Kreisais Ctrl</value>
+  </data>
+  <data name="LeftMouseButton" xml:space="preserve">
+    <value>Kreisā peles poga</value>
+  </data>
+  <data name="KeysLeftShift" xml:space="preserve">
+    <value>Kreisais Shift</value>
+  </data>
+  <data name="LoadScreenButtonLoad" xml:space="preserve">
+    <value>Ielādēt</value>
+  </data>
+  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
+    <value>IELĀDĒJAS ... LŪDZU, GAIDIET</value>
+  </data>
+  <data name="MessageBoxCaptionError" xml:space="preserve">
+    <value>KĻŪDA</value>
+  </data>
+  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
+    <value>LŪDZU, APSTIPRINI</value>
+  </data>
+  <data name="MessageBoxCaptionExit" xml:space="preserve">
+    <value>IZIET</value>
+  </data>
+  <data name="MiddleMouseButton" xml:space="preserve">
+    <value>Vidējā peles poga</value>
+  </data>
+  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
+    <value>Pele</value>
+  </data>
+  <data name="MouseSensitivity" xml:space="preserve">
+    <value>Peles jutīgums</value>
+  </data>
+  <data name="MouseXButton1" xml:space="preserve">
+    <value>Peles papildpoga 1</value>
+  </data>
+  <data name="MouseXButton2" xml:space="preserve">
+    <value>Peles papildpoga 2</value>
+  </data>
+  <data name="ControlTypeNavigation" xml:space="preserve">
+    <value>Navigācija</value>
+  </data>
+  <data name="ScreenCaptionNewWorld" xml:space="preserve">
+    <value>Jauna Pasaule</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Nē</value>
+  </data>
+  <data name="KeysNumPad0" xml:space="preserve">
+    <value>Num 0</value>
+  </data>
+  <data name="KeysNumPad1" xml:space="preserve">
+    <value>Num 1</value>
+  </data>
+  <data name="KeysNumPad2" xml:space="preserve">
+    <value>Num 2</value>
+  </data>
+  <data name="KeysNumPad3" xml:space="preserve">
+    <value>Num 3</value>
+  </data>
+  <data name="KeysNumPad4" xml:space="preserve">
+    <value>Num 4</value>
+  </data>
+  <data name="KeysNumPad5" xml:space="preserve">
+    <value>Num 5</value>
+  </data>
+  <data name="KeysNumPad6" xml:space="preserve">
+    <value>Num 6</value>
+  </data>
+  <data name="KeysNumPad7" xml:space="preserve">
+    <value>Num 7</value>
+  </data>
+  <data name="KeysNumPad8" xml:space="preserve">
+    <value>Num 8</value>
+  </data>
+  <data name="KeysNumPad9" xml:space="preserve">
+    <value>Num 9</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>Labi</value>
+  </data>
+  <data name="ScreenCaptionOptions" xml:space="preserve">
+    <value>Iestatījumi</value>
+  </data>
+  <data name="KeysPageDown" xml:space="preserve">
+    <value>PgDown</value>
+  </data>
+  <data name="KeysPageUp" xml:space="preserve">
+    <value>PgUp</value>
+  </data>
+  <data name="RecommendedAspectRatio" xml:space="preserve">
+    <value>Ieteicamās proporcijas: {0}</value>
+  </data>
+  <data name="Revert" xml:space="preserve">
+    <value>Orģinālie uzstādijumi</value>
+  </data>
+  <data name="KeysRight" xml:space="preserve">
+    <value>Pa Labi</value>
+  </data>
+  <data name="KeysRightAlt" xml:space="preserve">
+    <value>Labais Alt</value>
+  </data>
+  <data name="KeysRightControl" xml:space="preserve">
+    <value>Labais Ctrl</value>
+  </data>
+  <data name="RightMouseButton" xml:space="preserve">
+    <value>Labā peles poga</value>
+  </data>
+  <data name="KeysRightShift" xml:space="preserve">
+    <value>Labais Shift</value>
+  </data>
+  <data name="SelectControl" xml:space="preserve">
+    <value>IZVĒLĒTIES VADĪBU</value>
+  </data>
+  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
+    <value>IEPLĀNOTA SERVERA ATSLĒGŠANA</value>
+  </data>
+  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
+    <value>Piedodiet, bet jūsu aparatūra neatbalsta izvēlētos iestatījumus.</value>
+  </data>
+  <data name="KeysSpace" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
+    <value>Spēle sākas... lūdzu gaidiet.</value>
+  </data>
+  <data name="ControlName_StrafeLeft" xml:space="preserve">
+    <value>Streifot pa kreisi</value>
+  </data>
+  <data name="ControlName_StrafeRight" xml:space="preserve">
+    <value>Streifot pa labi</value>
+  </data>
+  <data name="ControlTypeSystems1" xml:space="preserve">
+    <value>Dažādi 1</value>
+  </data>
+  <data name="ControlTypeSystems2" xml:space="preserve">
+    <value>Dažādi 2</value>
+  </data>
+  <data name="KeysTab" xml:space="preserve">
+    <value>Tab</value>
+  </data>
+  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
+    <value>Nevarēja palaist pārlūku.</value>
+  </data>
+  <data name="UnknownControl_None" xml:space="preserve">
+    <value>nav</value>
+  </data>
+  <data name="KeysUp" xml:space="preserve">
+    <value>Uz augšu</value>
+  </data>
+  <data name="ControlName_UseOrInteract" xml:space="preserve">
+    <value>Lietot / Izmantot</value>
+  </data>
+  <data name="VerticalSync" xml:space="preserve">
+    <value>Vertikālā sinhronizācija</value>
+  </data>
+  <data name="VideoMode" xml:space="preserve">
+    <value>Izšķirtspēja</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
+    <value>Darbarīki / Ieroči</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Jā</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Nav Pieejams</value>
+  </data>
+  <data name="JoystickRotationXpos" xml:space="preserve">
+    <value>JRX+</value>
+  </data>
+  <data name="JoystickRotationYpos" xml:space="preserve">
+    <value>JRY+</value>
+  </data>
+  <data name="JoystickRotationZpos" xml:space="preserve">
+    <value>JRZ+</value>
+  </data>
+  <data name="JoystickSlider1pos" xml:space="preserve">
+    <value>JS1+</value>
+  </data>
+  <data name="JoystickSlider2pos" xml:space="preserve">
+    <value>JS2+</value>
+  </data>
+  <data name="JoystickRotationXneg" xml:space="preserve">
+    <value>JRX-</value>
+  </data>
+  <data name="JoystickRotationYneg" xml:space="preserve">
+    <value>JRY-</value>
+  </data>
+  <data name="JoystickRotationZneg" xml:space="preserve">
+    <value>JRZ-</value>
+  </data>
+  <data name="JoystickSlider1neg" xml:space="preserve">
+    <value>JS1-</value>
+  </data>
+  <data name="JoystickSlider2neg" xml:space="preserve">
+    <value>JS2-</value>
+  </data>
+  <data name="KeysDecimal" xml:space="preserve">
+    <value>Num .</value>
+  </data>
+  <data name="KeysBackslash" xml:space="preserve">
+    <value>Reversā slīpsvītra</value>
+  </data>
+  <data name="KeysComma" xml:space="preserve">
+    <value>Komats</value>
+  </data>
+  <data name="KeysMinus" xml:space="preserve">
+    <value>Mīnuss</value>
+  </data>
+  <data name="KeysOpenBracket" xml:space="preserve">
+    <value>[</value>
+  </data>
+  <data name="KeysCloseBracket" xml:space="preserve">
+    <value>]</value>
+  </data>
+  <data name="KeysPeriod" xml:space="preserve">
+    <value>Punkts</value>
+  </data>
+  <data name="KeysPipe" xml:space="preserve">
+    <value>Caurule</value>
+  </data>
+  <data name="KeysPlus" xml:space="preserve">
+    <value>Pluss</value>
+  </data>
+  <data name="KeysQuestion" xml:space="preserve">
+    <value>Slīpsvītra</value>
+  </data>
+  <data name="KeysQuotes" xml:space="preserve">
+    <value>Citāts</value>
+  </data>
+  <data name="KeysSemicolon" xml:space="preserve">
+    <value>Kols</value>
+  </data>
+  <data name="KeysTilde" xml:space="preserve">
+    <value>~</value>
+  </data>
+  <data name="KeysMultiply" xml:space="preserve">
+    <value>Num *</value>
+  </data>
+  <data name="KeysDivide" xml:space="preserve">
+    <value>Num /</value>
+  </data>
+  <data name="KeysAdd" xml:space="preserve">
+    <value>Num +</value>
+  </data>
+  <data name="KeysSubtract" xml:space="preserve">
+    <value>Num -</value>
+  </data>
+  <data name="KeysCapsLock" xml:space="preserve">
+    <value>Caps Lock</value>
+  </data>
+  <data name="KeysEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="KeysBackspace" xml:space="preserve">
+    <value>Backsp.</value>
+  </data>
+  <data name="ApplyingPleaseWait" xml:space="preserve">
+    <value>Ieviešu izmaiņas... lūdzu gaidiet</value>
+  </data>
+  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
+    <value>Tevi nogalināja</value>
+  </data>
+  <data name="MusicVolume" xml:space="preserve">
+    <value>Mūzikas skaļums</value>
+  </data>
+  <data name="VideoAdapter" xml:space="preserve">
+    <value>Videokarte</value>
+  </data>
+  <data name="DefaultFOV" xml:space="preserve">
+    <value>Pēc noklusējuma: {0:F1}</value>
+  </data>
+  <data name="WorldLoaded" xml:space="preserve">
+    <value>Pasaule {0} ielādēta</value>
+  </data>
+  <data name="ControlName_Screenshot" xml:space="preserve">
+    <value>Ekrānšāviņš</value>
+  </data>
+  <data name="ControlName_PreviousColor" xml:space="preserve">
+    <value>Prev. Color or Camera</value>
+  </data>
+  <data name="ControlName_NextColor" xml:space="preserve">
+    <value>Next Color or Camera</value>
+  </data>
+  <data name="WorldSaved" xml:space="preserve">
+    <value>Pasaule '{0}' saglabāta</value>
+  </data>
+  <data name="Blueprints" xml:space="preserve">
+    <value>Rasējumi</value>
+  </data>
+  <data name="Factions" xml:space="preserve">
+    <value>Frakcijas</value>
+  </data>
+  <data name="BlueprintMaterials" xml:space="preserve">
+    <value>Rasējuma Materiāli</value>
+  </data>
+  <data name="ProductionQueue" xml:space="preserve">
+    <value>Ražošanas Rinda</value>
+  </data>
+  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
+    <value>Mainīt iestatījumus</value>
+  </data>
+  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
+    <value>Pielāgota Pasaule</value>
+  </data>
+  <data name="ErrorNameTooLong" xml:space="preserve">
+    <value>Name is too long (max 128 characters allowed)</value>
+  </data>
+  <data name="ErrorNameTooShort" xml:space="preserve">
+    <value>Vārds ir par īsu (atļauts ne mazāk kā 5 simboli)</value>
+  </data>
+  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
+    <value>Izdzīvošana</value>
+  </data>
+  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
+    <value>Pievienoties Pasaulei</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nosaukums</value>
+  </data>
+  <data name="WorldSettings_OnlineMode" xml:space="preserve">
+    <value>Online mode</value>
+  </data>
+  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
+    <value>Privāts</value>
+  </data>
+  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
+    <value>Publiska</value>
+  </data>
+  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
+    <value>Ātrais starts</value>
+  </data>
+  <data name="ToolTipWorldSettingsName" xml:space="preserve">
+    <value>Name must be {0} to {1} alpha-numeric characters</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
+    <value>Tiešām vēlies izdzēst '{0}'?</value>
+  </data>
+  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
+    <value>Ielādēt Pasauli</value>
+  </data>
+  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
+    <value>Saglabāt Kā...</value>
+  </data>
+  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
+    <value>Creative</value>
+  </data>
+  <data name="PlayerCharacter" xml:space="preserve">
+    <value>Spēlētāja Tēls</value>
+  </data>
+  <data name="WorldSettings_AutoSave" xml:space="preserve">
+    <value>Auto-save</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
+    <value>Auto-save saves the state of your world every {0} minutes or when exiting the game</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
+    <value>Vai vēlaties saglabāt savu progresu?</value>
+  </data>
+  <data name="SaveWorld" xml:space="preserve">
+    <value>Saglabāt Pasauli</value>
+  </data>
+  <data name="ScreenMenuButtonSave" xml:space="preserve">
+    <value>Saglabāt</value>
+  </data>
+  <data name="SavingPleaseWait" xml:space="preserve">
+    <value>Saglabā... lūdzu gaidiet</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Paplašināti</value>
+  </data>
+  <data name="AdvancedControls" xml:space="preserve">
+    <value>Paplašināta Vadība</value>
+  </data>
+  <data name="ControlName_Backward" xml:space="preserve">
+    <value>Atpakaļ</value>
+  </data>
+  <data name="BasicControls" xml:space="preserve">
+    <value>Pamata Vadība</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Aizvērt</value>
+  </data>
+  <data name="ControlName_DownOrCrouch" xml:space="preserve">
+    <value>Lejup vai Pieliekties</value>
+  </data>
+  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
+    <value>Skats no acīm/ Skats no muguras</value>
+  </data>
+  <data name="ControlName_Forward" xml:space="preserve">
+    <value>Uz priekšu</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>NākamāLapa</value>
+  </data>
+  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
+    <value>Nospied {0} palīdzībai un padomiem</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Iepriekšējā Lapa</value>
+  </data>
+  <data name="ShowControlsHints" xml:space="preserve">
+    <value>Parādīt vadības instrukciju </value>
+  </data>
+  <data name="SteamGuide" xml:space="preserve">
+    <value>Palīdzība</value>
+  </data>
+  <data name="ControlName_UpOrJump" xml:space="preserve">
+    <value>Augšup vai Lēkt</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
+    <value>Pagriezt bloku vertikāli -</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
+    <value>Pagriezt bloku vertikāli +</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
+    <value>Pagriezt bloku horizontāli -</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
+    <value>Pagriezt bloku horizontāli +</value>
+  </data>
+  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
+    <value>Rotēt bloku plaknē -</value>
+  </data>
+  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
+    <value>Rotēt bloku plaknē +</value>
+  </data>
+  <data name="ControlName_Slot0" xml:space="preserve">
+    <value>Noņemt</value>
+  </data>
+  <data name="ControlName_Slot1" xml:space="preserve">
+    <value>Paņemt lietu no 1. slota</value>
+  </data>
+  <data name="ControlName_Slot2" xml:space="preserve">
+    <value>Paņemt lietu no 2. slota</value>
+  </data>
+  <data name="ControlName_Slot3" xml:space="preserve">
+    <value>Paņemt lietu no 3. slota</value>
+  </data>
+  <data name="ControlName_Slot4" xml:space="preserve">
+    <value>Paņemt lietu no 4. slota</value>
+  </data>
+  <data name="ControlName_Slot5" xml:space="preserve">
+    <value>Paņemt lietu no 5. slota</value>
+  </data>
+  <data name="ControlName_Slot6" xml:space="preserve">
+    <value>Paņemt lietu no 6. slota</value>
+  </data>
+  <data name="ControlName_Slot7" xml:space="preserve">
+    <value>Paņemt lietu no 7. slota</value>
+  </data>
+  <data name="ControlName_Slot8" xml:space="preserve">
+    <value>Paņemt lietu no 8. slota</value>
+  </data>
+  <data name="ControlName_Slot9" xml:space="preserve">
+    <value>Paņemt lietu no 9. slota</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
+    <value>Tiešām vēlies izmantot Ātro Ielādi (Quick Load)?</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
+    <value>Tiešām vēlies izmantot Ātro Saglabāšanu (Quick Save)?</value>
+  </data>
+  <data name="ControlName_ToolbarConfig" xml:space="preserve">
+    <value>Rīkjoslas iestatījumi</value>
+  </data>
+  <data name="ControlName_HoldToLookAround" xml:space="preserve">
+    <value>Nospied un turi, lai skatītos apkārt</value>
+  </data>
+  <data name="ControlName_HoldToSprint" xml:space="preserve">
+    <value>Nospied un turi, lai skrietu</value>
+  </data>
+  <data name="LoadingPleaseWait" xml:space="preserve">
+    <value>Notiek ielāde ... lūdzu, gaidiet</value>
+  </data>
+  <data name="NoPlaceToCreateGrid" xml:space="preserve">
+    <value>Nav vietas, lai izveidotu jaunu bloku. Pavērsies pret brīvāku vietu.</value>
+  </data>
+  <data name="ControlName_HudOnOff" xml:space="preserve">
+    <value>Ķiveres Displejs ieslēgts / izslēgts</value>
+  </data>
+  <data name="ScreenCubeBuilderHint" xml:space="preserve">
+    <value>Padoms: Velc sīktēlu uz rīkjoslas slotu un aktivē to ar ciparu taustiņu.</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Saglabāts</value>
+  </data>
+  <data name="HideWeapon" xml:space="preserve">
+    <value>Noslēpt ieroci</value>
+  </data>
+  <data name="Thrust" xml:space="preserve">
+    <value>Dzinējspēks</value>
+  </data>
+  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
+    <value>Viens no Pasaules/Saglabāšanas failiem ir bojāts un nevar tikt ielādēts.
+Skaties log'u, lai uzzinātu vairāk </value>
+  </data>
+  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
+    <value>Pasauli saturošs fails ir bojāts un to vairs nevar ielādēt.</value>
+  </data>
+  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
+    <value>Create a new world with custom settings</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
+    <value>Augstāka rendering'a kvalitāte nozīme labāku grafiku, lielāku pārredzamo distanci un vairāk specefektu -
+tomēr, tam vajadzīgi datora resursi (procesora un videokartes). 
+Ja spēle raustās, samazini rendering'a kvalitāti </value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
+    <value>Select a graphic adapter and/or a monitor</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
+    <value>Izvēlies ekrāna izšķirtspēju. Mēs rekomendējam izvēlēties ar monitoru savienojamas proporcijas.
+Ja spēle raustās, samazini izšķirtspēju.</value>
+  </data>
+  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
+    <value>Hardware peles kursors nav atkarīgs no FPS. Mēs iesakām ieslēgt to.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
+    <value>Spēle sinhronizēsies ar monitora atjaunināšanas ātrumu. Mēs iesakām šo funkciju izslēgt</value>
+  </data>
+  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
+    <value>Horizontāls skata leņķis</value>
+  </data>
+  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
+    <value>Show on-screen control hints during gameplay</value>
+  </data>
+  <data name="WorldNotSaved" xml:space="preserve">
+    <value>Pasaule '{0}' netika saglabāta. To varēja izraisīt atmiņas nepietiekamība vai problēmas, rakstot failus. Turpmākais darbs uz šīs Pasaules var tikt zaudēts pilnībā. Vari pārbaudīt loga failu, lai atrastu, kas izraisījis šo kļūdu.</value>
+  </data>
+  <data name="NotificationMemoryOverload" xml:space="preserve">
+    <value>Not enough memory to add new objects</value>
+  </data>
+  <data name="BetterGCIsAvailable" xml:space="preserve">
+    <value>We have detected a better graphics card in your computer than the one the game currently runs on. Please check your NVIDIA/AMD Control Panel settings.</value>
+  </data>
+  <data name="MessageBoxCaptionWarning" xml:space="preserve">
+    <value>BRĪDINĀJUMS</value>
+  </data>
+  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
+    <value>This will open {0} in your internet browser. The game will keep running. Do you want to continue?</value>
+  </data>
+  <data name="Loaded" xml:space="preserve">
+    <value>Ielāde pabeigta</value>
+  </data>
+  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
+    <value>Saglabāto Pasauļu nav. Lūdzu, sāciet ar jaunas Pasaules izveidi.</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
+    <value>Video padomi</value>
+  </data>
+  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
+    <value>Saglabāt izmaiņas pirms iziešanas?</value>
+  </data>
+  <data name="ErrorNameAlreadyExists" xml:space="preserve">
+    <value>Vārds jau tiek izmantots. Lūdzu izvēlieties citu vārdu.</value>
+  </data>
+  <data name="NotificationBuildingFormat" xml:space="preserve">
+    <value>Press {0} to place cube</value>
+  </data>
+  <data name="NotificationColorFormat" xml:space="preserve">
+    <value>Nospied {0} vai {1} , lai mainītu krāsu. Nospied un turi {2} , lai pielietotu krāsu. Nospied un turi {3} vai {4} , lai palielinātu otas izmēru.</value>
+  </data>
+  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
+    <value>You can hide these hints in Game Options</value>
+  </data>
+  <data name="NotificationHudHideFormat" xml:space="preserve">
+    <value>Press {0} to hide/unhide the HUD</value>
+  </data>
+  <data name="NotificationRotationFormat" xml:space="preserve">
+    <value>Nospied {0}, {1}, {2}, {3}, {4}, {5} , lai pagrieztu</value>
+  </data>
+  <data name="NotificationScreenFormat" xml:space="preserve">
+    <value>Nospied {0} , lai iestatītu rīkjoslu vai radītu jaunus objektus </value>
+  </data>
+  <data name="NotificationSlotEquipFormat" xml:space="preserve">
+    <value>Nospied {0}, {1}, {2}, ... lai paņemtu lietu no slota</value>
+  </data>
+  <data name="NotificationToolDisabled" xml:space="preserve">
+    <value>Šis instruments/ierocis ir atslēgts</value>
+  </data>
+  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Nospied {0} , lai pievienotu bloku, nospied {1} , lai izdzēstu bloku. Nospied un turi {2} , lai būvētu ātri</value>
+  </data>
+  <data name="ControlDescQuickLoad" xml:space="preserve">
+    <value>Ātrā Ielāde (Quick Load)</value>
+  </data>
+  <data name="ControlDescQuickSave" xml:space="preserve">
+    <value>Ātrā Saglabāšana (Quick Save)</value>
+  </data>
+  <data name="MouseWheel" xml:space="preserve">
+    <value>Mouse wheel</value>
+  </data>
+  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
+    <value>Tab content:</value>
+  </data>
+  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
+    <value>Radošais režīms</value>
+  </data>
+  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
+    <value>Iestati savu rīkjoslu (iestati celtniecības blokus, rīkus un ieročus)</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
+    <value>Rīkjosla</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
+    <value>Rīkjoslas Konfigurācija</value>
+  </data>
+  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
+    <value>Steam Overlay izslēgts</value>
+  </data>
+  <data name="LoadScreenButtonPublish" xml:space="preserve">
+    <value>Publicēt</value>
+  </data>
+  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
+    <value>Darbs publicēts veiksmīgi. Ja Steam Overlay ir ieslēgts, tiks atvērta jauna lapa, kurā varēs norādīt darba atribūtus, tādus kā: virsraksts, apraksts vai redzamība citiem lietotājiem (publiska pēc noklusējuma)</value>
+  </data>
+  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
+    <value>Neizdevās publicēt Steam Workshopā</value>
+  </data>
+  <data name="MessageBoxTextModPublished" xml:space="preserve">
+    <value>Publish has been completed successfully. If you have Steam Overlay enabled, a page will open and you can edit attributes such as title, description or visibility (it is public by default).</value>
+  </data>
+  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
+    <value>Failed to publish on Steam Workshop</value>
+  </data>
+  <data name="ProgressTextPublishingWorld" xml:space="preserve">
+    <value>Publicēju ... lūdzu, gaidiet.</value>
+  </data>
+  <data name="ProgressTextUploadingWorld" xml:space="preserve">
+    <value>Augšupielādēju ... lūdzu, gaidiet.</value>
+  </data>
+  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ProgressTextCreatingWorld" xml:space="preserve">
+    <value>Veidoju Pasauli ... lūdzu, gaidiet.</value>
+  </data>
+  <data name="ScreenCaptionWorkshop" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
+    <value>Ieteikt</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
+    <value>PASAULE PUBLICĒTA</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
+    <value>NEIZDEVĀS PUBLICĒT PASAULI</value>
+  </data>
+  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
+    <value>MOD PUBLISHED</value>
+  </data>
+  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
+    <value>MOD PUBLISH FAILED</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
+    <value>Kopēt &amp; Ielādēt</value>
+  </data>
+  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
+    <value>Publicēt izvēlēto Pasauli Steam Workshopā</value>
+  </data>
+  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
+    <value>Parādīt Steam Workshopā abonēto Pasauļu sarakstu </value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
+    <value>PUBLICĒT PASAULI</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>ATJAUNINĀT PASAULI</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
+    <value>Tiešām vēlies augšupielādēt un publicēt izvēlēto Pasauli Steam Workshopā?
+Ievēro, ka, publicējot šo objektu, tu piekrīti workshop pakalpojumu sniegšanas noteikumiem (terms of service, skatīt http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>Tiešām vēlies augšupielādēt un pārrakstīt izvēlēto Pasauli Steam Workshopā?</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
+    <value>PUBLISH MOD</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
+    <value>UPDATE MOD</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
+    <value>Are you sure you want to upload and publish selected mod on Steam Workshop?
+Note that by submitting this item, you agree to the workshop terms of service (see http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
+    <value>Are you sure you want to upload and overwrite selected mod on Steam Workshop?</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
+    <value>Pārlūkot Workshopu</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
+    <value>Atjaunināt</value>
+  </data>
+  <data name="NotificationNoWeaponSelected" xml:space="preserve">
+    <value>No weapon selected</value>
+  </data>
+  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
+    <value>Switched to weapon type '{0}'</value>
+  </data>
+  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
+    <value>Inerces slāpētāji Izslēgti</value>
+  </data>
+  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
+    <value>Inerces slāpētāji Ieslēgti</value>
+  </data>
+  <data name="LoadScreenButtonDelete" xml:space="preserve">
+    <value>Dzēst</value>
+  </data>
+  <data name="ScreenCaptionEditSettings" xml:space="preserve">
+    <value>Mainīt uzstādījumus</value>
+  </data>
+  <data name="ScreenCaptionSaveAs" xml:space="preserve">
+    <value>Saglabāt kā</value>
+  </data>
+  <data name="ScreenMenuButtonHelp" xml:space="preserve">
+    <value>Palīdzība</value>
+  </data>
+  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
+    <value>Ielādēt Pasauli</value>
+  </data>
+  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
+    <value>Jauna Pasaule</value>
+  </data>
+  <data name="ScreenMenuButtonOptions" xml:space="preserve">
+    <value>Iestatījumi</value>
+  </data>
+  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
+    <value>Pielāgota Pasaule</value>
+  </data>
+  <data name="ScreenOptionsButtonControls" xml:space="preserve">
+    <value>Vadība</value>
+  </data>
+  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
+    <value>ATGRIEZT NOKLUSĒJUMA VADĪBU</value>
+  </data>
+  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
+    <value>Tiešām vēlies atgriezt noklusējuma vadību?</value>
+  </data>
+  <data name="ScreenshotFailed" xml:space="preserve">
+    <value>Ekrānšāviņš neizdevās</value>
+  </data>
+  <data name="ScreenshotSaved" xml:space="preserve">
+    <value>Ekrānšāviņš {0} saglabāts</value>
+  </data>
+  <data name="ExportToObjComplete" xml:space="preserve">
+    <value>Exported to: {0}</value>
+  </data>
+  <data name="ExportToObjFailed" xml:space="preserve">
+    <value>Eksportēšana uz obj failu neizdevās</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
+    <value>Atvērt Workshopā</value>
+  </data>
+  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
+    <value>Atver Steam Overlay ar Workshopa ekrānu</value>
+  </data>
+  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
+    <value>Lejuplādē izvēlēto Pasauli savā datorā un ielādē to</value>
+  </data>
+  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
+    <value>Atvērt izvēlēto Pasauli Workshop Steam Overlay'ā</value>
+  </data>
+  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
+    <value>Atjaunināt abonēto Pasauļu sarakstu</value>
+  </data>
+  <data name="SettingSymmetryX" xml:space="preserve">
+    <value>Simetrija pēc X plaknes: {0}, lai ieviestu, {1}, lai noņemtu</value>
+  </data>
+  <data name="SettingSymmetryXOffset" xml:space="preserve">
+    <value>Simetrija pēc X plaknes (ar nobīdi): {0}, lai ieviestu, {1}, lai noņemtu</value>
+  </data>
+  <data name="SettingSymmetryY" xml:space="preserve">
+    <value>Simetrija pēc Y plaknes: {0}, lai ieviestu, {1}, lai noņemtu</value>
+  </data>
+  <data name="SettingSymmetryYOffset" xml:space="preserve">
+    <value>Simetrija pēc Y plaknes (ar nobīdi): {0}, lai ieviestu, {1}, lai noņemtu</value>
+  </data>
+  <data name="SettingSymmetryZ" xml:space="preserve">
+    <value>Simetrija pēc Z plaknes: {0}, lai ieviestu, {1}, lai noņemtu</value>
+  </data>
+  <data name="SettingSymmetryZOffset" xml:space="preserve">
+    <value>Simetrija pēc Z plaknes (ar nobīdi): {0}, lai ieviestu, {1}, lai noņemtu</value>
+  </data>
+  <data name="NotificationPickupObject" xml:space="preserve">
+    <value>Press {0} to pick up {1}</value>
+  </data>
+  <data name="CubeBuilderPasteNotification" xml:space="preserve">
+    <value>Nospied kreiso peles pogu vai Ctrl+V, lai iekopētu objektu</value>
+  </data>
+  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
+    <value>Notikusi kļūda pievienojot vienu vai vairākus objektus. Skatīt log'a failu sīkākai informācijai.</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
+    <value>Tiešām vēlies izdzēst izvēlēto objektu? (tā kopija tiks saglabāta clipboard'ā)</value>
+  </data>
+  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
+    <value>Atmiņas robeža pārsniegta ielādējot Pasauli, daži objekti netika ielādēti. Ja lieto Large World fix un spēles versija nesen tika atjaunināta, tas var būt atslēgts.</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
+    <value>Tastatūra 2</value>
+  </data>
+  <data name="DialogTextDownloadingWorld" xml:space="preserve">
+    <value>Lejuplādēju Pasauli: {0}%
+Pasaules izmērs: {1}</value>
+  </data>
+  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
+    <value>Downloading the world has failed!</value>
+  </data>
+  <data name="DialogTextJoiningWorld" xml:space="preserve">
+    <value>Pievienojos Pasaulei</value>
+  </data>
+  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
+    <value>Pievienošanās Pasaulei nav izdevusies, iemesls: {0} </value>
+  </data>
+  <data name="GpuUnderMinimumNotification" xml:space="preserve">
+    <value>Mēs esam konstatējuši, ka tava videokarte ir zem minimālajām sistēmas prasībām; tas var radīt lagus un regulāras tikšanās ar desktopu. Paldies par sapratni.</value>
+  </data>
+  <data name="ShowRotationHints" xml:space="preserve">
+    <value>Parādīt pagriešanas palīdzību</value>
+  </data>
+  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
+    <value>Show HUD rotation hints during building</value>
+  </data>
+  <data name="UnknownControl_Unassigned" xml:space="preserve">
+    <value>[nav iestatīts]</value>
+  </data>
+  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
+    <value>Būvēšanas režīms</value>
+  </data>
+  <data name="ScreenOptionsGame_Line" xml:space="preserve">
+    <value>Līnija</value>
+  </data>
+  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
+    <value>Plakne</value>
+  </data>
+  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
+    <value>Viens bloks</value>
+  </data>
+  <data name="ControlName_Suicide" xml:space="preserve">
+    <value>Notēlot Kobeinu</value>
+  </data>
+  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
+    <value>Daudzspēlētāju serveris nevar tikt ieslēgts, kļūda: {0}</value>
+  </data>
+  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
+    <value>Objektu šobrīd izmanto kāds cits</value>
+  </data>
+  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
+    <value>Draugu spēles</value>
+  </data>
+  <data name="ScreenCaptionPlayers" xml:space="preserve">
+    <value>Spēlētāji</value>
+  </data>
+  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
+    <value>Draugi</value>
+  </data>
+  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
+    <value>Privāts</value>
+  </data>
+  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
+    <value>Publisks</value>
+  </data>
+  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
+    <value>Spēles īpašnieks</value>
+  </data>
+  <data name="ScreenPlayers_Invite" xml:space="preserve">
+    <value>Ielūgt</value>
+  </data>
+  <data name="ScreenPlayers_Kick" xml:space="preserve">
+    <value>Izmest</value>
+  </data>
+  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
+    <value>Spēlētāja vārds</value>
+  </data>
+  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
+    <value>Pasaule vairs neekstistē.</value>
+  </data>
+  <data name="MessageBoxCaptionKicked" xml:space="preserve">
+    <value>IZMESTS</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
+    <value>Tevi izmeta no spēles tās īpašnieks</value>
+  </data>
+  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
+    <value>Draugi</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
+    <value>Vai esat pārliecināts ka vēlaties pieslēgties vēlreiz pašreizējai daudz-spēlētāju spēlei?</value>
+  </data>
+  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
+    <value>Jūs esat bezsaistes režīmā un daudz-spēlētāju režīms nav pieejams. Jums jāmaina iestatījumi no galvenās izvēlnes.</value>
+  </data>
+  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
+    <value>Steam is offline. Please run Steam in normal mode or restart Steam if the problem persists</value>
+  </data>
+  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
+    <value>Saderīgas versijas</value>
+  </data>
+  <data name="MaxPlayers" xml:space="preserve">
+    <value>Maksimālie Spēlētāji</value>
+  </data>
+  <data name="DialogWaitingForWorldData" xml:space="preserve">
+    <value>Gaida pasaules datus</value>
+  </data>
+  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
+    <value>Savienojums ar serveri neizdevās: {0}</value>
+  </data>
+  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
+    <value>Savienojas ar serveri</value>
+  </data>
+  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
+    <value>Gaida servera atbildi</value>
+  </data>
+  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
+    <value>The selected game type is more limited than the original one. This means that your inventory might be truncated and you might lose some items! Are you sure you want to change the game type?</value>
+  </data>
+  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
+    <value>Draugu pasaules</value>
+  </data>
+  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
+    <value>Publiskās pasaules</value>
+  </data>
+  <data name="ControlName_CubeColorChange" xml:space="preserve">
+    <value>Mainīt bloka krāsu</value>
+  </data>
+  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
+    <value>This weapon is disabled in world settings</value>
+  </data>
+  <data name="ControlDescPlayersList" xml:space="preserve">
+    <value>Parādīt spēlētājus (tikai daudz-spēlētāju režīmā)</value>
+  </data>
+  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
+    <value>Spēlētāji</value>
+  </data>
+  <data name="ItemDamagedDescription" xml:space="preserve">
+    <value>(Bojāts)</value>
+  </data>
+  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
+    <value>Serveris neatbild</value>
+  </data>
+  <data name="UnsupportedAspectRatio" xml:space="preserve">
+    <value>Unsupported aspect ratio</value>
+  </data>
+  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
+    <value>Šai spēlei var pievienoties tikai draugi</value>
+  </data>
+  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
+    <value>A description of the world</value>
+  </data>
+  <data name="CompressSaveGames" xml:space="preserve">
+    <value>Saspiest saglabātās spēles</value>
+  </data>
+  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
+    <value>Saglabātās spēles tiks kompresētas lai taupītu vietu uz diska</value>
+  </data>
+  <data name="Headbob" xml:space="preserve">
+    <value>Atslēgt galvas kustību</value>
+  </data>
+  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
+    <value>Parādīt spēlētāju vardus</value>
+  </data>
+  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
+    <value>Show player names above their characters. This feature must also be enabled in world settings.</value>
+  </data>
+  <data name="NotificationInventoryFull" xml:space="preserve">
+    <value>Inventory is full</value>
+  </data>
+  <data name="OutOfAmmo" xml:space="preserve">
+    <value>{0} is out of ammunition</value>
+  </data>
+  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
+    <value>You need {0} to build {1}</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
+    <value>Spēlēs mode</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
+    <value>Spēlētājs</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
+    <value>Lietotāj vārds</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
+    <value>Pasaule </value>
+  </data>
+  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
+    <value>Pasaules izmērs </value>
+  </data>
+  <data name="MessageBoxTextSuicide" xml:space="preserve">
+    <value>Are you sure you want to commit suicide?</value>
+  </data>
+  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
+    <value>The server host has left the game</value>
+  </data>
+  <data name="NotificationRespawn" xml:space="preserve">
+    <value>You died. Respawn in {0} seconds</value>
+  </data>
+  <data name="HudBlockInfo_Required" xml:space="preserve">
+    <value>Required</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
+    <value>Inventāra lielums {0}x
+Automātiskā montētāja efektivitāte {1}x
+Rafinēšanas ātrums {2}x</value>
+  </data>
+  <data name="NotificationClientConnected" xml:space="preserve">
+    <value>Player connected: {0}</value>
+  </data>
+  <data name="NotificationClientDisconnected" xml:space="preserve">
+    <value>Player disconnected: {0}</value>
+  </data>
+  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
+    <value>Server has different version of the game. Your version: {0}; Server version: {1}</value>
+  </data>
+  <data name="ShowCrosshair" xml:space="preserve">
+    <value>Rādīt Tēmekli</value>
+  </data>
+  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
+    <value>Whether the weapon crosshair should be visible</value>
+  </data>
+  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
+    <value>Game is already saving.</value>
+  </data>
+  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
+    <value>* Localized by the community.</value>
+  </data>
+  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
+    <value>Click for more info</value>
+  </data>
+  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
+    <value>No direct connection available.</value>
+  </data>
+  <data name="Multiplayer_NoConnection" xml:space="preserve">
+    <value>No connection with server.</value>
+  </data>
+  <data name="GamePaused" xml:space="preserve">
+    <value>Game paused</value>
+  </data>
+  <data name="ControlDescPauseGame" xml:space="preserve">
+    <value>Pauze spēli(tikai offline režīma)</value>
+  </data>
+  <data name="ControlName_PauseGame" xml:space="preserve">
+    <value>Pauze Spēli</value>
+  </data>
+  <data name="KeysPause" xml:space="preserve">
+    <value>Pauze</value>
+    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
+  </data>
+  <data name="NotificationWeaponNotWorking" xml:space="preserve">
+    <value>{0} nedarbojas</value>
+  </data>
+  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
+    <value>Amount to add</value>
+  </data>
+  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
+    <value>Value to set</value>
+  </data>
+  <data name="NotificationHealthCritical" xml:space="preserve">
+    <value>Health is critical. Seek medical attention immediately.</value>
+  </data>
+  <data name="NotificationHealthLow" xml:space="preserve">
+    <value>Health is low.</value>
+  </data>
+  <data name="MultiplayerError_DifferentData" xml:space="preserve">
+    <value>Šitam serveri ir savādāki spēles faili nekā jums</value>
+  </data>
+  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
+    <value>Games marked with * have incompatible game data</value>
+  </data>
+  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
+    <value>Spēles administrators</value>
+  </data>
+  <data name="MultiplayerJoinServers" xml:space="preserve">
+    <value>Dedicated only</value>
+  </data>
+  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
+    <value>User is already joined</value>
+  </data>
+  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
+    <value>You are not in group {0}. Do you want to visit group web page?</value>
+  </data>
+  <data name="MultiplayerErrorServerFull" xml:space="preserve">
+    <value>Serveris ir pilns</value>
+  </data>
+  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
+    <value>Steam servers offline or server group does not exist</value>
+  </data>
+  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
+    <value>Ticket invalid</value>
+  </data>
+  <data name="MultiplayerJoinLANServers" xml:space="preserve">
+    <value>LAN only</value>
+  </data>
+  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
+    <value>Draugi</value>
+  </data>
+  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
+    <value>LAN</value>
+  </data>
+  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
+    <value>Games</value>
+  </data>
+  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
+    <value>Serveri</value>
+  </data>
+  <data name="JoinGame_Title" xml:space="preserve">
+    <value>Pievienoties pasaulei</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
+    <value>Latentums</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
+    <value>Logged in elsewhere</value>
+  </data>
+  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
+    <value>No license or license expired</value>
+  </data>
+  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
+    <value>Ticket already used</value>
+  </data>
+  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
+    <value>Ticket cancelled</value>
+  </data>
+  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
+    <value>User not connected</value>
+  </data>
+  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
+    <value>VAC banned</value>
+  </data>
+  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
+    <value>VAC check timed out</value>
+  </data>
+  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
+    <value>Allowed groups</value>
+  </data>
+  <data name="NewsDownloadingFailed" xml:space="preserve">
+    <value>News downloading failed</value>
+  </data>
+  <data name="MessageBoxCaptionInfo" xml:space="preserve">
+    <value>INFO</value>
+  </data>
+  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
+    <value>Server Group ID is invalid, server administrator should set proper group ID in server config
+(or zero to disable group checking)</value>
+  </data>
+  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
+    <value>The list of local dedicated servers</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
+    <value>The list of player created games</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
+    <value>The list of internet dedicated servers</value>
+  </data>
+  <data name="PlayerCharacterColor" xml:space="preserve">
+    <value>Player color</value>
+  </data>
+  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
+    <value>Press {0} to change your appearance</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
+    <value>Window mode</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
+    <value>Fullscreen</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
+    <value>Fullscreen window</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
+    <value>Window</value>
+  </data>
+  <data name="SpectatorControls" xml:space="preserve">
+    <value>Spectator Controls</value>
+  </data>
+  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
+    <value>Spectator with fixed view vector to controlled object</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
+    <value>You are banned on this server</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
+    <value>You are banned on this server.
+Open admin profile?</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
+    <value>You have been banned on this server by its admin.</value>
+  </data>
+  <data name="ScreenPlayers_Ban" xml:space="preserve">
+    <value>Banots</value>
+  </data>
+  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
+    <value>Return to the game area!</value>
+  </data>
+  <data name="NotificationLeavingWorld" xml:space="preserve">
+    <value>Warning: You will die in {0:F1} meters!</value>
+  </data>
+  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
+    <value>Advanced world settings</value>
+  </data>
+  <data name="Spectator" xml:space="preserve">
+    <value>Spectator</value>
+  </data>
+  <data name="SpectatorControls_Delta" xml:space="preserve">
+    <value>Delta spectator</value>
+  </data>
+  <data name="SpectatorControls_Free" xml:space="preserve">
+    <value>Free spectator</value>
+  </data>
+  <data name="SpectatorControls_None" xml:space="preserve">
+    <value>Player control</value>
+  </data>
+  <data name="SpectatorControls_Static" xml:space="preserve">
+    <value>Static spectator</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
+    <value>Given faction name already exists</value>
+  </data>
+  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
+    <value>Given faction tag already exists</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
+    <value>Faction name must be at least 4 characters long</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Kick" xml:space="preserve">
+    <value>Kick</value>
+  </data>
+  <data name="Leader" xml:space="preserve">
+    <value>Leader</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Member</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
+    <value>Are you sure that you want to kick player '{0}' from your faction?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
+    <value>Are you sure that you want to leave faction '{0}'?</value>
+  </data>
+  <data name="Promote" xml:space="preserve">
+    <value>Promote</value>
+  </data>
+  <data name="Demote" xml:space="preserve">
+    <value>Demote</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Access denied</value>
+  </data>
+  <data name="Founder" xml:space="preserve">
+    <value>Founder</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Accept</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
+    <value>Are you sure that you want to accept player '{0}' to your faction?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
+    <value>Are you sure that you want demote '{0}' to member?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
+    <value>Are you sure that you want promote '{0}' to leader?</value>
+  </data>
+  <data name="Applicant" xml:space="preserve">
+    <value>Applicant</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="SessionDeleteFailed" xml:space="preserve">
+    <value>Session delete failed</value>
+  </data>
+  <data name="Medicals_Title" xml:space="preserve">
+    <value>Medicīnas istaba</value>
+  </data>
+  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
+    <value>Are you sure you want to change owner to {0}?</value>
+  </data>
+  <data name="Respawn" xml:space="preserve">
+    <value>Atjaunoties</value>
+  </data>
+  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
+    <value>Same game data</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Atsvaidzināt</value>
+  </data>
+  <data name="PlayerInfo_Dead" xml:space="preserve">
+    <value>dead</value>
+  </data>
+  <data name="ScreenMods_ActiveMods" xml:space="preserve">
+    <value>Active mods</value>
+  </data>
+  <data name="ScreenMods_AvailableMods" xml:space="preserve">
+    <value>Pieejamie modi</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
+    <value>Deactivate mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
+    <value>Deactivate all mods</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
+    <value>Aktivizēt modu</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
+    <value>Aktivizēt visus modus</value>
+  </data>
+  <data name="WorldSettings_Mods" xml:space="preserve">
+    <value>Modi</value>
+  </data>
+  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
+    <value>Open selected mod in Workshop Steam Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
+    <value>Refresh the list of subscribed mods</value>
+  </data>
+  <data name="JoinGame_SearchLabel" xml:space="preserve">
+    <value>Meklēt spēli</value>
+  </data>
+  <data name="JoinGame_SearchTooltip" xml:space="preserve">
+    <value>At least 3 characters must be inserted to start searching</value>
+  </data>
+  <data name="ProgressTextDownloadingMods" xml:space="preserve">
+    <value>Downloading mods ... please wait.</value>
+  </data>
+  <data name="NotificationClientCannotSave" xml:space="preserve">
+    <value>Client saving is disabled on this server</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
+    <value>Pārvietot modu zemāk</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
+    <value>Pārvietot modu augstāk</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
+    <value>Move mod to bottom</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
+    <value>Move mod to top</value>
+  </data>
+  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
+    <value>You cannot create group with blocks you don't have access rights to.</value>
+  </data>
+  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
+    <value>You cannot delete group with blocks you don't have access rights to.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
+    <value>You have been kicked from the faction.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
+    <value>You have been accepted to faction.</value>
+  </data>
+  <data name="ControlName_ToolbarDown" xml:space="preserve">
+    <value>Previous toolbar</value>
+  </data>
+  <data name="ControlName_ToolbarUp" xml:space="preserve">
+    <value>Next toolbar</value>
+  </data>
+  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
+    <value>Downloading mods has failed! Please check mods in world settings.</value>
+  </data>
+  <data name="ProgressTextCheckingMods" xml:space="preserve">
+    <value>Checking for mod updates ... please wait.</value>
+  </data>
+  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
+    <value>Debug draw</value>
+  </data>
+  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
+    <value>Enable debug draw</value>
+  </data>
+  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
+    <value>Loading error log:</value>
+  </data>
+  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
+    <value>Model dummies</value>
+  </data>
+  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
+    <value>Mount points</value>
+  </data>
+  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
+    <value>There were no loading errors</value>
+  </data>
+  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
+    <value>Physics primitives</value>
+  </data>
+  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
+    <value>Open in new window</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
+    <value>Reload textures</value>
+  </data>
+  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
+    <value>Local mods are not allowed in multiplayer. Use workshop mods instead.</value>
+  </data>
+  <data name="ScreenMods_LocalMod" xml:space="preserve">
+    <value>Local mod</value>
+  </data>
+  <data name="ScreenMods_MissingDetails" xml:space="preserve">
+    <value>Could not retrieve mod details from Steam</value>
+  </data>
+  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
+    <value>Missing local mod</value>
+  </data>
+  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
+    <value>Workshop mod</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
+    <value>Reload models</value>
+  </data>
+  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
+    <value>Copy log to system clipboard</value>
+  </data>
+  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
+    <value>Warning: All ships will be removed in {0:F1} meters!</value>
+  </data>
+  <data name="PlayerCharacterModel" xml:space="preserve">
+    <value>Player model</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="NotificationHintPressToUse" xml:space="preserve">
+    <value>Press {0} to use {1}</value>
+  </data>
+  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
+    <value>Select server to show mod list</value>
+  </data>
+  <data name="ScreenMods_SearchLabel" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
+    <value>Could not get mod list from the server</value>
+  </data>
+  <data name="HudWarnings" xml:space="preserve">
+    <value>Hud Warnings</value>
+  </data>
+  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
+    <value>This world can not be loaded. It has been created in newer version of the game.</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
+    <value>This workshop item does not seem to belong to you. Make sure you are logged in with the right account.</value>
+  </data>
+  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
+    <value>Export clipboard to file</value>
+  </data>
+  <data name="ToolTipSaveShip" xml:space="preserve">
+    <value>Save ships from clipboard to file</value>
+  </data>
+  <data name="AddNewNPC" xml:space="preserve">
+    <value>Add New Enemy Identity</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Darbarīks</value>
+  </data>
+  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
+    <value>Select tags</value>
+  </data>
+  <data name="WorkshopTag_Animation" xml:space="preserve">
+    <value>Animation</value>
+  </data>
+  <data name="WorkshopTag_Block" xml:space="preserve">
+    <value>Block</value>
+  </data>
+  <data name="WorkshopTag_Character" xml:space="preserve">
+    <value>Character</value>
+  </data>
+  <data name="WorkshopTag_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="WorkshopTag_Skybox" xml:space="preserve">
+    <value>Skybox</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
+    <value>Could not update because you are not the owner of this mod.</value>
+  </data>
+  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
+    <value>Some mods were not loaded because of errors. See log file for details or run the game in single player to access the mod debug screen.</value>
+  </data>
+  <data name="RenderIterpolation" xml:space="preserve">
+    <value>Render interpolation</value>
+  </data>
+  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
+    <value>Reduces stuttering and makes game smoother.</value>
+  </data>
+  <data name="WorkshopTag_ModPack" xml:space="preserve">
+    <value>Mod paka</value>
+  </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
+    <value>Tabs of tools and objects:</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
+    <value>Search:</value>
+  </data>
+  <data name="ControlDescCopyPasteMove" xml:space="preserve">
+    <value>Move pasted object</value>
+  </data>
+  <data name="WorkshopTag_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
+    <value>Some blocks in the pasted grid are not available in this world</value>
+  </data>
+  <data name="ConvertingObjs" xml:space="preserve">
+    <value>Converting models. Please wait.</value>
+  </data>
+  <data name="ConvertToObjDone" xml:space="preserve">
+    <value>All models converted.</value>
+  </data>
+  <data name="ExportingToObj" xml:space="preserve">
+    <value>Exporting model. Please wait.</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
+    <value>Pasted ship contains some blocks that are not available in this world. These blocks will not be pasted, which could possibly cause the ship to split. Do you really want to paste this ship?</value>
+  </data>
+  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
+    <value>Item is not available in this world</value>
+  </data>
+  <data name="ShipWelder_HelpOthers" xml:space="preserve">
+    <value>Help Others</value>
+  </data>
+  <data name="PlacingObjectsToScene" xml:space="preserve">
+    <value>Placing objects to world. Please wait.</value>
+  </data>
+  <data name="ControlTypeSystems3" xml:space="preserve">
+    <value>Systems 3</value>
+  </data>
+  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
+    <value>Switched to weapon: {0}</value>
+  </data>
+  <data name="Thrust_Back" xml:space="preserve">
+    <value>Backward</value>
+  </data>
+  <data name="Thrust_Down" xml:space="preserve">
+    <value>Down</value>
+  </data>
+  <data name="Thrust_Forward" xml:space="preserve">
+    <value>Forward</value>
+  </data>
+  <data name="Thrust_Left" xml:space="preserve">
+    <value>Left</value>
+  </data>
+  <data name="Thrust_Right" xml:space="preserve">
+    <value>Right</value>
+  </data>
+  <data name="Thrust_Up" xml:space="preserve">
+    <value>Up</value>
+  </data>
+  <data name="SelectBlueprint" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
+    <value>Facepalm</value>
+  </data>
+  <data name="AvailableBlueprints" xml:space="preserve">
+    <value>Pieejamie Rasējumi</value>
+  </data>
+  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
+    <value>Depth</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
+    <value>Height</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
+    <value>Distance</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
+    <value>Brush Settings</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
+    <value>Transparency</value>
+  </data>
+  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
+    <value>Shape Settings</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="ExportToObjModded" xml:space="preserve">
+    <value>Model contains modded blocks. Only models with default blocks can be exported.</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
+    <value>Snap to voxel grid</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
+    <value>Area</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
+    <value>Choose axis</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
+    <value>X axis</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
+    <value>Y axis</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
+    <value>Z axis</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
+    <value>Material</value>
+  </data>
+  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
+    <value>New message in {0} faction chat</value>
+  </data>
+  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
+    <value>New global chat message</value>
+  </data>
+  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
+    <value>New message from {0}</value>
+  </data>
+  <data name="ErrorDescriptionTooLong" xml:space="preserve">
+    <value>Description is too long (max 8000 characters allowed)</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Apraksts</value>
+  </data>
+  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
+    <value>Select categories</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
+    <value>View distance: {0}m</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
+    <value>Project to voxel</value>
+  </data>
+  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
+    <value>Next voxel material</value>
+  </data>
+  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
+    <value>Open voxel hand settings</value>
+  </data>
+  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
+    <value>Previous voxel material</value>
+  </data>
+  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
+    <value>Are you sure you want to replace this blueprint with clipboard?</value>
+  </data>
+  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
+    <value>Text panel is read-only</value>
+  </data>
+  <data name="MessageBoxTextTooLongText" xml:space="preserve">
+    <value>Text is too long. Do you want to truncate it?</value>
+  </data>
+  <data name="ControlDescExportModel" xml:space="preserve">
+    <value>Export model</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
+    <value>Show bounding box</value>
+  </data>
+  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
+    <value>This will open {0} in your internet browser, because Steam Overlay is either disabled or failed to open. The game will keep running.
+Do you want to continue?</value>
+  </data>
+  <data name="NotificationRotationFormatCombined" xml:space="preserve">
+    <value>Press {0} to rotate the block</value>
+  </data>
+  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} or {1} to toggle compound building</value>
+  </data>
+  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
+    <value>Press {0} to toggle dynamic building</value>
+  </data>
+  <data name="ControlName_SwitchWalk" xml:space="preserve">
+    <value>Switch walk</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
+    <value>The list of favorite servers</value>
+  </data>
+  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
+    <value>Favorites</value>
+  </data>
+  <data name="JoinGame_TabTitle_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
+    <value>The list of friends servers</value>
+  </data>
+  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
+    <value>The list of previously visited servers</value>
+  </data>
+  <data name="JoinGame_Favorites_Add" xml:space="preserve">
+    <value>Add server to favorites</value>
+  </data>
+  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
+    <value>Remove server from favorites</value>
+  </data>
+  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
+    <value>Open voxel hand settings</value>
+  </data>
+  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
+    <value>Press {0} to open voxel hand settings</value>
+  </data>
+  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} or {1} to change voxel material</value>
+  </data>
+  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
+    <value>Enable bots debugging</value>
+  </data>
+  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
+    <value>Next bot</value>
+  </data>
+  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
+    <value>Previous bot</value>
+  </data>
+  <data name="BotSettingsScreen_Title" xml:space="preserve">
+    <value>Bots settings</value>
+  </data>
+  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
+    <value>Bots settings</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+</root>

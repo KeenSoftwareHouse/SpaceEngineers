@@ -1,0 +1,2174 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MessageBoxTextAreYouSureYouWantToExit" xml:space="preserve">
+    <value>Er du sikker på at du vil forlade spillet?</value>
+  </data>
+  <data name="AssignControlKeyboard" xml:space="preserve">
+    <value>Tryk venligst på en tast</value>
+  </data>
+  <data name="AssignControlMouse" xml:space="preserve">
+    <value>Tryk venligt på en museknap</value>
+  </data>
+  <data name="ScreenOptionsButtonAudio" xml:space="preserve">
+    <value>Lyd</value>
+  </data>
+  <data name="ScreenCaptionAudioOptions" xml:space="preserve">
+    <value>Lydindstillinger</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuller</value>
+  </data>
+  <data name="CanNotAssignControl" xml:space="preserve">
+    <value>KAN IKKE TILDELE KONTROL</value>
+  </data>
+  <data name="LoadScreenButtonContinueLastGame" xml:space="preserve">
+    <value>Fortsæt sidste</value>
+  </data>
+  <data name="ControlAlreadyAssigned" xml:space="preserve">
+    <value>{0} er allerede tildelt til {1}.
+Fjern den originale kontrol?</value>
+  </data>
+  <data name="ControlIsNotValid" xml:space="preserve">
+    <value>Den trykte tast må ikke tildeles til kontrol.</value>
+  </data>
+  <data name="ScreenCaptionControls" xml:space="preserve">
+    <value>Kontroller</value>
+  </data>
+  <data name="ScreenMenuButtonCredits" xml:space="preserve">
+    <value>Kreditter</value>
+  </data>
+  <data name="KeysDelete" xml:space="preserve">
+    <value>Slet</value>
+  </data>
+  <data name="KeysDown" xml:space="preserve">
+    <value>Ned</value>
+  </data>
+  <data name="DoYouWantToKeepTheseSettingsXSecondsRemaining" xml:space="preserve">
+    <value>Vil du beholde disse indstillinger? {0} sekunder tilbage.</value>
+  </data>
+  <data name="KeysEnd" xml:space="preserve">
+    <value>Slut</value>
+  </data>
+  <data name="ScreenMenuButtonExitToMainMenu" xml:space="preserve">
+    <value>Afslut til hoved menu</value>
+  </data>
+  <data name="ScreenMenuButtonExitToWindows" xml:space="preserve">
+    <value>Afslut til windows</value>
+  </data>
+  <data name="FieldOfView" xml:space="preserve">
+    <value>Synsfelt</value>
+  </data>
+  <data name="ScreenOptionsButtonGame" xml:space="preserve">
+    <value>Spil</value>
+  </data>
+  <data name="ScreenCaptionGameOptions" xml:space="preserve">
+    <value>Spil egenskaber</value>
+  </data>
+  <data name="ScreenOptionsControls_Gamepad" xml:space="preserve">
+    <value>Gamepad</value>
+  </data>
+  <data name="ScreenOptionsControls_AnalogAxes" xml:space="preserve">
+    <value>Analog</value>
+  </data>
+  <data name="GameVolume" xml:space="preserve">
+    <value>Lydstyrke</value>
+  </data>
+  <data name="ControlTypeGeneral" xml:space="preserve">
+    <value>Generalt</value>
+  </data>
+  <data name="HardwareCursor" xml:space="preserve">
+    <value>Hardware markør</value>
+  </data>
+  <data name="ControlName_Help" xml:space="preserve">
+    <value>Hjælp</value>
+  </data>
+  <data name="KeysHome" xml:space="preserve">
+    <value>Hjem</value>
+  </data>
+  <data name="KeysInsert" xml:space="preserve">
+    <value>Indsæt</value>
+  </data>
+  <data name="InvertMouseX" xml:space="preserve">
+    <value>Vend mus X akse</value>
+  </data>
+  <data name="InvertMouseY" xml:space="preserve">
+    <value>Vend mus Y akse</value>
+  </data>
+  <data name="Joystick" xml:space="preserve">
+    <value>Joystick eller Gamepad</value>
+  </data>
+  <data name="JoystickButtonLeft" xml:space="preserve">
+    <value>Fire-vejs-navigationsknap Venstre</value>
+  </data>
+  <data name="JoystickButtonRight" xml:space="preserve">
+    <value>Fire-vejs-navigationsknap Højre</value>
+  </data>
+  <data name="JoystickButtonUp" xml:space="preserve">
+    <value>Fire-vejs-navigationsknap Op</value>
+  </data>
+  <data name="JoystickButtonDown" xml:space="preserve">
+    <value>Fire-vejs-navigationsknap Ned</value>
+  </data>
+  <data name="JoystickDeadzone" xml:space="preserve">
+    <value>Joystick dødzone bredde</value>
+  </data>
+  <data name="JoystickExponent" xml:space="preserve">
+    <value>Joystick gradvis præcision </value>
+  </data>
+  <data name="JoystickSensitivity" xml:space="preserve">
+    <value>Joystick følsomhed</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard" xml:space="preserve">
+    <value>Tastatur</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Sprog</value>
+  </data>
+  <data name="KeysLeft" xml:space="preserve">
+    <value>Venstre</value>
+  </data>
+  <data name="KeysLeftAlt" xml:space="preserve">
+    <value>Venstre Alt</value>
+  </data>
+  <data name="KeysLeftControl" xml:space="preserve">
+    <value>Venstre Ctrl</value>
+  </data>
+  <data name="LeftMouseButton" xml:space="preserve">
+    <value>Venstre Musetast</value>
+  </data>
+  <data name="KeysLeftShift" xml:space="preserve">
+    <value>Venstre Shift</value>
+  </data>
+  <data name="LoadScreenButtonLoad" xml:space="preserve">
+    <value>Indlæs</value>
+  </data>
+  <data name="LoadingPleaseWaitUppercase" xml:space="preserve">
+    <value>INDLÆSER ... VENT VENLIGST</value>
+  </data>
+  <data name="MessageBoxCaptionError" xml:space="preserve">
+    <value>FEJL</value>
+  </data>
+  <data name="MessageBoxCaptionPleaseConfirm" xml:space="preserve">
+    <value>BEKRÆFT VENLIGST</value>
+  </data>
+  <data name="MessageBoxCaptionExit" xml:space="preserve">
+    <value>EXIT</value>
+  </data>
+  <data name="MiddleMouseButton" xml:space="preserve">
+    <value>Midterste Musetast</value>
+  </data>
+  <data name="ScreenOptionsControls_Mouse" xml:space="preserve">
+    <value>Mus</value>
+  </data>
+  <data name="MouseSensitivity" xml:space="preserve">
+    <value>Muse følsomhed</value>
+  </data>
+  <data name="MouseXButton1" xml:space="preserve">
+    <value>MXK1</value>
+  </data>
+  <data name="MouseXButton2" xml:space="preserve">
+    <value>MXK2</value>
+  </data>
+  <data name="ControlTypeNavigation" xml:space="preserve">
+    <value>Navigation</value>
+  </data>
+  <data name="ScreenCaptionNewWorld" xml:space="preserve">
+    <value>Ny Verden</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Nej</value>
+  </data>
+  <data name="KeysNumPad0" xml:space="preserve">
+    <value>Num 0</value>
+  </data>
+  <data name="KeysNumPad1" xml:space="preserve">
+    <value>Num 1</value>
+  </data>
+  <data name="KeysNumPad2" xml:space="preserve">
+    <value>Num 2</value>
+  </data>
+  <data name="KeysNumPad3" xml:space="preserve">
+    <value>Num 3</value>
+  </data>
+  <data name="KeysNumPad4" xml:space="preserve">
+    <value>Num 4</value>
+  </data>
+  <data name="KeysNumPad5" xml:space="preserve">
+    <value>Num 5</value>
+  </data>
+  <data name="KeysNumPad6" xml:space="preserve">
+    <value>Num 6</value>
+  </data>
+  <data name="KeysNumPad7" xml:space="preserve">
+    <value>Num 7</value>
+  </data>
+  <data name="KeysNumPad8" xml:space="preserve">
+    <value>Num 8</value>
+  </data>
+  <data name="KeysNumPad9" xml:space="preserve">
+    <value>Num 9</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ScreenCaptionOptions" xml:space="preserve">
+    <value>Valgmuligheder</value>
+  </data>
+  <data name="KeysPageDown" xml:space="preserve">
+    <value>Page Down</value>
+  </data>
+  <data name="KeysPageUp" xml:space="preserve">
+    <value>Page Up</value>
+  </data>
+  <data name="RecommendedAspectRatio" xml:space="preserve">
+    <value>Anbefalet formatforhold: {0}</value>
+  </data>
+  <data name="Revert" xml:space="preserve">
+    <value>Standarder</value>
+  </data>
+  <data name="KeysRight" xml:space="preserve">
+    <value>Højre</value>
+  </data>
+  <data name="KeysRightAlt" xml:space="preserve">
+    <value>Højre Alt</value>
+  </data>
+  <data name="KeysRightControl" xml:space="preserve">
+    <value>Højre Ctrl</value>
+  </data>
+  <data name="RightMouseButton" xml:space="preserve">
+    <value>Højre Musetast</value>
+  </data>
+  <data name="KeysRightShift" xml:space="preserve">
+    <value>Højre Shift</value>
+  </data>
+  <data name="SelectControl" xml:space="preserve">
+    <value>VÆLG KONTROL</value>
+  </data>
+  <data name="ServerShutdownNotificationCaption" xml:space="preserve">
+    <value>PLANLAGT SERVER LUKNING</value>
+  </data>
+  <data name="SorryButSelectedSettingsAreNotSupportedByYourHardware" xml:space="preserve">
+    <value>Undskyld, men de indstillinger du har valgt er ikke understøttet af dit hardware.</value>
+  </data>
+  <data name="KeysSpace" xml:space="preserve">
+    <value>Mellemrum</value>
+  </data>
+  <data name="StartGameInProgressPleaseWait" xml:space="preserve">
+    <value>Starter spil ... vent venligst.</value>
+  </data>
+  <data name="ControlName_StrafeLeft" xml:space="preserve">
+    <value>Løb til venstre</value>
+  </data>
+  <data name="ControlName_StrafeRight" xml:space="preserve">
+    <value>Løb til højre</value>
+  </data>
+  <data name="ControlTypeSystems1" xml:space="preserve">
+    <value>Systemer 1</value>
+  </data>
+  <data name="ControlTypeSystems2" xml:space="preserve">
+    <value>Systemer 2</value>
+  </data>
+  <data name="KeysTab" xml:space="preserve">
+    <value>Tab</value>
+  </data>
+  <data name="TitleFailedToStartInternetBrowser" xml:space="preserve">
+    <value>Kunne ikke starte browseren.</value>
+  </data>
+  <data name="UnknownControl_None" xml:space="preserve">
+    <value>ingen</value>
+  </data>
+  <data name="KeysUp" xml:space="preserve">
+    <value>Op</value>
+  </data>
+  <data name="ControlName_UseOrInteract" xml:space="preserve">
+    <value>Brug / Interager</value>
+  </data>
+  <data name="VerticalSync" xml:space="preserve">
+    <value>Vertikal synkronisering </value>
+  </data>
+  <data name="VideoMode" xml:space="preserve">
+    <value>Video mode</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons" xml:space="preserve">
+    <value>Værktøjer / Våben</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Ja</value>
+  </data>
+  <data name="Disabled" xml:space="preserve">
+    <value>Slået fra</value>
+  </data>
+  <data name="JoystickRotationXpos" xml:space="preserve">
+    <value>JoystickRotationXpos</value>
+  </data>
+  <data name="JoystickRotationYpos" xml:space="preserve">
+    <value>JoystickRotationYpos</value>
+  </data>
+  <data name="JoystickRotationZpos" xml:space="preserve">
+    <value>JoystickRotationZpos</value>
+  </data>
+  <data name="JoystickSlider1pos" xml:space="preserve">
+    <value>JoystickSkyder1pos</value>
+  </data>
+  <data name="JoystickSlider2pos" xml:space="preserve">
+    <value>JoystickSkyder2pos</value>
+  </data>
+  <data name="JoystickRotationXneg" xml:space="preserve">
+    <value>JoystickRotationXneg</value>
+  </data>
+  <data name="JoystickRotationYneg" xml:space="preserve">
+    <value>JoystickRotationYneg</value>
+  </data>
+  <data name="JoystickRotationZneg" xml:space="preserve">
+    <value>JoystickRotationZneg</value>
+  </data>
+  <data name="JoystickSlider1neg" xml:space="preserve">
+    <value>JoystickSkyder1neg</value>
+  </data>
+  <data name="JoystickSlider2neg" xml:space="preserve">
+    <value>JoystickSkyder2neg</value>
+  </data>
+  <data name="KeysDecimal" xml:space="preserve">
+    <value>Num .</value>
+  </data>
+  <data name="KeysBackslash" xml:space="preserve">
+    <value>Back slash</value>
+  </data>
+  <data name="KeysComma" xml:space="preserve">
+    <value>Komma</value>
+  </data>
+  <data name="KeysMinus" xml:space="preserve">
+    <value>Minus</value>
+  </data>
+  <data name="KeysOpenBracket" xml:space="preserve">
+    <value>Firkantet parentes venstre</value>
+  </data>
+  <data name="KeysCloseBracket" xml:space="preserve">
+    <value>Firkantet parentes Højre</value>
+  </data>
+  <data name="KeysPeriod" xml:space="preserve">
+    <value>Punktum</value>
+  </data>
+  <data name="KeysPipe" xml:space="preserve">
+    <value>Vertikal bar</value>
+  </data>
+  <data name="KeysPlus" xml:space="preserve">
+    <value>Plus</value>
+  </data>
+  <data name="KeysQuestion" xml:space="preserve">
+    <value>Skråstreg</value>
+  </data>
+  <data name="KeysQuotes" xml:space="preserve">
+    <value>Citat</value>
+  </data>
+  <data name="KeysSemicolon" xml:space="preserve">
+    <value>Semi kolon</value>
+  </data>
+  <data name="KeysTilde" xml:space="preserve">
+    <value>Tilde</value>
+  </data>
+  <data name="KeysMultiply" xml:space="preserve">
+    <value>Num *</value>
+  </data>
+  <data name="KeysDivide" xml:space="preserve">
+    <value>Num /</value>
+  </data>
+  <data name="KeysAdd" xml:space="preserve">
+    <value>Num +</value>
+  </data>
+  <data name="KeysSubtract" xml:space="preserve">
+    <value>Num -</value>
+  </data>
+  <data name="KeysCapsLock" xml:space="preserve">
+    <value>Caps Lock</value>
+  </data>
+  <data name="KeysEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="KeysBackspace" xml:space="preserve">
+    <value>Backspace</value>
+  </data>
+  <data name="ApplyingPleaseWait" xml:space="preserve">
+    <value>Anvender ændringer ... vent venligst</value>
+  </data>
+  <data name="MP_YouHaveBeenKilled" xml:space="preserve">
+    <value>Du er blevet dræbt</value>
+  </data>
+  <data name="MusicVolume" xml:space="preserve">
+    <value>Lydstyrke for musik</value>
+  </data>
+  <data name="VideoAdapter" xml:space="preserve">
+    <value>Video adapter</value>
+  </data>
+  <data name="DefaultFOV" xml:space="preserve">
+    <value>Standard: {0:F1}</value>
+  </data>
+  <data name="WorldLoaded" xml:space="preserve">
+    <value>Verden {0} indlæst</value>
+  </data>
+  <data name="ControlName_Screenshot" xml:space="preserve">
+    <value>Skærmbillede</value>
+  </data>
+  <data name="ControlName_PreviousColor" xml:space="preserve">
+    <value>Forrige farve eller kamera</value>
+  </data>
+  <data name="ControlName_NextColor" xml:space="preserve">
+    <value>Næste farve eller kamera</value>
+  </data>
+  <data name="WorldSaved" xml:space="preserve">
+    <value>Verden {0} gemt</value>
+  </data>
+  <data name="Blueprints" xml:space="preserve">
+    <value>Arbejdstegning</value>
+  </data>
+  <data name="Factions" xml:space="preserve">
+    <value>Fraktioner</value>
+  </data>
+  <data name="BlueprintMaterials" xml:space="preserve">
+    <value>Materialer til arbejdstegning</value>
+  </data>
+  <data name="ProductionQueue" xml:space="preserve">
+    <value>Produktionskø</value>
+  </data>
+  <data name="LoadScreenButtonEditSettings" xml:space="preserve">
+    <value>Redigér indstillinger</value>
+  </data>
+  <data name="ScreenCaptionCustomWorld" xml:space="preserve">
+    <value>Brugerdefineret verden</value>
+  </data>
+  <data name="ErrorNameTooLong" xml:space="preserve">
+    <value>Navnet er for langt (Max 128 tegn tilladt)</value>
+  </data>
+  <data name="ErrorNameTooShort" xml:space="preserve">
+    <value>Navnet er for kort (Minimum 5 tegn er påkrævet)</value>
+  </data>
+  <data name="WorldSettings_GameModeSurvival" xml:space="preserve">
+    <value>Overlevelse</value>
+  </data>
+  <data name="ScreenMenuButtonJoinWorld" xml:space="preserve">
+    <value>Tilslut verden</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Navn</value>
+  </data>
+  <data name="WorldSettings_OnlineMode" xml:space="preserve">
+    <value>Online mode</value>
+  </data>
+  <data name="WorldSettings_OnlineModeOffline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="WorldSettings_OnlineModePrivate" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="WorldSettings_OnlineModePublic" xml:space="preserve">
+    <value>Offentlig</value>
+  </data>
+  <data name="ScreenNewWorldButtonQuickstart" xml:space="preserve">
+    <value>Hurtig start</value>
+  </data>
+  <data name="ToolTipWorldSettingsName" xml:space="preserve">
+    <value>Navnet skal være {0} til {1} alpha-numeriske tegn</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToDeleteSave" xml:space="preserve">
+    <value>Er du sikker på at du vil slette '{0}'?</value>
+  </data>
+  <data name="ScreenCaptionLoadWorld" xml:space="preserve">
+    <value>Indlæs verden</value>
+  </data>
+  <data name="LoadScreenButtonSaveAs" xml:space="preserve">
+    <value>Gem som</value>
+  </data>
+  <data name="WorldSettings_GameModeCreative" xml:space="preserve">
+    <value>Kreativ</value>
+  </data>
+  <data name="PlayerCharacter" xml:space="preserve">
+    <value>Spiller karakter </value>
+  </data>
+  <data name="WorldSettings_AutoSave" xml:space="preserve">
+    <value>Auto-gem</value>
+  </data>
+  <data name="ToolTipWorldSettingsAutoSave" xml:space="preserve">
+    <value>Auto-gem gemmer din verden hvert {0} minut og når du forlader spillet</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToSaveYourProgress" xml:space="preserve">
+    <value>Vil du gemme dine fremskridt?</value>
+  </data>
+  <data name="SaveWorld" xml:space="preserve">
+    <value>Gem verden</value>
+  </data>
+  <data name="ScreenMenuButtonSave" xml:space="preserve">
+    <value>Gem</value>
+  </data>
+  <data name="SavingPleaseWait" xml:space="preserve">
+    <value>Gemmer ... vent venligst</value>
+  </data>
+  <data name="Advanced" xml:space="preserve">
+    <value>Avanceret</value>
+  </data>
+  <data name="AdvancedControls" xml:space="preserve">
+    <value>Avancerede kontroller</value>
+  </data>
+  <data name="ControlName_Backward" xml:space="preserve">
+    <value>Baglæns</value>
+  </data>
+  <data name="BasicControls" xml:space="preserve">
+    <value>Grundlæggende kontroller</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Luk</value>
+  </data>
+  <data name="ControlName_DownOrCrouch" xml:space="preserve">
+    <value>Ned eller gå på hug</value>
+  </data>
+  <data name="ControlName_FirstOrThirdPerson" xml:space="preserve">
+    <value>Første-person / Tredje-person</value>
+  </data>
+  <data name="ControlName_Forward" xml:space="preserve">
+    <value>Fremad</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Næste side</value>
+  </data>
+  <data name="NotificationNeedShowHelpScreen" xml:space="preserve">
+    <value>Tryk {0} for hjælp og guide</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Forrige side</value>
+  </data>
+  <data name="ShowControlsHints" xml:space="preserve">
+    <value>Vis kontrol tips</value>
+  </data>
+  <data name="SteamGuide" xml:space="preserve">
+    <value>Guide</value>
+  </data>
+  <data name="ControlName_UpOrJump" xml:space="preserve">
+    <value>Op eller hop</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalNeg" xml:space="preserve">
+    <value>Rotér blok vertikalt -</value>
+  </data>
+  <data name="ControlName_CubeRotateVerticalPos" xml:space="preserve">
+    <value>Rotér blok vertikalt +</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalNeg" xml:space="preserve">
+    <value>Roter blok horisontalt -</value>
+  </data>
+  <data name="ControlName_CubeRotateHorizontalPos" xml:space="preserve">
+    <value>Roter blok horisontalt +</value>
+  </data>
+  <data name="ControlName_CubeRotateRollNeg" xml:space="preserve">
+    <value>Rotér blokrul -</value>
+  </data>
+  <data name="ControlName_CubeRotateRollPos" xml:space="preserve">
+    <value>Rotér blokrul +</value>
+  </data>
+  <data name="ControlName_Slot0" xml:space="preserve">
+    <value>Fjern fra inventar</value>
+  </data>
+  <data name="ControlName_Slot1" xml:space="preserve">
+    <value>Brug genstand  fra plads 1</value>
+  </data>
+  <data name="ControlName_Slot2" xml:space="preserve">
+    <value>Brug genstand  fra plads 2</value>
+  </data>
+  <data name="ControlName_Slot3" xml:space="preserve">
+    <value>Brug genstand  fra plads 3</value>
+  </data>
+  <data name="ControlName_Slot4" xml:space="preserve">
+    <value>Brug genstand  fra plads 4</value>
+  </data>
+  <data name="ControlName_Slot5" xml:space="preserve">
+    <value>Brug genstand  fra plads 5</value>
+  </data>
+  <data name="ControlName_Slot6" xml:space="preserve">
+    <value>Brug genstand  fra plads 6</value>
+  </data>
+  <data name="ControlName_Slot7" xml:space="preserve">
+    <value>Udrust med ting fra plads 7</value>
+  </data>
+  <data name="ControlName_Slot8" xml:space="preserve">
+    <value>Udrust med ting fra plads 8</value>
+  </data>
+  <data name="ControlName_Slot9" xml:space="preserve">
+    <value>Udrust med ting fra plads 9</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickLoad" xml:space="preserve">
+    <value>Er du sikker på at du vil hurtig-indlæse?</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToQuickSave" xml:space="preserve">
+    <value>Er du sikker på at du vil hurtig-gemme?</value>
+  </data>
+  <data name="ControlName_ToolbarConfig" xml:space="preserve">
+    <value>Konfigurering af værktøjslinje</value>
+  </data>
+  <data name="ControlName_HoldToLookAround" xml:space="preserve">
+    <value>Hold nede for at se dig omkring</value>
+  </data>
+  <data name="ControlName_HoldToSprint" xml:space="preserve">
+    <value>Hold nede for at spurte</value>
+  </data>
+  <data name="LoadingPleaseWait" xml:space="preserve">
+    <value>Indlæser ... vent venligst</value>
+  </data>
+  <data name="NoPlaceToCreateGrid" xml:space="preserve">
+    <value>Der er ikke nok plads til at placere en ny blok. Peg mod et tomt område.</value>
+  </data>
+  <data name="ControlName_HudOnOff" xml:space="preserve">
+    <value>HUD til / fra</value>
+  </data>
+  <data name="ScreenCubeBuilderHint" xml:space="preserve">
+    <value>Tip: Træk et ikon til værktøjslinjen og aktiver det ved at trykke på et nummer.</value>
+  </data>
+  <data name="Saved" xml:space="preserve">
+    <value>Gemt</value>
+  </data>
+  <data name="HideWeapon" xml:space="preserve">
+    <value>Skjul våben</value>
+  </data>
+  <data name="Thrust" xml:space="preserve">
+    <value>Fremdrift</value>
+  </data>
+  <data name="SomeWorldFilesCouldNotBeLoaded" xml:space="preserve">
+    <value>En af verdnerne/gemme filerne er korrupte og kan ikke blive åbnet.
+ Se loggen for detaljer.</value>
+  </data>
+  <data name="WorldFileIsCorruptedAndCouldNotBeLoaded" xml:space="preserve">
+    <value>Verdensfil er korrupt og kunne ikke indlæses.</value>
+  </data>
+  <data name="ToolTipNewWorldCustomWorld" xml:space="preserve">
+    <value>Skab en ny verden med brugerdefinerede instillinger</value>
+  </data>
+  <data name="ToolTipVideoOptionsRenderQuality" xml:space="preserve">
+    <value>Højere renderingkvalitet betyder bedre  grafik, længere synslængde og flere
+specielle effekter - men det er mere krævende for din computers ydeevne (CPU og GPU).
+Hvis spillet ikke kører glat, skru det ned.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoAdapter" xml:space="preserve">
+    <value>Vælg en grafik adapter og/eller en skærm</value>
+  </data>
+  <data name="ToolTipVideoOptionsVideoMode" xml:space="preserve">
+    <value>Vælg en skærmopløsning. Vi anbefaler at du bruger et formatforhold, som er kompatibelt med din skærm.
+Hvis spillet ikke køre flydende, sænk din skærmopløsning.</value>
+  </data>
+  <data name="ToolTipVideoOptionsHardwareCursor" xml:space="preserve">
+    <value>Hardware musen er uafhængig af spillets framerate. Vi anbefaler at du slår denne indstilling til.</value>
+  </data>
+  <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
+    <value>Spillet vil synkroniserer med skærmens opdateringshastighed. Vi anbefaler at du slår denne indstilling fra.</value>
+  </data>
+  <data name="ToolTipVideoOptionsFieldOfView" xml:space="preserve">
+    <value>Horisontalt synsfelt vinkel</value>
+  </data>
+  <data name="ToolTipGameOptionsShowControlsHints" xml:space="preserve">
+    <value>Vis control tips på skærmen under spil</value>
+  </data>
+  <data name="WorldNotSaved" xml:space="preserve">
+    <value>Verden {0} kunne ikke gemmes. Dette kan skyldes: Løbet tør for memory eller problemer med at skrive filerne. Ydereligere arbejde i denne verden kan gå tabt. Du kan se log filen for at finde ud hvad fejlen skyldes.</value>
+  </data>
+  <data name="NotificationMemoryOverload" xml:space="preserve">
+    <value>Ikke nok hukommelse til at tilføje nye objekter</value>
+  </data>
+  <data name="BetterGCIsAvailable" xml:space="preserve">
+    <value>Vi har opdaget et bedre grafikkort i din computer end den bruger lige nu. Se venligst din NVIDIA/AMD Control Panel indstillinger.</value>
+  </data>
+  <data name="MessageBoxCaptionWarning" xml:space="preserve">
+    <value>ADVARSEL</value>
+  </data>
+  <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
+    <value>Dette vil åbne {0} i din browser. Spillet vil stadig køre. Ønsker du at fortsætte?</value>
+  </data>
+  <data name="Loaded" xml:space="preserve">
+    <value>Indlæst</value>
+  </data>
+  <data name="MessageBoxTextNoSavedWorlds" xml:space="preserve">
+    <value>Der er ikke nogle gemte verdener endnu. Start venligst ved at lave en ny verden.</value>
+  </data>
+  <data name="MessageBoxCaptionVideoTutorial" xml:space="preserve">
+    <value>Video guide</value>
+  </data>
+  <data name="MessageBoxTextSaveChangesBeforeExit" xml:space="preserve">
+    <value>Gem ændringer før du forlader spillet?</value>
+  </data>
+  <data name="ErrorNameAlreadyExists" xml:space="preserve">
+    <value>Navnet er allerede i brug. Vælg venligst et andet navn.</value>
+  </data>
+  <data name="NotificationBuildingFormat" xml:space="preserve">
+    <value>Tryk {0} for at placére en terning</value>
+  </data>
+  <data name="NotificationColorFormat" xml:space="preserve">
+    <value>Tryk {0} eller {1} for at skifte farve. Hold {2} nede for at tilføje farve. Hold {3} eller {4} nede for at gøre penslen større.</value>
+  </data>
+  <data name="NotificationHideHintsInGameOptions" xml:space="preserve">
+    <value>Du kan skjule disse hints i spillets Indstillinger</value>
+  </data>
+  <data name="NotificationHudHideFormat" xml:space="preserve">
+    <value>Tryk {0} for vise/skjule dit HUD</value>
+  </data>
+  <data name="NotificationRotationFormat" xml:space="preserve">
+    <value>Tryk {0}, {1}, {2}, {3}, {4}, {5} for at rotere</value>
+  </data>
+  <data name="NotificationScreenFormat" xml:space="preserve">
+    <value>Tryk {0} for at konfigurere værktøjslinjen eller for at lave nye objekter.</value>
+  </data>
+  <data name="NotificationSlotEquipFormat" xml:space="preserve">
+    <value>Tryk {0}, {1}, {2}, ... for at udstyre dig med noget fra værktøjslinjen</value>
+  </data>
+  <data name="NotificationToolDisabled" xml:space="preserve">
+    <value>Dette værktøj/våben er slået fra</value>
+  </data>
+  <data name="NotificationUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Tryk {0} for at tilføje en blok, tryk {1} for at fjerne en blok. Hold {2} nede for at bygge hurtigt</value>
+  </data>
+  <data name="ControlDescQuickLoad" xml:space="preserve">
+    <value>Hurtig indlæs</value>
+  </data>
+  <data name="ControlDescQuickSave" xml:space="preserve">
+    <value>Hurtig gem</value>
+  </data>
+  <data name="MouseWheel" xml:space="preserve">
+    <value>Musehjul</value>
+  </data>
+  <data name="ScreenCubeBuilderBuildingBlocks" xml:space="preserve">
+    <value>Fane indhold:</value>
+  </data>
+  <data name="ScreenCubeBuilderCreativeMode" xml:space="preserve">
+    <value>Kreativ mode</value>
+  </data>
+  <data name="ScreenCubeBuilderSubtitle" xml:space="preserve">
+    <value>Konfigurér din værktøjslinje (tildel blokke, værktøjer og våben)</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbar" xml:space="preserve">
+    <value>Værktøjslinje</value>
+  </data>
+  <data name="ScreenCubeBuilderToolbarConfig" xml:space="preserve">
+    <value>Konfigurering af værktøjslinje</value>
+  </data>
+  <data name="SteamOverlayDisabledCaption" xml:space="preserve">
+    <value>Steam Overlay er slået fra</value>
+  </data>
+  <data name="LoadScreenButtonPublish" xml:space="preserve">
+    <value>Udgiv</value>
+  </data>
+  <data name="MessageBoxTextWorldPublished" xml:space="preserve">
+    <value>Udgivelse er færdigjort succesfuldt. Hvis du har Steam Overlay slået til, vil en side åbne, hvor du kan redigere indstillinger så som tittel, beskrivelse eller synlighed (den er synlig som standard)</value>
+  </data>
+  <data name="MessageBoxTextWorldPublishFailed" xml:space="preserve">
+    <value>Udgivelse af verden i Steam Workshop mislykkedes</value>
+  </data>
+  <data name="MessageBoxTextModPublished" xml:space="preserve">
+    <value>Udgiv er fuldført. Hvis du har Steam Overlay aktiveret, vil en side åbnes, og du kan redigere attributter såsom titel, beskrivelse og synlighed (det er offentligt som standard).</value>
+  </data>
+  <data name="MessageBoxTextModPublishFailed" xml:space="preserve">
+    <value>Det lykkedes ikke at udgive på Steam Workshop</value>
+  </data>
+  <data name="ProgressTextPublishingWorld" xml:space="preserve">
+    <value>Udgiver ... vent venligst.</value>
+  </data>
+  <data name="ProgressTextUploadingWorld" xml:space="preserve">
+    <value>Uploader ... vent venligst.</value>
+  </data>
+  <data name="ScreenMenuButtonSubscribedWorlds" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ProgressTextCreatingWorld" xml:space="preserve">
+    <value>Opretter verden … vent venligst.</value>
+  </data>
+  <data name="ScreenCaptionWorkshop" xml:space="preserve">
+    <value>Workshop</value>
+  </data>
+  <data name="ScreenMenuButtonRecommend" xml:space="preserve">
+    <value>Anbefal</value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublished" xml:space="preserve">
+    <value>VERDEN UDGIVET </value>
+  </data>
+  <data name="MessageBoxCaptionWorldPublishFailed" xml:space="preserve">
+    <value>UDGIVELSE AF VERDEN MISLYKKEDES</value>
+  </data>
+  <data name="MessageBoxCaptionModPublished" xml:space="preserve">
+    <value>MOD UDGIVET</value>
+  </data>
+  <data name="MessageBoxCaptionModPublishFailed" xml:space="preserve">
+    <value>MOD UDGIVELSE FEJLEDE</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldCopyAndLoad" xml:space="preserve">
+    <value>Kopier og indlæs </value>
+  </data>
+  <data name="LoadScreenButtonTooltipPublish" xml:space="preserve">
+    <value>Udgiv den valgte verden på Steam Workshop</value>
+  </data>
+  <data name="ToolTipMenuSubscribedWorlds" xml:space="preserve">
+    <value>Se en liste over verdener abonneret på Steam Workshop</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishWorld" xml:space="preserve">
+    <value>UDGIV VERDEN</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>OPDATER VERDEN</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishWorld" xml:space="preserve">
+    <value>Er du sikker på at du vil uploade og udgive den valgte verden på Steam Workshop?
+Ved udgivelse, acceptere du, de gældende regler for workshoppen. (se http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateWorld" xml:space="preserve">
+    <value>Er du sikker på at du vil uploade og overskrive den valgte verden på Steam Workshop?</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToPublishMod" xml:space="preserve">
+    <value>UDGIV MOD</value>
+  </data>
+  <data name="MessageBoxCaptionDoYouWishToUpdateMod" xml:space="preserve">
+    <value>UPDATE MOD</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToPublishMod" xml:space="preserve">
+    <value>Er du sikker på du ønsker at uploade og offentliggøre udvalgte mod på Steam Workshop? 
+Bemærk, at ved at indsende dette punkt, accepterer du workshop servicevilkår (se http://steamcommunity.com/sharedfiles/workshoplegalagreement).</value>
+  </data>
+  <data name="MessageBoxTextDoYouWishToUpdateMod" xml:space="preserve">
+    <value>Er du sikker på du ønsker at uploade og overskrive udvalgte mod på Steam Workshop?</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldBrowseWorkshop" xml:space="preserve">
+    <value>Gennemse Workshop</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldRefresh" xml:space="preserve">
+    <value>Genindlæs</value>
+  </data>
+  <data name="NotificationNoWeaponSelected" xml:space="preserve">
+    <value>Intet våben valgt</value>
+  </data>
+  <data name="NotificationSwitchedToWeaponType" xml:space="preserve">
+    <value>Skift til våben type '{0}'</value>
+  </data>
+  <data name="NotificationInertiaDampenersOff" xml:space="preserve">
+    <value>Inerti dæmperene er slukket</value>
+  </data>
+  <data name="NotificationInertiaDampenersOn" xml:space="preserve">
+    <value>Inerti dæmperene er tændt</value>
+  </data>
+  <data name="LoadScreenButtonDelete" xml:space="preserve">
+    <value>Slet</value>
+  </data>
+  <data name="ScreenCaptionEditSettings" xml:space="preserve">
+    <value>Rediger indstillinger</value>
+  </data>
+  <data name="ScreenCaptionSaveAs" xml:space="preserve">
+    <value>Gem som</value>
+  </data>
+  <data name="ScreenMenuButtonHelp" xml:space="preserve">
+    <value>Hjælp</value>
+  </data>
+  <data name="ScreenMenuButtonLoadWorld" xml:space="preserve">
+    <value>Indlæs verden</value>
+  </data>
+  <data name="ScreenMenuButtonNewWorld" xml:space="preserve">
+    <value>Ny verden</value>
+  </data>
+  <data name="ScreenMenuButtonOptions" xml:space="preserve">
+    <value>Indstillinger</value>
+  </data>
+  <data name="ScreenNewWorldButtonCustomWorld" xml:space="preserve">
+    <value>Brugerdefineret verden</value>
+  </data>
+  <data name="ScreenOptionsButtonControls" xml:space="preserve">
+    <value>Kontrolindstillinger</value>
+  </data>
+  <data name="MessageBoxCaptionResetControlsToDefault" xml:space="preserve">
+    <value>NULSTIL KONTROLLER</value>
+  </data>
+  <data name="MessageBoxTextResetControlsToDefault" xml:space="preserve">
+    <value>Er du sikker på, at du vil nulstille kontrol bindingerne til standardindstillingen?</value>
+  </data>
+  <data name="ScreenshotFailed" xml:space="preserve">
+    <value>Skærmbilled mislykkedes</value>
+  </data>
+  <data name="ScreenshotSaved" xml:space="preserve">
+    <value>Skærmbilled {0} gemt</value>
+  </data>
+  <data name="ExportToObjComplete" xml:space="preserve">
+    <value>Eksporteret til :{0}</value>
+  </data>
+  <data name="ExportToObjFailed" xml:space="preserve">
+    <value>Eksport af obj til fil mislykkedes</value>
+  </data>
+  <data name="ScreenLoadSubscribedWorldOpenInWorkshop" xml:space="preserve">
+    <value>Åben i Steam Workshop</value>
+  </data>
+  <data name="ToolTipWorkshopBrowseWorkshop" xml:space="preserve">
+    <value>Åben Steam Overlay med Workshop skærmen</value>
+  </data>
+  <data name="ToolTipWorkshopCopyAndLoad" xml:space="preserve">
+    <value>Hent valgte verden til din computer og indlæs</value>
+  </data>
+  <data name="ToolTipWorkshopOpenInWorkshop" xml:space="preserve">
+    <value>Åben valgte verden i Steam Workshop Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefresh" xml:space="preserve">
+    <value>Genindlæs listen af abonnerede verdener</value>
+  </data>
+  <data name="SettingSymmetryX" xml:space="preserve">
+    <value>Symmetri X plan: {0} for at indsætte, {1} for at nulstille</value>
+  </data>
+  <data name="SettingSymmetryXOffset" xml:space="preserve">
+    <value>Symmetri X plan (forskudt): {0} for at indsætte, {1} for at nulstille</value>
+  </data>
+  <data name="SettingSymmetryY" xml:space="preserve">
+    <value>Symmetri Y plan: {0} for at indsætte, {1} for at nulstille</value>
+  </data>
+  <data name="SettingSymmetryYOffset" xml:space="preserve">
+    <value>Symmetri Y plan (forskudt): {0} for at indsætte, {1} for at nulstille</value>
+  </data>
+  <data name="SettingSymmetryZ" xml:space="preserve">
+    <value>Symmetri Z plan: {0} for at indsætte, {1} for at nulstille</value>
+  </data>
+  <data name="SettingSymmetryZOffset" xml:space="preserve">
+    <value>Symmetri Z plan (forskudt): {0} for at indsætte, {1} for at nulstille</value>
+  </data>
+  <data name="NotificationPickupObject" xml:space="preserve">
+    <value>Tryk {0} for at samle {1} op</value>
+  </data>
+  <data name="CubeBuilderPasteNotification" xml:space="preserve">
+    <value>Tryk LMB eller Ctrl+V for at indsætte objekt</value>
+  </data>
+  <data name="MessageBoxTextErrorLoadingEntities" xml:space="preserve">
+    <value>En fejl er opstået under tilføjelsen af en, eller flere objekter. Se log filen for flere detaljer.</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureToMoveGridToClipboard" xml:space="preserve">
+    <value>Er du sikker på, at du vil slette det valgte objekt? (kopien vil blive opbevaret i udklipsholderen)</value>
+  </data>
+  <data name="MessageBoxTextMemoryLimitReachedDuringLoad" xml:space="preserve">
+    <value>Hukommelsesbegrænsningen er nået under indlæsning af verdenen, nogle objekter er ikke tilføjet. Hvis du bruger Large World fix og spillet for nylig blev opdateret, kan det muligvis være blevet slået fra.</value>
+  </data>
+  <data name="ScreenOptionsControls_Keyboard2" xml:space="preserve">
+    <value>Tastatur 2</value>
+  </data>
+  <data name="DialogTextDownloadingWorld" xml:space="preserve">
+    <value>Henter verden: {0}%
+Størrelse på verden: {1}</value>
+  </data>
+  <data name="DialogTextDownloadWorldFailed" xml:space="preserve">
+    <value>Download af verden mislykkedes!</value>
+  </data>
+  <data name="DialogTextJoiningWorld" xml:space="preserve">
+    <value>Deltager i verden</value>
+  </data>
+  <data name="DialogTextJoinWorldFailed" xml:space="preserve">
+    <value>Deltagelse i verden mislykkedes, grundet: {0}</value>
+  </data>
+  <data name="GpuUnderMinimumNotification" xml:space="preserve">
+    <value>Vi har opdaget at dit grafik kort ligger under mindste kravene og dette kan skabe ydelsesproblemer eller nedbrud. Tak for din forståelse.</value>
+  </data>
+  <data name="ShowRotationHints" xml:space="preserve">
+    <value>Vis rotations tips</value>
+  </data>
+  <data name="ToolTipGameOptionsShowRotationHints" xml:space="preserve">
+    <value>Vis HUD rotations tips under bygning</value>
+  </data>
+  <data name="UnknownControl_Unassigned" xml:space="preserve">
+    <value>[ikke tilknyttet]</value>
+  </data>
+  <data name="ScreenOptionsGame_BuildingMode" xml:space="preserve">
+    <value>Byggetilstand</value>
+  </data>
+  <data name="ScreenOptionsGame_Line" xml:space="preserve">
+    <value>Linje</value>
+  </data>
+  <data name="ScreenOptionsGame_Plane" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="ScreenOptionsGame_SingleBlock" xml:space="preserve">
+    <value>Enkelt blok</value>
+  </data>
+  <data name="ControlName_Suicide" xml:space="preserve">
+    <value>Selvmord</value>
+  </data>
+  <data name="MultiplayerErrorStartingServer" xml:space="preserve">
+    <value>Multiplayer server kan ikke startes, fejlkode {0}</value>
+  </data>
+  <data name="AlreadyUsedBySomebodyElse" xml:space="preserve">
+    <value>Objektet bliver brugt af en anden person</value>
+  </data>
+  <data name="MultiplayerJoinFriendsGames" xml:space="preserve">
+    <value>Venners spil</value>
+  </data>
+  <data name="ScreenCaptionPlayers" xml:space="preserve">
+    <value>Spillere</value>
+  </data>
+  <data name="ScreenPlayersLobby_Friends" xml:space="preserve">
+    <value>Venner</value>
+  </data>
+  <data name="ScreenPlayersLobby_Private" xml:space="preserve">
+    <value>Privat</value>
+  </data>
+  <data name="ScreenPlayersLobby_Public" xml:space="preserve">
+    <value>Offentlig</value>
+  </data>
+  <data name="ScreenPlayers_GameOwner" xml:space="preserve">
+    <value>Spil ejer</value>
+  </data>
+  <data name="ScreenPlayers_Invite" xml:space="preserve">
+    <value>Inviter</value>
+  </data>
+  <data name="ScreenPlayers_Kick" xml:space="preserve">
+    <value>Smid ud</value>
+  </data>
+  <data name="ScreenPlayers_PlayerName" xml:space="preserve">
+    <value>Spillerens navn</value>
+  </data>
+  <data name="DialogDownloadWorld_WorldDoesNotExists" xml:space="preserve">
+    <value>Spillet findes ikke længere.</value>
+  </data>
+  <data name="MessageBoxCaptionKicked" xml:space="preserve">
+    <value>SMIDT UD</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKicked" xml:space="preserve">
+    <value>Du er blevet smidt ud af spillet af ejeren</value>
+  </data>
+  <data name="WorldSettings_OnlineModeFriends" xml:space="preserve">
+    <value>Amigos</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureYouWantToReconnect" xml:space="preserve">
+    <value>Er du sikker på du ønsker er genoprette forbindelsen til det nuværende multiplayer spil?</value>
+  </data>
+  <data name="NotificationMultiplayerDisabled" xml:space="preserve">
+    <value>Du er i offline mode og multiplayer er slået fra. Du skal ændre settings i hovedmenuen.</value>
+  </data>
+  <data name="SteamIsOfflinePleaseRestart" xml:space="preserve">
+    <value>Steam er offline. Start venligst Steam i normal mode eller genstart Steam vis problemet bliver ved</value>
+  </data>
+  <data name="MultiplayerCompatibleVersions" xml:space="preserve">
+    <value>Kompatible versioner</value>
+  </data>
+  <data name="MaxPlayers" xml:space="preserve">
+    <value>Højeste tilladte antal spillere</value>
+  </data>
+  <data name="DialogWaitingForWorldData" xml:space="preserve">
+    <value>Venter på verdens data</value>
+  </data>
+  <data name="MultiplayerErrorConnectionFailed" xml:space="preserve">
+    <value>Forbindelse til serveren mislykkes: {0}</value>
+  </data>
+  <data name="MultiplayerStateConnectingToServer" xml:space="preserve">
+    <value>Forbinder til server</value>
+  </data>
+  <data name="MultiplayerStateWaitingForServer" xml:space="preserve">
+    <value>Venter på svar fra server</value>
+  </data>
+  <data name="HarvestingWarningInventoryMightBeTruncatedAreYouSure" xml:space="preserve">
+    <value>Den valgte spiltype er mere begrænset end den orginale. Dette betyder at dit beholdning måske bliver formindsket og du kan miste nogle ting! Er du sikker på du vil skifte spil type?</value>
+  </data>
+  <data name="ScreenCaptionFriendWorlds" xml:space="preserve">
+    <value>Venners verdener</value>
+  </data>
+  <data name="ScreenCaptionPublicWorlds" xml:space="preserve">
+    <value>Offentlige verdener</value>
+  </data>
+  <data name="ControlName_CubeColorChange" xml:space="preserve">
+    <value>Ændre blokkens farve</value>
+  </data>
+  <data name="NotificationWeaponDisabledInSettings" xml:space="preserve">
+    <value>Dette våben er slået fra i verdens indstillingerne</value>
+  </data>
+  <data name="ControlDescPlayersList" xml:space="preserve">
+    <value>Vis spillere (kun multiplayer)</value>
+  </data>
+  <data name="ScreenMenuButtonPlayers" xml:space="preserve">
+    <value>Spillere</value>
+  </data>
+  <data name="ItemDamagedDescription" xml:space="preserve">
+    <value>(Beskadiget)</value>
+  </data>
+  <data name="MultiplaterJoin_ServerIsNotResponding" xml:space="preserve">
+    <value>Serveren svare ikke</value>
+  </data>
+  <data name="UnsupportedAspectRatio" xml:space="preserve">
+    <value>Aspektforholdet understøttes ikke</value>
+  </data>
+  <data name="OnlyFriendsCanJoinThisGame" xml:space="preserve">
+    <value>Kun venner kan deltage i dette spil</value>
+  </data>
+  <data name="ToolTipWorldSettingsDescription" xml:space="preserve">
+    <value>Beskrivelse af verdenen</value>
+  </data>
+  <data name="CompressSaveGames" xml:space="preserve">
+    <value>Komprimer gemte spil</value>
+  </data>
+  <data name="ToolTipGameOptionsCompressSaveGames" xml:space="preserve">
+    <value>Hvorvidt gemte spil skal komprimeres på disken for at spare plads</value>
+  </data>
+  <data name="Headbob" xml:space="preserve">
+    <value>Så hoved bevægelse fra</value>
+  </data>
+  <data name="ScreenOptionsGame_ShowPlayerNames" xml:space="preserve">
+    <value>Vis spiller navne</value>
+  </data>
+  <data name="ToolTipGameOptionsShowPlayerNames" xml:space="preserve">
+    <value>Vis spillernavne over figuren. Denne feature skal osse være slået til i verdens indstillingerne.</value>
+  </data>
+  <data name="NotificationInventoryFull" xml:space="preserve">
+    <value>Beholdningen er fyldt op</value>
+  </data>
+  <data name="OutOfAmmo" xml:space="preserve">
+    <value>{0} er løbet tør for ammunition</value>
+  </data>
+  <data name="NotificationMissingComponentToPlaceBlockFormat" xml:space="preserve">
+    <value>Du skal bruge {0} for at bygge {1}</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_GameMode" xml:space="preserve">
+    <value>Spil tilstand</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Players" xml:space="preserve">
+    <value>Spillere</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Username" xml:space="preserve">
+    <value>Brugernavn</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_World" xml:space="preserve">
+    <value>Verden</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_WorldSize" xml:space="preserve">
+    <value>Størrelse på verden</value>
+  </data>
+  <data name="MessageBoxTextSuicide" xml:space="preserve">
+    <value>Er du sikker på du ønsker at begå selvmord?</value>
+  </data>
+  <data name="MultiplayerErrorServerHasLeft" xml:space="preserve">
+    <value>Serveren værten har forladt spillet</value>
+  </data>
+  <data name="NotificationRespawn" xml:space="preserve">
+    <value>Du døde. Bliver genoplivet om {0} sekunder</value>
+  </data>
+  <data name="HudBlockInfo_Required" xml:space="preserve">
+    <value>Nødvendig</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_MultipliersFormat" xml:space="preserve">
+    <value>Beholdnings størrelse {0}x
+Samlers effektivitet {1}x
+Raffinaderis hastighed {2}x</value>
+  </data>
+  <data name="NotificationClientConnected" xml:space="preserve">
+    <value>Spiller tilsluttet: {0}</value>
+  </data>
+  <data name="NotificationClientDisconnected" xml:space="preserve">
+    <value>Spiller afbrudt: {0}</value>
+  </data>
+  <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
+    <value>Serveren har en anden version af spillet, din version {0}, serverens version{1}</value>
+  </data>
+  <data name="ShowCrosshair" xml:space="preserve">
+    <value>Vis sigtekorn</value>
+  </data>
+  <data name="ToolTipGameOptionsShowCrosshair" xml:space="preserve">
+    <value>Hvorvidt våbens sigtekorn skal være synlige</value>
+  </data>
+  <data name="MessageBoxTextSavingInProgress" xml:space="preserve">
+    <value>Spillet gemmer allerede.</value>
+  </data>
+  <data name="ScreenOptionsGame_LocalizationWarning" xml:space="preserve">
+    <value>*Oversat at community</value>
+  </data>
+  <data name="ScreenOptionsGame_MoreInfo" xml:space="preserve">
+    <value>Klik for mere info</value>
+  </data>
+  <data name="Multiplayer_IndirectConnection" xml:space="preserve">
+    <value>Ingen direkte forbindelse tilgængelig.</value>
+  </data>
+  <data name="Multiplayer_NoConnection" xml:space="preserve">
+    <value>Ingen forbindelse til serveren.</value>
+  </data>
+  <data name="GamePaused" xml:space="preserve">
+    <value>Spillet er pauset</value>
+  </data>
+  <data name="ControlDescPauseGame" xml:space="preserve">
+    <value>Sæt spillet på pause (kun offline)</value>
+  </data>
+  <data name="ControlName_PauseGame" xml:space="preserve">
+    <value>Sæt spillet på pause</value>
+  </data>
+  <data name="KeysPause" xml:space="preserve">
+    <value>Pause</value>
+    <comment>KeysPause - Pause/Break key on the keyboard (translate only if your keyboard uses different name).</comment>
+  </data>
+  <data name="NotificationWeaponNotWorking" xml:space="preserve">
+    <value>{0} virker ikke</value>
+  </data>
+  <data name="DialogAmount_AddAmountCaption" xml:space="preserve">
+    <value>Mænge der tilføjes</value>
+  </data>
+  <data name="DialogAmount_SetValueCaption" xml:space="preserve">
+    <value>Angiv værdi</value>
+  </data>
+  <data name="NotificationHealthCritical" xml:space="preserve">
+    <value>Helbred er kritisk. Søg lægelig hjælp omgående</value>
+  </data>
+  <data name="NotificationHealthLow" xml:space="preserve">
+    <value>Helbred lavt.</value>
+  </data>
+  <data name="MultiplayerError_DifferentData" xml:space="preserve">
+    <value>Serveren har en anden spildata end din client</value>
+  </data>
+  <data name="MultiplayerJoin_IncompatibleGameDataLabel" xml:space="preserve">
+    <value>Spil markeret med * har forskellige spildata</value>
+  </data>
+  <data name="ScreenPlayers_GameAdmin" xml:space="preserve">
+    <value>Spil admin</value>
+  </data>
+  <data name="MultiplayerJoinServers" xml:space="preserve">
+    <value>Kun dedikerede</value>
+  </data>
+  <data name="MultiplayerErrorAlreadyJoined" xml:space="preserve">
+    <value>Brugeren er allerede forbundet</value>
+  </data>
+  <data name="MultiplayerErrorNotInGroup" xml:space="preserve">
+    <value>Du er ikke i gruppe {0}. Ønsker du at se gruppens webside?</value>
+  </data>
+  <data name="MultiplayerErrorServerFull" xml:space="preserve">
+    <value>Serveren er fuld</value>
+  </data>
+  <data name="MultiplayerErrorSteamServersOffline" xml:space="preserve">
+    <value>Steam serverne er offline eller servergruppen eksistere ikke</value>
+  </data>
+  <data name="MultiplayerErrorTicketInvalid" xml:space="preserve">
+    <value>Ticket ugyldig</value>
+  </data>
+  <data name="MultiplayerJoinLANServers" xml:space="preserve">
+    <value>Kun LAN</value>
+  </data>
+  <data name="JoinGame_TabTitle_Friends" xml:space="preserve">
+    <value>Venner</value>
+  </data>
+  <data name="JoinGame_TabTitle_LAN" xml:space="preserve">
+    <value>LAN</value>
+  </data>
+  <data name="JoinGame_TabTitle_Lobbies" xml:space="preserve">
+    <value>Spil</value>
+  </data>
+  <data name="JoinGame_TabTitle_Servers" xml:space="preserve">
+    <value>Servers</value>
+  </data>
+  <data name="JoinGame_Title" xml:space="preserve">
+    <value>Tilslut verden</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Ping" xml:space="preserve">
+    <value>Ping</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Server" xml:space="preserve">
+    <value>Server</value>
+  </data>
+  <data name="MultiplayerErrorLoggedInElseWhere" xml:space="preserve">
+    <value>Logget ind andetsteds</value>
+  </data>
+  <data name="MultiplayerErrorNoLicenseOrExpired" xml:space="preserve">
+    <value>Ingen licens eller licensen er udløbet</value>
+  </data>
+  <data name="MultiplayerErrorTicketAlreadyUsed" xml:space="preserve">
+    <value>Ticket er allerede brug</value>
+  </data>
+  <data name="MultiplayerErrorTicketCanceled" xml:space="preserve">
+    <value>Ticket annulleret</value>
+  </data>
+  <data name="MultiplayerErrorUserNotConnected" xml:space="preserve">
+    <value>Bruger ikke forbundet</value>
+  </data>
+  <data name="MultiplayerErrorVACBanned" xml:space="preserve">
+    <value>VAC banned</value>
+  </data>
+  <data name="MultiplayerErrorVACCheckTimedOut" xml:space="preserve">
+    <value>VAC kontrol fik timeout</value>
+  </data>
+  <data name="MultiplayerJoinAllowedGroups" xml:space="preserve">
+    <value>Tilladte grupper</value>
+  </data>
+  <data name="NewsDownloadingFailed" xml:space="preserve">
+    <value>Nyheds download mislykkedes</value>
+  </data>
+  <data name="MessageBoxCaptionInfo" xml:space="preserve">
+    <value>INFO</value>
+  </data>
+  <data name="MultiplayerErrorGroupIdInvalid" xml:space="preserve">
+    <value>Servergruppe id er ugyldig, server administrator bør sætte den korrekte gruppe-id i server config filen
+(eller nul for at deaktivere gruppe kontrol)</value>
+  </data>
+  <data name="JoinGame_TabTooltip_LAN" xml:space="preserve">
+    <value>List over lokale dedikerede servere</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Lobbies" xml:space="preserve">
+    <value>Liste over spil lavet af spillere</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Servers" xml:space="preserve">
+    <value>List over dedikerede server på nettet</value>
+  </data>
+  <data name="PlayerCharacterColor" xml:space="preserve">
+    <value>Spillers farve</value>
+  </data>
+  <data name="NotificationHintPressToUseWardrobe" xml:space="preserve">
+    <value>Tryl {0} for at ændre udseende</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode" xml:space="preserve">
+    <value>Vindue mode</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Fullscreen" xml:space="preserve">
+    <value>Fuld skærm</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_FullscreenWindow" xml:space="preserve">
+    <value>Fuld skræm i vindue</value>
+  </data>
+  <data name="ScreenOptionsVideo_WindowMode_Window" xml:space="preserve">
+    <value>Vindue</value>
+  </data>
+  <data name="SpectatorControls" xml:space="preserve">
+    <value>Tilskuer styring</value>
+  </data>
+  <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
+    <value>Tilskuer med fast udsigt for vektor kontrolleret objekt</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
+    <value>Du er banned på denne server</value>
+  </data>
+  <data name="MultiplayerErrorBannedByAdminsWithDialog" xml:space="preserve">
+    <value>Du er blevet banned på denne server.
+Åben admin profil?</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenBanned" xml:space="preserve">
+    <value>Du er blevet banned på denne server af admin.</value>
+  </data>
+  <data name="ScreenPlayers_Ban" xml:space="preserve">
+    <value>Ban</value>
+  </data>
+  <data name="HudMarker_ReturnToWorld" xml:space="preserve">
+    <value>Returner til spilområdet!</value>
+  </data>
+  <data name="NotificationLeavingWorld" xml:space="preserve">
+    <value>Advarsel: Du vil dø om {0:F1} meter!</value>
+  </data>
+  <data name="ScreenCaptionAdvancedSettings" xml:space="preserve">
+    <value>Avancerede verdens indstillinger</value>
+  </data>
+  <data name="Spectator" xml:space="preserve">
+    <value>Tilskuere</value>
+  </data>
+  <data name="SpectatorControls_Delta" xml:space="preserve">
+    <value>Delta tilskuer</value>
+  </data>
+  <data name="SpectatorControls_Free" xml:space="preserve">
+    <value>Fri tilskuer</value>
+  </data>
+  <data name="SpectatorControls_None" xml:space="preserve">
+    <value>Spiller styring</value>
+  </data>
+  <data name="SpectatorControls_Static" xml:space="preserve">
+    <value>Statisk tilskuer</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameAlreadyExists" xml:space="preserve">
+    <value>Valgte fraktion navn findes allerede</value>
+  </data>
+  <data name="MessageBoxErrorFactionsTagAlreadyExists" xml:space="preserve">
+    <value>Fraktionens tag findes allerede</value>
+  </data>
+  <data name="MessageBoxErrorFactionsNameTooShort" xml:space="preserve">
+    <value>Navnet på fraktionen skal være mindst 4 tegn lang</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Redigere</value>
+  </data>
+  <data name="Kick" xml:space="preserve">
+    <value>Smid ud</value>
+  </data>
+  <data name="Leader" xml:space="preserve">
+    <value>Leder</value>
+  </data>
+  <data name="Member" xml:space="preserve">
+    <value>Medlem</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsKickPlayer" xml:space="preserve">
+    <value>Er du sikker på du vil smide spiller '{0}' ud af din fraktion?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsLeave" xml:space="preserve">
+    <value>Er du sikker på at du vil forlade fraktionen '{0}'?</value>
+  </data>
+  <data name="Promote" xml:space="preserve">
+    <value>Forfrem</value>
+  </data>
+  <data name="Demote" xml:space="preserve">
+    <value>Degrader</value>
+  </data>
+  <data name="AccessDenied" xml:space="preserve">
+    <value>Adgang nægtet</value>
+  </data>
+  <data name="Founder" xml:space="preserve">
+    <value>Grundlægger</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Accept" xml:space="preserve">
+    <value>Acceptere</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsAcceptJoin" xml:space="preserve">
+    <value>Er du sikker på du vil acceptere spiller '{0}' til din fraktion?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsDemote" xml:space="preserve">
+    <value>Er du sikker på du vil degradere '{0}' til medlem?</value>
+  </data>
+  <data name="MessageBoxConfirmFactionsPromote" xml:space="preserve">
+    <value>Er du sikker på du vil forfremme '{0}' til leder?</value>
+  </data>
+  <data name="Applicant" xml:space="preserve">
+    <value>Ansøger</value>
+  </data>
+  <data name="Tag" xml:space="preserve">
+    <value>Tag</value>
+  </data>
+  <data name="SessionDeleteFailed" xml:space="preserve">
+    <value>Sletning af session mislykkedes</value>
+  </data>
+  <data name="Medicals_Title" xml:space="preserve">
+    <value>Medicinske værelser</value>
+  </data>
+  <data name="MessageBoxTextChangeOwner" xml:space="preserve">
+    <value>Er du sikker på du vil ændre ejeren til {0}?</value>
+  </data>
+  <data name="Respawn" xml:space="preserve">
+    <value>Genopliv</value>
+  </data>
+  <data name="MultiplayerJoinSameGameData" xml:space="preserve">
+    <value>Samme spil data</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Opdater</value>
+  </data>
+  <data name="PlayerInfo_Dead" xml:space="preserve">
+    <value>død</value>
+  </data>
+  <data name="ScreenMods_ActiveMods" xml:space="preserve">
+    <value>Aktive mods</value>
+  </data>
+  <data name="ScreenMods_AvailableMods" xml:space="preserve">
+    <value>Tilgængelige mods</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeft" xml:space="preserve">
+    <value>Deaktivere mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveLeftAll" xml:space="preserve">
+    <value>Deaktivere alle mods</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRight" xml:space="preserve">
+    <value>Aktivere mod</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveRightAll" xml:space="preserve">
+    <value>Aktivere alle mods</value>
+  </data>
+  <data name="WorldSettings_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="ToolTipWorkshopOpenModInWorkshop" xml:space="preserve">
+    <value>Åben valgte mod i Steam Workshop Overlay</value>
+  </data>
+  <data name="ToolTipWorkshopRefreshMod" xml:space="preserve">
+    <value>Opdater listen over tilmeldte mods</value>
+  </data>
+  <data name="JoinGame_SearchLabel" xml:space="preserve">
+    <value>Søg efter spil</value>
+  </data>
+  <data name="JoinGame_SearchTooltip" xml:space="preserve">
+    <value>Indsæt mindst 3 tegn for at starte søgning</value>
+  </data>
+  <data name="ProgressTextDownloadingMods" xml:space="preserve">
+    <value>Downloader mods ... vent vengligst.</value>
+  </data>
+  <data name="NotificationClientCannotSave" xml:space="preserve">
+    <value>Klienter kan ikke gemme på denne server</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveDown" xml:space="preserve">
+    <value>Flyt mod ned</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveUp" xml:space="preserve">
+    <value>Flyt mod op</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveBottom" xml:space="preserve">
+    <value>Flyt mod til bunden</value>
+  </data>
+  <data name="ToolTipScreenMods_MoveTop" xml:space="preserve">
+    <value>Flyt mod til toppen</value>
+  </data>
+  <data name="MessageBoxTextCannotCreateGroup" xml:space="preserve">
+    <value>Du kan ikke oprette en gruppe der indeholder blokke du ikke har rettigheder til.</value>
+  </data>
+  <data name="MessageBoxTextCannotDeleteGroup" xml:space="preserve">
+    <value>Du kan ikke slette en gruppe der indeholder blokke du ikke har rettigheder til.</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenKickedFromFaction" xml:space="preserve">
+    <value>Du er blevet smidt ud fra fraktionen</value>
+  </data>
+  <data name="MessageBoxTextYouHaveBeenAcceptedToFaction" xml:space="preserve">
+    <value>Du er blevet accepteret til fraktion.</value>
+  </data>
+  <data name="ControlName_ToolbarDown" xml:space="preserve">
+    <value>Sidste værktøjslinje</value>
+  </data>
+  <data name="ControlName_ToolbarUp" xml:space="preserve">
+    <value>Næste værktøjslinje</value>
+  </data>
+  <data name="DialogTextDownloadModsFailed" xml:space="preserve">
+    <value>Kunne ikke downloade mods! Tjek venligst mods i verden indstillinger.</value>
+  </data>
+  <data name="ProgressTextCheckingMods" xml:space="preserve">
+    <value>Søger efter mod opdateringer ... vent venligst.</value>
+  </data>
+  <data name="ScreenDebugOfficial_Caption" xml:space="preserve">
+    <value>Debug tegn</value>
+  </data>
+  <data name="ScreenDebugOfficial_EnableDebugDraw" xml:space="preserve">
+    <value>Aktiver debug tegn</value>
+  </data>
+  <data name="ScreenDebugOfficial_ErrorLogCaption" xml:space="preserve">
+    <value>Indlæser fejllog:</value>
+  </data>
+  <data name="ScreenDebugOfficial_ModelDummies" xml:space="preserve">
+    <value>Model dummies</value>
+  </data>
+  <data name="ScreenDebugOfficial_MountPoints" xml:space="preserve">
+    <value>Mount point</value>
+  </data>
+  <data name="ScreenDebugOfficial_NoErrorText" xml:space="preserve">
+    <value>Der var ingen indlæsnings fejl</value>
+  </data>
+  <data name="ScreenDebugOfficial_PhysicsPrimitives" xml:space="preserve">
+    <value>Fysike primitiver</value>
+  </data>
+  <data name="ScreenDebugOfficial_OpenErrorLog" xml:space="preserve">
+    <value>Åben i nyt vindue</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadTextures" xml:space="preserve">
+    <value>Genindlæs teksturer</value>
+  </data>
+  <data name="DialogTextLocalModsDisabledInMultiplayer" xml:space="preserve">
+    <value>Lokale mods er ikke tilladt i multiplayer. Brug værkstedet mods i stedet.</value>
+  </data>
+  <data name="ScreenMods_LocalMod" xml:space="preserve">
+    <value>Lokalt mod</value>
+  </data>
+  <data name="ScreenMods_MissingDetails" xml:space="preserve">
+    <value>Kunne ikke modtage mod detalier fra Steam</value>
+  </data>
+  <data name="ScreenMods_MissingLocalMod" xml:space="preserve">
+    <value>Mangler lokalt mod</value>
+  </data>
+  <data name="ScreenMods_WorkshopMod" xml:space="preserve">
+    <value>Værksted mod</value>
+  </data>
+  <data name="ScreenDebugOfficial_ReloadModels" xml:space="preserve">
+    <value>Genindlæs modeler</value>
+  </data>
+  <data name="ScreenDebugOfficial_CopyErrorLogToClipboard" xml:space="preserve">
+    <value>Kopier log til systemets udklipsholder</value>
+  </data>
+  <data name="NotificationLeavingWorld_Creative" xml:space="preserve">
+    <value>Advarsel: Alle skibe vil blive fjernet i {0:F1} meter!</value>
+  </data>
+  <data name="PlayerCharacterModel" xml:space="preserve">
+    <value>Spillermodel</value>
+  </data>
+  <data name="JoinGame_ColumnTitle_Mods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="NotificationHintPressToUse" xml:space="preserve">
+    <value>Tryk {0} for at bruge {1}</value>
+  </data>
+  <data name="JoinGame_SelectServerToShowModList" xml:space="preserve">
+    <value>Vælg server for at vise mod liste</value>
+  </data>
+  <data name="ScreenMods_SearchLabel" xml:space="preserve">
+    <value>Søg</value>
+  </data>
+  <data name="JoinGame_BadModsListResponse" xml:space="preserve">
+    <value>Kunne ikke få fat i modliste fra server</value>
+  </data>
+  <data name="HudWarnings" xml:space="preserve">
+    <value>Hud advarsler</value>
+  </data>
+  <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
+    <value>Denne verden kan ikke indlæses. Den har været lavet i nyere version af spillet.</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
+    <value>Denne workshops genstand synes ikke at tilhøre dig. Kontroller, at du er logget ind med den rigtige konto.</value>
+  </data>
+  <data name="ScreenDebugOfficial_SavePrefab" xml:space="preserve">
+    <value>Eksporter Udklipsholder til fil</value>
+  </data>
+  <data name="ToolTipSaveShip" xml:space="preserve">
+    <value>Gem skibe fra udklipsholder til fil</value>
+  </data>
+  <data name="AddNewNPC" xml:space="preserve">
+    <value>Tilføj ny fjende Identitet</value>
+  </data>
+  <data name="DisplayName_BlueprintClass_Tools" xml:space="preserve">
+    <value>Værktøjer</value>
+  </data>
+  <data name="ScreenCaptionWorkshopTags" xml:space="preserve">
+    <value>Vælg tags</value>
+  </data>
+  <data name="WorkshopTag_Animation" xml:space="preserve">
+    <value>Animation</value>
+  </data>
+  <data name="WorkshopTag_Block" xml:space="preserve">
+    <value>Blok</value>
+  </data>
+  <data name="WorkshopTag_Character" xml:space="preserve">
+    <value>Karakter</value>
+  </data>
+  <data name="WorkshopTag_Other" xml:space="preserve">
+    <value>Andre</value>
+  </data>
+  <data name="WorkshopTag_Skybox" xml:space="preserve">
+    <value>Himmelboks</value>
+  </data>
+  <data name="MessageBoxTextPublishFailed_OwnerMismatchMod" xml:space="preserve">
+    <value>Kunne ikke opdatere da du ikke er ejer af dette mod.</value>
+  </data>
+  <data name="MessageBoxErrorModLoadingFailure" xml:space="preserve">
+    <value>Nogle mods blev ikke indlæst på grund af fejl. Se detaljer i logfilen eller kør spillet i single player til at få adgang til mod debug skærmen</value>
+  </data>
+  <data name="RenderIterpolation" xml:space="preserve">
+    <value>Renderings interpolation</value>
+  </data>
+  <data name="ToolTipVideoOptionRenderIterpolation" xml:space="preserve">
+    <value>Reducerer stammen og gør spillet glattere.</value>
+  </data>
+  <data name="WorkshopTag_ModPack" xml:space="preserve">
+    <value>Modpakke</value>
+  </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockCategories" xml:space="preserve">
+    <value>Faner af værktøjer og objekter:</value>
+  </data>
+  <data name="ScreenCubeBuilderBlockSearch" xml:space="preserve">
+    <value>Søg:</value>
+  </data>
+  <data name="ControlDescCopyPasteMove" xml:space="preserve">
+    <value>Flyt indsatte objekt</value>
+  </data>
+  <data name="WorkshopTag_Script" xml:space="preserve">
+    <value>Script</value>
+  </data>
+  <data name="NotificationCopyPasteBlockNotAvailable" xml:space="preserve">
+    <value>Nogle blokke i indsatte gitter er ikke tilgængelige i denne verden</value>
+  </data>
+  <data name="ConvertingObjs" xml:space="preserve">
+    <value>Konverterer modeler. Vent venligst.</value>
+  </data>
+  <data name="ConvertToObjDone" xml:space="preserve">
+    <value>Alle modeller konverteret.</value>
+  </data>
+  <data name="ExportingToObj" xml:space="preserve">
+    <value>Eksporterer model. Vent venligst.</value>
+  </data>
+  <data name="MessageBoxTextDoYouWantToPasteGridWithMissingBlocks" xml:space="preserve">
+    <value>Indsatte skib indeholder nogle blokke, som ikke findes i denne verden. Disse blokke vil ikke blive indsat, det kan muligvis forårsage at skibet bliver splittet. Vil du indsætte dette skib?</value>
+  </data>
+  <data name="NotificationCopyPasteFloatingObjectNotAvailable" xml:space="preserve">
+    <value>Genstand er ikke tilgængelig i denne verden</value>
+  </data>
+  <data name="ShipWelder_HelpOthers" xml:space="preserve">
+    <value>Hjælp Andre</value>
+  </data>
+  <data name="PlacingObjectsToScene" xml:space="preserve">
+    <value>Placerer objekter til verden. Vent venligst.</value>
+  </data>
+  <data name="ControlTypeSystems3" xml:space="preserve">
+    <value>Systemer 3</value>
+  </data>
+  <data name="NotificationSwitchedToWeapon" xml:space="preserve">
+    <value>Skiftede til våben: {0}</value>
+  </data>
+  <data name="Thrust_Back" xml:space="preserve">
+    <value>Baglæns</value>
+  </data>
+  <data name="Thrust_Down" xml:space="preserve">
+    <value>Ned</value>
+  </data>
+  <data name="Thrust_Forward" xml:space="preserve">
+    <value>Fremad</value>
+  </data>
+  <data name="Thrust_Left" xml:space="preserve">
+    <value>Venstre</value>
+  </data>
+  <data name="Thrust_Right" xml:space="preserve">
+    <value>Højre</value>
+  </data>
+  <data name="Thrust_Up" xml:space="preserve">
+    <value>Op</value>
+  </data>
+  <data name="SelectBlueprint" xml:space="preserve">
+    <value>Vælg</value>
+  </data>
+  <data name="DisplayName_Animation_Facepalm" xml:space="preserve">
+    <value>Ansigtsslask</value>
+  </data>
+  <data name="AvailableBlueprints" xml:space="preserve">
+    <value>Tilgængelige arbejdstegninger</value>
+  </data>
+  <data name="VoxelHandProperty_Sphere_Radius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Width" xml:space="preserve">
+    <value>Bredde</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Depth" xml:space="preserve">
+    <value>Dybde</value>
+  </data>
+  <data name="VoxelHandProperty_Box_Height" xml:space="preserve">
+    <value>Højde</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandDistance" xml:space="preserve">
+    <value>Afstand</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSettings" xml:space="preserve">
+    <value>Pensel Indstillinger</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandTransparency" xml:space="preserve">
+    <value>Gennemsigtighed</value>
+  </data>
+  <data name="VoxelHandSettingScreen_ShapeSettings" xml:space="preserve">
+    <value>Figur Indstillinger</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Length" xml:space="preserve">
+    <value>Længde</value>
+  </data>
+  <data name="VoxelHandProperty_Capsule_Radius" xml:space="preserve">
+    <value>Radius</value>
+  </data>
+  <data name="ExportToObjModded" xml:space="preserve">
+    <value>Modellen indeholder modded blokke. Kun modeller med standard blokke kan eksporteres.</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandSnapToVoxel" xml:space="preserve">
+    <value>Fastgør til voxel gitter</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Area" xml:space="preserve">
+    <value>Område</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_Axis" xml:space="preserve">
+    <value>Vælg akse</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisX" xml:space="preserve">
+    <value>X akse</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisY" xml:space="preserve">
+    <value>Y akse</value>
+  </data>
+  <data name="VoxelHandProperty_AutoLevel_AxisZ" xml:space="preserve">
+    <value>Z akse</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandMaterial" xml:space="preserve">
+    <value>Materiale</value>
+  </data>
+  <data name="NotificationNewFactionChatMessage" xml:space="preserve">
+    <value>Ny meddelelse i {0} fraktion chat</value>
+  </data>
+  <data name="NotificationNewGlobalChatMessage" xml:space="preserve">
+    <value>Nye global chat-meddelelse</value>
+  </data>
+  <data name="NotificationNewPlayerChatMessage" xml:space="preserve">
+    <value>Ny meddelelse fra {0}</value>
+  </data>
+  <data name="ErrorDescriptionTooLong" xml:space="preserve">
+    <value>Beskrivelsen er for lang (Max 8000 tegn tilladt)</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Beskrivelse</value>
+  </data>
+  <data name="TooltipScreenMods_SelectCategories" xml:space="preserve">
+    <value>Vælg kategorier</value>
+  </data>
+  <data name="JoinGame_GameTypeToolTip_ViewDistance" xml:space="preserve">
+    <value>Se afstand: {0}m</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandProjectToVoxel" xml:space="preserve">
+    <value>Projekt til voxel</value>
+  </data>
+  <data name="ControlDescNextVoxelMaterial" xml:space="preserve">
+    <value>Næste voxel materiale</value>
+  </data>
+  <data name="ControlDescOpenVoxelHandSettings" xml:space="preserve">
+    <value>Åben voxel hånds indstillinger</value>
+  </data>
+  <data name="ControlDescPreviousVoxelMaterial" xml:space="preserve">
+    <value>Tidligere voxel materiale</value>
+  </data>
+  <data name="BlueprintsMessageBoxDesc_Replace" xml:space="preserve">
+    <value>Er du sikker på, du vil erstatte denne plan med Udklipsholderen?</value>
+  </data>
+  <data name="BlueprintsMessageBoxTitle_Replace" xml:space="preserve">
+    <value>Erstat</value>
+  </data>
+  <data name="NotificationTextPanelReadOnly" xml:space="preserve">
+    <value>Tekstpanelet er skrivebeskyttet</value>
+  </data>
+  <data name="MessageBoxTextTooLongText" xml:space="preserve">
+    <value>Teksten er for lang. Vil du afkorte den?</value>
+  </data>
+  <data name="ControlDescExportModel" xml:space="preserve">
+    <value>Eksporter model</value>
+  </data>
+  <data name="VoxelHandSettingScreen_HandShowGizmos" xml:space="preserve">
+    <value>Vis afgrænsningsområde</value>
+  </data>
+  <data name="MessageBoxTextOpenUrlOverlayNotEnabled" xml:space="preserve">
+    <value>Dette åbner {0} i din internetbrowser, fordi Steam Overlay er enten deaktiveret eller undladt at åbne. Spillet vil holde kørende.
+Vil du fortsætte?</value>
+  </data>
+  <data name="NotificationRotationFormatCombined" xml:space="preserve">
+    <value>Tryk på {0} for at rotere blokken</value>
+  </data>
+  <data name="NotificationCompoundBuildingFormat" xml:space="preserve">
+    <value>Tryk på {0} eller {1} for at skifte sammensat bygning</value>
+  </data>
+  <data name="NotificationSwitchBuildingModeFormat" xml:space="preserve">
+    <value>Tryk på {0} for at slå dynamisk bygning til / fra</value>
+  </data>
+  <data name="ControlName_SwitchWalk" xml:space="preserve">
+    <value>Skift gangstil</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Favorites" xml:space="preserve">
+    <value>Liste over yndlings-servere</value>
+  </data>
+  <data name="JoinGame_TabTitle_Favorites" xml:space="preserve">
+    <value>Farvoriter</value>
+  </data>
+  <data name="JoinGame_TabTitle_History" xml:space="preserve">
+    <value>Historie</value>
+  </data>
+  <data name="JoinGame_TabTooltip_Friends" xml:space="preserve">
+    <value>Listen over venners servere</value>
+  </data>
+  <data name="JoinGame_TabTooltip_History" xml:space="preserve">
+    <value>Listen over tidligere besøgte servere</value>
+  </data>
+  <data name="JoinGame_Favorites_Add" xml:space="preserve">
+    <value>Tilføj serveren til favoritter</value>
+  </data>
+  <data name="JoinGame_Favorites_Remove" xml:space="preserve">
+    <value>Fjern server fra favoritter</value>
+  </data>
+  <data name="ControlName_VoxelHandSettings" xml:space="preserve">
+    <value>Åben voxel hånd indstillinger</value>
+  </data>
+  <data name="NotificationVoxelHandHintFormat" xml:space="preserve">
+    <value>Tryk på {0} for at åbne voxel hånd indstillinger</value>
+  </data>
+  <data name="NotificationVoxelMaterialFormat" xml:space="preserve">
+    <value>Tryk på {0} eller {1} for at ændre voxel materiale</value>
+  </data>
+  <data name="BotSettingsScreen_EnableBotsDebugging" xml:space="preserve">
+    <value>Aktiver bot fejlfinding</value>
+  </data>
+  <data name="BotSettingsScreen_NextBot" xml:space="preserve">
+    <value>Næste bot</value>
+  </data>
+  <data name="BotSettingsScreen_PreviousBot" xml:space="preserve">
+    <value>Sidste bot</value>
+  </data>
+  <data name="BotSettingsScreen_Title" xml:space="preserve">
+    <value>Bot indstillinger</value>
+  </data>
+  <data name="ScreenDebugOfficial_BotSettings" xml:space="preserve">
+    <value>Bot indstillinger</value>
+  </data>
+  <data name="ReportBug" xml:space="preserve">
+    <value>Report a Bug</value>
+  </data>
+  <data name="ControlName_ToolbarNextItem" xml:space="preserve">
+    <value>Next toolbar item</value>
+  </data>
+  <data name="ControlName_ToolbarPreviousItem" xml:space="preserve">
+    <value>Previous toolbar item</value>
+  </data>
+  <data name="ControlTypeToolsOrWeapons2" xml:space="preserve">
+    <value>Tools / Weapons 2</value>
+  </data>
+  <data name="ControlName_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="ScreenControlMenu_Title" xml:space="preserve">
+    <value>Control menu</value>
+  </data>
+  <data name="ControlName_ControlMenu" xml:space="preserve">
+    <value>Open control menu</value>
+  </data>
+  <data name="ControlMenuItemValue_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ControlMenuItemValue_On" xml:space="preserve">
+    <value>On</value>
+  </data>
+  <data name="ControlMenuItemLabel_CameraMode" xml:space="preserve">
+    <value>Camera mode</value>
+  </data>
+  <data name="ControlMenuItemValue_FPP" xml:space="preserve">
+    <value>FPP</value>
+  </data>
+  <data name="ControlMenuItemValue_TPP" xml:space="preserve">
+    <value>TPP</value>
+  </data>
+  <data name="ControlMenuItemLabel_CommitSuicide" xml:space="preserve">
+    <value>Suicide</value>
+  </data>
+  <data name="ControlMenuItemLabel_QuickLoad" xml:space="preserve">
+    <value>Quick load / reconnect</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowColorPicker" xml:space="preserve">
+    <value>Show color picker</value>
+  </data>
+  <data name="ControlMenuItemLabel_ShowToolbarScreen" xml:space="preserve">
+    <value>Show toolbar screen</value>
+  </data>
+  <data name="ControlMenuItemLabel_ToggleHud" xml:space="preserve">
+    <value>Toggle HUD</value>
+  </data>
+  <data name="ControlMenuItemLabel_PauseGame" xml:space="preserve">
+    <value>Pause game</value>
+  </data>
+  <data name="MessageBoxTextErrorFeatureNotAvailableYet" xml:space="preserve">
+    <value>Feature is not available yet</value>
+  </data>
+  <data name="NotificationMaximumNumberBots" xml:space="preserve">
+    <value>Maximum number of bots has been reached</value>
+  </data>
+  <data name="Hud_BuildMode" xml:space="preserve">
+    <value>Build mode</value>
+  </data>
+  <data name="NotificationJoystickCompoundBuildingFormat" xml:space="preserve">
+    <value>Press {0} to toggle compound building</value>
+  </data>
+  <data name="NotificationJoystickControlMenuFormat" xml:space="preserve">
+    <value>Press {0} to access control menu</value>
+  </data>
+  <data name="NotificationJoystickMenus" xml:space="preserve">
+    <value>In order to show help or modify toolbar, open control menu</value>
+  </data>
+  <data name="NotificationJoystickSlotEquipFormat" xml:space="preserve">
+    <value>Press {0} or {1} to select toolbar slots</value>
+  </data>
+  <data name="NotificationJoystickUnlimitedBuildingFormat" xml:space="preserve">
+    <value>Press {0} to add block, press {1} to remove block</value>
+  </data>
+  <data name="NotificationJoystickVoxelMaterialFormat" xml:space="preserve">
+    <value>Press {0} to change voxel material</value>
+  </data>
+  <data name="Notification_GameplayOptions" xml:space="preserve">
+    <value>Press {0} to change Gameplay options</value>
+  </data>
+  <data name="ControlMenuItemLabel_Wardrobe" xml:space="preserve">
+    <value>Change appearance</value>
+  </data>
+  <data name="NotificationHintJoystickPressToOpenInventory" xml:space="preserve">
+    <value>Access control menu to open inventory of {0}</value>
+  </data>
+  <data name="NotificationHintPressToOpenBuildMode" xml:space="preserve">
+    <value>Press {0} to enter build mode</value>
+  </data>
+  <data name="WorldSettings_Physics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="WorldSettings_Physics_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="WorldSettings_Physics_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="WorldSettings_Physics_Precise" xml:space="preserve">
+    <value>Precise</value>
+  </data>
+  <data name="WorldSettings_Physics_Tooltip" xml:space="preserve">
+    <value>Higher settings improve simulation BUT directly affects performance.</value>
+  </data>
+  <data name="ScreenCaptionGraphicsOptions" xml:space="preserve">
+    <value>Graphics options</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AnisotropicFiltering_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing" xml:space="preserve">
+    <value>Anti-aliasing</value>
+  </data>
+  <data name="ScreenGraphicsOptions_AntiAliasing_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails" xml:space="preserve">
+    <value>Foliage details</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_FoliageDetails_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_MultiThreadedRendering" xml:space="preserve">
+    <value>Multi-threaded rendering</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset" xml:space="preserve">
+    <value>Quality preset</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Custom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_QualityPreset_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_ShadowMapResolution_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality" xml:space="preserve">
+    <value>Texture quality</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_High" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Low" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="ScreenGraphicsOptions_TextureQuality_Medium" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="ControlName_VoiceChat" xml:space="preserve">
+    <value>Push-to-talk voice chat</value>
+  </data>
+  <data name="EnableVoiceChat" xml:space="preserve">
+    <value>Enable voice chat</value>
+  </data>
+</root>

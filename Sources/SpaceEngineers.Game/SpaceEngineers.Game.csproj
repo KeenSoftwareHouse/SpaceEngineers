@@ -92,12 +92,20 @@
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
+    <HavokDir>HavokWrapper_SE</HavokDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\$(Configuration)\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
+    <HavokWrapperFullPath2>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath2>
+  </PropertyGroup>
+  <PropertyGroup>
     <RootNamespace>SpaceEngineers.Game</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HavokWrapper, Version=1.0.5877.23574, Culture=neutral, processorArchitecture=AMD64">
+    <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rd\HavokWrapper_SE\debug\x64\HavokWrapper.dll</HintPath>
+      <HintPath Condition="exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath)</HintPath>
+      <HintPath Condition="!exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath2)</HintPath>
     </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>

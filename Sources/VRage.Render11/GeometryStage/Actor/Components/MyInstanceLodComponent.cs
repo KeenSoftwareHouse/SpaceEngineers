@@ -300,7 +300,12 @@ namespace VRageRender
             if (transitionTime == 0 || Math.Abs(transitionTime) >= 1.0f)
                 return 0;
 
-            return isStartLod ? Math.Abs(transitionTime) : (2.0f - Math.Abs(transitionTime));
+            // Value over 1 is interpreted by the shader to do dithering with an inversed mask
+            // This is done so that when blending between two lod levels, one pixel will be from current lod
+            // and the other from the next lod and there are no missing pixels.
+            // Could not use negative because that currently means hologram rendering.
+            // SL: Moved inversed dithering to values of 2 to 3 instead of 1 to 2 to make sure the values don't overlap
+            return isStartLod ? Math.Abs(transitionTime) : (3.0f - Math.Abs(transitionTime));
         }
 
         void SetAlphaForProxies(MyInstanceLodId id, MyLodTransitionData data)

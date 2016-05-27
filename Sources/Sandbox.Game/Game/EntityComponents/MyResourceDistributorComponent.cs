@@ -1904,6 +1904,11 @@ namespace Sandbox.Game.EntityComponents
 
 	    private void Sink_RequiredInputChanged(MyDefinitionId changedResourceTypeId, MyResourceSinkComponent changedSink, float oldRequirement, float newRequirement)
 	    {
+            if(m_typeIdToIndex.ContainsKey(changedResourceTypeId) == false)
+            {
+                return;
+            }
+
 			var typeIndex = GetTypeIndex(ref changedResourceTypeId);
 	        if (!TryGetTypeIndex(changedResourceTypeId, out typeIndex))
 	        {

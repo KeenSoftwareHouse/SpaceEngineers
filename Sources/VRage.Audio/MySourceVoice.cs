@@ -253,7 +253,15 @@ namespace VRage.Audio
         {
             m_volumeBase = volume;
             if (IsValid)
-                m_voice.SetVolume(m_volumeBase * m_volumeMultiplier);
+            {
+                try
+                {
+                    m_voice.SetVolume(m_volumeBase * m_volumeMultiplier);
+                }
+                catch (NullReferenceException)
+                {
+                }
+            }
         }
 
         public void SetOutputVoices(VoiceSendDescriptor[] descriptors)
