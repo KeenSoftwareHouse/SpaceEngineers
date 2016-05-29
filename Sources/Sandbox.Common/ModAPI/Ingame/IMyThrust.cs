@@ -8,5 +8,7 @@ namespace Sandbox.ModAPI.Ingame
     public interface IMyThrust: IMyFunctionalBlock
     {
         float ThrustOverride { get;}
+        float MaxThrust { get; }
+        float CurrentThrust { get; }
     }
 }

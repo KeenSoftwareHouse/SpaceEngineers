@@ -678,6 +678,22 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        float Sandbox.ModAPI.Ingame.IMyThrust.MaxThrust
+        {
+            get
+            {
+                return BlockDefinition.ForceMagnitude * m_thrustMultiplier;
+            }
+        }
+
+        float Sandbox.ModAPI.Ingame.IMyThrust.CurrentThrust
+        {
+            get
+            {
+                return CurrentStrength * BlockDefinition.ForceMagnitude * m_thrustMultiplier;
+            }
+        }
+
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
         public IMyConveyorEndpoint ConveyorEndpoint { get { return m_conveyorEndpoint; } }
         public void InitializeConveyorEndpoint()
