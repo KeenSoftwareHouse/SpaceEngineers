@@ -614,7 +614,6 @@ namespace Sandbox.Definitions
                 MyDefinitionErrors.Add(context, "MOD SKIPPED, Cannot load definition file, see log for details", TErrorSeverity.Critical);
             else
                 MyDefinitionErrors.Add(context, String.Format("MOD PARTIALLY SKIPPED, LOADED ONLY {0}/{1} PHASES, see logfile for details", phase + 1, phaseNum), TErrorSeverity.Critical);
-
             if (context.IsBaseGame)
             {
                 // When original definition fails to load, return to main menu
@@ -1177,9 +1176,8 @@ namespace Sandbox.Definitions
             {
                 MySandboxGame.Log.WriteLine("Loading cube blocks");
                 InitCubeBlocks(context, definitionSet.m_blockPositions, objBuilder.CubeBlocks);
-
                 ToDefinitions(context, definitionSet.m_definitionsById, definitionSet.m_uniqueCubeBlocksBySize, objBuilder.CubeBlocks, failOnDebug);
-
+                MySandboxGame.Log.WriteLine("Created block definitions");
                 foreach (var size in definitionSet.m_uniqueCubeBlocksBySize)
                     PrepareBlockBlueprints(context, definitionSet.m_blueprintsById, size);
             }
@@ -1191,7 +1189,7 @@ namespace Sandbox.Definitions
             {
                 if (MySandboxGame.Static != null)
                 {
-                    MySandboxGame.Log.WriteLine("Loading prefabs");
+                    MySandboxGame.Log.WriteLine("Loading Prefab: " + context.CurrentFile);
                     InitPrefabs(context, definitionSet.m_prefabs, objBuilder.Prefabs, failOnDebug);
                 }
             }
@@ -2054,6 +2052,10 @@ namespace Sandbox.Definitions
                 Check(res[i].Id.TypeId == typeof(MyObjectBuilder_Component), res[i].Id.TypeId, failOnDebug, UNKNOWN_ENTRY_MESSAGE);
                 Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
                 output[res[i].Id] = res[i];
+                if (!context.IsBaseGame)
+                {
+                    MySandboxGame.Log.WriteLine("Loaded component: " + res[i].Id);
+                }
             }
         }
 
@@ -2170,7 +2172,10 @@ namespace Sandbox.Definitions
             foreach (var entry in cubeBlocks)
             {
                 var cubeBlock = entry.Value;
-
+                if (!context.IsBaseGame)
+                {
+                    MySandboxGame.Log.WriteLine("Loading cube block: " + entry.Key);
+                }
                 if (!MyFakes.ENABLE_NON_PUBLIC_BLOCKS && cubeBlock.Public == false) continue;
 
                 var uniqueCubeBlock = cubeBlock.UniqueVersion;
@@ -2632,6 +2637,10 @@ namespace Sandbox.Definitions
 
                 Check(!output.ContainsKey(res[i].Id.SubtypeName), res[i].Id.SubtypeName, failOnDebug);
                 output[res[i].Id.SubtypeName] = res[i];
+                if (!context.IsBaseGame)
+                {
+                    MySandboxGame.Log.WriteLine("Loaded voxel material: " + res[i].Id.SubtypeName);
+                }
             }
         }
 
@@ -4019,18 +4028,18 @@ namespace Sandbox.Definitions
             for (int i = 0; i < cubeBlocks.Length; ++i)
             {
                 var currentDef = cubeBlocks[i];
-
                 var result = InitDefinition<MyCubeBlockDefinition>(context, currentDef);
                 result.UniqueVersion = result;
-
                 // add to cubeBlocks without variant
                 Debug.Assert((int)result.CubeSize < outputCubeBlocks.Length, "CubeSize >= cubeBlocksBySize.Length");
                 outputCubeBlocks[(int)result.CubeSize][result.Id] = result;
-
                 // add to definitions (including variants for backward compatibility)
                 Check(!outputDefinitions.ContainsKey(result.Id), result.Id, failOnDebug);
                 outputDefinitions[result.Id] = result;
-
+                if (!context.IsBaseGame)
+                {
+                    MySandboxGame.Log.WriteLine("Created definition for: " + result.DisplayNameText);
+                }
                 //if (currentDef.Variants != null)
                 //{
                 //    result.Color = Color.Gray;
@@ -4063,12 +4072,10 @@ namespace Sandbox.Definitions
                 UpdateModableContent(result.Context, builder);
 
             result.Init(builder, result.Context);
-
             if (MyFakes.ENABLE_ALL_IN_SURVIVAL)
             {
                 result.AvailableInSurvival = true;
             }
-
             return result;
         }
 
@@ -4089,7 +4096,7 @@ namespace Sandbox.Definitions
             if (extensions.Length > 0 && field.FieldType == typeof(string))
             {
                 string contentFile = (string)field.GetValue(fieldOwnerInstance);
-                ProcessContentFilePath(context, ref contentFile, extensions);
+                ProcessContentFilePath(context, ref contentFile, extensions, true);
                 field.SetValue(fieldOwnerInstance, contentFile);
             }
             else if(field.FieldType == typeof(string[]))
@@ -4099,7 +4106,7 @@ namespace Sandbox.Definitions
                 if (stringArray != null)
                 {
                     for (int fileIndex = 0; fileIndex < stringArray.Length; ++fileIndex)
-                        ProcessContentFilePath(context, ref stringArray[fileIndex], extensions);
+                        ProcessContentFilePath(context, ref stringArray[fileIndex], extensions, false);
 
                     field.SetValue(fieldOwnerInstance, stringArray);
                 }
@@ -4129,7 +4136,7 @@ namespace Sandbox.Definitions
             }
         }
 
-        private static void ProcessContentFilePath(MyModContext context, ref string contentFile, object[] extensions)
+        private static void ProcessContentFilePath(MyModContext context, ref string contentFile, object[] extensions, bool logNoExtensions)
         {
             if (string.IsNullOrEmpty(contentFile))
                 return;
@@ -4138,7 +4145,10 @@ namespace Sandbox.Definitions
 
             if (extensions.IsNullOrEmpty())
             {
-                MyDefinitionErrors.Add(context, "None file extensions.", TErrorSeverity.Warning);
+                if (logNoExtensions)
+                {
+                    MyDefinitionErrors.Add(context, "No file extensions.", TErrorSeverity.Warning);
+                }
                 return;
             }
 
@@ -4169,6 +4179,7 @@ namespace Sandbox.Definitions
             }
             else
             {
+                MyDefinitionErrors.Add(context, "Resource not found, setting to null or error model. Resource name: " + contentFile, TErrorSeverity.Error);
                 if (contentFile.EndsWith(".mwm"))
                 {
                     contentFile = @"Models\Debug\Error.mwm";
@@ -4177,7 +4188,6 @@ namespace Sandbox.Definitions
                 {
                     contentFile = null;
                 }
-                MyDefinitionErrors.Add(context, "Resource not found, setting to null or error model: " + contentFile, TErrorSeverity.Error);
             }
         }
 
