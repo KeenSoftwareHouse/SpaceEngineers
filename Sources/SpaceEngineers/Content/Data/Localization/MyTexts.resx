@@ -5514,4 +5514,16 @@ needed.</value>
   <data name="NotificationCannotJumpOutsideWorld" xml:space="preserve">
     <value>Jump drives cannot be used to jump outside world limits.</value>
   </data>
+  <data name="TerminalTab_GPS_HideAll" xml:space="preserve">
+    <value>Hide all on HUD</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowAll" xml:space="preserve">
+    <value>Show all on HUD</value>
+  </data>
+  <data name="TerminalTab_GPS_HideAll" xml:space="preserve">
+    <value>Hide all on HUD</value>
+  </data>
+  <data name="TerminalTab_GPS_ShowAll" xml:space="preserve">
+    <value>Show all on HUD</value>
+  </data>
 </root>

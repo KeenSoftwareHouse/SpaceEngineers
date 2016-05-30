@@ -1515,7 +1515,24 @@ namespace Sandbox.Game.Gui
             {
                 Name = "buttonFromClipboard"
             };
-
+            var gpsButtonShowAll = new MyGuiControlButton(
+                position: new Vector2(left, top + gpsButtonAdd.Size.Y + spacingV + gpsButtonDelete.Size.Y + spacingV),
+                visualStyle: MyGuiControlButtonStyleEnum.Rectangular,
+                size: new Vector2(225f, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE,
+                text: MyTexts.Get(MySpaceTexts.TerminalTab_GPS_ShowAll),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+            {
+                Name = "buttonShowAll"
+            };
+            var gpsButtonHideAll = new MyGuiControlButton(
+                position: new Vector2(left + gpsButtonShowAll.Size.X + spacingH, top + gpsButtonAdd.Size.Y + spacingV + gpsButtonDelete.Size.Y + spacingV),
+                visualStyle: MyGuiControlButtonStyleEnum.Rectangular,
+                size: new Vector2(225f, 48f) / MyGuiConstants.GUI_OPTIMAL_SIZE,
+                text: MyTexts.Get(MySpaceTexts.TerminalTab_GPS_HideAll),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP)
+            {
+                Name = "buttonHideAll"
+            };
 
             gpsPage.Controls.Add(gpsBlockSearch);
             gpsPage.Controls.Add(gpsBlockSearchClear);
@@ -1524,6 +1541,8 @@ namespace Sandbox.Game.Gui
             gpsPage.Controls.Add(gpsButtonDelete);
             gpsPage.Controls.Add(gpsButtonFromCurrent);
             gpsPage.Controls.Add(gpsButtonFromClipboard);
+            gpsPage.Controls.Add(gpsButtonShowAll);
+            gpsPage.Controls.Add(gpsButtonHideAll);
 
 
             //RIGHT SIDE:
