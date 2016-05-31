@@ -1742,20 +1742,40 @@ namespace Sandbox.Game.Entities
                 {
                     MySessionComponentVoxelHand.Static.Enabled = false;
                     var copiedGrid = MyCubeGrid.GetTargetGrid();
-                    if (!MyInput.Static.IsAnyShiftKeyPressed())
-                        m_clipboard.CopyGroup(copiedGrid, MyInput.Static.IsAnyAltKeyPressed() ? GridLinkTypeEnum.Physical : GridLinkTypeEnum.Logical);
-                    else
-                        m_clipboard.CopyGrid(copiedGrid);
-
-                    UpdatePasteNotification(MyCommonTexts.CubeBuilderPasteNotification);
-
-                    var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard);
-                    if (copiedGrid != null)
+                    Boolean ownerInplayerFaction = false;
+                    var faction = MySession.Static.Factions.TryGetPlayerFaction(MySession.Static.LocalPlayerId);
+                    for (int i = 0; i < copiedGrid.BigOwners.Count; i++ )
                     {
-                        blueprintScreen.CreateFromClipboard(true);
+                        if (faction != null)
+                        {
+                            if (MySession.Static.Factions.TryGetPlayerFaction(copiedGrid.BigOwners[i]) == faction)
+                            {
+                                ownerInplayerFaction = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    m_clipboard.Deactivate();
-                    MyGuiSandbox.AddScreen(blueprintScreen);
+                    if (copiedGrid.BigOwners.Contains(MySession.Static.LocalPlayerId) || ownerInplayerFaction || !MySession.Static.SurvivalMode || copiedGrid.BigOwners.Count == 0) //If player owns ship, or owner is in players faction, or in creative mode or ship is neutral
+                    {
+                        if (!MyInput.Static.IsAnyShiftKeyPressed())
+                            m_clipboard.CopyGroup(copiedGrid, MyInput.Static.IsAnyAltKeyPressed() ? GridLinkTypeEnum.Physical : GridLinkTypeEnum.Logical);
+                        else
+                            m_clipboard.CopyGrid(copiedGrid);
+
+                        UpdatePasteNotification(MyCommonTexts.CubeBuilderPasteNotification);
+
+                        var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard);
+                        if (copiedGrid != null)
+                        {
+                            blueprintScreen.CreateFromClipboard(true);
+                        }
+                        m_clipboard.Deactivate();
+                        MyGuiSandbox.AddScreen(blueprintScreen);
+                    }
                 }
                 return true;
             }
