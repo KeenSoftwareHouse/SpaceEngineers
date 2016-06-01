@@ -550,8 +550,7 @@ namespace Sandbox.Game
                 }
 
                 //Special case for other Missiles
-                var missile = entity as MyMissile;
-                if (missile != null)
+                if (entity is MyMissile)
                 {
                     continue;
                 }
