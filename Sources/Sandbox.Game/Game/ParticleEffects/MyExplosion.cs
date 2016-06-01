@@ -549,6 +549,13 @@ namespace Sandbox.Game
                     }
                 }
 
+                //Special case for other Missiles
+                var missile = entity as MyMissile;
+                if (missile != null)
+                {
+                    continue;
+                }
+
                 var raycastDamageInfo = explosionDamageInfo.ExplosionDamage.ComputeDamageForEntity(entity.PositionComp.WorldAABB.Center);
                 float damage = raycastDamageInfo.DamageRemaining;
 
