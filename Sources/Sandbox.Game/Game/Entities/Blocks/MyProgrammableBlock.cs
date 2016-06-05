@@ -181,11 +181,6 @@ public void Main(string argument) {{
                 return false;
             }
 
-            if (!IsFunctional || !IsWorking)
-            {
-                return false;
-            }
-
             string response;
             var result = this.ExecuteCode(argument ?? "", out response);
             SetDetailedInfo(response);
