@@ -456,16 +456,20 @@ public void Main(string argument) {{
                     }
                 } else {
                     response += MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
+					
                     // Get both StackTraces
-                    string ExceptionStackTrace = ex.StackTrace;
+                    StringBuilder ExceptionStackTrace = new StringBuilder(ex.StackTrace);
                     string[] currentStackTrace = Environment.StackTrace.Split(new string[] {Environment.NewLine}, StringSplitOptions.None);
-                    // Remove All Calls before the Script Call
+					
+                    // Remove All internal calls before the Script Call
                     for (int i = 0; i < currentStackTrace.Length; i++)
                     {
-                        ExceptionStackTrace = ExceptionStackTrace.Replace(currentStackTrace[i], "");
+                        ExceptionStackTrace.Replace(currentStackTrace[i], "");
                     }
+					
                     // Add Script StackTrace to response Line
-                    response += "\n" + ExceptionStackTrace;
+                    response += "\n" + ExceptionStackTrace.ToString();
+					
                     OnProgramTermination(ScriptTerminationReason.RuntimeException);
                 }
                 return m_terminationReason;
