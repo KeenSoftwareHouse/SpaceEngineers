@@ -462,7 +462,7 @@ public void Main(string argument) {{
                     // Remove All Calls before the Script Call
                     for (int i = 0; i < currentStackTrace.Length; i++)
                     {
-                        ExceptionStackTrace.Replace(currentStackTrace[i], "");
+                        ExceptionStackTrace = ExceptionStackTrace.Replace(currentStackTrace[i], "");
                     }
                     // Add Script StackTrace to response Line
                     response += "\n" + ExceptionStackTrace;
