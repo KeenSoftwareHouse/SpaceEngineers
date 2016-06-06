@@ -530,7 +530,7 @@ namespace Sandbox.Game.Gui
                 maxDecimalDigits = MyInventoryConstants.GUI_DISPLAY_MAX_DECIMALS;
                 asInteger = false;
             }
-            var dialog = new MyGuiScreenDialogAmount(0, (float)amount, MyCommonTexts.DialogAmount_AddAmountCaption, minMaxDecimalDigits: maxDecimalDigits, parseAsInteger: asInteger);
+            var dialog = new MyGuiScreenDialogAmount(0, (float)amount, MyCommonTexts.DialogAmount_AddAmountCaption, minMaxDecimalDigits: maxDecimalDigits, parseAsInteger: asInteger, bkTransition: MySandboxGame.Config.UIBkOpacity, transition: MySandboxGame.Config.UIOpacity);
             dialog.OnConfirmed += onConfirmed;
             MyGuiSandbox.AddScreen(dialog);
         }

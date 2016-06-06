@@ -40,7 +40,7 @@ namespace Sandbox.Graphics.GUI
 
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
-            DrawBackground(backgroundTransitionAlpha);
+            DrawBackground(transitionAlpha, backgroundTransitionAlpha);
 
             if (Textures != null)
                 for (int i = 0; i < Textures.Length; i++)

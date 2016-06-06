@@ -282,7 +282,7 @@ namespace Sandbox.Game.Gui
                 float val = Denormalizer(first, arg.Value);
 
                 // TODO: allocations, needs GUI redo
-                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, defaultAmount: val, caption: MyCommonTexts.DialogAmount_SetValueCaption);
+                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, defaultAmount: val, caption: MyCommonTexts.DialogAmount_SetValueCaption, bkTransition: MySandboxGame.Config.UIBkOpacity, transition: MySandboxGame.Config.UIOpacity);
                 dialog.OnConfirmed += m_amountConfirmed;
                 MyGuiSandbox.AddScreen(dialog);
                 return true;

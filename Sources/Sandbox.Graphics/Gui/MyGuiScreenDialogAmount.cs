@@ -37,10 +37,14 @@ namespace Sandbox.Graphics.GUI
 
         /// <param name="min">Minimum allowed amount.</param>
         /// <param name="max">Maximum allowed amount.</param>
+        /// <param name="caption">Dialog caption</param>
         /// <param name="minMaxDecimalDigits">Number of digits used from min and max value. Decimal places beyond this value are cut off (no rounding occurs).</param>
         /// <param name="parseAsInteger">True will ensure parsing as integer number (you cannot input decimal values). False will parse as decimal number.</param>
-        public MyGuiScreenDialogAmount(float min, float max, MyStringId caption, int minMaxDecimalDigits = 3, bool parseAsInteger = false, float? defaultAmount = null) :
-            base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, null)
+        /// <param name="defaultAmount">default value</param>
+        /// <param name="bkTransition">background opacity</param>
+        /// <param name="transition">text opacity</param>
+        public MyGuiScreenDialogAmount(float min, float max, MyStringId caption, int minMaxDecimalDigits = 3, bool parseAsInteger = false, float? defaultAmount = null, float bkTransition = 0.0f, float transition = 0.0f) :
+            base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, null, backgroundTransition: bkTransition, guiTransition: transition)
         {
             CanHideOthers = false;
             EnabledBackgroundFade = true;

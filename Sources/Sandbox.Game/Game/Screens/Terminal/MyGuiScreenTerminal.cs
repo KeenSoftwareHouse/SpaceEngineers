@@ -1161,7 +1161,7 @@ namespace Sandbox.Game.Gui
 					min = 0;
 
 				// TODO: allocations, needs GUI redo
-                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, parseAsInteger: parseAsInteger, defaultAmount: val, caption: MyCommonTexts.DialogAmount_SetValueCaption);
+                MyGuiScreenDialogAmount dialog = new MyGuiScreenDialogAmount(min, max, parseAsInteger: parseAsInteger, defaultAmount: val, caption: MyCommonTexts.DialogAmount_SetValueCaption, bkTransition: MySandboxGame.Config.UIBkOpacity, transition: MySandboxGame.Config.UIOpacity);
 				dialog.OnConfirmed += (v) => { arg.Value = MyHudMarkerRender.Normalize(v); };
 				MyGuiSandbox.AddScreen(dialog);
 				return true;

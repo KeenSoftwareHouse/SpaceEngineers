@@ -408,7 +408,7 @@ namespace Sandbox.Graphics.GUI
             base.Draw(transitionAlpha, backgroundTransitionAlpha);
             var positionTopLeft = GetPositionAbsoluteTopLeft();
 
-            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
+            m_styleDef.Texture.Draw(positionTopLeft, Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             var position = positionTopLeft + new Vector2(m_itemsRectangle.X, m_itemsRectangle.Y);
             int index = m_visibleRowIndexOffset;
@@ -448,6 +448,8 @@ namespace Sandbox.Graphics.GUI
                     if (isHighlit)
                     {
                         MyGuiManager.DrawSpriteBatch(m_styleDef.ItemTextureHighlight, position, ItemSize, color, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                        if (backgroundTransitionAlpha < 0.2)
+                            MyGuiManager.DrawBorders(position, ItemSize, ApplyColorMaskModifiers(MyGuiConstants.THEMED_GUI_LINE_COLOR.ToVector4(), Enabled, transitionAlpha), 1);
                     }
 
                     if (!String.IsNullOrEmpty(item.Icon))

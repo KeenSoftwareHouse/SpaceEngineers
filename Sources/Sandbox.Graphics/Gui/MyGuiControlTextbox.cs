@@ -266,7 +266,7 @@ namespace Sandbox.Graphics.GUI
             if (!Visible)
                 return;
 
-            m_compositeBackground.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
+            m_compositeBackground.Draw(GetPositionAbsoluteTopLeft(), Size, ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             base.Draw(transitionAlpha, backgroundTransitionAlpha);
 

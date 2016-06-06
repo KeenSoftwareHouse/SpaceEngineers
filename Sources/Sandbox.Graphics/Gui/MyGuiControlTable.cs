@@ -482,7 +482,7 @@ namespace Sandbox.Graphics.GUI
             var position = GetPositionAbsoluteTopLeft();
             float height = RowHeight * (VisibleRowsCount + 1); // One row is taken up by the header of the table.
             m_styleDef.Texture.Draw(position, Size,
-                ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
+                ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, Enabled, backgroundTransitionAlpha));
 
             if (HeaderVisible)
                 DrawHeader(transitionAlpha);

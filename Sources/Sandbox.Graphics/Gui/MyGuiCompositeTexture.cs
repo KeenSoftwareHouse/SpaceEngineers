@@ -170,7 +170,7 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
-        public void Draw(Vector2 positionLeftTop, Vector2 size, Color colorMask, float textureScale = 1f)
+        public void Draw(Vector2 positionLeftTop, Vector2 size, Color colorMask, Color colorMaskCenter, float textureScale = 1f)
         {
             Rectangle target;
             size = Vector2.Clamp(size, MinSizeGui * textureScale, MaxSizeGui * textureScale);
@@ -268,7 +268,7 @@ namespace Sandbox.Graphics.GUI
                 var screenSizeC = screenSize - new Vector2I(leftWidth + rightWidth, topHeight + bottomHeight);
                 var pos = screenPosLT + new Vector2I(leftWidth, topHeight);
                 SetTargetRectangle(out target, ref pos, ref screenSizeC, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
-                MyGuiManager.DrawSprite(m_center.Texture, target, colorMask);
+                MyGuiManager.DrawSprite(m_center.Texture, target, colorMaskCenter);
             }
         }
 

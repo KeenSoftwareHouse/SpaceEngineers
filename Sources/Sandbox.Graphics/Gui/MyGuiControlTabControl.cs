@@ -194,7 +194,7 @@ namespace Sandbox.Graphics.GUI
                 var font              = (isEnabled && isHighlight) ? MyFontEnum.White : MyFontEnum.Blue;
 
                 // Draw background texture
-                texture.Draw(currentPos, TabButtonSize, ApplyColorMaskModifiers(ColorMask, isEnabled, transitionAlpha), m_tabButtonScale);
+                texture.Draw(currentPos, TabButtonSize, ApplyColorMaskModifiers(ColorMask, isEnabled, transitionAlpha), ApplyColorMaskModifiers(ColorMask, isEnabled, backgroundTransitionAlpha), m_tabButtonScale);
                 StringBuilder text = currentTab.Text;
                 if (text != null)
                 {
