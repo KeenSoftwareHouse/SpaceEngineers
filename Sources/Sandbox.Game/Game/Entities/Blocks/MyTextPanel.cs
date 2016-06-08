@@ -1195,51 +1195,62 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SendChangeDescriptionMessage(StringBuilder description, bool isPublic)
         {
-            if (description.CompareTo(PublicDescription) == 0 && isPublic)
+            // update the text directly if the grid isn't synchronized
+            if (CubeGrid.IsPreview || !CubeGrid.SyncFlag)
             {
-                return;
-            }
-
-            if (description.CompareTo(PrivateDescription) == 0 && isPublic == false)
-            {
-                return;
-            }
-            //This causes text changed twice. Other fix will be to remove CompareUpdate from public or private description set method above
-            /*
-            if(isPublic)
-            {
-                PublicDescription = description;
+                if (isPublic)
+                {
+                    PublicDescription = description;
+                }
+                else
+                {
+                    PrivateDescription = description;
+                }
             }
             else
             {
-                PrivateDescription = description;
+                if (isPublic && description.CompareTo(PublicDescription) == 0)
+                {
+                    return;
+                }
+
+                if (!isPublic && description.CompareTo(PrivateDescription) == 0)
+                {
+                    return;
+                }
+
+                MyMultiplayer.RaiseEvent(this, x => x.OnChangeDescription, description.ToString(), isPublic);
             }
-            */
-            MyMultiplayer.RaiseEvent(this, x => x.OnChangeDescription, description.ToString(), isPublic);
         }
 
         private void SendChangeTitleMessage(StringBuilder title, bool isPublic)
         {
-            if (title.CompareTo(PublicTitle) == 0 && isPublic)
+            // update the title directly if the grid isn't synchronized
+            if (CubeGrid.IsPreview || !CubeGrid.SyncFlag)
             {
-                return;
-            }
-
-            if (title.CompareTo(PrivateTitle) == 0 && isPublic == false)
-            {
-                return;
-            }
-
-            if (isPublic)
-            {
-                PublicTitle = title;
+                if (isPublic)
+                {
+                    PublicTitle = title;
+                }
+                else
+                {
+                    PrivateTitle = title;
+                }
             }
             else
             {
-                PrivateTitle = title;
-            }
+                if (isPublic && title.CompareTo(PublicTitle) == 0)
+                {
+                    return;
+                }
 
-            MyMultiplayer.RaiseEvent(this, x => x.OnChangeTitle, title.ToString(), isPublic);
+                if (!isPublic && title.CompareTo(PrivateTitle) == 0)
+                {
+                    return;
+                }
+
+                MyMultiplayer.RaiseEvent(this, x => x.OnChangeTitle, title.ToString(), isPublic);
+            }
         }
 
         #endregion
