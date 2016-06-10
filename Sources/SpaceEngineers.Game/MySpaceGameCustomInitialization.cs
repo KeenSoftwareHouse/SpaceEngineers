@@ -25,6 +25,7 @@ namespace SpaceEngineers.Game
                 ,Path.Combine(MyFileSystem.ExePath, "VRage.Library.dll")
                 ,Path.Combine(MyFileSystem.ExePath, "VRage.Math.dll")
                 ,Path.Combine(MyFileSystem.ExePath, "VRage.Game.dll")
+                ,Path.Combine(MyFileSystem.ExePath, "VRage.Input.dll")
                 ,"System.Core.dll"
                 ,"System.dll"
                 ,Path.Combine(MyFileSystem.ExePath, "SpaceEngineers.ObjectBuilders.dll")
