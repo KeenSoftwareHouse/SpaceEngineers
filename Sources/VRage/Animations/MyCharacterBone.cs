@@ -75,6 +75,8 @@ namespace VRage.Animations
         /// </summary>
 		public string Name = "";
 
+        public int Index { get; private set; }
+
         /// <summary>
         /// The bone bind transform
         /// </summary>
@@ -133,6 +135,12 @@ namespace VRage.Animations
             }
         }
 
+        public int Depth
+        {
+            get;
+            private set;
+        }
+
         #endregion
 
         #region Operations
@@ -143,10 +151,12 @@ namespace VRage.Animations
         /// <param name="name">The name of the bone</param>
         /// <param name="bindTransform">The initial bind transform for the bone</param>
         /// <param name="parent">A parent for this bone</param>
-        public MyCharacterBone(string name, Matrix bindTransform, MyCharacterBone parent)
+        public MyCharacterBone(int index, string name, Matrix bindTransform, MyCharacterBone parent)
         {
+            Index = index;
             this.Name = name;
             this.m_parent = parent;
+            Depth = GetHierarchyDepth();
             this.m_bindTransform = bindTransform;
             this.m_bindTransformInv = Matrix.Invert(bindTransform);
             this.m_bindRotationInv = Quaternion.CreateFromRotationMatrix(m_bindTransformInv); 
@@ -166,7 +176,7 @@ namespace VRage.Animations
             Debug.Assert(typeof(MyCharacterBone).IsValueType == false);
         }
 
-        public int GetHierarchyDepth()
+        private int GetHierarchyDepth()
         {
             int depth = 0;
             MyCharacterBone current = m_parent;

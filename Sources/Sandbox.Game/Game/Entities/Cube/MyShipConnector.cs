@@ -12,7 +12,7 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
@@ -32,6 +32,7 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
+using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -1271,11 +1272,17 @@ namespace Sandbox.Game.Entities.Cube
                 Detach();
             }
 
+            base.Closing();
+        }
+
+
+        protected override void BeforeDelete()
+        {
+            base.BeforeDelete();
+
             // The connector dummy won't be disposed of automatically, so we have to do it manually
             if (m_connectorDummy != null)
                 m_connectorDummy.Close();
-
-            base.Closing();
         }
 
         public override void DebugDrawPhysics()
@@ -1339,11 +1346,12 @@ namespace Sandbox.Game.Entities.Cube
         #endregion
 
         #region IMyShipConnector
-        bool IMyShipConnector.ThrowOut { get { return ThrowOut; } }
-        bool IMyShipConnector.CollectAll { get { return CollectAll; } }
-        bool IMyShipConnector.IsLocked { get { return IsWorking && InConstraint; } }
-        bool IMyShipConnector.IsConnected { get { return Connected; } }
-        IMyShipConnector IMyShipConnector.OtherConnector { get { return m_other; } }
+        bool ModAPI.Ingame.IMyShipConnector.ThrowOut { get { return ThrowOut; } }
+        bool ModAPI.Ingame.IMyShipConnector.CollectAll { get { return CollectAll; } }
+        bool ModAPI.Ingame.IMyShipConnector.IsLocked { get { return IsWorking && InConstraint; } }
+        bool ModAPI.Ingame.IMyShipConnector.IsConnected { get { return Connected; } }
+        ModAPI.Ingame.IMyShipConnector ModAPI.Ingame.IMyShipConnector.OtherConnector { get { return m_other; } }
+        IMyShipConnector ModAPI.IMyShipConnector.OtherConnector { get { return m_other; } }
         #endregion
 
         public bool UseConveyorSystem

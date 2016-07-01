@@ -806,6 +806,9 @@ If the game doesn't run smoothly, decrease your screen resolution.</value>
   <data name="MessageBoxCaptionWarning" xml:space="preserve">
     <value>WARNING</value>
   </data>
+  <data name="MessageBoxModsMismatch" xml:space="preserve">
+    <value>These mods were created in development version. They could cause issues in game</value>
+  </data>
   <data name="MessageBoxTextOpenBrowser" xml:space="preserve">
     <value>This will open {0} in your internet browser. The game will keep running. Do you want to continue?</value>
   </data>
@@ -1631,7 +1634,7 @@ Open admin profile?</value>
     <value>At least 3 characters must be inserted to start searching</value>
   </data>
   <data name="ProgressTextDownloadingMods" xml:space="preserve">
-    <value>Downloading mods ... please wait.</value>
+    <value>Downloading mod </value>
   </data>
   <data name="NotificationClientCannotSave" xml:space="preserve">
     <value>Client saving is disabled on this server</value>
@@ -2219,11 +2222,20 @@ Do you want to continue?</value>
   <data name="ControlName_VoiceChat" xml:space="preserve">
     <value>Push-to-talk voice chat</value>
   </data>
+  <data name="ControlName_CubeSizeMode" xml:space="preserve">
+    <value>Cube size toggle button</value>
+  </data>
+  <data name="ControlName_CubeSizeMode_Tooltip" xml:space="preserve">
+    <value>Press to switch between small and large sizes of a block</value>
+  </data>
   <data name="EnableVoiceChat" xml:space="preserve">
     <value>Enable voice chat</value>
   </data>
   <data name="ScreenGraphicsOptions_Tonemapping" xml:space="preserve">
     <value>Tonemapping</value>
+  </data>
+  <data name="WorldSettings_VegetationDistance" xml:space="preserve">
+    <value>Vegetation View Distance</value>
   </data>
   <data name="WorldSettings_GrassDensity" xml:space="preserve">
     <value>Grass density</value>
@@ -2424,5 +2436,8 @@ Do you want to continue?</value>
   </data>
   <data name="AudioSettings_UseMusicController" xml:space="preserve">
     <value>Use contextual music</value>
+  </data>
+  <data name="ControlName_ChangeBlockVariants" xml:space="preserve">
+    <value>Change block variants</value>
   </data>
 </root>

@@ -146,6 +146,11 @@ namespace Sandbox.Game.Gui
             if (!typeof(IMyTerminalControl).IsAssignableFrom(typeof(TControl)))
                 return default(TControl);
 
+            if(!MyTerminalControlFactory.AreControlsCreated(producedType))
+            {
+                MyTerminalControlFactory.EnsureControlsAreCreated(producedType);
+            }
+
             Type controlType = typeof(TControl);
 
             // This can be done better -- IMyTerminalControlXXX matches MyTerminalControlXXX, just see if I can

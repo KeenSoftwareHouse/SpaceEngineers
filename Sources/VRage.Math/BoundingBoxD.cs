@@ -62,7 +62,7 @@ namespace VRageMath
             BoundingBoxD c;
             c.Max = a.Max + b;
             c.Min = a.Min + b;
-                
+
             return c;
         }
 
@@ -980,25 +980,13 @@ namespace VRageMath
         /// <returns></returns>
         public BoundingBoxD Include(ref Vector3D point)
         {
-            if (point.X < Min.X)
-                Min.X = point.X;
+            Min.X = Math.Min(point.X, Min.X);
+            Min.Y = Math.Min(point.Y, Min.Y);
+            Min.Z = Math.Min(point.Z, Min.Z);
 
-            if (point.Y < Min.Y)
-                Min.Y = point.Y;
-
-            if (point.Z < Min.Z)
-                Min.Z = point.Z;
-
-
-            if (point.X > Max.X)
-                Max.X = point.X;
-
-            if (point.Y > Max.Y)
-                Max.Y = point.Y;
-
-            if (point.Z > Max.Z)
-                Max.Z = point.Z;
-
+            Max.X = Math.Max(point.X, Max.X);
+            Max.Y = Math.Max(point.Y, Max.Y);
+            Max.Z = Math.Max(point.Z, Max.Z);
             return this;
         }
 
@@ -1221,6 +1209,26 @@ namespace VRageMath
             {
                 Min.Z = minCenter.Z - minimumSize.Z / 2;
                 Max.Z = minCenter.Z + minimumSize.Z / 2;
+            }
+        }
+
+        public void InflateToMinimum(double minimumSize)
+        {
+            Vector3D minCenter = Center;
+            if (Size.X < minimumSize)
+            {
+                Min.X = minCenter.X - minimumSize / 2;
+                Max.X = minCenter.X + minimumSize / 2;
+            }
+            if (Size.Y < minimumSize)
+            {
+                Min.Y = minCenter.Y - minimumSize / 2;
+                Max.Y = minCenter.Y + minimumSize / 2;
+            }
+            if (Size.Z < minimumSize)
+            {
+                Min.Z = minCenter.Z - minimumSize / 2;
+                Max.Z = minCenter.Z + minimumSize / 2;
             }
         }
 

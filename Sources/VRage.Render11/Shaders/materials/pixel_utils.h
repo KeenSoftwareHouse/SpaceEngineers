@@ -167,6 +167,7 @@ float3 Hologram(float3 screen_position, float custom_alpha)
         holoColor *= 1.5;
     return holoColor;
 }
+
 void Dither(float3 screen_position, float custom_alpha)
 {
 #ifdef DITHERED
@@ -178,7 +179,7 @@ void Dither(float3 screen_position, float custom_alpha)
 
     if (object_dither > 1)
     {
-		object_dither -= 2.0f;
+        object_dither -= 1.0f;
         object_dither = 1.0f - object_dither;
         clip(object_dither - tex_dither);
     }

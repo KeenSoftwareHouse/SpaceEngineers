@@ -44,12 +44,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
     [MyEntityType(typeof(MyObjectBuilder_EnvironmentItems))]
     public class MyEnvironmentItems : MyEntity, IMyEventProxy
     {
-        // TODO(DI): Normally I'd rather jump off of a bridge than write this kind of hacky *^&$#%-up code
-        // But all of this is gonna die in a few weeks time I hope
-        // If it does not maybe I will visit sdaid bridge.
-        public MyPlanetEnvironmentSector PlanetSector;
-        public MyDefinitionId? PlanetSpawnerDefinition;
-
         protected struct MyEnvironmentItemData
         {
             public int Id;
@@ -980,7 +974,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             var modelId = GetModelId(itemData.SubtypeId);
 
             var disabled = Sectors[sectorId].DisableInstance(itemData.SectorInstanceId, modelId);
-            Debug.Assert(disabled, "Env. item instance render not disabled");
+            //Debug.Assert(disabled, "Env. item instance render not disabled");
 
             if (immediateUpdate)
                 Sectors[sectorId].UpdateRenderInstanceData(modelId);
@@ -1125,10 +1119,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 {
                     var position = Physics.ClusterToWorld(e.ContactPointEvent.ContactPoint.Position);
 
-                    if (PlanetSpawnerDefinition != null)
-                    {
-                        MyMultiplayer.RaiseEvent(PlanetSector, x => x.BreakEnvironmentItem, (SerializableDefinitionId)PlanetSpawnerDefinition.Value, position, normal, impactEnergy, itemInstanceId);
-                    }
                     DestroyItemAndCreateDebris(position, normal, impactEnergy, itemInstanceId);
                 }
             }
@@ -1147,7 +1137,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     if (MyParticlesManager.TryCreateParticleEffect((int) MyParticleEffectsIDEnum.DestructionTree, out effect))
                     {
                         effect.WorldMatrix = MatrixD.CreateTranslation(position); //, (Vector3D)normal, Vector3D.CalculatePerpendicularVector(normal));
-                        effect.AutoDelete = true;
                     }
 
                     var treeMass = debri.Physics.Mass;
@@ -1414,10 +1403,10 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 m_items = items;
             }
 
-            public override bool DebugDraw()
+            public override void DebugDraw()
             {
                 if (!MyDebugDrawSettings.DEBUG_DRAW_ENVIRONMENT_ITEMS)
-                    return false;
+                    return;
 
                 foreach (var sec in m_items.Sectors)
                 {
@@ -1434,8 +1423,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                             MyRenderProxy.DebugDrawText3D(point, m_items.Definition.Id.SubtypeName + " Sector: " + sec.Key, Color.SaddleBrown, 1.0f, true);
                     }
                 }
-
-                return true;
             }
 
             public override void DebugDrawInvalidTriangles()

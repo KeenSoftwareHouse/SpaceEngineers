@@ -17,6 +17,12 @@ namespace VRage.Game
         [ProtoMember, ModdableContentFile("dds")]
         public string EnvironmentTexture;
 
+        [ProtoMember, ModdableContentFile("dds")]
+        public string EnvironmentTextureNight = null;
+
+        [ProtoMember, ModdableContentFile("dds")]
+        public string EnvironmentTextureNightPrefiltered = null;
+
         [ProtoMember]
         public MyOrientation EnvironmentOrientation;
 

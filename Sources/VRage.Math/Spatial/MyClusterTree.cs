@@ -34,7 +34,6 @@ namespace VRageMath.Spatial
             /// Called when standalone object is removed from cluster
             /// </summary>
             /// <param name="userData"></param>
-            /// <param name="clusterObjectID"></param>
             void Deactivate(object userData);
 
             /// <summary>
@@ -48,7 +47,6 @@ namespace VRageMath.Spatial
             /// Called when multiple objects are removed from cluster.
             /// </summary>
             /// <param name="userData"></param>
-            /// <param name="clusterObjectID"></param>
             void DeactivateBatch(object userData);
 
             /// <summary>
@@ -193,7 +191,10 @@ namespace VRageMath.Spatial
                             foreach (var ob in m_objectDataResultList)
                             {
                                 System.Diagnostics.Debug.Assert(m_objectsData[ob].Cluster == null, "Found object must not be in cluster!");
-                                AddObjectToCluster(cluster, ob, false);
+                                if (m_objectsData[ob].Cluster == null)
+                                {
+                                    AddObjectToCluster(cluster, ob, false);
+                                }
                             }
                         }
                         else  //There is still some blocking cluster

@@ -2051,6 +2051,37 @@ namespace VRageMath
             return matrix;
         }
 
+        public static MatrixD CreateFromQuaternion(QuaternionD quaternion)
+        {
+            double num1 = quaternion.X * quaternion.X;
+            double num2 = quaternion.Y * quaternion.Y;
+            double num3 = quaternion.Z * quaternion.Z;
+            double num4 = quaternion.X * quaternion.Y;
+            double num5 = quaternion.Z * quaternion.W;
+            double num6 = quaternion.Z * quaternion.X;
+            double num7 = quaternion.Y * quaternion.W;
+            double num8 = quaternion.Y * quaternion.Z;
+            double num9 = quaternion.X * quaternion.W;
+            MatrixD matrix;
+            matrix.M11 = (double)(1.0 - 2.0 * ((double)num2 + (double)num3));
+            matrix.M12 = (double)(2.0 * ((double)num4 + (double)num5));
+            matrix.M13 = (double)(2.0 * ((double)num6 - (double)num7));
+            matrix.M14 = 0.0f;
+            matrix.M21 = (double)(2.0 * ((double)num4 - (double)num5));
+            matrix.M22 = (double)(1.0 - 2.0 * ((double)num3 + (double)num1));
+            matrix.M23 = (double)(2.0 * ((double)num8 + (double)num9));
+            matrix.M24 = 0.0f;
+            matrix.M31 = (double)(2.0 * ((double)num6 + (double)num7));
+            matrix.M32 = (double)(2.0 * ((double)num8 - (double)num9));
+            matrix.M33 = (double)(1.0 - 2.0 * ((double)num2 + (double)num1));
+            matrix.M34 = 0.0f;
+            matrix.M41 = 0.0f;
+            matrix.M42 = 0.0f;
+            matrix.M43 = 0.0f;
+            matrix.M44 = 1f;
+            return matrix;
+        }
+
         /// <summary>
         /// Creates a rotation Matrix from a Quaternion.
         /// </summary>

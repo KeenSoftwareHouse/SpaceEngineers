@@ -1,6 +1,9 @@
 #ifndef GBUFFER_WRITE_H__
 #define GBUFFER_WRITE_H__
 
+#include <frame.h>
+#include <vertex_transformations.h>
+
 struct GbufferOutput 
 {
     float4 gbuffer0 : SV_Target0;
@@ -18,10 +21,11 @@ void gbuffer_write(out GbufferOutput output,
 #endif
 	)
 {
-	output.gbuffer0.xyz = color;
-    output.gbuffer0.w = metal;
-    output.gbuffer1 = float4(N * 0.5 + 0.5, gloss);
-    output.gbuffer2 = float4(ao, id / 255.f, emissive, coverage / 255.f);
+    float3 nview = normalize(world_to_view(N));
+    float2 nenc = pack_normals2(nview);
+	output.gbuffer0 = float4(color, id / 255.f);
+    output.gbuffer1 = float4(nenc, ao, 0);
+    output.gbuffer2 = float4(metal, gloss, emissive, coverage / 255.f);
 
 #ifdef CUSTOM_DEPTH
 	output.depth = depth;

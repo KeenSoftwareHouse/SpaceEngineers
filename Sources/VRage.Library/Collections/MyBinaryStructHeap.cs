@@ -6,13 +6,13 @@ using System.Text;
 
 namespace VRage.Collections
 {
-    public class MyBinaryStructHeap<K, V>
-        where V: struct
+    public class MyBinaryStructHeap<TKey, TValue>
+        where TValue: struct
     {
         public struct HeapItem
         {
-            public K Key { get; internal set; }
-            public V Value { get; internal set; }
+            public TKey Key { get; internal set; }
+            public TValue Value { get; internal set; }
 
             public override string ToString()
             {
@@ -40,17 +40,17 @@ namespace VRage.Collections
         }
 
         private int m_capacity;
-        private IComparer<K> m_comparer;
+        private IComparer<TKey> m_comparer;
 
-        public MyBinaryStructHeap(int initialCapacity = 128, IComparer<K> comparer = null)
+        public MyBinaryStructHeap(int initialCapacity = 128, IComparer<TKey> comparer = null)
         {
             m_array = new HeapItem[initialCapacity];
             m_count = 0;
             m_capacity = initialCapacity;
-            m_comparer = comparer ?? Comparer<K>.Default;
+            m_comparer = comparer ?? Comparer<TKey>.Default;
         }
 
-        public void Insert(V value, K key)
+        public void Insert(TValue value, TKey key)
         {
             if (m_count == m_capacity)
             {
@@ -69,39 +69,39 @@ namespace VRage.Collections
             m_count++;
         }
 
-        public V Min()
+        public TValue Min()
         {
             return m_array[0].Value;
         }
 
-        public K MinKey()
+        public TKey MinKey()
         {
             return m_array[0].Key;
         }
 
-        public V RemoveMin()
+        public TValue RemoveMin()
         {
-            V toReturn = m_array[0].Value;
+            TValue toReturn = m_array[0].Value;
 
             if (m_count != 1)
             {
                 MoveItem(m_count - 1, 0);
-                m_array[m_count - 1].Key = default(K);
-                m_array[m_count - 1].Value = default(V);
+                m_array[m_count - 1].Key = default(TKey);
+                m_array[m_count - 1].Value = default(TValue);
                 m_count--;
                 Down(0);
             }
             else
             {
                 m_count--;
-                m_array[0].Key = default(K);
-                m_array[0].Value = default(V);
+                m_array[0].Key = default(TKey);
+                m_array[0].Value = default(TValue);
             }
 
             return toReturn;
         }
 
-        public V RemoveMax()
+        public TValue RemoveMax()
         {
             Debug.Assert(m_count > 0);
 
@@ -115,7 +115,7 @@ namespace VRage.Collections
                 }
             }
 
-            V toReturn = m_array[maxIndex].Value;
+            TValue toReturn = m_array[maxIndex].Value;
 
             if (maxIndex != m_count)
             {
@@ -127,12 +127,84 @@ namespace VRage.Collections
             return toReturn;
         }
 
+        public TValue Remove(TValue value, IEqualityComparer<TValue> comparer = null)
+        {
+            if (m_count == 0)
+                return default(TValue);
+
+            if (comparer == null)
+                comparer = EqualityComparer<TValue>.Default;
+
+            int itemIndex = 0;
+
+            for (int i = 0; i < m_count; ++i)
+            {
+                if (comparer.Equals(value, m_array[i].Value))
+                {
+                    itemIndex = i;
+                }
+            }
+
+            TValue removed;
+
+            if (itemIndex != m_count)
+            {
+                removed = m_array[itemIndex].Value;
+
+                MoveItem(m_count - 1, itemIndex);
+                Up(itemIndex);
+                Down(itemIndex);
+
+                m_count--;
+            }
+            else
+            {
+                removed = default(TValue);
+            }
+
+            return removed;
+        }
+
+        public TValue Remove(TKey key)
+        {
+            Debug.Assert(m_count > 0);
+
+            int itemIndex = 0;
+
+            for (int i = 1; i < m_count; ++i)
+            {
+                if (m_comparer.Compare(key, m_array[i].Key) == 0)
+                {
+                    itemIndex = i;
+                }
+            }
+
+            TValue removed;
+
+            if (itemIndex != m_count)
+            {
+                removed = m_array[itemIndex].Value;
+
+                MoveItem(m_count - 1, itemIndex);
+                Up(itemIndex);
+                Down(itemIndex);
+            }
+            else
+            {
+                removed = default(TValue);
+            }
+
+            m_count--;
+
+            return removed;
+        }
+
         public void Clear()
         {
             for (int i = 0; i < m_count; ++i)
             {
-                m_array[i].Key = default(K);
-                m_array[i].Value = default(V);
+                m_array[i].Key = default(TKey);
+                m_array[i].Value = default(TValue);
             }
             m_count = 0;
         }

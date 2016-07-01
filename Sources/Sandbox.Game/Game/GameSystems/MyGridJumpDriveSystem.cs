@@ -53,6 +53,7 @@ namespace Sandbox.Game.GameSystems
         private float m_prevJumpTime = 0f;
         private bool m_jumped = false;
         private bool m_effectPlayed;
+        private bool m_updateEffectPosition = false;
         
         private float m_jumpTimeLeft;
         private bool m_playEffect = false;  // is local character affected by effect?
@@ -64,6 +65,7 @@ namespace Sandbox.Game.GameSystems
         private MySoundPair m_jumpInSound = new MySoundPair("ShipJumpDriveJumpIn");
         private MySoundPair m_jumpOutSound = new MySoundPair("ShipJumpDriveJumpOut");
         protected MyEntity3DSoundEmitter m_soundEmitter;
+        private MyParticleEffect m_effect;
 
         public MyGridJumpDriveSystem(MyCubeGrid grid)
         {
@@ -566,7 +568,8 @@ namespace Sandbox.Game.GameSystems
 
         private bool IsLocalCharacterAffectedByJump(bool forceRecompute = false)
         {
-            if (MySession.Static.LocalCharacter == null)
+            //If we enabled jumpdrive and later got out of the Ship (not Ship controller anymore) disable effect
+            if (MySession.Static.LocalCharacter == null || !(MySession.Static.ControlledEntity is MyShipController))
             {
                 m_playEffect = false;
                 return false;
@@ -636,21 +639,22 @@ namespace Sandbox.Game.GameSystems
                 const float particleTime = 0.3f;
                 const float endJumpTime = -0.3f;
 
+                PlayParticleEffect();
                 m_jumpTimeLeft -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 if (jumpTime > startJumpTime)
                 {
                     double roundTime = Math.Round(jumpTime);
                     if (roundTime != m_prevJumpTime)
-                        if (IsLocalCharacterAffectedByJump())
+                        if (IsLocalCharacterAffectedByJump(true))
                         {
-                            var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500);
+                            var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500, priority : 3);
                             notification.SetTextFormatArguments(roundTime);
                             MyHud.Notifications.Add(notification);
                         }
                 }
                 else if (jumpTime > 0)
                 {
-                    IsLocalCharacterAffectedByJump();
+                    IsLocalCharacterAffectedByJump(true);
                     if (m_soundEmitter.SoundId != m_jumpOutSound.Arcade && m_soundEmitter.SoundId != m_jumpOutSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(m_jumpOutSound);
@@ -659,7 +663,7 @@ namespace Sandbox.Game.GameSystems
 
                     if (jumpTime < particleTime)
                     {
-                        PlayParticleEffect();
+                        //PlayParticleEffect();
                     }
                 }
                 else if (!m_jumped)
@@ -705,20 +709,32 @@ namespace Sandbox.Game.GameSystems
 
         private void PlayParticleEffect()
         {
-            if (m_effectPlayed) return;
-
-            m_effectPlayed = true;
-            MyParticleEffect effect;
-            if (MyParticlesManager.TryCreateParticleEffect(53, out effect))
+            if (!m_effectPlayed)
             {
-                effect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.Identity, m_grid.WorldMatrix.Translation, Vector3D.One);
-                effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 25f;
-                effect.AutoDelete = true;
+                MyParticlesManager.TryCreateParticleEffect("Warp", out m_effect);
+                m_effectPlayed = true;
+                m_updateEffectPosition = true;
             }
+
+            if (m_updateEffectPosition && m_effect != null)
+            {
+                Vector3D dir = Vector3D.Normalize(m_jumpDirection);
+                MatrixD matrix = MatrixD.CreateFromDir(-dir);
+                matrix.Translation = m_grid.PositionComp.WorldAABB.Center + dir * m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() * 2f;
+                m_effect.WorldMatrix = matrix;
+                m_effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 15f;
+            }
+        }
+
+        private void StopParticleEffect()
+        {
+            if (m_effect != null)
+                m_effect.Stop();
         }
 
         private void PerformJump(Vector3D jumpTarget)
         {
+            m_updateEffectPosition = false;
             m_jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
 
             BoundingBoxD aggregateBox = m_grid.PositionComp.WorldAABB;
@@ -761,6 +777,7 @@ namespace Sandbox.Game.GameSystems
 
         public void AbortJump()
         {
+            StopParticleEffect();
             m_soundEmitter.StopSound(true, true);
             if (m_isJumping && IsLocalCharacterAffectedByJump())
             {

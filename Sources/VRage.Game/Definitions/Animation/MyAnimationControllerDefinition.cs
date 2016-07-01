@@ -71,7 +71,7 @@ namespace VRage.Game.Definitions.Animation
         {
             // ------- tree node track -------
             var objBuilderNodeTrack = objBuilderNode as VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNodeTrack;
-            if (objBuilderNodeTrack != null)
+            if (objBuilderNodeTrack != null && objBuilderNodeTrack.PathToModel != null)
             {
                 string testMwmPath = Path.Combine(modContext.ModPath, objBuilderNodeTrack.PathToModel);
                 if (MyFileSystem.FileExists(testMwmPath))

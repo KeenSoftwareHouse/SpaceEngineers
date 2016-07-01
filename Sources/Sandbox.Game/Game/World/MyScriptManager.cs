@@ -24,6 +24,7 @@ using Sandbox.Game.Components;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.ObjectBuilder;
+using VRage.Scripting;
 
 namespace Sandbox.Game.World
 {
@@ -41,6 +42,7 @@ namespace Sandbox.Game.World
         public Dictionary<MyStringId, Type> InGameScripts = new Dictionary<MyStringId, Type>(MyStringId.Comparer); //Ingame script is just game logic component
         public Dictionary<MyStringId, StringBuilder> InGameScriptsCode = new Dictionary<MyStringId, StringBuilder>(MyStringId.Comparer);
         private List<string> m_errors = new List<string>();
+        private List<MyScriptCompiler.Message> m_messages = new List<MyScriptCompiler.Message>();
         private List<string> m_cachedFiles = new List<string>();
         static Dictionary<string, bool> testFiles = new Dictionary<string, bool>();
 
@@ -75,7 +77,7 @@ namespace Sandbox.Game.World
             {
                 if (MyFakes.ENABLE_TYPES_FROM_MODS) // Highly experimental!
                 {
-                    MyObjectFactories.RegisterFromAssembly(ass);
+                    MyGlobalTypeMetadata.Static.RegisterAssembly(ass);
                 }
 
                 MySandboxGame.Log.WriteLine(string.Format("Script loaded: {0}", ass.FullName));
@@ -165,11 +167,29 @@ namespace Sandbox.Game.World
                         MyDefinitionErrors.Add(context, e.Message, TErrorSeverity.Error);
                     }
                 }
-                compiled = IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                {
+                    assembly = MyScriptCompiler.Static.Compile(MyApiTarget.Mod, assemblyName, m_cachedFiles.Select(file => new Script(file, IlCompiler.UpdateCompatibility(file))), m_messages).Result;
+                    compiled = assembly != null;
+                }
+                else
+                {
+                    compiled = IlCompiler.CompileFileModAPI(assemblyName, m_cachedFiles.ToArray(), out assembly, m_errors);
+                    m_messages.AddRange(m_errors.Select(m => new MyScriptCompiler.Message(TErrorSeverity.Error, m)));
+                }
             }
             else
             {
-                compiled = IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                {
+                    assembly = MyScriptCompiler.Static.Compile(MyApiTarget.Mod, assemblyName, scriptFiles.Select(file => new Script(file, IlCompiler.UpdateCompatibility(file))), m_messages).Result;
+                    compiled = assembly != null;
+                }
+                else
+                {
+                    compiled = IlCompiler.CompileFileModAPI(assemblyName, scriptFiles.ToArray(), out assembly, m_errors);
+                    m_messages.AddRange(m_errors.Select(m => new MyScriptCompiler.Message(TErrorSeverity.Error, m)));
+                }
             }
             Debug.Assert(compiled == (assembly != null), "Compile results inconsistency!");
             if (assembly != null && compiled)
@@ -178,10 +198,10 @@ namespace Sandbox.Game.World
             {
                 MyDefinitionErrors.Add(context, string.Format("Compilation of {0} failed:", assemblyName), TErrorSeverity.Error);
                 MySandboxGame.Log.IncreaseIndent();
-                foreach (var error in m_errors)
+                foreach (var message in m_messages)
                 {
-                    MyDefinitionErrors.Add(context, error.ToString(), TErrorSeverity.Error);
-                    Debug.Assert(false, error.ToString());
+                    MyDefinitionErrors.Add(context, message.Text, message.Severity);
+                    Debug.Assert(message.Severity != TErrorSeverity.Error, message.Text);
                 }
                 MySandboxGame.Log.DecreaseIndent();
                 m_errors.Clear();
@@ -295,6 +315,8 @@ namespace Sandbox.Game.World
 
         public bool CompileIngameScript(MyStringId id, StringBuilder errors)
         {
+            // TODO: Not in use. Remove when Roslyn scripts are activated
+
             if (!MyFakes.ENABLE_SCRIPTS)
                 return false;
             Assembly assembly;
@@ -346,7 +368,7 @@ namespace Sandbox.Game.World
             var parts = message.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length < 3)
             {
-                MyAPIGateway.Utilities.ShowNotification("Not enought parameters for script please provide following paramaters : Sriptname Classname MethodName",5000);
+                MyAPIGateway.Utilities.ShowNotification("Not enough parameters for script please provide following paramaters : Sriptname Classname MethodName",5000);
                 return false;
             }
             if (!Scripts.ContainsKey(MyStringId.TryGet(parts[1])))

@@ -14,7 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage.ModAPI;
 using VRage.Game.Components;

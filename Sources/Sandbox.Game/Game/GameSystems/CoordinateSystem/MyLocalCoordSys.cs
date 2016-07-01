@@ -17,7 +17,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
 
         private const float COLOR_ALPHA = 0.4f;
 
-        private static int LOCAL_COORD_SIZE = 500;
+        private const int LOCAL_COORD_SIZE = 1000;
         private const float BBOX_BORDER_THICKNESS_MODIF = 0.0015f;
 
         /// <summary>
@@ -58,11 +58,11 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// </summary>
         public long Id { get; set; }
 
-        public MyLocalCoordSys()
+        public MyLocalCoordSys(int size = LOCAL_COORD_SIZE)
         {
             m_origin = new MyTransformD(MatrixD.Identity);
 
-            float halfSizeFloat = LOCAL_COORD_SIZE / 2.0f;
+            float halfSizeFloat = size / 2.0f;
             Vector3 halfSize = new Vector3(halfSizeFloat, halfSizeFloat, halfSizeFloat);
             BoundingBoxD tempBB = new BoundingBoxD(-halfSize, halfSize);
             m_boundingBox = new MyOrientedBoundingBoxD(tempBB, m_origin.TransformMatrix);
@@ -72,7 +72,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
 
         }
 
-        public MyLocalCoordSys(MyTransformD origin, int size = 1000)
+        public MyLocalCoordSys(MyTransformD origin, int size = LOCAL_COORD_SIZE)
         {
             m_origin = origin;
 
@@ -88,9 +88,9 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         private Color GenerateRandomColor() 
         {
             // Set random color.
-            float r = (float)MyRandom.Instance.Next(0, 100) / 100.0f;
-            float g = (float)MyRandom.Instance.Next(0, 100) / 100.0f;
-            float b = (float)MyRandom.Instance.Next(0, 100) / 100.0f;
+            float r = (MyRandom.Instance.Next(0, 100) / 100.0f) * COLOR_ALPHA;
+            float g = (MyRandom.Instance.Next(0, 100) / 100.0f) * COLOR_ALPHA;
+            float b = (MyRandom.Instance.Next(0, 100) / 100.0f) * COLOR_ALPHA;
 
             return new Vector4(r, g, b, COLOR_ALPHA);
         }
@@ -121,6 +121,23 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
             BoundingBoxD box = new BoundingBoxD(-m_boundingBox.HalfExtent, m_boundingBox.HalfExtent);
             MySimpleObjectDraw.DrawTransparentBox(ref transfromMatrix, ref box, ref boxColor, MySimpleObjectRasterizer.SolidAndWireframe, 1, lineWidth, "Square", "Square");
 
+            if (Engine.Utils.MyFakes.ENABLE_DEBUG_DRAW_COORD_SYS)
+            {
+                //x
+                for (int i = -10; i < 11; i++)
+                {
+                    Vector3D v1 = this.Origin.Position + transfromMatrix.Forward * 20 + transfromMatrix.Right * (i * 2.5);
+                    Vector3D v2 = this.Origin.Position - transfromMatrix.Forward * 20 + transfromMatrix.Right * (i * 2.5);
+                    VRageRender.MyRenderProxy.DebugDrawLine3D(v1, v2, boxColor, boxColor, false);
+                }
+                //y
+                for (int i = -10; i < 11; i++)
+                {
+                    Vector3D v1 = this.Origin.Position + transfromMatrix.Right * 20 + transfromMatrix.Forward * (i * 2.5);
+                    Vector3D v2 = this.Origin.Position - transfromMatrix.Right * 20 + transfromMatrix.Forward * (i * 2.5);
+                    VRageRender.MyRenderProxy.DebugDrawLine3D(v1, v2, boxColor, boxColor, false);
+                }
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Audio;
 using VRage.Game;
@@ -554,9 +554,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return newCue == m_soundEmitters[m_soundEmitterIndex].SoundId;
         }
 
-        float IMySoundBlock.Volume { get {return Volume;} }
-        float IMySoundBlock.Range { get {return Range;}  }
-        bool IMySoundBlock.IsSoundSelected{ get {return IsSoundSelected;}}
-        float IMySoundBlock.LoopPeriod { get { return LoopPeriod; } }
+        float ModAPI.Ingame.IMySoundBlock.Volume { get {return Volume;} }
+        float ModAPI.Ingame.IMySoundBlock.Range { get { return Range; } }
+        bool ModAPI.Ingame.IMySoundBlock.IsSoundSelected { get { return IsSoundSelected; } }
+        float ModAPI.Ingame.IMySoundBlock.LoopPeriod { get { return LoopPeriod; } }
     }
 }

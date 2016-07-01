@@ -36,6 +36,7 @@ namespace Sandbox.ModAPI
                 m_sessionStorage = value;
             }
         }
+
         /// <summary>
         /// IMyEntities represents all objects that currently in world 
         /// </summary>
@@ -83,16 +84,28 @@ namespace Sandbox.ModAPI
         /// </summary>
         public static IMyMultiplayer Multiplayer;
         /// <summary>
-        /// IMyParallelTask allows to run tasks on baground threads 
+        /// IMyParallelTask allows to run tasks on background threads 
         /// </summary>
         public static IMyParallelTask Parallel;
+
+        /// <summary>
+        /// IMyPhysics contains physics related things (CastRay, etc.)
+        /// </summary>
+        public static IMyPhysics Physics;
 
         public static IMyPrefabManager PrefabManager;
 
         /// <summary>
+        /// Provides the ability for mods to add and remove items from a type and member blacklist,
+        /// giving the ability to remove even more API for scripts. Intended for server admins to
+        /// restrict what people are able to do with scripts to keep their simspeed up.
+        /// </summary>
+        public static IMyScriptBlacklist ScriptBlacklist;
+
+        /// <summary>
         /// IMyInput allows accessing direct input device states
         /// </summary>
-        public static VRage.ModAPI.IMyInput Input;
+        public static IMyInput Input;
 
         // Storage for property Entities.
         private static IMyEntities m_entitiesStorage;

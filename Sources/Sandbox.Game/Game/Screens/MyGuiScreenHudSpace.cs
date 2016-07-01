@@ -124,7 +124,7 @@ namespace Sandbox.Game.Gui
             m_blockInfo.IsActiveControl = false;
             Controls.Add(m_blockInfo);
 
-            m_chatControl = new MyHudControlChat(MyHud.Chat, Vector2.Zero, new Vector2(0.4f, 0.25f));
+            m_chatControl = new MyHudControlChat(MyHud.Chat, Vector2.Zero, new Vector2(0.4f, 0.28f), visibleLinesCount: 12);
             Elements.Add(m_chatControl);
 
             m_cameraInfoMultilineControl = new MyGuiControlMultilineText(
@@ -654,34 +654,34 @@ namespace Sandbox.Game.Gui
             suitInfo.Data.DrawBottomUp(namePos, valuePos, m_textScale);
         }
 
-		private float FindDistanceToNearestPlanetSeaLevel(Vector3D worldPoint, out MyPlanet closestPlanet)
-		{
-			ProfilerShort.Begin("FindNearestPointOnPlanet");
-            closestPlanet = MyGravityProviderSystem.GetNearestPlanet(worldPoint);
-			double closestDistance = double.MaxValue;
+        private float FindDistanceToNearestPlanetSeaLevel(BoundingBoxD worldBB, out MyPlanet closestPlanet)
+        {
+            ProfilerShort.Begin("FindNearestPointOnPlanet");
+            closestPlanet = MyGamePruningStructure.GetClosestPlanet(ref worldBB);
+            double closestDistance = double.MaxValue;
             if (closestPlanet != null)
             {
-                closestDistance = ((worldPoint - closestPlanet.PositionComp.GetPosition()).Length() - closestPlanet.AverageRadius);
+                closestDistance = ((worldBB.Center - closestPlanet.PositionComp.GetPosition()).Length() - closestPlanet.AverageRadius);
             }
-			ProfilerShort.End();
+            ProfilerShort.End();
 
-			return (float)closestDistance;
-		}
+            return (float)closestDistance;
+        }
 
-		private void DrawArtificialHorizonAndAltitude()
-		{
-			var controlledEntity = MySession.Static.ControlledEntity as MyCubeBlock;
-			var controlledEntityPosition = controlledEntity.CubeGrid.Physics.CenterOfMassWorld;
-			var controlledEntityCenterOfMass = controlledEntity.GetTopMostParent().Physics.CenterOfMassWorld;
-			if (controlledEntity == null)
-				return;
+        private void DrawArtificialHorizonAndAltitude()
+        {
+            var controlledEntity = MySession.Static.ControlledEntity as MyCubeBlock;
+            var controlledEntityPosition = controlledEntity.CubeGrid.Physics.CenterOfMassWorld;
+            var controlledEntityCenterOfMass = controlledEntity.GetTopMostParent().Physics.CenterOfMassWorld;
+            if (controlledEntity == null)
+                return;
 
 			var shipController = controlledEntity as MyShipController;
 			if(shipController != null && !shipController.HorizonIndicatorEnabled)
 				return;
 
 			MyPlanet nearestPlanet;
-			FindDistanceToNearestPlanetSeaLevel(controlledEntityPosition, out nearestPlanet);
+            FindDistanceToNearestPlanetSeaLevel(controlledEntity.PositionComp.WorldAABB, out nearestPlanet);
 			if (nearestPlanet == null)
 				return;
 
@@ -698,12 +698,13 @@ namespace Sandbox.Game.Gui
 			var heightRatio = MyGuiManager.GetFullscreenRectangle().Height / MyGuiManager.GetSafeFullscreenRectangle().Height;
 			var altitudePosition = new Vector2(MyHud.Crosshair.Position.X * widthRatio / MyGuiManager.GetHudSize().X/* - MyHud.Crosshair.HalfSize.X*m_textScale*/, MyHud.Crosshair.Position.Y * heightRatio / MyGuiManager.GetHudSize().Y + altitudeVerticalOffset);
 
-			if (MyVideoSettingsManager.IsTripleHead())
-                altitudePosition.X += 1.0f;
+            if (MyVideoSettingsManager.IsTripleHead())
+                altitudePosition.X -= 1.0f;
 
 			MyGuiManager.DrawString(altitudeFont, altitudeText, altitudePosition, m_textScale, drawAlign: altitudeAlignment, fullscreen: true);
 
-			var planetSurfaceNormal = -nearestPlanet.GetWorldGravityNormalized(ref controlledEntityCenterOfMass);
+            var planetSurfaceNormal = (controlledEntityCenterOfMass - nearestPlanet.WorldMatrix.Translation);
+            planetSurfaceNormal.Normalize();
 
 			var rotationMatrix = controlledEntity.WorldMatrix;
 			rotationMatrix.Translation = Vector3D.Zero;
@@ -713,9 +714,9 @@ namespace Sandbox.Game.Gui
 			var planetSurfaceTangent = Vector3D.Normalize(Vector3D.Transform(Vector3D.Forward, rotationMatrix));
 
 			double cosVerticalAngle = planetSurfaceNormal.Dot(controlledEntity.WorldMatrix.Forward);
-			var scale = 0.75f;
+            var scale = 0.75f;
 
-			var horizonDefaultCenterPosition = MyGuiManager.GetNormalizedCoordinateFromScreenCoordinate_FULLSCREEN(MyHud.Crosshair.Position / MyGuiManager.GetHudSize() * new Vector2(MyGuiManager.GetFullscreenRectangle().Width, MyGuiManager.GetFullscreenRectangle().Height));
+            var horizonDefaultCenterPosition = MyGuiManager.GetNormalizedCoordinateFromScreenCoordinate_FULLSCREEN(MyHud.Crosshair.Position / MyGuiManager.GetHudSize() * new Vector2(MyGuiManager.GetSafeFullscreenRectangle().Width, MyGuiManager.GetSafeFullscreenRectangle().Height));
 			var horizonAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 			var horizonTexture = MyGuiConstants.TEXTURE_HUD_GRAVITY_HORIZON;
 			var horizonSize = horizonTexture.SizeGui;
@@ -725,14 +726,14 @@ namespace Sandbox.Game.Gui
                 offsetLimit = 0.45f;
             else
                 offsetLimit = 0.35f;
-            float distanceFromCenter = (float)cosVerticalAngle*offsetLimit;
+            float distanceFromCenter = (float)cosVerticalAngle * offsetLimit;
 
-			float cosRotation = Vector3.Reject(planetSurfaceTangent, controlledEntity.WorldMatrix.Forward).Dot(controlledEntity.WorldMatrix.Up);
-			float rotation = (float)Math.Acos(cosRotation);
-			if (nearestPlanet.GetWorldGravityGrid(controlledEntityCenterOfMass).Dot(controlledEntity.WorldMatrix.Right) >= 0)
-				rotation = 2.0f * (float)Math.PI - rotation;//roll, direction to the left,
+            float cosRotation = Vector3.Reject(planetSurfaceTangent, controlledEntity.WorldMatrix.Forward).Dot(controlledEntity.WorldMatrix.Up);
+            float rotation = (float)Math.Acos(cosRotation);
+            if (nearestPlanet.Components.Get<MyGravityProviderComponent>().GetWorldGravity(controlledEntityCenterOfMass).Dot(controlledEntity.WorldMatrix.Right) >= 0)
+                rotation = 2.0f * (float)Math.PI - rotation;//roll, direction to the left,
             float sinRotation = (float)Math.Sin(rotation);
-			Vector2 magicOffset = new Vector2(0.0145f, 0.0175f);	// DrawSpriteBatch with rotation needs this
+            Vector2 magicOffset = new Vector2(0.0145f, 0.0175f);	// DrawSpriteBatch with rotation needs this
             var horizonPosition = new Vector2(-sinRotation * distanceFromCenter,
                                               cosRotation * distanceFromCenter);
             horizonPosition += horizonDefaultCenterPosition + scale * horizonSize / 2.0f + magicOffset;

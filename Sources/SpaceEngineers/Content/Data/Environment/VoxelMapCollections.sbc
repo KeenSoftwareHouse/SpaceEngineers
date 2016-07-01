@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockymountain_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockymountain_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockymountain_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockymountain_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockymountain_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockymountain_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockyterrain_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockyterrain_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockyterrain_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockyterrain_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockyterrain_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockyterrain_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockyterrain_snowtop_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockyterrain_snowtop_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockyterrain_snowtop_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockyterrain_snowtop_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>alienrockyterrain_snowtop_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="alienrockyterrain_snowtop_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>desertrocks_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="desertrocks_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>desertrocks_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="desertrocks_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>desertrocks_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="desertrocks_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>ice_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="ice_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>ice_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="ice_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>ice_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="ice_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>marsrock_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="marsrock_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>marsrock_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="marsrock_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>marsrocks_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="marsrocks_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>moonrocks_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="moonrocks_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>moonrocks_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="moonrocks_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>moonrocks_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="moonrocks_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>stone_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="stone_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>stone_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="stone_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>stone_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="stone_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>stone_snowtop_largestone</SubtypeId>
+    </Id>
+    <Storage Storage="stone_snowtop_largestone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>stone_snowtop_mediumstone</SubtypeId>
+    </Id>
+    <Storage Storage="stone_snowtop_mediumstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>stone_snowtop_smallstone</SubtypeId>
+    </Id>
+    <Storage Storage="stone_snowtop_smallstone" Probability="1"/>
+  </Definition>
+  <Definition xsi:type="VR.EI.VoxelMapCollection">
+    <Id>
+      <TypeId>MyObjectBuilder_VoxelMapCollectionDefinition</TypeId>
+      <SubtypeId>VoxelstoneStoneFe</SubtypeId>
+    </Id>
+    <Storage Storage="VoxelstoneStoneFe" Probability="1"/>
+  </Definition>
+</Definitions>

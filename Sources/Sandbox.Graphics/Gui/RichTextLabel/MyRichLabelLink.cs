@@ -36,7 +36,7 @@ namespace Sandbox.Gui.RichTextLabel
                 MyGuiManager.DrawString(MyFontEnum.White, Text, position, Scale, null, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             else
                 MyGuiManager.DrawString(MyFontEnum.Blue, Text, position, Scale, VRageMath.Color.PowderBlue, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
-            m_linkImg.Draw(position + new Vector2(base.GetSize().X + m_linkImgSpace, 0));
+            m_linkImg.Draw(position + new Vector2(base.Size.X + m_linkImgSpace, 0));
             m_highlight = false;
             return true;
         }
@@ -44,7 +44,7 @@ namespace Sandbox.Gui.RichTextLabel
         public override bool HandleInput(VRageMath.Vector2 position)
         {
             var mouse = MyGuiManager.MouseCursorPosition;
-            if (mouse.X > position.X + 0.001f && mouse.Y > position.Y && mouse.X < position.X + GetSize().X && mouse.Y < position.Y + GetSize().Y)
+            if (mouse.X > position.X + 0.001f && mouse.Y > position.Y && mouse.X < position.X + Size.X && mouse.Y < position.Y + Size.Y)
             {
                 m_highlight = true;
                 if (MyInput.Static.IsLeftMousePressed() && MyGuiManager.TotalTimeInMilliseconds - m_lastTimeClicked > MyGuiConstants.REPEAT_PRESS_DELAY)
@@ -59,11 +59,14 @@ namespace Sandbox.Gui.RichTextLabel
             return false;
         }
 
-        public override Vector2 GetSize()
+        public override Vector2 Size
         {
-            var b = base.GetSize();
-            var img = m_linkImg.GetSize();
-            return new Vector2(b.X + m_linkImgSpace +  img.X, Math.Max(b.Y, img.Y));
+            get
+            {
+                var b = base.Size;
+                var img = m_linkImg.Size;
+                return new Vector2(b.X + m_linkImgSpace + img.X, Math.Max(b.Y, img.Y));
+            }
         }
     }
 }

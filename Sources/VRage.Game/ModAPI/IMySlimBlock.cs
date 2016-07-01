@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using VRage.Game;
+using VRage.Game.ModAPI.Interfaces;
 using VRageMath;
 
 namespace VRage.Game.ModAPI
 {
-    public interface IMySlimBlock : Ingame.IMySlimBlock
+    public interface IMySlimBlock : Ingame.IMySlimBlock, IMyDestroyableObject, IMyDecalProxy
     {
         float AccumulatedDamage { get; }
         void AddNeighbours();

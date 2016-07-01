@@ -13,8 +13,6 @@ using VRage.Voxels;
 using System.IO.MemoryMappedFiles;
 using System.IO;
 using Sandbox.Engine.Utils;
-using SharpDX.Toolkit.Graphics;
-using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using Sandbox.Game.GameSystems;
 using System.Diagnostics;
 using Sandbox.Common.ObjectBuilders.Definitions;

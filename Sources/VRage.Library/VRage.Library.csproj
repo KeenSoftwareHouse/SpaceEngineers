@@ -112,6 +112,9 @@
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Configuration.Install" />
@@ -151,6 +154,7 @@
     <Compile Include="Collections\BitStreamException.cs" />
     <Compile Include="Collections\CacheList.cs" />
     <Compile Include="Collections\CachingDictionary.cs" />
+    <Compile Include="Collections\ConcurrentCachingHashSet.cs" />
     <Compile Include="Collections\CachingHashSet.cs" />
     <Compile Include="Collections\ConcurrentCachingList.cs" />
     <Compile Include="Collections\CachingList.cs" />
@@ -159,6 +163,7 @@
     <Compile Include="Collections\IBitSerializable.cs" />
     <Compile Include="Collections\MyConcurrentDictionary.cs" />
     <Compile Include="Collections\MyConcurrentHashSet.cs" />
+    <Compile Include="Collections\MyFreeList.cs" />
     <Compile Include="Collections\MyIndexArray.cs" />
     <Compile Include="Collections\MyIndexedComponentContainer.cs" />
     <Compile Include="Collections\MyIndexList.cs" />
@@ -169,6 +174,7 @@
     <Compile Include="Collections\MyDeque.cs" />
     <Compile Include="Collections\MyIntervalList.cs" />
     <Compile Include="Collections\MyListDictionary.cs" />
+    <Compile Include="Collections\MyRangeIterator.cs" />
     <Compile Include="Collections\MyMultiKeyDictionary`4.cs" />
     <Compile Include="Collections\MyMultiKeyDictionary`3.cs" />
     <Compile Include="Collections\MyMultiKeyIndex`4.cs" />
@@ -456,8 +462,11 @@
     <Compile Include="Utils\MyEnum.cs" />
     <Compile Include="Filesystem\MyFileSystem.cs" />
     <Compile Include="Utils\MyGameTimer.cs" />
+    <Compile Include="Utils\MyHashRandomUtils.cs" />
     <Compile Include="Utils\MyInterpolationQueue.cs" />
+    <Compile Include="Utils\MyIterableComplementSet.cs" />
     <Compile Include="Utils\MyRandom.cs" />
+    <Compile Include="Utils\MySimpleTestTimer.cs" />
     <Compile Include="Utils\MyTimer.cs" />
     <Compile Include="Utils\MyTimeSpan.cs" />
     <Compile Include="Utils\MyLibraryUtils.cs" />

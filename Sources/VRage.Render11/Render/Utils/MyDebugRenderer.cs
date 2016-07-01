@@ -32,6 +32,7 @@ namespace VRageRender
         static PixelShaderId m_baseColorShader;
         static PixelShaderId m_baseColorLinearShader;
         static PixelShaderId m_normalShader;
+        static PixelShaderId m_normalViewShader;
         static PixelShaderId m_glossinessShader;
         static PixelShaderId m_metalnessShader;
         static PixelShaderId m_matIDShader;
@@ -62,6 +63,7 @@ namespace VRageRender
             m_baseColorShader = MyShaders.CreatePs("debug_base_color.hlsl");
             m_baseColorLinearShader = MyShaders.CreatePs("debug_base_color_linear.hlsl");
             m_normalShader = MyShaders.CreatePs("debug_normal.hlsl");
+            m_normalViewShader = MyShaders.CreatePs("debug_normal_view.hlsl");
             m_glossinessShader = MyShaders.CreatePs("debug_glossiness.hlsl");
             m_metalnessShader = MyShaders.CreatePs("debug_metalness.hlsl");
             m_matIDShader = MyShaders.CreatePs("debug_mat_id.hlsl");
@@ -94,7 +96,7 @@ namespace VRageRender
                 usedVertexShader = customVertexShader.Value;
 
             RC.DeviceContext.VertexShader.Set(usedVertexShader);
-            RC.DeviceContext.InputAssembler.InputLayout = m_inputLayout;
+            RC.SetIL(m_inputLayout);
 
             var mapping = MyMapping.MapDiscard(m_quadBuffer.Buffer);
             var tmpFormat = new MyVertexFormatPosition2Texcoord(new Vector2(x, y), new Vector2(0, 0));
@@ -206,15 +208,7 @@ namespace VRageRender
             RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, renderTarget);
             RC.BindGBufferForRead(0, MyGBuffer.Main);
             
-            //context.OutputMerger.SetTargets(null as DepthStencilView, MyRender.Backbuffer.RenderTarget);
-
-            //context.PixelShader.SetShaderResources(0, MyRender.MainGbuffer.DepthGbufferViews);
-
             context.OutputMerger.BlendState = null;
-
-            RC.SetVS(null);
-            RC.DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding());
-            RC.DeviceContext.InputAssembler.InputLayout = null;
 
             if(MyRender11.Settings.DisplayGbufferColor)
             {
@@ -229,6 +223,11 @@ namespace VRageRender
             else if (MyRender11.Settings.DisplayGbufferNormal)
             {
                 context.PixelShader.Set(m_normalShader);
+                MyScreenPass.DrawFullscreenQuad();
+            }
+            else if (MyRender11.Settings.DisplayGbufferNormalView)
+            {
+                context.PixelShader.Set(m_normalViewShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayGbufferGlossiness)
@@ -333,7 +332,7 @@ namespace VRageRender
                 //        if (renderable.m_lod >= LOD_COLORS.Length)
                 //            return;
 
-                //        BoundingBox bb = new BoundingBox(renderable.m_owner.Aabb.Min - MyEnvironment.CameraPosition,renderable.m_owner.Aabb.Max - MyEnvironment.CameraPosition);
+                //        BoundingBox bb = new BoundingBox(renderable.m_owner.Aabb.Min - MyRender11.Environment.CameraPosition,renderable.m_owner.Aabb.Max - MyRender11.Environment.CameraPosition);
 
                 //        batch.AddBoundingBox(bb, new Color(LOD_COLORS[renderable.m_voxelLod]));
 
@@ -427,7 +426,7 @@ namespace VRageRender
 
         internal static void DrawHierarchyDebug()
         {
-            var worldToClip = MyEnvironment.ViewProjection;
+            var worldToClip = MyRender11.Environment.ViewProjection;
             var displayString = new StringBuilder();
 
             var batch = MyLinesRenderer.CreateBatch();
@@ -483,18 +482,18 @@ namespace VRageRender
 
                         foreach (var child in h.m_children)
                         {
-                            if(child.IsVisible)
-                            { 
+                            if (child.IsVisible)
+                            {
                                 bb.Include(child.Aabb);
                             }
                         }
 
-                        batch.AddBoundingBox((BoundingBox)bb, Color.Red);
-                        MyPrimitivesRenderer.Draw6FacedConvexZ(bb.GetCorners().Select(x=>(Vector3)x).ToArray(), Color.Red, 0.1f);
+                        batch.AddBoundingBox(((BoundingBox)bb).Translate(-MyRender11.Environment.CameraPosition), Color.Red);
+                        MyPrimitivesRenderer.Draw6FacedConvexZ(bb.GetCorners().Select(x => (Vector3)x).ToArray(), Color.Red, 0.1f);
                     }
-                    else if(r!=null && actor.GetGroupLeaf() == null)
+                    else if (r != null && actor.GetGroupLeaf() == null)
                     {
-                        batch.AddBoundingBox((BoundingBox)r.Owner.Aabb, Color.Green);
+                        batch.AddBoundingBox(((BoundingBox)r.Owner.Aabb).Translate(-MyRender11.Environment.CameraPosition), Color.Green);
                     }
                 }
             }
@@ -529,9 +528,9 @@ namespace VRageRender
         {
             //if(true)
             //{
-            //    //m_proj = MyEnvironment.Projection;
-            //    //m_vp = MyEnvironment.ViewProjection;
-            //    //m_invvp = MyEnvironment.InvViewProjection;
+            //    //m_proj = MyRender11.Environment.Projection;
+            //    //m_vp = MyRender11.Environment.ViewProjection;
+            //    //m_invvp = MyRender11.Environment.InvViewProjection;
 
             //    Vector2 groupDim = new Vector2(256, 256);
             //    Vector2 tileScale = new Vector2(1600, 900) / (2 * groupDim);
@@ -632,7 +631,7 @@ namespace VRageRender
                 for(int i=0; i<4; i++)
                 {
                     float levelCellSize = cellSize * (float)Math.Pow(2, i);
-                    var position = MyEnvironment.CameraPosition;
+                    var position = MyRender11.Environment.CameraPosition;
                     //var position = Vector3.Zero;
                     position.Y = 0;
                     var positionG = position.Snap(levelCellSize * 2);

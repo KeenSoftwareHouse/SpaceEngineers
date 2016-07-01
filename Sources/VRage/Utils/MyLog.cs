@@ -99,7 +99,7 @@ namespace VRage.Utils
         }
 
 
-        public static MyLogSeverity AssertLevel = (MyLogSeverity) (byte.MaxValue);
+        public static MyLogSeverity AssertLevel = (MyLogSeverity)(byte.MaxValue);
         private bool LogForMemoryProfiler = false;
         private bool m_enabled = false;             //  Must be false, beuuase MW web site must not write into log file
         private Stream m_stream;                    //  Used for opening and closing the file
@@ -509,30 +509,48 @@ namespace VRage.Utils
 
         public void Log(MyLogSeverity severity, string format, params object[] args)
         {
-            StringBuilder sb = new StringBuilder();
+            if (m_enabled)
+            {
+                lock (m_lock)
+                {
+                    WriteDateTimeAndThreadId();
 
-            sb.AppendFormat("{0}: ", severity);
-            sb.AppendFormat(format, args);
-            sb.Append('\n');
+                    StringBuilder sb = m_stringBuilder;
+                    sb.Clear();
 
-            WriteStringBuilder(sb);
+                    sb.AppendFormat("{0}: ", severity);
+                    sb.AppendFormat(format, args);
+                    sb.Append('\n');
 
-            if ((int)severity >= (int)AssertLevel)
-                SystemTrace.Fail(sb.ToString());
+                    WriteStringBuilder(sb);
+
+                    if ((int)severity >= (int)AssertLevel)
+                        SystemTrace.Fail(sb.ToString());
+                }
+            }
         }
 
         public void Log(MyLogSeverity severity, StringBuilder builder)
         {
-            StringBuilder sb = new StringBuilder();
+            if (m_enabled)
+            {
+                lock (m_lock)
+                {
+                    WriteDateTimeAndThreadId();
 
-            sb.AppendFormat("{0}: ", severity);
-            sb.AppendStringBuilder(builder);
-            sb.Append('\n');
+                    StringBuilder sb = m_stringBuilder;
+                    sb.Clear();
 
-            WriteStringBuilder(sb);
+                    sb.AppendFormat("{0}: ", severity);
+                    sb.AppendStringBuilder(builder);
+                    sb.Append('\n');
 
-            if ((int)severity >= (int)AssertLevel)
-                SystemTrace.Fail(sb.ToString());
+                    WriteStringBuilder(sb);
+
+                    if ((int)severity >= (int)AssertLevel)
+                        SystemTrace.Fail(sb.ToString());
+                }
+            }
         }
     }
 

@@ -339,6 +339,7 @@ namespace Sandbox.Game.AI.Actions
             // generate position and set navigation
             var position = Bot.AgentEntity.PositionComp.GetPosition();
             var up = MyPerGameSettings.NavmeshPresumesDownwardGravity ? Vector3D.UnitY : (Vector3D)MyGravityProviderSystem.CalculateTotalGravityInPoint(position);
+            up.Normalize();
             var randomDir = MyUtils.GetRandomPerpendicularVector(ref up);
             var correctedPosition = position - randomDir * 15;
             AiTargetBase.SetTargetPosition(position + randomDir * 30);

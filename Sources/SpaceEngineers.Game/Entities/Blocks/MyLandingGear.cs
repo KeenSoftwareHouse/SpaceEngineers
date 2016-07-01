@@ -892,7 +892,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 //temporary fix by Gregory for the Landing gears do not want to lock bug. This should be check further though
             }
             else if (entity.Physics == null)
-            {
+            {        
+                if (LockMode == LandingGearMode.Locked)
+                {
+                    if (Sync.IsServer)
+                    {
+                        m_needsToRetryLock = true;
+                    }
+                }
+
                 Detach();
             }
             else if (LockMode == LandingGearMode.Locked)
@@ -1060,6 +1068,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (Sync.IsServer)
             {
+             
                 CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
             }
         }
@@ -1071,6 +1080,23 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (Sync.IsServer)
             {
+
+                if (m_attachedState.Value.OtherEntityId.HasValue)
+                {
+                    if (this.CubeGrid.Physics == null)
+                    {
+                        m_needsToRetryLock = true;
+                    }
+                    else
+                    {
+                        RetryLockServer();
+                        var state = m_attachedState.Value;
+                        state.Force = true;
+                        m_attachedState.Value = state;
+                    }
+                }
+
+                
                 CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
             }
         }
@@ -1078,6 +1104,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
         protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
             ResetLockConstraint(true,true);
+            if (m_attachedState.Value.OtherEntityId.HasValue)
+            {
+                RetryLockClient();
+                var state = m_attachedState.Value;
+                state.Force = true;
+                m_attachedState.Value = state;
+            }
         }
       
     }

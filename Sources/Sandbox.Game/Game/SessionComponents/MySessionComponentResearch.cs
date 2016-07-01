@@ -13,6 +13,7 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.Components.Session;
 using VRage.Game.ObjectBuilders.Components;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Network;
@@ -62,6 +63,8 @@ namespace Sandbox.Game.SessionComponents
 
         public override void Init(MyObjectBuilder_SessionComponent sessionComponent)
         {
+            base.Init(sessionComponent);
+
             var builder = sessionComponent as MyObjectBuilder_SessionComponentResearch;
 
             if (builder == null || builder.Researches == null)
@@ -74,6 +77,22 @@ namespace Sandbox.Game.SessionComponents
                     definitions.Add(definition);
 
                 m_unlockedResearch.Add(research.IdentityId, definitions);
+            }
+        }
+
+        public override void InitFromDefinition(MySessionComponentDefinition definition)
+        {
+            base.InitFromDefinition(definition);
+
+            var def = definition as MySessionComponentResearchDefinition;
+            if (def == null)
+                return;
+
+            foreach (var id in def.Researches)
+            {
+                var researchDef = MyDefinitionManager.Static.GetDefinition<MyResearchDefinition>(id);
+                foreach (var defId in researchDef.Entries)
+                    m_requiredResearch.Add(defId);
             }
         }
 
@@ -102,21 +121,21 @@ namespace Sandbox.Game.SessionComponents
             return ob;
         }
 
-        public override void LoadData()
-        {
-            base.LoadData();
+        //public override void LoadData()
+        //{
+        //    base.LoadData();
 
-            m_unlockedResearch = new Dictionary<long, HashSet<MyDefinitionId>>();
-            m_requiredResearch = new List<MyDefinitionId>();
+        //    m_unlockedResearch = new Dictionary<long, HashSet<MyDefinitionId>>();
+        //    m_requiredResearch = new List<MyDefinitionId>();
 
-            var researchDefinitions = MyDefinitionManager.Static.GetDefinitions<MyResearchDefinition>();
-            if (researchDefinitions != null)
-            {
-                foreach (var research in researchDefinitions)
-                    foreach (var defId in research.Entries)
-                        m_requiredResearch.Add(defId);
-            }
-        }
+        //    var researchDefinitions = MyDefinitionManager.Static.GetDefinitions<MyResearchDefinition>();
+        //    if (researchDefinitions != null)
+        //    {
+        //        foreach (var research in researchDefinitions)
+        //            foreach (var defId in research.Entries)
+        //                m_requiredResearch.Add(defId);
+        //    }
+        //}
 
         protected override void UnloadData()
         {

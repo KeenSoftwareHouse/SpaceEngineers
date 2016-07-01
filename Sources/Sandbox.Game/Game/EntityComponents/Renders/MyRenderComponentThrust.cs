@@ -52,9 +52,9 @@ namespace Sandbox.Game.Components
 
         public override void Draw()
         {
-            base.Draw();            
+            base.Draw();
 
-            var worldToLocal = MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix);
+            var worldToLocal = MatrixD.Normalize(MatrixD.Invert(Container.Entity.PositionComp.WorldMatrix));
 
 			if (m_thrust.CanDraw())
 			{
@@ -66,12 +66,13 @@ namespace Sandbox.Game.Components
 					if (m_thrust.CubeGrid.Physics == null)
 						continue;
 
-					var flameDirection = Vector3D.TransformNormal(flame.Direction, Container.Entity.PositionComp.WorldMatrix);
-					var flamePosition = Vector3D.Transform(flame.Position, Container.Entity.PositionComp.WorldMatrix);
-
-					float radius = m_thrust.ThrustRadiusRand * flame.Radius;
-					float length = m_thrust.ThrustLengthRand * flame.Radius;
-					float thickness = m_thrust.ThrustThicknessRand * flame.Radius;
+				    MyCubeBlock cubeBlock = Container.Entity as MyCubeBlock;
+                    float scale = cubeBlock != null ? cubeBlock.CubeGrid.GridScale : 1.0f;
+                    var flameDirection = Vector3D.TransformNormal(flame.Direction, Container.Entity.PositionComp.WorldMatrix);
+                    var flamePosition = Vector3D.Transform(flame.Position, Container.Entity.PositionComp.WorldMatrix);
+                    float radius = m_thrust.ThrustRadiusRand * flame.Radius * scale;
+                    float length = m_thrust.ThrustLengthRand * flame.Radius * scale;
+                    float thickness = m_thrust.ThrustThicknessRand * flame.Radius * scale;
 
 					Vector3D velocityAtNewCOM = Vector3D.Cross(m_thrust.CubeGrid.Physics.AngularVelocity, flamePosition - m_thrust.CubeGrid.Physics.CenterOfMassWorld);
 					var velocity = m_thrust.CubeGrid.Physics.LinearVelocity + velocityAtNewCOM;
@@ -103,7 +104,7 @@ namespace Sandbox.Game.Components
 					{
 						if (m_landingEffect != null)
 						{
-							m_landingEffect.Stop(true);
+							m_landingEffect.Stop();
 							m_landingEffect = null;
 							--m_landingEffectCount;
 						}
@@ -120,11 +121,12 @@ namespace Sandbox.Game.Components
 
 					m_landingEffect.UserScale = m_thrust.CubeGrid.GridSize;
 					m_landingEffect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.CreateFromForwardUp(-m_lastHitInfo.Value.HkHitInfo.Normal, Vector3.CalculatePerpendicularVector(m_lastHitInfo.Value.HkHitInfo.Normal)), m_lastHitInfo.Value.Position, Vector3D.One);
+				    MatrixD.Rescale(m_landingEffect.WorldMatrix, scale);
 				}
 			}
 			else if(m_landingEffect != null)
 			{
-				m_landingEffect.Stop(true);
+				m_landingEffect.Stop();
 				m_landingEffect = null;
 				--m_landingEffectCount;
 			}

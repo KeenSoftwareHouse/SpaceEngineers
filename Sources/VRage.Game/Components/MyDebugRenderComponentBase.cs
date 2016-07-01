@@ -3,7 +3,7 @@
     public abstract class MyDebugRenderComponentBase
     {
         public virtual void PrepareForDraw() { }
-        public abstract bool DebugDraw();
+        public abstract void DebugDraw();
         public abstract void DebugDrawInvalidTriangles();
     }
 }

@@ -69,13 +69,10 @@ namespace Sandbox.Game.Components
                 VRageRender.MyRenderProxy.UpdateModelProperties(
                   RenderObjectIDs[0],
                   0,
-                  m_model.AssetName,
                   -1,
                   "Emissive",
                   null,
                   BulbColor,
-                  null,
-                  null,
                   CurrentLightPower);
                 m_emissiveMaterialDirty = false;
             }

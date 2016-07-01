@@ -6,7 +6,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Weapons;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using SpaceEngineers.Game.Weapons.Guns.Barrels;
 using VRage.Game;
 using VRageMath;

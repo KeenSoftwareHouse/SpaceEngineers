@@ -278,6 +278,7 @@ namespace Sandbox.Game.Gui
                 if (m_onDropContextMenu.Enabled)
                 {
                     m_onDropContextMenu.Enabled = false;
+                    m_contextMenu.Enabled = false;
                     m_onDropContextMenu.Activate();
                 }
                 else if (m_contextMenu.Enabled && !m_onDropContextMenu.Visible)
@@ -940,7 +941,18 @@ namespace Sandbox.Game.Gui
             string subicon = null;
             if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0)
                 subicon = MyToolbarItemCubeBlock.VariantsAvailableSubicon;
-            AddDefinitionAtPosition(grid, anyDef, position, MyToolbarComponent.GlobalBuilding || MySession.Static.ControlledEntity is MyCharacter || (MySession.Static.ControlledEntity is MyCockpit && (MySession.Static.ControlledEntity as MyCockpit).BuildingMode), subicon);
+
+            bool enabled = true;
+
+            if (MyCubeBuilder.Static != null)
+            {
+                enabled &= MyCubeBuilder.Static.IsCubeSizeAvailable(anyDef);
+            }
+
+            enabled &= MyToolbarComponent.GlobalBuilding || MySession.Static.ControlledEntity is MyCharacter || 
+                       (MySession.Static.ControlledEntity is MyCockpit && (MySession.Static.ControlledEntity as MyCockpit).BuildingMode);
+
+            AddDefinitionAtPosition(grid, anyDef, position, enabled, subicon);
         }
 
         #endregion
@@ -1457,6 +1469,14 @@ namespace Sandbox.Game.Gui
             m_nameSearchCondition.SearchName = searchName;
             AddToolsAndAnimations(m_nameSearchCondition);
             UpdateGridBlocksBySearchCondition(m_nameSearchCondition);
+        }
+
+        /// <summary>
+        /// Updates Grid control with current category settings. 
+        /// </summary>
+        protected void UpdateGridControl()
+        {
+            categories_ItemClicked(m_categoriesListbox);
         }
 
         void contextMenu_ItemClicked(MyGuiControlContextMenu sender, MyGuiControlContextMenu.EventArgs args)

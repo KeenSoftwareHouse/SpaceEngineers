@@ -116,6 +116,8 @@ namespace Sandbox.Game.GUI.DebugInputComponents
             {
                 base.Draw();
 
+                if (MySession.Static == null) return;
+
                 if (m_showVoxelProbe)
                 {
                     float halfSize = m_probeSize*.5f;
@@ -150,7 +152,7 @@ namespace Sandbox.Game.GUI.DebugInputComponents
 
                     if (map != null)
                     {
-                        if (map is MyVoxelPhysics) map = ((MyVoxelPhysics) map).Parent;
+                        map = map.RootVoxel;
 
                         Vector3 localPos = Vector3.Transform(m_probePosition, map.PositionComp.WorldMatrixInvScaled);
                         localPos += map.SizeInMetresHalf;

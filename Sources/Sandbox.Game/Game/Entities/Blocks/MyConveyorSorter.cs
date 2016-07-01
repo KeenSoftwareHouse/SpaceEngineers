@@ -18,7 +18,7 @@ using Sandbox.Game.GameSystems.Electricity;
 using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using Sandbox.ModAPI.Interfaces;

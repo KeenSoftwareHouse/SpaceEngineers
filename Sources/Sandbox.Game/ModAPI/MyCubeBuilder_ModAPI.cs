@@ -24,21 +24,15 @@ namespace Sandbox.Game.Entities
             return FindClosestGrid();
         }
 
-        void IMyCubeBuilder.Activate()
+        void IMyCubeBuilder.Activate(MyDefinitionId? blockDefinitionId = null)
         {
-            Activate();
+            Activate(blockDefinitionId);
         }
 
         bool IMyCubeBuilder.BlockCreationIsActivated
         {
             get { return BlockCreationIsActivated; }
         }
-
-        bool IMyCubeBuilder.CopyPasteIsActivated
-        {
-            get { return CopyPasteIsActivated; }
-        }
-
         void IMyCubeBuilder.Deactivate()
         {
             Deactivate();
@@ -47,16 +41,6 @@ namespace Sandbox.Game.Entities
         void IMyCubeBuilder.DeactivateBlockCreation()
         {
             DeactivateBlockCreation();
-        }
-
-        void IMyCubeBuilder.DeactivateCopyPaste()
-        {
-            DeactivateCopyPaste();
-        }
-
-        void IMyCubeBuilder.DeactivateShipCreationClipboard()
-        {
-            DeactivateShipCreationClipboard();
         }
 
         bool IMyCubeBuilder.FreezeGizmo
@@ -69,11 +53,6 @@ namespace Sandbox.Game.Entities
             {
                 FreezeGizmo = true;
             }
-        }
-
-        bool IMyCubeBuilder.ShipCreationIsActivated
-        {
-            get { return ShipCreationIsActivated; }
         }
 
         bool IMyCubeBuilder.ShowRemoveGizmo

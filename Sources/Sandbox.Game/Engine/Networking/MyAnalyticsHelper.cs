@@ -162,7 +162,7 @@ namespace Sandbox.Engine.Networking
                 GameMode = MySession.Static.Settings.GameMode,
                 OnlineMode = MySession.Static.OnlineMode,
                 WorldType = MySession.Static.Scenario.DisplayNameText,
-                voxelSupport = MySession.Static.Settings.EnableStationVoxelSupport,
+                voxelSupport = MySession.Static.Settings.EnableConvertToStation,
                 destructibleBlocks = MySession.Static.Settings.DestructibleBlocks,
                 destructibleVoxels = MySession.Static.Settings.EnableVoxelDestruction,
                 jetpack = MySession.Static.Settings.EnableJetpack,
@@ -225,7 +225,7 @@ namespace Sandbox.Engine.Networking
                 TotalBlocksCreated = MySession.Static.TotalBlocksCreated,
                 TotalPlayTime = (uint)MySession.Static.ElapsedPlayTime.TotalSeconds,
                 Scenario = (bool)MySession.Static.IsScenario,
-                voxelSupport = MySession.Static.Settings.EnableStationVoxelSupport,
+                voxelSupport = MySession.Static.Settings.EnableConvertToStation,
                 destructibleBlocks = MySession.Static.Settings.DestructibleBlocks,
                 destructibleVoxels = MySession.Static.Settings.EnableVoxelDestruction,
                 jetpack = MySession.Static.Settings.EnableJetpack,
@@ -671,9 +671,10 @@ namespace Sandbox.Engine.Networking
         public static MyPlanetNamesData GetPlanetNames(Vector3D position)
         {
             MyPlanetNamesData returnData = new MyPlanetNamesData();
-            if (Sandbox.Game.GameSystems.MyGravityProviderSystem.CalculateNaturalGravityInPoint(position).LengthSquared() > 0f)
+
+            var planet = MyGamePruningStructure.GetClosestPlanet(position);
+            if (planet != null)
             {
-                MyPlanet planet = Sandbox.Game.GameSystems.MyGravityProviderSystem.GetStrongestGravityWell(position);
                 returnData.planetName = planet.StorageName;
                 returnData.planetType = planet.Generator.FolderName;
             }

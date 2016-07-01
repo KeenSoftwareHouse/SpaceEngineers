@@ -379,6 +379,7 @@ namespace VRageRender
         internal bool RuntimeGenerated;
         internal bool Loaded;
         internal bool FileExists;
+        public float Rescale;
     }
 
 
@@ -698,7 +699,7 @@ namespace VRageRender
             }
         }
 
-        internal static MeshId GetMeshId(MyStringId nameKey)
+        internal static MeshId GetMeshId(MyStringId nameKey, float rescale)
         {
             if (RuntimeMeshNameIndex.ContainsKey(nameKey))
             {
@@ -723,7 +724,8 @@ namespace VRageRender
                 {
                     Name = nameKey.ToString(),
                     NameKey = nameKey,
-                    LodsNum = -1
+                    LodsNum = -1,
+                    Rescale = rescale
                 };
 
                 InitState(id, MyMeshState.WAITING);
@@ -855,16 +857,16 @@ namespace VRageRender
         }
 
         static bool LoadMwm(ref MyLodMeshInfo lodMeshInfo,
-            out MyMeshPartInfo1[] parts, out MyMeshSectionInfo1[] sections)
+			out MyMeshPartInfo1[] parts, out MyMeshSectionInfo1[] sections, float rescale)        
         {
             MyLODDescriptor[] lodDescriptors;
-            return LoadMwm(ref lodMeshInfo, out parts, out sections, out lodDescriptors);
+			return LoadMwm(ref lodMeshInfo, out parts, out sections, out lodDescriptors, rescale);        
         }
 
         // returns false when mesh couldn't be loaded
         unsafe static bool LoadMwm(ref MyLodMeshInfo lodMeshInfo,
-            out MyMeshPartInfo1[] parts, out MyMeshSectionInfo1[] sections,
-            out MyLODDescriptor[] lodDescriptors)
+			out MyMeshPartInfo1[] parts, out MyMeshSectionInfo1[] sections,
+            out MyLODDescriptor[] lodDescriptors, float rescale)         
         {
             parts = null;
             sections = null;
@@ -916,6 +918,13 @@ namespace VRageRender
             }
 
             var positions = (HalfVector4[])tagData[MyImporterConstants.TAG_VERTICES];
+            if (rescale != 1.0f)
+            {
+                for (int i = 0; i < positions.Length; i++)
+                {
+                    positions[i] = VF_Packer.PackPosition(VF_Packer.UnpackPosition(positions[i])*rescale);
+                }
+            }
             var verticesNum = positions.Length;
 
             lodMeshInfo.VerticesNum = verticesNum;
@@ -2080,6 +2089,7 @@ namespace VRageRender
         static void LoadMesh(MeshId id)
         {
             var assetName = MeshInfos.Data[id.Index].Name;
+            float rescale = MeshInfos.Data[id.Index].Rescale;
 
             MyLodMeshInfo meshMainLod = new MyLodMeshInfo
             {
@@ -2089,19 +2099,16 @@ namespace VRageRender
 
             MeshInfos.Data[id.Index].Loaded = true;
 
-
             MyMeshPartInfo1[] parts;
             MyMeshSectionInfo1[] sections;
             MyLODDescriptor[] lodDescriptors;
 
-            bool modelOk = LoadMwm(ref meshMainLod, out parts, out sections, out lodDescriptors);
-
+            bool modelOk = LoadMwm(ref meshMainLod, out parts, out sections, out lodDescriptors, rescale);
             if (!modelOk)
             {
                 meshMainLod.FileName = ERROR_MODEL_PATH;
 
-                if (!LoadMwm(ref meshMainLod, out parts, out sections, out lodDescriptors))
-                {
+				if (!LoadMwm(ref meshMainLod, out parts, out sections, out lodDescriptors, rescale))                {
                     Debug.Fail("error model missing");
                 }
             }
@@ -2131,7 +2138,7 @@ namespace VRageRender
 
                 MyMeshPartInfo1[] lodParts;
                 MyMeshSectionInfo1[] lodSections;
-                bool lodOk = LoadMwm(ref lodMesh, out lodParts, out lodSections);
+                bool lodOk = LoadMwm(ref lodMesh, out lodParts, out lodSections, rescale);
                 if (lodOk)
                 {
                     //lodMesh.FileName = ERROR_MODEL_PATH;

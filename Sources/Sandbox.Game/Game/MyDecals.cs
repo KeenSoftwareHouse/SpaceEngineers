@@ -18,26 +18,29 @@ using VRageRender;
 
 namespace Sandbox.Game
 {
-    public static class MyDecals
+    public class MyDecals : IMyDecalHandler
     {
         private const string DEFAULT = "Default";
 
+        private static MyDecals m_handler = new MyDecals();
         private static Func<IMyDecalProxy, bool> FilterProxy = DefaultFilterProxy;
 
-        /// <param name="damage">Not used for now but could be used as a multiplier instead of random decal size</param>
-        public static void HandleAddDecal(IMyEntity entity, MyHitInfo hitInfo, MyStringHash source = default(MyStringHash), float damage = -1)
-        {
-            if (entity == null)
-                DebugNullEntity();
+        private bool Enabled;
+        private MyStringHash Source;
 
+        private MyDecals() { }
+
+        /// <param name="damage">Not used for now but could be used as a multiplier instead of random decal size</param>
+        public static void HandleAddDecal(IMyEntity entity, MyHitInfo hitInfo, MyStringHash source = default(MyStringHash), object customdata = null, float damage = -1)
+        {
             IMyDecalProxy proxy = entity as IMyDecalProxy;
             if (proxy != null)
             {
-                AddDecal(proxy, ref hitInfo, damage, source);
+                AddDecal(proxy, ref hitInfo, damage, source, customdata);
                 return;
             }
 
-            MyCubeGrid grid = entity.GetTopMostParent() as MyCubeGrid;
+            MyCubeGrid grid = entity as MyCubeGrid;
             if (grid != null)
             {
                 var block = grid.GetTargetedBlock(hitInfo.Position);
@@ -51,60 +54,76 @@ namespace Sandbox.Game
                 }
             }
 
-            if (proxy != null)
-                AddDecal(proxy, ref hitInfo, damage, source);
+            if (proxy == null)
+                return;
+
+            AddDecal(proxy, ref hitInfo, damage, source, customdata);
         }
 
-        private static void AddDecal(IMyDecalProxy proxy, ref MyHitInfo hitInfo, float damage, MyStringHash source)
+        public static void UpdateDecals(List<MyDecalPositionUpdate> decals)
         {
-            bool skip = DefaultFilterProxy(proxy);
-            if (skip)
-                return;
-
-            MyDecalRenderData data;
-            proxy.GetDecalRenderData(hitInfo, out data);
-            if (data.Skip)
-                return;
-
-            MyDecalMaterial material;
-            bool found = MyDecalMaterials.TryGetDecalMaterial(data.Material.String, source.String, out material);
-            if (!found)
-            {
-                if (MyFakes.ENABLE_USE_DEFAULT_DAMAGE_DECAL)
-                    found = MyDecalMaterials.TryGetDecalMaterial(DEFAULT, DEFAULT, out material);
-
-                if (!found)
-                    return;
-            }
-
-            var perp = Vector3.CalculatePerpendicularVector(data.Normal);
-
-            float rotation = material.Rotation;
-            if (material.Rotation == float.PositiveInfinity)
-                rotation = MyRandom.Instance.NextFloat() * MathHelper.TwoPi;
-
-            if (rotation != 0)
-            {
-                // Rotate around normal
-                Quaternion q = Quaternion.CreateFromAxisAngle(data.Normal, rotation);
-                perp = new Vector3((new Quaternion(perp, 0) * q).ToVector4());
-            }
-
-            var pos = MatrixD.CreateWorld(data.Position, data.Normal, perp);
-
-            var size = material.MinSize;
-            if (material.MaxSize > material.MinSize)
-                size += MyRandom.Instance.NextFloat() * (material.MaxSize - material.MinSize);
-
-            pos = Matrix.CreateScale(new Vector3(size, size, material.Depth)) * pos;
-
-            var decalId = MyRenderProxy.CreateDecal(data.RenderObjectId, pos, material.GetStringId());
-            proxy.OnAddDecal(decalId, ref data);
+            MyRenderProxy.UpdateDecals(decals);
         }
 
         public static void RemoveDecal(uint decalId)
         {
             MyRenderProxy.RemoveDecal(decalId);
+        }
+
+        private static void AddDecal(IMyDecalProxy proxy, ref MyHitInfo hitInfo, float damage, MyStringHash source, object customdata)
+        {
+            bool skip = DefaultFilterProxy(proxy);
+            if (skip)
+                return;
+
+            m_handler.Source = source;
+            m_handler.Enabled = true;
+            proxy.AddDecals(hitInfo, source, customdata, m_handler);
+            m_handler.Enabled = false;
+            m_handler.Source = MyStringHash.NullOrEmpty;
+        }
+
+        uint? IMyDecalHandler.AddDecal(ref MyDecalRenderInfo data)
+        {
+            CheckEnabled();
+
+            IReadOnlyList<MyDecalMaterial> materials;
+            bool found = MyDecalMaterials.TryGetDecalMaterial(Source.String, data.Material.String, out materials);
+            if (!found)
+            {
+                if (MyFakes.ENABLE_USE_DEFAULT_DAMAGE_DECAL)
+                    found = MyDecalMaterials.TryGetDecalMaterial(DEFAULT, DEFAULT, out materials);
+
+                if (!found)
+                    return null;
+            }
+
+            int index = (int)Math.Round(MyRandom.Instance.NextFloat() * (materials.Count - 1));
+            MyDecalMaterial material = materials[index];
+
+            float rotation = material.Rotation;
+            if (material.Rotation == float.PositiveInfinity)
+                rotation = MyRandom.Instance.NextFloat() * MathHelper.TwoPi;
+
+            var size = material.MinSize;
+            if (material.MaxSize > material.MinSize)
+                size += MyRandom.Instance.NextFloat() * (material.MaxSize - material.MinSize);
+
+            MyDecalTopoData topoData = new MyDecalTopoData();
+            topoData.Position = data.Position;
+            topoData.Normal = data.Normal;
+            topoData.Scale = new Vector3(size, size, material.Depth);
+            topoData.Rotation = rotation;
+
+            string sourceTarget = MyDecalMaterials.GetStringId(Source, data.Material);
+            return MyRenderProxy.CreateDecal(data.RenderObjectId, ref topoData, data.Flags, sourceTarget, material.StringId, index);
+        }
+
+        [Conditional("DEBUG")]
+        private void CheckEnabled()
+        {
+            if (!Enabled)
+                throw new Exception("Decals must be added only on the IMyDecalProxy.AddDecals method override");
         }
 
         /// <returns>True to skip the decal</returns>
@@ -119,12 +138,6 @@ namespace Sandbox.Game
                 return true;
 
             return false;
-        }
-
-        private static void DebugNullEntity()
-        {
-            MyLog.Default.WriteLine("MyDecals.HandleAddDecal(): entity was null");
-            Debug.Assert(false, "MyDecals.HandleAddDecal(): entity was null. Call Francesco");
         }
     }
 }

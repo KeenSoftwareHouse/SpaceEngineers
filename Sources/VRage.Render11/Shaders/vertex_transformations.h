@@ -43,6 +43,7 @@ float unpack_voxel_ao(float ambient_occlusion)
 	return frac(ambient_occlusion * 8.0f);
 }
 
+// Reference VF_Packer.cs, PackNormal
 float3 unpack_normal(float4 p)
 {
 	float zsign = p.y > 0.5f ? 1 : -1;
@@ -53,7 +54,7 @@ float3 unpack_normal(float4 p)
 	return float3(xy.xy, zsign * sqrt(saturate(1-dot(xy, xy))));
 }
 
-
+// Reference VF_Packer.cs, PackTangentSign
 float4 unpack_tangent_sign(float4 p)
 {
 	float sign = p.w > 0.5f ? 1 : -1;
@@ -64,6 +65,26 @@ float4 unpack_tangent_sign(float4 p)
 	xy /= 32767;
 	xy = 2 * xy - 1;
 	return float4(xy.xy, zsign * sqrt(saturate(1-dot(xy, xy))), sign);
+}
+
+// Spheremap Transform, http://aras-p.info/texts/CompactNormalStorage.html
+// NOTE: Assumes normal is in view space and normalized
+float2 pack_normals2(float3 n)
+{
+    float p = sqrt(n.z * 8 + 8);
+    return float2(n.xy / p + 0.5);
+}
+
+// Spheremap Transform, http://aras-p.info/texts/CompactNormalStorage.html
+float3 unpack_normals2(float2 enc)
+{
+    float2 fenc = enc * 4 - 2;
+    float f = dot(fenc, fenc);
+    float g = sqrt(1 - f / 4);
+    float3 n;
+    n.xy = fenc*g;
+    n.z = 1 - f / 2;
+    return n;
 }
 
 matrix translation_rotation_matrix(float3 translation, float3 forward, float3 up)

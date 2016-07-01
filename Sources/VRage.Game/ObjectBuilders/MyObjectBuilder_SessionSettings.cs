@@ -240,9 +240,9 @@ namespace VRage.Game
         public bool EnableFlora = true;
 
         [ProtoMember]
-        [Display(Name = "Enable Station Voxel Support")]
+        [Display(Name = "Enable convert to station")]
         [GameRelation(Game.SpaceEngineers)]
-        public bool EnableStationVoxelSupport = true;
+        public bool EnableConvertToStation = true;
 
         [ProtoMember]
         [Display(Name = "Enable Sun Rotation")]

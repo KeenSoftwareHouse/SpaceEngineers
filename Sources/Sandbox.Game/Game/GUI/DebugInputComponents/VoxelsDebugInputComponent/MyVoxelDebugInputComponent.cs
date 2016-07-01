@@ -15,6 +15,7 @@ namespace Sandbox.Game.GUI.DebugInputComponents
                 new IntersectRayComponent(this),
                 new ToolsComponent(this),
                 new StorageWriteCacheComponent(this),
+                new PhysicsComponent(this), 
             };
         }
 

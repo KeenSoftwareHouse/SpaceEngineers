@@ -229,12 +229,10 @@ namespace VRage.Game
         public SerializableDictionary<long, MyObjectBuilder_Gps> Gps;
 
         [ProtoMember]
-        public SerializableBoundingBoxD WorldBoundaries;
+        public SerializableBoundingBoxD? WorldBoundaries;
         public bool ShouldSerializeWorldBoundaries()
         {
-            // Prevent this from appearing in SE checkpoints.
-            return WorldBoundaries.Min != Vector3D.Zero ||
-                   WorldBoundaries.Max != Vector3D.Zero;
+            return WorldBoundaries.HasValue;
         }
 
         [ProtoMember]

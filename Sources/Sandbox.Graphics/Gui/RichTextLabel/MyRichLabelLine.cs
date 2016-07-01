@@ -43,7 +43,7 @@ namespace Sandbox.Graphics.GUI
             Vector2 newSize = new Vector2(0f, m_minLineHeight);
             foreach (MyRichLabelPart part in m_parts)
             {
-                Vector2 partSize = part.GetSize();
+                Vector2 partSize = part.Size;
                 newSize.Y = Math.Max(partSize.Y, newSize.Y);
                 newSize.X += partSize.X;
             }
@@ -61,7 +61,7 @@ namespace Sandbox.Graphics.GUI
             float centerY = position.Y + m_size.Y / 2f;
             foreach (MyRichLabelPart part in m_parts)
             {
-                Vector2 partSize = part.GetSize();
+                Vector2 partSize = part.Size;
                 actualPosition.Y = centerY - partSize.Y / 2f;
 
                 if ((actualPosition.Y + m_size.Y) < 0)
@@ -80,14 +80,26 @@ namespace Sandbox.Graphics.GUI
             return true;
         }
 
-        public Vector2 GetSize()
+        public Vector2 Size
         {
-            return m_size;
+            get { return m_size; }
         }
 
         public bool IsEmpty()
         {
             return m_parts.Count == 0;
+        }
+
+        public String DebugText
+        {
+            get
+            {
+                StringBuilder builder = new StringBuilder();
+                foreach (MyRichLabelPart part in m_parts)
+                    part.AppendTextTo(builder);
+
+                return builder.ToString();
+            }
         }
 
         public bool HandleInput(Vector2 position)
@@ -96,7 +108,7 @@ namespace Sandbox.Graphics.GUI
             {
                 if (part.HandleInput(position))
                     return true;
-                position.X += part.GetSize().X;
+                position.X += part.Size.X;
             }
             return false;
         }

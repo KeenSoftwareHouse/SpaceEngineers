@@ -673,21 +673,21 @@ namespace Sandbox.Graphics.GUI
                 return captureInput;
             }
 
-            if (!Enabled || !HandleMouse)
+            if (!Enabled)
                 return captureInput;
-
-            var oldMouseOverIndex = MouseOverIndex;
-            MouseOverIndex = (HandleMouse) ? ComputeIndex(MyGuiManager.MouseCursorPosition) : INVALID_INDEX;
-            if (oldMouseOverIndex != MouseOverIndex && Enabled && MouseOverIndex != INVALID_INDEX)
-            {
-                MyGuiSoundManager.PlaySound(GuiSounds.MouseOver);
-            }
 
             if (!IsMouseOver)
             {
                 //User moved mouse from toolbar area. Try to trigger any pending clicks registered
                 TryTriggerSingleClickEvent();
                 return captureInput;
+            }
+
+            var oldMouseOverIndex = MouseOverIndex;
+            MouseOverIndex = IsMouseOver ? ComputeIndex(MyGuiManager.MouseCursorPosition) : INVALID_INDEX;
+            if (oldMouseOverIndex != MouseOverIndex && Enabled && MouseOverIndex != INVALID_INDEX)
+            {
+                MyGuiSoundManager.PlaySound(GuiSounds.MouseOver);
             }
 
             HandleNewMousePress(ref captureInput);

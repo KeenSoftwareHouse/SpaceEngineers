@@ -21,6 +21,10 @@ namespace VRage.Audio
 {
     public class MyXAudio2 : IMyAudio
     {
+        VoiceSendDescriptor[] m_gameAudioVoiceDesc;
+        VoiceSendDescriptor[] m_musicAudioVoiceDesc;
+        VoiceSendDescriptor[] m_hudAudioVoiceDesc;
+
         MyAudioInitParams m_initParams;
 
         XAudio2 m_audioEngine;
@@ -29,9 +33,6 @@ namespace VRage.Audio
         SubmixVoice m_gameAudioVoice;
         SubmixVoice m_musicAudioVoice;
         SubmixVoice m_hudAudioVoice;
-        VoiceSendDescriptor[] m_gameAudioVoiceDesc;
-        VoiceSendDescriptor[] m_musicAudioVoiceDesc;
-        VoiceSendDescriptor[] m_hudAudioVoiceDesc;
 
         MyCueBank m_cueBank;
         MyEffectBank m_effectBank;
@@ -154,7 +155,7 @@ namespace VRage.Audio
             }
 
             // Init/reinit engine
-            m_audioEngine = new XAudio2();
+            m_audioEngine = new XAudio2(XAudio2Version.Version27);
 
             // A way to disable SharpDX callbacks
             //var meth = m_audioEngine.GetType().GetMethod("UnregisterForCallbacks_", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -193,15 +194,17 @@ namespace VRage.Audio
                 }
             }
 
-            m_masterVoice = new MasteringVoice(m_audioEngine, deviceIndex: m_deviceNumber);
+            m_masterVoice = new MasteringVoice(m_audioEngine, 0, 0, m_deviceNumber);
             
             if (m_useVolumeLimiter)
             {
-                var limiter = new SharpDX.XAPO.Fx.MasteringLimiter();
+                var limiter = new SharpDX.XAPO.Fx.MasteringLimiter(m_audioEngine);
                 var param = limiter.Parameter;
                 param.Loudness = 0;
                 limiter.Parameter = param;
-                m_masterVoice.SetEffectChain(new EffectDescriptor[] { new EffectDescriptor(limiter) });
+                //TODO: this throws exception in 3.0.1 version
+                var effectDescriptor = new EffectDescriptor(limiter);
+                m_masterVoice.SetEffectChain(effectDescriptor);
                 m_soundLimiterReady = true;
                 m_masterVoice.DisableEffect(0);
                 //m_masterVoice.EnableEffect(0);
@@ -214,8 +217,7 @@ namespace VRage.Audio
                 m_calculateFlags |= CalculateFlags.RedirectToLfe;
             }
 
-            var masterDetails = m_masterVoice.VoiceDetails;
-
+			var masterDetails = m_masterVoice.VoiceDetails;
             m_gameAudioVoice = new SubmixVoice(m_audioEngine, masterDetails.InputChannelCount, masterDetails.InputSampleRate);
             m_musicAudioVoice = new SubmixVoice(m_audioEngine, masterDetails.InputChannelCount, masterDetails.InputSampleRate);
             m_hudAudioVoice = new SubmixVoice(m_audioEngine, masterDetails.InputChannelCount, masterDetails.InputSampleRate);

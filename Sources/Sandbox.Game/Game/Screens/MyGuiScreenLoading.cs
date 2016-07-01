@@ -393,7 +393,7 @@ namespace Sandbox.Game.Gui
                 //  Random background texture
                 Rectangle backgroundRectangle;
                 MyGuiManager.GetSafeHeightFullScreenPictureSize(MyGuiConstants.LOADING_BACKGROUND_TEXTURE_REAL_SIZE, out backgroundRectangle);
-                MyGuiManager.DrawSpriteBatch(m_backgroundScreenTexture, backgroundRectangle, new Color(new Vector4(0.95f, 0.95f, 0.95f, m_transitionAlpha)));
+                MyGuiManager.DrawSpriteBatch(m_backgroundScreenTexture, backgroundRectangle, new Color(new Vector4(1f, 1f, 1f, m_transitionAlpha)));
                 MyGuiManager.DrawSpriteBatch(MyGuiConstants.TEXTURE_BACKGROUND_FADE, backgroundRectangle, new Color(new Vector4(1f, 1f, 1f, m_transitionAlpha)));
 
                 //  Game logo

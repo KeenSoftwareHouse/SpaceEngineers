@@ -18,6 +18,7 @@ using System.Threading;
 
 using Sandbox.Game.Entities;
 
+using Sandbox.Game.Entities.Planet;
 using VRage.Voxels;
 
 namespace Sandbox.Game.Components
@@ -32,13 +33,12 @@ namespace Sandbox.Game.Components
             m_planet = voxelMap;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             var minCorner = m_planet.PositionLeftBottomCorner;
-            if (MyDebugDrawSettings.DEBUG_DRAW_PLANET_SECTORS)
-            {
-                m_planet.DebugDrawEnviromentSectors();
-            }
+
+            m_planet.Components.Get<MyPlanetEnvironmentComponent>().DebugDraw();
+
             m_planet.DebugDrawPhysics();
 
             if (MyDebugDrawSettings.DEBUG_DRAW_VOXEL_MAP_AABB)
@@ -111,7 +111,6 @@ namespace Sandbox.Game.Components
                     }
                 }
             }
-            return true;
         }
     }
 }

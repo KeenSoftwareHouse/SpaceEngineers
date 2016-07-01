@@ -15,6 +15,9 @@ namespace VRage.Game.ModAPI
         IMyFaction TryGetFactionById(long factionId);
         IMyFaction TryGetPlayerFaction(long playerId);
 
+        IMyFaction TryGetFactionByTag(string tag);
+        IMyFaction TryGetFactionByName(string name);
+
         [Obsolete("Use SendJoinRequest instead, this will be removed in future")]
         void AddPlayerToFaction(long playerId, long factionId);
 

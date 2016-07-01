@@ -608,10 +608,10 @@ namespace Sandbox.Game.Entities.Cube
                 m_block = b;
             }
 
-            public override bool DebugDraw()
+            public override void DebugDraw()
             {
                 if (!MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS || m_block.MountPoints == null)
-                    return true;
+                    return;
                 //var cube = BoundingBox.CreateInvalid();
                 //for (int i = 0; i < m_block.OriginalBlocks.Count; i++)
                 //{
@@ -629,7 +629,6 @@ namespace Sandbox.Game.Entities.Cube
                 MatrixD m = m_block.CubeGrid.PositionComp.WorldMatrix;
                 m.Translation = m_block.CubeGrid.GridIntegerToWorld(m_block.Position);
                 MyCubeBuilder.DrawMountPoints(m_block.CubeGrid.GridSize, m_block.BlockDefinition, m, m_block.MountPoints.ToArray());
-                return true;
             }
 
             public override void DebugDrawInvalidTriangles()

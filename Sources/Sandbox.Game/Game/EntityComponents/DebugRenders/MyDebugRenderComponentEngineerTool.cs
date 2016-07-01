@@ -21,7 +21,7 @@ namespace Sandbox.Game.Components
         {
             m_tool = tool;
         }
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
            // if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
               //  m_tool.Sensor.DebugDraw();
@@ -32,8 +32,6 @@ namespace Sandbox.Game.Components
             }
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
                 VRageRender.MyRenderProxy.DebugDrawSphere(m_tool.GunBase.GetMuzzleWorldPosition(), 0.01f, Color.Green, 1.0f, false);
-
-            return true;
         }
 
     }

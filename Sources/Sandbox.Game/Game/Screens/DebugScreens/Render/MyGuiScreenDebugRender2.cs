@@ -40,6 +40,7 @@ namespace Sandbox.Game.Gui
                 AddCheckBox("Base color", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferColor));
                 AddCheckBox("Base color linear", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferColorLinear));
                 AddCheckBox("Normals", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferNormal));
+                AddCheckBox("Normals view", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferNormalView));
                 AddCheckBox("Glossiness", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferGlossiness));
                 AddCheckBox("Metalness", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayGbufferMetalness));
                 AddCheckBox("NDotL", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayNDotL));
@@ -48,13 +49,11 @@ namespace Sandbox.Game.Gui
                 AddCheckBox("Emissive", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayEmissive));
                 AddCheckBox("Edge mask", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayEdgeMask));
 
-                m_currentPosition.Y += 0.01f;
                 AddLabel("Environment light", Color.Yellow.ToVector4(), 1.2f);
                 AddCheckBox("Ambient diffuse", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAmbientDiffuse));
                 AddCheckBox("Ambient specular", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAmbientSpecular));
                 AddCheckBox("Wireframe", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Wireframe));
 
-                m_currentPosition.Y += 0.01f;
                 AddLabel("Scene objects", Color.Yellow.ToVector4(), 1.2f);
                 AddCheckBox("Draw IDs", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayIDs));
                 AddCheckBox("Draw AABBs", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayAabbs));
@@ -67,9 +66,6 @@ namespace Sandbox.Game.Gui
                 AddCheckBox("Wireframe", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.Wireframe));
             }
 
-            
-
-            m_currentPosition.Y += 0.01f;
             AddLabel("Internal", Color.Yellow.ToVector4(), 1.2f);
             AddCheckBox("Enable multithreading", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.EnableParallelRendering));
             AddCheckBox("Amortize workload", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.AmortizeBatchWork));

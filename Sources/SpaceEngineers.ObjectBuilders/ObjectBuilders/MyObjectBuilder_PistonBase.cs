@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
+using VRage;
 using VRage.Game;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
@@ -14,29 +16,27 @@ namespace Sandbox.Common.ObjectBuilders
     [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_PistonBase : MyObjectBuilder_FunctionalBlock
     {
-        [ProtoMember]
         public float Velocity = -0.1f;
 
-        [ProtoMember]
         public float? MaxLimit;
 
-        [ProtoMember]
         public float? MinLimit;
 
-        [ProtoMember]
         public bool Reverse;
 
-        [ProtoMember]
         public long? TopBlockId;
 
-        [ProtoMember]
         public float CurrentPosition;
 
-        [ProtoMember]
-        public float weldSpeed = 95f;
+        [XmlElement(ElementName = "weldSpeed")]
+        public float WeldSpeed = 95f;
 
-        [ProtoMember]
-        public bool forceWeld = false;
+        [XmlElement(ElementName = "forceWeld")]
+        public bool ForceWeld = false;
+
+        public bool IsWelded = false;
+
+        public MyPositionAndOrientation? MasterToSlaveTransform;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

@@ -170,6 +170,17 @@ namespace VRage
             return id & 0x00FFFFFFFFFFFFFF;
         }
 
+        /**
+         * Construct an ID using the hash from a string.
+         */
+        public static long ConstructIdFromString(ID_OBJECT_TYPE type, string uniqueString)
+        {
+            Debug.Assert(!string.IsNullOrEmpty(uniqueString), "Unique string was incorrect!");
+            long eid = uniqueString.GetHashCode64();
+            eid = (eid >> 8) + eid + (eid << 13);
+            return (eid & 0x00FFFFFFFFFFFFFF) | ((long)type << 56);
+        }
+
         public static long ConstructId(ID_OBJECT_TYPE type, long uniqueNumber)
         {
             Debug.Assert(((ulong)uniqueNumber & 0xFF00000000000000) == 0, "Unique number was incorrect!");

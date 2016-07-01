@@ -8,5 +8,5 @@ void __pixel_shader(PostprocessVertex vertex, out float4 output : SV_Target0)
     float depth = DepthBuffer.Load(vertex.position.xy, 0);
 #endif
 
-    output = depth;
+    output = depth * 5;
 }

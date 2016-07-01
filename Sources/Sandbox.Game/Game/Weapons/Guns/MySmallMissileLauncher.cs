@@ -27,7 +27,7 @@ using MyGuiConstants = Sandbox.Graphics.GUI.MyGuiConstants;
 using Sandbox.ModAPI.Interfaces;
 using System.Diagnostics;
 using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage.ModAPI;
 using VRage.Utils;
@@ -677,7 +677,7 @@ namespace Sandbox.Game.Weapons
 
         #endregion
 
-        bool IMySmallMissileLauncher.UseConveyorSystem { get { return m_useConveyorSystem; } }
+        bool ModAPI.Ingame.IMySmallMissileLauncher.UseConveyorSystem { get { return m_useConveyorSystem; } }
 
         public override bool CanOperate()
         {

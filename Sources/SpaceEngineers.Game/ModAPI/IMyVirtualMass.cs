@@ -1,9 +1,11 @@
-﻿namespace SpaceEngineers.Game.ModAPI
+﻿using Sandbox.ModAPI;
+
+namespace SpaceEngineers.Game.ModAPI
 {
     /// <summary>
     /// ModAPI VirtualMass Interface
     /// </summary>
-    interface IMyVirtualMass : Ingame.IMyVirtualMass
+    public interface IMyVirtualMass : IMyFunctionalBlock, Ingame.IMyVirtualMass
     {
     }
 }

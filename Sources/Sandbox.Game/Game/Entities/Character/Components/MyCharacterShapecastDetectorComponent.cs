@@ -112,6 +112,7 @@ namespace Sandbox.Game.Entities.Character
             HitPosition = Vector3D.Zero;
             HitNormal = Vector3.Zero;
             HitMaterial = MyStringHash.NullOrEmpty;
+            HitTag = null;
             m_hits.Clear();
 
             Vector3 interactivePosition = Vector3D.Zero;
@@ -122,6 +123,13 @@ namespace Sandbox.Game.Entities.Character
 
                 MyPhysics.CastShapeReturnContactBodyDatas(to, shape, ref matrix, 0, 0f, m_hits);
 
+                m_hits.Sort(delegate(MyPhysics.HitInfo info1, MyPhysics.HitInfo info2)
+                {
+                    float dot1 = Vector3.Dot(head.Forward, Vector3.Normalize(info1.Position - StartPosition));
+                    float dot2 = Vector3.Dot(head.Forward, Vector3.Normalize(info2.Position - StartPosition));
+                    return dot1.CompareTo(dot2);
+                });
+                
                 if (m_hits.Count > 0)
                 {
 
@@ -132,10 +140,15 @@ namespace Sandbox.Game.Entities.Character
 
                     do
                     {
-                        IMyEntity entity = null;
                         HkRigidBody body = m_hits[index].HkHitInfo.Body;
-                        isValidBlock = body != null && (entity = m_hits[index].HkHitInfo.GetHitEntity()) != null
-                            && entity != Character && !body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
+                        IMyEntity entity = m_hits[index].HkHitInfo.GetHitEntity();
+
+                        if (entity is VRage.Game.Entity.MyEntitySubpart)
+                        {
+                            entity = entity.Parent;
+                        }
+
+                        isValidBlock = body != null && entity != null && entity != Character && !body.HasProperty(HkCharacterRigidBody.MANIPULATED_OBJECT);
 
                         isPhysicalBlock = entity != null && entity.Physics != null;
 
@@ -187,17 +200,26 @@ namespace Sandbox.Game.Entities.Character
                 // Do accurate collision checking on model
                 if (doModelIntersection)
                 {
-                    var grid = hitEntity as MyCubeGrid;
-                    if (grid != null)
+                    LineD line = new LineD(from, to);
+                    var character = hitEntity as MyCharacter;
+                    if (character == null)
                     {
-                        LineD line = new LineD(from, to);
-
                         MyIntersectionResultLineTriangleEx? result;
-                        bool success = grid.GetIntersectionWithLine(ref line, out result);
+                        bool success = hitEntity.GetIntersectionWithLine(ref line, out result, IntersectionFlags.ALL_TRIANGLES);
                         if (success)
                         {
                             HitPosition = result.Value.IntersectionPointInWorldSpace;
                             HitNormal = result.Value.NormalInWorldSpace;
+                        }
+                    }
+                    else
+                    {
+                        bool success = character.GetIntersectionWithLine(ref line, ref CharHitInfo);
+                        if (success)
+                        {
+                            HitPosition = CharHitInfo.Triangle.IntersectionPointInWorldSpace;
+                            HitNormal = CharHitInfo.Triangle.NormalInWorldSpace;
+                            HitTag = CharHitInfo;
                         }
                     }
                 }

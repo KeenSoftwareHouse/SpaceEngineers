@@ -1,7 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {

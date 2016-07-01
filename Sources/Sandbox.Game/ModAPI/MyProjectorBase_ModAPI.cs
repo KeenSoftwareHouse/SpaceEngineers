@@ -24,9 +24,9 @@ namespace Sandbox.Game.Entities.Blocks
             return CanBuild( (MySlimBlock)projectedBlock, checkHavokIntersections );
         }
 
-        void IMyProjector.Build( IMySlimBlock cubeBlock, long owner, long builder )
+        void IMyProjector.Build( IMySlimBlock cubeBlock, long owner, long builder, bool requestInstant )
         {
-            Build( (MySlimBlock)cubeBlock, owner, builder );
+            Build( (MySlimBlock)cubeBlock, owner, builder, requestInstant );
         }
 
         #region Ingame

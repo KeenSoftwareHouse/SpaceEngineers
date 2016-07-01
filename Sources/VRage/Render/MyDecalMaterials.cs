@@ -8,47 +8,50 @@ namespace VRageRender
 {
     public static class MyDecalMaterials
     {
-        private static Dictionary<MyDecalMaterialId, MyDecalMaterial> m_decalMaterials = new Dictionary<MyDecalMaterialId, MyDecalMaterial>();
+        private static Dictionary<string, List<MyDecalMaterial>> m_decalMaterials = new Dictionary<string, List<MyDecalMaterial>>();
 
         public static void AddDecalMaterial(MyDecalMaterial decalMaterial)
         {
-            var decalMatId = new MyDecalMaterialId() { Target = decalMaterial.Target.String, Source = decalMaterial.Source.String };
-            m_decalMaterials[decalMatId] = decalMaterial;
-        }
-
-        public static bool TryGetDecalMaterial(string target, string source, out MyDecalMaterial decalMaterial)
-        {
-            var decalMatId = new MyDecalMaterialId() { Target = target, Source = source };
-            return TryGetDecalMaterial(decalMatId, out decalMaterial);
-        }
-
-        private static bool TryGetDecalMaterial(MyDecalMaterialId decalMatId, out MyDecalMaterial decalMaterial)
-        {
-            bool found = m_decalMaterials.TryGetValue(decalMatId, out decalMaterial);
-            if (found)
-                return true;
-
-            if (decalMatId.Target != String.Empty)
+            List<MyDecalMaterial> materials;
+            bool found = m_decalMaterials.TryGetValue(decalMaterial.StringId, out materials);
+            if (!found)
             {
-                // First fallback: try to find a source specific decal material
-                MyDecalMaterialId temp = decalMatId;
-                temp.Target = String.Empty;
-                found = m_decalMaterials.TryGetValue(temp, out decalMaterial);
-                if (found)
-                    return true;
+                materials = new List<MyDecalMaterial>();
+                m_decalMaterials[decalMaterial.StringId] = materials;
             }
 
-            if (decalMatId.Source != String.Empty)
-            {
-                // First fallback: try to find a target specific decal material
-                MyDecalMaterialId temp = decalMatId;
-                temp.Source = String.Empty;
-                found = m_decalMaterials.TryGetValue(temp, out decalMaterial);
-                if (found)
-                    return true;
-            }
+            materials.Add(decalMaterial);
+        }
 
-            return false;
+        public static void ClearMaterials()
+        {
+            m_decalMaterials.Clear();
+        }
+
+        public static bool TryGetDecalMaterial(string source, string target, out IReadOnlyList<MyDecalMaterial> decalMaterials)
+        {
+            List<MyDecalMaterial> temp;
+            bool found = TryGetDecalMateriald(source, target, out temp);
+            decalMaterials = temp;
+            return found;
+        }
+
+        private static bool TryGetDecalMateriald(string source, string target, out List<MyDecalMaterial> decalMaterial)
+        {
+            string decalMatId = GetStringId(source, target);
+            return m_decalMaterials.TryGetValue(decalMatId, out decalMaterial);
+        }
+
+        public static string GetStringId(string source, string target)
+        {
+            return (String.IsNullOrEmpty(source) ? "NULL" : source) + "_"
+                + (String.IsNullOrEmpty(target) ? "NULL" : target);
+        }
+
+        public static string GetStringId(MyStringHash source, MyStringHash target)
+        {
+            return (source == MyStringHash.NullOrEmpty ? "NULL" : source.String) + "_"
+                + (target == MyStringHash.NullOrEmpty ? "NULL" : target.String);
         }
     }
 }

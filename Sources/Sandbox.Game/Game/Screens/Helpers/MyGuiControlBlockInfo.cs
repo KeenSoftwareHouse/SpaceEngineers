@@ -32,6 +32,7 @@ namespace Sandbox.Graphics.GUI
 			public MyFontEnum ComponentsLabelFont;
 			public MyStringId InstalledRequiredLabelText;
 			public MyFontEnum InstalledRequiredLabelFont;
+            public MyStringId RequiredAvailableLabelText;
 			public MyStringId RequiredLabelText;
 			public MyFontEnum IntegrityLabelFont;
 			public Vector4 IntegrityBackgroundColor;
@@ -293,11 +294,22 @@ namespace Sandbox.Graphics.GUI
 
             var titleHeight = 0.072f * baseScale;
 
-            Vector2 borderGap = new Vector2(0.0055f) * new Vector2(0.75f, 1) * baseScale;
+            Vector2 borderGap = new Vector2(0.0035f) * new Vector2(0.75f, 1) * baseScale;
             if (!m_progressMode)
-                borderGap.Y *= 0.5f;
+                borderGap.Y *= 1.0f;
 
-            m_installedRequiredLabel.TextToDraw = MyTexts.Get(BlockInfo.BlockIntegrity > 0 ? m_style.InstalledRequiredLabelText : m_style.RequiredLabelText);
+            if (BlockInfo.BlockIntegrity > 0)
+            {
+                m_installedRequiredLabel.TextToDraw = MyTexts.Get(m_style.InstalledRequiredLabelText);
+            }
+            else if (BlockInfo.ShowAvailable)
+            {
+                m_installedRequiredLabel.TextToDraw = MyTexts.Get(m_style.RequiredAvailableLabelText);
+            }
+            else
+            {
+                m_installedRequiredLabel.TextToDraw = MyTexts.Get(m_style.RequiredLabelText);
+            }
 
             m_leftColumnBackground.ColorMask = m_style.LeftColumnBackgroundColor;
             m_leftColumnBackground.Position = topleft + borderGap;
@@ -313,7 +325,7 @@ namespace Sandbox.Graphics.GUI
             {
                 m_titleBackground.Position = topleft + borderGap;
             }
-            m_titleBackground.Size = new Vector2(topRight.X - m_titleBackground.Position.X - (m_progressMode ? borderGap.X : 0), 0.101f * baseScale);
+            m_titleBackground.Size = new Vector2(topRight.X - m_titleBackground.Position.X - borderGap.X, 0.100f * baseScale);
             m_titleBackground.BackgroundTexture = MyGuiConstants.TEXTURE_GUI_BLANK;
 
             Vector2 separatorPos;
@@ -422,8 +434,13 @@ namespace Sandbox.Graphics.GUI
                 m_blockNameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
                 //m_blockNameLabel.Position = m_blockIconPanel.Position + m_blockIconPanel.Size + new Vector2(0.004f, 0);
                 m_blockNameLabel.Position = m_blockIconImage.Position + m_blockIconImage.Size + new Vector2(0.004f, 0);
-               
-                
+                if (!m_style.EnableBlockTypeLabel)
+                {
+                    m_blockNameLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
+                    m_blockNameLabel.Position -= new Vector2(0f, m_blockIconImage.Size.Y * 0.5f);
+                }
+
+
                 m_blockTypeLabel.Visible = true;
                 m_blockTypeLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
                 m_blockTypeLabel.TextScale = m_smallerFontSize * baseScale;
@@ -459,7 +476,7 @@ namespace Sandbox.Graphics.GUI
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             if (BlockInfo != null)
-            {
+            {              
                 EnsureLineControls(BlockInfo.Components.Count);
 
                 Reposition();
@@ -511,6 +528,12 @@ namespace Sandbox.Graphics.GUI
 							if (m_style.ShowAvailableComponents)
 								m_componentLines[i].NumbersLabel.TextToDraw.Append(" / ").AppendInt32(info.AvailableAmount);
 						}
+                        else if (BlockInfo.ShowAvailable)
+						{
+                            m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.TotalCount);
+                            if (m_style.ShowAvailableComponents)
+                                m_componentLines[i].NumbersLabel.TextToDraw.Append(" / ").AppendInt32(info.AvailableAmount);
+						}
 						else
 						{
 							m_componentLines[i].NumbersLabel.TextToDraw.AppendInt32(info.TotalCount);
@@ -533,6 +556,21 @@ namespace Sandbox.Graphics.GUI
 
                 //m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcons[0]);
                 m_blockIconImage.Textures = BlockInfo.BlockIcons;
+
+                Reposition();
+
+                if (BlockInfo.Components.Count == 0)
+                {
+                    m_separator.Visible = false;
+                    m_installedRequiredLabel.Visible = false;
+                    m_componentsLabel.Visible = false;
+                }
+                else
+                {
+                    m_separator.Visible = true;
+                    m_installedRequiredLabel.Visible = true;
+                    m_componentsLabel.Visible = true;
+                }
             }
 
             base.Draw(transitionAlpha, backgroundTransitionAlpha);

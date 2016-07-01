@@ -145,9 +145,8 @@ namespace Sandbox.Game.ParticleEffects
                     {
                         m_playedOnce = true;
                         m_canBeDeleted = !MyParticlesManager.TryCreateParticleEffect(m_particleId, out m_effect);
-                        if (m_effect != null && m_originPoint != null)
+                        if (m_effect != null)
                         {
-                            m_effect.AutoDelete = false;
                             m_effect.WorldMatrix = m_entity.WorldMatrix;
                         }
                         if (m_spawnTimeMax > 0f)
@@ -162,7 +161,7 @@ namespace Sandbox.Game.ParticleEffects
                 if (m_effect != null)
                 {
                     float time = m_effect.GetElapsedTime();
-                    if (time >= m_effect.Length || (m_duration > 0f && time >= m_duration))
+                    if (m_duration > 0f && time >= m_duration)
                     {
                         m_effect.Stop();
                     }

@@ -634,19 +634,20 @@ namespace Sandbox.Game.Components
 
             foreach (var reqItem in definition.Prerequisites)
             {
-                var amountToRemove = reqItem.Amount * amountMult;
-                var itemId = reqItem.Id;
+                MyFixedPoint amountToRemove = reqItem.Amount * amountMult;
+                MyDefinitionId itemId = reqItem.Id;
                 MyFixedPoint removed = 0;
 
                 if (MySessionComponentEquivalency.Static != null && MySessionComponentEquivalency.Static.HasEquivalents(itemId))
                 {
+                    MyFixedPoint amountRemaining = amountToRemove;
                     var eqGroup = MySessionComponentEquivalency.Static.GetEquivalents(itemId);
                     foreach (var element in eqGroup)
                     {
-                        if (removed == amountToRemove)
-                            continue;
-
-                        removed += inventory.RemoveItemsOfType(amountToRemove, element);
+                        MyFixedPoint removedThisItem = inventory.RemoveItemsOfType(amountRemaining, element);
+                        amountRemaining -= removedThisItem;
+                        removed += removedThisItem;
+                        if (amountRemaining == 0) break;
                     }
                 }
                 else

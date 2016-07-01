@@ -294,7 +294,7 @@ namespace Sandbox.Engine.Voxels
 
         private static MyVoxelOperationsSessionComponent OperationsComponent
         {
-            get { return MySession.Static.GetSessionComponent<MyVoxelOperationsSessionComponent>(); }
+            get { return MySession.Static.GetComponent<MyVoxelOperationsSessionComponent>(); }
         }
 
         public bool CachedWrites

@@ -82,51 +82,52 @@ namespace Sandbox.Game.World
                 var currentCharacter = controlledEntity as MyCharacter;
 
                 float characterFlyingMaxSpeed = MyGridPhysics.ShipMaxLinearVelocity();
-                
+
                 if (currentCharacter != null && currentCharacter.Physics != null && currentCharacter.Physics.CharacterProxy != null)
                 {
                     characterFlyingMaxSpeed = currentCharacter.Physics.CharacterProxy.CharacterFlyingMaxLinearVelocity();
                 }
-                              
+
                 Vector3 halfExtents = Vector3.One * m_particleSpawnDistance;
                 if (speed / characterFlyingMaxSpeed > 1.0f)
                     halfExtents += 10.0f * velocity / characterFlyingMaxSpeed;
-              
-				var entityTranslation = MySector.MainCamera.Position;
-				var searchPosition = entityTranslation + velocity;
 
-                MyPlanet planet = MyGravityProviderSystem.GetStrongestGravityWell(MySector.MainCamera.Position);
+                var entityTranslation = MySector.MainCamera.Position;
+                var searchPosition = entityTranslation + velocity;
 
-                if(planet == null || !planet.IsPositionInGravityWell(MySector.MainCamera.Position))
+                MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(MySector.MainCamera.Position);
+
+                if (planet == null)
                     return;
 
+                // TODO: Re-do this using new system.
 			    Vector3D cameraPosition = MySector.MainCamera.Position;
-                var foundEnvironmentItems = planet.GetEnvironmentItemsAtPosition(ref cameraPosition);
+                //var foundEnvironmentItems = planet.GetEnvironmentItemsAtPosition(ref cameraPosition);
 
-                foreach(var environmentItems in foundEnvironmentItems)
-                    environmentItems.GetAllItemsInRadius(searchPosition, m_particleSpawnDistance, m_tmpItemInfos);
+                /*foreach (var environmentItems in foundEnvironmentItems)
+                    environmentItems.GetAllItemsInRadius(searchPosition, m_particleSpawnDistance, m_tmpItemInfos);*/
 
-				var spawnPosition = default(Vector3D);
-				bool spawnPositionFound = m_tmpItemInfos.Count != 0;
-				if (spawnPositionFound)
-				{
-					int selectedTreeIndex = MyRandom.Instance.Next(0, m_tmpItemInfos.Count - 1);
-					spawnPosition = m_tmpItemInfos[selectedTreeIndex].Transform.Position;
-					spawnPositionFound = true;
-				}
+                var spawnPosition = default(Vector3D);
+                bool spawnPositionFound = m_tmpItemInfos.Count != 0;
+                if (spawnPositionFound)
+                {
+                    int selectedTreeIndex = MyRandom.Instance.Next(0, m_tmpItemInfos.Count - 1);
+                    spawnPosition = m_tmpItemInfos[selectedTreeIndex].Transform.Position;
+                    spawnPositionFound = true;
+                }
                 else
-					return;
+                    return;
 
-				var spawnedParticle = Spawn(spawnPosition);
+                var spawnedParticle = Spawn(spawnPosition);
 
-				if (spawnedParticle == null)
-					return;
+                if (spawnedParticle == null)
+                    return;
 
-				InitializePath(spawnedParticle);
-			}
-			finally
-			{
-				m_bodyCollisions.Clear();
+                InitializePath(spawnedParticle);
+            }
+            finally
+            {
+                m_bodyCollisions.Clear();
                 m_tmpItemInfos.Clear();
 
 				ProfilerShort.End();

@@ -228,12 +228,14 @@ namespace VRageRender
             }
         }
 
-        internal void RecordCommands(MyRenderableProxy proxy, int section = -1)
+        internal void RecordCommands(MyRenderableProxy proxy)
         {
-            RecordCommandsInternal(proxy, section);
+            RecordCommandsInternal(proxy);
         }
 
-        protected virtual void RecordCommandsInternal(MyRenderableProxy proxy, int section) { }
+        protected virtual void RecordCommandsInternal(MyRenderableProxy proxy)
+        {
+        }
 
         internal void RecordCommands(ref MyRenderableProxy_2 proxy, int instance = -1, int section = -1)
         {

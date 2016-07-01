@@ -24,7 +24,7 @@ namespace VRageRender
             RC.SetDS(null);
         }
 
-        protected unsafe override sealed void RecordCommandsInternal(MyRenderableProxy proxy, int section)
+        protected unsafe override sealed void RecordCommandsInternal(MyRenderableProxy proxy)
         {
 			if ((proxy.Mesh.Buffers.IB == IndexBufferId.NULL && proxy.MergedMesh.Buffers.IB == IndexBufferId.NULL) ||
                 proxy.DrawSubmesh.IndexCount == 0 ||

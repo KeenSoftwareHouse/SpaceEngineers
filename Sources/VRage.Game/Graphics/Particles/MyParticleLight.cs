@@ -176,14 +176,14 @@ namespace VRage.Game
 
             m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight(
                VRageRender.LightTypeEnum.PointLight,
-               Vector3D.Transform(localPosition, m_effect.WorldMatrix),
+               Vector3D.Transform(localPosition * m_effect.GetEmitterScale(), m_effect.WorldMatrix),
                -1,
                0,
                color,
                color,
                1,
                0.75f,
-               range,
+               range * m_effect.GetEmitterScale(),
                intensity,
                true,
                false,
@@ -307,8 +307,10 @@ namespace VRage.Game
             IntensityVar.GetInterpolatedValue(m_effect.GetElapsedTime(), out intensityVar);
             float intensityRnd = MyUtils.GetRandomFloat(-intensityVar, intensityVar);
             intensity += intensityRnd;
+            if (m_effect.IsStopped)
+                intensity = 0;
 
-            Vector3D position = Vector3D.Transform(localPosition, m_effect.WorldMatrix);
+            Vector3D position = Vector3D.Transform(localPosition * m_effect.GetEmitterScale(), m_effect.WorldMatrix);
             if (m_position != position || created)
             {
                 m_position = position;
@@ -339,7 +341,7 @@ namespace VRage.Game
                 m_color,
                 1,
                 0.75f,
-                m_range,
+                m_range * m_effect.GetEmitterScale(),
                 m_intensity,
                 true,
                 true,
@@ -375,9 +377,8 @@ namespace VRage.Game
 
         public MyParticleLight CreateInstance(MyParticleEffect effect)
         {
-            MyParticleLight particleLight = MyParticlesManager.LightsPool.Allocate(true);
-            if (particleLight == null)
-                return null;
+            MyParticleLight particleLight;
+            MyParticlesManager.LightsPool.AllocateOrCreate(out particleLight);
 
             particleLight.Start(effect);
 
@@ -400,7 +401,8 @@ namespace VRage.Game
 
         public MyParticleLight Duplicate(MyParticleEffect effect)
         {
-            MyParticleLight particleLight = MyParticlesManager.LightsPool.Allocate();
+            MyParticleLight particleLight;
+            MyParticlesManager.LightsPool.AllocateOrCreate(out particleLight);
             particleLight.Start(effect);
 
             particleLight.Name = Name;
@@ -436,15 +438,47 @@ namespace VRage.Game
         public void Serialize(XmlWriter writer)
         {
             writer.WriteStartElement("ParticleLight");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("version", Version.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("Name", Name);
+            writer.WriteAttributeString("Version", Version.ToString(CultureInfo.InvariantCulture));
+
+            writer.WriteStartElement("Properties");
 
             foreach (IMyConstProperty property in m_properties)
             {
-                property.Serialize(writer);
-            }
+                writer.WriteStartElement("Property");
 
-            writer.WriteEndElement(); 
+                writer.WriteAttributeString("Name", property.Name);
+
+                writer.WriteAttributeString("Type", property.BaseValueType);
+
+                PropertyAnimationType animType = PropertyAnimationType.Const;
+                if (property.Animated)
+                    animType = property.Is2D ? PropertyAnimationType.Animated2D : PropertyAnimationType.Animated;
+                writer.WriteAttributeString("AnimationType", animType.ToString());
+
+                property.Serialize(writer);
+
+                writer.WriteEndElement();//property
+            }
+            writer.WriteEndElement();//properties
+
+            writer.WriteEndElement();//particle light
+        }
+
+        public void DeserializeFromObjectBuilder(ParticleLight light)
+        {
+            m_name = light.Name;
+
+            foreach (GenerationProperty property in light.Properties)
+            {
+                for (int i = 0; i < m_properties.Length; i++)
+                {
+                    if (m_properties[i].Name.Equals(property.Name))
+                    {
+                        m_properties[i].DeserializeFromObjectBuilder(property);
+                    }
+                }
+            }
         }
 
         public void Deserialize(XmlReader reader)

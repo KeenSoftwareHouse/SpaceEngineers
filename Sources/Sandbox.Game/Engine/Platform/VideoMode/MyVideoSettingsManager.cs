@@ -24,6 +24,7 @@ namespace Sandbox.Engine.Platform.VideoMode
         public bool EnableDamageEffects;
         public bool HardwareCursor;
         public float FieldOfView;
+        public float VegetationDrawDistance;
         public MyRenderSettings1 Render;
         public MyStringId GraphicsRenderer;
 
@@ -35,10 +36,11 @@ namespace Sandbox.Engine.Platform.VideoMode
         public bool Equals(ref MyGraphicsSettings other)
         {
             return HardwareCursor == other.HardwareCursor &&
-                FieldOfView == other.FieldOfView &&
-                EnableDamageEffects == other.EnableDamageEffects &&
-                Render.Equals(ref other.Render) &&
-                GraphicsRenderer == other.GraphicsRenderer;
+                   FieldOfView == other.FieldOfView &&
+                   EnableDamageEffects == other.EnableDamageEffects &&
+                   Render.Equals(ref other.Render) &&
+                   GraphicsRenderer == other.GraphicsRenderer &&
+                   VegetationDrawDistance == other.VegetationDrawDistance;
         }
     }
 
@@ -159,6 +161,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             m_currentGraphicsSettings.HardwareCursor               = config.HardwareCursor;
             m_currentGraphicsSettings.Render.InterpolationEnabled  = config.RenderInterpolation;
             m_currentGraphicsSettings.Render.GrassDensityFactor    = config.GrassDensityFactor;
+            m_currentGraphicsSettings.VegetationDrawDistance       = config.VegetationDrawDistance;
             m_currentGraphicsSettings.Render.AntialiasingMode      = config.AntialiasingMode ?? DEFAULT_ANTI_ALIASING;
             m_currentGraphicsSettings.Render.ShadowQuality         = config.ShadowQuality ?? DEFAULT_SHADOW_QUALITY;
             //m_currentGraphicsSettings.Render.TonemappingEnabled    = config.Tonemapping ?? DEFAULT_TONEMAPPING;
@@ -181,7 +184,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             int? videoAdapter = config.VideoAdapter;
             if (videoAdapter.HasValue && screenWidth.HasValue && screenHeight.HasValue)
             {
-                return new MyRenderDeviceSettings()
+                var settings = new MyRenderDeviceSettings()
                 {
                     AdapterOrdinal   = videoAdapter.Value,
                     BackBufferHeight = screenHeight.Value,
@@ -190,10 +193,16 @@ namespace Sandbox.Engine.Platform.VideoMode
                     VSync            = config.VerticalSync,
                     WindowMode       = config.WindowMode,
                 };
+                if (MyPerGameSettings.DefaultRenderDeviceSettings.HasValue)
+                {
+                    settings.UseStereoRendering = MyPerGameSettings.DefaultRenderDeviceSettings.Value.UseStereoRendering;
+                    settings.SettingsMandatory = MyPerGameSettings.DefaultRenderDeviceSettings.Value.SettingsMandatory;
+                }
+                return settings;
             }
             else
             {
-                return null;
+                return MyPerGameSettings.DefaultRenderDeviceSettings;
             }
         }
 
@@ -584,6 +593,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             config.Dx9RenderQuality    = MyRenderConstants.RenderQualityProfile.RenderQuality;
             config.FieldOfView         = m_currentGraphicsSettings.FieldOfView;
             config.GraphicsRenderer    = m_currentGraphicsSettings.GraphicsRenderer;
+            config.VegetationDrawDistance = m_currentGraphicsSettings.VegetationDrawDistance;
 
             // Don't want these to show up in configs for now
             var render = m_currentGraphicsSettings.Render;

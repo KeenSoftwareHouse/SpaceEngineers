@@ -51,6 +51,7 @@ namespace Sandbox.Definitions
             }
         }
 
+        public bool Transparent;
         public float Density;
         public float HorisontalTransmissionMultiplier;
         public float HorisontalFragility;
@@ -68,6 +69,7 @@ namespace Sandbox.Definitions
             if (materialBuilder != null)
             {
                 //MyDebug.AssertDebug(materialBuilder != null, "Initializing physical material definition using wrong object builder.");
+                Transparent = materialBuilder.Transparent;
                 Density = materialBuilder.Density;
                 HorisontalTransmissionMultiplier = materialBuilder.HorisontalTransmissionMultiplier;
                 HorisontalFragility = materialBuilder.HorisontalFragility;

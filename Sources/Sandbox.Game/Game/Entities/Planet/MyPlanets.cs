@@ -15,7 +15,7 @@ namespace Sandbox.Game.Entities.Planet
 
         private static MyPlanets Get()
         {
-            return MySession.Static.GetSessionComponent<MyPlanets>();
+            return MySession.Static.GetComponent<MyPlanets>();
         }
 
 
@@ -31,7 +31,8 @@ namespace Sandbox.Game.Entities.Planet
 
         public static List<MyPlanet> GetPlanets()
         {
-            return Get().m_planets;
+            var planets = Get();
+            return planets != null ? planets.m_planets : null;
         }
     }
 }

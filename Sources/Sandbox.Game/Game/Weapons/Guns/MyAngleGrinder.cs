@@ -26,13 +26,14 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Library.Utils;
 using Sandbox.Game.Audio;
+using Sandbox.ModAPI.Weapons;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_AngleGrinder))]
-    public class MyAngleGrinder : MyEngineerToolBase
+    public class MyAngleGrinder : MyEngineerToolBase, IMyAngleGrinder
     {
         private MySoundPair m_idleSound = new MySoundPair("ToolPlayGrindIdle");
         private MySoundPair m_actualSound = new MySoundPair("ToolPlayGrindMetal");

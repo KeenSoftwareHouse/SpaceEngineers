@@ -33,10 +33,11 @@ namespace Sandbox.Engine.Utils
 
         // Direction in which we are looking. View space.
         private readonly Vector3D m_lookAtDirection = Vector3D.Normalize(new Vector3D(0, 5, 12));
+        private readonly Vector3D m_lookAtDirectionCharacter = Vector3D.Normalize(new Vector3D(0, 0, 12));
         // Vertical camera offset (both target and viewer).
         private const float m_lookAtOffsetY = 0.0f;
         // Default camera distance.
-        private const double m_lookAtDefaultLength = 1;
+        private const double m_lookAtDefaultLength = 2.6f;
         // Default timeout in ms before zooming out.
         private int m_positionSafeZoomingOutDefaultTimeoutMs = 500;
 
@@ -157,7 +158,7 @@ namespace Sandbox.Engine.Utils
             //m_targetSpring = NormalSpring;
             m_currentSpring = new SpringInfo(NormalSpring);
 
-            m_lookAt = m_lookAtDirection * m_lookAtDefaultLength;
+            m_lookAt = m_lookAtDirectionCharacter * m_lookAtDefaultLength;
             m_clampedlookAt = m_lookAt;
 
             m_saveSettings = false;
@@ -191,7 +192,7 @@ namespace Sandbox.Engine.Utils
                 float localY = positionComp.LocalAABB.Max.Y - positionComp.LocalAABB.Min.Y;
                 Vector3D lastTarget = m_target;
                 var headMatrix = remotelyControlledEntity == null ? genericControlledEntity.GetHeadMatrix(true) : remotelyControlledEntity.Pilot.GetHeadMatrix(true);
-                m_target = controlledEntity is MyCharacter ? ((positionComp.GetPosition() + (localY + m_lookAtOffsetY) * positionComp.WorldMatrix.Up)) : headMatrix.Translation;
+                m_target = controlledEntity is MyCharacter ? ((positionComp.GetPosition() + (localY + m_lookAtOffsetY) * 1.2f * positionComp.WorldMatrix.Up)) : headMatrix.Translation;
                 m_targetOrientation = headMatrix.GetOrientation();
                 m_targetUpVec = m_positionCurrentIsSafe ? (Vector3D)m_targetOrientation.Up : positionComp.WorldMatrix.Up; // this is right and prevents z-rotation if in invalid position (during timeout before switching to 1st person)
                 m_transformedLookAt = Vector3D.Transform(m_clampedlookAt, m_targetOrientation);
@@ -285,7 +286,8 @@ namespace Sandbox.Engine.Utils
 
         private void SetPositionAndLookAt(Vector3D lookAt)
         {
-            m_lookAt = lookAt;
+            double dist = lookAt.Length();
+            m_lookAt = (MySession.Static == null || !(MySession.Static.CameraController is MyCharacter) ? m_lookAtDirection : m_lookAtDirectionCharacter) * dist;
 
             m_transformedLookAt = Vector3D.Transform(lookAt, m_targetOrientation);
             m_positionSafe = m_target + m_transformedLookAt;
@@ -632,7 +634,7 @@ namespace Sandbox.Engine.Utils
             // calculate offset for the 
             double projectedCenterToTarget = Vector3D.Dot(centerToTarget, backVec);
             double projectedHalfExtent = Math.Abs(Vector3D.Dot(localAABBHr.HalfExtents, backVec));
-            double finalLength = projectedHalfExtent - projectedCenterToTarget;
+            double finalLength = Math.Max(projectedHalfExtent - projectedCenterToTarget, m_lookAtDefaultLength);
 
             //Vector3D targetWithOffset = centerToTarget + (finalLength * backVec);
 
@@ -649,7 +651,7 @@ namespace Sandbox.Engine.Utils
 
             double clampDist = MathHelper.Clamp(offset, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
 
-            Vector3D lookAt = m_lookAtDirection * clampDist;
+            Vector3D lookAt = m_lookAtDirectionCharacter * clampDist;
 
             SetPositionAndLookAt(lookAt);
         }
@@ -719,7 +721,7 @@ namespace Sandbox.Engine.Utils
             if (!newDistance.HasValue)
                 return false;
             newDistance = MathHelper.Clamp(newDistance.Value, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
-            Vector3D lookAt = m_lookAtDirection * newDistance.Value;
+            Vector3D lookAt = ((MySession.Static != null && MySession.Static.ControlledEntity is MyCharacter) ? m_lookAtDirectionCharacter : m_lookAtDirection) * newDistance.Value;
             SetPositionAndLookAt(lookAt);
             m_disableSpringThisFrame = true;
             m_lastRaycastDist = (float)newDistance.Value;

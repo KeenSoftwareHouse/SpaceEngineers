@@ -17,6 +17,8 @@ using VRage.ModAPI;
 using VRage.Game.Entity;
 using Sandbox.Game.AI;
 using VRage.Game.ModAPI;
+using Sandbox.Game.Entities.Planet;
+using Sandbox.Game.WorldEnvironment;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -34,6 +36,15 @@ namespace Sandbox.Engine.Voxels
             {
                 m_transformation = value;
                 m_inverseIsDirty = true;
+            }
+        }
+
+        public MatrixD InverseTransformation
+        {
+            get
+            {
+                if (m_inverseIsDirty) MatrixD.Invert(ref m_transformation, out m_inverse);
+                return m_inverse;
             }
         }
 
@@ -665,7 +676,6 @@ namespace Sandbox.Engine.Voxels
 
             ProfilerShort.BeginNextBlock("Write");
 
-
             if (removedSum > 0 && !onlyCheck)
             {
                 //  Clear all small voxel that may have been created during explosion. They can be created even outside the range of
@@ -985,14 +995,14 @@ namespace Sandbox.Engine.Voxels
 
         private static void OnVoxelChanged(MyVoxelBase.OperationType type, MyVoxelBase voxelMap, MyShape shape)
         {
-            if (!Sync.IsServer)
-                return;
+            if (Sync.IsServer)
+            {
             BoundingBoxD cutOutBox = shape.GetWorldBoundaries();
             cutOutBox.Inflate(0.25);
 
             MyEntities.GetElementsInBox(ref cutOutBox, m_overlapList);
             // Check static grids around (possible change to dynamic)
-            if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL && MyFakes.ENABLE_BLOCKS_IN_VOXELS_TEST && MyStructuralIntegrity.Enabled)
+            if (/*MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL &&*/ MyFakes.ENABLE_BLOCKS_IN_VOXELS_TEST && MyStructuralIntegrity.Enabled)
             {
                 foreach (var entity in m_overlapList)
                 {
@@ -1010,14 +1020,18 @@ namespace Sandbox.Engine.Voxels
                 }
 
             }
+            }
             var voxelPhysics = voxelMap as MyVoxelPhysics;
             MyPlanet planet = voxelPhysics != null ? voxelPhysics.Parent : voxelMap as MyPlanet;
             if (planet != null)
             {
-                var center = cutOutBox.Center;
-                foreach (var environment in planet.GetEnvironmentItemsAtPosition(ref center))
+                var planetEnvironment = planet.Components.Get<MyPlanetEnvironmentComponent>();
+                if (planetEnvironment != null)
                 {
-                    environment.RemoveItemsAroundPoint(cutOutBox.Center, cutOutBox.HalfExtents.Max());
+                    var sectors = planetEnvironment.GetSectorsInRange(shape);
+                    if (sectors != null)
+                        foreach (var sector in sectors)
+                            sector.DisableItemsInShape(shape);
                 }
             }
             m_overlapList.Clear();

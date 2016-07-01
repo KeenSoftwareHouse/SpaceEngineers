@@ -7,7 +7,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AirtightHangarDoor))]
-    public class MyAirtightHangarDoor : MyAirtightDoorGeneric
+    public class MyAirtightHangarDoor : MyAirtightDoorGeneric, ModAPI.IMyAirtightHangarDoor
     {
 
         protected override void UpdateDoorPosition()

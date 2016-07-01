@@ -15,10 +15,11 @@ using VRage.Library.Collections;
 using Sandbox.ModAPI.Interfaces.Terminal;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.Game.Screens.Terminal.Controls;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync, IMyTerminalControlTextbox
+    public class MyTerminalControlTextbox<TBlock> : MyTerminalValueControl<TBlock, StringBuilder>, ITerminalControlSync, IMyTerminalControlTextbox
         where TBlock : MyTerminalBlock
     {
         public delegate StringBuilder GetterDelegate(TBlock block);
@@ -57,17 +58,6 @@ namespace Sandbox.Game.Gui
             Title = title;
             Tooltip = tooltip;
             Serializer = (s, sb) => s.Serialize(sb, ref m_tmpArray, Encoding.UTF8);
-        }
-
-        public StringBuilder GetValue(TBlock block)
-        {
-            return Getter(block);
-        }
-
-        public void SetValue(TBlock block, StringBuilder value)
-        {
-            Setter(block, value);
-            block.NotifyTerminalValueChanged(this);
         }
 
         public void Serialize(BitStream stream, MyTerminalBlock block)
@@ -122,6 +112,32 @@ namespace Sandbox.Game.Gui
                     m_textbox.TextChanged += m_textChanged;
                 }
             }
+        }
+
+        public override StringBuilder GetValue(TBlock block)
+        {
+            return Getter(block);
+        }
+
+        public override void SetValue(TBlock block, StringBuilder value)
+        {
+            Setter(block, new StringBuilder(value.ToString()));
+            block.NotifyTerminalValueChanged(this);
+        }
+
+        public override StringBuilder GetDefaultValue(TBlock block)
+        {
+            return new StringBuilder();
+        }
+
+        public override StringBuilder GetMinimum(TBlock block)
+        {
+            return new StringBuilder();
+        }
+
+        public override StringBuilder GetMaximum(TBlock block)
+        {
+            return new StringBuilder();
         }
 
         /// <summary>
@@ -191,22 +207,6 @@ namespace Sandbox.Game.Gui
             set
             {
                 Setter = new SetterDelegate(value);
-            }
-        }
-
-        string ITerminalProperty.Id
-        {
-            get
-            {
-                return Id;
-            }
-        }
-
-        string ITerminalProperty.TypeName
-        {
-            get
-            {
-                return typeof(TBlock).Name;
             }
         }
     }

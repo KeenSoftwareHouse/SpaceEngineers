@@ -87,7 +87,7 @@ namespace Sandbox.Game.Replication
 
         public static float EffectiveSimulationRatio
         {
-            get { return MyPerGameSettings.EnableMultiplayerVelocityCompensation ? MathHelper.Clamp(MyPhysics.SimulationRatio, 0.01f, 2) : 1.0f; }
+            get { return MathHelper.Clamp(MyPhysics.SimulationRatio, 0.01f, 2); }
         }
 
         protected MovedDelegate MoveHandler { get { return OnMoved; } }

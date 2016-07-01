@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDrawMesh : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawMesh : MyDebugRenderMessage
     {
         public uint ID;
         public Color Color;
@@ -45,7 +45,6 @@ namespace VRageRender
                 });
         }
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawMesh; } }
     }
 }

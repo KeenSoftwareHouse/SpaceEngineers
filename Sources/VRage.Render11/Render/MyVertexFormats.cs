@@ -298,4 +298,16 @@ namespace VRageRender.Vertex
 
         internal static unsafe int STRIDE = sizeof(MyVertexFormatPositionColor);
     }
+
+    struct MyVertexFormat2DPosition
+    {
+        internal Vector2 Position;
+
+        internal MyVertexFormat2DPosition(Vector2 position)
+        {
+            Position = position;
+        }
+
+        internal static unsafe int STRIDE = sizeof(MyVertexFormat2DPosition);
+    };
 }

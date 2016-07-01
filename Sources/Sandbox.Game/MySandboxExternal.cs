@@ -78,10 +78,10 @@ namespace Sandbox
 
             if (settings == null)
             {
-                settings = new MyRenderDeviceSettings(0, MyWindowModeEnum.Window, wnd.Control.ClientSize.Width, wnd.Control.ClientSize.Height, 0, false);
+                settings = new MyRenderDeviceSettings(0, MyWindowModeEnum.Window, wnd.Control.ClientSize.Width, wnd.Control.ClientSize.Height, 0, false, false, false);
             }
 
-            GameRenderComponent.StartSync(m_gameTimer, wnd, settings, MyRenderQualityEnum.NORMAL);
+            GameRenderComponent.StartSync(m_gameTimer, wnd, settings, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
             GameRenderComponent.RenderThread.SizeChanged += RenderThread_SizeChanged;
             GameRenderComponent.RenderThread.BeforeDraw += RenderThread_BeforeDraw;
 

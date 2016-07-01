@@ -605,6 +605,9 @@ namespace Sandbox.Game.Components
 
         public void UpdateLight(float lightPower, bool updateRenderObject)
         {
+            if (m_light == null)
+                return;
+
             if (lightPower <= 0.0f)
             {
                 m_light.ReflectorOn = false;
@@ -621,16 +624,13 @@ namespace Sandbox.Game.Components
                 UpdateLightPosition();
 
                 VRageRender.MyRenderProxy.UpdateModelProperties(
-                RenderObjectIDs[0],
-                0,
-                Model.AssetName,
-                -1,
-                "Light",
-                null,
-                null,
-                null,
-                null,
-                lightPower);
+                    RenderObjectIDs[0],
+                    0,
+                    -1,
+                    "Light",
+                    null,
+                    null,
+                    null);
 
                 UpdateLightProperties(lightPower);
             }

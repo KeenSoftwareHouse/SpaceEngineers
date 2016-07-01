@@ -1,9 +1,11 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using SharpDX.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Valve.VR;
 using System.IO;
 using VRage;
 using VRage.Utils;
@@ -11,6 +13,7 @@ using VRageMath;
 using VRageRender.Resources;
 using Matrix = VRageMath.Matrix;
 using Vector2 = VRageMath.Vector2;
+using VRage.OpenVRWrapper;
 
 namespace VRageRender
 {
@@ -67,10 +70,10 @@ namespace VRageRender
         }
         private static void ResetShadows(int cascadeCount, int cascadeResolution)
         {
-            if (DynamicShadows != null)
+            if(DynamicShadows != null)
                 DynamicShadows.Reset(cascadeCount, cascadeResolution);
             else
-                DynamicShadows = new MyShadows(cascadeCount, cascadeResolution);
+            DynamicShadows = new MyShadows(cascadeCount, cascadeResolution);
 
             if (StaticShadows != null)
                 StaticShadows.Reset(cascadeCount, cascadeResolution);
@@ -99,7 +102,42 @@ namespace VRageRender
 
         private static void SetupCameraMatrices(MyRenderMessageSetCameraViewMatrix message)
         {
-            var viewMatrixAt0 = message.ViewMatrix;
+            SetupCameraMatricesInternal(message, MyRender11.Environment, MyStereoRegion.FULLSCREEN);
+            if (MyStereoRender.Enable)
+            {
+                SetupCameraMatricesInternal(message, MyStereoRender.EnvMatricesLeftEye, MyStereoRegion.LEFT);
+                SetupCameraMatricesInternal(message, MyStereoRender.EnvMatricesRightEye, MyStereoRegion.RIGHT);
+            }
+        }
+
+        private static Matrix GetMatrixEyeTranslation(bool isLeftEye, Matrix view)
+        {
+            float Ipd_2 = 0.2f;
+            if (MyOpenVR.Static != null)
+                Ipd_2 = MyOpenVR.Ipd_2;
+
+            var invViewMatrix = Matrix.Transpose(view);
+            var eyePosition = (!isLeftEye ? invViewMatrix.Left : invViewMatrix.Right) * Ipd_2;
+            return Matrix.CreateTranslation(eyePosition);
+        }
+        
+        private static void SetupCameraMatricesInternal(MyRenderMessageSetCameraViewMatrix message, MyEnvironmentMatrices envMatrices, MyStereoRegion typeofEnv)
+        {//uses m_leftEye to handle HMD images
+
+            var viewMatrix = message.ViewMatrix;
+            var cameraPosition = message.CameraPosition;
+
+            if (MyStereoRender.Enable)
+            {
+                if (MyOpenVR.Static != null && message.LastMomentUpdateIndex != 0)
+                {
+                    MatrixD origin = MatrixD.Identity;
+                    MyOpenVR.LMUMatrixGetOrigin(ref origin, message.LastMomentUpdateIndex);
+                    viewMatrix = MatrixD.Invert(origin);
+                }
+            }
+
+            var viewMatrixAt0 = viewMatrix;
             viewMatrixAt0.M14 = 0;
             viewMatrixAt0.M24 = 0;
             viewMatrixAt0.M34 = 0;
@@ -108,46 +146,100 @@ namespace VRageRender
             viewMatrixAt0.M43 = 0;
             viewMatrixAt0.M44 = 1;
 
+            if (MyStereoRender.Enable)
+            {
+                if (MyOpenVR.Static != null)
+                {
+                    if (message.LastMomentUpdateIndex != 0)
+                    {
+                        var tViewMatrix = Matrix.Transpose(viewMatrix);
+                        var viewHMDat0 = MyOpenVR.ViewHMD;
+                        viewHMDat0.M14 = 0;
+                        viewHMDat0.M24 = 0;
+                        viewHMDat0.M34 = 0;
+                        viewHMDat0.M41 = 0;
+                        viewHMDat0.M42 = 0;
+                        viewHMDat0.M43 = 0;
+                        viewHMDat0.M44 = 1;
+
+                        //cameraPosition += tViewMatrix.Up * MyOpenVR.ViewHMD.Translation.Y;
+                        //cameraPosition += tViewMatrix.Backward * MyOpenVR.ViewHMD.Translation.X;
+                        //cameraPosition += tViewMatrix.Right * MyOpenVR.ViewHMD.Translation.Z;
+
+                        viewMatrixAt0 = viewMatrixAt0 * viewHMDat0;
+                        viewMatrix = viewMatrix * viewHMDat0;
+
+                        if (!MyOpenVR.Debug2DImage && typeofEnv == MyStereoRegion.LEFT)
+                        {
+                            viewMatrixAt0 = GetMatrixEyeTranslation(true, viewMatrixAt0) * viewMatrixAt0;
+                            viewMatrix = GetMatrixEyeTranslation(true, viewMatrix) * viewMatrix;
+                        }
+                        else if (!MyOpenVR.Debug2DImage && typeofEnv == MyStereoRegion.RIGHT)
+                        {
+                            viewMatrixAt0 = GetMatrixEyeTranslation(false, viewMatrixAt0) * viewMatrixAt0;
+                            viewMatrix = GetMatrixEyeTranslation(false, viewMatrix) * viewMatrix;
+                        }
+                    }
+                }
+                else
+                {
+                    if (!MyOpenVR.Debug2DImage && typeofEnv == MyStereoRegion.LEFT)
+                    {
+                        viewMatrixAt0 = GetMatrixEyeTranslation(true, viewMatrixAt0) * viewMatrixAt0;
+                        viewMatrix = GetMatrixEyeTranslation(true, viewMatrix) * viewMatrix;
+                    }
+                    else if (!MyOpenVR.Debug2DImage && typeofEnv == MyStereoRegion.RIGHT)
+                    {
+                        viewMatrixAt0 = GetMatrixEyeTranslation(false, viewMatrixAt0) * viewMatrixAt0;
+                        viewMatrix = GetMatrixEyeTranslation(false, viewMatrix) * viewMatrix;
+                    }
+                }
+            }
+
             var originalProjection = message.ProjectionMatrix;
             //var invOriginalProjection = Matrix.CreatePerspectiveFovRhInverse(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane, message.FarPlane);
-            var renderProjection = Matrix.CreatePerspectiveFieldOfView(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.FarPlane, message.NearPlane);
-            var invProj = Matrix.CreatePerspectiveFovRhInverse(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.FarPlane, message.NearPlane);
 
-            renderProjection = Matrix.CreatePerspectiveFovRhInfiniteComplementary(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane);
-            invProj = Matrix.CreatePerspectiveFovRhInfiniteComplementaryInverse(message.FOV, MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y, message.NearPlane);
+            float aspectRatio = MyRender11.ResolutionF.X / MyRender11.ResolutionF.Y;
+            if (typeofEnv != MyStereoRegion.FULLSCREEN)
+                aspectRatio /= 2;
+            var renderProjection = Matrix.CreatePerspectiveFieldOfView(message.FOV, aspectRatio, message.FarPlane, message.NearPlane);
+            var invProj = Matrix.CreatePerspectiveFovRhInverse(message.FOV, aspectRatio, message.FarPlane, message.NearPlane);
+
+            renderProjection = Matrix.CreatePerspectiveFovRhInfiniteComplementary(message.FOV, aspectRatio, message.NearPlane);
+            invProj = Matrix.CreatePerspectiveFovRhInfiniteComplementaryInverse(message.FOV, aspectRatio, message.NearPlane);
 
             var invView = Matrix.Transpose(viewMatrixAt0);
-            invView.M41 = (float)message.CameraPosition.X;
-            invView.M42 = (float)message.CameraPosition.Y;
-            invView.M43 = (float)message.CameraPosition.Z;
+            invView.M41 = (float)cameraPosition.X;
+            invView.M42 = (float)cameraPosition.Y;
+            invView.M43 = (float)cameraPosition.Z;
 
-            MyEnvironment.ViewAt0 = viewMatrixAt0;
-            MyEnvironment.InvViewAt0 = Matrix.Transpose(viewMatrixAt0);
-            MyEnvironment.ViewProjectionAt0 = viewMatrixAt0 * renderProjection;
-            MyEnvironment.InvViewProjectionAt0 = invProj * Matrix.Transpose(viewMatrixAt0);
-            message.CameraPosition.AssertIsValid();
-            MyEnvironment.CameraPosition = message.CameraPosition;
-            MyEnvironment.View = message.ViewMatrix;
-            MyEnvironment.ViewD = message.ViewMatrix;
-            MyEnvironment.OriginalProjectionD = originalProjection;
-            MyEnvironment.InvView = invView;
-            MyEnvironment.ViewProjection = message.ViewMatrix * renderProjection;
-            MyEnvironment.InvViewProjection = invProj * invView;
-            MyEnvironment.Projection = renderProjection;
-            MyEnvironment.InvProjection = invProj;
+            envMatrices.ViewAt0 = viewMatrixAt0;
+            envMatrices.InvViewAt0 = Matrix.Transpose(viewMatrixAt0);
+            envMatrices.ViewProjectionAt0 = viewMatrixAt0 * renderProjection;
+            envMatrices.InvViewProjectionAt0 = invProj * Matrix.Transpose(viewMatrixAt0);
+            cameraPosition.AssertIsValid();
+            envMatrices.CameraPosition = cameraPosition;
+            envMatrices.View = viewMatrix;
+            envMatrices.ViewD = viewMatrix;
+            envMatrices.OriginalProjectionD = originalProjection;
+            envMatrices.InvView = invView;
+            envMatrices.ViewProjection = viewMatrix * renderProjection;
+            envMatrices.InvViewProjection = invProj * invView;
+            envMatrices.Projection = renderProjection;
+            envMatrices.InvProjection = invProj;
 
-            MyEnvironment.ViewProjectionD = MyEnvironment.ViewD * (MatrixD)renderProjection;
+            envMatrices.ViewProjectionD = envMatrices.ViewD * (MatrixD)renderProjection;
             
-            MyEnvironment.NearClipping = message.NearPlane;
-            MyEnvironment.FarClipping = message.FarPlane;
-            MyEnvironment.LargeDistanceFarClipping = message.FarPlane*500.0f;
-            MyEnvironment.FovY = message.FOV;
+            envMatrices.NearClipping = message.NearPlane;
+            envMatrices.FarClipping = message.FarPlane;
+            envMatrices.LargeDistanceFarClipping = message.FarPlane*500.0f;
+            envMatrices.FovY = message.FOV;
 
-            MyUtils.Init(ref MyEnvironment.ViewFrustumD);
-            MyEnvironment.ViewFrustumD.Matrix = MyEnvironment.ViewProjectionD;
+            MyUtils.Init(ref envMatrices.ViewFrustumD);
+            envMatrices.ViewFrustumD.Matrix = envMatrices.ViewProjectionD;
 
-            MyUtils.Init(ref MyEnvironment.ViewFrustumClippedD);
-            MyEnvironment.ViewFrustumClippedD.Matrix = MyEnvironment.ViewD * MyEnvironment.OriginalProjectionD;
+            MyUtils.Init(ref envMatrices.ViewFrustumClippedD);
+            envMatrices.ViewFrustumClippedD.Matrix = envMatrices.ViewD * envMatrices.OriginalProjectionD;
         }
 
         private static void TransferPerformanceStats()
@@ -273,7 +365,7 @@ namespace VRageRender
                         }
                     }
 
-                    if (MyEnvironment.ViewFrustumClippedD.Contains(bb) != VRageMath.ContainmentType.Disjoint)
+                    if (MyRender11.Environment.ViewFrustumClippedD.Contains(bb) != VRageMath.ContainmentType.Disjoint)
                     {
                         MyRenderProxy.VisibleObjectsWrite.Add(groupRootComponent.Owner.ID);
                     }
@@ -292,8 +384,8 @@ namespace VRageRender
         // Returns the final image and copies it to renderTarget if non-null
         private static MyBindableResource DrawGameScene(MyBindableResource renderTarget)
         {
-            ProfilerShort.Begin("DrawGameScene");
-           
+            MyGpuProfiler.IC_BeginBlock("Clear & Geometry Render");
+                       
             PrepareGameScene();
 
             // todo: shouldn't be necessary
@@ -305,13 +397,30 @@ namespace VRageRender
                 ProfilerShort.End();
             }
 
+            if (MyStereoRender.Enable && MyStereoRender.EnableUsingStencilMask)
+            {
+                ProfilerShort.Begin("MyStereoStencilMask.Draw");
+                MyGpuProfiler.IC_BeginBlock("MyStereoStencilMask.Draw");
+                MyStereoStencilMask.Draw();
+                MyGpuProfiler.IC_EndBlock();
+                ProfilerShort.End();
+            }
+
+            MyGpuProfiler.IC_BeginBlock("MyGeometryRenderer.Render"); 
             Debug.Assert(m_commandLists.Count == 0, "Not all command lists executed last frame!");
+            ProfilerShort.Begin("DynamicGeometryRenderer");
             DynamicGeometryRenderer.Render(m_commandLists, true);
+            ProfilerShort.End();    // End function block
             if (MyScene.SeparateGeometry)
+            {
+                ProfilerShort.Begin("StaticGeometryRenderer");
                 StaticGeometryRenderer.Render(m_commandLists, false);
+                ProfilerShort.End();    // End function block
+            }
 
             SendGlobalOutputMessages();
             ExecuteCommandLists(m_commandLists);
+            MyGpuProfiler.IC_EndBlock();
 
 #if !UNSHARPER_TMP
             MyEnvironmentProbe.FinalizeEnvProbes();
@@ -333,11 +442,13 @@ namespace VRageRender
                 MyRenderContext.Immediate.DeviceContext.ClearState();
                 ProfilerShort.End();
             }
+            
+            MyGpuProfiler.IC_EndBlock();
 
-            ProfilerShort.Begin("Render decals");
-            MyGpuProfiler.IC_BeginBlock("Render decals");
+            ProfilerShort.Begin("Render decals - Opaque");
+            MyGpuProfiler.IC_BeginBlock("Render decals - Opaque");
             MyRender11.CopyGbufferToScratch();
-            MyScreenDecals.Draw();
+            MyScreenDecals.Draw(false);
             MyGpuProfiler.IC_EndBlock();
 
             ProfilerShort.BeginNextBlock("Render foliage");
@@ -345,51 +456,64 @@ namespace VRageRender
             m_foliageRenderer.Render();
             MyGpuProfiler.IC_EndBlock();
 
+            MyGpuProfiler.IC_BeginBlock("GBuffer Resolve");
             ProfilerShort.BeginNextBlock("MySceneMaterials.MoveToGPU");
             MySceneMaterials.MoveToGPU();
 
-            if (MultisamplingEnabled)
+            int nPasses = MyStereoRender.Enable ? 2 : 1;
+            for (int i = 0; i < nPasses; i++)
             {
-                MyRender11.DeviceContext.ClearDepthStencilView(MyScreenDependants.m_resolvedDepth.m_DSV, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
-                MyGpuProfiler.IC_BeginBlock("MarkAAEdges");
-                MyAAEdgeMarking.Run();
+                if (MyStereoRender.Enable)
+                    MyStereoRender.RenderRegion = i == 0 ? MyStereoRegion.LEFT : MyStereoRegion.RIGHT;
+
+                if (MultisamplingEnabled)
+                {
+                    MyRender11.DeviceContext.ClearDepthStencilView(MyScreenDependants.m_resolvedDepth.m_DSV, DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
+                    MyGpuProfiler.IC_BeginBlock("MarkAAEdges");
+                    MyAAEdgeMarking.Run();
+                    MyGpuProfiler.IC_EndBlock();
+                    MyDepthResolve.Run(MyScreenDependants.m_resolvedDepth, MyGBuffer.Main.DepthStencil.Depth);
+                }
+
+                ProfilerShort.BeginNextBlock("Shadows");
+                MyGpuProfiler.IC_BeginBlock("Shadows");
+                if (MyScene.SeparateGeometry)
+                {
+                    MyShadowCascadesPostProcess.Combine(MyShadowCascades.CombineShadowmapArray, DynamicShadows.ShadowCascades, StaticShadows.ShadowCascades);
+                    DynamicShadows.ShadowCascades.PostProcess(MyRender11.PostProcessedShadows, MyShadowCascades.CombineShadowmapArray);
+                }
+                else
+                    DynamicShadows.ShadowCascades.PostProcess(MyRender11.PostProcessedShadows, DynamicShadows.ShadowCascades.CascadeShadowmapArray);
                 MyGpuProfiler.IC_EndBlock();
-                MyDepthResolve.Run(MyScreenDependants.m_resolvedDepth, MyGBuffer.Main.DepthStencil.Depth);
-            }
 
-            ProfilerShort.BeginNextBlock("Shadows");
-            MyGpuProfiler.IC_BeginBlock("Shadows");
-            if (MyScene.SeparateGeometry)
-            {
-                MyShadowCascadesPostProcess.Combine(MyShadowCascades.CombineShadowmapArray, DynamicShadows.ShadowCascades, StaticShadows.ShadowCascades);
-                DynamicShadows.ShadowCascades.PostProcess(MyRender11.PostProcessedShadows, MyShadowCascades.CombineShadowmapArray);
+                ProfilerShort.BeginNextBlock("SSAO");
+                MyGpuProfiler.IC_BeginBlock("SSAO");
+                if (Postprocess.EnableSsao && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
+                {
+                    MySSAO.Run(MyScreenDependants.m_ambientOcclusion, MyGBuffer.Main, MyRender11.MultisamplingEnabled ? MyScreenDependants.m_resolvedDepth.Depth : MyGBuffer.Main.DepthStencil.Depth);
+
+                    if (MySSAO.UseBlur)
+                        MyBlur.Run(MyScreenDependants.m_ambientOcclusion, MyScreenDependants.m_ambientOcclusionHelper, MyScreenDependants.m_ambientOcclusion);
+                }
+                else
+                {
+                    MyRender11.DeviceContext.ClearRenderTargetView(MyScreenDependants.m_ambientOcclusion.m_RTV, Color4.White);
+                }
+                MyGpuProfiler.IC_EndBlock();
+
+                ProfilerShort.BeginNextBlock("Lights");
+                MyGpuProfiler.IC_BeginBlock("Lights");
+                if (m_debugOverrides.Lighting)
+                    MyLightRendering.Render();
+                MyGpuProfiler.IC_EndBlock();
+
+                if (MyRender11.DebugOverrides.Flares)
+                    MyLightRendering.DrawFlares();
             }
-            else
-                DynamicShadows.ShadowCascades.PostProcess(MyRender11.PostProcessedShadows, DynamicShadows.ShadowCascades.CascadeShadowmapArray);
+            MyStereoRender.RenderRegion = MyStereoRegion.FULLSCREEN;
             MyGpuProfiler.IC_EndBlock();
 
-            ProfilerShort.BeginNextBlock("SSAO");
-            MyGpuProfiler.IC_BeginBlock("SSAO");
-            if (Postprocess.EnableSsao && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
-            {
-                MySSAO.Run(MyScreenDependants.m_ambientOcclusion, MyGBuffer.Main, MyRender11.MultisamplingEnabled ? MyScreenDependants.m_resolvedDepth.Depth : MyGBuffer.Main.DepthStencil.Depth);
-
-                if(MySSAO.UseBlur)
-                    MyBlur.Run(MyScreenDependants.m_ambientOcclusion, MyScreenDependants.m_ambientOcclusionHelper, MyScreenDependants.m_ambientOcclusion);
-            }
-            else
-            {
-                MyRender11.DeviceContext.ClearRenderTargetView(MyScreenDependants.m_ambientOcclusion.m_RTV, Color4.White);
-            }
-            MyGpuProfiler.IC_EndBlock();
-
-
-            ProfilerShort.BeginNextBlock("Lights");
-            MyGpuProfiler.IC_BeginBlock("Lights");
-            if (m_debugOverrides.Lighting)
-                MyLightRendering.Render();
-            MyGpuProfiler.IC_EndBlock();
-
+            // Rendering for VR is solved inside of Transparent rendering
             ProfilerShort.BeginNextBlock("Transparent Pass");
             MyGpuProfiler.IC_BeginBlock("Transparent Pass");
             if (m_debugOverrides.Transparent)
@@ -400,11 +524,6 @@ namespace VRageRender
             MyGpuProfiler.IC_BeginBlock("PostProcess");
             MyGpuProfiler.IC_BeginBlock("Luminance reduction");
             MyBindableResource avgLum = null;
-
-            if (MyRender11.MultisamplingEnabled)
-            {
-                MyRenderContext.Immediate.DeviceContext.ResolveSubresource(MyGBuffer.Main.Get(MyGbufferSlot.LBuffer).m_resource, 0, MyGBuffer.Main.Get(MyGbufferSlot.LBufferResolved).m_resource, 0, SharpDX.DXGI.Format.R11G11B10_Float);
-            }
 
             if (m_resetEyeAdaptation)
             {
@@ -529,7 +648,6 @@ namespace VRageRender
             MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();
 
-            ProfilerShort.End();
             return renderedImage;
         }
 
@@ -609,28 +727,10 @@ namespace VRageRender
             MyCommon.MoveToNextFrame();
         }
 
-        static void SaveResourceToFile(Resource res, string path, ImageFileFormat fmt)
-        {
-            try
-            {
-                Resource.ToFile(MyRender11.DeviceContext, res, fmt, path);
-
-                MyRenderProxy.ScreenshotTaken(true, path, m_screenshot.Value.ShowNotification);
-            }
-            catch (SharpDX.SharpDXException e)
-            {
-                MyRender11.Log.WriteLine("SaveResourceToFile()");
-                MyRender11.Log.IncreaseIndent();
-                    MyRender11.Log.WriteLine(String.Format("Failed to save screenshot {0}: {1}", path, e));
-                MyRender11.Log.DecreaseIndent();
-
-				MyRenderProxy.ScreenshotTaken(false, path, m_screenshot.Value.ShowNotification);
-            }
-        }
-
         private static void SaveScreenshotFromResource(Resource res)
         {
-            SaveResourceToFile(res, m_screenshot.Value.SavePath, m_screenshot.Value.Format);
+            bool result = MyTextureData.ToFile(res, m_screenshot.Value.SavePath, m_screenshot.Value.Format);
+            MyRenderProxy.ScreenshotTaken(result, m_screenshot.Value.SavePath, m_screenshot.Value.ShowNotification);
             m_screenshot = null;
         }
 
@@ -638,136 +738,9 @@ namespace VRageRender
         private static MyBindableResource m_lastScreenDataResource = null;
         private static Stream m_lastDataStream = null;
 
-        private unsafe static byte[] GetScreenData(Vector2I resolution, byte[] screenData = null)
+        private unsafe static byte[] GetScreenData(Resource res, byte[] screenData, ImageFileFormat fmt)
         {
-            const uint headerPadding = 256; // Need to allocate some space for the bitmap headers
-            const uint bytesPerPixel = 4;
-            uint imageSizeInBytes = (uint)(resolution.Size() * bytesPerPixel);
-            uint dataSizeInBytes = imageSizeInBytes + headerPadding;
-
-            byte[] returnData = null;
-            if(screenData == null)
-                screenData = new byte[imageSizeInBytes];
-            else if(screenData.Length != imageSizeInBytes)
-            {
-                Debug.Fail("Preallocated buffer for GetScreenData incorrect size: " + imageSizeInBytes.ToString() + " expected, " + screenData.Length + " received");
-                return returnData;
-            }
-
-            MyBindableResource imageSource = Backbuffer;
-            MyBindableResource imageSourceResourceView = null;
-
-            if (imageSource != null && (resolution.X != imageSource.GetSize().X || resolution.Y != imageSource.GetSize().Y))
-            {
-                MyViewKey viewKey = new MyViewKey { View = MyViewEnum.SrvView, Fmt = MyRender11Constants.DX11_BACKBUFFER_FORMAT };
-                if(m_backbufferCopyResource == null)
-                {
-                    m_backbufferCopyResource = new MyCustomTexture(m_resolution.X, m_resolution.Y, BindFlags.ShaderResource, MyRender11Constants.DX11_BACKBUFFER_FORMAT);
-                    m_backbufferCopyResource.AddView(viewKey);
-                }
-                MyRenderContext.Immediate.DeviceContext.CopyResource(imageSource.m_resource, m_backbufferCopyResource.m_resource);
-                imageSource = m_backbufferCopyResource;
-                imageSourceResourceView = m_backbufferCopyResource.GetView(viewKey);
-            }
-
-            if (imageSource == null)
-                return returnData;
-
-            if(imageSizeInBytes > int.MaxValue)
-            {
-                Debug.Fail("Image size too large to read!");
-                return returnData;
-            }
-
-            MyBindableResource imageResource = imageSource;
-            bool shouldResize = imageSourceResourceView != null;
-            if (shouldResize)
-            {
-                imageResource = m_lastScreenDataResource;
-                if (imageResource == null || (imageResource.GetSize().X != resolution.X || imageResource.GetSize().Y != resolution.Y))
-                {
-                    if (m_lastScreenDataResource != null && (m_lastScreenDataResource != m_backbufferCopyResource && m_lastScreenDataResource != Backbuffer))
-                    {
-                        m_lastScreenDataResource.Release();
-                    }
-                    m_lastScreenDataResource = null;
-
-                    imageResource = new MyRenderTarget(resolution.X, resolution.Y, MyRender11Constants.DX11_BACKBUFFER_FORMAT, 1, 0);
-                }
-                var RC = MyRenderContext.Immediate;
-                var deviceContext = RC.DeviceContext;
-                deviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                deviceContext.Rasterizer.SetViewport(0, 0, resolution.X, resolution.Y);
-                deviceContext.PixelShader.Set(MyDebugRenderer.BlitTextureShader);
-                deviceContext.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-
-                RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, imageResource);
-                RC.BindSRV(0, imageSourceResourceView);
-                MyDebugRenderer.DrawQuad(0, 0, resolution.X, resolution.Y, MyScreenPass.QuadVS);
-                //MyCopyToRT.Run(imageResource, imageSourceResourceView, new MyViewport(resolution));
-            }
-
-            m_lastScreenDataResource = imageResource;
-
-            Stream dataStream = m_lastDataStream;
-            if (m_lastDataStream == null || m_lastDataStream.Length != dataSizeInBytes)
-            {
-                if (m_lastDataStream != null)
-                {
-                    m_lastDataStream.Dispose();
-                    m_lastDataStream = null;
-                }
-                dataStream = new DataStream((int)dataSizeInBytes, true, true);
-                dataStream.Seek(0, SeekOrigin.Begin);
-            }
-
-            m_lastDataStream = dataStream;
-
-            Resource.ToStream(MyRenderContext.Immediate.DeviceContext, imageResource.m_resource, ImageFileFormat.Bmp, dataStream);
-
-            if (!(dataStream.CanRead && dataStream.CanSeek))
-            {
-                Debug.Fail("Screen data stream does not support the necessary operations to get the data");
-                return returnData;
-            }
-
-            fixed (byte* dataPointer = screenData)
-            {
-                GetBmpDataFromStream(dataStream, dataPointer, imageSizeInBytes);
-            }
-
-            returnData = screenData;
-
-            if (m_lastDataStream != null)
-                m_lastDataStream.Seek(0, SeekOrigin.Begin);
-
-            return returnData;
-        }
-
-        // TODO: Still probably needs some more work to read the pixel array properly in case of non 4-byte aligned rows
-        private unsafe static void GetBmpDataFromStream(Stream dataStream, byte* dataPointer, uint imageSizeInBytes)
-        {
-            // Start reading from the position of the pixel array offset information in the bitmap header
-            const int startOffset = 10;
-            dataStream.Seek(startOffset, SeekOrigin.Begin);
-
-            int pixelArrayOffset = dataStream.ReadInt32();
-
-            // Read in some data from the dib header
-            int dibHeaderSize = dataStream.ReadInt32();
-            int bitmapWidth = dataStream.ReadInt32();
-            int bitmapHeight = dataStream.ReadInt32();
-            int colorPlaneCount = dataStream.ReadInt16();
-            int bitsPerPixel = dataStream.ReadInt16();
-
-            Debug.Assert(colorPlaneCount == 1);
-            Debug.Assert(imageSizeInBytes == bitmapWidth*bitmapHeight*(bitsPerPixel>>3));
-
-            // Everything ok, time to read the actual pixel data
-            dataStream.Seek(pixelArrayOffset, SeekOrigin.Begin);
-
-            //dataStream.Read(dataPointer, 0, (int)imageSizeInBytes);
-            dataStream.ReadNoAlloc(dataPointer, 0, (int)imageSizeInBytes);
+            return MyTextureData.ToData(res, screenData, fmt);
         }
     }
 }

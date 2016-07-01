@@ -89,7 +89,8 @@ namespace Sandbox.Graphics.GUI
             Max = max;
             Page = page;
 
-            ChangeValue(0);
+            //GR: When refreshing on each control you may need different behavior. So handle from there
+            //ChangeValue(0);
         }
 
         public void ChangeValue(float amount)

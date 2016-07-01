@@ -16,6 +16,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using VRage;
+using VRageRender;
+using VRage.Render;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -289,6 +291,19 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         private static readonly Dictionary<string, int> m_modelTotalFracturesCount = new Dictionary<string, int>();
 
+        public bool ForceBlockDestructible { get { return FatBlock != null ? FatBlock.ForceBlockDestructible : false; } }
+
+        public long OwnerId
+        {
+            get
+            {
+                if (this.FatBlock != null && FatBlock.OwnerId != 0) return FatBlock.OwnerId;
+                MyGridOwnershipComponentBase ownershipComponent;
+                CubeGrid.Components.TryGet(out ownershipComponent);
+                if (ownershipComponent != null) return ownershipComponent.GetBlockOwnerId(this);
+                else return 0;
+            }
+        }
 
         public MySlimBlock()
         {
@@ -383,9 +398,9 @@ namespace Sandbox.Game.Entities.Cube
             if (FatBlock == null || FatBlock.GetType() == typeof(MyCubeBlock))
                 m_objectBuilder = new MyObjectBuilder_CubeBlock();
 
-            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
+            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(BuildIntegrity / MaxIntegrity) == false && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
             {//start effect
-                if (CurrentDamage > 0)//fix for weird simple blocks having FatBlock - old save?
+                if (CurrentDamage > 0.01f)//fix for weird simple blocks having FatBlock - old save?
                 {
                     FatBlock.SetDamageEffect(true);
                 }
@@ -399,7 +414,7 @@ namespace Sandbox.Game.Entities.Cube
         public void ResumeDamageEffect()
         {
 
-            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
+            if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(BuildIntegrity / MaxIntegrity) == false && BlockDefinition.RatioEnoughForDamageEffect(Integrity / MaxIntegrity))
             {//start effect
                 if (CurrentDamage > 0)//fix for weird simple blocks having FatBlock - old save?
                 {
@@ -1020,9 +1035,11 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public bool CanContinueBuild(MyInventory sourceInventory)
+        public bool CanContinueBuild(MyInventoryBase sourceInventory)
         {
             if (IsFullIntegrity || sourceInventory == null) return false;
+
+            if (FatBlock != null && !FatBlock.CanContinueBuild()) return false;
 
             return m_componentStack.CanContinueBuild(sourceInventory, m_stockpile);
         }
@@ -1068,7 +1085,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void DoDamage(float damage, MyStringHash damageType, MyHitInfo? hitInfo = null, bool addDirtyParts = true, long attackerId = 0)
         {
-            if (!CubeGrid.BlocksDestructionEnabled)
+            if (!CubeGrid.BlocksDestructionEnabled && !ForceBlockDestructible)
                 return;
 
             var compoundBlock = FatBlock as MyCompoundCubeBlock;
@@ -1102,11 +1119,11 @@ namespace Sandbox.Game.Entities.Cube
 
         public void DoDamageInternal(float damage, MyStringHash damageType, bool addDirtyParts = true, MyHitInfo? hitInfo = null, long attackerId = 0)
         {
-            if (!CubeGrid.BlocksDestructionEnabled)
+            if (!CubeGrid.BlocksDestructionEnabled && !ForceBlockDestructible)
                 return;
 
             damage *= DamageRatio; // Low-integrity blocks get more damage
-            if (MyPerGameSettings.Destruction)
+            if (MyPerGameSettings.Destruction || MyFakes.ENABLE_VR_BLOCK_DEFORMATION_RATIO)
             {
                 damage *= DeformationRatio;
             }
@@ -1150,7 +1167,7 @@ namespace Sandbox.Game.Entities.Cube
             }
             else
             {
-                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
+                if (MyFakes.SHOW_DAMAGE_EFFECTS && FatBlock != null && BlockDefinition.RatioEnoughForDamageEffect(BuildIntegrity / MaxIntegrity) == false && BlockDefinition.RatioEnoughForDamageEffect((Integrity - damage) / MaxIntegrity))
                     FatBlock.SetDamageEffect(true);
             }
 
@@ -1162,18 +1179,27 @@ namespace Sandbox.Game.Entities.Cube
             m_lastDamageType = damageType;
         }
 
-        void IMyDecalProxy.GetDecalRenderData(MyHitInfo hitInfo, out MyDecalRenderData renderable)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
         {
-            renderable = new MyDecalRenderData();
-            renderable.Position = Vector3D.Transform(hitInfo.Position, CubeGrid.PositionComp.WorldMatrixInvScaled);
-            renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled);
-            renderable.RenderObjectId = CubeGrid.Render.GetRenderObjectID();
+            MyDecalRenderInfo renderable = new MyDecalRenderInfo();
+            renderable.Flags = BlockDefinition.PhysicalMaterial.Transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
+            if (FatBlock == null)
+            {
+                renderable.Position = Vector3D.Transform(hitInfo.Position, CubeGrid.PositionComp.WorldMatrixInvScaled);
+                renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, CubeGrid.PositionComp.WorldMatrixInvScaled);
+                renderable.RenderObjectId = CubeGrid.Render.GetRenderObjectID();
+            }
+            else
+            {
+                renderable.Position = Vector3D.Transform(hitInfo.Position, FatBlock.PositionComp.WorldMatrixInvScaled);
+                renderable.Normal = Vector3D.TransformNormal(hitInfo.Normal, FatBlock.PositionComp.WorldMatrixInvScaled);
+                renderable.RenderObjectId = FatBlock.Render.GetRenderObjectID();
+            }
             renderable.Material = MyStringHash.GetOrCompute(BlockDefinition.PhysicalMaterial.Id.SubtypeName);
-        }
 
-        void IMyDecalProxy.OnAddDecal(uint decalId, ref MyDecalRenderData renderable)
-        {
-            CubeGrid.RenderData.AddDecal(Position, decalId);
+            var decalId = decalHandler.AddDecal(ref renderable);
+            if (decalId != null)
+                CubeGrid.RenderData.AddDecal(Position, decalId.Value);
         }
 
         /// <summary>
@@ -1312,7 +1338,7 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
         }
 
-        public void UpdateVisual()
+        public void UpdateVisual(bool updatePhysics = true)
         {
             UpdateShowParts();
 
@@ -1338,7 +1364,7 @@ namespace Sandbox.Game.Entities.Cube
                 FatBlock = null;
             }
             CubeGrid.SetBlockDirty(this);
-            if (CubeGrid.Physics != null)
+            if (updatePhysics && CubeGrid.Physics != null)
             {
                 CubeGrid.Physics.AddDirtyArea(Min, Max);
             }
@@ -1672,9 +1698,7 @@ namespace Sandbox.Game.Entities.Cube
                     MyParticleEffect smokeEffect;
                     if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Smoke_Construction, out smokeEffect))
                     {
-                        smokeEffect.AutoDelete = true;
                         smokeEffect.WorldMatrix = MatrixD.CreateTranslation(tr);
-                        smokeEffect.UserScale = 0.7f;
                     }
 
                     offsetLength += particleStep;
@@ -1972,11 +1996,39 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        // CH: TODO: Put these into the MyHudBlockInfo, when refactoring it
         public static void SetBlockComponents(MyHudBlockInfo hudInfo, MySlimBlock block, MyInventoryBase availableInventory = null)
+        {
+            SetBlockComponentsInternal(hudInfo, block.BlockDefinition, block, availableInventory);
+        }
+
+        public static void SetBlockComponents(MyHudBlockInfo hudInfo, MyCubeBlockDefinition blockDefinition, MyInventoryBase availableInventory = null)
+        {
+            SetBlockComponentsInternal(hudInfo, blockDefinition, null, availableInventory);
+        }
+
+        // CH: TODO: This method actually doesn't have a bad internal structure, but it should be refactored BIG TIME (and put to MyHudBlockInfo)!
+        private static void SetBlockComponentsInternal(MyHudBlockInfo hudInfo, MyCubeBlockDefinition blockDefinition, MySlimBlock block, MyInventoryBase availableInventory)
         {
             hudInfo.Components.Clear();
 
-            if (block.IsMultiBlockPart)
+            if (block != null)
+            {
+                Debug.Assert(block.BlockDefinition == blockDefinition, "The definition given to SetBlockComponnentsInternal was not a definition of the block");
+            }
+
+            hudInfo.InitBlockInfo(blockDefinition);
+            hudInfo.ShowAvailable = MyPerGameSettings.AlwaysShowAvailableBlocksOnHud;
+
+            if (!MyFakes.ENABLE_SMALL_GRID_BLOCK_COMPONENT_INFO && blockDefinition.CubeSize == MyCubeSize.Small) return;
+
+            if (block != null)
+            {
+                hudInfo.BlockIntegrity = block.Integrity / block.MaxIntegrity;
+            }
+
+            // CH: TODO: Multiblocks
+            if (block != null && block.IsMultiBlockPart)
             {
                 var multiBlockInfo = block.CubeGrid.GetMultiBlockInfo(block.MultiBlockId);
                 Debug.Assert(multiBlockInfo != null);
@@ -2042,15 +2094,55 @@ namespace Sandbox.Game.Entities.Cube
                     }
                 }
             }
+            else if (block == null && blockDefinition.MultiBlock != null)
+            {
+                MyDefinitionId defId = new MyDefinitionId(typeof(MyObjectBuilder_MultiBlockDefinition), blockDefinition.MultiBlock);
+                var mbDefinition = MyDefinitionManager.Static.TryGetMultiBlockDefinition(defId);
+                if (mbDefinition != null)
+                {
+                    foreach (var blockDefId in mbDefinition.BlockDefinitions)
+                    {
+                        MyCubeBlockDefinition blockDef;
+                        if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(blockDefId.Id, out blockDef))
+                        {
+                            hudInfo.AddComponentsForBlock(blockDef);
+                        }
+                    }
+
+                    // Merge components from all blocks
+                    hudInfo.MergeSameComponents();
+
+                    for (int i = 0; i < hudInfo.Components.Count; ++i)
+                    {
+                        var component = hudInfo.Components[i];
+                        component.AvailableAmount = (int)MyCubeBuilder.BuildComponent.GetItemAmountCombined(availableInventory, component.DefinitionId);
+                        hudInfo.Components[i] = component;
+                    }
+                }
+            }
             else
             {
-                for (int i = 0; i < block.ComponentStack.GroupCount; i++)
+                for (int i = 0; i < blockDefinition.Components.Length; i++)
                 {
-                    var groupInfo = block.ComponentStack.GetGroupInfo(i);
+                    MyComponentStack.GroupInfo groupInfo = new MyComponentStack.GroupInfo();
+                    if (block != null)
+                    {
+                        groupInfo = block.ComponentStack.GetGroupInfo(i);
+                    }
+                    else
+                    {
+                        var component = blockDefinition.Components[i];
+                        groupInfo.Component = component.Definition;
+                        groupInfo.TotalCount = component.Count;
+                        groupInfo.MountedCount = 0;
+                        groupInfo.AvailableCount = 0;
+                        groupInfo.Integrity = 0.0f;
+                        groupInfo.MaxIntegrity = component.Count * component.Definition.MaxIntegrity;
+                    }
                     AddBlockComponent(hudInfo, groupInfo, availableInventory);
                 }
 
-                if (!block.StockpileEmpty)
+                if (block != null && !block.StockpileEmpty)
                 {
                     // For each component
                     foreach (var comp in block.BlockDefinition.Components)

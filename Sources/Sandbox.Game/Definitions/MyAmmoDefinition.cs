@@ -23,6 +23,7 @@ namespace Sandbox.Definitions
         public float MaxTrajectory;    // How far can projectile fly before we kill it (it's like distance timeout)
         public bool IsExplosive;       // Ammo explodes with some probability
         public float BackkickForce;
+        public MyStringHash PhysicalMaterial;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -36,6 +37,7 @@ namespace Sandbox.Definitions
             this.MaxTrajectory = ob.BasicProperties.MaxTrajectory;
             this.IsExplosive = ob.BasicProperties.IsExplosive;
             this.BackkickForce = ob.BasicProperties.BackkickForce;
+            this.PhysicalMaterial = MyStringHash.GetOrCompute(ob.BasicProperties.PhysicalMaterial);
         }
 
         public abstract float GetDamageForMechanicalObjects();
@@ -94,7 +96,7 @@ namespace Sandbox.Definitions
         public float ProjectileHealthDamage;
         public bool HeadShot;
         public float ProjectileHeadShotDamage;
-        public MyStringHash ProjectileMaterial;
+        public int ProjectileCount;//# of pellets (shotgun)
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -118,7 +120,7 @@ namespace Sandbox.Definitions
             this.ProjectileTrailScale = projectileProperties.ProjectileTrailScale;
             this.HeadShot = projectileProperties.HeadShot;
             this.ProjectileHeadShotDamage = projectileProperties.ProjectileHeadShotDamage;
-            this.ProjectileMaterial = MyStringHash.GetOrCompute(projectileProperties.ProjectileMaterial);
+            this.ProjectileCount = projectileProperties.ProjectileCount;
         }
 
         public override float GetDamageForMechanicalObjects()

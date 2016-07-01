@@ -252,6 +252,12 @@ namespace Sandbox.Game.Entities
             remove { OnBlockOwnershipChanged -= GetDelegate(value); }
         }
 
+        event Action<IMyCubeGrid> IMyCubeGrid.OnGridChanged
+        {
+            add { OnGridChanged += GetDelegate(value); }
+            remove { OnGridChanged -= GetDelegate(value); }
+        }
+
         VRage.Game.ModAPI.Ingame.IMySlimBlock VRage.Game.ModAPI.Ingame.IMyCubeGrid.GetCubeBlock(Vector3I position)
         {
             VRage.Game.ModAPI.Ingame.IMySlimBlock block = GetCubeBlock(position);

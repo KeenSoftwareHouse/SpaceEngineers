@@ -5,6 +5,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents.Renders;
 using Sandbox.Game.Utils;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ using VRageMath;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Wheel))]
-    public class MyWheel : MyMotorRotor
+    public class MyWheel : MyMotorRotor, IMyWheel
     {
         private MyStringHash m_wheelStringHash = MyStringHash.GetOrCompute("Wheel");
         public float Friction { get; set; }
@@ -68,7 +69,7 @@ namespace Sandbox.Game.Entities.Blocks
                 particle = MyMaterialPropertiesHelper.Static.GetCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Start, m_wheelStringHash, material);
             }
             if (Render != null && particle != null)
-                Render.TrySpawnParticle(value.ContactPosition, particle);
+                Render.TrySpawnParticle((Vector3)value.ContactPosition, value.Event.ContactPoint.Normal, particle);
         }
     }
 }

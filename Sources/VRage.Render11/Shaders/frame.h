@@ -16,8 +16,14 @@ struct FrameConstants
 	matrix 	view_projection_matrix_world;
 	float4	world_offset;
 
-	float2	resolution;
+	// used in stereo rendering:
+	float3  eye_offset_in_world;
+	float   _paddingX;
 
+	int2    offset_in_gbuffer;
+	int2    resolution_of_gbuffer;
+
+	float2	resolution;
 	float 	time;
 	float 	timedelta;
 	//
@@ -105,15 +111,30 @@ cbuffer Frame : register( MERGE(b,FRAME_SLOT) )
 	FrameConstants frame_;
 };
 
+float3 view_to_world(float3 view)
+{
+    return mul(view, (float3x3)frame_.inv_view_matrix);
+}
+
+float3 world_to_view(float3 world)
+{
+    return mul(world, (float3x3)frame_.view_matrix);
+}
+
 float2 screen_to_uv(float2 screencoord)
 {
 	const float2 invres = 1 / frame_.resolution;
-	return screencoord * invres;
+	return (screencoord - frame_.offset_in_gbuffer) * invres;
 }
 
 float3 get_camera_position()
 {
 	return 0;
+}
+
+float3 GetEyeCenterPosition()
+{
+    return 0;
 }
 
 float3 ReconstructWorldPosition(float hwDepth, float2 uv) {
@@ -123,7 +144,7 @@ float3 ReconstructWorldPosition(float hwDepth, float2 uv) {
 	float depth = -linearize_depth(hwDepth, frame_.projection_matrix);
 	float3 viewDirection = mul(screen_ray, transpose((float3x3)frame_.view_matrix));
 
-    return depth * viewDirection;
+	return depth * viewDirection - frame_.eye_offset_in_world;
 }
 
 float2 get_voxel_lod_range(uint lod, int isMassive)

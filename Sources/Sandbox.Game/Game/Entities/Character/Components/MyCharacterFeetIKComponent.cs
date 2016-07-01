@@ -237,17 +237,17 @@ namespace Sandbox.Game.Entities.Character.Components
 
             // If the terrain is slope we need to shift the desired position up a little..
             float leftCrossProd = Vector3.Dot(WorldMatrix.Up, contactLeftWrld.Value.Normal);
-            float rightCrossProd = Vector3.Dot(WorldMatrix.Up, contactLeftWrld.Value.Normal);
+            float rightCrossProd = Vector3.Dot(WorldMatrix.Up, contactRightWrld.Value.Normal);
             float leftSlopeShiftFactor = (1f-leftCrossProd) * footDimensions.Z * 0.5f;
             float rightSlopeShiftFactor = (1f-rightCrossProd) * footDimensions.Z * 0.5f;
 
             // First get the local coords of the ankles as if were driven by animation only - correct it if root bone location was shifted
-            Vector3 leftAnklePosFromAnim = upDirection * (leftFootMatrix.Translation.Y - verticalShift);
-            Vector3 rightAnklePosFromAnim = upDirection * (rightFootMatrix.Translation.Y - verticalShift);
+            Vector3 leftAnklePosFromAnim = Vector3.Up * (leftFootMatrix.Translation.Y - verticalShift);
+            Vector3 rightAnklePosFromAnim = Vector3.Up * (rightFootMatrix.Translation.Y - verticalShift);
 
             // Now compute the desired ankle's positions in the model's local space
-            Vector3 leftAnkleDesiredPosition = Vector3.Transform(supportLWrld, invWorld) + leftAnklePosFromAnim + (FEET_ABOVE_GROUND_OFFSET + leftSlopeShiftFactor) * upDirection;
-            Vector3 rightAnkleDesiredPosition = Vector3.Transform(supportRWrld, invWorld) + rightAnklePosFromAnim + (FEET_ABOVE_GROUND_OFFSET + rightSlopeShiftFactor) * upDirection;
+            Vector3 leftAnkleDesiredPosition = Vector3.Transform(supportLWrld, invWorld) + leftAnklePosFromAnim + Vector3.Up * (FEET_ABOVE_GROUND_OFFSET + leftSlopeShiftFactor);
+            Vector3 rightAnkleDesiredPosition = Vector3.Transform(supportRWrld, invWorld) + rightAnklePosFromAnim + Vector3.Up * (FEET_ABOVE_GROUND_OFFSET + rightSlopeShiftFactor);
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_DESIREDPOSITION)
             {
@@ -280,13 +280,13 @@ namespace Sandbox.Game.Entities.Character.Components
             {
                 // then we can try to reach down according to the difference
                 float distanceBelow = Math.Min(leftAnkleDesiredHeight - currentLeftAnkleHeight, rightAnkleDesiredHeight - currentRightAnkleHeight);// -verticalShift;// -ankleHeight;
-                Vector3 verticalTranslation = upDirection * distanceBelow;
+                Vector3 verticalTranslation = Vector3.Up * distanceBelow;
                 Vector3 translation = Vector3.Zero;
                 translation.Interpolate3(modelRootBoneMatrix.Translation, modelRootBoneMatrix.Translation + verticalTranslation, verticalShiftDownGain);
 
                 if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_IK_ANKLE_DESIREDPOSITION)
                 {
-                    VRageRender.MyRenderProxy.DebugDrawLine3D(WorldMatrix.Translation, Vector3.Transform(upDirection * distanceBelow, WorldMatrix), Color.Purple, Color.Purple, false);
+                    VRageRender.MyRenderProxy.DebugDrawLine3D(WorldMatrix.Translation, Vector3.Transform(Vector3.Up * distanceBelow, WorldMatrix), Color.Purple, Color.Purple, false);
                     VRageRender.MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation, "Computed height", Color.Purple, 1, false);
                 }
 
@@ -299,7 +299,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 {
                     // move up to reach the highest support
                     float distanceAbove = Math.Max(leftAnkleDesiredHeight - currentLeftAnkleHeight, rightAnkleDesiredHeight - currentRightAnkleHeight);// -verticalShift;// -ankleHeight;
-                    Vector3 verticalTranslation = upDirection * distanceAbove;
+                    Vector3 verticalTranslation = Vector3.Up * distanceAbove;
                     Vector3 translation = Vector3.Zero;
                     translation.Interpolate3(modelRootBoneMatrix.Translation, modelRootBoneMatrix.Translation + verticalTranslation, verticalShiftUpGain);
                     rootBone.Translation = modelRootBoneMatrix.Translation = translation;

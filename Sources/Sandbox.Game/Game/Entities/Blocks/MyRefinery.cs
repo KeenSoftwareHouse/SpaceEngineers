@@ -10,7 +10,7 @@ using Sandbox.Game.Multiplayer;
 using VRage.Utils;
 using Sandbox.Game.GameSystems;
 using VRage;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage.ObjectBuilders;
 using System;
@@ -293,10 +293,21 @@ namespace Sandbox.Game.Entities.Cube
         {
             Debug.Assert(Sync.IsServer);
 
+            if(Sync.IsServer == false)
+            {
+                return;
+            }
+
+            if (queueItem == null || queueItem.Prerequisites == null || OutputInventory == null || queueItem.Results == null) 
+            {
+                return;
+            }
+
             if (!MySession.Static.CreativeMode)
             {
                 blueprintAmount = MyFixedPoint.Min(OutputInventory.ComputeAmountThatFits(queueItem), blueprintAmount);
             }
+
             if (blueprintAmount == 0)
                 return;
 

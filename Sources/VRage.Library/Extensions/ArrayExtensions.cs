@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage.Extensions;
+using VRage.Library.Collections;
 
 namespace System
 {
@@ -69,7 +70,7 @@ namespace System
             if (self.Length == 0) return 0;
             if (self.Length == 1)
             {
-                return value.CompareTo(self[0]) > 0 ? 1 : 0;
+                return value.CompareTo(self[0]) >= 0 ? 1 : 0;
             }
 
             int mid;
@@ -79,7 +80,7 @@ namespace System
             {
                 mid = (start + end)/2;
 
-                if (value.CompareTo(self[mid]) > 0)
+                if (value.CompareTo(self[mid]) >= 0)
                 {
                     start = mid;
                 }
@@ -92,12 +93,17 @@ namespace System
             int ret = start;
 
             // end of array;
-            if (value.CompareTo(self[start]) > 0)
+            if (value.CompareTo(self[start]) >= 0)
             {
                 ret = end;
             }
 
             return ret;
+        }
+
+        public static MyRangeIterator<T>.Enumerable Range<T>(this T[] array, int start, int end)
+        {
+            return MyRangeIterator<T>.ForRange(array, start, end);
         }
 
         /// <summary>

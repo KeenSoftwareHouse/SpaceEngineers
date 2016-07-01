@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <!-- Modules -->
+  <Definition xsi:type="VR.ProceduralEnvironmentModule">
+    <Id Type="MyObjectBuilder_ProceduralEnvironmentModuleDefinition" Subtype="Static"/>
+    <QualifiedTypeName>Sandbox.Game.WorldEnvironment.Modules.MyStaticEnvironmentModule</QualifiedTypeName>
+  </Definition>
+  <Definition xsi:type="VR.ProceduralEnvironmentModule">
+    <Id Type="MyObjectBuilder_ProceduralEnvironmentModuleDefinition" Subtype="Memory"/>
+    <QualifiedTypeName>Sandbox.Game.WorldEnvironment.Modules.MyMemoryEnvironmentModule</QualifiedTypeName>
+  </Definition>
+
+  <!-- Module Proxies -->
+  <Definition xsi:type="VR.EnvironmentModuleProxy">
+    <Id Type="MyObjectBuilder_EnvironmentModuleProxyDefinition" Subtype="Breakable"/>
+    <QualifiedTypeName>Sandbox.Game.WorldEnvironment.Modules.MyBreakableEnvironmentProxy</QualifiedTypeName>
+  </Definition>
+  <Definition xsi:type="VR.EnvironmentModuleProxy">
+    <Id Type="MyObjectBuilder_EnvironmentModuleProxyDefinition" Subtype="VoxelMap"/>
+    <QualifiedTypeName>Sandbox.Game.WorldEnvironment.Modules.MyVoxelMapEnvironmentProxy</QualifiedTypeName>
+  </Definition>
+  <Definition xsi:type="VR.EnvironmentModuleProxy">
+    <Id Type="MyObjectBuilder_EnvironmentModuleProxyDefinition" Subtype="BotSpawner"/>
+    <QualifiedTypeName>Sandbox.Game.WorldEnvironment.Modules.MyBotSpawningEnvironmentProxy</QualifiedTypeName>
+  </Definition>
+</Definitions>

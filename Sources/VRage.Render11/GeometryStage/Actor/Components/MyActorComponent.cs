@@ -37,6 +37,31 @@ namespace VRageRender
         InstanceLod,
     }
 
+    static class MyActorComponentEnumExtensions
+    {
+        public static Type TypeForEnum(this MyActorComponentEnum self)
+        {
+            switch (self)
+            {
+                case MyActorComponentEnum.Renderable:
+                    return typeof(MyRenderableComponent);
+                case MyActorComponentEnum.Instancing:
+                    return typeof(MyInstancingComponent);
+                case MyActorComponentEnum.Skinning:
+                    return typeof(MySkinningComponent);
+                case MyActorComponentEnum.Foliage:
+                    return typeof(MyFoliageComponent);
+                case MyActorComponentEnum.GroupLeaf:
+                    return typeof(MyGroupLeafComponent);
+                case MyActorComponentEnum.GroupRoot:
+                    return typeof(MyGroupRootComponent);
+                case MyActorComponentEnum.InstanceLod:
+                    return typeof(MyInstanceLodComponent);
+            }
+            return null;
+        }
+    }
+
     class MyActorComponent
     {
         internal MyActor Owner { get; private set; }

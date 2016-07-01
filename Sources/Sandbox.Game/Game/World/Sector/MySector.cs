@@ -32,10 +32,14 @@ namespace Sandbox.Game.World
         internal static MyGodRaysProperties GodRaysProperties;
         public static VRageRender.MyImpostorProperties[] ImpostorProperties;
         public static string BackgroundTexture;
+        public static string BackgroundTextureNight;
+        public static string BackgroundTextureNightPrefiltered;
         public static Quaternion BackgroundOrientation;
         public static bool UseGenerator = false;
         public static List<int> PrimaryMaterials;
         public static List<int> SecondaryMaterials;
+
+        public static MyEnvironmentDefinition EnvironmentDefinition;
 
         public static MyCamera MainCamera;
 
@@ -48,6 +52,8 @@ namespace Sandbox.Game.World
             ParticleDustProperties = new MyParticleDustProperties();
             GodRaysProperties = new MyGodRaysProperties();
             BackgroundTexture = "BackgroundCube";
+            BackgroundTextureNight = "BackgroundCube";
+            BackgroundTextureNightPrefiltered = "BackgroundCube";
         }
 
         public static Vector3 DirectionToSunNormalized
@@ -64,11 +70,23 @@ namespace Sandbox.Game.World
 
         public static void InitEnvironmentSettings(MyObjectBuilder_EnvironmentSettings environmentBuilder = null)
         {
-            var environment = MyDefinitionManager.Static.EnvironmentDefinition;
+            if (environmentBuilder != null)
+            {
+                EnvironmentDefinition = MyDefinitionManager.Static.GetDefinition<MyEnvironmentDefinition>(environmentBuilder.EnvironmentDefinition);
+            }
+            else if (EnvironmentDefinition == null)
+            {
+                // Fallback
+                EnvironmentDefinition = MyDefinitionManager.Static.GetDefinition<MyEnvironmentDefinition>(MyStringHash.GetOrCompute("Default"));
+            }
+
+            var environment = EnvironmentDefinition;
             var o = environment.BackgroundOrientation;
-            BackgroundTexture        = environment.BackgroundTexture;
-            BackgroundOrientation    = Quaternion.CreateFromYawPitchRoll(o.Yaw, o.Pitch, o.Roll);
-            DistanceToSun            = environment.DistanceToSun;
+            BackgroundTexture                   = environment.BackgroundTexture;
+            BackgroundTextureNight              = environment.BackgroundTextureNight;
+            BackgroundTextureNightPrefiltered   = environment.BackgroundTextureNightPrefiltered;
+            BackgroundOrientation               = Quaternion.CreateFromYawPitchRoll(o.Yaw, o.Pitch, o.Roll);
+            DistanceToSun                       = environment.DistanceToSun;
 
             SunProperties = new MySunProperties(environment.SunProperties);
             FogProperties = environment.FogProperties;
@@ -78,8 +96,6 @@ namespace Sandbox.Game.World
                 Vector3 sunDirection;
                 Vector3.CreateFromAzimuthAndElevation(environmentBuilder.SunAzimuth, environmentBuilder.SunElevation, out sunDirection);
 
-                SunProperties.BaseSunDirectionNormalized = sunDirection;
-                
                 SunProperties.SunDirectionNormalized = sunDirection;
                 SunProperties.SunIntensity = environmentBuilder.SunIntensity;
 
@@ -92,7 +108,7 @@ namespace Sandbox.Game.World
 
         public static MyObjectBuilder_EnvironmentSettings GetEnvironmentSettings()
         {
-            if (SunProperties.Equals(MyDefinitionManager.Static.EnvironmentDefinition.SunProperties) && FogProperties.Equals(MyDefinitionManager.Static.EnvironmentDefinition.FogProperties))
+            if (SunProperties.Equals(EnvironmentDefinition.SunProperties) && FogProperties.Equals(EnvironmentDefinition.FogProperties))
             {
                 return null;
             }
@@ -108,6 +124,8 @@ namespace Sandbox.Game.World
             objectBuilder.FogMultiplier = FogProperties.FogMultiplier;
             objectBuilder.FogDensity = FogProperties.FogDensity;
             objectBuilder.FogColor = FogProperties.FogColor.ToVector3();
+
+            objectBuilder.EnvironmentDefinition = EnvironmentDefinition.Id;
 
             return objectBuilder;
         }

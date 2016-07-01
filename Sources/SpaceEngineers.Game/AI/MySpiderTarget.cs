@@ -74,9 +74,8 @@ namespace SpaceEngineers.Game.AI
                     MySpiderLogic.TriggerAnimationEvent(m_bot.AgentEntity.EntityId, "attack");
                     if (Sync.IsServer)
                         MyMultiplayer.RaiseStaticEvent(x => MySpiderLogic.TriggerAnimationEvent, m_bot.AgentEntity.EntityId, "attack");
-                    m_attackPerformed = true;
                 }
-                else if (attackTime > 500 && !m_attackPerformed)
+                if (attackTime > 750 && !m_attackPerformed)
                 {
                     MyCharacter botEntity = m_bot.AgentEntity;
                     if (botEntity != null)
@@ -85,7 +84,7 @@ namespace SpaceEngineers.Game.AI
                             + botEntity.PositionComp.WorldMatrix.Forward * 2.5
                             + botEntity.PositionComp.WorldMatrix.Up * 1.0;
 
-                        m_attackBoundingSphere = new BoundingSphereD(attackPosition, 1.1);
+                        m_attackBoundingSphere = new BoundingSphereD(attackPosition, 0.9);
                         m_attackPerformed = true;
                         List<MyEntity> hitEntities = MyEntities.GetTopMostEntitiesInSphere(ref m_attackBoundingSphere);
                         foreach (var hitEntity in hitEntities)
@@ -100,21 +99,9 @@ namespace SpaceEngineers.Game.AI
                                 double touchDistSq = m_attackBoundingSphere.Radius + characterVolume.Radius;
                                 touchDistSq = touchDistSq * touchDistSq;
                                 if (Vector3D.DistanceSquared(m_attackBoundingSphere.Center, characterVolume.Center) > touchDistSq) continue;
-
-                                if (character.IsDead)
-                                {
-                                    var inventory = character.GetInventory();
-                                    if (inventory == null) continue;
-                                    if (m_bot.AgentEntity == null) continue;
-                                    var spiderInventory = m_bot.AgentEntity.GetInventory();
-                                    if (spiderInventory == null) continue;
-
-                                    MyInventory.TransferAll(inventory, spiderInventory);
-                                }
-                                else
-                                {
-                                    character.DoDamage(ATTACK_DAMAGE_TO_CHARACTER, MyDamageType.Bolt, updateSync: true, attackerId: botEntity.EntityId);
-                                }
+                                
+                                //Removed stealing inventory
+                                character.DoDamage(ATTACK_DAMAGE_TO_CHARACTER, MyDamageType.Bolt, updateSync: true, attackerId: botEntity.EntityId);
                             }
                             else if (hitEntity is MyCubeGrid && hitEntity.Physics != null)
                             {

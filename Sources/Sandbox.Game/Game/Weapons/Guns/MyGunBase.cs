@@ -40,6 +40,22 @@ namespace Sandbox.Game.Weapons
             public MatrixD DummyToUse { get { return Dummies[DummyIndex]; } }
         }
 
+        private class WeaponEffect
+        {
+            public MyModelDummy Dummy;
+            public int EffectId;
+            public MyWeaponDefinition.WeaponEffectAction Action;
+            public MyParticleEffect Effect;
+
+            public WeaponEffect(MyModelDummy dummy, int effectId, MyWeaponDefinition.WeaponEffectAction action, MyParticleEffect effect)
+            {
+                this.Dummy = dummy;
+                this.EffectId = effectId;
+                this.Effect = effect;
+                this.Action = action;
+            }
+        }
+
         public const int AMMO_PER_SHOOT = 1;
 
         #region Fields
@@ -49,6 +65,8 @@ namespace Sandbox.Game.Weapons
         protected Dictionary<int, DummyContainer> m_dummiesByAmmoType;
         protected MatrixD m_worldMatrix;
         protected IMyGunBaseUser m_user;
+        private List<WeaponEffect> m_activeEffects = new List<WeaponEffect>();
+        public Matrix m_holdingDummyMatrix;
 
         #endregion
 
@@ -56,7 +74,7 @@ namespace Sandbox.Game.Weapons
 
         private Dictionary<string, MyModelDummy> dummies = null;
         public int CurrentAmmo { get; set; }
-        private MyWeaponPropertiesWrapper WeaponProperties { get { return m_weaponProperties; } }
+        public MyWeaponPropertiesWrapper WeaponProperties { get { return m_weaponProperties; } }
         public MyAmmoMagazineDefinition CurrentAmmoMagazineDefinition { get { return WeaponProperties.AmmoMagazineDefinition; } }
         public MyDefinitionId CurrentAmmoMagazineId { get { return WeaponProperties.AmmoMagazineId; } }
         public MyAmmoDefinition CurrentAmmoDefinition { get { return WeaponProperties.AmmoDefinition; } }
@@ -74,7 +92,9 @@ namespace Sandbox.Game.Weapons
         public bool HasMissileAmmoDefined { get { return m_weaponProperties.WeaponDefinition.HasMissileAmmoDefined; } }
         public bool HasProjectileAmmoDefined { get { return m_weaponProperties.WeaponDefinition.HasProjectileAmmoDefined; } }
         public int MuzzleFlashLifeSpan { get { return m_weaponProperties.WeaponDefinition.MuzzleFlashLifeSpan; } }
-        public int ShootIntervalInMiliseconds { get { return m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds; } }
+        public int ShootIntervalInMiliseconds { get { return ShootIntervalModifier == 1 
+            ? m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds : (int)(ShootIntervalModifier * m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds); } }
+        public float ShootIntervalModifier { get; set; }
         public float ReleaseTimeAfterFire { get { return m_weaponProperties.WeaponDefinition.ReleaseTimeAfterFire; } }
         public MySoundPair ShootSound { get { return m_weaponProperties.CurrentWeaponShootSound; } }
         public MySoundPair NoAmmoSound { get { return m_weaponProperties.WeaponDefinition.NoAmmoSound; } }
@@ -124,6 +144,7 @@ namespace Sandbox.Game.Weapons
         {
             m_dummiesByAmmoType = new Dictionary<int, DummyContainer>();
             m_remainingAmmos = new Dictionary<MyDefinitionId, int>();
+            ShootIntervalModifier = 1;
         }
 
         public MyObjectBuilder_GunBase GetObjectBuilder()
@@ -297,7 +318,9 @@ namespace Sandbox.Game.Weapons
             switch (ammoDef.AmmoType)
             {
                 case MyAmmoType.HighSpeed:
-                    AddProjectile(m_weaponProperties, initialPosition, initialVelocity, direction, owner);
+                    var cnt = (ammoDef as MyProjectileAmmoDefinition).ProjectileCount;
+                    for (int i = 0; i < cnt;i++)
+                        AddProjectile(m_weaponProperties, initialPosition, initialVelocity, direction, owner);
                     break;
                 case MyAmmoType.Missile:
                     AddMissile(m_weaponProperties, initialPosition, initialVelocity, direction);
@@ -323,12 +346,63 @@ namespace Sandbox.Game.Weapons
                         if (dummies.TryGetValue(WeaponProperties.WeaponDefinition.WeaponEffects[i].Dummy, out dummy))
                         {
                             MyParticleEffect effect;
-                            if (MyParticlesManager.TryCreateParticleEffect(WeaponProperties.WeaponDefinition.WeaponEffects[i].Particle, out effect))
+                            bool add = true;
+                            int effectId = -1;
+                            MyParticlesLibrary.GetParticleEffectsID(WeaponProperties.WeaponDefinition.WeaponEffects[i].Particle, out effectId);
+                            if (WeaponProperties.WeaponDefinition.WeaponEffects[i].Loop)
                             {
-                                effect.WorldMatrix = MatrixD.Multiply(MatrixD.Normalize(dummy.Matrix), WorldMatrix);
+                                for (int j = 0; j < m_activeEffects.Count; j++)
+                                {
+                                    if (m_activeEffects[j].Dummy == dummy && m_activeEffects[j].EffectId == effectId)
+                                    {
+                                        add = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (add && MyParticlesManager.TryCreateParticleEffect(effectId, out effect))
+                            {
+                                if (WeaponProperties.WeaponDefinition.WeaponEffects[i].Loop)
+                                {
+                                    m_activeEffects.Add(new WeaponEffect(dummy, effectId, action, effect));
+                                }
+                                else
+                                {
+                                    effect.WorldMatrix = MatrixD.Multiply(MatrixD.Normalize(dummy.Matrix), WorldMatrix);
+                                }
                             }
                         }
                     }
+                }
+            }
+        }
+
+        public void UpdateEffects()
+        {
+            for (int i = 0; i < m_activeEffects.Count; i++)
+            {
+                if (!m_activeEffects[i].Effect.IsStopped || m_activeEffects[i].Effect.GetParticlesCount() > 0)
+                {
+                    m_activeEffects[i].Effect.WorldMatrix = MatrixD.Multiply(MatrixD.Normalize(m_activeEffects[i].Dummy.Matrix), WorldMatrix);
+                }
+                else
+                {
+                    m_activeEffects.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
+
+        public void RemoveOldEffects(MyWeaponDefinition.WeaponEffectAction action = MyWeaponDefinition.WeaponEffectAction.Shoot)
+        {
+            for (int i = 0; i < m_activeEffects.Count; i++)
+            {
+                if (m_activeEffects[i].Action == action)
+                {
+                    m_activeEffects[i].Effect.Stop();
+                    m_activeEffects[i].Effect.Close(false);
+                    m_activeEffects.RemoveAt(i);
+                    i--;
                 }
             }
         }
@@ -473,8 +547,8 @@ namespace Sandbox.Game.Weapons
                         m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
                     }
 
-                    RefreshAmmunitionAmount();
-                }
+                RefreshAmmunitionAmount();
+            }
 
                 var weaponInventory = m_user.AmmoInventory;
                 if (weaponInventory != null)
@@ -483,7 +557,7 @@ namespace Sandbox.Game.Weapons
                     if (InventoryItemId.HasValue)
                     {
                         inventoryItem = weaponInventory.GetItemByID(InventoryItemId.Value);
-                    }
+        }
                     else
                     {
                         inventoryItem = weaponInventory.FindUsableItem(m_user.PhysicalItemId);
@@ -530,7 +604,7 @@ namespace Sandbox.Game.Weapons
 
         public void RefreshAmmunitionAmount()
         {
-            if (Sync.IsServer == false)
+            if(Sync.IsServer == false)
             {
                 return;
             }
@@ -580,9 +654,24 @@ namespace Sandbox.Game.Weapons
             foreach (var dummy in dummies)
             {
                 if (dummy.Key.ToLower().Contains("muzzle_projectile"))
+                {
                     AddMuzzleMatrix(MyAmmoType.HighSpeed, dummy.Value.Matrix);
+
+                    //just for testing with old models, holding dummy
+                    m_holdingDummyMatrix = dummy.Value.Matrix;
+                    m_holdingDummyMatrix = Matrix.CreateScale(1f / dummy.Value.Matrix.Scale) * m_holdingDummyMatrix;
+                    m_holdingDummyMatrix = Matrix.Invert(m_holdingDummyMatrix);
+                }
                 else if (dummy.Key.ToLower().Contains("muzzle_missile"))
-                    AddMuzzleMatrix(MyAmmoType.Missile, dummy.Value.Matrix);          
+                    AddMuzzleMatrix(MyAmmoType.Missile, dummy.Value.Matrix);
+                else if (dummy.Key.ToLower().Contains("holding_dummy") || dummy.Key.ToLower().Contains("holdingdummy"))//("muzzledummy"))//("holdingdummy"))
+                {
+                    m_holdingDummyMatrix = dummy.Value.Matrix;
+
+                    //m_holdingDummyMatrix = Matrix.CreateScale(1f / dummy.Value.Matrix.Scale) * m_holdingDummyMatrix;
+                    m_holdingDummyMatrix = Matrix.Normalize(m_holdingDummyMatrix);
+                    //m_holdingDummyMatrix = Matrix.Invert(m_holdingDummyMatrix);
+                }
             }
         }
 

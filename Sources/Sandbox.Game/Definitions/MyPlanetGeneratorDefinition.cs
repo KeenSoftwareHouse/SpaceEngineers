@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using SharpDX.Direct3D11;
+using Sandbox.Game.Entities;
+using Sandbox.Game.WorldEnvironment;
+using Sandbox.Game.WorldEnvironment.Definitions;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Library.Utils;
@@ -165,9 +167,9 @@ namespace Sandbox.Definitions
 
     public struct MyPlanetEnvironmentalSoundRule
     {
-        public MyReflectiveRangeValue Latitude;
-        public MyRangeValue Height;
-        public MyRangeValue SunAngleFromZenith;
+        public SymetricSerializableRange Latitude;
+        public SerializableRange Height;
+        public SerializableRange SunAngleFromZenith;
 
         public MyStringHash EnvironmentSound;
 
@@ -177,26 +179,32 @@ namespace Sandbox.Definitions
         }
     }
 
-    [MyDefinitionType(typeof(MyObjectBuilder_PlanetGeneratorDefinition), typeof(PlanetGeneratorDefinitionPostprocess))]
+    [MyDefinitionType(typeof(MyObjectBuilder_PlanetGeneratorDefinition), typeof(Postprocessor))]
     public class MyPlanetGeneratorDefinition : MyDefinitionBase
     {
+        public MyDefinitionId? EnvironmentId;
+
+        public MyWorldEnvironmentDefinition EnvironmentDefinition;
+
+        private MyObjectBuilder_PlanetGeneratorDefinition m_pgob;
+
         public bool HasAtmosphere = false;
 
-		public List<MyCloudLayerSettings> CloudLayers;
+        public List<MyCloudLayerSettings> CloudLayers;
 
         public MyPlanetMaps PlanetMaps;
 
-        public MyRangeValue HillParams = new MyRangeValue();
+        public SerializableRange HillParams = new SerializableRange();
 
-        public MyRangeValue MaterialsMaxDepth = new MyRangeValue();
+        public SerializableRange MaterialsMaxDepth = new SerializableRange();
 
-        public MyRangeValue MaterialsMinDepth = new MyRangeValue();
+        public SerializableRange MaterialsMinDepth = new SerializableRange();
 
         public MyPlanetOreMapping[] OreMappings = new MyPlanetOreMapping[0];
 
         public float GravityFalloffPower = 7.0f;
 
-        public MyAtmosphereColorShift HostileAtmosphereColorShift = new  MyAtmosphereColorShift();
+        public MyAtmosphereColorShift HostileAtmosphereColorShift = new MyAtmosphereColorShift();
 
         public MyPlanetMaterialDefinition[] SurfaceMaterialTable = new MyPlanetMaterialDefinition[0];
 
@@ -239,6 +247,8 @@ namespace Sandbox.Definitions
         // If defined, it is used in night instead of AnimalSpawnInfo
         public MyPlanetAnimalSpawnInfo NightAnimalSpawnInfo = null;
 
+        public Type EnvironmentSectorType;
+
         private void InheritFrom(string generator)
         {
             MyPlanetGeneratorDefinition parent = MyDefinitionManager.Static.GetDefinition<MyPlanetGeneratorDefinition>(MyStringHash.GetOrCompute(generator));
@@ -257,7 +267,7 @@ namespace Sandbox.Definitions
             PlanetMaps = parent.PlanetMaps;
             HasAtmosphere = parent.HasAtmosphere;
             Atmosphere = parent.Atmosphere;
-			CloudLayers = parent.CloudLayers;
+            CloudLayers = parent.CloudLayers;
             SoundRules = parent.SoundRules;
             MusicCategories = parent.MusicCategories;
             HillParams = parent.HillParams;
@@ -280,6 +290,7 @@ namespace Sandbox.Definitions
             NightAnimalSpawnInfo = parent.NightAnimalSpawnInfo;
             Detail = parent.Detail;
             SectorDensity = parent.SectorDensity;
+            EnvironmentSectorType = parent.EnvironmentSectorType;
         }
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
@@ -292,13 +303,22 @@ namespace Sandbox.Definitions
                 InheritFrom(ob.InheritFrom);
             }
 
+            if (ob.Environment.HasValue)
+            {
+                EnvironmentId = ob.Environment.Value;
+            }
+            else
+            {
+                m_pgob = ob;
+            }
+
             if (ob.PlanetMaps.HasValue)
                 PlanetMaps = ob.PlanetMaps.Value;
 
             if (ob.HasAtmosphere.HasValue) HasAtmosphere = ob.HasAtmosphere.Value;
 
-			if(ob.CloudLayers != null)
-				CloudLayers = ob.CloudLayers;
+            if (ob.CloudLayers != null)
+                CloudLayers = ob.CloudLayers;
 
             if (ob.SoundRules != null)
             {
@@ -430,9 +450,9 @@ namespace Sandbox.Definitions
                 }
             }
 
-            if (ob.EnvironmentItems != null && ob.EnvironmentItems.Length > 0)
+            /*if (ob.EnvironmentItems != null && ob.EnvironmentItems.Length > 0)
             {
-                MaterialEnvironmentMappings = new Dictionary<int,Dictionary<string,List<MyPlanetEnvironmentMapping>>>();
+                MaterialEnvironmentMappings = new Dictionary<int, Dictionary<string, List<MyPlanetEnvironmentMapping>>>();
 
                 for (int i = 0; i < ob.EnvironmentItems.Length; i++)
                 {
@@ -444,7 +464,7 @@ namespace Sandbox.Definitions
                     map.Rule.Slope.ConvertToCosine();
                     map.Rule.Latitude.ConvertToSine();
                     map.Rule.Longitude.ConvertToCosineLongitude();
-                    
+
                     // If the mapping does not assign a material it is ignored
                     if (map.Materials == null) break;
 
@@ -452,7 +472,7 @@ namespace Sandbox.Definitions
 
                     foreach (var biome in map.Biomes)
                     {
-                        Dictionary<string,List<MyPlanetEnvironmentMapping>> matmap;
+                        Dictionary<string, List<MyPlanetEnvironmentMapping>> matmap;
 
                         if (MaterialEnvironmentMappings.ContainsKey(biome))
                         {
@@ -473,7 +493,7 @@ namespace Sandbox.Definitions
                         }
                     }
                 }
-            }
+            }*/
 
             if (ob.OreMappings != null)
             {
@@ -506,48 +526,72 @@ namespace Sandbox.Definitions
             }
         }
 
-        private readonly int[] m_arrayOfZero = { 0 };
-    }
-
-    internal class PlanetGeneratorDefinitionPostprocess : MyDefinitionPostprocessor
-    {
-        // Called after definitions for the current mod context are loaded.
-        public override void AfterLoaded(ref Bundle definitions)
-        {}
-
-        // Called after all definitions are merged to one set
-        // Anything that may refere to other definitions from game or that may be modified by mods should be postprocessed here.
-        public override void AfterPostprocess(MyDefinitionSet set, Dictionary<MyStringHash, MyDefinitionBase> definitions)
+        internal class Postprocessor : MyDefinitionPostprocessor
         {
-            List<int> toRemove = new List<int>();
-
-            foreach (var def in definitions.Values)
+            public override int Priority
             {
-                var pgdef = (MyPlanetGeneratorDefinition) def;
-                foreach (var bmap in pgdef.MaterialEnvironmentMappings.Values)
+                get { return 1000; }
+            }
+
+            // Called after definitions for the current mod context are loaded.
+            public override void AfterLoaded(ref Bundle definitions)
+            {
+            }
+
+            // Called after all definitions are merged to one set
+            // Anything that may refere to other definitions from game or that may be modified by mods should be postprocessed here.
+            public override void AfterPostprocess(MyDefinitionSet set, Dictionary<MyStringHash, MyDefinitionBase> definitions)
+            {
+                List<int> toRemove = new List<int>();
+
+                foreach (var def in definitions.Values)
                 {
-                    foreach (var mmap in bmap.Values)
+                    var pgdef = (MyPlanetGeneratorDefinition)def;
+
+                    // Legacy planet with automatically converted definition
+                    if (!pgdef.EnvironmentId.HasValue)
                     {
-                        foreach (var env in mmap)
+                        pgdef.EnvironmentDefinition = MyProceduralEnvironmentDefinition.FromLegacyPlanet(pgdef.m_pgob, def.Context);
+                        set.AddOrRelaceDefinition(pgdef.EnvironmentDefinition);
+
+                        pgdef.m_pgob = null;
+                    }
+                    else
+                    {
+                        pgdef.EnvironmentDefinition = MyDefinitionManager.Static.GetDefinition<MyWorldEnvironmentDefinition>(pgdef.EnvironmentId.Value);
+                    }
+
+                    if (pgdef.EnvironmentDefinition == null)
+                        continue;
+
+                    pgdef.EnvironmentSectorType = pgdef.EnvironmentDefinition.SectorType;
+                    Debug.Assert(typeof(MyEnvironmentSector).IsAssignableFrom(pgdef.EnvironmentSectorType));
+
+                    foreach (var bmap in pgdef.MaterialEnvironmentMappings.Values)
+                    {
+                        foreach (var mmap in bmap.Values)
                         {
-                            for (int i = 0; i < env.Items.Length; ++i)
+                            foreach (var env in mmap)
                             {
-                                if (env.Items[i].IsEnvironemntItem)
+                                for (int i = 0; i < env.Items.Length; ++i)
                                 {
-                                    MyEnvironmentItemsDefinition eidef;
-                                    if (!MyDefinitionManager.Static.TryGetDefinition(env.Items[i].Definition, out eidef))
+                                    if (env.Items[i].IsEnvironemntItem)
                                     {
-                                        MyLog.Default.WriteLine(string.Format("Could not find environment item definition for {0}.", env.Items[i].Definition));
-                                        toRemove.Add(i);
+                                        MyEnvironmentItemsDefinition eidef;
+                                        if (!MyDefinitionManager.Static.TryGetDefinition(env.Items[i].Definition, out eidef))
+                                        {
+                                            MyLog.Default.WriteLine(string.Format("Could not find environment item definition for {0}.", env.Items[i].Definition));
+                                            toRemove.Add(i);
+                                        }
                                     }
                                 }
-                            }
 
-                            if (toRemove.Count > 0)
-                            {
-                                env.Items = env.Items.RemoveIndices(toRemove);
-                                env.ComputeDistribution();
-                                toRemove.Clear();
+                                if (toRemove.Count > 0)
+                                {
+                                    env.Items = env.Items.RemoveIndices(toRemove);
+                                    env.ComputeDistribution();
+                                    toRemove.Clear();
+                                }
                             }
                         }
                     }

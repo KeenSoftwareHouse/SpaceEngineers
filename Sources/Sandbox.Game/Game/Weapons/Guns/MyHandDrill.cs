@@ -26,13 +26,14 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.ModAPI.Weapons;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_HandDrill))]
-    public class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyGunBaseUser
+    public class MyHandDrill : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyGunBaseUser, IMyHandDrill
     {
 	    private const float SPIKE_THRUST_DISTANCE_HALF = 0.2f;
         private const float SPIKE_THRUST_PERIOD_IN_SECONDS = 0.05f;
@@ -45,7 +46,6 @@ namespace Sandbox.Game.Weapons
 
         private MyEntitySubpart m_spike;
         private Vector3 m_spikeBasePos;
-        private Vector3 m_lastSparksPosition;
 #if ROTATE_DRILL_SPIKE
         private float m_spikeRotationAngle;
 #endif
@@ -239,7 +239,8 @@ namespace Sandbox.Game.Weapons
             base.UpdateAfterSimulation();
             m_drillBase.UpdateAfterSimulation();
 
-            CreateCollisionSparks();
+            if(IsShooting)
+                CreateCollisionSparks();
 
             if (m_drillBase.IsDrilling || m_drillBase.AnimationMaxSpeedRatio > 0f)
             {
@@ -274,31 +275,54 @@ namespace Sandbox.Game.Weapons
             var origin = m_drillBase.Sensor.Center;
 
             m_objectInDrillingRange = false;
+            bool cubeGrid = false;
+            bool voxel = false;
             foreach (var entry in m_drillBase.Sensor.EntitiesInRange)
             {
-                const float sparksMoveDist = 0.1f;
-
                 var pt = entry.Value.DetectionPoint;
                 if (Vector3.DistanceSquared(pt, origin) < distSq)
                 {
+                    cubeGrid = entry.Value.Entity is MyCubeGrid;
+                    voxel = entry.Value.Entity is MyVoxelBase;
+
                     m_objectInDrillingRange = true;
-                    if (Vector3.DistanceSquared(m_lastSparksPosition, pt) > sparksMoveDist * sparksMoveDist)
+
+                    if (cubeGrid)
                     {
-                        m_lastSparksPosition = pt;
-                        MyParticleEffect effect;
-                        if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.CollisionSparksHandDrill, out effect))
+                        if (m_drillBase.SparkEffect != null)
                         {
-                            effect.WorldMatrix = MatrixD.CreateWorld(pt, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
-                            effect.UserScale = 0.3f;
+                            if (m_drillBase.SparkEffect.IsEmittingStopped)
+                                m_drillBase.SparkEffect.Play();
+                            m_drillBase.SparkEffect.WorldMatrix = MatrixD.CreateWorld(pt, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
                         }
                         else
                         {
-                            // here we sould probably play some collision sound
+                            if (MyParticlesManager.TryCreateParticleEffect((int)MyDrillConstants.DRILL_HAND_SPARKS_EFFECT, out m_drillBase.SparkEffect))
+                                m_drillBase.SparkEffect.WorldMatrix = MatrixD.CreateWorld(pt, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
+                        }
+                    }
+                    if (voxel)
+                    {
+                        if (m_drillBase.DustParticles != null)
+                        {
+                            if (m_drillBase.DustParticles.IsEmittingStopped)
+                                m_drillBase.DustParticles.Play();
+                            m_drillBase.DustParticles.WorldMatrix = MatrixD.CreateWorld(pt, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
+                        }
+                        else
+                        {
+                            if (MyParticlesManager.TryCreateParticleEffect((int)MyDrillConstants.DRILL_HAND_DUST_STONES_EFFECT, out m_drillBase.DustParticles))
+                                m_drillBase.DustParticles.WorldMatrix = MatrixD.CreateWorld(pt, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
                         }
                     }
                     break;
                 }
             }
+            if (m_drillBase.SparkEffect != null && cubeGrid == false)
+                m_drillBase.SparkEffect.StopEmitting();
+
+            if (m_drillBase.DustParticles != null && voxel == false)
+                m_drillBase.DustParticles.StopEmitting();
         }
 
         private void WorldPositionChanged(object source)

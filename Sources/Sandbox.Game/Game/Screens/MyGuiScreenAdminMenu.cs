@@ -31,6 +31,8 @@ using VRage.Network;
 using Sandbox.Game.Entities.Character;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.SessionComponents;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
@@ -57,6 +59,9 @@ namespace Sandbox.Game.Gui
         static CyclingOptions m_cyclingOtions = new CyclingOptions();
         protected Vector4 m_labelColor = Color.White.ToVector4();
         protected MyGuiControlCheckbox m_creativeCheckbox;
+        List<IMyGps> m_gpsList = new List<IMyGps>();
+
+        int m_currentGpsIndex = 0;
 
         public MyGuiScreenAdminMenu()
             : base(new Vector2(MyGuiManager.GetMaxMouseCoord().X - SCREEN_SIZE.X * 0.5f + HIDDEN_PART_RIGHT, 0.5f), SCREEN_SIZE, MyGuiConstants.SCREEN_BACKGROUND_COLOR, false)
@@ -254,6 +259,7 @@ namespace Sandbox.Game.Gui
         private void OnPlayerControl(MyGuiControlButton obj)
         {
             m_attachCamera = 0;
+            MySessionComponentAnimationSystem.Static.EntitySelectedForDebug = null; // reset debugging
             MyGuiScreenGamePlay.SetCameraController();
         }
 
@@ -284,7 +290,57 @@ namespace Sandbox.Game.Gui
 
         void OnCycleClicked(bool reset, bool forward)
         {
+            if (m_order != MyEntityCyclingOrder.Gps)
+            {
             MyMultiplayer.RaiseStaticEvent(x => CycleRequest_Implementation, m_order, reset, forward, m_metricValue, m_entityId, m_cyclingOtions);
+        }
+            else
+            {
+                CircleGps(reset,forward);
+            }
+
+        }
+
+        void CircleGps(bool reset, bool forward)
+        { 
+            if(MySession.Static != null && MySession.Static.Gpss != null && MySession.Static.LocalHumanPlayer != null)
+            {
+                if (forward)
+                {
+                    m_currentGpsIndex--;
+                }
+                else
+                {
+                    m_currentGpsIndex++;
+                }
+
+                m_gpsList.Clear();
+                MySession.Static.Gpss.GetGpsList(MySession.Static.LocalPlayerId, m_gpsList);
+
+                if(m_gpsList.Count == 0)
+                {
+                    m_currentGpsIndex = 0;
+                    return;
+                }
+
+                if(m_currentGpsIndex < 0)
+                {
+                    m_currentGpsIndex = m_gpsList.Count - 1;
+                }
+              
+                if(m_gpsList.Count <= m_currentGpsIndex || reset)
+                {
+                    m_currentGpsIndex = 0;
+                }
+
+                Vector3D gpsPosition =  m_gpsList[m_currentGpsIndex].Coords;
+
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator);
+                Vector3D? cameraPosition = MyEntities.FindFreePlace(gpsPosition + Vector3D.One , 2.0f,30);
+                 
+                MySpectatorCameraController.Static.Position = cameraPosition.HasValue ? cameraPosition.Value : (gpsPosition + Vector3D.One);
+                MySpectatorCameraController.Static.Target = gpsPosition;
+            }
         }
 
         [Event, Reliable, Server]
@@ -371,6 +427,10 @@ namespace Sandbox.Game.Gui
                 MySession.Static.SetCameraController(MyCameraControllerEnum.Spectator);
                 MySpectatorCameraController.Static.Position = volume.Center + Math.Max((float)volume.Radius,1.0f) * Vector3.One;
                 MySpectatorCameraController.Static.Target = volume.Center;
+
+                // debug animation system
+                MySessionComponentAnimationSystem.Static.EntitySelectedForDebug = entity;
+
                 return true;
             }
 

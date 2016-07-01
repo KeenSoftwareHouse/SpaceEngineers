@@ -425,6 +425,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
+            //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(400, 200), String.Format("Primary: {0}, Secondary: {1}", m_primaryToolAction, m_secondaryToolAction), Color.Magenta, 1.0f);
 
             bool isShooting = IsShooting;
 
@@ -453,8 +454,6 @@ namespace Sandbox.Game.Entities
                             bool isBlock = false;
                             float efficiencyMultiplier = 1.0f;
                             bool canHit = CanHit(toolComponent, detectorComponent, ref isBlock, out efficiencyMultiplier);
-
-                            MyDecals.HandleAddDecal(detectorComponent.DetectedEntity, hitInfo, MyDamageType.Weapon);
 
                             bool isHit = false;
                             if (canHit)
@@ -622,8 +621,7 @@ namespace Sandbox.Game.Entities
         public override void UpdateAfterSimulation10()
         {
             base.UpdateAfterSimulation10();
-
-
+            
             GetMostEffectiveToolAction(m_toolItemDef.PrimaryActions, out m_primaryToolAction, out m_primaryHitCondition);
             GetMostEffectiveToolAction(m_toolItemDef.SecondaryActions, out m_secondaryToolAction, out m_secondaryHitCondition);
 
@@ -661,10 +659,12 @@ namespace Sandbox.Game.Entities
         {
             MyCharacterDetectorComponent detectorComponent = m_owner.Components.Get<MyCharacterDetectorComponent>();
             IMyEntity hitEntity = null;
+            uint shapeKey = 0;
 
             if (detectorComponent != null)
             {
                 hitEntity = detectorComponent.DetectedEntity;
+                shapeKey = detectorComponent.ShapeKey;
 
                 float hitDistance = Vector3.Distance(detectorComponent.HitPosition, PositionComp.GetPosition());
 
@@ -686,7 +686,7 @@ namespace Sandbox.Game.Entities
                         {
                             if (hitEntity != null)
                             {
-                                string availableState = GetStateForTarget((MyEntity)hitEntity, condition.Component);
+                                string availableState = GetStateForTarget((MyEntity)hitEntity, shapeKey, condition.Component);
                                 if (condition.EntityType.Contains(availableState))
                                 {
                                     bestAction = action;
@@ -738,7 +738,7 @@ namespace Sandbox.Game.Entities
             }
 		}
 
-        private string GetStateForTarget(MyEntity targetEntity, string actionType)
+        private string GetStateForTarget(MyEntity targetEntity, uint shapeKey, string actionType)
         {
             if (targetEntity == null)
                 return null;
@@ -747,14 +747,14 @@ namespace Sandbox.Game.Entities
             IMyHandToolComponent comp;
             if (m_toolComponents.TryGetValue(actionType, out comp))
             {
-                targetState = comp.GetStateForTarget(targetEntity);
+                targetState = comp.GetStateForTarget(targetEntity, shapeKey);
                 if (!string.IsNullOrEmpty(targetState))
                     return targetState;
             }
 
             foreach (var c in m_toolComponents)
             {
-                targetState = c.Value.GetStateForTarget(targetEntity);
+                targetState = c.Value.GetStateForTarget(targetEntity, shapeKey);
                 if (!string.IsNullOrEmpty(targetState))
                     return targetState;
             }

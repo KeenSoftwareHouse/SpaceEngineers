@@ -11,7 +11,6 @@ using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
@@ -85,7 +84,7 @@ namespace Sandbox.Game.Entities
         {
             CreateTerminalControls();
 
-            m_isRecharging.ValueChanged += x => RaisePropertiesChangedJumpDrive();
+            m_isRecharging.ValueChanged += x => RaisePropertiesChanged();   //GR: Maybe not needed since called every 100 frames either way
             m_targetSync.ValueChanged += x => TargetChanged();
             m_storedPower.ValidateNever();
         }
@@ -100,7 +99,7 @@ namespace Sandbox.Game.Entities
             { 
                  m_jumpTarget = null;
             }
-            RaisePropertiesChangedJumpDrive();
+            RaisePropertiesChanged();
         }
 
         static void CreateTerminalControls()
@@ -194,12 +193,6 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        private void OnTargetRemoved()
-        {
-           
-            RaisePropertiesChangedJumpDrive();
-        }
-
         private void RequestJump()
         {
             if (CanJump)
@@ -284,7 +277,7 @@ namespace Sandbox.Game.Entities
             if (selection.Count > 0)
             {
                 m_selectedGps = (IMyGps)selection[0].UserData;
-                RaisePropertiesChangedJumpDrive();
+                RaisePropertiesChanged();
             }
         }
         #endregion
@@ -445,18 +438,9 @@ namespace Sandbox.Game.Entities
                 float ratio = Math.Min(1.0f, (float)(maxDistance / distance));
                 DetailedInfo.Append("Current jump: " + (ratio * 100f).ToString("F2") + "%");
             }
-            RaisePropertiesChangedJumpDrive();
+            RaisePropertiesChanged();
         }
 
-        private void RaisePropertiesChangedJumpDrive()
-        {
-            int gpsFirstVisibleRow = m_gpsGuiControl != null ? m_gpsGuiControl.FirstVisibleRow : 0;
-            RaisePropertiesChanged();
-            if (m_gpsGuiControl != null && gpsFirstVisibleRow < m_gpsGuiControl.Items.Count)
-            {
-                m_gpsGuiControl.FirstVisibleRow = gpsFirstVisibleRow;
-            }
-        }
         #endregion
 
         #region Power

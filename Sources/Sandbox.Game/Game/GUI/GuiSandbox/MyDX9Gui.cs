@@ -163,6 +163,7 @@ namespace Sandbox.Graphics.GUI
             UserDebugInputComponents.Add(new MyRenderDebugInputComponent());
             UserDebugInputComponents.Add(new MyComponentsDebugInputComponent());
             UserDebugInputComponents.Add(new MyVoxelDebugInputComponent());
+            UserDebugInputComponents.Add(new MyVRDebugInputComponent());
             UserDebugInputComponents.Add(new MyResearchDebugInputComponent());
             LoadDebugInputsFromConfig();
         }
@@ -363,6 +364,7 @@ namespace Sandbox.Graphics.GUI
                         //Reload textures
                         if (MyInput.Static.IsKeyPress(MyKeys.LeftShift))
                         {
+                            MyDefinitionManager.Static.ReloadDecalMaterials();
                             VRageRender.MyRenderProxy.ReloadTextures();
                         }
                         else
@@ -399,16 +401,26 @@ namespace Sandbox.Graphics.GUI
             {
                 if (MyInput.Static.ENABLE_DEVELOPER_KEYS)
                     ShowDeveloperDebugScreen();
-                else
-                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxF12Question),
-                        messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextF12Question),
-                        buttonType: MyMessageBoxButtonsType.YES_NO,
-                        callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
-                                  {
-                                    if (result == MyGuiScreenMessageBox.ResultEnum.YES)
-                                        ShowDeveloperDebugScreen();
-                                  }));
+                else 
+                {
+                    if (m_currentDebugScreen is MyGuiScreenDebugDeveloper)
+                    {
+                        RemoveScreen(m_currentDebugScreen);
+                        m_currentDebugScreen = null;
+                    }
+                    else
+                    {
+                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                           messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxF12Question),
+                           messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextF12Question),
+                           buttonType: MyMessageBoxButtonsType.YES_NO,
+                           callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
+                           {
+                               if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                                   ShowDeveloperDebugScreen();
+                           }));
+                    }
+                }
             }
 
             if (MyFakes.ALT_AS_DEBUG_KEY)

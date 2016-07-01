@@ -21,8 +21,9 @@ namespace VRageRender
         public int RefreshRate; // Used only in Fullscreen
         public bool VSync;
         public bool DebugDrawOnly;
-
-#if XB1
+        public bool UseStereoRendering;
+        public bool SettingsMandatory;
+#if BLIT || XB1
         public MyRenderDeviceSettings(int adapter)
         {
             this.AdapterOrdinal = adapter;
@@ -36,7 +37,7 @@ namespace VRageRender
         }
 #endif
 
-        public MyRenderDeviceSettings(int adapter, MyWindowModeEnum windowMode, int width, int height, int refreshRate, bool vsync)
+        public MyRenderDeviceSettings(int adapter, MyWindowModeEnum windowMode, int width, int height, int refreshRate, bool vsync, bool useStereoRendering, bool settingsMandatory)
         {
             this.AdapterOrdinal = adapter;
             this.WindowMode = windowMode;
@@ -44,6 +45,8 @@ namespace VRageRender
             this.BackBufferHeight = height;
             this.RefreshRate = refreshRate;
             this.VSync = vsync;
+            this.UseStereoRendering = useStereoRendering;
+            this.SettingsMandatory = settingsMandatory;
 
             DebugDrawOnly = false;
         }
@@ -60,7 +63,9 @@ namespace VRageRender
                 && BackBufferWidth == other.BackBufferWidth
                 && BackBufferHeight == other.BackBufferHeight
                 && RefreshRate == other.RefreshRate
-                && VSync == other.VSync;
+                && VSync == other.VSync
+                && UseStereoRendering == other.UseStereoRendering
+                && SettingsMandatory == other.SettingsMandatory;
         }
     }
 
@@ -203,6 +208,7 @@ namespace VRageRender
         public bool DisplayGbufferColor = false;
         public bool DisplayGbufferColorLinear = false;
         public bool DisplayGbufferNormal = false;
+        public bool DisplayGbufferNormalView = false;
         public bool DisplayGbufferGlossiness = false;
         public bool DisplayGbufferMetalness = false;
         public bool DisplayGbufferMaterialID = false;
@@ -256,7 +262,7 @@ namespace VRageRender
         public bool ShadowInterleaving = false;         // Blinking moving asteroids
 
         // Shadow cascades
-        public int ShadowCascadeCount = 4;
+        public int ShadowCascadeCount = 6;
         public bool ShowShadowCascadeSplits = false;
         public bool UpdateCascadesEveryFrame = false;
         public bool EnableShadowBlur = true;
@@ -266,6 +272,7 @@ namespace VRageRender
 		public float ShadowCascadeSpreadFactor = 0.5f;
 		public float ShadowCascadeZOffset = 400;
         public bool[] ShadowCascadeFrozen;
+        public bool DisplayFrozenShadowCascade;
         public float[] ShadowCascadeSmallSkipThresholds;
 
         /*public float Cascade0SmallSkipThreshold = 0;
@@ -314,7 +321,7 @@ namespace VRageRender
 
         public bool DebugDrawDecals = false;
 
-        public static bool PerInstanceLods = false;
+        public static bool PerInstanceLods = true;
 
         internal void Synchronize(MyRenderSettings settings)
         {
@@ -397,6 +404,7 @@ namespace VRageRender
             DisplayGbufferColor = settings.DisplayGbufferColor;
             DisplayGbufferColorLinear = settings.DisplayGbufferColorLinear;
             DisplayGbufferNormal = settings.DisplayGbufferNormal;
+            DisplayGbufferNormalView = settings.DisplayGbufferNormalView;
             DisplayGbufferGlossiness = settings.DisplayGbufferGlossiness;
             DisplayGbufferMetalness = settings.DisplayGbufferMetalness;
             DisplayGbufferMaterialID = settings.DisplayGbufferMaterialID;
@@ -531,9 +539,9 @@ namespace VRageRender
     {
         NONE,
         FXAA,
-        MSAA_2,
-        MSAA_4,
-        MSAA_8
+        //MSAA_2,
+        //MSAA_4,
+        //MSAA_8
     }
 
     /// <summary>

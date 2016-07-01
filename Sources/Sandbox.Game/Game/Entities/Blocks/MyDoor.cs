@@ -61,7 +61,8 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return base.DisassembleRatio * (Open ? 1.0f : CLOSED_DISSASEMBLE_RATIO);
+                //for now have the same dissasemble ratio maybe change again in the future
+                return base.DisassembleRatio * CLOSED_DISSASEMBLE_RATIO/* * (Open ? 1.0f : CLOSED_DISSASEMBLE_RATIO) */;
             }
         }
 
@@ -138,7 +139,7 @@ namespace Sandbox.Game.Entities
 
             if (relation.IsFriendly())
             {
-                m_open.Value = open;
+                Open = open;
             }
         }
 

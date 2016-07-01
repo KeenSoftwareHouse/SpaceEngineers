@@ -164,7 +164,7 @@ namespace Sandbox.Engine.Physics
                 characterRBCInfo.AllowedPenetrationDepth = MyFakes.ENABLE_LIMITED_CHARACTER_BODY ? 0.3f : 0.1f;
                 characterRBCInfo.JumpHeight = 0.8f;
 
-                bool shouldLimitSpeed = (Sync.IsServer || MyPerGameSettings.EnableMultiplayerVelocityCompensation == false);
+                bool shouldLimitSpeed = Sync.IsServer;
                 float maxCharacterSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
                 CharacterRigidBody = new HkCharacterRigidBody(characterRBCInfo, maxCharacterSpeed, body, isOnlyVertical);
 
@@ -550,7 +550,7 @@ namespace Sandbox.Engine.Physics
         public void EnableFlyingState(bool enable)
         {
             //multiply by constant because walking on max moving ship
-            bool shouldLimitSpeed =  (Sync.IsServer || MyPerGameSettings.EnableMultiplayerVelocityCompensation == false);
+            bool shouldLimitSpeed =  Sync.IsServer;
             float maxCharacterWalkingSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
             float maxCharacterFlyingSpeed = shouldLimitSpeed ? (MyGridPhysics.ShipMaxLinearVelocity() + m_maxSpeedRelativeToShip) : MyGridPhysics.MAX_SHIP_SPEED;
             float maxAcceleration = 9; // why

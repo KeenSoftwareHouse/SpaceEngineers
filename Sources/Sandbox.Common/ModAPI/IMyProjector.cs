@@ -12,7 +12,7 @@ namespace Sandbox.ModAPI
         NotFound,
     }
 
-    public interface IMyProjector : Ingame.IMyProjector
+    public interface IMyProjector : IMyFunctionalBlock, Ingame.IMyProjector
     {
         /// <summary>
         /// The grid currently being projected. Will return null if there is no active projection.
@@ -34,6 +34,7 @@ namespace Sandbox.ModAPI
         /// <param name="cubeBlock"></param>
         /// <param name="owner"></param>
         /// <param name="builder"></param>
-        void Build( IMySlimBlock cubeBlock, long owner, long builder );
+        /// <param name="requestInstant"></param>
+        void Build( IMySlimBlock cubeBlock, long owner, long builder, bool requestInstant );
     }
 }

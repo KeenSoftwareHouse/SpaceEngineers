@@ -674,6 +674,9 @@ namespace Sandbox.Game.GameSystems
         {
             MyPhysicalItemDefinition itemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(itemDefinitionId);
 
+            if (itemDef == null)
+                return true;
+
             // A bit hacky but in this case better than adding something to the definitions
             if (itemDefinitionId.TypeId == typeof(MyObjectBuilder_PhysicalGunObject))
                 return false;

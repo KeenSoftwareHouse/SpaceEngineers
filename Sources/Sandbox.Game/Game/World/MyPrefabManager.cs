@@ -196,7 +196,7 @@ namespace Sandbox.Game.World
                     if (cubeGrid.IsStatic)
                     {
                         Vector3 rounded = default(Vector3I);
-                        if (MyPerGameSettings.BuildingSettings.StaticGridAlignToCenter)
+                        if (MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter)
                             rounded = Vector3I.Round(newWorldMatrix.Translation / cubeGrid.GridSize) * cubeGrid.GridSize;
                         else
                             rounded = Vector3I.Round(newWorldMatrix.Translation / cubeGrid.GridSize + 0.5f) * cubeGrid.GridSize - 0.5f * cubeGrid.GridSize;
@@ -426,7 +426,7 @@ namespace Sandbox.Game.World
 
                 foreach (var grid in resultList)
                 {
-                    if (firstCockpit != null)
+                    if (firstCockpit != null && rotateToCockpit)
                     {
                         grid.WorldMatrix = grid.WorldMatrix * transform;
                     }

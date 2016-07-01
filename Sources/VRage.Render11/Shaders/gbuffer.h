@@ -1,4 +1,6 @@
 #include <Lighting/Utils.h>
+#include <vertex_transformations.h>
+#include <pixel_utils.h>
 
 #ifndef MS_SAMPLE_COUNT
 Texture2D<float>	DepthBuffer	: register( t0 );
@@ -67,26 +69,24 @@ SurfaceInterface read_gbuffer(uint2 screencoord, uint sample = 0)
 	stencil = Stencil.Load(screencoord, sample).g;
 #endif
 
-	const float ray_x = 1./frame_.projection_matrix._11;
-	const float ray_y = 1./frame_.projection_matrix._22;
-	float3 screen_ray = float3(lerp( -ray_x, ray_x, uv.x ), -lerp( -ray_y, ray_y, uv.y ), -1.);
-
-	gbuffer.V = mul(screen_ray, transpose((float3x3)frame_.view_matrix));
-	gbuffer.native_depth = hw_depth;
-	gbuffer.depth = -linearize_depth(gbuffer.native_depth, frame_.projection_matrix);
+    float3 screen_ray = compute_screen_ray(uv);
+    float3 Vinv = view_to_world(screen_ray);
+    gbuffer.native_depth = hw_depth;
+    gbuffer.depth = compute_depth(hw_depth);
 	gbuffer.positionView = gbuffer.depth * screen_ray;
-	gbuffer.position = get_camera_position() + gbuffer.depth * gbuffer.V;
-	gbuffer.V = -normalize(gbuffer.V);
+    gbuffer.position = get_camera_position() + gbuffer.depth * Vinv;
+    gbuffer.V = -normalize(Vinv);
 	gbuffer.VView = -normalize(screen_ray);
 
+    float3 nview = unpack_normals2(gbuffer1.xy);
 	gbuffer.base_color = gbuffer0.xyz;
-	gbuffer.N = normalize(gbuffer1.xyz * 2 - 1);
-	gbuffer.NView = mul(gbuffer.N, (float3x3)frame_.view_matrix);
-	gbuffer.gloss = gbuffer1.w;
+    gbuffer.NView = nview;
+    gbuffer.N = view_to_world(nview);
+	gbuffer.gloss = gbuffer2.g;
 
-	gbuffer.metalness = gbuffer0.w;
-	gbuffer.ao = min(gbuffer2.x, AOTexture.SampleLevel(LinearSampler, uv,0));
-	gbuffer.id = gbuffer2.y * 255;
+	gbuffer.metalness = gbuffer2.r;
+	gbuffer.ao = min(gbuffer1.z, AOTexture.SampleLevel(LinearSampler, ((float2) screencoord) / frame_.resolution_of_gbuffer, 0));
+	gbuffer.id = gbuffer0.w * 255;
 	gbuffer.coverage = gbuffer2.w * 255;
 	gbuffer.emissive = gbuffer2.z;
 	gbuffer.stencil = stencil;

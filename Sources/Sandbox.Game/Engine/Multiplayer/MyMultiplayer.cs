@@ -405,6 +405,25 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
+        public static void RefreshChild(IMyEventProxy proxy)
+        {
+            var server = GetReplicationServer();
+            if (server != null)
+            {
+                Debug.Assert(proxy != null, "Proxy cannot be null");
+                server.RefreshChildren(proxy);
+            }
+        }
+
+        public static void RefreshChild(IMyReplicable replicable)
+        {
+            var server = GetReplicationServer();
+            if (server != null)
+            {
+                server.RefreshChildren(replicable);
+            }
+        }
+
         /// <summary>
         /// This is hack for immediate replication, it's necessary because of logic dependency.
         /// E.g. Character is created on server, sent to client and respawn message sent immediatelly.
@@ -421,6 +440,8 @@ namespace Sandbox.Engine.Multiplayer
                 server.ForceReplicable(replicable, clientEndpoint);
             }
         }
+
+
 
         public static void ReplicateImmediatelly(IMyEventProxy proxy, EndpointId clientEndpoint)
         {

@@ -442,7 +442,7 @@ namespace Sandbox.Game.AI.Pathfinding
             MyTrace.Send(TraceWindow.Ai, "Adding cell " + cellPos);
 
             m_connectionHelper.ClearCell();
-            m_vertexMapping.Init(generatedMesh.VerticesCount);
+            m_vertexMapping.Resize(generatedMesh.VerticesCount);
 
             // Prepare list of possibly intersecting cube grids for voxel-grid navmesh intersection testing
             Vector3D bbMin = m_voxelMap.PositionLeftBottomCorner + (m_cellSize * (m_bbMinOffset + cellPos));

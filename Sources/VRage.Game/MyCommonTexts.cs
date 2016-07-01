@@ -1149,6 +1149,11 @@ using VRage.Utils;
         public static readonly MyStringId MessageBoxCaptionWarning = MyStringId.GetOrCompute("MessageBoxCaptionWarning");
 
         ///<summary>
+        ///These mods were created in development version. They could cause issues in game
+        ///</summary>
+        public static readonly MyStringId MessageBoxModsMismatch = MyStringId.GetOrCompute("MessageBoxModsMismatch");
+
+        ///<summary>
         ///This will open {0} in your internet browser. The game will keep running. Do you want to continue?
         ///</summary>
         public static readonly MyStringId MessageBoxTextOpenBrowser = MyStringId.GetOrCompute("MessageBoxTextOpenBrowser");
@@ -2509,7 +2514,7 @@ using VRage.Utils;
         public static readonly MyStringId JoinGame_SearchTooltip = MyStringId.GetOrCompute("JoinGame_SearchTooltip");
 
         ///<summary>
-        ///Downloading mods ... please wait.
+        ///Downloading mod 
         ///</summary>
         public static readonly MyStringId ProgressTextDownloadingMods = MyStringId.GetOrCompute("ProgressTextDownloadingMods");
 
@@ -3489,6 +3494,16 @@ using VRage.Utils;
         public static readonly MyStringId ControlName_VoiceChat = MyStringId.GetOrCompute("ControlName_VoiceChat");
 
         ///<summary>
+        ///Cube size toggle button
+        ///</summary>
+        public static readonly MyStringId ControlName_CubeSizeMode = MyStringId.GetOrCompute("ControlName_CubeSizeMode");
+
+        ///<summary>
+        ///Press to switch between small and large sizes of a block
+        ///</summary>
+        public static readonly MyStringId ControlName_CubeSizeMode_Tooltip = MyStringId.GetOrCompute("ControlName_CubeSizeMode_Tooltip");
+
+        ///<summary>
         ///Enable voice chat
         ///</summary>
         public static readonly MyStringId EnableVoiceChat = MyStringId.GetOrCompute("EnableVoiceChat");
@@ -3497,6 +3512,11 @@ using VRage.Utils;
         ///Tonemapping
         ///</summary>
         public static readonly MyStringId ScreenGraphicsOptions_Tonemapping = MyStringId.GetOrCompute("ScreenGraphicsOptions_Tonemapping");
+
+        ///<summary>
+        ///Vegetation View Distance
+        ///</summary>
+        public static readonly MyStringId WorldSettings_VegetationDistance = MyStringId.GetOrCompute("WorldSettings_VegetationDistance");
 
         ///<summary>
         ///Grass density
@@ -3827,4 +3847,9 @@ using VRage.Utils;
         ///Use contextual music
         ///</summary>
         public static readonly MyStringId AudioSettings_UseMusicController = MyStringId.GetOrCompute("AudioSettings_UseMusicController");
+
+        ///<summary>
+        ///Change block variants
+        ///</summary>
+        public static readonly MyStringId ControlName_ChangeBlockVariants = MyStringId.GetOrCompute("ControlName_ChangeBlockVariants");
     }

@@ -10,7 +10,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Components;
 using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Game;
@@ -393,7 +393,7 @@ namespace Sandbox.Game.Entities.Cube
             MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
-        float IMyBeacon.Radius
+        float ModAPI.Ingame.IMyBeacon.Radius
         {
             get { return RadioBroadcaster.BroadcastRadius; }
         }

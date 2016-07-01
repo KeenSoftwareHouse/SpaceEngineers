@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDraw6FaceConvex : MyRenderMessageBase
+    public class MyRenderMessageDebugDraw6FaceConvex : MyDebugRenderMessage
     {
         /* Vertices of the 6-faced convex shape. */
         /* vertext order is: tlb trb tlf trf bfb brb blf brf */
@@ -16,7 +16,6 @@ namespace VRageRender
         public bool DepthRead;
         public bool Fill;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDraw6FaceConvex; } }
     }
 }

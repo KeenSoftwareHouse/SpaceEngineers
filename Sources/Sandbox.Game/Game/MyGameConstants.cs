@@ -188,7 +188,7 @@ namespace Sandbox.Game
 
         public const float MIN_REQUIRED_POWER_THRUST_CHANGE_THRESHOLD = 0.001f / 50000;
 
-        public const float MAX_REQUIRED_POWER_CONNECTOR = 0.005f;
+        public const float MAX_REQUIRED_POWER_CONNECTOR = 0.001f;
         public const float REQUIRED_INPUT_CONVEYOR_LINE = 0.00002f; // 20 W per tube
     }
 

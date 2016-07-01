@@ -65,7 +65,33 @@ namespace VRageRender
         private Vector3D[] m_cornersCS;
         private readonly Vector3D[] m_frustumVerticesWS = new Vector3D[8];
 
-        private Matrix m_oldView;
+        private Vector3D[] m_blockOS = new Vector3D[8]
+        {
+                new Vector3D(-1, -1, 0),
+                new Vector3D(-1, 1, 0),
+                new Vector3D( 1, 1, 0),
+                new Vector3D( 1, -1, 0),
+
+                new Vector3D(-1, -1, 1),
+                new Vector3D(-1, 1, 1),
+                new Vector3D( 1, 1, 1),
+                new Vector3D( 1, -1, 1)
+        };
+        private Vector3D[] m_tmpDebugFrozen8D = new Vector3D[8];
+        private Vector3[] m_tmpDebugFrozen8 = new Vector3[8]; 
+        
+        private Matrix[] m_debugFrozenMatrixView = new Matrix[8];
+        private Color[] m_debugCascadeColor = new[]
+        {
+                Color.Red,
+                Color.Green,
+                Color.Blue,
+                Color.Yellow,
+                Color.Gray,
+                Color.Orange,
+                Color.Red,
+                Color.Green
+        };
         #endregion
 
         #region Properties
@@ -148,9 +174,9 @@ namespace VRageRender
 
             MyRender11.Log.WriteLine("InitCascadeTextures: " + m_cascadesReferenceCount + " / " + MyScene.SeparateGeometry);
             m_cascadeShadowmapArray = MyRwTextures.CreateShadowmapArray(cascadeResolution, cascadeResolution,
-                m_initializedShadowCascadesCount, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "Cascades shadowmaps");
+                m_initializedShadowCascadesCount, Format.R32_Typeless, Format.D32_Float, Format.R32_Float, "Cascades shadowmaps");
             m_cascadeShadowmapBackup = MyRwTextures.CreateShadowmapArray(cascadeResolution, cascadeResolution,
-                m_initializedShadowCascadesCount, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless, "Cascades shadowmaps backup");
+                m_initializedShadowCascadesCount, Format.R32_Typeless, Format.D32_Float, Format.R32_Float, "Cascades shadowmaps backup");
 
             if (m_cascadesReferenceCount == 0 && MyScene.SeparateGeometry)
             {
@@ -223,7 +249,6 @@ namespace VRageRender
                 SetCascadeUpdateInterval(cascadeIndex, 1, 0);
 
             MyRenderProxy.Settings.CheckArrays();
-            MyDepthStencilState.ResizeMarkIfInsideCascade();
         }
 
         internal void SetCascadeUpdateInterval(int cascadeNumber, int updateInterval, int updateIntervalFrame)
@@ -235,7 +260,7 @@ namespace VRageRender
 
         private unsafe MatrixD CreateGlobalMatrix()
         {
-            MatrixD invView = MyEnvironment.InvViewProjection;
+            MatrixD invView = MyRender11.Environment.InvViewProjection;
             Vector3D* cornersWS = stackalloc Vector3D[8];
             Vector3D.Transform(m_cornersCS, ref invView, cornersWS);
 
@@ -243,7 +268,7 @@ namespace VRageRender
             for (int cornerIndex = 0; cornerIndex < 8; ++cornerIndex )
                 centroid += cornersWS[cornerIndex];
             centroid /= 8f;
-            MatrixD view = MatrixD.CreateLookAt(centroid, centroid - MyEnvironment.DirectionalLightDir, Vector3D.UnitY);
+            MatrixD view = MatrixD.CreateLookAt(centroid, centroid - MyRender11.Environment.DirectionalLightDir, Vector3D.UnitY);
             MatrixD proj = MatrixD.CreateOrthographic(1, 1, 0, 1);
 
             return view * proj * MyMatrixHelpers.ClipspaceToTexture;
@@ -255,7 +280,7 @@ namespace VRageRender
         internal unsafe void PrepareQueries(List<MyShadowmapQuery> appendShadowmapQueries)
         {
             Debug.Assert(appendShadowmapQueries != null, "Shadowmap query list cannot be null!");
-            if (!MyRenderProxy.Settings.EnableShadows)
+            if (!MyRenderProxy.Settings.EnableShadows || !MyRender11.DebugOverrides.Shadows)
                 return;
 
             MyImmediateRC.RC.BeginProfilingBlock("PrepareCascades");
@@ -271,18 +296,15 @@ namespace VRageRender
                 ++m_shadowCascadeFramesSinceLightUpdate[cascadeIndex];
 
                 if (m_shadowCascadeFramesSinceLightUpdate[cascadeIndex] > cascadeIndex * shadowChangeDelayMultiplier ||
-                    MyEnvironment.DirectionalLightDir.Dot(m_shadowCascadeLightDirections[cascadeIndex]) < (1 - DirectionDifferenceThreshold))
+                    MyRender11.Environment.DirectionalLightDir.Dot(m_shadowCascadeLightDirections[cascadeIndex]) < (1 - DirectionDifferenceThreshold))
                 {
-                    m_shadowCascadeLightDirections[cascadeIndex] = MyEnvironment.DirectionalLightDir;
+                    m_shadowCascadeLightDirections[cascadeIndex] = MyRender11.Environment.DirectionalLightDir;
                     m_shadowCascadeFramesSinceLightUpdate[cascadeIndex] = 0;
                 }
             }
 
             var globalMatrix = CreateGlobalMatrix();
 
-            var cascadeFrozen = MyRenderProxy.Settings.ShadowCascadeFrozen.Any(x => x == true);
-            if (!cascadeFrozen)
-                m_oldView = MyEnvironment.View;
 
             float cascadesNearClip = 1f;
 
@@ -292,8 +314,8 @@ namespace VRageRender
             for (int cascadeIndex = 0; cascadeIndex < ShadowCascadeSplitDepths.Length; ++cascadeIndex)
                 ShadowCascadeSplitDepths[cascadeIndex] = MyRender11.RenderSettings.ShadowQuality.ShadowCascadeSplit(cascadeIndex);
 
-            double unitWidth = 1.0 / MyEnvironment.Projection.M11;
-            double unitHeight = 1.0 / MyEnvironment.Projection.M22;
+            double unitWidth = 1.0 / MyRender11.Environment.Projection.M11;
+            double unitHeight = 1.0 / MyRender11.Environment.Projection.M22;
 
             Vector3D* untransformedVertices = stackalloc Vector3D[4];
             untransformedVertices[0] = new Vector3D(-unitWidth, -unitHeight, -1);
@@ -311,41 +333,17 @@ namespace VRageRender
                     m_frustumVerticesWS[vertexIndex + 4] = untransformedVertices[vertexIndex] * ShadowCascadeSplitDepths[cascadeIndex + 1];
                 }
 
-                if (MyRender11.Settings.ShadowCascadeFrozen[cascadeIndex])
-                {
-                    // draw cascade bounding primtiive
-                    if (VISUALIZE_DEBUG)
-                    {
-                        var oldInvView = MatrixD.Invert(m_oldView);
-                        Vector3D.Transform(m_frustumVerticesWS, ref oldInvView, m_frustumVerticesWS);
-
-                        var verticesF = new Vector3[8];
-                        for (int i = 0; i < 8; i++)
-                        {
-                            verticesF[i] = m_frustumVerticesWS[i];
-                        }
-                        var batch = MyLinesRenderer.CreateBatch();
-                        batch.Add6FacedConvex(verticesF, Color.Blue);
-
-                        var bs = BoundingSphere.CreateFromPoints(verticesF);
-                        var bb = BoundingBox.CreateFromSphere(bs);
-                        batch.AddBoundingBox(bb, Color.OrangeRed);
-
-                        batch.Commit();
-                    }
-
-                    continue;
-                }
-
                 bool skipCascade = MyCommon.FrameCounter % (ulong)m_shadowCascadeUpdateIntervals[cascadeIndex].Item1 != (ulong)m_shadowCascadeUpdateIntervals[cascadeIndex].Item2;
-                bool forceUpdate = ShadowCascadeSplitDepths[cascadeIndex] > 1000f && Vector3D.DistanceSquared(m_shadowCascadeUpdatePositions[cascadeIndex], MyEnvironment.CameraPosition) > Math.Pow(1000, 2);
+                bool forceUpdate = ShadowCascadeSplitDepths[cascadeIndex] > 1000f && Vector3D.DistanceSquared(m_shadowCascadeUpdatePositions[cascadeIndex], MyRender11.Environment.CameraPosition) > Math.Pow(1000, 2);
                 // 
                 if (!forceUpdate && skipCascade && !MyRenderProxy.Settings.UpdateCascadesEveryFrame)
                     continue;
+                if (MyRenderProxy.Settings.ShadowCascadeFrozen[cascadeIndex])
+                    continue;
 
-                m_shadowCascadeUpdatePositions[cascadeIndex] = MyEnvironment.CameraPosition;
+                m_shadowCascadeUpdatePositions[cascadeIndex] = MyRender11.Environment.CameraPosition;
 
-                MatrixD invView = MyEnvironment.InvView;
+                MatrixD invView = MyRender11.Environment.InvView;
                 Vector3D.Transform(m_frustumVerticesWS, ref invView, m_frustumVerticesWS);
 
                 var bSphere = BoundingSphereD.CreateFromPoints(m_frustumVerticesWS);
@@ -390,10 +388,10 @@ namespace VRageRender
                 query.DepthBuffer = m_cascadeShadowmapArray.SubresourceDsv(cascadeIndex);
                 query.Viewport = new MyViewport(shadowmapSize, shadowmapSize);
 
-                m_cascadeInfo[cascadeIndex].WorldCameraOffsetPosition = MyEnvironment.CameraPosition;
+                m_cascadeInfo[cascadeIndex].WorldCameraOffsetPosition = MyRender11.Environment.CameraPosition;
                 m_cascadeInfo[cascadeIndex].WorldToProjection = cascadesMatrices[cascadeIndex];
                 // todo: skip translation, recalculate matrix in local space, keep world space matrix only for bounding frustum
-                m_cascadeInfo[cascadeIndex].LocalToProjection = Matrix.CreateTranslation(MyEnvironment.CameraPosition) * cascadesMatrices[cascadeIndex];
+                m_cascadeInfo[cascadeIndex].LocalToProjection = Matrix.CreateTranslation(MyRender11.Environment.CameraPosition) * cascadesMatrices[cascadeIndex];
 
                 query.ProjectionInfo = m_cascadeInfo[cascadeIndex];
                 query.ProjectionDir = m_shadowCascadeLightDirections[cascadeIndex];
@@ -405,8 +403,7 @@ namespace VRageRender
                 appendShadowmapQueries.Add(query);
             }
 
-            if (VISUALIZE_DEBUG)
-                DebugDrawFrozen(cascadesMatrices);
+            DebugProcessFrustrums();
 
             FillConstantBuffer(m_csmConstants);
 
@@ -453,45 +450,50 @@ namespace VRageRender
             m_cascadePostProcessor.GatherArray(postProcessTarget, cascadeArray, m_cascadeInfo, m_csmConstants);
         }
 
-        private unsafe void DebugDrawFrozen(MatrixD* cascadesMatrices)
+        private void DebugProcessFrustrums()
         {
-            Vector3D* verticesWS = stackalloc Vector3D[8];
-            Color[] cascadeColor = null;
-
-            cascadeColor = new[]
+            for (int i = 0; i < m_initializedShadowCascadesCount; i++)
+            {
+                if (MyRenderProxy.Settings.ShadowCascadeFrozen[i])
+                {
+                    if (MyRenderProxy.Settings.DisplayFrozenShadowCascade)
                     {
-                        Color.Red,
-                        Color.Green,
-                        Color.Blue,
-                        Color.Yellow,
-                        Color.Gray,
-                        Color.Orange
-                    };
+                        DebugDrawFrozenViewFrustrum(i);
+                        DebugDrawFrozenCascadeFrustrum(i);
+                    }
+                }
+                else
+                    m_debugFrozenMatrixView[i] = MyRender11.Environment.ViewProjectionD;
+
+            }
+        }
+
+        private void DebugDrawFrozenViewFrustrum(int nCascade)
+        {
+            var oldInvView = MatrixD.Invert(Matrix.CreateTranslation(MyRender11.Environment.CameraPosition) * m_debugFrozenMatrixView[nCascade]);
+            Vector3D.Transform(m_blockOS, ref oldInvView, m_tmpDebugFrozen8D);
+
+            for (int i = 0; i < 8; i++)
+                m_tmpDebugFrozen8[i] = m_tmpDebugFrozen8D[i];
+
+            var batch = MyLinesRenderer.CreateBatch();
+            batch.Add6FacedConvex(m_tmpDebugFrozen8, Color.Blue);
+
+            batch.Commit();
+        }
+
+        private void DebugDrawFrozenCascadeFrustrum(int nCascade)
+        {
             var lineBatch = MyLinesRenderer.CreateBatch();
 
-            Vector3* tmpFloatVertices = stackalloc Vector3[8];
+            MatrixD inverseViewProj = MatrixD.Invert(Matrix.CreateTranslation(MyRender11.Environment.CameraPosition) * m_cascadeInfo[nCascade].WorldToProjection);
+            Vector3D.Transform(m_blockOS, ref inverseViewProj, m_tmpDebugFrozen8D);
 
-            for (int c = 0; c < m_initializedShadowCascadesCount; c++)
-            {
-                if (MyRenderProxy.Settings.ShadowCascadeFrozen[c])
-                {
-                    var inverseViewProj = MatrixD.Invert(cascadesMatrices[c]);
-                    Vector3D.Transform(m_cornersCS, ref inverseViewProj, verticesWS);
+            for (int vertexIndex = 0; vertexIndex < 8; ++vertexIndex)
+                m_tmpDebugFrozen8[vertexIndex] = m_tmpDebugFrozen8D[vertexIndex];
 
-                    for (int vertexIndex = 0; vertexIndex < 8; ++vertexIndex)
-                    {
-                        verticesWS[vertexIndex] += MyEnvironment.CameraPosition;
-                    }
-
-                    for (int vertexIndex = 0; vertexIndex < 8; ++vertexIndex)
-                    {
-                        tmpFloatVertices[vertexIndex] = verticesWS[vertexIndex];
-                    }
-
-                    MyPrimitivesRenderer.Draw6FacedConvexZ(tmpFloatVertices, cascadeColor[c], 0.2f);
-                    lineBatch.Add6FacedConvex(tmpFloatVertices, Color.Pink);
-                }
-            }
+            MyPrimitivesRenderer.Draw6FacedConvexZ(m_tmpDebugFrozen8, m_debugCascadeColor[nCascade], 0.2f);
+            lineBatch.Add6FacedConvex(m_tmpDebugFrozen8, Color.Pink);
 
             lineBatch.Commit();
         }

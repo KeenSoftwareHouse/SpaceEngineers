@@ -224,7 +224,7 @@ namespace Sandbox.Engine.Networking
             var result = new List<Tuple<string, MyWorldInfo>>();
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
             {
-                var tutorialsPath = Path.Combine(MissionSessionsPath, "Tutorials");
+                var tutorialsPath = "Tutorials";
                 var basicTutorialsPath = Path.Combine(tutorialsPath, "Basic");
                 var intTutorialsPath = Path.Combine(tutorialsPath, "Intermediate");
                 var advTutorialsPath = Path.Combine(tutorialsPath, "Advanced");

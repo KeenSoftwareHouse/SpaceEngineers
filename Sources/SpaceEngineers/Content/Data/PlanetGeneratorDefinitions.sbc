@@ -678,13 +678,6 @@
 
     <!-- Rules that define where environment items will spawn -->
     <EnvironmentItems>
-
-      <!-- Flora items -->
-      <!-- Flora items end -->
-
-      <!-- Biom foliage -->
-      <!-- Biom foliage Earth -->
-
       <!-- Snow -->
       <Item>
         <Biomes>
@@ -694,7 +687,7 @@
           <Material>Snow</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="EarthSnowArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="EarthSnowArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -712,8 +705,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="SnowFoliage" Density="0.1"/>
-          <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="SnowFoliagexxxxx" Density="0.1"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="EarthSnowArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="EarthSnowArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -733,7 +725,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="GrassFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -750,7 +742,7 @@
           <Material>Woods_grass</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -768,7 +760,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="WoodGrassFoliage" Density="0.15"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -785,7 +777,7 @@
           <Material>Rocks_grass</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -803,7 +795,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="RockGrassFoliage" Density="0.1"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -820,7 +812,7 @@
           <Material>Grass</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -838,7 +830,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="GrassFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -855,7 +847,7 @@
           <Material>Grass_old</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthDesertArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthDesertArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -873,7 +865,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="GrassOldFoliage" Density="0.3"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthDesertArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthDesertArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -890,7 +882,7 @@
           <Material>Sand_02</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthDesertArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthDesertArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -908,7 +900,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="SandFoliage" Density="0.1"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="EarthDesertArea" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="EarthDesertArea" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -933,7 +925,7 @@
         <Items>
           <Item TypeId="MyObjectBuilder_Trees" SubtypeId="SnowForestEdge" Density="0.3"/>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="SnowBushForestEdge" Density="0.4"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="EarthSnowArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="EarthSnowArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -1330,7 +1322,6 @@
       <!-- Earth Biom woods Large end -->
 
       <!-- Biom woods large end -->
-
     </EnvironmentItems>
 
     <MaximumOxygen>1.0</MaximumOxygen>
@@ -2144,7 +2135,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" SubtypeId="alienrockyterrain_snowtop_largestone" Density="0.001" />
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="AlienIcelandArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="AlienIcelandArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2162,7 +2153,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="AlienSnowFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="AlienIcelandArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="AlienIcelandArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2179,7 +2170,7 @@
           <Material>AlienOrangeGrass</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2197,7 +2188,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="AlienOrangeGrassFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2215,7 +2206,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" SubtypeId="alienrockymountain_largestone" Density="0.001" />
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2233,7 +2224,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="AlienYellowGrassFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2250,7 +2241,7 @@
           <Material>AlienGreenGrass</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2268,7 +2259,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="AlienGreenGrassFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2286,7 +2277,7 @@
           <Material>Soil</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2305,7 +2296,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="AlienRockGrassFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienForestArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienForestArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2322,7 +2313,7 @@
           <Material>AlienSand</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienDesertArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienDesertArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2340,7 +2331,7 @@
         </Materials>
         <Items>
           <Item TypeId="MyObjectBuilder_DestroyableItems" SubtypeId="AlienSandFoliage" Density="0.2"/>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="AlienDesertArea" Density="0.002" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="AlienDesertArea" Density="0.002" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -2977,7 +2968,7 @@
         <EnvironmentSound>AmbMarsLoop</EnvironmentSound>
       </SoundRule>
     </SoundRules>
-    
+
     <MusicCategories>
       <MusicCategory Category="Planet" Frequency="0.7" />
       <MusicCategory Category="Mystery" Frequency="0.05" />
@@ -3067,7 +3058,7 @@
           <Material>MarsSoil</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="Mars" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="Mars" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -3084,7 +3075,7 @@
           <Material>MarsRocks</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="Mars" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="Mars" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -3436,7 +3427,7 @@
           <Material>MoonSoil</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="Moon" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="Moon" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -3453,7 +3444,7 @@
           <Material>MoonRocks</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="Moon" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="Moon" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -3582,7 +3573,7 @@
         <EnvironmentSound>AmbMoonNightLoop</EnvironmentSound>
       </SoundRule>
     </SoundRules>
-    
+
     <MusicCategories>
       <MusicCategory Category="Planet" Frequency="0.75" />
       <MusicCategory Category="Mystery" Frequency="0.075" />
@@ -3839,7 +3830,7 @@
           <Material>Ice</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="Europa" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="Europa" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -3856,7 +3847,7 @@
           <Material>Ice_02</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="Europa" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="Europa" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -4039,7 +4030,7 @@
         <EnvironmentSound>AmbHigh</EnvironmentSound>
       </SoundRule>
     </SoundRules>
-    
+
     <MusicCategories>
       <MusicCategory Category="Alien" Frequency="0.75" />
       <MusicCategory Category="Mystery" Frequency="0.15" />
@@ -4242,7 +4233,7 @@
           <Material>MarsSoil</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="Mars" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="Mars" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -4259,7 +4250,7 @@
           <Material>MarsRocks</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="Stones" ModifierId="Mars" Density="0.003" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="StoneCoverageIronCore" ModifierId="Mars" Density="0.003" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -7930,7 +7921,7 @@
         </Layers>
       </Material>
       <Material Material="AlienSand" Value ="110" MaxDepth ="1"/>
-      <!-- Alien flora end 
+      <!-- Alien flora end
         < Alien end -->
 
       <!-- Moon earth -->
@@ -8098,7 +8089,7 @@
           <Material>Snow</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="snow01" Density="0.03" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="snow01" Density="0.03" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -8619,7 +8610,7 @@
           <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" SubtypeId="ice_smallstone" Density="0.003" />
           <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" SubtypeId="ice_mediumstone" Density="0.002" />
           <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" SubtypeId="ice_largestone" Density="0.0001" />
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="Europa" Density="0.03" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="Europa" Density="0.03" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>
@@ -8636,7 +8627,7 @@
           <Material>Ice_02</Material>
         </Materials>
         <Items>
-          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowStones" ModifierId="Europa" Density="0.03" />
+          <Item TypeId="MyObjectBuilder_VoxelMapStorageDefinition" GroupId="SnowCoverageIronCore" ModifierId="Europa" Density="0.03" />
         </Items>
         <Rule>
           <Height Min="0" Max="0.7"/>

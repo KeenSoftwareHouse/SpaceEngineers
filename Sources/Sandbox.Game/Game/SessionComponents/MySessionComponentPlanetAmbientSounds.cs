@@ -78,7 +78,7 @@ namespace Sandbox.Game.SessionComponents
             Vector3D localPosition = MySector.MainCamera.Position - Planet.PositionComp.GetPosition();
             double distanceToCenter = localPosition.Length();
 
-            float height = Planet.Provider.Shape.DistanceToRatio((float) distanceToCenter);
+            float height = Planet.Provider.Shape.DistanceToRatio((float)distanceToCenter);
 
             if (height < 0) return;
 
@@ -99,8 +99,9 @@ namespace Sandbox.Game.SessionComponents
 
         private static MyPlanet FindNearestPlanet(Vector3D worldPosition)
         {
-            MyPlanet foundPlanet = MyGravityProviderSystem.GetNearestPlanet(worldPosition);
-            if (foundPlanet != null && !((IMyGravityProvider)foundPlanet).IsPositionInRange(worldPosition))
+            BoundingBoxD bb = new BoundingBoxD(worldPosition, worldPosition);
+            MyPlanet foundPlanet = MyGamePruningStructure.GetClosestPlanet(ref bb);
+            if (foundPlanet != null && foundPlanet.AtmosphereAltitude > Vector3D.Distance(worldPosition, foundPlanet.PositionComp.GetPosition()))
                 foundPlanet = null;
 
             return foundPlanet;

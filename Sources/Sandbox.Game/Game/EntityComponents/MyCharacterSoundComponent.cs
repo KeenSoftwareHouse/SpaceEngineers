@@ -23,6 +23,7 @@ using Sandbox.Game.GUI;
 using VRage.Game.Entity;
 using VRageRender;
 using System.Diagnostics;
+using Sandbox.Definitions;
 using VRage.Animations;
 using VRage.Game;
 using Sandbox.Definitions;
@@ -303,7 +304,7 @@ namespace Sandbox.Game.Components
 
             if (!sameSoundAlreadyPlaying && (m_isWalking == false || m_character.Definition.LoopingFootsteps))
 			{
-				if (cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
+                if (cueEnum != EmptySoundPair && cueEnum == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND])
 				{
                     if (m_jetpackSustainTimer >= JETPACK_TIME_BETWEEN_SOUNDS)
                     {
@@ -312,7 +313,7 @@ namespace Sandbox.Game.Components
                         primaryEmitter.PlaySound(cueEnum, false, false);
                     }
 				}
-                else if (primaryEmitter.SoundId == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND].SoundId)
+                else if (!primaryEmitter.SoundId.IsNull && primaryEmitter.SoundId == CharacterSounds[(int)CharacterSoundsEnum.JETPACK_RUN_SOUND].SoundId)
 				{
                     if (m_jetpackSustainTimer <= 0f || cueEnum != CharacterSounds[(int)CharacterSoundsEnum.JETPACK_IDLE_SOUND])
                     {
@@ -339,7 +340,7 @@ namespace Sandbox.Game.Components
                     primaryEmitter.PlaySound(cueEnum, true, false);
 				}
 			}
-            else if (!m_character.Definition.LoopingFootsteps && walkEmitter != null && cueEnum != null)
+            else if (!m_character.Definition.LoopingFootsteps&& walkEmitter != null && cueEnum != null)
 			{
                 IKFeetStepSounds(walkEmitter, cueEnum);
 			}
@@ -413,7 +414,7 @@ namespace Sandbox.Game.Components
                     || posRightFoot.Y - ankleHeight < m_character.PositionComp.LocalAABB.Min.Y)
                 {
                     if(charSpeed > 0.05f)
-                        walkEmitter.PlaySound(cueEnum);
+                    walkEmitter.PlaySound(cueEnum);
                     m_lastStepTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                 }
             }
@@ -466,7 +467,7 @@ namespace Sandbox.Game.Components
 		private MySoundPair SelectSound()
 		{
             MySoundPair soundPair = EmptySoundPair;
-            MyCharacterDefinition myCharDefinition = (MyCharacterDefinition)m_character.Definition;
+            MyCharacterDefinition myCharDefinition = m_character.Definition;
             MyStringHash physMaterial = MyStringHash.GetOrCompute(myCharDefinition.PhysicalMaterial);
             m_isWalking = false;
 
@@ -583,7 +584,7 @@ namespace Sandbox.Game.Components
 				case MyCharacterMovementEnum.Falling:
                     {
                         if (m_character.Breath != null)
-                            m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
+						    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
 
                         if ((m_standingOnGrid != null || m_standingOnVoxel != null) && ShouldUpdateSoundEmitters)
                             updateEmitterSounds = true;
@@ -596,6 +597,9 @@ namespace Sandbox.Game.Components
 					}
 					break;
 			}
+
+            //MyRenderProxy.DebugDrawText2D(Vector2.Zero, movementState.ToString(), Color.Red, 1.0f);
+
             if (movementState != MyCharacterMovementEnum.Flying)
             {
                 m_jetpackSustainTimer = 0f;
@@ -642,32 +646,32 @@ namespace Sandbox.Game.Components
             // turn off breathing when helmet is off and there is no oxygen https://app.asana.com/0/64822442925263/33431071589757
             if (m_character.OxygenComponent != null && m_character.Breath != null)
             {
-                if (m_character.Parent is MyCockpit)
-                {
-                    if (m_character.OxygenComponent.HelmetEnabled)
+                    if (m_character.Parent is MyCockpit)
                     {
-                        if (m_character.OxygenComponent.SuitOxygenAmount > 0f)
-                            m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in suit - no sound
+                        if (m_character.OxygenComponent.HelmetEnabled)
+                        {
+                            if (m_character.OxygenComponent.SuitOxygenAmount > 0f)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in suit - no sound
+                            else
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in suit
+                        }
                         else
-                            m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in suit
+                        {
+                            if (m_character.OxygenComponent.EnvironmentOxygenLevel >= MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in cockpit - no sound
+                            else
+                                m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in cockpit
+                        }
                     }
-                    else
+                    else if (!m_character.OxygenComponent.HelmetEnabled)
                     {
                         if (m_character.OxygenComponent.EnvironmentOxygenLevel >= MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
-                            m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in cockpit - no sound
+                            m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in environment - possibly add silent breathing sound
                         else
-                            m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in cockpit
+                            m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in environment
                     }
                 }
-                else if (!m_character.OxygenComponent.HelmetEnabled)
-                {
-                    if (m_character.OxygenComponent.EnvironmentOxygenLevel >= MyCharacterOxygenComponent.LOW_OXYGEN_RATIO)
-                        m_character.Breath.CurrentState = MyCharacterBreath.State.NoBreath;//oxygen in environment - possibly add silent breathing sound
-                    else
-                        m_character.Breath.CurrentState = MyCharacterBreath.State.Choking;//no oxygen in environment
-                }
             }
-        }
 
 		public void PlayFallSound()
 		{
@@ -709,10 +713,10 @@ namespace Sandbox.Game.Components
             {
                 if ((m_standingOnGrid != null || m_standingOnVoxel != null) && ShouldUpdateSoundEmitters)
                 {
-                    m_standingOnGrid = null;
-                    m_standingOnVoxel = null;
+                m_standingOnGrid = null;
+                m_standingOnVoxel = null;
                     MyEntity3DSoundEmitter.UpdateEntityEmitters(true, true, false);
-                }
+            }
                 else
                 {
                     m_standingOnGrid = null;
@@ -734,8 +738,8 @@ namespace Sandbox.Game.Components
 
                     if (((cubeGrid != null && m_standingOnGrid != cubeGrid) || (voxelBase != null && m_standingOnVoxel != voxelBase)) && ShouldUpdateSoundEmitters)
                     {
-                        m_standingOnGrid = cubeGrid;
-                        m_standingOnVoxel = voxelBase;
+                    m_standingOnGrid = cubeGrid;
+                    m_standingOnVoxel = voxelBase;
                         MyEntity3DSoundEmitter.UpdateEntityEmitters(true, true, true);
                     }
                     else
@@ -774,7 +778,7 @@ namespace Sandbox.Game.Components
                     if (m_character.StatComp != null && m_character.StatComp.LastDamage.Type == LowPressure)
                         PlaySecondarySound(CharacterSoundsEnum.SUFFOCATE_SOUND);
                     else
-                        PlaySecondarySound(CharacterSoundsEnum.PAIN_SOUND);
+                    PlaySecondarySound(CharacterSoundsEnum.PAIN_SOUND);
 				}
 			}
 		}

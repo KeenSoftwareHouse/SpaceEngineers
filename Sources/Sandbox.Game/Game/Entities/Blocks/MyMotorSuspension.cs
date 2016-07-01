@@ -619,7 +619,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             Debug.Assert(rotor != null, "Rotor cannot be null!");
             Debug.Assert(m_constraint == null, "Already attached, call detach first!");
-            Debug.Assert(m_connectionState.Value.TopBlockId == rotor.EntityId, "m_rotorBlockId must be set prior calling Attach");
+
 
             if (rotor is MyMotorRotor)
             {

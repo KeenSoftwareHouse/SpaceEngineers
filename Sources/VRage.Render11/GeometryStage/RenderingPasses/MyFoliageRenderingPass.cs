@@ -51,7 +51,7 @@ namespace VRageRender
             RC.BeginProfilingBlock("Foliage pass");
 
             Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.PointList;
-            Context.InputAssembler.InputLayout = m_inputLayout;
+            RC.SetIL(m_inputLayout);
 
             RC.SetCB(MyCommon.FOLIAGE_SLOT, MyCommon.MaterialFoliageTableConstants);
 
@@ -117,13 +117,13 @@ namespace VRageRender
             if (foliageComponents.Count <= 0)
                 return;
 
-            ViewProjection = MyEnvironment.ViewProjectionAt0;
+            ViewProjection = MyRender11.Environment.ViewProjectionAt0;
             Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
 
             PerFrame();
             Begin();
 
-            var viewFrustum = new BoundingFrustumD(MyEnvironment.ViewProjectionD);
+            var viewFrustum = new BoundingFrustumD(MyRender11.Environment.ViewProjectionD);
 
             foreach (var foliageComponent in foliageComponents)
             {

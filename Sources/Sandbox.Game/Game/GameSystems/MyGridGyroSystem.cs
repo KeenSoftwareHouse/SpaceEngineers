@@ -298,7 +298,7 @@ namespace Sandbox.Game.GameSystems
 
                 // Calculate the velocity correction torque
                 Vector3 correctionTorque = Vector3.Zero;
-                Vector3 desiredAcceleration = desiredAcceleration = (m_overrideTargetVelocity - localAngularVelocity) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
+                Vector3 desiredAcceleration = (m_overrideTargetVelocity - localAngularVelocity) * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
 
                 // The correction is done by overridden gyros and by the remaining power of the controlled gyros
                 // This is not entirely physically correct, but it feels good

@@ -7,6 +7,7 @@ using VRage.ModAPI;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Sandbox.Game.Entities.Character
 {

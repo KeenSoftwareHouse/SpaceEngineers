@@ -280,6 +280,10 @@ namespace Sandbox.Graphics
             float screenScale    = scale * m_safeScreenScale;
             float screenMaxWidth = GetScreenSizeFromNormalizedSize(new Vector2(maxTextWidth, 0f)).X;
 
+#if DEBUG_TEXT_SIZE
+            DebugTextSize(text, ref size);
+#endif
+
             VRageRender.MyRenderProxy.DrawString(
                 (int)font,
                 screenCoord,
@@ -310,6 +314,17 @@ namespace Sandbox.Graphics
             float fixedScale = scale * m_safeScreenScale * MyRenderGuiConstants.FONT_SCALE;
             Vector2 sizeInPixelsScaled = new Vector2(0.0f, fixedScale* m_fontsById[(int)font].LineHeight);
             return GetNormalizedSizeFromScreenSize(sizeInPixelsScaled).Y;
+        }
+
+        static HashSet<String> m_sizes = new HashSet<string>();
+
+        [Conditional("DEBUG")]
+        private static void DebugTextSize(StringBuilder text, ref Vector2 size)
+        {
+            string str = text.ToString();
+            bool inserted = m_sizes.Add(str);
+            if (inserted)
+                Console.WriteLine("Text = \"" + str + "\", Width = " + size.X);
         }
 
         #endregion
@@ -567,7 +582,9 @@ namespace Sandbox.Graphics
         //  Convertes screen size (pixels) to normalized size <0..1>
         public static Vector2 GetNormalizedSizeFromScreenSize(Vector2 screenSize)
         {
-            return new Vector2(screenSize.X / (float)m_safeGuiRectangle.Width, screenSize.Y / (float)m_safeGuiRectangle.Height);
+            float x = m_safeGuiRectangle.Width != 0 ? screenSize.X / (float)m_safeGuiRectangle.Width : 0;
+            float y = m_safeGuiRectangle.Height != 0 ? screenSize.Y / (float)m_safeGuiRectangle.Height : 0;
+            return new Vector2(x, y);
         }
 
         //  This is for HUD, therefore not GUI normalized coordinates

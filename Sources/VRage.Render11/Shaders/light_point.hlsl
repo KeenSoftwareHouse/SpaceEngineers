@@ -11,7 +11,9 @@ void __pixel_shader(PostprocessVertex vertex, out float3 output : SV_Target0
 #endif
 	)
 {
-    uint2 tileCoord = vertex.position.xy / 16;
+	uint2 tileCoord = vertex.position.xy;
+	tileCoord = tileCoord % frame_.resolution;
+	tileCoord /= 16;
     uint tileIndex = mad(frame_.tiles_x, tileCoord.y, tileCoord.x);// tileCoord.y * frame_.tiles_x + tileCoord.x;
 
 	uint numLights = min(TileIndices[tileIndex], MAX_TILE_LIGHTS);

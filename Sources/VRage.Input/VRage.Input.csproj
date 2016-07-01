@@ -112,7 +112,14 @@
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.DirectInput" Condition="('$(Configuration)' != 'Debug_XB1') And ('$(Configuration)' != 'Release_XB1')">
+    <Reference Include="SharpDX.Desktop">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DirectInput">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.DirectInput.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DirectInput, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SharpDX\SharpDX.DirectInput.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.XInput" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
@@ -122,6 +129,23 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Input\IMyControlNameLookup.cs" />
+    <Compile Include="Input\IMyInput.cs" />
+    <Compile Include="Input\ModAPI\IMyControl.cs" />
+    <Compile Include="Input\ModAPI\IMyInput.cs" />
+    <Compile Include="Input\ModAPI\MyNullInput_ModAPI.cs" />
+    <Compile Include="Input\MyControl.cs" />
+    <Compile Include="Input\MyGuiControlTypeEnum.cs" />
+    <Compile Include="Input\MyGuiDescriptor.cs" />
+    <Compile Include="Input\MyGuiGameControlsHelpers.cs" />
+    <Compile Include="Input\MyGuiInputDeviceEnum.cs" />
+    <Compile Include="Input\MyInput.cs" />
+    <Compile Include="Input\MyJoystickAxesEnum.cs" />
+    <Compile Include="Input\MyJoystickButtonsEnum.cs" />
+    <Compile Include="Input\MyKeys.cs" />
+    <Compile Include="Input\MyMouseButtonsEnum.cs" />
+    <Compile Include="Input\MyNullInput.cs" />
+    <Compile Include="Input\MySharedButtonsEnum.cs" />
     <Compile Include="ModAPI\MyDirectXInput_ModAPI.cs" />
     <Compile Include="MyControllerHelper.cs" />
     <Compile Include="MyDirectXInput.cs" />
@@ -143,6 +167,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj">
+      <Project>{21865086-a876-40b0-9b2e-f20d8b0ea723}</Project>
+      <Name>VRage.OpenVRWrapper</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
       <Name>VRage</Name>
@@ -156,7 +184,9 @@
       <Name>VRage.Math</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

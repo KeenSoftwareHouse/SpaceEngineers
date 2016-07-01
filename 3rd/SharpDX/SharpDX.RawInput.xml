@@ -4,6 +4,36 @@
         <name>SharpDX.RawInput</name>
     </assembly>
     <members>
+        <member name="T:SharpDX.MessageFilterHook">
+            <summary>
+            Provides a hook to WndProc of an existing window handle using <see cref="T:System.Windows.Forms.IMessageFilter"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.MessageFilterHook.#ctor(System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="!:Win32.MessageFilterHook"/> class.
+            </summary>
+            <param name="hwnd">The HWND.</param>
+        </member>
+        <member name="M:SharpDX.MessageFilterHook.AddMessageFilter(System.IntPtr,System.Windows.Forms.IMessageFilter)">
+            <summary>
+            Adds a message filter to a window.
+            </summary>
+            <param name="hwnd">The handle of the window.</param>
+            <param name="messageFilter">The message filter.</param>
+        </member>
+        <member name="M:SharpDX.MessageFilterHook.RemoveMessageFilter(System.IntPtr,System.Windows.Forms.IMessageFilter)">
+            <summary>
+            Removes a message filter associated with a window.
+            </summary>
+            <param name="hwnd">The handle of the window.</param>
+            <param name="messageFilter">The message filter.</param>
+        </member>
+        <member name="T:SharpDX.Win32Native">
+            <summary>
+            Internal class to interact with Native Message
+            </summary>
+        </member>
         <member name="T:SharpDX.RawInput.AssemblyDoc">
             <summary>
             The <see cref="A:SharpDX.RawInput"/> assembly provides managed RawInput API.
@@ -269,6 +299,15 @@
             <msdn-id>ms645543</msdn-id>	
             <unmanaged>RIM_TYPEHID</unmanaged>	
             <unmanaged-short>RIM_TYPEHID</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.RawInput.DeviceType.Maximum">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='RIM_TYPEMAX']/*"/>	
+            <msdn-id>ms645543</msdn-id>	
+            <unmanaged>RIM_TYPEMAX</unmanaged>	
+            <unmanaged-short>RIM_TYPEMAX</unmanaged-short>	
         </member>
         <member name="T:SharpDX.RawInput.KeyState">
             <summary>	
@@ -544,6 +583,15 @@
             <unmanaged>RI_MOUSE_WHEEL</unmanaged>	
             <unmanaged-short>RI_MOUSE_WHEEL</unmanaged-short>	
         </member>
+        <member name="F:SharpDX.RawInput.MouseButtonFlags.Hwheel">
+            <summary>	
+            No documentation.	
+            </summary>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='RI_MOUSE_HWHEEL']/*"/>	
+            <msdn-id>ms645543</msdn-id>	
+            <unmanaged>RI_MOUSE_HWHEEL</unmanaged>	
+            <unmanaged-short>RI_MOUSE_HWHEEL</unmanaged-short>	
+        </member>
         <member name="F:SharpDX.RawInput.MouseButtonFlags.None">
             <summary>	
             None.	
@@ -731,22 +779,6 @@
             <unmanaged>unsigned int GetRawInputDeviceList([Out, Buffer, Optional] RAWINPUTDEVICELIST* pRawInputDeviceList,[InOut] unsigned int* puiNumDevices,[In] unsigned int cbSize)</unmanaged>	
             <unmanaged-short>GetRawInputDeviceList</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.RawInput.RawInputFunctions.GetRegisteredRawInputDevices(SharpDX.RawInput.RawInputDevice[],System.Int32@,System.Int32)">
-            <summary>	
-            <p>Retrieves the information about the raw input devices for the current application.</p>	
-            </summary>	
-            <param name="rawInputDevicesRef"><dd>  <p>An array of <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structures for the application. </p> </dd></param>	
-            <param name="uiNumDevicesRef"><dd>  <p>The number of <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structures in *<em>pRawInputDevices</em>. </p> </dd></param>	
-            <param name="cbSize"><dd>  <p>The size, in bytes, of a <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structure. </p> </dd></param>	
-            <returns><p>If successful, the function returns a non-negative number that is the number of <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structures written to the buffer. </p><p>If the <em>pRawInputDevices</em> buffer is too small or <strong><c>null</c></strong>, the function sets the last error as <strong><see cref="F:SharpDX.Win32.ErrorCode.InsufficientBuffer"/></strong>, returns -1, and sets <em>puiNumDevices</em> to the required number of devices. If the function fails for any other reason, it returns -1. For more details, call <strong>GetLastError</strong>. </p></returns>	
-            <remarks>	
-            <p>To receive raw input from a device, an application must register it by using <strong>RegisterRawInputDevices</strong>. </p>	
-            </remarks>	
-            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='GetRegisteredRawInputDevices']/*"/>	
-            <msdn-id>ms645599</msdn-id>	
-            <unmanaged>unsigned int GetRegisteredRawInputDevices([Out, Buffer, Optional] RAWINPUTDEVICE* pRawInputDevices,[InOut] unsigned int* puiNumDevices,[In] unsigned int cbSize)</unmanaged>	
-            <unmanaged-short>GetRegisteredRawInputDevices</unmanaged-short>	
-        </member>
         <member name="M:SharpDX.RawInput.RawInputFunctions.GetRawInputDeviceInfo(System.IntPtr,SharpDX.RawInput.RawInputDeviceInfoType,System.IntPtr,System.Int32@)">
             <summary>	
             <p>Retrieves information about the raw input device.</p>	
@@ -760,6 +792,24 @@
             <msdn-id>ms645597</msdn-id>	
             <unmanaged>unsigned int GetRawInputDeviceInfoW([In, Optional] void* hDevice,[In] RAW_INPUT_DEVICE_INFO_TYPE uiCommand,[Out, Buffer, Optional] void* pData,[InOut] unsigned int* pcbSize)</unmanaged>	
             <unmanaged-short>GetRawInputDeviceInfoW</unmanaged-short>	
+        </member>
+        <member name="M:SharpDX.RawInput.RawInputFunctions.GetRawInputData(System.IntPtr,SharpDX.RawInput.RawInputDataType,System.IntPtr,System.Int32@,System.Int32)">
+            <summary>	
+            <p>Retrieves the raw input from the specified device.</p>	
+            </summary>	
+            <param name="hRawInput"><dd>  <p>A handle to the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure. This comes from the  <em>lParam</em> in <strong>WM_INPUT</strong>. </p> </dd></param>	
+            <param name="uiCommand"><dd>  <p>The command flag. This parameter can be one of the following values. </p> <table> <tr><th>Value</th><th>Meaning</th></tr> <tr><td><dl> <dt><strong><see cref="F:SharpDX.RawInput.RawInputDataType.Header"/></strong></dt> <dt>0x10000005</dt> </dl> </td><td> <p>Get the header information from the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure.</p> </td></tr> <tr><td><dl> <dt><strong><see cref="F:SharpDX.RawInput.RawInputDataType.Input"/></strong></dt> <dt>0x10000003</dt> </dl> </td><td> <p>Get the raw data from the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure.</p> </td></tr> </table> <p>?</p> </dd></param>	
+            <param name="dataRef"><dd>  <p>A reference to the data that comes from the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure. This depends on the value of  <em>uiCommand</em>. If  <em>pData</em> is <strong><c>null</c></strong>, the required size of the buffer is returned in *<em>pcbSize</em>. </p> </dd></param>	
+            <param name="cbSizeRef"><dd>  <p>The size, in bytes, of the data in  <em>pData</em>. </p> </dd></param>	
+            <param name="cbSizeHeader"><dd>  <p>The size, in bytes, of the <strong><see cref="T:SharpDX.RawInput.RawInputHeader"/></strong> structure. </p> </dd></param>	
+            <returns><p>If  <em>pData</em> is <strong><c>null</c></strong> and the function is successful, the return value is 0. If  <em>pData</em> is not <strong><c>null</c></strong> and the function is successful, the return value is the number of bytes copied into pData.</p><p>If there is an error, the return value is (<strong>UINT</strong>)-1.</p></returns>	
+            <remarks>	
+            <p><strong>GetRawInputData</strong> gets the raw input one <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure at a time. In contrast, <strong>GetRawInputBuffer</strong> gets an array of <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structures.</p>	
+            </remarks>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='GetRawInputData']/*"/>	
+            <msdn-id>ms645596</msdn-id>	
+            <unmanaged>unsigned int GetRawInputData([In] HRAWINPUT hRawInput,[In] RAW_INPUT_DATA_TYPE uiCommand,[Out, Buffer, Optional] void* pData,[InOut] unsigned int* pcbSize,[In] unsigned int cbSizeHeader)</unmanaged>	
+            <unmanaged-short>GetRawInputData</unmanaged-short>	
         </member>
         <member name="M:SharpDX.RawInput.RawInputFunctions.RegisterRawInputDevices(SharpDX.RawInput.RawInputDevice[],System.Int32,System.Int32)">
             <summary>	
@@ -797,23 +847,21 @@
             <unmanaged>unsigned int GetRawInputBuffer([Out, Buffer, Optional] RAWINPUT* pData,[InOut] unsigned int* pcbSize,[In] unsigned int cbSizeHeader)</unmanaged>	
             <unmanaged-short>GetRawInputBuffer</unmanaged-short>	
         </member>
-        <member name="M:SharpDX.RawInput.RawInputFunctions.GetRawInputData(System.IntPtr,SharpDX.RawInput.RawInputDataType,System.IntPtr,System.Int32@,System.Int32)">
+        <member name="M:SharpDX.RawInput.RawInputFunctions.GetRegisteredRawInputDevices(SharpDX.RawInput.RawInputDevice[],System.Int32@,System.Int32)">
             <summary>	
-            <p>Retrieves the raw input from the specified device.</p>	
+            <p>Retrieves the information about the raw input devices for the current application.</p>	
             </summary>	
-            <param name="hRawInput"><dd>  <p>A handle to the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure. This comes from the  <em>lParam</em> in <strong>WM_INPUT</strong>. </p> </dd></param>	
-            <param name="uiCommand"><dd>  <p>The command flag. This parameter can be one of the following values. </p> <table> <tr><th>Value</th><th>Meaning</th></tr> <tr><td><dl> <dt><strong><see cref="F:SharpDX.RawInput.RawInputDataType.Header"/></strong></dt> <dt>0x10000005</dt> </dl> </td><td> <p>Get the header information from the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure.</p> </td></tr> <tr><td><dl> <dt><strong><see cref="F:SharpDX.RawInput.RawInputDataType.Input"/></strong></dt> <dt>0x10000003</dt> </dl> </td><td> <p>Get the raw data from the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure.</p> </td></tr> </table> <p>?</p> </dd></param>	
-            <param name="dataRef"><dd>  <p>A reference to the data that comes from the <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure. This depends on the value of  <em>uiCommand</em>. If  <em>pData</em> is <strong><c>null</c></strong>, the required size of the buffer is returned in *<em>pcbSize</em>. </p> </dd></param>	
-            <param name="cbSizeRef"><dd>  <p>The size, in bytes, of the data in  <em>pData</em>. </p> </dd></param>	
-            <param name="cbSizeHeader"><dd>  <p>The size, in bytes, of the <strong><see cref="T:SharpDX.RawInput.RawInputHeader"/></strong> structure. </p> </dd></param>	
-            <returns><p>If  <em>pData</em> is <strong><c>null</c></strong> and the function is successful, the return value is 0. If  <em>pData</em> is not <strong><c>null</c></strong> and the function is successful, the return value is the number of bytes copied into pData.</p><p>If there is an error, the return value is (<strong>UINT</strong>)-1.</p></returns>	
+            <param name="rawInputDevicesRef"><dd>  <p>An array of <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structures for the application. </p> </dd></param>	
+            <param name="uiNumDevicesRef"><dd>  <p>The number of <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structures in *<em>pRawInputDevices</em>. </p> </dd></param>	
+            <param name="cbSize"><dd>  <p>The size, in bytes, of a <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structure. </p> </dd></param>	
+            <returns><p>If successful, the function returns a non-negative number that is the number of <strong><see cref="T:SharpDX.RawInput.RawInputDevice"/></strong> structures written to the buffer. </p><p>If the <em>pRawInputDevices</em> buffer is too small or <strong><c>null</c></strong>, the function sets the last error as <strong><see cref="F:SharpDX.Win32.ErrorCode.InsufficientBuffer"/></strong>, returns -1, and sets <em>puiNumDevices</em> to the required number of devices. If the function fails for any other reason, it returns -1. For more details, call <strong>GetLastError</strong>. </p></returns>	
             <remarks>	
-            <p><strong>GetRawInputData</strong> gets the raw input one <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structure at a time. In contrast, <strong>GetRawInputBuffer</strong> gets an array of <strong><see cref="T:SharpDX.RawInput.RawInput"/></strong> structures.</p>	
+            <p>To receive raw input from a device, an application must register it by using <strong>RegisterRawInputDevices</strong>. </p>	
             </remarks>	
-            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='GetRawInputData']/*"/>	
-            <msdn-id>ms645596</msdn-id>	
-            <unmanaged>unsigned int GetRawInputData([In] HRAWINPUT hRawInput,[In] RAW_INPUT_DATA_TYPE uiCommand,[Out, Buffer, Optional] void* pData,[InOut] unsigned int* pcbSize,[In] unsigned int cbSizeHeader)</unmanaged>	
-            <unmanaged-short>GetRawInputData</unmanaged-short>	
+            <!-- No matching elements were found for the following include tag --><include file=".\..\Documentation\CodeComments.xml" path="/comments/comment[@id='GetRegisteredRawInputDevices']/*"/>	
+            <msdn-id>ms645599</msdn-id>	
+            <unmanaged>unsigned int GetRegisteredRawInputDevices([Out, Buffer, Optional] RAWINPUTDEVICE* pRawInputDevices,[InOut] unsigned int* puiNumDevices,[In] unsigned int cbSize)</unmanaged>	
+            <unmanaged-short>GetRegisteredRawInputDevices</unmanaged-short>	
         </member>
         <member name="T:SharpDX.RawInput.RawDeviceInformation">
             <summary>	

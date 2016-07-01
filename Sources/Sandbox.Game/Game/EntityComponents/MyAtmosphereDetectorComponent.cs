@@ -45,7 +45,7 @@ namespace Sandbox.Game.EntityComponents
                 Vector3 gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(pos);
                 if (gravity.LengthSquared() > 0f)
                 {
-                    MyPlanet planet = MyGravityProviderSystem.GetNearestPlanet(pos);
+                    MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(pos);
                     if (planet != null && planet.HasAtmosphere && planet.GetAirDensity(pos) > 0.5f)
                         m_atmosphereStatus = AtmosphereStatus.Atmosphere;//in atmosphere
                     else

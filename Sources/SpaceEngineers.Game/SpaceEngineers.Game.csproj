@@ -95,8 +95,7 @@
     <HavokDir>HavokWrapper_SE</HavokDir>
   </PropertyGroup>
   <PropertyGroup>
-    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\$(Configuration)\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
-    <HavokWrapperFullPath2>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath2>
+    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>SpaceEngineers.Game</RootNamespace>
@@ -104,8 +103,7 @@
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath)</HintPath>
-      <HintPath Condition="!exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath2)</HintPath>
+      <HintPath>$(HavokWrapperFullPath)</HintPath>
     </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>
@@ -166,10 +164,25 @@
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
+    <Compile Include="ModAPI\IMyAirVent.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
+    <Compile Include="ModAPI\IMyControlPanel.cs" />
+    <Compile Include="ModAPI\IMyGravityGenerator.cs" />
+    <Compile Include="ModAPI\IMyGravityGeneratorBase.cs" />
+    <Compile Include="ModAPI\IMyGravityGeneratorSphere.cs" />
+    <Compile Include="ModAPI\IMyInteriorLight.cs" />
     <Compile Include="ModAPI\IMyLandingGear.cs" />
+    <Compile Include="ModAPI\IMyLargeConveyorTurretBase.cs" />
+    <Compile Include="ModAPI\IMyLargeGatlingTurret.cs" />
+    <Compile Include="ModAPI\IMyLargeInteriorTurret.cs" />
+    <Compile Include="ModAPI\IMyLargeMissileTurret.cs" />
+    <Compile Include="ModAPI\IMyMedicalRoom.cs" />
+    <Compile Include="ModAPI\IMyOxygenFarm.cs" />
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
+    <Compile Include="ModAPI\IMySolarPanel.cs" />
+    <Compile Include="ModAPI\IMySoundBlock.cs" />
     <Compile Include="ModAPI\IMySpaceBall.cs" />
+    <Compile Include="ModAPI\IMyTimerBlock.cs" />
     <Compile Include="ModAPI\IMyUpgradeModule.cs" />
     <Compile Include="ModAPI\IMyVirtualMass.cs" />
     <Compile Include="ModAPI\Ingame\IMyAirVent.cs" />
@@ -211,7 +224,6 @@
     <Compile Include="World\Environment\MyEnvironmentalParticleLogicSpace.cs" />
     <Compile Include="World\Generator\MyShipStartingState.cs" />
     <Compile Include="World\Generator\MySpaceWorldGenerator.cs" />
-    <Compile Include="World\MySpacePlanetTrackComponent.cs" />
     <Compile Include="World\MySpaceRespawnComponent.cs" />
     <Compile Include="World\MySpaceSessionCompatHelper.cs" />
   </ItemGroup>
@@ -252,6 +264,10 @@
       <Project>{76080059-9756-4065-bce8-373e7150a8f7}</Project>
       <Name>VRage.Network</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Scripting\VRage.Scripting.csproj">
+      <Project>{47e07dc1-03cb-4668-a031-71816def8955}</Project>
+      <Name>VRage.Scripting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
@@ -260,6 +276,12 @@
   <ItemGroup>
     <Folder Include="ModAPI\Interfaces\" />
     <Folder Include="Players\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

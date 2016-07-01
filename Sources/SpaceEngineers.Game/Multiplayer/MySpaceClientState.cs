@@ -18,8 +18,6 @@ namespace Multiplayer
 {
     class MySpaceClientState : MyClientState
     {
-        public readonly Dictionary<long, HashSet<MyPlanetSectorId>> KnownSectors = new Dictionary<long, HashSet<MyPlanetSectorId>>();
-
         static MyContextKind GetContextByPage(MyTerminalPageEnum page)
         {
             switch (page)
@@ -41,8 +39,6 @@ namespace Multiplayer
                 var entityId = MyGuiScreenTerminal.InteractedEntity != null ? MyGuiScreenTerminal.InteractedEntity.EntityId : 0;
                 stream.WriteInt64(entityId);
             }
-
-            WritePlanetSectors(stream);
         }
 
         protected override void ReadInternal(BitStream stream, MyNetworkClient sender, MyEntity controlledEntity)
@@ -56,66 +52,6 @@ namespace Multiplayer
             else
             {
                 ContextEntity = null;
-            }
-
-            KnownSectors.Clear();
-            ReadPlanetSectors(stream);
-        }
-
-        private void WritePlanetSectors(BitStream stream)
-        {
-            stream.WriteInt32(0x42424242);
-
-            var planets = MyPlanets.GetPlanets();
-
-            stream.WriteInt32(planets.Count);
-
-            foreach (var planet in planets)
-            {
-                stream.WriteInt64(planet.EntityId);
-
-                foreach (var sector in planet.EnvironmentSectors.Values)
-                {
-                    if (sector.HasPhysics || sector.ServerOwned)
-                    {
-                        stream.WriteInt64(sector.SectorId.Pack64());
-                    }
-                }
-
-                // don't know how many in advance so I will use -1 termination instead of count.
-                stream.WriteInt64(-1);
-            }
-        }
-
-        private void ReadPlanetSectors(BitStream stream)
-        {
-            if (stream.ReadInt32() != 0x42424242)
-            {
-                throw new BitStreamException("Wrong magic when reading planet sectors from client state.");
-            }
-
-            int count = stream.ReadInt32();
-
-            for (int i = 0; i < count; i++)
-            {
-                long p = stream.ReadInt64();
-
-                long sectorid;
-
-                HashSet<MyPlanetSectorId> sectids = new HashSet<MyPlanetSectorId>();
-
-                KnownSectors.Add(p, sectids);
-
-                while(true)
-                {
-                    sectorid = stream.ReadInt64();
-                    if (sectorid == -1) break;
-
-                    MyPlanetSectorId id;
-                    MyPlanetSectorId.Unpack64(sectorid, out id);
-                    sectids.Add(id);
-                }
-
             }
         }
     }

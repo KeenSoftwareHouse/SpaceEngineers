@@ -253,8 +253,6 @@ namespace Sandbox.Graphics.GUI
 
         #region Mouse & Input
 
-        bool IMyGuiControlsOwner.HandleMouse { get { return true; } }
-
         public bool IsMouseOverAnyControl()
         {
             //  Update screen controls

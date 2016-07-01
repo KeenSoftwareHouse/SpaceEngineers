@@ -39,20 +39,39 @@ namespace VRageRender
         }
     }
 
-    public class MyRenderMessageUpdateRenderInstanceBuffer : MyRenderMessageBase
+    public class MyRenderMessageUpdateRenderInstanceBufferSettings : MyRenderMessageBase
     {
         public uint ID;
-        public List<MyInstanceData> InstanceData = new List<MyInstanceData>();
-        public int Capacity;
+
+        // Force the buffer lod (for the model), -1 should be automatic.
+        public int ForcedLod;
+
+        // Weather instances should be lodded individually.
+        public bool SetPerInstanceLod;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
-        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderInstanceBuffer; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderInstanceBufferSettings; } }
+    }
 
-        public override void Close()
-        {
-            InstanceData.SetSize(0);
+    /**
+     * This is kinda your universal array operator splice().
+     * 
+     * The only thing is we cannot move elements with this.
+     */
+    public class MyRenderMessageUpdateRenderInstanceBufferRange : MyRenderMessageBase
+    {
+        public uint ID;
 
-            base.Close();
-        }
+        // Instance data
+        public MyInstanceData[] InstanceData;
+
+        // Offset of the first instance to set (into the buffer)
+        public int StartOffset;
+
+        // Weather to trim the buffer from instances after (StartOffset + InstanceData.Count);
+        public bool Trim;
+
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderInstanceBufferRange; } }
     }
 }

@@ -102,7 +102,7 @@ namespace Sandbox.Game.Replication
         
         private void UpdateGridMaxSpeed(MyCubeGrid grid,bool fromServer = true)
         {
-            if (Sync.IsServer == false && MyPerGameSettings.EnableMultiplayerVelocityCompensation && grid != null && grid.Physics != null && grid.Physics.RigidBody != null)
+            if (Sync.IsServer == false && grid != null && grid.Physics != null && grid.Physics.RigidBody != null)
             {
                 float maxSpeed = grid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();
                 

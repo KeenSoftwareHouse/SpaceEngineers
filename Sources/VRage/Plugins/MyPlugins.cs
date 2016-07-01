@@ -22,6 +22,7 @@ namespace VRage.Plugins
         private static Assembly m_sandboxAssembly; //TO BE REMOVED
         private static Assembly m_sandboxGameAssembly; // TO BE REMOVED
         private static Assembly m_gameObjBuildersPlugin;
+        private static Assembly m_gameBaseObjBuildersPlugin;
         
         // for detecting missing unload
         private static MyPlugins m_instance;
@@ -55,6 +56,17 @@ namespace VRage.Plugins
                     return null;
                 Debug.Assert(Loaded || m_gameObjBuildersPlugin.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
                 return m_gameObjBuildersPlugin;
+            }
+        }
+
+        public static Assembly GameBaseObjectBuildersAssembly
+        {
+            get
+            {
+                if (!GameBaseObjectBuildersAssemblyReady)
+                    return null;
+                Debug.Assert(Loaded || m_gameBaseObjBuildersPlugin.FullName.StartsWith("sgen", StringComparison.InvariantCultureIgnoreCase));
+                return m_gameBaseObjBuildersPlugin;
             }
         }
 
@@ -104,6 +116,14 @@ namespace VRage.Plugins
             get
             {
                 return m_gameObjBuildersPlugin != null;
+            }
+        }
+
+        public static bool GameBaseObjectBuildersAssemblyReady
+        {
+            get
+            {
+                return m_gameBaseObjBuildersPlugin != null;
             }
         }
 
@@ -159,6 +179,13 @@ namespace VRage.Plugins
             Debug.Assert(m_gameObjBuildersPlugin == null);
             if (gameObjBuildersAssemblyFile != null)
                 m_gameObjBuildersPlugin = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, gameObjBuildersAssemblyFile));
+        }
+
+        public static void RegisterBaseGameObjectBuildersAssemblyFile(string gameBaseObjBuildersAssemblyFile)
+        {
+            Debug.Assert(m_gameBaseObjBuildersPlugin == null);
+            if (gameBaseObjBuildersAssemblyFile != null)
+                m_gameBaseObjBuildersPlugin = Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, gameBaseObjBuildersAssemblyFile));
         }
 
         public static void RegisterSandboxAssemblyFile(string sandboxAssemblyFile)
@@ -223,6 +250,7 @@ namespace VRage.Plugins
             m_sandboxAssembly = null;
             m_sandboxGameAssembly = null;
             m_gameObjBuildersPlugin = null;
+            m_gameBaseObjBuildersPlugin = null;
         }
 
         #region Leak detection using Dispose

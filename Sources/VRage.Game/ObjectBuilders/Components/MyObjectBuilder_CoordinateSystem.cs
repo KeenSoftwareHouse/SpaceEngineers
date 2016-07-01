@@ -22,7 +22,7 @@ namespace VRage.Game.ObjectBuilders.Components
         }
 
         [ProtoMember]
-        public long LastCoordSysId;
+        public long LastCoordSysId = 1;
         [ProtoMember]
         public List<CoordSysInfo> CoordSystems = new List<CoordSysInfo>();
 

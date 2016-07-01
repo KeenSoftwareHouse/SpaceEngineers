@@ -29,7 +29,6 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using SteamSDK;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
 using VRage.Game.Entity;
@@ -544,7 +543,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }
-        bool IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
-        float IMyWarhead.DetonationTime { get { return DetonationTime; } }
+        bool ModAPI.Ingame.IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
+        float ModAPI.Ingame.IMyWarhead.DetonationTime { get { return DetonationTime; } }
     }
 }

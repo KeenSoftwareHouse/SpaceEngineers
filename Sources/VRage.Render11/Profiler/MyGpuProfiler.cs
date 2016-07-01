@@ -97,7 +97,7 @@ namespace VRageRender
             }
 
             bool ok = true;
-            while (ok)
+            while (ok && m_frames.Count > 0)
             {
 				//this will fail if all frames are finished.
 				//ok = m_frames.ElementAt(0).IsFinished();
@@ -217,6 +217,13 @@ namespace VRageRender
             MyImmediateRC.RC.BeginProfilingBlock(tag);
         }
 
+        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
+        internal static void IC_BeginNextBlock(string tag)
+        {
+            MyImmediateRC.RC.EndProfilingBlock();
+            MyImmediateRC.RC.BeginProfilingBlock(tag);
+        }
+        
         [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void IC_EndBlock()
         {

@@ -28,6 +28,9 @@ namespace Sandbox.Game.Entities.Inventory
 
         public MyFixedPoint GetItemAmountCombined(MyInventoryBase inventory, MyDefinitionId contentId)
         {
+            if (inventory == null)
+                return 0;
+
             int amount = 0;
             var group = MyDefinitionManager.Static.GetGroupForComponent(contentId, out amount);
             if (group == null)

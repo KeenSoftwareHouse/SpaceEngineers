@@ -8,26 +8,33 @@ namespace VRageRender
 {
     internal static class MyGPUEmitters
     {
-        internal const int MAX_LIVE_EMITTERS = 32;
+        internal const int MAX_LIVE_EMITTERS = 256;
         internal const int MAX_PARTICLES = 400 * 1024;
 
         private const int ATLAS_INDEX_BITS = 12;
         private const int ATLAS_DIMENSION_BITS = 6;
         private const int ATLAS_TEXTURE_BITS = 8;
-        private const int MAX_ATLAS_DIMENSION = 2 ^ ATLAS_DIMENSION_BITS;
-        private const int MAX_ATLAS_INDEX = 2 ^ ATLAS_INDEX_BITS;
+        private const int MAX_ATLAS_DIMENSION = 1 << ATLAS_DIMENSION_BITS;
+        private const int MAX_ATLAS_INDEX = 1 << ATLAS_INDEX_BITS;
 
-        private struct MyLiveData
+        private class MyLiveData:IComparable
         {
             public float ParticlesEmittedFraction;
             public int BufferIndex;
             public Resources.TexId TextureId;
             public MyGPUEmitter GPUEmitter;
             public float DieAt;
+
+            public int CompareTo(object obj)
+            {
+                var c = obj as MyLiveData;
+                var cDist = Vector3D.DistanceSquared(c.GPUEmitter.WorldPosition, MyRender11.Environment.CameraPosition);
+                var dist = Vector3D.DistanceSquared(GPUEmitter.WorldPosition, MyRender11.Environment.CameraPosition);
+                return dist < cDist ? -1 : 1;
+            }
         }
-        private static int m_totalParticles = 0;
-        private static bool m_overloaded = false;
-        private static Queue<int> m_freeBufferIndices;
+
+        private static Stack<int> m_freeBufferIndices;
 
         private class MyTextureArrayIndex
         {
@@ -38,51 +45,15 @@ namespace VRageRender
         private static Resources.MyTextureArray m_textureArray;
         private static bool m_textureArrayDirty;
 
-        private static MyFreelist<MyLiveData> m_emitters = new MyFreelist<MyLiveData>(256);
-        private static Dictionary<uint, GPUEmitterId> m_idIndex = new Dictionary<uint, GPUEmitterId>();
-
-        struct GPUEmitterId
-        {
-            internal int Index;
-
-            public static bool operator ==(GPUEmitterId x, GPUEmitterId y)
-            {
-                return x.Index == y.Index;
-            }
-
-            public static bool operator !=(GPUEmitterId x, GPUEmitterId y)
-            {
-                return x.Index != y.Index;
-            }
-
-            internal static readonly GPUEmitterId NULL = new GPUEmitterId { Index = -1 };
-
-            #region Equals
-            public class MyGPUEmitterIdComparerType : IEqualityComparer<GPUEmitterId>
-            {
-                public bool Equals(GPUEmitterId left, GPUEmitterId right)
-                {
-                    return left == right;
-                }
-
-                public int GetHashCode(GPUEmitterId gpuEmitterId)
-                {
-                    return gpuEmitterId.Index;
-                }
-            }
-            public static MyGPUEmitterIdComparerType Comparer = new MyGPUEmitterIdComparerType();
-            #endregion
-        }
+        private static Dictionary<uint, MyLiveData> m_emitters = new Dictionary<uint, MyLiveData>();
 
         internal static void Init()
         {
             m_emitters.Clear();
-            m_idIndex.Clear();
             m_textureArrayIndices.Clear();
-            m_freeBufferIndices = new Queue<int>();
+            m_freeBufferIndices = new Stack<int>();
             for (int i = 0; i < MAX_LIVE_EMITTERS; i++)
-                m_freeBufferIndices.Enqueue(i);
-            m_totalParticles = 0;
+                m_freeBufferIndices.Push(i);
         }
         internal static void OnDeviceReset()
         {
@@ -100,45 +71,83 @@ namespace VRageRender
         {
             Init();
         }
+
         internal static void Create(uint GID)
         {
-            var id = new GPUEmitterId { Index = m_emitters.Allocate() };
-            
-            MyRenderProxy.Assert(m_freeBufferIndices.Count > 0, "Too many live emitters!");
-
-            m_emitters.Data[id.Index] = new MyLiveData 
+            m_emitters.Add(GID, new MyLiveData 
             {
-                BufferIndex = m_freeBufferIndices.Dequeue(),
+                BufferIndex = -1,
                 TextureId = Resources.TexId.NULL,
-                DieAt = float.MaxValue
-            };
-
-            m_idIndex[GID] = id;
+                DieAt = float.MaxValue,
+                GPUEmitter = new MyGPUEmitter { GID = GID }
+            });
         }
 
-        internal static void Remove(uint GID, bool instant = true)
+        internal static void Remove(uint GID, bool instant = true, bool check = true)
         {
-            var id = m_idIndex.Get(GID, GPUEmitterId.NULL);
-            if (id != GPUEmitterId.NULL)
+            MyLiveData emitter;
+            if (m_emitters.TryGetValue(GID, out emitter))
             {
-                if (instant)
-                    m_emitters.Data[id.Index].GPUEmitter.Data.Flags |= GPUEmitterFlags.Dead;
+                if (emitter.BufferIndex == -1)
+                    Remove(emitter);
+                else if (instant)
+                    emitter.GPUEmitter.Data.Flags |= GPUEmitterFlags.Dead;
                 else
                 {
-                    m_emitters.Data[id.Index].GPUEmitter.ParticlesPerSecond = 0;
-                    m_emitters.Data[id.Index].DieAt = MyCommon.TimerMs + m_emitters.Data[id.Index].GPUEmitter.Data.ParticleLifeSpan * 1000;
+                    emitter.GPUEmitter.ParticlesPerSecond = 0;
+                    emitter.DieAt = MyCommon.TimerMs + emitter.GPUEmitter.Data.ParticleLifeSpan * 1000;
                 }
             }
+            else MyRenderProxy.Assert(check, "Invalid emitter id: " + GID);
         }
-
-        private static void Remove(GPUEmitterId id)
+        internal static void UpdateData(MyGPUEmitter[] def)
         {
-            var emitter = m_emitters.Data[id.Index];
-            m_idIndex.Remove(emitter.GPUEmitter.GID);
+            for (int i = 0; i < def.Length; i++)
+            {
+                MyLiveData emitter;
+                if (m_emitters.TryGetValue(def[i].GID, out emitter))
+                {
+                    var texId = Resources.MyTextures.GetTexture(def[i].AtlasTexture, Resources.MyTextureEnum.GUI, true);
+                    if (emitter.TextureId != texId)
+                    {
+                        RemoveTexture(emitter.TextureId);
+                        AddTexture(texId);
+                    }
+                    emitter.TextureId = texId;
+                    MyRenderProxy.Assert(emitter.TextureId != Resources.TexId.NULL);
 
-            m_freeBufferIndices.Enqueue(emitter.BufferIndex);
+                    emitter.GPUEmitter = def[i];
+                    emitter.GPUEmitter.Data.TextureIndex1 = GenerateTextureIndex(emitter);
+                    emitter.GPUEmitter.Data.TextureIndex2 = (uint)def[i].AtlasFrameModulo;
+                    emitter.GPUEmitter.Data.RotationMatrix = Matrix.Transpose(def[i].Data.RotationMatrix);
+                }
+                else MyRenderProxy.Assert(false, "invalid emitter id: " + def[i].GID);
+            }
+        }
+        internal static void UpdateTransforms(uint[] GIDs, MatrixD[] transforms)
+        {
+            MyRenderProxy.Assert(GIDs.Length == transforms.Length);
+            for (int i = 0; i < GIDs.Length; i++)
+            {
+                MyLiveData emitter;
+                if (m_emitters.TryGetValue(GIDs[i], out emitter))
+                {
+                    emitter.GPUEmitter.WorldPosition = transforms[i].Translation;
+                    emitter.GPUEmitter.Data.RotationMatrix = MatrixD.Transpose(transforms[i]);
+                }
+                else MyRenderProxy.Assert(false, "invalid emitter id: " + GIDs[i]);
+            }
+        }
+        internal static void ReloadTextures()
+        {
+            m_textureArrayDirty = true;
+        }
+        private static void Remove(MyLiveData emitter)
+        {
+            if (emitter.BufferIndex != -1)
+                m_freeBufferIndices.Push(emitter.BufferIndex);
 
-            m_emitters.Free(id.Index);
+            m_emitters.Remove(emitter.GPUEmitter.GID);
 
             RemoveTexture(emitter.TextureId);
         }
@@ -181,120 +190,156 @@ namespace VRageRender
             {
                 if (m_textureArray != null)
                     m_textureArray.Dispose();
+                m_textureArray = null;
 
                 Resources.TexId[] textIds = new Resources.TexId[m_textureArrayIndices.Count];
                 foreach (var item in m_textureArrayIndices)
                     textIds[item.Value.Index] = item.Key;
-                m_textureArray = new Resources.MyTextureArray(textIds, "gpuParticles");
+                if (textIds.Length > 0)
+                    m_textureArray = new Resources.MyTextureArray(textIds, "gpuParticles");
 
                 m_textureArrayDirty = false;
             }
         }
         
-        internal static void UpdateEmitters(MyGPUEmitter[] def)
+        private static uint GenerateTextureIndex(MyLiveData emitter)
         {
-            m_overloaded = false;
-            for (int i = 0; i < def.Length; i++)
-            {
-                var id = m_idIndex.Get(def[i].GID, GPUEmitterId.NULL);
-                MyRenderProxy.Assert(id != GPUEmitterId.NULL);
-                if (id != GPUEmitterId.NULL)
-                {
-                    m_totalParticles -= m_emitters.Data[id.Index].GPUEmitter.MaxParticles();
+            if (emitter.GPUEmitter.AtlasDimension.X >= MAX_ATLAS_DIMENSION)
+                MyRenderProxy.Error("emitter.AtlasDimension.X < " + MAX_ATLAS_DIMENSION);
+            if (emitter.GPUEmitter.AtlasDimension.Y >= MAX_ATLAS_DIMENSION)
+                MyRenderProxy.Error("emitter.AtlasDimension.Y < " + MAX_ATLAS_DIMENSION);
+            uint atlasOffset = (uint)emitter.GPUEmitter.AtlasFrameOffset;
+            if (atlasOffset >= MAX_ATLAS_INDEX)
+                MyRenderProxy.Error("atlasOffset < " + MAX_ATLAS_INDEX);
+            if (emitter.GPUEmitter.AtlasFrameModulo >= ((1 << ATLAS_INDEX_BITS) - 1))
+                MyRenderProxy.Error("emitter.AtlasFrameModulo < " + ((1 << ATLAS_INDEX_BITS) - 1));
+            if ((emitter.GPUEmitter.AtlasFrameOffset + emitter.GPUEmitter.AtlasFrameModulo - 1) >= (emitter.GPUEmitter.AtlasDimension.X * emitter.GPUEmitter.AtlasDimension.Y))
+                MyRenderProxy.Error("Emitter animation is out of bounds. (emitter.AtlasFrameOffset + emitter.AtlasFrameModulo - 1) < (emitter.AtlasDimension.X * emitter.AtlasDimension.Y)");
+            return atlasOffset | ((uint)emitter.GPUEmitter.AtlasDimension.X << (ATLAS_INDEX_BITS + ATLAS_DIMENSION_BITS)) |
+                ((uint)emitter.GPUEmitter.AtlasDimension.Y << (ATLAS_INDEX_BITS));
+        }
 
-                    var texId = Resources.MyTextures.GetTexture(def[i].AtlasTexture, Resources.MyTextureEnum.GUI, true);
-                    if (m_emitters.Data[id.Index].TextureId != texId)
-                    {
-                        RemoveTexture(m_emitters.Data[id.Index].TextureId);
-                        AddTexture(texId);
-                    }
-                    m_emitters.Data[id.Index].TextureId = texId;
-                    MyRenderProxy.Assert(m_emitters.Data[id.Index].TextureId != Resources.TexId.NULL);
-                    def[i].Data.TextureIndex1 = GenerateTextureIndex(def[i]);
-                    def[i].Data.TextureIndex2 = (uint)def[i].AtlasFrameModulo;
-                    
-                    m_emitters.Data[id.Index].GPUEmitter = def[i];
-
-                    if ((m_totalParticles + def[i].MaxParticles()) > MAX_PARTICLES)
-                    {
-                        m_emitters.Data[id.Index].GPUEmitter.ParticlesPerSecond = 0;
-                        m_overloaded = true;
-                        MyRenderProxy.Assert(false, "GPU Particle system overloaded.");
-                    }
-                    m_totalParticles += m_emitters.Data[id.Index].GPUEmitter.MaxParticles();
-                }
-            }
-        }
-        internal static void UpdateEmittersPosition(uint[] GIDs, Vector3D[] worldPositions)
-        {
-            MyRenderProxy.Assert(GIDs.Length == worldPositions.Length);
-            for (int i = 0; i < GIDs.Length; i++)
-            {
-                var id = m_idIndex.Get(GIDs[i], GPUEmitterId.NULL);
-                m_emitters.Data[id.Index].GPUEmitter.WorldPosition = worldPositions[i];
-            }
-        }
-        private static uint GenerateTextureIndex(MyGPUEmitter emitter)
-        {
-            MyRenderProxy.Assert(emitter.AtlasDimension.X < MAX_ATLAS_DIMENSION, "emitter.AtlasDimension.X < MAX_ATLAS_DIMENSION");
-            MyRenderProxy.Assert(emitter.AtlasDimension.Y < MAX_ATLAS_DIMENSION, "emitter.AtlasDimension.Y < MAX_ATLAS_DIMENSION");
-            uint atlasOffset = (uint)emitter.AtlasFrameOffset;
-            MyRenderProxy.Assert(atlasOffset < MAX_ATLAS_INDEX, "atlasOffset < MAX_ATLAS_INDEX");
-            MyRenderProxy.Assert(emitter.AtlasFrameModulo < ((1 << ATLAS_INDEX_BITS) - 1), "emitter.AtlasFrameModulo < ((1 << ATLAS_INDEX_BITS) - 1)");
-            MyRenderProxy.Assert(
-                (emitter.AtlasFrameOffset + emitter.AtlasFrameModulo - 1) < (emitter.AtlasDimension.X * emitter.AtlasDimension.Y), 
-                "(emitter.AtlasFrameOffset + emitter.AtlasFrameModulo - 1) < (emitter.AtlasDimension.X * emitter.AtlasDimension.Y)");
-            return atlasOffset | ((uint)emitter.AtlasDimension.X << (ATLAS_INDEX_BITS + ATLAS_DIMENSION_BITS)) |
-                ((uint)emitter.AtlasDimension.Y << (ATLAS_INDEX_BITS));
-        }
         internal static int Gather(MyGPUEmitterData[] data, out SharpDX.Direct3D11.ShaderResourceView textureArraySRV)
         {
-            MyRenderStats.Generic.WriteFormat("GPU particles allocated: {0}", m_totalParticles, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);
-            MyRenderStats.Generic.WriteFormat("GPU particles overload: {0}", m_overloaded ? 1.0f : 0, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);
-
             for (int i = 0; i < MAX_LIVE_EMITTERS; i++)
             {
                 data[i].NumParticlesToEmitThisFrame = 0;
             }
+
+            // sort emitters!
+            List<MyLiveData> emitters = m_emitters.Values.ToList();
+            //if (emitters.Count > MAX_LIVE_EMITTERS)
+                emitters.Sort();
+
             int maxEmitterIndex = -1;
             uint textureIndex = 0;
-            foreach (var id in m_idIndex.Values)
-            {
-                if (MyCommon.TimerMs > m_emitters.Data[id.Index].DieAt)
-                    m_emitters.Data[id.Index].GPUEmitter.Data.Flags |= GPUEmitterFlags.Dead;
-
-                float toEmit = MyCommon.LastFrameDelta() * m_emitters.Data[id.Index].GPUEmitter.ParticlesPerSecond + 
-                    m_emitters.Data[id.Index].ParticlesEmittedFraction;
-                m_emitters.Data[id.Index].GPUEmitter.Data.NumParticlesToEmitThisFrame = (int)toEmit;
-                m_emitters.Data[id.Index].ParticlesEmittedFraction = toEmit - m_emitters.Data[id.Index].GPUEmitter.Data.NumParticlesToEmitThisFrame;
-
-                if (m_emitters.Data[id.Index].TextureId != Resources.TexId.NULL)
-                {
-                    MyRenderProxy.Assert(m_textureArrayIndices.ContainsKey(m_emitters.Data[id.Index].TextureId));
-                    textureIndex = m_textureArrayIndices[m_emitters.Data[id.Index].TextureId].Index;
-                }
-                else textureIndex = 0;
-
-                int bufferIndex = m_emitters.Data[id.Index].BufferIndex;
-                data[bufferIndex] = m_emitters.Data[id.Index].GPUEmitter.Data;
-                data[bufferIndex].Position = m_emitters.Data[id.Index].GPUEmitter.WorldPosition - MyEnvironment.CameraPosition;
-                data[bufferIndex].TextureIndex1 |= textureIndex << (ATLAS_INDEX_BITS + ATLAS_DIMENSION_BITS * 2);
-
-                if (bufferIndex > maxEmitterIndex)
-                    maxEmitterIndex = bufferIndex;
-            }
+            int unassociatedCount = 0;
+            int skipCount = 0;
+            int unsortedCount = 0;
+            int firstUnassociatedIndex = -1;
+            int lastAssociatedIndex = -1;
             
+            for (int i = 0; i < emitters.Count; i++)
+            {
+                var emitter = emitters[i];
+                // assiociate buffer index to new emitters & track overload to free space for unassociated near emitters later
+                if (emitter.BufferIndex == -1)
+                {
+                    if (m_freeBufferIndices.Count > 0)
+                    {
+                        emitter.BufferIndex = m_freeBufferIndices.Pop();
+                    }
+                    else
+                    {
+                        unassociatedCount++;
+                        if (firstUnassociatedIndex == -1)
+                            firstUnassociatedIndex = i;
+                    }
+                }
+                else
+                {
+                    skipCount = unassociatedCount;
+                    lastAssociatedIndex = i;
+                    if (unassociatedCount > 0)
+                        unsortedCount++;
+                }
+
+                if (MyCommon.TimerMs > emitter.DieAt)
+                    emitter.GPUEmitter.Data.Flags |= GPUEmitterFlags.Dead;
+
+                if (emitter.BufferIndex != -1)
+                {
+                    if ((emitter.GPUEmitter.Data.Flags & GPUEmitterFlags.FreezeEmit) == 0)
+                    {
+                        float toEmit = MyCommon.LastFrameDelta() * emitter.GPUEmitter.ParticlesPerSecond +
+                            emitter.ParticlesEmittedFraction;
+                        emitter.GPUEmitter.Data.NumParticlesToEmitThisFrame = (int)toEmit;
+                        emitter.ParticlesEmittedFraction = toEmit - emitter.GPUEmitter.Data.NumParticlesToEmitThisFrame;
+                    }
+
+                    if (emitter.TextureId != Resources.TexId.NULL)
+                    {
+                        MyRenderProxy.Assert(m_textureArrayIndices.ContainsKey(emitter.TextureId));
+                        textureIndex = m_textureArrayIndices[emitter.TextureId].Index;
+                    }
+                    else textureIndex = 0;
+
+                    int bufferIndex = emitter.BufferIndex;
+                    data[bufferIndex] = emitter.GPUEmitter.Data;
+                    Vector3 pos = emitter.GPUEmitter.WorldPosition - MyRender11.Environment.CameraPosition;
+                    data[bufferIndex].RotationMatrix.M14 = pos.X;
+                    data[bufferIndex].RotationMatrix.M24 = pos.Y;
+                    data[bufferIndex].RotationMatrix.M34 = pos.Z;
+                    data[bufferIndex].TextureIndex1 |= textureIndex << (ATLAS_INDEX_BITS + ATLAS_DIMENSION_BITS * 2);
+
+                    if (bufferIndex > maxEmitterIndex)
+                        maxEmitterIndex = bufferIndex;
+
+                }
+            }
+            /*MyRenderStats.Generic.WriteFormat("GPU particles allocated: {0}", totalParticles, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);
+            MyRenderStats.Generic.WriteFormat("GPU particles overload: {0}", overloadedParticles ? 1.0f : 0, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);
+            MyRenderStats.Generic.WriteFormat("GPU emitters overload: {0}", overloadedEmitters ? 1.0f : 0, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);*/
+
             UpdateTextureArray();
             if (m_textureArray != null)
                 textureArraySRV = m_textureArray.SRV;
             else textureArraySRV = null;
 
-            foreach (var id in m_idIndex.Values.ToArray())
-                if ((m_emitters.Data[id.Index].GPUEmitter.Data.Flags & GPUEmitterFlags.Dead) > 0)
+            // stop emitters far away to make room for emitters nearby
+            if (skipCount > 0 && unsortedCount > 0)
+            {
+                // iterate until buffer-unassociated index is larger then unassocited one
+                for (int i = firstUnassociatedIndex, j = lastAssociatedIndex; i < j; )
                 {
-                    m_totalParticles -= m_emitters.Data[id.Index].GPUEmitter.MaxParticles();
-                    Remove(id);
+                    var emitter = emitters[j];
+                    // free last buffer-associated emitter
+                    data[emitter.BufferIndex].Flags |= GPUEmitterFlags.Dead;
+                    data[emitter.BufferIndex].NumParticlesToEmitThisFrame = 0;
+                    m_freeBufferIndices.Push(emitter.BufferIndex);
+                    emitter.BufferIndex = -1;
+
+                    // find new last buffer-associated emitter
+                    do
+                    {
+                        j--;
+                    }
+                    while (j > 0 && emitters[j].BufferIndex == -1);
+
+                    // find next buffer-unassociated emitter
+                    do
+                    {
+                        i++;
+                    } while (i < emitters.Count && emitters[i].BufferIndex != -1);
                 }
+            }
+
+            foreach (var emitter in emitters)
+                if ((emitter.GPUEmitter.Data.Flags & GPUEmitterFlags.Dead) > 0)
+                {
+                    Remove(emitter);
+                }
+
             return maxEmitterIndex + 1;
         }
     }

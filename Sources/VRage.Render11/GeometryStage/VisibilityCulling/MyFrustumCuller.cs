@@ -112,7 +112,7 @@ namespace VRageRender
                                 break;
                             }
                             var worldMat = proxy.WorldMatrix;
-                            worldMat.Translation -= MyEnvironment.CameraPosition;
+                            worldMat.Translation -= MyRender11.Environment.CameraPosition;
                             proxy.CommonObjectData.LocalMatrix = worldMat;
                             proxy.CommonObjectData.MaterialIndex = MySceneMaterials.GetDrawMaterialIndex(proxy.PerMaterialIndex);
                         }

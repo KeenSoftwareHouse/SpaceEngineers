@@ -342,7 +342,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         #endregion
-
+        
         /// <summary>
         /// Control creation was moved from the static ctor into this static function.  Control creation should still be static, but static ctors
         /// only ever get called once, which means we can never modify these controls (remove), since they will be removed forever.  All classes
@@ -375,6 +375,10 @@ namespace Sandbox.Game.Entities.Cube
             onOffSwitch.Getter = (x) => x.ShowOnHUD;
             onOffSwitch.Setter = (x, v) => x.ShowOnHUD = v;
             MyTerminalControlFactory.AddControl(onOffSwitch);
+        }
+        public override string ToString()
+        {
+            return base.ToString() + " " + this.CustomName;
         }
     }
 }

@@ -44,6 +44,11 @@ namespace VRage.Game.Entity.UseObject
             get;
         }
 
+        public virtual int InstanceID
+        {
+            get { return -1; }
+        }
+
         public abstract bool ShowOverlay
         {
             get;
@@ -66,6 +71,14 @@ namespace VRage.Game.Entity.UseObject
         public abstract bool HandleInput();
 
         public abstract void OnSelectionLost();
+
+        public virtual void SetRenderID(uint id)
+        {
+        }
+
+        public virtual void SetInstanceID(int id)
+        {
+        }
 
         public abstract bool PlayIndicatorSound
         {

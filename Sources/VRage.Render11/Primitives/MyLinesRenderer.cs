@@ -102,7 +102,7 @@ namespace VRageRender
 
         internal void Add6FacedConvexWorld(Vector3D[] v, Color col)
         {
-            Vector3D c = MyEnvironment.CameraPosition;
+            Vector3D c = MyRender11.Environment.CameraPosition;
             Vector3D v0 = v[0] - c, v1 = v[1] - c, v2 = v[2] - c, v3 = v[3] - c, v4 = v[4] - c, v5 = v[5] - c, v6 = v[6] - c, v7 = v[7] - c;
 
             Add(v0, v1, col);
@@ -277,6 +277,7 @@ namespace VRageRender
 
             RC.SetVS(m_vs);
             RC.SetPS(m_ps);
+            RC.SetBS(MyRender11.BlendAlphaPremult);
 
             RC.SetDS(MyDepthStencilState.DefaultDepthState);
 
@@ -303,7 +304,7 @@ namespace VRageRender
                     }
                     else
                     {
-                        matrix = MyEnvironment.ViewProjectionAt0;
+                        matrix = MyRender11.Environment.ViewProjectionAt0;
                     }
 
                     if (prevMatrix != matrix)

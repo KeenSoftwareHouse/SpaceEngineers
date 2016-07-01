@@ -155,12 +155,12 @@ namespace VRageRender
                     {
                         if (format == Format.Index16)
                         {
-                            int index = modelIb.ReadShort() + meshInfo.VertexOffset;
+                            int index = modelIb.Read<short>() + meshInfo.VertexOffset;
                             compoundIb.Write(index);
                         }
                         else
                         {
-                            int index = modelIb.ReadInt() + meshInfo.VertexOffset;
+                            int index = modelIb.Read<int>() + meshInfo.VertexOffset;
                             compoundIb.Write(index);
                         }
                     }

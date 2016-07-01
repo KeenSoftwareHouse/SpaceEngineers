@@ -444,16 +444,6 @@ namespace VRage.Game.Entity
             PositionComp.SetWorldMatrix(worldMatrix, source);
         }
 
-        VRageMath.BoundingBoxD IMyEntity.WorldAABB
-        {
-            get { return PositionComp.WorldAABB; }
-        }
-
-        VRageMath.BoundingBoxD IMyEntity.WorldAABBHr
-        {
-            get { return PositionComp.WorldAABBHr; }
-        }
-
         VRageMath.MatrixD IMyEntity.WorldMatrix
         {
             get
@@ -474,21 +464,6 @@ namespace VRage.Game.Entity
         VRageMath.MatrixD IMyEntity.WorldMatrixNormalizedInv
         {
             get { return PositionComp.WorldMatrixNormalizedInv; }
-        }
-
-        VRageMath.BoundingSphereD IMyEntity.WorldVolume
-        {
-            get { return PositionComp.WorldVolume; }
-        }
-
-        VRageMath.BoundingSphereD IMyEntity.WorldVolumeHr
-        {
-            get { return PositionComp.WorldVolumeHr; }
-        }
-
-        VRageMath.Vector3D IMyEntity.GetPosition()
-        {
-            return PositionComp.GetPosition();
         }
 
         void IMyEntity.SetPosition(VRageMath.Vector3D pos)
@@ -528,5 +503,36 @@ namespace VRage.Game.Entity
             SetEmissivePartsForSubparts(emissiveName, emissivePartColor, emissivity);
         }
 
+        #region Ingame Interface
+        VRageMath.BoundingBoxD ModAPI.Ingame.IMyEntity.WorldAABB
+        {
+            get { return PositionComp.WorldAABB; }
+        }
+
+        VRageMath.BoundingBoxD ModAPI.Ingame.IMyEntity.WorldAABBHr
+        {
+            get { return PositionComp.WorldAABBHr; }
+        }
+
+        VRageMath.MatrixD ModAPI.Ingame.IMyEntity.WorldMatrix
+        {
+            get { return PositionComp.WorldMatrix; }
+        }
+
+        VRageMath.BoundingSphereD ModAPI.Ingame.IMyEntity.WorldVolume
+        {
+            get { return PositionComp.WorldVolume; }
+        }
+
+        VRageMath.BoundingSphereD ModAPI.Ingame.IMyEntity.WorldVolumeHr
+        {
+            get { return PositionComp.WorldVolumeHr; }
+        }
+
+        VRageMath.Vector3D ModAPI.Ingame.IMyEntity.GetPosition()
+        {
+            return PositionComp.GetPosition();
+        }
+        #endregion
     }
 }

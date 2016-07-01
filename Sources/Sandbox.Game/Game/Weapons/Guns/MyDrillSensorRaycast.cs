@@ -36,6 +36,8 @@ namespace Sandbox.Game.Weapons.Guns
 
 		public static bool GetShapeCenter(HkShape shape, uint shapeKey, MyCubeGrid grid, ref Vector3D shapeCenter)
 		{
+            return false; //Disabled because of bad computing shapeCenter in relation with grid (alway around grid center).
+                          //Called on grid part which has havok shape (only door?).
 			bool shapeSet = true;
 
 			switch (shape.ShapeType)

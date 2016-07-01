@@ -22,6 +22,7 @@ using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
 using VRage.Game.Definitions;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 
 namespace Sandbox.Definitions
 {
@@ -383,6 +384,11 @@ namespace Sandbox.Definitions
         public bool Mirrored { get; private set; }
         public bool RandomRotation { get; private set; }
 
+        /// <summary>
+        /// Defines how much block can penetrate voxel.
+        /// </summary>
+        public VoxelPlacementOverride? VoxelPlacement;
+
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
             base.Init(builder);
@@ -419,6 +425,8 @@ namespace Sandbox.Definitions
             this.GeneratedBlockType    = MyStringId.GetOrCompute(ob.GeneratedBlockType != null ? ob.GeneratedBlockType.ToLower() : null);
             this.CompoundEnabled       = ob.CompoundEnabled;
             this.CreateFracturedPieces = ob.CreateFracturedPieces;
+            this.VoxelPlacement      = ob.VoxelPlacement;
+
             if (ob.PhysicalMaterial != null)
             {
                 this.PhysicalMaterial = MyDefinitionManager.Static.GetPhysicalMaterialDefinition(ob.PhysicalMaterial);
@@ -636,6 +644,7 @@ namespace Sandbox.Definitions
             ActionSound = new MySoundPair(ob.ActionSound);
             if (ob.DamagedSound!=null)
                 DamagedSound = new MySoundPair(ob.DamagedSound);
+
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -671,6 +680,7 @@ namespace Sandbox.Definitions
             ob.CompoundTemplates = this.CompoundTemplates;
             ob.Icons = Icons;
             ob.Points = this.Points;
+            ob.VoxelPlacement = this.VoxelPlacement;
             //ob.SubBlockDefinitions = SubBlockDefinitions;
             //ob.BlockVariants = BlockVariants;
             if (this.PhysicalMaterial != null)

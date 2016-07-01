@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Utils;
 using VRageMath;
 
 namespace VRageRender
 {
+    [Obsolete]
     public class MyRenderMessageCreateDecal : MyRenderMessageBase
     {
         public uint ID;
@@ -25,11 +27,42 @@ namespace VRageRender
     {
         public uint ID;
         public uint ParentID;
-        public Matrix LocalOBB; // transforms unit box centered at 0 to volume relative to object space
-        public string DecalMaterial;
+        public MyDecalTopoData Data;
+        public MyDecalFlags Flags;
+        public string SourceTarget;
+        public string Material;
+        public int MaterialIndex;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.CreateScreenDecal; } }
+    }
+
+    public struct MyDecalTopoData
+    {
+        public Vector3D Position;
+        public Vector3 Normal;
+        public Vector3 Scale;
+        public float Rotation;
+    }
+
+    public class MyRenderMessageUpdateScreenDecal : MyRenderMessageBase
+    {
+        public List<MyDecalPositionUpdate> Decals = new List<MyDecalPositionUpdate>();
+
+        public override void Init()
+        {
+            Decals.Clear();
+        }
+
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateScreenDecal; } }
+    }
+
+    public struct MyDecalPositionUpdate
+    {
+        public uint ID;
+        public Vector3D Position;
+        public Vector3 Normal;
     }
 
     public class MyRenderMessageRemoveDecal : MyRenderMessageBase
@@ -42,11 +75,17 @@ namespace VRageRender
 
     public class MyRenderMessageRegisterScreenDecalsMaterials : MyRenderMessageBase
     {
-        public List<string> MaterialsNames;
-        public List<MyDecalMaterialDesc> MaterialsDescriptions;
+        public Dictionary<string, List<MyDecalMaterialDesc>> MaterialDescriptions;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.RegisterDecalsMaterials; } }
+    }
+
+
+    public class MyRenderMessageClearScreenDecals : MyRenderMessageBase
+    {
+        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeOnce; } }
+        public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.ClearDecals; } }
     }
 
     public class MyRenderMessageSetDecalGlobals : MyRenderMessageBase

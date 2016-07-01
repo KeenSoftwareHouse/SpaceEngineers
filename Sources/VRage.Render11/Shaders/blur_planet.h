@@ -27,9 +27,9 @@ cbuffer Blur : register(b1)
 bool is_mask(float2 pos)
 {
 #ifndef MS_SAMPLE_COUNT
-	float sample = Gbuffer2[pos].y;
+	float sample = Gbuffer1[pos].w;
 #else
-	float sample = Gbuffer2.Load(pos, 0).y;
+	float sample = Gbuffer1.Load(pos, 0).w;
 #endif
 
 	return sample * 255 == 4;

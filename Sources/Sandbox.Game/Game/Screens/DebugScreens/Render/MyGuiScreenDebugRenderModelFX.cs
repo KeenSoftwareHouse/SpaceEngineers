@@ -144,7 +144,7 @@ namespace Sandbox.Game.Gui
             material.SpecularPower = m_specularPower.Value;
             material.SpecularIntensity = m_specularIntensity.Value;
 
-            VRageRender.MyRenderProxy.UpdateModelProperties(
+            /*VRageRender.MyRenderProxy.UpdateModelProperties(
                 VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED,
                 0,
                 model.AssetName,
@@ -154,7 +154,7 @@ namespace Sandbox.Game.Gui
                 sender == m_diffuseColor ? material.DiffuseColor : (Color?)null,
                 material.SpecularPower,
                 material.SpecularIntensity,
-                null);
+                null);*/
 
             if (m_currentSelectedVoxelItem != -1)
             {

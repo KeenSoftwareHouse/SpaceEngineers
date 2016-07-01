@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDrawCylinder : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawCylinder : MyDebugRenderMessage
     {
         public MatrixD Matrix;
         public Color Color;
@@ -14,11 +14,10 @@ namespace VRageRender
         public bool DepthRead;
         public bool Smooth;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawCylinder; } }
     }
 
-    public class MyRenderMessageDebugDrawCone : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawCone : MyDebugRenderMessage
     {
         public Vector3D Translation;
         public Vector3D DirectionVector;
@@ -26,7 +25,6 @@ namespace VRageRender
         public Color Color;
         public bool DepthRead;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawCone; } }
     }
 }

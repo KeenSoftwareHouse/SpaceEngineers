@@ -54,7 +54,14 @@ namespace VRage.Network
                     m_typeLookup.Add(type, result);
                     m_staticEventTable.AddStaticEvents(type);
                 }
-                else if (baseType != null) // Base type has some events
+                else if (IsSerializableClass(type)) // Stored only for dynamic serialization.
+                {
+                    result = new MySynchronizedTypeInfo(type, new TypeId((uint)m_idToType.Count), baseType, isReplicated);
+                    m_idToType.Add(result);
+                    m_hashLookup.Add(result.TypeHash, result);
+                    m_typeLookup.Add(type, result);
+                }
+                else if (baseType != null)// Base type has some events
                 {
                     result = baseType;
                     m_typeLookup.Add(type, result);
@@ -69,7 +76,12 @@ namespace VRage.Network
 
         public static bool ShouldRegister(Type type)
         {
-            return IsReplicated(type) || CanHaveEvents(type);
+            return IsReplicated(type) || CanHaveEvents(type) || IsSerializableClass(type);
+        }
+
+        private static bool IsSerializableClass(Type type)
+        {
+            return type.HasAttribute<SerializableAttribute>();
         }
 
         static bool IsReplicated(Type type)

@@ -551,7 +551,10 @@ namespace Sandbox.Game.Entities.Character.Components
                 //Character.ChangeModelAndColor(Definition.HelmetVariation, Character.ColorMask);
                 NeedsOxygenFromSuit = !NeedsOxygenFromSuit;
                 AnimateHelmet();
-                m_helmetToggleNotification.Text = (!NeedsOxygenFromSuit ? MySpaceTexts.NotificationHelmetOn : MySpaceTexts.NotificationHelmetOff);
+                if (MySession.Static.LocalCharacter == Character)
+                {
+                    m_helmetToggleNotification.Text = (!NeedsOxygenFromSuit ? MySpaceTexts.NotificationHelmetOn : MySpaceTexts.NotificationHelmetOff);
+                }
             }
             else
             {

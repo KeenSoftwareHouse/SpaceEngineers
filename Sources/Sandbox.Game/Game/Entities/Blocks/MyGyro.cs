@@ -127,7 +127,7 @@ namespace Sandbox.Game.Entities
                 var gyroOverrideSliderY = new MyTerminalControlSlider<MyGyro>("Yaw", MySpaceTexts.BlockPropertyTitle_GyroYawOverride, MySpaceTexts.BlockPropertyDescription_GyroYawOverride);
                 gyroOverrideSliderY.Getter = (x) => -x.m_gyroOverrideVelocity.Value.Y;
                 gyroOverrideSliderY.Setter = (x, v) => { SetGyroTorqueYaw(x, -v); };
-                gyroOverrideSliderY.Writer = (x, result) => result.AppendDecimal(x.m_gyroOverrideVelocity.Value.Y * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
+                gyroOverrideSliderY.Writer = (x, result) => result.AppendDecimal(-x.m_gyroOverrideVelocity.Value.Y * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
                 gyroOverrideSliderY.Enabled = (x) => x.GyroOverride;
                 gyroOverrideSliderY.DefaultValue = 0;
                 gyroOverrideSliderY.SetDualLogLimits((x) => 0.01f * MathHelper.RPMToRadiansPerSecond, MaxAngularRadiansPerSecond, 0.05f);
@@ -147,7 +147,7 @@ namespace Sandbox.Game.Entities
                 var gyroOverrideSliderZ = new MyTerminalControlSlider<MyGyro>("Roll", MySpaceTexts.BlockPropertyTitle_GyroRollOverride, MySpaceTexts.BlockPropertyDescription_GyroRollOverride);
                 gyroOverrideSliderZ.Getter = (x) => -x.m_gyroOverrideVelocity.Value.Z;
                 gyroOverrideSliderZ.Setter = (x, v) => { SetGyroTorqueRoll(x, -v); };
-                gyroOverrideSliderZ.Writer = (x, result) => result.AppendDecimal(x.m_gyroOverrideVelocity.Value.Z * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
+                gyroOverrideSliderZ.Writer = (x, result) => result.AppendDecimal(-x.m_gyroOverrideVelocity.Value.Z * MathHelper.RadiansPerSecondToRPM, 2).Append(" RPM");
                 gyroOverrideSliderZ.Enabled = (x) => x.GyroOverride;
                 gyroOverrideSliderZ.DefaultValue = 0;
                 gyroOverrideSliderZ.SetDualLogLimits((x) => 0.01f * MathHelper.RPMToRadiansPerSecond, MaxAngularRadiansPerSecond, 0.05f);

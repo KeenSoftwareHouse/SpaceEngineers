@@ -5,7 +5,7 @@ using Sandbox.Game.Components;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Lights;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using VRage;
 using VRageMath;
 
@@ -16,16 +16,16 @@ namespace Sandbox.Game.Entities
     {
         private float GlareQuerySizeDef
         {
-            get { return IsLargeLight ? 3 : 1; }
+            get { return CubeGrid.GridScale * (IsLargeLight ? 3 : 1); }
         }
         private float ReflectorGlareSizeDef
         {
-            get { return IsLargeLight ? 0.650f : 0.198f; }
+            get { return CubeGrid.GridScale * (IsLargeLight ? 0.650f : 0.198f); }
         }
 
         protected override void InitLight(MyLight light, Vector4 color, float radius, float falloff)
         {
-            light.Start(MyLight.LightTypeEnum.PointLight | MyLight.LightTypeEnum.Spotlight, color, falloff, radius);
+            light.Start(MyLight.LightTypeEnum.PointLight | MyLight.LightTypeEnum.Spotlight, color, falloff, CubeGrid.GridScale * radius);
 
             light.ShadowDistance = 20;
             light.LightOwner = MyLight.LightOwnerEnum.SmallShip;

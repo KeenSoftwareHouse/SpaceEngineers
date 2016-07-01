@@ -12,6 +12,8 @@ namespace VRage
         public const bool ProfileFromStart = false;
         public const bool ProfileWorkingSetMemory = false;
 
+        public const bool ProfileRenderMessages = false;
+
         public const bool EnableSharpDxObjectTracking = false;
 
         public static bool MemoryProfiling = IsProfilerAttached();
@@ -20,6 +22,10 @@ namespace VRage
 
         public const bool DX11Debug = false;
         public const bool DX11DebugOutput = false;
+        // enable/disable print of DirectX Debug messages that have type of Information
+        public const bool DX11DebugOutputEnableInfo = false;
+        // force stereo rendering even when OpenVR is not available
+        public const bool DX11ForceStereo = false;
 
         /// <summary>
         /// This is reliable, enforced by .NET documentation.

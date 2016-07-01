@@ -8,7 +8,7 @@ namespace VRage.Game.Definitions
     public abstract class MyDefinitionPostprocessor
     {
         // Priority for this postprocessor
-        public int Priority {
+        public virtual int Priority {
             get { return 500; }
         }
 

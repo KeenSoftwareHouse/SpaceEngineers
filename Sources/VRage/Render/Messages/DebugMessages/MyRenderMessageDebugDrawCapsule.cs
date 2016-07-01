@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDrawCapsule : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawCapsule : MyDebugRenderMessage
     {
         public Vector3D P0;
         public Vector3D P1;
@@ -15,7 +15,6 @@ namespace VRageRender
         public bool DepthRead;
         public bool Shaded;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawCapsule; } }
     }
 }

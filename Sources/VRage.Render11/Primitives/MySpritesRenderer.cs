@@ -253,7 +253,7 @@ namespace VRageRender
             RC.BindDepthRT(null, DepthStencilAccess.DepthReadOnly, null);
             RC.DeviceContext.OutputMerger.SetRenderTargets(rtv);
             
-            RC.SetBS(MyRender11.BlendGui);
+            RC.SetBS(MyRender11.BlendAlphaPremult);
 
             CheckBufferSize(StackTop().m_instances.Count);
             RC.SetVB(0, m_VB.Buffer, m_VB.Stride);

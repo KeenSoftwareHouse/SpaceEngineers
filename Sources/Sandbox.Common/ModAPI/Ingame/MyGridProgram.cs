@@ -36,10 +36,7 @@ namespace Sandbox.ModAPI.Ingame
         // WARNING: Do not autoinitialize any of these fields, or the grid program initialization process
         // will fail.
         private string m_storage;
-        private ConstructorInfo m_constructor;
-        //private readonly Action<string> m_main;
-		MethodInfo m_main_minfo;
-		bool pars;
+        private readonly Action<string> m_main;
         private readonly Action m_save;
 
         protected MyGridProgram()
@@ -49,20 +46,15 @@ namespace Sandbox.ModAPI.Ingame
             var mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, new[] {typeof(string)}, null);
             if (mainMethod != null)
             {
-                //this.m_main = mainMethod.CreateDelegate<Action<string>>(this);
-				m_main_minfo = mainMethod;
-				pars = true;
+                this.m_main = mainMethod.CreateDelegate<Action<string>>(this);
             }
             else
             {
                 mainMethod = type.GetMethod("Main", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
                 if (mainMethod != null)
                 {
-                    /*var mainWithoutArgument = mainMethod.CreateDelegate<Action>(this);
+                    var mainWithoutArgument = mainMethod.CreateDelegate<Action>(this);
                     this.m_main = arg => mainWithoutArgument();
-					 * */
-					m_main_minfo = mainMethod;
-					pars = false;
                 }
             }
 
@@ -146,22 +138,14 @@ namespace Sandbox.ModAPI.Ingame
 
         bool IMyGridProgram.HasMainMethod
         {
-            get { return this.m_main_minfo != null; }
+            get { return m_main != null; }
         }
 
         void IMyGridProgram.Main(string argument)
         {
-            if (m_main_minfo == null)
+            if (m_main == null)
                 throw new InvalidOperationException("No Main method available");
-            //m_main(argument ?? string.Empty);
-			if (pars)
-			{
-				m_main_minfo.Invoke(this, new object[] { argument ?? string.Empty} );
-			}
-			else
-			{
-				m_main_minfo.Invoke(this, null);
-			}
+            m_main(argument ?? string.Empty);
         }
 
         bool IMyGridProgram.HasSaveMethod

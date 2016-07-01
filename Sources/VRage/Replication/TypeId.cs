@@ -9,9 +9,14 @@ namespace VRage.Network
     {
         internal uint Value;
 
-        internal TypeId(uint value)
+        public TypeId(uint value)
         {
             Value = value;
+        }
+
+        public static implicit operator uint(TypeId tp)
+        {
+            return tp.Value;
         }
 
         public override string ToString()

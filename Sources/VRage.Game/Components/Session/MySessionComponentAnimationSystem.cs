@@ -14,7 +14,7 @@ using VRage.Utils;
 namespace VRage.Game.SessionComponents
 {
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-    internal class MySessionComponentAnimationSystem : MySessionComponentBase
+    public class MySessionComponentAnimationSystem : MySessionComponentBase
     {
         // Static reference to this session component.
         public static MySessionComponentAnimationSystem Static = null;
@@ -33,8 +33,16 @@ namespace VRage.Game.SessionComponents
         private readonly List<MyStateMachineNode> m_debuggingAnimControllerCurrentNodes = new List<MyStateMachineNode>(); 
         private readonly List<int[]> m_debuggingAnimControllerTreePath = new List<int[]>();
 
+        public MyEntity EntitySelectedForDebug; // override default selection = controlled object
+
+        public IEnumerable<MyAnimationControllerComponent> RegisteredAnimationComponents
+        {
+            get { return m_skinnedEntityComponents; }
+        }
+
         public override void LoadData()
         {
+            EntitySelectedForDebug = null;
             m_skinnedEntityComponents.Clear();
             m_skinnedEntityComponentsToAdd.Clear();
             m_skinnedEntityComponentsToRemove.Clear();
@@ -46,6 +54,7 @@ namespace VRage.Game.SessionComponents
 
         protected override void UnloadData()
         {
+            EntitySelectedForDebug = null;
             m_skinnedEntityComponents.Clear();
             m_skinnedEntityComponentsToAdd.Clear();
             m_skinnedEntityComponentsToRemove.Clear();
@@ -104,15 +113,14 @@ namespace VRage.Game.SessionComponents
 
         private void LiveDebugging()
         {
-            if (Session == null || Session.ControlledObject == null
-                || MySessionComponentExtDebug.Static == null || !MySessionComponentExtDebug.Static.HasClients)
+            if (Session == null || MySessionComponentExtDebug.Static == null/* || !MySessionComponentExtDebug.Static.HasClients*/)
                 return;
 
-            MyEntity localSkinnedEntity = Session.ControlledObject.Entity as MyEntity;
+            MyEntity localSkinnedEntity = EntitySelectedForDebug ?? (Session.ControlledObject != null ? Session.ControlledObject.Entity as MyEntity : null);
             if (localSkinnedEntity == null)
                 return;
             MyAnimationControllerComponent localSkinnedEntityAnimComponent = localSkinnedEntity.Components.Get<MyAnimationControllerComponent>();
-            if (localSkinnedEntityAnimComponent == null)
+            if (localSkinnedEntityAnimComponent == null || localSkinnedEntityAnimComponent.SourceId.TypeId.IsNull)
                 return;
 
             // send AC name (connect / reconnect)

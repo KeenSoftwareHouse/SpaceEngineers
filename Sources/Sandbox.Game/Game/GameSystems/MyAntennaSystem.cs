@@ -90,6 +90,9 @@ namespace Sandbox.Game.GameSystems
                     continue;
 
                 var ownerCubeGrid = (broadcaster.Entity as MyCubeBlock).CubeGrid;
+                //GR: If grid is preview grid do not take into account (this is needed for project antennas. Another fix would be do disable broadcasting on projected antennas)
+                if (ownerCubeGrid.IsPreview)
+                    continue;
 
                 m_tempGridBroadcastersFromPlayer.Clear();
                 GridBroadcastersFromPlayer(ownerCubeGrid, interactedEntityRepresentative, playerIdentity.IdentityId, m_tempGridBroadcastersFromPlayer);

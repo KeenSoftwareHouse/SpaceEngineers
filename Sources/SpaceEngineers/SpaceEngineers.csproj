@@ -11,6 +11,8 @@
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <ApplicationIcon>SpaceEngineers.ico</ApplicationIcon>
     <Thumbnail>GameThumbnail.png</Thumbnail>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -23,10 +25,8 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -216,6 +216,20 @@
     <None Include="Content\Data\EntityContainers.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\Environment\EnvironmentModules.sbc" />
+    <None Include="Content\Data\Environment\VoxelMapCollections.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\PhysicalModelCollections.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\PhysicalModels_Trees.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\PhysicalModels_Bushes.sbc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Environment\VoxelMapCollections.sbc" />
     <None Include="Content\Data\GoodAIControlHandTools.sbc" />
     <None Include="Content\Data\AmmoMagazines.sbc">
       <SubType>Designer</SubType>
@@ -225,7 +239,9 @@
     <None Include="Content\Data\Audio.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\BlockCategories.sbc" />
+    <None Include="Content\Data\BlockCategories.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\BlueprintClasses.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -239,7 +255,9 @@
     <None Include="Content\Data\Components.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Configuration.sbc" />
+    <None Include="Content\Data\Configuration.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\ContainerTypes.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -323,10 +341,16 @@
     <None Include="Content\Data\Scenarios.sbx">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Screens\CubeBuilder.gsc" />
+    <None Include="Content\Data\Screens\CubeBuilder.gsc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Screens\CubeBuilderBar.gsc" />
-    <None Include="Content\Data\Screens\DialogAmount.gsc" />
-    <None Include="Content\Data\Screens\JoinScreen.gsc" />
+    <None Include="Content\Data\Screens\DialogAmount.gsc">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Screens\JoinScreen.gsc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Screens\MedicalsScreen.gsc" />
     <None Include="Content\Data\SoundBlock.sbc" />
     <None Include="Content\Data\SpawnGroups.sbc">
@@ -335,6 +359,7 @@
     <None Include="Content\Data\Stats.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\ShadowTextureSets.sbc" />
     <None Include="Content\Data\TransparentMaterials.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -361,6 +386,12 @@
     </Content>
     <None Include="steam_appid.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Content\Data\Localization\MyVRTexts.resx">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Content\Data\Localization\VRDataTexts.resx">
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -433,7 +464,6 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
   </ImportGroup>
@@ -453,7 +483,7 @@
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;$(ProjectDir)Content\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
     <!-- This will create link for common texts -->
     <RemoveDir Directories="$(OutDir)..\Content\Data\Localization\Common" ContinueOnError="true" />
-    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data\Localization\Common&quot; $(ProjectDir)..\VRage.Game\Content\Data\Localization" IgnoreExitCode="true" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data\Localization\Common&quot; &quot;$(ProjectDir)..\VRage.Game\Content\Data\Localization&quot;" IgnoreExitCode="true" />
     <!-- Link the rest of content subdirs (on GitHub, this is linked from Steam; on SVN this is linked from source location) -->
     <ItemGroup>
       <ContentSubdirs Include="$([System.IO.Directory]::GetDirectories(&quot;$(ContentPath)&quot;))" />

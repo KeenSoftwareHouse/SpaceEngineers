@@ -65,8 +65,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         List<Sandbox.Definitions.MyLCDTextureDefinition> m_selectedTexturesToDraw = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
         List<Sandbox.Definitions.MyLCDTextureDefinition> m_definitions = new List<Sandbox.Definitions.MyLCDTextureDefinition>();
-        List<MyGuiControlListbox.Item> m_selectedTextures = null;
-        List<MyGuiControlListbox.Item> m_selectedTexturesToRemove = null;
+        List<MyGuiControlListbox.Item> m_selectedTextures = new List<MyGuiControlListbox.Item>();
+        List<MyGuiControlListbox.Item> m_selectedTexturesToRemove = new List<MyGuiControlListbox.Item>();
 
         Sync<Color> m_backgroundColor;
         bool m_backgroundColorChanged = true;
@@ -313,12 +313,20 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void SelectImage(List<MyGuiControlListbox.Item> imageId)
         {
-            m_selectedTexturesToRemove = imageId;
+            m_selectedTexturesToRemove.Clear();
+            for (int i = 0; i < imageId.Count; i++)
+            {
+                m_selectedTexturesToRemove.Add(imageId[i]);
+            }
         }
 
         public void SelectImageToDraw(List<MyGuiControlListbox.Item> imageIds)
         {
-            m_selectedTextures = imageIds;
+            m_selectedTextures.Clear();
+            for (int i = 0; i < imageIds.Count; i++)
+            {
+                m_selectedTextures.Add(imageIds[i]);
+            }
         }
 
         public override void UpdateAfterSimulation()
@@ -1195,51 +1203,69 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SendChangeDescriptionMessage(StringBuilder description, bool isPublic)
         {
-            if (description.CompareTo(PublicDescription) == 0 && isPublic)
+            if (CubeGrid.IsPreview || !CubeGrid.SyncFlag)
             {
-                return;
-            }
-
-            if (description.CompareTo(PrivateDescription) == 0 && isPublic == false)
-            {
-                return;
-            }
-            //This causes text changed twice. Other fix will be to remove CompareUpdate from public or private description set method above
-            /*
-            if(isPublic)
-            {
-                PublicDescription = description;
+                if (isPublic)
+                {
+                    PublicDescription = description;
+                }
+                else
+                {
+                    PrivateDescription = description;
+                }
             }
             else
             {
-                PrivateDescription = description;
+
+                if (description.CompareTo(PublicDescription) == 0 && isPublic)
+                {
+                    return;
+                }
+
+                if (description.CompareTo(PrivateDescription) == 0 && isPublic == false)
+                {
+                    return;
+                }
+                MyMultiplayer.RaiseEvent(this, x => x.OnChangeDescription, description.ToString(), isPublic);
             }
-            */
-            MyMultiplayer.RaiseEvent(this, x => x.OnChangeDescription, description.ToString(), isPublic);
         }
 
         private void SendChangeTitleMessage(StringBuilder title, bool isPublic)
         {
-            if (title.CompareTo(PublicTitle) == 0 && isPublic)
+            if (CubeGrid.IsPreview || !CubeGrid.SyncFlag)
             {
-                return;
-            }
-
-            if (title.CompareTo(PrivateTitle) == 0 && isPublic == false)
-            {
-                return;
-            }
-
-            if (isPublic)
-            {
-                PublicTitle = title;
+                if (isPublic)
+                {
+                    PublicTitle = title;
+                }
+                else
+                {
+                    PrivateTitle = title;
+                }
             }
             else
             {
-                PrivateTitle = title;
-            }
+                if (title.CompareTo(PublicTitle) == 0 && isPublic)
+                {
+                    return;
+                }
 
-            MyMultiplayer.RaiseEvent(this, x => x.OnChangeTitle, title.ToString(), isPublic);
+                if (title.CompareTo(PrivateTitle) == 0 && isPublic == false)
+                {
+                    return;
+                }
+
+                if (isPublic)
+                {
+                    PublicTitle = title;
+                }
+                else
+                {
+                    PrivateTitle = title;
+                }
+
+                MyMultiplayer.RaiseEvent(this, x => x.OnChangeTitle, title.ToString(), isPublic);
+            }
         }
 
         #endregion

@@ -315,20 +315,6 @@ namespace VRageRender
                         break;
                     }
 
-                case MyRenderMessageEnum.UpdateRenderInstanceBuffer:
-                    {
-                        var rMessage = (MyRenderMessageUpdateRenderInstanceBuffer)message;
-
-                        var obj = (MyRenderInstanceBuffer)GetRenderObject(rMessage.ID);
-                        obj.Update(rMessage.InstanceData, rMessage.Capacity);
-
-                        rMessage.InstanceData.Clear();
-
-
-                        break;
-                    }
-
-
                 case MyRenderMessageEnum.SetInstanceBuffer:
                     {
                         var rMessage = (MyRenderMessageSetInstanceBuffer)message;
@@ -762,7 +748,7 @@ namespace VRageRender
 
                 case MyRenderMessageEnum.UpdateModelProperties:
                     {
-                        var rMessage = (MyRenderMessageUpdateModelProperties)message;
+                        /*var rMessage = (MyRenderMessageUpdateModelProperties)message;
 
                         if (rMessage.ID == MyRenderProxy.RENDER_ID_UNASSIGNED)
                         {
@@ -849,7 +835,7 @@ namespace VRageRender
                                         material.Emissivity = rMessage.Emissivity.Value;
                                 }
                             }
-                        }
+                        }*/
 
 
 

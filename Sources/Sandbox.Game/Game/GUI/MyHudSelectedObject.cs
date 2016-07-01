@@ -305,25 +305,28 @@ namespace Sandbox.Game.Gui
         /// <summary>
         /// Old block highlight style
         /// </summary>
-        HighlightStyle1 = 1,
+        DummyHighlight = 1,
 
         /// <summary>
         /// Contour highlight style
         /// </summary>
-        HighlightStyle2 = 2
+        OutlineHighlight = 2
     }
 
     struct MyHudSelectedObjectStatus
     {
         public IMyUseObject Instance;
         public int[] SectionIndices;
+        public int InstanceId;
         public uint[] SubpartIndices;
+
         public MyHudObjectHighlightStyle Style;
 
         public void Reset()
         {
             Instance = null;
             SectionIndices = null;
+            InstanceId = -1;
             SubpartIndices = null;
             Style = MyHudObjectHighlightStyle.None;
         }

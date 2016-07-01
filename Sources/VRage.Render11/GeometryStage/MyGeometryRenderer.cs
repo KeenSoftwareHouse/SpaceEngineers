@@ -51,20 +51,15 @@ namespace VRageRender
         // Adds to commandLists the command lists containing the rendering commands for the renderables given in renderablesDBVH
         internal void Render(Queue<CommandList> commandLists, bool updateEnvironmentMap = false)
         {
-            ProfilerShort.Begin("MyGeometryRenderer.Render");
-            MyGpuProfiler.IC_BeginBlock("MyGeometryRenderer.Render");
-
-            ProfilerShort.Begin("Culling");
+            ProfilerShort.Begin("PrepareFrame");
             PrepareFrame();
 
-            ProfilerShort.Begin("Prepare culling");
+            ProfilerShort.BeginNextBlock("Prepare culling");
             var shadowmapQueries = m_shadowHandler.PrepareQueries();
             MyVisibilityCuller.PrepareCullQuery(m_cullQuery, shadowmapQueries, updateEnvironmentMap);
 
             ProfilerShort.BeginNextBlock("Perform culling");
             m_visibilityCuller.PerformCulling(m_cullQuery, m_renderablesDBVH);
-            ProfilerShort.End();
-            ProfilerShort.End();
 
             ProfilerShort.BeginNextBlock("Record command lists");
             m_renderingDispatcher.RecordCommandLists(m_cullQuery, commandLists);
@@ -74,9 +69,7 @@ namespace VRageRender
 
             ProfilerShort.BeginNextBlock("Frame cleanup");
             EndFrame();
-
-            MyGpuProfiler.IC_EndBlock();
-            ProfilerShort.End();    // End function block
+            ProfilerShort.End();
         }
 
         // Sends information about the visible objects in cullQuery to MyRenderProxy

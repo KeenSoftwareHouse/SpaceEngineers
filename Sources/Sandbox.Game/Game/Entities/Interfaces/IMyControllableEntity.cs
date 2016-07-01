@@ -73,6 +73,7 @@ namespace Sandbox.Game.Entities
     {
         PrimaryAction = 0,
         SecondaryAction = 1,
+        TertiaryAction = 2,
     }
 
     static class MyControllableEntityExtensions

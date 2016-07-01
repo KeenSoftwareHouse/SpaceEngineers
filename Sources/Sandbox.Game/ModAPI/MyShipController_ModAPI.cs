@@ -51,7 +51,7 @@ namespace Sandbox.Game.Entities
             return linearVelocity.Length();
         }
 
-        MyShipVelocities IMyShipController.GetShipVelocities()
+        MyShipVelocities ModAPI.Ingame.IMyShipController.GetShipVelocities()
         {
             var physics = Parent != null ? Parent.Physics : null;
             var linearVelocity = physics == null ? Vector3D.Zero : new Vector3D(physics.LinearVelocity);

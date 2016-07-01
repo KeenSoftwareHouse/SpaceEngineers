@@ -49,13 +49,13 @@ void __compute_shader(
     float maxz = 0;
 
 #ifndef MS_SAMPLE_COUNT
-    SurfaceInterface gbuffer = read_gbuffer(dispatchThreadID.xy);
+    SurfaceInterface gbuffer = read_gbuffer(frame_.offset_in_gbuffer + dispatchThreadID.xy);
 
     minz = min(minz, gbuffer.native_depth);
     maxz = max(maxz, gbuffer.native_depth);
 #else
     [unroll] for (uint sample = 0; sample < MS_SAMPLE_COUNT; ++sample) {
-        SurfaceInterface gbuffer = read_gbuffer(dispatchThreadID.xy, sample);
+		SurfaceInterface gbuffer = read_gbuffer(frame_.offset_in_gbuffer + dispatchThreadID.xy, sample);
 
         minz = min(minz, gbuffer.native_depth);
         maxz = max(maxz, gbuffer.native_depth);

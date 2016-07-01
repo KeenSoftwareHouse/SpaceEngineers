@@ -167,14 +167,17 @@ namespace ParallelTasks
             children = new List<Task>();
         }
 
-        public Task PrepareStart(IWork work)
+        public Task PrepareStart(IWork work, Thread thread = null)
         {
             this.work = work;
 
             resetEvent.Reset();
             children.Clear();
             exceptionBuffer = null;
-            ExecutingThread = Thread.CurrentThread;
+            ExecutingThread = thread;
+
+            if (ExecutingThread == null)
+                ExecutingThread = Thread.CurrentThread;
 
             var task = new Task(this);
             var currentTask = WorkItem.CurrentTask;

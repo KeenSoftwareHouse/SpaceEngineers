@@ -3,6 +3,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
+using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
@@ -84,7 +85,7 @@ namespace Sandbox.Game.Gui
 
             CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_ReloadTextures, ReloadTextures);
             CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_ReloadModels, ReloadModels);
-            CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_SavePrefab, SavePrefab, MyCubeBuilder.Static != null ? MyCubeBuilder.Static.Clipboard.HasCopiedGrids() : false, MyCommonTexts.ToolTipSaveShip);
+            CreateDebugButton(usableWidth, MyCommonTexts.ScreenDebugOfficial_SavePrefab, SavePrefab, MyClipboardComponent.Static != null ? MyClipboardComponent.Static.Clipboard.HasCopiedGrids() : false, MyCommonTexts.ToolTipSaveShip);
 
             // Don't enable the SE bot debugging in official builds yet
             if (MyPerGameSettings.Game == GameEnum.ME_GAME || !MyFinalBuildConstants.IS_OFFICIAL)
@@ -221,7 +222,7 @@ namespace Sandbox.Game.Gui
 
         private void SavePrefab(MyGuiControlButton obj)
         {
-            string name = MyUtils.StripInvalidChars(MyCubeBuilder.Static.Clipboard.CopiedGridsName);
+            string name = MyUtils.StripInvalidChars(MyClipboardComponent.Static.Clipboard.CopiedGridsName);
             string filePath = Path.Combine(MyFileSystem.UserDataPath, "Export", name + ".sbc");
             int index = 1;
             try
@@ -231,7 +232,7 @@ namespace Sandbox.Game.Gui
                     filePath = Path.Combine(MyFileSystem.UserDataPath, "Export", name + "_" + index + ".sbc");
                     index++;
                 }
-                MyCubeBuilder.Static.Clipboard.SaveClipboardAsPrefab(name, filePath);
+                MyClipboardComponent.Static.Clipboard.SaveClipboardAsPrefab(name, filePath);
             }
             catch (Exception e)
             {

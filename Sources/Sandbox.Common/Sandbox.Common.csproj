@@ -152,30 +152,85 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ModAPI\IMyAdvancedDoor.cs" />
+    <Compile Include="ModAPI\IMyAirtightDoorBase.cs" />
+    <Compile Include="ModAPI\IMyAirtightHangarDoor.cs" />
+    <Compile Include="ModAPI\IMyAirtightSlideDoor.cs" />
+    <Compile Include="ModAPI\IMyAssembler.cs" />
+    <Compile Include="ModAPI\IMyBatteryBlock.cs" />
+    <Compile Include="ModAPI\IMyBeacon.cs" />
+    <Compile Include="ModAPI\IMyBlockGroup.cs" />
+    <Compile Include="ModAPI\IMyCameraBlock.cs" />
+    <Compile Include="ModAPI\IMyCargoContainer.cs" />
+    <Compile Include="ModAPI\IMyCockpit.cs" />
+    <Compile Include="ModAPI\IMyCollector.cs" />
+    <Compile Include="ModAPI\IMyConveyor.cs" />
+    <Compile Include="ModAPI\IMyConveyorSorter.cs" />
+    <Compile Include="ModAPI\IMyConveyorTube.cs" />
+    <Compile Include="ModAPI\IMyCryoChamber.cs" />
+    <Compile Include="ModAPI\IMyDecoy.cs" />
     <Compile Include="ModAPI\IMyGridProgram.cs" />
+    <Compile Include="ModAPI\IMyGridTerminalSystem.cs" />
     <Compile Include="ModAPI\IMyGyro.cs" />
+    <Compile Include="ModAPI\IMyInventoryBag.cs" />
+    <Compile Include="ModAPI\IMyJumpDrive.cs" />
+    <Compile Include="ModAPI\IMyLargeTurretBase.cs" />
     <Compile Include="ModAPI\IMyLaserAntenna.cs" />
+    <Compile Include="ModAPI\IMyLightingBlock.cs" />
     <Compile Include="ModAPI\IMyMeteor.cs" />
     <Compile Include="ModAPI\IMyDoor.cs" />
     <Compile Include="ModAPI\IMyFunctionalBlock.cs" />
+    <Compile Include="ModAPI\IMyMotorAdvancedRotor.cs" />
+    <Compile Include="ModAPI\IMyMotorAdvancedStator.cs" />
     <Compile Include="ModAPI\IMyMotorBase.cs" />
     <Compile Include="ModAPI\IMyMotorStator.cs" />
+    <Compile Include="ModAPI\IMyOreDetector.cs" />
     <Compile Include="ModAPI\IMyOxygenGenerator.cs" />
+    <Compile Include="ModAPI\IMyOxygenTank.cs" />
+    <Compile Include="ModAPI\IMyPassage.cs" />
+    <Compile Include="ModAPI\IMyExtendedPistonBase.cs" />
     <Compile Include="ModAPI\IMyPistonBase.cs" />
     <Compile Include="ModAPI\IMyPistonTop.cs" />
     <Compile Include="ModAPI\IMyProductionBlock.cs" />
+    <Compile Include="ModAPI\IMyProgrammableBlock.cs" />
     <Compile Include="ModAPI\IMyProjector.cs" />
+    <Compile Include="ModAPI\IMyRadioAntenna.cs" />
     <Compile Include="ModAPI\IMyReactor.cs" />
     <Compile Include="ModAPI\IMyMotorRotor.cs" />
+    <Compile Include="ModAPI\IMyScriptBlacklistBatch.cs" />
+    <Compile Include="ModAPI\IMyRefinery.cs" />
+    <Compile Include="ModAPI\IMyReflectorLight.cs" />
+    <Compile Include="ModAPI\IMyRemoteControl.cs" />
     <Compile Include="ModAPI\IMySensorBlock.cs" />
+    <Compile Include="ModAPI\IMyShipConnector.cs" />
+    <Compile Include="ModAPI\IMyShipController.cs" />
     <Compile Include="ModAPI\IMyShipDrill.cs" />
+    <Compile Include="ModAPI\IMyShipGrinder.cs" />
+    <Compile Include="ModAPI\IMyShipToolBase.cs" />
     <Compile Include="ModAPI\IMyShipWelder.cs" />
+    <Compile Include="ModAPI\IMySmallGatlingGun.cs" />
+    <Compile Include="ModAPI\IMySmallMissileLauncher.cs" />
+    <Compile Include="ModAPI\IMySmallMissileLauncherReload.cs" />
     <Compile Include="ModAPI\IMyTerminalBlock.cs" />
     <Compile Include="ModAPI\IMyTerminalControls.cs" />
     <Compile Include="ModAPI\IMyThrust.cs" />
     <Compile Include="ModAPI\IMyUpgradableBlock.cs" />
+    <Compile Include="ModAPI\IMyUserControllableGun.cs" />
+    <Compile Include="ModAPI\IMyWarhead.cs" />
+    <Compile Include="ModAPI\IMyWheel.cs" />
+    <Compile Include="ModAPI\Ingame\IMyAirtightSlideDoor.cs" />
+    <Compile Include="ModAPI\Ingame\IMyAirtightHangarDoor.cs" />
+    <Compile Include="ModAPI\Ingame\IMyAirtightDoorBase.cs" />
+    <Compile Include="ModAPI\Ingame\IMyConveyor.cs" />
+    <Compile Include="ModAPI\Ingame\IMyConveyorTube.cs" />
+    <Compile Include="ModAPI\Ingame\IMyCryoChamber.cs" />
+    <Compile Include="ModAPI\Ingame\IMyDecoy.cs" />
+    <Compile Include="ModAPI\Ingame\IMyAdvancedDoor.cs" />
+    <Compile Include="ModAPI\Ingame\IMyExtendedPistonBase.cs" />
     <Compile Include="ModAPI\Ingame\IMyGridProgramRuntimeInfo.cs" />
+    <Compile Include="ModAPI\Ingame\IMyMotorAdvancedRotor.cs" />
     <Compile Include="ModAPI\Ingame\IMyMotorRotor.cs" />
+    <Compile Include="ModAPI\Ingame\IMyPassage.cs" />
     <Compile Include="ModAPI\Ingame\IMyPistonTop.cs" />
     <Compile Include="ModAPI\Ingame\IMyRadioAntenna.cs" />
     <Compile Include="ModAPI\Ingame\IMyAssembler.cs" />
@@ -219,6 +274,7 @@
     <Compile Include="ModAPI\Ingame\IMyUserControllableGun.cs" />
     <Compile Include="ModAPI\Ingame\IMyWarhead.cs" />
     <Compile Include="ModAPI\Ingame\IMyJumpDrive.cs" />
+    <Compile Include="ModAPI\Ingame\IMyWheel.cs" />
     <Compile Include="ModAPI\Ingame\PistonStatus.cs" />
     <Compile Include="ModAPI\Ingame\MyGridProgram.cs" />
     <Compile Include="ModAPI\Ingame\TerminalActionParameter.cs" />
@@ -232,6 +288,7 @@
     <Compile Include="ModAPI\IMyTerminalActionsHelper.cs" />
     <Compile Include="ModAPI\Ingame\IMySensorBlock.cs" />
     <Compile Include="ModAPI\Ingame\IMyTerminalBlock.cs" />
+    <Compile Include="ModAPI\IMyScriptBlacklist.cs" />
     <Compile Include="ModAPI\Interfaces\ITerminalProperty.cs" />
     <Compile Include="ModAPI\Interfaces\ITerminalAction.cs" />
     <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalAction.cs" />
@@ -250,6 +307,7 @@
     <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalControlTitleTool.cs" />
     <Compile Include="ModAPI\Interfaces\Terminal\IMyTerminalValueControl.cs" />
     <Compile Include="ModAPI\MyAPIGateway.cs" />
+    <Compile Include="ModAPI\MyWhitelistTarget.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -288,6 +346,10 @@
     <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
       <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>
       <Name>VRage.Game</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Input\VRage.Input.csproj">
+      <Project>{f77d0a49-f0a1-4e8a-80c8-cbf1842bf2d4}</Project>
+      <Name>VRage.Input</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Library\VRage.Library.csproj">
       <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>

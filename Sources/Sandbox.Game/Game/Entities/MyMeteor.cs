@@ -156,16 +156,9 @@ namespace Sandbox.Game.Entities
             return true;
         }
 
-        void IMyDecalProxy.GetDecalRenderData(MyHitInfo hitInfo, out MyDecalRenderData renderable)
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
         {
             // TODO
-            renderable = new MyDecalRenderData();
-            renderable.Skip = true;
-        }
-
-        void IMyDecalProxy.OnAddDecal(uint decalId, ref MyDecalRenderData renderable)
-        {
-            // Nothing to do
         }
 
         public float Integrity
@@ -191,14 +184,21 @@ namespace Sandbox.Game.Entities
 
             public MyPhysicalInventoryItem Item;
             public MyVoxelMaterialDefinition VoxelMaterial { get; set; }
-            private bool InParticleVisibleRange { get { return (MySector.MainCamera.Position - Entity.WorldMatrix.Translation).Length() < 2500; } }
+            private bool InParticleVisibleRange { get { return (MySector.MainCamera.Position - Entity.WorldMatrix.Translation).LengthSquared() < (3000*3000); } }
             private StringBuilder m_textCache;
             private float m_integrity = 100f;
-            private int m_particleEffectId;
+            private string[] m_particleEffectNames = new string[2];
             private MyParticleEffect m_dustEffect;
             private int m_timeCreated;
             private Vector3 m_particleVectorForward = Vector3.Zero;
             private Vector3 m_particleVectorUp = Vector3.Zero;
+
+            private enum MeteorStatus
+            {
+                InAtmosphere,
+                InSpace
+            }
+            private MeteorStatus m_meteorStatus = MeteorStatus.InSpace;
 
             private MyEntity3DSoundEmitter m_soundEmitter;
 
@@ -219,7 +219,8 @@ namespace Sandbox.Game.Entities
 
                 var builder = (MyObjectBuilder_Meteor)objectBuilder;
                 Item = new MyPhysicalInventoryItem(builder.Item);
-                m_particleEffectId = MySession.Static.EnvironmentHostility == MyEnvironmentHostilityEnum.CATACLYSM_UNREAL ? (int)MyParticleEffectsIDEnum.MeteorTrail_FireAndSmoke : (int)MyParticleEffectsIDEnum.MeteorParticle;
+                m_particleEffectNames[(int)MeteorStatus.InAtmosphere] = "Meteory_Fire_Atmosphere";
+                m_particleEffectNames[(int)MeteorStatus.InSpace] = "Meteory_Fire_Space";
                 InitInternal();
 
                 Entity.Physics.LinearVelocity = builder.LinearVelocity;
@@ -357,18 +358,33 @@ namespace Sandbox.Game.Entities
                     m_particleVectorUp.CalculatePerpendicularVector(out m_particleVectorForward);
                 }
 
+                Vector3D pos = Entity.PositionComp.GetPosition();
+                var planet = MyGamePruningStructure.GetClosestPlanet(pos);
+
+                MeteorStatus orig = m_meteorStatus;
+                if (planet != null && planet.HasAtmosphere && planet.GetAirDensity(pos) > 0.5f)
+                    m_meteorStatus = MeteorStatus.InAtmosphere;
+                else
+                    m_meteorStatus = MeteorStatus.InSpace;
+
+                if (orig != m_meteorStatus && m_dustEffect != null)
+                {
+                    m_dustEffect.Stop();
+                    m_dustEffect = null;
+                }
+
                 if (m_dustEffect != null && !InParticleVisibleRange)
                 {
                     m_dustEffect.Stop();
                     m_dustEffect = null;
                 }
 
-                if (m_dustEffect == null && Entity.PositionComp.Scale > 1.5 && InParticleVisibleRange)
+                if (m_dustEffect == null && InParticleVisibleRange)
                 {
-                    if (MyParticlesManager.TryCreateParticleEffect(m_particleEffectId, out m_dustEffect))
+                    if (MyParticlesManager.TryCreateParticleEffect(m_particleEffectNames[(int)m_meteorStatus], out m_dustEffect))
                     {
                         UpdateParticlePosition();
-                        m_dustEffect.UserScale = Entity.PositionComp.Scale.Value / 5;
+                        m_dustEffect.UserScale = Entity.PositionComp.Scale.Value;
                     }
                 }
 
@@ -444,7 +460,7 @@ namespace Sandbox.Game.Entities
             private void DestroyMeteor()
             {
                 MyParticleEffect impactParticle;
-                if (InParticleVisibleRange && MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.MeteorAsteroidCollision, out impactParticle))
+                if (InParticleVisibleRange && MyParticlesManager.TryCreateParticleEffect("Meteorit_Smoke1AfterHit", out impactParticle))
                 {
                     impactParticle.WorldMatrix = Entity.WorldMatrix;
                     impactParticle.UserScale = MyUtils.GetRandomFloat(1.5f, 2);
@@ -452,15 +468,6 @@ namespace Sandbox.Game.Entities
                 if (m_dustEffect != null)
                 {
                     m_dustEffect.Stop();
-                    if (m_particleEffectId == (int)MyParticleEffectsIDEnum.MeteorParticle)
-                    {
-                        m_dustEffect.Close(false);
-                        if (InParticleVisibleRange && m_particleVectorUp != Vector3.Zero && MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.MeteorParticleAfterHit, out m_dustEffect))
-                        {
-                            MatrixD m = MatrixD.CreateWorld(Entity.WorldMatrix.Translation, m_particleVectorForward, m_particleVectorUp);
-                            m_dustEffect.WorldMatrix = m;
-                        }
-                    }
                     m_dustEffect = null;
                 }
                 PlayExplosionSound();
@@ -471,7 +478,7 @@ namespace Sandbox.Game.Entities
                 if (Math.Abs(Vector3.Normalize(-Entity.WorldMatrix.Forward).Dot(value.ContactPointEvent.ContactPoint.Normal)) < 0.1)
                 {
                     MyParticleEffect impactParticle1;
-                    if (InParticleVisibleRange && MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.MeteorAsteroidCollision, out impactParticle1))
+                    if (InParticleVisibleRange && MyParticlesManager.TryCreateParticleEffect("Meteorit_Smoke1AfterHit", out impactParticle1))
                     {
                         impactParticle1.WorldMatrix = Entity.WorldMatrix;
                         impactParticle1.UserScale = (float)Entity.PositionComp.WorldVolume.Radius * 2;

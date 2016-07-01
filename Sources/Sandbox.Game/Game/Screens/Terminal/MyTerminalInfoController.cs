@@ -38,6 +38,10 @@ namespace Sandbox.Game.Gui
             if (convertBtn != null)
                 convertBtn.ButtonClicked -= convertBtn_ButtonClicked;
 
+            var convertToStationBtn = (MyGuiControlButton)m_infoPage.Controls.GetControlByName("ConvertToStationBtn");
+            if (convertToStationBtn != null)
+                convertToStationBtn.ButtonClicked -= convertToStationBtn_ButtonClicked;
+
             m_grid.OnBlockAdded -= grid_OnBlockAdded;
             m_grid.OnBlockRemoved -= grid_OnBlockRemoved;
             m_grid.OnPhysicsChanged -= grid_OnPhysicsChanged;
@@ -74,6 +78,10 @@ namespace Sandbox.Game.Gui
             {
                 convertBtn.ButtonClicked += convertBtn_ButtonClicked;
             }
+
+            var convertToStationBtn = (MyGuiControlButton)m_infoPage.Controls.GetControlByName("ConvertToStationBtn");
+            if (convertToStationBtn != null)
+                convertToStationBtn.ButtonClicked += convertToStationBtn_ButtonClicked;
         }
 
         private void RecreateControls()
@@ -134,28 +142,43 @@ namespace Sandbox.Game.Gui
             }
 
             var convertBtn = (MyGuiControlButton)m_infoPage.Controls.GetControlByName("ConvertBtn");
+            var convertToStationBtn = (MyGuiControlButton)m_infoPage.Controls.GetControlByName("ConvertToStationBtn");
             MyGuiControlList list = (MyGuiControlList)m_infoPage.Controls.GetControlByName("InfoList");
             list.Controls.Clear();
+            var setDestructibleBlocks = (MyGuiControlCheckbox)m_infoPage.Controls.GetControlByName("SetDestructibleBlocks");
+            setDestructibleBlocks.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
+            setDestructibleBlocks.Enabled = MySession.Static.Settings.ScenarioEditMode;
 
             if (m_grid == null || m_grid.Physics == null)
             {
                 convertBtn.Enabled = false;
+                convertToStationBtn.Enabled = false;
                 MyGuiControlLabel noShip = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenTerminalError_ShipNotConnected), font: MyFontEnum.Red);
                 list.Controls.Add(noShip);
                 return;
             }
 
-            if (!m_grid.IsStatic || m_grid.MarkedForClose)
+            if (!m_grid.IsStatic)
+            {
                 convertBtn.Enabled = false;
+                convertToStationBtn.Enabled = true;
+            }
+            else
+            {
+                convertBtn.Enabled = true;
+                convertToStationBtn.Enabled = false;
+            }
+
+            if (m_grid.GridSizeEnum == MyCubeSize.Small)
+                convertToStationBtn.Enabled = false;
 
             if (!m_grid.BigOwners.Contains(MySession.Static.LocalPlayerId))
+            {
                 convertBtn.Enabled = false;
+                convertToStationBtn.Enabled = false;
+            }
 
-            var setDestructibleBlocks = (MyGuiControlCheckbox)m_infoPage.Controls.GetControlByName("SetDestructibleBlocks");
             setDestructibleBlocks.IsChecked = m_grid.DestructibleBlocks;
-            setDestructibleBlocks.Visible = MySession.Static.Settings.ScenarioEditMode || MySession.Static.IsScenario;
-            setDestructibleBlocks.Enabled = MySession.Static.Settings.ScenarioEditMode;
-            setDestructibleBlocks.IsCheckedChanged = setDestructibleBlocksBtn_IsCheckedChanged;
 
             int gravityCounter = 0;
             if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_GravityGenerator)))
@@ -249,6 +272,11 @@ namespace Sandbox.Game.Gui
         void convertBtn_ButtonClicked(MyGuiControlButton obj)
         {
             m_grid.RequestConversionToShip();
+        }
+
+        private void convertToStationBtn_ButtonClicked(MyGuiControlButton obj)
+        {
+            m_grid.RequestConversionToStation();
         }
 
         void renameBtn_ButtonClicked(MyGuiControlButton obj)

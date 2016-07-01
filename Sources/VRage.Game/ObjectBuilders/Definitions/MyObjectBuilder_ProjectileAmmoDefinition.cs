@@ -30,9 +30,6 @@ namespace VRage.Game
             public string ProjectileOnHitEffectName = "Hit_BasicAmmoSmall";
 
             [ProtoMember]
-            public string ProjectileMaterial = "";
-
-            [ProtoMember]
             public float ProjectileMassDamage;
 
             [ProtoMember]
@@ -43,6 +40,9 @@ namespace VRage.Game
 
             [ProtoMember, DefaultValue(120)]
             public float ProjectileHeadShotDamage = 120;
+
+            [ProtoMember, DefaultValue(1)]
+            public int ProjectileCount = 1;
         }
 
         [ProtoMember, DefaultValue(null)]

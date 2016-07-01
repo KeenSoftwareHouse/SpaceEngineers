@@ -34,6 +34,8 @@ namespace Sandbox.Game.Gui
 
                 if (MySession.Static == null) return;
 
+                Text("Game time: {0}", MySession.Static.ElapsedGameTime);
+
                 Vector3 camPos = MySector.MainCamera.Position;
 
                 float instantSpeed = 0;
@@ -57,6 +59,8 @@ namespace Sandbox.Game.Gui
 
                 Section("Controlled Entity/Camera");
                 Text("Speed: {0:F2}ms -- {1:F2}m/s", instantSpeed, averageSpeed);
+
+                if (MySession.Static.LocalHumanPlayer == null || MySession.Static.LocalHumanPlayer.Controller.ControlledEntity == null) return;
 
                 var controlled = MySession.Static.LocalHumanPlayer.Controller.ControlledEntity;
                 var centity = (MyEntity)controlled;

@@ -13,6 +13,16 @@ namespace VRage.Network
         private static DBNull e = DBNull.Value;
         protected readonly MyTypeTable m_typeTable = new MyTypeTable();
 
+        public Type GetType(TypeId id)
+        {
+            return m_typeTable.Get(id).Type;
+        }
+
+        public TypeId GetTypeId(Type id)
+        {
+            return m_typeTable.Get(id).TypeId;
+        }
+
         public DateTime LastMessageFromServer { get; protected set; }
 
         protected static bool ShouldServerInvokeLocally(CallSite site, EndpointId? localClientEndpoint, EndpointId recipient)

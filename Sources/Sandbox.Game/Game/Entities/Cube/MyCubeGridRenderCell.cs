@@ -438,8 +438,9 @@ namespace Sandbox.Game.Entities.Cube
                         CullingOptions.Default,
                         m_gridRenderComponent.GetDiffuseColor(),
                         Vector3.Zero,
-                        m_gridRenderComponent.Transparency,
-                        item.Value.MaxViewDistance
+                        dithering: m_gridRenderComponent.Transparency,
+                        maxViewDistance: item.Value.MaxViewDistance,
+                        rescale: m_gridRenderComponent.CubeGrid.GridScale
                     );
 
                     m_instanceGroupRenderObjects[item.Key] = renderObjectId;

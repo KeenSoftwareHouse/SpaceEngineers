@@ -7,7 +7,7 @@ using Sandbox.Game.Multiplayer;
 using System.Text;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage.ModAPI;
 using VRage;
@@ -196,7 +196,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
-        float IMyOreDetector.Range { get { return Range; } }
+        bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
+        float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
     }
 }

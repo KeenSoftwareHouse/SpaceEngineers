@@ -21,6 +21,7 @@ namespace VRage.Game.Components
 
         protected Color m_diffuseColor = Color.White;  //diffuse color multiplier
 
+        public int LastMomentUpdateIndex = -1;
         /// <summary>
         /// Used by game to store model here. In game this is always of type MyModel.
         /// Implementation should only store and return passed object.
@@ -106,7 +107,7 @@ namespace VRage.Game.Components
                 var m = Container.Entity.PositionComp.WorldMatrix;//Container.Get<MyPositionComponentBase>().WorldMatrix;
                 foreach (uint renderObjectID in m_renderObjectIDs)
                 {
-                    VRageRender.MyRenderProxy.UpdateRenderObject(renderObjectID, ref m, sortIntoCullobjects);
+                    VRageRender.MyRenderProxy.UpdateRenderObject(renderObjectID, ref m, sortIntoCullobjects, null, LastMomentUpdateIndex);
                 }
             }
         }

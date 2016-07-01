@@ -1,8 +1,10 @@
-﻿namespace VRage.Game.ModAPI
+﻿using VRage.Game.ModAPI.Interfaces;
+using VRage.ModAPI;
+namespace VRage.Game.ModAPI
 {
 	public delegate void CharacterMovementStateDelegate(MyCharacterMovementEnum oldState, MyCharacterMovementEnum newState);
 
-	public interface IMyCharacter
+    public interface IMyCharacter : IMyEntity, IMyControllableEntity, IMyCameraController, IMyDestroyableObject, IMyDecalProxy
     {
         float EnvironmentOxygenLevel { get; }
 		float BaseMass { get; }

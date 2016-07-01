@@ -53,6 +53,7 @@ namespace VRage.Game
         public float Thickness;
         public ParticleFlags Flags;
         public float ColorIntensity;
+        public float SoftParticleDistanceScale;
 
         public MyAnimatedPropertyVector3 Pivot = null; 
         public MyAnimatedPropertyVector3 PivotRotation = null; //degrees
@@ -374,11 +375,20 @@ namespace VRage.Game
                 {
                     Vector3 cameraToPoint = Vector3.Normalize(m_actualPosition - MyTransparentGeometry.Camera.Translation);
                     Vector3 localDir = m_generation.GetEffect().WorldMatrix.Forward;
+                    float dot = cameraToPoint.Dot(localDir);
+                    Matrix velocityRef;
+                    if (dot >= 0.9999f)
+                    {
+                        // TODO Petr: probably not correct, at least it does not produce NaN positions
+                        velocityRef = Matrix.CreateTranslation(m_actualPosition);
+                    }
+                    else
+                    {
+                        Vector3 sideVector = Vector3.Cross(cameraToPoint, localDir);
+                        Vector3 upVector = Vector3.Cross(sideVector, localDir);
 
-                    Vector3 sideVector = Vector3.Cross(cameraToPoint, localDir);
-                    Vector3 upVector = Vector3.Cross(sideVector, localDir);
-
-                    Matrix velocityRef = Matrix.CreateWorld(m_actualPosition, localDir, upVector);
+                        velocityRef = Matrix.CreateWorld(m_actualPosition, localDir, upVector);
+                    }
 
                     transform = Matrix.CreateFromAxisAngle(velocityRef.Right, m_actualAngle.X) *
                     Matrix.CreateFromAxisAngle(velocityRef.Up, m_actualAngle.Y) *
@@ -535,6 +545,7 @@ namespace VRage.Game
 
             billboard.Color = color * alpha * m_generation.GetEffect().UserColorMultiplier;
             billboard.ColorIntensity = ColorIntensity;
+            billboard.SoftParticleDistanceScale = SoftParticleDistanceScale;
 
             MyTransparentGeometry.EndParticleProfilingBlock();
 

@@ -16,7 +16,7 @@ using System.Text;
 using Sandbox.Common;
 using VRage.Utils;
 using Sandbox.Game.World;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.EntityComponents;

@@ -163,6 +163,10 @@ namespace Sandbox.Game.Entities.Character.Components
             entity.Physics.LinearVelocity = builder.Physics.LinearVelocity;
             entity.Physics.AngularVelocity = builder.Physics.AngularVelocity;
 
+            //GR: Change color of spawned backpack to much character color
+            entity.Render.EnableColorMaskHsv = true;
+            entity.Render.ColorMaskHsv = Character.Render.ColorMaskHsv;
+
             inventory.RemoveEntityOnEmpty = true;
             entity.Components.Add<MyInventoryBase>(inventory);
 

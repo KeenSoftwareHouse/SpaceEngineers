@@ -107,7 +107,7 @@ namespace VRage.Game.Components
                     CharacterBonesSorted = new MyCharacterBone[m_characterBones.Length];
                     Array.Copy(m_characterBones, CharacterBonesSorted, m_characterBones.Length);
                     // sort the bones, deeper in hierarchy they are, later they are evaluated
-                    Array.Sort(CharacterBonesSorted, (x, y) => x.GetHierarchyDepth().CompareTo(y.GetHierarchyDepth()));
+                    Array.Sort(CharacterBonesSorted, (x, y) => x.Depth.CompareTo(y.Depth));
 
                     m_boneRelativeTransforms = new Matrix[value.Length];
                     m_boneAbsoluteTransforms = new Matrix[value.Length];

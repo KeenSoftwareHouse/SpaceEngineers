@@ -6,13 +6,10 @@ namespace VRageRender
     {
         public uint ID;
         public int LOD;
-        public string Model;
         public int MeshIndex;
         public string MaterialName;
         public bool? Enabled;
         public Color? DiffuseColor;
-        public float? SpecularPower;
-        public float? SpecularIntensity;
         public float? Emissivity;
         public Color? OutlineColor;
         public float OutlineThickness;

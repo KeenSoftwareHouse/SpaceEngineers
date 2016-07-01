@@ -31,7 +31,7 @@ namespace Sandbox.Game.Components
             m_ladder = ladder;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             //return true;
 
@@ -53,7 +53,7 @@ namespace Sandbox.Game.Components
 
             //m = m * WorldMatrix;
 
-            return base.DebugDraw();
+            base.DebugDraw();
         }
     }
 }

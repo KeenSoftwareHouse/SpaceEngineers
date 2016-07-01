@@ -426,6 +426,27 @@ namespace Sandbox.Game.World
             return GetRelationBetweenPlayers(Identity.IdentityId, playerId);
         }
 
+        public static MyRelationsBetweenPlayers GetRelationsBetweenPlayers(long playerId1, long playerId2)
+        {
+            if (playerId1 == 0 || playerId2 == 0) return MyRelationsBetweenPlayers.Neutral;
+            if (playerId1 == playerId2) return MyRelationsBetweenPlayers.Self;
+
+            var faction1 = MySession.Static.Factions.TryGetPlayerFaction(playerId1);
+            var faction2 = MySession.Static.Factions.TryGetPlayerFaction(playerId2);
+
+            if (faction1 == null || faction2 == null)
+                return MyRelationsBetweenPlayers.Enemies;
+
+            if (faction1 == faction2)
+                return MyRelationsBetweenPlayers.Allies;
+
+            MyRelationsBetweenFactions relation = MySession.Static.Factions.GetRelationBetweenFactions(faction1.FactionId, faction2.FactionId);
+            if (relation == MyRelationsBetweenFactions.Neutral)
+                return MyRelationsBetweenPlayers.Neutral;
+
+            return MyRelationsBetweenPlayers.Enemies;
+        }
+
         public void RemoveGrid(long gridEntityId)
         {
             Grids.Remove(gridEntityId);

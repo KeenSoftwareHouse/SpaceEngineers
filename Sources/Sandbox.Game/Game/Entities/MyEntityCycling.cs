@@ -26,7 +26,8 @@ namespace Sandbox.Game.Entities
         MostActiveThrusters,
         MostWheels,
         StaticObjects,
-        FloatingObjects,     
+        FloatingObjects,   
+        Gps,
     }
 
     public struct CyclingOptions

@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Linq;
+using VRage.Library.Collections;
 
 namespace System.Collections.Generic
 {
@@ -238,12 +239,12 @@ namespace System.Collections.Generic
          * 
          * Return range: [0, Length]
          */
-        public static int BinaryIntervalSearch<T>(this List<T> self, T value) where T : IComparable<T>
+        public static int BinaryIntervalSearch<T>(this IList<T> self, T value) where T : IComparable<T>
         {
             if (self.Count == 0) return 0;
             if (self.Count == 1)
             {
-                return value.CompareTo(self[0]) > 0 ? 1 : 0;
+                return value.CompareTo(self[0]) >= 0 ? 1 : 0;
             }
 
             int mid;
@@ -253,7 +254,7 @@ namespace System.Collections.Generic
             {
                 mid = (start + end) / 2;
 
-                if (value.CompareTo(self[mid]) > 0)
+                if (value.CompareTo(self[mid]) >= 0)
                 {
                     start = mid;
                 }
@@ -266,12 +267,17 @@ namespace System.Collections.Generic
             int ret = start;
 
             // end of array;
-            if (value.CompareTo(self[start]) > 0)
+            if (value.CompareTo(self[start]) >= 0)
             {
                 ret = end;
             }
 
             return ret;
+        }
+
+        public static MyRangeIterator<T>.Enumerable Range<T>(this List<T> array, int start, int end)
+        {
+            return MyRangeIterator<T>.ForRange(array, start, end);
         }
 
         public static void InsertInOrder<T>(this List<T> self, T value, IComparer<T> comparer)

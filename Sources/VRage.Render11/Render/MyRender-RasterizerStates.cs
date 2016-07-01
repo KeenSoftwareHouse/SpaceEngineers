@@ -62,9 +62,9 @@ namespace VRageRender
             desc.FillMode = FillMode.Solid;
             desc.CullMode = CullMode.None;
             desc.IsFrontCounterClockwise = true;
-            desc.DepthBias = 25000;
-            desc.DepthBiasClamp = 2;
-            desc.SlopeScaledDepthBias = 1;
+            desc.DepthBias = 2500;
+            desc.DepthBiasClamp = 10000;
+            desc.SlopeScaledDepthBias = 4;
             m_shadowRasterizerState = MyPipelineStates.CreateRasterizerState(desc);
 
             desc.FillMode = FillMode.Solid;

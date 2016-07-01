@@ -17,11 +17,11 @@ namespace Sandbox.Game.Components
             m_motor = motor;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (m_motor.CanDebugDraw() == false)
             {
-                return true;
+                return;
             }
 
             if (MyDebugDrawSettings.DEBUG_DRAW_ROTORS)
@@ -34,7 +34,6 @@ namespace Sandbox.Game.Components
                 VRageRender.MyRenderProxy.DebugDrawLine3D(pivot, pivot + axis, Color.Yellow, Color.Yellow, false);
                 VRageRender.MyRenderProxy.DebugDrawLine3D(statorWorld.Translation, rotorWorld.Translation, Color.Red, Color.Green, false);
             }
-            return true;
         }
     }
 }

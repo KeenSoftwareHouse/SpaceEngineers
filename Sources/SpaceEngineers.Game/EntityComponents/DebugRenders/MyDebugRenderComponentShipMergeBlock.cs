@@ -16,7 +16,7 @@ namespace SpaceEngineers.Game.EntityComponents.DebugRenders
             m_shipMergeBlock = shipConnector;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_CONNECTORS_AND_MERGE_BLOCKS)
             {
@@ -44,8 +44,6 @@ namespace SpaceEngineers.Game.EntityComponents.DebugRenders
                     MyRenderProxy.DebugDrawText3D(WorldMatrix.Translation + m_shipMergeBlock.CubeGrid.WorldMatrix.GetDirectionVector(Base6Directions.GetDirection(m_shipMergeBlock.PositionComp.LocalMatrix.Up)) * 0.5f, x.ToString("0.00"), Color.Red, 1.0f, false);
                 }
             }
-
-            return true;
         }
     }
 }

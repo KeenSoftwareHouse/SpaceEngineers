@@ -45,7 +45,7 @@ namespace Sandbox.Game.GUI.DebugInputComponents
 
             private bool ToggleWrite()
             {
-                var ops = MySession.Static.GetSessionComponent<MyVoxelOperationsSessionComponent>();
+                var ops = MySession.Static.GetComponent<MyVoxelOperationsSessionComponent>();
                 ops.ShouldWrite = !ops.ShouldWrite;
 
                 return true;
@@ -53,7 +53,7 @@ namespace Sandbox.Game.GUI.DebugInputComponents
 
             private bool ToggleFlush()
             {
-                var ops = MySession.Static.GetSessionComponent<MyVoxelOperationsSessionComponent>();
+                var ops = MySession.Static.GetComponent<MyVoxelOperationsSessionComponent>();
                 ops.ShouldFlush = !ops.ShouldFlush;
 
                 return true;
@@ -72,7 +72,7 @@ namespace Sandbox.Game.GUI.DebugInputComponents
 
                 if (MySession.Static == null) return;
 
-                var ops = MySession.Static.GetSessionComponent<MyVoxelOperationsSessionComponent>();
+                var ops = MySession.Static.GetComponent<MyVoxelOperationsSessionComponent>();
 
                 if (ops != null)
                 {

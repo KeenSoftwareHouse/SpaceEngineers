@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using VRage.Game.Definitions;
+using VRage.Network;
 using VRage.Utils;
 
 namespace VRage.Game
@@ -72,6 +73,25 @@ namespace VRage.Game
                 return null;
         }
 
+        /**
+         * Get all definitions of a given type.
+         */
+        public IEnumerable<T> GetDefinitionsOfTypeAndSubtypes<T>() where T : MyDefinitionBase
+        {
+            var subtypes = MyDefinitionManagerBase.Static.GetSubtypes<T>();
+
+            Dictionary<MyStringHash, MyDefinitionBase> definitions = null;
+
+            if (subtypes == null)
+            {
+                if (Definitions.TryGetValue(MyDefinitionManagerBase.GetObjectBuilderType(typeof(T)), out definitions))
+                    return definitions.Values.Cast<T>();
+                return null;
+            }
+
+            return subtypes.SelectMany(x => Definitions.GetOrEmpty(MyDefinitionManagerBase.GetObjectBuilderType(x)).Cast<T>());
+        }
+
         public bool ContainsDefinition(MyDefinitionId id)
         {
             Dictionary<MyStringHash, MyDefinitionBase> dictionary;
@@ -99,7 +119,7 @@ namespace VRage.Game
 
             if (Definitions.TryGetValue(id.TypeId, out dictionary)) dictionary.TryGetValue(id.SubtypeId, out definitionBase);
 
-            return (T)definitionBase;
+            return definitionBase as T;
         }
 
         /**
@@ -144,5 +164,28 @@ namespace VRage.Game
                 defMap.Value.Clear();
             }
         }
+    }
+
+    internal static class CollectionDictExtensions
+    {
+        #region Util
+
+        public static IEnumerable<TVal> GetOrEmpty<TKey, TValCol, TVal>(this Dictionary<TKey, TValCol> self, TKey key) where TValCol : IEnumerable<TVal>
+        {
+            TValCol col;
+            if (!self.TryGetValue(key, out col))
+                return Enumerable.Empty<TVal>();
+            return col;
+        }
+
+        public static IEnumerable<TVal> GetOrEmpty<TKey, TKey2, TVal>(this Dictionary<TKey, Dictionary<TKey2, TVal>> self, TKey key)
+        {
+            Dictionary<TKey2, TVal> col;
+            if (!self.TryGetValue(key, out col))
+                return Enumerable.Empty<TVal>();
+            return col.Values;
+        }
+
+        #endregion
     }
 }

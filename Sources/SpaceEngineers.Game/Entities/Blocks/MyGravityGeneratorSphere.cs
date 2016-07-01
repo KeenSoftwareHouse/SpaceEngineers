@@ -14,7 +14,7 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI.Ingame;
 using SpaceEngineers.Game.EntityComponents.DebugRenders;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Utils;
@@ -212,8 +212,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return new HkSphereShape(m_radius);
         }
 
-        float IMyGravityGeneratorSphere.Radius { get { return m_radius; } }
-        float IMyGravityGeneratorSphere.Gravity { get { return GravityAcceleration;}}
+        float ModAPI.Ingame.IMyGravityGeneratorSphere.Radius { get { return m_radius; } }
+        float ModAPI.Ingame.IMyGravityGeneratorSphere.Gravity { get { return GravityAcceleration; } }
     }
 }
 
