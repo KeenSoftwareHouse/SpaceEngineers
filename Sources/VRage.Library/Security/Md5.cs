@@ -57,7 +57,7 @@ namespace VRage.Security
         /// <returns>the rotated value</returns>
         static uint RotateLeft(uint uiNumber, ushort shift)
         {
-            return ((uiNumber >> 32 - shift) | (uiNumber << shift));
+            return ((uiNumber >> (32 - shift)) | (uiNumber << shift));
         }
 
         /// <summary>

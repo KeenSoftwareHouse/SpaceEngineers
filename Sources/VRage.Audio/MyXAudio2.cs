@@ -101,6 +101,7 @@ namespace VRage.Audio
         Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return m_canPlay ? m_cueBank.CueDefinitions : null; } }
         List<MyStringId> IMyAudio.GetCategories() { return m_canPlay ? m_cueBank.GetCategories() : null; }
         MySoundData IMyAudio.GetCue(MyCueId cueId) { return m_canPlay ? m_cueBank.GetCue(cueId) : null; }
+        Dictionary<MyStringId, List<MyCueId>> IMyAudio.GetAllMusicCues() { return m_cueBank != null ? m_cueBank.GetMusicCues() : null; }
 
         public MySoundData SoloCue { get; set; }
         public bool GameSoundIsPaused { get; private set; }
@@ -628,6 +629,8 @@ namespace VRage.Audio
                 GameSoundIsPaused = true;
                 m_gameAudioVoice.SetVolume(0f);
                 m_canUpdate3dSounds = false;
+                if (m_musicCue != null)
+                    m_musicCue.VolumeMultiplier = 0f;
             }
         }
 
@@ -640,6 +643,8 @@ namespace VRage.Audio
                     m_gameAudioVoice.SetVolume(m_volumeDefault);
 
                 m_canUpdate3dSounds = true;
+                if (m_musicCue != null)
+                    m_musicCue.VolumeMultiplier = 1f;
             }
         }
 
@@ -713,6 +718,20 @@ namespace VRage.Audio
                 if (transition.HasValue)
                     ApplyTransition(transition.Value, priorityForRandom, null, false);
             }
+        }
+
+        public IMySourceVoice PlayMusicCue(MyCueId musicCue)
+        {
+            if (!m_canPlay)
+                return null;
+            Mute = false;
+            m_musicCue = PlaySound(musicCue);
+            if (m_musicCue != null)
+            {
+                m_musicCue.SetOutputVoices(m_musicAudioVoiceDesc);
+                m_musicAudioVoice.SetVolume(m_volumeMusic);
+            }
+            return m_musicCue;
         }
 
         public void StopMusic()

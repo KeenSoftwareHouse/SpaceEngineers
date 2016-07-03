@@ -67,7 +67,7 @@ namespace Sandbox.Game.AI.Pathfinding
             Vector3I max = block.Max + Vector3I.One;
 
             Vector3I pos = min;
-            for (var it = new Vector3I.RangeIterator(ref block.Min, ref block.Max); it.IsValid(); it.GetNext(out pos))
+            for (var it = new Vector3I_RangeIterator(ref block.Min, ref block.Max); it.IsValid(); it.GetNext(out pos))
             {
                 m_changedCubes.Add(pos);
             }
@@ -76,7 +76,7 @@ namespace Sandbox.Game.AI.Pathfinding
             Vector3I maxCell = CubeToCell(ref max);
 
             pos = minCell;
-            for (var it = new Vector3I.RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out pos))
+            for (var it = new Vector3I_RangeIterator(ref minCell, ref maxCell); it.IsValid(); it.GetNext(out pos))
             {
                 m_changedCells.Add(pos);
             }
@@ -97,7 +97,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
                 // Save a hashset of all the triangles in the current cell
                 pos = min;
-                for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out pos))
+                for (var it = new Vector3I_RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out pos))
                 {
                     if (!m_triangleRegistry.TryGetValue(pos, out triangles)) continue;
 

@@ -764,7 +764,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     if (MyEntities.TryGetEntityById<MyTerminalBlock>(sentItem.EntityID, out block))
                     {
                         var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                        builder.Action = sentItem.Action;
+                        builder._Action = sentItem.Action;
                         builder.Parameters = sentItem.Parameters;
                         item = MyToolbarItemFactory.CreateToolbarItem(builder);
                     }
@@ -778,7 +778,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     if (group != null)
                     {
                         var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(group);
-                        builder.Action = sentItem.Action;
+                        builder._Action = sentItem.Action;
                         builder.BlockEntityId = sentItem.EntityID;
                         builder.Parameters = sentItem.Parameters;
                         item = MyToolbarItemFactory.CreateToolbarItem(builder);

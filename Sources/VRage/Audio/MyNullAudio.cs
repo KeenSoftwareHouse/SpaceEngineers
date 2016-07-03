@@ -31,12 +31,14 @@ namespace VRage.Audio
 
         List<MyStringId> IMyAudio.GetCategories() { return null; }
         MySoundData IMyAudio.GetCue(MyCueId cue) { return null; }
+        Dictionary<MyStringId, List<MyCueId>> IMyAudio.GetAllMusicCues() { return null; }
 
         void IMyAudio.Pause() { }
         void IMyAudio.Resume() { }
         void IMyAudio.PauseGameSounds() { }
         void IMyAudio.ResumeGameSounds() { }
         void IMyAudio.PlayMusic(MyMusicTrack? track, int priorityForRandom) { }
+        IMySourceVoice IMyAudio.PlayMusicCue(MyCueId musicCue) { return null; }
         void IMyAudio.StopMusic() { }
         void IMyAudio.MuteHud(bool mute) { }
         bool IMyAudio.HasAnyTransition() { return false; }

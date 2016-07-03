@@ -14,6 +14,7 @@ using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
+using VRage.Game.Models;
 
 namespace Sandbox.Game.Components
 {
@@ -142,7 +143,15 @@ namespace Sandbox.Game.Components
         {
             var detectorName = name.ToLower();
             var dummyName = "detector_" + detectorName;
-            MyModelDummy modelDummy = new MyModelDummy() { Name = dummyName, CustomData = null, Matrix = dummyMatrix };
+
+            // Try to assign CustomData from existing same name model dummy
+            MyModel model = Container.Entity.Render.GetModel();
+            MyModelDummy dummy;
+            Dictionary<string, object> customData = null;
+            if (model != null && model.Dummies.TryGetValue(dummyName, out dummy))
+                customData = dummy.CustomData;
+
+            MyModelDummy modelDummy = new MyModelDummy() { Name = dummyName, CustomData = customData, Matrix = dummyMatrix };
             var detector = AddDetector(detectorName, dummyName, modelDummy);
             m_customAddedDetectors.Add(detector);
             return detector;

@@ -394,7 +394,7 @@ namespace Sandbox.Engine.Voxels
             else
             {
                 var cell = minCellChanged;
-                for (var it = new Vector3I.RangeIterator(ref minCellChanged, ref maxCellChanged);
+                for (var it = new Vector3I_RangeIterator(ref minCellChanged, ref maxCellChanged);
                     it.IsValid(); it.GetNext(out cell))
                 {
                     m_workTracker.Cancel(new MyCellCoord(lod, cell));
@@ -879,7 +879,7 @@ namespace Sandbox.Engine.Voxels
                 TargetPhysics = this,
                 Tracker = m_workTracker
             };
-            for (var it = new Vector3I.RangeIterator(ref min, ref max);
+            for (var it = new Vector3I_RangeIterator(ref min, ref max);
                 it.IsValid();
                 it.GetNext(out args.GeometryCell.CoordInLod))
             {

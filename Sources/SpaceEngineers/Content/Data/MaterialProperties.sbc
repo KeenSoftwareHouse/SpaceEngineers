@@ -761,10 +761,11 @@
         <ContactProperty>
           <Type>Start</Type>
           <Material>Metal</Material>
-          <SoundCue>ImpMetalMetalCat1</SoundCue>
+          <SoundCue>ImpMetalMetalCat0</SoundCue>
           <AlternativeImpactSounds>
+            <AlternativeImpactSound mass ="8" minVelocity="1" maxVolumeVelocity="15" soundCue="ImpMetalMetalCat1" />
             <AlternativeImpactSound mass ="2000" minVelocity="1" maxVolumeVelocity="15" soundCue="ImpMetalMetalCat2" />
-            <AlternativeImpactSound mass ="20000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat3" />
+            <AlternativeImpactSound mass ="10000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat3" />
             <AlternativeImpactSound mass ="200000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat4" />
             <AlternativeImpactSound mass ="2000000" minVelocity="5" maxVolumeVelocity="25" soundCue="ImpMetalMetalCat5" />
           </AlternativeImpactSounds>
@@ -772,9 +773,9 @@
         <ContactProperty>
           <Type>Start</Type>
           <Material>Rock</Material>
-          <SoundCue>ImpMetalMetalCat1</SoundCue>
+          <SoundCue>ImpMetalMetalCat0</SoundCue>
           <AlternativeImpactSounds>
-            <AlternativeImpactSound mass ="2000" minVelocity="1" maxVolumeVelocity="15" soundCue="ImpMetalRock" />
+            <AlternativeImpactSound mass ="8" minVelocity="1" maxVolumeVelocity="15" soundCue="ImpMetalMetalCat1" />
             <AlternativeImpactSound mass ="200000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat3" />
             <AlternativeImpactSound mass ="2000000" minVelocity="5" maxVolumeVelocity="25" soundCue="ImpMetalMetalCat4" />
           </AlternativeImpactSounds>
@@ -865,8 +866,9 @@
           <SoundCue>ImpMetalMetalCat1</SoundCue>
           <AlternativeImpactSounds>
             <AlternativeImpactSound mass ="2000" minVelocity="1" maxVolumeVelocity="15" soundCue="ImpMetalMetalCat2" />
-            <AlternativeImpactSound mass ="200000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat3" />
-            <AlternativeImpactSound mass ="2000000" minVelocity="5" maxVolumeVelocity="25" soundCue="ImpMetalMetalCat4" />
+            <AlternativeImpactSound mass ="10000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat3" />
+            <AlternativeImpactSound mass ="200000" minVelocity="3" maxVolumeVelocity="20" soundCue="ImpMetalMetalCat4" />
+            <AlternativeImpactSound mass ="2000000" minVelocity="5" maxVolumeVelocity="25" soundCue="ImpMetalMetalCat5" />
           </AlternativeImpactSounds>
         </ContactProperty>
         <ContactProperty>

@@ -22,6 +22,20 @@ namespace VRageRender
         public bool VSync;
         public bool DebugDrawOnly;
 
+#if BLIT
+        public MyRenderDeviceSettings(int adapter)
+        {
+            this.AdapterOrdinal = adapter;
+            this.WindowMode = MyWindowModeEnum.Window;
+            this.BackBufferWidth = 0;
+            this.BackBufferHeight = 0;
+            this.RefreshRate = 0;
+            this.VSync = true;
+
+            DebugDrawOnly = false;
+        }
+#endif
+
         public MyRenderDeviceSettings(int adapter, MyWindowModeEnum windowMode, int width, int height, int refreshRate, bool vsync)
         {
             this.AdapterOrdinal = adapter;
@@ -196,6 +210,7 @@ namespace VRageRender
         public bool DisplayEmissive = false;
         public bool DisplayEdgeMask = false;
         public bool DisplayNDotL = false;
+        public bool DisplayDepth = false;
         public bool DisplayStencil = false;
 
         public float RgbMultiplier = 1.0f;
@@ -388,6 +403,7 @@ namespace VRageRender
             DisplayGbufferAO = settings.DisplayGbufferAO;
             DisplayEmissive = settings.DisplayEmissive;
             DisplayEdgeMask = settings.DisplayEdgeMask;
+            DisplayDepth = settings.DisplayDepth;
             DisplayStencil = settings.DisplayStencil;
 
             RgbMultiplier = settings.RgbMultiplier;

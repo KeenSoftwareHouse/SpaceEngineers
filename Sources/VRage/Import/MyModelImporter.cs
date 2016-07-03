@@ -38,16 +38,20 @@ namespace VRage.Import
             {
                 m_tagReader = tagReader;
             }
-
+#if !BLIT
             T ReadTag(BinaryReader reader, int version)
             {
                 return m_tagReader(reader, version);
             }
-
+#endif
             public object Read(BinaryReader reader, int version)
             {
-                return ReadTag(reader, version);
-            }
+#if BLIT
+				return m_tagReader(reader, version);
+#else
+				return ReadTag(reader, version);
+#endif
+			}
         }
 
 

@@ -89,7 +89,7 @@ namespace Sandbox.Game.World.Generator
                 int index = 0;
                 Vector3I subCellId = Vector3I.Zero;
                 Vector3I max = new Vector3I(SUBCELLS - 1);
-                for (var iter = new Vector3I.RangeIterator(ref Vector3I.Zero, ref max); iter.IsValid(); iter.GetNext(out subCellId))
+                for (var iter = new Vector3I_RangeIterator(ref Vector3I.Zero, ref max); iter.IsValid(); iter.GetNext(out subCellId))
                 {
                     // there is a bug in the position calculation which can very rarely cause overlaping objects but backwards compatibility so meh
                     Vector3D position = new Vector3D(random.NextDouble(), random.NextDouble(), random.NextDouble());

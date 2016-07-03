@@ -168,14 +168,7 @@ namespace Sandbox.Game.Replication
             }
             else if (deltaL > POSITION_TOLERANCE)
             {
-                if (m_entity is MyCharacter)
-                {
-                    (m_entity as MyCharacter).CacheMoveDelta(ref delta.Transform.Position);
-                }
-                else
-                {
-                    m_entity.PositionComp.SetPosition(position);
-                }
+                m_entity.PositionComp.SetPosition(position);
             }
            
 

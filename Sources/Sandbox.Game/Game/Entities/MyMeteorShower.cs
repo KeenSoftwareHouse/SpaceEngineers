@@ -4,6 +4,8 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Audio;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
@@ -190,6 +192,17 @@ namespace Sandbox.Game.Entities
             m_tmpEntityList = MyEntities.GetEntitiesInSphere(ref bs);
             if (m_tmpEntityList.OfType<MyCubeGrid>().ToList().Count == 0)
                 m_waveCounter = -1;
+            if (m_waveCounter >= 0 && MyMusicController.Static != null)
+            {
+                foreach (var entity in m_tmpEntityList)
+                {
+                    if((entity is MyCharacter) && MySession.Static != null && (entity as MyCharacter) == MySession.Static.LocalCharacter)
+                    {
+                        MyMusicController.Static.MeteorShowerIncoming();
+                        break;
+                    }
+                }
+            }
             m_tmpEntityList.Clear();
         }
 

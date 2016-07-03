@@ -475,7 +475,7 @@ namespace Sandbox.Game.AI.Pathfinding
             min = Vector3I.Round(new Vector3(min) / 256.0f - Vector3.Half);
             max = Vector3I.Round(new Vector3(max) / 256.0f + Vector3.Half);
 
-            for (var it = new Vector3I.RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out min))
+            for (var it = new Vector3I_RangeIterator(ref min, ref max); it.IsValid(); it.GetNext(out min))
             {
                 List<int> list;
                 m_smallTriangleRegistry.TryGetValue(min, out list);
@@ -560,7 +560,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
             Vector3I pos = cube - new Vector3I(4, 4, 4);
             Vector3I end = cube + new Vector3I(4, 4, 4);
-            for (var it = new Vector3I.RangeIterator(ref pos, ref end); it.IsValid(); it.GetNext(out pos))
+            for (var it = new Vector3I_RangeIterator(ref pos, ref end); it.IsValid(); it.GetNext(out pos))
             {
                 List<int> list; m_smallTriangleRegistry.TryGetValue(pos, out list);
                 if (list == null) continue;
@@ -781,7 +781,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 }
 
                 pos = block.Min;
-                for (var it = new Vector3I.RangeIterator(ref pos, ref block.Max); it.IsValid(); it.GetNext(out pos))
+                for (var it = new Vector3I_RangeIterator(ref pos, ref block.Max); it.IsValid(); it.GetNext(out pos))
                 {
                     m_cubeSet.Add(pos);
                 }
@@ -898,7 +898,7 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             Vector3I start = block.Min;
             Vector3I end = block.Max;
-            for (var it = new Vector3I.RangeIterator(ref start, ref end); it.IsValid(); it.GetNext(out start))
+            for (var it = new Vector3I_RangeIterator(ref start, ref end); it.IsValid(); it.GetNext(out start))
             {
                 Debug.Assert(!m_cubeSet.Contains(ref start));
                 m_cubeSet.Add(ref start);
@@ -911,7 +911,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private void RemoveBlock(Vector3I min, Vector3I max, bool eraseCubeSet)
         {
             Vector3I pos = min;
-            for (var it = new Vector3I.RangeIterator(ref pos, ref max); it.IsValid(); it.GetNext(out pos))
+            for (var it = new Vector3I_RangeIterator(ref pos, ref max); it.IsValid(); it.GetNext(out pos))
             {
                 Debug.Assert(m_cubeSet.Contains(ref pos));
 

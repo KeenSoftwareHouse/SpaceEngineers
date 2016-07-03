@@ -6,12 +6,14 @@ using System.Text;
 using System.Windows.Forms;
 using VRage.Utils;
 using VRage.Win32;
+#if !BLIT
 using MSG = VRage.Win32.WinApi.MSG;
+#endif
 
 namespace VRage.Utils
 {
     public delegate void ActionRef<T>(ref T item);
-
+#if !UNSHARPER
     public static class MyMessageLoop
     {
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
@@ -122,4 +124,6 @@ namespace VRage.Utils
                 output(ref message);
         }
     }
+
+#endif
 }

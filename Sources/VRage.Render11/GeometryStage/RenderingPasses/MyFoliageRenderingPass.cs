@@ -97,13 +97,13 @@ namespace VRageRender
 
             if (MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray != null)
             {
-                RC.BindRawSRV(0, MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray.ShaderView);
-                RC.BindRawSRV(1, MyVoxelMaterials1.Table[voxelMatId].FoliageNormalTextureArray.ShaderView);
+                RC.BindRawSRV(0, MyVoxelMaterials1.Table[voxelMatId].FoliageColorTextureArray);
+                RC.BindRawSRV(1, MyVoxelMaterials1.Table[voxelMatId].FoliageNormalTextureArray);
             }
             else
             {
-                RC.BindRawSRV(0, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_Texture, MyTextureEnum.COLOR_METAL, true)));
-                RC.BindRawSRV(1, MyTextures.GetView(MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_NormalTexture, MyTextureEnum.NORMALMAP_GLOSS, true)));
+                RC.BindRawSRV(0, MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_Texture, MyTextureEnum.COLOR_METAL, true));
+                RC.BindRawSRV(1, MyTextures.GetTexture(MyVoxelMaterials1.Table[voxelMatId].FoliageArray_NormalTexture, MyTextureEnum.NORMALMAP_GLOSS, true));
             }
 
             RC.SetVB(0, stream.Buffer, stream.Stride);

@@ -22,11 +22,7 @@ namespace VRageMath
 
         public static MatrixD Identity = new MatrixD(1, 0.0, 0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 1);
         public static MatrixD Zero = new MatrixD(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        /// <summary>
-        /// Matrix values
-        /// </summary>
-        [FieldOffset(0)]
-        private F16 M;
+
 
         /// <summary>
         /// Value at row 1 column 1 of the matrix.
@@ -390,6 +386,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref MatrixD matrix, double scale)
         {
             matrix.M11 *= scale;
@@ -408,6 +405,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref MatrixD matrix, float scale)
         {
             matrix.M11 *= scale;
@@ -426,6 +424,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref MatrixD matrix, ref Vector3D scale)
         {
             matrix.M11 *= scale.X;
@@ -441,12 +440,14 @@ namespace VRageMath
             matrix.M33 *= scale.Z;
         }
 
+		[Unsharper.UnsharperDisableReflection()]
         public static MatrixD Rescale(MatrixD matrix, double scale)
         {
             Rescale(ref matrix, scale);
             return matrix;
         }
 
+		[Unsharper.UnsharperDisableReflection()]
         public static MatrixD Rescale(MatrixD matrix, Vector3D scale)
         {
             Rescale(ref matrix, ref scale);
@@ -2357,7 +2358,7 @@ namespace VRageMath
         {
             unsafe
             {
-                fixed (double* data = M.data)
+                fixed (double* data = &M11)
                 {
                     double* basePos = data + row * 4;
                     return new Vector4((float)*basePos, (float)*(basePos + 1), (float)*(basePos + 2), (float)*(basePos + 3));
@@ -2369,8 +2370,8 @@ namespace VRageMath
         {
             unsafe
             {
-                fixed (double* data = M.data)
-                {
+				fixed (double* data = &M11)
+				{
                     double* basePos = data + row * 4;
                     *(basePos + 0) = value.X;
                     *(basePos + 1) = value.Y;
@@ -2386,8 +2387,8 @@ namespace VRageMath
             {
                 unsafe
                 {
-                    fixed (double* data = M.data)
-                    {
+					fixed (double* data = &M11)
+					{
                         return data[row * 4 + column];
                     }
                 }
@@ -2396,8 +2397,8 @@ namespace VRageMath
             {
                 unsafe
                 {
-                    fixed (double* data = M.data)
-                    {
+					fixed (double* data = &M11)
+					{
                         data[row * 4 + column] = value;
                     }
                 }

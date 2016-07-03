@@ -53,7 +53,7 @@ namespace VRage.Profiler
         private Dictionary<MyProfilerBlockKey, MyProfilerBlock> m_profilingBlocks = new Dictionary<MyProfilerBlockKey, MyProfilerBlock>(8192, new MyProfilerBlockKeyComparer());
         private List<MyProfilerBlock> m_rootBlocks = new List<MyProfilerBlock>(32);
         private Stack<MyProfilerBlock> m_currentProfilingStack = new Stack<MyProfilerBlock>(1024);
-        private MyProfiler.MyProfilerBlock m_selectedRoot = null;
+        private MyProfilerBlock m_selectedRoot = null;
         private int m_levelLimit = -1;
         private int m_levelSkipCount;
         private volatile int m_newLevelLimit = -1;
@@ -163,7 +163,7 @@ namespace VRage.Profiler
             Interlocked.Exchange(ref m_remainingWindow, UPDATE_WINDOW);
         }
 
-        public static MyProfiler.MyProfilerBlock CreateExternalBlock(string name, int blockId)
+        public static MyProfilerBlock CreateExternalBlock(string name, int blockId)
         {
             MyProfilerBlockKey key = new MyProfilerBlockKey(String.Empty, String.Empty, name, 0, ROOT_ID);
             return new MyProfilerBlock(ref key, String.Empty, blockId);
@@ -236,7 +236,7 @@ namespace VRage.Profiler
             m_levelLimit = m_newLevelLimit;
 
             int writeFrame = (m_lastFrameIndex + 1) % MyProfiler.MAX_FRAMES;
-            foreach (MyProfiler.MyProfilerBlock profilerBlock in m_profilingBlocks.Values)
+            foreach (MyProfilerBlock profilerBlock in m_profilingBlocks.Values)
             {
                 callCount += profilerBlock.NumCalls;
 
@@ -261,7 +261,7 @@ namespace VRage.Profiler
                         m_logWriter.Write(((int)profilerBlock.Elapsed.Miliseconds).ToString());
                         m_logWriter.Write("; ");
                         m_logWriter.Write(profilerBlock.Name);
-                        MyProfiler.MyProfilerBlock tempBlock = profilerBlock;
+                        MyProfilerBlock tempBlock = profilerBlock;
                         while (tempBlock.Parent != null)
                         {
                             tempBlock = tempBlock.Parent;
@@ -287,7 +287,7 @@ namespace VRage.Profiler
 
             m_levelLimit = m_newLevelLimit;
 
-            foreach (MyProfiler.MyProfilerBlock profilerBlock in m_profilingBlocks.Values)
+            foreach (MyProfilerBlock profilerBlock in m_profilingBlocks.Values)
             {
                 profilerBlock.Clear();
             }

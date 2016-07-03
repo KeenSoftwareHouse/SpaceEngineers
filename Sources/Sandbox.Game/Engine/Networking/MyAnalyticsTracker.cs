@@ -18,7 +18,9 @@ using ParallelTasks;
 using Sandbox.Definitions;
 using System.Diagnostics;
 using VRage.Trace;
+#if !BLIT
 using LitJson;
+#endif
 using VRage;
 using Sandbox.Game;
 using Sandbox.Game.Multiplayer;
@@ -50,10 +52,37 @@ namespace Sandbox.Engine.Networking
     {
         private static bool m_enabled = true;
         private static string[] m_oreTypes;
+#if !BLIT
         private static readonly CommonRequiredData m_requiredData;
-
+#endif
         private static bool AnalyticsEnabled = (MyFinalBuildConstants.IS_OFFICIAL || MyFakes.ENABLE_INFINARIO) && !MyCompilationSymbols.PerformanceOrMemoryProfiling;
 
+#if BLIT
+        public static void SendGameStart()
+        {
+            
+        }
+        public static void SendGameEnd(string method, int totalTimeInSeconds)
+        {
+
+        }
+        public static void SendSessionStart(MyStartSessionStatistics sessionStatistics)
+        {
+
+        }
+        public static void SendSessionEnd(MyEndSessionStatistics sessionStatistics)
+        {
+
+        }
+        public static void ReportError(SeverityEnum severityEnum, Exception ex, bool async = true)
+        {
+
+        }
+        public static void ReportError(SeverityEnum severityEnum, string messageText, bool async = true)
+        {
+
+        }
+#else
         static MyAnalyticsTracker()
         {
             var hashKey = new byte[64]; // SHA key, not used for any security, just hashing of user id
@@ -476,9 +505,9 @@ namespace Sandbox.Engine.Networking
                 json.AppendProperty("severity", GetSeverityString(severity))
                     .AppendProperty("message", message);
             }
-        }
+		}
+		#endregion
+#endif //!BLIT
 
-        #endregion
-
-    }
+	}
 }

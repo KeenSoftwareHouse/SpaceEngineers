@@ -16211,8 +16211,8 @@
       <MinRadius>10</MinRadius>
       <MaxRadius>400</MaxRadius>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
-      <BasePowerInput>0.7</BasePowerInput>
-      <ConsumptionPower>3</ConsumptionPower>
+      <BasePowerInput>0.4</BasePowerInput>
+      <ConsumptionPower>1</ConsumptionPower>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -17434,6 +17434,7 @@
       <Size x="3" y="3" z="2" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\OxygenGenerator.mwm</Model>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
         <Component Subtype="SteelPlate" Count="6" />
         <Component Subtype="Construction" Count="8" />

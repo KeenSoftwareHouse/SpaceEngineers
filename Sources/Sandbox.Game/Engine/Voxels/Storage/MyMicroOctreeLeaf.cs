@@ -105,7 +105,7 @@ namespace Sandbox.Engine.Voxels
                 Vector3I p = Vector3I.Zero;
                 var cacheEnd = max - min;
                 int errorCounter = 0;
-                for (var it = new Vector3I.RangeIterator(ref Vector3I.Zero, ref cacheEnd);
+                for (var it = new Vector3I_RangeIterator(ref Vector3I.Zero, ref cacheEnd);
                     it.IsValid(); it.GetNext(out p))
                 {
                     var read = readOffset + p;

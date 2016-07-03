@@ -286,10 +286,12 @@ namespace Sandbox.Game.Weapons
             if (Owner == null)
                 return;
 
-            
-            m_raycastComponent.SetPointOfReference(m_gunBase.GetMuzzleWorldPosition());
-
-
+            Vector3 weaponLocalPosition = Owner.GetLocalWeaponPosition();
+            Vector3D localDummyPosition = m_gunBase.GetMuzzleLocalPosition();
+            MatrixD weaponWorld = WorldMatrix;
+            Vector3D localDummyPositionRotated;
+            Vector3D.Rotate(ref localDummyPosition, ref weaponWorld, out localDummyPositionRotated);
+            m_raycastComponent.SetPointOfReference(Owner.PositionComp.GetPosition() + weaponLocalPosition + localDummyPositionRotated);
             
 			SinkComp.Update();
 
@@ -351,7 +353,7 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
-        public virtual void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public virtual void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction)
             {

@@ -326,12 +326,12 @@ namespace VRageMath
 
         public static bool operator ==(MyOrientedBoundingBoxD a, MyOrientedBoundingBoxD b)
         {
-            return Equals(a, b);
+            return a.Equals(b);
         }
 
         public static bool operator !=(MyOrientedBoundingBoxD a, MyOrientedBoundingBoxD b)
         {
-            return !Equals(a, b);
+            return !a.Equals(b);
         }
 
         public override string ToString()

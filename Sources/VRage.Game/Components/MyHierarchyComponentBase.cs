@@ -10,6 +10,8 @@ namespace VRage.Game.Components
     {
         protected List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
 
+        public event Action<IMyEntity> OnChildRemoved;
+
         /// <summary>
         /// Return top most parent of this entity
         /// </summary>
@@ -159,6 +161,9 @@ namespace VRage.Game.Components
 
             if (child.InScene)
                 child.OnRemovedFromScene(this);
+
+            if (OnChildRemoved != null)
+                OnChildRemoved(child);
         }
         public void GetChildrenRecursive(HashSet<IMyEntity> result)
         {

@@ -297,7 +297,7 @@ namespace VRageRender
             next = new MyVertexInputLayout();
             next.m_hash = nextHash;
             next.m_id = m_cached.Count;
-            next.m_components = m_components.Concat(component.Yield()).ToArray();
+            next.m_components = m_components.Concat(component.Yield_()).ToArray();
             next.Build();
 
             m_cached[nextHash] = next;

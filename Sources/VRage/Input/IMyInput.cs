@@ -323,6 +323,8 @@ namespace VRage.Input
 
         void RevertToDefaultControls();
 
+        void AddDefaultControl(MyStringId stringId, MyControl control);
+
         //  Save all controls to the Config File.
         void SaveControls(SerializableDictionary<string, object> controlsGeneral, SerializableDictionary<string, object> controlsButtons);
 

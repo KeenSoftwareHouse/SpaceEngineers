@@ -79,7 +79,10 @@ namespace Sandbox.Game.Gui
             AddCheckBox("Particle Render Target", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DrawParticleRenderTarget));
 
             if(rendererIsDirectX11)
+            {
+                AddCheckBox("Depth", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayDepth));
                 AddCheckBox("Stencil", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayStencil));
+            }
         }
 
         protected override void ValueChanged(MyGuiControlBase sender)

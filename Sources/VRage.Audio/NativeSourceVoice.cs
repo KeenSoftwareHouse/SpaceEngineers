@@ -3,6 +3,7 @@ using SharpDX.XAudio2;
 using System;
 using System.Runtime.InteropServices;
 using VRage.Native;
+using System.Diagnostics;
 
 namespace VRage.Audio
 {
@@ -75,8 +76,12 @@ namespace VRage.Audio
             {
                 unsafe
                 {
-                    float result;
+                    float result = 0;
+#if UNSHARPER
+                    Debug.Assert(false);
+#else
                     NativeCall.Method(Pointer, 27, new IntPtr(&result));
+#endif
                     return result;
                 }
             }
@@ -105,7 +110,11 @@ namespace VRage.Audio
         {
             set
             {
+#if UNSHARPER
+                Debug.Assert(false);
+#else
                 ((Result)NativeCall<int>.Method(Pointer, 28, (uint)value)).CheckError();
+#endif
             }
         }
 
@@ -127,7 +136,11 @@ namespace VRage.Audio
                 unsafe
                 {
                     VoiceState result = new VoiceState();
+#if UNSHARPER
+                    Debug.Assert(false);
+#else
                     NativeCall.Method(Pointer, 25, new IntPtr(&result));
+#endif
                     return result;
                 }
             }
@@ -153,7 +166,11 @@ namespace VRage.Audio
         //     is not guaranteed to suppress the warnings.
         public void Discontinuity()
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method(Pointer, 23)).CheckError();
+#endif
         }
 
         //
@@ -173,7 +190,11 @@ namespace VRage.Audio
         //     If the cursor for the voice is not in a loop region, ExitLoop does nothing.
         public void ExitLoop(int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method(Pointer, 24, (uint)operationSet)).CheckError();
+#endif
         }
 
         //
@@ -213,7 +234,11 @@ namespace VRage.Audio
         //     either of the previously mentioned conditions are met.
         public void FlushSourceBuffers()
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method(Pointer, 22)).CheckError();
+#endif
         }
 
         //
@@ -256,7 +281,11 @@ namespace VRage.Audio
         //     was called with a deferred operation ID).
         public void SetFrequencyRatio(float ratio, int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method(Pointer, 26, ratio, (uint)operationSet)).CheckError();
+#endif
         }
 
         //
@@ -273,7 +302,11 @@ namespace VRage.Audio
         //     No documentation.
         public void Start(int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method(Pointer, 19, (uint)0, (uint)operationSet)).CheckError();
+#endif
         }
 
         //
@@ -316,7 +349,11 @@ namespace VRage.Audio
         //     stopped (even if it was stopped with SharpDX.XAudio2.PlayFlags.Tails).
         public void Stop(PlayFlags flags, int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             ((Result)NativeCall<int>.Method(Pointer, 20, (uint)flags, (uint)operationSet)).CheckError();
+#endif
         }
 
         //
@@ -368,7 +405,11 @@ namespace VRage.Audio
                 buf.LoopCount = bufferRef.LoopCount;
                 buf.Context = bufferRef.Context;
 
+#if UNSHARPER
+                Debug.Assert(false);
+#else
                 ((Result)NativeCall<int>.Method<IntPtr, IntPtr>(Pointer, 21, new IntPtr(&buf), decodedXMWAPacketInfo)).CheckError();
+#endif
             }
         }
 
@@ -448,7 +489,11 @@ namespace VRage.Audio
         //     will be returned.
         public void DestroyVoice()
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             NativeCall.Method(Pointer, 18);
+#endif
         }
 
         //
@@ -485,7 +530,11 @@ namespace VRage.Audio
         //     with an OperationSet of SharpDX.XAudio2.XAudio2.CommitNow.
         public void DisableEffect(int effectIndex, int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             Check(NativeCall<int>.Method(Pointer, 4, (uint)effectIndex, (uint)operationSet));
+#endif
         }
 
         //
@@ -521,7 +570,11 @@ namespace VRage.Audio
         //     OperationSet of SharpDX.XAudio2.XAudio2.CommitNow.
         public void EnableEffect(int effectIndex, int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             Check(NativeCall<int>.Method(Pointer, 3, (uint)effectIndex, (uint)operationSet));
+#endif
         }
 
         //
@@ -557,7 +610,11 @@ namespace VRage.Audio
             {
                 fixed (float* numPtr = volumesRef)
                 {
+#if UNSHARPER
+                    Debug.Assert(false);
+#else
                     NativeCall.Method(Pointer, 15, (uint)channels, new IntPtr(numPtr));
+#endif
                 }
             }
         }
@@ -1004,7 +1061,11 @@ namespace VRage.Audio
             {
                 fixed (float* coefPtr = &levelMatrixRef[0])
                 {
+#if UNSHARPER
+                    Debug.Assert(false);
+#else
                     Check(NativeCall<int>.Method<IntPtr, uint, uint, IntPtr, uint>(Pointer, 16, destPtr, (uint)sourceChannels, (uint)destinationChannels, new IntPtr(coefPtr), (uint)operationSet));
+#endif
                 }
             }
         }
@@ -1035,13 +1096,21 @@ namespace VRage.Audio
                         VoiceSendDescriptors descriptors = new VoiceSendDescriptors();
                         descriptors.SendCount = outputVoices.Length;
                         descriptors.SendPointer = (IntPtr)((void*)voiceSendDescriptorPtr);
+#if UNSHARPER
+                        Debug.Assert(false);
+#else
                         Check(NativeCall<int>.Method(Pointer, 1, new IntPtr(&descriptors)));
+#endif
                     }
                 }
             }
             else
             {
+#if UNSHARPER
+                Debug.Assert(false);
+#else
                 Check(NativeCall<int>.Method(Pointer, 1, IntPtr.Zero));
+#endif
             }
         }
 
@@ -1082,7 +1151,11 @@ namespace VRage.Audio
         //     called with a deferred operation ID).
         public void SetVolume(float volume, int operationSet = 0)
         {
+#if UNSHARPER
+            Debug.Assert(false);
+#else
             Check(NativeCall<int>.Method(Pointer, 12, volume, (uint)operationSet));
+#endif
         }
 
         #endregion

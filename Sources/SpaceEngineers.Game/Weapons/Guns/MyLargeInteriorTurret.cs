@@ -35,7 +35,7 @@ namespace SpaceEngineers.Game.Weapons.Guns
         protected override float ForwardCameraOffset { get { return 0.1f; } }
         protected override float UpCameraOffset { get { return 0.25f; } }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             if (action != MyShootActionEnum.PrimaryAction)
                 return;

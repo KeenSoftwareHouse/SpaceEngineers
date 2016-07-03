@@ -24,6 +24,9 @@ namespace Sandbox.Game.Gui
             public MyFontEnum LeftFont;
             public MyFontEnum RightFont;
 
+            public StringBuilder LeftIcon;
+            public Color LeftIconColor;
+
             public ControlWithDescription(string boundButtons, string description, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
                 : this(new StringBuilder(boundButtons), new StringBuilder(description), leftFont, rightFont)
             { }
@@ -33,6 +36,17 @@ namespace Sandbox.Game.Gui
                 Description = new StringBuilder(description.Length).AppendStringBuilder(description);
                 LeftFont = leftFont;
                 RightFont = rightFont;
+                LeftIcon = null;
+                LeftIconColor = Color.White;
+            }
+            public ControlWithDescription(StringBuilder boundButtons, StringBuilder description, StringBuilder leftIcon, Color leftIconColor, MyFontEnum leftFont = MyFontEnum.Red, MyFontEnum rightFont = MyFontEnum.White)
+            {
+                BoundButtons = new StringBuilder(boundButtons.Length).AppendStringBuilder(boundButtons);
+                Description = new StringBuilder(description.Length).AppendStringBuilder(description);
+                LeftFont = leftFont;
+                RightFont = rightFont;
+                LeftIcon = leftIcon;
+                LeftIconColor = leftIconColor;
             }
             public ControlWithDescription(MyStringId control)
             {
@@ -42,6 +56,8 @@ namespace Sandbox.Game.Gui
                 Description = MyTexts.Get(c.GetControlDescription() ?? c.GetControlName());
                 LeftFont = MyFontEnum.Red;
                 RightFont = MyFontEnum.White;
+                LeftIcon = null;
+                LeftIconColor = Color.White;
             }
         }
 
@@ -177,10 +193,10 @@ namespace Sandbox.Game.Gui
                 MyTexts.Get(MySpaceTexts.ControlDescLoot)));
             advancedPage.RightColumn.Add(new ControlWithDescription("", ""));
             advancedPage.RightColumn.Add(new ControlWithDescription(new StringBuilder(), MyTexts.Get(MyCommonTexts.Factions), rightFont: MyFontEnum.Red));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Blue), MyTexts.Get(MySpaceTexts.Factions_YourBlock), MyFontEnum.Blue));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Green), MyTexts.Get(MySpaceTexts.Factions_YourFaction), MyFontEnum.Green));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_White), MyTexts.Get(MySpaceTexts.Factions_NeutralFaction), MyFontEnum.White));
-            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Red), MyTexts.Get(MySpaceTexts.Factions_EnemyFaction)));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Blue), MyTexts.Get(MySpaceTexts.Factions_YourBlock), new StringBuilder("Textures\\HUD\\marker_self.dds"), new Color(117, 201, 241), MyFontEnum.Blue));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Green), MyTexts.Get(MySpaceTexts.Factions_YourFaction), new StringBuilder("Textures\\HUD\\marker_friendly.dds"), new Color(101, 178, 90), MyFontEnum.Green));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_White), MyTexts.Get(MySpaceTexts.Factions_NeutralFaction), new StringBuilder("Textures\\HUD\\marker_neutral.dds"), Color.White, MyFontEnum.White));
+            advancedPage.RightColumn.Add(new ControlWithDescription(MyTexts.Get(MySpaceTexts.HelpScreen_FactionColor_Red), MyTexts.Get(MySpaceTexts.Factions_EnemyFaction), new StringBuilder("Textures\\HUD\\marker_enemy.dds"), new Color(227, 62, 63)));
 
             advancedPage.RightColumn.Add(new ControlWithDescription("", ""));
             advancedPage.RightColumn.Add(new ControlWithDescription(MyControlsSpace.ROTATION_LEFT));
@@ -321,6 +337,14 @@ namespace Sandbox.Game.Gui
                     textScale: TEXT_SCALE,
                     originAlign: descriptionAlign,
                     font: line.RightFont));
+                if (line.LeftIcon != null)
+                {
+                    Controls.Add(new MyGuiControlImage(
+                        position: controlPosition - new Vector2(0.05f, -0.002f),
+                        size: new Vector2(0.02f, 0.02f),
+                        textures: new string[] { line.LeftIcon.ToString() },
+                        backgroundColor: line.LeftIconColor));
+                }
                 controlPosition.Y += LINE_HEIGHT;
                 descriptionPosition.Y += LINE_HEIGHT;
             }
@@ -344,6 +368,14 @@ namespace Sandbox.Game.Gui
                     textScale: TEXT_SCALE,
                     originAlign: descriptionAlign,
                     font: line.RightFont));
+                if (line.LeftIcon != null)
+                {
+                    Controls.Add(new MyGuiControlImage(
+                        position: controlPosition - new Vector2(0.05f, -0.002f),
+                        size: new Vector2(0.02f, 0.02f),
+                        textures: new string[] { line.LeftIcon.ToString() },
+                        backgroundColor: line.LeftIconColor));
+                }
                 controlPosition.Y += LINE_HEIGHT;
                 descriptionPosition.Y += LINE_HEIGHT;
             }

@@ -350,6 +350,8 @@ namespace VRage.Game
         public string SuffocateSoundName = "";
         [ProtoMember]
         public string DeathSoundName = "";
+        [ProtoMember]
+        public string DeathBySuffocationSoundName = "";
 
         [ProtoMember]
         public string IronsightActSoundName = "";

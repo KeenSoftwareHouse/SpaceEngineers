@@ -342,7 +342,7 @@ namespace Sandbox.Game.Entities
             return status == MyGunStatusEnum.OK;
         }
 
-        public void Shoot(MyShootActionEnum action, VRageMath.Vector3 direction, string gunAction)
+        public void Shoot(MyShootActionEnum action, VRageMath.Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             m_enabled = false;
 

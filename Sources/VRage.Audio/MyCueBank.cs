@@ -84,6 +84,7 @@ namespace VRage.Audio
         MyWaveBank m_waveBank;
         Dictionary<MyWaveFormat, MySourceVoicePool> m_voicePools;
         Dictionary<MyStringId, Dictionary<MyStringId, MyCueId>> m_musicTransitionCues;
+        Dictionary<MyStringId, List<MyCueId>> m_musicTracks;
         List<MyStringId> m_categories;
 
         public bool UseSameSoundLimiter = false;
@@ -197,6 +198,7 @@ namespace VRage.Audio
         private void InitTransitionCues()
         {
             m_musicTransitionCues = new Dictionary<MyStringId, Dictionary<MyStringId, MyCueId>>(MyStringId.Comparer);
+            m_musicTracks = new Dictionary<MyStringId, List<MyCueId>>(MyStringId.Comparer);
         }
 
         private int GetNumberOfSounds()
@@ -207,10 +209,18 @@ namespace VRage.Audio
         private void AddMusicCue(MyStringId musicTransition, MyStringId category, MyCueId cueId)
         {
             if (!m_musicTransitionCues.ContainsKey(musicTransition))
-            {
                 m_musicTransitionCues[musicTransition] = new Dictionary<MyStringId, MyCueId>(MyStringId.Comparer);
-            }
-            m_musicTransitionCues[musicTransition].Add(category, cueId);
+            if (m_musicTransitionCues[musicTransition].ContainsKey(category) == false)
+                m_musicTransitionCues[musicTransition].Add(category, cueId);
+
+            if (m_musicTracks.ContainsKey(category) == false)
+                m_musicTracks.Add(category, new List<MyCueId>());
+            m_musicTracks[category].Add(cueId);
+        }
+
+        public Dictionary<MyStringId, List<MyCueId>> GetMusicCues()
+        {
+            return m_musicTracks;
         }
 
         public void Update()
@@ -277,7 +287,7 @@ namespace VRage.Audio
             {
                 do {
                     transitionEnum = GetRandomTransitionEnum();
-                } while (transitionEnum == noRandom);
+                } while (transitionEnum == noRandom && m_musicTransitionCues.Count > 1);
             }
             int randomIndex = MyUtils.GetRandomInt(m_musicTransitionCues[transitionEnum].Count);
             int currentIndex = 0;

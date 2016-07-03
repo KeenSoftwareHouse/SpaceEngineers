@@ -45,7 +45,8 @@ namespace VRage.Collections
 
         private TValue AddValue(TKey key, Func<TKey, TValue> creator = null)
         {
-            TValue value = (creator ?? m_creator)(key);
+			Func<TKey, TValue> cc = creator ?? m_creator;
+            TValue value = cc(key);
             TValue result;
             lock (this.m_lock)
             {

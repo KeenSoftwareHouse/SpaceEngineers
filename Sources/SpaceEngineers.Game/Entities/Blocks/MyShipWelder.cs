@@ -237,6 +237,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 }
             }
 
+            if (welding)
+                SetBuildingMusic(150);
 
             return welding;
         }

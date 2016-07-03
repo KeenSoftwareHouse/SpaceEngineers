@@ -61,6 +61,8 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Serialization;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.Game.Audio;
+using Sandbox.ModAPI.Ingame;
 
 #endregion
 
@@ -255,6 +257,7 @@ namespace Sandbox.Game.Entities.Character
 
         float m_headLocalXAngle = 0;
         float m_headLocalYAngle = 0;
+        Vector3D m_headSafeOffset = Vector3D.Zero;
 
         public float RotationSpeed = CHARACTER_X_ROTATION_SPEED;
 
@@ -637,10 +640,11 @@ namespace Sandbox.Game.Entities.Character
         readonly Sync<Sandbox.Game.World.MyPlayer.PlayerId> m_controlInfo;
         Sandbox.Game.World.MyPlayer.PlayerId? m_savedPlayer;
 
-        readonly Sync<Vector3> m_localHeadPosition;
+        //Vector3 m_averageBob;
+        readonly Sync<Vector3> m_localHeadPosition;  // only for character rotation
         readonly Sync<float> m_animLeaning;
-        readonly Sync<Vector3> m_averageBob;
-        readonly List<Sandbox.Engine.Physics.MyPhysics.HitInfo> m_rotationRaycastHits = new List<Sandbox.Engine.Physics.MyPhysics.HitInfo>(4);
+        readonly Sync<MyTransform> m_localHeadTransform;
+        readonly List<Sandbox.Engine.Physics.MyPhysics.HitInfo> m_universalTemporaryRaycastHits = new List<Sandbox.Engine.Physics.MyPhysics.HitInfo>(4);
 
         float m_worldRealVelocity;
 
@@ -935,7 +939,12 @@ namespace Sandbox.Game.Entities.Character
             if (characterOb.EnabledComponents == null)
             {
                 characterOb.EnabledComponents = new List<string>();
-                characterOb.EnabledComponents.AddList(m_characterDefinition.EnabledComponents);
+            }
+
+            foreach (var componentName in m_characterDefinition.EnabledComponents)
+            {
+                if (characterOb.EnabledComponents.All(x => x != componentName))
+                    characterOb.EnabledComponents.Add(componentName);
             }
 
             foreach (var componentName in characterOb.EnabledComponents)
@@ -1037,6 +1046,9 @@ namespace Sandbox.Game.Entities.Character
             IsPromoted = characterOb.IsPromoted;
 
             m_previousLinearVelocity = characterOb.LinearVelocity;
+
+            if (ControllerInfo.IsLocallyControlled())
+                m_localHeadTransform.Value = new MyTransform(Vector3.Zero);
 
             CheckExistingStatComponent();
         }
@@ -2042,6 +2054,11 @@ namespace Sandbox.Game.Entities.Character
 
             if (!MySandboxGame.IsDedicated || !MyPerGameSettings.DisableAnimationsOnDS)
             {
+                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Head in obstacle");
+                if (ControllerInfo.IsLocallyControlled() && (ForceFirstPersonCamera || IsInFirstPersonView))
+                    PreventHeadInObstacle();
+                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Animation");
                 UpdateAnimation(m_cameraDistance);
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -2102,6 +2119,39 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
+        private void PreventHeadInObstacle()
+        {
+            MatrixD headMatrix = GetHeadMatrix(false);
+            Vector3D startPoint = headMatrix.Translation - PositionComp.WorldMatrix.Forward * 0.2f;
+            Vector3D endPoint = headMatrix.Translation + PositionComp.WorldMatrix.Forward * 0.2f;
+            //VRageRender.MyRenderProxy.DebugDrawLine3D(startPoint, endPoint, Color.Aqua, Color.Aqua, false);
+            //VRageRender.MyRenderProxy.DebugDrawLine3D(startPoint + 0.02, endPoint + 0.02, Color.Green, Color.Green, true);
+            MyPhysics.CastRay(startPoint, endPoint, m_universalTemporaryRaycastHits);
+            float t = 1f;
+            foreach (MyPhysics.HitInfo castRes in m_universalTemporaryRaycastHits)
+            {
+                //VRageRender.MyRenderProxy.DebugDrawSphere(castRes.Position, 0.1f, Color.Red,1,false);
+                IMyEntity hitEntity = castRes.HkHitInfo.GetHitEntity();
+                if (hitEntity == null || hitEntity == this || (hitEntity is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>))
+                    continue;
+                
+                t = Math.Min(t, castRes.HkHitInfo.HitFraction);
+            }
+            m_universalTemporaryRaycastHits.Clear();
+            if (t < 0.7f)
+            {
+                m_headSafeOffset = (startPoint - endPoint) * t;
+                // hack :(
+                float fwdWeight = -1+(float)Math.Cos(m_headLocalXAngle / 180.0f * Math.PI);
+                m_headSafeOffset += (0.25f * fwdWeight * PositionComp.WorldMatrix.Forward + PositionComp.WorldMatrix.Down * 0.15f + PositionComp.WorldMatrix.Left * 0.15f) * t;
+                //VRageRender.MyRenderProxy.DebugDrawSphere(headMatrix.Translation + m_headSafeOffset, 0.1f, Color.Yellow, 1, false);
+            }
+            else
+            {
+                m_headSafeOffset = Vector3D.Zero;
+            }
+        }
+
         private void UpdateCharacterStateChange()
         {
             if (!ControllerInfo.IsRemotelyControlled() || Sync.IsServer)
@@ -2159,7 +2209,7 @@ namespace Sandbox.Game.Entities.Character
                         return true;
                     }
                 }
-                else if (SyncObject != null && SyncObject.Entity != null && SyncObject.Entity.PositionComp != null)
+                else if (SyncObject != null && SyncObject.Entity != null && SyncObject.Entity.PositionComp != null && GetPlayerIdentityId() == MySession.Static.LocalPlayerId)
                 {
                     // Update corpse location
                     string bodyLocationName = MyTexts.Get(MySpaceTexts.GPS_Body_Location_Name).ToString();
@@ -2530,7 +2580,7 @@ namespace Sandbox.Game.Entities.Character
 
         internal void SetHeadLocalXAngle(float angle)
         {
-            m_headLocalXAngle = angle;
+            m_headLocalXAngle = MathHelper.Clamp(angle, MIN_HEAD_LOCAL_X_ANGLE, MAX_HEAD_LOCAL_X_ANGLE);
         }
 
         private void SetHeadLocalYAngle(float angle)
@@ -2955,7 +3005,7 @@ namespace Sandbox.Game.Entities.Character
                         ||
                         (m_currentMovementState != MyCharacterMovementEnum.Died))
                     {
-                        SetHeadLocalXAngle(MathHelper.Clamp(m_headLocalXAngle - rotationIndicator.X * ratio * RotationSpeed, MIN_HEAD_LOCAL_X_ANGLE, MAX_HEAD_LOCAL_X_ANGLE));
+                        SetHeadLocalXAngle(m_headLocalXAngle - rotationIndicator.X * ratio * RotationSpeed);
                         //CalculateDependentMatrices();
 
                         int headBone = IsInFirstPersonView ? m_headBoneIndex : m_camera3rdBoneIndex;
@@ -2987,8 +3037,8 @@ namespace Sandbox.Game.Entities.Character
         /// <returns>True if moving to the new position is not safe.</returns>
         private bool IsMovementDangerous(ref MatrixD newWorldMatrix)
         {
-            MyPhysics.CastRay(PositionComp.GetPosition(), newWorldMatrix.Translation, m_rotationRaycastHits);
-            foreach (MyPhysics.HitInfo rb in m_rotationRaycastHits)
+            MyPhysics.CastRay(PositionComp.GetPosition(), newWorldMatrix.Translation, m_universalTemporaryRaycastHits);
+            foreach (MyPhysics.HitInfo rb in m_universalTemporaryRaycastHits)
             {
                 if (rb.HkHitInfo.Body == null
                     || rb.HkHitInfo.Body.UserObject == null
@@ -3010,7 +3060,7 @@ namespace Sandbox.Game.Entities.Character
         {
             const float sensitivity = 0.5f;
             if (rotationIndicator.X != 0)
-                SetHeadLocalXAngle(MathHelper.Clamp(m_headLocalXAngle - rotationIndicator.X * sensitivity, MIN_HEAD_LOCAL_X_ANGLE, MAX_HEAD_LOCAL_X_ANGLE));
+                SetHeadLocalXAngle(m_headLocalXAngle - rotationIndicator.X * sensitivity);
 
             if (rotationIndicator.Y != 0)
             {
@@ -4117,7 +4167,7 @@ namespace Sandbox.Game.Entities.Character
         }
         #endregion
 
-        private MatrixD GetHeadMatrixInternal(int headBone, bool includeY, bool includeX = true, bool forceHeadAnim = false, bool forceHeadBone = false,bool sync = false)
+        private MatrixD GetHeadMatrixInternal(int headBone, bool includeY, bool includeX = true, bool forceHeadAnim = false, bool forceHeadBone = false)
         {
             if (PositionComp == null)
                 return MatrixD.Identity;
@@ -4155,14 +4205,14 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
 
-            if (this.ControllerInfo.IsLocallyControlled() && sync)
-            {
-                m_averageBob.Value = averageBob;
-            }
-            else if (this.ControllerInfo.IsRemotelyControlled() && Sync.IsServer)
-            {
-                averageBob = m_averageBob;
-            }
+            //if (this.ControllerInfo.IsLocallyControlled() && sync)
+            //{
+            //    m_averageBob = averageBob;
+            //}
+            //else if (this.ControllerInfo.IsRemotelyControlled() && Sync.IsServer)
+            //{
+            //    averageBob = m_averageBob;
+            //}
 
             if (useAnimationInsteadX && headBone != -1
                 && BoneAbsoluteTransforms[headBone].Right.LengthSquared() > float.Epsilon    // MZ: fixing NaN issue
@@ -4180,7 +4230,6 @@ namespace Sandbox.Game.Entities.Character
                 m_headMatrix = MatrixD.CreateTranslation(0, averageBob.Y, averageBob.Z);
             }
 
-            MatrixD matrix = WorldMatrix;
             MatrixD headPosition = matrixRotation * m_headMatrix * WorldMatrix;
             //headPosition.Translation += WorldMatrix.Up * 0.04f;
             //Vector3 translation = Vector3.Transform(headPosition, WorldMatrix);
@@ -4191,18 +4240,28 @@ namespace Sandbox.Game.Entities.Character
 
             MatrixD orientMatrix = Definition.VerticalPositionFlyingOnly ? WorldMatrix : MatrixD.CreateFromDir((Vector3D)imagDir, WorldMatrix.Up);
 
-            matrix.Translation = Vector3D.Zero;
-            matrix = m_headMatrix * matrixRotation * orientMatrix;
-
+            MatrixD matrix = m_headMatrix * matrixRotation * orientMatrix;
             matrix.Translation = headPosition.Translation;
 
             return matrix;
         }
 
-        public MatrixD GetHeadMatrix(bool includeY, bool includeX = true, bool forceHeadAnim = false, bool forceHeadBone = false,bool sync = false)
+        public MatrixD GetHeadMatrix(bool includeY, bool includeX = true, bool forceHeadAnim = false, bool forceHeadBone = false, bool preferLocalOverSync = false)
         {
-            int headBone = IsInFirstPersonView || forceHeadBone || ForceFirstPersonCamera ? m_headBoneIndex : m_camera3rdBoneIndex;
-            return GetHeadMatrixInternal(headBone, includeY, includeX, forceHeadAnim, forceHeadBone, sync);
+            if (preferLocalOverSync || ControllerInfo.IsLocallyControlled())
+            {
+                int headBone = IsInFirstPersonView || forceHeadBone || ForceFirstPersonCamera ? m_headBoneIndex : m_camera3rdBoneIndex;
+                MatrixD headMatrix = GetHeadMatrixInternal(headBone, includeY, includeX, forceHeadAnim, forceHeadBone);
+                MatrixD headMatrixLocal = headMatrix * PositionComp.WorldMatrixInvScaled;
+                MyTransform transformToBeSent = new MyTransform(headMatrixLocal);
+                transformToBeSent.Rotation = Quaternion.Normalize(transformToBeSent.Rotation);
+                m_localHeadTransform.Value = transformToBeSent;
+                return headMatrix;
+            }
+            else
+            {
+                return m_localHeadTransform.Value.TransformMatrix * PositionComp.WorldMatrix;
+            }
         }
 
         public MatrixD Get3rdCameraMatrix(bool includeY, bool includeX = true)
@@ -4274,6 +4333,7 @@ namespace Sandbox.Game.Entities.Character
             }
 
             MatrixD matrix = GetHeadMatrix(false, true);
+            matrix.Translation = matrix.Translation + m_headSafeOffset;
 
             m_lastCorrectSpectatorCamera = MatrixD.Zero;
 
@@ -4423,7 +4483,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (shootingAction.HasValue && m_currentWeapon.CanShoot(shootingAction.Value, ControllerInfo.ControllingIdentityId, out status))
             {
-                m_currentWeapon.Shoot(shootingAction.Value, ShootDirection);
+                m_currentWeapon.Shoot(shootingAction.Value, ShootDirection, m_weaponPosition.Value);
                 UseAnimationForWeapon = MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon);
                 //if(!UseAnimationForWeapon)
                 // StopUpperCharacterAnimation(0);
@@ -4722,23 +4782,6 @@ namespace Sandbox.Game.Entities.Character
 
         public void SwitchToWeapon(MyDefinitionId? weaponDefinition, bool sync = true)
         {
-            //if (CurrentWeapon == null)
-            //{
-            //    if (!weaponDefinition.HasValue) return;
-            //}
-            /*else
-            {
-                if (weaponDefinition.HasValue)
-                {
-                    if (MyDefinitionManager.Static.HandItemExistsFor(weaponDefinition.Value))
-                    {
-                        var handItemId = MyDefinitionManager.Static.GetHandItemForPhysicalItem(weaponDefinition.Value).Id;
-                        if (CurrentWeapon.DefinitionId == handItemId)
-                            return;
-            }
-                }
-            }*/
-            // CH:TODO: This part of code seems to do nothing
             if (weaponDefinition.HasValue && m_rightHandItemBone == -1)
                 return;
 
@@ -4758,18 +4801,6 @@ namespace Sandbox.Game.Entities.Character
                     MySandboxGame.Log.WriteLine("weaponDefinition.Value = " + weaponDefinition);
                     return;
                 }
-
-                /*var physicalGunObject = item.Value.Content as MyObjectBuilder_PhysicalGunObject;
-                var gunEntity = physicalGunObject.GunEntity;
-                if (gunEntity == null)
-                {
-                    var handItemId = MyDefinitionManager.Static.TryGetHandItemForPhysicalItem(physicalGunObject.GetId()).Id;
-                    gunEntity = (MyObjectBuilder_EntityBase)MyObjectBuilderSerializer.CreateNewObject(handItemId);
-                }
-                else
-                {
-                    gunEntity.EntityId = 0;
-                }*/
 
                 SwitchToWeaponInternal(weaponDefinition, sync, item.Value.ItemId, 0);
             }
@@ -4781,6 +4812,11 @@ namespace Sandbox.Game.Entities.Character
 
         public void SwitchToWeapon(MyToolbarItemWeapon weapon)
         {
+            SwitchToWeapon(weapon, null);
+        }
+
+        public void SwitchToWeapon(MyToolbarItemWeapon weapon, uint? inventoryItemId)
+        {
             MyDefinitionId? weaponDefinition = null;
             if (weapon != null)
                 weaponDefinition = weapon.Definition.Id;
@@ -4790,7 +4826,15 @@ namespace Sandbox.Game.Entities.Character
 
             if (WeaponTakesBuilderFromInventory(weaponDefinition))
             {
-                var item = FindWeaponItemByDefinition(weaponDefinition.Value);
+                MyPhysicalInventoryItem? item = null;
+                if (inventoryItemId.HasValue)
+                {
+                    item = this.GetInventory().GetItemByID(inventoryItemId.Value);
+                }
+                else
+                {
+                    item = FindWeaponItemByDefinition(weaponDefinition.Value);
+                }
                 // This can pop-up after inventory truncation, which is OK. Uncomment for debugging
                 //Debug.Assert(item != null, "Character switched to a weapon not in the inventory");
                 if (item == null)
@@ -4804,18 +4848,6 @@ namespace Sandbox.Game.Entities.Character
                     MySandboxGame.Log.WriteLine("weaponDefinition.Value = " + weaponDefinition);
                     return;
                 }
-
-                /*var physicalGunObject = item.Value.Content as MyObjectBuilder_PhysicalGunObject;
-                var gunEntity = physicalGunObject.GunEntity;
-                if (gunEntity == null)
-                {
-                    var handItemId = MyDefinitionManager.Static.TryGetHandItemForPhysicalItem(physicalGunObject.GetId()).Id;
-                    gunEntity = (MyObjectBuilder_EntityBase)MyObjectBuilderSerializer.CreateNewObject(handItemId);
-                }
-                else
-                {
-                    gunEntity.EntityId = 0;
-                }*/
 
                 SwitchToWeaponInternal(weaponDefinition, true, item.Value.ItemId, 0);
             }
@@ -4832,13 +4864,6 @@ namespace Sandbox.Game.Entities.Character
                 Debug.Assert(weaponEntityId == 0);
                 //Because while waiting for answer we dont want to shoot from old weapon
                 UnequipWeapon();
-
-                /*//We want have same ID on all clients
-                long weaponEntityIdSync = weaponEntityId;
-                if (weaponDefinition != null && weaponEntityIdSync == 0)
-                {
-                    weaponEntityIdSync = MyEntityIdentifier.AllocateId(MyEntityIdentifier.ID_OBJECT_TYPE.ENTITY);
-                }*/
 
                 RequestSwitchToWeapon(weaponDefinition, inventoryItemId);
                 return;
@@ -6062,6 +6087,18 @@ namespace Sandbox.Game.Entities.Character
                         return false; // No Friendly Fire Enabled!
                     }
                 }
+
+                if (damage >= 0f && MySession.Static != null && MyMusicController.Static != null)
+                {
+                    if (this == MySession.Static.LocalCharacter && attacker is MyVoxelPhysics == false && attacker is MyCubeGrid == false)
+                        MyMusicController.Static.Fighting(false, (int)damage * 3);//not fall damage
+                    else if (attacker == MySession.Static.LocalCharacter)
+                        MyMusicController.Static.Fighting(false, (int)damage * 2);//attack other character
+                    else if (attacker is IMyGunBaseUser && (attacker as IMyGunBaseUser).Owner as MyCharacter == MySession.Static.LocalCharacter)
+                        MyMusicController.Static.Fighting(false, (int)damage * 2);//attack other character with gun
+                    else if (MySession.Static.ControlledEntity == attacker)
+                        MyMusicController.Static.Fighting(false, (int)damage);//attack other character with turret
+                }
             }
 
             MyDamageInformation damageInfo = new MyDamageInformation(false, damage, damageType, attackerId);
@@ -6153,7 +6190,7 @@ namespace Sandbox.Game.Entities.Character
                 MyThirdPersonSpectator.Static.LocalCharacterWasInThirdPerson = !IsInFirstPersonView;
 
             MyHud.CharacterInfo.HealthRatio = 0f;
-            SoundComp.PlaySecondarySound(CharacterSoundsEnum.DEATH_SOUND);
+            SoundComp.PlayDeathSound(StatComp != null ? StatComp.LastDamage.Type : MyStringHash.NullOrEmpty);
             if (UseNewAnimationSystem)
                 AnimationController.Variables.SetValue(MyAnimationVariableStorageHints.StrIdDead, 1.0f);
 
@@ -6936,14 +6973,17 @@ namespace Sandbox.Game.Entities.Character
 
         void UpdateWeaponPosition()
         {
-            var headMatrix = (IsInFirstPersonView || ForceFirstPersonCamera) ? MatrixD.Invert(MySector.MainCamera.ViewMatrix) : GetHeadMatrix(true,sync:true);
+            bool isLocallyControlled = ControllerInfo.IsLocallyControlled();
+            var headMatrix = GetHeadMatrix(!isLocallyControlled, !isLocallyControlled, true, true, preferLocalOverSync: true);
+
             m_crosshairPoint = headMatrix.Translation + headMatrix.Forward * 2000;
 
             float IKRatio = m_currentAnimationToIKTime / m_animationToIKDelay;
 
             var jetpack = JetpackComp;
             bool canFly = jetpack != null && jetpack.Running;
-            MatrixD weaponMatrixPositioned = GetHeadMatrix(false, !canFly, false, true);
+            //MatrixD weaponMatrixPositioned = GetHeadMatrix(!isLocallyControlled, true, false, true, preferLocalOverSync: true);
+            MatrixD weaponMatrixPositioned = GetHeadMatrix(false, !canFly, false, true, preferLocalOverSync: true);
 
             if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
             {
@@ -6973,10 +7013,11 @@ namespace Sandbox.Game.Entities.Character
             float shootBlendTime = m_handItemDefinition.ShootBlend;
 
             bool isWalkingState = IsWalkingState(m_currentMovementState);
-            MatrixD standingMatrix = m_isInFirstPerson ? m_handItemDefinition.ItemLocation : m_handItemDefinition.ItemLocation3rd;
-            MatrixD walkingMatrix = m_isInFirstPerson ? m_handItemDefinition.ItemWalkingLocation : m_handItemDefinition.ItemWalkingLocation3rd;
-            MatrixD shootingMatrix = m_isInFirstPerson ? m_handItemDefinition.ItemShootLocation : m_handItemDefinition.ItemShootLocation3rd;
+            MatrixD standingMatrix = isLocallyControlled && m_isInFirstPerson ? m_handItemDefinition.ItemLocation : m_handItemDefinition.ItemLocation3rd;
+            MatrixD walkingMatrix = isLocallyControlled && m_isInFirstPerson ? m_handItemDefinition.ItemWalkingLocation : m_handItemDefinition.ItemWalkingLocation3rd;
+            MatrixD shootingMatrix = isLocallyControlled && m_isInFirstPerson ? m_handItemDefinition.ItemShootLocation : m_handItemDefinition.ItemShootLocation3rd;
 
+            
             if (m_currentHandItemWalkingBlend != -1 && totalBlendTime > 0)
             {
                 m_currentHandItemWalkingBlend += 0.05f;
@@ -7081,6 +7122,7 @@ namespace Sandbox.Game.Entities.Character
             if (AnimationController.CharacterBones.IsValidIndex(m_spineBone))
                 spineMatrix = AnimationController.CharacterBones[m_spineBone].AbsoluteTransform;
 
+            
             float middle = m_currentMovementState == MyCharacterMovementEnum.Sprinting ? runMedAmp : medAmp;
 
             float waveValue = (spineMatrix.Translation.Y - middle);
@@ -7091,7 +7133,7 @@ namespace Sandbox.Game.Entities.Character
             float runScale = 1.0f;
             if (m_currentMovementState == MyCharacterMovementEnum.Sprinting)
                 runScale = m_handItemDefinition.RunMultiplier;
-            if (!m_isInFirstPerson)
+            if (!m_isInFirstPerson || !isLocallyControlled)
                 runScale *= m_handItemDefinition.AmplitudeMultiplier3rd;
 
             MatrixD ironsightMatrixPositioned = ironsightMatrix * weaponMatrixPositioned;
@@ -7107,8 +7149,7 @@ namespace Sandbox.Game.Entities.Character
                 weaponWorldTranslation += WorldMatrix.Forward * runScale * m_handItemDefinition.ZAmplitudeScale * (waveValue);
             }
             weaponMatrixPositionedWaved.Translation = weaponWorldTranslation;
-
-
+            
             if (m_currentWeapon is MyEngineerToolBase)
             {
                 ((MyEngineerToolBase)m_currentWeapon).SensorDisplacement = -weaponLocation.Translation;
@@ -7143,16 +7184,32 @@ namespace Sandbox.Game.Entities.Character
             // set position of weapon base on offset received from client
             MatrixD matWeapon = weaponFinalLocal;
 
-            if (MySession.Static.LocalCharacter == this)
+            if (ControllerInfo.IsLocallyControlled())
             {
                 m_weaponPosition.Value = matWeapon.Translation - WorldMatrix.Translation;
             }
             else
             {
-                matWeapon.Translation = m_weaponPosition.Value + WorldMatrix.Translation;
+                // No! We will m_weaponPosition to spawn bullets/to do raycast, but graphical position will remain
+                // matWeapon.Translation = m_weaponPosition.Value + WorldMatrix.Translation;
             }
 
             ((MyEntity)m_currentWeapon).WorldMatrix = matWeapon;
+
+            // all debugdraw for weapon pos update
+            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
+            {
+                MyRenderProxy.DebugDrawAxis(headMatrix, 0.5f, false);
+                MyRenderProxy.DebugDrawSphere((standingMatrix * PositionComp.WorldMatrix).Translation, 0.1f,
+                    Color.Yellow, 1, false);
+                MyRenderProxy.DebugDrawSphere((weaponLocation * WorldMatrix).Translation, 0.12f, Color.Green, 1, false);
+                MyRenderProxy.DebugDrawSphere((spineMatrix * WorldMatrix).Translation, 0.05f, Color.Pink, 1, false);
+                MyRenderProxy.DebugDrawSphere(weaponWorldTranslation, 0.1f, Color.Fuchsia, 1, false);
+                MyRenderProxy.DebugDrawAxis(weaponFinalLocalIK, 0.3f, false);
+                MyRenderProxy.DebugDrawSphere(weaponFinalLocalIK.Translation, 0.05f, Color.Red, 1, false);
+                MyRenderProxy.DebugDrawAxis(((MyEntity) m_currentWeapon).WorldMatrix, 0.3f, false);
+                MyRenderProxy.DebugDrawSphere(m_weaponPosition.Value + WorldMatrix.Translation, 0.1f, Color.Yellow, 1, false);
+            }
         }
 
         void UpdateLeftHandItemPosition()
@@ -7277,6 +7334,7 @@ namespace Sandbox.Game.Entities.Character
                 var inventory = Components.Get<MyInventoryBase>();
                 Components.Remove<MyInventoryBase>();
                 Components.Remove<MyCharacterJetpackComponent>();
+                Components.Remove<MyCharacterRagdollComponent>();
                 AnimationController.Clear();
 
                 var newModel = VRage.Game.Models.MyModels.GetModelOnlyData(def.Model);
@@ -8718,6 +8776,11 @@ namespace Sandbox.Game.Entities.Character
         void OnTeleport(Vector3D location)
         {
             PositionComp.SetPosition(location);
+        }
+
+        public Vector3 GetLocalWeaponPosition()
+        {
+            return m_weaponPosition.Value;
         }
     }
 }

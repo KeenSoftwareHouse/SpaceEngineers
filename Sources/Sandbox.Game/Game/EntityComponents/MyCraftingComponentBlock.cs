@@ -235,7 +235,10 @@ namespace Sandbox.Game.Components
                 {
                     var classDefinition = MyDefinitionManager.Static.GetBlueprintClass(blueprintClass);
                     System.Diagnostics.Debug.Assert(classDefinition != null, blueprintClass + " blueprint class definition was not found.");
-                    m_blueprintClasses.Add(classDefinition);
+                    if (classDefinition != null)
+                    {
+                        m_blueprintClasses.Add(classDefinition);
+                    }
                 }
 
                 foreach (var operatingItem in craftDefinition.AcceptedOperatingItems)

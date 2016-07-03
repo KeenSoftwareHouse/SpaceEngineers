@@ -39,12 +39,12 @@ namespace VRage.Game.Components
             if (container != null)
                 OnAddedToContainer();
         }
-
+#if !BLIT
         public virtual T GetAs<T>() where T : MyComponentBase
         {
             return this as T;
         }
-
+#endif
         /// <summary>
         /// Gets called after the container of this component changes
         /// </summary>

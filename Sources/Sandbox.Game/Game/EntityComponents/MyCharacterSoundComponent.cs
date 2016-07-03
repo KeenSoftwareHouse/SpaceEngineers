@@ -41,7 +41,8 @@ namespace Sandbox.Game.Components
 
 		PAIN_SOUND,
         SUFFOCATE_SOUND,
-		DEATH_SOUND,
+        DEATH_SOUND,
+        DEATH_SOUND_SUFFOCATE,
 
 		IRONSIGHT_ACT_SOUND,
 		IRONSIGHT_DEACT_SOUND,
@@ -172,6 +173,7 @@ namespace Sandbox.Game.Components
             if (m_character.Definition.PainSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.PAIN_SOUND] = new MySoundPair(m_character.Definition.PainSoundName);
             if (m_character.Definition.SuffocateSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.SUFFOCATE_SOUND] = new MySoundPair(m_character.Definition.SuffocateSoundName);
             if (m_character.Definition.DeathSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND] = new MySoundPair(m_character.Definition.DeathSoundName);
+            if (m_character.Definition.DeathBySuffocationSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND_SUFFOCATE] = new MySoundPair(m_character.Definition.DeathBySuffocationSoundName);
 
             if (m_character.Definition.IronsightActSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.IRONSIGHT_ACT_SOUND] = new MySoundPair(m_character.Definition.IronsightActSoundName);
             if (m_character.Definition.IronsightDeactSoundName != null) CharacterSounds[(int)CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND] = new MySoundPair(m_character.Definition.IronsightDeactSoundName);
@@ -421,6 +423,14 @@ namespace Sandbox.Game.Components
 		{
 			m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(CharacterSounds[(int)soundEnum], stopPrevious);
 		}
+
+        public void PlayDeathSound(MyStringHash damageType, bool stopPrevious = false)
+        {
+            if(damageType == LowPressure)
+                m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND_SUFFOCATE], stopPrevious);
+            else
+                m_soundEmitters[(int)MySoundEmitterEnum.SecondaryState].PlaySound(CharacterSounds[(int)CharacterSoundsEnum.DEATH_SOUND], stopPrevious);
+        }
 
 		public void StartSecondarySound(string cueName, bool sync = false)
 		{

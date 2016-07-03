@@ -127,6 +127,9 @@ namespace Sandbox
 
         public static void InitCheckSum()
         {
+#if BLIT
+			return; //everything's fine.
+#else
             try
             {
                 var checkSumFile = Path.Combine(MyFileSystem.ContentPath, "checksum.xml");
@@ -161,6 +164,7 @@ namespace Sandbox
             catch
             {
             }
+#endif
         }
 
         #region Special exception handling

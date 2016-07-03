@@ -1160,6 +1160,25 @@
     <SpawnGroup>
       <Id>
         <TypeId>SpawnGroupDefinition</TypeId>
+        <SubtypeId>The_Pilgrims_Curiosity</SubtypeId>
+      </Id>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <Frequency>0.5</Frequency>
+      <Prefabs>
+        <Prefab SubtypeId="The_Pilgrims_Curiosity">
+          <Position>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+          </Position>
+          <BeaconText>The Pilgrims Curiosity</BeaconText>
+          <Speed>25.0</Speed>
+        </Prefab>
+      </Prefabs>
+    </SpawnGroup>
+    <SpawnGroup>
+      <Id>
+        <TypeId>SpawnGroupDefinition</TypeId>
         <SubtypeId>Trade1</SubtypeId>
       </Id>
       <Icon>Textures\GUI\Icons\Fake.dds</Icon>
@@ -1434,7 +1453,7 @@
         <SubtypeId>PirateCarrier</SubtypeId>
       </Id>
       <Icon>Textures\GUI\Icons\Fake.dds</Icon>
-      <Frequency>2</Frequency>
+      <Frequency>0.5</Frequency>
       <Prefabs>
         <Prefab SubtypeId="Argentavis_mk.1">
           <Position>
@@ -1654,6 +1673,7 @@
         </Prefab>
       </Prefabs>
     </SpawnGroup>
-
+    
   </SpawnGroups>
 </Definitions>
+

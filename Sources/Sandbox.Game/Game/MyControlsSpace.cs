@@ -32,6 +32,7 @@ namespace Sandbox.Game
         public static readonly MyStringId HEADLIGHTS = MyStringId.GetOrCompute("HEADLIGHTS");
         public static readonly MyStringId SCREENSHOT = MyStringId.GetOrCompute("SCREENSHOT");
         public static readonly MyStringId LOOKAROUND = MyStringId.GetOrCompute("LOOKAROUND"); // looking inside cockpit
+        public static readonly MyStringId TOGGLE_SIGNALS = MyStringId.GetOrCompute("TOGGLE_SIGNALS"); // Toggling signals render mode on/off
         public static readonly MyStringId SWITCH_LEFT = MyStringId.GetOrCompute("SWITCH_LEFT"); // Previous Color. Default key '['.
         public static readonly MyStringId SWITCH_RIGHT = MyStringId.GetOrCompute("SWITCH_RIGHT"); // Next Color. Default key ']'.
         public static readonly MyStringId CUBE_COLOR_CHANGE = MyStringId.GetOrCompute("CUBE_COLOR_CHANGE");

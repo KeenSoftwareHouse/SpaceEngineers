@@ -30,7 +30,7 @@ namespace VRageMath.Spatial
             private int m_previousIndex;
             private int m_storageIndex;
 
-            private Vector3I.RangeIterator m_rangeIterator;
+            private Vector3I_RangeIterator m_rangeIterator;
 
             public SphereQuery(MyVector3Grid<T> parent, ref Vector3 point, float dist)
             {
@@ -42,7 +42,7 @@ namespace VRageMath.Spatial
                 Vector3I start = m_parent.GetBinIndex(point - offset);
                 Vector3I end = m_parent.GetBinIndex(point + offset);
 
-                m_rangeIterator = new Vector3I.RangeIterator(ref start, ref end);
+                m_rangeIterator = new Vector3I_RangeIterator(ref start, ref end);
 
                 m_previousIndex = -1;
                 m_storageIndex = -1;

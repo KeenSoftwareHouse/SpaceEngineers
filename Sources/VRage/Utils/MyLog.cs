@@ -35,6 +35,7 @@ namespace VRage.Utils
         ALL = (SESSION_SETTINGS << 1) - 1,
     }
 
+	[Unsharper.UnsharperDisableReflection()]
     public class MyLog
     {
         public struct IndentToken : IDisposable
@@ -398,6 +399,9 @@ namespace VRage.Utils
         //  Log info about ThreadPool
         public void LogThreadPoolInfo()
         {
+#if BLIT
+			Debug.Assert(false);
+#else
             if (m_enabled == false) return;
 
             WriteLine("LogThreadPoolInfo - START");
@@ -420,6 +424,7 @@ namespace VRage.Utils
 
             DecreaseIndent();
             WriteLine("LogThreadPoolInfo - END");
+#endif
         }
 
         //	Return message with included datetime information. We are using when logging.

@@ -31,12 +31,12 @@ namespace SpaceEngineers.Game.Entities.Weapons
             //PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(typeof(MyObjectBuilder_PhysicalGunObject), "CubePlacerItem");
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             if (MySession.Static.CreativeMode)
                 return;
 
-            base.Shoot(action, direction, gunAction);
+            base.Shoot(action, direction, overrideWeaponPos, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction && !m_firstShot)
             {

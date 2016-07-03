@@ -30,8 +30,11 @@ namespace VRage
         static Dictionary<long, IMyEntity> m_entityList { get { return (m_perThreadData ?? m_mainData).EntityList; } }
 
         // Want to share, always accessed through interlocked, safe
+#if UNSHARPER
+		static long[] m_lastGeneratedIds = new long[(int)MyEnum_Range<ID_OBJECT_TYPE>.Max + 1];
+#else
         static long[] m_lastGeneratedIds = new long[(int)MyEnum<ID_OBJECT_TYPE>.Range.Max + 1];
-
+#endif
         /// <summary>
         /// Freezes allocating entity ids.
         /// This is important, because during load, no entity cannot allocate new id, because it could allocate id which already has entity which will be loaded soon.
@@ -106,6 +109,7 @@ namespace VRage
             Array.Clear(m_lastGeneratedIds, 0, m_lastGeneratedIds.Length);
         }
 
+#if !UNSHARPER
         /// <summary>
         /// This method is used when loading existing entity IDs to track the last generated ID
         /// </summary>
@@ -116,6 +120,7 @@ namespace VRage
 
             MyUtils.InterlockedMax(ref m_lastGeneratedIds[(byte)type], num);
         }
+#endif
 
         /// <summary>
         /// Registers entity with given ID. Do not call this directly, it is called automatically

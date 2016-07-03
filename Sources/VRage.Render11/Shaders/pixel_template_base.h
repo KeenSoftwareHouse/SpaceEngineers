@@ -15,6 +15,7 @@ struct PixelInterface
 {
 	float3 screen_position;
 	float3 key_color;
+	float hologram;
 	float custom_alpha;
 	float3 color_mul;
 	float emissive;
@@ -33,6 +34,7 @@ void init_ps_interface(inout PixelInterface pix) {
 	pix.emissive = 0;
 	pix.material_index = 0;
 	pix.material_flags = 0;
+	pix.hologram = 0;
 #ifndef PASS_OBJECT_VALUES_THROUGH_STAGES
 	pix.material_index = object_.material_index;
 	pix.material_flags = object_.material_flags;

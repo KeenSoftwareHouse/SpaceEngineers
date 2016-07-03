@@ -287,7 +287,8 @@ namespace Sandbox.Game.Gui
 
         void ActionWriter(TBlock block, StringBuilder appendTo)
         {
-            (CompactWriter ?? Writer)(block, appendTo);
+			var wr = CompactWriter ?? Writer;
+            wr(block, appendTo);
         }
 
         private void SetActions(params MyTerminalAction<TBlock>[] actions)

@@ -208,6 +208,8 @@ namespace Sandbox.Definitions
 
         public MyPlanetEnvironmentalSoundRule[] SoundRules;
 
+        public List<MyMusicCategory> MusicCategories = null;
+
         // May need some acceleration on the rules.
         public MyPlanetMaterialGroup[] MaterialGroups = new MyPlanetMaterialGroup[0];
 
@@ -257,6 +259,7 @@ namespace Sandbox.Definitions
             Atmosphere = parent.Atmosphere;
 			CloudLayers = parent.CloudLayers;
             SoundRules = parent.SoundRules;
+            MusicCategories = parent.MusicCategories;
             HillParams = parent.HillParams;
             MaterialsMaxDepth = parent.MaterialsMaxDepth;
             MaterialsMinDepth = parent.MaterialsMinDepth;
@@ -318,6 +321,8 @@ namespace Sandbox.Definitions
                     SoundRules[ruleIndex] = sr;
                 }
             }
+            if (ob.MusicCategories != null)
+                MusicCategories = ob.MusicCategories;
 
             if (ob.HillParams.HasValue)
                 HillParams = ob.HillParams.Value;
@@ -337,9 +342,10 @@ namespace Sandbox.Definitions
 
             if (ob.CustomMaterialTable != null && ob.CustomMaterialTable.Length > 0)
             {
-                SurfaceMaterialTable = ob.CustomMaterialTable;
+                SurfaceMaterialTable = new MyPlanetMaterialDefinition[ob.CustomMaterialTable.Length];
                 for (int i = 0; i < SurfaceMaterialTable.Length; i++)
                 {
+                    SurfaceMaterialTable[i] = ob.CustomMaterialTable[i].Clone() as MyPlanetMaterialDefinition;
                     if (SurfaceMaterialTable[i].Material == null && !SurfaceMaterialTable[i].HasLayers)
                     {
                         MyLog.Default.WriteLine("Custom material does not contain any material ids.");
@@ -379,11 +385,13 @@ namespace Sandbox.Definitions
 
             if (ob.ComplexMaterials != null && ob.ComplexMaterials.Length > 0)
             {
-                MaterialGroups = ob.ComplexMaterials;
+                MaterialGroups = new MyPlanetMaterialGroup[ob.ComplexMaterials.Length];
 
                 for (int k = 0; k < ob.ComplexMaterials.Length; k++)
                 {
-                    var group = ob.ComplexMaterials[k];
+                    MaterialGroups[k] = ob.ComplexMaterials[k].Clone() as MyPlanetMaterialGroup;
+
+                    var group = MaterialGroups[k];
                     var matRules = group.MaterialRules;
                     List<int> badMaterials = new List<int>();
 
@@ -428,11 +436,11 @@ namespace Sandbox.Definitions
 
                 for (int i = 0; i < ob.EnvironmentItems.Length; i++)
                 {
-                    var map = ob.EnvironmentItems[i];
-                    if (map.Rule == null)
-                    {
+                    PlanetEnvironmentItemMapping map = ob.EnvironmentItems[i];
+                    if (map.Rule != null)
+                        map.Rule = map.Rule.Clone() as MyPlanetSurfaceRule;
+                    else
                         map.Rule = new MyPlanetSurfaceRule();
-                    }
                     map.Rule.Slope.ConvertToCosine();
                     map.Rule.Latitude.ConvertToSine();
                     map.Rule.Longitude.ConvertToCosineLongitude();

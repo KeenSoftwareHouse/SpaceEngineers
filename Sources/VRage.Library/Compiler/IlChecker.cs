@@ -4,8 +4,11 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+
 namespace VRage.Compiler
 {
+#if UNSHARPER
+#else
     public class IlChecker
     {
         public static Dictionary<Type, HashSet<MemberInfo>> AllowedOperands = new Dictionary<Type, HashSet<MemberInfo>>();
@@ -337,4 +340,6 @@ namespace VRage.Compiler
             AllowedNamespacesModAPI.Clear();
         }
     }
+#endif
 }
+

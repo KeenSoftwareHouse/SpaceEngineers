@@ -371,8 +371,9 @@ namespace Sandbox.Game.Entities
             }
             else if (Pilot != null)
             {
-                var headMatrix = Pilot.GetHeadMatrix(includeY, includeX, forceHeadAnim, IsInFirstPersonView);
-                headPosition = headMatrix.Translation + headMatrix.Backward * 0.15f + m_playerHeadSpring;
+                var headMatrix = Pilot.GetHeadMatrix(includeY, includeX, false, true, true);
+                //VRageRender.MyRenderProxy.DebugDrawAxis(headMatrix, 0.5f, false);
+                headPosition = headMatrix.Translation;
             }
 
             world.Translation = headPosition;
@@ -896,7 +897,8 @@ namespace Sandbox.Game.Entities
                 //Disable FPS mode for large cockpit
                 if (MySession.Static.IsCameraControlledObject() && MySession.Static.Settings.Enable3rdPersonView)
                 {
-                    MySession.Static.SetCameraController(MyCameraControllerEnum.ThirdPersonSpectator);
+                    if (Pilot != null && Pilot.ControllerInfo.IsLocallyControlled())
+                        MySession.Static.SetCameraController(MyCameraControllerEnum.ThirdPersonSpectator);
                 }
             }
 

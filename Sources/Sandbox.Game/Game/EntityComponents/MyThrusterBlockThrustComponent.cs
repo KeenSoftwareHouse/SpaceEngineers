@@ -26,9 +26,9 @@ namespace Sandbox.Game.EntityComponents
 		private float m_levitationPeriodLength = 1.3f;
 		private float m_levitationTorqueCoeficient = 0.25f;
 
-		protected override void UpdateThrusts()
+        protected override void UpdateThrusts(bool networkUpdate = false)
 		{
-			base.UpdateThrusts();
+            base.UpdateThrusts(networkUpdate);
 
             ProfilerShort.Begin("ThrusterBlockComponent.UpdateThrusts");
             if (CubeGrid != null && CubeGrid.Physics != null)

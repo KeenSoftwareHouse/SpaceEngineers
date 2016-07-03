@@ -90,10 +90,22 @@ namespace VRage.Network
             RegisterEvents(Type.Type, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Instance);
         }
 
+		class EventReturn
+		{
+			public MethodInfo Method;
+			public EventAttribute Event;
+
+			public EventReturn(EventAttribute _event, MethodInfo _method)
+			{
+				Event = _event;
+				Method = _method;
+			}
+		};
+
         void RegisterEvents(Type type, BindingFlags flags)
         {
             var query = type.GetMethods(flags)
-                .Select(s => new { Event = s.GetCustomAttribute<EventAttribute>(), Method = s })
+                .Select(s => new EventReturn(s.GetCustomAttribute<EventAttribute>(), s))
                 .Where(s => s.Event != null)
                 .OrderBy(s => s.Event.Order);
             
@@ -122,6 +134,11 @@ namespace VRage.Network
 
         CallSite CreateCallSite<T1, T2, T3, T4, T5, T6, T7>(MethodInfo info, uint id)
         {
+
+#if BLIT
+			Debug.Assert(false, "To implement expression");
+			return null;
+#else
             Type[] arguments = new Type[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7) };
             var p = arguments.Select(s => Expression.Parameter(s)).ToArray();
 
@@ -173,6 +190,7 @@ namespace VRage.Network
             validator = validator ?? CreateValidator<T1, T2, T3, T4, T5, T6, T7>();
 
             return new CallSite<T1, T2, T3, T4, T5, T6, T7>(Type, id, info, flags, handler, serializer, validator);
+#endif
         }
 
         SerializeDelegate<T1, T2, T3, T4, T5, T6, T7> CreateSerializer<T1, T2, T3, T4, T5, T6, T7>(MethodInfo info)

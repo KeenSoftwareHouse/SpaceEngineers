@@ -130,7 +130,8 @@ namespace VRageMath
         /// Gets the array of points that make up the corners of the BoundingBoxI.
         /// </summary>
         /// <param name="corners">An existing array of at least 8 Vector3I points where the corners of the BoundingBoxI are written.</param>
-        public unsafe void GetCornersUnsafe(Vector3I* corners)
+		[Unsharper.UnsharperDisableReflection()]
+		public unsafe void GetCornersUnsafe(Vector3I* corners)
         {
             corners[0].X = this.Min.X;
             corners[0].Y = this.Max.Y;
@@ -268,9 +269,9 @@ namespace VRageMath
             bool flag = false;
             Vector3I result1 = new Vector3I(int.MaxValue);
             Vector3I result2 = new Vector3I(int.MinValue);
-            foreach (Vector3I Vector3I in points)
+            foreach (Vector3I v3i in points)
             {
-                Vector3I vec3 = Vector3I;
+                Vector3I vec3 = v3i;
                 Vector3I.Min(ref result1, ref vec3, out result1);
                 Vector3I.Max(ref result2, ref vec3, out result2);
                 flag = true;

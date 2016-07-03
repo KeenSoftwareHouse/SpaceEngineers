@@ -194,7 +194,7 @@ namespace VRageRender
                     {
                         var r = actor.GetRenderable();
 
-                        var modelId = MyMeshes.GetMeshId(X.TEXT(rMessage.Model));
+                        var modelId = MyMeshes.GetMeshId(X.TEXT_(rMessage.Model));
                         if(r.GetModel() != modelId)
                         {
                             r.SetModel(modelId);
@@ -258,7 +258,7 @@ namespace VRageRender
                     var actor = MyActorFactory.CreateSceneObject();
                     if (rMessage.Model != null)
                     {
-                        actor.GetRenderable().SetModel(MyMeshes.GetMeshId(X.TEXT(rMessage.Model)));
+                        actor.GetRenderable().SetModel(MyMeshes.GetMeshId(X.TEXT_(rMessage.Model)));
                     }
 
                     actor.SetID(rMessage.ID);
@@ -289,7 +289,7 @@ namespace VRageRender
 					{
 						var model = MyAssetsLoader.ModelRemap.Get(rMessage.Model, rMessage.Model);
 
-						actor.GetRenderable().SetModel(MyMeshes.GetMeshId(X.TEXT(model)));
+						actor.GetRenderable().SetModel(MyMeshes.GetMeshId(X.TEXT_(model)));
 					}
 
 					actor.SetID(rMessage.ID);
@@ -638,7 +638,7 @@ namespace VRageRender
                     actor.SetMatrix(ref MatrixD.Identity);
 
                     MyMeshMaterials1.GetMaterialId("__ROPE_MATERIAL", null, rMessage.ColorMetalTexture, rMessage.NormalGlossTexture, rMessage.ExtensionTexture, MyMesh.DEFAULT_MESH_TECHNIQUE);
-                    actor.GetRenderable().SetModel(MyMeshes.CreateRuntimeMesh(X.TEXT("LINE" + rMessage.ID), 1, true));
+                    actor.GetRenderable().SetModel(MyMeshes.CreateRuntimeMesh(X.TEXT_("LINE" + rMessage.ID), 1, true));
 
                     break;
                 }
@@ -664,7 +664,7 @@ namespace VRageRender
                             new MySectionInfo { TriCount = indices.Length / 3, IndexStart = 0, MaterialName = "__ROPE_MATERIAL" } 
                         };
 
-                        MyMeshes.UpdateRuntimeMesh(MyMeshes.GetMeshId(X.TEXT("LINE" + rMessage.ID)), 
+                        MyMeshes.UpdateRuntimeMesh(MyMeshes.GetMeshId(X.TEXT_("LINE" + rMessage.ID)), 
                             indices, 
                             stream0, 
                             stream1, 
@@ -720,7 +720,7 @@ namespace VRageRender
                                 stream1[i] = new MyVertexFormatTexcoordNormalTangent(
                                     rMessage.ModelData.TexCoords[i], rMessage.ModelData.Normals[i], rMessage.ModelData.Tangents[i]);
                             }
-                            var id = MyMeshes.CreateRuntimeMesh(X.TEXT(rMessage.Name), rMessage.ModelData.Sections.Count, false);
+                            var id = MyMeshes.CreateRuntimeMesh(X.TEXT_(rMessage.Name), rMessage.ModelData.Sections.Count, false);
                             MyMeshes.UpdateRuntimeMesh(id, indices, stream0, stream1, rMessage.ModelData.Sections.ToArray(), rMessage.ModelData.AABB);
                         }
 
@@ -747,7 +747,7 @@ namespace VRageRender
                     if (actor != null)
                     {
                         // careful, lod is ignored after all (properties apply to all lods)
-                        var key = new MyEntityMaterialKey { LOD = rMessage.LOD, Material = X.TEXT(rMessage.MaterialName) };
+                        var key = new MyEntityMaterialKey { LOD = rMessage.LOD, Material = X.TEXT_(rMessage.MaterialName) };
 
                         if(rMessage.Enabled.HasValue)
                         {
@@ -822,7 +822,7 @@ namespace VRageRender
                     var rMessage = (MyRenderMessagePreloadModel) message;
 
                     //MyAssetsLoader.GetModel(rMessage.Name);
-                    MyMeshes.GetMeshId(X.TEXT(rMessage.Name));
+                    MyMeshes.GetMeshId(X.TEXT_(rMessage.Name));
 
                     break;
                 }
@@ -835,7 +835,7 @@ namespace VRageRender
                     if (actor != null)
                     {
                         var r = actor.GetRenderable();
-                        var key = new MyEntityMaterialKey { LOD = 0, Material = X.TEXT(rMessage.MaterialName) };
+                        var key = new MyEntityMaterialKey { LOD = 0, Material = X.TEXT_(rMessage.MaterialName) };
 
                         if (!r.ModelProperties.ContainsKey(key))
                         {
@@ -849,7 +849,7 @@ namespace VRageRender
                             foreach(var s in rMessage.Changes)
                             {
                                 r.ModelProperties[key].TextureSwaps.Add(new MyMaterialTextureSwap { 
-                                    TextureName = X.TEXT(s.TextureName), 
+                                    TextureName = X.TEXT_(s.TextureName), 
                                     MaterialSlot = s.MaterialSlot
                                 });
                             }
@@ -865,7 +865,7 @@ namespace VRageRender
                                     {
                                         r.ModelProperties[key].TextureSwaps[i] = new MyMaterialTextureSwap
                                         {
-                                            TextureName = X.TEXT(s.TextureName),
+                                            TextureName = X.TEXT_(s.TextureName),
                                             MaterialSlot = s.MaterialSlot
                                         };
                                         swapped = true;
@@ -877,7 +877,7 @@ namespace VRageRender
                                 {
                                     r.ModelProperties[key].TextureSwaps.Add(new MyMaterialTextureSwap
                                         {
-                                            TextureName = X.TEXT(s.TextureName),
+                                            TextureName = X.TEXT_(s.TextureName),
                                             MaterialSlot = s.MaterialSlot
                                         });
                                 }
@@ -919,7 +919,7 @@ namespace VRageRender
                     if (actor != null)
                     {
                         var renderableComponent = actor.GetRenderable();
-                        var key = new MyEntityMaterialKey { LOD = 0, Material = X.TEXT(rMessage.MaterialName) };
+                        var key = new MyEntityMaterialKey { LOD = 0, Material = X.TEXT_(rMessage.MaterialName) };
 
                         if (!renderableComponent.ModelProperties.ContainsKey(key))
                             renderableComponent.ModelProperties[key] = new MyModelProperties();
@@ -954,7 +954,7 @@ namespace VRageRender
                             MySpritesRenderer.PopState();
                             
 
-                            MyRender11.DeviceContext.GenerateMips(handle.ShaderView);
+                            MyRender11.DeviceContext.GenerateMips(handle.SRV);
 
                             actor.MarkRenderDirty();
                         }
@@ -976,7 +976,7 @@ namespace VRageRender
                     var rMessage = (MyRenderMessagePreloadMaterials)message;
 
                     //MyAssetsLoader.GetMaterials(rMessage.Name);
-                    MyMeshes.GetMeshId(X.TEXT(rMessage.Name));
+                    MyMeshes.GetMeshId(X.TEXT_(rMessage.Name));
 
                     break;
                 }
@@ -1134,7 +1134,7 @@ namespace VRageRender
                         MyLights.UpdateGlare(light, new MyGlareDesc
                             {
                                 Enabled = rMessage.GlareOn,
-                                Material = X.TEXT(rMessage.GlareMaterial),
+                                Material = X.TEXT_(rMessage.GlareMaterial),
                                 Intensity = rMessage.GlareIntensity,
                                 QuerySize = rMessage.GlareQuerySize,
                                 Type = rMessage.GlareType,

@@ -268,7 +268,7 @@ namespace SpaceEngineers
                 if (!MySandboxGame.IsDedicated)
                     MyFileSystem.InitUserSpecific(steamService.UserId.ToString());
 
-                using (MySandboxGame game = new MySandboxGame(services, args))
+                using (SpaceEngineersGame game = new SpaceEngineersGame(services, args))
                 {
                     VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
                     VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();

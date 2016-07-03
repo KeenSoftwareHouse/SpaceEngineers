@@ -103,7 +103,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 Vector3I begin = block.Min;
                 Vector3I end = block.Max;
                 Vector3I pos = begin;
-                for (var it = new Vector3I.RangeIterator(ref begin, ref end); it.IsValid(); it.GetNext(out pos))
+                for (var it = new Vector3I_RangeIterator(ref begin, ref end); it.IsValid(); it.GetNext(out pos))
                     m_segmentation.AddInput(pos);
             }
 

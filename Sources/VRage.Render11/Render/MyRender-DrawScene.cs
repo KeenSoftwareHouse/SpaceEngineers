@@ -36,7 +36,6 @@ namespace VRageRender
 
         internal static void Init()
         {
-            ResetShadows(MyRenderProxy.Settings.ShadowCascadeCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
             DynamicGeometryRenderer = new MyGeometryRenderer(MyScene.DynamicRenderablesDBVH, DynamicShadows);
             if (MyScene.SeparateGeometry)
                 StaticGeometryRenderer = new MyGeometryRenderer(MyScene.StaticRenderablesDBVH, StaticShadows);
@@ -61,7 +60,11 @@ namespace VRageRender
                 }
             }
         }
-
+        private static void InitShadows(int cascadeCount, int cascadeResolution)
+        {
+            DynamicShadows = new MyShadows(cascadeCount, cascadeResolution);
+            StaticShadows = new MyShadows(cascadeCount, cascadeResolution);
+        }
         private static void ResetShadows(int cascadeCount, int cascadeResolution)
         {
             if (DynamicShadows != null)

@@ -5,6 +5,10 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders;
+using VRage.Utils;
+using System.Text;
+using Sandbox.Graphics.GUI;
+using System;
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -89,6 +93,14 @@ namespace Sandbox.Game.Screens.Helpers
             }
             bool enabled = m_lastAmount > 0;
             return changed | SetEnabled(enabled);
+        }
+
+        public override void FillGridItem(MyGuiControlGrid.Item gridItem)
+        {
+            if (m_lastAmount > 0)
+                gridItem.AddText(String.Format("{0}x", m_lastAmount), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
+            else
+                gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
         }
     }
 }

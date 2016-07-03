@@ -1106,8 +1106,8 @@
                   <X>239</X>
                   <Y>-3</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\cockpit1_small.mwm</PathToModel>
-                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <PathToModel>Models\Characters\Animations\cockpit1_large.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_cockpitlarge_01</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
                 <Interpolate>true</Interpolate>

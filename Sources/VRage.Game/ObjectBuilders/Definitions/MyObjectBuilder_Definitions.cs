@@ -154,6 +154,14 @@ namespace VRage.Game
         [ProtoMember]
         public MyObjectBuilder_SoundCategoryDefinition[] SoundCategories;
 
+        [XmlArrayItem("ShipSoundGroup", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_ShipSoundsDefinition>))]
+        [ProtoMember]
+        public MyObjectBuilder_ShipSoundsDefinition[] ShipSoundGroups;
+
+        [XmlElement("ShipSoundSystem", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_ShipSoundSystemDefinition>))]
+        [ProtoMember]
+        public MyObjectBuilder_ShipSoundSystemDefinition ShipSoundSystem;
+
         [XmlArrayItem("AIBehavior", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_BehaviorTreeDefinition>))]
         [ProtoMember]
         public MyObjectBuilder_BehaviorTreeDefinition[] AIBehaviors;

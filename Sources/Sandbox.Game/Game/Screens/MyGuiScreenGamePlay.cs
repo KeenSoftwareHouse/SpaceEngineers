@@ -34,6 +34,7 @@ using VRage.Game.Entity;
 using VRage.Data.Audio;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.Game.Audio;
 
 #endregion
 
@@ -230,11 +231,16 @@ namespace Sandbox.Game.Gui
         private static void SetAudioVolumes()
         {
             MyAudio.Static.StopMusic();
-            //MyAudio.Static.PlayMusic();
-            MyAudio.Static.PlayMusic(new MyMusicTrack() { TransitionCategory = MyStringId.GetOrCompute("Default") });
             MyAudio.Static.VolumeMusic = MySandboxGame.Config.MusicVolume;
             MyAudio.Static.VolumeGame = MySandboxGame.Config.GameVolume;
             MyAudio.Static.VolumeHud = MySandboxGame.Config.GameVolume;
+
+            if (MyPerGameSettings.UseMusicController && MyFakes.ENABLE_MUSIC_CONTROLLER && MySandboxGame.IsDedicated == false)
+                MyMusicController.Static = new MyMusicController(MyAudio.Static.GetAllMusicCues());
+            if (MyMusicController.Static != null)
+                MyMusicController.Static.Active = true;
+            else
+                MyAudio.Static.PlayMusic(new MyMusicTrack() { TransitionCategory = MyStringId.GetOrCompute("Default") });
         }
 
         //  This method is called every update (but only if application has focus)
@@ -848,10 +854,14 @@ namespace Sandbox.Game.Gui
                     }
                     else
                     {
-                        if (MySession.Static.ControlledEntity is MyRemoteControl) // Stop the remotely controlled entity from rolling when the character tries to in freelook mode
+                        // Stop the controlled entity from rolling when the character tries to in freelook mode
+                        if (MySession.Static.ControlledEntity is MyRemoteControl || MySession.Static.ControlledEntity is MyCockpit || !MySession.Static.CameraController.IsInFirstPersonView)
+                        {
+                            rotationIndicator = Vector2.Zero;
                             rollIndicator = 0f;
+                        }
 
-                        MySession.Static.ControlledEntity.MoveAndRotate(moveIndicator, Vector2.Zero, rollIndicator);
+                        MySession.Static.ControlledEntity.MoveAndRotate(moveIndicator, rotationIndicator, rollIndicator);
                         if (!MySession.Static.CameraController.IsInFirstPersonView)
                             MyThirdPersonSpectator.Static.SaveSettings();
                     }

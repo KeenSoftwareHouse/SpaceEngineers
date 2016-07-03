@@ -379,6 +379,7 @@
       <PainSoundName>PlayVocPain</PainSoundName>
       <SuffocateSoundName>PlayChokeHit</SuffocateSoundName>
       <DeathSoundName>PlayVocDeath</DeathSoundName>
+      <DeathBySuffocationSoundName>RealPlayChokeDeath</DeathBySuffocationSoundName>
 
       <IronsightActSoundName>PlayIronSightActivate</IronsightActSoundName>
       <IronsightDeactSoundName>PlayIronSightDeactivate</IronsightDeactSoundName>

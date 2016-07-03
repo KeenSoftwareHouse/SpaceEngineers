@@ -10,6 +10,8 @@ namespace VRage.Algorithms
 {
     public class MyPathfindingData : HeapItem<float>
     {
+        private object m_lockObject = new object();
+
         private Dictionary<Thread, long> threadedTimestamp = new Dictionary<Thread, long>(); 
 
         public object Parent { get; private set; }
@@ -17,15 +19,20 @@ namespace VRage.Algorithms
         {
             get
             {
-                if (!threadedTimestamp.ContainsKey(Thread.CurrentThread))
-                    return 0;
-                return threadedTimestamp[Thread.CurrentThread];
+                long returnValue = 0;
+                lock (m_lockObject)
+                {
+                    if (!threadedTimestamp.TryGetValue(Thread.CurrentThread, out returnValue))
+                        returnValue = 0;
+                }
+                return returnValue;
             }
             set
             {
-                if (!threadedTimestamp.ContainsKey(Thread.CurrentThread))
-                    threadedTimestamp.Add(Thread.CurrentThread, value);
-                threadedTimestamp[Thread.CurrentThread] = value;
+                lock (m_lockObject)
+                {
+                    threadedTimestamp[Thread.CurrentThread] = value;
+                }
             }
         }
         internal MyPathfindingData Predecessor;

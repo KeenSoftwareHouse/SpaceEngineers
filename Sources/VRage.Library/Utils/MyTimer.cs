@@ -16,6 +16,9 @@ namespace VRage.Library.Utils
         private Action m_callback;
 
         private int mTimerId;
+		// P/Invoke declarations
+		public delegate void TimerEventHandler(int id, int msg, IntPtr user, int dw1, int dw2);
+
         private TimerEventHandler mHandler; // Must be here to prevent GC collection of delegate
 
         public MyTimer(int intervalMS, Action callback)
@@ -70,8 +73,6 @@ namespace VRage.Library.Utils
             Stop(); // Valid, releases unmanaged resources
         }
 
-        // P/Invoke declarations
-        public delegate void TimerEventHandler(int id, int msg, IntPtr user, int dw1, int dw2);
 
         private const int TIME_ONESHOT = 0;
         private const int TIME_PERIODIC = 1;

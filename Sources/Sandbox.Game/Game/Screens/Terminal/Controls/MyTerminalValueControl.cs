@@ -35,7 +35,7 @@ namespace Sandbox.Game.Screens.Terminal.Controls
         /// Serializer which (de)serializes the value.
         /// </summary>
         public SerializerDelegate Serializer;
-
+#if !BLIT
         public Expression<Func<TBlock, TValue>> MemberExpression
         {
             set
@@ -44,6 +44,7 @@ namespace Sandbox.Game.Screens.Terminal.Controls
                 Setter = new SetterDelegate(value.CreateSetter());
             }
         }
+#endif
 
         public MyTerminalValueControl(string id)
             : base(id)

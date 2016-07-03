@@ -120,7 +120,7 @@ namespace Sandbox.Game.GUI.DebugInputComponents
 
                                     box.Translate(-((Vector3D)storage.Size * .5) - .5);
 
-                                    MyRenderProxy.DebugDrawOBB(new MyOrientedBoundingBoxD(box, vmap.WorldMatrix), GetColorForDirty(chunk.Value.Dirty), 0.5f, true, true);
+                                    MyRenderProxy.DebugDrawOBB(new MyOrientedBoundingBoxD(box, vmap.WorldMatrix), GetColorForDirty(chunk.Value.Dirty), 0.1f, true, true);
                                 }
                             }
                         }

@@ -571,6 +571,10 @@ namespace Sandbox.Game.Entities
                 {
                     RemoveFloatingObject(obj);
                 }
+                else
+                {
+                    obj.SendCloseRequest();
+                }
             }
             else
             {

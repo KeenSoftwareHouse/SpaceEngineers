@@ -26,9 +26,9 @@ namespace Sandbox.Game.EntityComponents
         public MyCharacter Character { get { return Entity; } }
         public MyCharacterJetpackComponent Jetpack { get { return Character.JetpackComp; } }
 
-        protected override void UpdateThrusts()
+        protected override void UpdateThrusts(bool networkUpdate = false)
         {
-            base.UpdateThrusts();
+            base.UpdateThrusts(networkUpdate);
 
             ProfilerShort.Begin("MyJetpackThrustComponent.UpdateThrusts");
             if (Character != null &&

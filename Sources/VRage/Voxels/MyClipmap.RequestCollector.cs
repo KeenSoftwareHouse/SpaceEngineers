@@ -32,10 +32,10 @@ namespace VRage.Voxels
             struct CellRequest
             {
                 public UInt64 CellId;
-                public CellData Data;
+                public MyClipmap_CellData Data;
             }
 
-            public void AddRequest(UInt64 cellId, CellData data, bool highPriority)
+            public void AddRequest(UInt64 cellId, MyClipmap_CellData data, bool highPriority)
             {
                 var cellRequest = new CellRequest() { CellId = cellId, Data = data };
                 m_unsentRequests.Enqueue(cellRequest);

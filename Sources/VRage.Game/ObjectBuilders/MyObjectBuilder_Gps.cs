@@ -28,6 +28,9 @@ namespace VRage.Game
 
                 [ProtoMember]
                 public bool showOnHud;
+
+                [ProtoMember]
+                public bool alwaysVisible;
             }
 
             [ProtoMember]

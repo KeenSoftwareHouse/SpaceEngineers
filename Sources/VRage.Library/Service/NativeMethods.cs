@@ -7,6 +7,9 @@ namespace VRage.Service
 {
     internal static class NativeMethods
     {
+
+#if !BLIT
+
         public static readonly string DATABASE_ACTIVE = "ServicesActive";
         public static readonly string DATABASE_FAILED = "ServicesFailed";
         public const int MAX_COMPUTERNAME_LENGTH = 31;
@@ -294,6 +297,7 @@ namespace VRage.Service
         }
 
         [StructLayout(LayoutKind.Sequential)]
+		[Unsharper.UnsharperDisableReflection()]
         public class QUERY_SERVICE_CONFIG
         {
             public int dwServiceType;
@@ -354,6 +358,7 @@ namespace VRage.Service
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+		[Unsharper.UnsharperDisableReflection()]
         public struct SERVICE_FAILURE_ACTIONS
         {
             public uint dwResetPeriod;
@@ -376,5 +381,8 @@ namespace VRage.Service
             public int size;
             public int sessionId;
         }
+
+#endif
+
     }
 }

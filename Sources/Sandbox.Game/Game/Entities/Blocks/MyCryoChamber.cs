@@ -411,6 +411,8 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     if (m_soundEmitter.SoundId != BlockDefinition.InsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.InsideSound.Realistic)
                     {
+                        m_soundEmitter.Force2D = true;
+                        m_soundEmitter.Force3D = false;
                         if (m_soundEmitter.SoundId == BlockDefinition.OutsideSound.Arcade || m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Realistic)
                             m_soundEmitter.PlaySound(BlockDefinition.InsideSound, true);
                         else
@@ -421,6 +423,8 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     if (m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Arcade && m_soundEmitter.SoundId != BlockDefinition.OutsideSound.Realistic)
                     {
+                        m_soundEmitter.Force2D = false;
+                        m_soundEmitter.Force3D = true;
                         m_soundEmitter.PlaySound(BlockDefinition.OutsideSound, true);
                     }
                 }

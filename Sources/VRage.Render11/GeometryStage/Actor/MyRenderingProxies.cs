@@ -211,11 +211,11 @@ namespace VRageRender
         BIND_VS = 1,
         BIND_PS = 2
     }
-
+   
     struct MySrvTable
     {
         internal int StartSlot;
-        internal ShaderResourceView [] SRVs;
+        internal IShaderResourceBindable[] SRVs;
         internal MyBindFlag BindFlag;
         internal int Version;
     }

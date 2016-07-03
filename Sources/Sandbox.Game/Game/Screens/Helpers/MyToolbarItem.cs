@@ -1,19 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Sandbox.Definitions;
-using VRageMath;
-using Sandbox.Game.Screens.Helpers;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Entities;
 using Sandbox.Graphics.GUI;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Utils;
 
 namespace Sandbox.Game.Screens.Helpers
-{
+{    
     public abstract class MyToolbarItem
     {
         /// <summary>
@@ -34,7 +27,7 @@ namespace Sandbox.Game.Screens.Helpers
         public bool Enabled { get; private set; }
         public string[] Icons { get; private set; }
         public string SubIcon { get; private set; }
-        public virtual StringBuilder IconText { get; private set; }
+        public StringBuilder IconText { get; private set; }
         public StringBuilder DisplayName { get; private set; }
 
         //Each item type says whether or not it wants to be activated when dragged to toolbar (ie, yes for weapons/cube blocks, no for ship blocks/ship groups)
@@ -107,6 +100,14 @@ namespace Sandbox.Game.Screens.Helpers
             DisplayName.Clear();
             DisplayName.Append(newDisplayName);
             return ChangeInfo.DisplayName;
+        }
+
+        public virtual void FillGridItem(MyGuiControlGrid.Item gridItem)
+        {
+            if (IconText.Length == 0)
+                gridItem.ClearText(MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
+            else
+                gridItem.AddText(IconText, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM);
         }
 
         public override bool Equals(object obj)

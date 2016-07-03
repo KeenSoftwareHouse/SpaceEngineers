@@ -12,6 +12,7 @@ using System.Threading;
 using System.Xml;
 using VRageMath;
 using VRageRender;
+using System.Linq;
 
 
 namespace VRage.Utils
@@ -194,11 +195,14 @@ namespace VRage.Utils
 
         public static void CheckFloatValues(object graph, string name, ref double? min, ref double? max)
         {
+#if BLIT
+            Debug.Assert(false);
+#else
             if (new StackTrace().FrameCount > 1000)
             {
                 Debug.Fail("Infinite loop?");
             }
-
+#endif
             if (graph == null) return;
 
             if (graph is float)
@@ -929,6 +933,10 @@ namespace VRage.Utils
         {
             return list[GetRandomInt(list.Length)];
         }
+        public static T GetRandomItemFromList<T>(this List<T> list)
+        {
+            return list[GetRandomInt(list.Count)];
+        }
         /// <summary>
         /// Calculates distance from point 'from' to boundary of 'sphere'. If point is inside the sphere, distance will be negative.
         /// </summary>
@@ -1366,5 +1374,710 @@ namespace VRage.Utils
                 localMax = Interlocked.Read(ref storage);
             }
         }
+
+
+#if BLITCREMENTAL
+        //////////////////////////////////////////////////////////////
+        //contents of MyUtils-Hash.
+        //////////////////////////////////////////////////////////////
+
+        const int HashSeed = -2128831035; // 0x811C9DC5
+
+        private static int HashStep(int value, int hash)
+        {
+            hash = hash ^ value;
+            hash *= 16777619;
+            return hash;
+        }
+
+        public unsafe static int GetHash(double d, int hash = HashSeed)
+        {
+            if (d == 0)
+                return hash;//both positive and negative zeros go to same hash
+            UInt64 value = *(UInt64*)(&d);
+            unchecked
+            {
+                hash = HashStep((int)value, HashStep((int)(value >> 32), hash));
+            }
+            return hash;
+        }
+
+        public static int GetHash(string str, int hash = HashSeed)
+        {
+            //two chars per int32
+            if (str != null)
+            {
+                int i = 0;
+                for (; i < str.Length - 1; i += 2)
+                {
+                    hash = HashStep(((int)str[i] << 16) + (int)str[i + 1], hash);
+                }
+                if ((str.Length & 1) != 0)
+                {//last char
+                    hash = HashStep((int)str[i], hash);
+                }
+            }
+            return hash;
+        }
+
+        //public static Int32 GetHash(string text, Int32 seed = 0)
+        //{
+        //    int hash = seed;
+        //    unchecked
+        //    {
+        //        if (text != null)
+        //        {
+        //            foreach (char c in text)
+        //            {
+        //                hash = hash * 37 + c;
+        //            }
+        //        }
+        //        return hash;
+        //    }
+        //}
+
+        //////////////////////////////////////////////////////////////
+        //Contents of MyUtils-Mesh
+        //////////////////////////////////////////////////////////////
+
+
+        struct Edge : IEquatable<Edge>
+        {
+            public int I0;
+            public int I1;
+
+            public bool Equals(Edge other)
+            {
+                //return Equals(other.GetHashCode(), GetHashCode());
+                return other.GetHashCode() == GetHashCode();
+            }
+
+            public override int GetHashCode()
+            {
+                return I0 < I1 ? (I0.GetHashCode() * 397) ^ I1.GetHashCode() : (I1.GetHashCode() * 397) ^ I0.GetHashCode();
+            }
+        }
+
+        public static void GetOpenBoundaries(Vector3[] vertices, int[] indices, List<Vector3> openBoundaries)
+        {
+            System.Diagnostics.Debug.Assert(indices.Length > 0);
+            System.Diagnostics.Debug.Assert(indices.Length % 3 == 0);
+
+            Dictionary<int, List<int>> indicesRemap = new Dictionary<int, List<int>>(); //for same vertices
+            for (int i = 0; i < vertices.Length; i++)
+                for (int j = 0; j < i; j++)
+                {
+                    if (MyUtils.IsEqual(vertices[j], vertices[i]))
+                    {
+                        if (!indicesRemap.ContainsKey(j))
+                            indicesRemap[j] = new List<int>();
+
+                        indicesRemap[j].Add(i);
+                        break;
+                    }
+                }
+
+            foreach (var pair in indicesRemap)
+            {
+                foreach (var remapValue in pair.Value)
+                {
+                    for (int i = 0; i < indices.Length; i++)
+                    {
+                        if (indices[i] == remapValue)
+                            indices[i] = pair.Key;
+                    }
+                }
+            }
+
+
+            Dictionary<Edge, int> edgeCounts = new Dictionary<Edge, int>();
+
+            for (int i = 0; i < indices.Length; i += 3)
+            {
+                AddEdge(indices[i], indices[i + 1], edgeCounts);
+                AddEdge(indices[i + 1], indices[i + 2], edgeCounts);
+                AddEdge(indices[i + 2], indices[i], edgeCounts);
+            }
+
+            openBoundaries.Clear();
+            foreach (var edgeCount in edgeCounts)
+            {
+                System.Diagnostics.Debug.Assert(edgeCount.Value > 0);
+
+                if (edgeCount.Value == 1)
+                {
+                    openBoundaries.Add(vertices[edgeCount.Key.I0]);
+                    openBoundaries.Add(vertices[edgeCount.Key.I1]);
+                }
+            }
+        }
+
+        static void AddEdge(int i0, int i1, Dictionary<Edge, int> edgeCounts)
+        {
+            Edge edge = new Edge() { I0 = i0, I1 = i1 };
+
+            System.Diagnostics.Debug.Assert(edge.I0 != edge.I1);
+
+            var hash = edge.GetHashCode();
+
+            if (edgeCounts.ContainsKey(edge))
+                edgeCounts[edge] = edgeCounts[edge] + 1;
+            else
+                edgeCounts[edge] = 1;
+        }
+
+        //////////////////////////////////////////////////////////////
+        // MyUtils-Random
+        //////////////////////////////////////////////////////////////
+
+        [ThreadStatic]
+        static Random m_secretRandom;
+
+        static Random m_random
+        {
+            get
+            {
+                if (m_secretRandom == null)
+                {
+                    m_secretRandom = new Random();
+                }
+                return m_secretRandom;
+            }
+        }
+
+        public static int GetRandomInt(int maxValue)
+        {
+            return m_random.Next(maxValue);
+        }
+
+        //  Return random int in range <minValue...maxValue>, the range of return values includes minValue but not maxValue
+        public static int GetRandomInt(int minValue, int maxValue)
+        {
+            return m_random.Next(minValue, maxValue);
+        }
+
+        /// <summary>
+        /// Returns a uniformly-distributed random vector from inside of a box (-1,-1,-1), (1, 1, 1)
+        /// </summary>
+        public static Vector3 GetRandomVector3()
+        {
+            return new Vector3(GetRandomFloat(-1, 1), GetRandomFloat(-1, 1), GetRandomFloat(-1, 1));
+        }
+
+        /// <summary>
+        /// Returns a uniformly-distributed random vector from inside of a box (-1,-1,-1), (1, 1, 1)
+        /// </summary>
+        public static Vector3D GetRandomVector3D()
+        {
+            return new Vector3D(GetRandomFloat(-1, 1), GetRandomFloat(-1, 1), GetRandomFloat(-1, 1));
+        }
+
+        public static Vector3D GetRandomPerpendicularVector(ref Vector3D axis)
+        {
+            Debug.Assert(Vector3D.IsUnit(ref axis));
+            Vector3D tangent = Vector3D.CalculatePerpendicularVector(axis);
+            Vector3D bitangent; Vector3D.Cross(ref axis, ref tangent, out bitangent);
+            double angle = GetRandomDouble(0, 2 * MathHelper.Pi);
+            return Math.Cos(angle) * tangent + Math.Sin(angle) * bitangent;
+        }
+
+        public static Vector3D GetRandomDiscPosition(ref Vector3D center, double radius, ref Vector3D tangent, ref Vector3D bitangent)
+        {
+            Debug.Assert(Vector3D.IsUnit(ref tangent));
+            Debug.Assert(Vector3D.IsUnit(ref bitangent));
+            double radial = Math.Sqrt(GetRandomDouble(0, 1) * radius * radius);
+            double angle = GetRandomDouble(0, 2 * MathHelper.Pi);
+            return center + radial * (Math.Cos(angle) * tangent + Math.Sin(angle) * bitangent);
+        }
+
+        public static Vector3 GetRandomBorderPosition(ref BoundingSphere sphere)
+        {
+            return sphere.Center + GetRandomVector3Normalized() * sphere.Radius;
+        }
+
+        public static Vector3D GetRandomBorderPosition(ref BoundingSphereD sphere)
+        {
+            return sphere.Center + GetRandomVector3Normalized() * (float)sphere.Radius;
+        }
+
+        public static Vector3 GetRandomPosition(ref BoundingBox box)
+        {
+            return box.Center + GetRandomVector3() * box.HalfExtents;
+        }
+
+        public static Vector3D GetRandomPosition(ref BoundingBoxD box)
+        {
+            return box.Center + GetRandomVector3() * box.HalfExtents;
+        }
+
+        public static Vector3 GetRandomBorderPosition(ref BoundingBox box)
+        {
+            BoundingBoxD bbox = BoundingBoxD.ToBoundingBoxD(box);
+            return new Vector3(GetRandomBorderPosition(ref bbox));
+        }
+
+        public static Vector3D GetRandomBorderPosition(ref BoundingBoxD box)
+        {
+            Vector3D vec = box.Size;
+
+            // First, sample one of the six faces according to the face areas.
+            // Then, sample point uniformly in the sampled face
+            var surfaceReciproc = 2.0 / box.SurfaceArea;
+            var probXY = vec.X * vec.Y * surfaceReciproc;
+            var probXZ = vec.X * vec.Z * surfaceReciproc;
+            var probYZ = 1.0f - probXY - probXZ;
+
+            var rnd = m_random.NextDouble();
+            if (rnd < probXY)
+            {
+                if (rnd < probXY * 0.5)
+                    vec.Z = box.Min.Z;
+                else
+                    vec.Z = box.Max.Z;
+                vec.X = GetRandomDouble(box.Min.X, box.Max.X);
+                vec.Y = GetRandomDouble(box.Min.Y, box.Max.Y);
+                return vec;
+            }
+
+            rnd -= probXY;
+            if (rnd < probXZ)
+            {
+                if (rnd < probXZ * 0.5)
+                    vec.Y = box.Min.Y;
+                else
+                    vec.Y = box.Max.Y;
+                vec.X = GetRandomDouble(box.Min.X, box.Max.X);
+                vec.Z = GetRandomDouble(box.Min.Z, box.Max.Z);
+                return vec;
+            }
+
+            rnd -= probYZ;
+            if (rnd < probYZ * 0.5)
+                vec.X = box.Min.X;
+            else
+                vec.X = box.Max.X;
+            vec.Y = GetRandomDouble(box.Min.Y, box.Max.Y);
+            vec.Z = GetRandomDouble(box.Min.Z, box.Max.Z);
+            return vec;
+        }
+
+        //  Return random Vector3, always normalized
+        public static Vector3 GetRandomVector3Normalized()
+        {
+            float phi = GetRandomRadian();
+            float z = GetRandomFloat(-1.0f, 1.0f);
+            float root = (float)Math.Sqrt(1.0 - z * z);
+
+            return new Vector3D(root * Math.Cos(phi), root * Math.Sin(phi), z);
+        }
+
+        //  Random vector distributed over the hemisphere about normal. 
+        //  Returns random vector that always lies in hemisphere (half-sphere) defined by 'normal'
+        public static Vector3 GetRandomVector3HemisphereNormalized(Vector3 normal)
+        {
+            Vector3 randomVector = GetRandomVector3Normalized();
+
+            if (Vector3.Dot(randomVector, normal) < 0)
+            {
+                return -randomVector;
+            }
+            else
+            {
+                return randomVector;
+            }
+        }
+
+        //  Random vector distributed over the circle about normal. 
+        //  Returns random vector that always lies on circle
+        public static Vector3 GetRandomVector3CircleNormalized()
+        {
+            float angle = MyUtils.GetRandomRadian();
+
+            Vector3 v = new Vector3(
+                (float)Math.Sin(angle),
+                0,
+                (float)Math.Cos(angle));
+
+            return v;
+        }
+
+        //  Return by random +1 or -1. Nothing else. Propability is 50/50.
+        public static float GetRandomSign()
+        {
+            return Math.Sign((float)m_random.NextDouble() - 0.5f);
+        }
+
+        public static float GetRandomFloat()
+        {
+            return (float)m_random.NextDouble();
+        }
+
+        //  Return random float in range <minValue...maxValue>
+        public static float GetRandomFloat(float minValue, float maxValue)
+        {
+            return (float)m_random.NextDouble() * (maxValue - minValue) + minValue;
+        }
+
+        //  Return random double in range <minValue...maxValue>
+        public static double GetRandomDouble(double minValue, double maxValue)
+        {
+            return m_random.NextDouble() * (maxValue - minValue) + minValue;
+        }
+
+        //  Return random radian, covering whole circle 0..360 degrees (but returned value is in radians)
+        public static float GetRandomRadian()
+        {
+            return GetRandomFloat(0, 2 * MathHelper.Pi);
+        }
+
+        static byte[] m_randomBuffer = new byte[8];
+        public static long GetRandomLong()
+        {
+            m_random.NextBytes(m_randomBuffer);
+            return BitConverter.ToInt64(m_randomBuffer, 0);
+        }
+
+        /// <summary>
+        /// Returns a random TimeSpan between begin (inclusive) and end (exclusive).
+        /// </summary>
+        public static TimeSpan GetRandomTimeSpan(TimeSpan begin, TimeSpan end)
+        {
+            long rndTicks = GetRandomLong();
+            return new TimeSpan(begin.Ticks + rndTicks % (end.Ticks - begin.Ticks));
+        }
+
+        //////////////////////////////////////////////////////////////
+        // MyUtils-FileSystem
+        //////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Vytvori zadany adresar. Automaticky povytvara celu adresarovu strukturu, teda ak chcem vytvorit c:\volaco\opica
+        /// a c:\volaco zatial neexistuje, tak tato metoda ho vytvori.
+        /// </summary>
+        /// <param name="folderPath"></param>
+        public static void CreateFolder(String folderPath)
+        {
+            System.IO.Directory.CreateDirectory(folderPath);
+        }
+
+        // SHALLOW copy of a directory
+        public static void CopyDirectory(string source, string destination)
+        {
+            if (System.IO.Directory.Exists(source))
+            {
+                if (!Directory.Exists(destination))
+                    Directory.CreateDirectory(destination);
+
+                string[] files = Directory.GetFiles(source);
+
+                // Copy the files and overwrite destination files if they already exist.
+                foreach (string s in files)
+                {
+                    // Use static Path methods to extract only the file name from the path.
+                    string fileName = Path.GetFileName(s);
+                    string destFile = Path.Combine(destination, fileName);
+                    File.Copy(s, destFile, true);
+                }
+            }
+        }
+
+#if true //!BLIT
+        // Strips invalid chars in a filename (:, @, /, etc...)
+        public static string StripInvalidChars(string filename)
+        {
+            return Path.GetInvalidFileNameChars().Aggregate(filename, (current, c) => current.Replace(c.ToString(), string.Empty));
+        }
+#endif
+
+        //////////////////////////////////////////////////////////////
+        // MyUtils-String.cs
+        //////////////////////////////////////////////////////////////
+
+        public const string C_CRLF = "\r\n";
+
+        /// <summary>
+        /// Default number suffix, k = thousand, m = million, g/b = billion
+        /// </summary>
+        public static Tuple<string, float>[] DefaultNumberSuffix = new Tuple<string, float>[]
+        {
+            new Tuple<string, float>("k", 1000),
+            new Tuple<string, float>("m", 1000 * 1000),
+            new Tuple<string, float>("g", 1000 * 1000 * 1000),
+            new Tuple<string, float>("b", 1000 * 1000 * 1000),
+        };
+
+        //  Example: for AlignIntToRight(12, 4, "0") it returns "0012"
+        public static string AlignIntToRight(int value, int charsCount, char ch)
+        {
+            string ret = value.ToString();
+            int length = ret.Length;
+            if (length > charsCount) return ret;
+            return new string(ch, charsCount - length) + ret;
+        }
+
+        public static bool TryParseWithSuffix(this string text, NumberStyles numberStyle, IFormatProvider formatProvider, out float value, Tuple<string, float>[] suffix = null)
+        {
+            foreach (var s in suffix ?? DefaultNumberSuffix)
+            {
+                if (text.EndsWith(s.Item1, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    bool result = float.TryParse(text.Substring(0, text.Length - s.Item1.Length), numberStyle, formatProvider, out value);
+                    value *= s.Item2;
+                    return result;
+                }
+            }
+            return float.TryParse(text, out value);
+        }
+
+        #region Coordinate computation from alignment
+        /// <summary>
+        /// Aligns rectangle, works in screen/texture/pixel coordinates, not normalized coordinates.
+        /// </summary>
+        /// <returns>Pixel coordinates for texture.</returns>
+        public static Vector2 GetCoordAligned(Vector2 coordScreen, Vector2 size, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP:
+                    return coordScreen;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER:
+                    return coordScreen - size * 0.5f;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP:
+                    return coordScreen - size * new Vector2(0.5f, 0.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM:
+                    return coordScreen - size * new Vector2(0.5f, 1.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM:
+                    return coordScreen - size;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER:
+                    return coordScreen - size * new Vector2(0.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER:
+                    return coordScreen - size * new Vector2(1.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM:
+                    return coordScreen - size * new Vector2(0.0f, 1.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:
+                    return coordScreen - size * new Vector2(1.0f, 0.0f);
+
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+
+        /// <summary>
+        /// Modifies input coordinate (in center) using alignment and
+        /// size of the rectangle. Result is at position inside rectangle
+        /// specified by alignment.
+        /// </summary>
+        public static Vector2 GetCoordAlignedFromCenter(Vector2 coordCenter, Vector2 size, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP: return coordCenter + size * new Vector2(-0.5f, -0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER: return coordCenter + size * new Vector2(-0.5f, 0.0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(-0.5f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP: return coordCenter + size * new Vector2(0.0f, -0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER: return coordCenter;
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(0.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP: return coordCenter + size * new Vector2(0.5f, -0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER: return coordCenter + size * new Vector2(0.5f, 0.0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM: return coordCenter + size * new Vector2(0.5f, 0.5f);
+
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+
+        public static Vector2 GetCoordAlignedFromTopLeft(Vector2 topLeft, Vector2 size, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP: return topLeft;
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER: return topLeft + size * new Vector2(0f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM: return topLeft + size * new Vector2(0f, 1f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP: return topLeft + size * new Vector2(0.5f, 0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER: return topLeft + size * new Vector2(0.5f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM: return topLeft + size * new Vector2(0.5f, 1f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP: return topLeft + size * new Vector2(1f, 0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER: return topLeft + size * new Vector2(1f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM: return topLeft + size * new Vector2(1f, 1f);
+
+                default:
+                    Debug.Fail("Invalid branch reached.");
+                    return topLeft;
+            }
+        }
+
+        /// <summary>
+        /// Reverses effect of alignment to compute top-left corner coordinate.
+        /// </summary>
+        public static Vector2 GetCoordTopLeftFromAligned(Vector2 alignedCoord, Vector2 size, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP:
+                    return alignedCoord;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER:
+                    return alignedCoord - size * 0.5f;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP:
+                    return alignedCoord - size * new Vector2(0.5f, 0.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM:
+                    return alignedCoord - size * new Vector2(0.5f, 1.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM:
+                    return alignedCoord - size;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER:
+                    return alignedCoord - size * new Vector2(0.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER:
+                    return alignedCoord - size * new Vector2(1.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM:
+                    return alignedCoord - size * new Vector2(0.0f, 1.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:
+                    return alignedCoord - size * new Vector2(1.0f, 0.0f);
+
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+
+        /// <summary>
+        /// Reverses effect of alignment to compute top-left corner coordinate.
+        /// </summary>
+        public static Vector2I GetCoordTopLeftFromAligned(Vector2I alignedCoord, Vector2I size, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP:
+                    return alignedCoord;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER:
+                    return new Vector2I(
+                        alignedCoord.X,
+                        alignedCoord.Y - size.Y / 2);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM:
+                    return new Vector2I(
+                        alignedCoord.X,
+                        alignedCoord.Y - size.Y);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP:
+                    return new Vector2I(
+                        alignedCoord.X - size.X / 2,
+                        alignedCoord.Y);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER:
+                    return new Vector2I(
+                        alignedCoord.X - size.X / 2,
+                        alignedCoord.Y - size.Y / 2);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM:
+                    return new Vector2I(
+                        alignedCoord.X - size.X / 2,
+                        alignedCoord.Y - size.Y);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:
+                    return new Vector2I(
+                        alignedCoord.X - size.X,
+                        alignedCoord.Y);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER:
+                    return new Vector2I(
+                        alignedCoord.X - size.X,
+                        alignedCoord.Y - size.Y / 2);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM:
+                    return new Vector2I(
+                        alignedCoord.X - size.X,
+                        alignedCoord.Y - size.Y);
+
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+
+        /// <summary>
+        /// Reverses effect of alignment to compute center coordinate.
+        /// </summary>
+        public static Vector2 GetCoordCenterFromAligned(Vector2 alignedCoord, Vector2 size, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP:
+                    return alignedCoord + size * 0.5f;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER:
+                    return alignedCoord;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP:
+                    return alignedCoord + size * new Vector2(0.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM:
+                    return alignedCoord - size * new Vector2(0.0f, 0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM:
+                    return alignedCoord - size * 0.5f;
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER:
+                    return alignedCoord + size * new Vector2(0.5f, 0.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER:
+                    return alignedCoord - size * new Vector2(0.5f, 0.0f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM:
+                    return alignedCoord + size * new Vector2(0.5f, -0.5f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:
+                    return alignedCoord + size * new Vector2(-0.5f, 0.5f);
+
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+
+        /// <summary>
+        /// Returns coordinate within given rectangle specified by draw align. Rectangle position should be
+        /// upper left corner. Conversion assumes that Y coordinates increase downwards.
+        /// </summary>
+        public static Vector2 GetCoordAlignedFromRectangle(ref RectangleF rect, MyGuiDrawAlignEnum drawAlign)
+        {
+            switch (drawAlign)
+            {
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP: return rect.Position;
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER: return rect.Position + rect.Size * new Vector2(0f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM: return rect.Position + rect.Size * new Vector2(0f, 1f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP: return rect.Position + rect.Size * new Vector2(0.5f, 0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER: return rect.Position + rect.Size * 0.5f;
+                case MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM: return rect.Position + rect.Size * new Vector2(0.5f, 1f);
+
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP: return rect.Position + rect.Size * new Vector2(1f, 0f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER: return rect.Position + rect.Size * new Vector2(1f, 0.5f);
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_BOTTOM: return rect.Position + rect.Size * 1f;
+
+                default:
+                    throw new InvalidBranchException();
+            }
+        }
+        #endregion
+
+#endif
     }
+
 }

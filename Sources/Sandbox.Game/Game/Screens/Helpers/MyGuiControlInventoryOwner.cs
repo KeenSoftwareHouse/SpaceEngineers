@@ -204,10 +204,10 @@ namespace Sandbox.Game.Screens.Helpers
 
                 massLabel.UpdateFormatParams(((double)inventory.CurrentMass).ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture));
 
-                string volume = ((double)(inventory.CurrentVolume * 1000)).ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture);
+                string volume = ((double)MyFixedPoint.MultiplySafe(inventory.CurrentVolume,1000)).ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture);
                 if (MySession.Static.SurvivalMode)
                 {
-                    volume += " / " + ((double)(inventory.MaxVolume * 1000)).ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture);
+                    volume += " / " + ((double)MyFixedPoint.MultiplySafe(inventory.MaxVolume ,1000)).ToString(MyInventoryConstants.GUI_DISPLAY_FORMAT, CultureInfo.InvariantCulture);
                 }
                 volumeLabel.UpdateFormatParams(volume);
 

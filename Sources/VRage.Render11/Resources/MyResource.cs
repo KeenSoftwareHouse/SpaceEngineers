@@ -37,11 +37,15 @@ namespace VRageRender.Resources
         }
     }
 
-    class MyTextureArray : MyResource
+    class MyTextureArray : MyResource, IShaderResourceBindable
     {
-        internal ShaderResourceView ShaderView { get; set; }
+        ShaderResourceView m_Srv;
+        public ShaderResourceView SRV { get { return m_Srv; } }
         internal Vector2 Size { get; private set; }
         internal int ArrayLen { get; private set; }
+        
+        private TexId[] m_mergeList;
+        private string m_debugName;
 
         internal MyTextureArray()
         {
@@ -49,9 +53,17 @@ namespace VRageRender.Resources
 
         internal MyTextureArray(TexId[] mergeList, string debugName)
         {
-            var srcDesc = MyTextures.GetView(mergeList[0]).Description;
-            Size = MyTextures.GetSize(mergeList[0]);
-            ArrayLen = mergeList.Length;
+            m_mergeList = mergeList;
+            m_debugName = debugName;
+
+            Init();
+        }
+
+        internal void Init()
+        {
+            var srcDesc = MyTextures.GetView(m_mergeList[0]).Description;
+            Size = MyTextures.GetSize(m_mergeList[0]);
+            ArrayLen = m_mergeList.Length;
 
             Texture2DDescription desc = new Texture2DDescription();
             desc.ArraySize = ArrayLen;
@@ -60,46 +72,45 @@ namespace VRageRender.Resources
             desc.Format = srcDesc.Format;
             desc.Height = (int)Size.Y;
             desc.Width = (int)Size.X;
-            desc.MipLevels = srcDesc.Texture2D.MipLevels;
+            desc.MipLevels = srcDesc.Texture2D.MipLevels == 1 ? 0 : srcDesc.Texture2D.MipLevels;
             desc.SampleDescription.Count = 1;
             desc.SampleDescription.Quality = 0;
             desc.Usage = ResourceUsage.Default;
             m_resource = new Texture2D(MyRender11.Device, desc);
-            m_resource.DebugName = debugName;
+            m_resource.DebugName = m_debugName;
 
             // foreach mip
-            var mipmaps = desc.MipLevels;// (int)Math.Log(Size.X, 2) + 1;
+            var mipmaps = srcDesc.Texture2D.MipLevels;
 
             for (int a = 0; a < ArrayLen; a++)
             {
-                var tex2D = MyTextures.Textures.Data[mergeList[a].Index].Resource as Texture2D;
-                MyRenderProxy.Assert(tex2D != null, "MyTextureArray supports only 2D textures");
+                var data = MyTextures.Textures.Data[m_mergeList[a].Index];
+                var tex2D = data.Resource as Texture2D;
+                MyRenderProxy.Assert(tex2D != null, "MyTextureArray supports only 2D textures. Inconsistent texture: " + data.Name);
                 MyRenderProxy.Assert(tex2D.Description.Format == desc.Format && tex2D.Description.MipLevels == desc.MipLevels &&
-                    tex2D.Description.Width == desc.Width && tex2D.Description.Height == desc.Height, 
-                    "All MyTextureArray has to have the same pixel format, width / height and # of mipmaps.");
+                    tex2D.Description.Width == desc.Width && tex2D.Description.Height == desc.Height,
+                    "All MyTextureArray has to have the same pixel format, width / height and # of mipmaps. Inconsistent texture: " + data.Name);
+                if (tex2D.Description.Format != desc.Format)
+                {
+                    MyRender11.Log.WriteLine(String.Format("Inconsistent format in textures array {0}", data.Name));
+                }
 
                 for (int m = 0; m < mipmaps; m++)
                 {
-
-                    if (((Texture2D)MyTextures.Textures.Data[mergeList[a].Index].Resource).Description.Format != ((Texture2D)Resource).Description.Format)
-                    {
-                        MyRender11.Log.WriteLine(String.Format("Inconsistent format in textures array {0}", MyTextures.Textures.Data[mergeList[a].Index].Name));
-                    }
-
-                    MyRender11.DeviceContext.CopySubresourceRegion(MyTextures.Textures.Data[mergeList[a].Index].Resource, Resource.CalculateSubResourceIndex(m, 0, mipmaps), null, Resource,
+                    MyRender11.DeviceContext.CopySubresourceRegion(tex2D, Resource.CalculateSubResourceIndex(m, 0, mipmaps), null, Resource,
                         Resource.CalculateSubResourceIndex(m, a, mipmaps));
                 }
             }
 
-            ShaderView = new ShaderResourceView(MyRender11.Device, Resource);
+            m_Srv = new ShaderResourceView(MyRender11.Device, Resource);
         }
 
         internal override void Dispose()
         {
-            if (ShaderView != null)
+            if (m_Srv != null)
             {
-                ShaderView.Dispose();
-                ShaderView = null;
+                m_Srv.Dispose();
+                m_Srv = null;
             }
 
             base.Dispose();
@@ -125,6 +136,7 @@ namespace VRageRender.Resources
 
 namespace VRageRender
 {
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct ConstantsBufferId
     {
         internal int Index;
@@ -148,6 +160,7 @@ namespace VRageRender
         }
     }
 
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct VertexBufferId
     {
         internal int Index;
@@ -173,6 +186,7 @@ namespace VRageRender
         internal int ByteSize { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes; } }
     }
 
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct IndexBufferId
     {
         internal int Index;
@@ -196,7 +210,8 @@ namespace VRageRender
         internal int ByteSize { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes; } }
     }
 
-    struct StructuredBufferId
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
+    struct StructuredBufferId : IShaderResourceBindable
     {
         internal int Index;
 
@@ -217,7 +232,7 @@ namespace VRageRender
         internal int Stride { get { return MyHwBuffers.GetBufferDesc(this).StructureByteStride; } }
         internal bool Dynamic { get { return MyHwBuffers.GetBufferDesc(this).Usage == ResourceUsage.Dynamic; } }
         internal int ByteSize { get { return MyHwBuffers.GetBufferDesc(this).SizeInBytes; } }
-        internal ShaderResourceView Srv { get { return MyHwBuffers.GetView(this); } }
+        public ShaderResourceView SRV { get { return MyHwBuffers.GetView(this); } }
     }
 
 
@@ -802,6 +817,7 @@ namespace VRageRender
     }
 
 
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct RasterizerId
     {
         internal int Index;
@@ -826,6 +842,7 @@ namespace VRageRender
         }
     }
 
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct SamplerId
     {
         internal int Index;
@@ -851,48 +868,81 @@ namespace VRageRender
         }
     }
 
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct BlendId
     {
-        internal int Index;
+        private bool m_Init;
+        private int m_Index;
+
+        internal static readonly BlendId NULL = new BlendId { m_Init = false, m_Index = 0 };
+
+        public BlendId(int index)
+        {
+            m_Init = true;
+            m_Index = index;
+        }
+
+        private bool Init
+        {
+            get { return m_Init; }
+        }
+
+        public int Index
+        {
+            get { return m_Index; }
+        }
 
         public static bool operator ==(BlendId x, BlendId y)
         {
-            return x.Index == y.Index;
+            return x.Index == y.Index && x.Init == y.Init;
         }
 
         public static bool operator !=(BlendId x, BlendId y)
         {
-            return x.Index != y.Index;
+            return x.Index != y.Index || x.Init != y.Init;
         }
-
-        internal static readonly BlendId NULL = new BlendId { Index = -1 };
-
-
-        // 
+ 
         public static implicit operator BlendState(BlendId id)
         {
             return MyPipelineStates.GetBlend(id);
         }
     }
 
+    [Unsharper.UnsharperStaticInitializersPriority(1)]
     struct DepthStencilId
     {
-        internal int Index;
+        private bool m_Init;
+        private int m_Index;
+
+        internal static readonly DepthStencilId NULL = new DepthStencilId { m_Init = false, m_Index = 0 };
+
+        public DepthStencilId(int index)
+        {
+            m_Init = true;
+            m_Index = index;
+        }
+
+        private bool Init
+        {
+            get { return m_Init; }
+        }
+
+        public int Index
+        {
+            get { return m_Index; }
+        }
+        
 
         public static bool operator ==(DepthStencilId x, DepthStencilId y)
         {
-            return x.Index == y.Index;
+            return x.Index == y.Index && x.Init == y.Init;
         }
 
         public static bool operator !=(DepthStencilId x, DepthStencilId y)
         {
-            return x.Index != y.Index;
+            return x.Index != y.Index || x.Init != y.Init;
         }
 
-        internal static readonly DepthStencilId NULL = new DepthStencilId { Index = -1 };
-
-
-        // 
         public static implicit operator DepthStencilState(DepthStencilId id)
         {
             return MyPipelineStates.GetDepthStencil(id);
@@ -918,30 +968,35 @@ namespace VRageRender
         static DepthStencilState[] DepthStencilObjects = new DepthStencilState[128];
 
         #region Blend states
-        internal static BlendId CreateBlendState(BlendStateDescription description)
+
+        public static BlendId CreateBlendState(BlendStateDescription description)
         {
-            var id = new BlendId { Index = BlendStates.Allocate() };
-            MyArrayHelpers.Reserve(ref BlendObjects, id.Index + 1);
-
-            BlendStates.Data[id.Index] = description.Clone();
-
-            InitBlendState(id);
-            BlendIndices.Add(id);
-
+            BlendId id = new BlendId();
+            CreateBlendState(ref id, description);
             return id;
         }
 
-        internal static void InitBlendState(BlendId id)
+        public static void CreateBlendState(ref BlendId id, BlendStateDescription description)
         {
-            try
+            if (id == BlendId.NULL)
             {
+                id = new BlendId(BlendStates.Allocate());
+                MyArrayHelpers.Reserve(ref BlendObjects, id.Index + 1);
+                BlendIndices.Add(id);
+            }
+            else
+            {
+                BlendObjects[id.Index].Dispose();
+            }
+
+            BlendStates.Data[id.Index] = description.Clone();
+            InitBlendState(id);
+        }
+
+        private static void InitBlendState(BlendId id)
+        {
+            if (BlendObjects[id.Index] == null)
                 BlendObjects[id.Index] = new BlendState(MyRender11.Device, BlendStates.Data[id.Index]);
-            }
-            catch
-            {
-                MyRender11.ProcessDebugOutput();
-                throw;
-            }
         }
 
         internal static BlendState GetBlend(BlendId id)
@@ -977,7 +1032,8 @@ namespace VRageRender
 
         internal static void InitSamplerState(SamplerId id)
         {
-            SamplerObjects[id.Index] = new SamplerState(MyRender11.Device, SamplerStates.Data[id.Index]);
+            if (SamplerObjects[id.Index] == null)
+                SamplerObjects[id.Index] = new SamplerState(MyRender11.Device, SamplerStates.Data[id.Index]);
         }
 
         internal static SamplerState GetSampler(SamplerId id)
@@ -1004,17 +1060,15 @@ namespace VRageRender
 
         internal static void InitRasterizerState(RasterizerId id)
         {
-            if (RasterizerObjects[id.Index] != null)
-            {
-                RasterizerObjects[id.Index].Dispose();
-                RasterizerObjects[id.Index] = null;
-            }
-            RasterizerObjects[id.Index] = new RasterizerState(MyRender11.Device, RasterizerStates.Data[id.Index]);
+            if (RasterizerObjects[id.Index] == null)
+                RasterizerObjects[id.Index] = new RasterizerState(MyRender11.Device, RasterizerStates.Data[id.Index]);
         }
 
         internal static void Modify(RasterizerId id, RasterizerStateDescription desc)
         {
             RasterizerStates.Data[id.Index] = desc;
+            RasterizerObjects[id.Index].Dispose();
+            RasterizerObjects[id.Index] = null;
 
             InitRasterizerState(id);
         }
@@ -1028,22 +1082,34 @@ namespace VRageRender
 
         #region Depth stencil states
 
-        internal static DepthStencilId CreateDepthStencil(DepthStencilStateDescription description)
+        public static DepthStencilId CreateDepthStencil(DepthStencilStateDescription description)
         {
-            var id = new DepthStencilId { Index = DepthStencilStates.Allocate() };
-            MyArrayHelpers.Reserve(ref DepthStencilObjects, id.Index + 1);
-
-            DepthStencilStates.Data[id.Index] = description;
-
-            InitDepthStencilState(id);
-            DepthStencilIndices.Add(id);
-
+            DepthStencilId id = new DepthStencilId();
+            CreateDepthStencil(ref id, description);
             return id;
         }
 
-        internal static void InitDepthStencilState(DepthStencilId id)
+        public static void CreateDepthStencil(ref DepthStencilId id, DepthStencilStateDescription description)
         {
-            DepthStencilObjects[id.Index] = new DepthStencilState(MyRender11.Device, DepthStencilStates.Data[id.Index]);
+            if (id == DepthStencilId.NULL)
+            {
+                id = new DepthStencilId(DepthStencilStates.Allocate());
+                MyArrayHelpers.Reserve(ref DepthStencilObjects, id.Index + 1);
+                DepthStencilIndices.Add(id);
+            }
+            else
+            {
+                DepthStencilObjects[id.Index].Dispose();
+            }
+
+            DepthStencilStates.Data[id.Index] = description;
+            InitDepthStencilState(id);
+        }
+
+        private static void InitDepthStencilState(DepthStencilId id)
+        {
+            if (DepthStencilObjects[id.Index] == null)
+                DepthStencilObjects[id.Index] = new DepthStencilState(MyRender11.Device, DepthStencilStates.Data[id.Index]);
         }
 
         internal static DepthStencilState GetDepthStencil(DepthStencilId id)
@@ -1055,8 +1121,25 @@ namespace VRageRender
 
         internal static void Init()
         {
-            //MyCallbacks.RegisterDeviceEndListener(new OnDeviceEndDelegate(OnDeviceEnd));
-            //MyCallbacks.RegisterDeviceResetListener(new OnDeviceResetDelegate(OnDeviceReset));
+            foreach (var id in BlendIndices)
+            {
+                InitBlendState(id);
+            }
+
+            foreach (var id in DepthStencilIndices)
+            {
+                InitDepthStencilState(id);
+            }
+
+            foreach (var id in RasterizerIndices)
+            {
+                InitRasterizerState(id);
+            }
+
+            foreach (var id in SamplerIndices)
+            {
+                InitSamplerState(id);
+            }
         }
 
         internal static void OnDeviceEnd()
@@ -1102,25 +1185,7 @@ namespace VRageRender
         {
             OnDeviceEnd();
 
-            foreach (var id in BlendIndices)
-            {
-                InitBlendState(id);
-            }
-
-            foreach (var id in DepthStencilIndices)
-            {
-                InitDepthStencilState(id);
-            }
-
-            foreach (var id in RasterizerIndices)
-            {
-                InitRasterizerState(id);
-            }
-
-            foreach (var id in SamplerIndices)
-            {
-                InitSamplerState(id);
-            }
+            Init();
         }
     }
 }

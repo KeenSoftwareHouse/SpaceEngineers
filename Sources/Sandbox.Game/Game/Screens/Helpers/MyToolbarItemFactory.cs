@@ -188,7 +188,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             MyObjectBuilder_ToolbarItemTerminalBlock output = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemTerminalBlock>();
             output.BlockEntityId = block.EntityId;
-            output.Action = null;
+            output._Action = null;
 
             return output;
         }
@@ -197,7 +197,7 @@ namespace Sandbox.Game.Screens.Helpers
         {
             MyObjectBuilder_ToolbarItemTerminalGroup output = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_ToolbarItemTerminalGroup>();
             output.GroupName = group.Name.ToString();
-            output.Action = null;
+            output._Action = null;
             return output;
         }
 

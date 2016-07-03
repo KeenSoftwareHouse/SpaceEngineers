@@ -77,14 +77,14 @@ namespace Sandbox.Game.Weapons
             return retval;
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             if (MySession.Static.CreativeMode)
                 return;
 
             m_closeAfterBuild = false;
 
-            base.Shoot(action, direction, gunAction);
+            base.Shoot(action, direction, null, gunAction);
             ShakeAmount = 0.0f;
 
             if (action == MyShootActionEnum.PrimaryAction && m_firstShot)

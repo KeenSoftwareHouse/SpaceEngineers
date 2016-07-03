@@ -13,7 +13,7 @@
     		<Name>Screens.sbc</Name>
     	</File>
     	<File>
-    		<Name>Audio.sbc</Name>
+    		<Name>Audio_gui.sbc</Name>
     		<!-- Default Value -->
     		<LoadOnDedicated>false</LoadOnDedicated>
     	</File>

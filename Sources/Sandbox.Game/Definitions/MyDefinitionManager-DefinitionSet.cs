@@ -117,6 +117,8 @@ namespace Sandbox.Definitions
                 m_respawnShips = new Dictionary<string, MyRespawnShipDefinition>();
 
                 m_sounds = new DefinitionDictionary<MyAudioDefinition>(10);
+                m_shipSounds = new DefinitionDictionary<MyShipSoundsDefinition>(10);
+
                 m_environmentDef = new MyEnvironmentDefinition();
                 m_behaviorDefinitions = new DefinitionDictionary<MyBehaviorDefinition>(10);
                 m_voxelMapStorages = new Dictionary<string, MyVoxelMapStorageDefinition>(64);
@@ -493,6 +495,8 @@ namespace Sandbox.Definitions
             internal MyEnvironmentDefinition m_environmentDef = new MyEnvironmentDefinition();
 
             internal DefinitionDictionary<MyAudioDefinition> m_sounds;
+            internal DefinitionDictionary<MyShipSoundsDefinition> m_shipSounds;
+            internal MyShipSoundSystemDefinition m_shipSoundSystem = new MyShipSoundSystemDefinition();
 
             internal DefinitionDictionary<MyBehaviorDefinition> m_behaviorDefinitions;
 

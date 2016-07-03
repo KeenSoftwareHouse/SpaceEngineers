@@ -76,6 +76,20 @@ namespace VRage.Game
             set { SoundData.PreventSynchronization = value; }
         }
 
+        [ProtoMember]
+        public string DynamicMusicCategory
+        {
+            get { return SoundData.DynamicMusicCategory.ToString(); }
+            set { SoundData.DynamicMusicCategory = MyStringId.GetOrCompute(value); }
+        }
+
+        [ProtoMember]
+        public int DynamicMusicAmount
+        {
+            get { return SoundData.DynamicMusicAmount; }
+            set { SoundData.DynamicMusicAmount = value; }
+        }
+
         [ProtoMember, DefaultValue(true)]
         public bool ModifiableByHelmetFilters
         {

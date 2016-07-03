@@ -57,13 +57,12 @@ namespace VRageRender
         [Conditional("DEBUG")]
         internal static void ProcessDebugOutput()
         {
-            if (DebugInfoQueue != null && VRage.MyCompilationSymbols.DX11DebugOutput)
+            if (DebugInfoQueue != null && VRage.MyCompilationSymbols.DX11DebugOutput && MyRenderProxy.RenderThread.SystemThread == System.Threading.Thread.CurrentThread)
             {
                 for (int i = 0; i < DebugInfoQueue.NumStoredMessages; i++)
                 {
                     var msg = DebugInfoQueue.GetMessage(i);
-                    //string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", FormatEnum(msg.Severity), msg.Description.Replace("\0", ""), FormatEnum(msg.Category), (int)msg.Id, FormatEnum(msg.Id));
-                    string text = String.Format("D3D11 {0}: {1} [ {2} ERROR #{3}: {4} ]", msg.Severity.ToString(), msg.Description.Replace("\0", ""), msg.Category.ToString(), (int)msg.Id, msg.Id.ToString());
+                    string text = String.Format("D3D11 {0}: {1} [ {2} #{3}: {4} ] {5}/{6}", msg.Severity.ToString(), msg.Description.Replace("\0", ""), msg.Category.ToString(), (int)msg.Id, msg.Id.ToString(), i, DebugInfoQueue.NumStoredMessages);
                     System.Diagnostics.Debug.Print(text);
                     System.Diagnostics.Debug.WriteLine(String.Empty);
                 }
@@ -90,6 +89,7 @@ namespace VRageRender
         }
 
         static bool m_initialized = false;
+        static bool m_initializedOnce = false;
 
         private static int GetPriorityAdapter()
         {
@@ -276,6 +276,12 @@ namespace VRageRender
 
             m_resolution = new Vector2I(m_settings.BackBufferWidth, m_settings.BackBufferHeight);
 
+            if (!m_initializedOnce)
+            {
+                InitSubsystemsOnce();
+                m_initializedOnce = true;
+            }
+
             if (!m_initialized)
             {
                 InitSubsystems();
@@ -338,6 +344,8 @@ namespace VRageRender
             ForceWindowed();
 
             OnDeviceEnd();
+            
+            m_initialized = false;
 
             if (MyGBuffer.Main != null)
             {

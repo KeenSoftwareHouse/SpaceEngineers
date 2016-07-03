@@ -1,5 +1,7 @@
 ﻿
 using System.Threading;
+using System.Diagnostics;
+
 namespace ProtoBuf
 {
     internal class BufferPool
@@ -70,6 +72,9 @@ namespace ProtoBuf
         }
         internal static void ReleaseBufferToPool(ref byte[] buffer)
         {
+#if BLIT
+			Debug.Assert(false);
+#else
             if (buffer == null) return;
             if (buffer.Length == BufferLength)
             {
@@ -97,6 +102,10 @@ namespace ProtoBuf
             }
             // if no space, just drop it on the floor
             buffer = null;
+
+
+
+#endif //BLIT
         }
 
     }

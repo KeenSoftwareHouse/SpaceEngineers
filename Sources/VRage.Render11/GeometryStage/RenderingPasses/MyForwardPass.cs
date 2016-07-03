@@ -18,8 +18,8 @@ namespace VRageRender
             Context.OutputMerger.SetTargets(DSV, RTV);
 
             RC.SetCB(4, MyRender11.DynamicShadows.ShadowCascades.CascadeConstantBuffer);
-            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
-            RC.DeviceContext.PixelShader.SetShaderResource(60, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapBackup.ShaderView);
+            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, SamplerStates.m_shadowmap);
+            RC.DeviceContext.PixelShader.SetShaderResource(60, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapBackup.SRV);
 
             RC.SetDS(null);
         }

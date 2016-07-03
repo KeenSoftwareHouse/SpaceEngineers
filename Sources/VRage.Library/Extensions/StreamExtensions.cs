@@ -8,7 +8,8 @@ using VRage.Common.Utils;
 
 namespace System
 {
-    public static class StreamExtensions
+	[Unsharper.UnsharperDisableReflection()]
+	public static class StreamExtensions
     {
         [ThreadStatic]
         private static byte[] m_buffer;

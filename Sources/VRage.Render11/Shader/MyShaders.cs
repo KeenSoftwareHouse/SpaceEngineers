@@ -229,7 +229,7 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = X.TEXT(file),
+                File = X.TEXT_(file),
                 Profile = MyShadersDefines.Profiles.vs_5_0,
                 Macros = macros
             };
@@ -257,7 +257,7 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = X.TEXT(file),
+                File = X.TEXT_(file),
                 Profile = MyShadersDefines.Profiles.ps_5_0,
                 Macros = macros
             };
@@ -285,7 +285,7 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = X.TEXT(file),
+                File = X.TEXT_(file),
                 Profile = MyShadersDefines.Profiles.cs_5_0,
                 Macros = macros,
             };
@@ -313,7 +313,7 @@ namespace VRageRender
 
             Shaders[bytecode] = new MyShaderCompilationInfo
             {
-                File = X.TEXT(file),
+                File = X.TEXT_(file),
                 Profile = MyShadersDefines.Profiles.gs_5_0,
                 Macros = macros
             };

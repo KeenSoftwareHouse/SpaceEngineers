@@ -126,7 +126,7 @@ namespace VRageMath
         /// </returns>
         public bool Equals(RectangleF other)
         {
-            return other.X.Equals(X) && other.Y.Equals(Y) && other.Width.Equals(Width) && other.Height.Equals(Height);
+       		return (other.X == X) && (other.Y == Y) && (other.Width == Width) && (other.Height == Height);
         }
 
         /// <summary>

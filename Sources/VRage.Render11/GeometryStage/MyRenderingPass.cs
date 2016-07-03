@@ -155,7 +155,7 @@ namespace VRageRender
             Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
             Context.Rasterizer.SetViewport(Viewport.OffsetX, Viewport.OffsetY, Viewport.Width, Viewport.Height);
 
-            Context.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            Context.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
@@ -163,12 +163,12 @@ namespace VRageRender
 
             Context.PixelShader.SetShaderResource(MyCommon.DITHER_8X8_SLOT, MyTextures.Views[MyTextures.Dithering8x8TexId.Index]);
 
-            if (MyBigMeshTable.Table.m_IB != null)
+            if (MyBigMeshTable.Table.m_IB != StructuredBufferId.NULL)
             {
                 var slotcounter = MyCommon.BIG_TABLE_INDICES;
-                RC.VSBindRawSRV(slotcounter++, MyBigMeshTable.Table.m_IB.Srv);
-                RC.VSBindRawSRV(slotcounter++, MyBigMeshTable.Table.m_VB_positions.Srv);
-                RC.VSBindRawSRV(slotcounter++, MyBigMeshTable.Table.m_VB_rest.Srv);
+                RC.VSBindRawSRV(slotcounter++, MyBigMeshTable.Table.m_IB);
+                RC.VSBindRawSRV(slotcounter++, MyBigMeshTable.Table.m_VB_positions);
+                RC.VSBindRawSRV(slotcounter++, MyBigMeshTable.Table.m_VB_rest);
             }
         }
 

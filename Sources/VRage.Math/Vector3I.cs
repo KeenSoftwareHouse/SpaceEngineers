@@ -12,67 +12,69 @@ namespace VRageMath
         Left, Right, Up, Down, Forward, Backward
     }
 
-    [ProtoBuf.ProtoContract, Serializable]
-    public struct 
-        Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>
+
+    /// <summary>
+    /// A class for simpler traversal of ranges of integer vectors
+    /// </summary>
+	public struct Vector3I_RangeIterator
     {
+        Vector3I m_start;
+        Vector3I m_end;
+
         /// <summary>
-        /// A class for simpler traversal of ranges of integer vectors
+        /// Do not modify, public only for optimization!
         /// </summary>
-        public struct RangeIterator
+        public Vector3I Current;
+
+        /// <summary>
+        /// Note: both start and end are inclusive
+        /// </summary>
+	public Vector3I_RangeIterator(ref Vector3I start, ref Vector3I end)
         {
-            Vector3I m_start;
-            Vector3I m_end;
+            Debug.Assert(start.X <= end.X);
+            Debug.Assert(start.Y <= end.Y);
+            Debug.Assert(start.Z <= end.Z);
 
-            /// <summary>
-            /// Do not modify, public only for optimization!
-            /// </summary>
-            public Vector3I Current;
+            m_start = start;
+            m_end = end;
+            Current = m_start;
+        }
 
-            /// <summary>
-            /// Note: both start and end are inclusive
-            /// </summary>
-            public RangeIterator(ref Vector3I start, ref Vector3I end)
+        public bool IsValid()
+        {
+            // MZ: assert from the past, i will leave it here
+            Debug.Assert(Current.X <= m_end.X && Current.Y <= m_end.Y, "Invalid X and Y values in the Vector3I range iterator!");
+            // MZ: changed validation to be safer and take in account all values (resolves crashes in voxel hands)
+            return Current.X >= m_start.X && Current.Y >= m_start.Y && Current.Z >= m_start.Z &&
+                Current.X <= m_end.X && Current.Y <= m_end.Y && Current.Z <= m_end.Z;
+        }
+
+        public void GetNext(out Vector3I next)
+        {
+            MoveNext();
+            next = Current;
+        }
+
+        public void MoveNext()
+        {
+            Current.X++;
+            if (Current.X > m_end.X)
             {
-                Debug.Assert(start.X <= end.X);
-                Debug.Assert(start.Y <= end.Y);
-                Debug.Assert(start.Z <= end.Z);
-
-                m_start = start;
-                m_end = end;
-                Current = m_start;
-            }
-
-            public bool IsValid()
-            {
-                // MZ: assert from the past, i will leave it here
-                Debug.Assert(Current.X <= m_end.X && Current.Y <= m_end.Y, "Invalid X and Y values in the Vector3I range iterator!");
-                // MZ: changed validation to be safer and take in account all values (resolves crashes in voxel hands)
-                return Current.X >= m_start.X && Current.Y >= m_start.Y && Current.Z >= m_start.Z &&
-                    Current.X <= m_end.X && Current.Y <= m_end.Y && Current.Z <= m_end.Z;
-            }
-
-            public void GetNext(out Vector3I next)
-            {
-                MoveNext();
-                next = Current;
-            }
-
-            public void MoveNext()
-            {
-                Current.X++;
-                if (Current.X > m_end.X)
+                Current.X = m_start.X;
+                Current.Y++;
+                if (Current.Y > m_end.Y)
                 {
-                    Current.X = m_start.X;
-                    Current.Y++;
-                    if (Current.Y > m_end.Y)
-                    {
-                        Current.Y = m_start.Y;
-                        Current.Z++;
-                    }
+                    Current.Y = m_start.Y;
+                    Current.Z++;
                 }
             }
         }
+    }
+
+
+    [ProtoBuf.ProtoContract, Serializable]
+    public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>
+    {
 
         public class EqualityComparer: IEqualityComparer<Vector3I>, IComparer<Vector3I>
         {

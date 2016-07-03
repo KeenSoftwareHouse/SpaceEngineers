@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
+#if !BLIT //Expressions not supported.
+
 namespace System.Reflection
 {
     public static class PropertyAccess
@@ -69,3 +71,5 @@ namespace System.Reflection
         }
     }
 }
+
+#endif

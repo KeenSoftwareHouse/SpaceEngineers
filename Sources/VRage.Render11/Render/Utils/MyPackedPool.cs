@@ -172,6 +172,10 @@ namespace VRageRender
             }
         }
     }
+}
+
+namespace VRageRender
+{
 
     class MyPackedPool<T> where T : struct
     {

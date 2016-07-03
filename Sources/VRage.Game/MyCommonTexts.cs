@@ -1024,6 +1024,16 @@ using VRage.Utils;
         public static readonly MyStringId ControlName_HoldToLookAround = MyStringId.GetOrCompute("ControlName_HoldToLookAround");
 
         ///<summary>
+        ///Toggle signal mode
+        ///</summary>
+        public static readonly MyStringId ControlName_ToggleSignalsMode = MyStringId.GetOrCompute("ControlName_ToggleSignalsMode");
+
+        ///<summary>
+        ///Toggles signals between fading mode and always visible mode.
+        ///</summary>
+        public static readonly MyStringId ControlName_ToggleSignalsMode_Tooltip = MyStringId.GetOrCompute("ControlName_ToggleSignalsMode_Tooltip");
+
+        ///<summary>
         ///Hold to sprint
         ///</summary>
         public static readonly MyStringId ControlName_HoldToSprint = MyStringId.GetOrCompute("ControlName_HoldToSprint");

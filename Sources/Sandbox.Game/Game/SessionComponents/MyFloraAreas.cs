@@ -467,7 +467,7 @@ namespace Sandbox.Game.SessionComponents
 
                 var minLocal = Vector3I.Zero;
                 var maxLocal = Vector3I.One * 2;
-                var it = new Vector3I.RangeIterator(ref minLocal, ref maxLocal);
+                var it = new Vector3I_RangeIterator(ref minLocal, ref maxLocal);
                 while (it.IsValid())
                 {
                     var vec = it.Current;

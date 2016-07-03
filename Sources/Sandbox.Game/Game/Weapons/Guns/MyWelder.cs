@@ -22,6 +22,7 @@ using VRage.ObjectBuilders;
 using Sandbox.Engine.Networking;
 using VRage.Game;
 using VRage.Game.Entity;
+using Sandbox.Game.Audio;
 
 #endregion
 
@@ -278,11 +279,11 @@ namespace Sandbox.Game.Weapons
             return null;
         }
 
-        public override void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             MyAnalyticsHelper.ReportActivityStartIf(!m_activated, this.Owner, "Welding", "Character", "HandTools","Welder",true);
 
-            base.Shoot(action, direction, gunAction);
+            base.Shoot(action, direction, overrideWeaponPos, gunAction);
 
             if (action == MyShootActionEnum.PrimaryAction/* && IsPreheated*/  )
             {
@@ -415,7 +416,11 @@ namespace Sandbox.Game.Weapons
                 {
                     float maxAllowedBoneMovement = WELDER_MAX_REPAIR_BONE_MOVEMENT_SPEED * ToolCooldownMs * 0.001f;
                     if (Owner != null && Owner.ControllerInfo != null)
+                    {
                         block.IncreaseMountLevel(WeldAmount, Owner.ControllerInfo.ControllingIdentityId, CharacterInventory, maxAllowedBoneMovement);
+                        if (MySession.Static != null && Owner == MySession.Static.LocalCharacter && MyMusicController.Static != null)
+                            MyMusicController.Static.Building(250);
+                    }
                 }
             }
             

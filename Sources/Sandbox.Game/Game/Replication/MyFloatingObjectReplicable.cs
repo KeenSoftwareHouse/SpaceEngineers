@@ -10,7 +10,7 @@ namespace Sandbox.Game.Replication
     /// <summary>
     /// This class creates replicable object for MyReplicableEntity : MyEntity
     /// </summary>    
-    public class MyFloatingObjectReplicable : MyEntityReplicableBase<MyFloatingObject>
+    public class MyFloatingObjectReplicable : MyEntityReplicableBaseEvent<MyFloatingObject>
     {
         private MyPropertySyncStateGroup m_propertySync;
 

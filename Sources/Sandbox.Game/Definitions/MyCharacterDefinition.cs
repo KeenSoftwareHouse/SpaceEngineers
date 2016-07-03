@@ -63,6 +63,7 @@ namespace Sandbox.Definitions
         public string PainSoundName;
         public string SuffocateSoundName;
         public string DeathSoundName;
+        public string DeathBySuffocationSoundName;
         public string IronsightActSoundName;
         public string IronsightDeactSoundName;
         public string FastFlySoundName;
@@ -222,6 +223,7 @@ namespace Sandbox.Definitions
             PainSoundName = builder.PainSoundName;
             SuffocateSoundName = builder.SuffocateSoundName;
             DeathSoundName = builder.DeathSoundName;
+            DeathBySuffocationSoundName = builder.DeathBySuffocationSoundName;
             IronsightActSoundName = builder.IronsightActSoundName;
             IronsightDeactSoundName = builder.IronsightDeactSoundName;
             FastFlySoundName = builder.FastFlySoundName;
@@ -384,6 +386,7 @@ namespace Sandbox.Definitions
             ob.SuffocateSoundName = SuffocateSoundName;
             ob.PainSoundName = PainSoundName;
             ob.DeathSoundName = DeathSoundName;
+            ob.DeathBySuffocationSoundName = DeathBySuffocationSoundName;
             ob.IronsightActSoundName = IronsightActSoundName;
             ob.IronsightDeactSoundName = IronsightDeactSoundName;
             ob.LoopingFootsteps = LoopingFootsteps;

@@ -12,6 +12,7 @@ using VRage;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Utils;
+using System.Reflection;
 
 namespace Sandbox.Game.World
 {
@@ -56,7 +57,7 @@ namespace Sandbox.Game.World
         }
 
         public MyGlobalEventDefinition Definition { private set; get; }
-        public GlobalEventHandler Action { private set; get; }
+        public MethodInfo Action { private set; get; }
         public TimeSpan ActivationTime { private set; get; }
         public bool Enabled { get; set; }
 

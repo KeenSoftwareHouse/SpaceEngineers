@@ -72,7 +72,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
         struct MyEntityRayCastPair
         {
             public MyEntity Entity;
-            public LineD Ray;
+            public LineD _Ray;
             public Vector3D Position;
             public MyParticleEffect Particle;
         }
@@ -275,7 +275,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
                 {
                     var rand = MyUtils.GetRandomInt(m_rayCastQueue.Count - 1);
                     var entity = m_rayCastQueue[rand].Entity;
-                    var l = m_rayCastQueue[rand].Ray;
+                    var l = m_rayCastQueue[rand]._Ray;
                     var p = m_rayCastQueue[rand].Position;
                     var particle = m_rayCastQueue[rand].Particle;
                     if (entity is MyCubeGrid)
@@ -465,7 +465,7 @@ namespace Sandbox.AppCode.Game.TransparentGeometry
                                     {
                                         particle.WorldMatrix = MatrixD.CreateWorld(m_hitLst[0].Position, Vector3D.Forward, Vector3D.Up);
                                     }
-                                    m_rayCastQueue.Add(new MyEntityRayCastPair() { Entity = grid, Ray = l , Position = m_hitLst[0].Position, Particle = particle});
+                                    m_rayCastQueue.Add(new MyEntityRayCastPair() { Entity = grid, _Ray = l , Position = m_hitLst[0].Position, Particle = particle});
                                     //grid.Physics.ApplyDeformation(0.2f, 4, 2, Vector3.Transform(m_hitLst[0].Position, invMat), Vector3.Transform(m_directionFromSunNormalized, invMat), Sandbox.Game.Weapons.MyDamageType.Environment);
                                 }
                             }

@@ -113,7 +113,7 @@ namespace VRage.Voxels
                 var oi = (int)MyStorageDataTypeEnum.Occlusion;
                 if (value && m_dataByType[oi] == null)
                 {
-                    m_dataByType[oi] = new byte[m_size3d.Size];
+                    m_dataByType[oi] = new byte[m_dataSizeLinear];
                     m_storedTypes |= MyStorageDataTypeFlags.Occlusion;
                 }
                 else if (!value && m_dataByType[oi] != null)

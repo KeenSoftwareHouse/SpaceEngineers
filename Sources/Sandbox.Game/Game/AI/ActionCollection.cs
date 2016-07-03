@@ -17,7 +17,7 @@ namespace Sandbox.Game.AI
             public Action<IMyBot> InitAction;
             public object[] ActionParams;
             public Dictionary<int, MyTuple<Type, MyMemoryParameterType>> ParametersDesc;
-            public Func<IMyBot, object[], MyBehaviorTreeState> Action;
+            public Func<IMyBot, object[], MyBehaviorTreeState> _Action;
             public Action<IMyBot> PostAction;
             public bool ReturnsRunning;
 
@@ -57,11 +57,11 @@ namespace Sandbox.Game.AI
             if (!m_actions.ContainsKey(actionId))
                 AddBotActionDesc(actionId);
 
-            Debug.Assert(m_actions[actionId].Action == null, "Adding a bot action under the same name!");
+            Debug.Assert(m_actions[actionId]._Action == null, "Adding a bot action under the same name!");
 
             var actionDesc = m_actions[actionId];
             var parameters = methodInfo.GetParameters();
-            actionDesc.Action = action;
+            actionDesc._Action = action;
             actionDesc.ActionParams = new object[parameters.Length];
             actionDesc.ParametersDesc = new Dictionary<int, MyTuple<Type, MyMemoryParameterType>>();
             actionDesc.ReturnsRunning = returnsRunning;
@@ -114,7 +114,7 @@ namespace Sandbox.Game.AI
             var botMemory = bot.BotMemory.CurrentTreeBotMemory;
             if (action.ParametersDesc.Count == 0)
             {
-                return action.Action(bot, args);
+                return action._Action(bot, args);
             }
             else
             {
@@ -123,7 +123,7 @@ namespace Sandbox.Game.AI
                     return MyBehaviorTreeState.FAILURE;
 
                 LoadActionParams(action, args, botMemory);
-                var state = action.Action(bot, action.ActionParams);
+                var state = action._Action(bot, action.ActionParams);
                 SaveActionParams(action, args, botMemory);
                 return state;
             }
@@ -197,7 +197,7 @@ namespace Sandbox.Game.AI
 
         public bool ContainsAction(MyStringId actionId)
         {
-            return m_actions[actionId].Action != null;
+            return m_actions[actionId]._Action != null;
         }
 
         public bool ContainsActionDesc(MyStringId actionId)

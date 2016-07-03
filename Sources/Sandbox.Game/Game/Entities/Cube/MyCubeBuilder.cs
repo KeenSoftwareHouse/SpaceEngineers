@@ -42,6 +42,7 @@ using VRage.Game.Components;
 using VRage.Game.Models;
 using VRage.Game.Entity;
 using VRage.Game;
+using Sandbox.Game.Audio;
 
 #endregion
 
@@ -1464,9 +1465,8 @@ namespace Sandbox.Game.Entities
 
                 }
 
-                if (CurrentGrid != null)
+                if (CurrentGrid != null && IsActivated)
                 {
-
                     if (MyControllerHelper.IsControl(context, MyControlsSpace.SYMMETRY_SWITCH, MyControlStateType.NEW_PRESSED) && !(MySession.Static.ControlledEntity is MyShipController))
                     {
                         if (BlockCreationIsActivated)
@@ -1663,7 +1663,7 @@ namespace Sandbox.Game.Entities
                         StopBuilding();
                     }               
                 } //if (CurrentGrid != null)
-                else if (CurrentVoxelMap != null)
+                else if (CurrentVoxelMap != null && IsActivated)
                 {
                     //RKTODO - creation of blocks in line or plane will be done when server function will be prepared 
                     // (need to create grid with one block - the first target and then build all other blocks in the grid)
@@ -2948,6 +2948,8 @@ namespace Sandbox.Game.Entities
             if (m_blocksBuildQueue.Count > 0)
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
+                if (MyMusicController.Static != null)
+                    MyMusicController.Static.Building(2000);
                 CurrentGrid.BuildBlocks(MyPlayer.SelectedColor, m_blocksBuildQueue, MySession.Static.LocalCharacterEntityId, MySession.Static.LocalPlayerId);
             }
         }
@@ -2984,6 +2986,8 @@ namespace Sandbox.Game.Entities
                 position.Forward = (Vector3)gridWorldMatrix.Forward;
                 position.Up = (Vector3)gridWorldMatrix.Up;
 
+                if (MyMusicController.Static != null)
+                    MyMusicController.Static.Building(2000);
                 MyMultiplayer.RaiseStaticEvent(s => RequestGridSpawn, MySession.Static.LocalCharacterEntityId, (DefinitionIdBlit)blockDefinition.Id, position, true, MySession.Static.IsAdminModeEnabled(Sync.MyId));
                 MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
             }
@@ -2993,6 +2997,8 @@ namespace Sandbox.Game.Entities
                 position.Forward = (Vector3)worldMatrixAdd.Forward;
                 position.Up = (Vector3)worldMatrixAdd.Up;
 
+                if (MyMusicController.Static != null)
+                    MyMusicController.Static.Building(2000);
                 MyMultiplayer.RaiseStaticEvent(s => RequestGridSpawn, MySession.Static.LocalCharacterEntityId, (DefinitionIdBlit)blockDefinition.Id, position, false, MySession.Static.IsAdminModeEnabled(Sync.MyId));
                 MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
             }
@@ -3140,6 +3146,8 @@ namespace Sandbox.Game.Entities
                 {
                     if (CurrentGrid != null && m_blocksBuildQueue.Count > 0)
                     {
+                        if (MySession.Static != null && builder == MySession.Static.LocalCharacter && MyMusicController.Static != null)
+                            MyMusicController.Static.Building(2000);
                         MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
                         if (builder == MySession.Static.LocalCharacter)
                             MySession.Static.TotalBlocksCreated++;
@@ -4283,7 +4291,7 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            if (MyFakes.ENABLE_COMPONENT_BLOCKS && block != null && block.CubeSize == MyCubeSize.Small)
+            if (!MyFakes.ENABLE_SMALL_GRID_BLOCK_INFO && block != null && block.CubeSize == MyCubeSize.Small)
                 return;
 
             MyHud.BlockInfo.LoadDefinition(block, MyCubeBuilder.BuildComponent.TotalMaterials);
@@ -5007,7 +5015,7 @@ namespace Sandbox.Game.Entities
             foreach (var blockInCompoundID in blockInCompoundIDs)
             {
                 Vector3I cube = blockInCompoundID.Item1.Min;
-                for (Vector3I.RangeIterator it = new Vector3I.RangeIterator(ref blockInCompoundID.Item1.Min, ref blockInCompoundID.Item1.Max); it.IsValid(); it.GetNext(out cube))
+                for (Vector3I_RangeIterator it = new Vector3I_RangeIterator(ref blockInCompoundID.Item1.Min, ref blockInCompoundID.Item1.Max); it.IsValid(); it.GetNext(out cube))
                 {
                     outPositions.Add(cube);
                 }

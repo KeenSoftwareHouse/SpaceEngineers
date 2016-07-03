@@ -9,6 +9,8 @@ using VRage.FileSystem;
 
 namespace VRage.Trace
 {
+
+#if !UNSHARPER
     class MyWintraceWrapper : ITrace
     {
         static Type m_winTraceType;
@@ -90,4 +92,6 @@ namespace VRage.Trace
             }
         }
     }
+
+#endif
 }

@@ -242,8 +242,15 @@ namespace ParallelTasks
                 if (executing == 0)
                 {
                     if (exceptionBuffer != null)
+					{
+#if UNSHARPER
+						//workaround for volatile int to const int& casting problem in c++.
+						int val = runCount;
+						exceptions.Add(val, exceptionBuffer.ToArray());
+#else
                         exceptions.Add(runCount, exceptionBuffer.ToArray());
-
+#endif
+					}
                     // wait for all children to complete
                     foreach (var child in children)
                         child.Wait();

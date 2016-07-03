@@ -166,6 +166,7 @@
     <Compile Include="Extensions\FieldExtensions.cs" />
     <Compile Include="Extensions\FloatExtensions.cs" />
     <Compile Include="Extensions\HashSetExtensions.cs" />
+    <Compile Include="Extensions\UnsharperExtensions.cs" />
     <Compile Include="Filesystem\IFileVerifier.cs" />
     <Compile Include="Filesystem\MyChecksumVerifier.cs" />
     <Compile Include="Filesystem\MyFileChecksumWatcher.cs" />

@@ -185,6 +185,10 @@
       </SoundRule>
     </SoundRules>
 
+    <MusicCategories>
+      <MusicCategory Category="Earthlike" Frequency="0.8" />
+      <MusicCategory Category="Calm" Frequency="0.2" />
+    </MusicCategories>
 
     <!-- Rules that define where materials are generated -->
     <ComplexMaterials>
@@ -1657,6 +1661,12 @@
       <!-- Desert amb sound rule END -->
     </SoundRules>
 
+    <MusicCategories>
+      <MusicCategory Category="Alien" Frequency="0.75" />
+      <MusicCategory Category="Mystery" Frequency="0.15" />
+      <MusicCategory Category="Danger" Frequency="0.1" />
+    </MusicCategories>
+
     <!-- Rules that define where materials are generated -->
     <ComplexMaterials>
 
@@ -2967,6 +2977,13 @@
         <EnvironmentSound>AmbMarsLoop</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+    
+    <MusicCategories>
+      <MusicCategory Category="Planet" Frequency="0.7" />
+      <MusicCategory Category="Mystery" Frequency="0.05" />
+      <MusicCategory Category="Danger" Frequency="0.125" />
+      <MusicCategory Category="Calm" Frequency="0.125" />
+    </MusicCategories>
 
     <!-- Marz named for easier finding  -->
     <ComplexMaterials>
@@ -3565,6 +3582,13 @@
         <EnvironmentSound>AmbMoonNightLoop</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+    
+    <MusicCategories>
+      <MusicCategory Category="Planet" Frequency="0.75" />
+      <MusicCategory Category="Mystery" Frequency="0.075" />
+      <MusicCategory Category="Danger" Frequency="0.075" />
+      <MusicCategory Category="Space" Frequency="0.15" />
+    </MusicCategories>
 
     <DefaultSurfaceMaterial Material="MoonRocks" MaxDepth="5"/>
 
@@ -3716,6 +3740,11 @@
         <EnvironmentSound>AmbEuropaMoonNight</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+
+    <MusicCategories>
+      <MusicCategory Category="Planet" Frequency="0.90" />
+      <MusicCategory Category="Mystery" Frequency="0.1" />
+    </MusicCategories>
 
     <!-- Eumoon definitions - name shortened for better navigation -->
     <ComplexMaterials>
@@ -4010,6 +4039,12 @@
         <EnvironmentSound>AmbHigh</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+    
+    <MusicCategories>
+      <MusicCategory Category="Alien" Frequency="0.75" />
+      <MusicCategory Category="Mystery" Frequency="0.15" />
+      <MusicCategory Category="Danger" Frequency="0.1" />
+    </MusicCategories>
 
     <!-- Titmoon definitions - name shortened for better navigation ;) -->
     <ComplexMaterials>
@@ -4581,6 +4616,11 @@
         <EnvironmentSound>AmbHigh</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+
+    <MusicCategories>
+      <MusicCategory Category="Earthlike" Frequency="0.8" />
+      <MusicCategory Category="Calm" Frequency="0.2" />
+    </MusicCategories>
 
 
     <!-- Rules that define where materials are generated -->
@@ -6283,6 +6323,13 @@
       </SoundRule>
     </SoundRules>
 
+    <MusicCategories>
+      <MusicCategory Category="Planet" Frequency="0.75" />
+      <MusicCategory Category="Mystery" Frequency="0.075" />
+      <MusicCategory Category="Danger" Frequency="0.075" />
+      <MusicCategory Category="Space" Frequency="0.15" />
+    </MusicCategories>
+
     <DefaultSurfaceMaterial Material="MoonRocks" MaxDepth="5"/>
 
     <HasAtmosphere>false</HasAtmosphere>
@@ -6416,6 +6463,13 @@
         <EnvironmentSound>AmbMarsLoop</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+
+    <MusicCategories>
+      <MusicCategory Category="Planet" Frequency="0.7" />
+      <MusicCategory Category="Mystery" Frequency="0.05" />
+      <MusicCategory Category="Danger" Frequency="0.125" />
+      <MusicCategory Category="Calm" Frequency="0.125" />
+    </MusicCategories>
 
     <!-- Marz named for easier finding  -->
     <ComplexMaterials>
@@ -6817,6 +6871,13 @@
         <EnvironmentSound>AmbHigh</EnvironmentSound>
       </SoundRule>
     </SoundRules>
+
+    <!-- Music categories that will be played on this planet -->
+    <MusicCategories>
+      <MusicCategory Category="Planet" Frequency="0.75" />  <!-- 75% chance -->
+      <MusicCategory Category="Calm" Frequency="0.2" />     <!-- 20% chance -->
+      <MusicCategory Category="Mystery" Frequency="0.05" /> <!--  5% chance -->
+    </MusicCategories>
 
 
     <!-- Rules that define where materials are generated -->

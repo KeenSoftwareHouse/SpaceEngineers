@@ -98,6 +98,7 @@ namespace Sandbox.Game.Weapons
                 m_worldMatrix = value;
                 RecalculateMuzzles();
             }
+            get { return m_worldMatrix; }
         }
 
         public DateTime LastShootTime { get; private set; }
@@ -277,7 +278,7 @@ namespace Sandbox.Game.Weapons
             Shoot(currentDummy.Translation + direction * offset, initialVelocity, direction, owner);
         }
 
-        private void Shoot(Vector3D initialPosition, Vector3 initialVelocity, Vector3 direction, MyEntity owner = null)
+        public void Shoot(Vector3D initialPosition, Vector3 initialVelocity, Vector3 direction, MyEntity owner = null)
         {
             MyAmmoDefinition ammoDef = m_weaponProperties.AmmoDefinition;
             switch (ammoDef.AmmoType)

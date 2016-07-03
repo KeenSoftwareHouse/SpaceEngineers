@@ -21,7 +21,7 @@ namespace VRageRender.Textures
 
         static readonly Type D3DXType = typeof(Texture).Assembly.GetType("SharpDX.Direct3D9.D3DX9");
         static readonly MethodInfo GetImageInfoFromFileWMethodInfo = D3DXType.GetMethod("GetImageInfoFromFileW");
-        static readonly GetImageInfoFromFileWDelegate GetImageInfoFromFileW = GetImageInfoFromFileWMethodInfo.CreateDelegate<GetImageInfoFromFileWDelegate>();
+        //static readonly GetImageInfoFromFileWDelegate GetImageInfoFromFileW = GetImageInfoFromFileWMethodInfo.CreateDelegate<GetImageInfoFromFileWDelegate>();
 
         public static void DDSFromFile(string fileName, Device device, bool loadMipMap, int offsetMipMaps, out SharpDX.Direct3D9.Texture texture)
         {
@@ -83,7 +83,8 @@ namespace VRageRender.Textures
             ImageInformation imageInfo;
             if (fileStream != null)
             {
-                imageInfo = GetImageInfoFromFileW(fileStream.Name);
+                //imageInfo = GetImageInfoFromFileW(fileStream.Name);
+				imageInfo = (ImageInformation)GetImageInfoFromFileWMethodInfo.Invoke(null, new object[] { fileStream.Name });
             }
             else
             {

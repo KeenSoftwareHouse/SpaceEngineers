@@ -727,6 +727,12 @@ Remove the original control?</value>
   <data name="ControlName_HoldToLookAround" xml:space="preserve">
     <value>Hold to look around</value>
   </data>
+  <data name="ControlName_ToggleSignalsMode" xml:space="preserve">
+    <value>Toggle signal mode</value>
+  </data>
+  <data name="ControlName_ToggleSignalsMode_Tooltip" xml:space="preserve">
+    <value>Toggles signals between fading mode and always visible mode.</value>
+  </data>
   <data name="ControlName_HoldToSprint" xml:space="preserve">
     <value>Hold to sprint</value>
   </data>

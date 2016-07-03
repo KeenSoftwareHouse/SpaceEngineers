@@ -239,10 +239,9 @@ namespace Sandbox.Engine.Utils
             // -------- raycast, prevent camera being inside things ------
             if (controlledEntity != null)
             {
-                MyEntity topControlledEntity = controlledEntity.GetTopMostParent();
-                if (topControlledEntity != null && !topControlledEntity.Closed)
+                if (!controlledEntity.Closed)
                 {
-                    HandleIntersection(topControlledEntity);
+                    HandleIntersection(controlledEntity);
                 }
                 else
                 {
@@ -379,12 +378,13 @@ namespace Sandbox.Engine.Utils
                     0, m_raycastList);
                 foreach (MyPhysics.HitInfo rb in m_raycastList)
                 {
+                    IMyEntity hitEntity = rb.HkHitInfo.GetHitEntity();
                     if (rb.HkHitInfo.Body == null
                         || rb.HkHitInfo.Body.UserObject == null
-                        || rb.HkHitInfo.GetHitEntity() == controlledEntity
+                        || hitEntity == controlledEntity
                         || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody))
                         continue;
-                    if (rb.HkHitInfo.GetHitEntity() is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>)
+                    if (hitEntity is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>)
                         // ignore player weapons
                         continue;
 
@@ -421,11 +421,12 @@ namespace Sandbox.Engine.Utils
         private bool HandleIntersection(MyEntity controlledEntity)
         {
             Debug.Assert(controlledEntity != null);
+            var parentEntity = controlledEntity.Parent ?? controlledEntity;
 
             // line from target to eye
             var line = new LineD(m_target, m_position);
             // oriented bb of the entity
-            var safeObb = GetEntitySafeOBB(controlledEntity);
+            var safeObb = GetEntitySafeOBB(parentEntity);
             // oriented bb of the entity + camera radius
             var safeObbWithCollisionExtents = new MyOrientedBoundingBoxD(safeObb.Center, safeObb.HalfExtent + 0.5f * CAMERA_RADIUS, safeObb.Orientation);
 
@@ -449,9 +450,9 @@ namespace Sandbox.Engine.Utils
 
             // raycast against occluders
             Vector3D safePositionCandidate;
-            m_safeMinimumDistance = controlledEntity is MyCharacter ? 0 : (castStartSafe - m_target).Length(); // store current safe minimum dist
+            m_safeMinimumDistance = parentEntity is MyCharacter ? 0 : (castStartSafe - m_target).Length(); // store current safe minimum dist
             m_safeMinimumDistance = Math.Max(m_safeMinimumDistance, MIN_VIEWER_DISTANCE);
-            Vector3D raycastOrigin = m_target; // not like this: // ((controlledEntity is MyCharacter) ? m_target : castStartSafe);
+            Vector3D raycastOrigin = (controlledEntity is MyCharacter) ? m_target : castStartSafe;
             MyCameraRaycastResult raycastResult = RaycastOccludingObjects(controlledEntity, ref raycastOrigin, ref m_position,
                 ref castStartSafe, out safePositionCandidate);
 

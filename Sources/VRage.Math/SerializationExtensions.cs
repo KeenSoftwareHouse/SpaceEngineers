@@ -5,6 +5,7 @@ using System.Text;
 using VRage.Library.Collections;
 using VRageMath;
 using VRageMath.PackedVector;
+using System.Diagnostics;
 
 namespace System
 {
@@ -379,7 +380,11 @@ namespace System
 
         public static void SerializeList(this BitStream stream, ref List<Vector3D> list)
         {
+#if BLITCREMENTAL
+			Debug.Assert(false);
+#else
             stream.SerializeList(ref list, delegate(BitStream bs, ref Vector3D vec) { bs.Serialize(ref vec); }); // Does not allocated, anonymous function cached by compiler
+#endif
         }
     }
 }

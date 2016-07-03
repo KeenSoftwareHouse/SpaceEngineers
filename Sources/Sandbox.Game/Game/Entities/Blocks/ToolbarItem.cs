@@ -32,14 +32,14 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalBlock;
                 tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
+                tItem.Action = block._Action;
                 tItem.Parameters = block.Parameters;
             }
             else if (item is MyToolbarItemTerminalGroup)
             {
                 var block = item.GetObjectBuilder() as MyObjectBuilder_ToolbarItemTerminalGroup;
                 tItem.EntityID = block.BlockEntityId;
-                tItem.Action = block.Action;
+                tItem.Action = block._Action;
                 tItem.GroupName = block.GroupName;
                 tItem.Parameters = block.Parameters;
             }
@@ -55,7 +55,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (MyEntities.TryGetEntityById(msgItem.EntityID, out block))
                 {
                     var builder = MyToolbarItemFactory.TerminalBlockObjectBuilderFromBlock(block);
-                    builder.Action = msgItem.Action;
+                    builder._Action = msgItem.Action;
                     builder.Parameters = msgItem.Parameters;
                     item = MyToolbarItemFactory.CreateToolbarItem(builder);
                 }
@@ -71,7 +71,7 @@ namespace Sandbox.Game.Entities.Blocks
                     if (group != null)
                     {
                         var builder = MyToolbarItemFactory.TerminalGroupObjectBuilderFromGroup(@group);
-                        builder.Action = msgItem.Action;
+                        builder._Action = msgItem.Action;
                         builder.Parameters = msgItem.Parameters;
                         builder.BlockEntityId = msgItem.EntityID;
                         item = MyToolbarItemFactory.CreateToolbarItem(builder);

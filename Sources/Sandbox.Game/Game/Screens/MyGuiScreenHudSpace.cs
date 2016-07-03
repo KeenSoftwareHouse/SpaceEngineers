@@ -815,10 +815,10 @@ namespace Sandbox.Game.Gui
             m_tmpHudEntityParams.OffsetText = true;
 
             MySession.Static.Gpss.updateForHud();
-            gpsMarkers.Sort();//re-sort by distance from new camera coordinates
+            //gpsMarkers.Sort();//re-sort by distance from new camera coordinates
             foreach (var gps in gpsMarkers.MarkerEntities)
             {
-                m_markerRender.AddGPS(gps.Coords, gps.Name);
+                m_markerRender.AddGPS(gps.Coords, gps.Name, gps.AlwaysVisible);
             }
             ProfilerShort.End();
         }

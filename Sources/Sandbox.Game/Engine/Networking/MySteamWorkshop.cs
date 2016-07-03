@@ -1726,10 +1726,13 @@ namespace Sandbox.Engine.Networking
             // make sure we don't overwrite another save
             while (Directory.Exists(sessionPath))
                 sessionPath = Path.Combine(workshopBattleWorldsPath, safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"));
-
+#if BLITCREMENTAL
+			System.Diagnostics.Debug.Assert(false);
+#else
             MyZipArchive.ExtractToDirectory(localPackedWorldFullPath, sessionPath);
+#endif
 
-            // Update some meta-data of the new world.
+			// Update some meta-data of the new world.
             ulong checkPointSize;
             var checkpoint = MyLocalCache.LoadCheckpoint(sessionPath, out checkPointSize);
             checkpoint.SessionName = world.Title;

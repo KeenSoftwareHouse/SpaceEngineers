@@ -40,7 +40,7 @@ namespace VRageRender
             RC.BindUAV(0, dst);
             RC.BindSRVs(0, src, avgLum, bloom);
 
-            RC.DeviceContext.ComputeShader.SetSampler(0, MyRender11.m_defaultSamplerState);
+            RC.DeviceContext.ComputeShader.SetSampler(0, SamplerStates.m_default);
 
             if (enableTonemapping)
             {

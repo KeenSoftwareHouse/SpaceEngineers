@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace VRage.Audio.X3DAudio
 {
+	[Unsharper.UnsharperDisableReflection()]
     public sealed class DistanceCurve : IDisposable
     {
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

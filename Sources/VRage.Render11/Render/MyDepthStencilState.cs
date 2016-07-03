@@ -10,6 +10,11 @@ namespace VRageRender
     {
         static MyDepthStencilState()
         {
+        }
+
+        internal static void Init()
+        {
+
             {
                 DepthStencilStateDescription desc = new DepthStencilStateDescription();
                 desc.DepthComparison = MyRender11.UseComplementaryDepthBuffer ? Comparison.Greater : Comparison.Less;
@@ -193,8 +198,6 @@ namespace VRageRender
                 MarkIfInsideCascade[cascadeIndex] = MyPipelineStates.CreateDepthStencil(desc);
             }
         }
-
-
 
         internal static DepthStencilId DepthTestWrite;
         internal static DepthStencilId DepthTest;

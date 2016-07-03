@@ -5,6 +5,7 @@ using VRage.Collections;
 
 namespace DShowNET
 {
+#if ! BLIT
     /// <summary>
     /// Describes the state of a video player
     /// </summary>
@@ -585,4 +586,5 @@ namespace DShowNET
         }
         #endregion
     }
+#endif
 }

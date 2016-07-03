@@ -9,10 +9,13 @@ namespace VRage.FileSystem
 {
     public static class MyFileSystem
     {
+#if !UNSHARPER
         public static readonly Assembly MainAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
         public static readonly string MainAssemblyName = MainAssembly.GetName().Name;
         public static string ExePath = new FileInfo(MainAssembly.Location).DirectoryName; // OM: Need to be able to alter this due to starting game from tools
-
+#else
+		public static string ExePath = @"."; // OM: Need to be able to alter this due to starting game from tools
+#endif
         private static string m_contentPath;
         private static string m_modsPath;
         private static string m_userDataPath;
@@ -33,7 +36,11 @@ namespace VRage.FileSystem
         private static void CheckInitialized()
         {
             if (m_contentPath == null)
+#if BLIT
+                MyFileSystem.Init(".", ".");
+#else
                 throw new InvalidOperationException("Paths are not initialized, call 'Init'");
+#endif
         }
 
         private static void CheckUserSpecificInitialized()
@@ -45,7 +52,11 @@ namespace VRage.FileSystem
         public static void Init(string contentPath, string userData, string modDirName = "Mods")
         {
             if (m_contentPath != null)
+#if BLIT
+                return;
+#else
                 throw new InvalidOperationException("Paths already initialized");
+#endif
 
             m_contentPath = contentPath;
             m_userDataPath = userData;
@@ -138,7 +149,17 @@ namespace VRage.FileSystem
             return m_fileProvider.DirectoryExists(path);
         }
 
-        public static IEnumerable<string> GetFiles(string path, string filter = "*", VRage.FileSystem.MySearchOption searchOption = VRage.FileSystem.MySearchOption.AllDirectories)
+        public static IEnumerable<string> GetFiles(string path)
+        {
+            return m_fileProvider.GetFiles(path, "*", VRage.FileSystem.MySearchOption.AllDirectories);
+        }
+
+        public static IEnumerable<string> GetFiles(string path, string filter)
+        {
+            return m_fileProvider.GetFiles(path, filter, VRage.FileSystem.MySearchOption.AllDirectories);
+        }
+
+        public static IEnumerable<string> GetFiles(string path, string filter, VRage.FileSystem.MySearchOption searchOption)
         {
             return m_fileProvider.GetFiles(path, filter, searchOption);
         }

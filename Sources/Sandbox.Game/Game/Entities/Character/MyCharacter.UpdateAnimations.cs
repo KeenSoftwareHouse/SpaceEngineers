@@ -137,7 +137,7 @@ namespace Sandbox.Game.Entities.Character
                 }
                 else
                 {
-                    GetHeadMatrix(true, sync: true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
+                    GetHeadMatrix(true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
                     Debug.Assert(m_rightHandItemBone != -1, "Invalid bone for weapon.");
                     if (m_rightHandItemBone != -1)
                     {
@@ -154,7 +154,7 @@ namespace Sandbox.Game.Entities.Character
             }
             else
             {
-                GetHeadMatrix(true, sync: true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
+                GetHeadMatrix(true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
             }
 
 

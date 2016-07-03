@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+#if !BLIT
+
 namespace VRage.Library.Reflection
 {
     public class GenericCallCache
@@ -65,3 +67,5 @@ namespace VRage.Library.Reflection
         }
     }
 }
+
+#endif

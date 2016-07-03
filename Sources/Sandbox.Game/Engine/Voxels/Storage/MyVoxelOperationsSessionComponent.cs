@@ -62,7 +62,7 @@ namespace Sandbox.Engine.Voxels.Storage
 
         public override void UpdateAfterSimulation()
         {
-            if (ShouldFlush && m_storagesWithCache.Count != m_scheduledCount)
+            if (m_storagesWithCache.Count != m_scheduledCount)
             {
                 m_wait++;
                 if (m_wait >= WaitForLazy && ShouldFlush)

@@ -24,12 +24,16 @@ namespace VRageMath
 
         public static Matrix Identity = new Matrix(1f, 0.0f, 0.0f, 0.0f, 0.0f, 1f, 0.0f, 0.0f, 0.0f, 0.0f, 1f, 0.0f, 0.0f, 0.0f, 0.0f, 1f);
         public static Matrix Zero = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+
+#if !BLIT
+
         /// <summary>
         /// Matrix values
         /// </summary>
         [FieldOffset(0)]
         private F16 M;
-
+#endif
         /// <summary>
         /// Value at row 1 column 1 of the matrix.
         /// </summary>
@@ -408,6 +412,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref Matrix matrix, float scale)
         {
             matrix.M11 *= scale;
@@ -426,6 +431,7 @@ namespace VRageMath
         /// <summary>
         /// Same result as Matrix.CreateScale(scale) * matrix, but much faster
         /// </summary>
+		[Unsharper.UnsharperDisableReflection()]
         public static void Rescale(ref Matrix matrix, ref Vector3 scale)
         {
             matrix.M11 *= scale.X;
@@ -441,12 +447,14 @@ namespace VRageMath
             matrix.M33 *= scale.Z;
         }
 
+		[Unsharper.UnsharperDisableReflection()]
         public static Matrix Rescale(Matrix matrix, float scale)
         {
             Rescale(ref matrix, scale);
             return matrix;
         }
 
+		[Unsharper.UnsharperDisableReflection()]
         public static Matrix Rescale(Matrix matrix, Vector3 scale)
         {
             Rescale(ref matrix, ref scale);
@@ -526,6 +534,26 @@ namespace VRageMath
             this.M43 = 0;
             this.M44 = 1;
         }
+
+		public Matrix(MatrixD other)
+		{
+            this.M11 = (float)other.M11;
+            this.M12 = (float)other.M12;
+            this.M13 = (float)other.M13;
+            this.M14 = (float)other.M14;
+            this.M21 = (float)other.M21;
+            this.M22 = (float)other.M22;
+            this.M23 = (float)other.M23;
+            this.M24 = (float)other.M24;
+            this.M31 = (float)other.M31;
+            this.M32 = (float)other.M32;
+            this.M33 = (float)other.M33;
+            this.M34 = (float)other.M34;
+            this.M41 = (float)other.M41;
+            this.M42 = (float)other.M42;
+            this.M43 = (float)other.M43;
+            this.M44 = (float)other.M44;
+		}
 
         /// <summary>
         /// Negates individual elements of a matrix.
@@ -2472,7 +2500,7 @@ return flag;
         {
             unsafe
             {
-                fixed (float* data = M.data)
+				fixed(float * data = &M11)
                 {
                     float* basePos = data + row * 4;
                     return new Vector4(*basePos, *(basePos + 1), *(basePos + 2), *(basePos + 3));
@@ -2484,7 +2512,7 @@ return flag;
         {
             unsafe
             {
-                fixed (float* data = M.data)
+				fixed (float* data = &M11)
                 {
                     float* basePos = data + row * 4;
                     *(basePos + 0) = value.X;
@@ -2501,7 +2529,7 @@ return flag;
             {
                 unsafe
                 {
-                    fixed (float* data = M.data)
+					fixed (float* data = &M11)
                     {
                         return data[row * 4 + column];
                     }
@@ -2511,7 +2539,7 @@ return flag;
             {
                 unsafe
                 {
-                    fixed (float* data = M.data)
+					fixed (float* data = &M11)
                     {
                         data[row * 4 + column] = value;
                     }
@@ -3153,6 +3181,7 @@ return flag;
         //  ( D3DXMATRIX *pOut, CONST D3DXMATRIX *pM1, CONST D3DXMATRIX *pM2 );
 
         /// <summary>Native Interop Function</summary>
+#if NATIVE_SUPPORT
         [DllImport("d3dx9_43.dll", EntryPoint = "D3DXMatrixMultiply", CallingConvention = CallingConvention.StdCall, SetLastError = false, PreserveSig = true), SuppressUnmanagedCodeSecurityAttribute]
         private unsafe extern static Matrix* D3DXMatrixMultiply_([Out] Matrix* pOut, [In] Matrix* pM1, [In] Matrix* pM2);
 
@@ -3167,7 +3196,7 @@ return flag;
                     D3DXMatrixMultiply_(resultRef_, m1Ref_, m2Ref_);
             }
         }
-
+#endif
         /// <summary>
         /// Multiplies a matrix by another matrix.
         /// </summary>

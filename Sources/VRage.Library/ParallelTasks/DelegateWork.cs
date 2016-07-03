@@ -9,7 +9,7 @@ namespace ParallelTasks
 {
     class DelegateWork: IWork
     {
-        static MyConcurrentPool<DelegateWork> instances = new MyConcurrentPool<DelegateWork>();
+        static MyConcurrentPool<DelegateWork> instances = new MyConcurrentPool<DelegateWork>(0,false);
 
         public Action Action { get; set; }
         public Action<WorkData> DataAction { get; set; }

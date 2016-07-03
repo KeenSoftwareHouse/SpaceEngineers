@@ -280,7 +280,7 @@ namespace Sandbox.Game.Entities.Character
 
         protected static void HandleInteractiveObject(IMyUseObject interactive)
         {
-            if (MyFakes.ENABLE_ME_HIGHLIGHT_TEMPORARY_HACK)
+            if (MyFakes.ENABLE_USE_NEW_OBJECT_HIGHLIGHT)
             {
                 if (interactive is MyFloatingObject)
                 {
@@ -288,14 +288,6 @@ namespace Sandbox.Game.Entities.Character
                     MyHud.SelectedObjectHighlight.HighlightStyle = MyHudObjectHighlightStyle.HighlightStyle2;
                 }
                 else
-                {
-                    MyHud.SelectedObjectHighlight.HighlightAttribute = null;
-                    MyHud.SelectedObjectHighlight.HighlightStyle = MyHudObjectHighlightStyle.HighlightStyle1;
-                }
-            }
-            else if (MyFakes.ENABLE_USE_NEW_OBJECT_HIGHLIGHT)
-            {
-                if (!(interactive is MyFloatingObject))
                 {
                     bool found = false;
                     MyModelDummy dummy = interactive.Dummy;
@@ -316,11 +308,6 @@ namespace Sandbox.Game.Entities.Character
                         MyHud.SelectedObjectHighlight.HighlightAttribute = null;
                         MyHud.SelectedObjectHighlight.HighlightStyle = MyHudObjectHighlightStyle.HighlightStyle1;
                     }
-                }
-                else
-                {
-                    MyHud.SelectedObjectHighlight.HighlightAttribute = null;
-                    MyHud.SelectedObjectHighlight.HighlightStyle = MyHudObjectHighlightStyle.HighlightStyle2;
                 }
             }
             else

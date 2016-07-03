@@ -94,7 +94,8 @@ namespace VRageRender
 
         internal readonly static List<LightId> VisiblePointlights = new List<LightId>();
         internal readonly static List<LightId> VisibleSpotlights = new List<LightId>();
-        internal static SpotlightConstants[] Spotlights = new SpotlightConstants[32];
+        private const int SPOTLIGHTS_MAX = 32;
+        internal static SpotlightConstants[] Spotlights = new SpotlightConstants[SPOTLIGHTS_MAX];
 
         internal static void DrawGlares()
         {
@@ -267,7 +268,7 @@ namespace VRageRender
             //RC.BindUAV(0, MyScreenDependants.m_test);
             RC.BindUAV(0, MyScreenDependants.m_tileIndices);
             RC.BindGBufferForRead(0, MyGBuffer.Main);
-            RC.CSBindRawSRV(MyCommon.POINTLIGHT_SLOT, m_pointlightCullHwBuffer.Srv);
+            RC.CSBindRawSRV(MyCommon.POINTLIGHT_SLOT, m_pointlightCullHwBuffer);
             RC.SetCS(m_preparePointLights);
 
             RC.DeviceContext.Dispatch(MyScreenDependants.TilesX, MyScreenDependants.TilesY, 1);
@@ -280,7 +281,7 @@ namespace VRageRender
             RC.DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
             RC.DeviceContext.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
 
-            var coneMesh = MyMeshes.GetMeshId(X.TEXT("Models/Debug/Cone.mwm"));
+            var coneMesh = MyMeshes.GetMeshId(X.TEXT_("Models/Debug/Cone.mwm"));
             var buffers = MyMeshes.GetLodMesh(coneMesh, 0).Buffers;
             RC.SetVB(0, buffers.VB0.Buffer, buffers.VB0.Stride);
             RC.SetIB(buffers.IB.Buffer, buffers.IB.Format);
@@ -292,9 +293,9 @@ namespace VRageRender
 
             var cb = MyCommon.GetObjectCB(sizeof(SpotlightConstants));
             RC.SetCB(1, cb);
-            RC.DeviceContext.PixelShader.SetSampler(13, MyRender11.m_alphamaskSamplerState);
-            RC.DeviceContext.PixelShader.SetSampler(14, MyRender11.m_shadowmapSamplerState);
-            RC.DeviceContext.PixelShader.SetSampler(15, MyRender11.m_shadowmapSamplerState);
+            RC.DeviceContext.PixelShader.SetSampler(13, SamplerStates.m_alphamask);
+            RC.DeviceContext.PixelShader.SetSampler(14, SamplerStates.m_shadowmap);
+            RC.DeviceContext.PixelShader.SetSampler(15, SamplerStates.m_shadowmap);
 
             int index = 0;
             int casterIndex = 0;
@@ -311,7 +312,7 @@ namespace VRageRender
 
                 if(id.CastsShadowsThisFrame)
                 {
-                    RC.DeviceContext.PixelShader.SetShaderResource(14, MyRender11.DynamicShadows.ShadowmapsPool[casterIndex].ShaderView);
+                    RC.DeviceContext.PixelShader.SetShaderResource(14, MyRender11.DynamicShadows.ShadowmapsPool[casterIndex].SRV);
                     casterIndex++;
                 }
 
@@ -330,6 +331,8 @@ namespace VRageRender
                 }
                 
                 index++;
+                if (index >= SPOTLIGHTS_MAX)
+                    break;
             }
 
             if (MyRender11.MultisamplingEnabled)
@@ -351,10 +354,10 @@ namespace VRageRender
             RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             
             RC.BindGBufferForRead(0, MyGBuffer.Main);
-            RC.BindRawSRV(MyCommon.MATERIAL_BUFFER_SLOT, MySceneMaterials.m_buffer.Srv);
+            RC.BindRawSRV(MyCommon.MATERIAL_BUFFER_SLOT, MySceneMaterials.m_buffer);
             RC.SetBS(MyRender11.BlendAdditive);
             RC.SetDS(MyDepthStencilState.IgnoreDepthStencil);
-            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             MyGpuProfiler.IC_BeginBlock("Apply point lights");
             if (MyRender11.DebugOverrides.PointLights)
@@ -376,7 +379,7 @@ namespace VRageRender
         static void RenderPointlightsTiled()
         {
             RC.BindSRV(MyCommon.TILE_LIGHT_INDICES_SLOT, MyScreenDependants.m_tileIndices);
-            RC.BindRawSRV(MyCommon.POINTLIGHT_SLOT, m_pointlightCullHwBuffer.Srv);
+            RC.BindRawSRV(MyCommon.POINTLIGHT_SLOT, m_pointlightCullHwBuffer);
             RC.BindSRV(MyCommon.AO_SLOT, MyScreenDependants.m_ambientOcclusion);
 
             RC.SetPS(PointlightsTiled_Pixel);
@@ -421,17 +424,17 @@ namespace VRageRender
             RC.SetPS(directionalPixelShader);
             RC.SetCB(1, m_sunlightConstants);
             RC.SetCB(4, MyRender11.DynamicShadows.ShadowCascades.CascadeConstantBuffer);
-            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MyRender11.m_shadowmapSamplerState);
+            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, SamplerStates.m_shadowmap);
 
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
             
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_IBL_SLOT,
-                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.ShaderView);
+                MyRender11.IsIntelBrokenCubemapsWorkaround ? MyTextures.GetView(MyTextures.IntelFallbackCubeTexId) : MyEnvironmentProbe.Instance.cubemapPrefiltered.SRV);
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_IBL_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkyboxPrefiltered, MyTextureEnum.CUBEMAP, true)));
 
-            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.ShaderView);
-            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SHADOW_SLOT, MyRender11.PostProcessedShadows.ShaderView);
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.CASCADES_SM_SLOT, MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray.SRV);
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SHADOW_SLOT, MyRender11.PostProcessedShadows.SRV);
 
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.AMBIENT_BRDF_LUT_SLOT,
                 MyCommon.GetAmbientBrdfLut());

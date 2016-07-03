@@ -44,7 +44,7 @@ namespace Sandbox.Game.Weapons
             MyTerminalControlFactory.AddControl(useConveyor);
         }
 
-        override public void Shoot(MyShootActionEnum action, Vector3 direction, string gunAction)
+        public override void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction)
         {
             //small reloadable launcher have cooldown 
             if ((BurstFireRate == m_numRocketsShot) && (COOLDOWN_TIME_MILISECONDS > MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot))
@@ -57,7 +57,7 @@ namespace Sandbox.Game.Weapons
             }
             m_numRocketsShot++;
 
-            base.Shoot(action, direction, gunAction);
+            base.Shoot(action, direction, overrideWeaponPos, gunAction);
 
             if (m_numRocketsShot == BurstFireRate)
             {

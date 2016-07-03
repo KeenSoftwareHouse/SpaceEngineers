@@ -20,6 +20,8 @@ namespace VRage.Data.Audio
         public bool UseOcclusion;
         public List<MyAudioWave> Waves;
         public List<DistantSound> DistantSounds;
+        public int DynamicMusicAmount = 10;
+        public MyStringId DynamicMusicCategory = MyStringId.NullOrEmpty;
         public MyMusicTrack MusicTrack;
         public int PreventSynchronization = -1;
         public bool ModifiableByHelmetFilters = true;

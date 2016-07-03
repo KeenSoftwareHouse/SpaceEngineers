@@ -5,6 +5,7 @@ using VRage.Generics;
 
 namespace VRageRender
 {
+	[Unsharper.UnsharperDisableReflection()]
     partial class MyInstanceBuffer
     {
         private string m_debugName;

@@ -13,6 +13,7 @@ using VRage.Utils;
 
 namespace VRage.Plugins
 {
+#if !UNSHARPER
     public class MyPlugins : IDisposable
     {
         private static List<IPlugin> m_plugins = new List<IPlugin>();
@@ -241,4 +242,7 @@ namespace VRage.Plugins
         #endregion
 
     }
+
+
+#endif
 }

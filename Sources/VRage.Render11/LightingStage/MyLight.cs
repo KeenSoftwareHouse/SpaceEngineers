@@ -179,17 +179,20 @@ namespace VRageRender
             MyArrayHelpers.Reserve(ref Pointlights, id.Index + 1);
             MyArrayHelpers.Reserve(ref Spotlights, id.Index + 1);
 
-            Pointlights[id.Index] = new MyPointlightInfo
+			var p1 = new MyPointlightInfo
+            {
+                LastBvhUpdatePosition = Vector3.PositiveInfinity,
+                BvhProxyId = -1
+            };
+			Pointlights[id.Index] = p1;
+
+			var p2 = new MySpotlightInfo
             {
                 LastBvhUpdatePosition = Vector3.PositiveInfinity,
                 BvhProxyId = -1
             };
 
-            Spotlights[id.Index] = new MySpotlightInfo
-            {
-                LastBvhUpdatePosition = Vector3.PositiveInfinity,
-                BvhProxyId = -1
-            };
+            Spotlights[id.Index] = p2;
 
             IdIndex[GID] = id;
 

@@ -57,7 +57,7 @@ namespace VRageRender
             RC.DeviceContext.PixelShader.SetShaderResource(0, depth);
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
             RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
-            RC.DeviceContext.PixelShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
             RC.DeviceContext.PixelShader.Set(m_ps);
 
             MyScreenPass.DrawFullscreenQuad(new MyViewport(256, 256));
@@ -108,7 +108,7 @@ namespace VRageRender
             
                 RC.SetBS(MyRender11.BlendAdditive);
                 RC.SetCB(2, cb);
-                RC.DeviceContext.PixelShader.SetShaderResource(2, MyAtmosphereRenderer.GetAtmosphereLuts(atmosphereId.Value).TransmittanceLut.ShaderView);
+                RC.DeviceContext.PixelShader.SetShaderResource(2, MyAtmosphereRenderer.GetAtmosphereLuts(atmosphereId.Value).TransmittanceLut.SRV);
                 RC.DeviceContext.PixelShader.Set(m_atmosphere);
 
                 MyScreenPass.DrawFullscreenQuad(new MyViewport(MyEnvironmentProbe.CubeMapResolution, MyEnvironmentProbe.CubeMapResolution));
@@ -155,8 +155,8 @@ namespace VRageRender
             ConstantsBufferId constantBuffer = MyCommon.GetObjectCB(32);
             RC.CSSetCB(1, constantBuffer);
 
-            RC.DeviceContext.ComputeShader.SetShaderResource(0, probe.ShaderView);
-            RC.DeviceContext.ComputeShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.ComputeShader.SetShaderResource(0, probe.SRV);
+            RC.DeviceContext.ComputeShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             for (int j = 0; j < 6; ++j)
             {
@@ -211,7 +211,7 @@ namespace VRageRender
 
             RC.CSSetCB(1, MyCommon.GetObjectCB(32));
 
-            RC.DeviceContext.ComputeShader.SetSamplers(0, MyRender11.StandardSamplers);
+            RC.DeviceContext.ComputeShader.SetSamplers(0, SamplerStates.StandardSamplers);
 
             for (int j = 0; j < 6; ++j)
             {
