@@ -402,7 +402,7 @@ namespace Sandbox.Game.World
         HashSet<ulong> m_adminMode = new HashSet<ulong>();
         public bool IsAdminModeEnabled(ulong user)
         {
-            return m_adminMode.Contains(user) && HasPlayerAdminRights(user);
+            return m_adminMode.Contains(user) || HasPlayerAdminRights(user);
         }
 
         public void EnableAdminMode(ulong user,bool value)
