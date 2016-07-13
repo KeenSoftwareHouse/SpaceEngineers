@@ -36,6 +36,7 @@ namespace Sandbox.ModAPI.Ingame
         // WARNING: Do not autoinitialize any of these fields, or the grid program initialization process
         // will fail.
         private string m_storage;
+        private const int MAX_STORAGE_LENGTH = 8000;
         private readonly Action<string> m_main;
         private readonly Action m_save;
 
@@ -92,7 +93,15 @@ namespace Sandbox.ModAPI.Ingame
         public virtual string Storage
         {
             get { return this.m_storage ?? ""; }
-            protected set { this.m_storage = value ?? ""; }
+            protected set
+            {
+                if (value != null && value.Length > MAX_STORAGE_LENGTH)
+                {
+                    throw new InvalidOperationException(string.Format("Cannot set Storage to a string longer than {0} characters.", MAX_STORAGE_LENGTH));
+                }
+
+                this.m_storage = value ?? "";
+            }
         }
 
         /// <summary>
