@@ -124,10 +124,14 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
+  </ImportGroup>
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(HavokWrapperFullPath)</HintPath>
+      <HintPath Condition="Exists($(HavokWrapperFullPath))">$(HavokWrapperFullPath)</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\HavokWrapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />

@@ -13,4 +13,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(SolutionDir)\user.props" Condition="exists('$(SolutionDir)\user.props')" />
   </ImportGroup>
+  <PropertyGroup>
+    <SteamBin64>$(ContentPath)\..\Bin64</SteamBin64>
+  </PropertyGroup>
 </Project>
