@@ -436,6 +436,7 @@ namespace Sandbox.Game.Entities.Cube
             if (m_constraint != null)
             {
                 Reattach();
+                RaisePropertiesChanged();
             }
         }
 

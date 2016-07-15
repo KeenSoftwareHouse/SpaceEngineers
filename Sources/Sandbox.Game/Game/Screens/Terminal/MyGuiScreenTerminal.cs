@@ -148,8 +148,8 @@ namespace Sandbox.Game.Gui
                 //Inits of temporary panels
                 m_propertiesTopMenuParent = new MyGuiControlParent()
                 {
-                    Position = new Vector2(-0.614f, -0.487f),
-                    Size = new Vector2(0.3f, 0.15f),
+                    Position = new Vector2(-0.814f, -0.487f),
+                    Size = new Vector2(0.7f, 0.15f),
                     Name = "PropertiesPanel",
                     OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 };

@@ -136,8 +136,8 @@ namespace Sandbox.Game.Weapons
                 MyDrillConstants.DRILL_HAND_DUST_EFFECT,
                 MyDrillConstants.DRILL_HAND_DUST_STONES_EFFECT,
                 MyDrillConstants.DRILL_HAND_SPARKS_EFFECT,
-                new MyDrillSensorRayCast(-0.5f, 1.8f),
-                new MyDrillCutOut(0.5f, 0.35f*(definition as MyHandDrillDefinition).DistanceMultiplier),
+                new MyDrillSensorRayCast(-0.5f, 2.15f),
+                new MyDrillCutOut(1.0f, 0.35f*(definition as MyHandDrillDefinition).DistanceMultiplier),
                 SPIKE_SLOWDOWN_TIME_IN_SECONDS,
                 floatingObjectSpawnOffset: -0.25f,
                 floatingObjectSpawnRadius: 1.4f * 0.25f
@@ -255,7 +255,12 @@ namespace Sandbox.Game.Weapons
 #endif
 
                 m_spikeThrustPosition += timeDelta * m_drillBase.AnimationMaxSpeedRatio / SPIKE_THRUST_PERIOD_IN_SECONDS;
-                if (m_spikeThrustPosition > 1.0f) m_spikeThrustPosition -= 2.0f;
+                if (m_spikeThrustPosition > 1.0f)
+                {
+                    m_spikeThrustPosition -= 2.0f;
+                    if (Owner != null && m_objectInDrillingRange)
+                        Owner.WeaponPosition.AddBackkick(0.035f);
+                }
 
                 m_spikeLastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
@@ -327,7 +332,13 @@ namespace Sandbox.Game.Weapons
 
         private void WorldPositionChanged(object source)
         {
-            m_drillBase.OnWorldPositionChanged(PositionComp.WorldMatrix);
+            // pass logical position to drill base!
+            MatrixD logicalPositioning = MatrixD.Identity;
+            logicalPositioning.Right = m_owner.WorldMatrix.Right;
+            logicalPositioning.Forward = m_owner.ShootDirection;
+            logicalPositioning.Up = Vector3D.Normalize(logicalPositioning.Right.Cross(logicalPositioning.Forward));
+            logicalPositioning.Translation = m_owner.WeaponPosition.LogicalPositionWorld;
+            m_drillBase.OnWorldPositionChanged(logicalPositioning);
         }
 
         protected override void Closing()

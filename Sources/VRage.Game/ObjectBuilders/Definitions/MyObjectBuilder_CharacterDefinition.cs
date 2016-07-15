@@ -9,6 +9,13 @@ using VRageMath;
 
 namespace VRage.Game
 {
+    public enum MyEnumCharacterRotationToSupport
+    {
+        None,
+        OneAxis,
+        Full
+    }
+
     [ProtoContract]
     public class MyJetpackThrustDefinition
     {
@@ -420,8 +427,15 @@ namespace VRage.Game
         /// <summary>
         /// Name of used animation controller.
         /// </summary>
+        [ProtoMember]
         public string AnimationController = null;
 
+        [ProtoMember]
         public float? MaxForce = null;
+        /// <summary>
+        /// Align with the support? 
+        /// </summary>
+        [ProtoMember]
+        public MyEnumCharacterRotationToSupport RotationToSupport = MyEnumCharacterRotationToSupport.None;
     }
 }

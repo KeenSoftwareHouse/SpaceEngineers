@@ -46,6 +46,7 @@ namespace Sandbox.Game.Entities.Cube
             range.Getter = (x) => x.Range;
             range.Setter = (x, v) => x.Range = v;
             range.Writer = (x, result) => result.AppendInt32((int)x.m_oreDetectorComponent.DetectionRadius).Append(" m");
+            MyTerminalControlFactory.AddControl(range);
 
             var broadcastUsingAntennas = new MyTerminalControlCheckbox<MyOreDetector>("BroadcastUsingAntennas", MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas, MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas);
             broadcastUsingAntennas.Getter = (x) => x.m_oreDetectorComponent.BroadcastUsingAntennas;

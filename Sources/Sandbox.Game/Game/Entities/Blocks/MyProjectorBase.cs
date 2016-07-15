@@ -56,6 +56,15 @@ namespace Sandbox.Game.Entities.Blocks
 
         public Vector3I ProjectionOffset { get { return m_projectionOffset; } }
         public Vector3I ProjectionRotation { get { return m_projectionRotation; } }
+        public Quaternion ProjectionRotationQuaternion
+        {
+            get
+            {
+                Vector3 radians = ProjectionRotation * MathHelper.PiOver2;
+                Quaternion rotation = Quaternion.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z);
+                return rotation;
+            }
+        }
 
         private MySlimBlock m_hiddenBlock;
 
@@ -177,7 +186,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             RemoveProjection(false);
-            var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard);
+            var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard, true);
             blueprintScreen.Closed += OnBlueprintScreen_Closed;
             MyGuiSandbox.AddScreen(blueprintScreen);
 
@@ -1215,8 +1224,8 @@ namespace Sandbox.Game.Entities.Blocks
             Quaternion projQuat = Quaternion.Identity;
             Orientation.GetQuaternion(out projQuat);
             orientation.GetQuaternion(out quat);
+            quat = Quaternion.Multiply(ProjectionRotationQuaternion, quat);
             quat = Quaternion.Multiply(projQuat, quat);
-
 
             var projectorGrid = CubeGrid;
             var projectedGrid = cubeBlock.CubeGrid;
@@ -1232,8 +1241,7 @@ namespace Sandbox.Game.Entities.Blocks
             Vector3I projectedMax = new Vector3I(Math.Max(min.X, max.X), Math.Max(min.Y, max.Y), Math.Max(min.Z, max.Z));
 
 
-            MyCubeGrid.MyBlockLocation location = new MyCubeGrid.MyBlockLocation(cubeBlock.BlockDefinition.Id, projectedMin, projectedMax, pos,
-                quat, 0, owner);
+            MyCubeGrid.MyBlockLocation location = new MyCubeGrid.MyBlockLocation(cubeBlock.BlockDefinition.Id, projectedMin, projectedMax, pos, quat, 0, owner);
 
             MyObjectBuilder_CubeBlock objectBuilder = null;
             //Find original grid builder

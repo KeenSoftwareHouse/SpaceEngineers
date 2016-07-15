@@ -518,8 +518,8 @@
     <Compile Include="Game\Entities\Blocks\MyTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\ToolbarItemCache.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterComponentTypes.cs" />
-    <Compile Include="Game\Entities\Character\Components\MyCharacterFeetIKComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterPickupComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterWeaponPositionComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyInventorySpawnComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterJetpackComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterOxygenComponent.cs" />
@@ -536,6 +536,7 @@
     <Compile Include="Game\EntityComponents\MyEntityReferenceComponent.cs" />
     <Compile Include="Game\EntityComponents\MyGridOwnershipComponentBase.cs" />
     <Compile Include="Game\EntityComponents\MyShipSoundComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyEntityTerrainHeightProviderComponent.cs" />
     <Compile Include="Game\Entities\Planet\MyGravityProviderComponent.cs" />
     <Compile Include="Game\Entities\Planet\MySphericalNaturalGravityComponent.cs" />
     <Compile Include="Game\GameSystems\MyEnvironmentBotSpawningSystem.cs" />

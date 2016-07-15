@@ -80,7 +80,10 @@ namespace Sandbox.Game.WorldEnvironment
 
             var ob = MySerializer.CreateAndRead<MyObjectBuilder_EnvironmentSector>(stream, serialInfo);
 
-            sector.Init(ob);
+            if (sector != null)
+            {
+                sector.Init(ob);
+            }
 
             Debug.Assert(sector == null || !sector.ServerOwned);
 

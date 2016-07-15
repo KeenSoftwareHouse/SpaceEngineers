@@ -420,5 +420,10 @@ namespace VRageMath
             var dot = Vector3D.Dot(Normal, point);
             return dot + D;
         }
+
+        public Vector3D ProjectPoint(ref Vector3D point)
+        {
+            return point - Normal * DistanceToPoint(ref point);
+        }
     }
 }

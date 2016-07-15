@@ -1194,17 +1194,12 @@ false,
         /// </summary>
         /// <param name="rbo">The rbo.</param>
         /// <param name="step">The step.</param>
-        public virtual void OnMotion(HkRigidBody rbo, float step)
+        public virtual void OnMotion(HkRigidBody rbo, float step, bool fromParent = false)
         {
             if (rbo == RigidBody2)
                 return;
             Debug.Assert(rbo == RigidBody);
-
-            foreach(var child in WeldInfo.Children)
-            {
-                child.OnMotion(rbo, step);
-            }
-
+         
             if (Entity == null)
                 return;
 
@@ -1240,7 +1235,7 @@ false,
             const float MinVelocitySq = 0.00000001f;
             m_motionCounter++;
             if (m_motionCounter > MaxIgnoredMovements ||
-                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq)
+                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq || fromParent)
             {
                 ProfilerShort.Begin("GetWorldMatrix");
                 var matrix = GetWorldMatrix();
@@ -1250,6 +1245,15 @@ false,
                 this.Entity.PositionComp.SetWorldMatrix(matrix, this, true);
                 ProfilerShort.End();
                 m_motionCounter = 0;
+
+                foreach (var child in WeldInfo.Children)
+                {
+                    child.OnMotion(rbo, step,true);
+                }
+            }
+            else
+            {
+                Debug.Assert(fromParent == false,"well well well");
             }
 
             ProfilerShort.Begin("UpdateCluster");

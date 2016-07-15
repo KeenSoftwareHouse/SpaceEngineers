@@ -210,7 +210,7 @@ namespace Sandbox.Game.Entities.Blocks
                 jetpack.TurnOnJetpack(false);
 
             pilot.Sit(true, MySession.Static.LocalCharacter == pilot, false, BlockDefinition.CharacterAnimation);
-
+            pilot.TriggerCharacterAnimationEvent("entercryochamber", false);
 
             pilot.SuitBattery.ResourceSource.Enabled = true;
 

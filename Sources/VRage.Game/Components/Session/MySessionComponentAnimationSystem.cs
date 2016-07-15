@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using VRage.Animations;
+using VRage.FileSystem;
 using VRage.Game.Components;
 using VRage.Game.Definitions;
 using VRage.Game.Definitions.Animation;
@@ -229,6 +230,7 @@ namespace VRage.Game.SessionComponents
                         MyAnimationControllerDefinition originalAnimationControllerDefinition =
                             MyDefinitionManagerBase.Static.GetDefinition<MyAnimationControllerDefinition>(
                                 animSubtypeNameHash);
+
                         var postprocessor = MyDefinitionManagerBase.GetPostProcessor(typeof(MyObjectBuilder_AnimationControllerDefinition));
                         if (postprocessor != null)
                         {
@@ -265,7 +267,7 @@ namespace VRage.Game.SessionComponents
                             if (component != null && component.SourceId.SubtypeName == acName)
                             {
                                 component.Clear();
-                                component.InitFromDefinition(originalAnimationControllerDefinition); // reload from original def that was modified by postprocessor
+                                component.InitFromDefinition(originalAnimationControllerDefinition, forceReloadMwm: true); // reload from original def that was modified by postprocessor
                                 if (component.ReloadBonesNeeded != null)
                                     component.ReloadBonesNeeded();
                             }
@@ -275,6 +277,26 @@ namespace VRage.Game.SessionComponents
                 catch (Exception e)
                 {
                     MyLog.Default.WriteLine(e);
+                }
+            }
+        }
+        // --------------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Reload all mwm tracks while in-game. Mwms from cache are not used. 
+        /// </summary>
+        public void ReloadMwmTracks()
+        {
+            foreach (var component in m_skinnedEntityComponents)
+            {
+                MyAnimationControllerDefinition animationControllerDefinition =
+                    MyDefinitionManagerBase.Static.GetDefinition<MyAnimationControllerDefinition>(MyStringHash.GetOrCompute(component.SourceId.SubtypeName));
+                if (animationControllerDefinition != null)
+                {
+                    component.Clear();
+                    component.InitFromDefinition(animationControllerDefinition, forceReloadMwm: true); // reload from original def that was modified by postprocessor
+                    if (component.ReloadBonesNeeded != null)
+                        component.ReloadBonesNeeded();
                 }
             }
         }

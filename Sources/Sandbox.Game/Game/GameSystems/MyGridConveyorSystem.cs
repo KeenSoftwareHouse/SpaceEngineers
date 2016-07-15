@@ -1001,7 +1001,7 @@ namespace Sandbox.Game.GameSystems
                 MyGridConveyorSystem conveyorSystem = (m_start as MyCubeBlock).CubeGrid.GridSystems.ConveyorSystem;
                 MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(m_start);
 
-                endpoints.AddTransfer(m_endPoint, m_itemId, false, m_canTransfer);
+                endpoints.AddTransfer(m_endPoint, m_itemId, m_isPush, m_canTransfer);
             }
         }
 
@@ -1012,7 +1012,7 @@ namespace Sandbox.Game.GameSystems
 
             // Verify that this item can, in fact, make it past sorters, etc
             bool canTransfer = true;
-            if (endpoints.TryGetTransfer(endPoint, itemId, false, out canTransfer))
+            if (endpoints.TryGetTransfer(endPoint, itemId, isPush, out canTransfer))
             {
                 return canTransfer;
             }
@@ -1068,7 +1068,7 @@ namespace Sandbox.Game.GameSystems
             if (startingBlock == null) return 0;
 
             MyFixedPoint transferred = 0;
-            
+
             // Try and get the block from the cache
             MyGridConveyorSystem conveyorSystem = startingBlock.CubeGrid.GridSystems.ConveyorSystem;
             MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
@@ -1269,8 +1269,8 @@ namespace Sandbox.Game.GameSystems
 
             public void AddTransfer(IMyConveyorEndpointBlock block, MyDefinitionId itemId, bool isPush, bool canTransfer)
             {
-                var tuple = new Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>(block, itemId, isPush);
-                testedTransfers[tuple] = canTransfer;
+                    var tuple = new Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>(block, itemId, isPush);
+                    testedTransfers[tuple] = canTransfer;
             }
 
             public bool TryGetTransfer(IMyConveyorEndpointBlock block, MyDefinitionId itemId, bool isPush, out bool canTransfer)

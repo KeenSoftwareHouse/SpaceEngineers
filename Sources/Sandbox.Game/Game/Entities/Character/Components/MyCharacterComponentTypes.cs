@@ -24,7 +24,6 @@ namespace Sandbox.Game.Entities.Character.Components
                     { 
                     { MyStringId.GetOrCompute("RagdollComponent"), new Tuple<Type,Type>(typeof(MyCharacterRagdollComponent),typeof(MyCharacterRagdollComponent)) },
                     { MyStringId.GetOrCompute("InventorySpawnComponent"),  new Tuple<Type,Type>(typeof(MyInventorySpawnComponent),typeof(MyInventorySpawnComponent)) },
-                    { MyStringId.GetOrCompute("FeetIKComponent"), new Tuple<Type,Type>(typeof(MyCharacterFeetIKComponent),typeof(MyCharacterFeetIKComponent)) },
                     { MyStringId.GetOrCompute("CraftingComponent"), new Tuple<Type,Type>(typeof(MyCraftingComponentBasic),typeof(MyCraftingComponentBase)) },
                     };                    
                 }

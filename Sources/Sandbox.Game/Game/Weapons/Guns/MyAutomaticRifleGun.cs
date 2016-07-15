@@ -155,10 +155,10 @@ namespace Sandbox.Game.Weapons
         public Vector3 DirectionToTarget(Vector3D target)
         {
             Vector3D direction = Vector3D.Normalize(target - PositionComp.WorldMatrix.Translation);
-            Vector3D gunDirection = PositionComp.WorldMatrix.Forward;
+            Vector3D gunDirection = m_owner.WeaponPosition.LogicalOrientationWorld;
             double d = Vector3D.Dot(direction, gunDirection);
             //Too big angle to target
-            if (d < 0.75)
+            if (d < 0.98)
                 direction = gunDirection;
             return direction;
         }
@@ -235,6 +235,11 @@ namespace Sandbox.Game.Weapons
                 Shoot(direction, overrideWeaponPos);
                 m_shotsFiredInBurst++;
                 IsShooting = true;
+
+                if (m_owner.ControllerInfo.IsLocallyControlled() && m_owner.IsInFirstPersonView)
+                {
+                    MySector.MainCamera.CameraShake.AddShake(0.5f);
+                }
             }
             else if (action == MyShootActionEnum.SecondaryAction)
             {
@@ -275,11 +280,7 @@ namespace Sandbox.Game.Weapons
             }
             else
             {
-                Vector3D localDummyPosition = m_gunBase.GetMuzzleLocalPosition();
-                MatrixD weaponWorld = m_gunBase.WorldMatrix;
-                Vector3D localDummyPositionRotated;
-                Vector3D.Rotate(ref localDummyPosition, ref weaponWorld, out localDummyPositionRotated);
-                m_gunBase.Shoot((m_owner.PositionComp.GetPosition() + overrideWeaponPos.Value + localDummyPositionRotated) + direction * (-0.25f), 
+                m_gunBase.Shoot((overrideWeaponPos.Value) + direction * (-0.25f), 
                     m_owner.Physics.LinearVelocity, direction, (MyEntity)m_owner);
             }            m_isAfterReleaseFire = false;
             if (m_gunBase.ShootSound != null)

@@ -518,12 +518,17 @@ namespace Sandbox.Game.Entities
                         effect.WorldMatrix = WorldMatrix;
                         effect.UserScale = 0.4f;
                     }
-                    MyFloatingObjects.RemoveFloatingObject(this);
+                    if (Sync.IsServer)
+                    {
+                        MyFloatingObjects.RemoveFloatingObject(this);
+                    }
                 }
                 else
                 {
                     if (Sync.IsServer)
+                    {
                         MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damageinfo.Amount);
+                    }
                 }
             }
             else

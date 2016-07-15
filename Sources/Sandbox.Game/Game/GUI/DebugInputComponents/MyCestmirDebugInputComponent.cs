@@ -1115,7 +1115,7 @@ namespace Sandbox.Game.Gui
 
         private bool AddBot()
         {
-            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), "Cyberhound")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), "Wolf")) as MyAgentDefinition;
             MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
 
             return true;

@@ -11,6 +11,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRageMath;
 using Sandbox.Game.World;
+using VRage.Network;
 
 namespace Sandbox.Game.Replication
 {
@@ -60,10 +61,10 @@ namespace Sandbox.Game.Replication
 
         }
 
-        protected override void ClientWrite(VRage.Library.Collections.BitStream stream)
+        protected override void ClientWrite(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, int maxBitPosition)
         {
-                 
-            base.ClientWrite(stream);
+
+            base.ClientWrite(stream, forClient,timestamp,maxBitPosition);
 
             stream.WriteBool(m_character != null);
             if (m_character != null)
@@ -322,7 +323,7 @@ namespace Sandbox.Game.Replication
                 bool hasJetpack = m_character.JetpackComp != null;
                 if (hasJetpack && m_character.JetpackComp.TurnedOn && m_character.IsDead == false)
                 {
-                    if (Math.Abs(Quaternion.Dot(serverPositionAndOrientation.Transform.Rotation, clientNormalized)) < 1 - eps )
+                  /*  if (Math.Abs(Quaternion.Dot(serverPositionAndOrientation.Transform.Rotation, clientNormalized)) < 1 - eps )
                     {
                         Quaternion currentOrientation = Quaternion.CreateFromForwardUp(m_character.WorldMatrix.Forward, m_character.WorldMatrix.Up);
                         Quaternion.Multiply(ref delta.Transform.Rotation, ref currentOrientation, out currentOrientation);
@@ -339,7 +340,7 @@ namespace Sandbox.Game.Replication
                                 m_character.Physics.CharacterProxy.Up = matrix.Up;
                             }
                         }
-                    }
+                    }*/
                 }
 
                 if (deltaL > (MyGridPhysics.ShipMaxLinearVelocity() * Sync.RelativeSimulationRatio))

@@ -1094,26 +1094,24 @@ namespace Sandbox.Game.GameSystems
 
             ProfilerShort.Begin("Thrust strength and modifiers");
             FinalThrust = new Vector3();
-            if (networkUpdate == true || m_networkCommandApplied == false)
+
+            for (int typeIndex = 0; typeIndex < m_dataByFuelType.Count; ++typeIndex)
             {
-                for (int typeIndex = 0; typeIndex < m_dataByFuelType.Count; ++typeIndex)
-                {
-                    MyDefinitionId fuelType = m_fuelTypes[typeIndex];
-                    var fuelData = m_dataByFuelType[typeIndex];
+                MyDefinitionId fuelType = m_fuelTypes[typeIndex];
+                var fuelData = m_dataByFuelType[typeIndex];
 
-                    ProfilerShort.Begin("UpdatePowerAndThrustStrength");
+                ProfilerShort.Begin("UpdatePowerAndThrustStrength");
 
-                    UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, null, true);
+                UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, null, true);
 
-                    ProfilerShort.End();
-                    Vector3 thrustBeforeApply;
-                    var maxThrust = (m_maxPositiveThrust + m_maxNegativeThrust);
-                    thrustBeforeApply.X = maxThrust.X != 0 ? fuelData.CurrentThrust.X * (fuelData.MaxPositiveThrust.X + fuelData.MaxNegativeThrust.X) / maxThrust.X : 0f;
-                    thrustBeforeApply.Y = maxThrust.Y != 0 ? fuelData.CurrentThrust.Y * (fuelData.MaxPositiveThrust.Y + fuelData.MaxNegativeThrust.Y) / maxThrust.Y : 0f;
-                    thrustBeforeApply.Z = maxThrust.Z != 0 ? fuelData.CurrentThrust.Z * (fuelData.MaxPositiveThrust.Z + fuelData.MaxNegativeThrust.Z) / maxThrust.Z : 0f;
-                    Vector3 finalThrust = ApplyThrustModifiers(ref fuelType, ref thrustBeforeApply, ref m_totalThrustOverride, m_resourceSink);
-                    FinalThrust += finalThrust;
-                }
+                ProfilerShort.End();
+                Vector3 thrustBeforeApply;
+                var maxThrust = (m_maxPositiveThrust + m_maxNegativeThrust);
+                thrustBeforeApply.X = maxThrust.X != 0 ? fuelData.CurrentThrust.X * (fuelData.MaxPositiveThrust.X + fuelData.MaxNegativeThrust.X) / maxThrust.X : 0f;
+                thrustBeforeApply.Y = maxThrust.Y != 0 ? fuelData.CurrentThrust.Y * (fuelData.MaxPositiveThrust.Y + fuelData.MaxNegativeThrust.Y) / maxThrust.Y : 0f;
+                thrustBeforeApply.Z = maxThrust.Z != 0 ? fuelData.CurrentThrust.Z * (fuelData.MaxPositiveThrust.Z + fuelData.MaxNegativeThrust.Z) / maxThrust.Z : 0f;
+                Vector3 finalThrust = ApplyThrustModifiers(ref fuelType, ref thrustBeforeApply, ref m_totalThrustOverride, m_resourceSink);
+                FinalThrust += finalThrust;
             }
 
             for (int i = 0; i < m_connectedGroups.Count; i++)

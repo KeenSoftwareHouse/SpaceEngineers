@@ -80,6 +80,7 @@ namespace Sandbox.Game.Entities.Cube
                 return m_canBePlaced;
             }
         }
+
         bool m_canBePlacedNeedsRefresh=true;//collision is only done once per X frames and therefore have to be done in the frame when we are pasting
         protected bool m_characterHasEnoughMaterials = false;
         public bool CharacterHasEnoughMaterials { get { return m_characterHasEnoughMaterials; } }
@@ -122,7 +123,7 @@ namespace Sandbox.Game.Entities.Cube
         public bool IsActive
         {
             get;
-            private set;
+            protected set;
         }
 
         public bool AllowSwitchCameraMode
@@ -251,6 +252,7 @@ namespace Sandbox.Game.Entities.Cube
             get;
             set;
         }
+        public bool ShowModdedBlocksWarning = true;
 
         public MyGridClipboard(MyPlacementSettings settings, bool calculateVelocity = true)
         {
@@ -276,6 +278,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public virtual void Activate()
         {
+
             ChangeClipboardPreview(true);
             IsActive = true;
 
@@ -581,12 +584,18 @@ namespace Sandbox.Game.Entities.Cube
             if (m_previewGrids.Count == 0)
                 return false;
 
-            bool missingBlockDefinitions = !CheckPastedBlocks();
+            bool missingBlockDefinitions = false;
+
+            if (ShowModdedBlocksWarning)
+            {
+                missingBlockDefinitions = !CheckPastedBlocks();
+            }
 
             if (missingBlockDefinitions)
             {
                 AllowSwitchCameraMode = false;
                 var messageBox = MyGuiSandbox.CreateMessageBox(
+                    styleEnum: MyMessageBoxStyleEnum.Info,
                     buttonType: MyMessageBoxButtonsType.YES_NO,
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextDoYouWantToPasteGridWithMissingBlocks),
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning),
@@ -749,6 +758,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void SetGridFromBuilders(MyObjectBuilder_CubeGrid[] grids, Vector3 dragPointDelta, float dragVectorLength)
         {
+            ShowModdedBlocksWarning = true;
             if (IsActive)
             {
                 Deactivate();

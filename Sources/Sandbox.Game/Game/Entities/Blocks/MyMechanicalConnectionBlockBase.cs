@@ -39,6 +39,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected bool m_isWelding = false;
         protected Sync<bool> m_forceWeld;
+        protected Sync<bool> m_speedWeld;
+
         protected bool m_welded = false;
 
         protected Sync<float> m_weldSpeedSq; //squared
@@ -57,6 +59,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_connectionState.Validate = ValidateTopBlockId;
             m_topAndBottomSamePhysicsBody.ValidateNever();
 
+            m_speedWeld.Value = false;
             CreateTerminalControls();     
         }
 
@@ -104,13 +107,15 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_welded == false && m_topBlock != null)
                 {
                     WeldGroup(true);
+                    UpdateText();
                 }
             }
-            else if (m_welded)
+            else if (m_welded && m_speedWeld == false)
             {
                 UnweldGroup();
                 m_forceApply = true;
                 TryAttach();
+                UpdateText();
             }
         }
 
@@ -126,7 +131,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         protected bool CheckVelocities()
         {              
-            if (!MyFakes.WELD_ROTORS || Sync.IsServer == false || m_forceWeld)
+            if (!MyFakes.WELD_ROTORS || Sync.IsServer == false || m_forceWeld || CubeGrid == null || CubeGrid.Physics == null)
                 return false;
 
             var velSq = CubeGrid.Physics.LinearVelocity.LengthSquared();
@@ -134,6 +139,7 @@ namespace Sandbox.Game.Entities.Blocks
             const float safeUnweldSpeedDif = 2 * 2;
             if (velSq < m_weldSpeedSq - safeUnweldSpeedDif && m_welded)
             {
+                m_speedWeld.Value = false;
                 UnweldGroup();
                 m_forceApply = true;
                 TryAttach();
@@ -161,6 +167,7 @@ namespace Sandbox.Game.Entities.Blocks
 
                 if (m_topBlock != null && m_topGrid != null)
                 {
+                    m_speedWeld.Value = true;
                     WeldGroup(false);
                     return true;
                 }
@@ -305,6 +312,8 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_topBlock == null && (m_connectionState.Value.TopBlockId.HasValue))
             {
                 TryGetTop();
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                return;
             }
 
             if(m_topBlockToReattach != null && m_forceWeld)
@@ -316,7 +325,7 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (m_topBlock != null)
             {
-                if (m_forceWeld)
+                if (m_forceWeld || m_speedWeld)
                 {
                     if (m_welded == false)
                     {
@@ -352,6 +361,8 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_topBlock == null)
                 {
                     TryGetTop();
+                    NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                    return;
                 }
 
                 if (m_topBlock != null)
@@ -371,10 +382,12 @@ namespace Sandbox.Game.Entities.Blocks
             if (Sync.IsServer)
             {
                 TryForceWeldServer();
+                UpdateText();
             }
             else
             {
                 TryWeldClient();
+                UpdateText();
             }
         }
 
@@ -517,8 +530,12 @@ namespace Sandbox.Game.Entities.Blocks
             updateFlags &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             updateFlags &= ~MyEntityUpdateEnum.EACH_10TH_FRAME;
 
-            if(m_welded)
+            if(m_welded || m_forceWeld || m_speedWeld)
             {
+                if (m_welded)
+                {
+                    NeedsUpdate = updateFlags;
+                }
                 return;
             }
 

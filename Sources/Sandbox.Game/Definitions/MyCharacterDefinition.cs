@@ -161,6 +161,8 @@ namespace Sandbox.Definitions
         public string AnimationController = null;
 
         public float? MaxForce = null;
+        // align with support (terrain) - useful for animals
+        public MyEnumCharacterRotationToSupport RotationToSupport = MyEnumCharacterRotationToSupport.None;
 
         /// <summary>
         /// VRAGE TODO: TEMPORARY!
@@ -238,6 +240,7 @@ namespace Sandbox.Definitions
             InitialAnimation = builder.InitialAnimation;
             PhysicalMaterial = builder.PhysicalMaterial;
             JumpForce = builder.JumpForce;
+            RotationToSupport = builder.RotationToSupport;
 
             FeetIKSettings = new Dictionary<MyCharacterMovementEnum,MyFeetIKSettings>();
             if (builder.IKSettings != null)
@@ -444,6 +447,7 @@ namespace Sandbox.Definitions
             ob.DeadBodyShape = DeadBodyShape;
             ob.AnimationController = AnimationController;
             ob.MaxForce = MaxForce;
+            ob.RotationToSupport = RotationToSupport;
 
             return ob;
         }

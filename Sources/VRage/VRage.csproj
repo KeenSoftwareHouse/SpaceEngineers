@@ -141,6 +141,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\AnimationNodes\MyAnimationTreeNodeMix1D.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="Animations\MyAnimatedProperty.cs" />
     <Compile Include="Animations\MyAnimatedProperty2D.cs" />
     <Compile Include="Animations\MyAnimationController.cs" />
+    <Compile Include="Animations\MyAnimationInverseKinematics.cs" />
     <Compile Include="Animations\MyAnimationStateMachine.cs" />
     <Compile Include="Animations\MyAnimationStateMachineNode.cs" />
     <Compile Include="Animations\MyAnimationStateMachineTransition.cs" />
@@ -551,6 +553,8 @@
     <Compile Include="Sync\SyncType.cs" />
     <Compile Include="Sync\Sync.cs" />
     <Compile Include="Utils\MyDiscreteSampler.cs" />
+    <Compile Include="Utils\MyAverageFiltering.cs" />
+    <Compile Include="Utils\MyMergeHelper.cs" />
     <Compile Include="Utils\MyStringHash.cs" />
     <Compile Include="Utils\MyPolygonBoolOps-Operations.cs" />
     <Compile Include="Utils\MyExternalDebugStructures.cs" />

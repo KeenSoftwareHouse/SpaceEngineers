@@ -143,8 +143,12 @@ namespace VRage.Animations
         private readonly Dictionary<string, int> m_tableLayerNameToIndex;
         // allocation pool for results
         public readonly MyResultBonesPool ResultBonesPool;
+        // inverse kinematics
+        public readonly MyAnimationInverseKinematics InverseKinematics;
         // local frame counter
         public int FrameCounter { get; private set; }
+
+        private bool IkUpdateEnabled { get; set; }
 
         // ----------------------------------------------------------------------
         #region Constructor
@@ -156,7 +160,9 @@ namespace VRage.Animations
             m_tableLayerNameToIndex = new Dictionary<string, int>(1);
             Variables = new MyAnimationVariableStorage();
             ResultBonesPool = new MyResultBonesPool();
+            InverseKinematics = new MyAnimationInverseKinematics();
             FrameCounter = 0;
+            IkUpdateEnabled = true; // turning off IK part (unfinished)
         }
         #endregion
 
@@ -330,6 +336,39 @@ namespace VRage.Animations
         {
             foreach (var layer in m_layers)
                 layer.TriggerAction(actionName);
+        }
+
+        /// <summary>
+        /// Perform inverse kinematics.
+        /// </summary>
+        public void UpdateInverseKinematics(ref MyCharacterBone[] characterBonesStorage)
+        {
+            if (Variables == null || !IkUpdateEnabled)
+                return;
+
+            float flying;
+            float falling;
+            float dead;
+            float sitting;
+            float jumping;
+            float speed;
+            float firstPersonCamera;
+            const float speedEps = 0.25f;
+
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdFlying, out flying);
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdFalling, out falling);
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdDead, out dead);
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdSitting, out sitting);
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdJumping, out jumping);
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdSpeed, out speed);
+            Variables.GetValue(MyAnimationVariableStorageHints.StrIdFirstPerson, out firstPersonCamera);
+
+            if (speed < speedEps)
+            {
+                InverseKinematics.ClearCharacterOffsetFilteringSamples();
+            }
+            InverseKinematics.SolveFeet(flying <= 0 && falling <= 0 && dead <= 0 && sitting <= 0 && jumping <= 0,
+                characterBonesStorage, firstPersonCamera <= 0.0f);
         }
     }
 }

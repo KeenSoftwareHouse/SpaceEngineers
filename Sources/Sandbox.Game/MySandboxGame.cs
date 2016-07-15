@@ -59,6 +59,7 @@ using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Screens;
 using VRage.Game.ObjectBuilder;
+using VRage.Game.SessionComponents;
 
 #endregion
 
@@ -1336,6 +1337,8 @@ namespace Sandbox
 
                     handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
                         typeof(Sandbox.ModAPI.MyAPIUtilities),
+                        typeof(Sandbox.ModAPI.Interfaces.ITerminalAction),
+                        typeof(Sandbox.ModAPI.Interfaces.Terminal.IMyTerminalAction),
                         typeof(VRage.Game.ModAPI.IMyCubeBlock),
                         typeof(Sandbox.ModAPI.MyAPIGateway),
                         typeof(VRage.Game.ModAPI.Interfaces.IMyCameraController),
@@ -1343,12 +1346,14 @@ namespace Sandbox
                         typeof(VRage.Game.Entity.MyEntity),
                         typeof(Sandbox.Game.Entities.MyEntityExtensions),
                         typeof(VRage.Game.EnvironmentItemsEntry),
+                        typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties),
                         typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AdvancedDoor),
                         typeof(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_AdvancedDoorDefinition),
                         typeof(VRage.ObjectBuilders.MyObjectBuilder_Base),
                         typeof(VRage.Game.Components.MyIngameScript),
-                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent)
-                        );
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent),
+                        typeof(Sandbox.Game.Entities.Character.Components.MyCharacterOxygenComponent)                        
+                    );
 
                     // space & medieval object builders/definition object builders. Move to game dlls when sandbox's finally gone.
                     handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
@@ -1357,6 +1362,8 @@ namespace Sandbox
 
                     handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
                         typeof(Sandbox.Game.MyStatLogic),
+                        typeof(Sandbox.Game.Components.MyEntityStatComponent),
+                        typeof(Sandbox.Game.WorldEnvironment.MyEnvironmentSector),
                         typeof(VRage.SerializableVector3),
                         typeof(Sandbox.Definitions.MyDefinitionManager),
                         typeof(VRage.MyFixedPoint),
@@ -1388,7 +1395,8 @@ namespace Sandbox
                         typeof(Sandbox.ModAPI.Interfaces.ITerminalProperty<>),
                         typeof(Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions),
                         typeof(Sandbox.Game.Localization.MySpaceTexts),
-                        typeof(VRage.MyTexts)
+                        typeof(VRage.MyTexts),
+                        typeof(VRage.MyFixedPoint)
                         );
 
                     #region Input
@@ -1429,6 +1437,8 @@ namespace Sandbox
                     handle.AllowTypes(MyWhitelistTarget.Ingame,
                         typeof(VRage.Collections.ListReader<>),
                         typeof(VRage.Game.MyDefinitionId),
+                        typeof(VRage.Game.MyRelationsBetweenPlayerAndBlock),
+                        typeof(VRage.Game.MyRelationsBetweenPlayerAndBlockExtensions),
                         typeof(VRage.Game.Components.MyResourceSourceComponentBase),
                         typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties),
                         typeof(VRage.ObjectBuilders.MyObjectBuilder_Base),
@@ -1465,6 +1475,9 @@ namespace Sandbox
                         typeof(ProtoBuf.ProtoContractAttribute),
                         typeof(VRageRender.Lights.MyGlareTypeEnum),
                         typeof(VRage.Serialization.SerializableDictionary<,>),
+                        typeof(Sandbox.Game.Weapons.MyToolBase),
+                        typeof(Sandbox.Game.Weapons.MyGunBase),
+                        typeof(Sandbox.Game.Weapons.MyDeviceBase),
                         typeof(ParallelTasks.IWork),
                         typeof(ParallelTasks.Task),
                         typeof(ParallelTasks.WorkOptions)
@@ -2329,6 +2342,12 @@ namespace Sandbox
 
         public void Dispose()
         {
+            if (MySessionComponentExtDebug.Static != null)
+            {
+                MySessionComponentExtDebug.Static.Dispose();
+                MySessionComponentExtDebug.Static = null;
+            }
+
             if (MyMultiplayer.Static != null)
                 MyMultiplayer.Static.Dispose();
 

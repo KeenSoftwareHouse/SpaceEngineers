@@ -113,7 +113,7 @@ namespace Sandbox.Game.Replication
                 }
                 else
                 {
-                    ClientWrite(stream);
+                    ClientWrite(stream, forClient, timestamp,maxBitPosition);
                 }
             }
             else
@@ -131,7 +131,7 @@ namespace Sandbox.Game.Replication
             return true;
         }
 
-        protected virtual void ClientWrite(VRage.Library.Collections.BitStream stream)
+        protected virtual void ClientWrite(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, int maxBitPosition)
         {                         
         }
 

@@ -1135,11 +1135,13 @@ namespace Sandbox.Game.Entities
 
         private void OnControlEntityChanged(IMyControllableEntity oldControl, IMyControllableEntity newControl)
         {
-            if (m_enableShipControl && oldControl != null)
+            if (m_enableShipControl && oldControl != null && oldControl.Entity != null && newControl != null && newControl.Entity != null)
             {
                 if (CubeGrid.IsMainCockpit(oldControl.Entity as MyTerminalBlock))
                 {
-                    if (oldControl.Entity.Parent.EntityId == newControl.Entity.Parent.EntityId)
+                    MyEntity oldParent = oldControl.Entity.Parent == null ? oldControl.Entity : oldControl.Entity.Parent;
+                    MyEntity newParent = newControl.Entity.Parent == null ? newControl.Entity : newControl.Entity.Parent;
+                    if (oldParent.EntityId == newParent.EntityId)
                     {
                         Console.WriteLine("Both controls are from same grid");
                         var group = ControlGroup.GetGroup(CubeGrid);

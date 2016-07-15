@@ -52,7 +52,7 @@ namespace Sandbox.Game.Entities
                 HandTool = tool;
             }
 
-            public override void OnMotion(HkRigidBody rbo, float step)
+            public override void OnMotion(HkRigidBody rbo, float step, bool fromParent)
             {
             }
 
@@ -528,6 +528,7 @@ namespace Sandbox.Game.Entities
 
             if (!isShooting && m_wasShooting)
             {
+                m_owner.TriggerCharacterAnimationEvent("stop_tool_action", false);
                 m_owner.StopUpperCharacterAnimation(0.4f);
                 m_shotToolAction = null;
             }

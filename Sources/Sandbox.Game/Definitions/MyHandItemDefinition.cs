@@ -24,6 +24,8 @@ namespace Sandbox.Definitions
         public Matrix ItemLocation3rd;
         public Matrix ItemWalkingLocation;
         public Matrix ItemWalkingLocation3rd;
+        public Matrix ItemShootLocation;
+        public Matrix ItemShootLocation3rd;
 
         public float BlendTime;
 
@@ -42,8 +44,6 @@ namespace Sandbox.Definitions
         public bool SimulateRightHand = true;
 
         public string FingersAnimation;
-        public Matrix ItemShootLocation;
-        public Matrix ItemShootLocation3rd;
         public float ShootBlend;
 
         public Vector3 MuzzlePosition;
@@ -61,6 +61,13 @@ namespace Sandbox.Definitions
         public float LightIntensityUpper;
         public float ShakeAmountTarget;
         public float ShakeAmountNoTarget;
+
+        public MyItemPositioningEnum ItemPositioning = MyItemPositioningEnum.TransformFromData;
+        public MyItemPositioningEnum ItemPositioning3rd = MyItemPositioningEnum.TransformFromData;
+        public MyItemPositioningEnum ItemPositioningWalk = MyItemPositioningEnum.TransformFromData;
+        public MyItemPositioningEnum ItemPositioningWalk3rd = MyItemPositioningEnum.TransformFromData;
+        public MyItemPositioningEnum ItemPositioningShoot = MyItemPositioningEnum.TransformFromData;
+        public MyItemPositioningEnum ItemPositioningShoot3rd = MyItemPositioningEnum.TransformFromData;
 
         public List<ToolSound> ToolSounds;
 
@@ -132,6 +139,13 @@ namespace Sandbox.Definitions
             ShakeAmountNoTarget = ob.ShakeAmountNoTarget;
 
             ToolSounds = ob.ToolSounds;
+
+            ItemPositioning = ob.ItemPositioning;
+            ItemPositioning3rd = ob.ItemPositioning3rd;
+            ItemPositioningWalk = ob.ItemPositioningWalk;
+            ItemPositioningWalk3rd = ob.ItemPositioningWalk3rd;
+            ItemPositioningShoot = ob.ItemPositioningShoot;
+            ItemPositioningShoot3rd = ob.ItemPositioningShoot3rd;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()
@@ -201,6 +215,13 @@ namespace Sandbox.Definitions
             ob.ShakeAmountNoTarget = ShakeAmountNoTarget;
 
             ob.ToolSounds = ToolSounds;
+
+            ob.ItemPositioning = ItemPositioning;
+            ob.ItemPositioning3rd = ItemPositioning3rd;
+            ob.ItemPositioningWalk = ItemPositioningWalk;
+            ob.ItemPositioningWalk3rd = ItemPositioningWalk3rd;
+            ob.ItemPositioningShoot = ItemPositioningShoot;
+            ob.ItemPositioningShoot3rd = ItemPositioningShoot3rd;
 
             return ob;
         }

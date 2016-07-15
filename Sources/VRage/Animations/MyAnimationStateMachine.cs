@@ -204,7 +204,6 @@ namespace VRage.Animations
                     }
 
                     // synchronization options... use them only if target animation is not playing already 
-                    if (!targetAnimationStillPlaying)
                     switch (animationTransition.Sync)
                     {
                         case MyAnimationTransitionSyncType.Restart:
@@ -214,7 +213,7 @@ namespace VRage.Animations
                             }
                             break;
                         case MyAnimationTransitionSyncType.Synchronize:
-                            if (animationSourceNode.RootAnimationNode != null && animationTargetNode.RootAnimationNode != null)
+                            if (!targetAnimationStillPlaying && animationSourceNode.RootAnimationNode != null && animationTargetNode.RootAnimationNode != null)
                             {
                                 float normalizedTimeInSource = animationSourceNode.RootAnimationNode.GetLocalTimeNormalized();
                                 animationTargetNode.RootAnimationNode.SetLocalTimeNormalized(normalizedTimeInSource);

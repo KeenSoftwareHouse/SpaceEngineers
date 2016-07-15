@@ -57,10 +57,6 @@ namespace Sandbox.Game.Entities.Cube
             for (int i = 0; i < edgeList.Count; i++)
             {
                 double dot = Vector3D.Dot(fitVector, edgeList[i].Edge.Direction);
-                if(dot.IsValid() == false)
-                {
-                    dot = 0.0;
-                }
                 int edgeDirection = Math.Sign(dot);
                 dot = 1.0f - Math.Abs(dot);
 
@@ -195,8 +191,6 @@ namespace Sandbox.Game.Entities.Cube
 
             int closestXAxis, closestXAxis2;
             GetClosestCubeEdge(m_cubeVertices, MyOrientedBoundingBox.StartXVertices, MyOrientedBoundingBox.EndXVertices, out closestXAxis, out closestXAxis2);
-            closestXAxis = Math.Max(0, closestXAxis);
-            closestXAxis2 = Math.Max(0, closestXAxis2);
             Vector3D startXVertex = m_cubeVertices[MyOrientedBoundingBox.StartXVertices[closestXAxis]];
             Vector3D endXVertex = m_cubeVertices[MyOrientedBoundingBox.EndXVertices[closestXAxis]];
             Vector3D startXVertex2 = m_cubeVertices[MyOrientedBoundingBox.StartXVertices[closestXAxis2]];
@@ -204,8 +198,6 @@ namespace Sandbox.Game.Entities.Cube
 
             int closestYAxis, closestYAxis2;
             GetClosestCubeEdge(m_cubeVertices, MyOrientedBoundingBox.StartYVertices, MyOrientedBoundingBox.EndYVertices, out closestYAxis, out closestYAxis2);
-            closestYAxis = Math.Max(0, closestYAxis);
-            closestYAxis2 = Math.Max(0, closestYAxis2);
             Vector3D startYVertex = m_cubeVertices[MyOrientedBoundingBox.StartYVertices[closestYAxis]];
             Vector3D endYVertex = m_cubeVertices[MyOrientedBoundingBox.EndYVertices[closestYAxis]];
             Vector3D startYVertex2 = m_cubeVertices[MyOrientedBoundingBox.StartYVertices[closestYAxis2]];
@@ -213,8 +205,6 @@ namespace Sandbox.Game.Entities.Cube
 
             int closestZAxis, closestZAxis2;
             GetClosestCubeEdge(m_cubeVertices, MyOrientedBoundingBox.StartZVertices, MyOrientedBoundingBox.EndZVertices, out closestZAxis, out closestZAxis2);
-            closestZAxis = Math.Max(0, closestZAxis);
-            closestZAxis2 = Math.Max(0, closestZAxis2);
             Vector3D startZVertex = m_cubeVertices[MyOrientedBoundingBox.StartZVertices[closestZAxis]];
             Vector3D endZVertex = m_cubeVertices[MyOrientedBoundingBox.EndZVertices[closestZAxis]];
             Vector3D startZVertex2 = m_cubeVertices[MyOrientedBoundingBox.StartZVertices[closestZAxis2]];

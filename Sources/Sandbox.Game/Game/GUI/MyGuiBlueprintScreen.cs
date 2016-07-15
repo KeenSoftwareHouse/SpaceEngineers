@@ -90,6 +90,7 @@ namespace Sandbox.Game.Gui
         private MyGuiControlListbox.Item m_selectedItem = null;
         private MyGuiControlRotatingWheel m_wheel;
         private MyGridClipboard m_clipboard;
+        private bool m_allowCopyToClipboard;
 
         static HashSet<ulong> m_downloadQueued = new HashSet<ulong>();
         static MyConcurrentHashSet<ulong> m_downloadFinished = new MyConcurrentHashSet<ulong>();
@@ -144,13 +145,14 @@ namespace Sandbox.Game.Gui
             return "MyBlueprintScreen";
         }
 
-        public MyGuiBlueprintScreen(MyGridClipboard clipboard) :
+        public MyGuiBlueprintScreen(MyGridClipboard clipboard, bool allowCopyToClipboard) :
             base(new Vector2(MyGuiManager.GetMaxMouseCoord().X - SCREEN_SIZE.X * 0.5f + HIDDEN_PART_RIGHT, 0.5f), SCREEN_SIZE, MyGuiConstants.SCREEN_BACKGROUND_COLOR, false)
         {
 
             Debug.Assert(clipboard != null, "Clipboard can't be null");
 
             m_clipboard = clipboard;
+            m_allowCopyToClipboard = allowCopyToClipboard;
 
             if (!Directory.Exists(m_localBlueprintFolder))
             {
@@ -197,7 +199,7 @@ namespace Sandbox.Game.Gui
             Vector2 buttonOffset = new Vector2(0.15f, 0.035f);
             float width = 0.15f;
 
-            m_okButton = CreateButton(width, new StringBuilder("Ok"), OnOk, textScale: m_textScale);
+            m_okButton = CreateButton(width, new StringBuilder("Ok"), OnOk, textScale: m_textScale, enabled: m_allowCopyToClipboard);
             m_okButton.Position = buttonPosition;
 
             var cancelButton = CreateButton(width, new StringBuilder("Cancel"), OnCancel, textScale: m_textScale);
@@ -763,7 +765,29 @@ namespace Sandbox.Game.Gui
                 {
                     MySandboxGame.Static.SessionCompatHelper.CheckAndFixPrefab(prefab);
                 }
-                return CopyBlueprintPrefabToClipboard(prefab, m_clipboard);
+                if (CheckBlueprintForMods(prefab) == false)
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                           buttonType: MyMessageBoxButtonsType.YES_NO,
+                           styleEnum: MyMessageBoxStyleEnum.Info,
+                           messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning),
+                           messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextDoYouWantToPasteGridWithMissingBlocks),
+                           callback: result =>
+                {
+                    if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                    {
+                       if(CopyBlueprintPrefabToClipboard(prefab, m_clipboard))
+                       {
+                           CloseScreen();
+                       }
+                    }
+                }));
+                    return false;
+                }
+                else
+                {
+                    return CopyBlueprintPrefabToClipboard(prefab, m_clipboard);
+                }
             }
             else
             {
@@ -775,6 +799,32 @@ namespace Sandbox.Game.Gui
                             ));
                 return false;
             }
+        }
+
+        static bool CheckBlueprintForMods(MyObjectBuilder_Definitions prefab)
+        {
+            if (prefab.ShipBlueprints == null)
+                return true;
+
+            var cubeGrids = prefab.ShipBlueprints[0].CubeGrids;
+
+            if (cubeGrids == null || cubeGrids.Length == 0)
+                return true;
+
+            foreach (var gridBuilder in cubeGrids)
+            {
+                foreach (var block in gridBuilder.CubeBlocks)
+                {
+                    var defId = block.GetId();
+                    MyCubeBlockDefinition blockDefinition = null;
+                    if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(defId, out blockDefinition) == false)
+                    { 
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         public static bool CopyBlueprintPrefabToClipboard(MyObjectBuilder_Definitions prefab, MyGridClipboard clipboard, bool setOwner = true)
@@ -824,6 +874,7 @@ namespace Sandbox.Game.Gui
 
             clipboard.SetGridFromBuilders(cubeGrids, dragVector, dragDistance);
             clipboard.Deactivate();
+            clipboard.ShowModdedBlocksWarning = false;
             return true;
         }
 
@@ -924,26 +975,19 @@ namespace Sandbox.Game.Gui
             }
             else
             {
-                if (MySession.Static.SurvivalMode && MySession.Static.IsAdminModeEnabled(Sync.MyId) == false)
+                if (itemInfo.Type == MyBlueprintTypeEnum.STEAM)
                 {
-                    CloseScreen();
+                    Task = Parallel.Start(() =>
+                    {
+                        if (MySteamWorkshop.IsBlueprintUpToDate(itemInfo.Item) == false)
+                        {
+                            DownloadBlueprintFromSteam(itemInfo.Item);
+                        }
+                    }, () => { CopyBlueprintAndClose(); });
                 }
                 else
                 {
-                    if (itemInfo.Type == MyBlueprintTypeEnum.STEAM)
-                    {
-                        Task = Parallel.Start(() =>
-                        {
-                            if (MySteamWorkshop.IsBlueprintUpToDate(itemInfo.Item) == false)
-                            {
-                                DownloadBlueprintFromSteam(itemInfo.Item);
-                            }
-                        }, () => { CopyBlueprintAndClose(); });
-                    }
-                    else
-                    {
-                        CopyBlueprintAndClose();
-                    }
+                    CopyBlueprintAndClose();
                 }
             }
         }

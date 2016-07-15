@@ -127,8 +127,7 @@ namespace Sandbox.Game.Entities.Cube
             MatrixD worldMatrix = m_projector.WorldMatrix;
 
             // Update rotation based on projector settings
-            Vector3 radians = m_projector.ProjectionRotation * MathHelper.PiOver2;
-            Quaternion rotation = Quaternion.CreateFromYawPitchRoll(radians.X, radians.Y, radians.Z);
+            Quaternion rotation = m_projector.ProjectionRotationQuaternion;
             Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);
             worldMatrix = Matrix.Multiply(rotationMatrix, worldMatrix);
 
@@ -164,6 +163,12 @@ namespace Sandbox.Game.Entities.Cube
 
                 return 0f;
             }
+        }
+
+        public override void Activate()
+        {
+            ChangeClipboardPreview(true);
+            IsActive = true;
         }
     }
 }

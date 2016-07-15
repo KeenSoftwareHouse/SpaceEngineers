@@ -1156,21 +1156,21 @@ namespace Sandbox.Game.Entities
                     group.EntityId = newGrid.EntityId;
                     ProfilerShort.End();
 
-                    if (newGrid.IsStatic)
+                    if (newGrid.IsStatic && Sync.IsServer)
                     {
                         MatrixD worldMat = newGrid.WorldMatrix;
                         bool result = MyCoordinateSystem.Static.IsLocalCoordSysExist(ref worldMat, newGrid.GridSize);
                         if (newGrid.GridSizeEnum == MyCubeSize.Large)
                         {
-                        if (result)
-                        {
-                            MyCoordinateSystem.Static.RegisterCubeGrid(newGrid);
-                }
-                else
-                {
-                            MyCoordinateSystem.Static.CreateCoordSys(newGrid, MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter, true);
+                            if (result)
+                            {
+                                MyCoordinateSystem.Static.RegisterCubeGrid(newGrid);
+                            }
+                            else
+                            {
+                                MyCoordinateSystem.Static.CreateCoordSys(newGrid, MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter, true);
+                            }
                         }
-                    }
                     }
 
                 }

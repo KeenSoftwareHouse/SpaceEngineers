@@ -80,7 +80,6 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.BeginNextBlock("DebugDraw");
             DebugDraw();
-            ProfilerShort.End();
 
             if (BlockCreationIsActivated)
             {
@@ -90,6 +89,7 @@ namespace Sandbox.Game.Entities
             if (!IsActivated || CurrentBlockDefinition == null)
             {
                 this.ClearRenderData();
+                ProfilerShort.End();
                 return;
             }
 
@@ -99,6 +99,7 @@ namespace Sandbox.Game.Entities
             if (!BuildInputValid)
             {
                 this.ClearRenderData();
+                ProfilerShort.End();
                 return;
             }
 
@@ -142,21 +143,21 @@ namespace Sandbox.Game.Entities
 
                             if (addPos)
                             {
-                            if (PlacingSmallGridOnLargeStatic)
-                                m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPosSmallOnLarge.Value;
-                            else
-                                m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPos;
+                                if (PlacingSmallGridOnLargeStatic)
+                                    m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPosSmallOnLarge.Value;
+                                else
+                                    m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPos;
 
-                            m_gizmo.SpaceDefault.m_worldMatrixAdd = m_gizmo.SpaceDefault.m_localMatrixAdd * CurrentGrid.WorldMatrix;
-                            ProfilerShort.End();
+                                m_gizmo.SpaceDefault.m_worldMatrixAdd = m_gizmo.SpaceDefault.m_localMatrixAdd * CurrentGrid.WorldMatrix;
 
-                            var normal = GetSingleMountPointNormal();
-                            // Gizmo add dir can be zero in some cases
-                            if (normal.HasValue && GridAndBlockValid && m_gizmo.SpaceDefault.m_addDir != Vector3I.Zero)
-                            {
-                                m_gizmo.SetupLocalAddMatrix(m_gizmo.SpaceDefault, normal.Value);
+                                var normal = GetSingleMountPointNormal();
+                                // Gizmo add dir can be zero in some cases
+                                if (normal.HasValue && GridAndBlockValid && m_gizmo.SpaceDefault.m_addDir != Vector3I.Zero)
+                                {
+                                    m_gizmo.SetupLocalAddMatrix(m_gizmo.SpaceDefault, normal.Value);
+                                }
                             }
-                        }
+                            ProfilerShort.End();
                         }
                         else
                         {
@@ -255,6 +256,7 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.BeginNextBlock("UpdateBlockInfoHud");
             UpdateBlockInfoHud();
+            ProfilerShort.End();
 
         }
 
@@ -311,8 +313,8 @@ namespace Sandbox.Game.Entities
                 m_gizmo.SpaceDefault.m_worldMatrixAdd.Translation = defaultPos;
             }
 
-            return addPos;
             ProfilerShort.End();
+            return addPos;
         }
 
         protected void DrawBuildingStepsCount(Vector3I? startBuild, Vector3I? startRemove, Vector3I? continueBuild, ref Matrix localMatrixAdd )

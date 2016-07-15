@@ -28,6 +28,7 @@ using VRage.Input;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Game.SessionComponents.Clipboard
 {
@@ -596,7 +597,7 @@ namespace Sandbox.Game.SessionComponents.Clipboard
 
                     UpdatePasteNotification(MyCommonTexts.CubeBuilderPasteNotification);
 
-                    var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard);
+                    var blueprintScreen = new MyGuiBlueprintScreen(m_clipboard, MySession.Static.CreativeMode || MySession.Static.IsAdminModeEnabled(Sync.MyId));
                     if (copiedGrid != null)
                     {
                         blueprintScreen.CreateFromClipboard(true);

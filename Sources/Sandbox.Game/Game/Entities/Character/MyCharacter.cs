@@ -218,7 +218,7 @@ namespace Sandbox.Game.Entities.Character
         const float RESPAWN_TIME = 5.0f; //s
 
         internal const float MIN_HEAD_LOCAL_X_ANGLE = -89.9f;
-        internal const float MAX_HEAD_LOCAL_X_ANGLE = 89.9f;
+        internal const float MAX_HEAD_LOCAL_X_ANGLE = 89.0f;
 
         // TODO: This should probably be pulled from the HKCharacterStateType enum instead
         // But right now it is using HK_CHARACTER_USER_STATE_0
@@ -255,10 +255,8 @@ namespace Sandbox.Game.Entities.Character
         int m_weaponBone = -1;
         public int WeaponBone { get { return m_weaponBone; } }
         public event Action<IMyHandheldGunObject<MyDeviceBase>> WeaponEquiped;
-        static readonly Vector3 m_weaponIronsightTranslation = new Vector3(0.0f, -0.11f, -0.22f);
         IMyHandheldGunObject<MyDeviceBase> m_currentWeapon;
 
-        static readonly Vector3 m_toolIronsightTranslation = new Vector3(0.0f, -0.21f, -0.25f);
 
         public bool DebugMode = false;
 
@@ -308,6 +306,7 @@ namespace Sandbox.Game.Entities.Character
 
         MyEntity m_leftHandItem;
         MyHandItemDefinition m_handItemDefinition;
+        public MyHandItemDefinition HandItemDefinition { get { return m_handItemDefinition; } }
         MyZoomModeEnum m_zoomMode = MyZoomModeEnum.Classic;
         public MyZoomModeEnum ZoomMode { get { return m_zoomMode; } }
 
@@ -497,10 +496,6 @@ namespace Sandbox.Game.Entities.Character
         }
 
         bool m_useAnimationForWeapon = true;
-        Matrix m_relativeWeaponMatrix = Matrix.Identity;
-        float m_animationToIKDelay = 0.3f; //s
-        float m_currentAnimationToIKTime = 0.3f;
-        int m_animationToIKState = 0; //0 - none, -1 IK to Animation, 1 AnimationToIK
 
         private static bool? m_localCharacterWasInThirdPerson = null;
 
@@ -511,26 +506,11 @@ namespace Sandbox.Game.Entities.Character
             get { return m_characterDefinition; }
         }
 
-        bool UseAnimationForWeapon
+        public bool UseAnimationForWeapon
         {
             get { return m_useAnimationForWeapon; }
-            set
-            {
-                if (m_useAnimationForWeapon != value)
-                {
-                    if (value)
-                    {
-                        m_animationToIKState = -1;
-                        m_currentAnimationToIKTime = m_animationToIKDelay;
+            private set { m_useAnimationForWeapon = value; }
                     }
-                    else
-                    {
-                        m_animationToIKState = 1;
-                        m_currentAnimationToIKTime = 0;
-                    }
-                }
-            }
-        }
 
         //Backwards compatibility for MyThirdPersonSpectator
         //Default needs to be true
@@ -628,6 +608,12 @@ namespace Sandbox.Game.Entities.Character
             private set;
         }
 
+        public MyCharacterWeaponPositionComponent WeaponPosition
+        {
+            get;
+            private set;
+        }
+
         public Vector3 MoveIndicator
         {
             get;
@@ -685,7 +671,9 @@ namespace Sandbox.Game.Entities.Character
             set
             {
                 m_isPromoted.Value = value;
-                Sandbox.Game.World.MyPlayer.PlayerId playerId = m_savedPlayer.HasValue ? m_savedPlayer.Value : m_controlInfo.Value;
+
+                // Removed m_savedPlayer from here because of rank desynch on DS.
+                Sandbox.Game.World.MyPlayer.PlayerId playerId = m_controlInfo.Value;//m_savedPlayer.HasValue ? m_savedPlayer.Value : m_controlInfo.Value;
 
                 if (value)
                 {
@@ -789,7 +777,7 @@ namespace Sandbox.Game.Entities.Character
 
             m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
 
-            m_weaponPosition.Value = Vector3D.Zero;
+            //m_weaponPosition.Value = Vector3D.Zero;
 
             m_localHeadTransformTool.ValueChanged += (x) => ToolHeadTransformChanged();
             //Components.Add<MyCharacterDetectorComponent>(new MyCharacterShapecastDetectorComponent());
@@ -1053,6 +1041,10 @@ namespace Sandbox.Game.Entities.Character
                 JetpackComp = new MyCharacterJetpackComponent();
                 JetpackComp.Init(characterOb);
             }
+
+            WeaponPosition = new MyCharacterWeaponPositionComponent();
+            Components.Add(WeaponPosition);
+            WeaponPosition.Init(characterOb);
 
             InitWeapon(characterOb.HandWeapon);
 
@@ -2079,11 +2071,6 @@ namespace Sandbox.Game.Entities.Character
 
             if (!MySandboxGame.IsDedicated || !MyPerGameSettings.DisableAnimationsOnDS)
             {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Head in obstacle");
-                if (ControllerInfo.IsLocallyControlled() && (ForceFirstPersonCamera || IsInFirstPersonView))
-                    PreventHeadInObstacle();
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Animation");
                 UpdateAnimation(m_cameraDistance);
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -2099,11 +2086,11 @@ namespace Sandbox.Game.Entities.Character
             else
             {
                 //fix for grinding on DS 
-                if (m_currentWeapon != null)
+                if (m_currentWeapon != null && WeaponPosition != null)
                 {
                     if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
                     {
-                        UpdateWeaponPosition();
+                        WeaponPosition.Update();
                     }
                 }
             }
@@ -2115,13 +2102,6 @@ namespace Sandbox.Game.Entities.Character
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Respawn and Looting");
             UpdateRespawnAndLooting();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
-            if (!MySandboxGame.IsDedicated || !MyPerGameSettings.DisableAnimationsOnDS)
-            {
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update IK Transitions");
-                UpdateIKTransitions();
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-            }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update shooting");
             UpdateShooting();
@@ -2141,39 +2121,6 @@ namespace Sandbox.Game.Entities.Character
             if (Physics != null)
             {
                 m_previousLinearVelocity = Physics.LinearVelocity;
-            }
-        }
-
-        private void PreventHeadInObstacle()
-        {
-            MatrixD headMatrix = GetHeadMatrix(false);
-            Vector3D startPoint = headMatrix.Translation - PositionComp.WorldMatrix.Forward * 0.2f;
-            Vector3D endPoint = headMatrix.Translation + PositionComp.WorldMatrix.Forward * 0.2f;
-            //VRageRender.MyRenderProxy.DebugDrawLine3D(startPoint, endPoint, Color.Aqua, Color.Aqua, false);
-            //VRageRender.MyRenderProxy.DebugDrawLine3D(startPoint + 0.02, endPoint + 0.02, Color.Green, Color.Green, true);
-            MyPhysics.CastRay(startPoint, endPoint, m_universalTemporaryRaycastHits);
-            float t = 1f;
-            foreach (MyPhysics.HitInfo castRes in m_universalTemporaryRaycastHits)
-            {
-                //VRageRender.MyRenderProxy.DebugDrawSphere(castRes.Position, 0.1f, Color.Red,1,false);
-                IMyEntity hitEntity = castRes.HkHitInfo.GetHitEntity();
-                if (hitEntity == null || hitEntity == this || (hitEntity is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>))
-                    continue;
-                
-                t = Math.Min(t, castRes.HkHitInfo.HitFraction);
-            }
-            m_universalTemporaryRaycastHits.Clear();
-            if (t < 0.7f)
-            {
-                m_headSafeOffset = (startPoint - endPoint) * t;
-                // hack :(
-                float fwdWeight = -1+(float)Math.Cos(m_headLocalXAngle / 180.0f * Math.PI);
-                m_headSafeOffset += (0.25f * fwdWeight * PositionComp.WorldMatrix.Forward + PositionComp.WorldMatrix.Down * 0.15f + PositionComp.WorldMatrix.Left * 0.15f) * t;
-                //VRageRender.MyRenderProxy.DebugDrawSphere(headMatrix.Translation + m_headSafeOffset, 0.1f, Color.Yellow, 1, false);
-            }
-            else
-            {
-                m_headSafeOffset = Vector3D.Zero;
             }
         }
 
@@ -2253,30 +2200,7 @@ namespace Sandbox.Game.Entities.Character
             return false;
         }
 
-        private void UpdateIKTransitions()
-        {
-            if (m_animationToIKState > 0)
-            {
-                m_currentAnimationToIKTime += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                if (m_currentAnimationToIKTime >= m_animationToIKDelay)
-                {
-                    m_currentAnimationToIKTime = m_animationToIKDelay;
-                    m_useAnimationForWeapon = false;
-                    m_animationToIKState = 0;
-                }
-            }
-            else
-                if (m_animationToIKState < 0)
-                {
-                    m_currentAnimationToIKTime -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                    if (m_currentAnimationToIKTime <= 0)
-                    {
-                        m_currentAnimationToIKTime = 0;
-                        m_useAnimationForWeapon = true;
-                        m_animationToIKState = 0;
-                    }
-                }
-        }
+
 
         private void UpdateBobQueue()
         {
@@ -2448,7 +2372,7 @@ namespace Sandbox.Game.Entities.Character
                     Vector3 characterUp = Physics.CharacterProxy.Up;
                     Vector3 characterForward = Physics.CharacterProxy.Forward;
 
-                    Vector3 gravity = relativeSpeed * relativeSpeed * MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.WorldAABB.Center);
+                    Vector3 gravity =  relativeSpeed * MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.WorldAABB.Center);
                     if (jetpackNotActive)
                         Physics.CharacterProxy.Gravity = gravity * MyPerGameSettings.CharacterGravityMultiplier;
                     else
@@ -2515,7 +2439,28 @@ namespace Sandbox.Game.Entities.Character
 
         private void UpdateStandup(ref Vector3 gravity, ref Vector3 chUp, ref Vector3 chForward)
         {
-            Vector3 testUp = -Vector3.Normalize(gravity);
+            Vector3 minusGravity = -Vector3.Normalize(gravity);
+            Vector3 testUp = minusGravity;
+            if (Physics != null && Physics.CharacterProxy != null && Physics.CharacterProxy.Supported)
+            {
+                Vector3 supportNormal = Physics.CharacterProxy.SupportNormal;
+                if (Definition.RotationToSupport == MyEnumCharacterRotationToSupport.OneAxis)
+                {
+                    float cosAngleMinusGravityToNormal = minusGravity.Dot(ref supportNormal);
+                    if (!MyUtils.IsZero(cosAngleMinusGravityToNormal - 1) &&
+                        !MyUtils.IsZero(cosAngleMinusGravityToNormal + 1))
+                    {
+                        Vector3 poleVec = minusGravity.Cross(supportNormal);
+                        poleVec.Normalize();
+                        testUp = Vector3.Lerp(supportNormal, minusGravity, Math.Abs(poleVec.Dot(WorldMatrix.Forward)));
+                    }
+                }
+                else if (Definition.RotationToSupport == MyEnumCharacterRotationToSupport.Full)
+                {
+                    testUp = supportNormal;
+                }
+            }
+
             var dotProd = Vector3.Dot(chUp, testUp);
             var lenProd = chUp.Length() * testUp.Length();
             var divOperation = dotProd / lenProd;
@@ -2808,7 +2753,7 @@ namespace Sandbox.Game.Entities.Character
             bool canRotate = (jetpackRunning || !((m_currentCharacterState == HkCharacterStateType.HK_CHARACTER_IN_AIR || (int)m_currentCharacterState == MyCharacter.HK_CHARACTER_FLYING) && (m_currentJumpTime <= 0))) && (m_currentMovementState != MyCharacterMovementEnum.Died);
 
             float acceleration = 0;
-
+            float lastSpeed = m_currentSpeed;
             if (jetpackRunning)
             {
                 jetpack.MoveAndRotate(ref moveIndicator, ref rotationIndicator, roll, canRotate);
@@ -2988,44 +2933,44 @@ namespace Sandbox.Game.Entities.Character
                     Vector3D headBoneTranslation = Vector3D.Zero;
 
                     // rotate around point of interest
-                    if (m_headBoneIndex >= 0 && m_headBoneIndex < AnimationController.CharacterBones.Length)
-                    {
-                        if (ControllerInfo.IsLocallyControlled())
-                        {
-                            headBoneTranslation = m_headMatrix.Translation;
-                            headBoneTranslation.X = 0;
-                            headBoneTranslation.Y = 0;
-                        }
-                        else
-                        {
-                            headBoneTranslation = m_localHeadPosition.Value;
-                        }
-                        rotationMatrix = MatrixD.CreateTranslation(-headBoneTranslation) * rotationMatrix * MatrixD.CreateTranslation(headBoneTranslation);
-                    }
+                    //if (m_headBoneIndex >= 0 && m_headBoneIndex < AnimationController.CharacterBones.Length)
+                    //{
+                    //    if (ControllerInfo.IsLocallyControlled())
+                    //    {
+                    //        headBoneTranslation = m_headMatrix.Translation;
+                    //        headBoneTranslation.X = 0;
+                    //        headBoneTranslation.Y = 0;
+                    //    }
+                    //    else
+                    //    {
+                    //        headBoneTranslation = m_localHeadPosition.Value;
+                    //    }
+                    //    rotationMatrix = MatrixD.CreateTranslation(-headBoneTranslation) * rotationMatrix * MatrixD.CreateTranslation(headBoneTranslation);
+                    //}
 
                     // compute delta matrix
-                    Vector3D characterMatrixTranslationBackup = characterMatrix.Translation;
+                    //Vector3D characterMatrixTranslationBackup = characterMatrix.Translation;
                     // new matrix candidates
                     characterMatrix = rotationMatrix * characterMatrix;
-                    var newWorldMatrix = rotationMatrix * WorldMatrix;
+                    //var newWorldMatrix = rotationMatrix * WorldMatrix;
                     // check whether this rotation is safe
-                    if (ControllerInfo.IsLocallyControlled())
-                    {
-                        if (IsMovementDangerous(ref newWorldMatrix))
-                        {
-                            characterMatrix.Translation = characterMatrixTranslationBackup;
-                            m_localHeadPosition.Value = Vector3.Zero;
-                        }
-                        else
-                        {
-                            m_localHeadPosition.Value = headBoneTranslation;
-                        }
-                    }
+                    //if (ControllerInfo.IsLocallyControlled())
+                    //{
+                    //    if (IsMovementDangerous(ref newWorldMatrix))
+                    //    {
+                    //        characterMatrix.Translation = characterMatrixTranslationBackup;
+                    //        m_localHeadPosition.Value = Vector3.Zero;
+                    //    }
+                    //    else
+                    //    {
+                    //        m_localHeadPosition.Value = headBoneTranslation;
+                    //    }
+                    //}
 
                     Physics.CharacterProxy.Forward = characterMatrix.Forward;
                     Physics.CharacterProxy.Up = characterMatrix.Up;
-                    Physics.CharacterProxy.Position = characterMatrix.Translation;
-                    PositionComp.SetWorldMatrix(newWorldMatrix, Physics);
+                    //Physics.CharacterProxy.Position = characterMatrix.Translation;
+                    //PositionComp.SetWorldMatrix(newWorldMatrix, Physics);
                 }
 
                 if (rotationIndicator.X != 0)
@@ -3057,32 +3002,6 @@ namespace Sandbox.Game.Entities.Character
             WantsJump = false;
             WantsFlyUp = false;
             WantsFlyDown = false;
-        }
-
-        /// <summary>
-        /// Is the movement going through any collision?
-        /// </summary>
-        /// <param name="newWorldMatrix">New world matrix candidate.</param>
-        /// <returns>True if moving to the new position is not safe.</returns>
-        private bool IsMovementDangerous(ref MatrixD newWorldMatrix)
-        {
-            MyPhysics.CastRay(PositionComp.GetPosition(), newWorldMatrix.Translation, m_universalTemporaryRaycastHits);
-            foreach (MyPhysics.HitInfo rb in m_universalTemporaryRaycastHits)
-            {
-                if (rb.HkHitInfo.Body == null
-                    || rb.HkHitInfo.Body.UserObject == null
-                    || !(rb.HkHitInfo.Body.UserObject is MyPhysicsBody))
-                    continue;
-                IMyEntity hitEntity = rb.HkHitInfo.GetHitEntity();
-                if (hitEntity is IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>
-                    || hitEntity == this)
-                {
-                    continue;
-                }
-
-                return true;
-            }
-            return false;
         }
 
         private void RotateHead(Vector2 rotationIndicator)
@@ -3279,7 +3198,7 @@ namespace Sandbox.Game.Entities.Character
             return 0;
         }
 
-        bool IsWalkingState(MyCharacterMovementEnum state)
+        public static bool IsWalkingState(MyCharacterMovementEnum state)
         {
             switch (state)
             {
@@ -3307,6 +3226,27 @@ namespace Sandbox.Game.Entities.Character
                 case MyCharacterMovementEnum.CrouchWalkingRightBack:
                 case MyCharacterMovementEnum.CrouchStrafingLeft:
                 case MyCharacterMovementEnum.CrouchStrafingRight:
+                case MyCharacterMovementEnum.Sprinting:
+                    return true;
+                    break;
+
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsRunningState(MyCharacterMovementEnum state)
+        {
+            switch (state)
+            {
+                case MyCharacterMovementEnum.Running:
+                case MyCharacterMovementEnum.Backrunning:
+                case MyCharacterMovementEnum.RunningLeftBack:
+                case MyCharacterMovementEnum.RunningRightBack:
+                case MyCharacterMovementEnum.RunStrafingLeft:
+                case MyCharacterMovementEnum.RunStrafingRight:
+                case MyCharacterMovementEnum.RunningLeftFront:
+                case MyCharacterMovementEnum.RunningRightFront:
                 case MyCharacterMovementEnum.Sprinting:
                     return true;
                     break;
@@ -4236,6 +4176,8 @@ namespace Sandbox.Game.Entities.Character
                 if (headBone != -1)
                 {
                     averageBob = BoneAbsoluteTransforms[headBone].Translation;
+                    float applyIkOneHeadBoneWeight = 1 - (float)Math.Cos(MathHelper.ToRadians(m_headLocalXAngle)); // the headbone should be ignored by IK, but here, we need to reapply it to have correct distance from ground when looking down
+                    averageBob.Y += applyIkOneHeadBoneWeight * AnimationController.InverseKinematics.RootBoneVerticalOffset;
                 }
             }
 
@@ -4254,7 +4196,7 @@ namespace Sandbox.Game.Entities.Character
                 && BoneAbsoluteTransforms[headBone].Forward.LengthSquared() > float.Epsilon)
             {
                 //m_headMatrix = Matrix.CreateRotationX(-(float)Math.PI * 0.5f) * /* Matrix.CreateRotationY(-(float)Math.PI * 0.5f) */ Matrix.Normalize(BoneTransformsWrite[HEAD_DUMMY_BONE]);
-                Matrix hm = Matrix.Normalize(BoneAbsoluteTransforms[headBone]);
+                Matrix hm = Matrix.Identity;// Matrix.Normalize(BoneAbsoluteTransforms[headBone]);
                 hm.Translation = averageBob;
                 m_headMatrix = MatrixD.CreateRotationX(-Math.PI * 0.5) * hm;
             }
@@ -4364,7 +4306,7 @@ namespace Sandbox.Game.Entities.Character
             }
 
             MatrixD matrix = GetHeadMatrix(false, true, preferLocalOverSync: true);
-            matrix.Translation = matrix.Translation + m_headSafeOffset;
+            matrix.Translation = matrix.Translation;// +m_headSafeOffset;
 
             m_lastCorrectSpectatorCamera = MatrixD.Zero;
 
@@ -4598,7 +4540,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (shootingAction.HasValue && m_currentWeapon.CanShoot(shootingAction.Value, ControllerInfo.ControllingIdentityId, out status))
             {
-                m_currentWeapon.Shoot(shootingAction.Value, ShootDirection, m_weaponPosition.Value);
+                m_currentWeapon.Shoot(shootingAction.Value, ShootDirection, WeaponPosition.LogicalPositionWorld);
                 UseAnimationForWeapon = MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon);
                 //if(!UseAnimationForWeapon)
                 // StopUpperCharacterAnimation(0);
@@ -4652,6 +4594,8 @@ namespace Sandbox.Game.Entities.Character
             // moved to weapons/tools
             //m_currentCameraShakePower = Math.Max(m_currentCameraShakePower, MyUtils.GetRandomFloat(1.5f, m_currentWeapon.ShakeAmount));
 
+            WeaponPosition.AddBackkick(m_currentWeapon.BackkickForcePerSecond * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+
             var jetpack = JetpackComp;
             if (m_currentWeapon.BackkickForcePerSecond > 0 && ((jetpack != null && jetpack.Running) || m_isFalling))
             {
@@ -4704,7 +4648,7 @@ namespace Sandbox.Game.Entities.Character
             {
                 case MyZoomModeEnum.Classic:
                     {
-                        if (m_currentWeapon != null)
+                        if (m_currentWeapon != null && (MySession.Static.CameraController == this || !ControllerInfo.IsLocallyControlled()))
                         {
                             //m_secondarySoundEmitter.PlaySound(MySoundCuesEnum.ArcPlayIronSight);
                             //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightActivate, m_secondarySoundEmitter, Common.ObjectBuilders.Audio.MyAudioHelpers.Dimensions.D3);
@@ -4720,10 +4664,13 @@ namespace Sandbox.Game.Entities.Character
                     break;
                 case MyZoomModeEnum.IronSight:
                     {
-                        //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate, m_secondarySoundEmitter, Common.ObjectBuilders.Audio.MyAudioHelpers.Dimensions.D3);
-                        //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate);
-                        SoundComp.PlaySecondarySound(CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND, true);
-                        EnableIronsight(false, newKeyPress, true);
+                        if (MySession.Static.CameraController == this || !ControllerInfo.IsLocallyControlled())
+                        {
+                            //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate, m_secondarySoundEmitter, Common.ObjectBuilders.Audio.MyAudioHelpers.Dimensions.D3);
+                            //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate);
+                            SoundComp.PlaySecondarySound(CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND, true);
+                            EnableIronsight(false, newKeyPress, true);
+                        }
                     }
                     break;
             }
@@ -5238,6 +5185,24 @@ namespace Sandbox.Game.Entities.Character
             pickupComponent.PickUpFinished();
         }
 
+        bool HasEnoughSpaceToStandUp()
+        {
+            if(IsCrouching == false)
+            {
+                return true;
+            }
+
+            Vector3D characterHeadPosition = WorldMatrix.Translation + Definition.CharacterCollisionCrouchHeight * WorldMatrix.Up;
+            float heightDifference = Definition.CharacterCollisionHeight - Definition.CharacterCollisionCrouchHeight;
+
+            Sandbox.Engine.Physics.MyPhysics.HitInfo? hit = MyPhysics.CastRay(characterHeadPosition, characterHeadPosition + heightDifference * WorldMatrix.Up, MyPhysics.CollisionLayers.CharacterCollisionLayer);
+            if (hit.HasValue)
+            {
+                return false;
+            }
+
+            return true;
+        }
         public void Crouch()
         {
             if (IsDead)
@@ -5245,7 +5210,10 @@ namespace Sandbox.Game.Entities.Character
 
             if ((JetpackComp == null || !JetpackComp.Running) && !m_isFalling)
             {
-                WantsCrouch = !WantsCrouch;
+                if (HasEnoughSpaceToStandUp())
+                {
+                    WantsCrouch = !WantsCrouch;
+                }
             }
         }
 
@@ -5288,6 +5256,10 @@ namespace Sandbox.Game.Entities.Character
             if (m_currentMovementState == MyCharacterMovementEnum.Died)
                 return;
 
+            if(HasEnoughSpaceToStandUp() == false)
+            {
+                return;
+            }
             // Check if can jump. (ex. enough  stamina)
             MyTuple<ushort, MyStringHash> message;
             if (StatComp != null && !StatComp.CanDoAction("Jump", out message, m_currentMovementState == MyCharacterMovementEnum.Jump))
@@ -5676,6 +5648,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void OnReleaseControl(IMyCameraController newCameraController)
         {
+            IsInFirstPersonView = false;
         }
 
         private void ResetHeadRotation()
@@ -5964,7 +5937,32 @@ namespace Sandbox.Game.Entities.Character
                 {
                     TriggerCharacterAnimationEvent("equip_left_tool", true);
                     TriggerCharacterAnimationEvent("equip_right_tool", true);
+                    TriggerCharacterAnimationEvent(m_handItemDefinition.Id.SubtypeName.ToLower(), true);
                     TriggerCharacterAnimationEvent(m_handItemDefinition.FingersAnimation.ToLower(), true);
+                }
+
+                if (!def.LeftHandItem.TypeId.IsNull)
+                {
+                    if (m_leftHandItem != null)
+                    {
+                        (m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>).OnControlReleased();
+                        m_leftHandItem.Close();
+                    }
+
+                    // CH: TODO: The entity id is not synced, but it never was in this place. It should be fixed later
+                    long handItemId = MyEntityIdentifier.AllocateId();
+                    uint? inventoryItemId = null;
+                    var builder = GetObjectBuilderForWeapon(def.LeftHandItem, ref inventoryItemId, handItemId);
+                    var leftHandItem = CreateGun(builder, inventoryItemId);
+
+                    if (leftHandItem != null)
+                    {
+                        m_leftHandItem = leftHandItem as MyEntity;
+                        leftHandItem.OnControlAcquired(this);
+                        UpdateLeftHandItemPosition();
+
+                        MyEntities.Add(m_leftHandItem);
+                    }
                 }
             }
             else if (m_handItemDefinition != null)
@@ -6214,6 +6212,12 @@ namespace Sandbox.Game.Entities.Character
 
         public bool DoDamage(float damage, MyStringHash damageType, bool updateSync, long attackerId = 0)
         {
+            if (damageType != MyDamageType.Suicide && ControllerInfo.IsLocallyControlled())
+            {
+                const float maxShake = 5.0f;
+                MySector.MainCamera.CameraShake.AddShake(maxShake * damage / (damage + maxShake));
+            }
+
             if ((!CharacterCanDie && !(damageType == MyDamageType.Suicide && MyPerGameSettings.CharacterSuicideEnabled)) || StatComp == null)
                 return false;
 
@@ -7153,262 +7157,8 @@ namespace Sandbox.Game.Entities.Character
         const float m_weaponMedAmp = (m_weaponMinAmp + m_weaponMaxAmp) / 2.0f;
         const float m_weaponRunMedAmp = (1.03966641f + 1.21786702f) / 2.0f;
         private Quaternion m_weaponMatrixOrientationBackup;        
-        readonly Sync<Vector3> m_weaponPosition;
-
-        void UpdateWeaponPosition()
-        {
-            bool isInFirstPerson = IsInFirstPersonView || ForceFirstPersonCamera;
-            bool isLocallyControlled = ControllerInfo.IsLocallyControlled();
-
-            var headMatrix = GetHeadMatrix(false, false, true, true, preferLocalOverSync: true);
-
-            m_crosshairPoint = headMatrix.Translation + headMatrix.Forward * 2000;
-
-            var jetpack = JetpackComp;
-            bool canFly = jetpack != null && jetpack.Running;
-
-            //MatrixD weaponMatrixPositioned = GetHeadMatrix(!isLocallyControlled, true, false, true, preferLocalOverSync: true);
-            MatrixD weaponMatrixPositioned = GetHeadMatrix(false, !canFly, false, true, preferLocalOverSync: true);
-            if (isLocallyControlled && MyInput.Static.IsGameControlPressed(Sandbox.Game.MyControlsSpace.LOOKAROUND)
-                && !IsInFirstPersonView && !ForceFirstPersonCamera && !canFly)
-            {
-                // restore orientation from backup (user rotates camera around chracter)
-                Vector3D translationBackup = weaponMatrixPositioned.Translation;
-                weaponMatrixPositioned = MatrixD.CreateFromQuaternion(m_weaponMatrixOrientationBackup);
-                weaponMatrixPositioned.Translation = translationBackup;
-            }
-            else
-            {
-                m_weaponMatrixOrientationBackup = Quaternion.CreateFromRotationMatrix(weaponMatrixPositioned.GetOrientation());
-            }
-
-
-            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
-            {
-                VRageRender.MyRenderProxy.DebugDrawText3D(weaponMatrixPositioned.Translation, "HeadDummy", Color.White, 0.8f, false);
-                VRageRender.MyRenderProxy.DebugDrawAxis(weaponMatrixPositioned, 1, false);
-            }
-
-            float cameraModeBlend = 0;
-
-            if (MySession.Static.ControlledEntity == this)
-                cameraModeBlend = MySector.MainCamera.Zoom.GetZoomLevel();
-            else
-            {
-                cameraModeBlend = m_zoomMode == MyZoomModeEnum.IronSight ? 0 : 1;
-            }
-
-
-            MatrixD ironsightMatrix = MatrixD.Identity;
-            ironsightMatrix.Translation = m_weaponIronsightTranslation;
-            if (m_currentWeapon is MyEngineerToolBase)
-            {
-                ironsightMatrix.Translation = m_toolIronsightTranslation;
-            }
-
-            MatrixD weaponLocation;
-            float totalBlendTime = m_handItemDefinition.BlendTime;
-            float shootBlendTime = m_handItemDefinition.ShootBlend;
-
-            bool isWalkingState = IsWalkingState(m_currentMovementState);
-            MatrixD standingMatrix = isLocallyControlled && isInFirstPerson ? m_handItemDefinition.ItemLocation : m_handItemDefinition.ItemLocation3rd;
-            MatrixD walkingMatrix = isLocallyControlled && isInFirstPerson ? m_handItemDefinition.ItemWalkingLocation : m_handItemDefinition.ItemWalkingLocation3rd;
-            MatrixD shootingMatrix = isLocallyControlled && isInFirstPerson ? m_handItemDefinition.ItemShootLocation : m_handItemDefinition.ItemShootLocation3rd;
-
-            
-            if (m_currentHandItemWalkingBlend != -1 && totalBlendTime > 0)
-            {
-                m_currentHandItemWalkingBlend += 0.05f;
-                if (m_currentHandItemWalkingBlend > totalBlendTime)
-                    m_currentHandItemWalkingBlend = -1;
-            }
-
-            if (m_currentShootPositionTime > 0 && shootBlendTime > 0)
-            {
-                m_currentHandItemWalkingBlend = -1;
-
-                m_currentHandItemShootBlend += 0.05f;
-
-                if (m_currentHandItemShootBlend > shootBlendTime)
-                    m_currentHandItemShootBlend = shootBlendTime;
-
-                MatrixD source = isWalkingState ? walkingMatrix : standingMatrix;
-                MatrixD target = shootingMatrix;
-
-                weaponLocation = MatrixD.Lerp(source, target, m_currentHandItemShootBlend / shootBlendTime);
-            }
-            else
-                if (m_currentShootPositionTime <= 0 && shootBlendTime > 0 && m_currentHandItemShootBlend > 0)
-                {
-                    m_currentHandItemWalkingBlend = -1;
-
-                    m_currentHandItemShootBlend -= 0.05f;
-
-                    if (m_currentHandItemShootBlend < 0)
-                        m_currentHandItemShootBlend = 0;
-
-                    MatrixD source = isWalkingState ? walkingMatrix : standingMatrix;
-                    MatrixD target = shootingMatrix;
-
-                    weaponLocation = MatrixD.Lerp(source, target, m_currentHandItemShootBlend / shootBlendTime);
-                }
-                else
-                {
-                    m_currentHandItemShootBlend = 0;
-
-                    if (m_currentHandItemWalkingBlend != -1 && totalBlendTime > 0)
-                    {
-
-                        MatrixD source;
-                        MatrixD target;
-
-                        if (isWalkingState)
-                        {
-                            source = standingMatrix;
-                            target = walkingMatrix;
-                        }
-                        else
-                        {
-                            source = walkingMatrix;
-                            target = standingMatrix;
-                        }
-
-                        weaponLocation = MatrixD.Lerp(source, target, m_currentHandItemWalkingBlend / totalBlendTime);
-                    }
-                    else
-                    {
-                        weaponLocation = isWalkingState ? walkingMatrix : standingMatrix;
-                    }
-                }
-
-            // scatter when shooting
-            if (m_currentShootPositionTime > 0 && m_handItemDefinition.ScatterSpeed > 0)
-            {
-                if (m_currentScatterBlend == 0)
-                    m_lastScatterPos = Vector3.Zero;
-
-                if (m_currentScatterBlend == m_handItemDefinition.ScatterSpeed)
-                {
-                    m_lastScatterPos = m_currentScatterPos;
-                    m_currentScatterBlend = 0;
-                }
-
-                if ((m_currentScatterBlend == 0) || (m_currentScatterBlend == m_handItemDefinition.ScatterSpeed))
-                {
-                    m_currentScatterPos = new Vector3(
-                    MyUtils.GetRandomFloat(-m_handItemDefinition.ShootScatter.X / 2, m_handItemDefinition.ShootScatter.X / 2),
-                    MyUtils.GetRandomFloat(-m_handItemDefinition.ShootScatter.Y / 2, m_handItemDefinition.ShootScatter.Y / 2),
-                    MyUtils.GetRandomFloat(-m_handItemDefinition.ShootScatter.Z / 2, m_handItemDefinition.ShootScatter.Z / 2)
-                    );
-                }
-
-                m_currentScatterBlend += 0.003f;
-
-                if (m_currentScatterBlend > m_handItemDefinition.ScatterSpeed)
-                    m_currentScatterBlend = m_handItemDefinition.ScatterSpeed;
-
-                Vector3 scatterPos = Vector3.Lerp(m_lastScatterPos, m_currentScatterPos, m_currentScatterBlend / m_handItemDefinition.ScatterSpeed);
-
-                weaponLocation.Translation += scatterPos;
-            }
-            else
-            {
-                m_currentScatterBlend = 0;
-            }
-
-            Matrix spineMatrix = WorldMatrix;
-            if (AnimationController.CharacterBones.IsValidIndex(m_spineBone))
-                spineMatrix = AnimationController.CharacterBones[m_spineBone].AbsoluteTransform;
-
-
-            float middle = m_currentMovementState == MyCharacterMovementEnum.Sprinting ? m_weaponRunMedAmp : m_weaponMedAmp;
-            float waveValue = (spineMatrix.Translation.Y - middle);
-
-            //if (!m_isCrouching)
-            //  weaponLocation = Matrix.CreateRotationY((waveValue + 0.02f)) * weaponLocation;
-
-            float runScale = 1.0f;
-            if (m_currentMovementState == MyCharacterMovementEnum.Sprinting)
-                runScale = m_handItemDefinition.RunMultiplier;
-            if (!isInFirstPerson || !isLocallyControlled)
-                runScale *= m_handItemDefinition.AmplitudeMultiplier3rd;
-
-            MatrixD ironsightMatrixPositioned = ironsightMatrix * weaponMatrixPositioned;
-            MatrixD weaponMatrixPositionedWaved = weaponLocation * weaponMatrixPositioned;
-
-            weaponMatrixPositionedWaved.Translation = Vector3D.Transform(weaponLocation.Translation, weaponMatrixPositioned);
-
-            Vector3D weaponWorldTranslation = weaponMatrixPositionedWaved.Translation;
-            if (isWalkingState)
-            {
-                weaponWorldTranslation += WorldMatrix.Right * runScale * m_handItemDefinition.XAmplitudeScale * (waveValue);
-                weaponWorldTranslation += WorldMatrix.Up * runScale * m_handItemDefinition.YAmplitudeScale * (waveValue);
-                weaponWorldTranslation += WorldMatrix.Forward * runScale * m_handItemDefinition.ZAmplitudeScale * (waveValue);
-            }
-            weaponMatrixPositionedWaved.Translation = weaponWorldTranslation;
-
-            if (m_currentWeapon is MyEngineerToolBase)
-            {
-                ((MyEngineerToolBase)m_currentWeapon).SensorDisplacement = -weaponLocation.Translation;
-            }
-
-            MatrixD weaponFinalLocalIK = MatrixD.Lerp(ironsightMatrixPositioned, weaponMatrixPositionedWaved, cameraModeBlend);
-            Debug.Assert(AnimationController.CharacterBones.IsValidIndex(m_weaponBone), "Warning! Weapon bone " + Definition.WeaponBone + " on model " + ModelName + " is missing.");
-
-            MatrixD weaponFinalLocalAnim;
-            if (AnimationController.CharacterBones.IsValidIndex(m_weaponBone))
-            {
-                weaponFinalLocalAnim = m_relativeWeaponMatrix * AnimationController.CharacterBones[m_weaponBone].AbsoluteTransform * WorldMatrix;
-            }
-            else
-            {
-                weaponFinalLocalAnim = m_relativeWeaponMatrix * WorldMatrix;
-            }
-
-            float ikRatio = m_currentAnimationToIKTime / m_animationToIKDelay;
-            MatrixD weaponFinalLocal = MatrixD.Lerp(weaponFinalLocalAnim, weaponFinalLocalIK, ikRatio);
-
-            if (m_currentWeapon.BackkickForcePerSecond > 0 && m_currentShotTime > SHOT_TIME - 0.05f)
-            {
-                weaponFinalLocal.Translation -= weaponFinalLocal.Forward * 0.01f * (float)System.Math.Cos(MySandboxGame.TotalGamePlayTimeInMilliseconds);
-            }
-
-            //VRageRender.MyRenderProxy.DebugDrawAxis(weaponMatrixPositioned, 10, false);
-
-            // send offset to server
-            
-
-            // set position of weapon
-            // set position of weapon base on offset received from client
-            MatrixD matWeapon = weaponFinalLocal;
-
-            if (ControllerInfo.IsLocallyControlled())
-            {
-                m_weaponPosition.Value = matWeapon.Translation - WorldMatrix.Translation;
-            }
-            else
-            {
-                // No! We will m_weaponPosition to spawn bullets/to do raycast, but graphical position will remain
-                // matWeapon.Translation = m_weaponPosition.Value + WorldMatrix.Translation;
-            }
-
-            ((MyEntity)m_currentWeapon).WorldMatrix = matWeapon;
-
-            // all debugdraw for weapon pos update
-            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_MISC)
-            {
-                MyRenderProxy.DebugDrawAxis(headMatrix, 0.5f, false);
-                MyRenderProxy.DebugDrawSphere((standingMatrix * PositionComp.WorldMatrix).Translation, 0.1f,
-                    Color.Yellow, 1, false);
-                MyRenderProxy.DebugDrawSphere((weaponLocation * WorldMatrix).Translation, 0.12f, Color.Green, 1, false);
-                MyRenderProxy.DebugDrawSphere((spineMatrix * WorldMatrix).Translation, 0.05f, Color.Pink, 1, false);
-                MyRenderProxy.DebugDrawSphere(weaponWorldTranslation, 0.1f, Color.Fuchsia, 1, false);
-                MyRenderProxy.DebugDrawAxis(weaponFinalLocalIK, 0.3f, false);
-                MyRenderProxy.DebugDrawSphere(weaponFinalLocalIK.Translation, 0.05f, Color.Red, 1, false);
-                MyRenderProxy.DebugDrawAxis(((MyEntity) m_currentWeapon).WorldMatrix, 0.3f, false);
-                MyRenderProxy.DebugDrawSphere(m_weaponPosition.Value + WorldMatrix.Translation, 0.1f, Color.Yellow, 1, false);
-        }
-        }
+        //readonly Sync<Vector3> m_weaponPosition;
+        //readonly Sync<float> m_ikRootBoneOffset;
 
         void UpdateLeftHandItemPosition()
         {
@@ -7416,28 +7166,9 @@ namespace Sandbox.Game.Entities.Character
             Vector3D up = leftHandItemMatrix.Up;
             leftHandItemMatrix.Up = leftHandItemMatrix.Forward;
             leftHandItemMatrix.Forward = up;
+            leftHandItemMatrix.Right = Vector3D.Cross(leftHandItemMatrix.Forward, leftHandItemMatrix.Up);
             m_leftHandItem.WorldMatrix = leftHandItemMatrix;
         }
-
-
-        void StoreWeaponRelativeMatrix()
-        {
-            if (m_currentWeapon != null)
-            {
-                Matrix weaponWorld = ((MyEntity)m_currentWeapon).WorldMatrix;
-                Matrix handWorld;
-                if (AnimationController.CharacterBones.IsValidIndex(m_weaponBone))
-                {
-                    handWorld = AnimationController.CharacterBones[m_weaponBone].AbsoluteTransform * WorldMatrix;
-                }
-                else
-                {
-                    handWorld = WorldMatrix;
-                }
-                m_relativeWeaponMatrix = weaponWorld * Matrix.Invert(handWorld);
-            }
-        }
-
 
         public float CurrentJump
         {
@@ -7816,8 +7547,7 @@ namespace Sandbox.Game.Entities.Character
             currentCamera.CameraShake.AddShake(m_currentCameraShakePower);
             m_currentCameraShakePower = 0;
 
-            if (ControllerInfo.IsLocallyControlled())
-                EnableHead(!IsInFirstPersonView && !ForceFirstPersonCamera);
+            EnableHead(!ControllerInfo.IsLocallyControlled() || (!IsInFirstPersonView && !ForceFirstPersonCamera));
         }
 
         void IMyCameraController.Rotate(Vector2 rotationIndicator, float rollIndicator)
@@ -7979,7 +7709,7 @@ namespace Sandbox.Game.Entities.Character
         void IMyModdingControllableEntity.SwitchThrusts()
         {
             var jetpack = JetpackComp;
-            if (jetpack != null)
+            if (jetpack != null && HasEnoughSpaceToStandUp())
             {
                 jetpack.SwitchThrusts();
             }
@@ -8332,6 +8062,17 @@ namespace Sandbox.Game.Entities.Character
         {
             get { return !IsPlayer; }
         }
+
+        public int SpineBoneIndex
+        {
+            get { return m_spineBone; }
+        }
+
+        public int HeadBoneIndex
+        {
+            get { return m_headBoneIndex; }
+        }
+
         #endregion
 
         //public bool IsUseObjectOfType<T>()
@@ -8410,6 +8151,23 @@ namespace Sandbox.Game.Entities.Character
             {
                 MySpectatorCameraController.Static.Position = this.PositionComp.GetPosition();
             }
+        }
+
+        void PromotedChanged()
+        {
+            //if (Sync.IsServer)
+            //    return;
+
+            //Sandbox.Game.World.MyPlayer.PlayerId playerId = m_savedPlayer.HasValue ? m_savedPlayer.Value : m_controlInfo.Value;
+
+            //if (m_isPromoted)
+            //{
+            //    MySession.Static.PromotedUsers.Add(playerId.SteamId);
+            //}
+            //else
+            //{
+                //MySession.Static.PromotedUsers.Remove(playerId.SteamId);
+            //}
         }
 
         public bool ResponsibleForUpdate(MyNetworkClient player)
@@ -9000,7 +8758,7 @@ namespace Sandbox.Game.Entities.Character
 
         public Vector3 GetLocalWeaponPosition()
         {
-            return m_weaponPosition.Value;
+            return WeaponPosition.LogicalPositionLocalSpace;
         }
 
         void ToolHeadTransformChanged()

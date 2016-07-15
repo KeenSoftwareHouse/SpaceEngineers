@@ -979,6 +979,11 @@ namespace Sandbox.Game.WorldEnvironment
             return string.Format("S(x{0} y{1} f{2} l{3}({4}) c{6} {5})", x, y, face, lod, LodLevel, HasPhysics ? " p" : "", DataView != null ? DataView.Items.Count : 0);
         }
 
+        public override int GetHashCode()
+        {
+            return SectorId.GetHashCode();
+        }
+
         public event Action<MyEnvironmentSector, int> OnLodCommit;
 
         public void RaiseOnLodCommitEvent(int lod)
@@ -994,7 +999,5 @@ namespace Sandbox.Game.WorldEnvironment
             if (OnPhysicsCommit != null)
                 OnPhysicsCommit(this, enabled);
         }
-
-
     }
 }

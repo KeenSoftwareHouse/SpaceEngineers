@@ -21,6 +21,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.Components;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.EntityComponents;
 using VRage.Animations;
 using VRage.Collections;
 using VRage.Game;
@@ -81,7 +82,7 @@ namespace Sandbox.Game.Entities
         // Matrix[] m_boneRelativeTransforms;
         // Matrix[] m_boneAbsoluteTransforms;
 
-        public MyAnimationControllerComponent AnimationController { get { return m_compAnimationController; } }
+        public MyAnimationControllerComponent AnimationController { get { return m_compAnimationController; } }        
 
         public Matrix[] BoneAbsoluteTransforms { get { return m_compAnimationController.BoneAbsoluteTransforms; } }
         public Matrix[] BoneRelativeTransforms { get { return m_compAnimationController.BoneRelativeTransforms; } }
@@ -118,8 +119,11 @@ namespace Sandbox.Game.Entities
             Render.NeedsResolveCastShadow = false;
             Render.SkipIfTooSmall = false;
 
+            MyEntityTerrainHeightProviderComponent entityTerrainHeightComp = new MyEntityTerrainHeightProviderComponent();
+            Components.Add(entityTerrainHeightComp);
             m_compAnimationController = new MyAnimationControllerComponent();
             m_compAnimationController.ReloadBonesNeeded = ObtainBones;
+            m_compAnimationController.InverseKinematics.TerrainHeightProvider = entityTerrainHeightComp;
             Components.Add(m_compAnimationController);
         }
 
@@ -225,18 +229,22 @@ namespace Sandbox.Game.Entities
         public virtual void ObtainBones()
         {
             MyCharacterBone[] characterBones = new MyCharacterBone[Model.Bones.Length];
+            Matrix[] relativeTransforms = new Matrix[Model.Bones.Length];
+            Matrix[] absoluteTransforms = new Matrix[Model.Bones.Length];
             for (int i = 0; i < Model.Bones.Length; i++)
             {
                 MyModelBone bone = Model.Bones[i];
                 Matrix boneTransform = bone.Transform;
                 // Create the bone object and add to the heirarchy
-                MyCharacterBone newBone = new MyCharacterBone(i, bone.Name, boneTransform, bone.Parent != -1 ? characterBones[bone.Parent] : null);
+                MyCharacterBone parent = bone.Parent != -1 ? characterBones[bone.Parent] : null;
+                MyCharacterBone newBone = new MyCharacterBone(
+                    bone.Name, parent, boneTransform, i, relativeTransforms, absoluteTransforms);
                 // Add to the bone array for this model
                 characterBones[i] = newBone;
             }
 
             // pass array of bones to animation controller
-            m_compAnimationController.CharacterBones = characterBones;
+            m_compAnimationController.SetCharacterBones(characterBones, relativeTransforms, absoluteTransforms);
         }
 
         public Quaternion GetAdditionalRotation(string bone)

@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using ParallelTasks;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Sandbox.Game.WorldEnvironment;
+using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Library.Collections;
+using VRage.Utils;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Planet
@@ -48,6 +54,14 @@ namespace Sandbox.Game.Entities.Planet
             }
 
             UpdatePlanetEnvironments(doLazy);
+
+            // Update for items to disable
+            if (!m_itemDisableJobRunning && m_cubeBlocksPending.Count() > 0)
+            {
+                Parallel.Start(GatherEnvItemsInBoxes, DisableGatheredItems);
+                m_itemDisableJobRunning = true;
+            }
+
         }
 
         public static bool EnableUpdate = true;
@@ -81,14 +95,16 @@ namespace Sandbox.Game.Entities.Planet
         {
             base.LoadData();
 
-          //  MyCubeGrids.BlockBuilt += MyCubeGridsOnBlockBuilt;
+            MyCubeGrids.BlockBuilt += MyCubeGridsOnBlockBuilt;
+            MyEntities.OnEntityAdd += CheckCubeGridCreated;
         }
 
         protected override void UnloadData()
         {
             base.UnloadData();
 
-          //  MyCubeGrids.BlockBuilt -= MyCubeGridsOnBlockBuilt;
+            MyCubeGrids.BlockBuilt -= MyCubeGridsOnBlockBuilt;
+            MyEntities.OnEntityAdd -= CheckCubeGridCreated;
         }
 
         #region Planet Environment
@@ -144,37 +160,111 @@ namespace Sandbox.Game.Entities.Planet
 
         #region Disabling items that overlap grids
 
+        private MyListDictionary<MyCubeGrid, BoundingBoxD> m_cubeBlocksToWork = new MyListDictionary<MyCubeGrid, BoundingBoxD>();
+        private volatile MyListDictionary<MyCubeGrid, BoundingBoxD> m_cubeBlocksPending = new MyListDictionary<MyCubeGrid, BoundingBoxD>();
+
+        private volatile bool m_itemDisableJobRunning = false;
+
         private List<MyVoxelBase> m_tmpVoxelList = new List<MyVoxelBase>();
         private List<MyEntity> m_tmpEntityList = new List<MyEntity>();
 
+        private MyListDictionary<MyEnvironmentSector, int> m_itemsToDisable = new MyListDictionary<MyEnvironmentSector, int>();
+
+        private void CheckCubeGridCreated(MyEntity myEntity)
+        {
+            if (!MySession.Static.Ready) return;
+
+            // Handle new cube grids as well.
+            var grid = myEntity as MyCubeGrid;
+            if (grid != null && grid.IsStatic)
+            {
+                m_cubeBlocksPending.Add(grid, grid.PositionComp.WorldAABB);
+            }
+        }
+
         private void MyCubeGridsOnBlockBuilt(MyCubeGrid myCubeGrid, MySlimBlock mySlimBlock)
         {
-            if (mySlimBlock == null) return;
+            if (mySlimBlock == null || !myCubeGrid.IsStatic) return;
 
-            var aabb = myCubeGrid.PositionComp.WorldAABB;
-
-            MyGamePruningStructure.GetAllVoxelMapsInBox(ref aabb, m_tmpVoxelList);
+            // Avoid multiple queues for compound block additions.
+            var compound = myCubeGrid.GetCubeBlock(mySlimBlock.Min).FatBlock as MyCompoundCubeBlock;
+            if (compound != null && mySlimBlock.FatBlock != compound) return;
 
             BoundingBoxD blockAabb;
             mySlimBlock.GetWorldBoundingBox(out blockAabb, true);
+            m_cubeBlocksPending.Add(myCubeGrid, blockAabb);
 
-            for (int i = 0; i < m_tmpVoxelList.Count; ++i)
+            //Debug.Print("CubeGrid {0}: Block added at {1}.", myCubeGrid, mySlimBlock.Position);
+        }
+
+        private void GatherEnvItemsInBoxes()
+        {
+            var work = Interlocked.Exchange(ref m_cubeBlocksPending, m_cubeBlocksToWork);
+            m_cubeBlocksToWork = work;
+
+            int itemsVisited = 0;
+            int blocksVisited = 0;
+
+            ProfilerShort.Begin("PlanetEnvironment::GatherItemsInSlimBlocks()");
+            foreach (var grid in work.Values)
             {
-                var p = m_tmpVoxelList[i] as MyPlanet;
-
-                if (p == null) continue;
-
-                p.Hierarchy.QueryAABB(ref aabb, m_tmpEntityList);
-
-                for (int j = 0; j < m_tmpEntityList.Count; ++j)
+                for (int blockIndex = 0; blockIndex < grid.Count; ++blockIndex)
                 {
-                    var sector = m_tmpEntityList[j] as MyEnvironmentSector;
+                    BoundingBoxD blockAabb = grid[blockIndex];
 
-                    var bb = blockAabb;
-                    sector.DisableItemsInAabb(ref bb);
+                    MyGamePruningStructure.GetAllVoxelMapsInBox(ref blockAabb, m_tmpVoxelList);
+                    blocksVisited++;
+
+                    for (int i = 0; i < m_tmpVoxelList.Count; ++i)
+                    {
+                        var p = m_tmpVoxelList[i] as MyPlanet;
+
+                        if (p == null) continue;
+
+                        p.Hierarchy.QueryAABB(ref blockAabb, m_tmpEntityList);
+
+                        for (int j = 0; j < m_tmpEntityList.Count; ++j)
+                        {
+                            var sector = m_tmpEntityList[j] as MyEnvironmentSector;
+
+                            if (sector == null) return;
+
+                            var bb = blockAabb;
+                            sector.GetItemsInAabb(ref bb, m_itemsToDisable.GetOrAddList(sector));
+                            itemsVisited += sector.DataView.Items.Count;
+                        }
+
+                        m_tmpEntityList.Clear();
+                    }
+
+                    m_tmpVoxelList.Clear();
                 }
             }
+            ProfilerShort.End();
+
+            //Debug.Print("Processed {0} blocks with {1} items", blocksVisited, itemsVisited);
+
+            work.Clear();
         }
+
+
+        public void DisableGatheredItems()
+        {
+            ProfilerShort.Begin("PlanetEnvironment::DisableItemsOverlappingBlocks()");
+            foreach (var sector in m_itemsToDisable)
+            {
+                for (int i = 0; i < sector.Value.Count; ++i)
+                {
+                    sector.Key.EnableItem(sector.Value[i], false);
+                }
+            }
+
+            m_itemsToDisable.Clear();
+
+            m_itemDisableJobRunning = false;
+            ProfilerShort.End();
+        }
+
 
         #endregion
     }

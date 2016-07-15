@@ -99,7 +99,7 @@
         </BoneSet>
         <BoneSet>
           <Name>Sabiroid_Body</Name>
-          <Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
         </BoneSet>
         <BoneSet>
@@ -272,6 +272,8 @@
       <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
       <Friction>20</Friction>
     </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
 
     <!-- Space spider brown -->
@@ -372,7 +374,7 @@
         </BoneSet>
         <BoneSet>
           <Name>Sabiroid_Body</Name>
-          <Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
         </BoneSet>
         <BoneSet>
@@ -544,6 +546,8 @@
       <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
       <Friction>20</Friction>
     </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
     
     <!-- Space spider green -->
@@ -644,7 +648,7 @@
         </BoneSet>
         <BoneSet>
           <Name>Sabiroid_Body</Name>
-          <Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
         </BoneSet>
         <BoneSet>
@@ -816,6 +820,8 @@
       <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
       <Friction>20</Friction>
     </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
     
     <!-- Space spider normal -->
@@ -916,7 +922,7 @@
         </BoneSet>
         <BoneSet>
           <Name>Sabiroid_Body</Name>
-          <Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
         </BoneSet>
         <BoneSet>
@@ -1088,6 +1094,8 @@
       <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
       <Friction>20</Friction>
     </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
   
   <!--  Cyberhound -->
@@ -1288,6 +1296,8 @@
     <RelativeShapeTranslation x="-2.2" y="-0.7" z="0"/>
     <Friction>20</Friction>
    </DeadBodyShape>
+	 
+	 <RotationToSupport>OneAxis</RotationToSupport>
     </Character>
   </Characters>
 </Definitions>

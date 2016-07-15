@@ -148,6 +148,7 @@
     <Compile Include="Components\Session\MyPhysicsComponentSystem.cs" />
     <Compile Include="Components\Session\MySessionComponentDefinition.cs" />
     <Compile Include="Components\Session\MySessionComponentExtDebug.cs" />
+    <Compile Include="Core\VRageCore.cs" />
     <Compile Include="Definitions\Animation\MyAnimationControllerDefinition.cs" />
     <Compile Include="Definitions\Animation\MyAnimationDefinition.cs" />
     <Compile Include="Definitions\MyDefinitionErrors.cs" />
@@ -237,6 +238,7 @@
     <Compile Include="MyPlayerInfo.cs" />
     <Compile Include="News\MyNews.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationControllerDefinition.cs" />
+    <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationFootIkChain.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationLayer.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationSM.cs" />
     <Compile Include="ObjectBuilders\Animation\MyObjectBuilder_AnimationTreeNode.cs" />

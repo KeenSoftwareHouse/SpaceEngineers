@@ -64,11 +64,7 @@ namespace Sandbox.Game.World
 
             LoadGameDefinition(checkpoint);
 
-            if(MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario) == false)
-            {
-                Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
-            }
-
+            MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario);
 
             FixIncorrectSettings(Settings);
             WorldBoundaries = checkpoint.WorldBoundaries;

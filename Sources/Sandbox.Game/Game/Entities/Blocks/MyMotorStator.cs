@@ -452,8 +452,8 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            m_motor.MaxForce = Torque;
-            m_motor.MinForce = -Torque;
+            m_motor.MaxForce = Torque * Sync.RelativeSimulationRatio;
+            m_motor.MinForce = -Torque * Sync.RelativeSimulationRatio;
             m_motor.VelocityTarget = TargetVelocity * Sync.RelativeSimulationRatio;
 
             bool motorRunning = IsWorking;

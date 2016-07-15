@@ -151,11 +151,11 @@ namespace Sandbox.Engine.Multiplayer
 
         private void WritePhysics(BitStream stream, MyEntity controlledEntity)
         {
-            IMyReplicable player = MyExternalReplicable.FindByObject(controlledEntity);
+            IMyReplicable controlledReplicable = MyExternalReplicable.FindByObject(controlledEntity);
 
-            stream.WriteBool(player != null);
+            stream.WriteBool(controlledReplicable != null);
           
-            if (player == null)
+            if (controlledReplicable == null)
             {             
                 return;
             }
@@ -169,11 +169,11 @@ namespace Sandbox.Engine.Multiplayer
 
             if (useCharacterOnServer || (useGridOnServer && hasWheels == false))
             {
-                stateGroup = player.FindStateGroup<MyEntityPositionVerificationStateGroup>();
+                stateGroup = controlledReplicable.FindStateGroup<MyEntityPositionVerificationStateGroup>();
             }
             else
             {
-                stateGroup = player.FindStateGroup<MyEntityPhysicsStateGroup>();
+                stateGroup = controlledReplicable.FindStateGroup<MyEntityPhysicsStateGroup>();
             }
 
 
@@ -190,7 +190,7 @@ namespace Sandbox.Engine.Multiplayer
             stream.WriteBool(isResponsible);
             if (isResponsible)
             {
-                stateGroup.Serialize(stream, EndpointId, ClientTimeStamp, 0, 1024*1024);   
+                stateGroup.Serialize(stream, EndpointId, ClientTimeStamp, 0, 1024*1024);
             }
         }
 

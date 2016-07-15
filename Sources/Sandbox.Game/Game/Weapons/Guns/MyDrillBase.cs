@@ -107,8 +107,8 @@ namespace Sandbox.Game.Weapons
         private bool m_initialHeatup = true;
 
         protected MyDrillCutOut m_cutOut;
-        private readonly float m_drillCameraMeanShakeIntensity = 0.75f;
-        private readonly float m_drillCameraMaxShakeIntensity = 2.75f;
+        private readonly float m_drillCameraMeanShakeIntensity = 0.65f;
+        private readonly float m_drillCameraMaxShakeIntensity = 2.25f;
 
         public MySoundPair CurrentLoopCueEnum { get; set; }
 

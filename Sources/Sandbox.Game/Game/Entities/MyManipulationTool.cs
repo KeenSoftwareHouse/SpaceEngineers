@@ -253,7 +253,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            public override void OnMotion(HkRigidBody rbo, float step)
+            public override void OnMotion(HkRigidBody rbo, float step, bool fromParent)
             {
                 // Do nothing
             }

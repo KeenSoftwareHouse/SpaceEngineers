@@ -26,6 +26,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.ModAPI;
+using VRage.Library.Collections;
 
 namespace Sandbox.Game.Weapons
 {
@@ -88,6 +89,7 @@ namespace Sandbox.Game.Weapons
 
         private VRage.Game.Models.MyIntersectionResultLineTriangleEx? m_intersection = null;
         private List<MyLineSegmentOverlapResult<MyEntity>> m_entityRaycastResult = null;
+        private List<MyPhysics.HitInfo> m_raycastResult = new List<MyPhysics.HitInfo>(16);
 
         // Default 50% of energy is consumed by damage
         private const float m_impulseMultiplier = 0.5f;
@@ -159,6 +161,15 @@ namespace Sandbox.Game.Weapons
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
+
+        /// <summary>
+        /// Query whether given entity is ignored.
+        /// </summary>
+        private bool IsIgnoredEntity(IMyEntity entity)
+        {
+            return m_ignoreEntity == entity || ((m_ignoreEntity is IMyGunBaseUser) && (m_ignoreEntity as IMyGunBaseUser).Owner is MyCharacter
+                && (m_ignoreEntity as IMyGunBaseUser).Owner == entity);
+        }
         
         //  Update position, check collisions, etc.
         //  Return false if projectile dies/timeouts in this tick.
@@ -204,8 +215,7 @@ namespace Sandbox.Game.Weapons
             if (entity == null || entity == m_ignoreEntity || entity.Physics == null)
                 return true;
 
-            if ((m_ignoreEntity is IMyGunBaseUser) && (m_ignoreEntity as IMyGunBaseUser).Owner is MyCharacter
-                && (m_ignoreEntity as IMyGunBaseUser).Owner == entity)
+            if (IsIgnoredEntity(entity))
             {
                 return true; // prevent player shooting himself
             }
@@ -271,110 +281,125 @@ namespace Sandbox.Game.Weapons
             charHitInfo = null;
 
             // 1. rough raycast
-            if (entity == null)
-            {
-                ProfilerShort.Begin("MyGamePruningStructure::CastProjectileRay");
-                MyPhysics.HitInfo? hitInfo = MyPhysics.CastRay(line.From, line.To, MyPhysics.CollisionLayers.DefaultCollisionLayer);
-                ProfilerShort.End();
-                if (hitInfo.HasValue)
-                {
-                    entity = hitInfo.Value.HkHitInfo.GetHitEntity() as MyEntity;
-                    hitPosition = hitInfo.Value.Position;
-                    hitNormal = hitInfo.Value.HkHitInfo.Normal;
-                }
-            }
+            int raycastListIndex = 0;
 
-            // 2. prevent shooting through characters, retest trajectory between entity and player
-            if (!(entity is MyCharacter) || entity == null)
+            do
             {
-                // first: raycast, get all entities in line, limit distance if possible
-                LineD lineLimited = new LineD(line.From, entity == null ? line.To : hitPosition);
-                if (m_entityRaycastResult == null)
+
+                if (entity == null)
                 {
-                    m_entityRaycastResult = new List<MyLineSegmentOverlapResult<MyEntity>>(16);
-                }
-                else
-                {
-                    m_entityRaycastResult.Clear();
-                }
-                MyGamePruningStructure.GetAllEntitiesInRay(ref lineLimited, m_entityRaycastResult);
-                // second: precise tests, find best result
-                double bestDistanceSq = double.MaxValue;
-                IMyEntity entityBest = null;
-                for (int i = 0; i < m_entityRaycastResult.Count; i++)
-                {
-                    if (m_entityRaycastResult[i].Element is MyCharacter)
+                    if (raycastListIndex == 0) // cast only the first iteration
                     {
-                        MyCharacter hitCharacter = m_entityRaycastResult[i].Element as MyCharacter;
-                        bool intersection = hitCharacter.GetIntersectionWithLine(ref line, ref m_charHitInfo);
-                        if (intersection)
+                        ProfilerShort.Begin("MyGamePruningStructure::CastProjectileRay");
+                        MyPhysics.CastRay(line.From, line.To, m_raycastResult,
+                            MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                        ProfilerShort.End();
+                    }
+
+                    if (raycastListIndex < m_raycastResult.Count)
+                    {
+                        MyPhysics.HitInfo hitInfo = m_raycastResult[raycastListIndex];
+
+                        entity = hitInfo.HkHitInfo.GetHitEntity() as MyEntity;
+                    	hitPosition = hitInfo.Position;
+                    	hitNormal = hitInfo.HkHitInfo.Normal;
+                    }
+                }
+
+                // 2. prevent shooting through characters, retest trajectory between entity and player
+                if (!(entity is MyCharacter) || entity == null)
+                {
+                    // first: raycast, get all entities in line, limit distance if possible
+                    LineD lineLimited = new LineD(line.From, entity == null ? line.To : hitPosition);
+                    if (m_entityRaycastResult == null)
+                    {
+                        m_entityRaycastResult = new List<MyLineSegmentOverlapResult<MyEntity>>(16);
+                    }
+                    else
+                    {
+                        m_entityRaycastResult.Clear();
+                    }
+                    MyGamePruningStructure.GetAllEntitiesInRay(ref lineLimited, m_entityRaycastResult);
+                    // second: precise tests, find best result
+                    double bestDistanceSq = double.MaxValue;
+                    IMyEntity entityBest = null;
+                    for (int i = 0; i < m_entityRaycastResult.Count; i++)
+                    {
+                        if (m_entityRaycastResult[i].Element is MyCharacter)
                         {
-                            charHitInfo = m_charHitInfo;
-                            double distanceSq = Vector3D.DistanceSquared(charHitInfo.Triangle.IntersectionPointInWorldSpace, line.From);
-                            if (distanceSq < bestDistanceSq)
+                            MyCharacter hitCharacter = m_entityRaycastResult[i].Element as MyCharacter;
+                            bool intersection = hitCharacter.GetIntersectionWithLine(ref line, ref m_charHitInfo);
+                            if (intersection)
                             {
-                                bestDistanceSq = distanceSq;
-                                entityBest = hitCharacter;
-                                hitPosition = charHitInfo.Triangle.IntersectionPointInWorldSpace;
-                                hitNormal = charHitInfo.Triangle.NormalInWorldSpace;
+                                double distanceSq =
+                                    Vector3D.DistanceSquared(m_charHitInfo.Triangle.IntersectionPointInWorldSpace,
+                                        line.From);
+                                if (distanceSq < bestDistanceSq && !IsIgnoredEntity(hitCharacter))
+                                {
+                                    bestDistanceSq = distanceSq;
+                                    entityBest = hitCharacter;
+                                    hitPosition = m_charHitInfo.Triangle.IntersectionPointInWorldSpace;
+                                    hitNormal = m_charHitInfo.Triangle.NormalInWorldSpace;
+                                    charHitInfo = m_charHitInfo;
+                                }
                             }
                         }
                     }
-                }
-                // finally: do we have best result? then return it
-                if (entityBest != null)
-                {
-                    entity = entityBest;
-                    return; // this was precise result, so return
-                }
-            }
-
-            // 3. nothing found in the precise test? then fallback to already found results
-            if (entity == null)
-                return; // no fallback results
-
-            if (entity is MyCharacter) // retest character found in fallback
-            {
-                MyCharacter hitCharacter = entity as MyCharacter;
-                bool intersection = hitCharacter.GetIntersectionWithLine(ref line, ref m_charHitInfo);
-                if (intersection)
-                {
-                    charHitInfo = m_charHitInfo;
-                    hitPosition = charHitInfo.Triangle.IntersectionPointInWorldSpace;
-                    hitNormal = charHitInfo.Triangle.NormalInWorldSpace;
-                }
-                else
-                {
-                    entity = null; // no hit.
-                }
-            }
-            else
-            if (entity is MyGhostCharacter)
-            {
-                MyHitInfo info = new MyHitInfo();
-                info.Position = hitPosition;
-                info.Normal = hitNormal;
-            }
-            else
-            {
-                MyCubeGrid grid = entity as MyCubeGrid;
-                if (grid != null)
-                {
-                    MyIntersectionResultLineTriangleEx? result;
-                    bool success = grid.GetIntersectionWithLine(ref line, out result);
-                    if (success)
+                    // finally: do we have best result? then return it
+                    if (entityBest != null)
                     {
-                        hitPosition = result.Value.IntersectionPointInWorldSpace;
-                        hitNormal = result.Value.NormalInWorldSpace;
-                        if (Vector3.Dot(hitNormal, line.Direction) > 0)
-                            hitNormal = -hitNormal;
+                        entity = entityBest;
+                        return; // this was precise result, so return
                     }
+                }
 
+                // 3. nothing found in the precise test? then fallback to already found results
+                if (entity == null)
+                    return; // no fallback results
+
+                if (entity is MyCharacter) // retest character found in fallback
+                {
+                    MyCharacter hitCharacter = entity as MyCharacter;
+                    bool intersection = hitCharacter.GetIntersectionWithLine(ref line, ref m_charHitInfo);
+                    if (intersection)
+                    {
+                        hitPosition = m_charHitInfo.Triangle.IntersectionPointInWorldSpace;
+                        hitNormal = m_charHitInfo.Triangle.NormalInWorldSpace;
+                        charHitInfo = m_charHitInfo;
+                    }
+                    else
+                    {
+                        entity = null; // no hit.
+                    }
+                }
+                else if (entity is MyGhostCharacter)
+                {
                     MyHitInfo info = new MyHitInfo();
                     info.Position = hitPosition;
                     info.Normal = hitNormal;
                 }
-            }
+                else
+                {
+                    MyCubeGrid grid = entity as MyCubeGrid;
+                    if (grid != null)
+                    {
+                        MyIntersectionResultLineTriangleEx? result;
+                        bool success = grid.GetIntersectionWithLine(ref line, out result);
+                        if (success && result.HasValue)
+                        {
+                            hitPosition = result.Value.IntersectionPointInWorldSpace;
+                            hitNormal = result.Value.NormalInWorldSpace;
+                            if (Vector3.Dot(hitNormal, line.Direction) > 0)
+                                hitNormal = -hitNormal;
+                        }
+
+                        MyHitInfo info = new MyHitInfo();
+                        info.Position = hitPosition;
+                        info.Normal = hitNormal;
+                    }
+                }
+
+            } while (entity == null && ++raycastListIndex < m_entityRaycastResult.Count);
         }
 
         private void DoDamage(float damage, MyHitInfo hitInfo, object customdata, IMyEntity damagedEntity)

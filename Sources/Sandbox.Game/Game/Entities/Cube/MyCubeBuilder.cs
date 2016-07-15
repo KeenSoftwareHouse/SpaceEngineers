@@ -590,6 +590,11 @@ namespace Sandbox.Game.Entities
 
         public void DeactivateBlockCreation()
         {
+            if (m_cubeBuildlerState.CurrentBlockDefinition != null)
+            {
+                m_cubeBuildlerState.UpdateCubeBlockDefinition(m_cubeBuildlerState.CurrentBlockDefinition.Id, m_gizmo.SpaceDefault.m_localMatrixAdd);
+            }
+
             BlockCreationIsActivated = false;
             DeactivateNotifications();
             MyCubeBuilder.Static.UpdateNotificationBlockNotAvailable();
@@ -762,7 +767,7 @@ namespace Sandbox.Game.Entities
         {
             DeactivateBlockCreation();
 
-                CurrentBlockDefinition = null;
+            CurrentBlockDefinition = null;
 
             CurrentGrid = null;
             CurrentVoxelBase = null;
@@ -1761,10 +1766,6 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(DynamicMode);
 
-            if(gizmoSpace.m_worldMatrixAdd.IsValid() == false)
-            {
-                return;
-            }
             float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
             BoundingBoxD localAABB = new BoundingBoxD(-CurrentBlockDefinition.Size * gridSize * 0.5f, CurrentBlockDefinition.Size * gridSize * 0.5f);
 
@@ -2884,8 +2885,8 @@ namespace Sandbox.Game.Entities
             if (this.CubeBuilderState == null)
                 return true;
 
-            bool available = this.CubeBuilderState.CubeSizeMode == MyCubeSize.Large && @group.Large != null ||
-                            this.CubeBuilderState.CubeSizeMode == MyCubeSize.Small && @group.Small != null;
+            bool available = (this.CubeBuilderState.CubeSizeMode == MyCubeSize.Large && @group.Large != null && (@group.Large.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS)) ||
+                            this.CubeBuilderState.CubeSizeMode == MyCubeSize.Small && @group.Small != null && (@group.Small.Public || MyFakes.ENABLE_NON_PUBLIC_BLOCKS);
 
             return available;
         }
@@ -3457,7 +3458,7 @@ namespace Sandbox.Game.Entities
             base.ChooseHitObject();
 
             m_gizmo.Clear();
-            }
+        }
 
         private Vector3D GetFreeSpacePlacementPosition(out bool valid)
         {

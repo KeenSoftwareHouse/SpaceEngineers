@@ -811,7 +811,7 @@ namespace Sandbox.Game.Gui
                                 Debug.Fail("No battle blueprint screen");
                         }
                         else
-                            MyGuiSandbox.AddScreen(new MyGuiBlueprintScreen(MyClipboardComponent.Static.Clipboard));
+                            MyGuiSandbox.AddScreen(new MyGuiBlueprintScreen(MyClipboardComponent.Static.Clipboard, MySession.Static.CreativeMode || MySession.Static.IsAdminModeEnabled(Sync.MyId)));
                     }
                 }
             }

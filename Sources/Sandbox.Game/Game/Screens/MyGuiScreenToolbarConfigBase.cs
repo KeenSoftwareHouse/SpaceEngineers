@@ -22,7 +22,6 @@ using System.Linq;
 using System.Text;
 using Sandbox.Engine.Networking;
 using VRage;
-using VRage;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Game;
@@ -709,13 +708,17 @@ namespace Sandbox.Game.Gui
             {
                 searchCondition.CleanDefinitionGroups();
             }
-            if (null != m_character || (m_shipController != null && (m_shipController as MyShipController).BuildingMode))
+            bool isSeat = m_shipController != null && !m_shipController.EnableShipControl;
+            if (!isSeat)
             {
-                AddCubeDefinitionsToBlocks(searchCondition);
-            }
-            else if (null != m_screenCubeGrid)
-            {
-                AddShipBlocksDefinitions(m_screenCubeGrid, true, searchCondition);
+                if (null != m_character || (m_shipController != null && (m_shipController as MyShipController).BuildingMode))
+                {
+                    AddCubeDefinitionsToBlocks(searchCondition);
+                }
+                else if (null != m_screenCubeGrid)
+                {
+                    AddShipBlocksDefinitions(m_screenCubeGrid, true, searchCondition);
+                }
             }
             m_gridBlocks.SelectedIndex = 0;
             m_gridBlocksPanel.ScrollbarVPosition = 0.0f;
@@ -1306,6 +1309,8 @@ namespace Sandbox.Game.Gui
                 var gridItem = sender.TryGetItemAt(eventArgs.RowIndex, eventArgs.ColumnIndex);
                 if (gridItem == null)
                     return;
+                if (!gridItem.Enabled)
+                    return;
 
                 var data = (GridItemUserData)gridItem.UserData;
                 var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
@@ -1325,6 +1330,9 @@ namespace Sandbox.Game.Gui
                 {
                     return;
                 }
+                if (!gridItem.Enabled)
+                    return;
+
                 var data = (GridItemUserData)gridItem.UserData;
                 var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
 
@@ -1356,6 +1364,9 @@ namespace Sandbox.Game.Gui
                 var gridItem = sender.TryGetItemAt(eventArgs.RowIndex, eventArgs.ColumnIndex);
                 if (gridItem == null)
                     return;
+                if (!gridItem.Enabled)
+                    return;
+
                 var data = (GridItemUserData)gridItem.UserData;
                 var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
 
@@ -1374,6 +1385,8 @@ namespace Sandbox.Game.Gui
             {
                 var gridItem = sender.TryGetItemAt(eventArgs.RowIndex, eventArgs.ColumnIndex);
                 if (gridItem == null)
+                    return;
+                if (!gridItem.Enabled)
                     return;
 
                 var data = (GridItemUserData)gridItem.UserData;
@@ -1467,8 +1480,14 @@ namespace Sandbox.Game.Gui
             }
 
             m_nameSearchCondition.SearchName = searchName;
-            AddToolsAndAnimations(m_nameSearchCondition);
-            UpdateGridBlocksBySearchCondition(m_nameSearchCondition);
+            bool isSeat = m_shipController != null && !m_shipController.EnableShipControl;
+            if (!isSeat)
+            {
+                AddToolsAndAnimations(m_nameSearchCondition);
+                UpdateGridBlocksBySearchCondition(m_nameSearchCondition);
+            }
+            else
+                AddAnimations(true, m_nameSearchCondition);
         }
 
         /// <summary>
@@ -1626,6 +1645,9 @@ namespace Sandbox.Game.Gui
             dragAndDropInfo.ItemIndex = args.ItemIndex;
 
             var draggingItem = grid.GetItemAt(args.ItemIndex);
+            
+            if (!draggingItem.Enabled)
+                return;
 
             m_dragAndDrop.StartDragging(dropHandlingType, args.Button, draggingItem, dragAndDropInfo);
             grid.HideToolTip();

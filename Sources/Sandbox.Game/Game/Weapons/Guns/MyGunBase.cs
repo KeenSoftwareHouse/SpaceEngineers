@@ -92,8 +92,14 @@ namespace Sandbox.Game.Weapons
         public bool HasMissileAmmoDefined { get { return m_weaponProperties.WeaponDefinition.HasMissileAmmoDefined; } }
         public bool HasProjectileAmmoDefined { get { return m_weaponProperties.WeaponDefinition.HasProjectileAmmoDefined; } }
         public int MuzzleFlashLifeSpan { get { return m_weaponProperties.WeaponDefinition.MuzzleFlashLifeSpan; } }
-        public int ShootIntervalInMiliseconds { get { return ShootIntervalModifier == 1 
-            ? m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds : (int)(ShootIntervalModifier * m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds); } }
+        public int ShootIntervalInMiliseconds
+        {
+            get
+            {
+                return ShootIntervalModifier == 1
+                    ? m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds : (int)(ShootIntervalModifier * m_weaponProperties.CurrentWeaponShootIntervalInMiliseconds);
+            }
+        }
         public float ShootIntervalModifier { get; set; }
         public float ReleaseTimeAfterFire { get { return m_weaponProperties.WeaponDefinition.ReleaseTimeAfterFire; } }
         public MySoundPair ShootSound { get { return m_weaponProperties.CurrentWeaponShootSound; } }
@@ -101,9 +107,9 @@ namespace Sandbox.Game.Weapons
         public MySoundPair ReloadSound { get { return m_weaponProperties.WeaponDefinition.ReloadSound; } }
         public MySoundPair SecondarySound { get { return m_weaponProperties.WeaponDefinition.SecondarySound; } }
         public bool UseDefaultMuzzleFlash { get { return m_weaponProperties.WeaponDefinition.UseDefaultMuzzleFlash; } }
-        public float MechanicalDamage 
-        { 
-            get 
+        public float MechanicalDamage
+        {
+            get
             {
                 if (WeaponProperties.AmmoDefinition != null)
                     return m_weaponProperties.AmmoDefinition.GetDamageForMechanicalObjects();
@@ -281,13 +287,13 @@ namespace Sandbox.Game.Weapons
                 missileDeviatedVector = GetDeviatedVector(weaponProperties.WeaponDefinition.DeviateShotAngle, direction);
                 missileDeviatedVector.Normalize();
             }
-    
+
             initialVelocity += missileDeviatedVector * missileAmmoDefinition.MissileInitialSpeed;
 
             if (m_user.Launcher != null)
                 MyMissiles.Add(weaponProperties, initialPosition, initialVelocity, missileDeviatedVector, m_user.OwnerId);
             else
-                MyMissiles.AddUnsynced(weaponProperties, initialPosition + 2*missileDeviatedVector, initialVelocity, missileDeviatedVector, m_user.OwnerId);//start missile 2 beters in front of launcher - prevents hit of own turret
+                MyMissiles.AddUnsynced(weaponProperties, initialPosition + 2 * missileDeviatedVector, initialVelocity, missileDeviatedVector, m_user.OwnerId);//start missile 2 beters in front of launcher - prevents hit of own turret
         }
 
         public void Shoot(Vector3 initialVelocity, MyEntity owner = null)
@@ -319,7 +325,7 @@ namespace Sandbox.Game.Weapons
             {
                 case MyAmmoType.HighSpeed:
                     var cnt = (ammoDef as MyProjectileAmmoDefinition).ProjectileCount;
-                    for (int i = 0; i < cnt;i++)
+                    for (int i = 0; i < cnt; i++)
                         AddProjectile(m_weaponProperties, initialPosition, initialVelocity, direction, owner);
                     break;
                 case MyAmmoType.Missile:
@@ -522,7 +528,7 @@ namespace Sandbox.Game.Weapons
 
         public bool HasEnoughAmmunition()
         {
-            if(Sync.IsServer == false)
+            if (Sync.IsServer == false)
             {
                 return m_cachedAmmunitionAmount > 0;
             }
@@ -547,8 +553,8 @@ namespace Sandbox.Game.Weapons
                         m_user.AmmoInventory.RemoveItemsOfType(1, CurrentAmmoMagazineId);
                     }
 
-                RefreshAmmunitionAmount();
-            }
+                    RefreshAmmunitionAmount();
+                }
 
                 var weaponInventory = m_user.AmmoInventory;
                 if (weaponInventory != null)
@@ -557,7 +563,7 @@ namespace Sandbox.Game.Weapons
                     if (InventoryItemId.HasValue)
                     {
                         inventoryItem = weaponInventory.GetItemByID(InventoryItemId.Value);
-        }
+                    }
                     else
                     {
                         inventoryItem = weaponInventory.FindUsableItem(m_user.PhysicalItemId);
@@ -604,13 +610,17 @@ namespace Sandbox.Game.Weapons
 
         public void RefreshAmmunitionAmount()
         {
-            if(Sync.IsServer == false)
+            if (Sync.IsServer == false)
             {
                 return;
             }
 
             if (m_user != null && m_user.AmmoInventory != null && m_weaponProperties.WeaponDefinition.HasAmmoMagazines())
             {
+                if (!HasEnoughAmmunition())
+                {
+                    SwitchAmmoMagazineToFirstAvailable();
+                }
                 m_cachedAmmunitionAmount.Value = CurrentAmmo + (int)m_user.AmmoInventory.GetItemAmount(CurrentAmmoMagazineId) * m_weaponProperties.AmmoMagazineDefinition.Capacity;
             }
             else
@@ -769,7 +779,7 @@ namespace Sandbox.Game.Weapons
                         soundEmitter.PlaySound(ShootSound, false);
                 }
                 else
-                    soundEmitter.PlaySound(ShootSound,true);
+                    soundEmitter.PlaySound(ShootSound, true);
             }
         }
 

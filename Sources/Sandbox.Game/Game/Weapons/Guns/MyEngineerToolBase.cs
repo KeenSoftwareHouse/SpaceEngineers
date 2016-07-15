@@ -334,17 +334,24 @@ namespace Sandbox.Game.Weapons
                 MyCharacter character = Owner as MyCharacter;
 
                 MatrixD sensorWorldMatrix = MatrixD.Identity;
-                if (character.ControllerInfo.IsLocallyControlled())
-                {
-                    sensorWorldMatrix = character.GetHeadMatrix(false, true);
-                    character.SyncHeadToolTransform(ref sensorWorldMatrix);
-                }
-                else
-                {
-                    sensorWorldMatrix = character.GetSyncedToolTransform();
-                }
+                sensorWorldMatrix.Translation = character.WeaponPosition.LogicalPositionWorld;
+                sensorWorldMatrix.Right = character.WorldMatrix.Right;
+                sensorWorldMatrix.Forward = character.WeaponPosition.LogicalOrientationWorld;
+                sensorWorldMatrix.Up = Vector3.Cross(sensorWorldMatrix.Right, sensorWorldMatrix.Forward);
+                
+                // MZ: removing code requiring synchronization
 
+                //if (character.ControllerInfo.IsLocallyControlled())
+                //{
+                //    sensorWorldMatrix = character.GetHeadMatrix(false, true);
+                //    character.SyncHeadToolTransform(ref sensorWorldMatrix);
+                //}
+                //else
+                //{
+                //    sensorWorldMatrix = character.GetSyncedToolTransform();
+                //}
 
+                // VRageRender.MyRenderProxy.DebugDrawAxis(sensorWorldMatrix, 0.2f, false);
                 m_raycastComponent.OnWorldPosChanged(ref sensorWorldMatrix);
             }
         }
