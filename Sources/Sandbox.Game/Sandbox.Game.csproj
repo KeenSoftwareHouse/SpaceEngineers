@@ -126,14 +126,11 @@
   <PropertyGroup>
     <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
   </PropertyGroup>
-  <ImportGroup Label="PropertySheets">
-    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
-  </ImportGroup>
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
       <HintPath Condition="Exists($(HavokWrapperFullPath))">$(HavokWrapperFullPath)</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\HavokWrapper.dll</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\HavokWrapper.dll</HintPath>
     </Reference>
     <Reference Include="InfinarioSDK">
       <HintPath>..\..\3rd\Infinario\InfinarioSDK.dll</HintPath>
@@ -156,17 +153,18 @@
       <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Toolkit">
-      <HintPath Condition="Exists('..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll')">..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\SharpDX.Toolkit.dll</HintPath>
+      <HintPath Condition="Exists('..\..\3rd\SharpDX.Toolkit\$(Platform)\$(Configuration)\SharpDX.Toolkit.dll')">..\..\3rd\SharpDX.Toolkit\$(Platform)\$(Configuration)\SharpDX.Toolkit.dll</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\SharpDX.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>
       <HintPath Condition="Exists('..\..\3rd\SteamSDK\$(Configuration)\$(Platform)\SteamSDK.dll')">..\..\3rd\SteamSDK\$(Configuration)\$(Platform)\SteamSDK.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\SteamSDK.dll</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\SteamSDK.dll</HintPath>
     </Reference>
     <Reference Include="RakNet">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rd\RakNet\$(Configuration)\$(Platform)\RakNet.dll</HintPath>
+      <HintPath Condition="Exists('..\..\3rd\RakNet\$(Configuration)\$(Platform)\RakNet.dll')">..\..\3rd\RakNet\$(Configuration)\$(Platform)\RakNet.dll</HintPath>
+	  <HintPath Condition="('$(Platform)' == 'x64') And (Exists('$(Bin64Path)\RakNet.dll'))">$(Bin64Path)\RakNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -186,14 +184,8 @@
     <Reference Include="System.Xml" />
     <Reference Include="VRage.Native">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\3rd\VRage.Native\release\$(Platform)\VRage.Native.dll')">..\..\3rd\VRage.Native\release\$(Platform)\VRage.Native.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\VRage.Native.dll</HintPath>
-    </Reference>
-    <Reference Condition="!Exists('..\VRage.Scripting\VRage.Scripting.csproj') And '$(Platform)' == 'x64'" Include="VRage.Scripting">
-      <HintPath>$(SteamBin64)\VRage.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Condition="!Exists('..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj') And '$(Platform)' == 'x64'" Include="VRage.OpenVRWrapper">
-      <HintPath>$(SteamBin64)\VRage.OpenVRWrapper.dll</HintPath>
+      <HintPath Condition="Exists('..\..\3rd\VRage.Native\$(Configuration)\$(Platform)\VRage.Native.dll')">..\..\3rd\VRage.Native\$(Configuration)\$(Platform)\VRage.Native.dll</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\VRage.Native.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

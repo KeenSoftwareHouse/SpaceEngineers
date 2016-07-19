@@ -129,8 +129,8 @@
       <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Toolkit">
-      <HintPath Condition="Exists('..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll')">..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\SharpDX.Toolkit.dll</HintPath>
+      <HintPath Condition="Exists('..\..\3rd\SharpDX.Toolkit\$(Platform)\$(Configuration)\SharpDX.Toolkit.dll')">..\..\3rd\SharpDX.Toolkit\$(Platform)\$(Configuration)\SharpDX.Toolkit.dll</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\SharpDX.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -142,9 +142,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Condition="!Exists('..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj') And '$(Platform)' == 'x64'" Include="VRage.OpenVRWrapper">
-      <HintPath>$(SteamBin64)\VRage.OpenVRWrapper.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Callbacks.cs" />

@@ -118,9 +118,6 @@
     <Reference Include="SharpDX.Desktop">
       <HintPath>..\..\3rd\SharpDX\SharpDX.Desktop.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.DirectInput">
-      <HintPath>..\..\3rd\SharpDX\SharpDX.DirectInput.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX.DirectInput, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SharpDX\SharpDX.DirectInput.dll</HintPath>
@@ -130,9 +127,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Condition="!Exists('..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj') And '$(Platform)' == 'x64'" Include="VRage.OpenVRWrapper">
-      <HintPath>$(SteamBin64)\VRage.OpenVRWrapper.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input\IMyControlNameLookup.cs" />

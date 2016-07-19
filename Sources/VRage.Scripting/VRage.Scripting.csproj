@@ -37,23 +37,23 @@
   </ImportGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis">
-      <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.dll')">..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\Microsoft.CodeAnalysis.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.dll')">..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.dll</HintPath>
+	  <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\Microsoft.CodeAnalysis.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp">
-      <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.CSharp.dll')">..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.CSharp.dll')">..\..\3rd\Microsoft.CodeAnalysis\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+	  <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\System.Collections.Immutable.dll')">..\..\3rd\Microsoft.CodeAnalysis\System.Collections.Immutable.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\System.Collections.Immutable.dll</HintPath>
+	  <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\System.Collections.Immutable.dll')">..\..\3rd\Microsoft.CodeAnalysis\System.Collections.Immutable.dll</HintPath>
+	  <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Reflection.Metadata">
       <HintPath Condition="Exists('..\..\3rd\Microsoft.CodeAnalysis\System.Reflection.Metadata.dll')">..\..\3rd\Microsoft.CodeAnalysis\System.Reflection.Metadata.dll</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\System.Reflection.Metadata.dll</HintPath>
+	  <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\System.Reflection.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />

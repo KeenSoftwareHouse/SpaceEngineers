@@ -131,7 +131,7 @@
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
       <HintPath Condition="Exists($(HavokWrapperFullPath))">$(HavokWrapperFullPath)</HintPath>
-      <HintPath Condition="'$(Platform)' == 'x64'">$(SteamBin64)\HavokWrapper.dll</HintPath>
+      <HintPath Condition="'$(Platform)' == 'x64'">$(Bin64Path)\HavokWrapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
