@@ -793,7 +793,6 @@ namespace Sandbox.Game.Gui
                 MyGuiSandbox.AddScreen(mb);
             }
         }
-
         private void StartNewSandbox()
         {
             MyLog.Default.WriteLine("StartNewSandbox - Start");
@@ -809,34 +808,37 @@ namespace Sandbox.Game.Gui
                 return;
             }
 
-            MySteamWorkshop.DownloadModsAsync(m_mods, delegate(bool success)
+            MySteamWorkshop.DownloadModsAsync(m_mods, delegate(bool success,string mismatchMods)
             {
                 if (success || (m_settings.OnlineMode == MyOnlineModeEnum.OFFLINE) && MySteamWorkshop.CanRunOffline(m_mods))
                 {
-                    MyScreenManager.RemoveAllScreensExcept(null);
-
-                    if (AsteroidAmount < 0)
+                    MyGuiScreenLoadSandbox.CheckMismatchmods(mismatchMods, callback: delegate(VRage.Game.ModAPI.ResultEnum val)
                     {
-                        MyWorldGenerator.SetProceduralSettings(AsteroidAmount, m_settings);
-                        m_asteroidAmount = 0;
-                    }
+                        MyScreenManager.RemoveAllScreensExcept(null);
 
-                    MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
+                        if (AsteroidAmount < 0)
+                        {
+                            MyWorldGenerator.SetProceduralSettings(AsteroidAmount, m_settings);
+                            m_asteroidAmount = 0;
+                        }
 
-                    MyGuiScreenGamePlay.StartLoading(delegate
-                    {
-                        MySession.Start(
-                            m_nameTextbox.Text,
-                            GetDescription(),
-                            GetPassword(),
-                            m_settings,
-                            m_mods,
-                            new MyWorldGenerator.Args()
-                            {
-                                AsteroidAmount = this.AsteroidAmount,
-                                Scenario = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario
-                            }
-                        );
+                        MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
+
+                        MyGuiScreenGamePlay.StartLoading(delegate
+                        {
+                            MySession.Start(
+                                m_nameTextbox.Text,
+                                GetDescription(),
+                                GetPassword(),
+                                m_settings,
+                                m_mods,
+                                new MyWorldGenerator.Args()
+                                {
+                                    AsteroidAmount = this.AsteroidAmount,
+                                    Scenario = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario
+                                }
+                            );
+                        });
                     });
                 }
                 else

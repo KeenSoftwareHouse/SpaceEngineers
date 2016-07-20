@@ -257,7 +257,7 @@ namespace VRageRender.Lights
              //   drawingRadius = radius;
 
             var color = m_parent.Color;
-            color.A = 0;
+            //color.A = 0;
             //alpha = 0;
 
             MyTransparentGeometry.AddBillboardOriented(
@@ -294,7 +294,7 @@ namespace VRageRender.Lights
                 return;
 
             var color = m_parent.Color;
-            color.A = 0;
+            //color.A = 0;
 
             var material = (Type == MyGlareTypeEnum.Distant && distance > MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE) ? "LightGlareDistant" : "LightGlare";
             //var material = MyTransparentMaterials.GetMaterial("LightGlare");

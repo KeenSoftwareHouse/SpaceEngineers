@@ -201,7 +201,7 @@ namespace Sandbox.Engine.Voxels
             Closed = true;
         }
 
-        public unsafe void GetRuleBounds(ref BoundingBox request, out BoundingBox ruleBounds)
+        private unsafe void GetRuleBounds(ref BoundingBox request, out BoundingBox ruleBounds)
         {
             Vector3* vertices = stackalloc Vector3[8];
 
@@ -429,7 +429,7 @@ namespace Sandbox.Engine.Voxels
             float lodVoxelSize = 1 << req.Lod;
 
             // We don't bother determining where the surface is if we don't have the normal.
-            bool assignToSurface = req.RequestFlags.HasFlags(MyVoxelRequestFlags.SurfaceMaterial);
+            bool assignToSurface = req.RequestFlags.HasFlags(MyVoxelRequestFlags.SurfaceMaterial) && req.RequestedData.Requests(MyStorageDataTypeEnum.Material);
 
             bool useContent = req.RequestFlags.HasFlags(MyVoxelRequestFlags.ConsiderContent);
 

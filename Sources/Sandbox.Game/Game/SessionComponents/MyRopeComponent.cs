@@ -1471,8 +1471,12 @@ namespace Sandbox.Game.Components
         {
             if (m_hookIdFrom != 0)
             {
-                MyEntities.GetEntityById(m_hookIdFrom).OnClosing -= m_selectedHook_OnClosing;
-                m_hookIdFrom = 0;
+                MyEntity entity;
+                if (MyEntities.TryGetEntityById(m_hookIdFrom, out entity))
+                {
+                    MyEntities.GetEntityById(m_hookIdFrom).OnClosing -= m_selectedHook_OnClosing;
+                    m_hookIdFrom = 0;
+                }
             }
         }
     }

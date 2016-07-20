@@ -87,7 +87,7 @@ namespace Sandbox.Game.Replication
 
         public static float EffectiveSimulationRatio
         {
-            get { return MyPerGameSettings.EnableMultiplayerVelocityCompensation ? MathHelper.Clamp(MyPhysics.SimulationRatio, 0.01f, 2) : 1.0f; }
+            get { return MathHelper.Clamp(MyPhysics.SimulationRatio, 0.01f, 2); }
         }
 
         protected MovedDelegate MoveHandler { get { return OnMoved; } }
@@ -249,7 +249,7 @@ namespace Sandbox.Game.Replication
         /// <summary>
         /// Serializes transform into 10 to 30.5 bytes.
         /// </summary>
-        protected bool SerializeTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool lowPrecisionOrientation, bool applyWhenReading, bool movingOnServer, uint timeStamp, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
+        protected static bool SerializeTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool lowPrecisionOrientation, bool applyWhenReading, bool movingOnServer, uint timeStamp, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
         {
             stream.Serialize(ref timeStamp);
             if(stream.Writing)
@@ -274,7 +274,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        void WriteTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool lowPrecisionOrientation)
+        static void WriteTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool lowPrecisionOrientation)
         {
             var matrix = entity.WorldMatrix;
             stream.WriteBool(deltaPosBase == null);
@@ -298,7 +298,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        bool ReadTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool applyWhenReading, bool movingOnServer, ref Vector3D outPosition, ref Quaternion outOrientation, ref MatrixD outWorldMartix, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
+        static  bool ReadTransform(BitStream stream, MyEntity entity, Vector3D? deltaPosBase, bool applyWhenReading, bool movingOnServer, ref Vector3D outPosition, ref Quaternion outOrientation, ref MatrixD outWorldMartix, Func<MyEntity, Vector3D, bool> posValidation = null, MovedDelegate moveHandler = null)
         {
             Vector3D position;
             if (stream.ReadBool())
@@ -367,7 +367,7 @@ namespace Sandbox.Game.Replication
         /// <summary>
         /// Serializes velocities into 12 bytes.
         /// </summary>
-        protected void SerializeVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool applyWhenReading, bool movingOnServer, VelocityDelegate velocityHandler = null)
+        protected static void SerializeVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool applyWhenReading, bool movingOnServer, VelocityDelegate velocityHandler = null)
         {
             if (stream.Writing)
             {
@@ -413,7 +413,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        void WriteVelocities(BitStream stream, MyEntity entity, float simulationRatio,bool moving)
+        static void WriteVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool moving)
         {
             Vector3 linear = entity.Physics != null ? entity.Physics.LinearVelocity * simulationRatio : Vector3.Zero;
             Vector3 angular = entity.Physics != null ? entity.Physics.AngularVelocity * simulationRatio : Vector3.Zero;
@@ -424,7 +424,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        void ReadVelocities(BitStream stream, MyEntity entity, float simulationRatio,bool movingOnServer, ref Vector3 outLinearVelocity, ref Vector3 outAngularVelocity)
+        static void ReadVelocities(BitStream stream, MyEntity entity, float simulationRatio, bool movingOnServer, ref Vector3 outLinearVelocity, ref Vector3 outAngularVelocity)
         {
             Vector3 linear = Vector3.Zero;
             Vector3 angular = Vector3.Zero;

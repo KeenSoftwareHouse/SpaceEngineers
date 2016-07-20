@@ -94,31 +94,19 @@ namespace VRage.Game.Components
         }
 
         /// <summary>
-        /// Get or set reference to array of character bones and its contents.
+        /// Get reference to array of character bones and its contents.
         /// </summary>
-        public VRage.Animations.MyCharacterBone[] CharacterBones
+        public MyCharacterBone[] CharacterBones
         {
             get { return m_characterBones; }
-            set 
-            { 
-                m_characterBones = value;
-                if (value != null)
-                {
-                    CharacterBonesSorted = new MyCharacterBone[m_characterBones.Length];
-                    Array.Copy(m_characterBones, CharacterBonesSorted, m_characterBones.Length);
-                    // sort the bones, deeper in hierarchy they are, later they are evaluated
-                    Array.Sort(CharacterBonesSorted, (x, y) => x.GetHierarchyDepth().CompareTo(y.GetHierarchyDepth()));
+        }
 
-                    m_boneRelativeTransforms = new Matrix[value.Length];
-                    m_boneAbsoluteTransforms = new Matrix[value.Length];
-                    for (int i = 0; i < value.Length; i++)
-                    {
-                        m_boneRelativeTransforms[i] = Matrix.Identity;
-                        m_boneAbsoluteTransforms[i] = Matrix.Identity;
-                    }
-                    Controller.ResultBonesPool.Reset(m_characterBones);
-                }
-            }
+        /// <summary>
+        /// Get the instance of inverse kinematics.
+        /// </summary>
+        public MyAnimationInverseKinematics InverseKinematics
+        {
+            get { return m_controller.InverseKinematics; }
         }
 
         public VRage.Animations.MyCharacterBone[] CharacterBonesSorted { get; private set; }
@@ -144,7 +132,20 @@ namespace VRage.Game.Components
             }
         }
 
-        // ------------------------------------------------------------------------
+        public void SetCharacterBones(MyCharacterBone[] characterBones,
+            Matrix[] relativeTransforms, Matrix[] abosoluteTransforms)
+        {
+            m_characterBones = characterBones;
+            CharacterBonesSorted = new MyCharacterBone[m_characterBones.Length];
+            Array.Copy(m_characterBones, CharacterBonesSorted, m_characterBones.Length);
+            // sort the bones, deeper in hierarchy they are, later they are evaluated
+            Array.Sort(CharacterBonesSorted, (x, y) => x.Depth.CompareTo(y.Depth));
+
+            m_boneRelativeTransforms = relativeTransforms;
+            m_boneAbsoluteTransforms = abosoluteTransforms;
+
+            Controller.ResultBonesPool.Reset(m_characterBones);
+        }
 
         // Update animation state (position and orientation of bones).
         // Called from MySessionComponentAnimationSystem.
@@ -180,6 +181,19 @@ namespace VRage.Game.Components
                     m_currentFrameActions.Clear();
 #endif
             }
+        }
+
+        public void UpdateTransformations()
+        {
+            if (m_characterBones == null)
+                return;
+
+            MyCharacterBone.ComputeAbsoluteTransforms(CharacterBonesSorted);
+        }
+
+        public void UpdateInverseKinematics()
+        {
+            m_controller.UpdateInverseKinematics(ref m_characterBones);
         }
 
         // Find character bone having given name. If found, output parameter index is set.
@@ -231,10 +245,14 @@ namespace VRage.Game.Components
         public void Clear()
         {
             MarkAsInvalid();
+            InverseKinematics.Clear();
             Controller.DeleteAllLayers();
             Controller.Variables.Clear();
             Controller.ResultBonesPool.Reset(null);
-            CharacterBones = null;
+            m_characterBones = null;
+            m_boneRelativeTransforms = null;
+            m_boneAbsoluteTransforms = null;
+            CharacterBonesSorted = null;
         }
     }
 }

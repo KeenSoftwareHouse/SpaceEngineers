@@ -33,6 +33,8 @@ namespace VRageRender
 
         internal static readonly MyRenderSettings Settings = new MyRenderSettings();
 
+        internal static MyEnvironment Environment = new MyEnvironment();
+
 #if DEBUG
         internal const bool DebugMode = true;
 #else

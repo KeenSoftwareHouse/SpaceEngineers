@@ -215,8 +215,17 @@ namespace Sandbox.Game.Gui
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_HORISONTAL_NEGATIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_POSITIVE));
             advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.CUBE_ROTATE_ROLL_NEGATIVE));
-            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.STATION_ROTATION));
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.FREE_ROTATION));
             advancedPage2.LeftColumn.Add(new ControlWithDescription("Ctrl + G", MyTexts.GetString(MySpaceTexts.SwitchBuilderMode)));
+
+            // Get control for toggling the block size
+            StringBuilder resizeBlockControl = null;
+            MyControl cubeBuilderCubesizeModeControl = MyInput.Static.GetGameControl(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE);
+            cubeBuilderCubesizeModeControl.AppendBoundButtonNames(ref resizeBlockControl, unassignedText: MyInput.Static.GetUnassignedName());
+
+            // Add block editing controls
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(MyTexts.Get(MyCommonTexts.MouseWheel), MyTexts.Get(MyCommonTexts.ControlName_ChangeBlockVariants)));
+            advancedPage2.LeftColumn.Add(new ControlWithDescription(resizeBlockControl, MyTexts.Get(cubeBuilderCubesizeModeControl.GetControlName())));
 
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_LEFT));
             advancedPage2.RightColumn.Add(new ControlWithDescription(MyControlsSpace.SWITCH_RIGHT));

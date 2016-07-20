@@ -12,6 +12,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.Entity.UseObject;
 using VRage.Game.Models;
+using VRage.Game.SessionComponents;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -69,10 +70,10 @@ namespace Sandbox.Game.Gui
                });
 
             AddShortcut(MyKeys.NumPad9, true, false, false, false,
-                () => "Reload animations (old system)",
+                () => "Reload animation tracks",
                 delegate
                 {
-                    ReloadAnimationsOldSystem();
+                    ReloadAnimations();
                     return true;
                 });
 
@@ -117,7 +118,7 @@ namespace Sandbox.Game.Gui
             m_toggleShowSkeleton = !m_toggleShowSkeleton;
         }
         
-        private void ReloadAnimationsOldSystem()
+        private void ReloadAnimations()
         {
             if (MySession.Static.LocalCharacter != null)
             foreach (var animPlayer in MySession.Static.LocalCharacter.GetAllAnimationPlayers())
@@ -134,6 +135,8 @@ namespace Sandbox.Game.Gui
                 if (modelFps != null)
                     modelFps.UnloadData();
             }
+
+            MySessionComponentAnimationSystem.Static.ReloadMwmTracks();
         }
 
         public static MyCharacter SpawnCharacter(string model = null)
@@ -208,6 +211,11 @@ namespace Sandbox.Game.Gui
         public override void Draw()
         {
             base.Draw();
+
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+            {
+                MyAnimationInverseKinematics.DebugTransform = MySession.Static.LocalCharacter.WorldMatrix;
+            }
 
             if (m_toggleMovementState)
             {

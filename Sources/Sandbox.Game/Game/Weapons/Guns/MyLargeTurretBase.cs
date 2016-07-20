@@ -45,6 +45,8 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
 using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
+using IMyEntity = VRage.ModAPI.IMyEntity;
+
 
 #endregion
 
@@ -67,7 +69,7 @@ namespace Sandbox.Game.Weapons
     public abstract partial class MyLargeTurretBase : MyUserControllableGun, IMyGunObject<MyGunBase>, VRage.Game.ModAPI.Ingame.IMyInventoryOwner, VRage.Game.ModAPI.Interfaces.IMyCameraController, IMyControllableEntity, IMyUsableEntity, IMyGunBaseUser
     {
         private bool m_hidetoolbar;
-        
+
         //Should be empty added for consistency with checks for other Entities with toolbae (e.g. Character, MyCockpit see MyToolbarComponent)
         private MyToolbar m_toolbar;
 
@@ -1744,7 +1746,7 @@ namespace Sandbox.Game.Weapons
         {
             if (entity is Sandbox.Game.Entities.Debris.MyDebrisBase)
                 return false;
-            if (!TargetCharacters && entity is MyCharacter)
+            if (!TargetCharacters && (entity is MyCharacter||entity is MyGhostCharacter))
                 return false;
 
             if (!TargetMeteors && entity is MyMeteor)
@@ -1763,7 +1765,17 @@ namespace Sandbox.Game.Weapons
 
             bool sameParent = false;
             if (topMostParent is MyCubeGrid)
-                sameParent = ((MyCubeGrid)this.GetTopMostParent()).GridSystems.TerminalSystem == ((MyCubeGrid)topMostParent).GridSystems.TerminalSystem;
+            {
+                var thisGrid = (MyCubeGrid)this.GetTopMostParent();
+                var otherGrid = (MyCubeGrid)topMostParent;
+                sameParent = thisGrid.GridSystems.TerminalSystem == otherGrid.GridSystems.TerminalSystem;
+                
+                //Also check if grids are logically connected (mostly for not detecting Pistons and Rotors as seperate grid). Maybe need to check all adjusent grids?
+                //Haven't taken into account Big Owners. If causing bug then change
+                if (MyCubeGridGroups.Static.Logical.HasSameGroup(thisGrid, otherGrid))
+                    return false;
+            }
+                
 
             bool isMyShip = false;
             if (sameParent)
@@ -1804,7 +1816,7 @@ namespace Sandbox.Game.Weapons
                 if (entity is MyDecoy)
                     return true;
 
-                if (TargetCharacters && entity is MyCharacter && !(entity as MyCharacter).IsDead)
+                if (TargetCharacters && (entity is MyGhostCharacter || entity is MyCharacter && !(entity as MyCharacter).IsDead))
                     return true;
 
                 if (TargetMeteors && entity is MyMeteor)
@@ -2050,9 +2062,9 @@ namespace Sandbox.Game.Weapons
                 return true;
             }
 
-            if (target is MyCharacter)
+            if (target is MyCharacter || target is MyGhostCharacter)
             {
-                var controller = (target as MyCharacter).ControllerInfo.Controller;
+                var controller = (target as IMyControllableEntity).ControllerInfo.Controller;
                 if (controller == null)
                     return false;
 
@@ -2246,7 +2258,7 @@ namespace Sandbox.Game.Weapons
         #endregion
 
         #region Control panel
-    
+
         static void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLargeTurretBase>())
@@ -2564,7 +2576,8 @@ namespace Sandbox.Game.Weapons
             {
                 MyGuiScreenTerminal.Hide();
             }
-            MyCubeBuilder.Static.Deactivate();
+            //MyCubeBuilder.Static.Deactivate();
+            MySession.Static.GameFocusManager.Clear();
 
             MyMultiplayer.RaiseEvent(this,x => x.RequestUseMessage, UseActionEnum.Manipulate,MySession.Static.ControlledEntity.Entity.EntityId);
         }
@@ -3188,7 +3201,7 @@ namespace Sandbox.Game.Weapons
             {
                 //Do not show toolbar component at all if in turret
                 MyGuiScreenHudSpace.Static.SetToolbarVisible(false);
-            }
+        }
         }
 
         public void SwitchReactors()

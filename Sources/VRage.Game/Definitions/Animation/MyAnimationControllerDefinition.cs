@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using VRage.FileSystem;
 using VRage.Game.ObjectBuilders;
 using VRage.Utils;
@@ -15,6 +14,10 @@ namespace VRage.Game.Definitions.Animation
         public List<MyObjectBuilder_AnimationLayer> Layers = new List<MyObjectBuilder_AnimationLayer>();
         // state machines (referenced by layers)
         public List<MyObjectBuilder_AnimationSM> StateMachines = new List<MyObjectBuilder_AnimationSM>();
+        // ik bone chains - feet
+        public List<MyObjectBuilder_AnimationFootIkChain> FootIkChains = new List<MyObjectBuilder_AnimationFootIkChain>();
+        // ik - ignored bones
+        public List<string> IkIgnoredBones = new List<string>();
 
         // init from object builder
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
@@ -27,6 +30,10 @@ namespace VRage.Game.Definitions.Animation
                 Layers.AddRange(ob.Layers);
             if (ob.StateMachines != null)
                 StateMachines.AddRange(ob.StateMachines);
+            if (ob.FootIkChains != null)
+                FootIkChains.AddRange(ob.FootIkChains);
+            if (ob.IkIgnoredBones != null)
+                IkIgnoredBones.AddRange(ob.IkIgnoredBones);
         }
 
         // generate object builder
@@ -35,8 +42,8 @@ namespace VRage.Game.Definitions.Animation
             var builder = MyDefinitionManagerBase.GetObjectFactory().CreateObjectBuilder<MyObjectBuilder_AnimationControllerDefinition>(this);
 
             builder.Id = Id;
-            builder.Description = (DescriptionEnum.HasValue) ? DescriptionEnum.Value.ToString() : DescriptionString != null ? DescriptionString.ToString() : null;
-            builder.DisplayName = (DisplayNameEnum.HasValue) ? DisplayNameEnum.Value.ToString() : DisplayNameString != null ? DisplayNameString.ToString() : null;
+            builder.Description = (DescriptionEnum.HasValue) ? DescriptionEnum.Value.ToString() : DescriptionString;
+            builder.DisplayName = (DisplayNameEnum.HasValue) ? DisplayNameEnum.Value.ToString() : DisplayNameString;
             builder.Icons = Icons;
             builder.Public = Public;
             builder.Enabled = Enabled;
@@ -44,8 +51,18 @@ namespace VRage.Game.Definitions.Animation
 
             builder.StateMachines = StateMachines.ToArray();
             builder.Layers = Layers.ToArray();
+            builder.FootIkChains = FootIkChains.ToArray();
+            builder.IkIgnoredBones = IkIgnoredBones.ToArray();
 
             return builder;
+        }
+
+        public void Clear()
+        {
+            Layers.Clear();
+            StateMachines.Clear();
+            FootIkChains.Clear();
+            IkIgnoredBones.Clear();
         }
     }
 
@@ -71,7 +88,7 @@ namespace VRage.Game.Definitions.Animation
         {
             // ------- tree node track -------
             var objBuilderNodeTrack = objBuilderNode as VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNodeTrack;
-            if (objBuilderNodeTrack != null)
+            if (objBuilderNodeTrack != null && objBuilderNodeTrack.PathToModel != null)
             {
                 string testMwmPath = Path.Combine(modContext.ModPath, objBuilderNodeTrack.PathToModel);
                 if (MyFileSystem.FileExists(testMwmPath))
@@ -151,6 +168,8 @@ namespace VRage.Game.Definitions.Animation
                                 if (!found)
                                     originalAnimationController.Layers.Add(layer);
                             }
+
+                            // TODO: IK?
 
                             justCopy = false;
                         }

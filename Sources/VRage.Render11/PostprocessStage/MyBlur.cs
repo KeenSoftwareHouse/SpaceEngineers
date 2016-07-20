@@ -27,7 +27,7 @@ namespace VRageRender
             internal Vector2 _padding;
         }
 
-        private static ConstantsBufferId m_blurConstantBuffer;
+        private static ConstantsBufferId m_blurConstantBuffer = ConstantsBufferId.NULL;
 
         // Item1 is horizontal, Item2 is vertical pass
         private static Dictionary<int, MyTuple<PixelShaderId, PixelShaderId>> m_blurShaders = null; 
@@ -104,7 +104,6 @@ namespace VRageRender
 
             // Horizontal pass
             MyRender11.DeviceContext.ClearRenderTargetView(intermediateRenderTarget, Color4.White);
-
             RC.DeviceContext.OutputMerger.SetTargets(intermediateRenderTarget);
             RC.SetDS(depthStencilState, stencilRef);
             RC.DeviceContext.PixelShader.SetShaderResource(0, MyGBuffer.Main.DepthStencil.m_SRV_depth);
@@ -112,6 +111,7 @@ namespace VRageRender
             RC.DeviceContext.PixelShader.SetShaderResource(5, initialResourceView);
             RC.SetPS(m_blurShaders[shaderKey].Item1);
             MyScreenPass.DrawFullscreenQuad(viewport);
+            RC.DeviceContext.PixelShader.SetShaderResource(5, null);
 
             // Vertical pass
             MyRender11.DeviceContext.ClearRenderTargetView(renderTarget, Color4.White);
@@ -122,6 +122,10 @@ namespace VRageRender
             RC.DeviceContext.PixelShader.SetShaderResource(5, intermediateResourceView);
             RC.SetPS(m_blurShaders[shaderKey].Item2);
             MyScreenPass.DrawFullscreenQuad(viewport);
+
+            RC.DeviceContext.PixelShader.SetShaderResource(0, null);
+            RC.DeviceContext.PixelShader.SetShaderResource(4, null);
+            RC.DeviceContext.PixelShader.SetShaderResource(5, null);
 
             MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();

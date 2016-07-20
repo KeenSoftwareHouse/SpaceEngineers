@@ -99,7 +99,7 @@ namespace VRageRender
                 return material;
             else
             {
-                System.Diagnostics.Debug.Fail("Transparent material not present!");
+                System.Diagnostics.Debug.Fail("Transparent material not present: " + materialName);
                 return ErrorMaterial;
             }
         }

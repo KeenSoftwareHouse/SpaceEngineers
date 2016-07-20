@@ -61,6 +61,8 @@ namespace VRage.Compiler
 #else
     public class IlCompiler
     {
+        // TODO: Move the compatibility stuff into its own system once the Roslyn scripts have been integrated.
+
         public static System.CodeDom.Compiler.CompilerParameters Options;
 
         /// <summary>
@@ -103,7 +105,7 @@ namespace VRage.Compiler
             {"using Sandbox.Common.Input;",""},
             {"using Sandbox.Common.ModAPI;",""},
         };
-
+        
         static IlCompiler()
         {
             Options = new System.CodeDom.Compiler.CompilerParameters(new string[] {
@@ -122,35 +124,40 @@ namespace VRage.Compiler
                 //, "Microsoft.CSharp.dll"
             });
             Options.GenerateInMemory = true;
-            //Options.IncludeDebugInformation = true;
         }
-
+        
         public static string[] UpdateCompatibility(string[] files)
         {
             string[] sources = new string[files.Length];
             for (int i = 0; i < files.Length; ++i)
             {
-                using (Stream stream = MyFileSystem.OpenRead(files[i]))
+                var filename = files[i];
+                sources[i] = UpdateCompatibility(filename);
+            }
+            return sources;
+        }
+        
+        public static string UpdateCompatibility(string filename)
+        {
+            using (Stream stream = MyFileSystem.OpenRead(filename))
+            {
+                if (stream != null)
                 {
-                    if (stream != null)
+                    using (StreamReader sr = new StreamReader(stream))
                     {
-                        using (StreamReader sr = new StreamReader(stream))
+                        string source = sr.ReadToEnd();
+                        Debug.Assert(CompatibilityUsings != null, "Compatibility usings can't be null");
+                        source = source.Insert(0, CompatibilityUsings);
+
+                        foreach (var value in m_compatibilityChanges)
                         {
-                            string source = sr.ReadToEnd();
-
-                            Debug.Assert(CompatibilityUsings != null, "Compatibility usings can't be null");
-                            source = source.Insert(0, CompatibilityUsings);
-
-                            foreach (var value in m_compatibilityChanges)
-                            {
-                                source = source.Replace(value.Key,value.Value);
-                            }
-                            sources[i] = source;
+                            source = source.Replace(value.Key, value.Value);
                         }
+                        return source;
                     }
                 }
             }
-            return sources;
+            return null;
         }
 
         public static bool CompileFileModAPI(string assemblyName, string[] files, out Assembly assembly, List<string> errors)
@@ -158,11 +165,12 @@ namespace VRage.Compiler
             Options.OutputAssembly = assemblyName;
             Options.GenerateInMemory = true;
             Options.TempFiles = new TempFileCollection(null, false);
+            Options.IncludeDebugInformation = false;
             string[] sources = UpdateCompatibility(files);
             var result = m_cp.CompileAssemblyFromSource(Options, sources);
             return CheckResultInternal(out assembly, errors, result, false);
         }
-
+        
         public static bool CompileStringIngame(string assemblyName, string[] source, out Assembly assembly, List<string> errors)
         {
             Options.OutputAssembly = assemblyName;

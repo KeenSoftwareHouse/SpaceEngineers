@@ -4,7 +4,6 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Graphics.GUI;
-using Sandbox.ModAPI;
 using Sandbox.ModAPI.Ingame;
 using System;
 using System.Collections.Generic;
@@ -31,7 +30,9 @@ using VRage.Game;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
+using VRage.FileSystem;
 using VRage.Game.ModAPI;
+using VRage.Scripting;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -82,7 +83,7 @@ namespace Sandbox.Game.Entities.Blocks
     }
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MyProgrammableBlock))]
-    public class MyProgrammableBlock : MyFunctionalBlock, IMyProgrammableBlock
+    public class MyProgrammableBlock : MyFunctionalBlock, ModAPI.IMyProgrammableBlock
     {
         /// <summary>
         /// Determines why (if at all) a script was terminated.
@@ -145,7 +146,7 @@ public void Main(string argument) {{
         private const int MAX_NUM_EXECUTED_INSTRUCTIONS = 50000;
 		private const int MAX_NUM_METHOD_CALLS = 10000;
         private const int MAX_ECHO_LENGTH = 8000; // 100 lines á 80 characters
-        private IMyGridProgram m_instance = null;
+        private ModAPI.IMyGridProgram m_instance = null;
         private readonly RuntimeInfo m_runtime = new RuntimeInfo();
         private string m_programData = null;
         private string m_storageData = null;
@@ -157,6 +158,7 @@ public void Main(string argument) {{
         MyGuiScreenEditor m_editorScreen;
         Assembly m_assembly = null;
         List<string> m_compilerErrors = new List<string>();
+        List<MyScriptCompiler.Message> m_compilerMessages = new List<MyScriptCompiler.Message>();
         private ScriptTerminationReason m_terminationReason = ScriptTerminationReason.None;
         private bool m_isRunning = false;
         private bool m_mainMethodSupportsArgument;
@@ -316,6 +318,7 @@ public void Main(string argument) {{
         void Recompile()
         {
             m_compilerErrors.Clear();
+            m_compilerMessages.Clear();
 
             UpdateStorage();
             CompileAndCreateInstance(m_programData, m_storageData);
@@ -406,7 +409,7 @@ public void Main(string argument) {{
             }, out response);
         }
 
-        public ScriptTerminationReason RunSandboxedProgramAction(Action<IMyGridProgram> action, out string response)
+        public ScriptTerminationReason RunSandboxedProgramAction(Action<ModAPI.IMyGridProgram> action, out string response)
         {
             if (m_isRunning) {
                 response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_AllreadyRunning);
@@ -592,43 +595,28 @@ public void Main(string argument) {{
             m_terminationReason = ScriptTerminationReason.None;
             try
             {
-                Assembly temp = null;
-                MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
-                if (temp != null)
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
                 {
-                    m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
+                    m_assembly = MyScriptCompiler.Static.Compile(
+                        MyApiTarget.Ingame,
+                        Path.Combine(MyFileSystem.UserDataPath, GetAssemblyName()),
+                        MyScriptCompiler.Static.GetIngameScript(program, "Program", typeof(MyGridProgram).Name),
+                        m_compilerMessages).Result;
 
-                    var type = m_assembly.GetType("Program");
-                    if (type != null)
+                    m_compilerErrors.Clear();
+                    m_compilerErrors.AddRange(m_compilerMessages.Select(m => m.Text));
+
+                    CreateInstance(m_assembly, m_compilerErrors, storage);
+                }
+                else
+                {
+                    Assembly temp = null;
+                    MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
+                    if (temp != null)
                     {
-                        m_instance = FormatterServices.GetUninitializedObject(type) as IMyGridProgram;
-                        var constructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
-                        string response;
-                        if (m_instance == null || constructor == null) {
-                            response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoValidConstructor);
-                            SetDetailedInfo(response);
-                            return;
-                        } 
-                        m_runtime.Reset();
-                        m_instance.Runtime = m_runtime;
-                        m_instance.Storage = storage;
-                        m_instance.Me = this;
-                        m_instance.Echo = EchoTextToDetailInfo;
-                        RunSandboxedProgramAction(p =>
-                        {
-                            constructor.Invoke(p, null);
+                        m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
 
-                            if (!m_instance.HasMainMethod)
-                            {
-                                if (m_echoOutput.Length > 0)
-                                {
-                                    response = m_echoOutput.ToString();
-                                }
-                                response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain);
-                                OnProgramTermination(ScriptTerminationReason.NoEntryPoint);
-                            }
-                        }, out response);
-                        SetDetailedInfo(response);
+                        CreateInstance(m_assembly, m_compilerErrors, storage);
                     }
                 }
             }
@@ -637,6 +625,66 @@ public void Main(string argument) {{
                 string response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_ExceptionCaught) + ex.Message;
                 SetDetailedInfo(response);
             }
+        }
+
+        string GetAssemblyName()
+        {
+            var invalidPathChars = Path.GetInvalidFileNameChars();
+            var nameBuilder = new StringBuilder();
+            nameBuilder.Append(this.EntityId);
+            nameBuilder.Append("-");
+            for (var i = 0; i < this.CustomName.Length; i++)
+            {
+                var ch = this.CustomName[i];
+                if (invalidPathChars.Contains(ch))
+                    nameBuilder.Append("_");
+                else
+                    nameBuilder.Append(ch);
+            }
+            nameBuilder.Append(".dll");
+            return nameBuilder.ToString();
+        }
+
+        bool CreateInstance(Assembly assembly, IEnumerable<string> messages, string storage)
+        {
+            var response = string.Join("\n", messages);
+            if (assembly == null)
+            {
+                return false;
+            }
+            var type = assembly.GetType("Program");
+            if (type != null)
+            {
+                m_instance = FormatterServices.GetUninitializedObject(type) as ModAPI.IMyGridProgram;
+                var constructor = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, Type.EmptyTypes, null);
+                if (m_instance == null || constructor == null)
+                {
+                    response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoValidConstructor) + "\n\n" + response;
+                    SetDetailedInfo(response);
+                    return false;
+                }
+                m_runtime.Reset();
+                m_instance.Runtime = m_runtime;
+                m_instance.Storage = storage;
+                m_instance.Me = this;
+                m_instance.Echo = EchoTextToDetailInfo;
+                RunSandboxedProgramAction(p =>
+                {
+                    constructor.Invoke(p, null);
+
+                    if (!m_instance.HasMainMethod)
+                    {
+                        if (m_echoOutput.Length > 0)
+                        {
+                            response += "\n\n" + m_echoOutput.ToString();
+                        }
+                        response = MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Exception_NoMain) + "\n\n" + response; 
+                        OnProgramTermination(ScriptTerminationReason.NoEntryPoint);
+                    }
+                }, out response);
+                SetDetailedInfo(response);
+            }
+            return true;
         }
 
         private void EchoTextToDetailInfo(string line)
@@ -688,7 +736,7 @@ public void Main(string argument) {{
             RaisePropertiesChanged();
         }
 
-        bool IMyProgrammableBlock.IsRunning { get { return m_isRunning; } }
+        bool ModAPI.Ingame.IMyProgrammableBlock.IsRunning { get { return m_isRunning; } }
 
         protected override void OnOwnershipChanged()
         {

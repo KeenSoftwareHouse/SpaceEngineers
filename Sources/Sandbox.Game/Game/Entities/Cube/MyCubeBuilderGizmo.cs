@@ -245,6 +245,7 @@ namespace Sandbox.Game.Entities.Cube
                 gridSize = MyDefinitionManager.Static.GetCubeSize(definition.CubeSize);
             }
 
+
             for (int faceIndex = 0; faceIndex < gizmoSpace.m_cubeModelsTemp.Count; faceIndex++)
             {
                 string cubePartModel = gizmoSpace.m_cubeModelsTemp[faceIndex];
@@ -252,14 +253,14 @@ namespace Sandbox.Game.Entities.Cube
                 gizmoSpace.m_cubeModels.Add(cubePartModel);
                 gizmoSpace.m_cubeMatrices.Add(gizmoSpace.m_cubeMatricesTemp[faceIndex]);
 
-                int tileIndex = faceIndex % tiles.Length;
-
-                var invertedTile = Matrix.Transpose(tiles[tileIndex].LocalMatrix);
-                var onlyOrientation = invertedTile * gizmoSpace.m_cubeMatricesTemp[faceIndex].GetOrientation();
-                var boneMatrix = onlyOrientation * invGridWorldMatrixOrientation;
-
                 if (tiles != null)
                 {
+                    int tileIndex = faceIndex % tiles.Length;
+
+                    var invertedTile = Matrix.Transpose(tiles[tileIndex].LocalMatrix);
+                    var onlyOrientation = invertedTile * gizmoSpace.m_cubeMatricesTemp[faceIndex].GetOrientation();
+                    var boneMatrix = onlyOrientation * invGridWorldMatrixOrientation;
+
                     bones = new Vector3UByte[9];
                     for (int i = 0; i < 9; i++)
                     {
@@ -359,9 +360,11 @@ namespace Sandbox.Game.Entities.Cube
             Vector3D originCamera = MySector.MainCamera.Position;
             Vector3 direction = MySector.MainCamera.ForwardVector;
 
+            double cameraHeadDist = (originHead - MySector.MainCamera.Position).Length();
+
             Vector3 localHead = Vector3D.Transform(originHead, m);
             Vector3 localStart = Vector3D.Transform(originCamera, m);
-            Vector3 localEnd = Vector3D.Transform(originCamera + direction * intersectionDistance, m);
+            Vector3 localEnd = Vector3D.Transform(originCamera + direction * (intersectionDistance + (float)cameraHeadDist), m);
             LineD line = new LineD(localStart, localEnd);
 
             // AABB of added block
@@ -381,11 +384,11 @@ namespace Sandbox.Game.Entities.Cube
                 double distanceToPlayer = gizmoBox.Distance(localHead);
                 if (MySession.Static.ControlledEntity is MyShipController)
                 {
-                    return distanceToPlayer <= MyCubeBuilder.MAX_BLOCK_BUILDING_DISTANCE_SHIP;
+                    return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSurvivalShip;
                 }
                 else
                 {
-                    return distanceToPlayer <= MyCubeBuilder.MAX_BLOCK_BUILDING_DISTANCE_SUIT;
+                    return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSurvivalCharacter;
                 }
             }
             return false;
@@ -404,8 +407,8 @@ namespace Sandbox.Game.Entities.Cube
             else if (onVoxel)
             {
                 m = invGridWorldMatrix;
-                Vector3D worldMin = MyCubeGrid.StaticGlobalGrid_UGToWorld(gizmoSpace.m_min, gridSize, MyPerGameSettings.BuildingSettings.StaticGridAlignToCenter) - Vector3D.Half * gridSize;
-                Vector3D worldMax = MyCubeGrid.StaticGlobalGrid_UGToWorld(gizmoSpace.m_max, gridSize, MyPerGameSettings.BuildingSettings.StaticGridAlignToCenter) + Vector3D.Half * gridSize;
+                Vector3D worldMin = MyCubeGrid.StaticGlobalGrid_UGToWorld(gizmoSpace.m_min, gridSize, MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter) - Vector3D.Half * gridSize;
+                Vector3D worldMax = MyCubeGrid.StaticGlobalGrid_UGToWorld(gizmoSpace.m_max, gridSize, MyCubeBuilder.CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter) + Vector3D.Half * gridSize;
                 bb = new BoundingBoxD(worldMin - new Vector3D(inflate * gridSize), worldMax + new Vector3D(inflate * gridSize));
             }
             else if (MyFakes.ENABLE_STATIC_SMALL_GRID_ON_LARGE && gizmoSpace.m_addPosSmallOnLarge != null) 
@@ -809,7 +812,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (!string.IsNullOrEmpty(sourceSpace.m_blockDefinition.MirroringBlock))
             {
-                targetSpace.m_blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(new MyDefinitionId(typeof(MyObjectBuilder_CubeBlock), sourceSpace.m_blockDefinition.MirroringBlock));
+                targetSpace.m_blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(new MyDefinitionId(sourceSpace.m_blockDefinition.Id.TypeId, sourceSpace.m_blockDefinition.MirroringBlock));
             }
             else
                 targetSpace.m_blockDefinition = sourceSpace.m_blockDefinition;

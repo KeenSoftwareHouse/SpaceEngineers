@@ -17,12 +17,6 @@ namespace Sandbox.Graphics.GUI
         private float m_scale;
         private bool mShowTextShadow;
 
-        private Vector2 m_actualSize;
-        private Vector2 m_size;
-
-        private float SMALL_STRING_WIDTH = 0.018f;
-        private float NO_OFFSET_THRESHOLD = 0.014f;
-
         public MyRichLabelText(StringBuilder text, MyFontEnum font, float scale, Vector4 color)
         {
             m_text = text;
@@ -55,21 +49,12 @@ namespace Sandbox.Graphics.GUI
             {
                 return m_text;
             }
-            set
-            {
-                m_text = value;
-                RecalculateSize();
-            }
         }
 
         public bool ShowTextShadow
         {
             get { return mShowTextShadow; }
-            set
-            {
-                mShowTextShadow = value;
-                RecalculateSize();
-            }
+            set { mShowTextShadow = value; }
         }
 
         public void Append(string text)
@@ -110,9 +95,15 @@ namespace Sandbox.Graphics.GUI
             set { m_color = value; }
         }
 
-        public override Vector2 GetSize()
+        public string Tag
         {
-            return m_actualSize;
+            get;
+            set;
+        }
+
+        public override void AppendTextTo(StringBuilder builder)
+        {
+            builder.Append(m_text);
         }
 
         /// <summary>
@@ -122,10 +113,15 @@ namespace Sandbox.Graphics.GUI
         /// <returns></returns>
         public override bool Draw(Vector2 position)
         {
-            if (ShowTextShadow)
-                DrawShadow(position);
+            if (ShowTextShadow && !String.IsNullOrWhiteSpace(m_text.ToString()))
+            {
+                Vector2 size = Size;
+                MyGuiTextShadows.DrawShadow(ref position, ref size,
+                    alignment: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+            }
 
-            MyGuiManager.DrawString(m_font, m_text, position, m_scale, new Color(m_color), MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+            MyGuiManager.DrawString(m_font, m_text, position, m_scale, new Color(m_color),
+                MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
 
             return true;
         }
@@ -137,59 +133,7 @@ namespace Sandbox.Graphics.GUI
 
         private void RecalculateSize()
         {
-            m_size = MyGuiManager.MeasureString(m_font, m_text, m_scale);
-            m_actualSize = m_size;
-            if (ShowTextShadow)
-            {
-                // String is enlarged because of cropping
-                if (m_size.X < SMALL_STRING_WIDTH)
-                    ResizeXSmallText(ref m_actualSize);
-                else
-                    ResizeXLargeText(ref m_actualSize);
-            }
-        }
-
-        // WARNING: Lot of hard coded stuff. Logic was mostly copied from MyGuiScreenHudBase
-        private void DrawShadow(Vector2 position)
-        {
-            Color color = new Color(0, 0, 0, (byte)(255 * 0.85f));
-
-            Vector2 shadowSize = m_size;
-            if (m_size.X < SMALL_STRING_WIDTH)
-            {
-                ResizeXSmallText(ref shadowSize);
-                shadowSize.Y *= 1.2f;
-                position.Y += (shadowSize.Y - m_size.Y) * 1.5f;
-
-                MyGuiManager.DrawSpriteBatch(MyGuiConstants.FOG_SMALL2, position, shadowSize, color,
-                    MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, false);
-            }
-            else
-            {
-                ResizeXLargeText(ref shadowSize);
-                shadowSize.Y = shadowSize.Y * 0.7f * 3.0f;
-
-                float actualSizeDiff = shadowSize.X - m_size.X;
-                if (actualSizeDiff > NO_OFFSET_THRESHOLD)
-                    position.X -= actualSizeDiff - NO_OFFSET_THRESHOLD;
-
-                position.Y -= (shadowSize.Y - m_size.Y) / 7.5f;
-
-                MyGuiManager.DrawSpriteBatch(MyGuiConstants.FOG_SMALL3, position, shadowSize, color,
-                    MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, false);
-            }
-        }
-
-        // Enlarges the string size and/or the shadow for better effect
-        private void ResizeXSmallText(ref Vector2 size)
-        {
-            size.X *= 1.2f;
-        }
-
-        // Enlarges the string size and/or the shadow for better effect
-        private void ResizeXLargeText(ref Vector2 size)
-        {
-            size.X *= 1.1f;
+            Size = MyGuiManager.MeasureString(m_font, m_text, m_scale);
         }
     }
 }

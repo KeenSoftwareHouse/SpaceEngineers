@@ -249,4 +249,13 @@ float rand(float2 co)
 	return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
 
+float CalcSoftParticle(float softFactor, float targetDepth, float particleDepth)
+{
+    float depthFade = 1;
+    depthFade = particleDepth - targetDepth;
+    clip(depthFade);
+    depthFade = saturate(depthFade / (softFactor * 0.3f));
+    return depthFade;
+}
+
 #endif

@@ -20,7 +20,7 @@ using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
@@ -360,7 +360,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 orientation.Translation = CubeGrid.GridIntegerToWorld(Position + mat.Forward / 4f);
 
                 m_effect.WorldMatrix = orientation;
-                m_effect.AutoDelete = false;
 
                 m_effect.UserScale = 3f;
             }

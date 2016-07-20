@@ -128,7 +128,7 @@ namespace Sandbox.Game
             MyUtilRandomVector3ByDeviatingVector randomVector = new MyUtilRandomVector3ByDeviatingVector(reflectedDirection);
 
             MyParticleEffect effect;
-            if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Hit_BasicAmmoSmall, out effect))
+            if (MyParticlesManager.TryCreateParticleEffect(effectName, out effect))
             {
                 MatrixD dirMatrix = MatrixD.CreateFromDir(normal);
                 effect.WorldMatrix = MatrixD.CreateWorld(hitPoint, dirMatrix.Forward, dirMatrix.Up);

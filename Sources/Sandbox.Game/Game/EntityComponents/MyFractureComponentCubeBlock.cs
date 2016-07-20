@@ -439,10 +439,10 @@ namespace Sandbox.Game.EntityComponents
                 m_block = b;
             }
 
-            public override bool DebugDraw()
+            public override void DebugDraw()
             {
                 if (!MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS || !m_block.Components.Has<MyFractureComponentBase>())
-                    return true;
+                    return;
 
                 MyFractureComponentCubeBlock component = m_block.GetFractureComponent();
                 if (component != null)
@@ -451,7 +451,6 @@ namespace Sandbox.Game.EntityComponents
                     m.Translation = m_block.CubeGrid.GridIntegerToWorld(m_block.Position);
                     MyCubeBuilder.DrawMountPoints(m_block.CubeGrid.GridSize, m_block.BlockDefinition, m, component.MountPoints.ToArray());
                 }
-                return true;
             }
 
             public override void DebugDrawInvalidTriangles()

@@ -24,5 +24,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public SerializableVector3 FogColor;
+
+        [ProtoMember]
+        public SerializableDefinitionId EnvironmentDefinition = new SerializableDefinitionId(typeof(MyObjectBuilder_EnvironmentDefinition), "Default");
     }
 }

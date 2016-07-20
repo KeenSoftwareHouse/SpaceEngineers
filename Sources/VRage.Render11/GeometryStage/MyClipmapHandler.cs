@@ -34,7 +34,7 @@ namespace VRageRender
             if (MyLodMeshMergeHandler.ShouldAllocate(m_mergeHandler))
                 m_mergeHandler = AllocateMergeHandler();
 
-            MyClipmap.AddToUpdate(MyEnvironment.CameraPosition, Base);
+            MyClipmap.AddToUpdate(MyRender11.Environment.CameraPosition, Base);
         }
 
         private MyLodMeshMergeHandler AllocateMergeHandler()
@@ -134,7 +134,7 @@ namespace VRageRender
         {
             if (!MyRender11.Settings.FreezeTerrainQueries)
             {
-                MyClipmap.UpdateQueued(MyEnvironment.CameraPosition, MyEnvironment.InvView.Forward, MyEnvironment.FarClipping, MyEnvironment.LargeDistanceFarClipping);
+                MyClipmap.UpdateQueued(MyRender11.Environment.CameraPosition, MyRender11.Environment.InvView.Forward, MyRender11.Environment.FarClipping, MyRender11.Environment.LargeDistanceFarClipping);
             }
         }
 

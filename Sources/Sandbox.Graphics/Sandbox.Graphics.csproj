@@ -124,7 +124,9 @@
     <Compile Include="Gui\MyGuiControlImage.cs" />
     <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
+    <Compile Include="Gui\MyGuiControlSliderBase.cs" />
     <Compile Include="Gui\MyGuiScreenDialogAmount.cs" />
+    <Compile Include="Gui\MyGuiTextShadows.cs" />
     <Compile Include="Gui\MyKeyThrottler.cs" />
     <Compile Include="Gui\MyLayoutTable.cs" />
     <Compile Include="Gui\MyLayoutVertical.cs" />

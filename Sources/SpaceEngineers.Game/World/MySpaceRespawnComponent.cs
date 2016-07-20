@@ -154,16 +154,16 @@ namespace SpaceEngineers.Game.World
             Sync.Players.RespawnComponent = null;
         }
 
-        [Event,Reliable,Server]
+        [Event, Reliable, Server]
         static void OnSyncCooldownRequest()
         {
             if (MyEventContext.Current.IsLocallyInvoked)
             {
-                MySpaceRespawnComponent.Static.SyncCooldownToPlayer(Sync.MyId,true);
+                MySpaceRespawnComponent.Static.SyncCooldownToPlayer(Sync.MyId, true);
             }
             else
             {
-                MySpaceRespawnComponent.Static.SyncCooldownToPlayer(MyEventContext.Current.Sender.Value,false);
+                MySpaceRespawnComponent.Static.SyncCooldownToPlayer(MyEventContext.Current.Sender.Value, false);
             }
 
         }
@@ -193,7 +193,7 @@ namespace SpaceEngineers.Game.World
             m_synced = true;
         }
 
-        public void SyncCooldownToPlayer(ulong steamId,bool isLocal)
+        public void SyncCooldownToPlayer(ulong steamId, bool isLocal)
         {
             int currentTime = MySandboxGame.TotalTimeInMilliseconds;
 
@@ -219,7 +219,7 @@ namespace SpaceEngineers.Game.World
             {
                 MyMultiplayer.RaiseStaticEvent(s => OnSyncCooldownResponse, m_tmpRespawnTimes, new EndpointId(steamId));
             }
-            
+
             m_tmpRespawnTimes.Clear();
         }
 
@@ -320,11 +320,13 @@ namespace SpaceEngineers.Game.World
 
         private void OnLocalRespawnRequest()
         {
+           
             if (MyFakes.SHOW_FACTIONS_GUI)
             {
                 ulong playerId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SteamId : Sync.MyId;
                 int serialId = MySession.Static.LocalHumanPlayer != null ? MySession.Static.LocalHumanPlayer.Id.SerialId : 0;
                 MyMultiplayer.RaiseStaticEvent(s => RespawnRequest_Implementation, playerId, serialId);
+
             }
             else
             {
@@ -337,6 +339,11 @@ namespace SpaceEngineers.Game.World
         {
             var playerId = new MyPlayer.PlayerId(steamPlayerId, serialId);
             var player = Sync.Players.GetPlayerById(playerId);
+
+            if (MyScenarioSystem.Static != null && (MyScenarioSystem.Static.GameState == MyScenarioSystem.MyState.JoinScreen || MyScenarioSystem.Static.GameState == MyScenarioSystem.MyState.WaitingForClients))
+            {
+                return;
+            }
 
             if(false == TryFindCryoChamberCharacter(player))
             {
@@ -405,6 +412,12 @@ namespace SpaceEngineers.Game.World
 
             if (!spawnAsNewPlayer)
             {
+                if (respawnShipId != null)
+                {
+                    SpawnAtShip(player, respawnShipId, botDefinition);
+                    return true;
+                }
+
                 if (spawnPosition.HasValue)
                 {
                     Vector3D gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(spawnPosition.Value);
@@ -414,7 +427,7 @@ namespace SpaceEngineers.Game.World
                         gravity.Normalize();
                     Vector3D perpendicular;
                     gravity.CalculatePerpendicularVector(out perpendicular);
-                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, null, botDefinition, true );
+                    player.SpawnAt(MatrixD.CreateWorld(spawnPosition.Value, perpendicular, -gravity), Vector3.Zero, null, botDefinition, true);
 
                     return true;
                 }
@@ -505,7 +518,7 @@ namespace SpaceEngineers.Game.World
             {
                 pos = respawn.GetSpawnPosition(respawn.Entity.WorldMatrix);
             }
-                
+
             Vector3 velocity = parent.Physics.GetVelocityAtPoint(pos.Translation);
 
             MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(parent), new EndpointId(player.Id.SteamId));
@@ -624,7 +637,7 @@ namespace SpaceEngineers.Game.World
 
             ResetRespawnCooldown(player.Id);
             if (Sync.MultiplayerActive)
-                SyncCooldownToPlayer(player.Id.SteamId,player.Id.SteamId == Sync.MyId);
+                SyncCooldownToPlayer(player.Id.SteamId, player.Id.SteamId == Sync.MyId);
 
             MyCharacter character = null;
             MyCockpit cockpit = null;
@@ -657,7 +670,7 @@ namespace SpaceEngineers.Game.World
             Vector3D up = Vector3D.Up;
 
             GetSpawnPosition(prefabDef.BoundingSphere.Radius, ref position, out forward, out up, planetSpawnHeightRatio, spawnRangeMin, spawnRangeMax);
-            
+
             MyPrefabManager.Static.SpawnPrefab(
                 respawnGrids,
                 prefabDef.Id.SubtypeName,
@@ -714,7 +727,7 @@ namespace SpaceEngineers.Game.World
             }
 
             character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, cockpit: cockpit, playerSteamId: player.Id.SteamId);
-   
+
             CloseRespawnShip(player);
             foreach (var respawnGrid in respawnGrids)
             {
@@ -781,13 +794,13 @@ namespace SpaceEngineers.Game.World
 
             //Create character
             Matrix matrix = Matrix.CreateWorld(position, forward, up);
-            MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, playerSteamId:player.Id.SteamId);
+            MyCharacter character = MyCharacter.CreateCharacter(matrix, Vector3.Zero, player.Identity.DisplayName, player.Identity.Model, null, botDefinition, playerSteamId: player.Id.SteamId);
 
             Sync.Players.SetPlayerCharacter(player, character, spawnedBy);
             Sync.Players.RevivePlayer(player);
         }
 
-		/// <summary>
+        /// <summary>
         /// Returns a position adjusted for planets that should be safe to spawn at given the radius and position.
         /// </summary>
         /// <param name="collisionRadius">The radius of the object that is trying to spawn.</param>
@@ -844,15 +857,11 @@ namespace SpaceEngineers.Game.World
         public static void GetSpawnPosition(float collisionRadius, ref Vector3D position, out Vector3D forward, out Vector3D up, float planetSpawnHeightRatio = 0.3f, float randomRangeMin = 500, float randomRangeMax = 650)
         {
             // Are we spawning near a planet?
-            Vector3 gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(position);
-            if (gravity.LengthSquared() > 0)
+            MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(position);
+            if (planet != null)
             {
-                MyPlanet planet = MyGravityProviderSystem.GetStrongestGravityWell(position);
-                if (planet != null)
-                {
-                    GetSpawnPositionNearPlanet(planet, collisionRadius, ref position, out forward, out up, planetSpawnHeightRatio, randomRangeMin, randomRangeMax);
-                    return;
-                }
+                GetSpawnPositionNearPlanet(planet, collisionRadius, ref position, out forward, out up, planetSpawnHeightRatio, randomRangeMin, randomRangeMax);
+                return;
             }
 
             // Old logic, testing for asteroids and other objects
@@ -885,24 +894,7 @@ namespace SpaceEngineers.Game.World
             if (searchPosition.HasValue)
                 randomizedPosition = searchPosition.Value;
 
-            // Make sure we didn't randomize into a planet
-            gravity = MyGravityProviderSystem.CalculateNaturalGravityInPoint(randomizedPosition);
-            if (gravity.LengthSquared() > 0)
-            {
-                MyPlanet planet = MyGravityProviderSystem.GetStrongestGravityWell(randomizedPosition);
-                if (planet != null)
-                {
-                    GetSpawnPositionNearPlanet(planet, collisionRadius, ref position, out forward, out up, planetSpawnHeightRatio, randomRangeMin, randomRangeMax);
-                }
-                else
-                {
-                    position = randomizedPosition;
-                }
-            }
-            else
-            {
-                position = randomizedPosition;
-            }
+            position = randomizedPosition;
         }
 
         public override MyIdentity CreateNewIdentity(string identityName, MyPlayer.PlayerId playerId, string modelName)
@@ -920,8 +912,8 @@ namespace SpaceEngineers.Game.World
         {
             return MyMedicalRoom.AvailableMedicalRoomsCount(player.Identity.IdentityId);
         }
-        public override bool IsInRespawnScreen() 
-        { 
+        public override bool IsInRespawnScreen()
+        {
             return MyGuiScreenMedicals.Static != null && MyGuiScreenMedicals.Static.State == MyGuiScreenState.OPENED;
         }
         public override void CloseRespawnScreen()

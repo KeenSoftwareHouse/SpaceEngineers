@@ -1,4 +1,6 @@
-﻿using Sandbox.Game.AI;
+﻿using Havok;
+using Sandbox.Engine.Physics;
+using Sandbox.Game.AI;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.EnvironmentItems;
 using System.Collections.Generic;
@@ -9,7 +11,7 @@ namespace Sandbox.Game.AI.Navigation
     // CH: TODO: This is a dirty and temporary solution. It would be better to index the trees
     public class MyTreeAvoidance : MySteeringBase
     {
-        private List<Vector3D> m_trees = new List<Vector3D>();
+        private List<HkBodyCollision> m_trees = new List<HkBodyCollision>();
 
         public MyTreeAvoidance(MyBotNavigation navigation, float weight)
             : base(navigation, weight) { }
@@ -21,58 +23,66 @@ namespace Sandbox.Game.AI.Navigation
 
         public override void AccumulateCorrection(ref VRageMath.Vector3 correction, ref float weight)
         {
+            // Don't do any correction if we're not moving
+            if (Parent.Speed < 0.01)
+                return;
+
             Vector3D position = Parent.PositionAndOrientation.Translation;
 
-            BoundingBoxD box = new BoundingBoxD(position - Vector3D.One, position + Vector3D.One);
+            // Find trees
+            Quaternion rotation = Quaternion.Identity;
+            HkShape sphereShape = new HkSphereShape(6);
+            MyPhysics.GetPenetrationsShape(sphereShape, ref position, ref rotation, m_trees, MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
 
-            Vector3D currentMovement = Parent.ForwardVector * Parent.Speed;
-            if (Parent.Speed > 0.01f)
-                currentMovement.Normalize();
-
-            // Don't do any correction if we're not moving
-            if (currentMovement.LengthSquared() < 0.01)
+            foreach (var tree in m_trees)
             {
-                return;
-            }
+                // Make sure the tree is actually a tree
+                if (tree.Body == null) continue;
+                MyPhysicsBody physicsBody = tree.Body.UserObject as MyPhysicsBody;
+                if (physicsBody == null) continue;
 
-            var entities = MyEntities.GetEntitiesInAABB(ref box);
-            foreach (var entity in entities)
-            {
-                var environmentItems = entity as MyEnvironmentItems;
-                if (environmentItems == null) continue;
+                HkShape bodyShape = tree.Body.GetShape();
+                if (bodyShape.ShapeType != HkShapeType.StaticCompound)
+                    continue;
 
-                environmentItems.GetItemsInRadius(ref position, 6.0f, m_trees);
+                // Get the static compound shape
+                HkStaticCompoundShape staticCompoundShape = (HkStaticCompoundShape)bodyShape;
 
-                foreach (var item in m_trees)
+                int instanceId;
+                uint childKey;
+                staticCompoundShape.DecomposeShapeKey(tree.ShapeKey, out instanceId, out childKey);
+
+                // Get the local shape position, and add entity world position
+                Vector3D item = staticCompoundShape.GetInstanceTransform(instanceId).Translation;
+                item += physicsBody.GetWorldMatrix().Translation;
+
+                // Avoid tree
+                Vector3D dir = item - position;
+                var dist = dir.Normalize();
+                dir = Vector3D.Reject(Parent.ForwardVector, dir);
+
+                dir.Y = 0.0f;
+                if (dir.Z * dir.Z + dir.X * dir.X < 0.1)
                 {
-                    Vector3D dir = item - position;
-                    var dist = dir.Normalize();
-                    dir = Vector3D.Reject(currentMovement, dir);
-
-                    dir.Y = 0.0f;
-                    if (dir.Z * dir.Z + dir.X * dir.X < 0.1)
-                    {
-                        Vector3D dirLocal = Vector3D.TransformNormal(dir, Parent.PositionAndOrientationInverted);
-                        dir = position - item;
-                        dir = Vector3D.Cross(Vector3D.Up, dir);
-                        if (dirLocal.X < 0)
-                            dir = -dir;
-                    }
-
-                    dir.Normalize();
-
-                    correction += (6f - dist) * Weight * dir;
-                    if (!correction.IsValid())
-                    {
-                        System.Diagnostics.Debugger.Break();
-                    }
+                    Vector3D dirLocal = Vector3D.TransformNormal(dir, Parent.PositionAndOrientationInverted);
+                    dir = position - item;
+                    dir = Vector3D.Cross(Vector3D.Up, dir);
+                    if (dirLocal.X < 0)
+                        dir = -dir;
                 }
-                m_trees.Clear();
+
+                dir.Normalize();
+
+                correction += (6f - dist) * Weight * dir;
+                if (!correction.IsValid())
+                {
+                    System.Diagnostics.Debugger.Break();
+                }
             }
+
+            m_trees.Clear();
 
             weight += Weight;
-
-            entities.Clear();
         }
     }
 }

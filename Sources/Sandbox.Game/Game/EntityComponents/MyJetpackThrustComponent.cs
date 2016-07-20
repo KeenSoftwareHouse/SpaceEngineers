@@ -39,22 +39,19 @@ namespace Sandbox.Game.EntityComponents
                 if (FinalThrust.LengthSquared() > 0.001f)
                 {
                     if (Character.Physics.IsInWorld)
-                    {                
+                    {
                         Character.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, FinalThrust, null, null);
 
-                        if (MyPerGameSettings.EnableMultiplayerVelocityCompensation)
+
+                        Vector3 velocity = Character.Physics.LinearVelocity;
+                        float maxCharacterSpeedRelativeToShip = Math.Max(Character.Definition.MaxSprintSpeed, Math.Max(Character.Definition.MaxRunSpeed, Character.Definition.MaxBackrunSpeed));
+                        float maxSpeed = (MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip) * (Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio);
+                        if (velocity.LengthSquared() > maxSpeed * maxSpeed)
                         {
-                            Vector3 velocity = Character.Physics.LinearVelocity;
-                            float maxCharacterSpeedRelativeToShip = Math.Max(Character.Definition.MaxSprintSpeed, Math.Max(Character.Definition.MaxRunSpeed, Character.Definition.MaxBackrunSpeed));
-                            float maxSpeed = (MyGridPhysics.ShipMaxLinearVelocity() + maxCharacterSpeedRelativeToShip) * (Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio);
-                            if (velocity.LengthSquared() > maxSpeed * maxSpeed)
-                            {
-                                velocity.Normalize();
-                                velocity *= maxSpeed;
-                                Character.Physics.LinearVelocity = velocity;
-                            }
+                            velocity.Normalize();
+                            velocity *= maxSpeed;
+                            Character.Physics.LinearVelocity = velocity;
                         }
-                        
                     }
                 }
 

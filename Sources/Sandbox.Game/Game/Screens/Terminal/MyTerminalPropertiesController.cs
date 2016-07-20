@@ -30,6 +30,7 @@ namespace Sandbox.Game.Screens.Terminal
             OutOfBroadcastingRange = 2,
             OutOfReceivingRange = 3,
             Me = 4,
+            IsPreviewGrid = 5,
         }
 
         struct UserData
@@ -192,10 +193,11 @@ namespace Sandbox.Game.Screens.Terminal
                     nameCell = new MyGuiControlTable.Cell(new StringBuilder(gridInfo.Name), textColor: Color.Gray);
                     distanceCell = new MyGuiControlTable.Cell(new StringBuilder(""), userData: float.MaxValue, textColor: Color.Gray);
                     if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfReceivingRange)
-
                         statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_OutOfReceivingRange), userData: gridInfo.Status, textColor: Color.Gray);
-                    else
+                    else if (gridInfo.Status == MyCubeGridConnectionStatus.OutOfBroadcastingRange)
                         statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_OutOfBroadcastingRange), userData: gridInfo.Status, textColor: Color.Gray);
+                    else
+                        statusCell = new MyGuiControlTable.Cell(MyTexts.Get(MySpaceTexts.BroadcastStatus_IsPreviewGrid), userData: gridInfo.Status, textColor: Color.Gray);
                 }
 
                 row = new MyGuiControlTable.Row(data);
@@ -243,6 +245,11 @@ namespace Sandbox.Game.Screens.Terminal
                 if (!MyEntities.TryGetEntityById<MyCubeGrid>(gridId, out grid))
                     continue;
 
+                //GR: If grid is preview grid do not take into account (this is needed for project antennas. Another fix would be do disable broadcasting on projected antennas)
+                //Currently commented because we take into account (added Preview ship Status that can be seen in the ship table)
+                //if(grid.IsPreview)
+                //    continue;
+
                 if (!PlayerOwnsShip(grid))
                     continue;
 
@@ -268,6 +275,9 @@ namespace Sandbox.Game.Screens.Terminal
         private List<MyDataBroadcaster> m_tempBroadcasters = new List<MyDataBroadcaster>();
         private MyCubeGridConnectionStatus GetShipStatus(MyCubeGrid grid)
         {
+            if (grid.IsPreview)
+                return MyCubeGridConnectionStatus.IsPreviewGrid;
+
             m_tempBroadcasters.Clear();
             GridBroadcastersFromPlayer(grid, m_tempBroadcasters);
             bool sendingToGrid = m_tempBroadcasters.Count > 0;

@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDrawText2D : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawText2D : MyDebugRenderMessage
     {
         public Vector2 Coord;
         public string Text;
@@ -15,7 +15,6 @@ namespace VRageRender
         public float Scale;
         public MyGuiDrawAlignEnum Align;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawText2D; } }
     }
 }

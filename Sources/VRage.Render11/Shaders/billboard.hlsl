@@ -1,85 +1,48 @@
 // @define LIT_PARTICLE
 
-#include <common.h>
-#include <frame.h>
 #include <Math/Color.h>
 #include <csm.h>
 #include <EnvAmbient.h>
+#include <Transparency/Globals.h>
+#include <billboard.h>
 
-struct BillboardData
-{
-	int custom_projection_id;
-	float4 Color;
-	float reflective;
-	float AlphaSaturation;
-	float3 normal;
-	float SoftParticleDistanceScale;
-	float AlphaCutout;
-};
-
-cbuffer CustomProjections : register ( b2 )
-{
-	matrix view_projection[32];
-};
-
-#define BILLBOARD_BUFFER_SLOT 104
-
-StructuredBuffer<BillboardData> BillboardBuffer : register( MERGE(t,BILLBOARD_BUFFER_SLOT) );
 Texture2D<float4> TextureAtlas : register( t0 );
-
 Texture2D<float> Depth : register( t1 );
-
-struct VsIn
-{
-	float3 position : POSITION;
-	float2 texcoord : TEXCOORD0;
-};
-
-struct VsOut
-{
-	float4 position : SV_Position;
-	float2 texcoord : Texcoord0;
-	uint   index 	: Texcoord1;
-	float3 wposition : TEXCOORD2;
-#ifdef LIT_PARTICLE
-	float3 light 	: Texcoord3;
-#endif
-};
 
 #define REFLECTIVE
 
+struct VsOut
+{
+    float4 position : SV_Position;
+    float2 texcoord : Texcoord0;
+    uint   index : Texcoord1;
+    float3 wposition : TEXCOORD2;
+#if defined(LIT_PARTICLE)
+    float3 light : Texcoord3;
+#endif
+};
+
 VsOut __vertex_shader(VsIn vertex, uint vertex_id : SV_VertexID)
 {
-	VsOut result;
+    float4 projPos;
+    uint billboard_index;
+    CalculateVertexPosition(vertex, vertex_id, projPos, billboard_index);
 
-	uint billboard_index = vertex_id / 4;
-	uint billboard_quad_index = vertex_id % 4;
-
-	int custom_id = BillboardBuffer[billboard_index].custom_projection_id;
-	float4 projPos; 
-	if(custom_id < 0)	
-	{
-		projPos = mul(float4(vertex.position.xyz, 1), frame_.view_projection_matrix);	
-	}
-	else{
-		projPos = mul(float4(vertex.position.xyz, 1), view_projection[custom_id]);
-	}
-	result.position = projPos;
-	result.texcoord = vertex.texcoord;
-	result.index = billboard_index;
-	result.wposition = vertex.position.xyz;
-
+    VsOut result;
+    result.position = projPos;
+    result.texcoord = vertex.texcoord;
+    result.index = billboard_index;
+    result.wposition = vertex.position.xyz;
 #ifdef LIT_PARTICLE
     //float3 vs_pos = mul(float4(vertex.position.xyz, 1), frame_.view_matrix).xyz;
 	float3 V = normalize(get_camera_position() - vertex.position.xyz);
-    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -projPos.z / projPos.w) + ambient_diffuse(V, 0.5f);
+    result.light = calculate_shadow_fast_particle(vertex.position.xyz, -result.position.z / result.position.w) + ambient_diffuse(V, 0.5f);
 #endif
 
 	return result;
 }
 
 #pragma warning( disable : 3571 )
-
 
 float4 SaturateAlpha(float4 resultColor, float alpha, float alphaSaturation)
 {
@@ -92,19 +55,13 @@ float4 SaturateAlpha(float4 resultColor, float alpha, float alphaSaturation)
     return resultColor;
 }
 
-float4 CalculateColor(VsOut input, bool minTexture, float alphaCutout)
+float4 CalculateColor(VsOut input, float particleDepth, bool minTexture, float alphaCutout)
 {
-    float softParticleFade = 1;
-    float depth_sample = Depth[input.position.xy].r;
-    if ( depth_sample < 1 ) 
-	{
-        float targetdepth = -linearize_depth(depth_sample, frame_.projection_matrix) / 20;
-        float depth = -linearize_depth(input.position.z, frame_.projection_matrix) / 20;
-		softParticleFade = saturate(BillboardBuffer[input.index].SoftParticleDistanceScale * (targetdepth - depth));
-    }
+    float depth = Depth[input.position.xy].r;
+    float targetDepth = linearize_depth(depth, frame_.projection_matrix);
+    float softParticleFade = CalcSoftParticle(BillboardBuffer[input.index].SoftParticleDistanceScale, targetDepth, particleDepth);
 
-	float4 billboardColor = float4(srgb_to_rgb(BillboardBuffer[input.index].Color.xyz), BillboardBuffer[input.index].Color.w);
-	//float4 billboardColor = BillboardBuffer[input.index].Color.xyz;
+	float4 billboardColor = float4(BillboardBuffer[input.index].Color.xyz, BillboardBuffer[input.index].Color.w);
 
     float4 resultColor = float4(1, 1, 1, 1);
 
@@ -133,7 +90,7 @@ float4 CalculateColor(VsOut input, bool minTexture, float alphaCutout)
 	return resultColor;
 }
 
-float4 __pixel_shader(VsOut vertex) : SV_Target0
+void __pixel_shader(VsOut vertex, out float4 accumTarget : SV_TARGET0, out float4 coverageTarget : SV_TARGET1)
 {
 	float4 resultColor = float4(1, 1, 1, 1);
 
@@ -143,6 +100,8 @@ float4 __pixel_shader(VsOut vertex) : SV_Target0
 	float alphaCutout = 0;
 #endif
 
+	float linearDepth = linearize_depth(vertex.position.z, frame_.projection_matrix);
+
 #ifdef REFLECTIVE
     float reflective = BillboardBuffer[vertex.index].reflective;
     if ( reflective )
@@ -151,7 +110,7 @@ float4 __pixel_shader(VsOut vertex) : SV_Target0
 		float3 viewVector = normalize(get_camera_position() - vertex.wposition);
 
 		float3 reflectionSample = ambient_specular(0.04f, 0.95f, N, viewVector);
-		float4 color = CalculateColor(vertex, true, alphaCutout);
+		float4 color = CalculateColor(vertex, linearDepth, true, alphaCutout);
         color.xyz *= color.w;
         float3 reflectionColor = lerp(color.xyz*color.w, reflectionSample, reflective);
 
@@ -163,11 +122,11 @@ float4 __pixel_shader(VsOut vertex) : SV_Target0
     else
 #endif
     {
-		resultColor = CalculateColor(vertex, false, alphaCutout);
+		resultColor = CalculateColor(vertex, linearDepth, false, alphaCutout);
 #ifdef LIT_PARTICLE
         resultColor.xyz *= vertex.light;
-#endif    
+#endif
     }
 
-    return resultColor;
+	TransparentColorOutput(resultColor, linearDepth, vertex.position.z, 1.0f, accumTarget, coverageTarget);
 }

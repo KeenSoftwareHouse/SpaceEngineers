@@ -25,7 +25,7 @@ using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage;
 using Sandbox.Game.Entities.Interfaces;

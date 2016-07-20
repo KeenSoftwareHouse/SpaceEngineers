@@ -73,12 +73,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public static float LargeShipMaxLinearVelocity()
         {
-            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MyDefinitionManager.Static.EnvironmentDefinition.LargeShipMaxSpeed));
+            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MySector.EnvironmentDefinition.LargeShipMaxSpeed));
         }
 
         public static float SmallShipMaxLinearVelocity()
         {
-            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxSpeed));
+            return Math.Max(0, Math.Min(MAX_SHIP_SPEED, MySector.EnvironmentDefinition.SmallShipMaxSpeed));
         }
 
         public static float GetShipMaxAngularVelocity(MyCubeSize size)
@@ -88,14 +88,14 @@ namespace Sandbox.Game.Entities.Cube
 
         public static float GetLargeShipMaxAngularVelocity()
         {
-            return Math.Max(0, Math.Min(LargeShipMaxAngularVelocityLimit, MyDefinitionManager.Static.EnvironmentDefinition.LargeShipMaxAngularSpeedInRadians));
+            return Math.Max(0, Math.Min(LargeShipMaxAngularVelocityLimit, MySector.EnvironmentDefinition.LargeShipMaxAngularSpeedInRadians));
         }
 
         public static float GetSmallShipMaxAngularVelocity()
         {
             if(MyFakes.TESTING_VEHICLES)
                 return float.MaxValue;
-            return Math.Max(0, Math.Min(SmallShipMaxAngularVelocityLimit, MyDefinitionManager.Static.EnvironmentDefinition.SmallShipMaxAngularSpeedInRadians));
+            return Math.Max(0, Math.Min(SmallShipMaxAngularVelocityLimit, MySector.EnvironmentDefinition.SmallShipMaxAngularSpeedInRadians));
         }
 
         public int DisableGravity = 0;
@@ -318,6 +318,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if(MyPerGameSettings.Destruction)
             {
+                if(IsStatic)
                 Shape.FindConnectionsToWorld();
             }
             base.Activate(world, clusterObjectID);
@@ -329,6 +330,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (MyPerGameSettings.Destruction)
             {
+                if (IsStatic)
                 Shape.FindConnectionsToWorld();
             }
             base.ActivateBatch(world, clusterObjectID);
@@ -401,20 +403,15 @@ namespace Sandbox.Game.Entities.Cube
                 return;
             }
 
-
             MyGridContactInfo info = new MyGridContactInfo(ref value, m_grid);
 
             var myBody = RigidBody;// value.Base.BodyA.GetEntity() == m_grid.Components ? value.Base.BodyA : value.Base.BodyB;
-
-            // CH: DEBUG
-
 
             if (info.CollidingEntity is Sandbox.Game.Entities.Character.MyCharacter || info.CollidingEntity.MarkedForClose)
                 return;
 
             if (MyFakes.LANDING_GEAR_IGNORE_DAMAGE_CONTACTS && MyCubeGridGroups.Static.NoContactDamage.HasSameGroupAndIsGrid(otherEntity, thisEntity))
                 return;
-
 
             ProfilerShort.Begin("Grid contact point callback");
             bool hitVoxel = info.CollidingEntity is MyVoxelMap || info.CollidingEntity is MyVoxelPhysics;
@@ -673,6 +670,9 @@ namespace Sandbox.Game.Entities.Cube
 
         private bool PerformDeformation(ref HkBreakOffPointInfo pt, bool fromBreakParts, float separatingVelocity, MyEntity otherEntity)
         {
+            if (!m_grid.BlocksDestructionEnabled)
+                return false;
+            
             ProfilerShort.Begin("PerformDeformation");
 
             Debug.Assert(Sync.IsServer, "Function PerformDeformation should not be called from client");
@@ -761,6 +761,9 @@ namespace Sandbox.Game.Entities.Cube
         /// <param name="offsetThreshold">When deformation offset for bone is lower then threshold, it won't move the bone at all or do damage</param>
         public int ApplyDeformation(float deformationOffset, float softAreaPlanar, float softAreaVertical, Vector3 localPos, Vector3 localNormal, MyStringHash damageType, float offsetThreshold = 0, float lowerRatioLimit = 0, long attackerId = 0)
         {
+            if (!m_grid.BlocksDestructionEnabled)
+                return 0;
+
             int blocksDeformed = 0;
             offsetThreshold /= m_grid.GridSizeEnum == MyCubeSize.Large ? 1 : 5;
             float roundSize = m_grid.GridSize / m_grid.Skeleton.BoneDensity;
@@ -1087,7 +1090,6 @@ namespace Sandbox.Game.Entities.Cube
                 case GridEffectType.Dust:
                     if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Collision_Meteor, out effect))
                     {
-                        effect.SetPreload(1f);
                         effect.UserScale = scale;
                         effect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.Identity, position, Vector3D.One);
                     }

@@ -109,10 +109,10 @@ namespace Sandbox.Game.AI.Navigation
 
         }
 
-        public void Reset()
+        public void Reset(bool force = false)
         {
             // Only reset the stuck detection if we were stopped in a different frame
-            if (m_stoppedTime != m_tickCounter)
+            if (force || m_stoppedTime != m_tickCounter)
             {
                 m_translationStuckDetection = Vector3D.Zero;
                 m_rotationStuckDetection = Vector3.Zero;

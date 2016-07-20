@@ -151,7 +151,7 @@ namespace VRageRender
             RC.DeviceContext.ComputeShader.SetConstantBuffer(1, cb);
 
             var worldMatrix = atmosphere.WorldMatrix;
-            worldMatrix.Translation -= MyEnvironment.CameraPosition;
+            worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
 
             AtmospherePrecomputeConstants constants = new AtmospherePrecomputeConstants();
             // Raise the ground a bit for better sunsets
@@ -226,7 +226,7 @@ namespace VRageRender
                 return;
             }
 
-            var sphereMesh = MyMeshes.GetMeshId(X.TEXT_("Models/Debug/Sphere.mwm"));
+            var sphereMesh = MyMeshes.GetMeshId(X.TEXT_("Models/Debug/Sphere.mwm"), 1.0f);
             var buffers = MyMeshes.GetLodMesh(sphereMesh, 0).Buffers;
             RC.SetVB(0, buffers.VB0.Buffer, buffers.VB0.Stride);
             RC.SetIB(buffers.IB.Buffer, buffers.IB.Format);
@@ -253,12 +253,12 @@ namespace VRageRender
             // sort by distance
             int i = Atmospheres.Count;
 
-            foreach (var atmosphere in Atmospheres.OrderByDescending(x => (x.Value.WorldMatrix.Translation - MyEnvironment.CameraPosition).LengthSquared()))
+            foreach (var atmosphere in Atmospheres.OrderByDescending(x => (x.Value.WorldMatrix.Translation - MyRender11.Environment.CameraPosition).LengthSquared()))
             {
                 var worldMatrix = atmosphere.Value.WorldMatrix;
-                worldMatrix.Translation -= MyEnvironment.CameraPosition;
+                worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
                 
-                var worldViewProj = ((Matrix) worldMatrix) * MyEnvironment.ViewProjectionAt0;
+                var worldViewProj = ((Matrix) worldMatrix) * MyRender11.Environment.ViewProjectionAt0;
 
                 double distance = worldMatrix.Translation.Length();
                 double atmosphereTop = atmosphere.Value.AtmosphereRadius * atmosphere.Value.Settings.AtmosphereTopModifier * atmosphere.Value.PlanetScaleFactor * atmosphere.Value.Settings.RayleighTransitionModifier;
@@ -362,7 +362,7 @@ namespace VRageRender
             uint? minKey = null;
             foreach (var atmosphere in Atmospheres)
             {
-                double sqDistance = (MyEnvironment.CameraPosition - atmosphere.Value.WorldMatrix.Translation).LengthSquared();
+                double sqDistance = (MyRender11.Environment.CameraPosition - atmosphere.Value.WorldMatrix.Translation).LengthSquared();
                 if (sqDistance < minDist)
                 {
                     minKey = atmosphere.Key;

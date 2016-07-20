@@ -7,6 +7,7 @@ using System.Linq;
 using System.Xml;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 
 
@@ -146,7 +147,7 @@ namespace VRage.Animations
         protected List<ValueHolder> m_keys = new List<ValueHolder>(); //cannot preinit space, because it would grow the animatedparticle pool much
         public delegate void InterpolatorDelegate(ref T previousValue, ref T nextValue, float time, out T value);
         public InterpolatorDelegate Interpolator;
-        string m_name;
+        protected string m_name;
         bool m_interpolateAfterEnd;
         
         static MyKeysComparer m_keysComparer = new MyKeysComparer();
@@ -169,6 +170,27 @@ namespace VRage.Animations
         public string Name
         {
             get { return m_name; }
+            set { m_name = value; }
+        }
+
+        public virtual string ValueType
+        {
+            get { return typeof(T).Name; }
+        }
+
+        public virtual string BaseValueType
+        {
+            get { return ValueType; }
+        }
+
+        public virtual bool Animated
+        {
+            get { return true; }
+        }
+
+        public virtual bool Is2D
+        {
+            get { return false; }
         }
 
         protected virtual void Init()
@@ -347,11 +369,30 @@ namespace VRage.Animations
 
         void IMyAnimatedProperty.SetKeyByID(int id, float time, object value)
         {
-            var key = m_keys.Find(x => x.ID == id);
-            int index = m_keys.IndexOf(key);
+            int index = -1;
+            var key = new ValueHolder();
+            
+            for (int i = 0; i < m_keys.Count; i++)
+            {
+                if (m_keys[i].ID == id)
+                {
+                    key = m_keys[i];
+                    index = i;
+                    break;
+                }
+            }
+
             key.Time = time;
             key.Value = (T)value;
-            m_keys[index] = key;
+
+            if (index == -1)
+            {
+                key.ID = id;
+                index = m_keys.Count;
+                m_keys.Add(key);
+            }
+            else
+                m_keys[index] = key;
 
             UpdateDiff(index - 1);
             UpdateDiff(index);
@@ -527,9 +568,6 @@ namespace VRage.Animations
 
         public virtual void Serialize(XmlWriter writer)
         {
-            writer.WriteStartElement(this.GetType().Name);
-            writer.WriteAttributeString("name", Name);
-
             writer.WriteStartElement("Keys");
             foreach (ValueHolder key in m_keys)
             {
@@ -537,15 +575,16 @@ namespace VRage.Animations
 
                 writer.WriteElementString("Time", key.Time.ToString(CultureInfo.InvariantCulture));
 
-                writer.WriteStartElement("Value");
+                if(Is2D)
+                    writer.WriteStartElement("Value2D");
+                else
+                    writer.WriteStartElement("Value" + ValueType);
                 SerializeValue(writer, key.Value);
                 writer.WriteEndElement(); //Value
 
                 writer.WriteEndElement(); //Key
             }
             writer.WriteEndElement(); //Keys
-
-            writer.WriteEndElement(); //Typename
         }
 
 
@@ -582,6 +621,63 @@ namespace VRage.Animations
                 reader.ReadEndElement(); //Keys
 
             reader.ReadEndElement(); // Type
+        }
+
+        public void DeserializeFromObjectBuilder_Animation(Generation2DProperty property, string type)
+        {
+            DeserializeKeys(property.Keys, type);
+        }
+
+        public virtual void DeserializeFromObjectBuilder(GenerationProperty property)
+        {
+            m_name = property.Name;
+
+            DeserializeKeys(property.Keys, property.Type);
+        }
+
+        public void DeserializeKeys(List<AnimationKey> keys, string type)
+        {
+            m_keys.Clear();
+
+            foreach (var key in keys)
+            {
+                object v;
+                switch (type)
+                {
+                    case "Float":
+                        v = key.ValueFloat;
+                        break;
+
+                    case "Vector3":
+                        v = key.ValueVector3;
+                        break;
+
+                    case "Vector4":
+                        v = key.ValueVector4;
+                        break;
+
+                    default:
+                    case "Enum":
+                    case "GenerationIndex":
+                    case "Int":
+                        v = key.ValueInt;
+                        break;
+
+                    case "Bool":
+                        v = key.ValueBool;
+                        break;
+
+                    case "MyTransparentMaterial":
+                        v = MyTransparentMaterials.GetMaterial(key.ValueString);
+                        break;
+
+                    case "String":
+                        v = key.ValueString;
+                        break;
+                }
+
+                AddKey<T>(key.Time, (T)v);
+            }
         }
 
         void RemoveRedundantKeys()
@@ -657,6 +753,11 @@ namespace VRage.Animations
         {
         }
 
+        public override string ValueType
+        {
+            get { return "Float"; }
+        }
+
         protected override void Init()
         {
             Interpolator = MyFloatInterpolator.Lerp;
@@ -701,6 +802,11 @@ namespace VRage.Animations
         {
         }
 
+        public override string ValueType
+        {
+            get { return "Vector3"; }
+        }
+
         protected override void Init()
         {
             Interpolator = MyVector3Interpolator.Lerp;
@@ -716,8 +822,9 @@ namespace VRage.Animations
 
         public override void SerializeValue(XmlWriter writer, object value)
         {
-            Vector3 v = (Vector3)value;
-            writer.WriteValue(v.X.ToString(CultureInfo.InvariantCulture) + " " + v.Y.ToString(CultureInfo.InvariantCulture) + " " + v.Z.ToString(CultureInfo.InvariantCulture));
+            writer.WriteElementString("X", ((Vector3)value).X.ToString());
+            writer.WriteElementString("Y", ((Vector3)value).Y.ToString());
+            writer.WriteElementString("Z", ((Vector3)value).Z.ToString());
         }
 
         public override void DeserializeValue(XmlReader reader, out object value)
@@ -747,6 +854,11 @@ namespace VRage.Animations
         {
         }
 
+        public override string ValueType
+        {
+            get { return "Vector4"; }
+        }
+
         protected override void Init()
         {
             Interpolator = MyVector4Interpolator.Lerp;
@@ -762,8 +874,10 @@ namespace VRage.Animations
 
         public override void SerializeValue(XmlWriter writer, object value)
         {
-            Vector4 v = (Vector4)value;
-            writer.WriteValue(v.X.ToString(CultureInfo.InvariantCulture) + " " + v.Y.ToString(CultureInfo.InvariantCulture) + " " + v.Z.ToString(CultureInfo.InvariantCulture) + " " + v.W.ToString(CultureInfo.InvariantCulture));
+            writer.WriteElementString("W", ((Vector4)value).W.ToString());
+            writer.WriteElementString("X", ((Vector4)value).X.ToString());
+            writer.WriteElementString("Y", ((Vector4)value).Y.ToString());
+            writer.WriteElementString("Z", ((Vector4)value).Z.ToString());
         }
 
         public override void DeserializeValue(XmlReader reader, out object value)
@@ -790,6 +904,11 @@ namespace VRage.Animations
         public MyAnimatedPropertyInt(string name, InterpolatorDelegate interpolator)
             : base(name, false, interpolator)
         {
+        }
+
+        public override string ValueType
+        {
+            get { return "Int"; }
         }
 
         protected override void Init()
@@ -836,6 +955,11 @@ namespace VRage.Animations
         public MyAnimatedPropertyEnum(string name, Type enumType, List<string> enumStrings)
             : this(name, null, enumType, enumStrings)
         { }
+
+        public override string BaseValueType
+        {
+            get { return "Enum"; }
+        }
 
         public MyAnimatedPropertyEnum(string name, InterpolatorDelegate interpolator, Type enumType, List<string> enumStrings)
             : base(name, interpolator)

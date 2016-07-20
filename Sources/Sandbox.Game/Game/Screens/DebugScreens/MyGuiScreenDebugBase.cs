@@ -31,6 +31,8 @@ namespace Sandbox.Game.Gui
 
         float m_maxWidth = 0;
 
+        protected float Spacing = 0;
+
         public override string GetFriendlyName()
         {
             return "MyGuiScreenDebugBase";
@@ -113,7 +115,7 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(checkBox);
 
-            m_currentPosition.Y += Math.Max(checkBox.Size.Y, label.Size.Y);
+            m_currentPosition.Y += Math.Max(checkBox.Size.Y, label.Size.Y) + Spacing;
 
             if (controlGroup != null)
             {
@@ -222,6 +224,36 @@ namespace Sandbox.Game.Gui
 
         #region Slider
 
+        private MyGuiControlSliderBase AddSliderBase(String text, MyGuiSliderProperties props, Vector4? color = null)
+        {
+            MyGuiControlSliderBase slider = new MyGuiControlSliderBase(
+                position: m_currentPosition,
+                width: 460f / MyGuiConstants.GUI_OPTIMAL_SIZE.X,
+                props: props,
+                labelScale: 0.75f * m_scale,
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                labelFont: MyFontEnum.Debug);
+            slider.DebugScale = m_sliderDebugScale;
+            slider.ColorMask = color ?? m_defaultColor;
+
+            Controls.Add(slider);
+
+            MyGuiControlLabel label = new MyGuiControlLabel(
+                position: m_currentPosition + new Vector2(0.015f, 0f),
+                text: text,
+                colorMask: color ?? m_defaultTextColor,
+                textScale: MyGuiConstants.DEFAULT_TEXT_SCALE * 0.8f * m_scale,
+                font: MyFontEnum.Debug);
+            label.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
+            float labelWidth = label.GetTextSize().X + 0.02f;
+            m_maxWidth = Math.Max(m_maxWidth, labelWidth);
+            Controls.Add(label);
+
+            m_currentPosition.Y += slider.Size.Y + Spacing;
+
+            return slider;
+        }
+
         private MyGuiControlSlider AddSlider(String text, float valueMin, float valueMax, Vector4? color = null)
         {
             MyGuiControlSlider slider = new MyGuiControlSlider(
@@ -250,7 +282,7 @@ namespace Sandbox.Game.Gui
             m_maxWidth = Math.Max(m_maxWidth, labelWidth);
             Controls.Add(label);
 
-            m_currentPosition.Y += slider.Size.Y;
+            m_currentPosition.Y += slider.Size.Y + Spacing;
 
             return slider;
         }
@@ -271,7 +303,21 @@ namespace Sandbox.Game.Gui
             slider.UserData = setter;
             slider.ValueChanged = delegate(MyGuiControlSlider sender)
             {
-				var ac = (Action<float>)sender.UserData;
+                var ac = (Action<float>)sender.UserData;
+                ac(sender.Value);
+                ValueChanged(sender);
+            };
+            return slider;
+        }
+
+        protected MyGuiControlSliderBase AddSlider(String text, MyGuiSliderProperties properties, Func<float> getter, Action<float> setter, Vector4? color = null)
+        {
+            MyGuiControlSliderBase slider = AddSliderBase(text, properties, color);
+            slider.Value = getter();
+            slider.UserData = setter;
+            slider.ValueChanged = delegate(MyGuiControlSliderBase sender)
+            {
+                var ac = (Action<float>)sender.UserData;
                 ac(sender.Value);
                 ValueChanged(sender);
             };
@@ -329,7 +375,7 @@ namespace Sandbox.Game.Gui
             }
             Controls.Add(textbox);
 
-            m_currentPosition.Y += textbox.Size.Y + 0.01f;
+            m_currentPosition.Y += textbox.Size.Y + 0.01f + Spacing;
 
             if (controlGroup != null)
                 controlGroup.Add(textbox);
@@ -352,7 +398,7 @@ namespace Sandbox.Game.Gui
             m_maxWidth = Math.Max(m_maxWidth, labelWidth);
             Controls.Add(label);
 
-            m_currentPosition.Y += label.Size.Y;
+            m_currentPosition.Y += label.Size.Y + Spacing;
 
             if (controlGroup != null)
                 controlGroup.Add(label);
@@ -385,7 +431,7 @@ namespace Sandbox.Game.Gui
                 font: MyFontEnum.Debug);
             Elements.Add(caption);
 
-            m_currentPosition.Y += MyGuiConstants.SCREEN_CAPTION_DELTA_Y;
+            m_currentPosition.Y += MyGuiConstants.SCREEN_CAPTION_DELTA_Y + Spacing;
             m_currentPosition.X -= deltaX;
 
             return caption;
@@ -496,6 +542,11 @@ namespace Sandbox.Game.Gui
 
         #region Button
 
+        protected MyGuiControlButton AddButton(string text, Action<MyGuiControlButton> onClick, List<MyGuiControlBase> controlGroup = null, Vector4? textColor = null, Vector2? size = null)
+        {
+            return AddButton(new StringBuilder(text), onClick, controlGroup, textColor, size);
+        }
+
         protected MyGuiControlButton AddButton(StringBuilder text, Action<MyGuiControlButton> onClick, List<MyGuiControlBase> controlGroup = null, Vector4? textColor = null, Vector2? size = null)
         {
             MyGuiControlButton button = new MyGuiControlButton(
@@ -509,7 +560,7 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(button);
 
-            m_currentPosition.Y += button.Size.Y + 0.01f;
+            m_currentPosition.Y += button.Size.Y + 0.01f + Spacing;
 
             if (controlGroup != null)
                 controlGroup.Add(button);
@@ -533,7 +584,7 @@ namespace Sandbox.Game.Gui
             };
             Controls.Add(combo);
 
-            m_currentPosition.Y += combo.Size.Y + 0.01f;
+            m_currentPosition.Y += combo.Size.Y + 0.01f + Spacing;
 
             if (controlGroup != null)
                 controlGroup.Add(combo);

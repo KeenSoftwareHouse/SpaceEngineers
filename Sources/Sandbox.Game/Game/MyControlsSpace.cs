@@ -53,6 +53,7 @@ namespace Sandbox.Game
         public static readonly MyStringId VOXEL_HAND_SETTINGS = MyStringId.GetOrCompute("VOXEL_HAND_SETTINGS");
         public static readonly MyStringId MISSION_SETTINGS = MyStringId.GetOrCompute("MISSION_SETTINGS");
         public static readonly MyStringId COCKPIT_BUILD_MODE = MyStringId.GetOrCompute("COCKPIT_BUILD_MODE");
+        public static readonly MyStringId CUBE_BUILDER_CUBESIZE_MODE = MyStringId.GetOrCompute("CUBE_BUILDER_CUBESIZE_MODE");
 
         // Weapon selection slots
         public static readonly MyStringId SLOT1 = MyStringId.GetOrCompute("SLOT1");
@@ -86,7 +87,7 @@ namespace Sandbox.Game
         public static readonly MyStringId SPECTATOR_DELTA = MyStringId.GetOrCompute("SPECTATOR_DELTA");
         public static readonly MyStringId SPECTATOR_FREE = MyStringId.GetOrCompute("SPECTATOR_FREE");
         public static readonly MyStringId SPECTATOR_STATIC = MyStringId.GetOrCompute("SPECTATOR_STATIC");
-        public static readonly MyStringId STATION_ROTATION = MyStringId.GetOrCompute("STATION_ROTATION");
+        public static readonly MyStringId FREE_ROTATION = MyStringId.GetOrCompute("FREE_ROTATION");
         public static readonly MyStringId VOICE_CHAT = MyStringId.GetOrCompute("VOICE_CHAT");
 
         // NOT BINDABLE

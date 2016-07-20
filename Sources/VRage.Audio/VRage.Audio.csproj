@@ -118,6 +118,9 @@
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.XAudio2">
       <HintPath>..\..\3rd\SharpDX\SharpDX.XAudio2.dll</HintPath>
     </Reference>

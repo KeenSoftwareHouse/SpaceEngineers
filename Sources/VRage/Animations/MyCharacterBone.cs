@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRageMath;
 
 namespace VRage.Animations
@@ -33,9 +29,9 @@ namespace VRage.Animations
         /// <summary>
         /// Any parent for this bone
         /// </summary>
-        private MyCharacterBone m_parent = null;
+        private readonly MyCharacterBone m_parent = null;
 
-        private List<MyCharacterBone> m_children;
+        private readonly List<MyCharacterBone> m_children;
 
         /// <summary>
         /// The bind transform is the transform for this bone
@@ -57,11 +53,6 @@ namespace VRage.Animations
         private Quaternion m_rotation = Quaternion.Identity;
 
         /// <summary>
-        /// computed bone transform
-        /// </summary>
-        private Matrix m_transform = Matrix.Identity;
-
-        /// <summary>
         /// indicates whether bone needs recalculation
         /// </summary>
         private bool m_changed = true;
@@ -74,6 +65,11 @@ namespace VRage.Animations
         /// The bone name
         /// </summary>
 		public string Name = "";
+
+        public int Index { get; private set; }
+
+        private Matrix[] m_relativeStorage;
+        private Matrix[] m_absoluteStorage;
 
         /// <summary>
         /// The bone bind transform
@@ -104,14 +100,17 @@ namespace VRage.Animations
         /// <summary>
         /// The bone absolute transform
         /// </summary>
-        public Matrix AbsoluteTransform = Matrix.Identity;
+        public Matrix AbsoluteTransform
+        {
+            get { return m_absoluteStorage[Index]; }
+        }
 
         /// <summary>
         /// The bone absolute transform
         /// </summary>
         public Matrix RelativeTransform
         {
-            get { return m_transform; }
+            get { return m_relativeStorage[Index]; }
         }
 
         /// <summary>
@@ -133,6 +132,12 @@ namespace VRage.Animations
             }
         }
 
+        public int Depth
+        {
+            get;
+            private set;
+        }
+
         #endregion
 
         #region Operations
@@ -143,10 +148,22 @@ namespace VRage.Animations
         /// <param name="name">The name of the bone</param>
         /// <param name="bindTransform">The initial bind transform for the bone</param>
         /// <param name="parent">A parent for this bone</param>
-        public MyCharacterBone(string name, Matrix bindTransform, MyCharacterBone parent)
+        /// <param name="index">Index of this bone in storage arrays.</param>
+        /// <param name="relativeStorage">reference to matrix array storing all relative transforms of the skeleton</param>
+        /// <param name="absoluteStorage">reference to matrix array storing all absolute transforms of the skeleton</param>
+        public MyCharacterBone(string name, MyCharacterBone parent, Matrix bindTransform,
+            int index, Matrix[] relativeStorage, Matrix[] absoluteStorage)
         {
+            Debug.Assert(index >= 0);
+            Debug.Assert(relativeStorage != null);
+            Debug.Assert(absoluteStorage != null);
+
+            Index = index;
+            m_relativeStorage = relativeStorage;
+            m_absoluteStorage = absoluteStorage;
             this.Name = name;
             this.m_parent = parent;
+            Depth = GetHierarchyDepth();
             this.m_bindTransform = bindTransform;
             this.m_bindTransformInv = Matrix.Invert(bindTransform);
             this.m_bindRotationInv = Quaternion.CreateFromRotationMatrix(m_bindTransformInv); 
@@ -166,7 +183,7 @@ namespace VRage.Animations
             Debug.Assert(typeof(MyCharacterBone).IsValueType == false);
         }
 
-        public int GetHierarchyDepth()
+        private int GetHierarchyDepth()
         {
             int depth = 0;
             MyCharacterBone current = m_parent;
@@ -182,7 +199,6 @@ namespace VRage.Animations
         /// Compute absolute bone transforms for whole hierarchy.
         /// Expects the array to be sorted by depth in hiearachy.
         /// </summary>
-        /// <param name="bones"></param>
         public static void ComputeAbsoluteTransforms(MyCharacterBone[] bones)
         {
             foreach (MyCharacterBone bone in bones)
@@ -191,13 +207,13 @@ namespace VRage.Animations
                 {
                     bone.m_changed = bone.ComputeBoneTransform() || bone.Parent.m_changed; // propagate the change to children
                     if (bone.m_changed)
-                        Matrix.Multiply(ref bone.m_transform, ref bone.Parent.AbsoluteTransform, out bone.AbsoluteTransform);
+                        Matrix.Multiply(ref bone.m_relativeStorage[bone.Index], ref bone.m_absoluteStorage[bone.Parent.Index], out bone.m_absoluteStorage[bone.Index]);
                 }
                 else
                 {
                     bone.m_changed = bone.ComputeBoneTransform();
                     if (bone.m_changed)
-                        bone.AbsoluteTransform = bone.m_transform;
+                        bone.m_absoluteStorage[bone.Index] = bone.m_relativeStorage[bone.Index];
                 }
             }
 
@@ -206,9 +222,30 @@ namespace VRage.Animations
         }
 
         /// <summary>
+        /// Translate all bones. Translation vector is given in model space. 
+        /// We expect that absolute transforms are already computed.
+        /// </summary>
+        public static void TranslateAllBones(MyCharacterBone[] characterBones, Vector3 translationModelSpace)
+        {
+            if (characterBones == null || characterBones.Length < 0)
+                return;
+
+            foreach (MyCharacterBone bone in characterBones)
+            {
+                if (bone.Parent == null)
+                {
+                    bone.Translation += translationModelSpace;
+                    bone.ComputeBoneTransform();
+                    bone.m_changed = false;
+                }
+                bone.m_absoluteStorage[bone.Index].Translation += translationModelSpace;
+            }
+        }
+
+        /// <summary>
         /// Compute the absolute transformation for this bone.
         /// </summary>
-        public void ComputeAbsoluteTransform()
+        public void ComputeAbsoluteTransform(bool propagateTransformToChildren = true)
         {
             if (!HasThisOrAnyParentChanged) return;
             m_changed = ComputeBoneTransform(); // updates m_transform
@@ -218,14 +255,15 @@ namespace VRage.Animations
                // Parent.ComputeAbsoluteTransform();
 
                 // This bone has a parent bone
-                Matrix.Multiply(ref m_transform, ref Parent.AbsoluteTransform, out AbsoluteTransform);
+                Matrix.Multiply(ref m_relativeStorage[Index], ref m_absoluteStorage[Parent.Index], out m_absoluteStorage[Index]);
             }
             else
             {   // The root bone
-                AbsoluteTransform = m_transform;
+                m_absoluteStorage[Index] = m_relativeStorage[Index];
             }
 
-            PropagateTransform();
+            if (propagateTransformToChildren)
+                PropagateTransform();
             m_changed = false;
         }
 
@@ -242,11 +280,11 @@ namespace VRage.Animations
                 //Matrix.CreateTranslation(ref m_translation, out translationMatrix);
                 //Matrix.Multiply(ref rotationMatrix, ref translationMatrix, out m_transform);
 
-                Matrix.CreateFromQuaternion(ref m_rotation, out m_transform);
-                m_transform.M41 = m_translation.X;
-                m_transform.M42 = m_translation.Y;
-                m_transform.M43 = m_translation.Z;
-                Matrix.Multiply(ref m_transform, ref m_bindTransform, out m_transform);
+                Matrix.CreateFromQuaternion(ref m_rotation, out m_relativeStorage[Index]);
+                m_relativeStorage[Index].M41 = m_translation.X;
+                m_relativeStorage[Index].M42 = m_translation.Y;
+                m_relativeStorage[Index].M43 = m_translation.Z;
+                Matrix.Multiply(ref m_relativeStorage[Index], ref m_bindTransform, out m_relativeStorage[Index]);
 
                 m_changed = false;
                 return true;
@@ -276,6 +314,17 @@ namespace VRage.Animations
         }
 
         /// <summary>
+        /// This sets the rotation and translation of the rest pose.
+        /// </summary>
+        public void SetCompleteBindTransform()
+        {
+            m_changed = true;
+
+            Translation = Vector3.Zero;
+            Rotation = Quaternion.Identity;
+        }
+
+        /// <summary>
         /// This sets the rotation and translation such that the
         /// rotation times the translation times the bind after set
         /// equals this matrix. This is used to set animation values.
@@ -283,6 +332,45 @@ namespace VRage.Animations
         public void SetCompleteTransform(ref Vector3 translation, ref Quaternion rotation)
         {
             Vector3.Transform(ref translation, ref m_bindTransformInv, out m_translation);
+            Quaternion.Multiply(ref m_bindRotationInv, ref rotation, out m_rotation);
+            m_changed = true;
+        }
+
+        /// <summary>
+        /// Set the rotation and translation of the bone from absolute transform. Does not recompute hierarchy - call ComputeAbsoluteTransform.
+        /// </summary>
+        /// <param name="absoluteMatrix">absolute transform</param>
+        /// <param name="onlyRotation">apply only rotation</param>
+        public void SetCompleteTransformFromAbsoluteMatrix(ref Matrix absoluteMatrix, bool onlyRotation)
+        {
+            Matrix parentMatrix = Matrix.Identity;
+            if (Parent != null)
+                parentMatrix = Parent.AbsoluteTransform;
+
+
+            Matrix localTransform = (absoluteMatrix * Matrix.Invert(parentMatrix)) * m_bindTransformInv;
+
+            // now change the current matrix rotation                           
+            Rotation = Quaternion.CreateFromRotationMatrix(localTransform);
+            if (!onlyRotation)
+                Translation = localTransform.Translation;
+        }
+
+        /// <summary>
+        /// Set the rotation and translation of the bone from absolute transform. Does not recompute hierarchy - call ComputeAbsoluteTransform.
+        /// </summary>
+        /// <param name="absoluteMatrix">absolute transform</param>
+        /// <param name="onlyRotation">apply only rotation</param>
+        public void SetCompleteTransformFromAbsoluteMatrix(Matrix absoluteMatrix, bool onlyRotation)
+        {
+            SetCompleteTransformFromAbsoluteMatrix(ref absoluteMatrix, onlyRotation);
+        }
+
+        /// <summary>
+        /// This adds the rotation and translation to the one that is already set inside.
+        /// </summary>
+        public void SetCompleteRotation(ref Quaternion rotation)
+        {
             Quaternion.Multiply(ref m_bindRotationInv, ref rotation, out m_rotation);
             m_changed = true;
         }
@@ -348,6 +436,11 @@ namespace VRage.Animations
             if (m_children == null || childIndex < 0 || childIndex >= m_children.Count)
                 return null;
             return m_children[childIndex];
+        }
+
+        public override string ToString()
+        {
+            return Name + " [MyCharacterBone]";
         }
     }
 }

@@ -140,9 +140,9 @@ namespace Sandbox
                     BlockShapePool.Preallocate();
             }
 
-            foreach (var enviroment in MyDefinitionManager.Static.GetEnvironmentItemDefinitions())
+            foreach (var def in MyDefinitionManager.Static.GetAllDefinitions<MyPhysicalModelDefinition>())
             {
-                LoadModelDestruction(enviroment.Model, enviroment, Vector3.One, false, true);
+                LoadModelDestruction(def.Model, def, Vector3.One, false, true);
             }
         }
 
@@ -357,6 +357,8 @@ namespace Sandbox
         public void LoadModelDestruction(string modelName, MyPhysicalModelDefinition modelDef, Vector3 defaultSize, bool destructionRequired = true, bool useShapeVolume = false)
         {
             var model = VRage.Game.Models.MyModels.GetModelOnlyData(modelName);
+
+            if (model.HavokBreakableShapes != null) return;
 
             bool dontCreateFracturePieces = false;
             MyCubeBlockDefinition blockDefinition = modelDef as MyCubeBlockDefinition;
@@ -597,17 +599,17 @@ namespace Sandbox
             //MyLog.Default.WriteLine("WARNING: " + modelDef.Id.SubtypeName + " has no physical material specified, trying to autodetect from name");
 
 
-            if (modelDef.Id.SubtypeName.Contains("Stone"))
+            if (modelDef.Id.SubtypeName.Contains("Stone") && m_physicalMaterials.ContainsKey("Stone"))
             {
                 return m_physicalMaterials["Stone"];
             }
 
-            if (modelDef.Id.SubtypeName.Contains("Wood"))
+            if (modelDef.Id.SubtypeName.Contains("Wood") && m_physicalMaterials.ContainsKey("Wood"))
             {
                 return m_physicalMaterials["Wood"];
             }
 
-            if (modelDef.Id.SubtypeName.Contains("Timber"))
+            if (modelDef.Id.SubtypeName.Contains("Timber") && m_physicalMaterials.ContainsKey("Timber"))
             {
                 return m_physicalMaterials["Wood"];
             }

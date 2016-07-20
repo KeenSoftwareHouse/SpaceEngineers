@@ -15,9 +15,10 @@ namespace Sandbox.Game.Entities
         public MyCubeInstanceData InstanceData;
         public MyModel Model;
 
-        public void Init(MyModel model, Matrix matrix)
+        public void Init(MyModel model, Matrix matrix, float rescaleModel = 1.0f)
         {
             Model = model;
+            model.Rescale(rescaleModel);
             InstanceData.LocalMatrix = matrix;
             model.LoadData();
         }

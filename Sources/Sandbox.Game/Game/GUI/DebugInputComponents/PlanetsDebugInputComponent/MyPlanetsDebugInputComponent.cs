@@ -16,6 +16,7 @@ namespace Sandbox.Game.Gui
                 new ShapeComponent(this),
                 new InfoComponent(this),
                 new SectorsComponent(this),
+                new SectorTreeComponent(this),
                 new MiscComponent(this) 
             };
         }

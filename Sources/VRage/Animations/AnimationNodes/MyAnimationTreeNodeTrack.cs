@@ -27,6 +27,11 @@ namespace VRage.Animations
         // If true, animation will interpolate between keyframes.
         private bool m_interpolate = true;
 
+        // Synchronize time with the current node of specified layer. Storing reference for performance.
+        private MyAnimationStateMachine m_synchronizeWithLayerRef = null;
+        // Synchronize time with the current node of specified layer. Name is used only once.
+        private string m_synchronizeWithLayerName = null;
+
         // --------------- properties ---------------------------------------------------------
 
         // If true, animation will loop automatically.
@@ -47,6 +52,17 @@ namespace VRage.Animations
         {
             get { return m_interpolate; }
             set { m_interpolate = value; }
+        }
+
+        // Synchronize time with the current node of specified layer. 
+        public string SynchronizeWithLayer
+        {
+            get { return m_synchronizeWithLayerName; }
+            set 
+            { 
+                m_synchronizeWithLayerName = value;
+                m_synchronizeWithLayerRef = null;
+            }
         }
 
         // --------------- constructor --------------------------------------------------------
@@ -83,26 +99,29 @@ namespace VRage.Animations
                 }
 
                 // advance local time
-                m_localTime += data.DeltaTimeInSeconds * Speed;
-                if (m_loop)
+                if (!ProcessLayerTimeSync(ref data))
                 {
-                    while (m_localTime >= m_animationClip.Duration)
-                        m_localTime -= m_animationClip.Duration;
-                    while (m_localTime < 0)
-                        m_localTime += m_animationClip.Duration;
-                }
-                else
-                {
-                    if (m_localTime >= m_animationClip.Duration)
+                    m_localTime += data.DeltaTimeInSeconds * Speed;
+                    if (m_loop)
                     {
-                        m_localTime = m_animationClip.Duration;
+                        while (m_localTime >= m_animationClip.Duration)
+                            m_localTime -= m_animationClip.Duration;
+                        while (m_localTime < 0)
+                            m_localTime += m_animationClip.Duration;
                     }
-                    else if (m_localTime < 0)
+                    else
                     {
-                        m_localTime = 0;
+                        if (m_localTime >= m_animationClip.Duration)
+                        {
+                            m_localTime = m_animationClip.Duration;
+                        }
+                        else if (m_localTime < 0)
+                        {
+                            m_localTime = 0;
+                        }
                     }
                 }
-            
+
                 // update indices of keyframes (for every bone)
                 UpdateKeyframeIndices();
                 // ok, compute for every bone
@@ -146,6 +165,30 @@ namespace VRage.Animations
 
             // debug going through animation tree
             data.AddVisitedTreeNodesPathPoint(-1);  // finishing this node, we will go back to parent
+        }
+
+        /// <summary>
+        /// Synchronize time with defined layer. Returns false if the time is not synchronized.
+        /// </summary>
+        private bool ProcessLayerTimeSync(ref MyAnimationUpdateData data)
+        {
+            if (m_synchronizeWithLayerRef == null)
+            {
+                if (m_synchronizeWithLayerName == null)
+                {
+                    return false;
+                }
+                
+                m_synchronizeWithLayerRef = data.Controller.GetLayerByName(m_synchronizeWithLayerName);
+                if (m_synchronizeWithLayerRef == null)
+                    return false;
+            }
+            var nodeFromSyncLayer = m_synchronizeWithLayerRef.CurrentNode as MyAnimationStateMachineNode;
+            if (nodeFromSyncLayer == null || nodeFromSyncLayer.RootAnimationNode == null)
+                return false;
+
+            SetLocalTimeNormalized(nodeFromSyncLayer.RootAnimationNode.GetLocalTimeNormalized());
+            return true;
         }
 
         // Get local time in normalized format (from 0 to 1).

@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace Sandbox.ModAPI
 {
-    public interface IMyMotorBase : ModAPI.Ingame.IMyMotorBase
+    public interface IMyMotorBase : IMyFunctionalBlock, ModAPI.Ingame.IMyMotorBase
     {
         /// <summary>
         /// Gets the grid attached to the rotor part

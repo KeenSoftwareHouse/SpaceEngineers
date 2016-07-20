@@ -49,7 +49,7 @@ namespace Sandbox.Game.Components
         private float m_lastDamage = 0;
         private float m_lastCharacterVelocity;
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_SHOW_DAMAGE)
             {
@@ -127,7 +127,6 @@ namespace Sandbox.Game.Components
                     VRageRender.MyRenderProxy.DebugDrawAxis(p2m, 0.1f, false);
                 }
             }
-            return true;
         }
 
         #endregion

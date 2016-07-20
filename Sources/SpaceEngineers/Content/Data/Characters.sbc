@@ -56,6 +56,7 @@
 		
 		<JumpForce>2.5</JumpForce>
 
+		<CharacterHeadSize>0.4</CharacterHeadSize>
 		<!-- <CharacterHeadSize>0.45</CharacterHeadSize>
 		<CharacterHeadHeight>0.25</CharacterHeadHeight>
 		<CharacterCollisionScale>1.1</CharacterCollisionScale> -->
@@ -82,7 +83,7 @@
       <LightOffset>
         <X>0.0</X>
         <Y>0.25</Y>
-        <Z>-0.9</Z>
+        <Z>0</Z>
       </LightOffset>
 
 

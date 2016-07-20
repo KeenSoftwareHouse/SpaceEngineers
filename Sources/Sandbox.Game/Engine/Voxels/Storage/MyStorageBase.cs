@@ -24,22 +24,27 @@ namespace Sandbox.Engine.Voxels
     {
         struct MyVoxelObjectDefinition
         {
-            public string filePath;
-            public byte[] materialChangeFrom;
-            public byte[] materialChangeTo;
+            public readonly string FilePath;
+            public readonly Dictionary<byte, byte> Changes;
+
+            public MyVoxelObjectDefinition(string filePath, Dictionary<byte, byte> changes)
+            {
+                FilePath = filePath;
+                Changes = changes;
+            }
 
             public override int GetHashCode()
             {
                 unchecked
                 {
                     int hash = 17;
-                    hash = hash * 486187739 + filePath.GetHashCode();
-                    if (materialChangeFrom != null && materialChangeTo != null)
+                    hash = hash * 486187739 + FilePath.GetHashCode();
+                    if (Changes != null)
                     {
-                        for (int i = 0; i < Math.Min(materialChangeFrom.Length, materialChangeTo.Length); i++)
+                        foreach (var modifier in Changes)
                         {
-                            hash = hash * 486187739 + materialChangeFrom[i].GetHashCode();
-                            hash = hash * 486187739 + materialChangeTo[i].GetHashCode();
+                            hash = hash * 486187739 + modifier.Key.GetHashCode();
+                            hash = hash * 486187739 + modifier.Value.GetHashCode();
                         }
                     }
                     return hash;
@@ -98,52 +103,45 @@ namespace Sandbox.Engine.Voxels
             Closed = false;
         }
 
-        public bool ChangeMaterials(byte[] materialChangeFrom, byte[] materialChangeTo)
+        public unsafe bool ChangeMaterials(Dictionary<byte, byte> map)
         {
             int rewrites = 0;
-            if (materialChangeFrom != null && materialChangeTo != null)
+
+            if ((Size + 1).Size > 4 * 1024 * 1024)
             {
-                int maxIndex = Math.Min(materialChangeFrom.Length, materialChangeTo.Length);
-                if (maxIndex > 0)
-                {
-                    Vector3I minCorner = Vector3I.Zero;
-                    Vector3I maxCorner = this.Size-1;
-
-                    MyStorageData cache = new MyStorageData();
-                    cache.Resize(this.Size);
-                    cache.ClearMaterials(0);
-
-                    this.ReadRange(cache, MyStorageDataTypeFlags.Material, 0, ref minCorner, ref maxCorner);
-                    byte[] data = cache[MyStorageDataTypeEnum.Material];
-                    int i, j;
-                    for (i = 0; i < data.Length; i++)
-                    {
-                        if (data[i] > 0)
-                        {
-                            for (j = 0; j < maxIndex; j++)
-                            {
-                                if (data[i] == materialChangeFrom[j])
-                                {
-                                    data[i] = materialChangeTo[j];
-                                    rewrites++;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (rewrites > 0) this.WriteRange(cache, MyStorageDataTypeFlags.Material, ref minCorner, ref maxCorner);
-                }
+                MyLog.Default.Error("Cannot overwrite materials for a storage 4 MB or larger.");
+                return false;
             }
-            return (rewrites > 0);
+
+            Vector3I minCorner = Vector3I.Zero;
+            Vector3I maxCorner = Size - 1;
+
+            // I don't like this but write range will also allocate so f.. it.
+            MyStorageData cache = new MyStorageData();
+            cache.Resize(Size);
+
+            ReadRange(cache, MyStorageDataTypeFlags.Material, 0, ref minCorner, ref maxCorner);
+
+            var len = cache.SizeLinear;
+
+            fixed (byte* data = cache[MyStorageDataTypeEnum.Material])
+                for (int i = 0; i < len; i++)
+                {
+                    byte to;
+                    if (map.TryGetValue(data[i], out to))
+                        data[i] = to;
+                }
+
+            if (rewrites > 0) this.WriteRange(cache, MyStorageDataTypeFlags.Material, ref minCorner, ref maxCorner);
+
+            return rewrites > 0;
         }
 
-        public static MyStorageBase LoadFromFile(string absoluteFilePath, byte[] materialChangeFrom = null, byte[] materialChangeTo = null)
+        public static MyStorageBase LoadFromFile(string absoluteFilePath, Dictionary<byte, byte> modifiers = null)
         {
             //get hash code
-            MyVoxelObjectDefinition definition;
-            definition.filePath = absoluteFilePath;
-            definition.materialChangeFrom = materialChangeFrom;
-            definition.materialChangeTo = materialChangeTo;
+            MyVoxelObjectDefinition definition = new MyVoxelObjectDefinition(absoluteFilePath, modifiers);
+
             int sh = definition.GetHashCode();
 
             MyStorageBase result = null;
@@ -156,15 +154,19 @@ namespace Sandbox.Engine.Voxels
                     result.Shared = true;
                     return result;
                 }
-            }    
+            }
 
             const string loadingMessage = "Loading voxel storage from file '{0}'";
             if (!MyFileSystem.FileExists(absoluteFilePath))
             {
                 var oldPath = Path.ChangeExtension(absoluteFilePath, "vox");
                 MySandboxGame.Log.WriteLine(string.Format(loadingMessage, oldPath));
+                if (!MyFileSystem.FileExists(oldPath))
+                {
+                    //Debug.Fail("Voxel map could not be loaded! " + absoluteFilePath);
+                    return null;
+                }
                 UpdateFileFormat(oldPath);
-                Debug.Assert(MyFileSystem.FileExists(absoluteFilePath));
             }
             else
             {
@@ -179,11 +181,12 @@ namespace Sandbox.Engine.Voxels
                 compressedData = new byte[file.Length];
                 file.Read(compressedData, 0, compressedData.Length);
             }
-      
+
             result = Load(compressedData);
 
             //change materials
-            result.ChangeMaterials(definition.materialChangeFrom,definition.materialChangeTo);
+            if (definition.Changes != null)
+                result.ChangeMaterials(definition.Changes);
 
             if (UseStorageCache)
             {
@@ -212,10 +215,7 @@ namespace Sandbox.Engine.Voxels
                 var filePath = Path.IsPathRooted(name) ? name : Path.Combine(MySession.Static.CurrentPath, name + MyVoxelConstants.FILE_EXTENSION);
 
                 //By Gregory: Added for compatibility with old saves
-                if (File.Exists(filePath))
-                {
-                    result = LoadFromFile(filePath);
-                }
+                result = LoadFromFile(filePath);
             }
             else
             {
@@ -601,31 +601,40 @@ namespace Sandbox.Engine.Voxels
             var newFile = Path.ChangeExtension(originalVoxFile, MyVoxelConstants.FILE_EXTENSION);
             if (!File.Exists(originalVoxFile))
             {
-                MySandboxGame.Log.WriteLine(string.Format("ERROR: Voxel file '{0}' does not exists!", originalVoxFile));
-            }
-            if (Path.GetExtension(originalVoxFile) != "vox")
-            {
-                MySandboxGame.Log.WriteLine(string.Format("ERROR: Unexpected voxel file extensions in path: '{0}'", originalVoxFile));
+                MySandboxGame.Log.Error("Voxel file '{0}' does not exist!", originalVoxFile);
+                return;
             }
 
-            using (var decompressFile = new MyCompressionFileLoad(originalVoxFile))
-            using (var file = MyFileSystem.OpenWrite(newFile))
-            using (var gzip = new GZipStream(file, CompressionMode.Compress))
-            using (var buffer = new BufferedStream(gzip))
+            if (Path.GetExtension(originalVoxFile) != ".vox")
             {
-                buffer.WriteNoAlloc(STORAGE_TYPE_NAME_CELL);
+                MySandboxGame.Log.Warning("Unexpected voxel file extensions in path: '{0}'", originalVoxFile);
+            }
 
-                // File version. New format will store it in 7bit encoded int right after the name of storage.
-                buffer.Write7BitEncodedInt(decompressFile.GetInt32());
-
-                // All remaining data is unchanged. Just copy it to new file.
-                byte[] tmp = new byte[0x4000];
-                int bytesRead = decompressFile.GetBytes(tmp.Length, tmp);
-                while (bytesRead != 0)
+            try
+            {
+                using (var decompressFile = new MyCompressionFileLoad(originalVoxFile))
+                using (var file = MyFileSystem.OpenWrite(newFile))
+                using (var gzip = new GZipStream(file, CompressionMode.Compress))
+                using (var buffer = new BufferedStream(gzip))
                 {
-                    buffer.Write(tmp, 0, bytesRead);
-                    bytesRead = decompressFile.GetBytes(tmp.Length, tmp);
+                    buffer.WriteNoAlloc(STORAGE_TYPE_NAME_CELL);
+
+                    // File version. New format will store it in 7bit encoded int right after the name of storage.
+                    buffer.Write7BitEncodedInt(decompressFile.GetInt32());
+
+                    // All remaining data is unchanged. Just copy it to new file.
+                    byte[] tmp = new byte[0x4000];
+                    int bytesRead = decompressFile.GetBytes(tmp.Length, tmp);
+                    while (bytesRead != 0)
+                    {
+                        buffer.Write(tmp, 0, bytesRead);
+                        bytesRead = decompressFile.GetBytes(tmp.Length, tmp);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                MySandboxGame.Log.Error("While updating voxel storage '{0}' to new format: {1}", originalVoxFile, e.Message);
             }
         }
 

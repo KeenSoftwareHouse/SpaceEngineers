@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Utils;
 using VRageMath;
 
@@ -18,8 +19,8 @@ namespace Sandbox.Game.Entities.Cube
         private MyProjectorBase m_projector;
 
 
-        public MyProjectorClipboard(MyProjectorBase projector)
-            : base(MyPerGameSettings.PastingSettings)
+        public MyProjectorClipboard(MyProjectorBase projector, MyPlacementSettings settings)
+            : base(settings) //Pasting Settings here ?
         {
             MyDebug.AssertDebug(projector != null);
             m_projector = projector;
@@ -123,24 +124,31 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void UpdateGridTransformations()
         {
-            MatrixD originalOrientation = Matrix.Multiply(base.GetFirstGridOrientationMatrix(), m_projector.WorldMatrix);
-            var invRotation = Matrix.Invert(CopiedGrids[0].PositionAndOrientation.Value.GetMatrix()).GetOrientation();
-            MatrixD orientationDelta = invRotation * originalOrientation; // matrix from original orientation to new orientation
+            MatrixD worldMatrix = m_projector.WorldMatrix;
 
+            // Update rotation based on projector settings
+            Quaternion rotation = m_projector.ProjectionRotationQuaternion;
+            Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);
+            worldMatrix = Matrix.Multiply(rotationMatrix, worldMatrix);
+
+            // Update PreviewGrids
             for (int i = 0; i < PreviewGrids.Count; i++)
             {
-                MatrixD worldMatrix2 = CopiedGrids[i].PositionAndOrientation.Value.GetMatrix(); //get original rotation and position
-                var offset = worldMatrix2.Translation - CopiedGrids[0].PositionAndOrientation.Value.Position;//calculate offset to first pasted grid
-                m_copiedGridOffsets[i] = Vector3D.TransformNormal(offset, orientationDelta); // Transform the offset to new orientation
-                if (!AnyCopiedGridIsStatic)
-                    worldMatrix2 = worldMatrix2 * orientationDelta; //correct rotation
-                Vector3D translation = m_pastePosition + m_copiedGridOffsets[i]; //correct position
+                // First, set the translated position
+                PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix);// Set the corrected position
 
-                worldMatrix2.Translation = Vector3.Zero;
-                worldMatrix2 = Matrix.Orthogonalize(worldMatrix2);
-                worldMatrix2.Translation = translation + Vector3D.Transform(m_projector.GetProjectionTranslationOffset(), m_projector.WorldMatrix.GetOrientation());
+                // Next, always ensure the first block touches the projector base at (0,0,0) projector offset config
+                MySlimBlock firstBlock = PreviewGrids[0].CubeBlocks.First();
+                Vector3D firstBlockPos = PreviewGrids[0].GridIntegerToWorld(firstBlock.Position);
 
-                PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix2);// Set the corrected position
+                Vector3D delta = firstBlockPos - m_projector.WorldMatrix.Translation;
+
+                // Re-adjust position
+                Vector3D projectionOffset = m_projector.GetProjectionTranslationOffset();
+                projectionOffset = Vector3D.Transform(projectionOffset, m_projector.WorldMatrix.GetOrientation());
+                worldMatrix.Translation -= delta + projectionOffset;
+
+                PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix);
             }
         }
 
@@ -155,6 +163,12 @@ namespace Sandbox.Game.Entities.Cube
 
                 return 0f;
             }
+        }
+
+        public override void Activate()
+        {
+            ChangeClipboardPreview(true);
+            IsActive = true;
         }
     }
 }

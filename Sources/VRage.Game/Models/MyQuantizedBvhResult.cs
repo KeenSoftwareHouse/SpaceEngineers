@@ -63,7 +63,8 @@ namespace VRage.Game.Models
             if ((distance != null) && ((m_result == null) || (distance.Value < m_result.Value.Distance)))
             {
                 //  We need to remember original triangleVertexes coordinates (not transformed by world matrix)
-                m_result = new MyIntersectionResultLineTriangle(ref triangle, ref calculatedTriangleNormal, distance.Value);
+                MyTriangle_BoneWeigths? boneWeights = m_model.GetBoneWeights(triangleIndex);
+                m_result = new MyIntersectionResultLineTriangle(ref triangle, ref boneWeights, ref calculatedTriangleNormal, distance.Value);
                 return distance.Value;
             }
             return null;
@@ -130,7 +131,8 @@ namespace VRage.Game.Models
 
             if (distance.HasValue)
             {
-                var result = new MyIntersectionResultLineTriangle(ref triangle, ref calculatedTriangleNormal, distance.Value);
+                MyTriangle_BoneWeigths? boneWeights = m_model.GetBoneWeights(triangleIndex);
+                var result = new MyIntersectionResultLineTriangle(ref triangle, ref boneWeights, ref calculatedTriangleNormal, distance.Value);
                 m_result.Add(result);
             }
 

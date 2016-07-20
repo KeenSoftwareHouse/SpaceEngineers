@@ -7,6 +7,22 @@ using System.Xml.Serialization;
 
 namespace VRage.Game
 {
+    /// <summary>
+    /// Enumeration defining where to get the weapon transform from.
+    /// This does not include behavior of arms (anim/ik), which is driven separately by variables SimulateLeftHand and SimulateRightHand.
+    /// </summary>
+    public enum MyItemPositioningEnum
+    {
+        /// <summary>
+        /// Weapon is placed according to sbc data file.
+        /// </summary>
+        TransformFromData,
+        /// <summary>
+        /// Weapon is placed according to animation.
+        /// </summary>
+        TransformFromAnim
+    }
+
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_HandItemDefinition : MyObjectBuilder_DefinitionBase
@@ -132,6 +148,19 @@ namespace VRage.Game
 
         [ProtoMember]
         public List<ToolSound> ToolSounds;
+
+        [ProtoMember]
+        public MyItemPositioningEnum ItemPositioning = MyItemPositioningEnum.TransformFromData;
+        [ProtoMember]
+        public MyItemPositioningEnum ItemPositioning3rd = MyItemPositioningEnum.TransformFromData;
+        [ProtoMember]
+        public MyItemPositioningEnum ItemPositioningWalk = MyItemPositioningEnum.TransformFromData;
+        [ProtoMember]
+        public MyItemPositioningEnum ItemPositioningWalk3rd = MyItemPositioningEnum.TransformFromData;
+        [ProtoMember]
+        public MyItemPositioningEnum ItemPositioningShoot = MyItemPositioningEnum.TransformFromData;
+        [ProtoMember]
+        public MyItemPositioningEnum ItemPositioningShoot3rd = MyItemPositioningEnum.TransformFromData;
     }
 
     [ProtoContract, XmlType("ToolSound")]

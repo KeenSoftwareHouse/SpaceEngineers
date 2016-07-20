@@ -21,6 +21,7 @@ using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Voxels;
 using System.Diagnostics;
+using VRage.OpenVRWrapper;
 
 namespace VRageRender
 {
@@ -29,7 +30,7 @@ namespace VRageRender
         static Queue<MyRenderMessageBase> m_drawQueue = new Queue<MyRenderMessageBase>();
         static Queue<MyRenderMessageBase> m_debugDrawMessages = new Queue<MyRenderMessageBase>();
         static bool m_reloadShaders;
-
+        
         static MyScreenshot? m_screenshot;
 
         static List<renderColoredTextureProperties> m_texturesToRender = new List<renderColoredTextureProperties>();
@@ -41,15 +42,21 @@ namespace VRageRender
 
             try
             {
+                MyGpuProfiler.IC_BeginBlock("Draw");
                 GetRenderProfiler().StartProfilingBlock("ProcessMessages");
+                MyGpuProfiler.IC_BeginBlock("ProcessMessageQueue");
                 TransferLocalMessages();
                 ProcessMessageQueue();
+                MyGpuProfiler.IC_EndBlock();
                 GetRenderProfiler().EndProfilingBlock();
 
                 if (draw)
                 {
-                    MyRender11.ClearBackbuffer(MyEnvironment.BackgroundColor);
+                    //MyLog.Default.WriteLine("Draw");
+                    //MyOpenVR.ReadPoses();
+                    MyRender11.ClearBackbuffer(MyRender11.Environment.BackgroundColor);
                     MyImmediateRC.RC.Clear();
+
                     GetRenderProfiler().StartProfilingBlock("ProcessDrawQueue");
                     ProcessDrawQueue();
                     GetRenderProfiler().EndProfilingBlock();
@@ -59,8 +66,11 @@ namespace VRageRender
                     GetRenderProfiler().EndProfilingBlock();*/
 
                     GetRenderProfiler().StartProfilingBlock("MySpritesRenderer.Draw");
+                    MyGpuProfiler.IC_BeginBlock("SpriteRenderer");
                     //MyCommon.UpdateFrameConstants();
                     MySpritesRenderer.Draw(MyRender11.Backbuffer.m_RTV, new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y));
+                    MyGpuProfiler.IC_EndBlock();
+
                     GetRenderProfiler().EndProfilingBlock();
 
                     MyTextures.Load();
@@ -69,16 +79,11 @@ namespace VRageRender
                         VRage.Render11.PostprocessStage.MySaveExportedTextures.RenderColoredTextures(m_texturesToRender);
                 }
 
-                if (m_profilingStarted)
-                {
-                    MyGpuProfiler.IC_BeginBlock("Waiting for present");
-                }
-
                 MyLinesRenderer.Clear();
                 MySpritesRenderer.Clear();
 
                 m_drawQueue.Clear();
-                m_debugDrawMessages.Clear();
+                MyGpuProfiler.IC_EndBlock();
             }
             catch (SharpDXException e)
             {
@@ -102,7 +107,8 @@ namespace VRageRender
             while (m_drawQueue.Count > 0)
             {
                 var drawMessage = m_drawQueue.Dequeue();
-                ProfilerShort.Begin(MyEnum<MyRenderMessageEnum>.GetName(drawMessage.MessageType));
+                var msgName = MyEnum<MyRenderMessageEnum>.GetName(drawMessage.MessageType);
+                ProfilerShort.Begin(msgName);
                 ProcessDrawMessage(drawMessage);
                 ProfilerShort.End();
             }
@@ -280,23 +286,47 @@ namespace VRageRender
                     {
                         AddDebugQueueMessage("Frame render start");
 
+                        MyGpuProfiler.IC_BeginBlock("UpdateSceneFrame");
                         UpdateSceneFrame();
+                        MyGpuProfiler.IC_EndBlock();
 
-                        ProfilerShort.Begin("DrawScene");
+                        var testingDepth = MyRender11.MultisamplingEnabled ? MyScreenDependants.m_resolvedDepth : MyGBuffer.Main.DepthStencil;
+                        MyGpuProfiler.IC_BeginBlock("Clear");
+                        MyGBuffer.Main.Clear(VRageMath.Color.Black);
+                        MyGpuProfiler.IC_EndBlock();
+
+                        if (MyOpenVR.Static != null)
+                        {
+                            ProfilerShort.Begin("OpenVR.WaitForNextStart");
+                            MyOpenVR.WaitForNextStart();
+                            ProfilerShort.End();
+                        }
+
+                        ProfilerShort.Begin("DrawGameScene");
                         DrawGameScene(Backbuffer);
+                        ProfilerShort.End();
+                        if (MyOpenVR.Static != null)
+                        {
+                            ProfilerShort.Begin("OpenVR.DisplayEye");
+                            MyGpuProfiler.IC_BeginBlock("OpenVR.DisplayEye");
+                            MyGBuffer.Main.Clear(VRageMath.Color.Black);//image is in HMD now, lets draw the rest for overlay
+                            MyOpenVR.Static.DisplayEye(MyRender11.Backbuffer.m_resource.NativePointer);
+                            MyGpuProfiler.IC_EndBlock();
+                            ProfilerShort.End();
+                        }
+
                         ProfilerShort.Begin("TransferPerformanceStats");
                         TransferPerformanceStats();
-                        ProfilerShort.End();
                         ProfilerShort.End();
 
                         ProfilerShort.Begin("Draw scene debug");
                         MyGpuProfiler.IC_BeginBlock("Draw scene debug");
                         DrawSceneDebug();
-                        MyGpuProfiler.IC_EndBlock();
                         ProfilerShort.End();
 
                         ProfilerShort.Begin("ProcessDebugMessages");
                         ProcessDebugMessages();
+                        MyGpuProfiler.IC_EndBlock();
                         ProfilerShort.End();
 
                         ProfilerShort.Begin("MyDebugRenderer.Draw");
@@ -304,8 +334,6 @@ namespace VRageRender
                         MyDebugRenderer.Draw(MyRender11.Backbuffer);
                         MyGpuProfiler.IC_EndBlock();
                         ProfilerShort.End();
-
-                        var testingDepth = MyRender11.MultisamplingEnabled ? MyScreenDependants.m_resolvedDepth : MyGBuffer.Main.DepthStencil;
 
                         ProfilerShort.Begin("MyPrimitivesRenderer.Draw");
                         MyGpuProfiler.IC_BeginBlock("MyPrimitivesRenderer.Draw");
@@ -321,6 +349,7 @@ namespace VRageRender
 
                         if (m_screenshot.HasValue && m_screenshot.Value.IgnoreSprites)
                         {
+                            ProfilerShort.Begin("Screenshot");
                             if (m_screenshot.Value.SizeMult == Vector2.One)
                             {
                                 SaveScreenshotFromResource(Backbuffer.m_resource);
@@ -329,6 +358,7 @@ namespace VRageRender
                             {
                                 TakeCustomSizedScreenshot(m_screenshot.Value.SizeMult);
                             }
+                            ProfilerShort.End();
                         }
 
                         ProfilerShort.Begin("MySpritesRenderer.Draw");
@@ -339,13 +369,17 @@ namespace VRageRender
 
                         if (MyRenderProxy.DRAW_RENDER_STATS)
                         {
-                            MyRender11.GetRenderProfiler().StartProfilingBlock("MyRenderStatsDraw.Draw");
+                            ProfilerShort.Begin("MyRenderStatsDraw.Draw");
+                            MyGpuProfiler.IC_BeginBlock("MyLinesRenderer.Draw");
                             MyRenderStatsDraw.Draw(MyRenderStats.m_stats, 0.6f, VRageMath.Color.Yellow);
+                            MyGpuProfiler.IC_EndBlock();
                             ProfilerShort.End();
                         }
 
+                        ProfilerShort.Begin("ProcessDebugOutput");
                         AddDebugQueueMessage("Frame render end");
                         ProcessDebugOutput();
+                        ProfilerShort.End();
                         break;
                     }
             }

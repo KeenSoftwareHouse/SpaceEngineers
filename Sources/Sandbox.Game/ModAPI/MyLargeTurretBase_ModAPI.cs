@@ -15,7 +15,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Weapons
 {
-    public partial class MyLargeTurretBase : Sandbox.ModAPI.Ingame.IMyLargeTurretBase
+    public partial class MyLargeTurretBase : IMyLargeTurretBase
     {
         void Sandbox.ModAPI.Ingame.IMyLargeTurretBase.TrackTarget(IMyEntity entity)
         {

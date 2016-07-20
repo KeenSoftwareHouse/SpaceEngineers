@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Characters>
-	<!-- Space spider black -->
+  <!-- Space spider black -->
     <Character>
       <Id>
         <TypeId>MyObjectBuilder_Character</TypeId>
@@ -24,20 +24,20 @@
         <Mapping Name="Idle" AnimationSubtypeName="IdleSpider1" />
         <Mapping Name="Run" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="RunBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Walk" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="WalkBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Died" AnimationSubtypeName="DeathSpider" />
         <Mapping Name="Deburrow" AnimationSubtypeName="DeburrowSpider" />
         <Mapping Name="Burrow" AnimationSubtypeName="BurrowSpider" />
@@ -49,8 +49,8 @@
       <VisibleOnHud>false</VisibleOnHud>
       <UsableByPlayer>false</UsableByPlayer>
 
-	  <!-- ENABLED COMPONENTS -->
-	  <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
+    <!-- ENABLED COMPONENTS -->
+    <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
 
 
       <!-- BONES -->
@@ -92,186 +92,188 @@
       -->
       
       <RagdollBonesMappings>
-      	<BoneSet>
-					<Name>Sabiroid_sting</Name>
-					<Bones>Sabiroid_sting Sabiroid_Body</Bones>  
+        <BoneSet>
+          <Name>Sabiroid_sting</Name>
+          <Bones>Sabiroid_sting Sabiroid_Body</Bones>  
           <CollisionRadius>0.35</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Body</Name>
-					<Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Name>Sabiroid_Body</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Head</Name>
-					<Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
+          <Name>Sabiroid_Head</Name>
+          <Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
+          <Name>Sabiroid_LLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_2</Name>
-					<Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
+          <Name>Sabiroid_LLeg_3_2</Name>
+          <Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_3</Name>
-					<Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
+          <Name>Sabiroid_LLeg_3_3</Name>
+          <Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_4</Name>
-					<Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
+          <Name>Sabiroid_LLeg_3_4</Name>
+          <Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_Ankle</Name>
-					<Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_3_Ankle</Name>
+          <Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
+          <Name>Sabiroid_LLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_2</Name>
-					<Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
+          <Name>Sabiroid_LLeg_2_2</Name>
+          <Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_3</Name>
-					<Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
+          <Name>Sabiroid_LLeg_2_3</Name>
+          <Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_4</Name>
-					<Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
+          <Name>Sabiroid_LLeg_2_4</Name>
+          <Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_Ankle</Name>
-					<Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_2_Ankle</Name>
+          <Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
+          <Name>Sabiroid_LLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_2</Name>
-					<Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
+          <Name>Sabiroid_LLeg_1_2</Name>
+          <Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_3</Name>
-					<Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
+          <Name>Sabiroid_LLeg_1_3</Name>
+          <Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_4</Name>
-					<Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
+          <Name>Sabiroid_LLeg_1_4</Name>
+          <Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_Ankle</Name>
-					<Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_1_Ankle</Name>
+          <Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
+        </BoneSet>  
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
+          <Name>Sabiroid_RLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_2</Name>
-					<Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
+          <Name>Sabiroid_RLeg_3_2</Name>
+          <Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_3</Name>
-					<Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
+          <Name>Sabiroid_RLeg_3_3</Name>
+          <Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_4</Name>
-					<Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
+          <Name>Sabiroid_RLeg_3_4</Name>
+          <Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_Ankle</Name>
-					<Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_3_Ankle</Name>
+          <Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
+          <Name>Sabiroid_RLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_2</Name>
-					<Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
+          <Name>Sabiroid_RLeg_2_2</Name>
+          <Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_3</Name>
-					<Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
+          <Name>Sabiroid_RLeg_2_3</Name>
+          <Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_4</Name>
-					<Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
+          <Name>Sabiroid_RLeg_2_4</Name>
+          <Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_Ankle</Name>
-					<Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_2_Ankle</Name>
+          <Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
+          <Name>Sabiroid_RLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_2</Name>
-					<Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
+          <Name>Sabiroid_RLeg_1_2</Name>
+          <Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_3</Name>
-					<Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
+          <Name>Sabiroid_RLeg_1_3</Name>
+          <Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_4</Name>
-					<Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
+          <Name>Sabiroid_RLeg_1_4</Name>
+          <Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_Ankle</Name>
-					<Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_1_Ankle</Name>
+          <Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
-			</RagdollBonesMappings>
-			
-			
-		<DeadBodyShape>
-			<BoxShapeScale x="2" y="0.35" z="2"/>
-			<RelativeCenterOfMass x="0" y="0" z="0"/>
-			<RelativeShapeTranslation x="0" y="-0.5" z="0"/>
-			<Friction>20</Friction>
-		</DeadBodyShape>
+        </BoneSet>  
+      </RagdollBonesMappings>
+      
+      
+    <DeadBodyShape>
+      <BoxShapeScale x="2" y="0.35" z="2"/>
+      <RelativeCenterOfMass x="0" y="0" z="0"/>
+      <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
+      <Friction>20</Friction>
+    </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
 
     <!-- Space spider brown -->
@@ -297,20 +299,20 @@
         <Mapping Name="Idle" AnimationSubtypeName="IdleSpider1" />
         <Mapping Name="Run" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="RunBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Walk" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="WalkBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Died" AnimationSubtypeName="DeathSpider" />
         <Mapping Name="Deburrow" AnimationSubtypeName="DeburrowSpider" />
         <Mapping Name="Burrow" AnimationSubtypeName="BurrowSpider" />
@@ -322,8 +324,8 @@
       <VisibleOnHud>false</VisibleOnHud>
       <UsableByPlayer>false</UsableByPlayer>
 
-	  <!-- ENABLED COMPONENTS -->
-	  <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
+    <!-- ENABLED COMPONENTS -->
+    <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
 
 
       <!-- BONES -->
@@ -365,185 +367,187 @@
       -->
       
       <RagdollBonesMappings>
-      	<BoneSet>
-					<Name>Sabiroid_sting</Name>
-					<Bones>Sabiroid_sting Sabiroid_Body</Bones>  
+        <BoneSet>
+          <Name>Sabiroid_sting</Name>
+          <Bones>Sabiroid_sting Sabiroid_Body</Bones>  
           <CollisionRadius>0.35</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Body</Name>
-					<Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Name>Sabiroid_Body</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Head</Name>
-					<Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
+          <Name>Sabiroid_Head</Name>
+          <Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
+          <Name>Sabiroid_LLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_2</Name>
-					<Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
+          <Name>Sabiroid_LLeg_3_2</Name>
+          <Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_3</Name>
-					<Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
+          <Name>Sabiroid_LLeg_3_3</Name>
+          <Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_4</Name>
-					<Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
+          <Name>Sabiroid_LLeg_3_4</Name>
+          <Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_Ankle</Name>
-					<Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_3_Ankle</Name>
+          <Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
+          <Name>Sabiroid_LLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_2</Name>
-					<Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
+          <Name>Sabiroid_LLeg_2_2</Name>
+          <Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_3</Name>
-					<Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
+          <Name>Sabiroid_LLeg_2_3</Name>
+          <Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_4</Name>
-					<Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
+          <Name>Sabiroid_LLeg_2_4</Name>
+          <Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_Ankle</Name>
-					<Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_2_Ankle</Name>
+          <Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
+          <Name>Sabiroid_LLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_2</Name>
-					<Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
+          <Name>Sabiroid_LLeg_1_2</Name>
+          <Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_3</Name>
-					<Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
+          <Name>Sabiroid_LLeg_1_3</Name>
+          <Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_4</Name>
-					<Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
+          <Name>Sabiroid_LLeg_1_4</Name>
+          <Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_Ankle</Name>
-					<Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_1_Ankle</Name>
+          <Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
+        </BoneSet>  
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
+          <Name>Sabiroid_RLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_2</Name>
-					<Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
+          <Name>Sabiroid_RLeg_3_2</Name>
+          <Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_3</Name>
-					<Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
+          <Name>Sabiroid_RLeg_3_3</Name>
+          <Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_4</Name>
-					<Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
+          <Name>Sabiroid_RLeg_3_4</Name>
+          <Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_Ankle</Name>
-					<Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_3_Ankle</Name>
+          <Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
+          <Name>Sabiroid_RLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_2</Name>
-					<Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
+          <Name>Sabiroid_RLeg_2_2</Name>
+          <Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_3</Name>
-					<Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
+          <Name>Sabiroid_RLeg_2_3</Name>
+          <Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_4</Name>
-					<Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
+          <Name>Sabiroid_RLeg_2_4</Name>
+          <Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_Ankle</Name>
-					<Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_2_Ankle</Name>
+          <Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
+          <Name>Sabiroid_RLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_2</Name>
-					<Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
+          <Name>Sabiroid_RLeg_1_2</Name>
+          <Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_3</Name>
-					<Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
+          <Name>Sabiroid_RLeg_1_3</Name>
+          <Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_4</Name>
-					<Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
+          <Name>Sabiroid_RLeg_1_4</Name>
+          <Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_Ankle</Name>
-					<Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_1_Ankle</Name>
+          <Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
-			</RagdollBonesMappings>
-			
-		<DeadBodyShape>
-			<BoxShapeScale x="2" y="0.35" z="2"/>
-			<RelativeCenterOfMass x="0" y="0" z="0"/>
-			<RelativeShapeTranslation x="0" y="-0.5" z="0"/>
-			<Friction>20</Friction>
-		</DeadBodyShape>
+        </BoneSet>  
+      </RagdollBonesMappings>
+      
+    <DeadBodyShape>
+      <BoxShapeScale x="2" y="0.35" z="2"/>
+      <RelativeCenterOfMass x="0" y="0" z="0"/>
+      <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
+      <Friction>20</Friction>
+    </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
     
     <!-- Space spider green -->
@@ -569,20 +573,20 @@
         <Mapping Name="Idle" AnimationSubtypeName="IdleSpider1" />
         <Mapping Name="Run" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="RunBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Walk" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="WalkBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Died" AnimationSubtypeName="DeathSpider" />
         <Mapping Name="Deburrow" AnimationSubtypeName="DeburrowSpider" />
         <Mapping Name="Burrow" AnimationSubtypeName="BurrowSpider" />
@@ -594,8 +598,8 @@
       <VisibleOnHud>false</VisibleOnHud>
       <UsableByPlayer>false</UsableByPlayer>
 
-	  <!-- ENABLED COMPONENTS -->
-	  <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
+    <!-- ENABLED COMPONENTS -->
+    <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
 
 
       <!-- BONES -->
@@ -637,185 +641,187 @@
       -->
       
       <RagdollBonesMappings>
-      	<BoneSet>
-					<Name>Sabiroid_sting</Name>
-					<Bones>Sabiroid_sting Sabiroid_Body</Bones>  
+        <BoneSet>
+          <Name>Sabiroid_sting</Name>
+          <Bones>Sabiroid_sting Sabiroid_Body</Bones>  
           <CollisionRadius>0.35</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Body</Name>
-					<Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Name>Sabiroid_Body</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Head</Name>
-					<Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
+          <Name>Sabiroid_Head</Name>
+          <Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
+          <Name>Sabiroid_LLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_2</Name>
-					<Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
+          <Name>Sabiroid_LLeg_3_2</Name>
+          <Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_3</Name>
-					<Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
+          <Name>Sabiroid_LLeg_3_3</Name>
+          <Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_4</Name>
-					<Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
+          <Name>Sabiroid_LLeg_3_4</Name>
+          <Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_Ankle</Name>
-					<Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_3_Ankle</Name>
+          <Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
+          <Name>Sabiroid_LLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_2</Name>
-					<Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
+          <Name>Sabiroid_LLeg_2_2</Name>
+          <Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_3</Name>
-					<Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
+          <Name>Sabiroid_LLeg_2_3</Name>
+          <Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_4</Name>
-					<Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
+          <Name>Sabiroid_LLeg_2_4</Name>
+          <Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_Ankle</Name>
-					<Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_2_Ankle</Name>
+          <Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
+          <Name>Sabiroid_LLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_2</Name>
-					<Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
+          <Name>Sabiroid_LLeg_1_2</Name>
+          <Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_3</Name>
-					<Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
+          <Name>Sabiroid_LLeg_1_3</Name>
+          <Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_4</Name>
-					<Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
+          <Name>Sabiroid_LLeg_1_4</Name>
+          <Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_Ankle</Name>
-					<Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_1_Ankle</Name>
+          <Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
+        </BoneSet>  
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
+          <Name>Sabiroid_RLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_2</Name>
-					<Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
+          <Name>Sabiroid_RLeg_3_2</Name>
+          <Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_3</Name>
-					<Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
+          <Name>Sabiroid_RLeg_3_3</Name>
+          <Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_4</Name>
-					<Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
+          <Name>Sabiroid_RLeg_3_4</Name>
+          <Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_Ankle</Name>
-					<Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_3_Ankle</Name>
+          <Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
+          <Name>Sabiroid_RLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_2</Name>
-					<Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
+          <Name>Sabiroid_RLeg_2_2</Name>
+          <Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_3</Name>
-					<Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
+          <Name>Sabiroid_RLeg_2_3</Name>
+          <Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_4</Name>
-					<Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
+          <Name>Sabiroid_RLeg_2_4</Name>
+          <Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_Ankle</Name>
-					<Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_2_Ankle</Name>
+          <Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
+          <Name>Sabiroid_RLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_2</Name>
-					<Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
+          <Name>Sabiroid_RLeg_1_2</Name>
+          <Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_3</Name>
-					<Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
+          <Name>Sabiroid_RLeg_1_3</Name>
+          <Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_4</Name>
-					<Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
+          <Name>Sabiroid_RLeg_1_4</Name>
+          <Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_Ankle</Name>
-					<Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_1_Ankle</Name>
+          <Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
-			</RagdollBonesMappings>
-			
-		<DeadBodyShape>
-			<BoxShapeScale x="2" y="0.35" z="2"/>
-			<RelativeCenterOfMass x="0" y="0" z="0"/>
-			<RelativeShapeTranslation x="0" y="-0.5" z="0"/>
-			<Friction>20</Friction>
-		</DeadBodyShape>
+        </BoneSet>  
+      </RagdollBonesMappings>
+      
+    <DeadBodyShape>
+      <BoxShapeScale x="2" y="0.35" z="2"/>
+      <RelativeCenterOfMass x="0" y="0" z="0"/>
+      <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
+      <Friction>20</Friction>
+    </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
     
     <!-- Space spider normal -->
@@ -841,20 +847,20 @@
         <Mapping Name="Idle" AnimationSubtypeName="IdleSpider1" />
         <Mapping Name="Run" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="RunBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Walk" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="WalkBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
-				<Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="WalkSpider" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="WalkSpider" />
         <Mapping Name="Died" AnimationSubtypeName="DeathSpider" />
         <Mapping Name="Deburrow" AnimationSubtypeName="DeburrowSpider" />
         <Mapping Name="Burrow" AnimationSubtypeName="BurrowSpider" />
@@ -866,8 +872,8 @@
       <VisibleOnHud>false</VisibleOnHud>
       <UsableByPlayer>false</UsableByPlayer>
 
-	  <!-- ENABLED COMPONENTS -->
-	  <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
+    <!-- ENABLED COMPONENTS -->
+    <!-- <EnabledComponents>RagdollComponent</EnabledComponents> -->
 
 
       <!-- BONES -->
@@ -909,189 +915,191 @@
       -->
       
       <RagdollBonesMappings>
-      	<BoneSet>
-					<Name>Sabiroid_sting</Name>
-					<Bones>Sabiroid_sting Sabiroid_Body</Bones>  
+        <BoneSet>
+          <Name>Sabiroid_sting</Name>
+          <Bones>Sabiroid_sting Sabiroid_Body</Bones>  
           <CollisionRadius>0.35</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Body</Name>
-					<Bones>Sabiroid_Body Sabiroid_Head</Bones> 
+          <Name>Sabiroid_Body</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_Head</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_Head</Name>
-					<Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
+          <Name>Sabiroid_Head</Name>
+          <Bones>Sabiroid_Head Sabiroid_Jaw</Bones> 
           <CollisionRadius>0.2</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
+          <Name>Sabiroid_LLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_2</Name>
-					<Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
+          <Name>Sabiroid_LLeg_3_2</Name>
+          <Bones>Sabiroid_LLeg_3_1 Sabiroid_LLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_3</Name>
-					<Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
+          <Name>Sabiroid_LLeg_3_3</Name>
+          <Bones>Sabiroid_LLeg_3_2 Sabiroid_LLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_4</Name>
-					<Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
+          <Name>Sabiroid_LLeg_3_4</Name>
+          <Bones>Sabiroid_LLeg_3_3 Sabiroid_LLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_3_Ankle</Name>
-					<Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_3_Ankle</Name>
+          <Bones>Sabiroid_LLeg_3_4 Sabiroid_LLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
+          <Name>Sabiroid_LLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_2</Name>
-					<Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
+          <Name>Sabiroid_LLeg_2_2</Name>
+          <Bones>Sabiroid_LLeg_2_1 Sabiroid_LLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_3</Name>
-					<Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
+          <Name>Sabiroid_LLeg_2_3</Name>
+          <Bones>Sabiroid_LLeg_2_2 Sabiroid_LLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_4</Name>
-					<Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
+          <Name>Sabiroid_LLeg_2_4</Name>
+          <Bones>Sabiroid_LLeg_2_3 Sabiroid_LLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_2_Ankle</Name>
-					<Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_2_Ankle</Name>
+          <Bones>Sabiroid_LLeg_2_4 Sabiroid_LLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
+          <Name>Sabiroid_LLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_LLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_2</Name>
-					<Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
+          <Name>Sabiroid_LLeg_1_2</Name>
+          <Bones>Sabiroid_LLeg_1_1 Sabiroid_LLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_3</Name>
-					<Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
+          <Name>Sabiroid_LLeg_1_3</Name>
+          <Bones>Sabiroid_LLeg_1_2 Sabiroid_LLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_4</Name>
-					<Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
+          <Name>Sabiroid_LLeg_1_4</Name>
+          <Bones>Sabiroid_LLeg_1_3 Sabiroid_LLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_LLeg_1_Ankle</Name>
-					<Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_LLeg_1_Ankle</Name>
+          <Bones>Sabiroid_LLeg_1_4 Sabiroid_LLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
+        </BoneSet>  
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
+          <Name>Sabiroid_RLeg_3_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_3_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_2</Name>
-					<Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
+          <Name>Sabiroid_RLeg_3_2</Name>
+          <Bones>Sabiroid_RLeg_3_1 Sabiroid_RLeg_3_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_3</Name>
-					<Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
+          <Name>Sabiroid_RLeg_3_3</Name>
+          <Bones>Sabiroid_RLeg_3_2 Sabiroid_RLeg_3_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_4</Name>
-					<Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
+          <Name>Sabiroid_RLeg_3_4</Name>
+          <Bones>Sabiroid_RLeg_3_3 Sabiroid_RLeg_3_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_3_Ankle</Name>
-					<Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_3_Ankle</Name>
+          <Bones>Sabiroid_RLeg_3_4 Sabiroid_RLeg_3_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
+          <Name>Sabiroid_RLeg_2_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_2_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_2</Name>
-					<Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
+          <Name>Sabiroid_RLeg_2_2</Name>
+          <Bones>Sabiroid_RLeg_2_1 Sabiroid_RLeg_2_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_3</Name>
-					<Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
+          <Name>Sabiroid_RLeg_2_3</Name>
+          <Bones>Sabiroid_RLeg_2_2 Sabiroid_RLeg_2_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_4</Name>
-					<Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
+          <Name>Sabiroid_RLeg_2_4</Name>
+          <Bones>Sabiroid_RLeg_2_3 Sabiroid_RLeg_2_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_2_Ankle</Name>
-					<Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_2_Ankle</Name>
+          <Bones>Sabiroid_RLeg_2_4 Sabiroid_RLeg_2_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
 
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_1</Name>
-					<Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
+          <Name>Sabiroid_RLeg_1_1</Name>
+          <Bones>Sabiroid_Pelvis Sabiroid_RLeg_1_1</Bones>
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_2</Name>
-					<Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
+          <Name>Sabiroid_RLeg_1_2</Name>
+          <Bones>Sabiroid_RLeg_1_1 Sabiroid_RLeg_1_2</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_3</Name>
-					<Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
+          <Name>Sabiroid_RLeg_1_3</Name>
+          <Bones>Sabiroid_RLeg_1_2 Sabiroid_RLeg_1_3</Bones> 
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_4</Name>
-					<Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
+          <Name>Sabiroid_RLeg_1_4</Name>
+          <Bones>Sabiroid_RLeg_1_3 Sabiroid_RLeg_1_4</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>
+        </BoneSet>
         <BoneSet>
-					<Name>Sabiroid_RLeg_1_Ankle</Name>
-					<Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
+          <Name>Sabiroid_RLeg_1_Ankle</Name>
+          <Bones>Sabiroid_RLeg_1_4 Sabiroid_RLeg_1_Ankle</Bones>  
           <CollisionRadius>0.1</CollisionRadius>
-				</BoneSet>  
-			</RagdollBonesMappings>
-			
-		<DeadBodyShape>
-			<BoxShapeScale x="2" y="0.35" z="2"/>
-			<RelativeCenterOfMass x="0" y="0" z="0"/>
-			<RelativeShapeTranslation x="0" y="-0.5" z="0"/>
-			<Friction>20</Friction>
-		</DeadBodyShape>
+        </BoneSet>  
+      </RagdollBonesMappings>
+      
+    <DeadBodyShape>
+      <BoxShapeScale x="2" y="0.35" z="2"/>
+      <RelativeCenterOfMass x="0" y="0" z="0"/>
+      <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
+      <Friction>20</Friction>
+    </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
-	
-	<!--  Cyberhound -->
-	<Character>
+  
+  <!--  Cyberhound -->
+  <Character>
       <Id>
         <TypeId>MyObjectBuilder_Character</TypeId>
         <SubtypeId>Cyberhound</SubtypeId>
@@ -1109,25 +1117,25 @@
       <LootingTime>45</LootingTime>
       <Skeleton>Tetrapod_simple</Skeleton>
       <SpineBone>Wolf_Spine_1</SpineBone>
-	  
+    
       <AnimationMappings>
       <Mapping Name="Idle" AnimationSubtypeName="CyberhoundIdle1" />
         <Mapping Name="Run" AnimationSubtypeName="CyberhoundRun" />
         <Mapping Name="RunBack" AnimationSubtypeName="CyberhoundRun" />
-				<Mapping Name="RunLeftBack" AnimationSubtypeName="CyberhoundRun" />
-				<Mapping Name="RunRightBack" AnimationSubtypeName="CyberhoundRun" />
-				<Mapping Name="RunLeft" AnimationSubtypeName="CyberhoundRun" />
-				<Mapping Name="RunRight" AnimationSubtypeName="CyberhoundRun" />
-				<Mapping Name="RunLeftFront" AnimationSubtypeName="CyberhoundRun" />
-				<Mapping Name="RunRightFront" AnimationSubtypeName="CyberhoundRun" />
+        <Mapping Name="RunLeftBack" AnimationSubtypeName="CyberhoundRun" />
+        <Mapping Name="RunRightBack" AnimationSubtypeName="CyberhoundRun" />
+        <Mapping Name="RunLeft" AnimationSubtypeName="CyberhoundRun" />
+        <Mapping Name="RunRight" AnimationSubtypeName="CyberhoundRun" />
+        <Mapping Name="RunLeftFront" AnimationSubtypeName="CyberhoundRun" />
+        <Mapping Name="RunRightFront" AnimationSubtypeName="CyberhoundRun" />
         <Mapping Name="Walk" AnimationSubtypeName="CyberhoundWalk" />
         <Mapping Name="WalkBack" AnimationSubtypeName="CyberhoundWalk" />
-				<Mapping Name="WalkLeftBack" AnimationSubtypeName="CyberhoundWalk" />
-				<Mapping Name="WalkRightBack" AnimationSubtypeName="CyberhoundWalk" />
-				<Mapping Name="StrafeLeft" AnimationSubtypeName="CyberhoundWalk" />
-				<Mapping Name="StrafeRight" AnimationSubtypeName="CyberhoundWalk" />
-				<Mapping Name="WalkLeftFront" AnimationSubtypeName="CyberhoundWalk" />
-				<Mapping Name="WalkRightFront" AnimationSubtypeName="CyberhoundWalk" />
+        <Mapping Name="WalkLeftBack" AnimationSubtypeName="CyberhoundWalk" />
+        <Mapping Name="WalkRightBack" AnimationSubtypeName="CyberhoundWalk" />
+        <Mapping Name="StrafeLeft" AnimationSubtypeName="CyberhoundWalk" />
+        <Mapping Name="StrafeRight" AnimationSubtypeName="CyberhoundWalk" />
+        <Mapping Name="WalkLeftFront" AnimationSubtypeName="CyberhoundWalk" />
+        <Mapping Name="WalkRightFront" AnimationSubtypeName="CyberhoundWalk" />
         <Mapping Name="Died" AnimationSubtypeName="CyberhoundDied" />
         <Mapping Name="Attack" AnimationSubtypeName="CyberhoundAttack" />
       </AnimationMappings>                                                                                
@@ -1135,8 +1143,8 @@
       <VisibleOnHud>false</VisibleOnHud>
       <UsableByPlayer>false</UsableByPlayer>
 
-	  <!-- ENABLED COMPONENTS -->
-	  <EnabledComponents>RagdollComponent</EnabledComponents>
+    <!-- ENABLED COMPONENTS -->
+    <EnabledComponents>RagdollComponent</EnabledComponents>
 
 
       <!-- BONES -->
@@ -1165,129 +1173,131 @@
       <CharacterHeadSize>0.35</CharacterHeadSize>
       <CharacterHeadHeight>0.0</CharacterHeadHeight>
       <CharacterCollisionScale>1.6</CharacterCollisionScale>
-	  
-	  <MaxForce>500</MaxForce>
+    
+    <MaxForce>500</MaxForce>
 
       <BoneSet>
         <Name>Body</Name>
       </BoneSet>
-	  
-	  <RagdollBonesMappings>
-	    <BoneSet>
-			<Name>Wolf_Head</Name>
-			<Bones>Wolf_Head Wolf_HeadBone007</Bones>  
-			<CollisionRadius>0.25</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_Neck_2</Name>
-			<Bones>Wolf_Head Wolf_Neck_2</Bones>  
-			<CollisionRadius>0.25</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_Neck_1</Name>
-			<Bones>Wolf_Neck_2 Wolf_Neck_1</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-      	<BoneSet>
-			<Name>Wolf_Ribcage</Name>
-			<Bones>Wolf_Ribcage Wolf_Spine_3</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_Tail_1</Name>
-			<Bones>Wolf_Pelvis Wolf_Tail_1</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_Tail_2</Name>
-			<Bones>Wolf_Tail_1 Wolf_Tail_2</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_Tail_3</Name>
-			<Bones>Wolf_Tail_2 Wolf_Tail_3</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_Leg_2</Name>
-			<Bones>Wolf_L_Leg_1 Wolf_L_Leg_2</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_Leg_Palm</Name>
-			<Bones>Wolf_L_Leg_2 Wolf_L_Leg_Palm</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_Leg_Digit01</Name>
-			<Bones>Wolf_L_Leg_Palm Wolf_L_Leg_Digit01</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_Leg_2</Name>
-			<Bones>Wolf_R_Leg_1 Wolf_R_Leg_2</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_Leg_Palm</Name>
-			<Bones>Wolf_R_Leg_2 Wolf_R_Leg_Palm</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_Leg_Digit01</Name>
-			<Bones>Wolf_R_Leg_Palm Wolf_R_Leg_Digit01</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_FrontLeg_1</Name>
-			<Bones>Wolf_L_FrontLeg_Collarbone Wolf_L_FrontLeg_1</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_FrontLeg_2</Name>
-			<Bones>Wolf_L_FrontLeg_1 Wolf_L_FrontLeg_2</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_FrontLeg_Palm</Name>
-			<Bones>Wolf_L_FrontLeg_2 Wolf_L_FrontLeg_Palm</Bones>  
-			<CollisionRadius>0.05</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_L_FrontLeg_Digit</Name>
-			<Bones>Wolf_L_FrontLeg_Palm Wolf_L_FrontLeg_Digit01</Bones>  
-			<CollisionRadius>0.05</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_FrontLeg_1</Name>
-			<Bones>Wolf_R__FrontLeg_Collarbone Wolf_R__FrontLeg_1</Bones>  
-			<CollisionRadius>0.2</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_FrontLeg_2</Name>
-			<Bones>Wolf_R__FrontLeg_1 Wolf_R__FrontLeg_2</Bones>  
-			<CollisionRadius>0.1</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_FrontLeg_Palm</Name>
-			<Bones>Wolf_R__FrontLeg_2 Wolf_R__FrontLeg_Palm</Bones>  
-			<CollisionRadius>0.05</CollisionRadius>
-		</BoneSet>
-		<BoneSet>
-			<Name>Wolf_R_FrontLeg_Digit</Name>
-			<Bones>Wolf_R__FrontLeg_Palm Wolf_R__FrontLeg_Digit01</Bones>  
-			<CollisionRadius>0.05</CollisionRadius>
-		</BoneSet>
+    
+    <RagdollBonesMappings>
+      <BoneSet>
+      <Name>Wolf_Head</Name>
+      <Bones>Wolf_Head Wolf_HeadBone007</Bones>  
+      <CollisionRadius>0.25</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_Neck_2</Name>
+      <Bones>Wolf_Head Wolf_Neck_2</Bones>  
+      <CollisionRadius>0.25</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_Neck_1</Name>
+      <Bones>Wolf_Neck_2 Wolf_Neck_1</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+        <BoneSet>
+      <Name>Wolf_Ribcage</Name>
+      <Bones>Wolf_Ribcage Wolf_Spine_3</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_Tail_1</Name>
+      <Bones>Wolf_Pelvis Wolf_Tail_1</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_Tail_2</Name>
+      <Bones>Wolf_Tail_1 Wolf_Tail_2</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_Tail_3</Name>
+      <Bones>Wolf_Tail_2 Wolf_Tail_3</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_Leg_2</Name>
+      <Bones>Wolf_L_Leg_1 Wolf_L_Leg_2</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_Leg_Palm</Name>
+      <Bones>Wolf_L_Leg_2 Wolf_L_Leg_Palm</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_Leg_Digit01</Name>
+      <Bones>Wolf_L_Leg_Palm Wolf_L_Leg_Digit01</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_Leg_2</Name>
+      <Bones>Wolf_R_Leg_1 Wolf_R_Leg_2</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_Leg_Palm</Name>
+      <Bones>Wolf_R_Leg_2 Wolf_R_Leg_Palm</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_Leg_Digit01</Name>
+      <Bones>Wolf_R_Leg_Palm Wolf_R_Leg_Digit01</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_FrontLeg_1</Name>
+      <Bones>Wolf_L_FrontLeg_Collarbone Wolf_L_FrontLeg_1</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_FrontLeg_2</Name>
+      <Bones>Wolf_L_FrontLeg_1 Wolf_L_FrontLeg_2</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_FrontLeg_Palm</Name>
+      <Bones>Wolf_L_FrontLeg_2 Wolf_L_FrontLeg_Palm</Bones>  
+      <CollisionRadius>0.05</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_L_FrontLeg_Digit</Name>
+      <Bones>Wolf_L_FrontLeg_Palm Wolf_L_FrontLeg_Digit01</Bones>  
+      <CollisionRadius>0.05</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_FrontLeg_1</Name>
+      <Bones>Wolf_R__FrontLeg_Collarbone Wolf_R__FrontLeg_1</Bones>  
+      <CollisionRadius>0.2</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_FrontLeg_2</Name>
+      <Bones>Wolf_R__FrontLeg_1 Wolf_R__FrontLeg_2</Bones>  
+      <CollisionRadius>0.1</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_FrontLeg_Palm</Name>
+      <Bones>Wolf_R__FrontLeg_2 Wolf_R__FrontLeg_Palm</Bones>  
+      <CollisionRadius>0.05</CollisionRadius>
+    </BoneSet>
+    <BoneSet>
+      <Name>Wolf_R_FrontLeg_Digit</Name>
+      <Bones>Wolf_R__FrontLeg_Palm Wolf_R__FrontLeg_Digit01</Bones>  
+      <CollisionRadius>0.05</CollisionRadius>
+    </BoneSet>
      </RagdollBonesMappings>
 
      <InitialAnimation>CyberhoundIdle1</InitialAnimation>
 
-	 <DeadBodyShape>
-		<BoxShapeScale x="1" y="0.1" z="2"/>
-		<RelativeCenterOfMass x="0" y="0" z="0"/>
-		<RelativeShapeTranslation x="-2.2" y="-0.7" z="0"/>
-		<Friction>20</Friction>
-	 </DeadBodyShape>
+   <DeadBodyShape>
+    <BoxShapeScale x="1" y="0.1" z="2"/>
+    <RelativeCenterOfMass x="0" y="0" z="0"/>
+    <RelativeShapeTranslation x="-2.2" y="-0.7" z="0"/>
+    <Friction>20</Friction>
+   </DeadBodyShape>
+	 
+	 <RotationToSupport>OneAxis</RotationToSupport>
     </Character>
   </Characters>
 </Definitions>

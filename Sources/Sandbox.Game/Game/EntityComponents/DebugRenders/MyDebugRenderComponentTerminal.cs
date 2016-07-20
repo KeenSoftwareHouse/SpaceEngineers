@@ -20,7 +20,7 @@ namespace Sandbox.Game.Components
             m_terminal = terminal;
         }
         #region overrides
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             base.DebugDraw();
 
@@ -31,7 +31,7 @@ namespace Sandbox.Game.Components
                 Vector3D pos = m_terminal.PositionComp.WorldMatrix.Translation + disp * m_terminal.CubeGrid.GridSize * 0.4f;
                 Vector3D viewerPos = MySession.Static.ControlledEntity.Entity.WorldMatrix.Translation;
                 var dist = (pos - viewerPos).Length();
-                if (dist > 35.0f) return true;
+                if (dist > 35.0f) return;
 
                 Color c = Color.LightSteelBlue;
                 c.A = dist < 15.0f ? (byte)255 : (byte)((15.0f - dist) * 12.75f);
@@ -40,8 +40,6 @@ namespace Sandbox.Game.Components
 
                 MyRenderProxy.DebugDrawText3D(pos, "<- " + m_terminal.CustomName.ToString(), c, (float)size, false, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
             }
-
-            return true;
         }
         #endregion
     }

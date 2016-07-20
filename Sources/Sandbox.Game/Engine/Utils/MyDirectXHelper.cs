@@ -13,7 +13,7 @@ namespace Sandbox.Engine.Utils
         {
             if(m_factory == null)
             {
-                m_factory = new Factory();
+                m_factory = new Factory1();
             }
             return m_factory;
         }

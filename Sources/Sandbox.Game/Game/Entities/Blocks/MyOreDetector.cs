@@ -7,7 +7,7 @@ using Sandbox.Game.Multiplayer;
 using System.Text;
 using Sandbox.Game.EntityComponents;
 using VRageMath;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage.ModAPI;
 using VRage;
@@ -46,6 +46,7 @@ namespace Sandbox.Game.Entities.Cube
             range.Getter = (x) => x.Range;
             range.Setter = (x, v) => x.Range = v;
             range.Writer = (x, result) => result.AppendInt32((int)x.m_oreDetectorComponent.DetectionRadius).Append(" m");
+            MyTerminalControlFactory.AddControl(range);
 
             var broadcastUsingAntennas = new MyTerminalControlCheckbox<MyOreDetector>("BroadcastUsingAntennas", MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas, MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas);
             broadcastUsingAntennas.Getter = (x) => x.m_oreDetectorComponent.BroadcastUsingAntennas;
@@ -196,7 +197,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        bool IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
-        float IMyOreDetector.Range { get { return Range; } }
+        bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
+        float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
     }
 }

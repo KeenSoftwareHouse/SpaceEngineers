@@ -12,6 +12,7 @@ namespace VRageRender
         public MatrixD WorldMatrix;
         public bool SortIntoCulling;
         public BoundingBoxD? AABB;
+        public int LastMomentUpdateIndex=-1;
 
         public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.StateChangeEvery; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.UpdateRenderObject; } }

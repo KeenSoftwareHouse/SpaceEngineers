@@ -158,7 +158,6 @@ namespace Sandbox.Game.Utils
                 if (MyParticlesManager.TryCreateParticleEffect(effectName, out effect))
 				{
                     effect.WorldMatrix = MatrixD.CreateWorld(position, normal, Vector3.CalculatePerpendicularVector(normal));
-					effect.AutoDelete = true;
 				    return true;
 				}
 			}

@@ -27,6 +27,7 @@ using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using Sandbox.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -36,7 +37,7 @@ namespace Sandbox.Game.Entities
     /// </summary>
     [MyEntityType(typeof(MyObjectBuilder_ReplicableEntity), mainBuilder: false)] // Backward compatibility
     [MyEntityType(typeof(MyObjectBuilder_InventoryBagEntity), mainBuilder: true)]
-    public class MyInventoryBagEntity : MyEntity
+    public class MyInventoryBagEntity : MyEntity, IMyInventoryBag
     {
         private const string INVENTORY_USE_DUMMY_NAME = "inventory";
 

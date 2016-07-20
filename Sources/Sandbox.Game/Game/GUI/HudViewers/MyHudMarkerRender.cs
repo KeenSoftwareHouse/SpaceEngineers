@@ -47,7 +47,8 @@ namespace Sandbox.Game.GUI.HudViewers
         {
             m_disableFading = VRage.Input.MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND);
 
-            if (VRage.Input.MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOGGLE_SIGNALS) && Sandbox.Graphics.GUI.MyScreenManager.FocusedControl == null)
+            //for now make extra check for control key. Maybe trigger from HandleInput?
+            if (VRage.Input.MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOGGLE_SIGNALS) && !VRage.Input.MyInput.Static.IsAnyCtrlKeyPressed() && Sandbox.Graphics.GUI.MyScreenManager.FocusedControl == null)
             {
                 SignalDisplayMode += 1;
                 if (SignalDisplayMode >= SignalMode.MaxSignalModes)
@@ -257,11 +258,16 @@ namespace Sandbox.Game.GUI.HudViewers
                 /// Used for static entities (Stations, etc)
                 /// </summary>
                 StaticEntity,
-                
+
                 /// <summary>
                 /// Used for GPS coordinates
                 /// </summary>
                 GPS,
+
+                /// <summary>
+                /// Used for Button Markers
+                /// </summary>
+                ButtonMarker,
             }
 
             // World state
@@ -781,7 +787,7 @@ namespace Sandbox.Game.GUI.HudViewers
                 // Render name, but only if visible
                 //ProfilerShort.BeginNextBlock("Draw name");
                 Vector2 textLabelOffset = new Vector2(0, 24f / MyGuiManager.GetFullscreenRectangle().Width);
-                if (SignalDisplayMode != SignalMode.NoNames || m_disableFading || AlwaysVisible)
+                if (SignalDisplayMode != SignalMode.NoNames || POIType == PointOfInterestType.ButtonMarker || m_disableFading || AlwaysVisible)
                 {
                     if (alphaValue > float.Epsilon && this.Text.Length > 0)
                     {
@@ -1347,12 +1353,12 @@ namespace Sandbox.Game.GUI.HudViewers
         public void AddButtonMarker(Vector3D worldPosition, string name)
         {
             // Don't add poi if we're not displaying them
-            if (SignalDisplayMode == SignalMode.Off) return;
+            //if (SignalDisplayMode == SignalMode.Off) return;
 
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
-            poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.GPS, MyRelationsBetweenPlayerAndBlock.Owner);
+            poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.ButtonMarker, MyRelationsBetweenPlayerAndBlock.Owner);
             poi.SetText(name);
         }
 
@@ -1435,8 +1441,8 @@ namespace Sandbox.Game.GUI.HudViewers
         public override void Draw()
         {
             // Don't draw if signal mode is set to off
-            if (SignalDisplayMode == SignalMode.Off)
-                return;
+            //if (SignalDisplayMode == SignalMode.Off)
+                //return;
 
             Vector3D cameraPosition = MySector.MainCamera.Position;
 

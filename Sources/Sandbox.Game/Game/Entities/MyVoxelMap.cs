@@ -329,7 +329,7 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
         }
 
-       
+
         protected override void InitVoxelMap(MatrixD worldMatrix, Vector3I size, bool useOffset = true)
         {
             base.InitVoxelMap(worldMatrix, size, useOffset);
@@ -338,14 +338,14 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.Begin("new MyVoxelPhysicsBody");
             Physics = new MyVoxelPhysicsBody(this, 3.0f, lazyPhysics: DelayRigidBodyCreation);
-            Physics.Enabled = true;
+            Physics.Enabled = !MyFakes.DISABLE_VOXEL_PHYSICS;
             ProfilerShort.End();
         }
 
         public bool IsStaticForCluster
         {
-            get { return ((MyVoxelPhysicsBody)Physics).IsStaticForCluster; }
-            set { ((MyVoxelPhysicsBody)Physics).IsStaticForCluster = value; }
+            get { return Physics.IsStaticForCluster; }
+            set { Physics.IsStaticForCluster = value; }
         }
 
         public override int GetOrePriority()

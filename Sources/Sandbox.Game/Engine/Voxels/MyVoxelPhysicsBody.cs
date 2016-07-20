@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Havok;
 using Sandbox.Common;
@@ -8,6 +9,7 @@ using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GUI.DebugInputComponents;
 using VRage;
 using VRage.Game.Components;
 using VRage.ModAPI;
@@ -20,7 +22,7 @@ using VRage.Game;
 
 namespace Sandbox.Engine.Voxels
 {
-    class MyVoxelPhysicsBody : MyPhysicsBody
+    public class MyVoxelPhysicsBody : MyPhysicsBody
     {
         const bool ENABLE_AABB_PHANTOM = true;
         private const int SHAPE_DISCARD_THRESHOLD = 0;
@@ -111,7 +113,7 @@ namespace Sandbox.Engine.Voxels
 
         public HkRigidBody GetRigidBody(int lod)
         {
-            if (MyFakes.USE_LOD1_VOXEL_PHYSICS && lod == 1)
+            if (UseLod1VoxelPhysics && lod == 1)
                 return RigidBody2;
             return RigidBody;
         }
@@ -138,7 +140,7 @@ namespace Sandbox.Engine.Voxels
 
                 HkUniformGridShape shape;
                 HkRigidBody lod1rb = null;
-                if (MyFakes.USE_LOD1_VOXEL_PHYSICS)
+                if (UseLod1VoxelPhysics)
                 {
                     shape = new HkUniformGridShape(
                         new HkUniformGridShapeArgs
@@ -168,7 +170,7 @@ namespace Sandbox.Engine.Voxels
 
                 CreateFromCollisionObject(shape, -m_voxelMap.SizeInMetresHalf, m_voxelMap.WorldMatrix, collisionFilter: MyPhysics.CollisionLayers.VoxelCollisionLayer);
                 shape.Base.RemoveReference();
-                if (MyFakes.USE_LOD1_VOXEL_PHYSICS)
+                if (UseLod1VoxelPhysics)
                     RigidBody2 = lod1rb;
 
                 if (MyFakes.ENABLE_PHYSICS_HIGH_FRICTION)
@@ -185,7 +187,7 @@ namespace Sandbox.Engine.Voxels
                     RigidBody.SetWorldMatrix(matrix);
                     m_world.AddRigidBody(RigidBody);
 
-                    if (MyFakes.USE_LOD1_VOXEL_PHYSICS)
+                    if (UseLod1VoxelPhysics)
                     {
                         RigidBody2.SetWorldMatrix(matrix);
                         m_world.AddRigidBody(RigidBody2);
@@ -288,7 +290,7 @@ namespace Sandbox.Engine.Voxels
         internal void InvalidateRange(Vector3I minVoxelChanged, Vector3I maxVoxelChanged)
         {
             InvalidateRange(minVoxelChanged, maxVoxelChanged, 0);
-            if(MyFakes.USE_LOD1_VOXEL_PHYSICS)
+            if(UseLod1VoxelPhysics)
                 InvalidateRange(minVoxelChanged, maxVoxelChanged, 1);
         }
 
@@ -492,17 +494,26 @@ namespace Sandbox.Engine.Voxels
                 var bb = new BoundingBox(min * MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES * lodSize, (max + 1) * MyVoxelConstants.GEOMETRY_CELL_SIZE_IN_METRES * lodSize);
                 bb.Translate(m_voxelMap.StorageMin);
                 ProfilerShort.Begin("Storage Intersect");
-                if (requiredCellsCount > 0 && m_voxelMap.Storage.Intersect(ref bb, false) != ContainmentType.Intersects)
+                if (requiredCellsCount > 0)
                 {
-                    ProfilerShort.BeginNextBlock("Set Empty Shapes");
-                    for (int i = 0; i < requiredCellsCount; ++i)
+                    if (m_voxelMap.Storage.Intersect(ref bb, false) == ContainmentType.Intersects)
                     {
-                        var cell = m_cellsToGenerateBuffer[i];
-                        m_workTracker.Cancel(new MyCellCoord(lod, cell));
-                        shape.SetChild(cell.X, cell.Y, cell.Z, (HkBvCompressedMeshShape)HkShape.Empty, HkReferencePolicy.TakeOwnership);
+                        ProfilerShort.BeginNextBlock("Set Empty Shapes");
+                        for (int i = 0; i < requiredCellsCount; ++i)
+                        {
+                            var cell = m_cellsToGenerateBuffer[i];
+                            m_workTracker.Cancel(new MyCellCoord(lod, cell));
+                            shape.SetChild(cell.X, cell.Y, cell.Z, (HkBvCompressedMeshShape)HkShape.Empty, HkReferencePolicy.TakeOwnership);
+                        }
                     }
-                    ProfilerShort.End();
-                    continue;
+                    else
+                    {
+                        /*if (MyVoxelDebugInputComponent.PhysicsComponent.Static != null)
+                            MyVoxelDebugInputComponent.PhysicsComponent.Static.Add(m_voxelMap.WorldMatrix, bb, new Vector4I(m_cellsToGenerateBuffer[0], lod), m_voxelMap);*/
+
+                        ProfilerShort.End();
+                        continue;
+                    }
                 }
 
                 ProfilerShort.BeginNextBlock("Start Jobs");
@@ -655,7 +666,15 @@ namespace Sandbox.Engine.Voxels
             // overlap to neighbor; introduces extra data but it makes logic for raycasts and collisions simpler (no need to check neighbor cells)
             min -= 1;
             max += 2;
-            return MyPrecalcComponent.IsoMesher.Precalc(storage, coord.Lod, min, max, false, false);
+            var mesh = MyPrecalcComponent.IsoMesher.Precalc(storage, coord.Lod, min, max, false, false);
+
+            if (mesh == null)
+            {
+                if (MyVoxelDebugInputComponent.PhysicsComponent.Static != null)
+                    MyVoxelDebugInputComponent.PhysicsComponent.Static.Add(m_voxelMap.WorldMatrix, new BoundingBox(min+1, max-2), new Vector4I(min, coord.Lod), m_voxelMap);
+            }
+
+            return mesh;
         }
 
         internal HkBvCompressedMeshShape CreateShape(MyIsoMesh mesh)
@@ -682,6 +701,8 @@ namespace Sandbox.Engine.Voxels
             {
                 vertexList.Add(positions[i] * mesh.PositionScale + positionOffset);
             }
+
+            // TODO(DI): This whole thing is absolutely wrong, we must send pointers and stuff
             using (var cellGeometry = new HkGeometry(vertexList, indexList))
             {
                 var result = new HkBvCompressedMeshShape(cellGeometry, null, null, HkWeldingType.None, MyPerGameSettings.PhysicsConvexRadius);
@@ -847,7 +868,7 @@ namespace Sandbox.Engine.Voxels
                     {
                         if (character != null)
                         {
-                            MyTrace.Send(TraceWindow.Analytics, string.Format("{0} Removed character", character.Entity.EntityId));
+                            MyTrace.Send(TraceWindow.Analytics, String.Format("{0} Removed character", character.Entity.EntityId));
                         }
                         //unreliable
                         //Debug.Assert(m_nearbyEntities.Contains(entity), "Removing entity which was not added");
@@ -935,5 +956,7 @@ namespace Sandbox.Engine.Voxels
             ProfilerShort.End();
 
         }
+
+        public static bool UseLod1VoxelPhysics = false;
     }
 }

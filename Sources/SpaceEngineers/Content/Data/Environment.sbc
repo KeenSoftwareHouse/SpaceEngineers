@@ -82,7 +82,7 @@
       <MaxLifeTime>15000</MaxLifeTime>
       <MaxParticles>48</MaxParticles>
     </ParticleType>
-    <ParticleType>
+    <!--<ParticleType>
       <Id>
         <TypeId>MyObjectBuilder_EnvironmentalParticleLogicGrassland</TypeId>
         <SubtypeId>Grassland</SubtypeId>
@@ -99,7 +99,7 @@
       <Density>1.0</Density>
       <MaxLifeTime>20000</MaxLifeTime>
       <MaxParticles>48</MaxParticles>
-    </ParticleType>
+    </ParticleType>-->
   </EnvironmentalParticles>
   </Environment>
 </Definitions>

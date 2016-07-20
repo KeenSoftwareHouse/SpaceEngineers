@@ -8,7 +8,7 @@ void __compute_shader(uint3 dispatchThreadID : SV_DispatchThreadID) {
 
 	float4 result = 0;
 	for(int i=-6; i<6; i++) {
-		float4 sample = GenericSource[texel + float2(i, 0)];
+		float4 sample = GenericSource[texel + float2(0, i)];
 
 		result += sample * GaussianWeight(i, 2);
 	}

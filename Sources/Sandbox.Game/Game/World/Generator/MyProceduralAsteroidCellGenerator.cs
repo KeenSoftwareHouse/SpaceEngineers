@@ -39,8 +39,7 @@ namespace Sandbox.Game.World.Generator
         private Dictionary<MyObjectSeedType, double> m_seedClusterTypeProbability = new Dictionary<MyObjectSeedType, double>()
         {
             {MyObjectSeedType.Asteroid, 300},
-            {MyObjectSeedType.EncounterSingle, 3},
-            {MyObjectSeedType.EncounterMulti, 2},
+            {MyObjectSeedType.EncounterSingle, 5},
         };
 
         public MyProceduralAsteroidCellGenerator(int seed, double density, MyProceduralWorldModule parent = null)
@@ -201,7 +200,6 @@ namespace Sandbox.Game.World.Generator
                             break;
                         case MyObjectSeedType.EncounterAlone:
                         case MyObjectSeedType.EncounterSingle:
-                        case MyObjectSeedType.EncounterMulti:
                             ProfilerShort.Begin("Encounter");
                             bool doSpawn = true;
                             foreach (var start in MySession.Static.Scenario.PossiblePlayerStarts)
@@ -295,7 +293,6 @@ namespace Sandbox.Game.World.Generator
                     break;
                 case MyObjectSeedType.EncounterAlone:
                 case MyObjectSeedType.EncounterSingle:
-                case MyObjectSeedType.EncounterMulti:
                     break;
                 default:
                     throw new InvalidBranchException();
@@ -373,7 +370,6 @@ namespace Sandbox.Game.World.Generator
                     break;
                 case MyObjectSeedType.EncounterAlone:
                 case MyObjectSeedType.EncounterSingle:
-                case MyObjectSeedType.EncounterMulti:
                     MyEncounterGenerator.RemoveEncounter(objectSeed.BoundingVolume, objectSeed.Params.Seed);
                     break;
                 default:

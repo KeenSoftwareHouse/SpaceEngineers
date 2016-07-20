@@ -17,7 +17,7 @@ namespace Sandbox.Game.Components
             m_motor = motor;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_ROTORS)
             {
@@ -35,7 +35,6 @@ namespace Sandbox.Game.Components
                     VRageRender.MyRenderProxy.DebugDrawSphere(sphere.Center, sphere.Radius, Color.Red, 1, false);
                 }
             }
-            return true;
         }
     }
 }

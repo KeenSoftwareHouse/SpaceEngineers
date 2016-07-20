@@ -275,6 +275,13 @@ namespace VRage.Utils
             output.ConcatFormat("{0:00}", timeInSeconds % 60);
         }
 
+        public static void AppendTimeExactMinSec(int timeInSeconds, StringBuilder output)
+        {
+            output.ConcatFormat("{0:00}", timeInSeconds / 60 % (60 * 24));
+            output.Append(":");
+            output.ConcatFormat("{0:00}", timeInSeconds % 60);
+        }
+
         private static readonly string[] m_distanceUnitNames = new string[] { "mm", "cm", "m", "km" };
         private static readonly float[] m_distanceUnitMultipliers = new float[] { 0.001f, 0.01f, 1f, 1000f };
         private static readonly int[] m_distanceUnitDigits = new int[] { 0, 1, 2, 2, };

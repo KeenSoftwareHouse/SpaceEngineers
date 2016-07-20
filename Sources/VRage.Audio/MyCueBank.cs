@@ -113,7 +113,7 @@ namespace VRage.Audio
                 InitWaveBank();
                 InitVoicePools();
 
-                m_reverb = new Reverb();
+                m_reverb = new Reverb(audioEngine);
                 m_effectDescriptor = new EffectDescriptor(m_reverb);
             }
         }

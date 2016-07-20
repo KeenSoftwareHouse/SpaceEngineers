@@ -426,14 +426,14 @@ namespace Sandbox.Game.Screens.Helpers
         private IMyControllableEntity m_entity;
 
         public MyEnableStationRotationControlHelper()
-            : base(MyControlsSpace.STATION_ROTATION)
+            : base(MyControlsSpace.FREE_ROTATION)
         {
         }
 
         public override void Activate()
         {
             MyScreenManager.CloseScreen(typeof(MyGuiScreenControlMenu));
-            MyCubeBuilder.Static.EnableStationRotation();
+            //MyCubeBuilder.Static.EnableStationRotation();
         }
 
         public override string Label

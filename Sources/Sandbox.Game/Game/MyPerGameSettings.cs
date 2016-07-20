@@ -82,7 +82,8 @@ namespace Sandbox.Game
     {
         UNKNOWN_GAME,
         SE_GAME,
-        ME_GAME
+        ME_GAME,
+        VRS_GAME
     }
 
     public struct MyBasicGameInfo
@@ -129,7 +130,7 @@ namespace Sandbox.Game
         public static bool RequiresDX11 = false;
         public static string GameIcon;
         public static bool EnableGlobalGravity;
-        public static bool ZoomRequiresLookAroundPressed = false;
+        public static bool ZoomRequiresLookAroundPressed = true;
 
         public static bool EnablePregeneratedAsteroidHack = false;
         public static bool SendLogToKeen = true;
@@ -143,15 +144,12 @@ namespace Sandbox.Game
         public static string GA_Other_GameKey = String.Empty;
         public static string GA_Other_SecretKey = String.Empty;
 
-        public static MyPlacementSettings CreationSettings;
-        public static MyPlacementSettings BuildingSettings;
-        public static MyPlacementSettings PastingSettings;
         public static string GameModAssembly;
         public static string GameModObjBuildersAssembly;
+        public static string GameModBaseObjBuildersAssembly;
         public static string SandboxAssembly = "Sandbox.Common.dll";
         public static string SandboxGameAssembly = "Sandbox.Game.dll";
 
-        public static bool SingleCluster = false;
         public static int LoadingScreenQuoteCount = 71;
         public static bool OffsetVoxelMapByHalfVoxel = false;
 
@@ -159,8 +157,11 @@ namespace Sandbox.Game
         public static bool UseMusicController = false;
 
         public static bool UseSameSoundLimiter = false;
+        public static bool UseNewDamageEffects = false;
 
         public static bool RestrictSpectatorFlyMode = false;
+
+        public static float MaxFrameRate = 120;
 
         private static Type m_isoMesherType = typeof(MyDualContouringMesher);
         //private static Type m_isoMesherType = typeof(MyMarchingCubesMesher);
@@ -237,7 +238,6 @@ namespace Sandbox.Game
         }
 
         public static bool MultiplayerEnabled = true;
-        public static bool EnableMultiplayerVelocityCompensation = true;
         public static Type ClientStateType = typeof(MyClientState);
 
         public static bool WorkshopUseUGCEnumerate = true;
@@ -359,13 +359,15 @@ namespace Sandbox.Game
         public static float CharacterGravityMultiplier = 1.0f;
 
         public static bool BlockForVoxels = false;
+        public static bool AlwaysShowAvailableBlocksOnHud = false;
 
         public static float MaxAntennaDrawDistance = 500000;
 
         public static bool EnableResearch = false;
 
+        public static VRageRender.MyRenderDeviceSettings? DefaultRenderDeviceSettings;
+
         // Factions
         public static MyRelationsBetweenFactions DefaultFactionRelationship = MyRelationsBetweenFactions.Enemies;
-
     }
 }

@@ -9,7 +9,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
@@ -284,17 +284,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         
         public bool EnableLongDrawDistance()
-        {
-            return false;
-        }
-
-
-        public Vector3 GetWorldGravityGrid(Vector3D worldPoint)
-        {
-            return Vector3.Zero;
-        }
-
-        public bool IsPositionInRangeGrid(Vector3D worldPoint)
         {
             return false;
         }

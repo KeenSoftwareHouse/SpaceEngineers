@@ -556,10 +556,11 @@ namespace Sandbox.Game.GameSystems
             LoadMission(checkpointData);
         }
 
+
         private static void LoadMission(CheckpointData data)
         {
             var checkpoint = data.Checkpoint;
-            MySteamWorkshop.DownloadModsAsync(checkpoint.Mods, delegate(bool success)
+            MySteamWorkshop.DownloadModsAsync(checkpoint.Mods, delegate(bool success,string mismatchMods)
             {
                 if (success || (checkpoint.Settings.OnlineMode == MyOnlineModeEnum.OFFLINE) && MySteamWorkshop.CanRunOffline(checkpoint.Mods))
                 {
@@ -568,22 +569,25 @@ namespace Sandbox.Game.GameSystems
                     MyScreenManager.CloseAllScreensNowExcept(null);
                     MyGuiSandbox.Update(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS);
 
-                    // May be called from gameplay, so we must make sure we unload the current game
-                    if (MySession.Static != null)
+                    MyGuiScreenLoadSandbox.CheckMismatchmods(mismatchMods, callback: delegate(VRage.Game.ModAPI.ResultEnum val)
                     {
-                        MySession.Static.Unload();
-                        MySession.Static = null;
-                    }
+                        // May be called from gameplay, so we must make sure we unload the current game
+                        if (MySession.Static != null)
+                        {
+                            MySession.Static.Unload();
+                            MySession.Static = null;
+                        }
 
-                    //seed 0 has special meaning - please randomize at mission start. New seed will be saved and game will run with it ever since.
-                    //  if you use this, YOU CANNOT HAVE ANY PROCEDURAL ASTEROIDS ALREADY SAVED
-                    if (checkpoint.Settings.ProceduralSeed == 0)
-                        checkpoint.Settings.ProceduralSeed = MyRandom.Instance.Next();
+                        //seed 0 has special meaning - please randomize at mission start. New seed will be saved and game will run with it ever since.
+                        //  if you use this, YOU CANNOT HAVE ANY PROCEDURAL ASTEROIDS ALREADY SAVED
+                        if (checkpoint.Settings.ProceduralSeed == 0)
+                            checkpoint.Settings.ProceduralSeed = MyRandom.Instance.Next();
 
-                    MyGuiScreenGamePlay.StartLoading(delegate
-                    {
-                        checkpoint.Settings.Scenario = true;
-                        MySession.LoadMission(data.SessionPath, checkpoint, data.CheckpointSize, data.PersistentEditMode);
+                        MyGuiScreenGamePlay.StartLoading(delegate
+                        {
+                            checkpoint.Settings.Scenario = true;
+                            MySession.LoadMission(data.SessionPath, checkpoint, data.CheckpointSize, data.PersistentEditMode);
+                        });
                     });
                 }
                 else

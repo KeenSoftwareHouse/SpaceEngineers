@@ -1,5 +1,6 @@
 ﻿using SharpDX;
 using SharpDX.Windows;
+using SharpDX.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -75,10 +76,10 @@ namespace VRage
         private readonly MyConcurrentQueue<EventWaitHandle> m_debugWaitForPresentHandles = new MyConcurrentQueue<EventWaitHandle>(16);
         private int m_debugWaitForPresentHandleCount = 0;
 
-        private MyRenderThread(MyGameTimer timer, bool separateThread)
+        private MyRenderThread(MyGameTimer timer, bool separateThread, float maxFrameRate)
         {
             m_timer = timer;
-            m_waiter = new WaitForTargetFrameRate(timer, 120.0f);
+            m_waiter = new WaitForTargetFrameRate(timer, maxFrameRate);
             m_separateThread = separateThread;
 
             if (separateThread)
@@ -96,16 +97,16 @@ namespace VRage
             }
         }
 
-        public static MyRenderThread Start(MyGameTimer timer, InitHandler initHandler, MyRenderDeviceSettings? settingsToTry, MyRenderQualityEnum renderQuality)
+        public static MyRenderThread Start(MyGameTimer timer, InitHandler initHandler, MyRenderDeviceSettings? settingsToTry, MyRenderQualityEnum renderQuality, float maxFrameRate)
         {
-            var result = new MyRenderThread(timer, true);
+            var result = new MyRenderThread(timer, true, maxFrameRate);
             result.SystemThread.Start(new StartParams() { InitHandler = initHandler, SettingsToTry = settingsToTry, RenderQuality = renderQuality });
             return result;
         }
 
-        public static MyRenderThread StartSync(MyGameTimer timer, IMyRenderWindow renderWindow, MyRenderDeviceSettings? settingsToTry, MyRenderQualityEnum renderQuality)
+        public static MyRenderThread StartSync(MyGameTimer timer, IMyRenderWindow renderWindow, MyRenderDeviceSettings? settingsToTry, MyRenderQualityEnum renderQuality, float maxFrameRate)
         {
-            var result = new MyRenderThread(timer, false);
+            var result = new MyRenderThread(timer, false, maxFrameRate);
             result.m_renderWindow = renderWindow;
             result.m_settings = MyRenderProxy.CreateDevice(result, renderWindow.Handle, settingsToTry);
             MyRenderProxy.SendCreatedDeviceSettings(result.m_settings);
@@ -230,7 +231,9 @@ namespace VRage
                 MyTimeSpan messageQueueDuration = m_timer.Elapsed - m_messageProcessingStart;
                 ProfilerShort.CustomValue("MessageQueue", 0, messageQueueDuration);
             }
+            ProfilerShort.Begin("Wait");
             m_waiter.Wait();
+            ProfilerShort.End();
             
             m_frameStart = m_timer.Elapsed;
 
@@ -263,6 +266,8 @@ namespace VRage
             ProfilerShort.End();
 
             ProfilerShort.End();
+
+            ProfilerShort.Begin("Draw");
 
             ProfilerShort.Begin("TestCooperativeLevel");
             var deviceResult = MyRenderProxy.TestDeviceCooperativeLevel();
@@ -305,6 +310,7 @@ namespace VRage
                 }
                 ProfilerShort.End();
             }
+            ProfilerShort.End();
 
             ProfilerShort.Begin("AfterRender");
             MyRenderProxy.AfterRender();
@@ -324,6 +330,11 @@ namespace VRage
                 this.DoAfterPresent();
             }
             ProfilerShort.End();
+
+            if (m_separateThread)
+            {
+                MyRenderProxy.GetRenderProfiler().Commit();
+            }
 
             m_messageProcessingStart = m_timer.Elapsed;
         }
@@ -448,11 +459,6 @@ namespace VRage
             ProfilerShort.Begin("MyRenderProxy.Draw");
             MyRenderProxy.Draw();
             ProfilerShort.End();
-
-            if (m_separateThread)
-            {
-                MyRenderProxy.GetRenderProfiler().Commit();
-            }
 
             MyRenderProxy.GetRenderProfiler().Draw();
 

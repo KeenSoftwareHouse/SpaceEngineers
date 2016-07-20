@@ -172,10 +172,7 @@ namespace Sandbox.Graphics.GUI
 
             var scrolledArea = m_scrolledArea;
             scrolledArea.Position += GetPositionAbsoluteTopLeft();
-            bool oldVal = ScrolledControl.HandleMouse;
-            ScrolledControl.HandleMouse = scrolledArea.Contains(MyGuiManager.MouseCursorPosition);
             res = base.HandleInputElements();
-            ScrolledControl.HandleMouse = oldVal;
 
             if (m_scrollbarV != null)
             {

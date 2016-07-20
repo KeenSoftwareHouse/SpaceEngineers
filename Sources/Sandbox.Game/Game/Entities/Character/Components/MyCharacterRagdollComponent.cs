@@ -340,8 +340,7 @@ namespace Sandbox.Game.Entities.Character.Components
             if (Character.Physics != null &&
                 Character.Physics.Ragdoll != null &&
                 Character.Physics.Ragdoll.InWorld &&
-                (!Character.Physics.Ragdoll.IsKeyframed || RagdollMapper.IsPartiallySimulated) &&
-                (MyPerGameSettings.Game == GameEnum.SE_GAME) &&
+                (!Character.Physics.Ragdoll.IsKeyframed || RagdollMapper.IsPartiallySimulated)  &&
                 (IsRagdollMoving || m_gravityTimer > 0) )
             {
                 Vector3 gravity = MyGravityProviderSystem.CalculateTotalGravityInPoint(Character.PositionComp.WorldAABB.Center) + Character.GetPhysicsBody().HavokWorld.Gravity * MyPerGameSettings.CharacterGravityMultiplier;

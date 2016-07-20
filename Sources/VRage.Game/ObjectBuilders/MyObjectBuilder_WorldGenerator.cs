@@ -11,7 +11,6 @@ namespace VRage.Game
         AsteroidCluster,
         EncounterAlone,
         EncounterSingle,
-        EncounterMulti,
         Planet,
         Moon,
     }

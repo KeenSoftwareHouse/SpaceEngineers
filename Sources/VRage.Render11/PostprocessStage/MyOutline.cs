@@ -17,6 +17,7 @@ namespace VRageRender
         internal Color Color;
         internal float Thickness;
         internal ulong PulseTimeInFrames;
+        internal int InstanceId;
     }
 
     class MyOutline : MyImmediateRC
@@ -40,18 +41,18 @@ namespace VRageRender
 
         /// <param name="sectionIndices">null for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleOutline(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
+        internal static void HandleOutline(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId)
         {
             if (thickness > 0)
             {
                 if (sectionIndices == null)
                 {
-                    Add(ID, -1, outlineColor.Value, thickness, pulseTimeInFrames);
+                    Add(ID, -1, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
                 }
                 else
                 {
                     foreach (int index in sectionIndices)
-                        Add(ID, index, outlineColor.Value, thickness, pulseTimeInFrames);
+                        Add(ID, index, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
                 }
             }
             else
@@ -60,7 +61,7 @@ namespace VRageRender
             }
         }
 
-        private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames)
+        private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId = -1)
         {
             if (!m_outlines.ContainsKey(ID))
                 m_outlines[ID] = new List<MyOutlineDesc>();
@@ -70,7 +71,8 @@ namespace VRageRender
                 SectionIndex = sectionIndex,
                 Color = outlineColor,
                 Thickness = thickness,
-                PulseTimeInFrames = pulseTimeInFrames
+                PulseTimeInFrames = pulseTimeInFrames,
+                InstanceId = instanceId
             });
         }
 
@@ -93,7 +95,7 @@ namespace VRageRender
             // blur
             // blend to main target testing with stencil again
 
-            MyOutlinePass.Instance.ViewProjection = MyEnvironment.ViewProjectionAt0;
+            MyOutlinePass.Instance.ViewProjection = MyRender11.Environment.ViewProjectionAt0;
             MyOutlinePass.Instance.Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
 
             MyOutlinePass.Instance.PerFrame();
@@ -240,15 +242,15 @@ namespace VRageRender
 
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
-                if(desc.PulseTimeInFrames > 0)
+                if (desc.PulseTimeInFrames > 0)
                     constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
-                
+
                 var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
 
                 RC.BindShaders(renderLod.HighlightShaders[submeshIndex]);
-                MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex]);
+                MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex], -1, desc.InstanceId);
             }
         }
 
@@ -286,7 +288,7 @@ namespace VRageRender
                 RC.BindShaders(renderLod.HighlightShaders[sectionInfo.PartIndex]);
 
                 MyRenderableProxy proxy = renderLod.RenderableProxies[sectionInfo.PartIndex];
-                MyOutlinePass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex);
+                MyOutlinePass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex, desc.InstanceId);
             }
 
             return;

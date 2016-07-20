@@ -14,6 +14,8 @@ namespace Sandbox.Common.ObjectBuilders
     [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
     public class MyObjectBuilder_RemoteControl : MyObjectBuilder_ShipController
     {
+        public const float DEFAULT_AUTOPILOT_SPEED_LIMIT = 120;
+
         [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]
         public long? PreviousControlledEntityId = null;
@@ -60,6 +62,12 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(null)]
         [Serialize(MyObjectFlags.Nullable)]
         public MyObjectBuilder_Toolbar AutoPilotToolbar = null;
+
+        [ProtoMember, DefaultValue(DEFAULT_AUTOPILOT_SPEED_LIMIT)]
+        public float AutopilotSpeedLimit = DEFAULT_AUTOPILOT_SPEED_LIMIT;
+
+        [ProtoMember]
+        public float WaypointThresholdDistance;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

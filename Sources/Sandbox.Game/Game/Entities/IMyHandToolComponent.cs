@@ -18,6 +18,6 @@ namespace Sandbox.Game.Entities
         void OnControlAcquired(MyCharacter owner);
         void OnControlReleased();
         void Shoot();
-        string GetStateForTarget(MyEntity targetEntity);
+        string GetStateForTarget(MyEntity targetEntity, uint shapeKey);
     }
 }

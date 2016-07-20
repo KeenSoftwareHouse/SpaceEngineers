@@ -1124,7 +1124,6 @@ namespace Sandbox.Game.Multiplayer
                 }
             }
         }
-
         #endregion
 
         #region Control extension & reduction
@@ -1380,12 +1379,12 @@ namespace Sandbox.Game.Multiplayer
                 handler();
         }
 
-        public static void RespawnRequest(bool joinGame, bool newPlayer, long respawnEntityId, string shipPrefabId, int playerSerialId = 0, Vector3D? spawnPosition = null, VRage.ObjectBuilders.SerializableDefinitionId? botDefinitionId = null)
+        public static void RespawnRequest(bool joinGame, bool newIdentity, long respawnEntityId, string shipPrefabId, int playerSerialId = 0, Vector3D? spawnPosition = null, VRage.ObjectBuilders.SerializableDefinitionId? botDefinitionId = null)
         {
             var msg = new RespawnMsg();
             msg.JoinGame = joinGame;
             msg.RespawnEntityId = respawnEntityId;
-            msg.NewIdentity = newPlayer;
+            msg.NewIdentity = newIdentity;
             msg.RespawnShipId = shipPrefabId;
             msg.PlayerSerialId = playerSerialId;
             msg.SpawnPosition = spawnPosition;

@@ -35,7 +35,6 @@ namespace Sandbox.Game.Entities.Cube
         private static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
 
         private Vector3 m_dummyPos;
-        protected HkConstraint m_constraint;
 
         protected readonly Sync<float> m_dummyDisplacement;
         protected event Action<MyMotorBase> AttachedEntityChanged;
@@ -87,28 +86,7 @@ namespace Sandbox.Game.Entities.Cube
             get { return MyGridPhysics.GetShipMaxAngularVelocity(CubeGrid.GridSizeEnum); }
         }
 
-        protected HkConstraint SafeConstraint
-        {
-            get { RefreshConstraint(); return m_constraint; }
-        }
-
-        public MyStringId GetAttachState()
-        {
-            if ((m_welded || m_isWelding) && SafeConstraint ==null)
-            {
-                return MySpaceTexts.BlockPropertiesText_MotorLocked;
-            }
-            else 
-            if (m_connectionState.Value.TopBlockId == null)
-                return MySpaceTexts.BlockPropertiesText_MotorDetached;
-            else if (m_connectionState.Value.TopBlockId.Value == 0)
-                return MySpaceTexts.BlockPropertiesText_MotorAttachingAny;
-            else if (SafeConstraint != null)
-                return MySpaceTexts.BlockPropertiesText_MotorAttached;
-            else
-                return MySpaceTexts.BlockPropertiesText_MotorAttachingSpecific;
-        }
-
+   
         protected override bool CheckIsWorking()
         {
             return ResourceSink.IsPowered && base.CheckIsWorking();
@@ -140,11 +118,9 @@ namespace Sandbox.Game.Entities.Cube
             if (ob.RotorEntityId.HasValue && ob.RotorEntityId.Value != 0)
             {
                 MyDeltaTransform? deltaTransform = ob.MasterToSlaveTransform.HasValue ? ob.MasterToSlaveTransform.Value : (MyDeltaTransform?)null;
-                m_connectionState.Value = new State() { TopBlockId = ob.RotorEntityId, MasterToSlave = deltaTransform };
+                m_connectionState.Value = new State() { TopBlockId = ob.RotorEntityId, MasterToSlave = deltaTransform,Welded = ob.WeldedEntityId.HasValue || ob.forceWeld};
             }
           
-            m_weldedEntityId.Value = ob.WeldedEntityId;
-
             AddDebugRenderComponent(new Components.MyDebugRenderComponentMotorBase(this));
             cubeGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
 
@@ -153,27 +129,16 @@ namespace Sandbox.Game.Entities.Cube
             m_weldSpeedSq.Value = defaultWeldSpeed;
             m_forceWeld.Value = ob.forceWeld;
         }
-      
-        protected override bool CanDetach()
-        {
-            return m_constraint != null;
-        }
-      
-        protected override void RefreshConstraint()
-        {
-            if (m_constraint != null && !m_constraint.InWorld)
-            {
-                Detach();
-                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-            }
-        }
-
+        
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
             var state = m_connectionState.Value;
             var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_MotorBase;
             ob.RotorEntityId = state.TopBlockId;
-            ob.WeldedEntityId = m_weldedEntityId;
+            if (m_connectionState.Value.Welded)
+            {
+                ob.WeldedEntityId = m_connectionState.Value.TopBlockId;
+            }
             ob.MasterToSlaveTransform = state.MasterToSlave.HasValue ? state.MasterToSlave.Value : (MyPositionAndOrientation?)null;
             ob.weldSpeed = (float)Math.Sqrt(m_weldSpeedSq);
             ob.forceWeld = m_forceWeld;
@@ -309,8 +274,9 @@ namespace Sandbox.Game.Entities.Cube
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
-            TryAttach();
             TryWeld();
+            TryAttach();
+
 
             if (AttachedEntityChanged != null)
             {
@@ -322,8 +288,8 @@ namespace Sandbox.Game.Entities.Cube
         public override void UpdateBeforeSimulation10()
         {
             base.UpdateBeforeSimulation10();
-            TryAttach();
             TryWeld();
+            TryAttach();
         }
 
         public override void UpdateBeforeSimulation100()

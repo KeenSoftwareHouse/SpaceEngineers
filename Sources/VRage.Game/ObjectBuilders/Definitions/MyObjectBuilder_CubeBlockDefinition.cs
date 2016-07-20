@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Xml.Serialization;
 using ProtoBuf;
 using VRage.Data;
+using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game
@@ -150,10 +151,19 @@ namespace VRage.Game
         Both = Horizontal | Vertical,
     }
 
+    public struct VoxelPlacementOverride
+    {
+        public VoxelPlacementSettings StaticMode;
+        public VoxelPlacementSettings DynamicMode;
+    }
+
     [ProtoContract]
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_CubeBlockDefinition : MyObjectBuilder_PhysicalModelDefinition
     {
+
+        #region Properties Definitions
+
         [ProtoContract]
         public class MountPoint
         {
@@ -387,6 +397,10 @@ namespace VRage.Game
             [ProtoMember]
             public float SpawnTimeMax = 0f;
         }
+
+        #endregion
+
+        public VoxelPlacementOverride? VoxelPlacement = null;
 
         [ProtoMember, DefaultValue(false)]
         public bool SilenceableByShipSoundSystem;

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.GameSystems;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -154,7 +155,7 @@ namespace Sandbox.Game.Entities
 
             RescheduleEvent(senderEvent);
             CheckTargetValid();
-            if (m_waveCounter < 0)
+            if ( m_waveCounter < 0 )
                 return;
 
             StartWave();
@@ -162,6 +163,9 @@ namespace Sandbox.Game.Entities
 
         private static void StartWave()
         {
+            if (!m_currentTarget.HasValue)
+                return;
+
             //m_meteorList.Add(MyMeteor.SpawnRandomLargeDebug(sphere.Center + sunDir * 500 + MyVRageUtils.GetRandomVector3Normalized() * sphere.Radius, sphere));
 
             var sunDir = MySector.DirectionToSunNormalized;
@@ -185,8 +189,9 @@ namespace Sandbox.Game.Entities
 
         private static void CheckTargetValid()
         {
-            if (!m_currentTarget.HasValue)
+            if ( !m_currentTarget.HasValue )
                 return;
+
             m_tmpEntityList.Clear();
             var bs = m_currentTarget.Value;
             m_tmpEntityList = MyEntities.GetEntitiesInSphere(ref bs);

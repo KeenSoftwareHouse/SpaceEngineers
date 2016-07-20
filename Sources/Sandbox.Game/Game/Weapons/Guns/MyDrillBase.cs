@@ -87,7 +87,7 @@ namespace Sandbox.Game.Weapons
         // Last time of contact of drill with an object.
         private int m_lastContactTime;
 
-        private MyParticleEffect m_dustParticles;
+        public MyParticleEffect DustParticles;
         private MySlimBlock m_target;
 
         private MyParticleEffectsIDEnum m_dustEffectId;
@@ -107,8 +107,8 @@ namespace Sandbox.Game.Weapons
         private bool m_initialHeatup = true;
 
         protected MyDrillCutOut m_cutOut;
-        private readonly float m_drillCameraMeanShakeIntensity = 0.75f;
-        private readonly float m_drillCameraMaxShakeIntensity = 2.75f;
+        private readonly float m_drillCameraMeanShakeIntensity = 0.65f;
+        private readonly float m_drillCameraMaxShakeIntensity = 2.25f;
 
         public MySoundPair CurrentLoopCueEnum { get; set; }
 
@@ -180,6 +180,8 @@ namespace Sandbox.Game.Weapons
 
             if (performCutout)
             {
+                StopSparkParticles();
+                StopDustParticles();
                 var entitiesInRange = m_sensor.EntitiesInRange;
                 MyStringHash targetMaterial = MyStringHash.NullOrEmpty;
                 bool targetIsBlock = false;
@@ -218,7 +220,7 @@ namespace Sandbox.Game.Weapons
                                 if (voxelMaterial != null)
                                     targetMaterial = MyStringHash.GetOrCompute(voxelMaterial.MaterialTypeName);
                             }
-                            CreateParticles(entry.Value.DetectionPoint, true, false, false);
+                            CreateParticles(entry.Value.DetectionPoint, true, false, true);
                         }
                         ProfilerShort.End();
                     }
@@ -324,7 +326,8 @@ namespace Sandbox.Game.Weapons
         public virtual void Close()
         {
             IsDrilling = false;
-            StopParticles();
+            StopDustParticles();
+            StopSparkParticles();
             if (m_soundEmitter != null)
                 m_soundEmitter.StopSound(true);
         }
@@ -333,14 +336,15 @@ namespace Sandbox.Game.Weapons
         {
             IsDrilling = false;
             m_initialHeatup = true;
-            StopParticles();
+            StopDustParticles();
+            StopSparkParticles();
             StopLoopSound();
         }
 
         public void UpdateAfterSimulation()
         {
-            if ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime) > MyDrillConstants.PARTICLE_EFFECT_DURATION)
-                StopParticles();
+            /*if ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime) > MyDrillConstants.PARTICLE_EFFECT_DURATION)
+                StopDustParticles();*/
 
             if (!IsDrilling && m_animationMaxSpeedRatio > float.Epsilon)
             {
@@ -390,51 +394,56 @@ namespace Sandbox.Game.Weapons
                 m_soundEmitter.StopSound(false);
         }
 
+        public MyParticleEffect SparkEffect = null;
         protected void CreateParticles(Vector3D position, bool createDust, bool createSparks, bool createStones)
         {
             if (!m_particleEffectsEnabled)
                 return;
 
-            if (m_dustParticles != null && m_dustParticles.IsStopped)
-                m_dustParticles = null;
-
             if (createDust)
             {
-                if (m_dustParticles == null)
+                if (DustParticles == null)
                 {
                     ProfilerShort.Begin(string.Format("Create dust: stones = {0}", createStones));
                     //MyParticleEffectsIDEnum.Smoke_Construction
-                    MyParticlesManager.TryCreateParticleEffect(createStones ? (int)m_dustEffectStonesId : (int)m_dustEffectId, out m_dustParticles);
+                    MyParticlesManager.TryCreateParticleEffect(createStones ? (int)m_dustEffectStonesId : (int)m_dustEffectId, out DustParticles);
                     ProfilerShort.End();
                 }
 
-                if (m_dustParticles != null)
+                if (DustParticles != null)
                 {
-                    m_dustParticles.AutoDelete = false;
-                    m_dustParticles.Near = m_drillEntity.Render.NearFlag;
-                    m_dustParticles.WorldMatrix = MatrixD.CreateTranslation(position);
+                    DustParticles.Near = m_drillEntity.Render.NearFlag;
+                    DustParticles.WorldMatrix = MatrixD.CreateTranslation(position);
                 }
             }
 
             if (createSparks)
             {
                 ProfilerShort.Begin("Create sparks");
-                MyParticleEffect sparks;
-                if (MyParticlesManager.TryCreateParticleEffect((int)m_sparksEffectId, out sparks))
+                if (MyParticlesManager.TryCreateParticleEffect((int)m_sparksEffectId, out SparkEffect))
                 {
-                    sparks.WorldMatrix = Matrix.CreateTranslation(position);
-                    sparks.Near = m_drillEntity.Render.NearFlag;
+                    SparkEffect.WorldMatrix = Matrix.CreateTranslation(position);
+                    SparkEffect.Near = m_drillEntity.Render.NearFlag;
                 }
                 ProfilerShort.End();
             }
         }
 
-        private void StopParticles()
+        private void StopDustParticles()
         {
-            if (m_dustParticles != null)
+            if (DustParticles != null)
             {
-                m_dustParticles.Stop();
-                m_dustParticles = null;
+                DustParticles.Stop();
+                DustParticles = null;
+            }
+        }
+
+        public void StopSparkParticles()
+        {
+            if (SparkEffect != null)
+            {
+                SparkEffect.Stop();
+                SparkEffect = null;
             }
         }
 

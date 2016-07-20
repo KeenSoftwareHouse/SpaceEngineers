@@ -343,6 +343,9 @@ namespace Sandbox.Game.Weapons
                     ApplyShakeForce();
                 }
 
+                if (WantsToDrill)
+                    CheckDustEffect();
+
                 float timeDelta = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_headLastUpdateTime) / 1000f;
                 float rotationDeltaAngle = timeDelta * m_drillBase.AnimationMaxSpeedRatio * HEAD_MAX_ROTATION_SPEED;
 
@@ -359,6 +362,31 @@ namespace Sandbox.Game.Weapons
             }
         }
 
+        private void CheckDustEffect()
+        {
+            Vector3D pt = Vector3D.Zero;
+            float bestDist = float.MaxValue;
+            float dist;
+            foreach (var entry in m_drillBase.Sensor.EntitiesInRange)
+            {
+                pt = entry.Value.DetectionPoint;
+                dist = Vector3.DistanceSquared(entry.Value.DetectionPoint, m_drillBase.Sensor.Center);
+                if (entry.Value.Entity is MyVoxelBase)
+                {
+                    if (dist < bestDist)
+                    {
+                        pt = entry.Value.DetectionPoint;
+                        bestDist = dist;
+                    }
+                }
+            }
+            if (m_drillBase.DustParticles != null)
+            {
+                if (!m_drillBase.DustParticles.IsEmittingStopped && bestDist != float.MaxValue)
+                    m_drillBase.DustParticles.WorldMatrix = MatrixD.CreateWorld((pt + m_drillBase.Sensor.Center) / 2f, PositionComp.WorldMatrix.Forward, PositionComp.WorldMatrix.Up);
+            }
+        }
+
         private bool HasObjectInDrillingRange()
         {
             float distSq = MyDrillConstants.DRILL_SHIP_REAL_LENGTH * MyDrillConstants.DRILL_SHIP_REAL_LENGTH;
@@ -366,8 +394,6 @@ namespace Sandbox.Game.Weapons
             
             foreach (var entry in m_drillBase.Sensor.EntitiesInRange)
             {
-                const float sparksMoveDist = 0.1f;
-
                 var pt = entry.Value.DetectionPoint;
                 if (Vector3.DistanceSquared(pt, origin) < distSq)
                 {

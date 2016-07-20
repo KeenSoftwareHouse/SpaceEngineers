@@ -22,7 +22,6 @@ using System.Linq;
 using System.Text;
 using Sandbox.Engine.Networking;
 using VRage;
-using VRage;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Game;
@@ -278,6 +277,7 @@ namespace Sandbox.Game.Gui
                 if (m_onDropContextMenu.Enabled)
                 {
                     m_onDropContextMenu.Enabled = false;
+                    m_contextMenu.Enabled = false;
                     m_onDropContextMenu.Activate();
                 }
                 else if (m_contextMenu.Enabled && !m_onDropContextMenu.Visible)
@@ -708,13 +708,17 @@ namespace Sandbox.Game.Gui
             {
                 searchCondition.CleanDefinitionGroups();
             }
-            if (null != m_character || (m_shipController != null && (m_shipController as MyShipController).BuildingMode))
+            bool isSeat = m_shipController != null && !m_shipController.EnableShipControl;
+            if (!isSeat)
             {
-                AddCubeDefinitionsToBlocks(searchCondition);
-            }
-            else if (null != m_screenCubeGrid)
-            {
-                AddShipBlocksDefinitions(m_screenCubeGrid, true, searchCondition);
+                if (null != m_character || (m_shipController != null && (m_shipController as MyShipController).BuildingMode))
+                {
+                    AddCubeDefinitionsToBlocks(searchCondition);
+                }
+                else if (null != m_screenCubeGrid)
+                {
+                    AddShipBlocksDefinitions(m_screenCubeGrid, true, searchCondition);
+                }
             }
             m_gridBlocks.SelectedIndex = 0;
             m_gridBlocksPanel.ScrollbarVPosition = 0.0f;
@@ -940,7 +944,18 @@ namespace Sandbox.Game.Gui
             string subicon = null;
             if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0)
                 subicon = MyToolbarItemCubeBlock.VariantsAvailableSubicon;
-            AddDefinitionAtPosition(grid, anyDef, position, MyToolbarComponent.GlobalBuilding || MySession.Static.ControlledEntity is MyCharacter || (MySession.Static.ControlledEntity is MyCockpit && (MySession.Static.ControlledEntity as MyCockpit).BuildingMode), subicon);
+
+            bool enabled = true;
+
+            if (MyCubeBuilder.Static != null)
+            {
+                enabled &= MyCubeBuilder.Static.IsCubeSizeAvailable(anyDef);
+            }
+
+            enabled &= MyToolbarComponent.GlobalBuilding || MySession.Static.ControlledEntity is MyCharacter || 
+                       (MySession.Static.ControlledEntity is MyCockpit && (MySession.Static.ControlledEntity as MyCockpit).BuildingMode);
+
+            AddDefinitionAtPosition(grid, anyDef, position, enabled, subicon);
         }
 
         #endregion
@@ -1294,6 +1309,8 @@ namespace Sandbox.Game.Gui
                 var gridItem = sender.TryGetItemAt(eventArgs.RowIndex, eventArgs.ColumnIndex);
                 if (gridItem == null)
                     return;
+                if (!gridItem.Enabled)
+                    return;
 
                 var data = (GridItemUserData)gridItem.UserData;
                 var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
@@ -1313,6 +1330,9 @@ namespace Sandbox.Game.Gui
                 {
                     return;
                 }
+                if (!gridItem.Enabled)
+                    return;
+
                 var data = (GridItemUserData)gridItem.UserData;
                 var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
 
@@ -1344,6 +1364,9 @@ namespace Sandbox.Game.Gui
                 var gridItem = sender.TryGetItemAt(eventArgs.RowIndex, eventArgs.ColumnIndex);
                 if (gridItem == null)
                     return;
+                if (!gridItem.Enabled)
+                    return;
+
                 var data = (GridItemUserData)gridItem.UserData;
                 var item = MyToolbarItemFactory.CreateToolbarItem(data.ItemData);
 
@@ -1362,6 +1385,8 @@ namespace Sandbox.Game.Gui
             {
                 var gridItem = sender.TryGetItemAt(eventArgs.RowIndex, eventArgs.ColumnIndex);
                 if (gridItem == null)
+                    return;
+                if (!gridItem.Enabled)
                     return;
 
                 var data = (GridItemUserData)gridItem.UserData;
@@ -1455,8 +1480,22 @@ namespace Sandbox.Game.Gui
             }
 
             m_nameSearchCondition.SearchName = searchName;
-            AddToolsAndAnimations(m_nameSearchCondition);
-            UpdateGridBlocksBySearchCondition(m_nameSearchCondition);
+            bool isSeat = m_shipController != null && !m_shipController.EnableShipControl;
+            if (!isSeat)
+            {
+                AddToolsAndAnimations(m_nameSearchCondition);
+                UpdateGridBlocksBySearchCondition(m_nameSearchCondition);
+            }
+            else
+                AddAnimations(true, m_nameSearchCondition);
+        }
+
+        /// <summary>
+        /// Updates Grid control with current category settings. 
+        /// </summary>
+        protected void UpdateGridControl()
+        {
+            categories_ItemClicked(m_categoriesListbox);
         }
 
         void contextMenu_ItemClicked(MyGuiControlContextMenu sender, MyGuiControlContextMenu.EventArgs args)
@@ -1606,6 +1645,9 @@ namespace Sandbox.Game.Gui
             dragAndDropInfo.ItemIndex = args.ItemIndex;
 
             var draggingItem = grid.GetItemAt(args.ItemIndex);
+            
+            if (!draggingItem.Enabled)
+                return;
 
             m_dragAndDrop.StartDragging(dropHandlingType, args.Button, draggingItem, dragAndDropInfo);
             grid.HideToolTip();

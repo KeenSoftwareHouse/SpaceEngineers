@@ -206,7 +206,7 @@ namespace VRage.Dedicated
 
             foreach (var scenario in MyDefinitionManager.Static.GetScenarioDefinitions())
             {
-                if (scenario.Public)
+                if (scenario.Public || !MyFinalBuildConstants.IS_OFFICIAL)
                 {
                     ScenarioItem item = new ScenarioItem() { Definition = scenario };
                     scenarioCB.Items.Add(item);

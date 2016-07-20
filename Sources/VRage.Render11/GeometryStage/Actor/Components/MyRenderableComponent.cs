@@ -234,6 +234,7 @@ namespace VRageRender
         protected bool m_colorEmissivityDirty = false;
         internal Dictionary<MyEntityMaterialKey, MyModelProperties> ModelProperties;
         protected bool m_isGenericInstance = false;
+        private bool m_perInstanceLods = true;
 
         internal int m_voxelLod;
         internal byte m_depthBias;
@@ -427,6 +428,7 @@ namespace VRageRender
                 Owner.MarkRenderDirty();
 
                 m_isGenericInstance = m_instancing == InstancingId.NULL ? false : MyInstancing.Instancings.Data[m_instancing.Index].Type == MyRenderInstanceBufferType.Generic;
+                m_perInstanceLods = m_instancing == InstancingId.NULL ? false : MyInstancing.Instancings.Data[m_instancing.Index].PerInstanceLods;
             }
         }
 
@@ -1052,7 +1054,7 @@ namespace VRageRender
 
         internal void UpdateInstanceLods()
         {
-            if (MyRenderSettings.PerInstanceLods && m_isGenericInstance)
+            if (MyRenderSettings.PerInstanceLods && m_perInstanceLods && m_isGenericInstance)
                 UpdatePerInstanceLods(CalculateViewerDistance());
         }
         internal virtual void UpdateLodState()
@@ -1121,7 +1123,7 @@ namespace VRageRender
         private bool CheckDistanceCulling(float distance)
         {
             bool isCulled = false;
-            if ((!AnyDrawOutsideViewDistance && distance > MyEnvironment.FarClipping) || (m_lods == null || m_lods.Length < 1))
+            if ((!AnyDrawOutsideViewDistance && distance > MyRender11.Environment.FarClipping) || (m_lods == null || m_lods.Length < 1))
             {
                 isCulled = true;
             }
@@ -1163,7 +1165,7 @@ namespace VRageRender
                             break;
                     }
 
-                    Vector3D.Transform(ref corner, ref MyEnvironment.ViewProjectionD, out corner);
+                    Vector3D.Transform(ref corner, ref MyRender11.Environment.ViewProjectionD, out corner);
                     maxX = Math.Max(maxX, corner.X);
                     minX = Math.Min(minX, corner.X);
                     maxY = Math.Max(maxY, corner.Y);
@@ -1203,7 +1205,7 @@ namespace VRageRender
                 for (int instanceIndex = 0; instanceIndex < capacity; ++instanceIndex)
                 {
                     Vector3D position = (Vector3D)instanceInfo.Positions[instanceIndex] + translation;
-                    double distanceToCameraSquared = (position - MyEnvironment.CameraPosition).LengthSquared();
+                    double distanceToCameraSquared = (position - MyRender11.Environment.CameraPosition).LengthSquared();
 
                     bool oldIsInstanceFar = instanceLodComponent.IsFar(m_instancing, instanceIndex);
                     bool isInstanceFar = distanceToCameraSquared > lodDistanceSquared * lastLodMultiplierSq;

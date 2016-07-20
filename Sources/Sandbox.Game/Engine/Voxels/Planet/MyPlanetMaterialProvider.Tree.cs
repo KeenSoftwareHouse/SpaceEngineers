@@ -104,13 +104,13 @@ namespace Sandbox.Engine.Voxels
         {
             public override bool IsRule { get { return true; } }
 
-            public MyRangeValue Height;
+            public SerializableRange Height;
 
-            public MyReflectiveRangeValue Latitude;
+            public SymetricSerializableRange Latitude;
 
-            public MyRangeValue Longitude;
+            public SerializableRange Longitude;
 
-            public MyRangeValue Slope;
+            public SerializableRange Slope;
 
             /**
              * Check that a rule matches terrain properties.

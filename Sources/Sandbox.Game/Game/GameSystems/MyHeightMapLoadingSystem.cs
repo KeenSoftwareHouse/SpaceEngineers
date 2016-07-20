@@ -11,15 +11,15 @@ using Sandbox.Engine.Voxels;
 using Sandbox.Engine.Voxels.Planet;
 using SharpDX;
 using SharpDX.DXGI;
-using SharpDX.Toolkit.Graphics;
 using VRage;
 using VRage.Collections;
 using VRage.FileSystem;
 using VRage.Utils;
 using VRageMath;
 using Quaternion = VRageMath.Quaternion;
-using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using VRage.Game.Components;
+using SharpDX.Toolkit.Graphics;
+using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using VRage.Game.Definitions;
 using VRage.Game;
 
@@ -57,10 +57,7 @@ namespace Sandbox.Game.GameSystems
             MyParticleEffect effect;
             if (MyParticlesManager.TryCreateParticleEffect((int)MyParticleEffectsIDEnum.Collision_Meteor, out effect))
             {
-                effect.SetPreload(1f);
-                effect.UserScale = 1.0f;
                 effect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.Identity, Vector3D.Zero, Vector3D.One);
-                effect.Stop();
             }
 
             ListReader<MyDebrisDefinition> debrisDefinitions = MyDefinitionManager.Static.GetDebrisDefinitions();
@@ -294,7 +291,7 @@ namespace Sandbox.Game.GameSystems
             }
 
             maps = new MyCubemap[4];
-
+            
             MyCubemapData<byte>[] tmpMaps = new MyCubemapData<byte>[4 * 6];
 
             byte[][] streams = new byte[4][];

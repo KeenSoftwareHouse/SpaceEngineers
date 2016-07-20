@@ -37,6 +37,8 @@ namespace VRage.Animations
         public static readonly MyStringId StrIdFalling = MyStringId.GetOrCompute("falling");
         public static readonly MyStringId StrIdFirstPerson = MyStringId.GetOrCompute("firstperson");
         public static readonly MyStringId StrIdFlying = MyStringId.GetOrCompute("flying");
+        public static readonly MyStringId StrIdHoldingTool = MyStringId.GetOrCompute("holdingtool");
+        public static readonly MyStringId StrIdJumping = MyStringId.GetOrCompute("jumping");
         public static readonly MyStringId StrIdLean = MyStringId.GetOrCompute("lean");
         public static readonly MyStringId StrIdSitting = MyStringId.GetOrCompute("sitting");
         public static readonly MyStringId StrIdSpeed = MyStringId.GetOrCompute("speed");
@@ -66,6 +68,8 @@ namespace VRage.Animations
             VariableNameHints.Add(StrIdFalling, new MyVariableNameHint("falling", "Character is falling [0 or 1]"));
             VariableNameHints.Add(StrIdFirstPerson, new MyVariableNameHint("firstperson", "Character camera is in first person mode [0 or 1]"));
             VariableNameHints.Add(StrIdFlying, new MyVariableNameHint("flying", "Character is flying [0 or 1]"));
+            VariableNameHints.Add(StrIdHoldingTool, new MyVariableNameHint("holdingtool", "Character is holding a tool [0 or 1]"));
+            VariableNameHints.Add(StrIdJumping, new MyVariableNameHint("jumping", "Character is jumping [0 or 1]"));
             VariableNameHints.Add(StrIdLean, new MyVariableNameHint("lean", "Character leaning angle [-90 - 90]"));
             VariableNameHints.Add(StrIdSitting, new MyVariableNameHint("sitting", "Character is sitting [0 or 1]"));
             VariableNameHints.Add(StrIdSpeed, new MyVariableNameHint("speed", "Character speed [0 or more]"));

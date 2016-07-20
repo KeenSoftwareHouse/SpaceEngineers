@@ -15,6 +15,7 @@ using SpaceEngineers.Game.VoiceChat;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Sandbox.Engine.Voxels;
 using SpaceEngineers.Game.ModAPI;
 using VRage.Compiler;
 using VRage.Data.Audio;
@@ -29,7 +30,7 @@ namespace SpaceEngineers.Game
 {
     public partial class SpaceEngineersGame : MySandboxGame
     {
-        const int SE_VERSION = 01136005;
+        const int SE_VERSION = 01145003;
 
         #region Constructor
 
@@ -64,58 +65,13 @@ namespace SpaceEngineers.Game
             MySandboxGame.ConfigDedicated = new MyConfigDedicated<MyObjectBuilder_SessionSettings>("SpaceEngineers-Dedicated.cfg");
             MySandboxGame.GameCustomInitialization = new MySpaceGameCustomInitialization();
             MyPerGameSettings.ShowObfuscationStatus = false;
+            MyPerGameSettings.UseNewDamageEffects = true;
 
             //audio
             MyPerGameSettings.UseVolumeLimiter = MyFakes.ENABLE_NEW_SOUNDS && MyFakes.ENABLE_REALISTIC_LIMITER;
             MyPerGameSettings.UseSameSoundLimiter = true;
             MyPerGameSettings.UseMusicController = true;
 
-            MyPerGameSettings.CreationSettings = new MyPlacementSettings()
-            {
-                SmallGrid = new MyGridPlacementSettings()
-                {
-                    Mode = MyGridPlacementSettings.SnapMode.OneFreeAxis,
-                    SearchHalfExtentsDeltaRatio = -0.1f,
-                    SearchHalfExtentsDeltaAbsolute = -0.13f, //this is value at whitch you can place new small ship and is ok for wheels too
-                    Penetration = new MyGridPlacementSettings.GroundPenetration()
-                    {
-                        Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
-                        MinAllowed = 0f,
-                        MaxAllowed = 0.50f,
-                    },
-                    EnablePreciseRotationWhenSnapped = false,
-                },
-                LargeGrid = new MyGridPlacementSettings()
-                {
-                    Mode = MyGridPlacementSettings.SnapMode.OneFreeAxis,
-                    SearchHalfExtentsDeltaRatio = -0.1f,
-                    SearchHalfExtentsDeltaAbsolute = -0.13f,
-                    Penetration = new MyGridPlacementSettings.GroundPenetration()
-                    {
-                        Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
-                        MinAllowed = 0f,
-                        MaxAllowed = 0.1f,
-                    },
-                    EnablePreciseRotationWhenSnapped = false,
-                },
-                LargeStaticGrid = new MyGridPlacementSettings()
-                {
-                    Mode = MyGridPlacementSettings.SnapMode.Base6Directions,
-                    SearchHalfExtentsDeltaRatio = -0.1f,
-                    SearchHalfExtentsDeltaAbsolute = -0.13f,
-                    Penetration = new MyGridPlacementSettings.GroundPenetration()
-                    {
-                        Unit = MyGridPlacementSettings.PenetrationUnitEnum.Ratio,
-                        MinAllowed = 0f,
-                        MaxAllowed = 0.85f,
-                    },
-                    EnablePreciseRotationWhenSnapped = true,
-                },
-                //StaticGridAlignToCenter = true,
-                StaticGridAlignToCenter = false,
-            };
-            //MyPerGameSettings.PastingSettings.StaticGridAlignToCenter = true;
-            MyPerGameSettings.BuildingSettings.LargeStaticGrid = MyPerGameSettings.CreationSettings.LargeStaticGrid;
             MyPerGameSettings.Destruction = false;
             //MyPerGameSettings.ConstantVoxelAmbient = -0.35f;
             MyFakes.ENABLE_SUN_BILLBOARD = true;
@@ -181,11 +137,11 @@ namespace SpaceEngineers.Game
 
             MyPerGameSettings.VoiceChatEnabled = false;
             MyPerGameSettings.VoiceChatLogic = typeof(MyVoiceChatLogic);
-            MyRenderSettings.PerInstanceLods = true;
+            MyRenderSettings.PerInstanceLods = false;
 
 			MyPerGameSettings.ClientStateType = typeof(MySpaceClientState);
             //MyFakes.ENABLE_HAVOK_MULTITHREADING = true;
-            MyFakes.USE_LOD1_VOXEL_PHYSICS = true;
+            MyVoxelPhysicsBody.UseLod1VoxelPhysics = true;
 
             MyPerGameSettings.EnableAi = true;
             MyPerGameSettings.EnablePathfinding = true;
@@ -481,6 +437,13 @@ namespace SpaceEngineers.Game
             MyGuiGameControlsHelpers.Add(MyControlsSpace.TOGGLE_SIGNALS, helper);
             MyControl control = new MyControl(MyControlsSpace.TOGGLE_SIGNALS, helper.NameEnum, MyGuiControlTypeEnum.Systems1, null, MyKeys.H, description: helper.DescriptionEnum);
             MyInput.Static.AddDefaultControl(MyControlsSpace.TOGGLE_SIGNALS, control);
-        }
+
+            // Add cube size build mode for cube builder control
+            helper = new MyGuiDescriptor(MyCommonTexts.ControlName_CubeSizeMode, MyCommonTexts.ControlName_CubeSizeMode_Tooltip);
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE, helper);
+            control = new MyControl(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE, helper.NameEnum, MyGuiControlTypeEnum.Systems3, null, MyKeys.R, description: helper.DescriptionEnum);
+            MyInput.Static.AddDefaultControl(MyControlsSpace.CUBE_BUILDER_CUBESIZE_MODE, control);
+
     }
+}
 }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Network;
 using VRageMath;
 
 namespace Sandbox.Game.Replication
@@ -13,15 +14,18 @@ namespace Sandbox.Game.Replication
     {
         MyCubeGrid m_grid;
 
+        bool m_lowPositionOrientation = false;
+        int m_currentSentPosition = 0;
+
         public MyGridPositionVerificationStateGroup(MyCubeGrid grid) :
             base(grid)
         {
             m_grid = grid;
         }
 
-        protected override void ClientWrite(VRage.Library.Collections.BitStream stream)
+        protected override void ClientWrite(VRage.Library.Collections.BitStream stream,EndpointId forClient, uint timestamp, int maxBitPosition)
         {
-            base.ClientWrite(stream);
+            base.ClientWrite(stream,forClient,timestamp,maxBitPosition);
 
             MyShipController controller = MySession.Static.ControlledEntity as MyShipController;
             stream.WriteBool(m_grid != null && controller != null);
@@ -29,8 +33,7 @@ namespace Sandbox.Game.Replication
             {
                 stream.WriteBool(m_grid.IsStatic);
                 if (m_grid.IsStatic == false)
-                {
-                  
+                {              
                     stream.WriteBool(controller != null);
                     if (controller != null)
                     {
@@ -46,6 +49,9 @@ namespace Sandbox.Game.Replication
                         stream.WriteHalf(position.X);
                         stream.WriteHalf(position.Y);
                         stream.WriteHalf(position.Z);
+
+                        Vector3D gridPosition = m_grid.PositionComp.GetPosition();
+                        MyGridPhysicsStateGroup.WriteSubgrids(m_grid, stream, ref forClient, timestamp, maxBitPosition, m_lowPositionOrientation, ref gridPosition, ref m_currentSentPosition);
                     }
                 }
             }
@@ -76,11 +82,15 @@ namespace Sandbox.Game.Replication
                             move.Y = stream.ReadHalf();
                             move.Z = stream.ReadHalf();
 
+                            Vector3D gridPos = Vector3D.Zero;
                             MyShipController controller;
                             if (MyEntities.TryGetEntityById<MyShipController>(entityId, out controller))
                             {
                                 controller.CacheMoveAndRotate(ref move, ref rotation, roll);
+                                gridPos = controller.CubeGrid.PositionComp.GetPosition();
                             }
+
+                            MyGridPhysicsStateGroup.ReadSubGrids(stream, timestamp,true,m_lowPositionOrientation,ref gridPos);
                         }
                     }
                 }

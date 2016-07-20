@@ -27,7 +27,7 @@ namespace VRage.Game.Utils
         public float MaxShakePosZ = 1.0f;//maximal shake pos diference 
         public float MaxShakeDir = 0.2f;    //maximal shake dir diference x, z
         public float Reduction = 0.2f;      //reduction for random multiplier
-        public float Damping = 0.95f;       //shake speed reduction. by wich we multiply every tick
+        public float Dampening = 0.95f;       //shake speed reduction. by wich we multiply every tick
         public float OffConstant = 0.01f;   //reaching this constant shake turns off
         public float DirReduction = 0.35f;  //this is reduction for random multiplier
 
@@ -94,8 +94,8 @@ namespace VRage.Game.Utils
 
             outDir *= Reduction;
 
-            m_currentShakePosPower *= (float) Math.Pow(Damping, timeStep * 60.0f);
-            m_currentShakeDirPower *= (float) Math.Pow(Damping, timeStep * 60.0f);
+            m_currentShakePosPower *= (float) Math.Pow(Dampening, timeStep * 60.0f);
+            m_currentShakeDirPower *= (float) Math.Pow(Dampening, timeStep * 60.0f);
 
             if (m_currentShakeDirPower < 0.0f)
             {

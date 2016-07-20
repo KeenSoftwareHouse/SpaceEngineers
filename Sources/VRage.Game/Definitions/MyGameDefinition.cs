@@ -58,11 +58,13 @@ namespace VRage.Game.Definitions
             }
         }
 
-        void SetDefault()
+        private void SetDefault()
         {
-            var deflt = new MyGameDefinition();
-            deflt.SessionComponents = SessionComponents;
-            deflt.Id = Default;
+            var deflt = new MyGameDefinition
+            {
+                SessionComponents = SessionComponents,
+                Id = Default
+            };
 
             MyDefinitionManagerBase.Static.GetLoadingSet().AddOrRelaceDefinition(deflt);
         }

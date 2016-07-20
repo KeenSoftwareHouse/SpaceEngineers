@@ -48,7 +48,7 @@ namespace Sandbox.Game.Entities
             }
         }
         private bool m_isTwoSided;
-        private MyTerminalBlock m_solarBlock;
+        private MyFunctionalBlock m_solarBlock;
 
         private bool m_initialized = false;
 
@@ -67,7 +67,7 @@ namespace Sandbox.Game.Entities
         private bool[] m_isPivotInSun = new bool[NUMBER_OF_PIVOTS];
         private List<MyPhysics.HitInfo> m_hitList = new List<MyPhysics.HitInfo>();
 
-        public void Initialize(Vector3 panelOrientation, bool isTwoSided, float panelOffset, MyTerminalBlock solarBlock)
+        public void Initialize(Vector3 panelOrientation, bool isTwoSided, float panelOffset, MyFunctionalBlock solarBlock)
         {
             m_initialized = true;
 
@@ -94,7 +94,7 @@ namespace Sandbox.Game.Entities
                 return;
 
             // If the block is not functional, stop processing here.
-            if (!m_solarBlock.IsFunctional)
+            if (!m_solarBlock.Enabled)
             {
                 m_maxOutput = 0;
                 return;
@@ -169,10 +169,11 @@ namespace Sandbox.Game.Entities
 
         private void OnSunAngleComputed()
         {
-            // If the sun is on the backside of the panel, and we're not two-sided, OR the block is disabled, just stop processing here
-            if ((m_angleToSun < 0 && !m_isTwoSided) || !m_solarBlock.IsFunctional)
+            // If the sun is on the backside of the panel, and we're not two-sided, OR the block is toggled off return zero (continue background checking though)
+            if ((m_angleToSun < 0 && !m_isTwoSided) || !m_solarBlock.Enabled)
             {
                 m_maxOutput = 0;
+                m_isBackgroundProcessing = false;
                 return;
             }
 

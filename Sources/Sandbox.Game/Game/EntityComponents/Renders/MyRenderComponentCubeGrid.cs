@@ -36,6 +36,11 @@ namespace Sandbox.Game.Components
         private static readonly List<MyPhysics.HitInfo> m_tmpHitList = new List<MyPhysics.HitInfo>();
         MyCubeGrid m_grid = null;
 
+        public MyCubeGrid CubeGrid
+        {
+            get { return m_grid; }
+        }
+
         #region cube grid properties
 
         private MyCubeGridRenderData m_renderData;
@@ -266,9 +271,9 @@ namespace Sandbox.Game.Components
                     float size = MathHelper.Lerp(1, 9, dist / 200);
                     var mat = "WeaponLaserIgnoreDepth";
                     var thickness = 0.02f * size;
-                    var color = Color.Blue.ToVector4();
+                    var color = Color.Green.ToVector4();
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Up * 0.5f * size, mat, ref color, thickness);
-                    color = Color.Green.ToVector4();
+                    color = Color.Blue.ToVector4();
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Forward * 0.5f * size, mat, ref color, thickness);
                     color = Color.Red.ToVector4();
                     MySimpleObjectDraw.DrawLine(pos, pos + matrix.Right * 0.5f * size, mat, ref color, thickness);

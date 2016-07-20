@@ -166,6 +166,7 @@ namespace Sandbox.Game.AI
 
             var ob = (MyObjectBuilder_AIComponent)sessionComponentBuilder;
 
+            if (ob.BotBrains != null)
             foreach (var brain in ob.BotBrains)
             {
                 m_loadedBotObjectBuildersByHandle[brain.PlayerHandle] = brain.BotBrain;
@@ -320,9 +321,9 @@ namespace Sandbox.Game.AI
             return SpawnNewBotInternal(agentDefinition, spawnPosition, false);
         }
 
-        public int SpawnNewBot(MyAgentDefinition agentDefinition, Vector3D position)
+        public int SpawnNewBot(MyAgentDefinition agentDefinition, Vector3D position, bool createdByPlayer = true)
         {
-            return SpawnNewBotInternal(agentDefinition, position, true);
+            return SpawnNewBotInternal(agentDefinition, position, createdByPlayer);
         }
 
         public bool SpawnNewBotGroup(string type, List<AgentGroupData> groupData, List<int> outIds)
@@ -521,6 +522,10 @@ namespace Sandbox.Game.AI
             var createdByPlayer = false;
             MyBotDefinition botDefinition = null;
             AgentSpawnData spawnData = default(AgentSpawnData);
+
+            // We have to get the bot object builder and bot definition somehow
+            // Either, the bot is being spawned on this computer and the definition was saved in the spawn data
+            // or the bot is just being created from the object builder (MP bot creation, etc.), so the definition is there
             if (isBotSpawned)
             {
                 spawnData = m_agentsToSpawn[playerNumber];

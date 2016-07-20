@@ -17,20 +17,20 @@ void WeightedOITCendos(float4 color, float linearZ, float z, float weightFactor,
 	// Insert your favorite weighting function here. The color-based factor
 	// avoids color pollution from the edges of wispy clouds. The z-based
 	// factor gives precedence to nearer surfaces.
-	float weight = clamp((-1 / linearZ)  * color.a * weightFactor * 10, 0.01f, 10);
+	float invZ = clamp(1 - saturate(-linearZ / 200), 0.01, 1);
+	float weight = invZ * weightFactor;
 	
-	// Blend Func: GL_ONE, GL_ONE
+	// Blend Func: ONE, ONE
 	// Switch to premultiplied alpha and weight
-	accumTarget = color * weight;
-	//accumTarget = float4(weight.xxx * color.a, color.a) * weight;
+    accumTarget = float4(color.rgb * color.a, color.a) * weight;
 
-	// Blend Func: GL_ZERO, GL_ONE_MINUS_SRC_ALPHA
-	coverageTarget = color.a;
+	// Blend Func: zero, 1-source
+    coverageTarget = color.a;
 }
 
 void PremultAlpha(float4 color, float linearZ, float z, float weightFactor, out float4 accumTarget, out float4 coverageTarget)
 {
-	accumTarget = color;
+    accumTarget = color;
 	coverageTarget = 0;
 }
 

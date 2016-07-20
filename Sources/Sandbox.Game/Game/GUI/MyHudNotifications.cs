@@ -344,7 +344,7 @@ namespace Sandbox.Game.Gui
             for (int i = 0; i < m_textSizes.Count; i++)
             {
                 var textSize = m_textSizes[i];
-                MyGuiScreenHudBase.DrawFogNotification(ref notificationPosition, ref textSize);
+                MyGuiTextShadows.DrawShadow(ref notificationPosition, ref textSize);
                 notificationPosition.Y += textSize.Y;
             }
         }

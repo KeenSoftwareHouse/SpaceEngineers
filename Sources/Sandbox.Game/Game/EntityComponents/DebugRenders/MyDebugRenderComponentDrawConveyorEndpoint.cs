@@ -13,10 +13,9 @@ namespace Sandbox.Game.Components
         {
             ConveyorEndpoint = endpoint;
         }
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             ConveyorEndpoint.DebugDraw();
-            return true;
         }
     }
 }

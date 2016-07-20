@@ -52,6 +52,23 @@ namespace Sandbox.Game.Gui
             return false;
         }
 
+        public static bool AreControlsCreated(Type blockType)
+        {
+            if (m_controls.ContainsKey(blockType))
+                return true;
+
+            return false;
+        }
+
+        public static void EnsureControlsAreCreated(Type blockType)
+        {
+            MethodInfo createMethod = blockType.GetMethod("CreateTerminalControls", BindingFlags.NonPublic | BindingFlags.Static);
+            if (createMethod == null)
+                return;
+
+            createMethod.Invoke(null, new object[] { });
+        }
+
         /// <summary>
         /// Base class controls are added automatically
         /// </summary>

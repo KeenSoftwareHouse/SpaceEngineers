@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ParallelTasks;
 using VRage.Collections;
 using VRage.Library.Collections;
 using VRage.Library.Utils;
@@ -18,17 +19,12 @@ namespace VRageRender
 
         public readonly List<MyRenderMessageBase> RenderInput = new List<MyRenderMessageBase>(2048);
 
+        private readonly SpinLockRef m_lock = new SpinLockRef();
+
         public void Enqueue(MyRenderMessageBase message)
         {
-            //RenderInput.Add(message);
-            if (message.MessageType != MyRenderMessageEnum.DebugDrawAABB)
-            {
+            using (m_lock.Acquire())
                 RenderInput.Add(message);
-            }
-            else
-            {
-                RenderInput.Insert(0, message);
-            }
         }
     }
 }

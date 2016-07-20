@@ -51,8 +51,9 @@ namespace VRageRender
 		};
 
         const int NUM_SAMPLES = 8;
-
-        static unsafe void FillRandomVectors(MyMapping myMapping)
+        static Vector4[] m_tmpOccluderPoints = new Vector4[NUM_SAMPLES];
+        static Vector4[] m_tmpOccluderPointsFlipped = new Vector4[NUM_SAMPLES];
+        static void FillRandomVectors(MyMapping myMapping)
         {
             float maxTapMag = -1;
             for (uint i = 0; i < NUM_SAMPLES; i++)
@@ -64,32 +65,29 @@ namespace VRageRender
 
             float maxTapMagInv = 1.0f / maxTapMag;
             float rsum = 0.0f;
-            Vector4* occluderPoints = stackalloc Vector4[NUM_SAMPLES];
-            Vector4* occluderPointsFlipped = stackalloc Vector4[NUM_SAMPLES];
             for (uint i = 0; i < NUM_SAMPLES; i++)
             {
                 Vector2 tapOffs = new Vector2(m_filterKernel[i].X * maxTapMagInv, m_filterKernel[i].Y * maxTapMagInv);
 
-                occluderPoints[i].X = tapOffs.X;
-                occluderPoints[i].Y = tapOffs.Y;
-                occluderPoints[i].Z = 0;
-                occluderPoints[i].W = (float)System.Math.Sqrt(1 - tapOffs.X * tapOffs.X - tapOffs.Y * tapOffs.Y);
+                m_tmpOccluderPoints[i].X = tapOffs.X;
+                m_tmpOccluderPoints[i].Y = tapOffs.Y;
+                m_tmpOccluderPoints[i].Z = 0;
+                m_tmpOccluderPoints[i].W = (float)System.Math.Sqrt(1 - tapOffs.X * tapOffs.X - tapOffs.Y * tapOffs.Y);
 
-                rsum += occluderPoints[i].W;
+                rsum += m_tmpOccluderPointsFlipped[i].W;
 
-                //
-                occluderPointsFlipped[i].X = tapOffs.X;
-                occluderPointsFlipped[i].Y = -tapOffs.Y;
+                m_tmpOccluderPointsFlipped[i].X = tapOffs.X;
+                m_tmpOccluderPointsFlipped[i].Y = -tapOffs.Y;
             }
 
             var colorScale = 1.0f / (2 * rsum);
             colorScale *= Params.ColorScale;
 
             for (int occluderIndex = 0; occluderIndex < NUM_SAMPLES; ++occluderIndex)
-                myMapping.WriteAndPosition(ref occluderPoints[occluderIndex]);
+                myMapping.WriteAndPosition(ref m_tmpOccluderPoints[occluderIndex]);
 
             for (int occluderIndex = 0; occluderIndex < NUM_SAMPLES; ++occluderIndex)
-                myMapping.WriteAndPosition(ref occluderPointsFlipped[occluderIndex]);
+                myMapping.WriteAndPosition(ref m_tmpOccluderPointsFlipped[occluderIndex]);
         }
 
         static PixelShaderId m_ps;
@@ -110,7 +108,10 @@ namespace VRageRender
             FillRandomVectors(mapping);
             mapping.Unmap();
 
-            RC.SetCB(0, MyCommon.FrameConstants);
+            if (!MyStereoRender.Enable)
+                RC.SetCB(0, MyCommon.FrameConstants);
+            else
+                MyStereoRender.BindRawCB_FrameConstants(RC);
             RC.SetCB(1, paramsCB);
 
             RC.SetPS(m_ps);

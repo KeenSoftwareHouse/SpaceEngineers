@@ -159,6 +159,7 @@ namespace VRageRender
     struct MyShaderInfo
     {
         internal ShaderBytecodeId Bytecode;
+        internal string File;
     }
 
     struct MyShaderStreamOutputInfo
@@ -236,7 +237,7 @@ namespace VRageRender
 
             VsObjects[id.Index] = null;
 
-            InitVs(id);
+            InitVs(id, file);
             VsIndex.Add(id);
 
             return id;
@@ -264,7 +265,7 @@ namespace VRageRender
 
             PsObjects[id.Index] = null;
 
-            InitPs(id);
+            InitPs(id, file);
             PsIndex.Add(id);
 
             return id;
@@ -292,7 +293,7 @@ namespace VRageRender
 
             CsObjects[id.Index] = null;
 
-            InitCs(id);
+            InitCs(id, file);
             CsIndex.Add(id);
 
             return id;
@@ -325,8 +326,9 @@ namespace VRageRender
                 StreamOutputs[id] = streamOut.Value;
             }
 
-            InitGs(id);
+            InitGs(id, file);
             GsIndex.Add(id);
+            GsObjects[id.Index].DebugName = file;
 
             return id;
         }
@@ -366,7 +368,6 @@ namespace VRageRender
                 MyRender11.Log.WriteLine(message);
                 if (Debugger.IsAttached)
                 {
-                    Debugger.Break();
                     Compile(bytecode, true);
                 }
                 else throw new MyRenderException(message, MyRenderExceptionEnum.Unassigned);
@@ -398,6 +399,7 @@ namespace VRageRender
                     string message = String.Format("Compilation of shader {0} errors:\n{1}", descriptor, compileLog);
                     MyRender11.Log.WriteLine(message);
                     Debug.WriteLine(message);
+                    Debugger.Break();
                 }
             }
             return result;
@@ -459,10 +461,10 @@ namespace VRageRender
                     compileLog = ExtendedErrorMessage(source, compilationResult.Message) + DumpShaderSource(key, preprocessedSource);
                 }
 
-                if (compilationResult.Bytecode.Data.Length > 0)
+                if (compilationResult.Bytecode != null && compilationResult.Bytecode.Data.Length > 0)
                     MyShaderCache.Store(key.ToString(), compilationResult.Bytecode.Data);
 
-                return compilationResult.Bytecode.Data;
+                return compilationResult.Bytecode != null ? compilationResult.Bytecode.Data : null;
             }
             catch (CompilationException e)
             {
@@ -516,7 +518,7 @@ namespace VRageRender
             return ILObjects[id.Index];
         }
 
-        internal static void InitVs(VertexShaderId id)
+        internal static void InitVs(VertexShaderId id, string file)
         {
             var bytecodeId = VertexShaders.Data[id.Index].Bytecode;
             Compile(bytecodeId);
@@ -536,9 +538,11 @@ namespace VRageRender
                 Compile(bytecodeId, true);
                 VsObjects[id.Index] = new VertexShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
+            VertexShaders.Data[id.Index].File = file;
+            VsObjects[id.Index].DebugName = file;
         }
 
-        internal static void InitPs(PixelShaderId id)
+        internal static void InitPs(PixelShaderId id, string file)
         {
             var bytecodeId = PixelShaders.Data[id.Index].Bytecode;
             Compile(bytecodeId);
@@ -557,9 +561,11 @@ namespace VRageRender
                 Compile(bytecodeId, true);
                 PsObjects[id.Index] = new PixelShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
+            PixelShaders.Data[id.Index].File = file;
+            PsObjects[id.Index].DebugName = file;
         }
 
-        internal static void InitCs(ComputeShaderId id)
+        internal static void InitCs(ComputeShaderId id, string file)
         {
             var bytecodeId = ComputeShaders.Data[id.Index].Bytecode;
             Compile(bytecodeId);
@@ -578,9 +584,11 @@ namespace VRageRender
                 Compile(bytecodeId, true);
                 CsObjects[id.Index] = new ComputeShader(MyRender11.Device, GetBytecode(bytecodeId));
             }
+            ComputeShaders.Data[id.Index].File = file;
+            CsObjects[id.Index].DebugName = file;
         }
 
-        internal static void InitGs(GeometryShaderId id)
+        internal static void InitGs(GeometryShaderId id, string file)
         {
             var bytecodeId = GeometryShaders.Data[id.Index].Bytecode;
             Compile(bytecodeId);
@@ -621,6 +629,8 @@ namespace VRageRender
                     GsObjects[id.Index] = new GeometryShader(MyRender11.Device, GetBytecode(bytecodeId));
                 }
             }
+            GeometryShaders.Data[id.Index].File = file;
+            GsObjects[id.Index].DebugName = file;
         }
 
         internal static InputLayoutId CreateIL(ShaderBytecodeId bytecode, VertexLayoutId layout)
@@ -659,22 +669,26 @@ namespace VRageRender
         {
             foreach (var id in VsIndex)
             {
-                InitVs(id);
+                string file = VertexShaders.Data[id.Index].File;
+                InitVs(id, file);
             }
 
             foreach (var id in PsIndex)
             {
-                InitPs(id);
+                string file = PixelShaders.Data[id.Index].File;
+                InitPs(id, file);
             }
 
             foreach (var id in CsIndex)
             {
-                InitCs(id);
+                string file = ComputeShaders.Data[id.Index].File;
+                InitCs(id, file);
             }
 
             foreach (var id in GsIndex)
             {
-                InitGs(id);
+                string file = GeometryShaders.Data[id.Index].File;
+                InitGs(id, file);
             }
 
             foreach (var id in ILIndex)

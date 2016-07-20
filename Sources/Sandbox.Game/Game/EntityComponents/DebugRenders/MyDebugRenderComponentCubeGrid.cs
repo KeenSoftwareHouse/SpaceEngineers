@@ -73,7 +73,7 @@ namespace Sandbox.Game.Components
 
         List<Havok.HkBodyCollision> m_penetrations = new List<Havok.HkBodyCollision>();
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_FIXED_BLOCK_QUERIES)
             {
@@ -241,7 +241,7 @@ namespace Sandbox.Game.Components
                     }
             }
 
-            return base.DebugDraw();
+            base.DebugDraw();
         }
 
         private void DebugDrawMountPoints(MySlimBlock block)

@@ -79,7 +79,7 @@ MaterialOutputInterface make_mat_interface()
 	return result;
 }
 
-#include <materials/pixel_utils.h>
+#include <materials/pixel_utils_materials.h>
 
 // TOKEN START
 __MATERIAL_PIXELPROGRAM__

@@ -125,9 +125,22 @@ namespace SpaceEngineers.Game.Entities.Blocks
             base.UpdateBeforeSimulation100();
             if (m_soundEmitter == null)
                 return;
-            if (IsWorking && m_connectedBlockCount > 0 && (m_soundEmitter.IsPlaying == false || m_soundEmitter.SoundPair != m_baseIdleSound))
+            bool powered = false;
+            foreach(var block in m_connectedBlocks.Values)
+            {
+                if (block == null)
+                {
+                    continue;
+                }
+                powered |= block.ResourceSink != null && block.ResourceSink.IsPowered && block.IsWorking;
+                if (powered)
+                    break;
+            }
+            powered &= IsWorking;
+
+            if (powered && m_connectedBlockCount > 0 && (m_soundEmitter.IsPlaying == false || m_soundEmitter.SoundPair != m_baseIdleSound))
                 m_soundEmitter.PlaySound(m_baseIdleSound, true);
-            else if ((!IsWorking || m_connectedBlockCount == 0) && m_soundEmitter.IsPlaying && m_soundEmitter.SoundPair == m_baseIdleSound)
+            else if ((!powered || m_connectedBlockCount == 0) && m_soundEmitter.IsPlaying && m_soundEmitter.SoundPair == m_baseIdleSound)
                 m_soundEmitter.StopSound(false);
         }
 
@@ -245,9 +258,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         {
             foreach (var upgrade in m_upgrades)
             {
-                float val;
-                if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out val))
+                float valFloat;
+                double val;
+                if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out valFloat))
                 {
+                    val = valFloat;
                     if (upgrade.ModifierType == MyUpgradeModifierType.Additive)
                     {
                         val -= upgrade.Modifier;
@@ -263,11 +278,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
                         val /= upgrade.Modifier;
                         if (val < 1f)
                         {
+                            //GR: this is caused due to numerical overflow of floats (max 7 digits for float)
+                            //Did the multiplications of val with double and then save to float
+                            //Still there are numerical incosistencies because of storing to float so compare within very small threshold
+                            if( (val + 1e-7) < 1f)
+                                Debug.Fail("Multiplicative modifier cannot be < 1.0f!");
                             val = 1f;
-                            Debug.Fail("Multiplicative modifier cannot be < 1.0f!");
                         }
                     }
-                    block.UpgradeValues[upgrade.UpgradeType] = val;
+                    block.UpgradeValues[upgrade.UpgradeType] = (float)val;
                 }
             }
 
@@ -278,9 +297,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         {
             foreach (var upgrade in m_upgrades)
             {
-                float val;
-                if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out val))
+                float valFloat;
+                double val;
+                if (block.UpgradeValues.TryGetValue(upgrade.UpgradeType, out valFloat))
                 {
+                    val = valFloat;
                     if (upgrade.ModifierType == MyUpgradeModifierType.Additive)
                     {
                         val += upgrade.Modifier;
@@ -289,7 +310,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     {
                         val *= upgrade.Modifier;
                     }
-                    block.UpgradeValues[upgrade.UpgradeType] = val;
+                    block.UpgradeValues[upgrade.UpgradeType] = (float)val;
                 }
             }
 

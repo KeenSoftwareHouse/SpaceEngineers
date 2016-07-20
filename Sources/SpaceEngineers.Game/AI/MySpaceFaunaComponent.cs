@@ -69,7 +69,7 @@ namespace SpaceEngineers.AI
                 SpawnTime = currentTime + info.SpawnTime;
                 AbandonTime = currentTime + info.SpawnTime;
                 Position = new Vector3D(info.X, info.Y, info.Z);
-                Planet = MyGravityProviderSystem.GetNearestPlanet(Position);
+                Planet = MyGamePruningStructure.GetClosestPlanet(Position);
                 SpawnDone = false;
             }
 
@@ -99,7 +99,7 @@ namespace SpaceEngineers.AI
             {
                 TimeoutTime = currentTime;
                 Position = position;
-                var planet = MyGravityProviderSystem.GetNearestPlanet(Position);
+                var planet = MyGamePruningStructure.GetClosestPlanet(Position);
                 Debug.Assert(planet != null);
                 AnimalSpawnInfo = MySpaceBotFactory.GetDayOrNightAnimalSpawnInfo(planet, Position);
                 if (AnimalSpawnInfo == null)
@@ -112,7 +112,7 @@ namespace SpaceEngineers.AI
             {
                 TimeoutTime = currentTime + info.Timeout;
                 Position = new Vector3D(info.X, info.Y, info.Z);
-                var planet = MyGravityProviderSystem.GetNearestPlanet(Position);
+                var planet = MyGamePruningStructure.GetClosestPlanet(Position);
                 AnimalSpawnInfo = MySpaceBotFactory.GetDayOrNightAnimalSpawnInfo(planet, Position);
                 if (AnimalSpawnInfo == null)
                 {
@@ -203,7 +203,7 @@ namespace SpaceEngineers.AI
             MyEntities.OnEntityAdd -= EntityAdded;
             MyEntities.OnEntityRemove -= EntityRemoved;
 
-            MyAIComponent.Static.BotCreatedEvent += OnBotCreatedEvent;
+            MyAIComponent.Static.BotCreatedEvent -= OnBotCreatedEvent;
             MyCestmirDebugInputComponent.TestAction -= EraseAllInfos;
 
             m_botCharacterDied = null;
@@ -475,8 +475,9 @@ namespace SpaceEngineers.AI
                 {
                     if (player.Controller.ControlledEntity == null) continue;
                     var pos = player.GetPosition();
-                    var planet = MyGravityProviderSystem.GetNearestPlanet(pos);
-                    if (planet != null && planet.IsPositionInGravityWell(pos))
+
+                    var planet = MyGamePruningStructure.GetClosestPlanet(pos);
+                    if (planet != null)
                     {
                         PlanetAIInfo planetInfo;
                         if (m_planets.TryGetValue(planet.EntityId, out planetInfo))
@@ -499,8 +500,8 @@ namespace SpaceEngineers.AI
                         continue;
 
                     var pos = player.GetPosition();
-                    var planet = MyGravityProviderSystem.GetNearestPlanet(pos);
-                    if (planet == null || !planet.IsPositionInGravityWell(pos) || !PlanetHasFauna(planet))
+                    var planet = MyGamePruningStructure.GetClosestPlanet(pos);
+                    if (planet == null || !PlanetHasFauna(planet))
                         continue;
 
                     PlanetAIInfo planetInfo = null;
@@ -642,7 +643,8 @@ namespace SpaceEngineers.AI
             foreach (var spawnInfo in m_allSpawnInfos)
             {
                 Vector3D position = spawnInfo.Position;
-                Vector3 grav = spawnInfo.Planet.GetWorldGravityNormalized(ref position);
+                Vector3 down = spawnInfo.Planet.PositionComp.GetPosition() - position;
+                down.Normalize();
 
                 int secondsRemaining = Math.Max(0, (spawnInfo.SpawnTime - currentTime) / 1000);
                 int abandonedIn = Math.Max(0, (spawnInfo.AbandonTime - currentTime) / 1000);
@@ -650,7 +652,7 @@ namespace SpaceEngineers.AI
 
                 MyRenderProxy.DebugDrawSphere(position, SPHERE_SPAWN_DIST, Color.Yellow, 1.0f, false);
                 MyRenderProxy.DebugDrawText3D(position, "Spawning in: " + secondsRemaining.ToString(), Color.Yellow, 0.5f, false);
-                MyRenderProxy.DebugDrawText3D(position - grav * 0.5f, "Abandoned in: " + abandonedIn.ToString(), Color.Yellow, 0.5f, false);
+                MyRenderProxy.DebugDrawText3D(position - down * 0.5f, "Abandoned in: " + abandonedIn.ToString(), Color.Yellow, 0.5f, false);
             }
 
             foreach (var timeoutInfo in m_allTimeoutInfos)

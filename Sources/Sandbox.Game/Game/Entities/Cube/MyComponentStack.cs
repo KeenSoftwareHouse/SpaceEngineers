@@ -15,6 +15,7 @@ using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Cube;
 using VRage.Game;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities
 {
@@ -108,7 +109,10 @@ namespace Sandbox.Game.Entities
                 {
                     bool oldFunctional = IsFunctional;
                     m_buildIntegrity = value;
-                    CheckFunctionalState(oldFunctional);
+                    if (m_buildIntegrity > 0.0f)
+                    {
+                        CheckFunctionalState(oldFunctional);
+                    }
                 }
             }
         }
@@ -262,7 +266,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public bool CanContinueBuild(MyInventory inventory, MyConstructionStockpile stockpile)
+        public bool CanContinueBuild(MyInventoryBase inventory, MyConstructionStockpile stockpile)
         {
             if (IsFullIntegrity)
                 return false;

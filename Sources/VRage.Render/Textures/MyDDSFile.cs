@@ -268,7 +268,7 @@ namespace VRageRender.Textures
             try
             {
                 fileStream = File.Create(fileName);
-                BaseTexture.ToStream(texture, ImageFileFormat.Dds);
+                BaseTexture.ToStream(texture, SharpDX.Direct3D9.ImageFileFormat.Dds);
                 //DDSToStream(fileStream, 0, saveMipMaps, texture);
                 // sometimes needed because of out of memory and this helps
                 //GC.Collect(2);

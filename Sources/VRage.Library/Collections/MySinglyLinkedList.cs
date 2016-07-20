@@ -69,6 +69,8 @@ namespace VRage.Collections
                 return m_currentNode != null;
             }
 
+            // After this operation, the enumerator moves to the next node.
+            // Also, all enumerators pointing on this node or the next one are invalidated!
             public V RemoveCurrent()
             {
                 if (m_currentNode == null)
@@ -94,6 +96,43 @@ namespace VRage.Collections
 
                     return node.Data;
                 }
+            }
+
+            // After this operation, the enumerator still points at the current node.
+            // Also, enumerators poiting at the current node are invalidated!
+            public void InsertBeforeCurrent(V toInsert)
+            {
+                var newNode = new Node(m_currentNode, toInsert);
+
+                if (m_currentNode == null)
+                {
+                    if (m_previousNode == null)
+                    {
+                        if (m_list.m_count != 0) throw new InvalidOperationException("Inserting into a MySinglyLinkedList using an uninitialized enumerator!");
+
+                        m_list.m_rootNode = newNode;
+                        m_list.m_lastNode = newNode;
+                    }
+                    else
+                    {
+                        m_previousNode.Next = newNode;
+                        m_list.m_lastNode = newNode;
+                    }
+                }
+                else
+                {
+                    if (m_previousNode == null)
+                    {
+                        m_list.m_rootNode = newNode;
+                    }
+                    else
+                    {
+                        m_previousNode.Next = newNode;
+                    }
+                }
+
+                m_previousNode = newNode;
+                m_list.m_count++;
             }
 
             public void Reset()
@@ -390,21 +429,26 @@ namespace VRage.Collections
         }
 
         // Testing method
-        public void VerifyConsistency()
+        public bool VerifyConsistency()
         {
+            bool consistent = true;
+
             if (m_lastNode == null)
             {
                 Debug.Assert(m_rootNode == null);
                 Debug.Assert(m_count == 0);
+                consistent = consistent && m_rootNode == null && m_count == 0;
             }
             if (m_rootNode == null)
             {
                 Debug.Assert(m_lastNode == null);
                 Debug.Assert(m_count == 0);
+                consistent = consistent && m_lastNode == null && m_count == 0;
             }
             if (m_rootNode == m_lastNode)
             {
                 Debug.Assert(m_rootNode == null || m_count == 1);
+                consistent = consistent && (m_rootNode == null || m_count == 1);
             }
 
             int i = 0;
@@ -413,10 +457,15 @@ namespace VRage.Collections
             {
                 node = node.Next;
                 i++;
+
                 Debug.Assert(i <= m_count);
+                consistent = consistent && i <= m_count;
             }
 
             Debug.Assert(i == m_count);
+            consistent = consistent && i == m_count;
+
+            return consistent;
         }
 
         public bool Remove(V item)

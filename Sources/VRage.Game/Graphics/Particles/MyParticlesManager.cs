@@ -11,12 +11,10 @@ using VRageRender;
 
 namespace VRage.Game
 {
-    [VRage.Game.Components.MySessionComponentDescriptor(VRage.Game.Components.MyUpdateOrder.BeforeSimulation)]
+    [VRage.Game.Components.MySessionComponentDescriptor(VRage.Game.Components.MyUpdateOrder.AfterSimulation)]
     public class MyParticlesManager : VRage.Game.Components.MySessionComponentBase
     {
         public static bool Enabled;
-
-        public static float BirthMultiplierOverall = 1.0f;
 
         public static Func<Vector3D, Vector3> CalculateGravityInPoint;
 
@@ -34,7 +32,7 @@ namespace VRage.Game
         #endregion
 
         public static List<MyGPUEmitter> GPUEmitters = new List<MyGPUEmitter>();
-        public static List<MyGPUEmitterPositionUpdate> GPUEmitterPositions = new List<MyGPUEmitterPositionUpdate>();
+        public static List<MyGPUEmitterTransformUpdate> GPUEmitterTransforms = new List<MyGPUEmitterTransformUpdate>();
 
         static List<MyParticleEffect> m_effectsToDelete = new List<MyParticleEffect>();
         static List<MyParticleEffect> m_particleEffectsForUpdate = new List<MyParticleEffect>();
@@ -86,10 +84,6 @@ namespace VRage.Game
                     {
                         m_particleEffectsForUpdate.Add(effect);
                     }
-                }
-                else
-                {
-                    effect.AutoDelete = false;
                 }
 
                 effect.UserDraw = userDraw;
@@ -144,7 +138,7 @@ namespace VRage.Game
         }
 
 
-        public override void UpdateBeforeSimulation()
+        public override void UpdateAfterSimulation()
         {
             if (!Enabled)
                 return;
@@ -158,49 +152,12 @@ namespace VRage.Game
         }
 
 
-        public static void UpdateStart()
-        {
-            GPUEmitters.Clear();
-            GPUEmitterPositions.Clear();
-        }
 
-        public static void UpdateEnd()
-        {
-            if (GPUEmitters.Count > 0)
-            {
-                var emitters = new MyGPUEmitter[GPUEmitters.Count];
-                for (int i = 0; i < GPUEmitters.Count; i++)
-                {
-                    emitters[i] = GPUEmitters[i];
-                }
-
-                MyRenderProxy.UpdateGPUEmitters(emitters);
-
-                GPUEmitters.Clear();
-            }
-
-            if (GPUEmitterPositions.Count > 0)
-            {
-                var emitterUids = new uint[GPUEmitterPositions.Count];
-                var emitterPos = new Vector3D[GPUEmitterPositions.Count];
-                for (int i = 0; i < GPUEmitterPositions.Count; i++)
-                {
-                    emitterUids[i] = GPUEmitterPositions[i].GID;
-                    emitterPos[i] = GPUEmitterPositions[i].WorldPosition;
-                }
-
-                MyRenderProxy.UpdateGPUEmittersPosition(emitterUids, emitterPos);
-
-                GPUEmitterPositions.Clear();
-            }
-        }
 
         private static void UpdateEffects()
         {
             lock (m_particleEffectsForUpdate)
             {
-                UpdateStart();                
-
                 foreach (MyParticleEffect effect in m_particleEffectsForUpdate)
                 {
                     MyPerformanceCounter.PerCameraDrawWrite.ParticleEffectsTotal++;
@@ -215,20 +172,52 @@ namespace VRage.Game
                 RemoveParticleEffect(effect, true);
             }
             m_effectsToDelete.Clear();
+            //MyParticlesLibrary.Serialize("../../../../Content/Data/Particles.sbc");//re-export current particle library
         }
 
         public static void PrepareForDraw()
         {
-            m_effectsForCustomDraw.Clear();
-
-            PrepareEffectsForDraw();
-        }
-
-        private static void PrepareEffectsForDraw()
-        {
             foreach (MyParticleEffect effect in m_particleEffectsForUpdate)
             {
                 effect.PrepareForDraw();
+            }
+        }
+
+
+        public static void DrawStart()
+        {
+            GPUEmitters.Clear();
+            GPUEmitterTransforms.Clear();
+        }
+
+        public static void DrawEnd()
+        {
+            if (GPUEmitters.Count > 0)
+            {
+                var emitters = new MyGPUEmitter[GPUEmitters.Count];
+                for (int i = 0; i < GPUEmitters.Count; i++)
+                {
+                    emitters[i] = GPUEmitters[i];
+                }
+
+                MyRenderProxy.UpdateGPUEmitters(emitters);
+
+                GPUEmitters.Clear();
+            }
+
+            if (GPUEmitterTransforms.Count > 0)
+            {
+                var emitterUids = new uint[GPUEmitterTransforms.Count];
+                var emitterTransforms = new MatrixD[GPUEmitterTransforms.Count];
+                for (int i = 0; i < GPUEmitterTransforms.Count; i++)
+                {
+                    emitterUids[i] = GPUEmitterTransforms[i].GID;
+                    emitterTransforms[i] = GPUEmitterTransforms[i].Transform;
+                }
+
+                MyRenderProxy.UpdateGPUEmittersTransform(emitterUids, emitterTransforms);
+
+                GPUEmitterTransforms.Clear();
             }
         }
 
@@ -239,6 +228,8 @@ namespace VRage.Game
 
             m_collectedBillboards.Clear();
 
+            DrawStart();
+
             lock (m_particleEffectsForUpdate)
             {
                 foreach (MyParticleEffect effect in m_particleEffectsForUpdate)
@@ -248,108 +239,9 @@ namespace VRage.Game
                 }
             }
 
-            foreach (MyParticleEffect effect in m_effectsForCustomDraw)
-            {
-                effect.Update();
-                effect.PrepareForDraw();
-                effect.Draw(m_collectedBillboards);
-            }
-
-            m_effectsForCustomDraw.Clear();
+            DrawEnd();
 
             VRageRender.MyRenderProxy.AddBillboards(m_collectedBillboards);
-
-            //TestGPUParticles();
-        }
-
-
-        static List<MyParticleEffect> m_effectsForCustomDraw = new List<MyParticleEffect>();
-
-        public static void CustomDraw(MyParticleEffect effect)
-        {
-            System.Diagnostics.Debug.Assert(effect != null);
-
-            m_effectsForCustomDraw.Add(effect);
-        }
-
-        static uint gid0, gid1;
-        public static void TestGPUParticles()
-        {
-            if (VRage.Input.MyInput.Static.IsAnyShiftKeyPressed())
-            {
-                if (gid0 == 0)
-                {
-                    gid0 = MyRenderProxy.CreateGPUEmitter();
-                    gid1 = MyRenderProxy.CreateGPUEmitter();
-                }
-                var Position = MyTransparentGeometry.Camera.Translation;
-                var emitters = new MyGPUEmitter[2];
-                // sparks
-                emitters[0].GID = gid0;
-                emitters[0].ParticlesPerSecond = 30000.0f;
-                emitters[0].Data.Color0 = new Vector4(1.0f, 1.0f, 0.0f, 1f);
-                emitters[0].Data.Color1 = new Vector4(1.0f, 0.0f, 0.0f, 1f);
-                emitters[0].Data.Color2 = new Vector4(1.0f, 0.0f, 0.0f, 0.0f);
-                emitters[0].Data.ColorKey1 = 0.5f;
-                emitters[0].Data.ColorKey2 = 1.0f;
-                emitters[0].Data.AlphaKey1 = 0.95f;
-                emitters[0].Data.AlphaKey2 = 1.0f;
-                emitters[0].Data.Bounciness = 0.4f;
-                emitters[0].Data.Velocity = new Vector3(0.0f, 0.0f, -1.0f);
-                emitters[0].Data.NumParticlesToEmitThisFrame = 0;
-                emitters[0].Data.ParticleLifeSpan = 9.0f;
-                emitters[0].Data.Size0 = 0.02f;
-                emitters[0].Data.Size1 = 0.016f;
-                emitters[0].Data.Size2 = 0.0f;
-                emitters[0].Data.SizeKeys1 = 0.95f;
-                emitters[0].Data.SizeKeys2 = 1.0f;
-                emitters[0].Data.PositionVariance = new Vector3(0.1f, 0.1f, 0.1f);
-                emitters[0].Data.VelocityVariance = 0.4f;
-                emitters[0].Data.RotationVelocity = 0;
-                emitters[0].Data.Acceleration = new Vector3(0, 0, -0.98f);
-                emitters[0].Data.StreakMultiplier = 4.0f;
-                emitters[0].Data.Flags = GPUEmitterFlags.Streaks | GPUEmitterFlags.Collide | GPUEmitterFlags.SleepState;
-                emitters[0].Data.SoftParticleDistanceScale = 5;
-                emitters[0].Data.AnimationFrameTime = 1.0f;
-                emitters[0].Data.OITWeightFactor = 0.3f;
-                emitters[0].AtlasTexture = "Textures\\Particles\\gpuAtlas0.dds";
-                emitters[0].AtlasDimension = new Vector2I(2, 1);
-                emitters[0].AtlasFrameOffset = 1;
-                emitters[0].AtlasFrameModulo = 1;
-                emitters[0].WorldPosition = Position + new Vector3D(8.0f, 0.0f, 8.0f);
-
-                // smoke
-                emitters[1].GID = gid1;
-                emitters[1].ParticlesPerSecond = 100.0f;
-                emitters[1].Data.Color0 = new Vector4(0.5f, 0.5f, 0.5f, 1.0f);
-                emitters[1].Data.Color1 = new Vector4(0.6f, 0.6f, 0.65f, 1.0f);
-                emitters[1].Data.Color2 = new Vector4(0.6f, 0.6f, 0.65f, 0.0f);
-                emitters[1].Data.ColorKey1 = 0.5f;
-                emitters[1].Data.ColorKey2 = 1.0f;
-                emitters[1].Data.AlphaKey1 = 0.95f;
-                emitters[1].Data.AlphaKey2 = 1.0f;
-                emitters[1].Data.Velocity = new Vector3(0, 0, 1.0f);
-                emitters[1].Data.NumParticlesToEmitThisFrame = 0;
-                emitters[1].Data.ParticleLifeSpan = 150.0f;
-                emitters[1].Data.Size0 = 0.50f;
-                emitters[1].Data.Size1 = 2.2f;
-                emitters[1].Data.SizeKeys1 = 1.0f;
-                emitters[1].Data.SizeKeys2 = 1.0f;
-                emitters[1].Data.PositionVariance = new Vector3(0.2f, 0.2f, 0.2f);
-                emitters[1].Data.VelocityVariance = 0.3f;
-                emitters[1].Data.RotationVelocity = 100.0f;
-                emitters[1].Data.Acceleration = new Vector3(0.00707f, 0.00707f, -0.00003f * 9.8f);
-                emitters[1].Data.Flags = GPUEmitterFlags.Light | GPUEmitterFlags.VolumetricLight;
-                emitters[1].Data.SoftParticleDistanceScale = 2;
-                emitters[1].Data.AnimationFrameTime = 1.0f;
-                emitters[1].Data.OITWeightFactor = 1.0f;
-                emitters[1].AtlasTexture = "Textures\\Particles\\gpuAtlas1.dds";
-                emitters[1].AtlasDimension = new Vector2I(2, 1);
-                emitters[1].AtlasFrameOffset = 0;
-                emitters[1].AtlasFrameModulo = 1;
-                emitters[1].WorldPosition = Position + new Vector3D(2.0f, 0.0f, 1.0f);
-                MyRenderProxy.UpdateGPUEmitters(emitters);
-            }
         }
     }
 }

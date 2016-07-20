@@ -740,6 +740,9 @@ namespace VRageMath
 
         public float Distance(Vector3 point)
         {
+            if (Contains(point) == ContainmentType.Contains)
+                return 0f;
+
             var clamp = Vector3.Clamp(point, Min, Max);
             return Vector3.Distance(clamp, point);
         }
@@ -954,25 +957,13 @@ namespace VRageMath
         /// <returns></returns>
         public BoundingBox Include(ref Vector3 point)
         {
-            if (point.X < Min.X)
-                Min.X = point.X;
+            Min.X = Math.Min(point.X, Min.X);
+            Min.Y = Math.Min(point.Y, Min.Y);
+            Min.Z = Math.Min(point.Z, Min.Z);
 
-            if (point.Y < Min.Y)
-                Min.Y = point.Y;
-
-            if (point.Z < Min.Z)
-                Min.Z = point.Z;
-
-
-            if (point.X > Max.X)
-                Max.X = point.X;
-
-            if (point.Y > Max.Y)
-                Max.Y = point.Y;
-
-            if (point.Z > Max.Z)
-                Max.Z = point.Z;
-
+            Max.X = Math.Max(point.X, Max.X);
+            Max.Y = Math.Max(point.Y, Max.Y);
+            Max.Z = Math.Max(point.Z, Max.Z);
             return this;
         }
 

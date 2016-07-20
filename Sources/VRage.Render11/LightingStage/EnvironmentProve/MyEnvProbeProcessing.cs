@@ -55,8 +55,8 @@ namespace VRageRender
 
             RC.DeviceContext.OutputMerger.SetTargets(rt);
             RC.DeviceContext.PixelShader.SetShaderResource(0, depth);
-            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
-            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyEnvironment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyRender11.Environment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
+            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyRender11.Environment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
             RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
             RC.DeviceContext.PixelShader.Set(m_ps);
 
@@ -68,7 +68,7 @@ namespace VRageRender
                 var constants = new AtmosphereConstants();
                 //TODO(AF) These values are computed in MyAtmosphere as well. Find a way to remove the duplication
                 var worldMatrix = atmosphere.WorldMatrix;
-                worldMatrix.Translation -= MyEnvironment.CameraPosition;
+                worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
 
                 double distance = worldMatrix.Translation.Length();
                 double atmosphereTop = atmosphere.AtmosphereRadius * atmosphere.Settings.AtmosphereTopModifier * atmosphere.PlanetScaleFactor * atmosphere.Settings.RayleighTransitionModifier;

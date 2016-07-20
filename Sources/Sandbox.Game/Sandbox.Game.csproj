@@ -19,6 +19,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
+    <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -123,20 +124,21 @@
     <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
   </ImportGroup>
   <PropertyGroup>
-    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\$(Configuration)\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
-    <HavokWrapperFullPath2>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath2>
+    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition="exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath)</HintPath>
-      <HintPath Condition="!exists('$(HavokWrapperFullPath)')">$(HavokWrapperFullPath2)</HintPath>
+      <HintPath>$(HavokWrapperFullPath)</HintPath>
     </Reference>
     <Reference Include="InfinarioSDK">
       <HintPath>..\..\3rd\Infinario\InfinarioSDK.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Desktop">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Desktop.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D11, Version=2.6.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -146,8 +148,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SharpDX\SharpDX.DXGI.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Toolkit.Graphics">
-      <HintPath>..\..\3rd\SharpDX\SharpDX.Toolkit.Graphics.dll</HintPath>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit">
+      <HintPath>..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>
@@ -162,6 +167,7 @@
     <Reference Include="System.Data.SQLite">
       <HintPath>..\..\3rd\SQLite\System.Data.SQLite.dll</HintPath>
     </Reference>
+    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IdentityModel" />
     <Reference Include="System.Management" />
@@ -197,9 +203,12 @@
     <Compile Include="Definitions\MyEquivalencyGroupDefinition.cs" />
     <Compile Include="Definitions\MyFactionDefinition.cs" />
     <Compile Include="Definitions\MyGasProperties.cs" />
+    <Compile Include="Definitions\MyGhostCharacterDefinition.cs" />
+    <Compile Include="Definitions\MyGpsCollectionDefinition.cs" />
     <Compile Include="Definitions\MyHandDrillDefinition.cs" />
     <Compile Include="Definitions\MyLootBagDefinition.cs" />
     <Compile Include="Definitions\MyOxygenTankDefinition.cs" />
+    <Compile Include="Definitions\MyPhysicalModelCollectionDefinition.cs" />
     <Compile Include="Definitions\MyPirateAntennaDefinition.cs" />
     <Compile Include="Definitions\MyPoweredCargoContainerDefinition.cs" />
     <Compile Include="Definitions\MyComponentGroupDefinition.cs" />
@@ -235,6 +244,7 @@
     <Compile Include="Definitions\MyRopeDefinition.cs" />
     <Compile Include="Definitions\MySchematicItemDefinition.cs" />
     <Compile Include="Definitions\MyScriptedGroupDefinition.cs" />
+    <Compile Include="Definitions\MySessionComponentResearchDefinition.cs" />
     <Compile Include="Definitions\MyShipSoundsDefinition.cs" />
     <Compile Include="Definitions\MyShipSoundSystemDefinition.cs" />
     <Compile Include="Definitions\MySoundBlockDefinition.cs" />
@@ -313,6 +323,7 @@
     <Compile Include="Definitions\MyVirtualMassDefinition.cs" />
     <Compile Include="Definitions\MyVoxelMapStorageDefinition.cs" />
     <Compile Include="Definitions\MyVoxelMaterialDefinition.cs" />
+    <Compile Include="Definitions\MyVoxelModifierDefinition.cs" />
     <Compile Include="Definitions\MyWarheadDefinition.cs" />
     <Compile Include="Definitions\MyJumpDriveDefinition.cs" />
     <Compile Include="Definitions\MyWeaponBlockDefinition.cs" />
@@ -328,6 +339,7 @@
     <Compile Include="Engine\Multiplayer\MyClientStateExtensions.cs" />
     <Compile Include="Engine\Multiplayer\MyDedicatedServerBase.cs" />
     <Compile Include="Engine\Multiplayer\MyDedicatedServerBattle.cs" />
+    <Compile Include="Engine\Multiplayer\MyDynamicObjectResolver.cs" />
     <Compile Include="Engine\Multiplayer\MyMessageId.cs" />
     <Compile Include="Engine\Multiplayer\MyMultiplayerBattleData.cs" />
     <Compile Include="Engine\Multiplayer\MyMultiplayerLobbyClient.cs" />
@@ -363,6 +375,7 @@
     <Compile Include="Engine\Physics\MyPhysicsUtils.cs" />
     <Compile Include="Engine\Physics\MyRagdollMapper.cs" />
     <Compile Include="Engine\Physics\MyWeldingGroups.cs" />
+    <Compile Include="Engine\Physics\PhysicsLayers.cs" />
     <Compile Include="Engine\Utils\MyDebugDrawSettings.cs" />
     <Compile Include="Engine\Utils\MyConfigBase.cs" />
     <Compile Include="Engine\Utils\MyConfigDedicated.cs" />
@@ -495,6 +508,7 @@
     <Compile Include="Game\Audio\MyAudioExtensions.cs" />
     <Compile Include="Game\Audio\MyEntity3DSoundEmitter.cs" />
     <Compile Include="Game\Audio\MyMusicController.cs" />
+    <Compile Include="Game\Entities\Blocks\IMyTriggerableBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightSlideDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyAttachableTopBlockBase.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere3.cs" />
@@ -504,15 +518,31 @@
     <Compile Include="Game\Entities\Blocks\MyTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\ToolbarItemCache.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterComponentTypes.cs" />
-    <Compile Include="Game\Entities\Character\Components\MyCharacterFeetIKComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterPickupComponent.cs" />
+    <Compile Include="Game\Entities\Character\Components\MyCharacterWeaponPositionComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyInventorySpawnComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterJetpackComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterOxygenComponent.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyBlockPlacerBase.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyAngleGrinder.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyEngineerToolBase.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyWelder.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyHandDrill.cs" />
+    <Compile Include="Game\Entities\Interfaces\IMyAutomaticRifleGun.cs" />
+    <Compile Include="Game\Entities\Cube\CubeBuilder\MyCubeBuilderState.cs" />
+    <Compile Include="Game\Entities\Cube\MyCubeGrids.cs" />
+    <Compile Include="Game\Entities\Planet\MyPlanetSectorId.cs" />
     <Compile Include="Game\EntityComponents\MyAtmosphereDetectorComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyEntityReferenceComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyGridOwnershipComponentBase.cs" />
     <Compile Include="Game\EntityComponents\MyShipSoundComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyEntityTerrainHeightProviderComponent.cs" />
+    <Compile Include="Game\Entities\Planet\MyGravityProviderComponent.cs" />
+    <Compile Include="Game\Entities\Planet\MySphericalNaturalGravityComponent.cs" />
+    <Compile Include="Game\GameSystems\MyEnvironmentBotSpawningSystem.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyResearchDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\VoxelsDebugInputComponent\MyVoxelDebugInputComponent.StorageWriteCache.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\VoxelsDebugInputComponent\MyVoxelDebugInputComponent.Physics.cs" />
     <Compile Include="Game\GUI\HudViewers\MyHudMarkerRenderBase.cs" />
     <Compile Include="Game\Multiplayer\MySyncDamage.cs" />
     <Compile Include="Game\Entities\Cube\MyGridPhysicalDynamicGroupData.cs" />
@@ -527,24 +557,29 @@
     <Compile Include="Game\Entities\MyComponentContainerExtension.cs" />
     <Compile Include="Game\Entities\MyEntityExtensions.cs" />
     <Compile Include="Game\Entities\MyEntityCycling.cs" />
+    <Compile Include="Game\Entities\MyGhostCharacter.cs" />
     <Compile Include="Game\Entities\MyHandToolBase.cs" />
     <Compile Include="Game\Entities\MyInventoryBagEntity.cs" />
     <Compile Include="Game\Entities\MyRope.cs" />
     <Compile Include="Game\Entities\MyTrashRemoval.cs" />
     <Compile Include="Game\Entities\MyTrashRemovalSettings.cs" />
+    <Compile Include="Game\Entities\Planet\MyPlanetEnvironmentClipmapProxy.cs" />
+    <Compile Include="Game\Entities\Planet\MyPlanetCubemapHelper.cs" />
+    <Compile Include="Game\Entities\Planet\MyPlanetEnvironmentSessionComponent.cs" />
     <Compile Include="Game\Entities\Planet\MyPlanets.cs" />
+    <Compile Include="Game\Entities\Planet\MyPlanetEnvironmentComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyCasterComponent.cs" />
     <Compile Include="Game\EntityComponents\MyCraftingComponentBase.cs" />
-    <Compile Include="Game\EntityComponents\MyCraftingComponentBlock.cs" />
-    <Compile Include="Game\EntityComponents\MyCraftingComponentBasicDefinition.cs" />
-    <Compile Include="Game\EntityComponents\MyCraftingComponentBlockDefinition.cs" />
     <Compile Include="Game\EntityComponents\MyCraftingComponentBasic.cs" />
+    <Compile Include="Game\EntityComponents\MyCraftingComponentBasicDefinition.cs" />
+    <Compile Include="Game\EntityComponents\MyCraftingComponentBlock.cs" />
+    <Compile Include="Game\EntityComponents\MyCraftingComponentBlockDefinition.cs" />
     <Compile Include="Game\EntityComponents\MyCraftingComponentInteractive.cs" />
     <Compile Include="Game\EntityComponents\MyCraftingComponentInteractiveDefinition.cs" />
     <Compile Include="Game\EntityComponents\MyEntityInventorySpawnComponent.cs" />
     <Compile Include="Game\EntityComponents\MyEntityInventorySpawnComponent_Definition.cs" />
     <Compile Include="Game\EntityComponents\MyEntityStatComponentDefinition.cs" />
     <Compile Include="Game\EntityComponents\MyGridTargeting.cs" />
-    <Compile Include="Game\EntityComponents\MyCasterComponent.cs" />
     <Compile Include="Game\EntityComponents\MyInventoryComponentDefinition.cs" />
     <Compile Include="Game\EntityComponents\MyModelComponent.cs" />
     <Compile Include="Game\EntityComponents\MyModelComponentDefinition.cs" />
@@ -555,19 +590,51 @@
     <Compile Include="Game\EntityComponents\Renders\MyRenderComponentExtensions.cs" />
     <Compile Include="Game\EntityComponents\Systems\MyTimerComponentSystem.cs" />
     <Compile Include="Game\Extensions\MyEntityContainerEventExtensions.cs" />
+    <Compile Include="Game\GameSystems\ContextHandling\IMyContextHolder.cs" />
     <Compile Include="Game\GameSystems\CoordinateSystem\MyCoordinateSystem.cs" />
     <Compile Include="Game\GameSystems\CoordinateSystem\MyLocalCoordSys.cs" />
+    <Compile Include="Game\GameSystems\ContextHandling\MyGameFocusManager.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\PlanetsDebugInputComponent\MyPlanetsDebugInputComponent.SectorTree.cs" />
+    <Compile Include="Game\SessionComponents\MySectorWeatherComponent.cs" />
+    <Compile Include="Game\SessionComponents\MyPlanetTrackComponent.cs" />
+    <Compile Include="Game\SessionComponents\MyUniformGravityProviderComponent.cs" />
+    <Compile Include="Game\WorldEnvironment\Definitions\MyBotCollectionDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\Definitions\MyProceduralEnvironmentModuleDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\Definitions\MyEnvironmentModuleProxyDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\Definitions\MyVoxelMapCollectionDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\Modules\MyBreakableEnvironmentProxy.cs" />
+    <Compile Include="Game\WorldEnvironment\MyEnvironmentalEntityCacher.cs" />
+    <Compile Include="Game\WorldEnvironment\Modules\MyMemoryEnvironmentModule.cs" />
+    <Compile Include="Game\WorldEnvironment\Modules\MyStaticEnvironmentModule.cs" />
+    <Compile Include="Game\WorldEnvironment\Modules\MyEnvironmentModuleBase.cs" />
+    <Compile Include="Game\WorldEnvironment\Definitions\MyGrowableEnvironmentItemDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\Definitions\MyProceduralEnvironmentDefinition.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\LiveWatch.Designer.cs">
       <DependentUpon>LiveWatch.cs</DependentUpon>
     </Compile>
+    <Compile Include="Game\WorldEnvironment\Definitions\MyWorldEnvironmentDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\IMyEnvironmentOwner.cs" />
+    <Compile Include="Game\WorldEnvironment\MyAbstractEnvironment.cs" />
+    <Compile Include="Game\WorldEnvironment\IMyEnvironmentModule.cs" />
+    <Compile Include="Game\WorldEnvironment\Modules\MyVoxelMapEnvironmentProxy.cs" />
+    <Compile Include="Game\WorldEnvironment\My2DClipmap.cs" />
+    <Compile Include="Game\WorldEnvironment\Modules\MyBotSpawningEnvironmentProxy.cs" />
+    <Compile Include="Game\WorldEnvironment\MyDebugRenderComponentEnvironmentSector.cs" />
+    <Compile Include="Game\WorldEnvironment\MyEnvironmentSectorDataProvider.cs" />
+    <Compile Include="Game\WorldEnvironment\MyLogicalEnvironmentSectorReplicable.cs" />
+    <Compile Include="Game\WorldEnvironment\MyLogicalEnvironmentSectorBase.cs" />
+    <Compile Include="Game\WorldEnvironment\MyProceduralEnvironmentProvider.cs" />
+    <Compile Include="Game\WorldEnvironment\MyEnvironmentSector.cs" />
+    <Compile Include="Game\WorldEnvironment\MyInstancedRenderSector.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\MyHonzaInputComponent.Default.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\MyHonzaInputComponent.Physics.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\HonzaDebugInputComponent\MyHonzaInputComponent.LiveWatch.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyComponentsDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyMultiDebugInputComponent.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\MyVRDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\PlanetsDebugInputComponent\MyPlanetsDebugInputComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\PlanetsDebugInputComponent\MyPlanetsDebugInputComponent.Misc.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\PlanetsDebugInputComponent\MyPlanetsDebugInputComponent.Info.cs" />
@@ -781,7 +848,6 @@
     <Compile Include="Game\Entities\MyPlaceAreas.cs" />
     <Compile Include="Game\Entities\MyPlaceArea.cs" />
     <Compile Include="Game\Entities\Planet\MyPlanet.cs" />
-    <Compile Include="Game\Entities\Planet\MyPlanetEnvironmentSector.cs" />
     <Compile Include="Game\Entities\MySolarGameLogicComponent.cs" />
     <Compile Include="Game\Entities\MySpherePlaceArea.cs" />
     <Compile Include="Game\Entities\MyUpgradableBlockComponent.cs" />
@@ -994,6 +1060,7 @@
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerTime.cs" />
     <Compile Include="Game\Screens\Triggers\MyGuiScreenTriggerTimeLimit.cs" />
     <Compile Include="Game\SessionComponents\MyGridPickupComponent.cs" />
+    <Compile Include="Game\SessionComponents\Clipboard\MyClipboardComponent.cs" />
     <Compile Include="Game\SessionComponents\MyHitReportingComponent.cs" />
     <Compile Include="Game\SessionComponents\MyRopeComponent.cs" />
     <Compile Include="Game\SessionComponents\MyScriptedGroupsSystem.cs" />
@@ -1013,9 +1080,27 @@
     <Compile Include="Game\VoiceChat\MyVoiceChatSessionComponent.cs" />
     <Compile Include="Game\Weapons\Guns\Barrels\MyLargeBarrelBase.cs" />
     <Compile Include="Game\Weapons\Guns\MyUserControllableGun.cs" />
+    <Compile Include="Game\WorldEnvironment\MyProceduralLogicalSector.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_BotCollectionDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_DummyEnvironmentModule.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_EnvironmentBotSpawningSystem.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_EnvironmentDataProvider.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_EnvironmentModuleBase.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_EnvironmentModuleProxyDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_EnvironmentRegrowthSystem.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_EnvironmentSector.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_GrowableEnvironmentItemDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_GrowableEnvironmentModule.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_PlanetEnvironmentComponent.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_ProceduralEnvironmentModuleDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_ProceduralEnvironmentProvider.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_ProceduralEnvironmentSector.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_ProceduralWorldEnvironment.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_StaticEnvironmentModule.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_VoxelMapCollectionDefinition.cs" />
+    <Compile Include="Game\WorldEnvironment\ObjectBuilders\MyObjectBuilder_WorldEnvironmentBase.cs" />
     <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicFactory.cs" />
     <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicFireFly.cs" />
-    <Compile Include="Game\World\Environment\MyEnvironmentalParticleLogicGrassland.cs" />
     <Compile Include="Game\World\Generator\MyCompositeOrePlanetDeposit.cs" />
     <Compile Include="Game\World\Generator\MyBoxShapeOreDeposit.cs" />
     <Compile Include="Game\World\Generator\MyCompositeShapeOreDeposit.cs" />
@@ -1044,6 +1129,7 @@
     <Compile Include="Game\World\Triggers\MyTriggerSomeoneWon.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerTimeLimit.cs" />
     <Compile Include="ModAPI\Blocks\MyTextPanel_ModAPI.cs" />
+    <Compile Include="ModAPI\MyPhysics_ModAPI.cs" />
     <Compile Include="ModAPI\MyPistonBase_ModAPI.cs" />
     <Compile Include="ModAPI\MyMotorBase_ModAPI.cs" />
     <Compile Include="ModAPI\MyMotorSuspension_ModAPI.cs" />
@@ -1058,6 +1144,7 @@
     <Compile Include="ModAPI\MyVoxelShapes_ModAPI.cs" />
     <Compile Include="Game\EntityComponents\Renders\MyRenderComponentEnvironmentItems.cs" />
     <Compile Include="MyCommonProgramStartup.cs" />
+    <Compile Include="MyErrorConsumer.cs" />
     <Compile Include="MySplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1489,6 +1576,18 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj">
+      <Project>{21865086-a876-40b0-9b2e-f20d8b0ea723}</Project>
+      <Name>VRage.OpenVRWrapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
+      <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
+      <Name>VRage.Render11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Scripting\VRage.Scripting.csproj">
+      <Project>{47e07dc1-03cb-4668-a031-71816def8955}</Project>
+      <Name>VRage.Scripting</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>

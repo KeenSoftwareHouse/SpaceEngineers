@@ -8,6 +8,8 @@ using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Utils;
+using VRageMath;
+using Sandbox.Game.Multiplayer;
 
 namespace Sandbox.Definitions
 {
@@ -22,6 +24,7 @@ namespace Sandbox.Definitions
         public MyDiscreteSampler<MySpawnGroupDefinition> SpawnGroupSampler = null;
 
         private List<string> m_spawnGroups;
+
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {

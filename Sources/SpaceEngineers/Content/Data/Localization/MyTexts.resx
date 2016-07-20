@@ -1945,7 +1945,7 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Meteor storm inbound.</value>
   </data>
   <data name="DisplayName_Block_ConveyorTubeMedium" xml:space="preserve">
-    <value>Conveyor Tube</value>
+    <value>Medium Conveyor Tube</value>
   </data>
   <data name="DisplayName_Block_ConnectorSmall" xml:space="preserve">
     <value>Ejector</value>
@@ -3313,6 +3313,15 @@ Characters leaving the game area will be killed.</value>
   <data name="WorkshopTag_Exploration" xml:space="preserve">
     <value>Exploration</value>
   </data>
+   <data name="BlueprintScreen_DevMismatchCaption" xml:space="preserve">
+    <value>Blueprint created in development version</value>
+  </data>
+    <data name="BlueprintScreen_DevMismatchMessage" xml:space="preserve">
+    <value>This blueprint was created in development version. It could cause issues in game.</value>
+  </data>
+  <data name="WorkshopTag_Dev" xml:space="preserve">
+    <value>Development</value>
+  </data>
   <data name="DisplayName_Programmable_Block" xml:space="preserve">
     <value>Programmable block</value>
   </data>
@@ -4346,6 +4355,9 @@ To connect to lasers not listed here you can connect to coordinates.</value>
   <data name="DialogTextJoiningBattle" xml:space="preserve">
     <value>Joining battle</value>
   </data>
+  <data name="DialogTextJoiningScenario" xml:space="preserve">
+    <value>Joining scenario</value>
+  </data>
   <data name="DialogTextJoinBattleFailed" xml:space="preserve">
     <value>Joining battle failed, reason: {0}</value>
   </data>
@@ -4488,8 +4500,8 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>
 Enables flora for planets</value>
   </data>
-  <data name="ToolTipWorldSettings_EnableStationVoxel" xml:space="preserve">
-    <value>Stations will be fixed only if they intersects with asteroids. They will move like ships otherwise.</value>
+  <data name="ToolTipWorldSettings_EnableConvertToStation" xml:space="preserve">
+    <value>Add option to ship's terminal to convert ship to station</value>
   </data>
   <data name="ToolTipWorldSettings_FloraDensity" xml:space="preserve">
     <value>Density of flora elements on planets</value>
@@ -4497,8 +4509,8 @@ Enables flora for planets</value>
   <data name="WorldSettings_EnableFlora" xml:space="preserve">
     <value>Enable Flora</value>
   </data>
-  <data name="WorldSettings_EnableStationVoxel" xml:space="preserve">
-    <value>Station voxel support</value>
+  <data name="WorldSettings_EnableConvertToStation" xml:space="preserve">
+    <value>Enable convert to station</value>
   </data>
   <data name="WorldSettings_FloraDensity" xml:space="preserve">
     <value>Flora Density</value>
@@ -5505,6 +5517,9 @@ needed.</value>
   <data name="ScreenDebugAdminMenu_RemoveFloating" xml:space="preserve">
     <value>Remove floating objects</value>
   </data>
+  <data name="BlockPropertyTitle_RemoteBlockSpeedLimit" xml:space="preserve">
+    <value>Speed limit</value>
+  </data>
   <data name="NotificationConnectorsDisabled" xml:space="preserve">
     <value>Connectors Disabled</value>
   </data>
@@ -5513,5 +5528,45 @@ needed.</value>
   </data>
   <data name="NotificationCannotJumpOutsideWorld" xml:space="preserve">
     <value>Jump drives cannot be used to jump outside world limits.</value>
+  </data>
+  <data name="BroadcastStatus_IsPreviewGrid" xml:space="preserve">
+    <value>Preview Grid</value>
+  </data>
+  <data name="ProgrammableBlock_Editor_CompilationOkWarningList" xml:space="preserve">
+    <value>Warning list</value>
+  </data>
+  <data name="CubeBuilder_CubeSizeModeChange" xml:space="preserve">
+    <value>Press {0} to change block size mode</value>
+  </data>
+  <data name="BlockSize_NotAvailable" xml:space="preserve">
+    <value>This block is for {0} only</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertButton_TT" xml:space="preserve">
+    <value>Converts this station to a ship.
+Ships can move and rotate.
+WARNING: Make sure your station is not connected to asteroid
+when you convert to a ship. If it was, it might explode on you 
+when it changes to a ship.</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertToStationButton" xml:space="preserve">
+    <value>Convert to station</value>
+  </data>
+  <data name="TerminalTab_Info_ConvertToStationButton_TT" xml:space="preserve">
+    <value>Converts this ship to a station.
+Ship has to be stationary in order to convert it to a station
+(both angular and linear velocity have to be 0).
+Stations are more performance friendly.
+WARNING: Converting ship to a station is possible in planets gravity,
+but it will be converted to a ship in the moment of station being
+split and not in voxel. </value>
+  </data>
+  <data name="RemoteControlCoord" xml:space="preserve">
+    <value>Coords:</value>
+  </data>
+  <data name="RemoteControlUsedBy" xml:space="preserve">
+    <value>Controlled by another player: </value>
+  </data>
+  <data name="RemoteControlWaypoint" xml:space="preserve">
+    <value>Current waypoint:</value>
   </data>
 </root>

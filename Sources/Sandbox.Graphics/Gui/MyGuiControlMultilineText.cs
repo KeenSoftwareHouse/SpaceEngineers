@@ -119,7 +119,7 @@ namespace Sandbox.Graphics.GUI
 
         public Vector2 TextSize
         {
-            get { return m_label.GetSize(); }
+            get { return m_label.Size; }
         }
 
         public float ScrollbarOffset
@@ -149,8 +149,10 @@ namespace Sandbox.Graphics.GUI
             StringBuilder contents = null,
             bool drawScrollbar = true,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
+            int? visibleLinesCount = null,
             bool selectable = false,
-            bool showTextShadow = false)
+            bool showTextShadow = false
+        )
             : base(position: position,
                     size: size,
                     colorMask: backgroundColor,
@@ -167,7 +169,8 @@ namespace Sandbox.Graphics.GUI
             m_scrollbarSize = new Vector2(0.0334f, MyGuiConstants.COMBOBOX_VSCROLLBAR_SIZE.Y);
             m_scrollbarSize = MyGuiConstants.COMBOBOX_VSCROLLBAR_SIZE;
             float minLineHeight = MyGuiManager.MeasureString(Font, m_lineHeightMeasure, TextScaleWithLanguage).Y;
-            m_label = new MyRichLabel(ComputeRichLabelWidth(), minLineHeight) { ShowTextShadow = showTextShadow };
+            m_label = new MyRichLabel(this, ComputeRichLabelWidth(), minLineHeight, visibleLinesCount) { ShowTextShadow = showTextShadow };
+            m_label.AdjustingScissorRectangle += AdjustScissorRectangleLabel;
             m_label.TextAlign = textAlign;
             m_text = new StringBuilder();
             m_selection = new MyGuiControlMultilineSelection();
@@ -290,7 +293,7 @@ namespace Sandbox.Graphics.GUI
 
         private void RecalculateScrollBar()
         {
-            float realHeight = m_label.GetSize().Y;
+            float realHeight = m_label.Size.Y;
 
             bool vScrollbarVisible = Size.Y < realHeight;
 
@@ -348,6 +351,7 @@ namespace Sandbox.Graphics.GUI
             scissor.X -= 0.001f;
             scissor.Y -= 0.001f;
 
+            AdjustScissorRectangle(ref scissor);
             using (MyGuiManager.UsingScissorRectangle(ref scissor))
             {
                 DrawSelectionBackgrounds(textArea, backgroundTransitionAlpha);
@@ -377,6 +381,38 @@ namespace Sandbox.Graphics.GUI
                     m_scrollbar.Draw(ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha));
             }
             //m_scrollbar.DebugDraw();
+        }
+
+        private void AdjustScissorRectangle(ref RectangleF rectangle)
+        {
+            // TODO: Consider making this moddable
+            if (Name == "MyHudControlChat")
+                AdjustScissorRectangle(ref rectangle, 1.2f, 1.4f);
+        }
+
+        private void AdjustScissorRectangleLabel(ref RectangleF rectangle)
+        {
+            // TODO: Consider making this moddable
+            if (Name == "MyHudControlChat")
+                AdjustScissorRectangle(ref rectangle, 1.4f, 2.1f);
+        }
+
+        /// <summary>
+        /// Adjust rectangle for shadows
+        /// </summary>
+        private void AdjustScissorRectangle(ref RectangleF rectangle, float multWidth, float multHeight)
+        {
+            float width = rectangle.Width;
+            float height = rectangle.Height;
+
+            rectangle.Width *= multWidth;
+            rectangle.Height *= multHeight;
+
+            float diffWidth = rectangle.Width - width;
+            float diffHeight = rectangle.Height - height;
+
+            rectangle.Position.X -= diffWidth / 2;
+            rectangle.Position.Y -= diffHeight / 2;
         }
 
         public override MyGuiControlBase HandleInput()

@@ -630,15 +630,12 @@ namespace Sandbox.Game.Screens.Helpers
             if (SelectedItem != null && unselectSound)
                 MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
 
-            var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
+                MySession.Static.GameFocusManager.Clear();
+
+            var controlledObject = MySession.Static.ControlledEntity;
             if (controlledObject != null)
                 controlledObject.SwitchToWeapon(null);
-
-            if (MyCubeBuilder.Static.IsActivated)
-            {
-                MyCubeBuilder.Static.Deactivate();
-            }
-
+            
             if (Unselected != null)
                 Unselected(this);
         }

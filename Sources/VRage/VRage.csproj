@@ -123,9 +123,14 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Desktop">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -136,6 +141,7 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Animations\AnimationNodes\MyAnimationTreeNodeMix1D.cs" />
@@ -147,6 +153,7 @@
     <Compile Include="Animations\MyAnimatedProperty.cs" />
     <Compile Include="Animations\MyAnimatedProperty2D.cs" />
     <Compile Include="Animations\MyAnimationController.cs" />
+    <Compile Include="Animations\MyAnimationInverseKinematics.cs" />
     <Compile Include="Animations\MyAnimationStateMachine.cs" />
     <Compile Include="Animations\MyAnimationStateMachineNode.cs" />
     <Compile Include="Animations\MyAnimationStateMachineTransition.cs" />
@@ -187,35 +194,19 @@
     <Compile Include="Generics\MyStateMachineTransition.cs" />
     <Compile Include="Import\ModelAutoRebuild.cs" />
     <Compile Include="Import\MyModelExporter.cs" />
-    <Compile Include="Input\IMyControlNameLookup.cs" />
-    <Compile Include="Input\IMyInput.cs" />
-    <Compile Include="Input\ModAPI\IMyControl.cs" />
-    <Compile Include="Input\ModAPI\IMyInput.cs" />
-    <Compile Include="Input\ModAPI\MyNullInput_ModAPI.cs" />
-    <Compile Include="Input\MyControl.cs" />
-    <Compile Include="Input\MyGuiControlTypeEnum.cs" />
-    <Compile Include="Input\MyGuiGameControlsHelpers.cs" />
-    <Compile Include="Input\MyGuiDescriptor.cs" />
-    <Compile Include="Input\MyGuiInputDeviceEnum.cs" />
-    <Compile Include="Input\MyInput.cs" />
-    <Compile Include="Input\MyJoystickAxesEnum.cs" />
-    <Compile Include="Input\MyJoystickButtonsEnum.cs" />
-    <Compile Include="Input\MyKeys.cs" />
-    <Compile Include="Input\MyMouseButtonsEnum.cs" />
-    <Compile Include="Input\MyNullInput.cs" />
-    <Compile Include="Input\MySharedButtonsEnum.cs" />
     <Compile Include="ModdableContentFileAttribute.cs" />
     <Compile Include="MyCompilationSymbols.cs" />
     <Compile Include="MyDeltaTransform.cs" />
     <Compile Include="NetProfiler.cs" />
     <Compile Include="Noise\MyCompositeNoise.cs" />
     <Compile Include="Render\Messages\CreateRenderEntityClouds.cs" />
+    <Compile Include="Render\Messages\DebugMessages\MyRenderMessageDebugClearPersistentMessages.cs" />
     <Compile Include="Render\Messages\DebugMessages\MyRenderMessageDebugDraw6FaceConvex.cs" />
     <Compile Include="Render\Messages\DebugMessages\MyRenderMessageDebugWaitForPresent.cs" />
     <Compile Include="Render\Messages\MyRenderMessageChangeMaterialTexture.cs" />
     <Compile Include="Render\Messages\MyRenderMessageCreateGPUEmitter.cs" />
     <Compile Include="Render\Messages\MyRenderMessageRemoveGPUEmitter.cs" />
-    <Compile Include="Render\Messages\MyRenderMessageUpdateGPUEmittersPosition.cs" />
+    <Compile Include="Render\Messages\MyRenderMessageUpdateGPUEmittersTransform.cs" />
     <Compile Include="Render\Messages\MyRenderMessageUpdateGPUEmitters.cs" />
     <Compile Include="Render\Messages\MyRenderMessageRequestScreenData.cs" />
     <Compile Include="Render\Messages\MyRenderMessageSetMouseCapture.cs" />
@@ -562,6 +553,8 @@
     <Compile Include="Sync\SyncType.cs" />
     <Compile Include="Sync\Sync.cs" />
     <Compile Include="Utils\MyDiscreteSampler.cs" />
+    <Compile Include="Utils\MyAverageFiltering.cs" />
+    <Compile Include="Utils\MyMergeHelper.cs" />
     <Compile Include="Utils\MyStringHash.cs" />
     <Compile Include="Utils\MyPolygonBoolOps-Operations.cs" />
     <Compile Include="Utils\MyExternalDebugStructures.cs" />
@@ -624,6 +617,9 @@
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Input\ModAPI\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

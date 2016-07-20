@@ -12,12 +12,12 @@ namespace Sandbox.ModAPI
         /// <summary>
         /// Gets or sets the GridTerminalSystem available for the grid programs.
         /// </summary>
-        IMyGridTerminalSystem GridTerminalSystem { get; set; }
+        Ingame.IMyGridTerminalSystem GridTerminalSystem { get; set; }
 
         /// <summary>
         /// Gets or sets the programmable block which is currently running this grid program.
         /// </summary>
-        IMyProgrammableBlock Me { get; set; }
+        Ingame.IMyProgrammableBlock Me { get; set; }
 
         /// <summary>
         /// Gets or sets the amount of time elapsed since the last time this grid program was run.

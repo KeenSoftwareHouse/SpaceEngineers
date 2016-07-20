@@ -24,13 +24,14 @@ using VRage.Game;
 using VRage.Game.Entity;
 using Sandbox.Game.Audio;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Weapons;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_Welder))]
-    public class MyWelder : MyEngineerToolBase
+    public class MyWelder : MyEngineerToolBase, IMyWelder
     {
         private MySoundPair weldSoundIdle = new MySoundPair("ToolPlayWeldIdle");
         private MySoundPair weldSoundWeld = new MySoundPair("ToolPlayWeldMetal");

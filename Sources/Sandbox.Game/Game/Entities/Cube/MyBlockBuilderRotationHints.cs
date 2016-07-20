@@ -115,6 +115,11 @@ namespace Sandbox.Game.Entities.Cube
             RotationForwardDirection = -1;
         }
 
+        public void ReleaseRenderData()
+        {
+            VRageRender.MyRenderProxy.RemoveBillboardViewProjection(0);
+        }
+
         public void CalculateRotationHints(MatrixD drawMatrix, BoundingBoxD worldBox, bool draw, bool fixedAxes = false, bool hideForwardAndUpArrows = false)
         {
 			drawMatrix.Translation = Vector3D.Zero;
@@ -122,12 +127,12 @@ namespace Sandbox.Game.Entities.Cube
 			drawInverse *= drawMatrix.GetOrientation();
 			drawInverse *= MySector.MainCamera.ViewMatrixAtZero;
 
-			MatrixD camWorld = MatrixD.Invert(drawInverse); //MatrixD.Invert(MySector.MainCamera.ViewMatrixAtZero)*MatrixD.Invert(drawMatrix.GetOrientation())*drawMatrix;
+			MatrixD camWorld = MatrixD.Invert(drawInverse); 
 
 			m_viewProjection.ViewAtZero = MatrixD.CreateLookAt(Vector3D.Zero, camWorld.Forward, camWorld.Up);
 			m_viewProjection.ViewAtZero.Translation = new Vector3D(0,0,-6);
 			m_viewProjection.View = drawInverse;
-            m_viewProjection.View.Translation += new Vector3D(0, 0, -6);
+            m_viewProjection.View.Translation += new Vector3D(0, 0, -10);
             m_viewProjection.CameraPosition = camWorld.Translation;
 
             Vector2 screenSize = MyGuiManager.GetScreenSizeFromNormalizedSize(Vector2.One);
@@ -141,7 +146,7 @@ namespace Sandbox.Game.Entities.Cube
                 hintsHeight);
 
             m_viewProjection.DepthRead = false;
-            m_viewProjection.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)hintsWidth / hintsHeight, 0.1f, 10);
+            m_viewProjection.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)hintsHeight / hintsWidth, 0.1f, 10);
 
 
             

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Sandbox.ModAPI.Ingame
 {
-    public interface IMyConveyorSorter
+    public interface IMyConveyorSorter : IMyFunctionalBlock
     {
     }
 }

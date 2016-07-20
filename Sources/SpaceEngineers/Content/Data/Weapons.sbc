@@ -10,17 +10,13 @@
       <!--    <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" /> -->
       <NoAmmoSoundName>WepPlayRifleNoAmmo</NoAmmoSoundName>
       <DeviateShotAngle>3</DeviateShotAngle>
-      <ReleaseTimeAfterFire>50</ReleaseTimeAfterFire>
+      <ReleaseTimeAfterFire>100</ReleaseTimeAfterFire>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
-      <!--
-      Testing values - replace particle with real ones (Dummy and Action are correct)
-      
       <UseDefaultMuzzleFlash>false</UseDefaultMuzzleFlash>
       <Effects>
-        <Effect Action="Shoot" Dummy="muzzle_projectile" Particle="MaterialHit_Metal" />
-        <Effect Action="Shoot" Dummy="Shell_Casings" Particle="Blood_Spider" />
+        <Effect Action="Shoot" Dummy="muzzle_projectile" Particle="Muzzle_Flash" Loop="true" />
+        <Effect Action="Shoot" Dummy="Shell_Casings" Particle="Shell_Casings" />
       </Effects>
-      -->
       <AmmoMagazines>
 		<AmmoMagazine Subtype="NATO_5p56x45mm" />
       <!--  <AmmoMagazine Subtype="Missile200mm" />  -->
@@ -36,8 +32,13 @@
       <!--    <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" /> -->
       <NoAmmoSoundName>WepPlayRifleNoAmmo</NoAmmoSoundName>
       <DeviateShotAngle>1</DeviateShotAngle>
-      <ReleaseTimeAfterFire>50</ReleaseTimeAfterFire>
+      <ReleaseTimeAfterFire>100</ReleaseTimeAfterFire>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <UseDefaultMuzzleFlash>false</UseDefaultMuzzleFlash>
+      <Effects>
+        <Effect Action="Shoot" Dummy="muzzle_projectile" Particle="Muzzle_Flash" Loop="true" />
+        <Effect Action="Shoot" Dummy="Shell_Casings" Particle="Shell_Casings" />
+      </Effects>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_5p56x45mm" />
         <!--  <AmmoMagazine Subtype="Missile200mm" />  -->
@@ -53,8 +54,13 @@
       <!--    <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" /> -->
       <NoAmmoSoundName>WepPlayRifleNoAmmo</NoAmmoSoundName>
       <DeviateShotAngle>5</DeviateShotAngle>
-      <ReleaseTimeAfterFire>50</ReleaseTimeAfterFire>
+      <ReleaseTimeAfterFire>100</ReleaseTimeAfterFire>
       <MuzzleFlashLifeSpan>10</MuzzleFlashLifeSpan>
+      <UseDefaultMuzzleFlash>false</UseDefaultMuzzleFlash>
+      <Effects>
+        <Effect Action="Shoot" Dummy="muzzle_projectile" Particle="Muzzle_Flash" Loop="true" />
+        <Effect Action="Shoot" Dummy="Shell_Casings" Particle="Shell_Casings" />
+      </Effects>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_5p56x45mm" />
         <!--  <AmmoMagazine Subtype="Missile200mm" />  -->
@@ -70,8 +76,13 @@
       <!--    <MissileAmmoData RateOfFire="60" ShootSoundName="WepShipSmallMissileShot" /> -->
       <NoAmmoSoundName>WepPlayRifleNoAmmo</NoAmmoSoundName>
       <DeviateShotAngle>2</DeviateShotAngle>
-      <ReleaseTimeAfterFire>50</ReleaseTimeAfterFire>
+      <ReleaseTimeAfterFire>100</ReleaseTimeAfterFire>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
+      <UseDefaultMuzzleFlash>false</UseDefaultMuzzleFlash>
+      <Effects>
+        <Effect Action="Shoot" Dummy="muzzle_projectile" Particle="Muzzle_Flash" Loop="true" />
+        <Effect Action="Shoot" Dummy="Shell_Casings" Particle="Shell_Casings" />
+      </Effects>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_5p56x45mm" />
         <!--  <AmmoMagazine Subtype="Missile200mm" />  -->

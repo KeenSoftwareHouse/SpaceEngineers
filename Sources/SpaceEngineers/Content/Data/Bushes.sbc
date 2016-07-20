@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <EnvironmentItems>
+  <!--<EnvironmentItems>
     <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
@@ -109,7 +109,7 @@
       <PhysicalMaterial>Wood</PhysicalMaterial>
     </EnvironmentItem>
     
-    <!--Alien Bushes-->
+    --><!--Alien Bushes--><!--
     <EnvironmentItem xsi:type="MyObjectBuilder_EnvironmentItemDefinition">
       <Id>
         <TypeId>MyObjectBuilder_DestroyableItem</TypeId>
@@ -255,7 +255,7 @@
       <PhysicalMaterial>Wood</PhysicalMaterial>
     </EnvironmentItem>
     
-    <!--Alien Bushes End-->
+    --><!--Alien Bushes End--><!--
 
-  </EnvironmentItems>
+  </EnvironmentItems>-->
 </Definitions>

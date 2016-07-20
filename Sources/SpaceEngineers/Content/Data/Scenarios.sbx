@@ -13,7 +13,6 @@
       <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -21,47 +20,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -71,7 +59,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -81,7 +69,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -91,12 +79,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -129,84 +147,67 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
             </Data>
           </Slot>
-        </Slots>        
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
+            </Data>
+          </Slot>
+        </Slots>
       </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
@@ -526,7 +527,6 @@
       <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -534,47 +534,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -584,7 +573,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -594,7 +583,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -604,12 +593,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -642,81 +661,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -1033,7 +1035,6 @@
       <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -1041,47 +1042,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -1091,7 +1081,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -1101,7 +1091,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -1111,12 +1101,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -1149,84 +1169,67 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
             </Data>
           </Slot>
-        </Slots>        
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
+            </Data>
+          </Slot>
+        </Slots>
       </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
@@ -1543,7 +1546,6 @@
       <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -1551,47 +1553,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -1601,7 +1592,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -1611,7 +1602,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -1621,12 +1612,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -1659,84 +1680,67 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
             </Data>
           </Slot>
-        </Slots>        
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
+            </Data>
+          </Slot>
+        </Slots>
       </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
@@ -2024,7 +2028,6 @@
       <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -2032,47 +2035,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2082,7 +2074,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2092,7 +2084,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2102,12 +2094,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -2140,87 +2162,70 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
       </CreativeDefaultToolbar>
       <PossibleStartingStates>
-        <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="AtmosphericLander">         
+        <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="PlanetaryLander">         
         </StartingState>
       </PossibleStartingStates>
       <WorldGeneratorOperations>
@@ -2279,7 +2284,6 @@
       <SunDirection x="0" y="0" z="1"/>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -2287,47 +2291,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2337,7 +2330,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2347,7 +2340,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2357,12 +2350,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -2395,86 +2418,68 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
-      </CreativeDefaultToolbar>
-      
+      </CreativeDefaultToolbar>      
       <PossibleStartingStates>
         <StartingState xsi:type="RespawnShip" DampenersEnabled="true" RespawnShip="RespawnShip" />
       </PossibleStartingStates>
@@ -2502,7 +2507,6 @@
       <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -2510,47 +2514,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2560,7 +2553,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2570,7 +2563,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2580,12 +2573,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -2618,81 +2641,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -2757,7 +2763,6 @@
       <AsteroidClusters Enabled="true" Offset="1500" CentralCluster="false" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -2765,47 +2770,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2815,7 +2809,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2825,7 +2819,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -2835,12 +2829,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -2873,81 +2897,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -3033,7 +3040,6 @@
       <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -3041,47 +3047,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3091,7 +3086,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3101,7 +3096,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3111,12 +3106,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -3149,81 +3174,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -3256,7 +3264,6 @@
       <AsteroidClusters Enabled="false" Offset="700" CentralCluster="false" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -3264,7 +3271,6 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <CreativeModeComponents>
         <Component amount="20">SteelPlate</Component>
@@ -3290,42 +3296,32 @@
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3335,7 +3331,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3345,7 +3341,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3355,12 +3351,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -3393,84 +3419,67 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
             </Data>
           </Slot>
-        </Slots>        
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
+            </Data>
+          </Slot>
+        </Slots>
       </CreativeDefaultToolbar>
       <PossibleStartingStates>
         <StartingState xsi:type="Transform" JetpackEnabled="false" DampenersEnabled="true">
@@ -3518,7 +3527,6 @@
       <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -3526,47 +3534,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3576,7 +3573,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3586,7 +3583,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3596,12 +3593,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -3634,81 +3661,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -3746,7 +3756,6 @@
       <AsteroidClusters Enabled="true" Offset="700" CentralCluster="false" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -3754,47 +3763,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3804,7 +3802,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3814,7 +3812,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -3824,12 +3822,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -3862,81 +3890,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -3977,7 +3988,6 @@
       <AsteroidClusters Enabled="true" Offset="700" CentralCluster="true" />
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -3985,47 +3995,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -4035,7 +4034,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -4045,7 +4044,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -4055,12 +4054,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -4093,81 +4122,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -4188,7 +4200,6 @@
       <DefaultEnvironment>SAFE</DefaultEnvironment>
       <CreativeModeWeapons>
         <Weapon>AngleGrinderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
       </CreativeModeWeapons>
@@ -4196,47 +4207,36 @@
         <Weapon>AngleGrinderItem</Weapon>
         <Weapon>HandDrillItem</Weapon>
         <Weapon>WelderItem</Weapon>
-        <Weapon>AutomaticRifleItem</Weapon>
       </SurvivalModeWeapons>
       <SurvivalModeAmmoItems>
         <AmmoItem amount="3">NATO_5p56x45mm</AmmoItem>
       </SurvivalModeAmmoItems>
+      <CreativeInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </CreativeInventoryItems>
+      <SurvivalInventoryItems>
+        <MyObjectBuilder_InventoryItem>
+          <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
+            <SubtypeName>AutomaticRifleItem</SubtypeName>
+            <GunEntity xsi:type="MyObjectBuilder_AutomaticRifle">
+              <SubtypeName>RifleGun</SubtypeName>
+            </GunEntity>
+          </PhysicalContent>
+        </MyObjectBuilder_InventoryItem>
+      </SurvivalInventoryItems>
       <SurvivalDefaultToolbar>
         <ToolbarType>Character</ToolbarType>
         <SelectedSlot xsi:nil="true" />
         <Slots>
           <Slot>
             <Index>0</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>1</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>2</Index>
-            <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
-            </Data>
-          </Slot>
-          <Slot>
-            <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -4246,7 +4246,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>4</Index>
+            <Index>1</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -4256,7 +4256,7 @@
             </Data>
           </Slot>
           <Slot>
-            <Index>5</Index>
+            <Index>2</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
               <DefinitionId>
@@ -4266,12 +4266,42 @@
             </Data>
           </Slot>
           <Slot>
+            <Index>3</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
+                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>4</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Cockpit</TypeId>
+                <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>5</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId>
+                <TypeId>MyObjectBuilder_Thrust</TypeId>
+                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
+              </DefinitionId>
+            </Data>
+          </Slot>
+          <Slot>
             <Index>6</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemWeapon">
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
               <DefinitionId>
-                <TypeId>MyObjectBuilder_PhysicalGunObject</TypeId>
-                <SubtypeId>AutomaticRifleItem</SubtypeId>
+                <TypeId>MyObjectBuilder_Gyro</TypeId>
+                <SubtypeId>LargeBlockGyro</SubtypeId>
               </DefinitionId>
             </Data>
           </Slot>
@@ -4304,81 +4334,64 @@
           <Slot>
             <Index>0</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateStation</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>1</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateLargeShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_CubeBlock" Subtype="LargeHeavyBlockArmorBlock" />
             </Data>
           </Slot>
           <Slot>
             <Index>2</Index>
             <Item />
-            <Data xsi:type="MyObjectBuilder_ToolbarItemCreateGrid">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_GridCreateToolDefinition</TypeId>
-                <SubtypeId>CreateSmallShip</SubtypeId>
-              </DefinitionId>
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_Cockpit" Subtype="LargeBlockCockpitSeat" />
             </Data>
           </Slot>
           <Slot>
             <Index>3</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_CubeBlock</TypeId>
-                <SubtypeId>LargeBlockArmorBlock</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Reactor" Subtype="LargeBlockSmallGenerator" />
             </Data>
           </Slot>
           <Slot>
             <Index>4</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Cockpit</TypeId>
-                <SubtypeId>LargeBlockCockpit</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>5</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Reactor</TypeId>
-                <SubtypeId>LargeBlockSmallGenerator</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Thrust" Subtype="LargeBlockSmallAtmosphericThrust" />
             </Data>
           </Slot>
           <Slot>
             <Index>6</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Thrust</TypeId>
-                <SubtypeId>LargeBlockSmallThrust</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_Gyro" Subtype="LargeBlockGyro" />
             </Data>
           </Slot>
           <Slot>
             <Index>7</Index>
             <Item />
             <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
-              <DefinitionId>
-                <TypeId>MyObjectBuilder_Gyro</TypeId>
-                <SubtypeId>LargeBlockGyro</SubtypeId>
-              </DefinitionId>
+              <DefinitionId Type="MyObjectBuilder_MotorSuspension" Subtype="Suspension3x3" />
+            </Data>
+          </Slot>
+          <Slot>
+            <Index>8</Index>
+            <Item />
+            <Data xsi:type="MyObjectBuilder_ToolbarItemCubeBlock">
+              <DefinitionId Type="MyObjectBuilder_AirtightSlideDoor" Subtype="LargeBlockSlideDoor" />
             </Data>
           </Slot>
         </Slots>
@@ -4387,6 +4400,5 @@
         <StartingState xsi:type="Transform" JetpackEnabled="true" DampenersEnabled="true" />
       </PossibleStartingStates>
     </ScenarioDefinition>
-
   </Scenarios>
 </ScenarioDefinitions>

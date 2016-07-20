@@ -2975,7 +2975,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationMeteorInbound = MyStringId.GetOrCompute("NotificationMeteorInbound");
 
         ///<summary>
-        ///Conveyor Tube
+        ///Medium Conveyor Tube
         ///</summary>
         public static readonly MyStringId DisplayName_Block_ConveyorTubeMedium = MyStringId.GetOrCompute("DisplayName_Block_ConveyorTubeMedium");
 
@@ -5230,6 +5230,21 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorkshopTag_Exploration = MyStringId.GetOrCompute("WorkshopTag_Exploration");
 
         ///<summary>
+        ///Blueprint created in development version
+        ///</summary>
+        public static readonly MyStringId BlueprintScreen_DevMismatchCaption = MyStringId.GetOrCompute("BlueprintScreen_DevMismatchCaption");
+
+        ///<summary>
+        ///This blueprint was created in development version. It could cause issues in game.
+        ///</summary>
+        public static readonly MyStringId BlueprintScreen_DevMismatchMessage = MyStringId.GetOrCompute("BlueprintScreen_DevMismatchMessage");
+
+        ///<summary>
+        ///Development
+        ///</summary>
+        public static readonly MyStringId WorkshopTag_Dev = MyStringId.GetOrCompute("WorkshopTag_Dev");
+
+        ///<summary>
         ///Programmable block
         ///</summary>
         public static readonly MyStringId DisplayName_Programmable_Block = MyStringId.GetOrCompute("DisplayName_Programmable_Block");
@@ -6935,6 +6950,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DialogTextJoiningBattle = MyStringId.GetOrCompute("DialogTextJoiningBattle");
 
         ///<summary>
+        ///Joining scenario
+        ///</summary>
+        public static readonly MyStringId DialogTextJoiningScenario = MyStringId.GetOrCompute("DialogTextJoiningScenario");
+
+        ///<summary>
         ///Joining battle failed, reason: {0}
         ///</summary>
         public static readonly MyStringId DialogTextJoinBattleFailed = MyStringId.GetOrCompute("DialogTextJoinBattleFailed");
@@ -7170,9 +7190,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_EnableFlora = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableFlora");
 
         ///<summary>
-        ///Stations will be fixed only if they intersects with asteroids. They will move like ships otherwise.
+        ///Add option to ship's terminal to convert ship to station
         ///</summary>
-        public static readonly MyStringId ToolTipWorldSettings_EnableStationVoxel = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableStationVoxel");
+        public static readonly MyStringId ToolTipWorldSettings_EnableConvertToStation = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableConvertToStation");
 
         ///<summary>
         ///Density of flora elements on planets
@@ -7185,9 +7205,9 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_EnableFlora = MyStringId.GetOrCompute("WorldSettings_EnableFlora");
 
         ///<summary>
-        ///Station voxel support
+        ///Enable convert to station
         ///</summary>
-        public static readonly MyStringId WorldSettings_EnableStationVoxel = MyStringId.GetOrCompute("WorldSettings_EnableStationVoxel");
+        public static readonly MyStringId WorldSettings_EnableConvertToStation = MyStringId.GetOrCompute("WorldSettings_EnableConvertToStation");
 
         ///<summary>
         ///Flora Density
@@ -8815,6 +8835,11 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ScreenDebugAdminMenu_RemoveFloating = MyStringId.GetOrCompute("ScreenDebugAdminMenu_RemoveFloating");
 
         ///<summary>
+        ///Speed limit
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_RemoteBlockSpeedLimit = MyStringId.GetOrCompute("BlockPropertyTitle_RemoteBlockSpeedLimit");
+
+        ///<summary>
         ///Connectors Disabled
         ///</summary>
         public static readonly MyStringId NotificationConnectorsDisabled = MyStringId.GetOrCompute("NotificationConnectorsDisabled");
@@ -8828,5 +8853,55 @@ namespace Sandbox.Game.Localization
         ///Jump drives cannot be used to jump outside world limits.
         ///</summary>
         public static readonly MyStringId NotificationCannotJumpOutsideWorld = MyStringId.GetOrCompute("NotificationCannotJumpOutsideWorld");
+
+        ///<summary>
+        ///Preview Grid
+        ///</summary>
+        public static readonly MyStringId BroadcastStatus_IsPreviewGrid = MyStringId.GetOrCompute("BroadcastStatus_IsPreviewGrid");
+
+        ///<summary>
+        ///Warning list
+        ///</summary>
+        public static readonly MyStringId ProgrammableBlock_Editor_CompilationOkWarningList = MyStringId.GetOrCompute("ProgrammableBlock_Editor_CompilationOkWarningList");
+
+        ///<summary>
+        ///Press {0} to change block size mode
+        ///</summary>
+        public static readonly MyStringId CubeBuilder_CubeSizeModeChange = MyStringId.GetOrCompute("CubeBuilder_CubeSizeModeChange");
+
+        ///<summary>
+        ///This block is for {0} only
+        ///</summary>
+        public static readonly MyStringId BlockSize_NotAvailable = MyStringId.GetOrCompute("BlockSize_NotAvailable");
+
+        ///<summary>
+        ///Converts this station to a ship. Ships can move and rotate. WARNING: Make sure your station is not connected to asteroid when you convert to a ship. If it was, it might explode on you  when it changes to a ship.
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_ConvertButton_TT = MyStringId.GetOrCompute("TerminalTab_Info_ConvertButton_TT");
+
+        ///<summary>
+        ///Convert to station
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_ConvertToStationButton = MyStringId.GetOrCompute("TerminalTab_Info_ConvertToStationButton");
+
+        ///<summary>
+        ///Converts this ship to a station. Ship has to be stationary in order to convert it to a station (both angular and linear velocity have to be 0). Stations are more performance friendly. WARNING: Converting ship to a station is possible in planets gravity, but it will be converted to a ship in the moment of station being split and not in voxel. 
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_ConvertToStationButton_TT = MyStringId.GetOrCompute("TerminalTab_Info_ConvertToStationButton_TT");
+
+        ///<summary>
+        ///Coords:
+        ///</summary>
+        public static readonly MyStringId RemoteControlCoord = MyStringId.GetOrCompute("RemoteControlCoord");
+
+        ///<summary>
+        ///Controlled by another player: 
+        ///</summary>
+        public static readonly MyStringId RemoteControlUsedBy = MyStringId.GetOrCompute("RemoteControlUsedBy");
+
+        ///<summary>
+        ///Current waypoint:
+        ///</summary>
+        public static readonly MyStringId RemoteControlWaypoint = MyStringId.GetOrCompute("RemoteControlWaypoint");
     }
 }

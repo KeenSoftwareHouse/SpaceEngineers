@@ -28,8 +28,10 @@ namespace Sandbox.Game.GUI.HudViewers
             StringBuilder contents = null,
             bool drawScrollbar = false,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
-            bool selectable = false)
-            : base (position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, selectable, true)
+            int? visibleLinesCount = null,
+            bool selectable = false
+        )
+            : base(position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, visibleLinesCount, selectable, true)
         {
             m_forceUpdate = true;
             m_chat = chat;
@@ -61,7 +63,10 @@ namespace Sandbox.Game.GUI.HudViewers
                 {
                     bool isMe = Sandbox.Engine.Networking.MySteam.UserName == message.Item1;
 
-                    AppendText(new StringBuilder(message.Item1 + ":"), isMe ? MyFontEnum.Blue : MyFontEnum.White, TextScale, Vector4.One);
+                    var username = new StringBuilder(message.Item1);
+                    username.Append(":");
+                    AppendText(username, isMe ? MyFontEnum.Blue : MyFontEnum.White, TextScale, Vector4.One);
+                    AppendText(new StringBuilder("    "));
                     AppendText(new StringBuilder(message.Item2));
                     AppendLine();
                 }

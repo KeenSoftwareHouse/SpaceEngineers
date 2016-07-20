@@ -124,6 +124,7 @@ namespace VRage.Game
         /// <para>Postprocess is useful if you want to process the definition before the game begins,</para>
         /// <para>but you only want to do it when all the definitions are loaded and merged.</para>
         /// </summary>
+        [Obsolete("Prefer to use MyDefinitionPostprocessor instead.")]
         public virtual void Postprocess() { return; }
 
         public virtual MyObjectBuilder_DefinitionBase GetObjectBuilder()

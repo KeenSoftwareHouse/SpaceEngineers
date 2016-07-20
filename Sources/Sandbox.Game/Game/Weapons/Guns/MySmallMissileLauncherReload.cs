@@ -13,7 +13,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.GameSystems;
 using Sandbox.Common;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 
 namespace Sandbox.Game.Weapons

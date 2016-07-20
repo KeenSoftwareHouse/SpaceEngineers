@@ -11,11 +11,12 @@ using VRageMath;
 using System.Diagnostics;
 using VRage.Game;
 using VRageRender;
+using Sandbox.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Conveyor))]
-    public class MyConveyor : MyCubeBlock, IMyConveyorEndpointBlock
+    public class MyConveyor : MyCubeBlock, IMyConveyorEndpointBlock, IMyConveyor
     {
         private MyMultilineConveyorEndpoint m_conveyorEndpoint;
         public IMyConveyorEndpoint ConveyorEndpoint

@@ -15,7 +15,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -626,6 +626,8 @@ namespace Sandbox.Game.Entities
                             float oxygenAmount = oxygenContainer.GasLevel * physicalItem.Capacity;
 
                             float transferredAmount = Math.Min(oxygenAmount, OxygenAmountMissing);
+                            if (transferredAmount == 0)
+                                continue;
                             oxygenContainer.GasLevel = (oxygenAmount - transferredAmount) / physicalItem.Capacity;
 
                             if (oxygenContainer.GasLevel < 0f)
@@ -1168,7 +1170,7 @@ namespace Sandbox.Game.Entities
             }
 
             m_lastPilot = pilot;
-            if (GetInCockpitSound != MySoundPair.Empty)
+            if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit)
                 PlayUseSound(true);
             m_playIdleSound = true;
         }
@@ -1347,7 +1349,8 @@ namespace Sandbox.Game.Entities
         {
             if (MyCubeBuilder.Static.IsActivated)
             {
-                MyCubeBuilder.Static.Deactivate();
+                //MyCubeBuilder.Static.Deactivate();
+                MySession.Static.GameFocusManager.Clear();
             }
             base.RemoveLocal();
             RemovePilot();

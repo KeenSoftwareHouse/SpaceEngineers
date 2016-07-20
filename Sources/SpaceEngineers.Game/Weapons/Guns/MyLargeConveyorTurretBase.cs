@@ -10,7 +10,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
@@ -90,7 +90,7 @@ namespace SpaceEngineers.Game.Weapons.Guns
             m_endpoint = new MyMultilineConveyorEndpoint(this);
         }
 
-        bool IMyLargeConveyorTurretBase.UseConveyorSystem
+        bool ModAPI.Ingame.IMyLargeConveyorTurretBase.UseConveyorSystem
         {
             get
             {

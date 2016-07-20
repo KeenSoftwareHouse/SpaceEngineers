@@ -85,15 +85,10 @@ namespace Sandbox.Game.Entities.Cube
                 m_dirtyCells.Add(cell);
         }
 
-        // hack/optimization that prevents fast shooting turrets from cause rebuild in almost every frame
-        int m_rebuildDirtyCounter;
-        int m_nextRebuildDirtyCount;
         public void RebuildDirtyCells(RenderFlags renderFlags)
         {
-            ++m_rebuildDirtyCounter;
-            if (m_rebuildDirtyCounter < m_nextRebuildDirtyCount || m_dirtyCells.Count == 0)
+            if (m_dirtyCells.Count == 0)
                 return;
-            m_nextRebuildDirtyCount = m_rebuildDirtyCounter + 10; // change if stuttering is still noticable
             foreach (var cell in m_dirtyCells)
             {
                 ProfilerShort.Begin("Cell rebuild");

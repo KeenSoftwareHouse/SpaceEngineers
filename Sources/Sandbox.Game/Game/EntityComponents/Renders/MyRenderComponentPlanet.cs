@@ -21,6 +21,7 @@ namespace Sandbox.Game.Components
         MyPlanet m_planet = null;
 
         private int m_shadowHelperRenderObjectIndex = -1;
+        private int m_atmosphereRenderIndex = -1;
         readonly List<int> m_cloudLayerRenderObjectIndexList = new List<int>();
 
 		int m_fogUpdateCounter = 0;
@@ -95,6 +96,8 @@ namespace Sandbox.Game.Components
 				MatrixD matrix = MatrixD.Identity * m_planet.AtmosphereRadius;
 				matrix.M44 = 1;
 				matrix.Translation = Entity.PositionComp.GetPosition();
+
+			    m_atmosphereRenderIndex = runningRenderObjectIndex;
 
 				SetRenderObjectID(runningRenderObjectIndex++, MyRenderProxy.CreateRenderEntityAtmosphere(this.Entity.GetFriendlyName() + " " + this.Entity.EntityId.ToString(),
 					  "Models\\Environment\\Atmosphere_sphere.mwm",
@@ -213,7 +216,7 @@ namespace Sandbox.Game.Components
 
         public void UpdateAtmosphereSettings(MyAtmosphereSettings settings)
         {
-            MyRenderProxy.UpdateAtmosphereSettings(m_renderObjectIDs[1], settings);
+            MyRenderProxy.UpdateAtmosphereSettings(m_renderObjectIDs[m_atmosphereRenderIndex], settings);
         }
 
 		private bool IsPointInAirtightSpace(Vector3D worldPosition)

@@ -8,6 +8,7 @@
         <Mode>Replace</Mode>
         <StateMachine>SMBody</StateMachine>
         <InitialSMNode>Idle</InitialSMNode>
+        <BoneMask>BackJetpackDummy FrontJetpackDummy HeadDummy LeftLightDummy RightLightDummy RootNode SE_main_root SE_RigHead SE_RigHelmetGlassBone SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Little_1 SE_RigL_Little_2 SE_RigL_Little_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Weapon_pin SE_RigLCalf SE_RigLCollarbone SE_RigLFoot SE_RigLForearm1 SE_RigLForearm2 SE_RigLForearm3 SE_RigLPalm SE_RigLR_Foot_tip1 SE_RigLThigh SE_RigLUpperarm SE_RigNeck SE_RigPelvis SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigRCalf SE_RigRCollarbone SE_RigRFoot SE_RigRForearm1 SE_RigRForearm2 SE_RigRForearm3 SE_RigRibcage SE_RigRibcageBone001 SE_RigRPalm SE_RigRR_Foot_tip1 SE_RigRThigh SE_RigRUpperarm SE_RigRUpVectorNode SE_RigSpine1 SE_RigSpine2 SE_RigSpine3 SE_RigSpine4 ThirdCameraDummy</BoneMask>
       </Layer>
       <Layer>
         <Name>Helmet</Name>
@@ -35,21 +36,28 @@
         <Mode>Replace</Mode>
         <StateMachine>SMLeftFingers</StateMachine>
         <InitialSMNode>Nothing</InitialSMNode>
-        <BoneMask>SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Little_1 SE_RigL_Little_2 SE_RigL_Little_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Weapon_pin SE_RigLPalm SE_RigLUpVectorNode</BoneMask>
+        <BoneMask>SE_RigL_Index_1 SE_RigL_Index_2 SE_RigL_Index_3 SE_RigL_Little_1 SE_RigL_Little_2 SE_RigL_Little_3 SE_RigL_Middle_1 SE_RigL_Middle_2 SE_RigL_Middle_3 SE_RigL_Ring_1 SE_RigL_Ring_2 SE_RigL_Ring_3 SE_RigL_Thumb_1 SE_RigL_Thumb_2 SE_RigL_Thumb_3 SE_RigL_Weapon_pin SE_RigLForearm3 SE_RigLPalm</BoneMask>
       </Layer>
       <Layer>
         <Name>RightFingers</Name>
         <Mode>Replace</Mode>
         <StateMachine>SMRightFingers</StateMachine>
         <InitialSMNode>Nothing</InitialSMNode>
-        <BoneMask>SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Weapon_pin SE_RigRPalm SE_RigRUpVectorNode</BoneMask>
+        <BoneMask>SE_RigR_Index_1 SE_RigR_Index_2 SE_RigR_Index_3 SE_RigR_Little_1 SE_RigR_Little_2 SE_RigR_Little_3 SE_RigR_Middle_1 SE_RigR_Middle_2 SE_RigR_Middle_3 SE_RigR_Ring_1 SE_RigR_Ring_2 SE_RigR_Ring_3 SE_RigR_Thumb_1 SE_RigR_Thumb_2 SE_RigR_Thumb_3 SE_RigR_Weapon_pin SE_RigRForearm3 SE_RigRPalm SE_RigRUpVectorNode</BoneMask>
       </Layer>
       <Layer>
         <Name>Leaning</Name>
-        <Mode>Add</Mode>
+        <Mode>Replace</Mode>
         <StateMachine>SMLean</StateMachine>
         <InitialSMNode>Leaning</InitialSMNode>
-        <BoneMask>SE_RigNeck SE_RigSpine1 SE_RigSpine2 SE_RigSpine3 SE_RigSpine4</BoneMask>
+        <BoneMask>SE_RigNeck SE_RigSpine2 SE_RigSpine3 SE_RigSpine4</BoneMask>
+      </Layer>
+      <Layer>
+        <Name>WeaponPin</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMWeaponPin</StateMachine>
+        <InitialSMNode>Nothing</InitialSMNode>
+        <BoneMask>SE_RigR_Weapon_pin SE_RigRCollarbone SE_RigRForearm1 SE_RigRForearm2 SE_RigRForearm3 SE_RigRPalm SE_RigRUpperarm SE_RigSpine1 SE_RigSpine2 SE_RigSpine3 SE_RigSpine4</BoneMask>
       </Layer>
     </Layers>
     <StateMachines>
@@ -99,7 +107,7 @@
                           <Y>-124</Y>
                         </EdPos>
                         <PathToModel>Models\Characters\Animations\stand_leftturn.mwm</PathToModel>
-                        <AnimationName>AnimStack::Astronaut_character_turns_final</AnimationName>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
                         <Loop>true</Loop>
                         <Speed>1</Speed>
                         <Interpolate>true</Interpolate>
@@ -153,10 +161,10 @@
                           <X>911</X>
                           <Y>211</Y>
                         </EdPos>
-                        <PathToModel>Models\Characters\Animations\strafeleft.mwm</PathToModel>
+                        <PathToModel>Models\Characters\Animations\straferight.mwm</PathToModel>
                         <AnimationName>AnimStack::Take 001</AnimationName>
                         <Loop>true</Loop>
-                        <Speed>1.0099999904632568</Speed>
+                        <Speed>-1.0499999523162842</Speed>
                         <Interpolate>true</Interpolate>
                       </Node>
                     </Child>
@@ -168,7 +176,7 @@
                           <Y>432</Y>
                         </EdPos>
                         <PathToModel>Models\Characters\Animations\stand_rightturn.mwm</PathToModel>
-                        <AnimationName>AnimStack::Astronaut_character_turns_final</AnimationName>
+                        <AnimationName>AnimStack::Take 001</AnimationName>
                         <Loop>true</Loop>
                         <Speed>1</Speed>
                         <Interpolate>true</Interpolate>
@@ -203,8 +211,8 @@
             <Name>WalkRun</Name>
             <StateMachineName>SMBody_WalkRun</StateMachineName>
             <EdPos>
-              <X>521</X>
-              <Y>382</Y>
+              <X>592</X>
+              <Y>381</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -397,14 +405,6 @@
             </Conditions>
             <Priority>2</Priority>
           </Transition>
-          <Transition Name="(started falling)" From="Any" To="JumpFall/Fall" TimeInSec="0.2" Sync="Restart">
-            <Conditions>
-              <Conjunction>
-                <Condition Lhs="falling" Op="Equal" Rhs="1" />
-              </Conjunction>
-            </Conditions>
-            <Priority>4</Priority>
-          </Transition>
           <Transition From="Any" To="Jetpack" TimeInSec="0.25" Sync="Restart">
             <Conditions>
               <Conjunction>
@@ -433,7 +433,7 @@
                 <Condition Lhs="sitting" Op="Equal" Rhs="0" />
               </Conjunction>
             </Conditions>
-            <Priority xsi:nil="true" />
+            <Priority>3</Priority>
           </Transition>
           <Transition From="CrouchIdle" To="Idle" TimeInSec="0.4" Sync="Restart">
             <Conditions>
@@ -463,7 +463,7 @@
             </Conditions>
             <Priority>11</Priority>
           </Transition>
-          <Transition From="Idle" To="WalkRun/WalkRun" TimeInSec="0.2" Sync="Synchronize">
+          <Transition From="Idle" To="WalkRun/WalkRun" TimeInSec="0.07" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="Greater" Rhs="0.5" />
@@ -537,6 +537,11 @@
             <Priority xsi:nil="true" />
           </Transition>
           <Transition Name="Victory" From="Any" To="BeforeVictory" TimeInSec="0" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
           <Transition From="BeforeVictory" To="Victory" TimeInSec="0.25" Sync="Restart">
@@ -554,6 +559,26 @@
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="entercryochamber" From="Any" To="Idle" TimeInSec="0" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Sit/Sit" To="JumpFall/Fall" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="falling" Op="Equal" Rhs="1" />
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="" From="Any" To="JumpFall/Fall" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="falling" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>4</Priority>
           </Transition>
         </Transitions>
       </StateMachine>
@@ -691,11 +716,11 @@
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                 <EdPos>
-                  <X>-322</X>
-                  <Y>-12</Y>
+                  <X>32</X>
+                  <Y>-21</Y>
                 </EdPos>
                 <PathToModel>Models\Characters\Animations\sprint.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_run_final</AnimationName>
+                <AnimationName>AnimStack::Take 001</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
                 <Interpolate>true</Interpolate>
@@ -743,7 +768,7 @@
             </Conditions>
             <Priority>1</Priority>
           </Transition>
-          <Transition From="WalkRun" To="Run/Run" TimeInSec="0.2" Sync="Synchronize">
+          <Transition From="WalkRun" To="Run/Run" TimeInSec="0.1" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="LessOrEqual" Rhs="5.5" />
@@ -752,7 +777,7 @@
             </Conditions>
             <Priority>2</Priority>
           </Transition>
-          <Transition From="Run/Any" To="WalkRun" TimeInSec="0.2" Sync="Synchronize">
+          <Transition From="Run/Any" To="WalkRun" TimeInSec="0.1" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="Less" Rhs="3" />
@@ -771,7 +796,7 @@
             </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition From="WalkRun" To="Walk/Walk" TimeInSec="0.3" Sync="Synchronize">
+          <Transition From="WalkRun" To="Walk/Walk" TimeInSec="0.1" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="Less" Rhs="3" />
@@ -779,7 +804,7 @@
             </Conditions>
             <Priority>3</Priority>
           </Transition>
-          <Transition From="Walk/Any" To="WalkRun" TimeInSec="0.2" Sync="Synchronize">
+          <Transition From="Walk/Any" To="WalkRun" TimeInSec="0.1" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="Greater" Rhs="3" />
@@ -942,6 +967,7 @@
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="0" />
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -950,6 +976,9 @@
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="1" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="sitting" Op="Equal" Rhs="1" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -961,6 +990,7 @@
               </Conjunction>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="0" />
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -1146,6 +1176,7 @@
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="0" />
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -1154,6 +1185,9 @@
             <Conditions>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="1" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="sitting" Op="Equal" Rhs="1" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -1165,6 +1199,7 @@
               </Conjunction>
               <Conjunction>
                 <Condition Lhs="flying" Op="Equal" Rhs="0" />
+                <Condition Lhs="sitting" Op="Equal" Rhs="0" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -1187,7 +1222,7 @@
                   <Y>-69</Y>
                 </EdPos>
                 <PathToModel>Models\Characters\Animations\cockpit1_small.mwm</PathToModel>
-                <AnimationName>AnimStack::SE_astronaut</AnimationName>
+                <AnimationName>AnimStack::Astronaut_character_cockpitsmall</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
                 <Interpolate>true</Interpolate>
@@ -1641,7 +1676,7 @@
                       <Y>-143</Y>
                     </EdPos>
                     <PathToModel>Models\Characters\Animations\bend_forwards.mwm</PathToModel>
-                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <AnimationName>AnimStack::SE_astronaut_LOD0</AnimationName>
                     <Loop>true</Loop>
                     <Speed>1</Speed>
                     <Interpolate>true</Interpolate>
@@ -1688,18 +1723,18 @@
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
                 <EdPos>
                   <X>195</X>
-                  <Y>-40</Y>
+                  <Y>-41</Y>
                 </EdPos>
                 <ParameterName>lean</ParameterName>
                 <Child>
-                  <Param>-64</Param>
+                  <Param>-36</Param>
                   <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                     <EdPos>
                       <X>572</X>
                       <Y>-127</Y>
                     </EdPos>
                     <PathToModel>Models\Characters\Animations\bend_forwards.mwm</PathToModel>
-                    <AnimationName>AnimStack::Take 001</AnimationName>
+                    <AnimationName>AnimStack::SE_astronaut_LOD0</AnimationName>
                     <Loop>true</Loop>
                     <Speed>1</Speed>
                     <Interpolate>true</Interpolate>
@@ -2100,7 +2135,7 @@
             </Conditions>
             <Priority>3</Priority>
           </Transition>
-          <Transition From="Run" To="Front" TimeInSec="0.2" Sync="Synchronize">
+          <Transition From="Run" To="Front" TimeInSec="0.15" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="3" />
@@ -2768,7 +2803,7 @@
             </Conditions>
             <Priority>3</Priority>
           </Transition>
-          <Transition From="Walk" To="Front" TimeInSec="0.4" Sync="Synchronize">
+          <Transition From="Walk" To="Front" TimeInSec="0.15" Sync="Synchronize">
             <Conditions>
               <Conjunction>
                 <Condition Lhs="speed" Op="Less" Rhs="3" />
@@ -3758,6 +3793,276 @@
           </Transition>
         </Transitions>
       </StateMachine>
+      <StateMachine>
+        <Name>SMWeaponPin</Name>
+        <Nodes>
+          <Node>
+            <Name>Nothing</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>227</X>
+                  <Y>10</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-358</X>
+              <Y>113</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>RifleGunRunForward</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-284</X>
+                <Y>12</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>26</X>
+                  <Y>8</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\rifle_run.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_rifle_run</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+                <SynchronizeWithLayer>Body</SynchronizeWithLayer>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>638</X>
+              <Y>-283</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>-851</X>
+              <Y>117</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>Equip</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>197</X>
+                  <Y>-11</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-507</X>
+              <Y>-235</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+          <Node>
+            <Name>RapidFireRifleGun</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>315</X>
+                  <Y>-9</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-27</X>
+              <Y>-182</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>PreciseRifleGun</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>250</X>
+                  <Y>-20</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>19</X>
+              <Y>-57</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>UltimateRifleGun</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>274</X>
+                  <Y>18</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>82</X>
+              <Y>86</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>RifleGunIdle</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>303</X>
+                  <Y>6</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+                <SynchronizeWithLayer>Body</SynchronizeWithLayer>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>224</X>
+              <Y>-282</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="unequip_right_tool" From="Any" To="Nothing" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Equip" To="Nothing" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="equip_right_tool" From="Any" To="Equip" TimeInSec="0" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="RapidFireRifleGun" From="Equip" To="RapidFireRifleGun" TimeInSec="0.1" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="PreciseRifleGun" From="Equip" To="PreciseRifleGun" TimeInSec="0.1" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition Name="UltimateRifleGun" From="Equip" To="UltimateRifleGun" TimeInSec="0.1" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RifleGunRunForward" To="RifleGunIdle" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Less" Rhs="3.4" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="falling" Op="Equal" Rhs="1" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="RifleGunIdle" To="RifleGunRunForward" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="3.5" />
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+                <Condition Lhs="falling" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="RifleGun" From="Equip" To="RifleGunIdle" TimeInSec="0.1" Sync="Restart">
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="RapidFireRifleGun" To="RifleGunIdle" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="PreciseRifleGun" To="RifleGunIdle" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="UltimateRifleGun" To="RifleGunIdle" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
     </StateMachines>
+    <FootIkChains>
+      <FootIkChain>
+        <FootBone>SE_RigLFoot</FootBone>
+        <ChainLength>2</ChainLength>
+        <AlignBoneWithTerrain>true</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>SE_RigRFoot</FootBone>
+        <ChainLength>2</ChainLength>
+        <AlignBoneWithTerrain>true</AlignBoneWithTerrain>
+      </FootIkChain>
+    </FootIkChains>
+    <IkIgnoredBones>
+      <Bone>HeadDummy</Bone>
+      <Bone>ThirdCameraDummy</Bone>
+    </IkIgnoredBones>
   </Definition>
 </Definitions>

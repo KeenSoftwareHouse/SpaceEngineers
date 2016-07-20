@@ -67,9 +67,6 @@ namespace Sandbox.Game.Replication
 
         const int RECIEVED_PACKET_HISTORY = 256;
 
-        //inventory has bigger priority than physics
-        const float INVENTORY_PRIORITY_RAMP = 1000.0f;
-
         public StateGroupEnum GroupType { get { return StateGroupEnum.Inventory; } }
 
 
@@ -156,7 +153,7 @@ namespace Sandbox.Game.Replication
 
             if (clientData.FailedIncompletePackets.Count  > 0)
             {
-                return 1.0f * INVENTORY_PRIORITY_RAMP * frameCountWithoutSync;
+                return 1.0f * frameCountWithoutSync;
             }
 
             MyClientState state = (MyClientState)client.State;
@@ -176,19 +173,19 @@ namespace Sandbox.Game.Replication
 
                 if (player != null && player.Id.SteamId == client.EndpointId.Value)
                 {
-                    return 1.0f * INVENTORY_PRIORITY_RAMP * frameCountWithoutSync;
+                    return 1.0f * frameCountWithoutSync;
                 }
             }
 
             if (state.ContextEntity is MyCharacter && state.ContextEntity == Inventory.Owner)
             {
-                return 1.0f * INVENTORY_PRIORITY_RAMP * frameCountWithoutSync;
+                return 1.0f * frameCountWithoutSync;
             }
           
-            if (state.Context == MyClientState.MyContextKind.Inventory ||
+            if (state.Context == MyClientState.MyContextKind.Inventory || state.Context == MyClientState.MyContextKind.Building ||
                 (state.Context == MyClientState.MyContextKind.Production && Inventory.Owner is MyAssembler))
             {
-                return GetPriorityStateGroup(client) * INVENTORY_PRIORITY_RAMP * frameCountWithoutSync;
+                return GetPriorityStateGroup(client) * frameCountWithoutSync;
             }
             return 0;
         }

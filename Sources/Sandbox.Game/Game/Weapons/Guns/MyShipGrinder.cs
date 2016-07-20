@@ -8,7 +8,6 @@ using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -301,8 +300,8 @@ namespace Sandbox.Game.Weapons
         private Matrix GetEffectMatrix(int effectNum)
         {
             Matrix retval = WorldMatrix;
-            retval.Translation += retval.Forward * 1.9f;
-            retval.Translation += retval.Up * (effectNum == 1 ? 0.65f : -0.65f);
+            retval.Translation += retval.Forward * 1.5f;
+            retval.Translation += retval.Up * (effectNum == 1 ? 0.25f : -0.25f);
 
             float zRotation = effectNum == 1 ? MyUtils.GetRandomFloat(0.3f, 0.7f) : MyUtils.GetRandomFloat(-0.7f, -0.3f);
             float yRotation = (float)Math.PI * -MyUtils.GetRandomFloat(0.47f, 0.53f);

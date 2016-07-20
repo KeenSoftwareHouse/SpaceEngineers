@@ -17,7 +17,7 @@ namespace Sandbox.Game.Components
         {
             m_shipConnector = shipConnector;
         }
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_CONNECTORS_AND_MERGE_BLOCKS)
             {
@@ -27,8 +27,6 @@ namespace Sandbox.Game.Components
                 //MyRenderProxy.DebugDrawText3D(this.WorldMatrix.Translation, m_connectorMode == Mode.Connector ? "Connector" : "Ejector", Color.Red, 1.0f, false);
                 MyRenderProxy.DebugDrawText3D(m_shipConnector.PositionComp.WorldMatrix.Translation, m_shipConnector.DetectedGridCount.ToString(), Color.Red, 1.0f, false);
             }
-
-            return true;
         }
     }
 }

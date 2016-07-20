@@ -24,7 +24,6 @@ namespace Sandbox.Game.World
     public abstract class MyBuildComponentBase : MySessionComponentBase
     {
         protected MyComponentList m_materialList = new MyComponentList();
-        protected MyComponentList m_materialListCombined = new MyComponentList();
         protected MyComponentCombiner m_componentCombiner = new MyComponentCombiner();
 
         public DictionaryReader<MyDefinitionId, int> TotalMaterials { get { return m_materialList.TotalMaterials; } }
@@ -80,10 +79,10 @@ namespace Sandbox.Game.World
 
         protected internal void RemoveItemsCombined(MyInventoryBase inventory, int itemAmount, MyDefinitionId itemDefinitionId)
         {
-            m_materialListCombined.Clear();
-            m_materialListCombined.AddMaterial(itemDefinitionId, itemAmount);
-            m_componentCombiner.RemoveItemsCombined(inventory, m_materialListCombined.TotalMaterials);
-            m_materialListCombined.Clear();
+            m_materialList.Clear();
+            m_materialList.AddMaterial(itemDefinitionId, itemAmount);
+            m_componentCombiner.RemoveItemsCombined(inventory, m_materialList.TotalMaterials);
+            m_materialList.Clear();
             return;
         }
     }

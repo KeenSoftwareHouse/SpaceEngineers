@@ -36,7 +36,7 @@ namespace VRageRender
             Context.PixelShader.SetConstantBuffer(4, MyCommon.OutlineConstants);
         }
 
-        protected unsafe override sealed void RecordCommandsInternal(MyRenderableProxy proxy, int sectionmesh)
+        public void RecordCommands(MyRenderableProxy proxy, int sectionmesh, int inctanceId)
         {
 			if ((proxy.Mesh.Buffers.IB == IndexBufferId.NULL && proxy.MergedMesh.Buffers.IB == IndexBufferId.NULL)
                 || proxy.DrawSubmesh.IndexCount == 0)
@@ -80,7 +80,10 @@ namespace VRageRender
             }
             else if (submesh.IndexCount > 0)
             {
-                RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
+                if (inctanceId >= 0)
+                    RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, 1, submesh.StartIndex, submesh.BaseVertex, inctanceId);
+                else
+                    RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 RC.Stats.DrawIndexedInstanced++;
                 Stats.Instances += proxy.InstanceCount;
                 Stats.Triangles += proxy.InstanceCount * submesh.IndexCount / 3;

@@ -177,7 +177,7 @@ namespace VRageRender
         internal void UpdateEntity(MyActor actor)
         {
             //var matrix = actor.WorldMatrix;
-            //matrix.Translation = matrix.Translation - MyEnvironment.CameraPosition;
+            //matrix.Translation = matrix.Translation - MyRender11.Environment.CameraPosition;
             m_mergeGroup.UpdateEntity(actor, ref actor.WorldMatrix, actor.GetRenderable().m_depthBias);
         }
 

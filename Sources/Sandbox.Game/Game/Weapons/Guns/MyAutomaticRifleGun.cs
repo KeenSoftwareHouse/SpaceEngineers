@@ -29,13 +29,14 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.ModAPI.Weapons;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
     [MyEntityType(typeof(MyObjectBuilder_AutomaticRifle))]
-    public class MyAutomaticRifleGun : MyEntity, IMyHandheldGunObject<MyGunBase>, IMyGunBaseUser, IMyEventProxy
+    public class MyAutomaticRifleGun : MyEntity, IMyHandheldGunObject<MyGunBase>, IMyGunBaseUser, IMyEventProxy, IMyAutomaticRifleGun
     {
         int m_lastTimeShoot;
         public int LastTimeShoot { get { return m_lastTimeShoot;} }
@@ -67,6 +68,8 @@ namespace Sandbox.Game.Weapons
         }
 
         private MyEntity3DSoundEmitter m_soundEmitter;
+
+        private int m_shotsFiredInBurst;
 
         //TODO: Why it is not used?
         private MyHudNotification m_outOfAmmoNotification;
@@ -152,10 +155,10 @@ namespace Sandbox.Game.Weapons
         public Vector3 DirectionToTarget(Vector3D target)
         {
             Vector3D direction = Vector3D.Normalize(target - PositionComp.WorldMatrix.Translation);
-            Vector3D gunDirection = PositionComp.WorldMatrix.Forward;
+            Vector3D gunDirection = m_owner.WeaponPosition.LogicalOrientationWorld;
             double d = Vector3D.Dot(direction, gunDirection);
             //Too big angle to target
-            if (d < 0.75)
+            if (d < 0.98)
                 direction = gunDirection;
             return direction;
         }
@@ -172,13 +175,17 @@ namespace Sandbox.Game.Weapons
                     return false;
                 }
 
+                if (m_gunBase.ShotsInBurst>0 && m_shotsFiredInBurst >= m_gunBase.ShotsInBurst)
+                {
+                    status = MyGunStatusEnum.BurstLimit;
+                    return false;
+                }
+
                 if ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot) < m_gunBase.ShootIntervalInMiliseconds)
                 {
                     status = MyGunStatusEnum.Cooldown;
                     return false;
                 }
-
-                Debug.Assert(m_owner is MyCharacter, "Only character can use automatic rifle!");
                 if (m_owner == null)
                 {
                     status = MyGunStatusEnum.Failed;
@@ -226,7 +233,13 @@ namespace Sandbox.Game.Weapons
             if (action == MyShootActionEnum.PrimaryAction)
             {
                 Shoot(direction, overrideWeaponPos);
+                m_shotsFiredInBurst++;
                 IsShooting = true;
+
+                if (m_owner.ControllerInfo.IsLocallyControlled() && m_owner.IsInFirstPersonView)
+                {
+                    MySector.MainCamera.CameraShake.AddShake(0.5f);
+                }
             }
             else if (action == MyShootActionEnum.SecondaryAction)
             {
@@ -243,6 +256,7 @@ namespace Sandbox.Game.Weapons
             if (action == MyShootActionEnum.PrimaryAction)
             {
                 IsShooting = false;
+                m_shotsFiredInBurst = 0;
             }
             else if (action == MyShootActionEnum.SecondaryAction)
             {
@@ -254,24 +268,21 @@ namespace Sandbox.Game.Weapons
         {
             m_lastTimeShoot = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
-            CreateSmokeEffect();
+            //CreateSmokeEffect();
 
             // initial position has offset, otherwise we shoot through close objects
-            if (!overrideWeaponPos.HasValue)
+      		if (!overrideWeaponPos.HasValue)
             {
-                m_gunBase.ShootWithOffset(m_owner.Physics.LinearVelocity, direction, -0.25f, (MyEntity) m_owner);
+	            if (m_owner!=null)
+    	            m_gunBase.ShootWithOffset(m_owner.Physics.LinearVelocity, direction, -0.25f, (MyEntity)m_owner);
+        	    else
+            	    m_gunBase.ShootWithOffset(Vector3.Zero, direction, -0.25f, null);
             }
             else
             {
-                Vector3D localDummyPosition = m_gunBase.GetMuzzleLocalPosition();
-                MatrixD weaponWorld = m_gunBase.WorldMatrix;
-                Vector3D localDummyPositionRotated;
-                Vector3D.Rotate(ref localDummyPosition, ref weaponWorld, out localDummyPositionRotated);
-                m_gunBase.Shoot((m_owner.PositionComp.GetPosition() + overrideWeaponPos.Value + localDummyPositionRotated) + direction * (-0.25f), 
+                m_gunBase.Shoot((overrideWeaponPos.Value) + direction * (-0.25f), 
                     m_owner.Physics.LinearVelocity, direction, (MyEntity)m_owner);
-            }
-
-            m_isAfterReleaseFire = false;
+            }            m_isAfterReleaseFire = false;
             if (m_gunBase.ShootSound != null)
             {
                 StartLoopSound(m_gunBase.ShootSound);
@@ -311,18 +322,19 @@ namespace Sandbox.Game.Weapons
                 m_smokeEffect.WorldMatrix = MatrixD.CreateTranslation(m_gunBase.GetMuzzleWorldPosition() + PositionComp.WorldMatrix.Forward * smokeOffset);
                 m_smokeEffect.UserBirthMultiplier = 50;
             }
+            m_gunBase.UpdateEffects();
 
-            if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot > m_gunBase.ReleaseTimeAfterFire
-                && !m_isAfterReleaseFire)
+            if (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot > m_gunBase.ReleaseTimeAfterFire && !m_isAfterReleaseFire)
             {
                 StopLoopSound();
 
                 if (m_smokeEffect != null)
                 {
-                    m_smokeEffect.Stop(false);
+                    m_smokeEffect.Stop();
                 }
 
                 m_isAfterReleaseFire = true;
+                m_gunBase.RemoveOldEffects(MyWeaponDefinition.WeaponEffectAction.Shoot);
             }
         }
 
@@ -358,6 +370,9 @@ namespace Sandbox.Game.Weapons
 
         protected override void Closing()
         {
+            IsShooting = false;
+            m_gunBase.RemoveOldEffects(MyWeaponDefinition.WeaponEffectAction.Shoot);
+
             if (m_smokeEffect != null)
             {
                 m_smokeEffect.Stop();
@@ -365,7 +380,7 @@ namespace Sandbox.Game.Weapons
             }
 
             if (m_soundEmitter.Loop)
-                m_soundEmitter.StopSound(true);
+                m_soundEmitter.StopSound(false);
 
             base.Closing();
         }
@@ -373,11 +388,14 @@ namespace Sandbox.Game.Weapons
         public void OnControlAcquired(MyCharacter owner)
         {
             m_owner = owner;
-            var inventory = m_owner.GetInventory() as MyInventory;
-            System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned!");
-            if (inventory != null)
+            if (m_owner != null)
             {
-                inventory.ContentsChanged += MyAutomaticRifleGun_ContentsChanged;
+                var inventory = m_owner.GetInventory() as MyInventory;
+                System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned!");
+                if (inventory != null)
+                {
+                    inventory.ContentsChanged += MyAutomaticRifleGun_ContentsChanged;
+                }
             }
             m_gunBase.RefreshAmmunitionAmount();
         }

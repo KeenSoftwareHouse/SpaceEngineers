@@ -21,7 +21,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.Game.World;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity.UseObject;
@@ -434,8 +434,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public bool HasSpawnPosition()
         {
-             MyModelDummy dummy;
-             return Model.Dummies.TryGetValue("dummy detector_respawn", out dummy);
+            MyModelDummy dummy;
+            return Model.Dummies.TryGetValue("dummy detector_respawn", out dummy);
         }
 
         public MatrixD GetSpawnPosition()
@@ -448,10 +448,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 dummyLocal = dummy.Matrix;
             }
 
-            MatrixD worldMatrix = MatrixD.Multiply(dummyLocal, WorldMatrix);
+            MatrixD worldMatrix = MatrixD.Multiply(MatrixD.CreateTranslation(dummyLocal.Translation), WorldMatrix);
             return worldMatrix;
         }
-         
+
         public float GetOxygenLevel()
         {
             if (!MySession.Static.Settings.EnableOxygen)

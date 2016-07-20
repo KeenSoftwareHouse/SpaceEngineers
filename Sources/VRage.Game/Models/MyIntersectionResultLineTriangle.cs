@@ -19,6 +19,7 @@ namespace VRage.Game.Models
         
         //  World coordinates of intersected triangle. It is also used as input parameter for col/det functions.
         public MyTriangle_Vertexes InputTriangle;
+        public MyTriangle_BoneWeigths? BoneWeights;
 
         //  Normals of vertexes of intersected triangle
         public Vector3 InputTriangleNormal;
@@ -28,6 +29,15 @@ namespace VRage.Game.Models
             InputTriangle = triangle;
             InputTriangleNormal = triangleNormal;
             Distance = distance;
+            BoneWeights = null;
+        }
+
+        public MyIntersectionResultLineTriangle(ref MyTriangle_Vertexes triangle, ref MyTriangle_BoneWeigths? boneWeigths, ref Vector3 triangleNormal, double distance)
+        {
+            InputTriangle = triangle;
+            InputTriangleNormal = triangleNormal;
+            Distance = distance;
+            BoneWeights = boneWeigths;
         }
         
         //  Find and return closer intersection of these two. If intersection is null then it's not really an intersection.

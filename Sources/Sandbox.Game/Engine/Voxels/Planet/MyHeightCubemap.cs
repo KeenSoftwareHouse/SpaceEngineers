@@ -318,16 +318,16 @@ namespace Sandbox.Engine.Voxels.Planet
 
         public void CreatePruningTree(string mapName)
         {
-            // check if we get an even tree, for now we will rely on that.
             int depth = 0;
 
             int res = Resolution;
 
             res /= HeightmapNode.HEIGHTMAP_LEAF_SIZE;
 
+            // check if we get an even tree, for now we will rely on that.
             while (res != 1)
             {
-                if (!(res % HeightmapNode.HEIGHTMAP_BRANCH_FACTOR == 0))
+                if (res % HeightmapNode.HEIGHTMAP_BRANCH_FACTOR != 0)
                 {
                     MyDebug.FailRelease("Cannot build prunning tree for heightmap face {0}!", mapName);
                     MyDebug.FailRelease("Heightmap resolution must be divisible by {1}, and after that a power of {0}. Failing to achieve so will disable several important optimizations!!", HeightmapNode.HEIGHTMAP_BRANCH_FACTOR, HeightmapNode.HEIGHTMAP_LEAF_SIZE);
@@ -630,7 +630,9 @@ namespace Sandbox.Engine.Voxels.Planet
                 return ContainmentType.Intersects;
             }
 
-            uint level = (uint)MathHelper.Clamp((int)Math.Ceiling(Math.Log(maxSize) * HEIGHTMAP_BRANCH_LOG_RECIP), 0, PruningTree.Length - 1);
+            double log = Math.Log(maxSize * (Resolution / HeightmapNode.HEIGHTMAP_LEAF_SIZE)) / Math.Log(HeightmapNode.HEIGHTMAP_BRANCH_FACTOR);
+
+            uint level = (uint)MathHelper.Clamp(log, 0, PruningTree.Length - 1);
 
             // stack index
             int ss = 0;
@@ -763,7 +765,9 @@ namespace Sandbox.Engine.Voxels.Planet
             }
 
             // Switch to floor to grab some closer precision
-            uint level = (uint)MathHelper.Clamp((int)Math.Floor(Math.Log(maxSize) * HEIGHTMAP_BRANCH_LOG_RECIP), 0, PruningTree.Length - 1);
+            double log = Math.Log(Resolution/(maxSize * HeightmapNode.HEIGHTMAP_LEAF_SIZE)) / Math.Log(HeightmapNode.HEIGHTMAP_BRANCH_FACTOR);
+
+            uint level = (uint)PruningTree.Length - 1 - (uint)MathHelper.Clamp(log, 0, PruningTree.Length - 1);
 
             Box2I rootBounds = new Box2I(Vector2I.Zero, new Vector2I((int)PruningTree[level].Res - 1));
             Box2I queryBounds = new Box2I(ref query, PruningTree[level].Res);

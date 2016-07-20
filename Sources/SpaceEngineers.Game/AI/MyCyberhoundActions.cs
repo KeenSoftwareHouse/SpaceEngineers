@@ -112,7 +112,7 @@ namespace SpaceEngineers.Game.AI
             if (targetPosition.HasValue)
             {
                 Vector3D targetPositionValue = targetPosition.Value;
-                var planet = MyGravityProviderSystem.GetNearestPlanet(targetPositionValue);
+                var planet = MyGamePruningStructure.GetClosestPlanet(targetPositionValue);
                 if (planet != null)
                 {
                     Vector3D targetPositionProjected = planet.GetClosestSurfacePointGlobal(ref targetPositionValue);
@@ -140,7 +140,7 @@ namespace SpaceEngineers.Game.AI
                     continue;
                 // exclude entities above ground
                 Vector3D entityPos = entity.PositionComp.GetPosition();
-                var planet = MyGravityProviderSystem.GetNearestPlanet(entityPos);
+                var planet = MyGamePruningStructure.GetClosestPlanet(entityPos);
                 if (planet != null)
                 {
                     Vector3D entityPosProjected = planet.GetClosestSurfacePointGlobal(ref entityPos);
@@ -242,7 +242,7 @@ namespace SpaceEngineers.Game.AI
                 Vector3D currentPosition = Bot.Player.Character.PositionComp.GetPosition();
                 Vector3D planetGravityVec = MyGravityProviderSystem.CalculateNaturalGravityInPoint(currentPosition);
 
-                var planet = MyGravityProviderSystem.GetNearestPlanet(currentPosition);
+                var planet = MyGamePruningStructure.GetClosestPlanet(currentPosition);
                 if (planet == null) return MyBehaviorTreeState.FAILURE;
 
                 if (lastTargetedEntityPosition.HasValue)

@@ -12,7 +12,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Sandbox.Game.GameSystems.Conveyors;
 using VRage;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using Sandbox.ModAPI.Interfaces;

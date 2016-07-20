@@ -109,7 +109,7 @@
 //            var buffer = m_buffers[L];
 
 //            buffer.Clear();
-//            GetLevelCells(L, buffer, (Vector3)MyEnvironment.ViewFrustum);
+//            GetLevelCells(L, buffer, (Vector3)MyRender11.Environment.ViewFrustum);
 
 //            for (int i = 0; i < buffer.Count; i++)
 //            {
@@ -117,7 +117,7 @@
 
 //                if (IsInvalid(buffer[i].Coord, buffer[i].LOD))
 //                {
-//                    if (MyEnvironment.ViewFrustum.Near.Intersects(box) == VRageMath.PlaneIntersectionType.Intersecting)
+//                    if (MyRender11.Environment.ViewFrustum.Near.Intersects(box) == VRageMath.PlaneIntersectionType.Intersecting)
 //                    {
 //                        AskForCell(buffer[i].Coord, buffer[i].LOD);
 //                    }
@@ -169,7 +169,7 @@
 //                        // NOW -> using camera projection
 //                        // LATER -> omnidirectional (?)
 
-//                        BoundingFrustum frustum = MyEnvironment.ViewFrustum;
+//                        BoundingFrustum frustum = MyRender11.Environment.ViewFrustum;
 
 //                        buffer.Clear();
 //                        GetLevelCells(processedLevel, buffer, frustum);

@@ -102,27 +102,32 @@ namespace VRage.Animations
                 weightMultiplier *= localWeight;
 
                 // update nodes that we are just leaving
-                var lastResult = CurrentUpdateData.BonesResult;
-                CurrentUpdateData.BonesResult = null;
-                stateTransitionBlending.SourceState.OnUpdate(this);
-                if (lastResult != null && CurrentUpdateData.BonesResult != null)
+                if (weightMultiplier > 0)
                 {
-                    for (int j = 0; j < lastResult.Count; j++)
-                        if (data.LayerBoneMask[j])
-                        {
-                            // these nodes lose their weight, it goes from 1 to 0
-                            // we need to blend them to last result (current node or another node that we are leaving)
-                            float w = ComputeEaseInEaseOut(MathHelper.Clamp(weightMultiplier, 0, 1));
-                            CurrentUpdateData.BonesResult[j].Rotation = Quaternion.Slerp(lastResult[j].Rotation, CurrentUpdateData.BonesResult[j].Rotation, w);
-                            CurrentUpdateData.BonesResult[j].Translation = Vector3.Lerp(lastResult[j].Translation, CurrentUpdateData.BonesResult[j].Translation, w);
-                        }
-                    // give back last result (free list of bones), we dont need it anymore
-                    data.Controller.ResultBonesPool.Free(lastResult);
+                    var lastResult = CurrentUpdateData.BonesResult;
+                    CurrentUpdateData.BonesResult = null;
+                    stateTransitionBlending.SourceState.OnUpdate(this);
+                    if (lastResult != null && CurrentUpdateData.BonesResult != null)
+                    {
+                        for (int j = 0; j < lastResult.Count; j++)
+                            if (data.LayerBoneMask[j])
+                            {
+                                // these nodes lose their weight, it goes from 1 to 0
+                                // we need to blend them to last result (current node or another node that we are leaving)
+                                float w = ComputeEaseInEaseOut(MathHelper.Clamp(weightMultiplier, 0, 1));
+                                CurrentUpdateData.BonesResult[j].Rotation = Quaternion.Slerp(lastResult[j].Rotation,
+                                    CurrentUpdateData.BonesResult[j].Rotation, w);
+                                CurrentUpdateData.BonesResult[j].Translation = Vector3.Lerp(lastResult[j].Translation,
+                                    CurrentUpdateData.BonesResult[j].Translation, w);
+                            }
+                        // give back last result (free list of bones), we dont need it anymore
+                        data.Controller.ResultBonesPool.Free(lastResult);
+                    }
                 }
                 // update, decrease remaining time
                 stateTransitionBlending.TimeLeftInSeconds -= data.DeltaTimeInSeconds;
                 m_stateTransitionBlending[i] = stateTransitionBlending;
-                if (stateTransitionBlending.TimeLeftInSeconds <= 0)
+                if (stateTransitionBlending.TimeLeftInSeconds <= 0 || weightMultiplier <= 0)
                 {
                     // skip older blended states and mark them for deletion, because their (global) weight is now zero 
                     for (int j = i + 1; j < m_stateTransitionBlending.Count; j++)
@@ -199,7 +204,6 @@ namespace VRage.Animations
                     }
 
                     // synchronization options... use them only if target animation is not playing already 
-                    if (!targetAnimationStillPlaying)
                     switch (animationTransition.Sync)
                     {
                         case MyAnimationTransitionSyncType.Restart:
@@ -209,7 +213,7 @@ namespace VRage.Animations
                             }
                             break;
                         case MyAnimationTransitionSyncType.Synchronize:
-                            if (animationSourceNode.RootAnimationNode != null && animationTargetNode.RootAnimationNode != null)
+                            if (!targetAnimationStillPlaying && animationSourceNode.RootAnimationNode != null && animationTargetNode.RootAnimationNode != null)
                             {
                                 float normalizedTimeInSource = animationSourceNode.RootAnimationNode.GetLocalTimeNormalized();
                                 animationTargetNode.RootAnimationNode.SetLocalTimeNormalized(normalizedTimeInSource);

@@ -120,16 +120,29 @@ namespace VRage.Collections
             return obj;
         }
 
-        public bool Remove(T item)
+        public bool Contains(T item)
         {
             int idx = m_head;
             for (int i = 0; i < m_size; i++, idx++)
             {
                 if (m_array[idx % m_array.Length].Equals(item))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool Remove(T item)
+        {
+            int idx = m_head;
+            int i;
+            for (i = 0; i < m_size; i++, idx++)
+            {
+                if (m_array[idx % m_array.Length].Equals(item))
                     break;
             }
 
-            if (idx == m_size) return false;
+            if (i == m_size) return false;
             Remove(idx);
 
             return true;
@@ -138,7 +151,7 @@ namespace VRage.Collections
         // TODO (DI): Those mod operations can be removed to improve performance
         public void Remove(int idx)
         {
-            Debug.Assert((idx > m_head || idx < m_size) && idx < m_array.Length);
+            Debug.Assert(idx >= m_head || idx < m_tail);
 
             int mod = idx % m_array.Length;
             int next;

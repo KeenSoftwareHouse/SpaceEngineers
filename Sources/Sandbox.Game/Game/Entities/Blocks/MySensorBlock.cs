@@ -306,7 +306,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_openedToolbars = new List<MyToolbar>();
 
             var toolbarButton = new MyTerminalControlButton<MySensorBlock>("Open Toolbar", MySpaceTexts.BlockPropertyTitle_SensorToolbarOpen, MySpaceTexts.BlockPropertyDescription_SensorToolbarOpen,
-                delegate (MySensorBlock self)
+                delegate(MySensorBlock self)
                 {
                     m_openedToolbars.Add(self.Toolbar);
                     if (MyGuiScreenCubeBuilder.Static == null)
@@ -316,10 +316,10 @@ namespace Sandbox.Game.Entities.Blocks
                         MyGuiScreenBase screen = MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.ToolbarConfigScreen, 0, self);
                         MyToolbarComponent.AutoUpdate = false;
                         screen.Closed += (source) =>
-                        {
-                            MyToolbarComponent.AutoUpdate = true;
-                            m_openedToolbars.Clear();
-                        };
+                            {
+                                MyToolbarComponent.AutoUpdate = true;
+                                m_openedToolbars.Clear();
+                            };
                         MyGuiSandbox.AddScreen(screen);
                     }
                 });
@@ -430,7 +430,7 @@ namespace Sandbox.Game.Entities.Blocks
             detectPlayProximitySoundSwitch.Setter = (x, v) =>
             {
                 x.PlayProximitySound = v;
-            };
+            };                   
             MyTerminalControlFactory.AddControl(detectPlayProximitySoundSwitch);
 
             var detectPlayersSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Players", MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers, MySpaceTexts.BlockPropertyTitle_SensorDetectPlayers);
@@ -516,7 +516,7 @@ namespace Sandbox.Game.Entities.Blocks
             detectFriendlySwitch.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(detectFriendlySwitch);
 
-            var detectNeutralSwitch = new MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Neutral", MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral, MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral);
+            var detectNeutralSwitch = new  MyTerminalControlOnOffSwitch<MySensorBlock>("Detect Neutral", MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral, MySpaceTexts.BlockPropertyTitle_SensorDetectNeutral);
             detectNeutralSwitch.Getter = (x) => x.DetectNeutral;
             detectNeutralSwitch.Setter = (x, v) =>
             {
@@ -825,8 +825,12 @@ namespace Sandbox.Game.Entities.Blocks
                 return false;
 
             if (DetectPlayers)
+            {
                 if (entity is Character.MyCharacter)
                     return ShouldDetectRelation((entity as Character.MyCharacter).GetRelationTo(OwnerId));
+                if (entity is MyGhostCharacter)
+                    return ShouldDetectRelation((entity as IMyControllableEntity).ControllerInfo.Controller.Player.GetRelationTo(OwnerId));
+            }
             if (DetectFloatingObjects)
                 if (entity is MyFloatingObject)
                     return true;

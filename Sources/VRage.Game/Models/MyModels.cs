@@ -93,11 +93,12 @@ namespace VRage.Game.Models
         }
 
         //  Lazy-loading and then returning reference to model
+        //  Param forceReloadMwm: Reloads MWM even when it is already in cache. Useful when debugging.
         //  May return null on failure.
-        public static MyModel GetModelOnlyAnimationData(string modelAsset)
+        public static MyModel GetModelOnlyAnimationData(string modelAsset, bool forceReloadMwm = false)
         {
             MyModel model;
-            if (!m_models.TryGetValue(modelAsset, out model))
+            if (forceReloadMwm || !m_models.TryGetValue(modelAsset, out model))
             {
                 model = new MyModel(modelAsset);
                 m_models[modelAsset] = model;

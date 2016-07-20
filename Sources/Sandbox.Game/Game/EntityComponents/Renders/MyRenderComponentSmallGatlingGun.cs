@@ -9,7 +9,7 @@ using VRage.Game.Components;
 
 namespace Sandbox.Game.Components
 {
-    class MyRenderComponentSmallGatlingGun : MyRenderComponent
+    class MyRenderComponentSmallGatlingGun : MyRenderComponentCubeBlock
     {
         MySmallGatlingGun m_gatlingGun = null;
         #region overrides

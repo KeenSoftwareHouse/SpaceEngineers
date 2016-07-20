@@ -315,10 +315,11 @@ namespace Sandbox.Game.Audio
 
             //planet or space
             Vector3D pos = MySession.Static.LocalCharacter.PositionComp.GetPosition();
-            MyPlanet planet = MyGravityProviderSystem.GetNearestPlanet(pos);
-            if (planet != null && Vector3D.Distance(pos, planet.PositionComp.GetPosition()) <= planet.GravityLimit * 0.65f)
+            MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(pos);
+            var grav = planet!= null ? planet.Components.Get<MyGravityProviderComponent>() as MySphericalNaturalGravityComponent : null;
+            if (planet != null && (grav != null) && Vector3D.Distance(pos, planet.PositionComp.GetPosition()) <= grav.GravityLimit * 0.65f)
             {
-                if(planet != m_lastVisitedPlanet)
+                if (planet != m_lastVisitedPlanet)
                 {
                     m_lastVisitedPlanet = planet;
                     if (planet.Generator.MusicCategories != null && planet.Generator.MusicCategories.Count > 0)

@@ -11,7 +11,9 @@ namespace Sandbox.ModAPI.Ingame
         float ReflectorRadius { get; }
         float Intensity { get; }
         float BlinkIntervalSeconds{get;}
-        float BlinkLenght{get;}
+        [Obsolete("Use BlinkLength instead.")]
+        float BlinkLenght { get; }
+        float BlinkLength { get; }
         float BlinkOffset{get;}
     }
 }

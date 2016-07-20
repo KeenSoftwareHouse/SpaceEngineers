@@ -11,7 +11,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -29,6 +29,7 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.Audio;
 using Sandbox.Game.World;
+using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Sandbox.Game.Weapons
 {
@@ -430,6 +431,13 @@ namespace Sandbox.Game.Weapons
             StopLoopSound();
         }
 
+        public override void OnAddedToScene(object source)
+        {
+            //Reload dummies in order to update local position of detector component (else the targeting position may differ!!!)
+            LoadDummies();
+            base.OnAddedToScene(source);
+        }
+
         protected override void Closing()
         {
             base.Closing();
@@ -616,7 +624,7 @@ namespace Sandbox.Game.Weapons
         {
             get { return null; }
         }
-        bool IMyShipToolBase.UseConveyorSystem { get { return UseConveyorSystem; } }
+        bool ModAPI.Ingame.IMyShipToolBase.UseConveyorSystem { get { return UseConveyorSystem; } }
 
         #region IMyInventoryOwner implementation
 

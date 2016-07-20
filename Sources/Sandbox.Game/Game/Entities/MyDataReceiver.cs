@@ -163,6 +163,10 @@ namespace Sandbox.Game.Entities
                 MyEntity entity = (MyEntity)broadcaster.Entity;
                 if (entity != null)
                 {
+                    //Also ignore entity if it is preview entity or else it will update hud
+                    if (entity.GetTopMostParent() is MyCubeGrid && entity.GetTopMostParent().IsPreview)
+                        continue;
+
                     if (!showMyself && entity == Entity)
                         continue; //do not show myself
 

@@ -48,6 +48,9 @@ namespace VRage.Game
         public string SecondarySoundName = null;
 
         [ProtoMember]
+        public string PhysicalMaterial = "Metal";
+
+        [ProtoMember]
         public float DeviateShotAngle = 0;
 
         [ProtoMember]
@@ -81,6 +84,9 @@ namespace VRage.Game
 
             [XmlAttribute, ProtoMember]
             public string Particle = "";
+
+            [XmlAttribute, ProtoMember]
+            public bool Loop = false;
         }
     }
 }

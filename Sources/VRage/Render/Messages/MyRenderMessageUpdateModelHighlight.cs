@@ -5,6 +5,7 @@ namespace VRageRender
     public class MyRenderMessageUpdateModelHighlight : MyRenderMessageBase
     {
         public uint ID;
+        public int InstanceIndex;
         public string Model;
         public int[] SectionIndices;
         public uint[] SubpartIndices;

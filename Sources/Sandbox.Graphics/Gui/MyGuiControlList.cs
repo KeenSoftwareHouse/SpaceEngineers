@@ -113,7 +113,10 @@ namespace Sandbox.Graphics.GUI
             Controls.Clear();
             foreach (MyGuiControlBase control in controls)
             {
-                Controls.Add(control);
+                if (control != null)
+                {
+                    Controls.Add(control);
+                }
             }
             Controls.CollectionChanged += OnVisibleControlsChanged;
             Controls.CollectionMembersVisibleChanged += OnVisibleControlsChanged;

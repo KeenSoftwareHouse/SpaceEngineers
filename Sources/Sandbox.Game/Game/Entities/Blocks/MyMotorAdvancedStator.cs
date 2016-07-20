@@ -29,7 +29,7 @@ namespace Sandbox.Game.Entities.Cube
     using Sandbox.Engine.Models;
     using VRage.Groups;
     using Sandbox.Game.Screens.Terminal.Controls;
-    using Sandbox.ModAPI.Ingame;
+    using Sandbox.ModAPI;
     using Sandbox.Game.Entities.Blocks;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorAdvancedStator))]
@@ -69,6 +69,17 @@ namespace Sandbox.Game.Entities.Cube
         public MyMotorAdvancedStator()
         {
             m_canBeDetached = true;
+        }
+
+        protected override void CustomUnweld()
+        {
+            base.CustomUnweld();
+
+            MyMotorAdvancedRotor topBlock = m_topBlock as MyMotorAdvancedRotor;
+            if (topBlock != null)
+            {
+                m_conveyorEndpoint.Detach(topBlock.ConveyorEndpoint as MyAttachableConveyorEndpoint);
+            }
         }
     }
 }

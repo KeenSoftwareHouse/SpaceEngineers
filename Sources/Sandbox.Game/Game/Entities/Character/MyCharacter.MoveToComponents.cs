@@ -141,6 +141,9 @@ namespace Sandbox.Game.Entities.Character
                 VRageRender.MyRenderProxy.DebugDrawAxis((MatrixD)targetTransform, 0.03f, false);
             }
 
+            Vector3 targetPosition = targetTransform.Translation;
+            //MyAnimationInverseKinematics.SolveIkTwoBones(AnimationController.CharacterBones, ikChainDesc, ref targetPosition,
+            //    ref Vector3.Zero, fromBindPose: true);
             MyInverseKinematics.SolveCCDIk(ref finalPos, bones, 0.0005f, 5, 0.5f, ref localFinalTransform, endBone);
             //MyInverseKinematics.SolveTwoJointsIk(ref finalPos, bones[0], bones[1], bones[2], ref localFinalTransform, WorldMatrix, bones[3],false);
 
@@ -168,6 +171,7 @@ namespace Sandbox.Game.Entities.Character
                 && characterBones.IsValidIndex(palmIndex))
             {
                 MatrixD worldMatrix = PositionComp.WorldMatrix;
+
                 MyInverseKinematics.SolveTwoJointsIkCCD(characterBones,
                     upperarmIndex, forearmIndex, palmIndex, ref localFinalTransform, ref worldMatrix, characterBones[palmIndex], true);
             }

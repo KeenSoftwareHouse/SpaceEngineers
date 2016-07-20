@@ -14,6 +14,10 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Character
 {
+    /// <summary>
+    /// OBSOLETE CLASS, DO NOT USE IT, PREFER MyAnimationInverseKinematics from VRage.
+    /// </summary>
+    [Obsolete]
     public static class MyInverseKinematics
     {
         public struct CastHit

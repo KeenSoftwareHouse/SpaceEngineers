@@ -26,12 +26,25 @@ namespace VRage.Utils
             m_id = id;
         }
 
+        public int Id
+        {
+            get { return m_id; }
+        }
+
+        public string String
+        {
+            get
+            {
+                using (m_lock.AcquireSharedUsing())
+                {
+                    return m_idToString[this];
+                }
+            }
+        }
+
         public override string ToString()
         {
-            using (m_lock.AcquireSharedUsing())
-            {
-                return m_idToString[this];
-            }
+            return String;
         }
 
         public override int GetHashCode()

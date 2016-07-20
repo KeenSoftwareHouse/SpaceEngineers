@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDrawLine2D : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawLine2D : MyDebugRenderMessage
     {
         public Vector2 PointFrom;
         public Vector2 PointTo;
@@ -14,7 +14,6 @@ namespace VRageRender
         public Color ColorTo;
         public Matrix? Projection;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawLine2D; } }
     }
 }

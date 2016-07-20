@@ -27,7 +27,7 @@ using VRage.Game;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AdvancedDoor))]
-    public class MyAdvancedDoor : MyFunctionalBlock, ModAPI.IMyDoor
+    public class MyAdvancedDoor : MyFunctionalBlock, ModAPI.IMyAdvancedDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -731,7 +731,7 @@ namespace Sandbox.Game.Entities
 
             if (relation.IsFriendly())
             {
-                m_open.Value = open;
+                Open = open;
             }
         }
     }

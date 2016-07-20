@@ -20,6 +20,7 @@ namespace VRageRender
         public float NearObjectsNearPlane;
         public float NearObjectsFarPlane;
         public Vector3D CameraPosition;
+        public int LastMomentUpdateIndex = 0;
 
         public MyTimeSpan UpdateTime;
 

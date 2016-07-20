@@ -6,7 +6,7 @@ using VRageMath;
 
 namespace VRageRender
 {
-    public class MyRenderMessageDebugDrawSphere : MyRenderMessageBase
+    public class MyRenderMessageDebugDrawSphere : MyDebugRenderMessage
     {
         public Vector3D Position;
         public float Radius;
@@ -17,7 +17,6 @@ namespace VRageRender
         public bool Smooth;
         public bool Cull;
 
-        public override MyRenderMessageType MessageClass { get { return MyRenderMessageType.DebugDraw; } }
         public override MyRenderMessageEnum MessageType { get { return MyRenderMessageEnum.DebugDrawSphere; } }
     }
 }

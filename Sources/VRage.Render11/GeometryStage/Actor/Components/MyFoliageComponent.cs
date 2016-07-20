@@ -56,7 +56,7 @@ namespace VRageRender
             }
             m_pendingComponentsToInit.Clear();
 
-            BoundingSphereD sphere = new BoundingSphereD(MyEnvironment.CameraPosition, MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance());
+            BoundingSphereD sphere = new BoundingSphereD(MyRender11.Environment.CameraPosition, MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance());
             MyScene.FoliageDBVH.OverlapAllBoundingSphere(ref sphere, m_componentsInRadius);
 
             foreach (var foliageComponent in m_activeComponents)
@@ -318,7 +318,7 @@ namespace VRageRender
             var invScaleMat = MatrixD.CreateScale(1.0f / renderableComponent.m_voxelScale);
 
             var worldMat = proxy.WorldMatrix;
-            worldMat.Translation -= MyEnvironment.CameraPosition;
+            worldMat.Translation -= MyRender11.Environment.CameraPosition;
             proxy.CommonObjectData.LocalMatrix = invScaleMat * worldMat;
 
             foreach(var materialStreamPair in m_streams)

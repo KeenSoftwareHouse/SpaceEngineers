@@ -650,7 +650,7 @@ namespace Sandbox.Game.Entities.Cube
                 rb.UpdateMotionType(HkMotionType.Fixed);
             }
             rb.EnableDeactivation = true;
-            BreakableBody = new HkdBreakableBody(breakable, rb, MyPhysics.SingleWorld.DestructionWorld, Matrix.Identity);
+            BreakableBody = new HkdBreakableBody(breakable, rb, null, Matrix.Identity);
             //DestructionBody.ConnectToWorld(HavokWorld, 0.05f);
 
             BreakableBody.AfterReplaceBody += FracturedBody_AfterReplaceBody;
@@ -946,6 +946,9 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.Begin("RecreateBody");
             bool wasfixed = RigidBody.IsFixedOrKeyframed;
             var layer = RigidBody.Layer;
+
+            var world = ((MyGridPhysics) m_grid.Physics).HavokWorld;
+
             if (false)//m_newBreakableBodies.Count == 1) //jn: keeps crashing now, putting aside for release
             {
                 ProfilerShort.Begin("NewReplace");
@@ -1006,7 +1009,7 @@ namespace Sandbox.Game.Entities.Cube
                 BreakableBody.BreakableShape.SetChildrenParent(BreakableBody.BreakableShape);
                 Shape.BreakableShape = BreakableBody.BreakableShape;
                 Shape.UpdateDirtyBlocks(m_dirtyCubesInfo.DirtyBlocks, false);
-                Shape.CreateConnectionToWorld(BreakableBody);
+                Shape.CreateConnectionToWorld(BreakableBody, world);
                 if (wasfixed && m_grid.GridSizeEnum == MyCubeSize.Small)
                 {
                     if (MyCubeGridSmallToLargeConnection.Static.TestGridSmallToLargeConnection(m_grid))
@@ -1054,7 +1057,7 @@ namespace Sandbox.Game.Entities.Cube
                     Entity.Physics.LinearVelocity = m_oldLinVel;
                     Entity.Physics.AngularVelocity = m_oldAngVel;
                     m_grid.DetectDisconnectsAfterFrame();
-                    Shape.CreateConnectionToWorld(BreakableBody);
+                    Shape.CreateConnectionToWorld(BreakableBody, world);
                     HavokWorld.DestructionWorld.AddBreakableBody(BreakableBody);
                     ProfilerShort.End();
                 }
@@ -1200,6 +1203,12 @@ namespace Sandbox.Game.Entities.Cube
             if (BreakableBody == null)
             {
                 MyLog.Default.WriteLine("BreakableBody was null in GetContactCounpoundId!");
+            }
+
+            Debug.Assert(HavokWorld.DestructionWorld != null, "HavokWorld.DestructionWorld was null in GetContactCompoundId!");
+            if (HavokWorld.DestructionWorld == null)
+            {
+                MyLog.Default.WriteLine("HavokWorld.DestructionWorld was null in GetContactCompoundId!");
             }
 
             HkDestructionUtils.FindAllBreakableShapesIntersectingSphere(HavokWorld.DestructionWorld, BreakableBody, bodyRot, bodyMatrix.Translation,

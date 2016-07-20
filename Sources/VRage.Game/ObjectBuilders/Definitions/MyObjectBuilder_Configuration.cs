@@ -16,6 +16,9 @@ namespace VRage.Game
 
             [ProtoMember, XmlAttribute]
             public float Small;
+
+            [ProtoMember, XmlAttribute]
+            public float SmallOriginal;
         }
 
         [ProtoContract]

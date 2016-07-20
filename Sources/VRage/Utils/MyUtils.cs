@@ -252,20 +252,21 @@ namespace VRage.Utils
         }
         public static void DeserializeValue(XmlReader reader, out Vector3 value)
         {
-            object val = reader.Value;
-            reader.Read();
-
-            string[] parts = ((string)val).Split(' ');
-            Vector3 v = new Vector3(Convert.ToSingle(parts[0], CultureInfo.InvariantCulture), Convert.ToSingle(parts[1], CultureInfo.InvariantCulture), Convert.ToSingle(parts[2], CultureInfo.InvariantCulture));
+            Vector3 v = new Vector3();
+            v.X = reader.ReadElementContentAsFloat();
+            v.Y = reader.ReadElementContentAsFloat();
+            v.Z = reader.ReadElementContentAsFloat();
             value = v;
         }
         public static void DeserializeValue(XmlReader reader, out Vector4 value)
         {
-            object val = reader.Value;
-            reader.Read();
+            Vector4 v = new Vector4();
 
-            string[] parts = ((string)val).Split(' ');
-            Vector4 v = new Vector4(Convert.ToSingle(parts[0], CultureInfo.InvariantCulture), Convert.ToSingle(parts[1], CultureInfo.InvariantCulture), Convert.ToSingle(parts[2], CultureInfo.InvariantCulture), Convert.ToSingle(parts[3], CultureInfo.InvariantCulture));
+            v.W = reader.ReadElementContentAsFloat();
+            v.X = reader.ReadElementContentAsFloat();
+            v.Y = reader.ReadElementContentAsFloat();
+            v.Z = reader.ReadElementContentAsFloat();
+
             value = v;
         }
         public static string FormatByteSizePrefix(ref float byteSize)

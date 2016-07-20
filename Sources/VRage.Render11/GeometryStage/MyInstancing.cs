@@ -70,6 +70,8 @@ namespace VRageRender
         internal bool[] VisibilityMask;
         internal int NonVisibleInstanceCount;
 
+        internal bool PerInstanceLods;
+
         internal void SetVisibility(int index, bool value)
         {
             if (VisibilityMask == null || index >= VisibilityMask.Length)
@@ -191,11 +193,11 @@ namespace VRageRender
             DisposeInstanceActor();
         }
 
-        internal static unsafe void UpdateGeneric(InstancingId id, List<MyInstanceData> instanceData, int capacity)
+        internal static unsafe void UpdateGeneric(InstancingId id, MyInstanceData[] instanceData, int capacity)
         {
             Debug.Assert(id.Info.Type == MyRenderInstanceBufferType.Generic, "Wrong type of instance buffer for instancing!");
 
-            capacity = instanceData.Count;
+            capacity = instanceData.Length;
 
             if (capacity != Instancings.Data[id.Index].TotalCapacity)
             {
@@ -214,7 +216,7 @@ namespace VRageRender
             }
 
             Instancings.Data[id.Index].TotalCapacity = capacity;
-            Instancings.Data[id.Index].InstanceData = instanceData.ToArray();
+            Instancings.Data[id.Index].InstanceData = instanceData;
 
             RebuildGeneric(id);
             MyInstanceLodComponent.ClearInvalidInstances(id);
@@ -319,6 +321,11 @@ namespace VRageRender
             }
 
             DisposeInstanceActor();
+        }
+
+        public static void UpdateGenericSettings(InstancingId handle, bool setPerInstanceLod)
+        {
+            Instancings.Data[handle.Index].PerInstanceLods = setPerInstanceLod;
         }
     }
 }

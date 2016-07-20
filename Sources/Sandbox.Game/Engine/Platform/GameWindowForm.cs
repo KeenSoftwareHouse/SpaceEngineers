@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-
-using SharpDX.Windows;
 using SharpDX.Win32;
+using SharpDX;
+using SharpDX.Desktop;
 using System.Collections.Generic;
 using Sandbox.Engine.Utils;
 using System.Runtime.InteropServices;
@@ -129,7 +129,7 @@ namespace Sandbox.Engine.Platform
 
             if (size.Height > screen.Height)
             {
-                Location = new Point(Location.X, screen.Height - size.Height); 
+                Location = new System.Drawing.Point(Location.X, screen.Height - size.Height); 
             }
         }
 

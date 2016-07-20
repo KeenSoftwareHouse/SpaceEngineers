@@ -117,7 +117,8 @@ namespace Sandbox.Game.GameSystems
             m_ignoreNextInput = true;
 
             MySessionComponentVoxelHand.Static.Enabled = false;
-            MyCubeBuilder.Static.Deactivate();
+            MySession.Static.GameFocusManager.Clear();
+            //MyCubeBuilder.Static.Deactivate();
         }
 
         public void UpdateBeforeSimulation()

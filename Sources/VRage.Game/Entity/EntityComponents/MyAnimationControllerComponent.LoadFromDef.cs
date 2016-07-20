@@ -29,9 +29,10 @@ namespace VRage.Game.Components
         private static readonly char[] m_boneListSeparators = {' '};
 
         // Initialize this animation controller from given object builder.
+        // param forceReloadMwm: (Re)load MWM files even if they are in cache.
         // Returns true on success.
         public static bool InitFromDefinition(this VRage.Game.Components.MyAnimationControllerComponent thisController,
-            MyAnimationControllerDefinition animControllerDefinition)
+            MyAnimationControllerDefinition animControllerDefinition, bool forceReloadMwm = false)
         {
             bool result = true;
             thisController.Clear();
@@ -70,18 +71,25 @@ namespace VRage.Game.Components
                 }
                 layer.BoneMask = null; // this will build itself in animation controller when we know all character bones
                 MyAnimationVirtualNodes virtualNodes = new MyAnimationVirtualNodes();
-                result = InitLayerNodes(layer, objBuilderLayer.StateMachine, animControllerDefinition, thisController.Controller, layer.Name + "/", virtualNodes) && result;
+                result = InitLayerNodes(layer, objBuilderLayer.StateMachine, animControllerDefinition, thisController.Controller, layer.Name + "/",
+                    virtualNodes, forceReloadMwm) && result;
                 layer.SetState(layer.Name + "/" + objBuilderLayer.InitialSMNode);
                 layer.SortTransitions();
             }
+
+            foreach (var footIkChain in animControllerDefinition.FootIkChains)
+                thisController.InverseKinematics.RegisterFootBone(footIkChain.FootBone, footIkChain.ChainLength, footIkChain.AlignBoneWithTerrain);
+            foreach (var ignoredBone in animControllerDefinition.IkIgnoredBones)
+                thisController.InverseKinematics.RegisterIgnoredBone(ignoredBone);
+
             if (result)
                 thisController.MarkAsValid();
             return result;
         }
 
         // Initialize state machine of one layer.
-        private static bool InitLayerNodes(MyAnimationStateMachine layer, string stateMachineName, MyAnimationControllerDefinition animControllerDefinition, 
-            MyAnimationController animationController, string currentNodeNamePrefix, MyAnimationVirtualNodes virtualNodes)
+        private static bool InitLayerNodes(MyAnimationStateMachine layer, string stateMachineName, MyAnimationControllerDefinition animControllerDefinition,
+            MyAnimationController animationController, string currentNodeNamePrefix, MyAnimationVirtualNodes virtualNodes, bool forceReloadMwm)
         {
             var objBuilderStateMachine = animControllerDefinition.StateMachines.FirstOrDefault(x => x.Name == stateMachineName);
             if (objBuilderStateMachine == null)
@@ -99,7 +107,7 @@ namespace VRage.Game.Components
                 if (objBuilderNode.StateMachineName != null)
                 {
                     // embedded state machine, copy its nodes
-                    if (!InitLayerNodes(layer, objBuilderNode.StateMachineName, animControllerDefinition, animationController, absoluteNodeName + "/", virtualNodes))
+                    if (!InitLayerNodes(layer, objBuilderNode.StateMachineName, animControllerDefinition, animationController, absoluteNodeName + "/", virtualNodes, forceReloadMwm))
                         result = false;
                 }
                 else
@@ -130,7 +138,7 @@ namespace VRage.Game.Components
 
                     if (objBuilderNode.AnimationTree != null)
                     {
-                        var smNodeAnimTree = InitNodeAnimationTree(objBuilderNode.AnimationTree.Child);
+                        var smNodeAnimTree = InitNodeAnimationTree(objBuilderNode.AnimationTree.Child, forceReloadMwm);
                         smNode.RootAnimationNode = smNodeAnimTree;
                     }
                     else
@@ -258,14 +266,14 @@ namespace VRage.Game.Components
         }
 
         // Initialize animation tree of the state machine node.
-        private static MyAnimationTreeNode InitNodeAnimationTree(VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNode objBuilderNode)
+        private static MyAnimationTreeNode InitNodeAnimationTree(VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNode objBuilderNode, bool forceReloadMwm)
         {
             // ------- tree node track -------
             var objBuilderNodeTrack = objBuilderNode as VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationTreeNodeTrack;
             if (objBuilderNodeTrack != null)
             {
                 var nodeTrack = new MyAnimationTreeNodeTrack();
-                MyModel modelAnimation = objBuilderNodeTrack.PathToModel != null ? MyModels.GetModelOnlyAnimationData(objBuilderNodeTrack.PathToModel) : null;
+                MyModel modelAnimation = objBuilderNodeTrack.PathToModel != null ? MyModels.GetModelOnlyAnimationData(objBuilderNodeTrack.PathToModel, forceReloadMwm) : null;
                 if (modelAnimation != null && modelAnimation.Animations != null && modelAnimation.Animations.Clips != null && modelAnimation.Animations.Clips.Count > 0)
                 {
                     VRage.Animations.MyAnimationClip selectedClip = modelAnimation.Animations.Clips.FirstOrDefault(clipItem => clipItem.Name == objBuilderNodeTrack.AnimationName);
@@ -279,6 +287,7 @@ namespace VRage.Game.Components
                     nodeTrack.Loop = objBuilderNodeTrack.Loop;
                     nodeTrack.Speed = objBuilderNodeTrack.Speed;
                     nodeTrack.Interpolate = objBuilderNodeTrack.Interpolate;
+                    nodeTrack.SynchronizeWithLayer = objBuilderNodeTrack.SynchronizeWithLayer;
                 }
                 else if (objBuilderNodeTrack.PathToModel != null)
                 {
@@ -299,7 +308,7 @@ namespace VRage.Game.Components
                         MyAnimationTreeNodeMix1D.MyParameterNodeMapping mapping = new MyAnimationTreeNodeMix1D.MyParameterNodeMapping()
                         {
                             ParamValueBinding = mappingObjBuilder.Param,
-                            Child = InitNodeAnimationTree(mappingObjBuilder.Node)
+                            Child = InitNodeAnimationTree(mappingObjBuilder.Node, forceReloadMwm)
                         };
                         nodeMix1D.ChildMappings.Add(mapping);
                     }

@@ -1,17 +1,19 @@
 ﻿using Sandbox.Game.Entities;
 using System.Collections.Generic;
 using VRage.Collections;
+using VRage.Game.Components;
 using VRageMath;
 
 namespace Sandbox.Game.GameSystems
 {
-    public static class MyGravityProviderSystem
+    [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate, 666)]
+    public class MyGravityProviderSystem: MySessionComponentBase
     {
         public const float G = 9.81f;
 
         static List<IMyGravityProvider> m_gravityGenerators = new List<IMyGravityProvider>();
-        static List<IMyGravityProvider> m_planetGenerators = new List<IMyGravityProvider>();
-		public static ListReader<IMyGravityProvider> NaturalGravityProviders { get { return m_planetGenerators; } }
+        static List<IMyGravityProvider> m_naturalGravityGenerators = new List<IMyGravityProvider>();
+		public static ListReader<IMyGravityProvider> NaturalGravityProviders { get { return m_naturalGravityGenerators; } }
 
         static public List<Vector3> GravityVectors = new List<Vector3>();
 		private static float m_lastLargestNaturalGravityMultiplier = 0.0f;
@@ -61,11 +63,11 @@ namespace Sandbox.Game.GameSystems
 			if(clearVectors)
 				GravityVectors.Clear();
 
-            foreach (IMyGravityProvider generator in m_planetGenerators)
+            foreach (IMyGravityProvider generator in m_naturalGravityGenerators)
             {
-                if (generator.IsPositionInRangeGrid(worldPoint))
+                if (generator.IsPositionInRange(worldPoint))
                 {
-                    Vector3 worldGravity = generator.GetWorldGravityGrid(worldPoint);
+                    Vector3 worldGravity = generator.GetWorldGravity(worldPoint);
 					var gravityMultiplier = generator.GetGravityMultiplier(worldPoint);
 
 					if (gravityMultiplier > m_lastLargestNaturalGravityMultiplier)
@@ -83,9 +85,9 @@ namespace Sandbox.Game.GameSystems
 		{
 			var largestNaturalGravityMultiplier = 0.0f;
 
-			foreach (IMyGravityProvider generator in m_planetGenerators)
+			foreach (IMyGravityProvider generator in m_naturalGravityGenerators)
 			{
-				if (generator.IsPositionInRangeGrid(worldPoint))
+				if (generator.IsPositionInRange(worldPoint))
 				{
 					var gravityMultiplier = generator.GetGravityMultiplier(worldPoint);
 
@@ -102,27 +104,6 @@ namespace Sandbox.Game.GameSystems
 			return MathHelper.Clamp(1.0f - naturalGravityMultiplier * 2.0f, 0.0f, 1.0f);
 		}
 
-        public static MyPlanet GetNearestPlanet(Vector3D worldPosition)
-        {
-            MyPlanet nearestPlanet = null;
-            double nearestPlanetDistanceSq = double.MaxValue;
-            foreach (IMyGravityProvider gravityProvider in m_planetGenerators)
-            {
-                MyPlanet planet = gravityProvider as MyPlanet;
-                if (planet == null)
-                    continue;
-
-                var planetDistanceSq = (planet.PositionComp.GetPosition() - worldPosition).LengthSquared();
-                if (planetDistanceSq < nearestPlanetDistanceSq)
-                {
-                    nearestPlanet = planet;
-                    nearestPlanetDistanceSq = planetDistanceSq;
-                }
-            }
-
-            return nearestPlanet;
-        }
-
         /// <summary>
         /// Returns the planet that has the most influential gravity well in the given world point.
         /// The most influential gravity well is defined as the planet that has the highest gravity in the point and
@@ -130,37 +111,23 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         /// <param name="worldPosition">Position to test for the strongest gravity well</param>
         /// <returns>Planet that has the most influential gravity well in the given world point</returns>
-        public static MyPlanet GetStrongestGravityWell(Vector3D worldPosition)
+        public static double GetStrongestNaturalGravityWell(Vector3D worldPosition, out IMyGravityProvider nearestProvider)
         {
-            MyPlanet nearestPlanet = null;
             double maxMetricValue = double.MinValue;
-            foreach (IMyGravityProvider gravityProvider in m_planetGenerators)
+            nearestProvider = null;
+
+            foreach (IMyGravityProvider gravityProvider in m_naturalGravityGenerators)
             {
-                MyPlanet planet = gravityProvider as MyPlanet;
-                if (planet == null)
-                    continue;
+                var grav = gravityProvider.GetWorldGravity(worldPosition).Length();
 
-                double planetDistance = (planet.PositionComp.GetPosition() - worldPosition).Length();
-                double metricValue = double.MinValue;
-                if (planetDistance <= planet.GravityLimit)
+                if (grav > maxMetricValue)
                 {
-                    metricValue = (double)planet.GetGravityMultiplier(worldPosition);
-                }
-                else
-                {
-                    // Outside of the gravity well, just invert the distance, so that we can use only one value
-                    // for comparison of planets which affect us and which don't
-                    metricValue = planet.GravityLimit - planetDistance;
-                }
-
-                if (metricValue > maxMetricValue)
-                {
-                    nearestPlanet = planet;
-                    maxMetricValue = metricValue;
+                    maxMetricValue = grav;
+                    nearestProvider = gravityProvider;
                 }
             }
 
-            return nearestPlanet;
+            return maxMetricValue;
         }
 
         /// <summary>
@@ -172,20 +139,17 @@ namespace Sandbox.Game.GameSystems
         public static bool IsPositionInNaturalGravity(Vector3D position, double sphereSize = 0)
         {
             // Clamp sphere size to be at least 0.
+            // TODO (DI/TT): Finish dis and add grav gens to a tree or smthing
             sphereSize = MathHelper.Max(sphereSize, 0);
 
-            for (int i = 0; i < m_planetGenerators.Count; i++)
+            for (int i = 0; i < m_naturalGravityGenerators.Count; i++)
             {
-                IMyGravityProvider provider = m_planetGenerators[i];
+                IMyGravityProvider provider = m_naturalGravityGenerators[i];
                 if (provider == null)
                     continue;
 
-                MyPlanet planet = provider as MyPlanet;
-                if (planet == null) 
-                    continue;
-
                 //we don't really care which planet's gravity we're in, so return as soon as we find one
-                if (planet.IsPositionInGravityWell(position))
+                if (provider.IsPositionInRange(position))
                     return true;
             }
 
@@ -197,7 +161,8 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         /// <param name="start">Starting point of the trajectory.</param>
         /// <param name="end">Destination of the trajectory.</param>
-        /// <param name="raySize">Size of the ray to test with. (Cilinder test)</param>
+        /// <param name="raySize">Size of the ray to test with. (Cylinder test)</param>
+        /// DI: Do you mean capsule?
         /// <returns></returns>
         public static bool DoesTrajectoryIntersectNaturalGravity(Vector3D start, Vector3D end, double raySize = 0)
         {
@@ -211,18 +176,19 @@ namespace Sandbox.Game.GameSystems
             // Clamp ray size to be at least 0.
             raySize = MathHelper.Max(raySize, 0);
 
-            for (int i = 0; i < m_planetGenerators.Count; i++)
+            for (int i = 0; i < m_naturalGravityGenerators.Count; i++)
             {
-                IMyGravityProvider provider = m_planetGenerators[i];
+                IMyGravityProvider provider = m_naturalGravityGenerators[i];
                 if (provider == null)
                     continue;
 
-                MyPlanet planet = provider as MyPlanet;
-                if (planet == null)
+                // This should be done some other way, but works for nau
+                MySphericalNaturalGravityComponent spherical = provider as MySphericalNaturalGravityComponent;
+                if (spherical == null)
                     continue;
 
                 //create a bounding sphere to represent the gravity sphere around the planet
-                BoundingSphereD gravitySphere = new BoundingSphereD(planet.PositionComp.GetPosition(), planet.GravityLimit + raySize);
+                BoundingSphereD gravitySphere = new BoundingSphereD(spherical.Position, spherical.GravityLimit + raySize);
 
                 //check for intersections
                 float? intersect = trajectory.Intersects(gravitySphere);
@@ -242,14 +208,14 @@ namespace Sandbox.Game.GameSystems
             m_gravityGenerators.Remove(gravityGenerator);
         }
 
-        public static void AddPlanet(IMyGravityProvider gravityGenerator)
+        public static void AddNaturalGravityProvider(IMyGravityProvider gravityGenerator)
         {
-            m_planetGenerators.Add(gravityGenerator);
+            m_naturalGravityGenerators.Add(gravityGenerator);
         }
 
-        public static void RemovePlanet(IMyGravityProvider gravityGenerator)
+        public static void RemoveNaturalGravityProvider(IMyGravityProvider gravityGenerator)
         {
-            m_planetGenerators.Remove(gravityGenerator);
+            m_naturalGravityGenerators.Remove(gravityGenerator);
         }
     }
 }

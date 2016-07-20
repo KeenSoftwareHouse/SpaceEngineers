@@ -22,6 +22,7 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.ObjectBuilders;
+using VRage;
 
 namespace Sandbox.Engine.Networking
 {
@@ -110,11 +111,14 @@ namespace Sandbox.Engine.Networking
         /// Do NOT change this value, as it would break worlds published to workshop!!!
         /// Tag for workshop items which contain world data.
         /// </summary>
+        public const string WORKSHOP_DEVELOPMENT_TAG = "development";
         public const string WORKSHOP_WORLD_TAG = "world";
         public const string WORKSHOP_MOD_TAG = "mod";
         public const string WORKSHOP_BLUEPRINT_TAG = "blueprint";
         public const string WORKSHOP_SCENARIO_TAG = "scenario";
         private const string WORKSHOP_INGAMESCRIPT_TAG = "ingameScript";
+
+        static FastResourceLock m_modLock = new FastResourceLock();
 
         public static void Init(Category[] modCategories, Category[] worldCategories, Category[] blueprintCategories, Category[] scenarioCategories)
         {
@@ -501,6 +505,12 @@ namespace Sandbox.Engine.Networking
 
             public PublishItemResult(string localFolder, string publishedTitle, string publishedDescription, ulong? publishedFileId, PublishedFileVisibility visibility, string[] tags, string[] ignoredExtensions)
             {
+                if (MyFinalBuildConstants.IS_STABLE == false && tags.Contains(WORKSHOP_DEVELOPMENT_TAG) == false)
+                {
+                    Array.Resize(ref tags, tags.Length + 1);
+                    tags[tags.Length - 1] = WORKSHOP_DEVELOPMENT_TAG;
+                }
+
                 Task = Parallel.Start(() =>
                 {
                     m_publishedFileId = PublishItemBlocking(localFolder, publishedTitle, publishedDescription, publishedFileId, visibility, tags, ignoredExtensions);
@@ -922,11 +932,11 @@ namespace Sandbox.Engine.Networking
             return true;
         }
 
-        public static void DownloadModsAsync(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool> onFinishedCallback, Action onCancelledCallback = null)
+        public static void DownloadModsAsync(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool,string> onFinishedCallback, Action onCancelledCallback = null)
         {
             if (mods == null || mods.Count == 0)
             {
-                onFinishedCallback(true);
+                onFinishedCallback(true,"");
                 return;
             }
 
@@ -948,28 +958,30 @@ namespace Sandbox.Engine.Networking
             MyGuiSandbox.AddScreen(m_asyncDownloadScreen);
         }
 
+        public struct ResultData
+        {
+            public bool Success;
+            public string MismatchMods;
+        }
+
         class DownloadModsResult : IMyAsyncResult
         {
-            public bool Success
-            {
-                get;
-                private set;
-            }
-
             public Task Task
             {
                 get;
                 private set;
             }
 
-            public Action<bool> callback;
+            public ResultData Result;
 
-            public DownloadModsResult(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool> onFinishedCallback)
+            public Action<bool,string> callback;
+
+            public DownloadModsResult(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool,string> onFinishedCallback)
             {
                 callback = onFinishedCallback;
                 Task = Parallel.Start(() =>
                 {
-                    Success = DownloadWorldModsBlocking(mods);
+                    Result = DownloadWorldModsBlocking(mods);
                 });
             }
 
@@ -988,19 +1000,22 @@ namespace Sandbox.Engine.Networking
 
             var result = (DownloadModsResult)iResult;
 
-            if (!result.Success)
+            if (!result.Result.Success)
             {
                 MySandboxGame.Log.WriteLine(string.Format("Error downloading mods"));
             }
-            result.callback(result.Success);
+            result.callback(result.Result.Success,result.Result.MismatchMods);
         }
 
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        public static bool DownloadModsBlocking(List<SubscribedItem> mods)
+        public static ResultData DownloadModsBlocking(List<SubscribedItem> mods)
         {
+            int counter = 0;
+            string numMods = mods.Count.ToString();
             VRage.Collections.CachingList<SubscribedItem> failedMods = new VRage.Collections.CachingList<SubscribedItem>();
+            VRage.Collections.CachingList<SubscribedItem> mismatchMods = new VRage.Collections.CachingList<SubscribedItem>();
             bool downloadingFailed = false;
 
             long startTime = Stopwatch.GetTimestamp();
@@ -1016,6 +1031,14 @@ namespace Sandbox.Engine.Networking
                 {
                     downloadingFailed = true;
                     return;
+                }
+
+
+                bool devTagMismatch = mod.Tags != null && mod.Tags.Contains(MySteamWorkshop.WORKSHOP_DEVELOPMENT_TAG) && MyFinalBuildConstants.IS_STABLE;
+
+                if (devTagMismatch)
+                {
+                    mismatchMods.Add(mod);
                 }
 
                 var localPackedModFullPath = Path.Combine(m_workshopModsPath, mod.PublishedFileId + m_workshopModSuffix);
@@ -1035,6 +1058,16 @@ namespace Sandbox.Engine.Networking
                 {
                     MySandboxGame.Log.WriteLineAndConsole(string.Format("Up to date mod: Id = {0}, title = '{1}'", mod.PublishedFileId, mod.Title));
                 }
+
+                if (m_asyncDownloadScreen != null)
+                {
+                    using (m_modLock.AcquireExclusiveUsing())
+                    {
+                        counter++;
+                        m_asyncDownloadScreen.ProgressTextString = MyTexts.GetString(MyCommonTexts.ProgressTextDownloadingMods) + " " + counter.ToString() + " of " + numMods;
+                    }
+                }
+                
             });
 
             long endTime = Stopwatch.GetTimestamp();
@@ -1057,12 +1090,21 @@ namespace Sandbox.Engine.Networking
                 {
                     MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mods because download was stopped."));
                 }
-                return false;
+                return new ResultData();
+            }
+
+            ResultData ret = new ResultData();
+            ret.Success = true;
+            ret.MismatchMods = "";
+            mismatchMods.ApplyChanges();
+            foreach(var mod in mismatchMods)
+            {
+                ret.MismatchMods += mod.Title + Environment.NewLine; 
             }
 
             double duration = (double)(endTime - startTime) / (double)Stopwatch.Frequency;
             MySandboxGame.Log.WriteLineAndConsole(string.Format("Mod download time: {0:0.00} seconds", duration));
-            return true;
+            return ret;
         }
 
         /// <summary>
@@ -1263,17 +1305,20 @@ namespace Sandbox.Engine.Networking
         /// <summary>
         /// Do NOT call this method from update thread.
         /// </summary>
-        public static bool DownloadWorldModsBlocking(List<MyObjectBuilder_Checkpoint.ModItem> mods)
+        public static ResultData DownloadWorldModsBlocking(List<MyObjectBuilder_Checkpoint.ModItem> mods)
         {
+            ResultData ret = new ResultData();
+            ret.Success = true;
             if (!MyFakes.ENABLE_WORKSHOP_MODS)
-                return true;
+            {             
+                return ret;
+            }
 
             MySandboxGame.Log.WriteLine("Downloading world mods - START");
             MySandboxGame.Log.IncreaseIndent();
 
             m_stop = false;
 
-            var result = true;
             if (mods != null && mods.Count > 0)
             {
                 var publishedFileIds = new List<ulong>();
@@ -1287,7 +1332,7 @@ namespace Sandbox.Engine.Networking
                     {
                         MySandboxGame.Log.WriteLineAndConsole("Local mods are not allowed in multiplayer.");
                         MySandboxGame.Log.DecreaseIndent();
-                        return false;
+                        return new ResultData();
                     }
                 }
 
@@ -1324,7 +1369,7 @@ namespace Sandbox.Engine.Networking
                             {
                                 xml = data;
                             }
-                            result = success;
+                            ret.Success = success;
                             mrEvent.Set();
                         });
 
@@ -1336,11 +1381,12 @@ namespace Sandbox.Engine.Networking
                             else
                             {
                                 MySandboxGame.Log.WriteLine("Steam server API unavailable");
-                                result = false;
+                                ret.Success = false;
                                 break;
                             }
                         }
-                        if (result == true)
+
+                        if (ret.Success)
                         {
                             try
                             {
@@ -1357,7 +1403,7 @@ namespace Sandbox.Engine.Networking
                                     if (xmlResult != Result.OK)
                                     {
                                         MySandboxGame.Log.WriteLine(string.Format("Failed to download mods: result = {0}", xmlResult));
-                                        result = false;
+                                        ret.Success = false;
                                     }
 
                                     reader.ReadToFollowing("resultcount");
@@ -1397,7 +1443,7 @@ namespace Sandbox.Engine.Networking
                                         if (itemResult != Result.OK)
                                         {
                                             MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: id = {0}, result = {1}", publishedFileId, itemResult));
-                                            result = false;
+                                            ret.Success = false;
                                             continue;
                                         }
 
@@ -1406,7 +1452,7 @@ namespace Sandbox.Engine.Networking
                                         if (appid != MySteam.AppId)
                                         {
                                             MySandboxGame.Log.WriteLineAndConsole(string.Format("Failed to download mod: id = {0}, wrong appid, got {1}, expected {2}", publishedFileId, appid, MySteam.AppId));
-                                            result = false;
+                                            ret.Success = false;
                                             continue;
                                         }
 
@@ -1452,7 +1498,7 @@ namespace Sandbox.Engine.Networking
                                                 mrEvent.Set();
                                             }))
                                             {
-                                                result = false;
+                                                ret.Success = false;
                                                 break;
                                             }
                                         }
@@ -1467,7 +1513,7 @@ namespace Sandbox.Engine.Networking
                                                 mrEvent.Set();
                                             }))
                                             {
-                                                result = false;
+                                                ret.Success = false;
                                                 break;
                                             }
                                         }
@@ -1480,7 +1526,7 @@ namespace Sandbox.Engine.Networking
                                             else
                                             {
                                                 MySandboxGame.Log.WriteLine("Steam server API unavailable");
-                                                result = false;
+                                                ret.Success = false;
                                                 break;
                                             }
                                         }
@@ -1492,7 +1538,7 @@ namespace Sandbox.Engine.Networking
                             catch (Exception e)
                             {
                                 MySandboxGame.Log.WriteLine(string.Format("Failed to download mods: {0}", e));
-                                result = false;
+                                ret.Success = false;
                             }
                         }
                     }
@@ -1504,21 +1550,21 @@ namespace Sandbox.Engine.Networking
                     if (!GetItemsBlocking(toGet, publishedFileIds))
                     {
                         MySandboxGame.Log.WriteLine("Could not obtain workshop item details");
-                        result = false;
+                       ret.Success = false;
                     }
                     else if (publishedFileIds.Count != toGet.Count)
                     {
                         MySandboxGame.Log.WriteLine(string.Format("Could not obtain all workshop item details, expected {0}, got {1}", publishedFileIds.Count, toGet.Count));
-                        result = false;
+                        ret.Success = false;
                     }
                     else
                     {
-                        m_asyncDownloadScreen.ProgressText = MyCommonTexts.ProgressTextDownloadingMods;
-
-                        if (!DownloadModsBlocking(toGet))
+                        m_asyncDownloadScreen.ProgressTextString = MyTexts.GetString(MyCommonTexts.ProgressTextDownloadingMods) + " 0 of " + toGet.Count.ToString();
+                       
+                        ret = DownloadModsBlocking(toGet);
+                        if (ret.Success == false)
                         {
                             MySandboxGame.Log.WriteLine("Downloading mods failed");
-                            result = false;
                         }
                         else
                         {
@@ -1544,8 +1590,7 @@ namespace Sandbox.Engine.Networking
             }
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("Downloading world mods - END");
-
-            return result;
+            return ret;
         }
 
         /// <summary>

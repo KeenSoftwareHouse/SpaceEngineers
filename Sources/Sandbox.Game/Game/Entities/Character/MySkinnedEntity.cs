@@ -21,6 +21,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Definitions;
 using Sandbox.Game.Components;
 using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.EntityComponents;
 using VRage.Animations;
 using VRage.Collections;
 using VRage.Game;
@@ -66,6 +67,8 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public bool UseNewAnimationSystem = false;
 
+        private const int MAX_BONE_DECALS_COUNT = 4;
+
         #region Fields
 
         /// <summary>
@@ -79,11 +82,13 @@ namespace Sandbox.Game.Entities
         // Matrix[] m_boneRelativeTransforms;
         // Matrix[] m_boneAbsoluteTransforms;
 
-        public MyAnimationControllerComponent AnimationController { get { return m_compAnimationController; } }
+        public MyAnimationControllerComponent AnimationController { get { return m_compAnimationController; } }        
 
         public Matrix[] BoneAbsoluteTransforms { get { return m_compAnimationController.BoneAbsoluteTransforms; } }
         public Matrix[] BoneRelativeTransforms { get { return m_compAnimationController.BoneRelativeTransforms; } }
 
+        static List<MyDecalPositionUpdate> m_decalUpdateCache = new List<MyDecalPositionUpdate>();
+        private Dictionary<int, List<MyDecalHitInfo>> m_boneDecals = new Dictionary<int, List<MyDecalHitInfo>>();
 
         protected ulong m_actualUpdateFrame = 0;
 		internal ulong ActualUpdateFrame { get { return m_actualUpdateFrame; } }
@@ -100,7 +105,6 @@ namespace Sandbox.Game.Entities
 
         List<MyAnimationSetData> m_continuingAnimSets = new List<MyAnimationSetData>();
 
-
         #endregion
 
         #region Init
@@ -115,8 +119,11 @@ namespace Sandbox.Game.Entities
             Render.NeedsResolveCastShadow = false;
             Render.SkipIfTooSmall = false;
 
+            MyEntityTerrainHeightProviderComponent entityTerrainHeightComp = new MyEntityTerrainHeightProviderComponent();
+            Components.Add(entityTerrainHeightComp);
             m_compAnimationController = new MyAnimationControllerComponent();
             m_compAnimationController.ReloadBonesNeeded = ObtainBones;
+            m_compAnimationController.InverseKinematics.TerrainHeightProvider = entityTerrainHeightComp;
             Components.Add(m_compAnimationController);
         }
 
@@ -170,6 +177,8 @@ namespace Sandbox.Game.Entities
             {
                 UpdateToolPosition();
             }
+
+            UpdateDecalPositions();
         }
 
 
@@ -220,18 +229,22 @@ namespace Sandbox.Game.Entities
         public virtual void ObtainBones()
         {
             MyCharacterBone[] characterBones = new MyCharacterBone[Model.Bones.Length];
+            Matrix[] relativeTransforms = new Matrix[Model.Bones.Length];
+            Matrix[] absoluteTransforms = new Matrix[Model.Bones.Length];
             for (int i = 0; i < Model.Bones.Length; i++)
             {
                 MyModelBone bone = Model.Bones[i];
                 Matrix boneTransform = bone.Transform;
                 // Create the bone object and add to the heirarchy
-                MyCharacterBone newBone = new MyCharacterBone(bone.Name, boneTransform, bone.Parent != -1 ? characterBones[bone.Parent] : null);
+                MyCharacterBone parent = bone.Parent != -1 ? characterBones[bone.Parent] : null;
+                MyCharacterBone newBone = new MyCharacterBone(
+                    bone.Name, parent, boneTransform, i, relativeTransforms, absoluteTransforms);
                 // Add to the bone array for this model
                 characterBones[i] = newBone;
             }
 
             // pass array of bones to animation controller
-            m_compAnimationController.CharacterBones = characterBones;
+            m_compAnimationController.SetCharacterBones(characterBones, relativeTransforms, absoluteTransforms);
         }
 
         public Quaternion GetAdditionalRotation(string bone)
@@ -460,6 +473,47 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        /// <param name="position">Position of the decal in the binding pose</param>
+        protected void AddBoneDecal(uint decalId, Vector3 hitPosition, Vector3 hitNormal, int boneIndex)
+        {
+            List<MyDecalHitInfo> decals;
+            bool found = m_boneDecals.TryGetValue(boneIndex, out decals);
+            if (!found)
+            {
+                decals = new List<MyDecalHitInfo>(MAX_BONE_DECALS_COUNT);
+                m_boneDecals.Add(boneIndex, decals);
+            }
+
+            if (decals.Count == decals.Capacity)
+            {
+                MyDecals.RemoveDecal(decals[0].ID);
+                decals.RemoveAt(0);
+            }
+
+            decals.Add(new MyDecalHitInfo() { ID = decalId, Position = hitPosition, Normal = hitNormal });
+        }
+
+        private void UpdateDecalPositions()
+        {
+            m_decalUpdateCache.Clear();
+            foreach (var pair in m_boneDecals)
+            {
+                int boneIndex = pair.Key;
+                MyCharacterBone bone = AnimationController.CharacterBones[boneIndex];
+                bone.ComputeAbsoluteTransform();
+                Matrix boneTrans = bone.SkinTransform * bone.AbsoluteTransform;;
+                for (int it = 0; it < pair.Value.Count; it++)
+                {
+                    MyDecalHitInfo decal = pair.Value[it];
+                    Vector3 positionTrans = Vector3.Transform(decal.Position, ref boneTrans);
+                    Vector3 normalTrans = Vector3.TransformNormal(decal.Normal, boneTrans);
+                    m_decalUpdateCache.Add(new MyDecalPositionUpdate() { ID = decal.ID, Position = positionTrans, Normal = normalTrans });
+                }
+            }
+
+            MyDecals.UpdateDecals(m_decalUpdateCache);
+        }
+
         /// <summary>
         /// Process all commands in the animation queue at once. If any command is generated during flushing, it is processed as well.
         /// </summary>
@@ -584,5 +638,11 @@ namespace Sandbox.Game.Entities
 
         #endregion
 
+        struct MyDecalHitInfo
+        {
+            public uint ID;
+            public Vector3 Position;
+            public Vector3 Normal;
+        }
     }
 }

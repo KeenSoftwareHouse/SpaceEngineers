@@ -16,7 +16,7 @@ namespace VRageMath
         /// <summary>
         /// The distance of the PlaneD along its normal from the origin.
         /// Note: Be careful! The distance is signed and is the opposite of what people usually expect.
-        ///       If you look closely at the plane equation: (n dot P) - D = 0, you'll realize that D = - (n dot P) (that is, negative instead of positive)
+        ///       If you look closely at the plane equation: (n dot P) + D = 0, you'll realize that D = - (n dot P) (that is, negative instead of positive)
         /// </summary>
         public double D;
 
@@ -412,13 +412,18 @@ namespace VRageMath
         public double DistanceToPoint(Vector3D point)
         {
             var dot = Vector3D.Dot(Normal, point);
-            return dot - D;
+            return dot + D;
         }
 
         public double DistanceToPoint(ref Vector3D point)
         {
             var dot = Vector3D.Dot(Normal, point);
-            return dot - D;
+            return dot + D;
+        }
+
+        public Vector3D ProjectPoint(ref Vector3D point)
+        {
+            return point - Normal * DistanceToPoint(ref point);
         }
     }
 }

@@ -863,8 +863,9 @@ namespace Sandbox.Game.Gui
 
                 if (srcGrid == dstGrid)
                 {
-                    if (eventArgs.DragFrom.ItemIndex < eventArgs.DropTo.ItemIndex)
-                        eventArgs.DropTo.ItemIndex++;
+                    //GR: Why alter ItemIndex? This caused invalid swapping of items
+                    //if (eventArgs.DragFrom.ItemIndex < eventArgs.DropTo.ItemIndex)
+                    //    eventArgs.DropTo.ItemIndex++;
                     if (eventArgs.DragButton == MySharedButtonsEnum.Secondary)
                     {
                         ShowAmountTransferDialog(inventoryItem, delegate(float amount)

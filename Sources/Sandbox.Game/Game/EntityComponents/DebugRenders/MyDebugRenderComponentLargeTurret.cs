@@ -16,7 +16,7 @@ namespace Sandbox.Game.Components
             m_turretBase = turretBase;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             float radius = 0.0f;
             if (m_turretBase.Render.GetModel() != null)
@@ -55,7 +55,7 @@ namespace Sandbox.Game.Components
 			if(sinkComp != null)
 			  sinkComp.DebugDraw(m_turretBase.PositionComp.WorldMatrix);
 
-            return base.DebugDraw();
+            base.DebugDraw();
         }
     }
 }

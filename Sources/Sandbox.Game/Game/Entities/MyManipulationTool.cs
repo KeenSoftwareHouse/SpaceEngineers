@@ -253,7 +253,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            public override void OnMotion(HkRigidBody rbo, float step)
+            public override void OnMotion(HkRigidBody rbo, float step, bool fromParent)
             {
                 // Do nothing
             }
@@ -1519,6 +1519,19 @@ namespace Sandbox.Game.Entities
         int IMyUseObject.RenderObjectID
         {
             get { return Render.RenderObjectIDs != null ? (int)Render.RenderObjectIDs[0] : 0; }
+        }
+
+        void IMyUseObject.SetRenderID(uint id)
+        {
+        }
+
+        int IMyUseObject.InstanceID
+        {
+            get { return -1; }
+        }
+
+        void IMyUseObject.SetInstanceID(int id)
+        {
         }
 
         bool IMyUseObject.ShowOverlay

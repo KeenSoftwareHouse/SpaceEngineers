@@ -86,14 +86,14 @@ namespace Sandbox.Game.Gui
             }
         }
 
-        private static void InitBlockInfo(MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
+        public static void InitBlockInfo(this MyHudBlockInfo blockInfo, MyCubeBlockDefinition definition)
         {
             blockInfo.BlockName = definition.DisplayNameText;
             blockInfo.BlockIcons = definition.Icons;
             blockInfo.BlockIntegrity = 0;
-            blockInfo.CriticalComponentIndex = -1;
-            blockInfo.CriticalIntegrity = 0;
-            blockInfo.OwnershipIntegrity = 0;
+            blockInfo.CriticalComponentIndex = definition.CriticalGroup;
+            blockInfo.CriticalIntegrity = definition.CriticalIntegrityRatio;
+            blockInfo.OwnershipIntegrity = definition.OwnershipIntegrityRatio;
             blockInfo.MissingComponentIndex = -1;
             blockInfo.Components.Clear();
         }

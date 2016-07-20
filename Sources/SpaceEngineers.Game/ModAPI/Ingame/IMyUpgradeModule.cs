@@ -1,15 +1,17 @@
-﻿using SpaceEngineers.ObjectBuilders.Definitions;
+﻿using Sandbox.ModAPI.Ingame;
+using SpaceEngineers.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.ModAPI.Ingame;
 
 namespace SpaceEngineers.Game.ModAPI.Ingame
 {
     /// <summary>
     /// Interface to access module upgrades properties
     /// </summary>
-    public interface IMyUpgradeModule
+    public interface IMyUpgradeModule : IMyFunctionalBlock
     {
         /// <summary>
         /// Retrieve list of upgrades from this block (r/o), see <see cref='Sandbox.Common.ObjectBuilders.Definitions.MyUpgradeModuleInfo'>MyUpgradeModuleInfo</see> for details

@@ -1,0 +1,1149 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SharpDX.Toolkit</name>
+    </assembly>
+    <members>
+        <member name="T:SharpDX.Toolkit.Component">
+            <summary>
+            A disposable component base class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Component.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Component"/> class.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Component.Dispose">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Component.Dispose(System.Boolean)">
+            <summary>
+            Disposes of object resources.
+            </summary>
+            <param name="disposeManagedResources">If true, managed resources should be
+            disposed of in addition to unmanaged resources.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Component.ToDispose``1(``0)">
+            <summary>
+            Adds a disposable object to the list of the objects to dispose.
+            </summary>
+            <param name="toDisposeArg">To dispose.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Component.RemoveAndDispose``1(``0@)">
+            <summary>
+            Dispose a disposable object and set the reference to null. Removes this object from the ToDispose list.
+            </summary>
+            <param name="objectToDispose">Object to dispose.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Component.RemoveToDispose``1(``0)">
+            <summary>
+            Removes a disposable object to the list of the objects to dispose.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="toDisposeArg">To dispose.</param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Component.DisposeCollector">
+            <summary>
+            Gets or sets the disposables.
+            </summary>
+            <value>The disposables.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Component.IsAttached">
+            <summary>
+            Gets or sets a value indicating whether this instance is attached to a collector.
+            </summary>
+            <value>
+            	<c>true</c> if this instance is attached to a collector; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Component.IsDisposed">
+            <summary>
+            Gets a value indicating whether this instance is disposed.
+            </summary>
+            <value>
+            	<c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="E:SharpDX.Toolkit.Component.Disposing">
+            <summary>
+            Occurs when when Dispose is called.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.DDS.MagicHeader">
+            <summary>
+            Magic code to identify DDS header
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DDS.PixelFormat">
+            <summary>
+            Internal structure used to describe a DDS pixel format.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDS.PixelFormat.#ctor(SharpDX.Toolkit.Graphics.DDS.PixelFormatFlags,System.Int32,System.Int32,System.UInt32,System.UInt32,System.UInt32,System.UInt32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.DDS.PixelFormat"/> struct.
+            </summary>
+            <param name="flags">The flags.</param>
+            <param name="fourCC">The four CC.</param>
+            <param name="rgbBitCount">The RGB bit count.</param>
+            <param name="rBitMask">The r bit mask.</param>
+            <param name="gBitMask">The g bit mask.</param>
+            <param name="bBitMask">The b bit mask.</param>
+            <param name="aBitMask">A bit mask.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DDS.PixelFormatFlags">
+            <summary>
+            PixelFormat flags.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DDS.HeaderFlags">
+            <summary>
+            DDS Header flags.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DDS.SurfaceFlags">
+            <summary>
+            DDS Surface flags.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DDS.CubemapFlags">
+            <summary>
+            DDS Cubemap flags.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.DDSFlags">
+            <summary>
+            Flags used by <see cref="M:SharpDX.Toolkit.Graphics.DDSHelper.LoadFromDDSMemory(System.IntPtr,System.Int32,System.Boolean,System.Nullable{System.Runtime.InteropServices.GCHandle})"/>.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.DecodeDDSHeader(System.IntPtr,System.Int32,SharpDX.Toolkit.Graphics.DDSFlags,SharpDX.Toolkit.Graphics.ImageDescription@,SharpDX.Toolkit.Graphics.DDSHelper.ConversionFlags@)">
+            <summary>
+            Decodes DDS header including optional DX10 extended header
+            </summary>
+            <param name="headerPtr">Pointer to the DDS header.</param>
+            <param name="size">Size of the DDS content.</param>
+            <param name="flags">Flags used for decoding the DDS header.</param>
+            <param name="description">Output texture description.</param>
+            <param name="convFlags">Output conversion flags.</param>
+            <exception cref="T:System.ArgumentException">If the argument headerPtr is null</exception>
+            <exception cref="T:System.InvalidOperationException">If the DDS header contains invalid data.</exception>
+            <returns>True if the decoding is successful, false if this is not a DDS header.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.EncodeDDSHeader(SharpDX.Toolkit.Graphics.ImageDescription,SharpDX.Toolkit.Graphics.DDSFlags,System.IntPtr,System.Int32,System.Int32@)">
+            <summary>
+            Encodes DDS file header (magic value, header, optional DX10 extended header)
+            </summary>
+            <param name="flags">Flags used for decoding the DDS header.</param>
+            <param name="description">Output texture description.</param>
+            <param name="pDestination">Pointer to the DDS output header. Can be set to IntPtr.Zero to calculated the required bytes.</param>
+            <param name="maxsize">The maximum size of the destination buffer.</param>
+            <param name="required">Output the number of bytes required to write the DDS header.</param>
+            <exception cref="T:System.ArgumentException">If the argument headerPtr is null</exception>
+            <exception cref="T:System.InvalidOperationException">If the DDS header contains invalid data.</exception>
+            <returns>True if the decoding is successful, false if this is not a DDS header.</returns>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SharpDX.Toolkit.Graphics.DDSHelper.LegacyExpandScanline(System.IntPtr,System.Int32,SharpDX.DXGI.Format,System.IntPtr,System.Int32,SharpDX.Toolkit.Graphics.DDSHelper.TEXP_LEGACY_FORMAT,System.Int32*,SharpDX.Toolkit.Graphics.DDSHelper.ScanlineFlags)" -->
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.LoadFromDDSMemory(System.IntPtr,System.Int32,System.Boolean,System.Nullable{System.Runtime.InteropServices.GCHandle})">
+            <summary>
+            Load a DDS file in memory
+            </summary>
+            <param name="pSource">Source buffer</param>
+            <param name="size">Size of the DDS texture.</param>
+            <param name="makeACopy">Whether or not to make a copy of the DDS</param>
+            <param name="handle"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.CreateImageFromDDS(System.IntPtr,System.Int32,System.Int32,SharpDX.Toolkit.Graphics.ImageDescription,SharpDX.Toolkit.Graphics.Image.PitchFlags,SharpDX.Toolkit.Graphics.DDSHelper.ConversionFlags,System.Int32*,System.Nullable{System.Runtime.InteropServices.GCHandle})">
+            <summary>
+            Converts or copies image data from pPixels into scratch image data
+            </summary>
+            <param name="pDDS"></param>
+            <param name="offset"></param>
+            <param name="size"></param>
+            <param name="metadata"></param>
+            <param name="cpFlags"></param>
+            <param name="convFlags"></param>
+            <param name="pal8"></param>
+            <param name="handle"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.ExpandScanline(System.IntPtr,System.Int32,System.IntPtr,System.Int32,SharpDX.DXGI.Format,SharpDX.Toolkit.Graphics.DDSHelper.ScanlineFlags)">
+            <summary>
+            Converts an image row with optional clearing of alpha value to 1.0
+            </summary>
+            <param name="pDestination"></param>
+            <param name="outSize"></param>
+            <param name="pSource"></param>
+            <param name="inSize"></param>
+            <param name="inFormat"></param>
+            <param name="flags"></param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.CopyScanline(System.IntPtr,System.Int32,System.IntPtr,System.Int32,SharpDX.DXGI.Format,SharpDX.Toolkit.Graphics.DDSHelper.ScanlineFlags)">
+            <summary>
+            Copies an image row with optional clearing of alpha value to 1.0.
+            </summary>
+            <remarks>
+            This method can be used in place as well, otherwise copies the image row unmodified.
+            </remarks>
+            <param name="pDestination">The destination buffer.</param>
+            <param name="outSize">The destination size.</param>
+            <param name="pSource">The source buffer.</param>
+            <param name="inSize">The source size.</param>
+            <param name="format">The <see cref="T:SharpDX.DXGI.Format"/> of the source scanline.</param>
+            <param name="flags">Scanline flags used when copying the scanline.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.SwizzleScanline(System.IntPtr,System.Int32,System.IntPtr,System.Int32,SharpDX.DXGI.Format,SharpDX.Toolkit.Graphics.DDSHelper.ScanlineFlags)">
+            <summary>
+            Swizzles (RGB &lt;-&gt; BGR) an image row with optional clearing of alpha value to 1.0.
+            </summary>
+            <param name="pDestination">The destination buffer.</param>
+            <param name="outSize">The destination size.</param>
+            <param name="pSource">The source buffer.</param>
+            <param name="inSize">The source size.</param>
+            <param name="format">The <see cref="T:SharpDX.DXGI.Format"/> of the source scanline.</param>
+            <param name="flags">Scanline flags used when copying the scanline.</param>
+            <remarks>
+            This method can be used in place as well, otherwise copies the image row unmodified.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.DDSHelper.LegacyMap.#ctor(SharpDX.DXGI.Format,SharpDX.Toolkit.Graphics.DDSHelper.ConversionFlags,SharpDX.Toolkit.Graphics.DDS.PixelFormat)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.DDSHelper.LegacyMap"/> struct.
+            </summary>
+            <param name="format">The format.</param>
+            <param name="conversionFlags">The conversion flags.</param>
+            <param name="pixelFormat">The pixel format.</param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Image">
+            <summary>
+            Provides method to instantiate an image 1D/2D/3D supporting TextureArray and mipmaps on the CPU or to load/save an image from the disk.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.pixelBuffers">
+            <summary>
+            Pixel buffers.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.pixelBufferArray">
+            <summary>
+            Provides access to all pixel buffers.
+            </summary>
+            <remarks>
+            For Texture3D, each z slice of the Texture3D has a pixelBufferArray * by the number of mipmaps.
+            For other textures, there is Description.MipLevels * Description.ArraySize pixel buffers.
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.totalSizeInBytes">
+            <summary>
+            Gets the total number of bytes occupied by this image in memory.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.buffer">
+            <summary>
+            Pointer to the buffer.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.bufferIsDisposable">
+            <summary>
+            True if the buffer must be disposed.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.handle">
+            <summary>
+            Handle != null if the buffer is a pinned managed object on the LOH (Large Object Heap).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.Image.Description">
+            <summary>
+            Description of this image.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.#ctor(SharpDX.Toolkit.Graphics.ImageDescription,System.IntPtr,System.Int32,System.Nullable{System.Runtime.InteropServices.GCHandle},System.Boolean,SharpDX.Toolkit.Graphics.Image.PitchFlags)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.Image"/> class.
+            </summary>
+            <param name="description">The image description.</param>
+            <param name="dataPointer">The pointer to the data buffer.</param>
+            <param name="offset">The offset from the beginning of the data buffer.</param>
+            <param name="handle">The handle (optional).</param>
+            <param name="bufferIsDisposable">if set to <c>true</c> [buffer is disposable].</param>
+            <exception cref="T:System.InvalidOperationException">If the format is invalid, or width/height/depth/arraysize is invalid with respect to the dimension.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.GetMipMapDescription(System.Int32)">
+            <summary>
+            Gets the mipmap description of this instance for the specified mipmap level.
+            </summary>
+            <param name="mipmap">The mipmap.</param>
+            <returns>A description of a particular mipmap for this texture.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.GetPixelBuffer(System.Int32,System.Int32)">
+            <summary>
+            Gets the pixel buffer for the specified array/z slice and mipmap level.
+            </summary>
+            <param name="arrayOrZSliceIndex">For 3D image, the parameter is the Z slice, otherwise it is an index into the texture array.</param>
+            <param name="mipmap">The mipmap.</param>
+            <returns>A <see cref="F:SharpDX.Toolkit.Graphics.Image.pixelBufferArray"/>.</returns>
+            <exception cref="T:System.ArgumentException">If arrayOrZSliceIndex or mipmap are out of range.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.GetPixelBuffer(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets the pixel buffer for the specified array/z slice and mipmap level.
+            </summary>
+            <param name="arrayIndex">Index into the texture array. Must be set to 0 for 3D images.</param>
+            <param name="zIndex">Z index for 3D image. Must be set to 0 for all 1D/2D images.</param>
+            <param name="mipmap">The mipmap.</param>
+            <returns>A <see cref="F:SharpDX.Toolkit.Graphics.Image.pixelBufferArray"/>.</returns>
+            <exception cref="T:System.ArgumentException">If arrayIndex, zIndex or mipmap are out of range.</exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Register(SharpDX.Toolkit.Graphics.ImageFileType,SharpDX.Toolkit.Graphics.Image.ImageLoadDelegate,SharpDX.Toolkit.Graphics.Image.ImageSaveDelegate)">
+            <summary>
+            Registers a loader/saver for a specified image file type.
+            </summary>
+            <param name="type">The file type (use integer and explicit casting to <see cref="T:SharpDX.Toolkit.Graphics.ImageFileType"/> to register other file format.</param>
+            <param name="loader">The loader delegate (can be null).</param>
+            <param name="saver">The saver delegate (can be null).</param>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.ToDataBox">
+            <summary>
+            Gets the databox from this image.
+            </summary>
+            <returns>The databox of this image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.ComputeDataBox">
+            <summary>
+            Gets the databox from this image.
+            </summary>
+            <returns>The databox of this image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New(SharpDX.Toolkit.Graphics.ImageDescription)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpDX.Toolkit.Graphics.Image"/> from an image description.
+            </summary>
+            <param name="description">The image description.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New1D(System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat,System.Int32)">
+            <summary>
+            Creates a new instance of a 1D <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <param name="arraySize">Size of the array.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New2D(System.Int32,System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat,System.Int32)">
+            <summary>
+            Creates a new instance of a 2D <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <param name="arraySize">Size of the array.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.NewCube(System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat)">
+            <summary>
+            Creates a new instance of a Cube <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New3D(System.Int32,System.Int32,System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat)">
+            <summary>
+            Creates a new instance of a 3D <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="depth">The depth.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New(SharpDX.Toolkit.Graphics.ImageDescription,System.IntPtr)">
+            <summary>
+            Creates a new instance of <see cref="T:SharpDX.Toolkit.Graphics.Image"/> from an image description.
+            </summary>
+            <param name="description">The image description.</param>
+            <param name="dataPointer">Pointer to an existing buffer.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New1D(System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat,System.Int32,System.IntPtr)">
+            <summary>
+            Creates a new instance of a 1D <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <param name="arraySize">Size of the array.</param>
+            <param name="dataPointer">Pointer to an existing buffer.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New2D(System.Int32,System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat,System.Int32,System.IntPtr)">
+            <summary>
+            Creates a new instance of a 2D <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <param name="arraySize">Size of the array.</param>
+            <param name="dataPointer">Pointer to an existing buffer.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.NewCube(System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat,System.IntPtr)">
+            <summary>
+            Creates a new instance of a Cube <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <param name="dataPointer">Pointer to an existing buffer.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.New3D(System.Int32,System.Int32,System.Int32,SharpDX.Toolkit.Graphics.MipMapCount,SharpDX.Toolkit.Graphics.PixelFormat,System.IntPtr)">
+            <summary>
+            Creates a new instance of a 3D <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="depth">The depth.</param>
+            <param name="mipMapCount">The mip map count.</param>
+            <param name="format">The format.</param>
+            <param name="dataPointer">Pointer to an existing buffer.</param>
+            <returns>A new image.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Load(SharpDX.DataPointer,System.Boolean)">
+            <summary>
+            Loads an image from an unmanaged memory pointer.
+            </summary>
+            <param name="dataBuffer">Pointer to an unmanaged memory. If <see cref="!:makeACopy"/> is false, this buffer must be allocated with <see cref="M:SharpDX.Utilities.AllocateMemory(System.Int32,System.Int32)"/>.</param>
+            <param name="makeACopy">True to copy the content of the buffer to a new allocated buffer, false otherwhise.</param>
+            <returns>An new image.</returns>
+            <remarks>If <see cref="!:makeACopy"/> is set to false, the returned image is now the holder of the unmanaged pointer and will release it on Dispose. </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Load(System.IntPtr,System.Int32,System.Boolean)">
+            <summary>
+            Loads an image from an unmanaged memory pointer.
+            </summary>
+            <param name="dataPointer">Pointer to an unmanaged memory. If <see cref="!:makeACopy"/> is false, this buffer must be allocated with <see cref="M:SharpDX.Utilities.AllocateMemory(System.Int32,System.Int32)"/>.</param>
+            <param name="dataSize">Size of the unmanaged buffer.</param>
+            <param name="makeACopy">True to copy the content of the buffer to a new allocated buffer, false otherwise.</param>
+            <returns>An new image.</returns>
+            <remarks>If <see cref="!:makeACopy"/> is set to false, the returned image is now the holder of the unmanaged pointer and will release it on Dispose. </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Load(System.Byte[])">
+            <summary>
+            Loads an image from a managed buffer.
+            </summary>
+            <param name="buffer">Reference to a managed buffer.</param>
+            <returns>An new image.</returns>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Load(System.IO.Stream)">
+            <summary>
+            Loads the specified image from a stream.
+            </summary>
+            <param name="imageStream">The image stream.</param>
+            <returns>An new image.</returns>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Load(System.String)">
+            <summary>
+            Loads the specified image from a file.
+            </summary>
+            <param name="fileName">The filename.</param>
+            <returns>An new image.</returns>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Save(System.String)">
+            <summary>
+            Saves this instance to a file.
+            </summary>
+            <param name="fileName">The destination file. Filename must end with a known extension (dds, bmp, jpg, png, gif, tiff, wmp, tga)</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Save(System.String,SharpDX.Toolkit.Graphics.ImageFileType)">
+            <summary>
+            Saves this instance to a file.
+            </summary>
+            <param name="fileName">The destination file.</param>
+            <param name="fileType">Specify the output format.</param>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Save(System.IO.Stream,SharpDX.Toolkit.Graphics.ImageFileType)">
+            <summary>
+            Saves this instance to a stream.
+            </summary>
+            <param name="imageStream">The destination stream.</param>
+            <param name="fileType">Specify the output format.</param>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Load(System.IntPtr,System.Int32,System.Boolean,System.Nullable{System.Runtime.InteropServices.GCHandle})">
+            <summary>
+            Loads an image from the specified pointer.
+            </summary>
+            <param name="dataPointer">The data pointer.</param>
+            <param name="dataSize">Size of the data.</param>
+            <param name="makeACopy">if set to <c>true</c> [make A copy].</param>
+            <param name="handle">The handle.</param>
+            <returns></returns>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.Save(SharpDX.Toolkit.Graphics.PixelBuffer[],System.Int32,SharpDX.Toolkit.Graphics.ImageDescription,System.IO.Stream,SharpDX.Toolkit.Graphics.ImageFileType)">
+            <summary>
+            Saves this instance to a stream.
+            </summary>
+            <param name="pixelBuffers">The buffers to save.</param>
+            <param name="count">The number of buffers to save.</param>
+            <param name="description">Global description of the buffer.</param>
+            <param name="imageStream">The destination stream.</param>
+            <param name="fileType">Specify the output format.</param>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.CalculateImageArray(SharpDX.Toolkit.Graphics.ImageDescription,SharpDX.Toolkit.Graphics.Image.PitchFlags,System.Int32@,System.Int32@)">
+            <summary>
+            Determines number of image array entries and pixel size.
+            </summary>
+            <param name="imageDesc">Description of the image to create.</param>
+            <param name="pitchFlags">Pitch flags.</param>
+            <param name="bufferCount">Output number of mipmap.</param>
+            <param name="pixelSizeInBytes">Output total size to allocate pixel buffers for all images.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Image.SetupImageArray(System.IntPtr,System.Int32,SharpDX.Toolkit.Graphics.ImageDescription,SharpDX.Toolkit.Graphics.Image.PitchFlags,SharpDX.Toolkit.Graphics.PixelBuffer[])">
+            <summary>
+            Allocates PixelBuffers 
+            </summary>
+            <param name="buffer"></param>
+            <param name="pixelSize"></param>
+            <param name="imageDesc"></param>
+            <param name="pitchFlags"></param>
+            <param name="output"></param>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.Image.DataPointer">
+            <summary>
+            Gets a pointer to the image buffer in memory.
+            </summary>
+            <value>A pointer to the image buffer in memory.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.Image.PixelBuffer">
+            <summary>
+            Provides access to all pixel buffers.
+            </summary>
+            <remarks>
+            For Texture3D, each z slice of the Texture3D has a pixelBufferArray * by the number of mipmaps.
+            For other textures, there is Description.MipLevels * Description.ArraySize pixel buffers.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.Image.TotalSizeInBytes">
+            <summary>
+            Gets the total number of bytes occupied by this image in memory.
+            </summary>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ImageDescription">
+            <summary>
+            A description for <see cref="T:SharpDX.Toolkit.Graphics.Image"/>.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.Dimension">
+            <summary>
+            The dimension of a texture.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.Width">
+            <summary>	
+            <dd> <p>Texture width (in texels). The  range is from 1 to <see cref="F:SharpDX.Direct3D11.Resource.MaximumTexture1DSize"/> (16384). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+            </summary>	
+            <remarks>
+            This field is valid for all textures: <see cref="!:Texture1D"/>, <see cref="!:Texture2D"/>, <see cref="!:Texture3D"/> and <see cref="!:TextureCube"/>.
+            </remarks>
+            <msdn-id>ff476252</msdn-id>	
+            <unmanaged>unsigned int Width</unmanaged>	
+            <unmanaged-short>unsigned int Width</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.Height">
+            <summary>	
+            <dd> <p>Texture height (in texels). The  range is from 1 to <see cref="F:SharpDX.Direct3D11.Resource.MaximumTexture3DSize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+            </summary>	
+            <remarks>
+            This field is only valid for <see cref="!:Texture2D"/>, <see cref="!:Texture3D"/> and <see cref="!:TextureCube"/>.
+            </remarks>
+            <msdn-id>ff476254</msdn-id>	
+            <unmanaged>unsigned int Height</unmanaged>	
+            <unmanaged-short>unsigned int Height</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.Depth">
+            <summary>	
+            <dd> <p>Texture depth (in texels). The  range is from 1 to <see cref="F:SharpDX.Direct3D11.Resource.MaximumTexture3DSize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+            </summary>	
+            <remarks>
+            This field is only valid for <see cref="!:Texture3D"/>.
+            </remarks>
+            <msdn-id>ff476254</msdn-id>	
+            <unmanaged>unsigned int Depth</unmanaged>	
+            <unmanaged-short>unsigned int Depth</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.ArraySize">
+            <summary>	
+            <dd> <p>Number of textures in the array. The  range is from 1 to <see cref="F:SharpDX.Direct3D11.Resource.MaximumTexture1DArraySize"/> (2048). However, the range is actually constrained by the feature level at which you create the rendering device. For more information about restrictions, see Remarks.</p> </dd>	
+            </summary>	
+            <remarks>
+            This field is only valid for <see cref="!:Texture1D"/>, <see cref="!:Texture2D"/> and <see cref="!:TextureCube"/>
+            </remarks>
+            <remarks>
+            This field is only valid for textures: <see cref="!:Texture1D"/>, <see cref="!:Texture2D"/> and <see cref="!:TextureCube"/>.
+            </remarks>
+            <msdn-id>ff476252</msdn-id>	
+            <unmanaged>unsigned int ArraySize</unmanaged>	
+            <unmanaged-short>unsigned int ArraySize</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.MipLevels">
+            <summary>	
+            <dd> <p>The maximum number of mipmap levels in the texture. See the remarks in <strong><see cref="T:SharpDX.Direct3D11.ShaderResourceViewDescription.Texture1DResource"/></strong>. Use 1 for a multisampled texture; or 0 to generate a full set of subtextures.</p> </dd>	
+            </summary>	
+            <msdn-id>ff476252</msdn-id>	
+            <unmanaged>unsigned int MipLevels</unmanaged>	
+            <unmanaged-short>unsigned int MipLevels</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageDescription.Format">
+            <summary>	
+            <dd> <p>Texture format (see <strong><see cref="T:SharpDX.DXGI.Format"/></strong>).</p> </dd>	
+            </summary>	
+            <msdn-id>ff476252</msdn-id>	
+            <unmanaged>DXGI_FORMAT Format</unmanaged>	
+            <unmanaged-short>DXGI_FORMAT Format</unmanaged-short>	
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.ImageFileType">
+            <summary>
+            Image file format used by <see cref="M:SharpDX.Toolkit.Graphics.Image.Save(System.String,SharpDX.Toolkit.Graphics.ImageFileType)"/>
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Dds">
+            <summary>
+            A DDS file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Png">
+            <summary>
+            A PNG file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Gif">
+            <summary>
+            A GIF file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Jpg">
+            <summary>
+            A JPG file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Bmp">
+            <summary>
+            A BMP file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Tiff">
+            <summary>
+            A TIFF file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Wmp">
+            <summary>
+            A WMP file.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Tga">
+            <summary>
+            A TGA File.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.ImageFileType.Tktx">
+            <summary>
+            A TKTX File.
+            </summary>
+            <remarks>
+            This is a format available with this toolkit, similar to DDS, but It doesn't require any conversion and is a straight dump of the memory pixel buffers.
+            </remarks>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.MipMapCount">
+            <summary>
+            A simple wrapper to specify number of mipmaps.
+             Set to true to specify all mipmaps or sets an integer value >= 1
+            to specify the exact number of mipmaps.
+            </summary>
+            <remarks>
+            This structure use implicit conversion:
+            <ul>
+            <li>Set to <c>true</c> to specify all mipmaps.</li>
+            <li>Set to <c>false</c> to specify a single mipmap.</li>
+            <li>Set to an integer value >=1 to specify an exact count of mipmaps.</li>
+            </ul>
+            </remarks>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapCount.Auto">
+            <summary>
+            Automatic mipmap level based on texture size.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapCount.#ctor(System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/> struct.
+            </summary>
+            <param name="allMipMaps">if set to <c>true</c> generates all mip maps.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapCount.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/> struct.
+            </summary>
+            <param name="count">The count.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapCount.Count">
+            <summary>
+            Number of mipmaps.
+            </summary>
+            <remarks>
+            Zero(0) means generate all mipmaps. One(1) generates a single mipmap... etc.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapCount.op_Implicit(SharpDX.Toolkit.Graphics.MipMapCount)~System.Boolean">
+            <summary>
+            Performs an explicit conversion from <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/> to <see cref="T:System.Boolean"/>.
+            </summary>
+            <param name="mipMap">The value.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapCount.op_Implicit(System.Boolean)~SharpDX.Toolkit.Graphics.MipMapCount">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.Boolean"/> to <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/>.
+            </summary>
+            <param name="mipMapAll">True to generate all mipmaps, false to use a single mipmap.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapCount.op_Implicit(SharpDX.Toolkit.Graphics.MipMapCount)~System.Int32">
+            <summary>
+            Performs an explicit conversion from <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/> to <see cref="T:System.Int32"/>.
+            </summary>
+            <param name="mipMap">The value.</param>
+            <returns>The count of mipmap (0 means all mipmaps).</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapCount.op_Implicit(System.Int32)~SharpDX.Toolkit.Graphics.MipMapCount">
+            <summary>
+            Performs an explicit conversion from <see cref="T:System.Int32"/> to <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/>.
+            </summary>
+            <param name="mipMapCount">True to generate all mipmaps, false to use a single mipmap.</param>
+            <returns>The result of the conversion.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.MipMapDescription">
+            <summary>
+            Describes a mipmap.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapDescription.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.MipMapDescription"/> class.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="depth">The depth.</param>
+            <param name="rowStride">The row stride.</param>
+            <param name="depthStride">The depth stride.</param>
+            <param name="widthPacked">The packed width.</param>
+            <param name="heightPacked">The packed height.</param>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.Width">
+            <summary>
+            Width of this mipmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.Height">
+            <summary>
+            Height of this mipmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.WidthPacked">
+            <summary>
+            Width of this mipmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.HeightPacked">
+            <summary>
+            Height of this mipmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.Depth">
+            <summary>
+            Depth of this mipmap.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.RowStride">
+            <summary>
+            RowStride of this mipmap (number of bytes per row).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.DepthStride">
+            <summary>
+            DepthStride of this mipmap (number of bytes per depth slice).
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.MipMapDescription.MipmapSize">
+            <summary>
+            Size in bytes of this whole mipmap.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapDescription.op_Equality(SharpDX.Toolkit.Graphics.MipMapDescription,SharpDX.Toolkit.Graphics.MipMapDescription)">
+            <summary>
+            Implements the ==.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.MipMapDescription.op_Inequality(SharpDX.Toolkit.Graphics.MipMapDescription,SharpDX.Toolkit.Graphics.MipMapDescription)">
+            <summary>
+            Implements the !=.
+            </summary>
+            <param name="left">The left.</param>
+            <param name="right">The right.</param>
+            <returns>The result of the operator.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.PixelBuffer">
+            <summary>
+            An unmanaged buffer of pixels.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.PixelBuffer.isStrictRowStride">
+            <summary>
+            True when RowStride == sizeof(pixelformat) * width
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.#ctor(System.Int32,System.Int32,SharpDX.DXGI.Format,System.Int32,System.Int32,System.IntPtr)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SharpDX.Toolkit.Graphics.PixelBuffer"/> struct.
+            </summary>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="format">The format.</param>
+            <param name="rowStride">The row pitch.</param>
+            <param name="bufferStride">The slice pitch.</param>
+            <param name="dataPointer">The pixels.</param>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.CopyTo(SharpDX.Toolkit.Graphics.PixelBuffer)">
+            <summary>
+            Copies this pixel buffer to a destination pixel buffer.
+            </summary>
+            <param name="pixelBuffer">The destination pixel buffer.</param>
+            <remarks>
+            The destination pixel buffer must have exactly the same dimensions (width, height) and format than this instance.
+            Destination buffer can have different row stride.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.Save(System.String,SharpDX.Toolkit.Graphics.ImageFileType)">
+            <summary>
+            Saves this pixel buffer to a file.
+            </summary>
+            <param name="fileName">The destination file.</param>
+            <param name="fileType">Specify the output format.</param>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.Save(System.IO.Stream,SharpDX.Toolkit.Graphics.ImageFileType)">
+            <summary>
+            Saves this pixel buffer to a stream.
+            </summary>
+            <param name="imageStream">The destination stream.</param>
+            <param name="fileType">Specify the output format.</param>
+            <remarks>This method support the following format: <c>dds, bmp, jpg, png, gif, tiff, wmp, tga</c>.</remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.GetPixel``1(System.Int32,System.Int32)">
+            <summary>
+            Gets the pixel value at a specified position.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="x">The x-coordinate.</param>
+            <param name="y">The y-coordinate.</param>
+            <returns>The pixel value.</returns>
+            <remarks>
+            Caution, this method doesn't check bounding.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.SetPixel``1(System.Int32,System.Int32,``0)">
+            <summary>
+            Gets the pixel value at a specified position.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="x">The x-coordinate.</param>
+            <param name="y">The y-coordinate.</param>
+            <param name="value">The pixel value.</param>
+            <remarks>
+            Caution, this method doesn't check bounding.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.GetPixels``1(System.Int32)">
+            <summary>
+            Gets scanline pixels from the buffer.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="yOffset">The y line offset.</param>
+            <returns>Scanline pixels from the buffer</returns>
+            <exception cref="T:System.ArgumentException">If the sizeof(T) is an invalid size</exception>
+            <remarks>
+            This method is working on a row basis. The <see cref="!:yOffset"/> is specifying the first row to get 
+            the pixels from.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.GetPixels``1(``0[],System.Int32)">
+            <summary>
+            Gets scanline pixels from the buffer.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="pixels">An allocated scanline pixel buffer</param>
+            <param name="yOffset">The y line offset.</param>
+            <returns>Scanline pixels from the buffer</returns>
+            <exception cref="T:System.ArgumentException">If the sizeof(T) is an invalid size</exception>
+            <remarks>
+            This method is working on a row basis. The <see cref="!:yOffset"/> is specifying the first row to get 
+            the pixels from.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.GetPixels``1(``0[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets scanline pixels from the buffer.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="pixels">An allocated scanline pixel buffer</param>
+            <param name="yOffset">The y line offset.</param>
+            <param name="pixelIndex">Offset into the destination <see cref="!:pixels"/> buffer.</param>
+            <param name="pixelCount">Number of pixels to write into the destination <see cref="!:pixels"/> buffer.</param>
+            <exception cref="T:System.ArgumentException">If the sizeof(T) is an invalid size</exception>
+            <remarks>
+            This method is working on a row basis. The <see cref="!:yOffset"/> is specifying the first row to get 
+            the pixels from.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.SetPixels``1(``0[],System.Int32)">
+            <summary>
+            Sets scanline pixels to the buffer.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="sourcePixels">Source pixel buffer</param>
+            <param name="yOffset">The y line offset.</param>
+            <exception cref="T:System.ArgumentException">If the sizeof(T) is an invalid size</exception>
+            <remarks>
+            This method is working on a row basis. The <see cref="!:yOffset"/> is specifying the first row to get 
+            the pixels from.
+            </remarks>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelBuffer.SetPixels``1(``0[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Sets scanline pixels to the buffer.
+            </summary>
+            <typeparam name="T">Type of the pixel data</typeparam>
+            <param name="sourcePixels">Source pixel buffer</param>
+            <param name="yOffset">The y line offset.</param>
+            <param name="pixelIndex">Offset into the source <see cref="!:sourcePixels"/> buffer.</param>
+            <param name="pixelCount">Number of pixels to write into the source <see cref="!:sourcePixels"/> buffer.</param>
+            <exception cref="T:System.ArgumentException">If the sizeof(T) is an invalid size</exception>
+            <remarks>
+            This method is working on a row basis. The <see cref="!:yOffset"/> is specifying the first row to get 
+            the pixels from.
+            </remarks>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.Width">
+            <summary>
+            Gets the width.
+            </summary>
+            <value>The width.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.Height">
+            <summary>
+            Gets the height.
+            </summary>
+            <value>The height.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.Format">
+            <summary>
+            Gets the format (this value can be changed)
+            </summary>
+            <value>The format.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.PixelSize">
+            <summary>
+            Gets the pixel size in bytes.
+            </summary>
+            <value>The pixel size in bytes.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.RowStride">
+            <summary>
+            Gets the row stride in number of bytes.
+            </summary>
+            <value>The row stride in number of bytes.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.BufferStride">
+            <summary>
+            Gets the total size in bytes of this pixel buffer.
+            </summary>
+            <value>The size in bytes of the pixel buffer.</value>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBuffer.DataPointer">
+            <summary>
+            Gets the pointer to the pixel buffer.
+            </summary>
+            <value>The pointer to the pixel buffer.</value>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.PixelBufferArray">
+            <summary>
+            Used by <see cref="T:SharpDX.Toolkit.Graphics.Image"/> to provide a selector to a <see cref="T:SharpDX.Toolkit.Graphics.PixelBuffer"/>.
+            </summary>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBufferArray.Item(System.Int32)">
+            <summary>
+            Gets the pixel buffer.
+            </summary>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.PixelBuffer"/>.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBufferArray.Count">
+            <summary>
+            Gets the total number of pixel buffers.
+            </summary>
+            <returns>The total number of pixel buffers.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBufferArray.Item(System.Int32,System.Int32)">
+            <summary>
+            Gets the pixel buffer for the specified array/z slice and mipmap level.
+            </summary>
+            <param name="arrayOrDepthSlice">For 3D image, the parameter is the Z slice, otherwise it is an index into the texture array.</param>
+            <param name="mipIndex">The mip map slice index.</param>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.PixelBuffer"/>.</returns>
+        </member>
+        <member name="P:SharpDX.Toolkit.Graphics.PixelBufferArray.Item(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Gets the pixel buffer for the specified array/z slice and mipmap level.
+            </summary>
+            <param name="arrayIndex">Index into the texture array. Must be set to 0 for 3D images.</param>
+            <param name="zIndex">Z index for 3D image. Must be set to 0 for all 1D/2D images.</param>
+            <param name="mipIndex">The mip map slice index.</param>
+            <returns>A <see cref="T:SharpDX.Toolkit.Graphics.PixelBuffer"/>.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.PixelFormat">
+            <summary>
+            PixelFormat is equivalent to <see cref="T:SharpDX.DXGI.Format"/>.
+            </summary>
+            <remarks>
+            This structure is implicitly castable to and from <see cref="T:SharpDX.DXGI.Format"/>, you can use it inplace where <see cref="T:SharpDX.DXGI.Format"/> is required
+            and vice-versa.
+            Usage is slightly different from <see cref="T:SharpDX.DXGI.Format"/>, as you have to select the type of the pixel format first (<see cref="!:Typeless"/>, <see cref="!:SInt"/>...etc)
+            and then access the available pixel formats for this type. Example: PixelFormat.UNorm.R8.
+            </remarks>
+            <msdn-id>bb173059</msdn-id>	
+            <unmanaged>DXGI_FORMAT</unmanaged>	
+            <unmanaged-short>DXGI_FORMAT</unmanaged-short>	
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.PixelFormat.Value">
+            <summary>
+            Gets the value as a <see cref="T:SharpDX.DXGI.Format"/> enum.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.PixelFormat.#ctor(SharpDX.DXGI.Format)">
+            <summary>
+            Internal constructor.
+            </summary>
+            <param name="format"></param>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.Texture">
+            <summary>
+            Base class for texture resources.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Texture.CalculateMipLevels(System.Int32,SharpDX.Toolkit.Graphics.MipMapCount)">
+            <summary>
+            Calculates the number of miplevels for a Texture 1D.
+            </summary>
+            <param name="width">The width of the texture.</param>
+            <param name="mipLevels">A <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/>, set to true to calculates all mipmaps, to false to calculate only 1 miplevel, or &gt; 1 to calculate a specific amount of levels.</param>
+            <returns>The number of miplevels.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Texture.CalculateMipLevels(System.Int32,System.Int32,SharpDX.Toolkit.Graphics.MipMapCount)">
+            <summary>
+            Calculates the number of miplevels for a Texture 2D.
+            </summary>
+            <param name="width">The width of the texture.</param>
+            <param name="height">The height of the texture.</param>
+            <param name="mipLevels">A <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/>, set to true to calculates all mipmaps, to false to calculate only 1 miplevel, or &gt; 1 to calculate a specific amount of levels.</param>
+            <returns>The number of miplevels.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.Texture.CalculateMipLevels(System.Int32,System.Int32,System.Int32,SharpDX.Toolkit.Graphics.MipMapCount)">
+            <summary>
+            Calculates the number of miplevels for a Texture 2D.
+            </summary>
+            <param name="width">The width of the texture.</param>
+            <param name="height">The height of the texture.</param>
+            <param name="depth">The depth of the texture.</param>
+            <param name="mipLevels">A <see cref="T:SharpDX.Toolkit.Graphics.MipMapCount"/>, set to true to calculates all mipmaps, to false to calculate only 1 miplevel, or &gt; 1 to calculate a specific amount of levels.</param>
+            <returns>The number of miplevels.</returns>
+        </member>
+        <member name="T:SharpDX.Toolkit.Graphics.TextureDimension">
+            <summary>
+            Defines the dimension of a texture.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TextureDimension.Texture1D">
+            <summary>
+            The texture dimension is 1D.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TextureDimension.Texture2D">
+            <summary>
+            The texture dimension is 2D.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TextureDimension.Texture3D">
+            <summary>
+            The texture dimension is 3D.
+            </summary>
+        </member>
+        <member name="F:SharpDX.Toolkit.Graphics.TextureDimension.TextureCube">
+            <summary>
+            The texture dimension is a CubeMap.
+            </summary>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.WICHelper.ToDXGI(System.Guid)">
+            <summary>
+            Converts a WIC <see cref="T:SharpDX.WIC.PixelFormat"/> to a <see cref="T:SharpDX.DXGI.Format"/>.
+            </summary>
+            <param name="guid">A WIC <see cref="T:SharpDX.WIC.PixelFormat"/> </param>
+            <returns>A <see cref="T:SharpDX.DXGI.Format"/></returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.WICHelper.ToWIC(SharpDX.DXGI.Format,System.Guid@)">
+            <summary>
+            Converts a <see cref="T:SharpDX.DXGI.Format"/> to a a WIC <see cref="T:SharpDX.WIC.PixelFormat"/>.
+            </summary>
+            <param name="format">A <see cref="T:SharpDX.DXGI.Format"/></param>
+            <param name="guid">A WIC <see cref="T:SharpDX.WIC.PixelFormat"/> Guid.</param>
+            <returns>True if conversion succeed, false otherwise.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.WICHelper.GetBitsPerPixel(System.Guid)">
+            <summary>
+            Gets the number of bits per pixels for a WIC <see cref="T:SharpDX.WIC.PixelFormat"/> Guid.
+            </summary>
+            <param name="targetGuid">A WIC <see cref="T:SharpDX.WIC.PixelFormat"/> Guid.</param>
+            <returns>The number of bits per pixels for a WIC. If this method is failing to calculate the number of pixels, return 0.</returns>
+        </member>
+        <member name="M:SharpDX.Toolkit.Graphics.WICHelper.DecodeMetadata(SharpDX.Toolkit.Graphics.WICFlags,SharpDX.WIC.BitmapDecoder,SharpDX.WIC.BitmapFrameDecode,System.Guid@)">
+            <summary>
+            Determines metadata for image
+            </summary>
+            <param name="flags">The flags.</param>
+            <param name="decoder">The decoder.</param>
+            <param name="frame">The frame.</param>
+            <param name="pixelFormat">The pixel format.</param>
+            <returns></returns>
+            <exception cref="T:System.InvalidOperationException">If pixel format is not supported.</exception>
+        </member>
+    </members>
+</doc>

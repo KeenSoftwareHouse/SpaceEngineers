@@ -27,7 +27,8 @@ namespace VRageRender
         SetRenderEntityLOD,
         CreateRenderBatch,
         CreateRenderInstanceBuffer,
-        UpdateRenderInstanceBuffer,
+        UpdateRenderInstanceBufferSettings,
+        UpdateRenderInstanceBufferRange,
         UpdateRenderCubeInstanceBuffer,
         SetInstanceBuffer,
         CreateManualCullObject,
@@ -75,7 +76,7 @@ namespace VRageRender
 
         CreateGPUEmitter,
         UpdateGPUEmitters,
-        UpdateGPUEmittersPosition,
+        UpdateGPUEmittersTransform,
         RemoveGPUEmitter,
 
         CreateRenderLight,
@@ -114,11 +115,14 @@ namespace VRageRender
         DrawSecondaryCamera,
         DrawSecondaryCameraSprite,
 
-        CreateDecal,
+        CreateDecal, // Deprecate
+
         CreateScreenDecal,
+        UpdateScreenDecal,
         RemoveDecal,
         SetDecalGlobals,
         RegisterDecalsMaterials,
+        ClearDecals,
         HideDecals,
 
         UpdateCockpitGlass,
@@ -170,6 +174,7 @@ namespace VRageRender
         DebugDrawMesh,
         DebugDraw6FaceConvex,
         DebugWaitForPresent,
+        DebugClearPersistentMessages,
 
         UpdateDebugOverrides,
 

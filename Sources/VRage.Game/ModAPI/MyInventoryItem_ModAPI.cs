@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using VRage.ModAPI;
-using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI;
 
 namespace VRage.Game.Entity
 {
     public partial struct MyPhysicalInventoryItem : IMyInventoryItem
     {
-        VRage.MyFixedPoint IMyInventoryItem.Amount
+        VRage.MyFixedPoint ModAPI.Ingame.IMyInventoryItem.Amount
         {
             get
             {
@@ -18,7 +18,7 @@ namespace VRage.Game.Entity
             }
         }
 
-        float IMyInventoryItem.Scale
+        float ModAPI.Ingame.IMyInventoryItem.Scale
         {
             get
             {
@@ -30,7 +30,7 @@ namespace VRage.Game.Entity
             }
         }
 
-        VRage.ObjectBuilders.MyObjectBuilder_Base IMyInventoryItem.Content
+        VRage.ObjectBuilders.MyObjectBuilder_Base ModAPI.Ingame.IMyInventoryItem.Content
         {
             get
             {
@@ -43,7 +43,7 @@ namespace VRage.Game.Entity
             }
         }
 
-        uint IMyInventoryItem.ItemId
+        uint ModAPI.Ingame.IMyInventoryItem.ItemId
         {
             get
             {

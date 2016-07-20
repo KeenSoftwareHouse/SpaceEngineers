@@ -1,4 +1,5 @@
 ﻿using System;
+using VRage.Game.Components;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Library.Utils;
 using VRage.ModAPI;
@@ -111,5 +112,14 @@ namespace VRage.Game.ModAPI
         /// <param name="steamId"></param>
         /// <returns></returns>
         bool IsUserPromoted( ulong steamId );
+
+        /// <summary>
+        /// Change the update order of a session component.
+        /// 
+        /// There is a proxy for this method in the session component itself.
+        /// </summary>
+        /// <param name="component">The component to set the update order for</param>
+        /// <param name="order">The update order</param>
+        void SetComponentUpdateOrder(MySessionComponentBase component, MyUpdateOrder order);
     }
 }

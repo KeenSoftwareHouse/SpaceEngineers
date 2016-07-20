@@ -191,6 +191,13 @@ namespace Sandbox.Game.GameSystems
 
         bool m_networkCommandApplied = false;
 
+        private Vector3? m_maxThrustOverride;
+        public Vector3? MaxThrustOverride
+        {
+            get { return MyFakes.ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT ? m_maxThrustOverride : null; }
+            set { m_maxThrustOverride = value; }
+        }
+
         #endregion
 
         #region Properties
@@ -203,7 +210,7 @@ namespace Sandbox.Game.GameSystems
         /// <summary>
         /// For now just the maximum slowdown factor of any thruster registered to the component
         /// </summary>
-        public float SlowdownFactor { get; protected set; }
+        public float SlowdownFactor { get; set; }
         public int ThrustCount { get; private set; }
         public bool DampenersEnabled { get; set; }
 
@@ -1087,13 +1094,16 @@ namespace Sandbox.Game.GameSystems
 
             ProfilerShort.Begin("Thrust strength and modifiers");
             FinalThrust = new Vector3();
+
             for (int typeIndex = 0; typeIndex < m_dataByFuelType.Count; ++typeIndex)
             {
                 MyDefinitionId fuelType = m_fuelTypes[typeIndex];
                 var fuelData = m_dataByFuelType[typeIndex];
 
                 ProfilerShort.Begin("UpdatePowerAndThrustStrength");
+
                 UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, null, true);
+
                 ProfilerShort.End();
                 Vector3 thrustBeforeApply;
                 var maxThrust = (m_maxPositiveThrust + m_maxNegativeThrust);
@@ -1262,8 +1272,11 @@ namespace Sandbox.Game.GameSystems
             Vector3 positiveGravity = Vector3.Clamp(-Vector3.Transform(Entity.Physics.Gravity, ref invWorldRot) * Entity.Physics.Mass, Vector3.Zero, Vector3.PositiveInfinity);
             Vector3 negativeGravity = Vector3.Clamp(-Vector3.Transform(Entity.Physics.Gravity, ref invWorldRot) * Entity.Physics.Mass, Vector3.NegativeInfinity, Vector3.Zero);
 
-            Vector3 maxPositiveThrustWithGravity = Vector3.Clamp((fuelData.MaxPositiveThrust - positiveGravity), Vector3.Zero, Vector3.PositiveInfinity);
-            Vector3 maxNegativeThrustWithGravity = Vector3.Clamp((fuelData.MaxNegativeThrust + negativeGravity), Vector3.Zero, Vector3.PositiveInfinity);
+            Vector3 maxPositiveThrust = MaxThrustOverride != null ? MaxThrustOverride.Value * Vector3I.Sign(fuelData.MaxPositiveThrust) : fuelData.MaxPositiveThrust;
+            Vector3 maxNegativeThrust = MaxThrustOverride != null ? MaxThrustOverride.Value * Vector3I.Sign(fuelData.MaxNegativeThrust) : fuelData.MaxNegativeThrust;
+
+            Vector3 maxPositiveThrustWithGravity = Vector3.Clamp((maxPositiveThrust - positiveGravity), Vector3.Zero, Vector3.PositiveInfinity);
+            Vector3 maxNegativeThrustWithGravity = Vector3.Clamp((maxNegativeThrust + negativeGravity), Vector3.Zero, Vector3.PositiveInfinity);
 
             Vector3 maxPositiveControl = maxPositiveThrustWithGravity * positiveControl;
             Vector3 maxNegativeControl = maxNegativeThrustWithGravity * -negativeControl;
@@ -1295,10 +1308,10 @@ namespace Sandbox.Game.GameSystems
 
                 thrust = -optimalNegative * optimalNegativeRatio + optimalPositive * optimalPositiveRatio;
                 thrust += positiveGravity + negativeGravity;
-                thrust = Vector3.Clamp(thrust, -fuelData.MaxNegativeThrust, fuelData.MaxPositiveThrust);
+                thrust = Vector3.Clamp(thrust, -maxNegativeThrust, maxPositiveThrust);
             }
 
-            const float STOPPING_TIME = 0.5f;
+            float STOPPING_TIME = MyFakes.ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT ? 0.25f : 0.5f;
             Vector3 localVelocity = Vector3.Transform(Entity.Physics.LinearVelocity + Entity.Physics.Gravity / 2.0f, ref invWorldRot);
 
             Vector3D velocityToCancel;
@@ -1314,7 +1327,7 @@ namespace Sandbox.Game.GameSystems
 
             var slowdownAcceleration = -velocityToCancel / STOPPING_TIME;
             var slowdownThrust = slowdownAcceleration * Entity.Physics.Mass;
-            thrust = Vector3.Clamp(thrust + slowdownThrust, -fuelData.MaxNegativeThrust * SlowdownFactor, fuelData.MaxPositiveThrust * SlowdownFactor);
+            thrust = Vector3.Clamp(thrust + slowdownThrust, -maxNegativeThrust * SlowdownFactor, maxPositiveThrust * SlowdownFactor);
 
             fuelData.CurrentThrust = thrust;
         }
@@ -1412,7 +1425,7 @@ namespace Sandbox.Game.GameSystems
                 multiplier = planet.GetAirDensity(box.Center);
 
                 m_lastPlanetaryInfluenceHasAtmosphere = planet.HasAtmosphere;
-                m_lastPlanetaryGravityMagnitude = planet.GetGravityMultiplier(Entity.PositionComp.WorldMatrix.Translation);
+                m_lastPlanetaryGravityMagnitude = planet.Components.Get<MyGravityProviderComponent>().GetGravityMultiplier(Entity.PositionComp.WorldMatrix.Translation);
 
                 m_nextPlanetaryInfluenceRecalculation = MySession.Static.GameplayFrameCounter + Math.Min(100, m_maxInfluenceRecalculationInterval);
             }

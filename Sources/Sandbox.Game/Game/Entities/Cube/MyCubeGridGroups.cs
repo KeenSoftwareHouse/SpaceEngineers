@@ -63,7 +63,7 @@ namespace Sandbox.Game.Entities
         public void CreateLink(GridLinkTypeEnum type, long linkId, MyCubeGrid parent, MyCubeGrid child)
         {
             GetGroups(type).CreateLink(linkId, parent, child);
-            if (type == GridLinkTypeEnum.Physical && !parent.IsStatic && !child.IsStatic)
+            if (type == GridLinkTypeEnum.Physical && !parent.Physics.IsStatic && !child.Physics.IsStatic)
             {
                 PhysicalDynamic.CreateLink(linkId, parent, child);
             }

@@ -2,17 +2,22 @@
 
 namespace VRageRender
 {
+    public enum ImageFileFormat
+    {
+        Bmp,
+        Png,
+        Jpg
+    }
     public class MyRenderMessageRequestScreenData : MyRenderMessageBase
     {
         public int Id;
-        public byte[] PreallocatedBuffer;
-        public Vector2I Resolution;
+        public byte[] ScreenData;
+        public ImageFileFormat Format;
 
         public override void Close()
         {
             Id = 0;
-            PreallocatedBuffer = null;
-            Resolution = new Vector2I();
+            ScreenData = null;
 
             base.Close();
         }

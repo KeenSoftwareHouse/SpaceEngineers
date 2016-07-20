@@ -52,6 +52,7 @@
 				<TypeId>PhysicalMaterialDefinition</TypeId>
 				<SubtypeId>Glass</SubtypeId>
 			</Id>
+      <Transparent>true</Transparent>
 		</PhysicalMaterial>
 		<PhysicalMaterial>
 			<Id>

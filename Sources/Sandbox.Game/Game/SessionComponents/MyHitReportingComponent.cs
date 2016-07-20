@@ -46,7 +46,7 @@ namespace Sandbox.Game.SessionComponents
         {
             get
             {
-                return MyPerGameSettings.Game == GameEnum.ME_GAME || MyPerGameSettings.Game == GameEnum.SE_GAME;
+                return MyPerGameSettings.Game == GameEnum.ME_GAME || MyPerGameSettings.Game == GameEnum.SE_GAME || MyPerGameSettings.Game == GameEnum.VRS_GAME;
             }
         }
 
@@ -114,7 +114,7 @@ namespace Sandbox.Game.SessionComponents
             {
                 MyMultiplayer.RaiseStaticEvent(s => AfterDamageAppliedClient, hitCue, new EndpointId(attackerPlayer.Client.SteamUserId));
             }
-            else if (MyPerGameSettings.Game == GameEnum.SE_GAME)
+            else if (MyPerGameSettings.Game == GameEnum.SE_GAME || MyPerGameSettings.Game == GameEnum.VRS_GAME)
             {
                 MyMultiplayer.RaiseStaticEvent(s => AfterDamageAppliedClient, hitCue, new EndpointId(attackerPlayer.Client.SteamUserId));
             }

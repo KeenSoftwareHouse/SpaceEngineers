@@ -66,6 +66,11 @@ namespace SpaceEngineers.Game.Entities.Cube
             }
         }
 
+        public override int InstanceID
+        {
+            get { return -1; }
+        }
+
         public override bool ShowOverlay
         {
             get { return true; }

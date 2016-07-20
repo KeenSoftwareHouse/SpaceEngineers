@@ -347,6 +347,19 @@ namespace Sandbox.Game.Entities
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
+        /**
+         * Get the closest planet overlapping a position.
+         * 
+         * This will not return anything if the position is not within the bounding box of the planet.
+         */
+
+        public static MyPlanet GetClosestPlanet(Vector3D position)
+        {
+            var bb = new BoundingBoxD(position, position);
+
+            return GetClosestPlanet(ref bb);
+        }
+
         public static MyPlanet GetClosestPlanet(ref BoundingBoxD box)
         {
             if (m_cachedVoxelList == null) m_cachedVoxelList = new List<MyVoxelBase>();

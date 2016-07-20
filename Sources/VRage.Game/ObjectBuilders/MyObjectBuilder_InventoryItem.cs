@@ -11,7 +11,7 @@ namespace VRage.Game
     {
         [ProtoMember]
         [XmlElement("Amount")]
-        public MyFixedPoint Amount;
+        public MyFixedPoint Amount = 1;
 
         [ProtoMember]
         [XmlElement("Scale")]
@@ -45,6 +45,6 @@ namespace VRage.Game
         public MyObjectBuilder_PhysicalObject PhysicalContent;
 
         [ProtoMember]
-        public uint ItemId;
+        public uint ItemId = 0;
     }
 }

@@ -36,7 +36,6 @@ namespace Sandbox.Game.Entities.Blocks
     public partial class MyPistonBase : MyMechanicalConnectionBlockBase, IMyConveyorEndpointBlock
     {
         private HkConstraint m_subpartsConstraint;
-        private HkConstraint m_constraint;
 
         private MyEntitySubpart m_subpart1;
         private MyEntitySubpart m_subpart2;
@@ -83,8 +82,6 @@ namespace Sandbox.Game.Entities.Blocks
                 return PistonStatus.Stopped;
             }
         }
-
-        public HkConstraint SafeConstraint { get {  RefreshConstraint(); return m_constraint; } }
 
         public IMyConveyorEndpoint ConveyorEndpoint { get { return m_conveyorEndpoint; } }
 
@@ -143,21 +140,7 @@ namespace Sandbox.Game.Entities.Blocks
             minDist.EnableActions();
             MyTerminalControlFactory.AddControl(minDist);
 
-            var weldSpeed = new MyTerminalControlSlider<MyPistonBase>("Weld speed", MySpaceTexts.BlockPropertyTitle_WeldSpeed, MySpaceTexts.Blank);
-            weldSpeed.SetLimits((block) => 0f, (block) => MyGridPhysics.SmallShipMaxLinearVelocity());
-            weldSpeed.DefaultValueGetter = (block) => MyGridPhysics.LargeShipMaxLinearVelocity() - 5f;
-            weldSpeed.Getter = (x) => (float)Math.Sqrt(x.m_weldSpeedSq);
-            weldSpeed.Setter = (x, v) => x.m_weldSpeedSq.Value = v * v;
-            weldSpeed.Writer = (x, res) => res.AppendDecimal((float)Math.Sqrt(x.m_weldSpeedSq), 1).Append("m/s");
-            weldSpeed.EnableActions();
-            MyTerminalControlFactory.AddControl(weldSpeed);
-
-            var weldForce = new MyTerminalControlCheckbox<MyPistonBase>("Force weld", MySpaceTexts.BlockPropertyTitle_WeldForce, MySpaceTexts.Blank);
-            weldForce.Getter = (x) => x.m_forceWeld;
-            weldForce.Setter = (x, v) => x.m_forceWeld.Value = v;
-            weldForce.EnableAction();
-            MyTerminalControlFactory.AddControl(weldForce);
-
+           
             var addPistonHead = new MyTerminalControlButton<MyPistonBase>("Add Piston Head", MySpaceTexts.BlockActionTitle_AddPistonHead, MySpaceTexts.BlockActionTooltip_AddPistonHead, (b) => b.RecreateTop());
             addPistonHead.Enabled = (b) => (b.m_topBlock == null);
             addPistonHead.EnableAction(MyTerminalActionIcons.STATION_ON);
@@ -198,17 +181,23 @@ namespace Sandbox.Game.Entities.Blocks
             Velocity.Value = ob.Velocity * BlockDefinition.MaxVelocity;
             MaxLimit.Value = ob.MaxLimit.HasValue ? Math.Min(DenormalizeDistance(ob.MaxLimit.Value), BlockDefinition.Maximum) : BlockDefinition.Maximum;
             MinLimit.Value = ob.MinLimit.HasValue ? Math.Max(DenormalizeDistance(ob.MinLimit.Value), BlockDefinition.Minimum) : BlockDefinition.Minimum;
-            m_connectionState.Value = new State() { TopBlockId = ob.TopBlockId };
+
+            if (ob.TopBlockId.HasValue && ob.TopBlockId.Value != 0)
+            {
+                MyDeltaTransform? deltaTransform = ob.MasterToSlaveTransform.HasValue ? ob.MasterToSlaveTransform.Value : (MyDeltaTransform?)null;
+                m_connectionState.Value = new State() { TopBlockId = ob.TopBlockId, MasterToSlave = deltaTransform, Welded = ob.IsWelded || ob.ForceWeld};
+            }
+
             m_currentPos.Value = ob.CurrentPosition;
 
             CubeGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
 
-            float defaultWeldSpeed = ob.weldSpeed; //weld before reaching the max speed
+            float defaultWeldSpeed = ob.WeldSpeed; //weld before reaching the max speed
             defaultWeldSpeed *= defaultWeldSpeed;
             m_weldSpeedSq.Value = defaultWeldSpeed;
-            m_forceWeld.Value = ob.forceWeld;
+            m_forceWeld.Value = ob.ForceWeld;
         }
 
         protected override void cubeGrid_OnPhysicsChanged()
@@ -223,35 +212,6 @@ namespace Sandbox.Game.Entities.Blocks
                 UpdatePhysicsShape();;
             }
         }
-        
-        private bool IsBroken()
-        {
-            if (m_constraint != null)
-            {
-                var breakable = m_constraint.ConstraintData as HkBreakableConstraintData;
-                return breakable != null && breakable.getIsBroken(m_constraint);
-            }
-            return false;
-        }
-
-        protected override void RefreshConstraint()
-        {
-            if (m_constraint != null)
-            {
-                if (!m_constraint.InWorld)
-                {
-                    Detach();
-                }
-                else if (IsBroken())
-                {
-                    Detach();
-                    if (Sync.IsServer)
-                    {
-                        m_connectionState.Value = new State() { TopBlockId = null };
-                    }
-                }
-            }
-        }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
         {
@@ -261,8 +221,13 @@ namespace Sandbox.Game.Entities.Blocks
             ob.MinLimit = NormalizeDistance(MinLimit);
             ob.TopBlockId = m_connectionState.Value.TopBlockId;
             ob.CurrentPosition = m_currentPos;
-            ob.weldSpeed = (float)Math.Sqrt(m_weldSpeedSq);
-            ob.forceWeld = m_forceWeld;
+            ob.WeldSpeed = (float)Math.Sqrt(m_weldSpeedSq);
+            ob.ForceWeld = m_forceWeld;
+
+            ob.IsWelded = m_connectionState.Value.Welded;
+
+            ob.MasterToSlaveTransform = m_connectionState.Value.MasterToSlave.HasValue ? m_connectionState.Value.MasterToSlave.Value : (MyPositionAndOrientation?)null;
+
             return ob;
         }
 
@@ -388,10 +353,6 @@ namespace Sandbox.Game.Entities.Blocks
             //Dont dispose the fixed data or we wont have access to them
 
             HkConstraintData constraintData = m_subpartsFixedData;
-            if (Sync.IsServer) // Breakable only on server
-            {
-                constraintData = new HkBreakableConstraintData(m_subpartsFixedData) { Threshold = BreakOffTreshold };
-            }
             m_subpartsConstraint = new HkConstraint(CubeGrid.Physics.RigidBody, subpart.Physics.RigidBody, constraintData);
             Debug.Assert(m_subpartsConstraint.RigidBodyA != null);
             m_subpartsConstraint.WantRuntime = true;
@@ -405,13 +366,7 @@ namespace Sandbox.Game.Entities.Blocks
                 CubeGrid.Physics.RemoveConstraint(m_subpartsConstraint);
             }
             m_subpartsConstraint.Dispose();
-            m_subpartsConstraint = null;
-            if (Sync.IsServer)
-            {
-                // On server, contraint contains breakable data, fixed data must be disposed manually
-                // On client, contraint contains fixed data, which are disposed with constraint
-                m_subpartsFixedData.Dispose();
-            }
+            m_subpartsConstraint = null;        
             m_subpartsFixedData = null;
         }
 
@@ -483,8 +438,11 @@ namespace Sandbox.Game.Entities.Blocks
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
                 return;
             }
-            TryAttach();
+            UpdateText();
+
             TryWeld();
+            TryAttach();
+
             UpdatePhysicsShape();
             UpdateSoundState();
 
@@ -557,6 +515,7 @@ namespace Sandbox.Game.Entities.Blocks
             base.UpdateBeforeSimulation();
             ProfilerShort.End();
 
+            UpdateText();
             if (CheckVelocities())
                 return;
 
@@ -605,7 +564,7 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         m_currentPos.Value = Math.Max(m_currentPos + compensatedDelta, MinLimit);
                         changed = true;
-                        if (m_currentPos == MinLimit)
+                        if (m_currentPos.Value == MinLimit)
                         {
                             var handle = LimitReached;
                             if (handle != null) handle(false);
@@ -616,7 +575,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     m_currentPos.Value = Math.Min(m_currentPos + compensatedDelta, MaxLimit);
                     changed = true;
-                    if (m_currentPos == MaxLimit)
+                    if (m_currentPos.Value == MaxLimit)
                     {
                         var handle = LimitReached;
                         if (handle != null) handle(true);
@@ -683,25 +642,6 @@ namespace Sandbox.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
-        public MyStringId GetAttachState()
-        {
-            if ((m_welded || m_isWelding) && SafeConstraint == null)
-            {
-                return MySpaceTexts.BlockPropertiesText_MotorLocked;
-            }
-            else
-            {
-                if (m_connectionState.Value.TopBlockId == null)
-                    return MySpaceTexts.BlockPropertiesText_MotorDetached;
-                else if (m_connectionState.Value.TopBlockId.Value == 0)
-                    return MySpaceTexts.BlockPropertiesText_HeadAttachingAny;
-                else if (SafeConstraint != null)
-                    return MySpaceTexts.BlockPropertiesText_MotorAttached;
-                else
-                    return MySpaceTexts.BlockPropertiesText_HeadAttachingSpecific;
-            }
-        }
-
         private void UpdateAnimation()
         {
             Debug.Assert(m_subpart1 != null && m_subpart2 != null && Subpart3 != null);
@@ -749,78 +689,51 @@ namespace Sandbox.Game.Entities.Blocks
                 return false;
 
             MyPistonTop pistonTop = topBlock as MyPistonTop;
-            if (pistonTop != null)
+            if (pistonTop != null && base.Attach(topBlock, updateGroup))
             {
                 Debug.Assert(m_constraint == null, "Contraint already attached, call detach first!");
                 Debug.Assert(m_connectionState.Value.TopBlockId.HasValue && (m_connectionState.Value.TopBlockId.Value == 0 || m_connectionState.Value.TopBlockId.Value == topBlock.EntityId), "m_topBlockId must be set prior calling Attach!");
 
                 UpdateAnimation();
 
-                if (CubeGrid.Physics != null && CubeGrid.Physics.Enabled && topBlock.CubeGrid.Physics != null)
+                var matAD = MatrixD.CreateWorld(Vector3D.Transform(Vector3D.Transform(m_constraintBasePos, Subpart3.WorldMatrix), CubeGrid.PositionComp.WorldMatrixNormalizedInv), PositionComp.LocalMatrix.Forward, PositionComp.LocalMatrix.Up);
+                var matBD = MatrixD.CreateWorld(m_topBlock.Position * m_topBlock.CubeGrid.GridSize, m_topBlock.PositionComp.LocalMatrix.Forward, m_topBlock.PositionComp.LocalMatrix.Up);
+                var matA = (Matrix)matAD;
+                var matB = (Matrix)matBD;
+                m_fixedData = new HkFixedConstraintData();
+                m_fixedData.SetInertiaStabilizationFactor(10);
+                m_fixedData.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
+                m_fixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, m_topGrid.Physics);
+
+                //Dont dispose the fixed data or we wont have access to them
+
+                m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, topBlock.CubeGrid.Physics.RigidBody, m_fixedData);
+                m_constraint.WantRuntime = true;
+
+                CubeGrid.Physics.AddConstraint(m_constraint);
+                if (!m_constraint.InWorld)
                 {
-                    m_topBlock = topBlock;
-                    m_topGrid = m_topBlock.CubeGrid;
-                    var topBody = m_topGrid.Physics.RigidBody;
-
-                    if (m_topGrid.Physics == null)
-                        return false;
-
-                    if (CubeGrid.Physics.RigidBody == m_topGrid.Physics.RigidBody)
-                    {
-                        if (updateGroup && m_welded)
-                        {
-                            OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
-                            OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
-                        }
-                        m_isAttached = true;
-                        return true;
-                    }
-
-
-                    var matAD = MatrixD.CreateWorld(Vector3D.Transform(Vector3D.Transform(m_constraintBasePos, Subpart3.WorldMatrix), CubeGrid.PositionComp.WorldMatrixNormalizedInv), PositionComp.LocalMatrix.Forward, PositionComp.LocalMatrix.Up);
-                    var matBD = MatrixD.CreateWorld(m_topBlock.Position * m_topBlock.CubeGrid.GridSize, m_topBlock.PositionComp.LocalMatrix.Forward, m_topBlock.PositionComp.LocalMatrix.Up);
-                    var matA = (Matrix)matAD;
-                    var matB = (Matrix)matBD;
-                    m_fixedData = new HkFixedConstraintData();
-                    m_fixedData.SetInertiaStabilizationFactor(10);
-                    m_fixedData.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-                    m_fixedData.SetInBodySpace(matA, matB, CubeGrid.Physics, m_topGrid.Physics);
-                    var breakData = new HkBreakableConstraintData(m_fixedData);
-                    //Dont dispose the fixed data or we wont have access to them
-
-                    breakData.Threshold = BreakOffTreshold;
-                    breakData.ReapplyVelocityOnBreak = true;
-                    breakData.RemoveFromWorldOnBrake = false;
-                    m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, topBody, breakData);
-                    m_constraint.WantRuntime = true;
-
-                    CubeGrid.Physics.AddConstraint(m_constraint);
-                    if (!m_constraint.InWorld)
-                    {
-                        Debug.Fail("Constraint was not added to world");
-                        CubeGrid.Physics.RemoveConstraint(m_constraint);
-                        m_constraint.Dispose();
-                        m_constraint = null;
-                        m_fixedData.Dispose();
-                        m_fixedData = null;
-                        return false;
-                    }
-                    m_constraint.Enabled = true;
-
-                    m_topBlock.Attach(this);
-                    m_isAttached = true;
-
-                    if (updateGroup)
-                    {
-                        OnConstraintAdded(GridLinkTypeEnum.Physical, m_topGrid);
-                        OnConstraintAdded(GridLinkTypeEnum.Logical, m_topGrid);
-                        m_topGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
-                        m_conveyorEndpoint.Attach(pistonTop.ConveyorEndpoint as MyAttachableConveyorEndpoint);
-                    }
-
-                    UpdateText();
-                    return true;
+                    Debug.Fail("Constraint was not added to world");
+                    CubeGrid.Physics.RemoveConstraint(m_constraint);
+                    m_constraint.Dispose();
+                    m_constraint = null;
+                    m_fixedData = null;
+                    return false;
                 }
+                m_constraint.Enabled = true;
+
+                m_topBlock = topBlock;
+                m_topGrid = topBlock.CubeGrid;
+                topBlock.Attach(this);
+                m_isAttached = true;
+
+                if (updateGroup)
+                {
+                    m_conveyorEndpoint.Attach(pistonTop.ConveyorEndpoint as MyAttachableConveyorEndpoint);
+                }
+
+                UpdateText();
+                return true;
             }
             return false;
         }
@@ -924,8 +837,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         public override void UpdateOnceBeforeFrame()
         {
-            TryAttach();
             TryWeld();
+            TryAttach();
 
             LoadSubparts();
 
@@ -987,16 +900,10 @@ namespace Sandbox.Game.Entities.Blocks
             pos = Subpart3.WorldMatrix.Translation + Subpart3.PositionComp.WorldVolume.Radius * WorldMatrix.Up + 0.5f * CubeGrid.GridSize * WorldMatrix.Up;
         }
 
-        protected override bool CanDetach()
-        {
-            return m_constraint != null;
-        }
-
         protected override void DisposeConstraint()
         {
            if(m_constraint != null)
            {
-               m_fixedData.Dispose();
                m_fixedData = null;
                CubeGrid.Physics.RemoveConstraint(m_constraint);
                m_constraint.Dispose();
@@ -1016,6 +923,17 @@ namespace Sandbox.Game.Entities.Blocks
             }
             var ret = base.Detach(updateGroup);
             return ret;
+        }
+
+        protected override void CustomUnweld()
+        {
+            base.CustomUnweld();
+
+            MyPistonTop pistonTop = m_topBlock as MyPistonTop;
+            if (pistonTop != null)
+            {
+                m_conveyorEndpoint.Detach(pistonTop.ConveyorEndpoint as MyAttachableConveyorEndpoint);
+            }
         }
 
         #region IMyConveyorEndpointBlock implementation

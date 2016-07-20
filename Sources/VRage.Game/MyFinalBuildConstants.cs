@@ -38,6 +38,8 @@ namespace VRage.Game
 
         public const int IP_ADDRESS_ANY = 0;
 
+        public const bool IS_STABLE = false;
+
         public const short DEDICATED_SERVER_PORT = 27015;
         public const short DEDICATED_STEAM_AUTH_PORT = 8766;
     }

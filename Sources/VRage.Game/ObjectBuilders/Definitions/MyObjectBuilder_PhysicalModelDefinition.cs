@@ -1,4 +1,5 @@
-﻿using VRage.ObjectBuilders;
+﻿using System.Xml.Serialization;
+using VRage.ObjectBuilders;
 using ProtoBuf;
 using VRage.Data;
 
@@ -6,6 +7,7 @@ namespace VRage.Game
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
+    [XmlType("VR.PhysicalModelDefinition")]
     public class MyObjectBuilder_PhysicalModelDefinition : MyObjectBuilder_DefinitionBase
     {
         [ProtoMember]

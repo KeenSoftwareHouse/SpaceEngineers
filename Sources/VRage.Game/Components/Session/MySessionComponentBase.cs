@@ -65,22 +65,19 @@ namespace VRage.Game.Components
     {
         public readonly string DebugName;
         public readonly int Priority;
-        public MyUpdateOrder UpdateOrder { get; set; }
-        public readonly MyObjectBuilderType ObjectBuilderType;
-        public Type ComponentType;
+        public MyUpdateOrder UpdateOrder { get; private set; }
+        public MyObjectBuilderType ObjectBuilderType { get; private set; }
+        public readonly Type ComponentType;
+
         public IMySession Session;
 
         public virtual bool UpdatedBeforeInit()
         {
             return false;
         }
-        public bool Loaded;
-        private bool m_initialized;
+        public bool Loaded { get; private set; }
 
-        public bool Initialized
-        {
-            get { return m_initialized; }
-        }
+        public bool Initialized { get; private set; }
 
         public MySessionComponentBase()
         {
@@ -107,6 +104,11 @@ namespace VRage.Game.Components
 
         public MyDefinitionId? Definition { get; set; }
 
+        public void SetUpdateOrder(MyUpdateOrder order)
+        {
+            Session.SetComponentUpdateOrder(this, order);
+            UpdateOrder = order;
+        }
 
         public virtual Type[] Dependencies
         {
@@ -117,7 +119,7 @@ namespace VRage.Game.Components
         /// Indicates whether a session component should be used in current configuration.
         /// Example: MyDestructionData component returns true only when game uses Havok Destruction
         /// </summary>
-        /// TODO: Make obsolete
+        [Obsolete]
         public virtual bool IsRequiredByGame
         {
             get { return true; }
@@ -129,7 +131,8 @@ namespace VRage.Game.Components
 
         public virtual void Init(MyObjectBuilder_SessionComponent sessionComponent)
         {
-            m_initialized = true;
+            Initialized = true;
+
             if (sessionComponent != null && sessionComponent.Definition.HasValue)
             {
                 Definition = sessionComponent.Definition;
@@ -159,14 +162,6 @@ namespace VRage.Game.Components
             return null;
         }
 
-        public virtual void LoadData()
-        {
-        }
-
-        protected virtual void UnloadData()
-        {
-        }
-
         public void AfterLoadData()
         {
             Loaded = true;
@@ -179,6 +174,14 @@ namespace VRage.Game.Components
                 UnloadData();
                 Loaded = false;
             }
+        }
+
+        public virtual void LoadData()
+        {
+        }
+
+        protected virtual void UnloadData()
+        {
         }
 
         public virtual void SaveData()
@@ -215,7 +218,7 @@ namespace VRage.Game.Components
 
         public override string ToString()
         {
-            return ComponentType.ToString();
+            return DebugName;
         }
     }
 }

@@ -11,7 +11,6 @@ using VRageMath;
 namespace VRage.Game
 {
     using VRageRender;
-    using Color = VRageMath.Color;
     using Vector2 = VRageMath.Vector2;
     using Vector3 = VRageMath.Vector3;
     using Vector4 = VRageMath.Vector4;
@@ -26,12 +25,11 @@ namespace VRage.Game
 
         public const int MAX_PARTICLES_COUNT = (int)(MAX_TRANSPARENT_GEOMETRY_COUNT * 0.05f);
         public const int MAX_NEW_PARTICLES_COUNT = (int)(MAX_TRANSPARENT_GEOMETRY_COUNT * 0.7f);
-        
+
         #region Fields
 
         static MyObjectsPool<MyAnimatedParticle> m_animatedParticles = new MyObjectsPool<MyAnimatedParticle>(MAX_NEW_PARTICLES_COUNT);
 
-        public static Color ColorizeColor { get; set; }
         public static Vector3 ColorizePlaneNormal { get; set; }
         public static float ColorizePlaneDistance { get; set; }
         //public static bool EnableColorize { get; set; }
@@ -52,7 +50,7 @@ namespace VRage.Game
 
         #region Load/unload content
 
-      
+
         public static void LoadData()
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyTransparentGeometry.LoadData");
@@ -87,7 +85,7 @@ namespace VRage.Game
         }
 
         public static void AddLineBillboard(string material,
-            Color color, Vector3D origin, int renderObjectID, ref MatrixD worldToLocal, Vector3 directionNormalized, float length, float thickness, int priority = 0, bool near = false, int customViewProjection = -1)
+            Vector4 color, Vector3D origin, int renderObjectID, ref MatrixD worldToLocal, Vector3 directionNormalized, float length, float thickness, int priority = 0, bool near = false, int customViewProjection = -1)
         {
             Debug.Assert(material != null);
             if (!IsEnabled) return;
@@ -116,11 +114,14 @@ namespace VRage.Game
 
             MyQuadD quad;
             Vector3D cameraPosition = customViewProjection == -1 ? MyTransparentGeometry.Camera.Translation : VRageRender.MyRenderProxy.BillboardsViewProjectionWrite[customViewProjection].CameraPosition;
+            Vector3D cameraToPoly = cameraPosition - polyLine.Point0;
+            if (Vector3D.IsZero(cameraToPoly, 1e-6))
+                return;
             MyUtils.GetPolyLineQuad(out quad, ref polyLine, cameraPosition);
 
             CreateBillboard(billboard, ref quad, material, ref color, ref origin, false, near, false, customViewProjection);
 
-            if(renderObjectID != -1)
+            if (renderObjectID != -1)
             {
                 Vector3D.Transform(ref billboard.Position0, ref worldToLocal, out billboard.Position0);
                 Vector3D.Transform(ref billboard.Position1, ref worldToLocal, out billboard.Position1);
@@ -140,7 +141,7 @@ namespace VRage.Game
         //  Add billboard for one frame only. This billboard isn't particle (it doesn't survive this frame, doesn't have update/draw methods, etc).
         //  It's used by other classes when they want to draw some billboard (e.g. rocket thrusts, reflector glare).
         public static void AddPointBillboard(string material,
-            Color color, Vector3D origin, float radius, float angle, int priority = 0, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1)
+            Vector4 color, Vector3D origin, float radius, float angle, int priority = 0, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1)
         {
             AddPointBillboard(material, color, origin, -1, ref MatrixD.Identity, radius, angle, priority, colorize, near, lowres, customViewProjection);
         }
@@ -148,7 +149,8 @@ namespace VRage.Game
         //  Add billboard for one frame only. This billboard isn't particle (it doesn't survive this frame, doesn't have update/draw methods, etc).
         //  It's used by other classes when they want to draw some billboard (e.g. rocket thrusts, reflector glare).
         public static void AddPointBillboard(string material,
-            Color color, Vector3D origin, int renderObjectID, ref MatrixD worldToLocal, float radius, float angle, int priority = 0, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1)
+            Vector4 color, Vector3D origin, int renderObjectID, ref MatrixD worldToLocal, float radius, float angle, int priority = 0,
+                bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1)
         {
             Debug.Assert(material != null);
             if (!IsEnabled) return;
@@ -195,13 +197,15 @@ namespace VRage.Game
             Vector3 n0, Vector3 n1, Vector3 n2,
             Vector2 uv0, Vector2 uv1, Vector2 uv2,
             string material, int parentID, Vector3 worldPosition,
-            int priority = 0, bool colorize = false)
+            int priority = 0, bool colorize = false, bool window = true)
         {
             VRageRender.MyTriangleBillboard billboard = VRageRender.MyRenderProxy.TriangleBillboardsPoolWrite.Allocate();
             if (billboard == null)
                 return;
 
             var materialInstance = MyTransparentMaterials.GetMaterial(material);
+
+            billboard.Window = window;
 
             billboard.Position0 = p0;
             billboard.Position1 = p1;
@@ -223,6 +227,7 @@ namespace VRage.Game
 
             billboard.Material = material;
             billboard.Color = materialInstance.Color;
+            Debug.Assert(materialInstance.Color.W != 0);
             billboard.ColorIntensity = 1;
             billboard.Priority = priority;
             billboard.EnableColorize = colorize;
@@ -239,7 +244,7 @@ namespace VRage.Game
         //  This billboard isn't facing the camera. It's always oriented in specified direction. May be used as thrusts, or inner light of reflector.
         //  It's used by other classes when they want to draw some billboard (e.g. rocket thrusts, reflector glare).
         public static void AddBillboardOriented(string material,
-            Color color, Vector3D origin, Vector3 leftVector, Vector3 upVector, float radius, int priority = 0, bool colorize = false, int customViewProjection = -1, float reflection = 0)
+            Vector4 color, Vector3D origin, Vector3 leftVector, Vector3 upVector, float radius, int priority = 0, bool colorize = false, int customViewProjection = -1, float reflection = 0)
         {
             Debug.Assert(material != null);
             if (!IsEnabled) return;
@@ -256,7 +261,7 @@ namespace VRage.Game
                 return;
 
             billboard.Priority = priority;
-            
+
             MyQuadD quad;
             MyUtils.GetBillboardQuadOriented(out quad, ref origin, radius, ref leftVector, ref upVector);
 
@@ -266,100 +271,102 @@ namespace VRage.Game
         }
 
 
-       
-       public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material,
-           ref Color color, ref Vector3D origin, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflection = 0)
-       {
-           CreateBillboard(billboard, ref quad, material, "Test", 0, ref color, ref origin, colorize, near, lowres, customViewProjection, reflection);
-       }
 
-       public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material,
-           ref Color color, ref Vector3D origin, Vector2 uvOffset, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflection = 0)
-       {
-           CreateBillboard(billboard, ref quad, material, "Test", 0, ref color, ref origin, uvOffset, colorize, near, lowres, customViewProjection, reflection);
-       }
+        public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material,
+            ref Vector4 color, ref Vector3D origin, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflection = 0)
+        {
+            CreateBillboard(billboard, ref quad, material, "Test", 0, ref color, ref origin, colorize, near, lowres, customViewProjection, reflection);
+        }
 
-       public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material, string blendMaterial, float textureBlendRatio,
-       ref Color color, ref Vector3D origin, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflection = 0)
-       {
-           CreateBillboard(billboard, ref quad, material, blendMaterial, textureBlendRatio, ref color, ref origin, Vector2.Zero, colorize, near, lowres, customViewProjection, reflection);
-       }
+        public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material,
+            ref Vector4 color, ref Vector3D origin, Vector2 uvOffset, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflection = 0)
+        {
+            CreateBillboard(billboard, ref quad, material, "Test", 0, ref color, ref origin, uvOffset, colorize, near, lowres, customViewProjection, reflection);
+        }
 
-       //  This method is like a constructor (which we can't use because billboards are allocated from a pool).
-       //  It starts/initializes a billboard. Refs used only for optimalization
-       public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material, string blendMaterial, float textureBlendRatio,
-       ref Color color, ref Vector3D origin, Vector2 uvOffset, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflectivity = 0)
-       {
-           System.Diagnostics.Debug.Assert(material != null);
+        public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material, string blendMaterial, float textureBlendRatio,
+        ref Vector4 color, ref Vector3D origin, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflection = 0)
+        {
+            CreateBillboard(billboard, ref quad, material, blendMaterial, textureBlendRatio, ref color, ref origin, Vector2.Zero, colorize, near, lowres, customViewProjection, reflection);
+        }
 
-           if (string.IsNullOrEmpty(material) || !MyTransparentMaterials.ContainsMaterial(material))
-           {
-               material = "ErrorMaterial";
-               color = Vector4.One;
-           }
+        //  This method is like a constructor (which we can't use because billboards are allocated from a pool).
+        //  It starts/initializes a billboard. Refs used only for optimalization
+        public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material, string blendMaterial, float textureBlendRatio,
+            ref Vector4 color, ref Vector3D origin, Vector2 uvOffset, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1, float reflectivity = 0)
+        {
+            System.Diagnostics.Debug.Assert(material != null);
 
-           billboard.Material = material;
-           billboard.BlendMaterial = blendMaterial;
-           billboard.BlendTextureRatio = textureBlendRatio;
+            if (string.IsNullOrEmpty(material) || !MyTransparentMaterials.ContainsMaterial(material))
+            {
+                material = "ErrorMaterial";
+                color = Vector4.One;
+            }
 
-           MyUtils.AssertIsValid(quad.Point0);
-           MyUtils.AssertIsValid(quad.Point1);
-           MyUtils.AssertIsValid(quad.Point2);
-           MyUtils.AssertIsValid(quad.Point3);
+            billboard.Material = material;
+            billboard.BlendMaterial = blendMaterial;
+            billboard.BlendTextureRatio = textureBlendRatio;
+
+            MyUtils.AssertIsValid(quad.Point0);
+            MyUtils.AssertIsValid(quad.Point1);
+            MyUtils.AssertIsValid(quad.Point2);
+            MyUtils.AssertIsValid(quad.Point3);
             
 
-           //  Billboard vertices
-           billboard.Position0 = quad.Point0;
-           billboard.Position1 = quad.Point1;
-           billboard.Position2 = quad.Point2;
-           billboard.Position3 = quad.Point3;
+            //  Billboard vertices
+            billboard.Position0 = quad.Point0;
+            billboard.Position1 = quad.Point1;
+            billboard.Position2 = quad.Point2;
+            billboard.Position3 = quad.Point3;
 
-           billboard.UVOffset = uvOffset;
-           billboard.UVSize = Vector2.One;
+            billboard.UVOffset = uvOffset;
+            billboard.UVSize = Vector2.One;
 
-           billboard.EnableColorize = colorize;
+            billboard.EnableColorize = colorize;
 
-           if (billboard.EnableColorize)
-               billboard.Size = (float)(billboard.Position0 - billboard.Position2).Length();
+            if (billboard.EnableColorize)
+                billboard.Size = (float)(billboard.Position0 - billboard.Position2).Length();
 
-           //  Distance for sorting
-           //  IMPORTANT: Must be calculated before we do color and alpha misting, because we need distance there
-           Vector3D cameraPosition = customViewProjection == -1 ? MyTransparentGeometry.Camera.Translation : VRageRender.MyRenderProxy.BillboardsViewProjectionWrite[customViewProjection].CameraPosition;
-           billboard.DistanceSquared = (float)Vector3D.DistanceSquared(cameraPosition, origin);
+            //  Distance for sorting
+            //  IMPORTANT: Must be calculated before we do color and alpha misting, because we need distance there
+            Vector3D cameraPosition = customViewProjection == -1 ? MyTransparentGeometry.Camera.Translation : VRageRender.MyRenderProxy.BillboardsViewProjectionWrite[customViewProjection].CameraPosition;
+            billboard.DistanceSquared = (float)Vector3D.DistanceSquared(cameraPosition, origin);
            
-           //  Color
-           billboard.Color = color;
-           billboard.ColorIntensity = 1;
-           billboard.Reflectivity = reflectivity;
+            //  Color
+            billboard.Color = color;
+            billboard.ColorIntensity = 1;
+            billboard.Reflectivity = reflectivity;
 
-           billboard.Near = near;
-           billboard.Lowres = lowres;
-           billboard.CustomViewProjection = customViewProjection;
-           billboard.ParentID = -1;
+            billboard.Near = near;
+            billboard.Lowres = lowres;
+            billboard.CustomViewProjection = customViewProjection;
+            billboard.ParentID = -1;
+            billboard.SoftParticleDistanceScale = 1;
+                        
+            //  Alpha depends on distance to camera. Very close bilboards are more transparent, so player won't see billboard errors or rotating billboards
+            var mat = MyTransparentMaterials.GetMaterial(billboard.Material);
+            if (mat.AlphaMistingEnable)
+                billboard.Color *= MathHelper.Clamp(((float)Math.Sqrt(billboard.DistanceSquared) - mat.AlphaMistingStart) / (mat.AlphaMistingEnd - mat.AlphaMistingStart), 0, 1);
 
-           //  Alpha depends on distance to camera. Very close bilboards are more transparent, so player won't see billboard errors or rotating billboards
-           var mat = MyTransparentMaterials.GetMaterial(billboard.Material);
-           if (mat.AlphaMistingEnable)
-               billboard.Color *= MathHelper.Clamp(((float)Math.Sqrt(billboard.DistanceSquared) - mat.AlphaMistingStart) / (mat.AlphaMistingEnd - mat.AlphaMistingStart), 0, 1);
+            billboard.Color *= mat.Color;
 
-           billboard.Color *= mat.Color;
+            billboard.ContainedBillboards.Clear();
+        }
 
-           billboard.ContainedBillboards.Clear();
-       }
-          
 
 
         //  Add billboard for one frame only. This billboard isn't particle (it doesn't survive this frame, doesn't have update/draw methods, etc).
         //  This billboard isn't facing the camera. It's always oriented in specified direction. May be used as thrusts, or inner light of reflector.
         //  It's used by other classes when they want to draw some billboard (e.g. rocket thrusts, reflector glare).
-       public static void AddBillboardOriented(string material,
-            Vector4 color, Vector3 origin, Vector3 leftVector, Vector3 upVector, float width, float height, int priority = 0, bool colorize = false)
+        public static void AddBillboardOriented(string material,
+                Vector4 color, Vector3 origin, Vector3 leftVector, Vector3 upVector, float width, float height, int priority = 0, bool colorize = false)
         {
             AddBillboardOriented(material, color, origin, leftVector, upVector, width, height, Vector2.Zero, priority, colorize);
         }
 
         public static void AddBillboardOriented(string material,
-            Color color, Vector3D origin, Vector3 leftVector, Vector3 upVector, float width, float height, Vector2 uvOffset, int priority = 0, bool colorize = false, int customViewProjection = -1)
+            Vector4 color, Vector3D origin, Vector3 leftVector, Vector3 upVector, float width, float height, Vector2 uvOffset, int priority = 0,
+            bool colorize = false, int customViewProjection = -1)
         {
             Debug.Assert(material != null);
             if (!IsEnabled) return;
@@ -380,7 +387,7 @@ namespace VRage.Game
             VRageRender.MyRenderProxy.AddBillboard(billboard);
         }
 
-        public static bool AddQuad(string material, ref MyQuadD quad, ref Color color, ref Vector3D vctPos, int priority = 0, int customViewProjection = -1)
+        public static bool AddQuad(string material, ref MyQuadD quad, Vector4 color, ref Vector3D vctPos, int priority = 0, int customViewProjection = -1)
         {
             Debug.Assert(material != null);
             if (!IsEnabled) return false;
@@ -405,7 +412,7 @@ namespace VRage.Game
             return true;
         }
 
-        public static bool AddAttachedQuad(string material, ref MyQuadD quad, ref Color color, ref Vector3D vctPos, int renderObjectID, int priority = 0)
+        public static bool AddAttachedQuad(string material, ref MyQuadD quad, Vector4 color, ref Vector3D vctPos, int renderObjectID, int priority = 0)
         {
             Debug.Assert(material != null);
             if (!IsEnabled) return false;
@@ -482,7 +489,7 @@ namespace VRage.Game
             return billboard;
         }
 
-        
+
         #endregion
 
         [Conditional("PARTICLE_PROFILING")]
@@ -497,6 +504,5 @@ namespace VRage.Game
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }
 
-        
     }
 }

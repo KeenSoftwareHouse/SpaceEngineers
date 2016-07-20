@@ -138,8 +138,8 @@ namespace VRageRender
         MyDepthView m_depthSubresource;
         MyStencilView m_stencilSubresource;
 
-        internal MyBindableResource Depth { get { return m_depthSubresource; } }
-        internal MyBindableResource Stencil { get { return m_stencilSubresource; } }
+        internal MyDepthView Depth { get { return m_depthSubresource; } }
+        internal MyStencilView Stencil { get { return m_stencilSubresource; } }
 
         internal MyDepthStencil(int width, int height,
             int sampleCount, int sampleQuality)
@@ -328,7 +328,7 @@ namespace VRageRender
             return new Vector3I(m_resolution.X, m_resolution.Y, 0);
         }
 
-        internal MyUnorderedAccessTexture(int width, int height, Format format)
+        internal MyUnorderedAccessTexture(int width, int height, Format format, int samplesCount = 1, int samplesQuality = 0, string debugName = null)
         {
             m_resolution = new Vector2I(width, height);
 
@@ -341,14 +341,21 @@ namespace VRageRender
             desc.BindFlags = BindFlags.UnorderedAccess | BindFlags.ShaderResource | BindFlags.RenderTarget;
             desc.Usage = ResourceUsage.Default;
             desc.CpuAccessFlags = 0;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
+            desc.SampleDescription.Count = samplesCount;
+            desc.SampleDescription.Quality = samplesQuality;
             desc.OptionFlags = 0;
 
             m_resource = new Texture2D(MyRender11.Device, desc);
             m_UAV = new UnorderedAccessView(MyRender11.Device, m_resource);
             m_SRV = new ShaderResourceView(MyRender11.Device, m_resource);
             m_RTV = new RenderTargetView(MyRender11.Device, m_resource);
+            if (debugName != null)
+            {
+                m_resource.DebugName = debugName;
+                m_UAV.DebugName = debugName + "UAV";
+                m_SRV.DebugName = debugName + "SRV";
+                m_RTV.DebugName = debugName + "RTV";
+            }
         }
     }
 
@@ -533,8 +540,8 @@ namespace VRageRender
 
         internal Dictionary<MyViewKey, MyBindableResource> m_views = new Dictionary<MyViewKey, MyBindableResource>(MyViewKey.Comparer);
 
-        internal MyCustomTexture(int width, int height, BindFlags bindflags,
-            Format format)
+        internal MyCustomTexture(int width, int height, BindFlags bindflags, Format format,
+            int samplesCount = 1, int samplesQuality = 0, string debugName = null)
         {
             m_resolution = new Vector2I(width, height);
 
@@ -547,10 +554,12 @@ namespace VRageRender
             desc.BindFlags = bindflags;
             desc.Usage = ResourceUsage.Default;
             desc.CpuAccessFlags = 0;
-            desc.SampleDescription.Count = 1;
-            desc.SampleDescription.Quality = 0;
+            desc.SampleDescription.Count = samplesCount;
+            desc.SampleDescription.Quality = samplesQuality;
             desc.OptionFlags = 0;
-            m_resource = new Texture2D(MyRender11.Device, desc);   
+            m_resource = new Texture2D(MyRender11.Device, desc);
+            if (debugName != null)
+                m_resource.DebugName = debugName;
         }
 
         internal void AddView(MyViewKey view)

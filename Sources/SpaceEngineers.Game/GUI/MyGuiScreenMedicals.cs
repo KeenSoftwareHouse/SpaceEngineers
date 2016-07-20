@@ -379,7 +379,7 @@ namespace SpaceEngineers.Game.GUI
                 m_respawnsTable.Add(row);
             }
 
-            if (!MySession.Static.Settings.DisableRespawnShips)
+            if (!MySession.Static.Settings.DisableRespawnShips && !MySession.Static.Settings.Scenario)
             {
                 RefreshSpawnShips();
                 AddRespawnInSuit();
@@ -578,7 +578,7 @@ namespace SpaceEngineers.Game.GUI
 
         private void RespawnAtMedicalRoom(long medicalId)
         {
-            MyPlayerCollection.RespawnRequest(joinGame: MySession.Static.LocalCharacter == null, newPlayer: false, respawnEntityId: medicalId, shipPrefabId: null);
+            MyPlayerCollection.RespawnRequest(joinGame: MySession.Static.LocalCharacter == null, newIdentity: false, respawnEntityId: medicalId, shipPrefabId: null);
             CloseScreen();
         }
 
@@ -604,9 +604,9 @@ namespace SpaceEngineers.Game.GUI
         {
             var identity = Sync.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
             Debug.Assert(identity != null, "Could not get local player identity! This should not happen!");
-            bool newPlayer = identity == null || identity.FirstSpawnDone;
+            bool newIdentity = identity == null || identity.FirstSpawnDone;
 
-            MyPlayerCollection.RespawnRequest(MySession.Static.LocalCharacter == null, newPlayer, 0, shipPrefabId);
+            MyPlayerCollection.RespawnRequest(MySession.Static.LocalCharacter == null, newIdentity, 0, shipPrefabId);
             CloseScreen();
         }
 

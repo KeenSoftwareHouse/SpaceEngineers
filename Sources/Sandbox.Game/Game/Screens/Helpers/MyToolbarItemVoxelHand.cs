@@ -32,24 +32,30 @@ namespace Sandbox.Game.Screens.Helpers
             if (!exists)
                 return false;
 
-            MySessionComponentVoxelHand.Static.Enabled = MySession.Static.CreativeMode;
+            bool isCreative = MySession.Static.CreativeMode;
+
+            if (isCreative)
+                MySession.Static.GameFocusManager.Clear();
+
+            MySessionComponentVoxelHand.Static.Enabled = isCreative;
             if (MySessionComponentVoxelHand.Static.Enabled)
             {
                 MySessionComponentVoxelHand.Static.CurrentDefinition = Definition as MyVoxelHandDefinition;
                 var controlledObject = MySession.Static.ControlledEntity as IMyControllableEntity;
                 if (controlledObject != null)
                 {
-                  controlledObject.SwitchToWeapon(null);
+                    controlledObject.SwitchToWeapon(null);
                 }
 
                 //if (MySessionComponentVoxelHand.Static.Enabled)
                 //{
-                    // Some parts of the cubebuilder can be active (clipboards) without cube placer
-                    if (MyCubeBuilder.Static.IsActivated)
-                        MyCubeBuilder.Static.Deactivate();
+                // Some parts of the cubebuilder can be active (clipboards) without cube placer
+                //if (MyCubeBuilder.Static.IsActivated)
+                //    MyCubeBuilder.Static.Deactivate();
                 //}
                 return true;
             }
+            
             return false;
         }
 

@@ -77,6 +77,8 @@ namespace VRage.Game
             public bool IsExplosive;
             [ProtoMember, DefaultValue(0.0f)]
             public float BackkickForce;
+            [ProtoMember]
+            public string PhysicalMaterial = "";
         }
 
         [ProtoMember]

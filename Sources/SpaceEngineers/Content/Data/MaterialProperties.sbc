@@ -70,44 +70,24 @@
           <Material>Snow</Material>
           <SoundCue>PlayStepsSnow</SoundCue>
           <ParticleEffect>CharacterStepSnow</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Walk</Type>
           <Material>Snow</Material>
           <SoundCue>PlayStepsSnow</SoundCue>
           <ParticleEffect>CharacterStepSnow</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Run</Type>
           <Material>Snow</Material>
           <SoundCue>PlayStepsSnow</SoundCue>
           <ParticleEffect>CharacterStepSnow</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Sprint</Type>
           <Material>Snow</Material>
           <SoundCue>PlayStepsSnow</SoundCue>
           <ParticleEffect>CharacterStepSnow</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Fall</Type>
@@ -171,26 +151,31 @@
           <Type>CrouchWalk</Type>
           <Material>Grass</Material>
           <SoundCue>PlayStepsGrass</SoundCue>
+		  <ParticleEffect>CharacterStepFlora</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Walk</Type>
           <Material>Grass</Material>
           <SoundCue>PlayStepsGrass</SoundCue>
+		  <ParticleEffect>CharacterStepFlora</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Run</Type>
           <Material>Grass</Material>
           <SoundCue>PlayStepsGrass</SoundCue>
+		  <ParticleEffect>CharacterStepFlora</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Sprint</Type>
           <Material>Grass</Material>
           <SoundCue>PlayStepsGrass</SoundCue>
+		  <ParticleEffect>CharacterStepFlora</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Fall</Type>
           <Material>Grass</Material>
           <SoundCue>PlayFallGrass</SoundCue>
+		  <ParticleEffect>CharacterStepFlora</ParticleEffect>
         </ContactProperty>
         
         <ContactProperty>
@@ -224,44 +209,24 @@
           <Material>Sand</Material>
           <SoundCue>PlayStepsSand</SoundCue>
           <ParticleEffect>CharacterStepSand</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Walk</Type>
           <Material>Sand</Material>
           <SoundCue>PlayStepsSand</SoundCue>
           <ParticleEffect>CharacterStepSand</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Run</Type>
           <Material>Sand</Material>
           <SoundCue>PlayStepsSand</SoundCue>
           <ParticleEffect>CharacterStepSand</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Sprint</Type>
           <Material>Sand</Material>
           <SoundCue>PlayStepsSand</SoundCue>
           <ParticleEffect>CharacterStepSand</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>1.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Fall</Type>
@@ -326,44 +291,24 @@
           <Material>MoonSoil</Material>
           <SoundCue>PlayStepsSoilMoon</SoundCue>
           <ParticleEffect>CharacterStepMoonSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>0.8</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Walk</Type>
           <Material>MoonSoil</Material>
           <SoundCue>PlayStepsSoilMoon</SoundCue>
           <ParticleEffect>CharacterStepMoonSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>0.8</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Run</Type>
           <Material>MoonSoil</Material>
           <SoundCue>PlayStepsSoilMoon</SoundCue>
           <ParticleEffect>CharacterStepMoonSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>0.8</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Sprint</Type>
           <Material>MoonSoil</Material>
           <SoundCue>PlayStepsSoilMoon</SoundCue>
           <ParticleEffect>CharacterStepMoonSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>0.8</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Fall</Type>
@@ -376,44 +321,24 @@
           <Material>MarsSoil</Material>
           <SoundCue>PlayStepsSoilMars</SoundCue>
           <ParticleEffect>CharacterStepMarsSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>2.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Walk</Type>
           <Material>MarsSoil</Material>
           <SoundCue>PlayStepsSoilMars</SoundCue>
           <ParticleEffect>CharacterStepMarsSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>2.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>0.1</SizeMultiplier>
-            <Preload>1.00</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Run</Type>
           <Material>MarsSoil</Material>
           <SoundCue>PlayStepsSoilMars</SoundCue>
           <ParticleEffect>CharacterStepMarsSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>2.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0.0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Sprint</Type>
           <Material>MarsSoil</Material>
           <SoundCue>PlayStepsSoilMars</SoundCue>
           <ParticleEffect>CharacterStepMarsSoil</ParticleEffect>
-          <ParticleProperties>
-            <ColorMultiplier> <X>2.0</X> <Y>1.0</Y> <Z>1.0</Z> <W>3.0</W> </ColorMultiplier>
-            <SizeMultiplier>1.0</SizeMultiplier>
-            <Preload>0</Preload>
-          </ParticleProperties>
         </ContactProperty>
         <ContactProperty>
           <Type>Fall</Type>
@@ -1005,92 +930,92 @@
         <ContactProperty>
           <Type>Start</Type>
           <Material>Metal</Material>
-          <ParticleEffect>WheelDust_metal</ParticleEffect>
+          <ParticleEffect>WheelDust_Metal</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Rock</Material>
-          <ParticleEffect>WheelDust_rock</ParticleEffect>
+          <ParticleEffect>WheelDust_Rock</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Snow</Material>
-          <ParticleEffect>WheelDust_snow</ParticleEffect>
+          <ParticleEffect>WheelDust_Snow</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Soil</Material>
-          <ParticleEffect>WheelDust_dirt</ParticleEffect>
+          <ParticleEffect>WheelDust_Dirt</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>SoilDry</Material>
-          <ParticleEffect>WheelDust_dirt</ParticleEffect>
+          <ParticleEffect>WheelDust_Dirt</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Sand</Material>
-          <ParticleEffect>WheelDust_sand</ParticleEffect>
+          <ParticleEffect>WheelDust_Sand</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Ice</Material>
-          <ParticleEffect>WheelDust_snow</ParticleEffect>
+          <ParticleEffect>WheelDust_Snow</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Glass</Material>
-          <ParticleEffect>WheelDust_metal</ParticleEffect>
+          <ParticleEffect>WheelDust_Metal</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Wood</Material>
-          <ParticleEffect>WheelDust_dirt</ParticleEffect>
+          <ParticleEffect>WheelDust_Dirt</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Ammo</Material>
-          <ParticleEffect>WheelDust_metal</ParticleEffect>
+          <ParticleEffect>WheelDust_Metal</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Ship</Material>
-          <ParticleEffect>WheelDust_metal</ParticleEffect>
+          <ParticleEffect>WheelDust_Metal</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>MarsSoil</Material>
-          <ParticleEffect>WheelDust_marsSoil</ParticleEffect>
+          <ParticleEffect>WheelDust_MarsSoil</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>MoonSoil</Material>
-          <ParticleEffect>WheelDust_moonSoil</ParticleEffect>
+          <ParticleEffect>WheelDust_MoonSoil</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>Grass</Material>
-          <ParticleEffect>WheelDust_grass</ParticleEffect>
+          <ParticleEffect>WheelDust_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>OrangeAlienGrass</Material>
-          <ParticleEffect>WheelDust_grass</ParticleEffect>
+          <ParticleEffect>WheelDust_GrassOrange</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>AlienGreenGrass</Material>
-          <ParticleEffect>WheelDust_grass</ParticleEffect>
+          <ParticleEffect>WheelDust_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>AlienYellowGrass</Material>
-          <ParticleEffect>WheelDust_grass</ParticleEffect>
+          <ParticleEffect>WheelDust_GrassYellow</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Start</Type>
           <Material>GrassDry</Material>
-          <ParticleEffect>WheelDust_grass</ParticleEffect>
+          <ParticleEffect>WheelDust_GrassGreen</ParticleEffect>
         </ContactProperty>
       </ContactProperties>
     </Properties>
@@ -1236,13 +1161,13 @@
           <Type>Hit</Type>
           <Material>Grass</Material>
           <SoundCue>WepPlayRifleImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>GrassDry</Material>
           <SoundCue>WepPlayRifleImpGrassDry</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
@@ -1284,19 +1209,19 @@
           <Type>Hit</Type>
           <Material>OrangeAlienGrass</Material>
           <SoundCue>WepPlayRifleImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassOrange</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>AlienGreenGrass</Material>
           <SoundCue>WepPlayRifleImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>AlienYellowGrass</Material>
           <SoundCue>WepPlayRifleImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassYellow</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
@@ -1326,6 +1251,7 @@
           <Type>Hit</Type>
           <Material>Character</Material>
           <SoundCue>WepPlayRifleImpPlay</SoundCue>
+		  <ParticleEffect>MaterialHit_Character</ParticleEffect>		  
         </ContactProperty>
       </ContactProperties>
 		</Properties>
@@ -1371,31 +1297,31 @@
           <Type>Hit</Type>
           <Material>Grass</Material>
           <SoundCue>WepShipGatlingImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>OrangeAlienGrass</Material>
           <SoundCue>WepShipGatlingImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassOrange</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>AlienGreenGrass</Material>
           <SoundCue>WepShipGatlingImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>AlienYellowGrass</Material>
           <SoundCue>WepShipGatlingImpGrass</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassYellow</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
           <Material>GrassDry</Material>
           <SoundCue>WepShipGatlingImpGrassDry</SoundCue>
-          <ParticleEffect>MaterialHit_Grass</ParticleEffect>
+          <ParticleEffect>MaterialHit_GrassGreen</ParticleEffect>
         </ContactProperty>
         <ContactProperty>
           <Type>Hit</Type>
@@ -1461,6 +1387,7 @@
           <Type>Hit</Type>
           <Material>Character</Material>
           <SoundCue>WepShipGatlingImpPlay</SoundCue>
+		  <ParticleEffect>MaterialHit_Character</ParticleEffect>		  
         </ContactProperty>
       </ContactProperties>
 		</Properties>

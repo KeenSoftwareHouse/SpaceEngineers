@@ -31,6 +31,7 @@ using Sandbox;
 using SpaceEngineers.Game;
 using System.Runtime.CompilerServices;
 using VRage.Game;
+using VRage;
 
 #endregion
 
@@ -71,7 +72,16 @@ namespace SpaceEngineers
                 m_renderer = null;
                 SpaceEngineersGame.SetupPerGameSettings();
                 SpaceEngineersGame.SetupRender();
-                InitializeRender();
+
+                try
+                {
+                    InitializeRender();
+                }
+                catch(MyRenderException ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
 
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("MyProgram.Init");
 
@@ -122,8 +132,8 @@ namespace SpaceEngineers
 
                 if (m_renderer == null)
                 {
-                    m_renderer = new MyDX9Render();
-                    rendererId = MySandboxGame.DirectX9RendererKey;
+                    //hardcoded mesage becaouse of mytexts are not initialized yet
+                    throw new MyRenderException(@"The current version of the game requires a Dx11 card. If you would like to play the game without it, please select the Dx9-32bit BETA tab from properties. \n For more information please see : http://blog.marekrosa.org/2016/02/space-engineers-news-full-source-code_26.html", MyRenderExceptionEnum.GpuNotSupported);
                 }
 
                 MySandboxGame.Config.GraphicsRenderer = rendererId;

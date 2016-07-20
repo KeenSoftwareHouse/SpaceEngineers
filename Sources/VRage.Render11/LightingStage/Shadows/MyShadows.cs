@@ -25,7 +25,7 @@ namespace VRageRender
         internal MatrixD LocalToProjection;
         internal Vector3D WorldCameraOffsetPosition;
 
-        internal MatrixD CurrentLocalToProjection { get { return MatrixD.CreateTranslation(MyEnvironment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
+        internal MatrixD CurrentLocalToProjection { get { return MatrixD.CreateTranslation(MyRender11.Environment.CameraPosition - WorldCameraOffsetPosition) * LocalToProjection; } }
     }
 
     internal struct MyShadowmapQuery
@@ -115,22 +115,23 @@ namespace VRageRender
 
         private void PrepareSpotlights()
         {
-            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyEnvironment.ViewFrustumClippedD, MyLightRendering.VisibleSpotlights);
+            MyLights.Update();
+
+            MyLights.SpotlightsBvh.OverlapAllFrustum(ref MyRender11.Environment.ViewFrustumClippedD, MyLightRendering.VisibleSpotlights);
 
             if (MyLightRendering.VisibleSpotlights.Count == 0)
                 OtherShadowsTriangleCounter = 0;
-            return;
-            MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
-            MyArrayHelpers.Reserve(ref MyLightRendering.Spotlights, MyLightRendering.VisibleSpotlights.Count);
 
+            MyLightRendering.VisibleSpotlights.Sort(m_spotlightCastersComparer);
+            
             int index = 0;
             int casterIndex = 0;
-            var worldMatrix = MatrixD.CreateTranslation(MyEnvironment.CameraPosition);
+            var worldMatrix = MatrixD.CreateTranslation(MyRender11.Environment.CameraPosition);
             foreach (var id in MyLightRendering.VisibleSpotlights)
             {
                 if (id.CastsShadows && casterIndex < MAX_SPOTLIGHT_SHADOWCASTERS)
                 {
-                    if(ShadowmapsPool.Count <= casterIndex)
+                    if (ShadowmapsPool.Count <= casterIndex)
                         ShadowmapsPool.Add(MyRwTextures.CreateShadowmap(SpotlightShadowmapSize, SpotlightShadowmapSize));
 
                     MyLights.Lights.Data[id.Index].CastsShadowsThisFrame = true;
@@ -143,9 +144,9 @@ namespace VRageRender
                         QueryType = MyFrustumEnum.ShadowProjection,
                         ProjectionInfo = new MyProjectionInfo
                         {
-                            WorldCameraOffsetPosition = MyEnvironment.CameraPosition,
+                            WorldCameraOffsetPosition = MyRender11.Environment.CameraPosition,
                             WorldToProjection = viewProjection,
-                            LocalToProjection = worldMatrix * viewProjection 
+                            LocalToProjection = worldMatrix * viewProjection
                         },
                         IgnoredEntities = MyLights.IgnoredEntitites.ContainsKey(id) ? MyLights.IgnoredEntitites[id] : null,
                     };

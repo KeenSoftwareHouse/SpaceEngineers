@@ -7,7 +7,7 @@ using VRage;
 
 namespace Sandbox.ModAPI
 {
-    public interface IMyProductionBlock : ModAPI.Ingame.IMyProductionBlock
+    public interface IMyProductionBlock : IMyFunctionalBlock, ModAPI.Ingame.IMyProductionBlock
     {
         event Action StartedProducing;
         event Action StoppedProducing;

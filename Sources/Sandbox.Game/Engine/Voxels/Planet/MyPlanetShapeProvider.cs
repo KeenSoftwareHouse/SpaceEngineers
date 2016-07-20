@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using VRageMath;
-using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 using Sandbox.Game.GameSystems;
 using VRage.Voxels;
 using VRage;
@@ -598,7 +597,6 @@ namespace Sandbox.Engine.Voxels
 
             cell->Coord = new Vector3I((int)coords.X, (int)coords.Y, face);
 
-
             CalculateCacheCell(m_heightmap.Faces[face], cell);
 
             float value = SampleHeightBicubic(coords.X - (float)Math.Floor(coords.X), coords.Y - (float)Math.Floor(coords.Y), ref cell->Gz, out localNormal);
@@ -638,6 +636,54 @@ namespace Sandbox.Engine.Voxels
             value += Radius;
 
             surface = value * dir;
+        }
+
+        /**
+         * Get the height for a position using the coefficient cache. Calculated position is for LOD0.
+         */
+        public double GetDistanceToSurfaceWithCache(Vector3 localPos)
+        {
+            float length = localPos.Length();
+            if (length.IsZero())
+            {
+                Debug.Fail("Cannot project to surface from the center of the planet!");
+                return 0;
+            }
+
+            int face;
+            Vector2 tex;
+            MyCubemapHelpers.CalculateSampleTexcoord(ref localPos, out face, out tex);
+
+            Vector3 norm;
+            float value = GetValueForPositionWithCache(face, ref tex, out norm);
+
+            value += Radius;
+
+            return length - value;
+        }
+
+        /**
+         * Get the height for a position using the coefficient cache. Calculated position is for LOD0.
+         */
+        public double GetDistanceToSurfaceCacheless(Vector3 localPos)
+        {
+            float length = localPos.Length();
+            if (length.IsZero())
+            {
+                Debug.Fail("Cannot project to surface from the center of the planet!");
+                return 0;
+            }
+
+            int face;
+            Vector2 tex;
+            MyCubemapHelpers.CalculateSampleTexcoord(ref localPos, out face, out tex);
+
+            Vector3 norm;
+            float value = GetValueForPositionCacheless(face, ref tex, out norm);
+
+            value += Radius;
+
+            return length - value;
         }
 
         /**
@@ -1147,24 +1193,21 @@ namespace Sandbox.Engine.Voxels
 
         #endregion
 
-        /**
-         * Takes the x and y bounds of the box and queries the heightmap for the minimum and maximum height in the box.
-         *
-         * The values are returned in the query box itself as the Z bounds.
-         *
-         * This only works if all vertices of the box are in the same face.
-         */
-        public unsafe void GetBounds(ref BoundingBox box)
+        /// <summary>
+        /// Get the minimum and maximum ranges of terrain height in the area determined by the provided points.
+        /// </summary>
+        /// <param name="localPoints">List of points to query</param>
+        /// <param name="pointCount">Number of points</param>
+        /// <param name="minHeight">The calculated minimum possible height of terrain</param>
+        /// <param name="maxHeight">The calculated maximum possible height of terrain</param>
+        public unsafe void GetBounds(Vector3* localPoints, int pointCount, out float minHeight, out float maxHeight)
         {
             int firstFace = -1;
-            Vector3* corners = stackalloc Vector3[8];
 
-            box.GetCornersUnsafe(corners);
-
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < pointCount; ++i)
             {
                 int face;
-                MyCubemapHelpers.GetCubeFace(ref corners[i], out face);
+                MyCubemapHelpers.GetCubeFace(ref localPoints[i], out face);
 
                 if (firstFace == -1)
                     firstFace = face;
@@ -1172,10 +1215,10 @@ namespace Sandbox.Engine.Voxels
 
             BoundingBox query = new BoundingBox(new Vector3(float.PositiveInfinity, float.PositiveInfinity, 0), new Vector3(float.NegativeInfinity, float.NegativeInfinity, 0));
 
-            for (int i = 0; i < 8; ++i)
+            for (int i = 0; i < pointCount; ++i)
             {
                 Vector2 tex;
-                MyCubemapHelpers.CalculateTexcoordForFace(ref corners[i], firstFace, out tex);
+                MyCubemapHelpers.CalculateTexcoordForFace(ref localPoints[i], firstFace, out tex);
 
                 if (tex.X < query.Min.X) query.Min.X = tex.X;
                 if (tex.X > query.Max.X) query.Max.X = tex.X;
@@ -1185,8 +1228,24 @@ namespace Sandbox.Engine.Voxels
 
             m_heightmap.Faces[firstFace].GetBounds(ref query);
 
-            box.Min.Z = query.Min.Z * m_heightRatio + InnerRadius;
-            box.Max.Z = query.Max.Z * m_heightRatio + InnerRadius;
+            minHeight = query.Min.Z * m_heightRatio + InnerRadius;
+            maxHeight = query.Max.Z * m_heightRatio + InnerRadius;
+        }
+
+        /**
+         * Takes the x and y bounds of the box and queries the heightmap for the minimum and maximum height in the box.
+         *
+         * The values are returned in the query box itself as the Z bounds.
+         *
+         * This only works if all vertices of the box are in the same face.
+         */
+        public unsafe void GetBounds(ref BoundingBox box)
+        {
+            Vector3* corners = stackalloc Vector3[8];
+
+            box.GetCornersUnsafe(corners);
+
+            GetBounds(corners, 8, out box.Min.Z, out box.Max.Z);
         }
     }
 }

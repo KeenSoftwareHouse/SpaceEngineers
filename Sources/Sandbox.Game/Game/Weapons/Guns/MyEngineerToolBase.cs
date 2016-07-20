@@ -24,10 +24,11 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.ModAPI.Weapons;
 
 namespace Sandbox.Game.Weapons
 {
-    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>
+    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyEngineerToolBase
     {
         public static float GLARE_SIZE = 0.068f;
         /// <summary>
@@ -78,7 +79,7 @@ namespace Sandbox.Game.Weapons
         MyLight m_toolEffectLight;
 
 
-        public Vector3I TargetCube { get { return m_raycastComponent.HitBlock.Position; } }
+        public Vector3I TargetCube { get { return m_raycastComponent != null && m_raycastComponent.HitBlock != null ? m_raycastComponent.HitBlock.Position : Vector3I.Zero; } }
 
         public bool HasHitBlock { get { return m_raycastComponent.HitBlock != null; } }
 
@@ -333,17 +334,24 @@ namespace Sandbox.Game.Weapons
                 MyCharacter character = Owner as MyCharacter;
 
                 MatrixD sensorWorldMatrix = MatrixD.Identity;
-                if (character.ControllerInfo.IsLocallyControlled())
-                {
-                    sensorWorldMatrix = character.GetHeadMatrix(false, true);
-                    character.SyncHeadToolTransform(ref sensorWorldMatrix);
-                }
-                else
-                {
-                    sensorWorldMatrix = character.GetSyncedToolTransform();
-                }
+                sensorWorldMatrix.Translation = character.WeaponPosition.LogicalPositionWorld;
+                sensorWorldMatrix.Right = character.WorldMatrix.Right;
+                sensorWorldMatrix.Forward = character.WeaponPosition.LogicalOrientationWorld;
+                sensorWorldMatrix.Up = Vector3.Cross(sensorWorldMatrix.Right, sensorWorldMatrix.Forward);
+                
+                // MZ: removing code requiring synchronization
 
+                //if (character.ControllerInfo.IsLocallyControlled())
+                //{
+                //    sensorWorldMatrix = character.GetHeadMatrix(false, true);
+                //    character.SyncHeadToolTransform(ref sensorWorldMatrix);
+                //}
+                //else
+                //{
+                //    sensorWorldMatrix = character.GetSyncedToolTransform();
+                //}
 
+                // VRageRender.MyRenderProxy.DebugDrawAxis(sensorWorldMatrix, 0.2f, false);
                 m_raycastComponent.OnWorldPosChanged(ref sensorWorldMatrix);
             }
         }
@@ -545,7 +553,7 @@ namespace Sandbox.Game.Weapons
             }
 
             const float lightMuzzleOffset = 0.0f;
-            const float particleMuzzleOffset = 1.0f;            
+            const float particleMuzzleOffset = 0.5f;            
 
             if (m_toolEffect != null)
             {

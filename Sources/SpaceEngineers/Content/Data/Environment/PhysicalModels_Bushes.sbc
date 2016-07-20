@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>DesertBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\DesertBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>DesertBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\DesertBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>DeadBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\DeadBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>DeadBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\DeadBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>SnowPineBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\SnowPineBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>SnowPineBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\SnowPineBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>PineBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\PineBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>PineBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\PineBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>LeafBushMedium_var1</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\LeafBushMedium_var1.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>LeafBushMedium_var2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\LeafBushMedium_var2.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>LeafBushSmall_var1</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\LeafBushSmall_var1.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>LeafBushSmall_var2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\LeafBushSmall_var2.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+    
+    <!--Alien Bushes-->
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienLeafBush</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienLeafBush01.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+    
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienMushrooms</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienMushrooms.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienPalmBush</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienPalmBush01.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienPalmBush2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienPalmBush02.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+    
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienSnowBush</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienSnowBush01.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienSnowBush2</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienSnowBush02.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienPineBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienPineBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienPineBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienPineBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienPineBushSnowMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienPineBushSnowMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienPineBushSnowSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienPineBushSnowSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienDesertBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienDesertBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienDesertBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienDesertBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienDesertBushDeadMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienDesertBushDeadMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienDesertBushDeadSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienDesertBushDeadSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienLeafBushSmall</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienLeafBushSmall.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+
+    <Definition xsi:type="VR.PhysicalModelDefinition">
+      <Id>
+        <TypeId>PhysicalModelDefinition</TypeId>
+        <SubtypeId>AlienLeafBushMedium</SubtypeId>
+      </Id>
+      <Model>Models\Environment\Bushes\AlienLeafBushMedium.mwm</Model>
+      <PhysicalMaterial>Wood</PhysicalMaterial>
+    </Definition>
+    
+    <!--Alien Bushes End-->
+</Definitions>
