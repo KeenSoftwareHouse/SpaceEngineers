@@ -1475,6 +1475,7 @@ namespace Sandbox.Game.Entities
                 m_dampenersEnabled.Value = enableDampeners;
             }
 
+           
             if (ControllerInfo.IsLocallyHumanControlled())
             {
                 if (m_inertiaDampenersNotification == null)
@@ -1482,7 +1483,22 @@ namespace Sandbox.Game.Entities
                 m_inertiaDampenersNotification.Text = (EntityThrustComponent.DampenersEnabled ? MyCommonTexts.NotificationInertiaDampenersOn : MyCommonTexts.NotificationInertiaDampenersOff);
                 MyHud.Notifications.Add(m_inertiaDampenersNotification);
             }
+            else if(MySession.Static.LocalHumanPlayer != null)
+            {
+                MyCockpit cockpit = MySession.Static.LocalHumanPlayer.Controller.ControlledEntity as MyCockpit;
+                if(cockpit != null)
+                {
+                    if (cockpit.CubeGrid == this.CubeGrid)
+                    {
+                        if (m_inertiaDampenersNotification == null)
+                            m_inertiaDampenersNotification = new MyHudNotification();
+                        m_inertiaDampenersNotification.Text = (EntityThrustComponent.DampenersEnabled ? MyCommonTexts.NotificationInertiaDampenersOn : MyCommonTexts.NotificationInertiaDampenersOff);
+                        MyHud.Notifications.Add(m_inertiaDampenersNotification);
+                    }
+                }
+            }
         }
+
 
         public virtual void SwitchThrusts()
         {
@@ -1567,6 +1583,11 @@ namespace Sandbox.Game.Entities
 
         public void SwitchReactors()
         {
+            //GR: How this works: if there is no MainCockpit in the Cubegrid then switch power normally. If there is however and we are not in main cockpit do not switch.
+            if (CubeGrid.MainCockpit != null && !IsMainCockpit)
+            {
+                return;
+            }
             if (m_enableShipControl)
             {
                 if (m_reactorsSwitched)

@@ -342,6 +342,28 @@ namespace Sandbox.Game.Entities.Character.Components
                 LogicalOrientationWorld = Character.PositionComp.WorldMatrix.Forward;
 
             LogicalCrosshairPoint = LogicalPositionWorld + LogicalOrientationWorld * 2000;
+
+            if (Character.CurrentWeapon != null)
+            {
+                // MZ fix: weapon position not updated on DS
+                MyEngineerToolBase tool = Character.CurrentWeapon as MyEngineerToolBase;
+                if (tool != null)
+                {
+                    if (Character.ControllerInfo.IsLocallyControlled() == false)
+                    {
+                        tool.UpdateSensorPosition();
+                    }
+                }
+                else
+                {
+                    MyHandDrill drill = Character.CurrentWeapon as MyHandDrill;
+                    if(drill != null)
+                    {
+                        drill.WorldPositionChanged(null);
+                    }
+                }
+            }
+
         }
 
         /// <summary>

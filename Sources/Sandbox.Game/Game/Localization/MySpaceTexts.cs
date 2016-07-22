@@ -230,7 +230,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_ReflectorLight = MyStringId.GetOrCompute("DisplayName_Block_ReflectorLight");
 
         ///<summary>
-        ///Full Cover Wall
+        ///Cover Walls
         ///</summary>
         public static readonly MyStringId DisplayName_Block_FullCoverWall = MyStringId.GetOrCompute("DisplayName_Block_FullCoverWall");
 
@@ -540,7 +540,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Item_SmallSteelTube = MyStringId.GetOrCompute("DisplayName_Item_SmallSteelTube");
 
         ///<summary>
-        ///Small Ion Thruster
+        ///Ion Thrusters
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SmallThrust = MyStringId.GetOrCompute("DisplayName_Block_SmallThrust");
 
@@ -550,7 +550,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Stairs = MyStringId.GetOrCompute("DisplayName_Block_Stairs");
 
         ///<summary>
-        ///Steel Catwalk
+        ///Steel Catwalks
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SteelCatwalk = MyStringId.GetOrCompute("DisplayName_Block_SteelCatwalk");
 
@@ -740,7 +740,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Turret = MyStringId.GetOrCompute("Turret");
 
         ///<summary>
-        ///Conveyor
+        ///Conveyors
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Conveyor = MyStringId.GetOrCompute("DisplayName_Block_Conveyor");
 
@@ -2645,7 +2645,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_VirtualMass = MyStringId.GetOrCompute("DisplayName_Block_VirtualMass");
 
         ///<summary>
-        ///Control Station
+        ///Control Stations
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Cockpit2 = MyStringId.GetOrCompute("DisplayName_Block_Cockpit2");
 
@@ -2795,7 +2795,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Wheel1x1 = MyStringId.GetOrCompute("DisplayName_Block_Wheel1x1");
 
         ///<summary>
-        ///Wheel 3x3
+        ///Wheels
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Wheel3x3 = MyStringId.GetOrCompute("DisplayName_Block_Wheel3x3");
 
@@ -3660,7 +3660,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_Suspension1x1 = MyStringId.GetOrCompute("DisplayName_Block_Suspension1x1");
 
         ///<summary>
-        ///Wheel Suspension 3x3
+        ///Wheel Suspensions
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Suspension3x3 = MyStringId.GetOrCompute("DisplayName_Block_Suspension3x3");
 
@@ -3875,7 +3875,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId BlockPropertyTitle_MotorRotorDisplacement = MyStringId.GetOrCompute("BlockPropertyTitle_MotorRotorDisplacement");
 
         ///<summary>
-        ///Blast door
+        ///Blast doors
         ///</summary>
         public static readonly MyStringId DisplayName_Block_ArmorCenter = MyStringId.GetOrCompute("DisplayName_Block_ArmorCenter");
 
@@ -8195,7 +8195,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_LargeAtmoThrust = MyStringId.GetOrCompute("DisplayName_Block_LargeAtmoThrust");
 
         ///<summary>
-        ///Small Atmospheric Thruster
+        ///Atmospheric Thrusters
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SmallAtmoThrust = MyStringId.GetOrCompute("DisplayName_Block_SmallAtmoThrust");
 
@@ -8225,7 +8225,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId DisplayName_Block_LargeHydrogenThrust = MyStringId.GetOrCompute("DisplayName_Block_LargeHydrogenThrust");
 
         ///<summary>
-        ///Small Hydrogen Thruster
+        ///Hydrogen Thrusters
         ///</summary>
         public static readonly MyStringId DisplayName_Block_SmallHydrogenThrust = MyStringId.GetOrCompute("DisplayName_Block_SmallHydrogenThrust");
 
@@ -8903,5 +8903,20 @@ namespace Sandbox.Game.Localization
         ///Current waypoint:
         ///</summary>
         public static readonly MyStringId RemoteControlWaypoint = MyStringId.GetOrCompute("RemoteControlWaypoint");
+
+        ///<summary>
+        ///Are you sure you want to enable airtightness? This can have negative influence to preformance.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextAreYouSureEnableOxygenPressurization = MyStringId.GetOrCompute("MessageBoxTextAreYouSureEnableOxygenPressurization");
+
+        ///<summary>
+        ///Enable pressurization detection.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableOxygenPressurization = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableOxygenPressurization");
+
+        ///<summary>
+        ///Enable airtightness
+        ///</summary>
+        public static readonly MyStringId World_Settings_EnableOxygenPressurization = MyStringId.GetOrCompute("World_Settings_EnableOxygenPressurization");
     }
 }

@@ -280,6 +280,8 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (MySession.Static.CameraController is MyEntity)
                 {
+                    if (MyHudCameraOverlay.TextureName == null)
+                        SetOverlay();
                     if (MyHudCameraOverlay.Enabled == false)
                     {
                         MyHudCameraOverlay.Enabled = true;

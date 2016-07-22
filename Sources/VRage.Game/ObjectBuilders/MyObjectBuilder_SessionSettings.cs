@@ -225,6 +225,11 @@ namespace VRage.Game
         public bool EnableOxygen = false;
 
         [ProtoMember]
+        [Display(Name = "Enable oxygen pressurization system")]
+        [GameRelation(Game.SpaceEngineers)]
+        public bool EnableOxygenPressurization = false;
+
+        [ProtoMember]
         [Display(Name = "Enable 3rd person view")]
         [GameRelation(Game.SpaceEngineers)]
         public bool Enable3rdPersonView = true;

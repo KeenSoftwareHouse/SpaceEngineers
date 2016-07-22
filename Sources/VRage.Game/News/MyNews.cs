@@ -30,6 +30,9 @@ namespace VRage.Game.News
         [XmlAttribute(AttributeName = "public")]
         public bool Public = true;
 
+        [XmlAttribute(AttributeName = "dev")]
+        public bool Dev = false;
+
         [XmlText]
         public string Text;
     }

@@ -71,7 +71,7 @@ namespace Sandbox.Game.Entities.Cube
             ControlSystem = new MyGroupControlSystem();
             CameraSystem = new MyGridCameraSystem(m_cubeGrid);
 
-            if (MySession.Static.Settings.EnableOxygen)
+            if (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization)
             {
                 GasSystem = new MyGridGasSystem(m_cubeGrid);
             }
@@ -98,7 +98,7 @@ namespace Sandbox.Game.Entities.Cube
                 m_cubeGrid.SetHandbrakeRequest(builder.Handbrake);
             }
 
-            if (MySession.Static.Settings.EnableOxygen)
+            if (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization)
             {
                 GasSystem.Init(builder.OxygenAmount);
             }
@@ -167,7 +167,7 @@ namespace Sandbox.Game.Entities.Cube
             CameraSystem.UpdateBeforeSimulation();
             ProfilerShort.End();
 
-            if (MySession.Static.Settings.EnableOxygen)
+            if (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization)
             {
                 ProfilerShort.Begin("Oxygen");
                 GasSystem.UpdateBeforeSimulation();
@@ -214,7 +214,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public virtual void UpdateBeforeSimulation100()
         {
-            if (MySession.Static.Settings.EnableOxygen)
+            if (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization)
             {
                 GasSystem.UpdateBeforeSimulation100();
             }
@@ -240,7 +240,7 @@ namespace Sandbox.Game.Entities.Cube
             if (WheelSystem != null)
                 ob.Handbrake = WheelSystem.HandBrake;
 
-            if (MySession.Static.Settings.EnableOxygen)
+            if (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization)
             {
                 ob.OxygenAmount = GasSystem.GetOxygenAmount();
             }
@@ -446,7 +446,7 @@ namespace Sandbox.Game.Entities.Cube
                 ConveyorSystem.DebugDrawLinePackets();
             }
 
-            if (MySession.Static.Settings.EnableOxygen && MyDebugDrawSettings.DEBUG_DRAW_OXYGEN)
+            if (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization && MyDebugDrawSettings.DEBUG_DRAW_OXYGEN)
             {
                 GasSystem.DebugDraw();
             }

@@ -162,7 +162,9 @@ namespace Sandbox.Game.World
                 else
                     emitter.Entity = firstEntity;
                 emitter.SetPosition(position);
-                emitter.PlaySound(cue, true);
+
+                //GR: Changed stopPrevious argument to false due to bugs with explosion sound. May revision to the future
+                emitter.PlaySound(cue, false);
 
                 if (emitter.Sound != null && volume != 0)
                     emitter.Sound.SetVolume(volume);

@@ -291,10 +291,10 @@ namespace Sandbox.Game.Gui
                 using (StringReader stream = new StringReader(downloadedNews))
                 {
                     m_news = (MyNews)m_newsSerializer.Deserialize(stream);
-                    
-                    if (!MyFinalBuildConstants.IS_DEBUG)
+
+                    if(MyFinalBuildConstants.IS_STABLE)
                     {
-                        m_news.Entry.RemoveAll(entry => !entry.Public);
+                        m_news.Entry.RemoveAll(entry => entry.Dev);
                     }
 
                     StringBuilder text = new StringBuilder();

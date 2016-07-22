@@ -836,8 +836,9 @@ namespace Sandbox.Game.Entities.Blocks
                     return true;
             
             var grid = entity as MyCubeGrid;
-            //if grids are physically connected return false (mostly for not detecting Piston and Rotor top parts)
-            if ( grid != null && MyCubeGridGroups.Static.Physical.HasSameGroup(grid, CubeGrid) )
+            
+            //GR: if grids are logically connected(not physically causes issues with detecting ships with landing gears) return false (mostly for not detecting Piston and Rotor top parts)
+            if ( grid != null && MyCubeGridGroups.Static.Logical.HasSameGroup(grid, CubeGrid) )
                 return false;
 
             if (DetectSmallShips)

@@ -27,8 +27,8 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
-	
-	<Definition>
+    
+	  <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>PineTreeTest</SubtypeId>
@@ -54,7 +54,7 @@
       </InventorySize>
     </Definition>
 	
-	<Definition>
+	  <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>PineSnowTreeTest</SubtypeId>
@@ -136,7 +136,7 @@
       </InventorySize>
     </Definition>
 	
-	<Definition>
+  	<Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>DesertTreeTest</SubtypeId>
@@ -162,7 +162,7 @@
       </InventorySize>
     </Definition>
 	
-	<Definition>
+  	<Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>PineTree</SubtypeId>
@@ -187,8 +187,8 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
-
-	<Definition>
+ 
+	  <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>DeadTreeTest</SubtypeId>
@@ -213,7 +213,8 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
-	<Definition>
+    
+	  <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>AlienLeafTree01</SubtypeId>
@@ -238,6 +239,7 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
+      
     <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
@@ -263,6 +265,7 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
+      
     <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
@@ -288,6 +291,7 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
+        
     <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
@@ -313,6 +317,7 @@
         <Z>1</Z>
       </InventorySize>
     </Definition>
+        
     <Definition>
     <Id>
       <TypeId>CubeBlock</TypeId>
@@ -338,6 +343,7 @@
       <Z>1</Z>
     </InventorySize>
     </Definition>
+        
     <Definition>
     <Id>
       <TypeId>CubeBlock</TypeId>
@@ -367,7 +373,7 @@
     <!-- End Tree-->
  <!-- Region Bushes-->
 
-	<Definition>
+  <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>DeadBushSmall</SubtypeId>
@@ -394,7 +400,7 @@
 
     </Definition>
 
-<Definition>
+    <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>LeafBushSmall_var1</SubtypeId>
@@ -526,7 +532,7 @@
       </InventorySize>
     </Definition>
     
-        <Definition>
+    <Definition>
       <Id>
         <TypeId>CubeBlock</TypeId>
         <SubtypeId>StoneFoliage01</SubtypeId>
@@ -19146,6 +19152,7 @@
       </Id>
       <DisplayName>DisplayName_Block_SmallThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\thrust.dds</Icon>
+      <GuiVisible>false</GuiVisible>
       <CubeSize>Small</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="2" />
@@ -19184,6 +19191,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>SmallBlockLargeThrust</SubtypeId>
+        </BlockVariant>      
+      </BlockVariants>
       <BlockPairName>SmallThrust</BlockPairName>
       <Center x="0" y="0" z="1" />
       <MirroringZ>Y</MirroringZ>
@@ -19234,6 +19247,7 @@
       <DisplayName>DisplayName_Block_LargeThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\thrust_large.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="2" z="4" />
       <ModelOffset x="0" y="0" z="0" />
@@ -19364,6 +19378,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>LargeBlockLargeThrust</SubtypeId>
+        </BlockVariant>      
+      </BlockVariants>
       <BlockPairName>SmallThrust</BlockPairName>
       <Center x="0" y="0" z="1" />
       <MirroringZ>Y</MirroringZ>
@@ -19413,6 +19433,7 @@
       <DisplayName>DisplayName_Block_LargeThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\thrust_large.dds</Icon>
       <CubeSize>Large</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="2" z="4" />
       <ModelOffset x="0" y="0" z="0" />
@@ -19504,8 +19525,9 @@
         <SubtypeId>LargeBlockLargeHydrogenThrust</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Block_LargeHydrogenThrust</DisplayName>
-      <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterLarge.dds</Icon>largeThrust
+      <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterLarge.dds</Icon>
       <CubeSize>Large</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -19639,6 +19661,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>LargeBlockLargeHydrogenThrust</SubtypeId>
+        </BlockVariant>      
+      </BlockVariants>
       <BlockPairName>HydrogenThrust</BlockPairName>
       <Center x="0" y="0" z="0" />
       <MirroringZ>Y</MirroringZ>
@@ -19689,6 +19717,7 @@
       <DisplayName>DisplayName_Block_LargeHydrogenThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterLarge.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -19780,6 +19809,7 @@
       </Id>
       <DisplayName>DisplayName_Block_SmallHydrogenThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\HydrogenThrusterSmall.dds</Icon>
+      <GuiVisible>false</GuiVisible>
       <CubeSize>Small</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -19821,6 +19851,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>SmallBlockLargeHydrogenThrust</SubtypeId>
+        </BlockVariant>      
+      </BlockVariants>
       <BlockPairName>HydrogenThrust</BlockPairName>
       <Center x="0" y="0" z="0" />
       <MirroringZ>Y</MirroringZ>
@@ -19872,6 +19908,7 @@
       <DisplayName>DisplayName_Block_LargeAtmoThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterLargeLarge.dds</Icon>
       <CubeSize>Large</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="5" />
       <ModelOffset x="0" y="0" z="0" />
@@ -19913,6 +19950,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>SmallBlockLargeAtmosphericThrust</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <BlockPairName>LargeAtmoThrust</BlockPairName>
       <Center x="1" y="1" z="2" />
       <MirroringZ>Y</MirroringZ>
@@ -20012,6 +20055,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>LargeBlockLargeAtmosphericThrust</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <BlockPairName>SmallAtmoThrust</BlockPairName>
       <Center x="0" y="0" z="1" />
       <MirroringZ>Y</MirroringZ>
@@ -20071,6 +20120,7 @@
       <DisplayName>DisplayName_Block_LargeAtmoThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterLargeLarge.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="5" />
       <ModelOffset x="0" y="0" z="0" />
@@ -20171,6 +20221,7 @@
       <DisplayName>DisplayName_Block_SmallAtmoThrust</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\AtmosphericThrusterSmall.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -20210,6 +20261,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>SmallBlockLargeAtmosphericThrust</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <BlockPairName>SmallAtmoThrust</BlockPairName>
       <Center x="0" y="0" z="1" />
       <MirroringZ>Y</MirroringZ>
@@ -22858,10 +22915,6 @@
           <TypeId>ConveyorConnector</TypeId>
           <SubtypeId>ConveyorTubeSmallCurved</SubtypeId>
         </BlockVariant>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeMedium</SubtypeId>
-        </BlockVariant>
       </BlockVariants>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
@@ -23439,6 +23492,16 @@
         <MountPoint Side="Front" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" />
       </MountPoints>
       <BlockPairName>Conveyor</BlockPairName>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeMedium</SubtypeId>
+        </BlockVariant>
+      <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeCurvedMedium</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <MirroringZ>X</MirroringZ>
       <EdgeType>Light</EdgeType>
       <Public>true</Public>
@@ -25643,58 +25706,37 @@
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>LargeHydrogenThrust</Name>
+      <Name>SmallAtmoThrust</Name>
       <Position>
         <X>1</X>
         <Y>4</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>SmallAtmoThrust</Name>
+      <Name>SmallThrust</Name>
       <Position>
         <X>2</X>
         <Y>4</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>LargeAtmoThrust</Name>
+      <Name>Wheel3x3</Name>
       <Position>
         <X>3</X>
         <Y>4</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>SmallThrust</Name>
+      <Name>Suspension3x3</Name>
       <Position>
         <X>4</X>
         <Y>4</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>LargeThrust</Name>
-      <Position>
-        <X>5</X>
-        <Y>4</Y>
-      </Position>
-    </BlockPosition>
-    <BlockPosition>
-      <Name>Wheel3x3</Name>
-      <Position>
-        <X>6</X>
-        <Y>4</Y>
-      </Position>
-    </BlockPosition>
-    <BlockPosition>
-      <Name>Suspension3x3</Name>
-      <Position>
-        <X>7</X>
-        <Y>4</Y>
-      </Position>
-    </BlockPosition>
-    <BlockPosition>
       <Name>Gyroscope</Name>
       <Position>
-        <X>8</X>
+        <X>5</X>
         <Y>4</Y>
       </Position>
     </BlockPosition>
@@ -26027,9 +26069,9 @@
         <X>0</X>
         <Y>11</Y>
       </Position>
-    </BlockPosition>
+    </BlockPosition>    
     <BlockPosition>
-      <Name>Connector</Name>
+      <Name>ConveyorFrame</Name>
       <Position>
         <X>1</X>
         <Y>11</Y>
@@ -26043,44 +26085,37 @@
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>ConveyorTubeMedium</Name>
+      <Name>Connector</Name>
       <Position>
         <X>3</X>
         <Y>11</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>ConveyorFrame</Name>
+      <Name>ConnectorSmall</Name>
       <Position>
         <X>4</X>
         <Y>11</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>ConnectorSmall</Name>
+      <Name>Collector</Name>
       <Position>
         <X>5</X>
         <Y>11</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>Collector</Name>
+      <Name>ConveyorSorter</Name>
       <Position>
         <X>6</X>
         <Y>11</Y>
       </Position>
     </BlockPosition>
     <BlockPosition>
-      <Name>ConveyorSorter</Name>
-      <Position>
-        <X>7</X>
-        <Y>11</Y>
-      </Position>
-    </BlockPosition>
-    <BlockPosition>
       <Name>ConveyorSorterSmall</Name>
       <Position>
-        <X>8</X>
+        <X>7</X>
         <Y>11</Y>
       </Position>
     </BlockPosition>    

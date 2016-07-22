@@ -1308,10 +1308,13 @@ namespace Sandbox.Game.Entities.Blocks
             MyMultiplayer.RaiseEvent(this, x => x.OnNewBlueprintSuccess, projectedGrid);
         }
 
-        [Event, Reliable, Server, Broadcast]
+        [Event, Reliable, Server, BroadcastExcept]
         private void OnNewBlueprintSuccess(MyObjectBuilder_CubeGrid projectedGrid)
         {
-            SetNewBlueprint(projectedGrid);
+            if (MyEventContext.Current.IsLocallyInvoked == false)
+            {
+                SetNewBlueprint(projectedGrid);
+            }
         }
 
         public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)

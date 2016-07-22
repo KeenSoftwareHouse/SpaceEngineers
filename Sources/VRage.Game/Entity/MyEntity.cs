@@ -999,6 +999,21 @@ namespace VRage.Game.Entity
                 if (objectBuilder.PositionAndOrientation.HasValue)
                 {
                     var posAndOrient = objectBuilder.PositionAndOrientation.Value;
+
+                    //GR: Check for NaN values and remove them (otherwise there will be problems wilth clusters)
+                    if (posAndOrient.Position.x.IsValid() == false)
+                    {
+                        posAndOrient.Position.x = 0.0f;
+                    }
+                    if (posAndOrient.Position.y.IsValid() == false)
+                    {
+                        posAndOrient.Position.y = 0.0f;
+                    }
+                    if (posAndOrient.Position.z.IsValid() == false)
+                    {
+                        posAndOrient.Position.z = 0.0f;
+                    }
+
                     MatrixD matrix = MatrixD.CreateWorld(posAndOrient.Position, posAndOrient.Forward, posAndOrient.Up);
                     //if (matrix.IsValid())
                     //    MatrixD.Rescale(ref matrix, scale);

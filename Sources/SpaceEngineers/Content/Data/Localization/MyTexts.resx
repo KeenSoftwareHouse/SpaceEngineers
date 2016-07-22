@@ -252,7 +252,7 @@
     <value>Spotlight</value>
   </data>
   <data name="DisplayName_Block_FullCoverWall" xml:space="preserve">
-    <value>Full Cover Wall</value>
+    <value>Cover Walls</value>
   </data>
   <data name="DisplayName_Block_GatlingGun" xml:space="preserve">
     <value>Gatling Gun</value>
@@ -438,13 +438,13 @@
     <value>Small Steel Tube</value>
   </data>
   <data name="DisplayName_Block_SmallThrust" xml:space="preserve">
-    <value>Small Ion Thruster</value>
+    <value>Ion Thrusters</value>
   </data>
   <data name="DisplayName_Block_Stairs" xml:space="preserve">
     <value>Stairs</value>
   </data>
   <data name="DisplayName_Block_SteelCatwalk" xml:space="preserve">
-    <value>Steel Catwalk</value>
+    <value>Steel Catwalks</value>
   </data>
   <data name="DisplayName_Item_SteelPlate" xml:space="preserve">
     <value>Steel Plate</value>
@@ -573,7 +573,7 @@ Public: Any Steam player can join</value>
     <value>Turret</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
-    <value>Conveyor</value>
+    <value>Conveyors</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -1747,7 +1747,7 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Artificial Mass</value>
   </data>
   <data name="DisplayName_Block_Cockpit2" xml:space="preserve">
-    <value>Control Station</value>
+    <value>Control Stations</value>
   </data>
   <data name="DisplayName_Block_Collector" xml:space="preserve">
     <value>Collector</value>
@@ -1837,7 +1837,7 @@ Extreme: 16 large asteroids, 80 small asteroids, 64-bit only</value>
     <value>Wheel 1x1</value>
   </data>
   <data name="DisplayName_Block_Wheel3x3" xml:space="preserve">
-    <value>Wheel 3x3</value>
+    <value>Wheels</value>
   </data>
   <data name="DisplayName_Block_Wheel5x5" xml:space="preserve">
     <value>Wheel 5x5</value>
@@ -2363,7 +2363,7 @@ Respawn?</value>
     <value>Wheel Suspension 1x1</value>
   </data>
   <data name="DisplayName_Block_Suspension3x3" xml:space="preserve">
-    <value>Wheel Suspension 3x3</value>
+    <value>Wheel Suspensions</value>
   </data>
   <data name="DisplayName_Block_Suspension5x5" xml:space="preserve">
     <value>Wheel Suspension 5x5</value>
@@ -2493,7 +2493,7 @@ Setting to 0% will effectively lock the suspension.</value>
     <value>Rotor displacement</value>
   </data>
   <data name="DisplayName_Block_ArmorCenter" xml:space="preserve">
-    <value>Blast door</value>
+    <value>Blast doors</value>
   </data>
   <data name="DisplayName_Block_ArmorCorner" xml:space="preserve">
     <value>Blast door corner</value>
@@ -3313,10 +3313,10 @@ Characters leaving the game area will be killed.</value>
   <data name="WorkshopTag_Exploration" xml:space="preserve">
     <value>Exploration</value>
   </data>
-   <data name="BlueprintScreen_DevMismatchCaption" xml:space="preserve">
+  <data name="BlueprintScreen_DevMismatchCaption" xml:space="preserve">
     <value>Blueprint created in development version</value>
   </data>
-    <data name="BlueprintScreen_DevMismatchMessage" xml:space="preserve">
+  <data name="BlueprintScreen_DevMismatchMessage" xml:space="preserve">
     <value>This blueprint was created in development version. It could cause issues in game.</value>
   </data>
   <data name="WorkshopTag_Dev" xml:space="preserve">
@@ -5119,7 +5119,7 @@ and can also be used by some mods to create advanced logic and effects.</value>
     <value>Large Atmospheric Thruster</value>
   </data>
   <data name="DisplayName_Block_SmallAtmoThrust" xml:space="preserve">
-    <value>Small Atmospheric Thruster</value>
+    <value>Atmospheric Thrusters</value>
   </data>
   <data name="NotificationShipEnergyCritical" xml:space="preserve">
     <value>Warning: Ship fuel is critically low. Life support failure imminent.</value>
@@ -5137,7 +5137,7 @@ and can also be used by some mods to create advanced logic and effects.</value>
     <value>Large Hydrogen Thruster</value>
   </data>
   <data name="DisplayName_Block_SmallHydrogenThrust" xml:space="preserve">
-    <value>Small Hydrogen Thruster</value>
+    <value>Hydrogen Thrusters</value>
   </data>
   <data name="BlockPropertyDescription_Motor_SuspensionSpeed" xml:space="preserve">
     <value>Wheels will not be propeled over this speed</value>
@@ -5568,5 +5568,14 @@ split and not in voxel. </value>
   </data>
   <data name="RemoteControlWaypoint" xml:space="preserve">
     <value>Current waypoint:</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureEnableOxygenPressurization" xml:space="preserve">
+    <value>Are you sure you want to enable airtightness? This can have negative influence to preformance.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableOxygenPressurization" xml:space="preserve">
+    <value>Enable pressurization detection.</value>
+  </data>
+  <data name="World_Settings_EnableOxygenPressurization" xml:space="preserve">
+    <value>Enable airtightness</value>
   </data>
 </root>

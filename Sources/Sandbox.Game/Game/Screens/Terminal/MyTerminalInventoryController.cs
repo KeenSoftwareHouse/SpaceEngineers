@@ -1099,6 +1099,7 @@ namespace Sandbox.Game.Gui
                         item.Visible = true;
                 }
             }
+            list.SetScrollBarPage();
         }
 
     }

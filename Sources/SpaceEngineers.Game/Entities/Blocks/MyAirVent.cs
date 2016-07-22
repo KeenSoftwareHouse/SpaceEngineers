@@ -72,7 +72,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private bool? m_wasRoomEmpty;
         private readonly MyDefinitionId m_oxygenGasId = new MyDefinitionId(typeof (MyObjectBuilder_GasProperties), "Oxygen");
 
-        public bool CanVent { get { return (MySession.Static.Settings.EnableOxygen) && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsWorking; } }
+        public bool CanVent { get { return (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization) && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsWorking; } }
         public bool CanVentToRoom { get { return CanVent && !IsDepressurizing; } }
         public bool CanVentFromRoom { get { return CanVent && IsDepressurizing; } }
 
@@ -424,7 +424,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private float ComputeRequiredPower()
         {
-            if (!MySession.Static.Settings.EnableOxygen && Enabled && IsFunctional)
+            if (!MySession.Static.Settings.EnableOxygen && Enabled && IsFunctional && !MySession.Static.Settings.EnableOxygenPressurization)
                 return 0f;
 
             return m_isProducing ? BlockDefinition.OperationalPowerConsumption : BlockDefinition.StandbyPowerConsumption;
@@ -571,9 +571,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
 
-            if (!MySession.Static.Settings.EnableOxygen)
+            if (!MySession.Static.Settings.EnableOxygen || !MySession.Static.Settings.EnableOxygenPressurization)
             {
-                DetailedInfo.Append("Oxygen disabled in world settigns!");
+                DetailedInfo.Append("Oxygen disabled in world settings!");
             }
             else
             {
@@ -620,7 +620,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         #region Venting
         private MyOxygenBlock GetOxygenBlock()
         {
-            if (!MySession.Static.Settings.EnableOxygen || VentDummy == null)
+            if (!MySession.Static.Settings.EnableOxygen || !MySession.Static.Settings.EnableOxygenPressurization || VentDummy == null)
             {
                 return new MyOxygenBlock();
             }

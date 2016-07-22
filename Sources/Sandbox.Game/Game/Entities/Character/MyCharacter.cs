@@ -5814,7 +5814,7 @@ namespace Sandbox.Game.Entities.Character
         [Event,Reliable,Server,BroadcastExcept]
         public void UnequipWeapon()
         {
-            if (m_leftHandItem != null)
+            if (m_leftHandItem != null && m_leftHandItem is IMyHandheldGunObject<MyDeviceBase>)
             {
                 (m_leftHandItem as IMyHandheldGunObject<MyDeviceBase>).OnControlReleased();
                 m_leftHandItem.Close(); // no dual wielding now
@@ -7071,6 +7071,7 @@ namespace Sandbox.Game.Entities.Character
             m_worldRealVelocity = newStateFromNet.WorldRealSpeed;
             SetHeadLocalXAngle(newStateFromNet.HeadX);
             SetHeadLocalYAngle(newStateFromNet.HeadY);
+            m_isFalling = false;
 
 
             if (!UseNewAnimationSystem)

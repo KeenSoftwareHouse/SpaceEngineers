@@ -287,9 +287,13 @@ namespace Sandbox.Game.Entities.Blocks
 
             if (Sync.IsServer)
             {
+                if (m_topBlock != null)
+                {
+                    m_topBlockToReattach = m_topBlock;
+                    Detach(true);
+                }
                 CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
-                Detach(true);
-            }       
+            }
         }
 
         public override void OnRegisteredToGridSystems()
@@ -743,6 +747,7 @@ namespace Sandbox.Game.Entities.Blocks
         public override void OnRemovedFromScene(object source)
         {
             base.OnRemovedFromScene(source);
+            m_topBlockToReattach = m_topBlock;
             Detach(true);
             CubeGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
         }
@@ -751,6 +756,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             CubeGrid.OnPhysicsChanged -= cubeGrid_OnPhysicsChanged;
             Detach();
+            m_topBlockToReattach = null;
             base.Closing();
         }
 

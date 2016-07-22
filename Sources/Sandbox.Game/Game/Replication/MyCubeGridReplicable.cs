@@ -257,7 +257,11 @@ namespace Sandbox.Game.Replication
             MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
             if (master != Grid)
             {
-                return MyExternalReplicable.FindByObject(master);
+                if (master != null)
+                {
+                    return MyExternalReplicable.FindByObject(master);
+                }
+                return null;
             }
 
             BoundingBoxD box = Grid.PositionComp.WorldAABB;
@@ -300,7 +304,7 @@ namespace Sandbox.Game.Replication
                 }
             }
 
-            if (biggestGrid != null && biggestGrid != Grid)
+            if (biggestGrid != null && biggestGrid != Grid && biggestGrid != null)
             {
                 return MyExternalReplicable.FindByObject(biggestGrid);
             }

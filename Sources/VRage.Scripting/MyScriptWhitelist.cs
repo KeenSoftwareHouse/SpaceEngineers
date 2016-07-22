@@ -163,8 +163,7 @@ namespace VRage.Scripting
                     typeof(StringSplitOptions),
                     typeof(DateTimeKind),
                     typeof(MidpointRounding),
-                    typeof(EventArgs),
-                    typeof(System.IEquatable<>)
+                    typeof(EventArgs)
                 );
 
                 handle.AllowMembers(MyWhitelistTarget.Both,

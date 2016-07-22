@@ -330,7 +330,7 @@ namespace Sandbox.Game.Weapons
                 m_drillBase.DustParticles.StopEmitting();
         }
 
-        private void WorldPositionChanged(object source)
+        public void WorldPositionChanged(object source)
         {
             // pass logical position to drill base!
             MatrixD logicalPositioning = MatrixD.Identity;

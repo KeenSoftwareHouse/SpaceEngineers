@@ -776,6 +776,8 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <SpeedMultiplier>1.5</SpeedMultiplier>
+      <DistanceMultiplier>1.2</DistanceMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
@@ -905,6 +907,8 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <SpeedMultiplier>2</SpeedMultiplier>
+      <DistanceMultiplier>1.4</DistanceMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_WelderDefinition">
@@ -1034,6 +1038,8 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>0.2</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <SpeedMultiplier>5</SpeedMultiplier>
+      <DistanceMultiplier>1.6</DistanceMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
@@ -1293,6 +1299,8 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>2.5</ShakeAmountTarget>
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
+      <SpeedMultiplier>1.5</SpeedMultiplier>
+      <DistanceMultiplier>1.2</DistanceMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
@@ -1421,6 +1429,8 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>2.5</ShakeAmountTarget>
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
+      <SpeedMultiplier>2</SpeedMultiplier>
+      <DistanceMultiplier>1.4</DistanceMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_AngleGrinderDefinition">
@@ -1549,6 +1559,8 @@
       <LightIntensityUpper>0.7</LightIntensityUpper>
       <ShakeAmountTarget>2.5</ShakeAmountTarget>
       <ShakeAmountNoTarget>1</ShakeAmountNoTarget>
+      <SpeedMultiplier>5</SpeedMultiplier>
+      <DistanceMultiplier>1.6</DistanceMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
@@ -1808,6 +1820,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <SpeedMultiplier>1.2</SpeedMultiplier>
+      <DistanceMultiplier>1</DistanceMultiplier>
+      <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
@@ -1936,6 +1951,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <SpeedMultiplier>1.4</SpeedMultiplier>
+      <DistanceMultiplier>1.5</DistanceMultiplier>
+      <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandDrillDefinition">
@@ -2064,6 +2082,9 @@
       <LightIntensityUpper>0</LightIntensityUpper>
       <ShakeAmountTarget>0</ShakeAmountTarget>
       <ShakeAmountNoTarget>0</ShakeAmountNoTarget>
+      <SpeedMultiplier>1.6</SpeedMultiplier>
+      <DistanceMultiplier>2</DistanceMultiplier>
+      <HarvestRatioMultiplier>1</HarvestRatioMultiplier>
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">

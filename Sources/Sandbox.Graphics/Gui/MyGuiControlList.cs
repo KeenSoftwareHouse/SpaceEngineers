@@ -282,5 +282,14 @@ namespace Sandbox.Graphics.GUI
                 base.ShowToolTip();
         }
 
+        /// <summary>
+        /// Set scroll to desired page. Default 0 mean start of the list.
+        /// </summary>
+        /// <param name="page"></param>
+        public void SetScrollBarPage(float page = 0)
+        {
+            m_scrollBar.SetPage(page);
+        }
+
     }
 }

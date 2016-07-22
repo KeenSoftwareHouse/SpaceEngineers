@@ -1155,6 +1155,19 @@ namespace Sandbox.Game.GameSystems
                         return true;
                     }
                 }
+                else if (doorBlock is MyAirtightSlideDoor)
+                {
+                    var hangarDoor = doorBlock as MyAirtightDoorGeneric;
+                    if (hangarDoor.IsFullyClosed)
+                    {
+                        //check only forward for slide door from backgward it should be not accessible (closed door)
+                        if (transformedNormal == Vector3.Forward)
+                        {
+                            ProfilerShort.End();
+                            return true;
+                        }
+                    }
+                }
                 else if (doorBlock is MyAirtightDoorGeneric)
                 {
                     var hangarDoor = doorBlock as MyAirtightDoorGeneric;
@@ -1414,7 +1427,7 @@ namespace Sandbox.Game.GameSystems
                         }
                         if (DEBUG_MODE)
                         {
-                            MyRenderProxy.DebugDrawText3D(worldPos, roomIndex.ToString(), Color.White, 0.5f, false);
+                            MyRenderProxy.DebugDrawText3D(worldPos, roomIndex.ToString()/* + " " + (i + GridMin().X) + " " + (j + GridMin().Y) + " " + (k + GridMin().Z)*/, Color.White, 0.5f, false);
                         }
                     }
 

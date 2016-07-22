@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Xml.Serialization;
 using VRage.Game;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 
@@ -22,5 +23,20 @@ namespace Sandbox.Common.ObjectBuilders
         [ProtoMember, DefaultValue(null)]
         [Nullable, DynamicObjectBuilder]
         public MyObjectBuilder_ToolbarItem OnFullAction = null;
+
+        public override void Remap(IMyRemapHelper remapHelper)
+        {
+            base.Remap(remapHelper);
+
+            if (OnEmptyAction != null)
+            {
+                OnEmptyAction.Remap(remapHelper);
+            }
+
+            if (OnFullAction != null)
+            {
+                OnFullAction.Remap(remapHelper);
+            }
+        }
     }
 }
