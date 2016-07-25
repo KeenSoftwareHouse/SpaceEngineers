@@ -6,6 +6,7 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.World;
@@ -170,6 +171,21 @@ namespace Sandbox.Game.Entities
 
             var sunDir = MySector.DirectionToSunNormalized;
             var waveMeteorCount = MyUtils.GetRandomFloat(Math.Min(2, m_meteorcount - 3), m_meteorcount + 3);
+            var planet = MyGravityProviderSystem.GetStrongestGravityWell(m_currentTarget.Value.Center);
+            if (planet != null)
+            {
+                var planetVector = m_currentTarget.Value.Center - planet.PositionComp.GetPosition();
+                if (planetVector.Length() <= planet.GravityLimit)
+                {
+                    planetVector.Normalize();
+                    planetVector = planetVector * -1;
+                    if (planetVector.Dot(sunDir) >= 0)
+                    {
+                        sunDir = sunDir * -1;
+
+                    }
+                }
+            }
             for (int i = 0; i < waveMeteorCount; i++)
             {
                 var randCircle = MyUtils.GetRandomVector3CircleNormalized();
