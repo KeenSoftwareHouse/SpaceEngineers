@@ -104,7 +104,12 @@ namespace Sandbox.Game.Gui
         }
         public MyHonzaInputComponent()
         {
+#if !XB1
             m_components = new MyDebugComponent[] { new DefaultComponent(), new PhysicsComponent(), new LiveWatchComponent() };
+#else
+            // HACK: [vicent] third debug component replaced by "dummy one?"
+            m_components = new MyDebugComponent[] { new DefaultComponent(), new PhysicsComponent(), new DefaultComponent() };
+#endif
         }
     }
 }

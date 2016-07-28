@@ -11,7 +11,9 @@ using VRageMath;
 using Sandbox.Graphics;
 using System.Collections.Generic;
 using Sandbox.Common;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.World;
 using Sandbox.Game.Screens.Helpers;

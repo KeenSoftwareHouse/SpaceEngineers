@@ -24,7 +24,7 @@ namespace Sandbox.Game.GameSystems
 
         public void Add(MyTerminalBlock block)
         {
-            if (block.MarkedForClose || block.IsBeeingRemoved)
+            if (block.MarkedForClose || block.IsBeingRemoved)
                 return;
             Debug.Assert(!m_blockTable.ContainsKey(block.EntityId), "Block to add is already in terminal");
             m_blockTable.Add(block.EntityId, block);
@@ -38,9 +38,9 @@ namespace Sandbox.Game.GameSystems
         {
             if (block.MarkedForClose)
                 return;
-            Debug.Assert(m_blockTable.ContainsKey(block.EntityId) || block.IsBeeingRemoved, "Block to remove is not in terminal");
+            Debug.Assert(m_blockTable.ContainsKey(block.EntityId) || block.IsBeingRemoved, "Block to remove is not in terminal");
             m_blockTable.Remove(block.EntityId);
-            Debug.Assert(m_blocks.Contains(block) || block.IsBeeingRemoved, "Block to remove is not in terminal");
+            Debug.Assert(m_blocks.Contains(block) || block.IsBeingRemoved, "Block to remove is not in terminal");
             m_blocks.Remove(block);
 
             for (int i = 0; i < BlockGroups.Count; i++)

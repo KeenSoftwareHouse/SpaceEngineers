@@ -30,7 +30,7 @@ namespace SpaceEngineers.Game
 {
     public partial class SpaceEngineersGame : MySandboxGame
     {
-        const int SE_VERSION = 01145005;
+        const int SE_VERSION = 01146006;
 
         #region Constructor
 

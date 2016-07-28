@@ -2,6 +2,9 @@
 
 using System;
 using System.Text;
+#if XB1
+using System.Collections.Generic;
+#endif // XB1
 using VRageMath;
 using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
@@ -83,12 +86,19 @@ namespace Sandbox.Game.Weapons
         {
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
             Render.NeedsDraw = true;
+#if XB1 // XB1_SYNC_NOREFLECTION
+            SyncType = new SyncType(new List<SyncBase>());
+            m_gunBase = new MyGunBase(SyncType);
+#else // !XB1
             m_gunBase = new MyGunBase();
+#endif // !XB1
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
             this.Render = new MyRenderComponentAutomaticRifle();
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
             SyncType.Append(m_gunBase);
+#endif // !XB1
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)

@@ -91,14 +91,10 @@ namespace Sandbox.Game.Gui
               () => "Spawn random meteor",
               delegate
               {
-                   var camera = MySector.MainCamera;
-                    var target = camera.Position + MySector.MainCamera.ForwardVector * 20.0f;
-                    var spawnPosition = target + MySector.DirectionToSunNormalized * 1000.0f;
-
-                    if (MyUtils.GetRandomFloat(0.0f, 1.0f) < 0.2f)
-                        MyMeteor.SpawnRandomLarge(spawnPosition, -MySector.DirectionToSunNormalized);
-                    else
-                        MyMeteor.SpawnRandomSmall(spawnPosition, -MySector.DirectionToSunNormalized);
+                  var camera = MySector.MainCamera;
+                  var target = camera.Position + MySector.MainCamera.ForwardVector * 20.0f;
+                  var spawnPosition = target + MySector.DirectionToSunNormalized * 1000.0f;
+                  MyMeteor.SpawnRandom(spawnPosition, -MySector.DirectionToSunNormalized);
                   return true;
               });
 
@@ -286,7 +282,7 @@ namespace Sandbox.Game.Gui
         }
 
         private bool CopyAssetToClipboard()
-        {            
+        {
             // DUE TO THREADING APPARTMENT REQUIREMENTS FOR WINDOWS.FORMS.CLIPLBOARD MUST BE RUN IN STA MODE
             System.Threading.Thread clipboardThread = new System.Threading.Thread(new System.Threading.ThreadStart(TextToClipboard));
             clipboardThread.ApartmentState = System.Threading.ApartmentState.STA;
@@ -299,7 +295,11 @@ namespace Sandbox.Game.Gui
         {
             if (ClipboardText != null && ClipboardText != String.Empty)
             {
+#if !XB1
                 System.Windows.Forms.Clipboard.SetText(ClipboardText);
+#else
+                System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
             }
         }
 
@@ -312,7 +312,7 @@ namespace Sandbox.Game.Gui
                 return true;
 
             bool handled = false;
-      
+
             return handled;
         }
 
@@ -361,7 +361,7 @@ namespace Sandbox.Game.Gui
             m_previousSpectatorGridId = nextGrid.EntityId;
             return true;
         }
-       
+
         void LobbyFound(Empty e, Result result)
         {
             for (uint i = 0; i < LobbySearch.LobbyCount; i++)

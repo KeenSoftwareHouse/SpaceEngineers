@@ -146,21 +146,17 @@ namespace Sandbox.Game.GameSystems
             MyDebug.AssertDebug(output.Count == 0, "Output was not cleared before use!");
 
             var gridBroadcasters = MyRadioBroadcaster.GetGridRelayedBroadcasters(grid, playerId);
-            var controlledObjectId = interactedEntityRepresentative.EntityId;
             foreach (var broadcaster in gridBroadcasters)
-                if (GetBroadcasterParentEntityId(broadcaster) == controlledObjectId)
+                if (GetBroadcasterParentEntity(broadcaster) == interactedEntityRepresentative)
                     output.Add(broadcaster);
         }
 
-        public long GetBroadcasterParentEntityId(MyDataBroadcaster broadcaster)
+        public MyEntity GetBroadcasterParentEntity(MyDataBroadcaster broadcaster)
         {
             if (broadcaster.Entity is MyCubeBlock)
-                return (broadcaster.Entity as MyCubeBlock).CubeGrid.EntityId;
+                return (broadcaster.Entity as MyCubeBlock).CubeGrid;
 
-            else if (broadcaster.Entity is MyCharacter)
-                return (broadcaster.Entity as MyCharacter).EntityId;
-
-            return 0;
+            return broadcaster.Entity as MyEntity;
         }
 
         //gets the grid with largest number of blocks in logical group

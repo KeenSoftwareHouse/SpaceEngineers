@@ -82,12 +82,21 @@ namespace Sandbox.Game.Weapons
 
         public MySmallMissileLauncher()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_gunBase = new MyGunBase(SyncType);
+#else // !XB1
             m_gunBase = new MyGunBase();
+#endif // !XB1
             m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_useConveyorSystem.Value = true;
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType.Append(m_gunBase);
+#endif // !XB1
         }
 
         static void CreateTerminalControls()

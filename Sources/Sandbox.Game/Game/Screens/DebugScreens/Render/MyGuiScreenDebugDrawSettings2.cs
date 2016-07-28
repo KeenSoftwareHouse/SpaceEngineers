@@ -6,7 +6,7 @@ using VRageMath;
 namespace Sandbox.Game.Screens.DebugScreens
 {
 
-#if !XB1_TMP
+#if !XB1
     [MyDebugScreen("Render", "Debug draw settings 2")]
     class MyGuiScreenDebugDrawSettings2 : MyGuiScreenDebugBase
     {

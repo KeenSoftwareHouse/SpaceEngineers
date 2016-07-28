@@ -47,8 +47,10 @@ namespace VRageRender
             return m_adaptersList;
         }
 
+#if !XB1
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         private static extern IntPtr GetForegroundWindow();
+#endif // !XB1
 
         public static MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
@@ -124,12 +126,16 @@ namespace VRageRender
                 {
                     for (j = 0; j < adapters[i].SupportedDisplayModes.Length; ++j)
                     {
+#if !XB1
                         var bounds = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
                         if (adapters[i].SupportedDisplayModes[j].Width == bounds.Width &&
                             adapters[i].SupportedDisplayModes[j].Height == bounds.Height)
                         {
                             goto DISPLAY_MODE_FOUND_LABEL;
                         }
+#else // XB1
+                        System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                     }
                 }
 
@@ -183,7 +189,11 @@ namespace VRageRender
                 catch
                 {
                     // These settings don't work either so we're done here.
+#if !XB1
                     MyMessageBox.Show("Unsupported graphics card", "Graphics card is not supported, please see minimum requirements");
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "Unsupported graphics card");
+#endif // XB1
                     throw;
                 }
             }
@@ -217,7 +227,12 @@ namespace VRageRender
                 catch (SharpDX.SharpDXException e)
                 {
                     if (e.ResultCode == ResultCode.NotAvailable ||
+#if !XB1
                         (e.ResultCode == ResultCode.InvalidCall && GetForegroundWindow() != Parameters.DeviceWindowHandle))
+#else
+                        // TODO [vicent] 
+                        (e.ResultCode == ResultCode.InvalidCall))
+#endif
                     {
                         // User has probably Alt+Tabbed or locked his computer before the game has started.
                         // To counter this, we try creating device again a bit later.
@@ -283,12 +298,16 @@ namespace VRageRender
 
                 case MyWindowModeEnum.FullscreenWindow:
                     {
+#if !XB1
                         WinApi.DEVMODE mode = new WinApi.DEVMODE();
                         WinApi.EnumDisplaySettings(null, WinApi.ENUM_REGISTRY_SETTINGS, ref mode);
                         p.FullScreenRefreshRateInHz = 0;
                         p.BackBufferHeight = mode.dmPelsHeight;
                         p.BackBufferWidth = mode.dmPelsWidth;
                         p.Windowed = true;
+#else // XB1
+                        System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                     }
                     break;
 

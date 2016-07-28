@@ -11,6 +11,7 @@ using VRageMath;
 
 namespace VRageRender.Profiler
 {
+#if !XB1 // XB1_NOPROFILER
     public abstract class MyRenderProfilerRendering : MyRenderProfiler
     {
         /// <summary>
@@ -425,4 +426,12 @@ namespace VRageRender.Profiler
             //}
         }
     }
+#else // XB1
+    public abstract class MyRenderProfilerRendering : MyRenderProfiler
+    {
+        protected sealed override void Draw(MyProfiler drawProfiler, int lastFrameIndex, int frameToDraw)
+        {
+        }
+    }
+#endif // XB1
 }

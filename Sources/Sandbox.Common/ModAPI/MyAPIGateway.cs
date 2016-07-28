@@ -95,12 +95,12 @@ namespace Sandbox.ModAPI
 
         public static IMyPrefabManager PrefabManager;
 
+#if !XB1 // XB1_NOILINJECTOR
         /// <summary>
-        /// Provides the ability for mods to add and remove items from a type and member blacklist,
-        /// giving the ability to remove even more API for scripts. Intended for server admins to
-        /// restrict what people are able to do with scripts to keep their simspeed up.
+        /// Provides mod access to control compilation of ingame scripts
         /// </summary>
-        public static IMyScriptBlacklist ScriptBlacklist;
+        public static IMyIngameScripting IngameScripting;
+#endif // !XB1
 
         /// <summary>
         /// IMyInput allows accessing direct input device states
@@ -114,6 +114,7 @@ namespace Sandbox.ModAPI
 
 
 
+#if !XB1
         [Conditional("DEBUG")] 
         public static void GetMessageBoxPointer(ref IntPtr pointer)
         {
@@ -127,6 +128,7 @@ namespace Sandbox.ModAPI
 
         [DllImport("kernel32.dll")]
         private static extern IntPtr GetProcAddress(IntPtr hModule, String procname);
+#endif // !XB1
 
         public static void Clean()
         {
@@ -134,9 +136,15 @@ namespace Sandbox.ModAPI
             Entities = null;
             Players = null;
             CubeBuilder = null;
+            if (IngameScripting != null)
+            {
+                IngameScripting.Clean();
+            }
+            IngameScripting = null;
             TerminalActionsHelper = null;
             Utilities = null;
             Parallel = null;
+            Physics = null;
             Multiplayer = null;
             PrefabManager = null;
             Input = null;

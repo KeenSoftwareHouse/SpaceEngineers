@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,3 +46,4 @@ namespace VRage.Rpc
         }
     }
 }
+#endif // !XB1

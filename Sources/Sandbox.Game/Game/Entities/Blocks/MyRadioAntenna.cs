@@ -126,6 +126,11 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyRadioAntenna()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_radius = SyncType.CreateAndAddProp<float>();
+            m_enableBroadcasting = SyncType.CreateAndAddProp<bool>();
+            m_showShipName = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_radius.ValueChanged += (obj) => ChangeRadius();

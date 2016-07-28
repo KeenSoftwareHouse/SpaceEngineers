@@ -386,11 +386,15 @@ namespace Sandbox.Game.Gui
                                        m_sphereMatrix.Forward.X, m_sphereMatrix.Forward.Y, m_sphereMatrix.Forward.Z,
                                        m_sphereMatrix.Up.X, m_sphereMatrix.Up.Y, m_sphereMatrix.Up.Z });
                         m_string = sb.ToString();
-
+#if !XB1
                         Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(m_string));
                         thread.SetApartmentState(ApartmentState.STA);
                         thread.Start();
                         thread.Join();
+#else
+                        Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
+                        
 
                         success = true;
                         break;

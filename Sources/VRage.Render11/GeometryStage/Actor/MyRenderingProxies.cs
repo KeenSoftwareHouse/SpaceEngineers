@@ -53,7 +53,11 @@ namespace VRageRender
     /// Contains data used for culling, but should not own any itself
     /// </summary>
     [PooledObject]
+#if XB1
+    class MyCullProxy : IMyPooledObjectCleaner
+#else // !XB1
     class MyCullProxy
+#endif // !XB1
     {
         internal ulong[] SortingKeys;
         internal MyRenderableProxy [] RenderableProxies;
@@ -63,11 +67,18 @@ namespace VRageRender
 
         internal uint OwnerID { get { return Parent != null ? Parent.Owner.ID : 0; } }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Clear();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Clear(MyCullProxy cullProxy)
         {
             cullProxy.Clear();
         }
+#endif // !XB1
 
         internal void Clear()
         {
@@ -112,7 +123,11 @@ namespace VRageRender
     /// Does not own any data
     /// </summary>
     [PooledObject]
+#if XB1
+    class MyRenderableProxy : IMyPooledObjectCleaner
+#else // !XB1
     class MyRenderableProxy
+#endif // !XB1
     {
         internal const float NO_DITHER_FADE = Single.PositiveInfinity;
 
@@ -152,11 +167,18 @@ namespace VRageRender
 
         internal MyStringId Material;
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Clear();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Clear(MyRenderableProxy renderableProxy)
         {
             renderableProxy.Clear();
         }
+#endif // !XB1
 
         internal void Clear()
         {

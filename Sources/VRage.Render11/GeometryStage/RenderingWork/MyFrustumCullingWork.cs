@@ -6,7 +6,11 @@ using VRageMath;
 namespace VRageRender
 {
     [PooledObject]
+#if XB1
+    internal class MyFrustumCullingWork : IPrioritizedWork, IMyPooledObjectCleaner
+#else // !XB1
     internal class MyFrustumCullingWork : IPrioritizedWork
+#endif // !XB1
     {
         private MyFrustumCullQuery m_query;
         private MyDynamicAABBTreeD m_renderables;
@@ -19,11 +23,18 @@ namespace VRageRender
             m_renderables = renderables;
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyFrustumCullingWork frustumCullingWork)
         {
             frustumCullingWork.Cleanup();
         }
+#endif // !XB1
 
         internal void Cleanup()
         {

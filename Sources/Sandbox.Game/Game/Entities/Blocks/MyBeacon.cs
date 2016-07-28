@@ -47,6 +47,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyBeacon()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_radius = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_radius.ValueChanged += (obj) => ChangeRadius();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -89,3 +90,4 @@ namespace VRage
 }
 
 #endif
+#endif // !XB1

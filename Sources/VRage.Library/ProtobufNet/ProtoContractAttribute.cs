@@ -2,6 +2,11 @@ using System;
 
 namespace ProtoBuf
 {
+#if XB1 // XB1_NOPROTOBUF
+    public sealed class ProtoContractAttribute : Attribute
+    {
+    }
+#else // !XB1
     /// <summary>
     /// Indicates that a type is defined for protocol-buffer serialization.
     /// </summary>
@@ -139,4 +144,5 @@ namespace ProtoBuf
             OPTIONS_IgnoreListHandling = 16,
             OPTIONS_AsReferenceDefault = 32;
     }
+#endif // !XB1
 }

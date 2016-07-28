@@ -1,5 +1,7 @@
 ﻿using KeenSoftwareHouse.Library.IO;
+#if !XB1 // XB1_NOPROTOBUF
 using ProtoBuf.Meta;
+#endif // !XB1
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +29,9 @@ namespace VRage.ObjectBuilders
         private static readonly Dictionary<string, XmlSerializer> m_serializersBySerializedName = new Dictionary<string, XmlSerializer>();
         private static readonly Dictionary<Type, string> m_serializedNameByType = new Dictionary<Type, string>();
         // -------------------------
+#if !XB1 // XB1_NOPROTOBUF
         public static RuntimeTypeModel Serializer;
+#endif // !XB1
         public static readonly MySerializeInfo Dynamic = new MySerializeInfo(MyObjectFlags.Dynamic, MyPrimitiveFlags.None, 0, SerializeDynamic, null, null);
         // -------------------------
         
@@ -39,9 +43,11 @@ namespace VRage.ObjectBuilders
 
         static MyObjectBuilderSerializer()
         {
+#if !XB1 // XB1_NOPROTOBUF
             Serializer = TypeModel.Create();
             Serializer.AutoAddMissingTypes = true;
             Serializer.UseImplicitZeroDefaults = false;
+#endif // !XB1
             m_objectFactory = new MyObjectFactory<MyObjectBuilderDefinitionAttribute, MyObjectBuilder_Base>();
         }
 
@@ -58,6 +64,7 @@ namespace VRage.ObjectBuilders
 
         #region Definitions
 
+#if !XB1
         /// <summary>Generates an identifier for the assembly of a specified type</summary>
         /// <remarks>Code copied from the .NET serialization classes - to emulate the same bahavior</remarks>
         /// <param name="type">The type</param>
@@ -79,6 +86,7 @@ namespace VRage.ObjectBuilders
             }
             return sb.ToString();
         } // GenerateAssemblyId
+#endif // !XB1
 
         static int f = 0;
 
@@ -90,8 +98,10 @@ namespace VRage.ObjectBuilders
             {
                 index++;
                 var typeId = (MyRuntimeObjectBuilderId)(MyObjectBuilderType)definition.ProducedType;
+#if !XB1 // XB1_NOPROTOBUF
                 Serializer.Add(definition.ProducedType.BaseType, true)
                     .AddSubType(typeId.Value * 1000, definition.ProducedType);
+#endif // !XB1
 
             }
 
@@ -216,6 +226,7 @@ namespace VRage.ObjectBuilders
                 MyLog.Default.WriteLine("Error: " + path + " failed to serialize.");
                 MyLog.Default.WriteLine(e.ToString());
 
+#if !XB1
 #if DEBUG
                 var io = e as IOException;
                 if (io != null && io.IsFileLocked())
@@ -235,6 +246,7 @@ namespace VRage.ObjectBuilders
                     }
                 }
 #endif
+#endif // !XB1
 
                 sizeInBytes = 0;
 
@@ -446,9 +458,11 @@ namespace VRage.ObjectBuilders
             m_serializersBySerializedName.Clear();
             m_serializedNameByType.Clear();
             // -------------------------
+#if !XB1 // XB1_NOPROTOBUF
             Serializer = TypeModel.Create(); // create empty protobuf serializer
             Serializer.AutoAddMissingTypes = true;
             Serializer.UseImplicitZeroDefaults = false;
+#endif // !XB1
         }
     }
 }

@@ -166,24 +166,32 @@ namespace Sandbox.Engine.Multiplayer
             bool useGridOnServer = controlledEntity is MyCubeGrid && MyFakes.ENABLE_SHIP_CONTROL_ON_SERVER;
             MyShipController controller = MySession.Static.ControlledEntity as MyShipController;
             bool hasWheels = controller != null && controller.HasWheels;
+            long? supportId = null;
 
             if (useCharacterOnServer || (useGridOnServer && hasWheels == false))
             {
-                stateGroup = controlledReplicable.FindStateGroup<MyEntityPositionVerificationStateGroup>();
+                MyEntityPositionVerificationStateGroup group = controlledReplicable.FindStateGroup<MyEntityPositionVerificationStateGroup>();
+                stateGroup = group;
+                supportId = group.GetSupportID();
             }
             else
             {
                 stateGroup = controlledReplicable.FindStateGroup<MyEntityPhysicsStateGroup>();
             }
 
-
-
+       
             stream.WriteBool(useCharacterOnServer || (useGridOnServer && hasWheels == false));
             stream.WriteBool(stateGroup != null );
-           
+
             if (stateGroup == null)
-            {          
-               return;
+            {
+                return;
+            }
+
+            stream.WriteBool(supportId.HasValue);
+            if (supportId.HasValue)
+            {
+                stream.WriteInt64(supportId.Value);
             }
 
             bool isResponsible = MyEntityPhysicsStateGroup.ResponsibleForUpdate(controlledEntity,new EndpointId(Sync.MyId));
@@ -199,17 +207,12 @@ namespace Sandbox.Engine.Multiplayer
             
             bool hasPhysics = stream.ReadBool();
 
-            //if (m_currentServerTimeStamp == serverTimeStamp)
-            //{
-            //    return;
-            //}
-
             m_currentServerTimeStamp = serverTimeStamp;
 
             if (hasPhysics && MyEntityPhysicsStateGroup.ResponsibleForUpdate(controlledEntity, new EndpointId(sender.SteamUserId)))
             {
                 IMyStateGroup stateGroup = null;
-
+                SupportId = null;
                 bool enableControlOnServer = stream.ReadBool();
                 bool stateGroupFound = stream.ReadBool();
                 if (stateGroupFound == false)
@@ -217,6 +220,12 @@ namespace Sandbox.Engine.Multiplayer
                     return;
                 }
 
+              
+                if (stream.ReadBool())
+                {
+                    SupportId = stream.ReadInt64();
+                }
+        
                 if (enableControlOnServer)
                 {
                     stateGroup = MyExternalReplicable.FindByObject(controlledEntity).FindStateGroup<MyEntityPositionVerificationStateGroup>();
@@ -246,7 +255,7 @@ namespace Sandbox.Engine.Multiplayer
             {
                 stream.WriteInt32(0);
                 return;
-    }
+            }
 
             stream.WriteInt32(planets.Count);
 

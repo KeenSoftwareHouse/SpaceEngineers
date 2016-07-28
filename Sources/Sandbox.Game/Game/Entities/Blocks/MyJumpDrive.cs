@@ -82,6 +82,12 @@ namespace Sandbox.Game.Entities
         #region UI
         public MyJumpDrive()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_storedPower = SyncType.CreateAndAddProp<float>();
+            m_targetSync = SyncType.CreateAndAddProp<int?>();
+            m_jumpDistanceRatio = SyncType.CreateAndAddProp<float>();
+            m_isRecharging = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_isRecharging.ValueChanged += x => RaisePropertiesChanged();   //GR: Maybe not needed since called every 100 frames either way

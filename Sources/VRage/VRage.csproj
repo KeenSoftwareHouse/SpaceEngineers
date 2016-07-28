@@ -84,7 +84,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug_XB1\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP;XB1_NOMULTIPLAYER</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DebugType>full</DebugType>

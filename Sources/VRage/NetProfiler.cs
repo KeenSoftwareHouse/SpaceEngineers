@@ -10,6 +10,7 @@ using VRageRender.Profiler;
 
 namespace VRage
 {
+#if !XB1 // XB1_NOPROFILER
     /// <summary>
     /// Shortcut class for network profiler.
     /// </summary>
@@ -94,4 +95,20 @@ namespace VRage
             }
         }
     }
+#else // XB1
+    public static class NetProfiler
+    {
+        public static void Begin(string blockName = null, int forceOrder = int.MaxValue, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void End(float? bytesTransfered = null, float customValue = 0, string customValueFormat = "", string byteFormat = "{0} B", string callFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void Commit()
+        {
+        }
+    }
+#endif // XB1
 }

@@ -6450,7 +6450,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MessageBoxTextAreYouSureEnableOxygen = MyStringId.GetOrCompute("MessageBoxTextAreYouSureEnableOxygen");
 
         ///<summary>
-        ///Enable ice material, pressurization detection and oxygen generation and circulation
+        ///Enable oxygen processing. Used by space suit and cockpits.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableOxygen = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableOxygen");
 
@@ -8905,12 +8905,12 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId RemoteControlWaypoint = MyStringId.GetOrCompute("RemoteControlWaypoint");
 
         ///<summary>
-        ///Are you sure you want to enable airtightness? This can have negative influence to preformance.
+        ///Are you sure you want to enable airtightness? This can have negative influence to performance.
         ///</summary>
         public static readonly MyStringId MessageBoxTextAreYouSureEnableOxygenPressurization = MyStringId.GetOrCompute("MessageBoxTextAreYouSureEnableOxygenPressurization");
 
         ///<summary>
-        ///Enable pressurization detection.
+        ///Allow pressurization of ships and stations.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableOxygenPressurization = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableOxygenPressurization");
 
@@ -8918,5 +8918,20 @@ namespace Sandbox.Game.Localization
         ///Enable airtightness
         ///</summary>
         public static readonly MyStringId World_Settings_EnableOxygenPressurization = MyStringId.GetOrCompute("World_Settings_EnableOxygenPressurization");
+
+        ///<summary>
+        ///Max backup saves
+        ///</summary>
+        public static readonly MyStringId MaxBackupSaves = MyStringId.GetOrCompute("MaxBackupSaves");
+
+        ///<summary>
+        ///Configure the maximum number of saves that should be backed up. The backup folder is located on the respective save directory. When this is 0 then the backup feature is disabled and all backups are deleted upon save!
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsMaxBackupSaves = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxBackupSaves");
+
+        ///<summary>
+        ///-Global Chat History-
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Chat_ChatHistory = MyStringId.GetOrCompute("TerminalTab_Chat_ChatHistory");
     }
 }

@@ -32,6 +32,8 @@ namespace VRageRender
             this.BackBufferHeight = 0;
             this.RefreshRate = 0;
             this.VSync = true;
+            this.UseStereoRendering = false;
+            this.SettingsMandatory = false;
 
             DebugDrawOnly = false;
         }

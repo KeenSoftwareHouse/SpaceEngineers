@@ -50,7 +50,11 @@ namespace VRageRender
         }
 
         [PooledObject]
+#if XB1
+        private class MyLodTransitionData : IMyPooledObjectCleaner
+#else // !XB1
         private class MyLodTransitionData
+#endif // !XB1
         {
             internal float Time;
             internal float Delta;
@@ -59,11 +63,18 @@ namespace VRageRender
             internal float StartDistanceSquared;
             internal float StartTime;
 
+#if XB1
+            public void ObjectCleaner()
+            {
+                Cleanup();
+            }
+#else // !XB1
             [PooledObjectCleaner]
             public static void Cleanup(MyLodTransitionData transitionData)
             {
                 transitionData.Cleanup();
             }
+#endif // !XB1
 
             internal void Cleanup()
             {

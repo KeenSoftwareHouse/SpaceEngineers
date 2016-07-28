@@ -70,6 +70,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         readonly Sync<int> m_timerSync;
         public MyTimerBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isCountingDown = SyncType.CreateAndAddProp<bool>();
+            m_silent = SyncType.CreateAndAddProp<bool>();
+            m_timerSync = SyncType.CreateAndAddProp<int>();
+#endif // XB1
             CreateTerminalControls();
 
             m_openedToolbars = new List<MyToolbar>();

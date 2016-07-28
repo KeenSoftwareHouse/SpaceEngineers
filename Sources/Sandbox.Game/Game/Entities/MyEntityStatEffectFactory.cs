@@ -10,6 +10,9 @@ using VRage.Plugins;
 using VRage.ObjectBuilders;
 using VRage.Game.ObjectBuilders;
 using VRage.Game.Common;
+#if XB1
+using VRage.Utils;
+#endif // XB1
 
 namespace Sandbox.Game.Entities
 {
@@ -38,7 +41,11 @@ namespace Sandbox.Game.Entities
 		static MyEntityStatEffectFactory()
 		{
 			m_objectFactory = new MyObjectFactory<MyEntityStatEffectTypeAttribute, MyEntityStatRegenEffect>();
+#if XB1 // XB1_ALLINONEASSEMBLY
+            m_objectFactory.RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
 			m_objectFactory.RegisterFromAssembly(Assembly.GetAssembly(typeof(MyEntityStatRegenEffect)));
+#endif // !XB1
 		}
 
 		public static MyEntityStatRegenEffect CreateInstance(MyObjectBuilder_EntityStatRegenEffect builder)

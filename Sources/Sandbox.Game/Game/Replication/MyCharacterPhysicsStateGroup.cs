@@ -66,16 +66,16 @@ namespace Sandbox.Game.Replication
 
         protected override float GetGroupPriority(int frameCountWithoutSync, MyClientInfo client, PrioritySettings settings)
         {
-            const float HighQualityDistance = 8; // under 8m, character physics sync gets high priority to have smooth movement
+            const float HighQualityDistance = 20; // under 8m, character physics sync gets high priority to have smooth movement
 
             if (ResponsibleForUpdate(Entity, client.EndpointId))
             {
                 return 0.0f;
             }
+
             var clientPos = ((MyClientState)client.State).Position;
             var characterPos = Entity.PositionComp.GetPosition();
             bool isHighQuality = Vector3D.DistanceSquared(clientPos, characterPos) < HighQualityDistance * HighQualityDistance;
-            isHighQuality = isHighQuality && !Entity.IsDead;
 
             var priority = base.GetGroupPriority(frameCountWithoutSync, client, isHighQuality ? m_highQuality : settings);
             return priority;
@@ -87,7 +87,6 @@ namespace Sandbox.Game.Replication
 
             if (stream.Writing)
             {
-                stream.WriteHalf(Entity.Physics.LinearVelocity.Length());
                 // Head and spine stuff, 36 - 152b (4.5B - 19 B)
                 stream.WriteHalf(Entity.HeadLocalXAngle); // 2B
                 stream.WriteHalf(Entity.HeadLocalYAngle); // 2B
@@ -113,34 +112,22 @@ namespace Sandbox.Game.Replication
 
                 stream.WriteNormalizedSignedVector3(Entity.MoveIndicator, 8);
 
-                if (MyFakes.CHARACTER_SERVER_SYNC)
-                {
-                    Vector2 rotation = Entity.RotationIndicator;
-                    stream.WriteHalf(rotation.X);
-                    stream.WriteHalf(rotation.Y);
+                float speed = Entity.Physics.CharacterProxy != null ? Entity.Physics.CharacterProxy.Speed : 0.0f;
+                stream.WriteFloat(speed);
 
-                    stream.WriteHalf(Entity.RollIndicator);
-
-                }
+                stream.WriteFloat(Entity.RotationIndicator.X);
+                stream.WriteFloat(Entity.RotationIndicator.Y);
+                stream.WriteFloat(Entity.RollIndicator);
 
             }
             else
             {
                 Vector3 move;
-                MyCharacterNetState charNetState = ReadCharacterState(stream, out move);
-
-
-                if (MyFakes.CHARACTER_SERVER_SYNC)
-                {
-                    charNetState.Rotation.X = stream.ReadHalf();
-                    charNetState.Rotation.Y = stream.ReadHalf();
-                    charNetState.Roll = stream.ReadHalf();
-                }
+                MyCharacterNetState charNetState = ReadCharacterState(stream);
 
                 if (!IsControlledLocally && !Entity.Closed)
                 {
-                    Entity.SetStateFromNetwork(ref charNetState);
-                    Entity.MoveIndicator = move;
+                   Entity.SetStateFromNetwork(ref charNetState);
                 }             
             }
             return true;
@@ -148,37 +135,35 @@ namespace Sandbox.Game.Replication
 
         public static void ReadAndSkipCharacterState(BitStream stream)
         {
-            Vector3 move;
-            ReadCharacterState(stream, out move);
+            ReadCharacterState(stream);
         }
 
-        static MyCharacterNetState ReadCharacterState(BitStream stream, out Vector3 move)
+        static MyCharacterNetState ReadCharacterState(BitStream stream)
         {
             MyCharacterNetState charNetState = new MyCharacterNetState();
 
-            charNetState.WorldRealSpeed = stream.ReadHalf();
-            // Head and spine stuff
             charNetState.HeadX = stream.ReadHalf();
             if (charNetState.HeadX.IsValid() == false)
             {
                 charNetState.HeadX = 0.0f;
             }
+
             charNetState.HeadY = stream.ReadHalf();
             charNetState.Spine = stream.ReadQuaternionNormCompressedIdentity();
             charNetState.Head = stream.ReadQuaternionNormCompressedIdentity();
-            // Movement state
             charNetState.MovementState = (MyCharacterMovementEnum)stream.ReadUInt16();
-            // Movement flag
             charNetState.MovementFlag = (MyCharacterMovementFlags)stream.ReadUInt16();
-            //Flags
             charNetState.Jetpack = stream.ReadBool();
             charNetState.Dampeners = stream.ReadBool();
             charNetState.Lights = stream.ReadBool(); // TODO: Remove
             charNetState.Ironsight = stream.ReadBool();
             charNetState.Broadcast = stream.ReadBool(); // TODO: Remove
             charNetState.TargetFromCamera = stream.ReadBool();
-
-            move = stream.ReadNormalizedSignedVector3(8);
+            charNetState.Movement = stream.ReadNormalizedSignedVector3(8);
+            charNetState.Rotation.X = stream.ReadFloat();
+            charNetState.Rotation.Y = stream.ReadFloat();
+            charNetState.Speed = stream.ReadFloat();
+            charNetState.Roll = stream.ReadFloat();
 
             return charNetState;
         }

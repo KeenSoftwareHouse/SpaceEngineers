@@ -196,6 +196,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyProductionBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_soundEmitter = new MyEntity3DSoundEmitter(this, true);

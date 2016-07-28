@@ -22,6 +22,7 @@ using VRage.ModAPI;
 using VRage.Network;
 using VRage.Utils;
 using VRageMath;
+using VRage.Library;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -80,6 +81,15 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyMotorStator()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_dummyDisplacement = SyncType.CreateAndAddProp<float>(); //<== from base class
+
+            Torque = SyncType.CreateAndAddProp<float>();
+            BrakingTorque = SyncType.CreateAndAddProp<float>();
+            TargetVelocity = SyncType.CreateAndAddProp<float>();
+            m_minAngle = SyncType.CreateAndAddProp<float>();
+            m_maxAngle = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -257,7 +267,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (!m_limitsActive && !(float.IsNegativeInfinity(m_minAngle) && float.IsPositiveInfinity(m_maxAngle)))
                 {
-                    DetailedInfo.Append(Environment.NewLine);
+                    DetailedInfo.Append(MyEnvironment.NewLine);
                     DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorLimitsDisabled));
                 }
             }

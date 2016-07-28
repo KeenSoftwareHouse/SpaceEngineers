@@ -12,20 +12,20 @@ using VRageMath;
 
 namespace Sandbox.Game.Replication
 {
-    public class MySmallObjectPhysicsStateGroup : MyEntityPhysicsStateGroup
+    public class MySmallObjectPhysicsStateGroup : MyEntityPhysicsStateGroupWithSupport
     {
-        static Func<MyEntity, Vector3D, bool> m_positionValidation = ValidatePosition;
-
         public MySmallObjectPhysicsStateGroup(MyEntity entity, IMyReplicable owner)
             : base(entity, owner)
         {
-
+            m_positionValidation = ValidatePosition;
+            FindSupportDelegate = () => MySupportHelper.FindSupportForCharacter(Entity);
         }
 
         public override bool Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
         {
             bool lowPrecisionOrientation = true;
             bool applyWhenReading = true;
+            SetSupport(FindSupportDelegate());
             if (stream.Writing)
             {
                 bool moving = IsMoving(Entity);
@@ -38,14 +38,8 @@ namespace Sandbox.Game.Replication
                 bool moving = stream.ReadBool();
                 // reading
                 SerializeServerVelocities(stream, Entity, MyEntityPhysicsStateGroup.EffectiveSimulationRatio, moving, ref Entity.m_serverLinearVelocity, ref Entity.m_serverAngularVelocity);
-                float positionTolerancy = Math.Max(Entity.PositionComp.MaximalSize * 0.1f, 0.1f);
-                float smallSpeed = 0.1f;
-                if (Entity.m_serverLinearVelocity == Vector3.Zero || Entity.m_serverLinearVelocity.Length() < smallSpeed)
-                {
-                    positionTolerancy = Math.Max(Entity.PositionComp.MaximalSize * 0.5f, 1.0f);
-                }
 
-                applyWhenReading = SerializeServerTransform(stream, Entity, null, moving, timestamp, lowPrecisionOrientation, positionTolerancy,
+                applyWhenReading = SerializeServerTransform(stream, Entity, null, moving, timestamp, lowPrecisionOrientation,
                     ref Entity.m_serverPosition, ref Entity.m_serverOrientation, ref Entity.m_serverWorldMatrix, m_positionValidation);
 
                 if (applyWhenReading && moving)
@@ -61,7 +55,7 @@ namespace Sandbox.Game.Replication
             return true;
         }
 
-        static bool ValidatePosition(MyEntity entity, Vector3D position)
+        bool ValidatePosition(MyEntity entity, Vector3D position)
         {
             float positionTolerancy = Math.Max(entity.PositionComp.MaximalSize * 0.1f, 0.1f);
             float smallSpeed = 0.1f;

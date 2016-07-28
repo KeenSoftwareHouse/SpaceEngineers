@@ -173,18 +173,8 @@ namespace Sandbox.Game.Entities
                     UpdateRenderObject();
                 }
             }
-            else
-            {
-                UpdateToolPosition();
-            }
 
             UpdateDecalPositions();
-        }
-
-
-        public virtual void UpdateToolPosition()
-        {
-
         }
       
         void UpdateContinuingSets()

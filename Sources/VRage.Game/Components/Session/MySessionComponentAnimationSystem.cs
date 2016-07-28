@@ -49,8 +49,10 @@ namespace VRage.Game.SessionComponents
             m_skinnedEntityComponentsToRemove.Clear();
             MySessionComponentAnimationSystem.Static = this;
 
+#if !XB1
             if (!MySessionComponentExtDebug.Static.IsHandlerRegistered(LiveDebugging_ReceivedMessageHandler))
                 MySessionComponentExtDebug.Static.ReceivedMsg += LiveDebugging_ReceivedMessageHandler;
+#endif // !XB1
         }
 
         protected override void UnloadData()
@@ -85,7 +87,9 @@ namespace VRage.Game.SessionComponents
                 skinnedEntityComp.Update();
             ProfilerShort.End();
 
+#if !XB1
             LiveDebugging();
+#endif // !XB1
         }
 
         /// <summary>
@@ -112,6 +116,7 @@ namespace VRage.Game.SessionComponents
 
         // --------------- LIVE DEBUGGING -----------------------------------------------------------------
 
+#if !XB1
         private void LiveDebugging()
         {
             if (Session == null || MySessionComponentExtDebug.Static == null/* || !MySessionComponentExtDebug.Static.HasClients*/)
@@ -280,6 +285,7 @@ namespace VRage.Game.SessionComponents
                 }
             }
         }
+#endif // !XB1
         // --------------------------------------------------------------------------------------------
 
         /// <summary>

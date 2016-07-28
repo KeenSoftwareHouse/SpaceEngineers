@@ -10,6 +10,7 @@ using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRageMath;
+using VRage.Library;
 
 namespace Sandbox.Game.Screens
 {
@@ -61,8 +62,8 @@ namespace Sandbox.Game.Screens
         }
         private void FillData()
         {
-            m_descriptionBox.Text.Clear().Append(MySession.Static.GetWorld().Checkpoint.Briefing).Append(Environment.NewLine).Append(Environment.NewLine);
-            m_descriptionBox.Text.Append(Environment.NewLine).Append(MySessionComponentMissionTriggers.GetProgress(MySession.Static.LocalHumanPlayer));
+            m_descriptionBox.Text.Clear().Append(MySession.Static.GetWorld().Checkpoint.Briefing).Append(MyEnvironment.NewLine).Append(MyEnvironment.NewLine);
+            m_descriptionBox.Text.Append(MyEnvironment.NewLine).Append(MySessionComponentMissionTriggers.GetProgress(MySession.Static.LocalHumanPlayer));
             m_descriptionBox.RefreshText(false);
         }
 

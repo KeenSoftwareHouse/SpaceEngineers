@@ -68,6 +68,9 @@ namespace Sandbox.Game.Entities
 
         public MyAdvancedDoor()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_open = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_subparts.Clear();

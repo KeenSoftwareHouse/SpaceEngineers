@@ -13,7 +13,7 @@ using VRage.Utils;
 
 namespace VRage.Plugins
 {
-#if !UNSHARPER
+#if !XB1 // XB1_ALLINONEASSEMBLY
     public class MyPlugins : IDisposable
     {
         private static List<IPlugin> m_plugins = new List<IPlugin>();
@@ -272,5 +272,5 @@ namespace VRage.Plugins
     }
 
 
-#endif
+#endif // !XB1
 }

@@ -6,6 +6,7 @@ using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
+using System.Diagnostics;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -67,6 +68,7 @@ namespace Sandbox.Graphics.GUI
         public void CreateNewContextMenu()
         {
             Clear();
+            Deactivate();
             CreateContextMenu();
         }
 
@@ -139,7 +141,6 @@ namespace Sandbox.Graphics.GUI
 
         public override MyGuiControlBase HandleInput()
         {
-
             if ((MyInput.Static.IsNewMousePressed(MyMouseButtonsEnum.Left) || MyInput.Static.IsNewMousePressed(MyMouseButtonsEnum.Right)) && Visible && !IsMouseOver)
                 Deactivate();
 

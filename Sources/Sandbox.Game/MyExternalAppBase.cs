@@ -44,7 +44,11 @@ namespace Sandbox.AppCode
 
             if (game == null)
             {
+#if !XB1
                 Static = new MySandboxExternal(this, services, null, windowHandle);
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
             }
             else
             {

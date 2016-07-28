@@ -37,9 +37,29 @@ namespace Sandbox.Game.Entities
             return GetGridRadioReceivers(grid, MySession.Static.LocalPlayerId);
         }
 
+        //Returns radio receivers on <grid> and any logicaly connected grids <playerId> has acces to
         public static HashSet<MyDataReceiver> GetGridRadioReceivers(MyCubeGrid grid, long playerId)
         {
             HashSet<MyDataReceiver> output = new HashSet<MyDataReceiver>();
+
+            var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
+            if (group == null)
+            {
+                CollectRecieversFromGrid(grid, playerId, output);
+            }
+            else
+            {
+                foreach (var node in group.Nodes)
+                {
+                    CollectRecieversFromGrid(node.NodeData, playerId, output);
+                }
+            }
+            return output;
+        }
+
+        //Collects data recievers from single grid <playerId> has acces to
+        private static void CollectRecieversFromGrid(MyCubeGrid grid, long playerId, HashSet<MyDataReceiver> output)
+        {
             foreach (var block in grid.GetFatBlocks())
             {
                 MyDataReceiver receiver;
@@ -53,7 +73,6 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-            return output;
         }
 
         protected HashSet<long> m_relayerGrids = new HashSet<long>();

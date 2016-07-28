@@ -26,15 +26,14 @@ namespace Sandbox.Game.EntityComponents
         public MyCharacter Character { get { return Entity; } }
         public MyCharacterJetpackComponent Jetpack { get { return Character.JetpackComp; } }
 
-        protected override void UpdateThrusts(bool networkUpdate = false)
+        protected override void UpdateThrusts(bool networkUpdate,bool enableDampers)
         {
-            base.UpdateThrusts(networkUpdate);
+            base.UpdateThrusts(networkUpdate, enableDampers);
 
             ProfilerShort.Begin("MyJetpackThrustComponent.UpdateThrusts");
             if (Character != null &&
                 Character.Physics != null &&
-                Jetpack.TurnedOn &&
-                (!Character.ControllerInfo.IsRemotelyControlled() || Sync.IsServer))
+                Jetpack.TurnedOn)
             {
                 if (FinalThrust.LengthSquared() > 0.001f)
                 {

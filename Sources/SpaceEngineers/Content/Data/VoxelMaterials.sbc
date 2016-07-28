@@ -1594,7 +1594,7 @@
       </Id>
       <SpawnsInAsteroids>false</SpawnsInAsteroids>
       <SpawnsFromMeteorites>false</SpawnsFromMeteorites>
-      <MaterialTypeName>Grass</MaterialTypeName>
+      <MaterialTypeName>Sand</MaterialTypeName>
       <MinedOre>Stone</MinedOre>
       <MinedOreRatio>5</MinedOreRatio>
       <CanBeHarvested>true</CanBeHarvested>

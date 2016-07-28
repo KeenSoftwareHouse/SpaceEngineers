@@ -1,4 +1,6 @@
-﻿using Sandbox.Engine.Platform;
+﻿#if !XB1
+
+using Sandbox.Engine.Platform;
 using Sandbox.Engine.Utils;
 using System;
 using System.Collections.Generic;
@@ -191,3 +193,5 @@ namespace Sandbox
         }
     }
 }
+
+#endif

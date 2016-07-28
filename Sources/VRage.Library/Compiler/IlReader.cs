@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOILREADER
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -266,4 +267,5 @@ namespace VRage.Compiler
     }
 #endif
 }
+#endif // !XB1
 

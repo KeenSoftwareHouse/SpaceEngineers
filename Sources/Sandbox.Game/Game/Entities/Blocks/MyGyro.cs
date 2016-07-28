@@ -94,6 +94,11 @@ namespace Sandbox.Game.Entities
 
         public MyGyro()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_gyroPower = SyncType.CreateAndAddProp<float>();
+            m_gyroOverride = SyncType.CreateAndAddProp<bool>();
+            m_gyroOverrideVelocity = SyncType.CreateAndAddProp<Vector3>();
+#endif // XB1
             CreateTerminalControls();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;

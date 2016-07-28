@@ -391,6 +391,7 @@ namespace VRageMath
             return abMin < c ? abMin : c;
         }
 
+#if !XB1
         public static int ComputeHashFromBytes(byte[] bytes)
         {
             int size = bytes.Length;
@@ -412,6 +413,7 @@ namespace VRageMath
                 }
             }
         }
+#endif // !XB1
 
         public static float RoundOn2(float x)
         {

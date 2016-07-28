@@ -1,5 +1,7 @@
 ﻿using ProtoBuf;
+#if !XB1 // XB1_NOPROTOBUF
 using ProtoBuf.Meta;
+#endif //!XB1
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
@@ -82,6 +84,10 @@ namespace Sandbox.Engine.Multiplayer
 
     partial class MyTransportLayer
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         struct Request<T> { }
         struct Success<T> { }
         struct Failure<T> { }
@@ -106,6 +112,9 @@ namespace Sandbox.Engine.Multiplayer
         {
             TypeMap = new Dictionary<Type, Tuple<ushort, P2PMessageEnum>>();
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterFromAssembly(typeof(MyTransportLayer).Assembly);
 
             if (MyPlugins.GameAssembly != null)
@@ -113,11 +122,20 @@ namespace Sandbox.Engine.Multiplayer
 
             if (MyPlugins.UserAssembly != null)
                 RegisterFromAssembly(MyPlugins.UserAssembly);
+#endif // !XB1
         }
 
         static void RegisterFromAssembly(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 var attribute = Attribute.GetCustomAttribute(type, typeof(MessageIdAttribute)) as MessageIdAttribute;
                 if (attribute != null)

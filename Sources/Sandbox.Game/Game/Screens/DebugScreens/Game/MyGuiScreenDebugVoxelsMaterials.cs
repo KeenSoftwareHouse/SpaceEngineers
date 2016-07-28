@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-    #if !XB1_TMP
+    #if !XB1
 
     [MyDebugScreen("Game", "Voxel materials")]
     public class MyGuiScreenDebugVoxelMaterials : MyGuiScreenDebugBase

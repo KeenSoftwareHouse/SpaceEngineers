@@ -14,7 +14,6 @@ namespace Sandbox.Game.Replication
     /// </summary>
     public struct MyCharacterNetState
     {
-        public float WorldRealSpeed;
         public float HeadX;
         public float HeadY;
         public Quaternion Spine;
@@ -27,7 +26,9 @@ namespace Sandbox.Game.Replication
         public bool Ironsight;
         public bool Broadcast;
         public bool TargetFromCamera;
+        public Vector3 Movement;
         public Vector2 Rotation;
         public float Roll;
+        public float Speed;
     }
 }

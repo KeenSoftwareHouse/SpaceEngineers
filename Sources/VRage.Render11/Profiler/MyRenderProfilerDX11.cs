@@ -10,6 +10,7 @@ using VRageRender.Vertex;
 
 namespace VRageRender.Profiler
 {
+#if !XB1 // XB1_NOPROFILER
     class MyRenderProfilerDX11 : MyRenderProfilerRendering
     {
         private MyRenderProfilerLineBatch m_lineBatch;
@@ -65,4 +66,9 @@ namespace VRageRender.Profiler
             //GetRenderProfiler().EndProfilingBlock();
         }
     }
+#else // XB1
+    class MyRenderProfilerDX11 : MyRenderProfilerRendering
+    {
+    }
+#endif // XB1
 }

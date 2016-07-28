@@ -73,7 +73,7 @@ namespace Sandbox.Game.Replication
 
         MyEntityPhysicsStateGroup FindSupport()
         {
-            return MySupportHelper.FindSupport(Instance);
+            return MySupportHelper.FindSupportForCharacter(Instance);
         }
     }
 }

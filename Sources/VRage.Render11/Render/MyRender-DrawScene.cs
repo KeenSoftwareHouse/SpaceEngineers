@@ -5,7 +5,9 @@ using SharpDX.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+#if !XB1 // XB1_NOOPENVRWRAPPER
 using Valve.VR;
+#endif // !XB1
 using System.IO;
 using VRage;
 using VRage.Utils;

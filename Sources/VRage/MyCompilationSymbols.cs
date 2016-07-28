@@ -16,7 +16,12 @@ namespace VRage
 
         public const bool EnableSharpDxObjectTracking = false;
 
+#if XB1
+        //TODO for XB1?
+        public static bool MemoryProfiling = false;
+#else // !XB1
         public static bool MemoryProfiling = IsProfilerAttached();
+#endif // !XB1
 
         public static bool PerformanceOrMemoryProfiling = MemoryProfiling || PerformanceProfiling;
 
@@ -27,6 +32,7 @@ namespace VRage
         // force stereo rendering even when OpenVR is not available
         public const bool DX11ForceStereo = false;
 
+#if !XB1
         /// <summary>
         /// This is reliable, enforced by .NET documentation.
         /// Without this environment variable, CLR won't attach profiler.
@@ -37,5 +43,6 @@ namespace VRage
             var CoreClrProfiling = Environment.GetEnvironmentVariable("coreclr_enable_profiling") ?? String.Empty;
             return CorProfiling.Trim() == "1" || CoreClrProfiling.Trim() == "1";
         }
+#endif // !XB1
     }
 }

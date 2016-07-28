@@ -55,6 +55,10 @@ namespace Sandbox.Game.Entities
 
         public MyReactor()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_remainingPowerCapacity = SyncType.CreateAndAddProp<float>();
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
 			SourceComp = new MyResourceSourceComponent();

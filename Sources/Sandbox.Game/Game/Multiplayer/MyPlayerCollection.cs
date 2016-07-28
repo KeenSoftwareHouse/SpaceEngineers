@@ -591,7 +591,9 @@ namespace Sandbox.Game.Multiplayer
             }
             else
             {
+#if !XB1_NOMULTIPLAYER
                 Sync.Players.CreateNewIdentity(displayName, identiyId, model: null);
+#endif // !XB1_NOMULTIPLAYER
             }
         }
 
@@ -1838,6 +1840,7 @@ namespace Sandbox.Game.Multiplayer
         [Conditional("DEBUG")]
         public void WriteDebugInfo()
         {
+#if !XB1
             var trace = new StackTrace();
             var previousFrame = trace.GetFrame(1);
 
@@ -1859,6 +1862,7 @@ namespace Sandbox.Game.Multiplayer
             {
                 MyTrace.Send(TraceWindow.MultiplayerFiltered, entity.EntityId.ToString("X8"), entity.ToString());
             }
+#endif // !XB1
         }
 
         [Conditional("DEBUG")]

@@ -4,7 +4,11 @@ using System.Diagnostics;
 namespace VRageRender
 {
     [PooledObject]
+#if XB1
+    class MyDepthPass : MyRenderingPass, IMyPooledObjectCleaner
+#else // !XB1
     class MyDepthPass : MyRenderingPass
+#endif // !XB1
     {
         internal DepthStencilView DSV;
         internal RasterizerState DefaultRasterizer;
@@ -137,11 +141,18 @@ namespace VRageRender
             }
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyDepthPass renderPass)
         {
             renderPass.Cleanup();
         }
+#endif // !XB1
 
         internal override void Cleanup()
         {

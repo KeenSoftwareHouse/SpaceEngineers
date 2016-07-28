@@ -84,17 +84,6 @@ namespace Sandbox.Game.Entities.Character
         }
 
 
-        public override void UpdateToolPosition()
-        {
-            //if (m_currentWeapon != null)
-            //{
-            //    if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
-            //    {
-            //        UpdateWeaponPosition();
-            //    }
-            //}
-                }
-
         protected override void CalculateTransforms(float distance)
         {
             ProfilerShort.Begin("MyCharacter.CalculateTransforms");
@@ -235,9 +224,11 @@ namespace Sandbox.Game.Entities.Character
                 Vector3 localSpeedWorldRotUnfiltered = (Physics.CharacterProxy.LinearVelocity - Physics.CharacterProxy.CharacterRigidBody.GroundVelocity) / Sync.RelativeSimulationRatio;
                 var localSpeedWorldRot = FilterLocalSpeed(localSpeedWorldRotUnfiltered);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeed, localSpeedWorldRot.Length());
+            
                 float localSpeedX = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Right);
                 float localSpeedY = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Up);
                 float localSpeedZ = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Forward);
+
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedX, localSpeedX);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedY, localSpeedY);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedZ, localSpeedZ);

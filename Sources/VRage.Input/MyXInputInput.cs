@@ -2,7 +2,7 @@
 
 #region Using
 
-using SharpDX.XInput;
+using XB1Interface;
 
 using System;
 using System.Collections.Generic;
@@ -30,46 +30,131 @@ namespace VRage.Input
 
     public partial class MyXInputInput : IMyInput
     {
-
+        
         private class JoystickHelper
         {
-            public static GamepadButtonFlags[] kArrVRageToXInput = new GamepadButtonFlags[]
+
+            internal enum XInputGamepadButtonFlags
             {
-                GamepadButtonFlags.None,
-                GamepadButtonFlags.DPadLeft,  // Directional pad buttons
-                GamepadButtonFlags.DPadRight,
-                GamepadButtonFlags.DPadUp,
-                GamepadButtonFlags.DPadDown,
-                GamepadButtonFlags.A, // J01 = 5,  // Regular buttons (up to 16)
-                GamepadButtonFlags.B, // J02 = 6,  // If you add new button here, dont forget to change value in MyJoystickConstants
-                GamepadButtonFlags.X, // J03 = 7,
-                GamepadButtonFlags.Y, // J04 = 8,
-                GamepadButtonFlags.LeftShoulder, // J05 = 9,
-                GamepadButtonFlags.RightShoulder, // J06 = 10,
-                GamepadButtonFlags.Back, // J07 = 11,
-                GamepadButtonFlags.Start, // J08 = 12,
-                GamepadButtonFlags.LeftThumb, // J09 = 13,
-                GamepadButtonFlags.RightThumb, // J10 = 14,
-                GamepadButtonFlags.None, // J11 = 15,
-                GamepadButtonFlags.None, // J12 = 16,
-                GamepadButtonFlags.None, // J13 = 17,
-                GamepadButtonFlags.None, // J14 = 18,
-                GamepadButtonFlags.None, // J15 = 19,
-                GamepadButtonFlags.None, // J16 = 20
+                // Summary:
+                //     No documentation.
+                Y = -32768,
+                //
+                // Summary:
+                //     None.
+                None = 0,
+                //
+                // Summary:
+                //      Bitmask of the device digital buttons, as follows. A set bit indicates that
+                //     the corresponding button is pressed. Device buttonBitmask SharpDX.XInput.GamepadButtonFlags.DPadUp
+                //     0x0001 SharpDX.XInput.GamepadButtonFlags.DPadDown 0x0002 SharpDX.XInput.GamepadButtonFlags.DPadLeft
+                //     0x0004 SharpDX.XInput.GamepadButtonFlags.DPadRight 0x0008 SharpDX.XInput.GamepadButtonFlags.Start
+                //     0x0010 SharpDX.XInput.GamepadButtonFlags.Back 0x0020 SharpDX.XInput.GamepadButtonFlags.LeftThumb
+                //     0x0040 SharpDX.XInput.GamepadButtonFlags.RightThumb 0x0080 SharpDX.XInput.GamepadButtonFlags.LeftShoulder
+                //     0x0100 SharpDX.XInput.GamepadButtonFlags.RightShoulder 0x0200 SharpDX.XInput.GamepadButtonFlags.A
+                //     0x1000 SharpDX.XInput.GamepadButtonFlags.B 0x2000 SharpDX.XInput.GamepadButtonFlags.X
+                //     0x4000 SharpDX.XInput.GamepadButtonFlags.Y 0x8000 ? Bits that are set but
+                //     not defined above are reserved, and their state is undefined.
+                DPadUp = 1,
+                //
+                // Summary:
+                //      The current value of the left trigger analog control. The value is between
+                //     0 and 255.
+                DPadDown = 2,
+                //
+                // Summary:
+                //      The current value of the right trigger analog control. The value is between
+                //     0 and 255.
+                DPadLeft = 4,
+                //
+                // Summary:
+                //      Left thumbstick x-axis value. Each of the thumbstick axis members is a signed
+                //     value between -32768 and 32767 describing the position of the thumbstick.
+                //     A value of 0 is centered. Negative values signify down or to the left. Positive
+                //     values signify up or to the right. The constants SharpDX.XInput.Gamepad.LeftThumbDeadZone
+                //     or SharpDX.XInput.Gamepad.RightThumbDeadZone can be used as a positive and
+                //     negative value to filter a thumbstick input.
+                DPadRight = 8,
+                //
+                // Summary:
+                //      Left thumbstick y-axis value. The value is between -32768 and 32767.
+                Start = 16,
+                //
+                // Summary:
+                //      Right thumbstick x-axis value. The value is between -32768 and 32767.
+                Back = 32,
+                //
+                // Summary:
+                //      Right thumbstick y-axis value. The value is between -32768 and 32767.
+                LeftThumb = 64,
+                //
+                // Summary:
+                //     No documentation.
+                RightThumb = 128,
+                //
+                // Summary:
+                //     No documentation.
+                LeftShoulder = 256,
+                //
+                // Summary:
+                //     No documentation.
+                RightShoulder = 512,
+                //
+                // Summary:
+                //     No documentation.
+                A = 4096,
+                //
+                // Summary:
+                //     No documentation.
+                B = 8192,
+                //
+                // Summary:
+                //     No documentation.
+                X = 16384,
+            }
+
+            internal static XInputGamepadButtonFlags[] kArrVRageToXInput = new XInputGamepadButtonFlags[]
+            {
+                XInputGamepadButtonFlags.None,
+                XInputGamepadButtonFlags.DPadLeft,  // Directional pad buttons
+                XInputGamepadButtonFlags.DPadRight,
+                XInputGamepadButtonFlags.DPadUp,
+                XInputGamepadButtonFlags.DPadDown,
+                XInputGamepadButtonFlags.A, // J01 = 5,  // Regular buttons (up to 16)
+                XInputGamepadButtonFlags.B, // J02 = 6,  // If you add new button here, dont forget to change value in MyJoystickConstants
+                XInputGamepadButtonFlags.X, // J03 = 7,
+                XInputGamepadButtonFlags.Y, // J04 = 8,
+                XInputGamepadButtonFlags.LeftShoulder, // J05 = 9,
+                XInputGamepadButtonFlags.RightShoulder, // J06 = 10,
+                XInputGamepadButtonFlags.Back, // J07 = 11,
+                XInputGamepadButtonFlags.Start, // J08 = 12,
+                XInputGamepadButtonFlags.LeftThumb, // J09 = 13,
+                XInputGamepadButtonFlags.RightThumb, // J10 = 14,
+                XInputGamepadButtonFlags.None, // J11 = 15,
+                XInputGamepadButtonFlags.None, // J12 = 16,
+                XInputGamepadButtonFlags.None, // J13 = 17,
+                XInputGamepadButtonFlags.None, // J14 = 18,
+                XInputGamepadButtonFlags.None, // J15 = 19,
+                XInputGamepadButtonFlags.None, // J16 = 20
             };
 
-            static public GamepadButtonFlags VRageToXInput(MyJoystickButtonsEnum button)
+            static public uint VRageToXInput(MyJoystickButtonsEnum button)
             {
-                return kArrVRageToXInput[(byte)button];
+                return (uint)(kArrVRageToXInput[(byte)button]);
             }
 
         }
+        
 
 
 
 
-
-
+        public void AddDefaultControl(MyStringId stringId, MyControl control)
+        {
+#if !XB1_SKIPASSERTFORNOW
+            Debug.Assert(false, "Not implemented!");
+#endif // !XB1_SKIPASSERTFORNOW
+        }
 
 
 
@@ -85,8 +170,8 @@ namespace VRage.Input
 
 
 
-        SharpDX.XInput.State m_previousJoystickState;
-        SharpDX.XInput.State m_actualJoystickState;
+        XB1Interface.XB1Interface.GamepadState m_previousJoystickState;
+        XB1Interface.XB1Interface.GamepadState m_actualJoystickState;
 
         MyMouseState m_actualMouseState;
         MyMouseState m_actualMouseStateRaw;
@@ -216,10 +301,16 @@ namespace VRage.Input
             TakeSnapshot();
         }
 
+#if !XB1
         IntPtr m_windowHandle;
         public void LoadContent(IntPtr windowHandle)
+#else // XB1
+        public void LoadContent()
+#endif // XB1
         {
+#if !XB1
             m_windowHandle = windowHandle;
+#endif // !XB1
             
 
             if (ENABLE_DEVELOPER_KEYS)
@@ -233,10 +324,12 @@ namespace VRage.Input
 
         }
 
+#if !XB1
         public IntPtr WindowHandle
         {
             get { return m_windowHandle; }
         }
+#endif // !XB1
 
         public ListReader<char> TextInput
         {
@@ -313,20 +406,12 @@ namespace VRage.Input
             if (IsJoystickConnected())
             {
                 m_previousJoystickState = m_actualJoystickState;
-                m_actualJoystickState = m_joystick.GetState();
+                m_actualJoystickState = XB1Interface.XB1Interface.GetGamepadState();
 
                 // Always emulating mouse (only controllers here!)
                 {
-                    //var xPos = GetJoystickAxisStateForGameplay(MyJoystickAxesEnum.Xpos);
-                    //var xNeg = -GetJoystickAxisStateForGameplay(MyJoystickAxesEnum.Xneg);
-                    //var yPos = GetJoystickAxisStateForGameplay(MyJoystickAxesEnum.Ypos);
-                    //var yNeg = -GetJoystickAxisStateForGameplay(MyJoystickAxesEnum.Yneg);
-                    //m_absoluteMousePosition.X += (xPos + xNeg) * MyJoystickConstants.JOYSTICK_AS_MOUSE_MULTIPLIER;
-                    //m_absoluteMousePosition.Y += (yPos + yNeg) * MyJoystickConstants.JOYSTICK_AS_MOUSE_MULTIPLIER;
-                    // MyWindowsMouse.SetPosition((int)m_absoluteMousePosition.X, (int)m_absoluteMousePosition.Y);
-
-                    float lx = m_actualJoystickState.Gamepad.LeftThumbX;
-                    float ly = m_actualJoystickState.Gamepad.LeftThumbY;
+                    float lx = m_actualJoystickState.lx;
+                    float ly = m_actualJoystickState.ly;
 
                     float magnitude = (float)Math.Sqrt(lx*lx + ly*ly);
 
@@ -337,11 +422,11 @@ namespace VRage.Input
                     float normalizedMagnitude = 0.0f;
 
                     // check if the controller is outside a circular dead zone
-                    if (magnitude > (m_joystickDeadzone)*32767.0f)
+                    if (magnitude > m_joystickDeadzone)
                     {
-                        if (magnitude > 32767.0f) magnitude = 32767.0f;
+                        if (magnitude > 1.0f) magnitude = 1.0f;
                         magnitude -= m_joystickDeadzone;
-                        normalizedMagnitude = magnitude / (32767.0f - m_joystickDeadzone);
+                        normalizedMagnitude = magnitude / (1.0f - m_joystickDeadzone);
 
                         // Use cubic magnitude to achieve better precision near the dead zone
                         float mult = normalizedMagnitude * normalizedMagnitude * normalizedMagnitude *
@@ -458,7 +543,7 @@ namespace VRage.Input
                 if (dpad)
                     return true;
 
-                if (m_actualJoystickState.Gamepad.Buttons != 0x0)
+                if (m_actualJoystickState.Buttons != 0x0)
                     return true;
             }
             return false;
@@ -468,8 +553,8 @@ namespace VRage.Input
         {
             if (IsJoystickConnected())
             {
-                if ( (m_actualJoystickState.Gamepad.Buttons != 0x0) &&
-                    (m_actualJoystickState.Gamepad.Buttons != m_previousJoystickState.Gamepad.Buttons))
+                if ( (m_actualJoystickState.Buttons != 0x0) &&
+                    (m_actualJoystickState.Buttons != m_previousJoystickState.Buttons))
                     return true;
             }
             return false;
@@ -1044,12 +1129,12 @@ namespace VRage.Input
                 switch (button)
                 {
                     case MyJoystickButtonsEnum.J11:
-                        isPressed = IsGamepadLTriggerPressed(m_actualJoystickState.Gamepad);
+                        isPressed = IsGamepadLTriggerPressed(m_actualJoystickState);
                         break;
                     case MyJoystickButtonsEnum.J12:
-                        isPressed = IsGamepadRTriggerPressed(m_actualJoystickState.Gamepad);
+                        isPressed = IsGamepadRTriggerPressed(m_actualJoystickState);
                         break;
-                    default: isPressed = (m_actualJoystickState.Gamepad.Buttons & JoystickHelper.VRageToXInput(button)) != 0x0; break;
+                    default: isPressed = (m_actualJoystickState.Buttons & JoystickHelper.VRageToXInput(button)) != 0x0; break;
                 }
             }
             if (!isPressed && button == MyJoystickButtonsEnum.None)
@@ -1066,19 +1151,19 @@ namespace VRage.Input
             //if (m_joystickConnected && button != MyJoystickButtonsEnum.None && m_actualJoystickState != null && m_previousJoystickState != null)
             if (IsJoystickConnected() && button != MyJoystickButtonsEnum.None) // && m_actualJoystickState != null && m_previousJoystickState != null)
             {
-                GamepadButtonFlags flags = JoystickHelper.VRageToXInput(button);
+                uint flags = JoystickHelper.VRageToXInput(button);
                 switch (button)
                 {
                     case MyJoystickButtonsEnum.J11:
-                        isNewPressed = IsGamepadLTriggerPressed(m_actualJoystickState.Gamepad) &&
-                            (!IsGamepadLTriggerPressed(m_previousJoystickState.Gamepad));
+                        isNewPressed = IsGamepadLTriggerPressed(m_actualJoystickState) &&
+                            (!IsGamepadLTriggerPressed(m_previousJoystickState));
                         break;
                     case MyJoystickButtonsEnum.J12:
-                        isNewPressed = IsGamepadRTriggerPressed(m_actualJoystickState.Gamepad) &&
-                            (!IsGamepadRTriggerPressed(m_previousJoystickState.Gamepad));
+                        isNewPressed = IsGamepadRTriggerPressed(m_actualJoystickState) &&
+                            (!IsGamepadRTriggerPressed(m_previousJoystickState));
                         break;
-                    default: isNewPressed = ((m_actualJoystickState.Gamepad.Buttons & flags) != 0x0) &&
-                        ((m_previousJoystickState.Gamepad.Buttons & flags) == 0x0); break;
+                    default: isNewPressed = ((m_actualJoystickState.Buttons & flags) != 0x0) &&
+                        ((m_previousJoystickState.Buttons & flags) == 0x0); break;
                 }
             }
             if (!isNewPressed && button == MyJoystickButtonsEnum.None)
@@ -1094,20 +1179,20 @@ namespace VRage.Input
             //if (m_joystickConnected && button != MyJoystickButtonsEnum.None && m_actualJoystickState != null && m_previousJoystickState != null)
             if (IsJoystickConnected() && button != MyJoystickButtonsEnum.None) // && m_actualJoystickState != null && m_previousJoystickState != null)
             {
-                GamepadButtonFlags flags = JoystickHelper.VRageToXInput(button);
+                uint flags = JoystickHelper.VRageToXInput(button);
                 switch (button)
                 {
                     case MyJoystickButtonsEnum.J11:
-                        isReleased = (!IsGamepadLTriggerPressed(m_actualJoystickState.Gamepad)) &&
-                            IsGamepadLTriggerPressed(m_previousJoystickState.Gamepad);
+                        isReleased = (!IsGamepadLTriggerPressed(m_actualJoystickState)) &&
+                            IsGamepadLTriggerPressed(m_previousJoystickState);
                         break;
                     case MyJoystickButtonsEnum.J12:
-                        isReleased = (!IsGamepadRTriggerPressed(m_actualJoystickState.Gamepad)) &&
-                            IsGamepadRTriggerPressed(m_previousJoystickState.Gamepad);
+                        isReleased = (!IsGamepadRTriggerPressed(m_actualJoystickState)) &&
+                            IsGamepadRTriggerPressed(m_previousJoystickState);
                         break;
                     //default: isReleased = ((m_actualJoystickState.IsReleased((int)button - 5)) && (m_previousJoystickState.IsPressed((int)button - 5))); break;
-                    default: isReleased = ((m_actualJoystickState.Gamepad.Buttons & flags) == 0x0) &&
-                        ((m_previousJoystickState.Gamepad.Buttons & flags) != 0x0); break;
+                    default: isReleased = ((m_actualJoystickState.Buttons & flags) == 0x0) &&
+                        ((m_previousJoystickState.Buttons & flags) != 0x0); break;
                 }
             }
             if (!isReleased && button == MyJoystickButtonsEnum.None)
@@ -1123,17 +1208,17 @@ namespace VRage.Input
             //if (m_joystickConnected && button != MyJoystickButtonsEnum.None && m_actualJoystickState != null)
             if (IsJoystickConnected() && button != MyJoystickButtonsEnum.None) // && m_actualJoystickState != null && m_previousJoystickState != null)
             {
-                GamepadButtonFlags flags = JoystickHelper.VRageToXInput(button);
+                uint flags = JoystickHelper.VRageToXInput(button);
                 switch (button)
                 {
                     case MyJoystickButtonsEnum.J11:
-                        isReleased = !IsGamepadLTriggerPressed(m_actualJoystickState.Gamepad);
+                        isReleased = !IsGamepadLTriggerPressed(m_actualJoystickState);
                         break;
                     case MyJoystickButtonsEnum.J12:
-                        isReleased = !IsGamepadRTriggerPressed(m_actualJoystickState.Gamepad);
+                        isReleased = !IsGamepadRTriggerPressed(m_actualJoystickState);
                         break;
                     //default: isReleased = m_actualJoystickState.IsReleased((int)button - 5); break;
-                    default: isReleased = (m_actualJoystickState.Gamepad.Buttons & flags) == 0x0; break;
+                    default: isReleased = (m_actualJoystickState.Buttons & flags) == 0x0; break;
                 }
             }
             if (!isReleased && button == MyJoystickButtonsEnum.None)
@@ -1150,17 +1235,17 @@ namespace VRage.Input
             //if (m_joystickConnected && button != MyJoystickButtonsEnum.None && m_previousJoystickState != null)
             if (IsJoystickConnected() && button != MyJoystickButtonsEnum.None)
             {
-                GamepadButtonFlags flags = JoystickHelper.VRageToXInput(button);
+                uint flags = JoystickHelper.VRageToXInput(button);
                 switch (button)
                 {
                     case MyJoystickButtonsEnum.J11:
-                        wasPressed = IsGamepadLTriggerPressed(m_previousJoystickState.Gamepad);
+                        wasPressed = IsGamepadLTriggerPressed(m_previousJoystickState);
                         break;
                     case MyJoystickButtonsEnum.J12:
-                        wasPressed = IsGamepadRTriggerPressed(m_previousJoystickState.Gamepad);
+                        wasPressed = IsGamepadRTriggerPressed(m_previousJoystickState);
                         break;
                     //default: wasPressed = (m_previousJoystickState.Buttons[(int)button - 5]); break;
-                    default: wasPressed = (m_previousJoystickState.Gamepad.Buttons & flags) != 0x0; break;
+                    default: wasPressed = (m_previousJoystickState.Buttons & flags) != 0x0; break;
                 }
             }
             if (!wasPressed && button == MyJoystickButtonsEnum.None)
@@ -1177,17 +1262,17 @@ namespace VRage.Input
             //if (m_joystickConnected && button != MyJoystickButtonsEnum.None && m_previousJoystickState != null)
             if (IsJoystickConnected() && button != MyJoystickButtonsEnum.None)
             {
-                GamepadButtonFlags flags = JoystickHelper.VRageToXInput(button);
+                uint flags = JoystickHelper.VRageToXInput(button);
                 switch (button)
                 {
                     case MyJoystickButtonsEnum.J11:
-                        wasReleased = !IsGamepadLTriggerPressed(m_previousJoystickState.Gamepad);
+                        wasReleased = !IsGamepadLTriggerPressed(m_previousJoystickState);
                         break;
                     case MyJoystickButtonsEnum.J12:
-                        wasReleased = !IsGamepadRTriggerPressed(m_previousJoystickState.Gamepad);
+                        wasReleased = !IsGamepadRTriggerPressed(m_previousJoystickState);
                         break;
                     //default: wasReleased = (m_previousJoystickState.IsReleased((int)button - 5)); break;
-                    default: wasReleased = (m_previousJoystickState.Gamepad.Buttons & flags) == 0x0; break;
+                    default: wasReleased = (m_previousJoystickState.Buttons & flags) == 0x0; break;
                 }
             }
             if (!wasReleased && button == MyJoystickButtonsEnum.None)
@@ -1201,9 +1286,9 @@ namespace VRage.Input
 
         #region Joystick axis States
 
-        private float ConputeJoystickAxisStateRaw(SharpDX.XInput.State padState, MyJoystickAxesEnum axis)
+        private float ComputeJoystickAxisState(XB1Interface.XB1Interface.GamepadState padState, MyJoystickAxesEnum axis)
         {
-            int value = 0;
+            float value = 0.0f;
             if (IsJoystickConnected() && IsJoystickAxisSupported(axis))
             {
                 
@@ -1211,86 +1296,28 @@ namespace VRage.Input
                 {
                         
                     case MyJoystickAxesEnum.RotationXpos:
-                    case MyJoystickAxesEnum.RotationXneg: value = padState.Gamepad.RightThumbX; break;
+                    case MyJoystickAxesEnum.RotationXneg: value = padState.rx; break;
                     case MyJoystickAxesEnum.RotationYpos:
-                    case MyJoystickAxesEnum.RotationYneg: value = -padState.Gamepad.RightThumbY; break;
-
-                    /*case MyJoystickAxesEnum.RotationZpos:
-                    case MyJoystickAxesEnum.RotationZneg: value = padState.RotationZ; break; */
-
+                    case MyJoystickAxesEnum.RotationYneg: value = -padState.ry; break;
                     case MyJoystickAxesEnum.Xpos:
-                    case MyJoystickAxesEnum.Xneg: value = padState.Gamepad.LeftThumbX; break;
+                    case MyJoystickAxesEnum.Xneg: value = padState.lx; break;
                     case MyJoystickAxesEnum.Ypos:
-                    case MyJoystickAxesEnum.Yneg: value = -padState.Gamepad.LeftThumbY; break;
+                    case MyJoystickAxesEnum.Yneg: value = -padState.ly; break;
 
                 }
                  
             }
-
-            return (value + 32768);
-        }
-
-        //  Find out how much a specific joystick axis is pressed.
-        //  Return a raw number between 0 and 65535. 32768 is the middle value.
-        public float GetJoystickAxisStateRaw(MyJoystickAxesEnum axis)
-        {
-            return ConputeJoystickAxisStateRaw(m_actualJoystickState, axis);
-        }
-
-        public float GetPreviousJoystickAxisStateRaw(MyJoystickAxesEnum axis)
-        {
-            return ConputeJoystickAxisStateRaw(m_previousJoystickState, axis);
+            return value;
         }
 
 
-        public float GetJoystickX()
-        {
-            return GetJoystickAxisStateRaw(MyJoystickAxesEnum.Xpos);
-        }
-
-        public float GetJoystickY()
-        {
-            return GetJoystickAxisStateRaw(MyJoystickAxesEnum.Ypos);
-        }
-
-
-        //  Find out how much a specific joystick half-axis is pressed.
-        //  Return a number between 0 and 1 (taking deadzone, sensitivity and non-linearity into account).
-        public float GetJoystickAxisStateForGameplay(MyJoystickAxesEnum axis)
+        private float ComputeJoystickAxisStateForGameplay(XB1Interface.XB1Interface.GamepadState padState, MyJoystickAxesEnum axis)
         {
             if (IsJoystickConnected() && IsJoystickAxisSupported(axis))
             {
                 // Input position scaled to (-1..1).
-                float position = ((float)GetJoystickAxisStateRaw(axis) - (float)MyJoystickConstants.CENTER_AXIS) / (float)MyJoystickConstants.CENTER_AXIS;
-
-                switch (axis)
-                {
-                    case MyJoystickAxesEnum.RotationXneg:
-                    case MyJoystickAxesEnum.Xneg:
-                    case MyJoystickAxesEnum.RotationYneg:
-                    case MyJoystickAxesEnum.Yneg:
-                    case MyJoystickAxesEnum.RotationZneg:
-                    case MyJoystickAxesEnum.Zneg:
-                    case MyJoystickAxesEnum.Slider1neg:
-                    case MyJoystickAxesEnum.Slider2neg:
-                        if (position >= 0) return 0;
-                        break;
-                    case MyJoystickAxesEnum.RotationXpos:
-                    case MyJoystickAxesEnum.Xpos:
-                    case MyJoystickAxesEnum.RotationYpos:
-                    case MyJoystickAxesEnum.Ypos:
-                    case MyJoystickAxesEnum.RotationZpos:
-                    case MyJoystickAxesEnum.Zpos:
-                    case MyJoystickAxesEnum.Slider1pos:
-                    case MyJoystickAxesEnum.Slider2pos:
-                        if (position <= 0) return 0;
-                        break;
-                    default:
-                        MyDebug.AssertDebug(false, "Unknown joystick axis!");
-                        break;
-                }
-
-                float distance = Math.Abs(position);
+                float position = ComputeJoystickAxisState(padState, axis);
+                float distance = (((int)axis) % 2 != 0) ? position : -position; // even -> neg axis
                 if (distance > m_joystickDeadzone)
                 {
                     distance = (distance - m_joystickDeadzone) / (1 - m_joystickDeadzone);  // Rescale distance to (0..1) outside the deadzone.
@@ -1298,55 +1325,26 @@ namespace VRage.Input
                 }
             }
 
-            return 0;
+            return 0.0f;
+        }
+
+        
+        //  Find out how much a specific joystick half-axis is pressed.
+        //  Return a number between 0 and 1 (taking deadzone, sensitivity and non-linearity into account).
+        public float GetJoystickAxisStateForGameplay(MyJoystickAxesEnum axis)
+        {
+            return ComputeJoystickAxisStateForGameplay(m_actualJoystickState, axis);
         }
 
         //  Find out how much a specific joystick half-axis is pressed.
         //  Return a number between 0 and 1 (taking deadzone, sensitivity and non-linearity into account).
         public float GetPreviousJoystickAxisStateForGameplay(MyJoystickAxesEnum axis)
         {
-            if (IsJoystickConnected() && IsJoystickAxisSupported(axis))
-            {
-                // Input position scaled to (-1..1).
-                float position = ((float)GetPreviousJoystickAxisStateRaw(axis) - (float)MyJoystickConstants.CENTER_AXIS) / (float)MyJoystickConstants.CENTER_AXIS;
-
-                switch (axis)
-                {
-                    case MyJoystickAxesEnum.RotationXneg:
-                    case MyJoystickAxesEnum.Xneg:
-                    case MyJoystickAxesEnum.RotationYneg:
-                    case MyJoystickAxesEnum.Yneg:
-                    case MyJoystickAxesEnum.RotationZneg:
-                    case MyJoystickAxesEnum.Zneg:
-                    case MyJoystickAxesEnum.Slider1neg:
-                    case MyJoystickAxesEnum.Slider2neg:
-                        if (position >= 0) return 0;
-                        break;
-                    case MyJoystickAxesEnum.RotationXpos:
-                    case MyJoystickAxesEnum.Xpos:
-                    case MyJoystickAxesEnum.RotationYpos:
-                    case MyJoystickAxesEnum.Ypos:
-                    case MyJoystickAxesEnum.RotationZpos:
-                    case MyJoystickAxesEnum.Zpos:
-                    case MyJoystickAxesEnum.Slider1pos:
-                    case MyJoystickAxesEnum.Slider2pos:
-                        if (position <= 0) return 0;
-                        break;
-                    default:
-                        MyDebug.AssertDebug(false, "Unknown joystick axis!");
-                        break;
-                }
-
-                float distance = Math.Abs(position);
-                if (distance > m_joystickDeadzone)
-                {
-                    distance = (distance - m_joystickDeadzone) / (1 - m_joystickDeadzone);  // Rescale distance to (0..1) outside the deadzone.
-                    return m_joystickSensitivity * (float)Math.Pow(distance, m_joystickExponent);
-                }
-            }
-
-            return 0;
+            return ComputeJoystickAxisStateForGameplay(m_previousJoystickState, axis);
         }
+
+
+
 
         #region Joystick analog axes used for digital controls
 
@@ -1623,42 +1621,42 @@ namespace VRage.Input
 
         public bool IsGamepadKeyRightPressed()
         {
-            return (m_actualJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0x0;
+            return (m_actualJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadRight)) != 0x0;
         }
 
         public bool IsGamepadKeyLeftPressed()
         {
-            return (m_actualJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0x0;
+            return (m_actualJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadLeft)) != 0x0;
         }
 
         public bool IsGamepadKeyDownPressed()
         {
-            return (m_actualJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadDown) != 0x0;
+            return (m_actualJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadDown)) != 0x0;
         }
 
         public bool IsGamepadKeyUpPressed()
         {
-            return (m_actualJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadUp) != 0x0;
+            return (m_actualJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadUp)) != 0x0;
         }
 
         public bool WasGamepadKeyRightPressed()
         {
-            return (m_previousJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadRight) != 0x0;
+            return (m_previousJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadRight)) != 0x0;
         }
 
         public bool WasGamepadKeyLeftPressed()
         {
-            return (m_previousJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadLeft) != 0x0;
+            return (m_previousJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadLeft)) != 0x0;
         }
 
         public bool WasGamepadKeyDownPressed()
         {
-            return (m_previousJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadDown) != 0x0;
+            return (m_previousJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadDown)) != 0x0;
         }
 
         public bool WasGamepadKeyUpPressed()
         {
-            return (m_previousJoystickState.Gamepad.Buttons & GamepadButtonFlags.DPadUp) != 0x0;
+            return (m_previousJoystickState.Buttons & (uint)(JoystickHelper.XInputGamepadButtonFlags.DPadUp)) != 0x0;
         }
 
 
@@ -1681,7 +1679,7 @@ namespace VRage.Input
             }
 
 
-            Gamepad gamepad = m_actualJoystickState.Gamepad;
+            XB1Interface.XB1Interface.GamepadState gamepad = m_actualJoystickState;
 
             
 
@@ -1696,15 +1694,15 @@ namespace VRage.Input
             if (IsJoystickAxisSupported(MyJoystickAxesEnum.Slider2pos)) text.Append("S2 ");
             text.AppendLine();
 
-            text.Append("rotX: "); text.AppendInt32(gamepad.RightThumbX); text.AppendLine();
-            text.Append("rotY: "); text.AppendInt32(gamepad.RightThumbY); text.AppendLine();
-            text.Append("X: "); text.AppendInt32(gamepad.LeftThumbX); text.AppendLine();
-            text.Append("Y: "); text.AppendInt32(gamepad.LeftThumbY); text.AppendLine();
+            text.Append("rotX: "); text.AppendDecimal(gamepad.rx, 4); text.AppendLine();
+            text.Append("rotY: "); text.AppendDecimal(gamepad.ry, 4); text.AppendLine();
+            text.Append("X: "); text.AppendDecimal(gamepad.lx, 4); text.AppendLine();
+            text.Append("Y: "); text.AppendDecimal(gamepad.ly, 4); text.AppendLine();
             text.AppendLine();
-            text.Append("Buttons: "); 
-            foreach (GamepadButtonFlags i in Enum.GetValues(typeof(GamepadButtonFlags)))
+            text.Append("Buttons: ");
+            foreach (JoystickHelper.XInputGamepadButtonFlags i in Enum.GetValues(typeof(JoystickHelper.XInputGamepadButtonFlags)))
             {
-                text.Append( (( i & gamepad.Buttons) != 0) ? "#" : "_");
+                text.Append( (( (uint)(i) & gamepad.Buttons) != 0) ? "#" : "_");
                 text.Append(" ");
             } text.AppendLine();
             
@@ -1735,14 +1733,14 @@ namespace VRage.Input
             }
         }
 
-        private bool IsGamepadRTriggerPressed( Gamepad pad, byte threshold = 30)
+        private bool IsGamepadRTriggerPressed(XB1Interface.XB1Interface.GamepadState pad, float threshold = 0.2f)
         {
-            return pad.RightTrigger >= threshold;
+            return pad.rt >= threshold;
         }
 
-        private bool IsGamepadLTriggerPressed(Gamepad pad, byte threshold = 30)
+        private bool IsGamepadLTriggerPressed(XB1Interface.XB1Interface.GamepadState pad, float threshold = 0.2f)
         {
-            return pad.LeftTrigger >= threshold;
+            return pad.lt >= threshold;
         }
 
         private MyStringId m_SPRINT_SID = MyStringId.GetOrCompute("SPRINT");

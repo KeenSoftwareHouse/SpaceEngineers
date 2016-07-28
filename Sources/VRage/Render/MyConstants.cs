@@ -2,6 +2,7 @@
 using System.Linq;
 using VRageMath;
 using VRageRender.Textures;
+using VRage.Library;
 
 namespace VRageRender
 {
@@ -133,7 +134,7 @@ namespace VRageRender
         public const int RENDER_STEP_IN_MILLISECONDS = (int)(1000.0f / 60.0f);
         public const float RENDER_STEP_IN_SECONDS = RENDER_STEP_IN_MILLISECONDS / 1000.0f;
 
-        public static readonly int MAX_RENDER_ELEMENTS_COUNT = Environment.Is64BitProcess ? 2 * 65536 : 2 * 32768;
+        public static readonly int MAX_RENDER_ELEMENTS_COUNT = MyEnvironment.Is64BitProcess ? 2 * 65536 : 2 * 32768;
         public static readonly int DEFAULT_RENDER_MODULE_PRIORITY = 100;
         public static readonly int SPOT_SHADOW_RENDER_TARGET_COUNT = 16;
         public static readonly int ENVIRONMENT_MAP_SIZE = 128;

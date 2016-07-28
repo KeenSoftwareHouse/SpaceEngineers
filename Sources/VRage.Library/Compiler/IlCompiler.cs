@@ -18,7 +18,7 @@ using System.Diagnostics;
 
 namespace VRage.Compiler
 {
-#if UNSHARPER
+#if XB1
 	[Unsharper.UnsharperDisableReflection()]
 	public class IlCompiler
 	{

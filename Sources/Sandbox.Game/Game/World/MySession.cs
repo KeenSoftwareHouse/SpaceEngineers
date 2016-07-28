@@ -154,6 +154,7 @@ namespace Sandbox.Game.World
         public bool EnableFlora { get { return Settings.EnableFlora; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
+        public short MaxBackupSaves { get { return Settings.MaxBackupSaves; } }
         public float InventoryMultiplier { get { return Settings.InventorySizeMultiplier; } }
         public float RefinerySpeedMultiplier { get { return Settings.RefinerySpeedMultiplier; } }
         public float AssemblerSpeedMultiplier { get { return Settings.AssemblerSpeedMultiplier; } }
@@ -223,6 +224,7 @@ namespace Sandbox.Game.World
         }
 
         public Dictionary<long, MyChatHistory> ChatHistory = new Dictionary<long, MyChatHistory>();
+        public MyChatHistory GlobalChatHistory = new MyChatHistory(0);
         public GameSystems.MyChatSystem ChatSystem = new GameSystems.MyChatSystem();
         public List<MyFactionChatHistory> FactionChatHistory = new List<MyFactionChatHistory>();
 
@@ -512,7 +514,9 @@ namespace Sandbox.Game.World
 
             GC.Collect(2, GCCollectionMode.Forced);
             MySandboxGame.Log.WriteLine(String.Format("GC Memory: {0} B", GC.GetTotalMemory(false).ToString("##,#")));
+#if !XB1
             MySandboxGame.Log.WriteLine(String.Format("Process Memory: {0} B", Process.GetCurrentProcess().PrivateMemorySize64.ToString("##,#")));
+#endif // !XB1
 
             this.GameFocusManager = new MyGameFocusManager();
 
@@ -2268,6 +2272,9 @@ namespace Sandbox.Game.World
         static ulong GetVoxelsSizeInBytes(string sessionPath)
         {
             ulong size = 0;
+//NotYet #if XB1
+//NotYet            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+//NotYet #else // !XB1
             foreach (var voxelFile in Directory.GetFiles(sessionPath, "*" + MyVoxelConstants.FILE_EXTENSION, SearchOption.TopDirectoryOnly))
             {
                 using (var fileStream = MyFileSystem.OpenRead(voxelFile))
@@ -2275,6 +2282,7 @@ namespace Sandbox.Game.World
                     size += (ulong)fileStream.Length;
                 }
             }
+//NotYet #endif // !XB1
             return size;
         }
 

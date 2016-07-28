@@ -1,4 +1,4 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
 using System.Threading;
 using System.Diagnostics;
 
@@ -110,3 +110,4 @@ namespace ProtoBuf
 
     }
 }
+#endif // !XB1

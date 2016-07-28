@@ -75,12 +75,16 @@ namespace Sandbox.Game.World
 
             foreach (var ass in Scripts.Values)
             {
+#if XB1 // XB1_ALLINONEASSEMBLY
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
                 if (MyFakes.ENABLE_TYPES_FROM_MODS) // Highly experimental!
                 {
                     MyGlobalTypeMetadata.Static.RegisterAssembly(ass);
                 }
 
                 MySandboxGame.Log.WriteLine(string.Format("Script loaded: {0}", ass.FullName));
+#endif // !XB1
             }
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MyScriptManager.LoadData() - END");
@@ -91,7 +95,9 @@ namespace Sandbox.Game.World
         private void LoadScripts(string path, MyModContext mod = null)
         {
 #if XB1
+#if !XB1_SKIPASSERTFORNOW
 			System.Diagnostics.Debug.Assert(false, "Unsupported runtime script compilation on XB1.");
+#endif // !XB1_SKIPASSERTFORNOW
 #else
             if (!MyFakes.ENABLE_SCRIPTS)
                 return;
@@ -212,6 +218,9 @@ namespace Sandbox.Game.World
 
         private void AddAssembly(MyModContext context, MyStringId myStringId, Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
             if (Scripts.ContainsKey(myStringId))
             {
                 MySandboxGame.Log.WriteLine(string.Format("Script already in list {0}", myStringId.ToString()));
@@ -234,10 +243,14 @@ namespace Sandbox.Game.World
             }
             TryAddEntityScripts(context, assembly);
             AddStatScripts(assembly);
+#endif // !XB1
         }
 
         private void TryAddEntityScripts(MyModContext context, Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
             var gameLogicType = typeof(MyGameLogicComponent);
             var builderType = typeof(MyObjectBuilder_Base);
             foreach (var type in assembly.GetTypes())
@@ -292,10 +305,14 @@ namespace Sandbox.Game.World
                     }
                 }
             }
+#endif // !XB1
         }
 
 		private void AddStatScripts(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#else // !XB1
 			var logicType = typeof(MyStatLogic);
             foreach (var type in assembly.GetTypes())
             {
@@ -311,10 +328,15 @@ namespace Sandbox.Game.World
 					}
 				}
 			}
+#endif // !XB1
 		}
 
         public bool CompileIngameScript(MyStringId id, StringBuilder errors)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+            return false;
+#else // !XB1
             // TODO: Not in use. Remove when Roslyn scripts are activated
 
             if (!MyFakes.ENABLE_SCRIPTS)
@@ -337,6 +359,7 @@ namespace Sandbox.Game.World
                 }
             }
             return false;
+#endif // !XB1
 
         }
 
@@ -348,6 +371,10 @@ namespace Sandbox.Game.World
 
         private bool CallScriptInternal(string message)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+            return false;
+#else // !XB1
             Assembly ass;
             if (IlCompiler.Buffer.Length > 0)
             {
@@ -431,6 +458,7 @@ namespace Sandbox.Game.World
                 return true;
             }
             return false;
+#endif // !XB1
         }
 
         protected void UnloadData()

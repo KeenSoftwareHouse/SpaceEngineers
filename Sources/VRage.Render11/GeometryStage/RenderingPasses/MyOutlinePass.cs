@@ -9,7 +9,11 @@ namespace VRageRender
     };
 
     [PooledObject]
+#if XB1
+    class MyOutlinePass : MyRenderingPass, IMyPooledObjectCleaner
+#else // !XB1
     class MyOutlinePass : MyRenderingPass
+#endif // !XB1
     {
         internal static MyOutlinePass Instance = new MyOutlinePass();
 
@@ -170,11 +174,18 @@ namespace VRageRender
             RC.EndProfilingBlock();
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyOutlinePass renderPass)
         {
             renderPass.Cleanup();
         }
+#endif // !XB1
 
         internal override void Cleanup()
         {

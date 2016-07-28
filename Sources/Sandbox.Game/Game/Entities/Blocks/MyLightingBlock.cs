@@ -400,6 +400,15 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyLightingBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_blinkIntervalSeconds = SyncType.CreateAndAddProp<float>();
+            m_blinkLength = SyncType.CreateAndAddProp<float>();
+            m_blinkOffset = SyncType.CreateAndAddProp<float>();
+            m_intesity = SyncType.CreateAndAddProp<float>();
+            m_lightColor = SyncType.CreateAndAddProp<Color>();
+            m_lightRadius = SyncType.CreateAndAddProp<float>();
+            m_lightFalloff = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             this.Render = new MyRenderComponentLight();

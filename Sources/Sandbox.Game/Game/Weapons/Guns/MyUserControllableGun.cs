@@ -30,6 +30,9 @@ namespace Sandbox.Game.Weapons
 
         public MyUserControllableGun()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isShooting = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_isShooting.ValueChanged += (x) => ShootingChanged();

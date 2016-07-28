@@ -32,6 +32,7 @@ namespace VRage.Trace
         static Dictionary<int, ITrace> m_traces;
         static MyNullTrace m_nullTrace = new MyNullTrace();
 
+#if !XB1
         [Conditional("DEBUG")]
         public static void Init(InitTraceHandler handler)
         {
@@ -65,6 +66,7 @@ namespace VRage.Trace
         {
             return MyWintraceWrapper.CreateTrace(traceId, traceName);
         }
+#endif // !XB1
 
         [Conditional("DEBUG")]
         public static void Watch(string name, object value)

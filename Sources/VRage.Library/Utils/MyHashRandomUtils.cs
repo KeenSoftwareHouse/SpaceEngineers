@@ -80,8 +80,12 @@ namespace VRage.Library.Utils
             results.AppendFormat("Min/Max/Avg: {0}/{1}/{2}\n", min, max, avg);
             results.AppendFormat("Std dev: {0}\n", stddev);
 
+#if !XB1
             File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "perf.log"),
                 results.ToString());
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
     }
 }

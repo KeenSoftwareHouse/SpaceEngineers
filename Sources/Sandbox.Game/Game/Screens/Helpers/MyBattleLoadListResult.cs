@@ -39,8 +39,10 @@ namespace Sandbox.Game.Screens.Helpers
         // World info for map type SAVE and OFFICIAL
         public MyWorldInfo WorldInfo;
 
+#if !XB1 // XB1_NOWORKSHOP
         // Subscribed info for type SUBSCRIBED.
         public MySteamWorkshop.SubscribedItem SubscribedWorld;
+#endif // !XB1
         public ulong BattlePoints;
     }
 

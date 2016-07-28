@@ -60,6 +60,9 @@ namespace Sandbox.Game.Entities
 
         public MyCameraBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_syncFov = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_syncFov.ValueChanged += (x) => OnSyncFov();

@@ -25,6 +25,7 @@ namespace Sandbox.Game.AI.BehaviorTree
         #region InterOp
         private IntPtr m_toolWindowHandle = IntPtr.Zero;
 
+#if !XB1
         public bool TryGetValidToolWindow(out IntPtr windowHandle)
         {
             windowHandle = IntPtr.Zero;
@@ -67,6 +68,7 @@ namespace Sandbox.Game.AI.BehaviorTree
             }
             WinApi.PostMessage(m_toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_END_SENDING_DATA, IntPtr.Zero, IntPtr.Zero);
         }
+#endif // !XB1
         #endregion
       
         public const int UPDATE_COUNTER = 10;
@@ -173,6 +175,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
                         if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION && DebugBot == data.Bot && !DebugBreakDebugging && MyDebugDrawSettings.DEBUG_DRAW_BOTS)
                         {
+#if !XB1
                             VRage.ProfilerShort.Begin("Sending debug data");
                             if (TryGetValidToolWindow(out m_toolWindowHandle))
                             {
@@ -182,6 +185,7 @@ namespace Sandbox.Game.AI.BehaviorTree
                                 SendDataToTool(data.Bot, data.Bot.BotMemory.CurrentTreeBotMemory);
                             }
                             VRage.ProfilerShort.End();
+#endif // !XB1
                         }
                     }
                 }

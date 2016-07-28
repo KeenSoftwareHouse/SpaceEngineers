@@ -17,7 +17,9 @@ using VRage.Serialization;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 
 using Sandbox.Definitions;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRageMath;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;

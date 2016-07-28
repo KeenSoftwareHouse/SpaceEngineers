@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 
 using SharpDX;
 using SharpDX.D3DCompiler;
@@ -767,6 +769,10 @@ namespace VRageRender
 
         private static string ExtendedErrorMessage(string originalCode, string errorMsg)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return "";
+#else // !XB1
             Regex rx = new Regex(@"^(?<fileName>\S*)\((?<lineNo>\d+),\d+\):(?<message>.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             var sb = new StringBuilder();
             var errorLines = errorMsg.Split(new[] { "\n" }, StringSplitOptions.None);
@@ -824,6 +830,7 @@ namespace VRageRender
                 }
             }
             return sb.ToString();
+#endif // !XB1
         }
 
         #endregion

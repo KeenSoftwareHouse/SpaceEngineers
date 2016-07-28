@@ -25,19 +25,46 @@ using VRage.ModAPI;
 using VRage.Network;
 using VRage.Utils;
 using VRageMath;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_LandingGear))]
     public class MyLandingGear : MyFunctionalBlock, IMyLandingGear, ModAPI.IMyLandingGear
     {
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         protected struct State
+#else // XB1
+        protected struct State : IMySetGetMemberDataHelper
+#endif // XB1
         {
             public bool Force;
             public long? OtherEntityId;
             public MyDeltaTransform? MasterToSlave;
             public Vector3? GearPivotPosition;
             public CompressedPositionOrientation? OtherPivot;
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+            public object GetMemberData(MemberInfo m)
+            {
+                if (m.Name == "Force")
+                    return Force;
+                if (m.Name == "OtherEntityId")
+                    return OtherEntityId;
+                if (m.Name == "MasterToSlave")
+                    return MasterToSlave;
+                if (m.Name == "GearPivotPosition")
+                    return GearPivotPosition;
+                if (m.Name == "OtherPivot")
+                    return OtherPivot;
+
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+                return null;
+            }
+#endif // XB1
         }
 
         private MySoundPair m_lockSound;
@@ -115,6 +142,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyLandingGear()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_lockModeSync = SyncType.CreateAndAddProp<LandingGearMode>();
+            m_autoLock = SyncType.CreateAndAddProp<bool>();
+            m_attachedState = SyncType.CreateAndAddProp<State>();
+            m_breakForceSync = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_physicsChangedHandler = new Action<IMyEntity>(PhysicsChanged);

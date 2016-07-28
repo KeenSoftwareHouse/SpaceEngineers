@@ -21102,7 +21102,7 @@
         </BlockVariant>
       </BlockVariants>
       <BlockPairName>Suspension3x3</BlockPairName>
-      <MirroringY>Z</MirroringY>
+      <MirroringY>ZThenOffsetX</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
@@ -21169,8 +21169,8 @@
         </DynamicMode>
       </VoxelPlacement>
       <BlockPairName>Suspension5x5</BlockPairName>
-      <MirroringY>Z</MirroringY>
-      <MirroringZ>Y</MirroringZ>
+      <MirroringY>ZThenOffsetX</MirroringY>
+      <MirroringZ>YThenOffsetX</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
       <PrimarySound>BlockWheel5x5</PrimarySound>

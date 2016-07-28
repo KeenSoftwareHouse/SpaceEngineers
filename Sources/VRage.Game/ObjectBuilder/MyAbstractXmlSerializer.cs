@@ -8,6 +8,9 @@ using System.Xml.Serialization;
 using VRage.Generics;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.Game
 {
@@ -150,7 +153,11 @@ namespace VRage.Game
         private static readonly Dictionary<string, XmlSerializer> m_serializersBySerializedName = new Dictionary<string, XmlSerializer>();
         private static readonly Dictionary<Type, string> m_serializedNameByType = new Dictionary<Type, string>();
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
         private static HashSet<Assembly> m_registeredAssemblies = new HashSet<Assembly>();
+#else // XB1
+        private static bool m_registered = false;
+#endif // XB1
 
         public static void RegisterObSerialzier(Type ob)
         {
@@ -170,10 +177,20 @@ namespace VRage.Game
         public static void RegisterFromAssembly(Assembly assembly)
         {
             if (assembly == null) return;
+#if !XB1 // XB1_ALLINONEASSEMBLY
             if (m_registeredAssemblies.Contains(assembly)) return;
             m_registeredAssemblies.Add(assembly);
+#endif // !XB1
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (Type type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (Type type in assembly.GetTypes())
+#endif // !XB1
             {
                 try
                 {

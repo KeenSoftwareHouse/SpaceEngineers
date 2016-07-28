@@ -18,6 +18,8 @@ using VRageRender;
 
 #if !XB1
 using System.Windows.Forms;
+#else
+using XB1Interface;
 #endif
 
 using System.Drawing;
@@ -33,6 +35,8 @@ using System.Runtime.CompilerServices;
 using VRage.Game;
 using VRage;
 
+
+
 #endregion
 
 namespace SpaceEngineers
@@ -44,22 +48,30 @@ namespace SpaceEngineers
 
         static uint AppId = 244850;
 
+#if !XB1
         //  IMPORTANT: Don't use this for regular game message boxes. It's supposed to be used only when showing exception, errors or other system messages to user.
         public static void MessageBoxWrapper(string caption, string text)
         {
             // No dialogs in autobuild please
             WinApi.MessageBox(new IntPtr(), text, caption, 0);
         }
+#endif // !XB1
 
         //  Main method
         static void Main(string[] args)
         {
+#if XB1
+            XB1Interface.XB1Interface.Init();
+            MyAssembly.Init();
+#endif
             SpaceEngineersGame.SetupBasicGameInfo();
 
             m_startup = new MyCommonProgramStartup(args);
             if (m_startup.PerformReporting()) return;
             m_startup.PerformAutoconnect();
+#if !XB1
             if (!m_startup.CheckSingleInstance()) return;
+#endif // !XB1
             var appDataPath = m_startup.GetAppDataPath();
             MyInitializer.InvokeBeforeRun(AppId, MyPerGameSettings.BasicGameInfo.ApplicationName, appDataPath);
             MyInitializer.InitCheckSum();
@@ -79,7 +91,11 @@ namespace SpaceEngineers
                 }
                 catch(MyRenderException ex)
                 {
+#if !XB1
                     MessageBox.Show(ex.Message);
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "InitializeRender failed");
+#endif // XB1
                     return;
                 }
 

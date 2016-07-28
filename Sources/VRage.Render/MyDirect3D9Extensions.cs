@@ -12,6 +12,7 @@ namespace VRageRender
 {
     static class MyDirect3D9Extensions
     {
+#if !XB1
         /// <summary>
         /// RefCountedPointer must be disposed, that will reduce reference count by one and clean resources correctly
         /// </summary>
@@ -35,6 +36,7 @@ namespace VRageRender
                 return ptr.m_pointer;
             }
         }
+#endif // !XB1
 
         public static void LockAndWrite<T>(this VertexBuffer vb, int vbLockOffset, int vbLockSize, LockFlags vbLockFlags, T[] data, int dataOffset, int dataCount)
             where T : struct
@@ -44,6 +46,7 @@ namespace VRageRender
             vb.Unlock();
         }
 
+#if !XB1
         public static unsafe RefCountedPointer GetSurface(this Texture texture, int level)
         {
             const int GET_SURFACE_LEVEL = 18;
@@ -56,31 +59,33 @@ namespace VRageRender
 #endif
             return new RefCountedPointer(result);
         }
+#endif // !XB1
 
         public static unsafe void SetRenderTarget(this Device device, int index, Texture renderTargetTexture, int level)
         {
+#if XB1
+            Debug.Assert(false);
+#else
             using (var surface = GetSurface(renderTargetTexture, level))
             {
-#if XB1
-			Debug.Assert(false);
-#else
+
                 const int SET_RENDER_TARGET = 37;
                 ((Result)NativeCall<int>.Method<int, IntPtr>(device.NativePointer, SET_RENDER_TARGET, index, surface)).CheckError();
-#endif
 			}
+#endif
         }
 
         public static void SetDepthStencil(this Device device, Texture depthTexture, int level)
         {
-            using (var surface = GetSurface(depthTexture, level))
-            {
 #if XB1
 			Debug.Assert(false);
 #else
+            using (var surface = GetSurface(depthTexture, level))
+            {
                 const int SET_DEPTH_STENCIL = 39;
                 ((Result)NativeCall<int>.Method<IntPtr>(device.NativePointer, SET_DEPTH_STENCIL, surface)).CheckError();
-#endif
 			}
+#endif
         }
     }
 }

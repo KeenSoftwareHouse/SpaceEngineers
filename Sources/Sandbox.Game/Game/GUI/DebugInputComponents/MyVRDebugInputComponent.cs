@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOOPENVRWRAPPER
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -113,3 +114,4 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+#endif // !XB1

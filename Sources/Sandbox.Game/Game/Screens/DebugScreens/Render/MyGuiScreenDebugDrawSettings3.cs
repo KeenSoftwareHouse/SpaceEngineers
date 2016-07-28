@@ -8,7 +8,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "Debug draw settings 3")]
     class MyGuiScreenDebugDrawSettings3 : MyGuiScreenDebugBase
@@ -39,14 +39,15 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddButton(new StringBuilder("Clear decals"), ClearDecals);
 
             AddCheckBox("Debug Particles", () => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES, x => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES = x);
+
+            AddCheckBox("Debug Meteorites Direction", () => MyDebugDrawSettings.DEBUG_DRAW_METEORITS_DIRECTIONS, x => MyDebugDrawSettings.DEBUG_DRAW_METEORITS_DIRECTIONS = x);
         }
 
         static void ClearDecals(MyGuiControlButton button)
         {
             MyRenderProxy.ClearDecals();
         }
+    }
 
 #endif
-
-    }
 }

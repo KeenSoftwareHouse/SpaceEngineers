@@ -828,7 +828,7 @@ namespace Sandbox.Game.GameSystems
             {
                 //most likely comes from packet created before jump
                 MySandboxGame.Log.WriteLine(string.Format("Wrong position packet received, dist={0}, T={1})", Vector3D.Distance(m_grid.PositionComp.GetPosition(), pos), m_jumpTimeLeft));
-                return false;
+               // return false;
             }
             return true;
 

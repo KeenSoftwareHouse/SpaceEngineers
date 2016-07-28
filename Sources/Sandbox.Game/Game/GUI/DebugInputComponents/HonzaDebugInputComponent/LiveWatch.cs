@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -27,3 +29,5 @@ namespace Sandbox.Game.GUI.DebugInputComponents.HonzaDebugInputComponent
         }
     }
 }
+
+#endif

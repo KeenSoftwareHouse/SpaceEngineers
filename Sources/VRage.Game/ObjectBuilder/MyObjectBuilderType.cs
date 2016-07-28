@@ -4,11 +4,18 @@ using System.Diagnostics;
 using System.Reflection;
 using VRage.Plugins;
 using VRage.Reflection;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.ObjectBuilders
 {
     public struct MyObjectBuilderType
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         public static readonly MyObjectBuilderType Invalid = new MyObjectBuilderType(null);
 
         private readonly Type m_type;
@@ -144,7 +151,15 @@ namespace VRage.ObjectBuilders
                 return;
 
             var baseType = typeof(MyObjectBuilder_Base);
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            var types = MyAssembly.GetTypes();
+#else // !XB1
             var types = assembly.GetTypes();
+#endif // !XB1
             Array.Sort(types, FullyQualifiedNameComparer.Default);
             foreach (var type in types)
             {

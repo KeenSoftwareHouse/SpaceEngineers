@@ -708,6 +708,9 @@ namespace Sandbox.Game.Gui
                 button.Visible = button.Enabled = showsGrid;
 
             RefreshSelectedInventoryItem();
+
+            //GR: Do this to return the scrolbar position to zero. Other solution would be to add it to Scrollbar Init but that would cause other bugs so I commented it out for now
+            targetControlList.SetScrollBarPage();
         }
 
         #region Event handling

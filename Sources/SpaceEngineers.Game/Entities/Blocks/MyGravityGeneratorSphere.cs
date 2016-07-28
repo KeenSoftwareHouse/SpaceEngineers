@@ -55,6 +55,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyGravityGeneratorSphere()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_radius = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
             m_radius.ValueChanged += (x) => UpdateFieldShape();
         }

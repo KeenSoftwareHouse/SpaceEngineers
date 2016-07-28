@@ -765,6 +765,8 @@ namespace Sandbox.Game.Entities.Cube
                     m_tmpHelperVerts.Add(GetPointPos(new Vector3I(1, 1, 1), block, applySkeleton));
                     m_tmpHelperVerts.Add(GetPointPos(new Vector3I(1, 1, -1), block, applySkeleton));
                     m_tmpHelperVerts.Add(GetPointPos(new Vector3I(1, -1, 1), block, applySkeleton));
+                    m_tmpHelperVerts.Add(GetPointPos(new Vector3I(1, 0, -1), block, applySkeleton));
+                    m_tmpHelperVerts.Add(GetPointPos(new Vector3I(0, -1, -1), block, applySkeleton));
                     m_tmpHelperVerts.Add(GetPointPos(new Vector3I(-1, 1, 1), block, applySkeleton));
                     m_tmpHelperVerts.Add(GetPointPos(new Vector3I(-1, 1, -1), block, applySkeleton));
                     m_tmpHelperVerts.Add(GetPointPos(new Vector3I(-1, -1, 1), block, applySkeleton));

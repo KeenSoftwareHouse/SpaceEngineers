@@ -3,11 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if !XB1 // XB1_NOOPENVRWRAPPER
 using Valve.VR;
+#endif // !XB1
 using VRageMath;
 
 namespace VRage.OpenVRWrapper
 {
+#if XB1 // XB1_NOOPENVRWRAPPER
+    public enum EVRButtonId
+    {
+        k_EButton_ApplicationMenu = 1,
+        k_EButton_Grip = 2,
+        k_EButton_SteamVR_Touchpad = 32,
+        k_EButton_SteamVR_Trigger = 33,
+    }
+
+    public class ControllerState
+    {
+        public bool IsButtonPressed(EVRButtonId button)
+        {
+            return false;
+        }
+        public bool WasButtonPressed(EVRButtonId button)
+        {
+            return false;
+        }
+        public bool WasButtonReleased(EVRButtonId button)
+        {
+            return false;
+        }
+        public bool GetTouchpadXY(ref Vector2 pos)
+        {
+            return false;
+        }
+    }
+#else // !XB1
     public class ControllerState
     {
         VRControllerState_t m_controllerState;
@@ -67,4 +98,5 @@ namespace VRage.OpenVRWrapper
             return 0;
         }
     }
+#endif // !XB1
 }

@@ -20,12 +20,16 @@ namespace VRage.Input
         }
 
         void LoadData(SerializableDictionary<string, object> controlsGeneral, SerializableDictionary<string, object> controlsButtons);
+#if !XB1
         void LoadContent(IntPtr windowHandle);
 
         IntPtr WindowHandle
         {
             get; 
         }
+#else // XB1
+        void LoadContent();
+#endif // XB1
 
         ListReader<char> TextInput { get; }
 

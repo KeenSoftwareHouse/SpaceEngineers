@@ -59,6 +59,12 @@ namespace VRage.Game
         public short MaxFloatingObjects = 56;
 
         [ProtoMember]
+        [Display(Name = "Max Backup Saves")]
+        [GameRelation(Game.SpaceEngineers)]
+        [Range(0, 1000)]
+        public short MaxBackupSaves = 5;
+
+        [ProtoMember]
         [Display(Name = "Environment hostility")]
         [GameRelation(Game.SpaceEngineers)]
         // Only used in quickstart - Scenarios have there own Settings
@@ -225,7 +231,7 @@ namespace VRage.Game
         public bool EnableOxygen = false;
 
         [ProtoMember]
-        [Display(Name = "Enable oxygen pressurization system")]
+        [Display(Name = "Enable airtightness")]
         [GameRelation(Game.SpaceEngineers)]
         public bool EnableOxygenPressurization = false;
 

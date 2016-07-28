@@ -1,3 +1,4 @@
+#if !XB1 // XB1_NOOPENVRWRAPPER
 //======= Copyright 1996-2014, Valve Corporation, All rights reserved. ========
 //
 // Purpose: This file contains C#/managed code bindings for the OpenVR interfaces
@@ -3382,3 +3383,4 @@ public class Unity
 
 }
 
+#endif // !XB1

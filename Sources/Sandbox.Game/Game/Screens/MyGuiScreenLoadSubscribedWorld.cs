@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOWORKSHOP
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -388,3 +389,4 @@ namespace Sandbox.Game.Gui
 
     }
 }
+#endif // !XB1

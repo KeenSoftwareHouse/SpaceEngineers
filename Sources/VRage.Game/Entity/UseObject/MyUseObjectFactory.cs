@@ -7,6 +7,9 @@ using VRage.FileSystem;
 using VRage.Import;
 using VRage.ModAPI;
 using VRage.Plugins;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.Game.Entity.UseObject
 {
@@ -24,15 +27,23 @@ namespace VRage.Game.Entity.UseObject
     [PreloadRequired]
     public static class MyUseObjectFactory
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         private static Dictionary<string, Type> m_useObjectTypesByDummyName = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         static MyUseObjectFactory()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterAssemblyTypes(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterAssemblyTypes(Assembly.GetExecutingAssembly());
             RegisterAssemblyTypes(MyPlugins.GameAssembly);
             RegisterAssemblyTypes(MyPlugins.SandboxAssembly);
             RegisterAssemblyTypes(MyPlugins.UserAssembly);
             RegisterAssemblyTypes(Assembly.LoadFrom(Path.Combine(MyFileSystem.ExePath, "Sandbox.Game.dll")));
+#endif // !XB1
         }
 
         private static void RegisterAssemblyTypes(Assembly assembly)
@@ -41,7 +52,15 @@ namespace VRage.Game.Entity.UseObject
                 return;
 
             var iMyUseObject = typeof(IMyUseObject);
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 if (!iMyUseObject.IsAssignableFrom(type))
                     continue;

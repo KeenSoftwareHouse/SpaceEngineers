@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
@@ -58,18 +60,26 @@ namespace Sandbox.Graphics.GUI
         }
 
 
+#if XB1
+        //TODO for XB1
+#else // !XB1
         //when changing sites, change WwwLinkNotAllowed accordingly. Also, when using whitelists, consider using WwwLinkNotAllowed to inform user that link is not available
         private static Regex[] WWW_WHITELIST = {   new Regex(@"^(http[s]{0,1}://){0,1}[^/]*youtube.com/.*", RegexOptions.IgnoreCase),
                                               new Regex(@"^(http[s]{0,1}://){0,1}[^/]*youtu.be/.*", RegexOptions.IgnoreCase),
                                               new Regex(@"^(http[s]{0,1}://){0,1}[^/]*steamcommunity.com/.*", RegexOptions.IgnoreCase),
                                               new Regex(@"^(http[s]{0,1}://){0,1}[^/]*forum[s]{0,1}.keenswh.com/.*", RegexOptions.IgnoreCase),
                                           };
+#endif // !XB1
 
         public static bool IsUrlWhitelisted(string wwwLink)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             foreach (var r in WWW_WHITELIST)
                 if (r.IsMatch(wwwLink))
                     return true;
+#endif // !XB1
             return false;
         }
 
@@ -178,9 +188,13 @@ namespace Sandbox.Graphics.GUI
             {
                 var resultType = typeof(T);
                 createdType = resultType;
+#if XB1 // XB1_ALLINONEASSEMBLY
+                ChooseScreenType<T>(ref createdType, MyAssembly.AllInOneAssembly);
+#else // !XB1
                 ChooseScreenType<T>(ref createdType, MyPlugins.GameAssembly);
                 ChooseScreenType<T>(ref createdType, MyPlugins.SandboxAssembly);
                 ChooseScreenType<T>(ref createdType, MyPlugins.UserAssembly);
+#endif // !XB1
                 m_createdScreenTypes[resultType] = createdType;
             }
 
@@ -192,7 +206,11 @@ namespace Sandbox.Graphics.GUI
             if (assembly == null)
                 return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 if (typeof(T).IsAssignableFrom(type))
                 {

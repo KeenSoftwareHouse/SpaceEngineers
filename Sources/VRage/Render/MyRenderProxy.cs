@@ -2189,7 +2189,11 @@ namespace VRageRender
 
             var stack = new System.Diagnostics.StackTrace(1 + skipStack, true);
 
+#if !XB1
             message.Callstack = stack.ToString();
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
             message.Message = messageText;
 
             EnqueueOutputMessage(message);

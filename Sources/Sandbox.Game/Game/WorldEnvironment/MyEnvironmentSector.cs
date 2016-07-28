@@ -418,7 +418,12 @@ namespace Sandbox.Game.WorldEnvironment
 
             public override string ToString()
             {
+#if !XB1
                 return String.Format("{0} {1} @ {2}", Set ? "Set" : "Requested", Lod, Trace.GetFrame(1));
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+                return String.Format("{0} {1}", Set ? "Set" : "Requested", Lod);
+#endif // XB1
             }
         }
 

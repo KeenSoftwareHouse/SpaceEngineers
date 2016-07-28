@@ -54,6 +54,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyGravityGenerator()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_fieldSize = SyncType.CreateAndAddProp<Vector3>();
+#endif // XB1
             CreateTerminalControls();
 
             m_fieldSize.ValueChanged += (x) => UpdateFieldShape();

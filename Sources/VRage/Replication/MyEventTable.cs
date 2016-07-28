@@ -104,6 +104,7 @@ namespace VRage.Network
 
         void RegisterEvents(Type type, BindingFlags flags)
         {
+#if !XB1_NOMULTIPLAYER
             var query = type.GetMethods(flags)
                 .Select(s => new EventReturn(s.GetCustomAttribute<EventAttribute>(), s))
                 .Where(s => s.Event != null)
@@ -130,6 +131,7 @@ namespace VRage.Network
                 m_idToEvent.Add(site.Id, site);
                 m_methodInfoLookup.Add(m, site);
             }
+#endif // XB1_NOMULTIPLAYER
         }
 
         CallSite CreateCallSite<T1, T2, T3, T4, T5, T6, T7>(MethodInfo info, uint id)
@@ -139,6 +141,7 @@ namespace VRage.Network
 			Debug.Assert(false, "To implement expression");
 			return null;
 #else
+#if !XB1_NOMULTIPLAYER
             Type[] arguments = new Type[] { typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5), typeof(T6), typeof(T7) };
             var p = arguments.Select(s => Expression.Parameter(s)).ToArray();
 
@@ -190,6 +193,9 @@ namespace VRage.Network
             validator = validator ?? CreateValidator<T1, T2, T3, T4, T5, T6, T7>();
 
             return new CallSite<T1, T2, T3, T4, T5, T6, T7>(Type, id, info, flags, handler, serializer, validator);
+#else // XB1_NOMULTIPLAYER
+            return null;
+#endif // XB1_NOMULTIPLAYER
 #endif
         }
 

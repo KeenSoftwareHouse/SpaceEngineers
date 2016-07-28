@@ -109,7 +109,8 @@ namespace VRage.Game
         XMinusHalfX,
         YMinusHalfX,
         ZMinusHalfX,
-        ZThenOffsetX
+        ZThenOffsetX,
+        YThenOffsetX,
     }
 
     public enum MyAutorotateMode

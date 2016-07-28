@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.Game.ObjectBuilder
 {
@@ -20,7 +23,9 @@ namespace VRage.Game.ObjectBuilder
 
         #region Private members
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
         private HashSet<Assembly> m_assemblies = new HashSet<Assembly>();
+#endif // !XB1
 
         private bool m_ready;
 
@@ -34,7 +39,9 @@ namespace VRage.Game.ObjectBuilder
         {
             if (assembly == null) return;
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
             m_assemblies.Add(assembly);
+#endif // !XB1
 
             MyObjectBuilderSerializer.RegisterFromAssembly(assembly);
             MyObjectBuilderType.RegisterFromAssembly(assembly, true);
@@ -44,12 +51,18 @@ namespace VRage.Game.ObjectBuilder
 
         public Type GetType(string fullName, bool throwOnError)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            Type type;
+            if ((type = MyAssembly.GetType(fullName, false)) != null)
+                return type;
+#else // !XB1
             foreach (var assembly in m_assemblies)
             {
                 Type type;
                 if ((type = assembly.GetType(fullName, false)) != null)
                     return type;
             }
+#endif // !XB1
 
             if (throwOnError)
                 throw new TypeLoadException(string.Format("Type {0} was not found in any registered assembly!", fullName));
@@ -65,6 +78,9 @@ namespace VRage.Game.ObjectBuilder
             if (m_ready)
                 return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterAssembly(GetType().Assembly); // VRage.Game
 
             RegisterAssembly(MyPlugins.GameAssembly);
@@ -78,6 +94,7 @@ namespace VRage.Game.ObjectBuilder
             {
                 RegisterAssembly(plugin.GetType().Assembly);
             }
+#endif // !XB1
 
             MyObjectBuilderSerializer.LoadSerializers();
 

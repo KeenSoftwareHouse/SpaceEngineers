@@ -1,4 +1,5 @@
-﻿using Sandbox.Common;
+﻿#if !XB1
+using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Replication;
@@ -329,3 +330,4 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+#endif // !XB1

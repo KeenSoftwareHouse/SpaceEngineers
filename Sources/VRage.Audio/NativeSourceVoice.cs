@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿#if !XB1
+using SharpDX;
 using SharpDX.XAudio2;
 using System;
 using System.Runtime.InteropServices;
@@ -1161,3 +1162,4 @@ namespace VRage.Audio
         #endregion
     }
 }
+#endif // !XB1

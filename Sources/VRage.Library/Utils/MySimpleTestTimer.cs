@@ -19,8 +19,12 @@ namespace VRage.Library.Utils
 
         public void Dispose()
         {
+#if !XB1
             File.AppendAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "perf.log"),
                 String.Format("{0}: {1:N}ms\n", m_name, m_watch.ElapsedMilliseconds));
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
     }
 }

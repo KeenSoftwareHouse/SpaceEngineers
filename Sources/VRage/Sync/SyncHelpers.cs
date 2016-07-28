@@ -12,6 +12,7 @@ using VRage.Serialization;
 
 namespace VRage.Library.Sync
 {
+#if !XB1 // !XB1_SYNC_NOREFLECTION
 #if UNSHARPER
 	public static class SyncHelpers
 	{
@@ -91,4 +92,9 @@ namespace VRage.Library.Sync
         }
     }
 #endif
+#else // XB1
+    public static class SyncHelpers
+    {
+    }
+#endif // XB1
 }

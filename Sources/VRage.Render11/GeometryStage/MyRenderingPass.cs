@@ -279,7 +279,11 @@ namespace VRageRender
 
                 fixed (byte* dstPtr = buffer)
                 {
+#if XB1
+                    SharpDX.Utilities.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constants), size);
+#else // !XB1
                     MyMemory.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constants), (uint)size);
+#endif // !XB1
                 }
             }
 

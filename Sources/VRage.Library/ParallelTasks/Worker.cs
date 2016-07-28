@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using System.Globalization;
+using VRage.Library;
 
 namespace ParallelTasks
 {
@@ -23,7 +24,7 @@ namespace ParallelTasks
         // Cannot access Environment.ProcessorCount in phone app. (Security issue).
         static Hashtable<Thread, Worker> workers = new Hashtable<Thread, Worker>(1);
 #else
-        static Hashtable<Thread, Worker> workers = new Hashtable<Thread, Worker>(Environment.ProcessorCount);
+        static Hashtable<Thread, Worker> workers = new Hashtable<Thread, Worker>(MyEnvironment.ProcessorCount);
 #endif
         public static Worker CurrentWorker
         {

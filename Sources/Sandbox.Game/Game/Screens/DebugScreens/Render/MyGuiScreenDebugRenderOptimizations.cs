@@ -6,7 +6,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
-#if !XB1_TMP
+#if !XB1
     [MyDebugScreen("Render", "Optimizations", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugRenderOptimizations : MyGuiScreenDebugBase
     {

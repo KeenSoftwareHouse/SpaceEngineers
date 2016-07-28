@@ -315,10 +315,21 @@ namespace Sandbox.Game.Screens.Terminal
             MyDebug.AssertDebug(output.Count == 0, "Output was not cleared before use!");
 
             var gridBroadcasters = MyRadioBroadcaster.GetGridRelayedBroadcasters(grid);
-            var controlledObjectId = m_openInventoryInteractedEntityRepresentative.EntityId;
+            var controlledGrid = m_openInventoryInteractedEntityRepresentative as MyCubeGrid;
+            var controlledObjectGroup = controlledGrid != null ? MyCubeGridGroups.Static.Logical.GetGroup(controlledGrid) : null;
             foreach (var broadcaster in gridBroadcasters)
-                if (MyAntennaSystem.Static.GetBroadcasterParentEntityId(broadcaster) == controlledObjectId)
+            {
+                var ent = MyAntennaSystem.Static.GetBroadcasterParentEntity(broadcaster);
+                var broadcasterGrid = ent as MyCubeGrid;
+                if (broadcasterGrid != null && controlledObjectGroup != null &&
+                    MyCubeGridGroups.Static.Logical.GetGroup(broadcasterGrid) == controlledObjectGroup)
+                {
                     output.Add(broadcaster);
+                    continue;
+                }
+                if (ent == m_openInventoryInteractedEntityRepresentative)
+                    output.Add(broadcaster);
+            }
         }
 
         private HashSet<MyDataBroadcaster> m_tempPlayerBroadcasters = new HashSet<MyDataBroadcaster>();
@@ -328,9 +339,20 @@ namespace Sandbox.Game.Screens.Terminal
 
             m_tempPlayerBroadcasters.Clear();
             MyAntennaSystem.Static.GetPlayerRelayedBroadcasters(MySession.Static.LocalCharacter, m_openInventoryInteractedEntityRepresentative, m_tempPlayerBroadcasters);
+            var gridGroup = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             foreach (var broadcaster in m_tempPlayerBroadcasters)
-                if (MyAntennaSystem.Static.GetBroadcasterParentEntityId(broadcaster) == grid.EntityId)
+            {
+                var ent = MyAntennaSystem.Static.GetBroadcasterParentEntity(broadcaster);
+                var broadcasterGrid = ent as MyCubeGrid;
+                if (broadcasterGrid != null && gridGroup != null &&
+                    MyCubeGridGroups.Static.Logical.GetGroup(broadcasterGrid) == gridGroup)
+                {
                     output.Add(broadcaster);
+                    continue;
+                }
+                if (ent.EntityId == grid.EntityId)
+                    output.Add(broadcaster);
+            }
         }
 
         private float GetPlayerGridDistance(MyCubeGrid grid)

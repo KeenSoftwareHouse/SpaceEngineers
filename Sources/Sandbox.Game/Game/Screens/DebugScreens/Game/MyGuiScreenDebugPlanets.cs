@@ -14,7 +14,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Game", "Planets")]
     class MyGuiScreenDebugPlanets : MyGuiScreenDebugBase

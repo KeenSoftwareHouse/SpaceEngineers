@@ -30,6 +30,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyOreDetector()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_broadcastUsingAntennas = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_broadcastUsingAntennas.ValueChanged += (entity) => BroadcastChanged();

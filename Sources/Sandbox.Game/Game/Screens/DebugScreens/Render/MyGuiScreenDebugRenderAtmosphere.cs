@@ -15,7 +15,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "Atmosphere", MyDirectXSupport.DX11)]
     public class MyGuiScreenDebugRenderAtmosphere : MyGuiScreenDebugBase

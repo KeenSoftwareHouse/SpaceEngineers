@@ -59,6 +59,7 @@ namespace VRageRender
 
         public static string SaveScreenshot(Texture tex, string file)
         {
+#if !XB1
             MyRender.Log.WriteLine("MyScreenshot.SaveTexture2D() - START");
             MyRender.Log.IncreaseIndent();
 
@@ -189,6 +190,10 @@ namespace VRageRender
             MyRender.Log.WriteLine("MyScreenshot.SaveTexture2D() - END");
 
             return filename;
+#else
+            System.Diagnostics.Debug.Assert(false, "Not Screenshoot support on XB1 yet!");
+            return null;
+#endif
         }
 
         //  Failure while saving will not crash the game, only log an exception into log file

@@ -193,6 +193,9 @@ namespace Sandbox.Game.Entities
 
         public MyThrust()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_thrustOverride = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             Render.NeedsDrawFromParent = true;

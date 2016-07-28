@@ -106,6 +106,10 @@ namespace Sandbox.Game.Entities
             }
         }
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_ChooseGridSystemsTypeCalled = false;
+#endif // XB1
+
         // Empty function, but forces static variable preload during game load
         public static void Preload() { }
 
@@ -888,6 +892,9 @@ namespace Sandbox.Game.Entities
 
         public static void StartConverting(bool placeOnly)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string folder = Path.Combine(MyFileSystem.UserDataPath, SOURCE_DIRECTORY);
             if (Directory.Exists(folder) == false)
             {
@@ -911,6 +918,7 @@ namespace Sandbox.Game.Entities
 
             }
             ConvertNextPrefab(m_prefabs, placeOnly);
+#endif // !XB1
         }
 
         public static void ConvertPrefabsToObjs()
@@ -956,15 +964,22 @@ namespace Sandbox.Game.Entities
 
         private static void RemoveFilesFromDirectory(string path,string fileType)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string[] filePaths = Directory.GetFiles(path, fileType);
             foreach (string filePath in filePaths)
             {
                 File.Delete(filePath);
             }
+#endif // !XB1
         }
 
         private static void PackFilesToDirectory(string path,  string searchString , VRage.Compression.MyZipArchive arc)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             int len = path.Length + 1;
             foreach (var file in Directory.GetFiles(path, searchString, SearchOption.AllDirectories))
             {
@@ -976,6 +991,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
+#endif // !XB1
         }
 
         public static void ExportObject(MyCubeGrid baseGrid, bool convertModelsFromSBC, bool exportObjAndSBC = false)
@@ -999,6 +1015,7 @@ namespace Sandbox.Game.Entities
 
         private static void ExportToObjFile(List<MyCubeGrid> baseGrids, bool convertModelsFromSBC, bool exportObjAndSBC)
         {       
+#if !XB1
             materialID = 0;
             var datetimePrefix = MyValueFormatter.GetFormatedDateTimeForFilename(DateTime.Now);
             var name = MyUtils.StripInvalidChars(baseGrids[0].DisplayName.Replace(' ', '_'));
@@ -1106,6 +1123,9 @@ namespace Sandbox.Game.Entities
                         messageText: new StringBuilder(string.Format(MyTexts.GetString(MyCommonTexts.ExportToObjFailed), folder))));
                 }
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
 
         private static void CreatePrefabFile(List<MyCubeGrid> baseGrid, string name, string prefabPath)
@@ -2456,9 +2476,13 @@ namespace Sandbox.Game.Entities
         private static Type ChooseGridSystemsType()
         {
             Type result = typeof(MyCubeGridSystems);
+#if XB1 // XB1_ALLINONEASSEMBLY
+            ChooseGridSystemsType(ref result, MyAssembly.AllInOneAssembly);
+#else // !XB1
             ChooseGridSystemsType(ref result, MyPlugins.GameAssembly);
             ChooseGridSystemsType(ref result, MyPlugins.SandboxAssembly);
             ChooseGridSystemsType(ref result, MyPlugins.UserAssembly);
+#endif // !XB1
             return result;
         }
 
@@ -2467,7 +2491,15 @@ namespace Sandbox.Game.Entities
             if (assembly == null)
                 return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_ChooseGridSystemsTypeCalled == false);
+            if (m_ChooseGridSystemsTypeCalled == true)
+                return;
+            m_ChooseGridSystemsTypeCalled = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 if (typeof(MyCubeGridSystems).IsAssignableFrom(type))
                 {

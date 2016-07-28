@@ -1,4 +1,6 @@
-﻿#region Using
+﻿
+
+#region Using
 
 using Havok;
 using Sandbox.Common.ObjectBuilders;
@@ -20,6 +22,9 @@ using VRage.Game.Entity;
 using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 #endregion
 
@@ -113,7 +118,11 @@ namespace Sandbox.Game.Gui
                     () => "Prioritize: " + (MyFakes.PRIORITIZE_PRECALC_JOBS ? "On" : "Off"),
                     () => { MyFakes.PRIORITIZE_PRECALC_JOBS = !MyFakes.PRIORITIZE_PRECALC_JOBS; return true; });
                 m_dbgComponents.Clear();
+#if XB1 // XB1_ALLINONEASSEMBLY
+                foreach (var t in MyAssembly.GetTypes())
+#else // !XB1
                 foreach (var t in Assembly.GetExecutingAssembly().GetTypes())
+#endif // !XB1
                 {
                     if (t.IsSubclassOf(typeof(MyRenderComponentBase)))
                         continue;

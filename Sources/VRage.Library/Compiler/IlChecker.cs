@@ -7,7 +7,7 @@ using System.Text;
 
 namespace VRage.Compiler
 {
-#if UNSHARPER
+#if XB1
 #else
     public class IlChecker
     {

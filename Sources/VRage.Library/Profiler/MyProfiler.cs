@@ -1,4 +1,5 @@
-﻿#region Using
+﻿#if !XB1 // XB1_NOPROFILER
+#region Using
 
 using System;
 using System.Collections.Generic;
@@ -443,3 +444,4 @@ namespace VRage.Profiler
         }
     }
 }
+#endif // !XB1

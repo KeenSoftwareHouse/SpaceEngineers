@@ -76,7 +76,7 @@
     <Enable3rdPersonView>true</Enable3rdPersonView>
     <EnableEncounters>false</EnableEncounters>
     <EnableFlora>false</EnableFlora>
-    <EnableStationVoxelSupport>true</EnableStationVoxelSupport>
+    <EnableConvertToStation>false</EnableConvertToStation>
     <EnableSunRotation>false</EnableSunRotation>
     <DisableRespawnShips>true</DisableRespawnShips>
     <ScenarioEditMode>true</ScenarioEditMode>

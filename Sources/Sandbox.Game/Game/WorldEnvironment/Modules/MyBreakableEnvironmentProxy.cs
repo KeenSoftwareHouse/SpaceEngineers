@@ -79,6 +79,10 @@ namespace Sandbox.Game.WorldEnvironment.Modules
                 m_sector.RaiseItemEvent(this, itemId, impact);
                 DisableItemAndCreateDebris(ref impact, itemId);
             }
+
+            // Meteor destroy always
+            if (other is MyMeteor)
+                m_sector.EnableItem(itemId, false);
         }
 
         [Serializable]

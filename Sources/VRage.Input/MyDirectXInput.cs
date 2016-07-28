@@ -922,7 +922,7 @@ namespace VRage.Input
         //True if any ALT key is pressed
         public bool IsAnyAltKeyPressed()
         {
-            return IsKeyPress(MyKeys.LeftAlt) || IsKeyPress(MyKeys.RightAlt);
+            return IsKeyPress(MyKeys.Alt) || IsKeyPress(MyKeys.LeftAlt) || IsKeyPress(MyKeys.RightAlt);
         }
 
         //True if any CTRL key is pressed

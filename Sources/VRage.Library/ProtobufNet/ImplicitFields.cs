@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 
 namespace ProtoBuf
 {
@@ -29,3 +30,4 @@ namespace ProtoBuf
         AllFields = 2
     }
 }
+#endif // !XB1

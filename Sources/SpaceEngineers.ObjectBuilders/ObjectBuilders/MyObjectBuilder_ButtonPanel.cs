@@ -29,7 +29,9 @@ namespace Sandbox.Common.ObjectBuilders
         [Serialize]
         [NullableItem, Nullable]
         [XmlIgnore]
+#if !XB1 // XB1_NOPROTOBUF
         [ProtoIgnore]
+#endif // !XB1
         public Dictionary<int, String> CustomButtonNames_BinarySerialization
         {
             get { return CustomButtonNames == null ? null : CustomButtonNames.Dictionary; }

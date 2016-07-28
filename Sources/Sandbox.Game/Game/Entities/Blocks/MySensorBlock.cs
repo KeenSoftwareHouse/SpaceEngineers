@@ -289,8 +289,15 @@ namespace Sandbox.Game.Entities.Blocks
         private static bool m_shouldSetOtherToolbars;
         bool m_syncing = false;
 
-        public MySensorBlock()     
+        public MySensorBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_playProximitySound = SyncType.CreateAndAddProp<bool>();
+            m_active = SyncType.CreateAndAddProp<bool>();
+            m_fieldMin = SyncType.CreateAndAddProp<Vector3>();
+            m_fieldMax = SyncType.CreateAndAddProp<Vector3>();
+            m_flags = SyncType.CreateAndAddProp<MySensorFilterFlags>();
+#endif // XB1
             CreateTerminalControls();
 
             m_active.ValueChanged += (x) => IsActiveChanged();

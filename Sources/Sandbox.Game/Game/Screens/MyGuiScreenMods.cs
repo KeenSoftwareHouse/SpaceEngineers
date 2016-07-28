@@ -1,4 +1,5 @@
-﻿using ParallelTasks;
+﻿#if !XB1 // XB1_NOWORKSHOP
+using ParallelTasks;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -884,3 +885,4 @@ namespace Sandbox.Game.Gui
 
     }
 }
+#endif // !XB1

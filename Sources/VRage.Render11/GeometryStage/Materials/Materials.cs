@@ -209,7 +209,11 @@ namespace VRageRender
                 buffer = new byte[size];
                 fixed(byte* dstPtr = buffer)
                 {
+#if XB1
+                    SharpDX.Utilities.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constantsData), size);
+#else // !XB1
                     MyMemory.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constantsData), (uint)size);
+#endif // !XB1
                 }
             }
             else
@@ -236,7 +240,11 @@ namespace VRageRender
                 buffer = new byte[size];
                 fixed (byte* dstPtr = buffer)
                 {
+#if XB1
+                    SharpDX.Utilities.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constantsData), size);
+#else // !XB1
                     MyMemory.CopyMemory(new IntPtr(dstPtr), new IntPtr(&constantsData), (uint)size);
+#endif // !XB1
                 }
             }
 

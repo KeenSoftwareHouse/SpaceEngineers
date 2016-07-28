@@ -26,5 +26,7 @@ namespace VRage.Network
         public abstract void Serialize(BitStream stream,uint timeStamp);
 
         public uint ClientTimeStamp;
+
+        public long? SupportId { get; protected set; }
     }
 }

@@ -95,7 +95,9 @@ namespace Sandbox.Game.Gui
             Stats.Timing.WriteFormat("Frame max time: {0} ms", MyFpsManager.FrameTimeMax, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 1);
             Stats.Timing.Write("Update lag (per s)", (float)m_updateLag, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 4);
             Stats.Timing.Write("GC Memory", GC.GetTotalMemory(false), VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+#if !XB1
             Stats.Timing.Write("Process memory", WinApi.WorkingSet, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+#endif // !XB1
             Stats.Timing.Write("Active parcticle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
             Stats.Timing.Write("Billboards total", VRageRender.MyPerformanceCounter.PerCameraDraw11Read.BillboardsDrawn, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 

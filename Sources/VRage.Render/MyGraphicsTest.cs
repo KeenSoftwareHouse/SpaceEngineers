@@ -60,6 +60,7 @@ namespace VRageRender
         // Testing function call - creates DX9 device & present test:
         public bool TestDX(Direct3D d3dh, ref MyAdapterInfo[] infos)
         {
+#if !XB1
             bool isAnyGraphicsSupported = false;
             MyLog.Default.WriteLine("MyGraphicTest.TestDX() - START");
             MyLog.Default.IncreaseIndent();
@@ -213,6 +214,10 @@ namespace VRageRender
             MyLog.Default.WriteLine("MyGraphicTest.TestDX() - END");
 
             return isAnyGraphicsSupported;
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TOOD?");
+            return false;
+#endif // XB1
         }
 
         public static void Write(PresentParameters parameters, Action<string> lineWriter)
@@ -410,6 +415,7 @@ namespace VRageRender
         // Own DX capability testing function:
         private bool TestCurrentSettings(Device d3d, Direct3D d3dh, int adapter)
         {
+#if !XB1
             MyLog.Default.WriteLine("MyGraphicTest.TestCurrentSettings() - START");
             MyLog.Default.IncreaseIndent();
 
@@ -1280,6 +1286,10 @@ namespace VRageRender
             MyLog.Default.WriteLine("MyGraphicTest.TestCurrentSettings() - END");
 
             return isError;
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TOOD?");
+            return true;
+#endif // XB1
         }
     }
 }

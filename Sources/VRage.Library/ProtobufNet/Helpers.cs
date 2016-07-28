@@ -1,4 +1,4 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
 using System;
 using System.Collections;
 
@@ -578,3 +578,4 @@ namespace ProtoBuf
         Type = 104
     }
 }
+#endif // !XB1

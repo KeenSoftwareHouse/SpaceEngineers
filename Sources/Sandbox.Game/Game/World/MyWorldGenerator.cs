@@ -44,6 +44,9 @@ namespace Sandbox.Game.World
         {
             if (MyFakes.TEST_PREFABS_FOR_INCONSISTENCIES)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 string prefabDir = Path.Combine(MyFileSystem.ContentPath, "Data", "Prefabs");
                 var prefabFiles = Directory.GetFiles(prefabDir);
                 foreach (var prefabFile in prefabFiles)
@@ -100,6 +103,7 @@ namespace Sandbox.Game.World
                         }
                     }
                 }
+#endif // !XB1
             }
         }
 

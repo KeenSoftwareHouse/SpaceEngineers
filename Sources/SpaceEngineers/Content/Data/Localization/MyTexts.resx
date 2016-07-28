@@ -4056,7 +4056,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Enable oxygen processing. Used by space suit and cockpits.</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
     <value>Enable oxygen</value>
@@ -5570,12 +5570,22 @@ split and not in voxel. </value>
     <value>Current waypoint:</value>
   </data>
   <data name="MessageBoxTextAreYouSureEnableOxygenPressurization" xml:space="preserve">
-    <value>Are you sure you want to enable airtightness? This can have negative influence to preformance.</value>
+    <value>Are you sure you want to enable airtightness? This can have negative influence to performance.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygenPressurization" xml:space="preserve">
-    <value>Enable pressurization detection.</value>
+    <value>Allow pressurization of ships and stations.</value>
   </data>
   <data name="World_Settings_EnableOxygenPressurization" xml:space="preserve">
     <value>Enable airtightness</value>
+  </data>
+  <data name="MaxBackupSaves" xml:space="preserve">
+    <value>Max backup saves</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxBackupSaves" xml:space="preserve">
+    <value>Configure the maximum number of saves that should be backed up. The backup folder is located on the respective save directory.
+When this is 0 then the backup feature is disabled and all backups are deleted upon save!</value>
+  </data>
+  <data name="TerminalTab_Chat_ChatHistory" xml:space="preserve">
+    <value>-Global Chat History-</value>
   </data>
 </root>

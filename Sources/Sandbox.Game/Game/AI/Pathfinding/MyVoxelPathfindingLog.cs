@@ -8,7 +8,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Utils;
@@ -95,6 +97,9 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public MyVoxelPathfindingLog(string filename)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string path = Path.Combine(MyFileSystem.UserDataPath, filename);
 
             if (MyFakes.REPLAY_NAVMESH_GENERATION)
@@ -159,6 +164,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 m_log = new MyLog();
                 m_log.Init(path, MyFinalBuildConstants.APP_VERSION_STRING);
             }
+#endif // !XB1
         }
 
         public void Close()

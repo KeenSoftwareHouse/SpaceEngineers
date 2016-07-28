@@ -484,7 +484,15 @@ namespace Sandbox.Game.Entities
 
             Components.Add(new MyGridTargeting());
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+            m_handBrakeSync = SyncType.CreateAndAddProp<bool>();
+            m_isRespawnGrid = SyncType.CreateAndAddProp<bool>();
+            m_destructibleBlocks = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+
             m_handBrakeSync.ValueChanged +=  (x)=> HandBrakeChanged();
         }
 
@@ -1655,7 +1663,7 @@ namespace Sandbox.Game.Entities
             {
                 if (!Physics.IsWelded)
                 {
-                    Physics.RigidBody.Gravity = m_gravity;
+                    Physics.RigidBody.Gravity = m_gravity * Sync.RelativeSimulationRatio; ;
                 }
 
                 if (m_inventoryMassDirty)
@@ -2106,11 +2114,16 @@ namespace Sandbox.Game.Entities
             return localCoords;
         }
 
-        public Vector3D GridIntegerToWorld(Vector3I gridCoords)
+        public static Vector3D GridIntegerToWorld(float gridSize, Vector3I gridCoords, MatrixD worldMatrix)
         {
             Vector3D retval = (Vector3D)(Vector3)gridCoords;
-            retval *= GridSize;
-            return Vector3D.Transform(retval, WorldMatrix);
+            retval *= gridSize;
+            return Vector3D.Transform(retval, worldMatrix);
+        }
+
+        public Vector3D GridIntegerToWorld(Vector3I gridCoords)
+        {
+            return GridIntegerToWorld(GridSize, gridCoords, WorldMatrix);
         }
 
         public Vector3D GridIntegerToWorld(Vector3D gridCoords)
@@ -4008,10 +4021,6 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Broadcast]
         public void ConvertToStatic()
         {
-
-            if (Physics.AngularVelocity.LengthSquared() > 0.01 * 0.01 || Physics.LinearVelocity.LengthSquared() > 0.01 * 0.01)
-                return;
-
             IsStatic = true;
             Physics.ConvertToStatic();
             RaisePhysicsChanged();
@@ -4514,7 +4523,7 @@ namespace Sandbox.Game.Entities
                 if (BlocksCounters.ContainsKey(block.BlockDefinition.Id.TypeId))
                     BlocksCounters[block.BlockDefinition.Id.TypeId]--;
                 ProfilerShort.Begin("Unregister");
-                block.FatBlock.IsBeeingRemoved = true;
+                block.FatBlock.IsBeingRemoved = true;
                 GridSystems.UnregisterFromSystems(block.FatBlock);
                 ProfilerShort.End();
 
@@ -4546,7 +4555,7 @@ namespace Sandbox.Game.Entities
             if (block.FatBlock != null)
             {
                 m_fatBlocks.Remove(block.FatBlock);
-                block.FatBlock.IsBeeingRemoved = false;
+                block.FatBlock.IsBeingRemoved = false;
             }
             ProfilerShort.End();
 
@@ -8359,7 +8368,7 @@ namespace Sandbox.Game.Entities
         [Event, Reliable, Server]
         public void OnConvertedToStationRequest()
         {
-            if (IsStatic)
+            if (IsStatic || Physics.AngularVelocity.LengthSquared() > 0.01 * 0.01 || Physics.LinearVelocity.LengthSquared() > 0.01 * 0.01)
             {
                 return;
             }

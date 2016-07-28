@@ -67,8 +67,9 @@ namespace Sandbox.Game.Gui
                            m_welder_half, m_welder_x1, m_welder_x2, m_welder_x5,
                            m_grinder_half, m_grinder_x1, m_grinder_x2, m_grinder_x5;
         MyGuiControlSlider m_maxPlayersSlider,m_sunRotationIntervalSlider;
-        MyGuiControlLabel m_enableCopyPasteLabel, m_maxPlayersLabel, m_maxFloatingObjectsLabel, m_sunRotationPeriod, m_sunRotationPeriodValue,m_enableCyberhoundsLabel,m_enableSpidersLabel;
+        MyGuiControlLabel m_enableCopyPasteLabel, m_maxPlayersLabel, m_maxFloatingObjectsLabel, m_maxBackupSavesLabel, m_sunRotationPeriod, m_sunRotationPeriodValue, m_enableCyberhoundsLabel, m_enableSpidersLabel;
         MyGuiControlSlider m_maxFloatingObjectsSlider;
+        MyGuiControlSlider m_maxBackupSavesSlider;
         StringBuilder m_tempBuilder = new StringBuilder();
         int m_customWorldSize = 0;
         int m_customViewDistance = 20000;
@@ -145,6 +146,7 @@ namespace Sandbox.Game.Gui
             var onlineModeLabel = MakeLabel(MyCommonTexts.WorldSettings_OnlineMode);
             m_maxPlayersLabel = MakeLabel(MyCommonTexts.MaxPlayers);
             m_maxFloatingObjectsLabel = MakeLabel(MySpaceTexts.MaxFloatingObjects);
+            m_maxBackupSavesLabel = MakeLabel(MySpaceTexts.MaxBackupSaves);
             m_sunRotationPeriod = MakeLabel(MySpaceTexts.SunRotationPeriod);
             m_sunRotationPeriodValue = MakeLabel(MySpaceTexts.SunRotationPeriod);
             var gameTypeLabel = MakeLabel(MyCommonTexts.WorldSettings_GameMode);
@@ -303,6 +305,17 @@ namespace Sandbox.Game.Gui
                 intValue: true
                 );
 
+            m_maxBackupSavesSlider = new MyGuiControlSlider(
+                position: Vector2.Zero,
+                width: m_onlineMode.Size.X,
+                minValue: 0,
+                maxValue: 1000,
+                labelText: new StringBuilder("{0}").ToString(),
+                labelDecimalPlaces: 0,
+                labelSpaceWidth: 0.05f,
+                intValue: true
+                );
+
             m_startInRespawnScreen = new MyGuiControlCheckbox();
             m_enableVoxelDestruction = new MyGuiControlCheckbox();
             m_enableDrones = new MyGuiControlCheckbox();
@@ -442,6 +455,7 @@ namespace Sandbox.Game.Gui
             m_enableCopyPaste.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsEnableCopyPaste));
             m_showPlayerNamesOnHud.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsShowPlayerNamesOnHud));
             m_maxFloatingObjectsSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxFloatingObjects));
+            m_maxBackupSavesSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxBackupSaves));
             m_maxPlayersSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxPlayer));
             m_weaponsEnabled.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsWeapons));
             m_trashRemoval.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsRemoveTrash));
@@ -494,6 +508,9 @@ namespace Sandbox.Game.Gui
 
             parent.Controls.Add(m_maxFloatingObjectsLabel);
             parent.Controls.Add(m_maxFloatingObjectsSlider);
+
+            parent.Controls.Add(m_maxBackupSavesLabel);
+            parent.Controls.Add(m_maxBackupSavesSlider);
 
             parent.Controls.Add(worldSizeLabel);
             parent.Controls.Add(m_worldSizeCombo);
@@ -985,6 +1002,9 @@ namespace Sandbox.Game.Gui
 
             output.MaxPlayers = (short)m_maxPlayersSlider.Value;
             output.MaxFloatingObjects = (short)m_maxFloatingObjectsSlider.Value;
+
+            output.MaxBackupSaves = (short)m_maxBackupSavesSlider.Value;
+
             output.SunRotationIntervalMinutes = MathHelper.Clamp(MathHelper.InterpLog(m_sunRotationIntervalSlider.Value, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES);
 
             output.AssemblerEfficiencyMultiplier = GetAssemblerMultiplier();
@@ -1055,6 +1075,8 @@ namespace Sandbox.Game.Gui
             m_sunRotationIntervalSlider.Value = MathHelper.Clamp(MathHelper.InterpLogInv((float)settings.SunRotationIntervalMinutes, MIN_DAY_TIME_MINUTES, MAX_DAY_TIME_MINUTES), 0, 1);
             m_maxPlayersSlider.Value = settings.MaxPlayers;
             m_maxFloatingObjectsSlider.Value = settings.MaxFloatingObjects;
+
+            m_maxBackupSavesSlider.Value = settings.MaxBackupSaves;
 
             m_enableVoxelDestruction.IsChecked = settings.EnableVoxelDestruction;
             m_enableDrones.IsChecked = settings.EnableDrones;

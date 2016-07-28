@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Engine.Multiplayer;
 using VRage;
 using VRage.Game;
 using VRage.Utils;
@@ -20,6 +21,7 @@ namespace Sandbox.Game.Gui
     {
         private MyGuiControlListbox m_playerList;
         private MyGuiControlListbox m_factionList;
+        private MyGuiControlListbox.Item m_broadcastItem;
         private MyGuiControlListbox.Item m_globalItem;
 
         private MyGuiControlMultilineText m_chatHistory;
@@ -74,9 +76,15 @@ namespace Sandbox.Game.Gui
             m_chatbox.SetText(m_emptyText);
             m_sendButton.Enabled = false;
 
+            if (MyMultiplayer.Static != null)
+            {
+                MyMultiplayer.Static.ChatMessageReceived += Multiplayer_ChatMessageReceived;
+            }
+
+
             m_closed = false;
         }
-
+        
         #region UI Events
         void m_chatbox_TextChanged(MyGuiControlTextbox obj)
         {
@@ -119,7 +127,23 @@ namespace Sandbox.Game.Gui
             if (m_playerList.SelectedItems.Count > 0)
             {
                 var selectedItem = m_playerList.SelectedItems[0];
-                if (selectedItem != m_globalItem)
+
+                if ( selectedItem == m_globalItem )
+                {
+                    RefreshGlobalChatHistory();
+                }
+                else if(selectedItem==m_broadcastItem)
+                {
+                    RefreshBroadcastChatHistory();
+
+                    MyChatHistory chatHistory;
+                    if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
+                    {
+                        chatHistory.GlobalChatHistory.UnreadMessageCount = 0;
+                        UpdatePlayerList();
+                    }
+                }
+                else
                 {
                     var playerIdentity = (MyIdentity)selectedItem.UserData;
                     RefreshPlayerChatHistory(playerIdentity);
@@ -128,17 +152,6 @@ namespace Sandbox.Game.Gui
                     if (playerChatHistory != null && playerChatHistory.UnreadMessageCount > 0)
                     {
                         playerChatHistory.UnreadMessageCount = 0;
-                        UpdatePlayerList();
-                    }
-                }
-                else
-                {
-                    RefreshGlobalChatHistory();
-
-                    MyChatHistory chatHistory;
-                    if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
-                    {
-                        chatHistory.GlobalChatHistory.UnreadMessageCount = 0;
                         UpdatePlayerList();
                     }
                 }
@@ -219,7 +232,7 @@ namespace Sandbox.Game.Gui
                 var selectedItem = m_playerList.SelectedItems[0];
                 var playerIdentity = (MyIdentity)selectedItem.UserData;
 
-                if (selectedItem != m_globalItem)
+                if (selectedItem != m_broadcastItem)
                 {
                     if (playerIdentity.IdentityId == playerId)
                     {
@@ -264,15 +277,21 @@ namespace Sandbox.Game.Gui
 
         void MyChatSystem_GlobalMessageReceived()
         {
-            if (m_playerList.SelectedItems.Count > 0 && m_playerList.SelectedItems[0] == m_globalItem)
+            if (m_playerList.SelectedItems.Count > 0 && m_playerList.SelectedItems[0] == m_broadcastItem)
             {
-                var selectedItem = m_playerList.SelectedItems[0];
-                RefreshGlobalChatHistory();
+                RefreshBroadcastChatHistory();
             }
             else
             {
                 IncrementGlobalUnreadMessageCount(true);
             }
+        }
+
+        void Multiplayer_ChatMessageReceived(ulong steamUserId, string messageText, SteamSDK.ChatEntryTypeEnum arg3)
+        {
+            if ( m_playerList.SelectedItems.Count > 0 && m_playerList.SelectedItems[0] == m_globalItem )
+                RefreshGlobalChatHistory();
+
         }
 
         void ChatSystem_PlayerHistoryDeleted()
@@ -326,7 +345,25 @@ namespace Sandbox.Game.Gui
             if (m_playerList.SelectedItems.Count > 0)
             {
                 var selectedItem = m_playerList.SelectedItems[0];
-                if (selectedItem == m_globalItem)
+
+                if(selectedItem==m_globalItem)
+                {
+                    //messages entered in the global chat history should be treated as normal ingame chat
+                    if ( MyMultiplayer.Static != null )
+                        MyMultiplayer.Static.SendChatMessage( m_chatboxText.ToString() );
+                    else
+                        MyHud.Chat.ShowMessage( MySession.Static.LocalHumanPlayer == null ? "Player" : MySession.Static.LocalHumanPlayer.DisplayName, m_chatboxText.ToString() );
+
+                    //add the message to history
+                    //MySession.Static.GlobalChatHistory.GlobalChatHistory.Chat.Enqueue(new MyGlobalChatItem
+                    //{
+                    //    IdentityId = MySession.Static.LocalPlayerId,
+                    //    Text = m_chatboxText.ToString()
+                    //});
+
+                    RefreshGlobalChatHistory();
+                }
+                else if (selectedItem == m_broadcastItem)
                 {
                     MySession.Static.LocalCharacter.SendNewGlobalMessage(MySession.Static.LocalHumanPlayer.Id, m_chatboxText.ToString());
                 }
@@ -467,6 +504,29 @@ namespace Sandbox.Game.Gui
         private void RefreshGlobalChatHistory()
         {
             m_chatHistory.Clear();
+
+            var chat = MySession.Static.GlobalChatHistory.GlobalChatHistory.Chat;
+            foreach (var text in chat)
+            {
+                var identity = MySession.Static.Players.TryGetIdentity(text.IdentityId);
+
+                if (identity == null) continue;
+                bool isPlayer = identity.IdentityId == MySession.Static.LocalPlayerId;
+
+                m_chatHistory.AppendText(identity.DisplayName, isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+
+                m_chatHistory.AppendText(": ", isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                m_chatHistory.AppendText(text.Text, MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
+                m_chatHistory.AppendLine();
+            }
+
+            m_factionList.SelectedItems.Clear();
+            m_chatHistory.ScrollbarOffset = 1.0f;
+        }
+
+        private void RefreshBroadcastChatHistory()
+        {
+            m_chatHistory.Clear();
             var history = MyChatSystem.GetChatHistory(MySession.Static.LocalPlayerId);
 
             var chat = history.GlobalChatHistory.Chat;
@@ -505,10 +565,14 @@ namespace Sandbox.Game.Gui
         List<MyIdentity> m_tempOfflinePlayers = new List<MyIdentity>();
         private void RefreshPlayerList()
         {
-            //Add global chat first
+            //Add the global chat log first
+            m_globalItem = new MyGuiControlListbox.Item( MyTexts.Get( MySpaceTexts.TerminalTab_Chat_ChatHistory ) );
+            m_playerList.Add( m_globalItem );
+
+            //Comms broadcast history
             m_tempStringBuilder.Clear();
             m_tempStringBuilder.Append(MyTexts.Get(MySpaceTexts.TerminalTab_Chat_GlobalChat));
-
+            
             MyChatHistory chatHistory;
             if (MySession.Static.ChatHistory.TryGetValue(MySession.Static.LocalPlayerId, out chatHistory) && chatHistory.GlobalChatHistory.UnreadMessageCount > 0)
             {
@@ -516,9 +580,9 @@ namespace Sandbox.Game.Gui
                 m_tempStringBuilder.Append(chatHistory.GlobalChatHistory.UnreadMessageCount);
                 m_tempStringBuilder.Append(")");
             }
-
-            m_globalItem = new MyGuiControlListbox.Item(m_tempStringBuilder);
-            m_playerList.Add(m_globalItem);
+            
+            m_broadcastItem = new MyGuiControlListbox.Item(m_tempStringBuilder);
+            m_playerList.Add(m_broadcastItem);
 
             //var allPlayers = MySession.Static.Players.GetAllIdentities();
             var allPlayers = MySession.Static.Players.GetAllPlayers();
@@ -643,12 +707,17 @@ namespace Sandbox.Game.Gui
         private void UpdatePlayerList()
         {
             long selectedPlayerId = -1;
+            bool broadcastChatSelected = false;
             bool globalChatSelected = false;
             if (m_playerList.SelectedItems.Count > 0)
             {
-                if (m_playerList.SelectedItems[0] == m_globalItem)
+                if ( m_playerList.SelectedItems[0] == m_globalItem )
                 {
                     globalChatSelected = true;
+                }
+                else if (m_playerList.SelectedItems[0] == m_broadcastItem)
+                {
+                    broadcastChatSelected = true;
                 }
                 else
                 {
@@ -684,10 +753,15 @@ namespace Sandbox.Game.Gui
                     ClearChat();
                 }
             }
-            else if (globalChatSelected)
+            else if ( globalChatSelected )
             {
                 m_playerList.SelectedItems.Clear();
-                m_playerList.SelectedItems.Add(m_globalItem);
+                m_playerList.SelectedItems.Add( m_globalItem );
+            }
+            else if (broadcastChatSelected)
+            {
+                m_playerList.SelectedItems.Clear();
+                m_playerList.SelectedItems.Add(m_broadcastItem);
             }
 
             if (scrollIndex >= m_playerList.Items.Count)
@@ -778,6 +852,9 @@ namespace Sandbox.Game.Gui
             m_sendButton.ButtonClicked -= m_sendButton_ButtonClicked;
             m_chatbox.TextChanged -= m_chatbox_TextChanged;
             m_chatbox.EnterPressed -= m_chatbox_EnterPressed;
+
+            if (MyMultiplayer.Static != null)
+                MyMultiplayer.Static.ChatMessageReceived -= Multiplayer_ChatMessageReceived;
 
             if (MySession.Static.LocalCharacter != null)
             {

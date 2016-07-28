@@ -11,11 +11,13 @@ using System.Linq;
 using System.Text;
 using VRage.Game.Entity;
 using VRageMath;
+using VRage.Utils;
 
 namespace Sandbox.Game.Replication
 {
     public struct MyTimeStampValues
     {
+        public uint Timestamp;
         public long EntityId;
         public MyTransformD Transform;
         public Vector3 LinearVelocity;
@@ -24,7 +26,7 @@ namespace Sandbox.Game.Replication
 
     public class MyTimestampHelper
     {
-        public const double POSITION_TOLERANCE = 0.02;
+        public const double POSITION_TOLERANCE = 1;
         public const uint MAX_POSHISTORY = 255;
 
         SortedDictionary<uint, MyTimeStampValues> m_timeStampData;
@@ -83,101 +85,58 @@ namespace Sandbox.Game.Replication
             return transform;          
         }
 
-        public void ServerResponse(uint timeStamp, ref MyTimeStampValues serverPositionAndOrientation)
+        public void ServerResponse(uint timeStamp, ref MyTransformD serverPositionAndOrientation)
         {
             if (timeStamp < m_lastTSFromServer)
-                return;      
+                return;
 
             if (m_timeStampData.ContainsKey(timeStamp) == false)
             {
-                m_entity.PositionComp.SetWorldMatrix(serverPositionAndOrientation.Transform.TransformMatrix, null, true);
+                m_entity.PositionComp.SetWorldMatrix(serverPositionAndOrientation.TransformMatrix, null, true);
                 return;
             }
 
             MyTimeStampValues cachedData = m_timeStampData[timeStamp];
-      
-            MatrixD worldMatrix = m_entity.PositionComp.WorldMatrix;
 
-            MyTimeStampValues delta = new MyTimeStampValues();
-
-            delta.Transform.Position = serverPositionAndOrientation.Transform.Position - cachedData.Transform.Position;
-
-            double deltaL = delta.Transform.Position.Length();
-
-            MyCharacter character = (m_entity as MyCharacter);
-
-            cachedData.Transform.Rotation = Quaternion.Inverse(cachedData.Transform.Rotation);
-            Quaternion.Multiply(ref serverPositionAndOrientation.Transform.Rotation, ref cachedData.Transform.Rotation, out delta.Transform.Rotation);
-            if (deltaL < (MyGridPhysics.ShipMaxLinearVelocity()/ (60f * Sync.RelativeSimulationRatio)))
-            {
-                delta.Transform.Position = delta.Transform.Position * 0.2;
-               
-            }
-            delta.Transform.Rotation = Quaternion.Slerp(delta.Transform.Rotation, Quaternion.Identity, 0.2f);
-            Vector3D position = worldMatrix.Translation;
-
-            position += delta.Transform.Position;
-
-            delta.LinearVelocity = serverPositionAndOrientation.LinearVelocity -cachedData.LinearVelocity;
-
-            delta.AngularVelocity = serverPositionAndOrientation.AngularVelocity - cachedData.AngularVelocity;
-
-            double deltaVelocity = delta.LinearVelocity.LengthSquared();
-
-            if (deltaVelocity > 0.1 * 0.1)
-            {
-                m_entity.Physics.LinearVelocity += delta.LinearVelocity;
-            }
-
-            deltaVelocity = delta.AngularVelocity.LengthSquared();
-
-            if (deltaVelocity > 0.01 * 0.01)
-            {
-                m_entity.Physics.AngularVelocity += delta.AngularVelocity;
-            } 
-
-            Quaternion orientation = Quaternion.CreateFromForwardUp(worldMatrix.Forward, worldMatrix.Up);
-
-
-            Quaternion normalized = cachedData.Transform.Rotation;
-            normalized.Normalize();
-            cachedData.Transform.Rotation = normalized;
-            normalized = serverPositionAndOrientation.Transform.Rotation;
-            normalized.Normalize();
-            serverPositionAndOrientation.Transform.Rotation = normalized;
-
-            double eps = 0.001;
-            if (Math.Abs(Quaternion.Dot(serverPositionAndOrientation.Transform.Rotation, cachedData.Transform.Rotation)) < 1 - eps)
-            {
-                Quaternion.Multiply(ref delta.Transform.Rotation, ref orientation, out orientation);
-                MatrixD matrix = MatrixD.CreateFromQuaternion(orientation);
-                MatrixD currentMatrix = m_entity.PositionComp.WorldMatrix;
-                Vector3D translation = currentMatrix.Translation;
-                currentMatrix.Translation = Vector3D.Zero;
-                if (currentMatrix.EqualsFast(ref matrix, 0.01) == false)
-                {
-                    matrix.Translation = translation;
-                    m_entity.PositionComp.SetWorldMatrix(matrix, null, true);
-                }
-            }
-
-
-            if (deltaL > (MyGridPhysics.ShipMaxLinearVelocity()/ (60f * Sync.RelativeSimulationRatio)))
-            {
-                m_entity.PositionComp.SetPosition(serverPositionAndOrientation.Transform.Position);
-            }
-            else if (deltaL > POSITION_TOLERANCE)
-            {
-                m_entity.PositionComp.SetPosition(position);
-            }
-           
+            MyTransformD delta = UpdateValues(m_entity, ref serverPositionAndOrientation, ref cachedData);
 
             UpdateDeltaPosition(timeStamp, ref delta);
 
-            m_lastTSFromServer = timeStamp;    
+            m_lastTSFromServer = timeStamp;
         }
 
-        public void UpdateDeltaPosition(uint timestamp, ref MyTimeStampValues data)
+        MyTransformD UpdateValues(MyEntity entity, ref MyTransformD serverPositionAndOrientation, ref MyTimeStampValues cachedData)
+        {
+
+            MyTransformD delta = new MyTransformD();
+
+            delta.Position = serverPositionAndOrientation.Position - cachedData.Transform.Position;
+
+            cachedData.Transform.Rotation = Quaternion.Inverse(cachedData.Transform.Rotation);
+            Quaternion.Multiply(ref serverPositionAndOrientation.Rotation, ref cachedData.Transform.Rotation, out delta.Rotation);
+            delta.Rotation = Quaternion.Identity;
+
+            MatrixD matrix = entity.WorldMatrix;
+            matrix.Translation = Vector3D.Zero;
+            MatrixD correctionMatrix = MatrixD.Multiply(matrix, delta.TransformMatrix);
+            correctionMatrix.Translation += entity.WorldMatrix.Translation;
+            entity.PositionComp.SetWorldMatrix(correctionMatrix, null, true);
+
+            return delta;
+        }
+
+        public void UpdateDeltaVelocities(uint timestamp, ref Vector3D deltaLinear, ref Vector3D deltaAngular)
+        {
+            if (m_timeStampData.Count <= 0)
+                return;
+
+            for (uint i = timestamp; i <= m_currentTimestamp; ++i)
+            {
+                UpdateData(i, ref deltaLinear, ref deltaAngular);
+            }
+        }
+
+        public void UpdateDeltaPosition(uint timestamp, ref MyTransformD data)
         {
             if (m_timeStampData.Count <= 0)
                 return;
@@ -211,17 +170,25 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        void UpdateData(uint i, ref MyTimeStampValues delta)
+        void UpdateData(uint i, ref MyTransformD delta)
         {
             if (m_timeStampData.ContainsKey(i))
             {
                 MyTimeStampValues cachedData = m_timeStampData[i];
 
-                cachedData.AngularVelocity += delta.AngularVelocity;
-                cachedData.LinearVelocity += delta.LinearVelocity;
-                cachedData.Transform.Position += delta.Transform.Position;
-                cachedData.Transform.Position += delta.LinearVelocity * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                Quaternion.Multiply(ref delta.Transform.Rotation, ref cachedData.Transform.Rotation, out cachedData.Transform.Rotation);
+                cachedData.Transform.Position += delta.Position;
+                Quaternion.Multiply(ref delta.Rotation, ref cachedData.Transform.Rotation, out cachedData.Transform.Rotation);
+                m_timeStampData[i] = cachedData;
+            }
+        }
+
+        void UpdateData(uint i, ref Vector3D deltaLinear,ref Vector3D deltaAngular)
+        {
+            if (m_timeStampData.ContainsKey(i))
+            {
+                MyTimeStampValues cachedData = m_timeStampData[i];
+                cachedData.LinearVelocity += deltaLinear;
+                cachedData.AngularVelocity += deltaAngular;
                 m_timeStampData[i] = cachedData;
             }
         }

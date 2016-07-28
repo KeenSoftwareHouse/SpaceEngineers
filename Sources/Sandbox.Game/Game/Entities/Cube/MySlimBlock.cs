@@ -2391,7 +2391,9 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             block.DoDamage(damage, damageType, hitInfo: hitInfo, attackerId: attackerId);
+#if !XB1_NOMULTIPLAYER
             MyMultiplayer.RaiseStaticEvent(s => MySlimBlock.DoDamageSlimBlock, msg);
+#endif // !XB1_NOMULTIPLAYER
         }
 
         [Event, Reliable, Broadcast]

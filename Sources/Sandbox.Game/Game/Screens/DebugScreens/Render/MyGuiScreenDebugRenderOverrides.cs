@@ -7,7 +7,7 @@ using VRageRender;
 namespace Sandbox.Game.Screens.DebugScreens
 {
 
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "Render Overrides")]
     class MyGuiScreenDebugRenderOverrides : MyGuiScreenDebugBase

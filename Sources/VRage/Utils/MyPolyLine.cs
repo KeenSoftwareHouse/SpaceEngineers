@@ -7,7 +7,9 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRageMath;
 using VRage;
 using System.Diagnostics;

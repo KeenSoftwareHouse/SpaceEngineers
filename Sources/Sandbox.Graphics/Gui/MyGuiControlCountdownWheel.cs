@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRageMath;
+using VRage.Library;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -23,7 +24,7 @@ namespace Sandbox.Graphics.GUI
         {
             m_sb = new StringBuilder();
             m_sb.Append(seconds);
-            m_time = System.Environment.TickCount + seconds * 1000 + 999;
+            m_time = MyEnvironment.TickCount + seconds * 1000 + 999;
             m_shownTime = seconds;
         }
 
@@ -31,7 +32,7 @@ namespace Sandbox.Graphics.GUI
         {
             base.Update();
 
-            int newShownTime = (m_time - System.Environment.TickCount) / 1000;
+            int newShownTime = (m_time - MyEnvironment.TickCount) / 1000;
             if (newShownTime < 0) newShownTime = 0;
             if (newShownTime != m_shownTime)
             {

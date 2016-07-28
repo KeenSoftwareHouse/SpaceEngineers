@@ -397,6 +397,15 @@ namespace Sandbox.Game.Entities
 
         public MyRemoteControl()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_autopilotSpeedLimit = SyncType.CreateAndAddProp<float>();
+            m_useCollisionAvoidance = SyncType.CreateAndAddProp<bool>();
+            m_autoPilotEnabled = SyncType.CreateAndAddProp<bool>();
+            m_dockingModeEnabled = SyncType.CreateAndAddProp<bool>();
+            m_currentFlightMode = SyncType.CreateAndAddProp<FlightMode>();
+            m_currentDirection = SyncType.CreateAndAddProp<Base6Directions.Direction>();
+            m_waypointThresholdDistance = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
@@ -2409,6 +2418,7 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
             MyValueFormatter.AppendWorkInBestUnit(m_powerNeeded, DetailedInfo);
+            DetailedInfo.Append("\n");
             var pilot = m_previousControlledEntity as MyCharacter;
             if( pilot != null && pilot != MySession.Static.LocalCharacter)
             {
@@ -2624,8 +2634,6 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            RefreshTerminal();
-
             if (m_previousControlledEntity != null)
             {
                 //Corner case when cockpit was destroyed
@@ -2659,7 +2667,7 @@ namespace Sandbox.Game.Entities
                     receiver.Clear();
                 }
             }
-
+            RefreshTerminal();
             UpdateEmissivity();
         }
 

@@ -26,7 +26,9 @@ using VRageMath;
 using ObjectBuilders;
 using Havok;
 using VRage.Game.ModAPI.Interfaces;
+#if !XB1 // XB1_NOOPENVRWRAPPER
 using Valve.VR;
+#endif // !XB1
 using Sandbox.Game.Screens.Helpers;
 //using IMyControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllableEntity;
 //using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;

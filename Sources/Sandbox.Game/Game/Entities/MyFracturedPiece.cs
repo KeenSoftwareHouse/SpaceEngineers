@@ -92,7 +92,13 @@ namespace Sandbox.Game.Entities
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
             UseDamageSystem = false;
             NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+            m_fallSoundShouldPlay = SyncType.CreateAndAddProp<bool>();
+            m_fallSoundString = SyncType.CreateAndAddProp<string>();
+#endif // XB1
             m_fallSoundShouldPlay.Value = false;
             m_fallSoundString.Value = "";
             m_fallSoundString.ValueChanged += (x) => SetFallSound();

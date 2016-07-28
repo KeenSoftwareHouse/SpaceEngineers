@@ -24,6 +24,7 @@ using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage;
 
+#if !XB1 // XB1_NOWORKSHOP
 namespace Sandbox.Engine.Networking
 {
     public class MySteamWorkshop
@@ -1771,7 +1772,7 @@ namespace Sandbox.Engine.Networking
             // make sure we don't overwrite another save
             while (Directory.Exists(sessionPath))
                 sessionPath = Path.Combine(workshopBattleWorldsPath, safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"));
-#if XB1_TMP
+#if XB1
 			System.Diagnostics.Debug.Assert(false);
 #else
             MyZipArchive.ExtractToDirectory(localPackedWorldFullPath, sessionPath);
@@ -1860,3 +1861,31 @@ namespace Sandbox.Engine.Networking
         }
     }
 }
+#else // XB1
+namespace Sandbox.Engine.Networking
+{
+    public class MySteamWorkshop
+    {
+        public static void DownloadModsAsync(List<MyObjectBuilder_Checkpoint.ModItem> mods, Action<bool,string> onFinishedCallback, Action onCancelledCallback = null)
+        {
+            onFinishedCallback(true,"");
+            return;
+        }
+
+        public static bool DownloadWorldModsBlocking(List<MyObjectBuilder_Checkpoint.ModItem> mods)
+        {
+            return true;
+        }
+
+        public static bool CheckLocalModsAllowed(List<MyObjectBuilder_Checkpoint.ModItem> mods, bool allowLocalMods)
+        {
+            return true;
+        }
+
+        public static bool CanRunOffline(List<MyObjectBuilder_Checkpoint.ModItem> mods)
+        {
+            return true;
+        }
+    }
+}
+#endif // XB1

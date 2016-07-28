@@ -36,8 +36,10 @@ namespace Sandbox.Graphics
     public static class MyGuiManager
     {
 
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+#endif // !XB1
 
         private static Vector2 vector2Zero = Vector2.Zero;
         private static Rectangle? nullRectangle;
@@ -105,7 +107,9 @@ namespace Sandbox.Graphics
 
         static string m_mouseCursorTexture;
         //        static MyTexture2D m_mouseCursorArrowTexture;
+#if !XB1
         static System.Drawing.Bitmap m_mouseCursorBitmap;
+#endif
 
         static List<MyGuiTextureScreen> m_backgroundScreenTextures;
 
@@ -155,7 +159,11 @@ namespace Sandbox.Graphics
         /// </summary>
         static MyGuiManager()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            MyGuiControlsFactory.RegisterDescriptorsFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             MyGuiControlsFactory.RegisterDescriptorsFromAssembly(Assembly.GetCallingAssembly());
+#endif // !XB1
         }
 
         /// <summary>
@@ -172,13 +180,14 @@ namespace Sandbox.Graphics
             VRageRender.MyRenderProxy.Log.IncreaseIndent();
 
             var path = Path.Combine(MyFileSystem.ContentPath, Path.Combine("Textures", "GUI", "MouseCursorHW.png"));
+#if !XB1
             using (var stream = MyFileSystem.OpenRead(path))
             {
                 m_mouseCursorBitmap = System.Drawing.Bitmap.FromStream(stream) as System.Drawing.Bitmap;
             }
+            SetHWCursorBitmap(m_mouseCursorBitmap);
+#endif
             SetMouseCursorTexture(MyGuiConstants.CURSOR_ARROW);
-            SetHWCursorBitmap(m_mouseCursorBitmap);            
-
            
             m_backgroundScreenTextures = new List<MyGuiTextureScreen>
             {
@@ -728,8 +737,9 @@ namespace Sandbox.Graphics
             m_maxMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left + m_fullscreenRectangle.Width, m_fullscreenRectangle.Top + m_fullscreenRectangle.Height));
 
 #if XB1
-            MyInput.Static.SetMouseLimits( new Vector2(m_safeFullscreenRectangle.Left, m_safeFullscreenRectangle.Top),
-                new Vector2(m_safeFullscreenRectangle.Left + m_safeFullscreenRectangle.Width, m_safeFullscreenRectangle.Top + m_safeFullscreenRectangle.Height) );
+            //XB1_TODO: error: 'VRage.Input.IMyInput' does not contain a definition for 'SetMouseLimits'
+            //XB1_TODO: MyInput.Static.SetMouseLimits( new Vector2(m_safeFullscreenRectangle.Left, m_safeFullscreenRectangle.Top),
+            //XB1_TODO:    new Vector2(m_safeFullscreenRectangle.Left + m_safeFullscreenRectangle.Width, m_safeFullscreenRectangle.Top + m_safeFullscreenRectangle.Height) );
 #endif
 
             //  Normalized coordinates where width is always 1.0 and height something like 0.8
@@ -739,18 +749,18 @@ namespace Sandbox.Graphics
             m_hudSizeHalf = m_hudSize / 2.0f;
         }
 
-
+#if !XB1
         public static void SetHWCursorBitmap(System.Drawing.Bitmap b)
         {
-#if !XB1
+
             System.Windows.Forms.Form f = System.Windows.Forms.Control.FromHandle(MyInput.Static.WindowHandle) as System.Windows.Forms.Form;
             if (f != null)
             {
                 // TODO: OP! Make this in thread safe way and optimized
                 f.Invoke(new Action(() => f.Cursor = new System.Windows.Forms.Cursor(b.GetHicon())));
             }
-#endif
         }
+#endif
 
 
 

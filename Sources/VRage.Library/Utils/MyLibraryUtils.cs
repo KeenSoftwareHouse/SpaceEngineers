@@ -9,6 +9,7 @@ namespace VRage.Library.Utils
 {
     public class MyLibraryUtils
     {
+#if !XB1
         [Conditional("DEBUG")]
         [DebuggerStepThrough]
         public static void AssertBlittable<T>()
@@ -48,6 +49,7 @@ namespace VRage.Library.Utils
                 throw new InvalidOperationException("Type '" + typeof(T) + "' is not blittable", e);
             }
         }
+#endif // !XB1
 
         /// <summary>
         /// Normalizes uniform-spaced float within min/max into uint with specified number of bits.

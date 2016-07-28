@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+#if !XB1 // XB1_NOOPENVRWRAPPER
 using Valve.VR;
+#endif // !XB1
 using VRageMath;
 using VRage.Utils;
 
@@ -26,6 +28,70 @@ namespace VRage.OpenVRWrapper
 
     public class MyOpenVR
     {
+#if XB1 // XB1_NOOPENVRWRAPPER
+        static ControllerState m_controllerState = new ControllerState();
+
+        public static MyOpenVR Static
+        {
+            get { return null; }
+        }
+        public static Matrix ViewHMD //view matrix of the headset position
+        {
+            get { return Matrix.Identity; } 
+        }
+        public static Matrix HeadsetMatrixD
+        {
+            get { return Matrix.Identity; }
+        }
+        public static Matrix Controller1Matrix
+        {
+            get { return Matrix.Identity; }
+        }
+        public static Matrix Controller2Matrix
+        {
+            get { return Matrix.Identity; }
+        }
+        public static float Ipd_2
+        {
+            get { return 0.0f; }
+        }
+
+        public static bool LmuDebugOnOff = false;
+        public static bool Debug2DImage = false;//print 2D image from single frame
+
+        public static void FadeToColor(float sec, Color color)
+        {
+        }
+        public static void UnFade(float sec)
+        {
+        }
+        public static void LMUAdd(MatrixD? leftMult, MatrixD origin, ControllerRole role, int reference)
+        {
+        }
+        public static ControllerState GetControllerState(bool secondController)
+        {
+            return m_controllerState;
+        }
+        public static Vector2[] GetStencilMask()
+        {
+            return null;
+        }
+        public static void WaitForNextStart()
+        {
+        }
+        public void DisplayEye(IntPtr nativePointer)
+        {
+        }
+        public static void LMUMatrixGetOrigin(ref MatrixD origin, int reference)
+        {
+        }
+        public static void LMUMatrixUpdate(ref MatrixD matrix, int reference)//simply said: replaces worldmatrix with new one :-)
+        {
+        }
+        public static void FrameDone()
+        {
+        }
+#else // !XB1
         private static MyOpenVR m_openVR;
         public static MyOpenVR Static
         {
@@ -778,6 +844,7 @@ namespace VRage.OpenVRWrapper
                 matrix = ((MatrixD)entry.LeftMult) * matrix;
         }
         #endregion
+#endif // !XB1
     }
     public enum ControllerRole
     {

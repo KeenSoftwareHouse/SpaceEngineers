@@ -4,7 +4,11 @@ using VRage;
 namespace VRageRender
 {
     [PooledObject(poolPreallocationSize: 2)]
+#if XB1
+    class MyRenderingWorkRecordCommands : MyRenderingWork, IMyPooledObjectCleaner
+#else // !XB1
     class MyRenderingWorkRecordCommands : MyRenderingWork
+#endif // !XB1
     {
         internal readonly List<MyRenderingWorkItem> m_subworks = new List<MyRenderingWorkItem>();
         internal bool m_isDeferred = false;
@@ -72,11 +76,18 @@ namespace VRageRender
             ProfilerShort.End();
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyRenderingWorkRecordCommands renderWork)
         {
             renderWork.Cleanup();
         }
+#endif // !XB1
 
         internal override void Cleanup()
         {

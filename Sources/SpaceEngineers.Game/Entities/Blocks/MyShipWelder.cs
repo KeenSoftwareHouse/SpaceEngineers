@@ -64,6 +64,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyShipWelder()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_helpOthers = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
         }
 

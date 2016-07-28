@@ -104,6 +104,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyAirVent()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isDepressurizing = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             ResourceSink = new MyResourceSinkComponent(2);

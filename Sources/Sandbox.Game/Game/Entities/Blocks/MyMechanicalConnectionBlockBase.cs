@@ -16,17 +16,42 @@ using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace Sandbox.Game.Entities.Blocks
 {
     abstract public class MyMechanicalConnectionBlockBase : MyFunctionalBlock
     {
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         protected struct State
+#else // XB1
+        protected struct State : IMySetGetMemberDataHelper
+#endif // XB1
         {
             public long? TopBlockId;
             public MyDeltaTransform? MasterToSlave;
             public bool Force;
             public bool Welded;
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+            public object GetMemberData(MemberInfo m)
+            {
+                if (m.Name == "TopBlockId")
+                    return TopBlockId;
+                if (m.Name == "MasterToSlave")
+                    return MasterToSlave;
+                if (m.Name == "Force")
+                    return Force;
+                if (m.Name == "Welded")
+                    return Welded;
+
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+                return null;
+            }
+#endif // XB1
         }
 
         protected readonly Sync<State> m_connectionState;
@@ -54,6 +79,14 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyMechanicalConnectionBlockBase()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_connectionState = SyncType.CreateAndAddProp<State>();
+            m_topAndBottomSamePhysicsBody = SyncType.CreateAndAddProp<bool>();
+            m_forceWeld = SyncType.CreateAndAddProp<bool>();
+            m_speedWeld = SyncType.CreateAndAddProp<bool>();
+            m_weldSpeedSq = SyncType.CreateAndAddProp<float>();
+#endif // XB1
+
             m_forceWeld.ValueChanged += (o) => OnForceWeldChanged();
             m_connectionState.ValueChanged += (o) => OnAttachTargetChanged();
             m_connectionState.Validate = ValidateTopBlockId;
@@ -311,20 +344,20 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        protected void TryForceWeldServer()
+        protected void TryWeldServer()
         {
-            if (m_topBlock == null && (m_connectionState.Value.TopBlockId.HasValue))
-            {
-                TryGetTop();
-                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-                return;
-            }
-
             if(m_topBlockToReattach != null && m_forceWeld)
             {
                 m_topBlock = m_topBlockToReattach;
                 m_topGrid = m_topBlock.CubeGrid;
                 m_topBlockToReattach = null;
+            }
+
+            if (m_topBlock == null && (m_connectionState.Value.TopBlockId.HasValue))
+            {
+                TryGetTop();
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                return;
             }
 
             if (m_topBlock != null)
@@ -334,6 +367,7 @@ namespace Sandbox.Game.Entities.Blocks
                     if (m_welded == false)
                     {
                         WeldGroup(false);
+                        UpdateText();
                     }
                 }
                 else if (m_welded)
@@ -341,6 +375,7 @@ namespace Sandbox.Game.Entities.Blocks
                     UnweldGroup();
                     m_forceApply = true;
                     TryAttach();
+                    UpdateText();
                 }
             }
 
@@ -351,6 +386,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (m_forceApply && m_welded)
             {
                 UnweldGroup();
+                UpdateText();
             }
 
             if (m_connectionState.Value.Welded == false)
@@ -358,6 +394,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_welded)
                 {
                     UnweldGroup();
+                    UpdateText();
                 }
             }
             else if (m_connectionState.Value.Welded == true && (m_welded == false || m_topBlock == null || m_topBlock.EntityId != m_connectionState.Value.TopBlockId))
@@ -373,6 +410,7 @@ namespace Sandbox.Game.Entities.Blocks
                 {
                     WeldGroup(false);
                     m_forceApply = false;
+                    UpdateText();
                 }
                 else
                 {
@@ -385,13 +423,11 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (Sync.IsServer)
             {
-                TryForceWeldServer();
-                UpdateText();
+                TryWeldServer();
             }
             else
             {
                 TryWeldClient();
-                UpdateText();
             }
         }
 

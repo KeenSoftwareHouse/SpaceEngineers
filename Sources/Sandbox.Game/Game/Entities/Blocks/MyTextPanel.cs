@@ -563,10 +563,20 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnAddedToScene(source);
             ComponentStack_IsFunctionalChanged();//after merging grids...
+            if (!IsWorking && ShowTextOnScreen)
+                Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
         }
 
         public MyTextPanel()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_backgroundColor = SyncType.CreateAndAddProp<Color>();
+            m_fontColor = SyncType.CreateAndAddProp<Color>();
+            m_accessFlag = SyncType.CreateAndAddProp<TextPanelAccessFlag>();
+            m_showFlag = SyncType.CreateAndAddProp<ShowTextOnScreenFlag>();
+            m_changeInterval = SyncType.CreateAndAddProp<float>();
+            m_fontSize = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_publicDescription = new StringBuilder();

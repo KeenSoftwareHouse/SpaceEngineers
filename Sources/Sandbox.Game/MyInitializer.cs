@@ -25,6 +25,7 @@ using VRageRender;
 using VRage.Library.Utils;
 using VRage.Common.Utils;
 using VRage.Game;
+using VRage.Library;
 
 namespace Sandbox
 {
@@ -87,22 +88,28 @@ namespace Sandbox
                 (MyObfuscation.Enabled ? "[O]" : "[NO]"),
                 (isSteamPath ? "[IS]" : "[NIS]"),
                 (manifestPresent ? "[AMP]" : "[NAMP]")));
-            MySandboxGame.Log.WriteLine("Environment.ProcessorCount: " + Environment.ProcessorCount);
+            MySandboxGame.Log.WriteLine("Environment.ProcessorCount: " + MyEnvironment.ProcessorCount);
+#if !XB1
             MySandboxGame.Log.WriteLine("Environment.OSVersion: " + Environment.OSVersion);
             MySandboxGame.Log.WriteLine("Environment.CommandLine: " + Environment.CommandLine);
-            MySandboxGame.Log.WriteLine("Environment.Is64BitProcess: " + Environment.Is64BitProcess);
+#endif // !XB1
+            MySandboxGame.Log.WriteLine("Environment.Is64BitProcess: " + MyEnvironment.Is64BitProcess);
+#if !XB1
             MySandboxGame.Log.WriteLine("Environment.Is64BitOperatingSystem: " + Environment.Is64BitOperatingSystem);
             MySandboxGame.Log.WriteLine("Environment.Version: " + GetNETFromRegistry());
             MySandboxGame.Log.WriteLine("Environment.CurrentDirectory: " + Environment.CurrentDirectory);
             MySandboxGame.Log.WriteLine("MainAssembly.ProcessorArchitecture: " + Assembly.GetExecutingAssembly().GetArchitecture());
             MySandboxGame.Log.WriteLine("ExecutingAssembly.ProcessorArchitecture: " + MyFileSystem.MainAssembly.GetArchitecture());
+#endif // !XB1
             MySandboxGame.Log.WriteLine("IntPtr.Size: " + IntPtr.Size.ToString());
             MySandboxGame.Log.WriteLine("Default Culture: " + CultureInfo.CurrentCulture.Name);
             MySandboxGame.Log.WriteLine("Default UI Culture: " + CultureInfo.CurrentUICulture.Name);
             MySandboxGame.Log.WriteLine("IsAdmin: " + new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator));
 
             MyLog.Default = MySandboxGame.Log;
+#if !XB1
             MyTrace.InitWinTrace();
+#endif // !XB1
 
             MyEnumDuplicitiesTester.CheckEnumNotDuplicitiesInRunningApplication(); // About 300 ms
 
@@ -216,7 +223,11 @@ namespace Sandbox
                             Sandbox.Game.MyPerGameSettings.RequiresDX11,
                             args.ExceptionObject as Exception);
                     }
+#if !XB1
                     Process.GetCurrentProcess().Kill();
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                 }
             }
         }
@@ -326,6 +337,7 @@ namespace Sandbox
                 }
                 else
                 {
+#if !XB1
                     bool isSilentException = false;
                     if (e.Data.Contains("Silent"))
                         bool.TryParse((string)e.Data["Silent"], out isSilentException);
@@ -343,6 +355,9 @@ namespace Sandbox
                         var p = Process.Start(pi);
                         p.StandardInput.Close();
                     }
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                 }
 
                 MyAnalyticsTracker.ReportError(MyAnalyticsTracker.SeverityEnum.Critical, e, async: false);

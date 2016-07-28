@@ -343,27 +343,24 @@ namespace Sandbox.Game.Entities.Character.Components
 
             LogicalCrosshairPoint = LogicalPositionWorld + LogicalOrientationWorld * 2000;
 
-            if (Character.CurrentWeapon != null)
+            if (Character.CurrentWeapon != null && Character.ControllerInfo.IsLocallyControlled() == false)
             {
                 // MZ fix: weapon position not updated on DS
                 MyEngineerToolBase tool = Character.CurrentWeapon as MyEngineerToolBase;
                 if (tool != null)
                 {
-                    if (Character.ControllerInfo.IsLocallyControlled() == false)
-                    {
-                        tool.UpdateSensorPosition();
-                    }
+
+                    tool.UpdateSensorPosition();
                 }
                 else
                 {
                     MyHandDrill drill = Character.CurrentWeapon as MyHandDrill;
-                    if(drill != null)
+                    if (drill != null)
                     {
                         drill.WorldPositionChanged(null);
                     }
                 }
             }
-
         }
 
         /// <summary>

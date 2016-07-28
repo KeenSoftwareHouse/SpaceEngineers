@@ -21,6 +21,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Library.Utils;
+using VRage.Library;
 
 namespace Sandbox.Engine.Networking
 {
@@ -95,19 +96,35 @@ namespace Sandbox.Engine.Networking
                 // We're just reporting the first 
                 var cpuName = cpus.Cast<ManagementObject>().First()["Name"].ToString();
 
+#if XB1
+                System.Diagnostics.Debug.Assert(false);
+#else // !XB1
                 var memoryInfo = new WinApi.MEMORYSTATUSEX();
                 WinApi.GlobalMemoryStatusEx(memoryInfo);
+#endif // !XB1
 
                 MyAdapterInfo gpu = MyVideoSettingsManager.Adapters[MyVideoSettingsManager.CurrentDeviceSettings.AdapterOrdinal];
                 var deviceName = gpu.Name;
                 
-                data.ProcessorCount = (byte)Environment.ProcessorCount;
+                data.ProcessorCount = (byte)MyEnvironment.ProcessorCount;
+#if XB1
+                System.Diagnostics.Debug.Assert(false);
+#else // !XB1
                 data.OsVersion = Environment.OSVersion.VersionString;
+#endif // !XB1
                 data.CpuInfo = cpuName;
+#if XB1
+                System.Diagnostics.Debug.Assert(false);
+#else // !XB1
                 data.OsPlatform = Environment.Is64BitOperatingSystem ? "64bit" : "32bit";
+#endif // !XB1
                 data.HasDX11 = MyDirectXHelper.IsDx11Supported();
                 data.GameVersion = MyFinalBuildConstants.APP_VERSION_STRING.ToString();
+#if XB1
+                System.Diagnostics.Debug.Assert(false);
+#else // !XB1
                 data.TotalPhysMemBytes = memoryInfo.ullTotalPhys;
+#endif // !XB1
                 data.GpuInfo = new MyGraphicsInfo();
                 data.GpuInfo.AnisotropicFiltering = MyVideoSettingsManager.CurrentGraphicsSettings.Render.AnisotropicFiltering.ToString();
                 data.GpuInfo.AntialiasingMode = MyVideoSettingsManager.CurrentGraphicsSettings.Render.AntialiasingMode.ToString();

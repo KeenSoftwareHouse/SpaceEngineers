@@ -1,4 +1,5 @@
-﻿#if FEAT_COMPILER
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if FEAT_COMPILER
 //#define DEBUG_COMPILE
 using System;
 using System.Threading;
@@ -1363,3 +1364,4 @@ namespace ProtoBuf.Compiler
     }
 }
 #endif
+#endif // !XB1

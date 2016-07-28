@@ -49,6 +49,7 @@ namespace VRage.Game.ModAPI
         bool IsPausable();
         //void LoadDataComponents(IMyLocalPlayer localPlayer = null);
         short MaxFloatingObjects { get; }
+        short MaxBackupSaves { get; }
         short MaxPlayers { get; }
         bool MultiplayerAlive { get; set; }
         bool MultiplayerDirect { get; set; }

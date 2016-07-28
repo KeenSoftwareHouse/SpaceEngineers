@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using VRage;
+using VRage.Library;
 
 namespace ParallelTasks
 {
@@ -35,7 +36,7 @@ namespace ParallelTasks
 #elif WINDOWS_PHONE
             : this(1)     // Cannot access Environment.ProcessorCount on WP7. (Security issue.)
 #else
-            : this(Environment.ProcessorCount, ThreadPriority.BelowNormal)
+            : this(MyEnvironment.ProcessorCount, ThreadPriority.BelowNormal)
 #endif
         {
         }

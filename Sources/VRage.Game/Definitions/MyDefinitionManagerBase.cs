@@ -27,7 +27,9 @@ namespace VRage.Game
         protected static Dictionary<Type, MyDefinitionPostprocessor> m_postprocessorsByType = new Dictionary<Type, MyDefinitionPostprocessor>();
         protected static List<MyDefinitionPostprocessor> m_postProcessors = new List<MyDefinitionPostprocessor>();
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
         protected static HashSet<Assembly> m_registeredAssemblies = new HashSet<Assembly>();
+#endif // !XB1
 
         // This field is set in static constructor of MyDefinitionManager.
         public static MyDefinitionManagerBase Static;
@@ -35,18 +37,31 @@ namespace VRage.Game
         // TODO: Should not be static
         private static readonly Dictionary<Type, HashSet<Type>> m_childDefinitionMap = new Dictionary<Type, HashSet<Type>>();
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
         private static HashSet<Assembly> m_registered = new HashSet<Assembly>();
+#else // XB1
+        private static bool m_registered = false;
+#endif // XB1
 
         public static void RegisterTypesFromAssembly(Assembly assembly)
         {
             if (assembly == null) return;
+#if !XB1 // XB1_ALLINONEASSEMBLY
             if (m_registeredAssemblies.Contains(assembly)) return;
             m_registeredAssemblies.Add(assembly);
 
             if (m_registered.Contains(assembly)) return;
             m_registered.Add(assembly);
+#endif // !XB1
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (Type type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (Type type in assembly.GetTypes())
+#endif // !XB1
             {
                 var descriptorArray = type.GetCustomAttributes(typeof(MyDefinitionTypeAttribute), false);
 

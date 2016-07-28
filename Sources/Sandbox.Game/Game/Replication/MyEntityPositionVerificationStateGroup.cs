@@ -1,5 +1,7 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
@@ -8,16 +10,23 @@ using System.Linq;
 using System.Text;
 using VRage.Game.Entity;
 using VRage.Network;
+using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
 
 namespace Sandbox.Game.Replication
 {
-    public class MyEntityPositionVerificationStateGroup : IMyStateGroup
+    public abstract class MyEntityPositionVerificationStateGroup : IMyStateGroup
     {
         protected MyEntity Entity;
 
-        protected Dictionary<ulong, uint> m_serverClientData;
+        protected struct ClientData
+        {
+            public uint TimeStamp;
+            public MyTransformD Transform;
+        }
+
+        protected Dictionary<ulong, ClientData> m_serverClientData;
         Dictionary<ulong, bool> m_clientUpdateFlag;
 
         protected MyTimestampHelper m_timestamp;
@@ -25,6 +34,11 @@ namespace Sandbox.Game.Replication
         protected uint m_currentTimeStamp = 0;
 
         uint m_lastRecievedTimeStamp = 0;
+
+        public virtual long? GetSupportID()
+        {
+            return null;
+        }
 
         public StateGroupEnum GroupType
         {
@@ -35,7 +49,7 @@ namespace Sandbox.Game.Replication
         {
             if(m_serverClientData == null)
             {
-                m_serverClientData = new Dictionary<ulong, uint>();
+                m_serverClientData = new Dictionary<ulong, ClientData>();
             }
             if (m_clientUpdateFlag == null)
             {
@@ -43,7 +57,6 @@ namespace Sandbox.Game.Replication
             }
 
             m_clientUpdateFlag[forClient.EndpointId.Value] = false;
-            m_serverClientData[forClient.EndpointId.Value] = 0;
         }
 
         public void DestroyClientData(MyClientStateBase forClient)
@@ -76,7 +89,7 @@ namespace Sandbox.Game.Replication
             }
 
             m_timestamp.Update(timestamp);
-            m_currentTimeStamp = timestamp;
+            m_currentTimeStamp = timestamp;  
         }
 
         public void Destroy()
@@ -132,65 +145,142 @@ namespace Sandbox.Game.Replication
         }
 
         protected virtual void ClientWrite(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, int maxBitPosition)
-        {                         
-        }
-
-        void ServerWrite(VRage.Library.Collections.BitStream stream, ulong clientId)
         {
-            stream.WriteUInt32(m_serverClientData[clientId]);
-            var matrix = Entity.WorldMatrix;
-            stream.Write(matrix.Translation);
+            MatrixD matrix = Entity.WorldMatrix;
             stream.WriteQuaternionNorm(Quaternion.CreateFromForwardUp(matrix.Forward, matrix.Up));
-            //HalfVector3 linear = Entity.Physics != null ? Vector3.Round(Entity.Physics.LinearVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio, MyEntityPhysicsStateGroup.NUM_DECIMAL_PRECISION) : Vector3.Zero;
-            Vector3 linear = Entity.Physics != null ? Entity.Physics.LinearVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero;
-            stream.Write(linear);
-
-            Vector3 angular = Entity.Physics != null ? Entity.Physics.AngularVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero;
-            stream.Write(angular);
-
-            m_clientUpdateFlag[clientId] = false;
-            CustomServerWrite(m_serverClientData[clientId], stream);
-        }
-
-        protected virtual void CustomServerWrite(uint timeStamp, VRage.Library.Collections.BitStream stream)
-        {
-
-        }
-
-        void ClientRead(VRage.Library.Collections.BitStream stream)
-        {    
-            uint timeStamp = stream.ReadUInt32();
-            if(m_lastRecievedTimeStamp > timeStamp)
-            {
-                return;
-            }
-            m_lastRecievedTimeStamp = timeStamp;
-
-            MyTimeStampValues serverPositionAndOrientation = new MyTimeStampValues();
-            serverPositionAndOrientation.Transform = new MyTransformD();
-            serverPositionAndOrientation.Transform.Position = stream.ReadVector3D();
-            serverPositionAndOrientation.Transform.Rotation = stream.ReadQuaternionNorm();
-            serverPositionAndOrientation.LinearVelocity = stream.ReadVector3();
-            serverPositionAndOrientation.AngularVelocity = stream.ReadVector3();
-
-            serverPositionAndOrientation.LinearVelocity /= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-            serverPositionAndOrientation.AngularVelocity /= MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
-           
-            CustomClientRead(timeStamp, ref serverPositionAndOrientation, stream);
-        }
-
-        protected virtual void CustomClientRead(uint timeStamp, ref MyTimeStampValues serverPositionAndOrientation, VRage.Library.Collections.BitStream stream)
-        {
-            if (m_timestamp != null)
-            {
-                m_timestamp.ServerResponse(timeStamp, ref serverPositionAndOrientation);
-            }
+            stream.Write(matrix.Translation);
         }
 
         protected virtual void ServerRead(VRage.Library.Collections.BitStream stream, ulong clientId,uint timestamp)
         {
             m_clientUpdateFlag[clientId] = true;
-            m_serverClientData[clientId] = timestamp;        
+
+            ClientData data = new ClientData();
+            data.TimeStamp = timestamp;
+            data.Transform = new MyTransformD();
+
+            data.Transform.Rotation = stream.ReadQuaternionNorm();
+            data.Transform.Position = stream.ReadVector3D();
+
+            m_serverClientData[clientId] = data;        
+        }
+
+        void ServerWrite(VRage.Library.Collections.BitStream stream, ulong clientId)
+        {
+            ClientData clientData = m_serverClientData[clientId];
+            m_clientUpdateFlag[clientId] = false;
+
+            stream.WriteUInt32(clientData.TimeStamp);
+
+            MyTransformD serverData = new MyTransformD(Entity.WorldMatrix);
+
+
+            //rotation is calculated same way for both
+            Quaternion serverRotation = serverData.Rotation;
+            serverRotation.Normalize();
+            clientData.Transform.Rotation.Normalize();
+
+            MyTimeStampValues delta = new MyTimeStampValues();
+
+            serverRotation = Quaternion.Inverse(serverRotation);
+            Quaternion.Multiply(ref clientData.Transform.Rotation, ref serverRotation, out delta.Transform.Rotation);
+
+            bool apply = false;
+            double eps = 0.001;
+            if (Math.Abs(Quaternion.Dot(clientData.Transform.Rotation, serverData.Rotation)) < 1 - eps)
+            {
+                apply = true;
+            }
+
+            bool isValidPosition = true;
+            bool correctServerposition = false;
+
+            CalculatePositionDifference(clientId, out isValidPosition, out correctServerposition, out delta.Transform.Position);
+
+            bool sendUpdate = !isValidPosition;
+
+            if (correctServerposition)
+            {
+                apply = true;
+            }
+
+            if (apply)
+            {
+                MatrixD matrix = Entity.WorldMatrix;
+                MatrixD correctionMatrix = MatrixD.Multiply(matrix.GetOrientation(), delta.Transform.TransformMatrix);
+                correctionMatrix.Translation += Entity.WorldMatrix.Translation;
+                Entity.PositionComp.SetWorldMatrix(correctionMatrix, null, true);
+
+                MyEntityPhysicsStateGroup support = MySupportHelper.FindPhysics(Entity);
+                if(support != null && support.MoveHandler != null)
+                {
+                    support.MoveHandler(ref matrix, ref correctionMatrix);
+                }
+               
+            }
+
+
+            stream.Write(Entity.Physics != null ? Entity.Physics.LinearVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero);
+            stream.Write(Entity.Physics != null ? Entity.Physics.AngularVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero);
+
+            stream.WriteBool(sendUpdate);
+
+            if (sendUpdate)
+            {
+                serverData = new MyTransformD(Entity.WorldMatrix);
+                stream.Write(serverData.Position);
+                stream.WriteQuaternion(serverData.Rotation);
+
+                CustomServerWrite(m_serverClientData[clientId].TimeStamp, clientId, stream);
+            }
+        }
+
+        protected abstract void CalculatePositionDifference(ulong clientId, out bool isValid, out bool correctServer, out Vector3D delta);
+
+        protected virtual void CustomServerWrite(uint timeStamp, ulong clientId, VRage.Library.Collections.BitStream stream)
+        {
+
+        }
+
+        void ClientRead(VRage.Library.Collections.BitStream stream)
+        {
+            uint timeStamp = stream.ReadUInt32();
+            m_lastRecievedTimeStamp = timeStamp;
+
+            Vector3 serverLinearVelocity = stream.ReadVector3();
+            Vector3 serverAngularVelocity = stream.ReadVector3();
+
+            MyTimeStampValues? clientData = m_timestamp.GetTransform(timeStamp);
+
+            if (clientData.HasValue)
+            {
+               Vector3D linearDelta = serverLinearVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio - clientData.Value.LinearVelocity;
+                Entity.Physics.LinearVelocity += Vector3D.Round(linearDelta,2);
+                Vector3D angularDelta = serverAngularVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio - clientData.Value.AngularVelocity;
+                Entity.Physics.AngularVelocity += Vector3D.Round(angularDelta, 2);
+
+                m_timestamp.UpdateDeltaVelocities(timeStamp, ref linearDelta, ref angularDelta);
+            }
+            
+
+            bool isUpdate = stream.ReadBool();
+            if (isUpdate)
+            {
+                MyTransformD serverTransform = new MyTransformD();
+                serverTransform.Position = stream.ReadVector3D();
+                serverTransform.Rotation = stream.ReadQuaternion();
+                serverTransform.Rotation = Quaternion.Identity;
+
+                CustomClientRead(timeStamp, ref serverTransform, stream);
+            }
+        }
+
+        protected virtual void CustomClientRead(uint timeStamp, ref  MyTransformD serverPositionAndOrientation, VRage.Library.Collections.BitStream stream)
+        {
+            if (m_timestamp != null)
+            {
+                m_timestamp.ServerResponse(timeStamp, ref serverPositionAndOrientation);
+            }
         }
 
         public void OnAck(MyClientStateBase forClient, byte packetId, bool delivered)

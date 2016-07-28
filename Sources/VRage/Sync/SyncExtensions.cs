@@ -25,6 +25,7 @@ namespace VRage
             sync.Validate = (value) => false;
         }
 
+#if !XB1
         /// <summary>
         /// Sets validate handler to validate that value is in range.
         /// </summary>
@@ -55,5 +56,6 @@ namespace VRage
                     return value >= b.Min && value <= b.Max;
                 };
         }
+#endif // !XB1
     }
 }

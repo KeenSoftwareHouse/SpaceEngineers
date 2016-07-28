@@ -84,6 +84,9 @@ namespace Sandbox.Game.Weapons
 
         public MySmallGatlingGun()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_rotationAngle = MyUtils.GetRandomRadian();
@@ -95,7 +98,11 @@ namespace Sandbox.Game.Weapons
 
             m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
 
+#if XB1// XB1_SYNC_NOREFLECTION
+            m_gunBase = new MyGunBase(SyncType);
+#else // !XB1
             m_gunBase = new MyGunBase();         
+#endif // !XB1
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
             Render.NeedsDrawFromParent = true;
@@ -103,7 +110,9 @@ namespace Sandbox.Game.Weapons
             Render = new MyRenderComponentSmallGatlingGun();
             AddDebugRenderComponent(new MyDebugRenderComponentSmallGatlingGun(this));
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType.Append(m_gunBase);
+#endif // !XB1
         }
 
         static void CreateTerminalControls()

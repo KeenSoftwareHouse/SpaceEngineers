@@ -96,40 +96,18 @@ namespace Sandbox.Game.Entities.Character
 
         public void Apply()
         {
+            m_character.MoveAndRotate(m_move, m_rotate, m_roll);
             m_character.MoveAndRotateInternal(m_move, m_rotate, m_roll, Vector3.Zero);
-            //   m_character.UpdateCharacterProxy();
+            var jetpack = m_character.JetpackComp;
+
+            if (jetpack != null && jetpack.TurnedOn)
+            {
+                m_character.JetpackComp.UpdateThrustFromNetwork();
+            }
+
         }
 
         public bool ExecuteBeforeMoveAndRotate { get { return false; } }
-    }
-
-    class MySetRotationNetCommand : IMyNetworkCommand
-    {
-        MyCharacter m_character;
-        Quaternion m_rotation;
-
-        public MySetRotationNetCommand(MyCharacter character, ref Quaternion rotation)
-        {
-            m_character = character;
-            m_rotation = rotation;
-        }
-
-        public void Apply()
-        {
-            MatrixD worldMatrix = MatrixD.CreateFromQuaternion(m_rotation);
-
-            worldMatrix.Translation = m_character.PositionComp.GetPosition();
-
-            m_character.PositionComp.SetWorldMatrix(worldMatrix);
-
-            if (m_character.Physics != null && m_character.Physics.CharacterProxy != null)
-            {
-                m_character.Physics.CharacterProxy.Forward = worldMatrix.Forward;
-                m_character.Physics.CharacterProxy.Up = worldMatrix.Up;
-            }
-        }
-
-        public bool ExecuteBeforeMoveAndRotate { get { return true; } }
     }
 
     class MyDeltaNetCommand : IMyNetworkCommand
@@ -249,6 +227,8 @@ namespace Sandbox.Game.Entities.Character
         float m_canPlayImpact = 0f;
         static MyStringId m_stringIdStart = MyStringId.GetOrCompute("Start");
         static MyStringHash m_stringHashCharacter = MyStringHash.GetOrCompute("Character");
+
+        bool m_isDeathPlayer = false;
 
         //Weapon
         public static MyHudNotification OutOfAmmoNotification;
@@ -656,8 +636,6 @@ namespace Sandbox.Game.Entities.Character
 
         readonly List<Sandbox.Engine.Physics.MyPhysics.HitInfo> m_universalTemporaryRaycastHits = new List<Sandbox.Engine.Physics.MyPhysics.HitInfo>(4);
 
-        float m_worldRealVelocity;
-
         List<IMyNetworkCommand> m_cachedCommands;
         readonly Sync<bool> m_isPromoted;
 
@@ -759,7 +737,22 @@ namespace Sandbox.Game.Entities.Character
             Render.SkipIfTooSmall = false;
 
             SinkComp = new MyResourceSinkComponent();
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+            m_currentAmmoCount = SyncType.CreateAndAddProp<int>();
+            m_currentMagazineAmmoCount = SyncType.CreateAndAddProp<int>();
+            m_controlInfo = SyncType.CreateAndAddProp<Sandbox.Game.World.MyPlayer.PlayerId>();
+            m_localHeadPosition = SyncType.CreateAndAddProp<Vector3>();
+            m_animLeaning = SyncType.CreateAndAddProp<float>();
+            m_animTurningSpeed = SyncType.CreateAndAddProp<float>();
+            m_localHeadTransform = SyncType.CreateAndAddProp<MyTransform>();
+            m_localHeadTransformTool = SyncType.CreateAndAddProp<MyTransform>();
+            m_isPromoted = SyncType.CreateAndAddProp<bool>();
+            //m_weaponPosition = SyncType.CreateAndAddProp<Vector3>();
+#endif // XB1
+
 
             AddDebugRenderComponent(new MyDebugRenderComponentCharacter(this));
 
@@ -1280,7 +1273,7 @@ namespace Sandbox.Game.Entities.Character
 
         void RigidBody_ContactPointCallback(ref HkContactPointEvent value)
         {
-            if (IsDead)
+            if (IsDead || Sync.IsServer == false)
                 return;
 
             if (Physics.CharacterProxy == null)
@@ -1808,7 +1801,6 @@ namespace Sandbox.Game.Entities.Character
                 return;
 
 
-
             // Persist current movement flags before UpdateAfterSimulation()
             // to safely send the client state at a later stage
             m_previousMovementFlags = m_movementFlags;
@@ -1835,7 +1827,7 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
 
-            if (ControllerInfo.IsLocallyControlled())
+            if(ControllerInfo.IsLocallyControlled() || (IsUsing == null && (m_cachedCommands != null && m_cachedCommands.Count == 0)))
             {
                 MoveAndRotateInternal(MoveIndicator, RotationIndicator, RollIndicator, RotationCenterIndicator);
             }
@@ -1879,7 +1871,7 @@ namespace Sandbox.Game.Entities.Character
             SoundComp.FindAndPlayStateSound();
             SoundComp.UpdateWindSounds();
 
-            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting && (ControllerInfo.IsLocallyControlled() || Sync.IsServer))
+            if (!IsDead && m_currentMovementState != MyCharacterMovementEnum.Sitting)
             {
                 if (!MySandboxGame.IsPaused)//this update is called even in pause (jetpack, model update)
                 {
@@ -1908,7 +1900,7 @@ namespace Sandbox.Game.Entities.Character
             }
 
             var jetpack = JetpackComp;
-            if (jetpack != null)
+            if (jetpack != null && (ControllerInfo.IsLocallyControlled() || Sync.IsServer))
                 jetpack.UpdateBeforeSimulation();
 
 
@@ -2027,8 +2019,6 @@ namespace Sandbox.Game.Entities.Character
         public override void UpdateAfterSimulation()
         {
             base.UpdateAfterSimulation();
-
-
             if (!IsDead)
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Stats");
@@ -2041,8 +2031,7 @@ namespace Sandbox.Game.Entities.Character
             UpdateDying();
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-         
-
+      
             if ((!MySandboxGame.IsDedicated || !MyPerGameSettings.DisableAnimationsOnDS) && !IsDead)
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Shake");
@@ -2067,8 +2056,7 @@ namespace Sandbox.Game.Entities.Character
                 JetpackComp.ClearMovement();
             }
 
-           
-
+          
             if (!MySandboxGame.IsDedicated || !MyPerGameSettings.DisableAnimationsOnDS)
             {
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Animation");
@@ -2181,7 +2169,7 @@ namespace Sandbox.Game.Entities.Character
                         return true;
                     }
                 }
-                else if (SyncObject != null && SyncObject.Entity != null && SyncObject.Entity.PositionComp != null && GetPlayerIdentityId() == MySession.Static.LocalPlayerId)
+                else if (SyncObject != null && SyncObject.Entity != null && SyncObject.Entity.PositionComp != null && m_isDeathPlayer)
                 {
                     // Update corpse location
                     string bodyLocationName = MyTexts.Get(MySpaceTexts.GPS_Body_Location_Name).ToString();
@@ -2227,9 +2215,6 @@ namespace Sandbox.Game.Entities.Character
 
         private void UpdateFallAndSpine()
         {
-            if (ControllerInfo.IsRemotelyControlled() && !Sync.IsServer)
-                return;
-
             var jetpack = JetpackComp;
             if (jetpack != null)
                 jetpack.UpdateFall();
@@ -2348,62 +2333,60 @@ namespace Sandbox.Game.Entities.Character
             if (!MySandboxGame.IsGameReady || Physics == null || !Physics.Enabled || !MySession.Static.Ready || Physics.HavokWorld == null)
                 return;
 
-            if (!ControllerInfo.IsRemotelyControlled() || Sync.IsServer)
+
+            var jetpack = JetpackComp;
+            bool jetpackNotActive = (jetpack == null || !jetpack.UpdatePhysicalMovement());	//Solve Y orientation and gravity only in non flying mode
+
+            float relativeSpeed = Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio;
+
+            if ((jetpackNotActive || Definition.VerticalPositionFlyingOnly) && !IsDead && Physics.CharacterProxy != null)
             {
-                var jetpack = JetpackComp;
-                bool jetpackNotActive = (jetpack == null || !jetpack.UpdatePhysicalMovement());	//Solve Y orientation and gravity only in non flying mode
-
-                float relativeSpeed = Sync.IsServer ? 1.0f : Sync.RelativeSimulationRatio;
-
-                if ((jetpackNotActive || Definition.VerticalPositionFlyingOnly) && !IsDead && Physics.CharacterProxy != null)
+                if (!Physics.CharacterProxy.Up.IsValid())
                 {
-                    if (!Physics.CharacterProxy.Up.IsValid())
-                    {
-                        Debug.Fail("Character Proxy Up vector is invalid! Can not to solve gravity influence on character. Character type: " + this.GetType().ToString());
-                        Physics.CharacterProxy.Up = WorldMatrix.Up;
-                    }
-
-                    if (!Physics.CharacterProxy.Forward.IsValid())
-                    {
-                        Debug.Fail("Character Proxy Forward vector is invalid! Can not to solve gravity influence on character. Character type: " + this.GetType().ToString());
-                        Physics.CharacterProxy.Forward = WorldMatrix.Forward;
-                    }
-
-                    Vector3 characterUp = Physics.CharacterProxy.Up;
-                    Vector3 characterForward = Physics.CharacterProxy.Forward;
-
-                    Vector3 gravity =  relativeSpeed * MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.WorldAABB.Center);
-                    if (jetpackNotActive)
-                        Physics.CharacterProxy.Gravity = gravity * MyPerGameSettings.CharacterGravityMultiplier;
-                    else
-                        Physics.CharacterProxy.Gravity = Vector3.Zero;
-
-                    // If there is valid non-zero gravity
-                    if ((gravity.LengthSquared() > 0.1f) && (characterUp != Vector3.Zero) && gravity.IsValid())
-                    {
-                        UpdateStandup(ref gravity, ref characterUp, ref characterForward);
-                        if (jetpack != null)
-                            jetpack.CurrentAutoEnableDelay = 0;
-                    }
-                    // Zero-G
-                    else
-                    {
-                        if (jetpack != null && jetpack.CurrentAutoEnableDelay != -1)
-                            jetpack.CurrentAutoEnableDelay += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                    }
-
-                    Physics.CharacterProxy.Forward = characterForward;
-                    Physics.CharacterProxy.Up = characterUp;
+                    Debug.Fail("Character Proxy Up vector is invalid! Can not to solve gravity influence on character. Character type: " + this.GetType().ToString());
+                    Physics.CharacterProxy.Up = WorldMatrix.Up;
                 }
-                else if (IsDead)
-                {
-                    if (Physics == null) Debugger.Break();
 
-                    if (Physics.HasRigidBody && Physics.RigidBody.IsActive)
-                    {
-                        Vector3 gravity = relativeSpeed * relativeSpeed * MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.WorldAABB.Center);
-                        Physics.RigidBody.Gravity = gravity;
-                    }
+                if (!Physics.CharacterProxy.Forward.IsValid())
+                {
+                    Debug.Fail("Character Proxy Forward vector is invalid! Can not to solve gravity influence on character. Character type: " + this.GetType().ToString());
+                    Physics.CharacterProxy.Forward = WorldMatrix.Forward;
+                }
+
+                Vector3 characterUp = Physics.CharacterProxy.Up;
+                Vector3 characterForward = Physics.CharacterProxy.Forward;
+
+                Vector3 gravity = relativeSpeed * MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.WorldAABB.Center);
+                if (jetpackNotActive)
+                    Physics.CharacterProxy.Gravity = gravity * MyPerGameSettings.CharacterGravityMultiplier;
+                else
+                    Physics.CharacterProxy.Gravity = Vector3.Zero;
+
+                // If there is valid non-zero gravity
+                if ((gravity.LengthSquared() > 0.1f) && (characterUp != Vector3.Zero) && gravity.IsValid())
+                {
+                    UpdateStandup(ref gravity, ref characterUp, ref characterForward);
+                    if (jetpack != null)
+                        jetpack.CurrentAutoEnableDelay = 0;
+                }
+                // Zero-G
+                else
+                {
+                    if (jetpack != null && jetpack.CurrentAutoEnableDelay != -1)
+                        jetpack.CurrentAutoEnableDelay += VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                }
+
+                Physics.CharacterProxy.Forward = characterForward;
+                Physics.CharacterProxy.Up = characterUp;
+            }
+            else if (IsDead)
+            {
+                if (Physics == null) Debugger.Break();
+
+                if (Physics.HasRigidBody && Physics.RigidBody.IsActive)
+                {
+                    Vector3 gravity =  relativeSpeed * MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.WorldAABB.Center);
+                    Physics.RigidBody.Gravity = gravity;
                 }
             }
 
@@ -2707,17 +2690,6 @@ namespace Sandbox.Game.Entities.Character
             m_cachedCommands.Add(new MyMoveNetCommand(this, ref moveIndicator, ref rotate, ref roll));
         }
 
-        public void CacheRotation(ref Quaternion orientation)
-        {
-            if (m_cachedCommands == null)
-            {
-                m_cachedCommands = new List<IMyNetworkCommand>();
-            }
-
-            m_cachedCommands.Add(new MySetRotationNetCommand(this, ref orientation));
-        }
-
-
         public void CacheMoveDelta(ref Vector3D moveDeltaIndicator)
         {
             if (m_cachedCommands == null)
@@ -2923,7 +2895,7 @@ namespace Sandbox.Game.Entities.Character
                 float ratio = 1.0f;
                 if (MyFakes.ENABLE_CHARACTER_CONTROL_ON_SERVER)
                 {
-                    ratio =  Sync.RelativeSimulationRatio;
+                    ratio = (float)Math.Min(1.0,Sync.RelativeSimulationRatio);
                 }
 
                 if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJumpTime > 0))
@@ -2931,46 +2903,11 @@ namespace Sandbox.Game.Entities.Character
                     MatrixD rotationMatrix = MatrixD.CreateRotationY((-rotationIndicator.Y * RotationSpeed * CHARACTER_Y_ROTATION_FACTOR * ratio));
                     MatrixD characterMatrix = MatrixD.CreateWorld(Physics.CharacterProxy.Position, Physics.CharacterProxy.Forward, Physics.CharacterProxy.Up);
                     Vector3D headBoneTranslation = Vector3D.Zero;
-
-                    // rotate around point of interest
-                    //if (m_headBoneIndex >= 0 && m_headBoneIndex < AnimationController.CharacterBones.Length)
-                    //{
-                    //    if (ControllerInfo.IsLocallyControlled())
-                    //    {
-                    //        headBoneTranslation = m_headMatrix.Translation;
-                    //        headBoneTranslation.X = 0;
-                    //        headBoneTranslation.Y = 0;
-                    //    }
-                    //    else
-                    //    {
-                    //        headBoneTranslation = m_localHeadPosition.Value;
-                    //    }
-                    //    rotationMatrix = MatrixD.CreateTranslation(-headBoneTranslation) * rotationMatrix * MatrixD.CreateTranslation(headBoneTranslation);
-                    //}
-
-                    // compute delta matrix
-                    //Vector3D characterMatrixTranslationBackup = characterMatrix.Translation;
-                    // new matrix candidates
-                    characterMatrix = rotationMatrix * characterMatrix;
-                    //var newWorldMatrix = rotationMatrix * WorldMatrix;
-                    // check whether this rotation is safe
-                    //if (ControllerInfo.IsLocallyControlled())
-                    //{
-                    //    if (IsMovementDangerous(ref newWorldMatrix))
-                    //    {
-                    //        characterMatrix.Translation = characterMatrixTranslationBackup;
-                    //        m_localHeadPosition.Value = Vector3.Zero;
-                    //    }
-                    //    else
-                    //    {
-                    //        m_localHeadPosition.Value = headBoneTranslation;
-                    //    }
-                    //}
+          
+                    characterMatrix = rotationMatrix * characterMatrix;               
 
                     Physics.CharacterProxy.Forward = characterMatrix.Forward;
                     Physics.CharacterProxy.Up = characterMatrix.Up;
-                    //Physics.CharacterProxy.Position = characterMatrix.Translation;
-                    //PositionComp.SetWorldMatrix(newWorldMatrix, Physics);
                 }
 
                 if (rotationIndicator.X != 0)
@@ -2980,7 +2917,6 @@ namespace Sandbox.Game.Entities.Character
                         (m_currentMovementState != MyCharacterMovementEnum.Died))
                     {
                         SetHeadLocalXAngle(m_headLocalXAngle - rotationIndicator.X * ratio * RotationSpeed);
-                        //CalculateDependentMatrices();
 
                         int headBone = IsInFirstPersonView ? m_headBoneIndex : m_camera3rdBoneIndex;
 
@@ -5559,17 +5495,18 @@ namespace Sandbox.Game.Entities.Character
             Static_CameraAttachedToChanged(null, null);
             m_oldController = controller;
 
+            //---
+            //When losing control turn off character lights until we regain control
+            m_lightWasEnabled = LightEnabled;
+            if (m_lightWasEnabled)
+            {
+                EnableLights(false);
+                RecalculatePowerRequirement();
+            }
+            //---
+
             if (MySession.Static.LocalHumanPlayer == controller.Player)
             {
-                //---
-                //When losing control turn off character lights until we regain control
-                m_lightWasEnabled = LightEnabled;
-                if (m_lightWasEnabled)
-                {
-                    EnableLights(false);
-                    RecalculatePowerRequirement();
-                }
-                //---
 
                 MyHud.SelectedObjectHighlight.RemoveHighlight();
 
@@ -6478,6 +6415,7 @@ namespace Sandbox.Game.Entities.Character
             // If it is the local player who died, give this player a death location coordinate
             if (GetPlayerIdentityId() == MySession.Static.LocalPlayerId)
             {
+                m_isDeathPlayer = true;
                 string bodyLocationName = MyTexts.Get(MySpaceTexts.GPS_Body_Location_Name).ToString();
                 MyGps deathLocation = MySession.Static.Gpss.GetGpsByName(MySession.Static.LocalPlayerId, bodyLocationName) as MyGps;
 
@@ -7068,11 +7006,9 @@ namespace Sandbox.Game.Entities.Character
             if (IsDead)
                 return;
 
-            m_worldRealVelocity = newStateFromNet.WorldRealSpeed;
             SetHeadLocalXAngle(newStateFromNet.HeadX);
             SetHeadLocalYAngle(newStateFromNet.HeadY);
             m_isFalling = false;
-
 
             if (!UseNewAnimationSystem)
             {
@@ -7082,6 +7018,7 @@ namespace Sandbox.Game.Entities.Character
 
             SetHeadAdditionalRotation(newStateFromNet.Head, false);
 
+            m_isFalling = false;
             var jetpack = JetpackComp;
             if (jetpack != null)
             {
@@ -7108,20 +7045,24 @@ namespace Sandbox.Game.Entities.Character
             }
             TargetFromCamera = newStateFromNet.TargetFromCamera;
 
-            if (MyFakes.CHARACTER_SERVER_SYNC)
-            {
-                RotationIndicator = newStateFromNet.Rotation;
-                RollIndicator = newStateFromNet.Roll;
-            }
-
             // do it fast, dont wait for update, no time.
             UpdateMovementAndFlags(newStateFromNet.MovementState, newStateFromNet.MovementFlag);
 
             if (newStateFromNet.MovementState == MyCharacterMovementEnum.Jump)
             {
                 // Simulate one frame for jump action to be triggered
-                this.Jump();
-                this.MoveAndRotateInternal(MoveIndicator, RotationIndicator, RollIndicator, Vector3.Zero);
+                Jump();
+                MoveAndRotateInternal(MoveIndicator, RotationIndicator, RollIndicator, Vector3.Zero);
+            }
+
+            if (Physics.CharacterProxy != null)
+            {
+                Physics.CharacterProxy.Speed = newStateFromNet.Speed;
+            }
+
+            if (IsUsing == null)
+            {
+                CacheMove(ref newStateFromNet.Movement, ref newStateFromNet.Rotation, ref newStateFromNet.Roll);
             }
         }
 

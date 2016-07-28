@@ -180,7 +180,9 @@ namespace Sandbox.Engine.Utils
         // Landing gear ignore contacts with grid they're attached to
         public static bool LANDING_GEAR_IGNORE_DAMAGE_CONTACTS = true;
 
+#if !XB1 // XB1_NOWORKSHOP
         public static bool ENABLE_WORKSHOP_MODS = true;
+#endif // !XB1
 
         public static bool ENABLE_BATTERY = true;
 
@@ -399,8 +401,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool USE_HAVOK_MODELS = false;
 
-        public static bool ENABLE_DEVELOPER_SPECTATOR_CONTROLS = MyFinalBuildConstants.IS_DEBUG;
-
         public static bool LAZY_LOAD_DESTRUCTION = true;
 
         public static bool ENABLE_STANDARD_AXES_ROTATION = false;
@@ -600,7 +600,6 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_INFINARIO = false;
         public static bool SUSPENSION_POWER_RATIO = false;
         public static bool WHEEL_SOFTNESS = false;
-        public static bool ENABLE_SPECTATOR_ROLL_MOVEMENT = true;
         public static bool USE_BICUBIC_HEIGHTMAP_SMOOTHING = true;
         public static bool FORCE_SINGLE_WORKER = false;
         public static bool DISABLE_CLIPBOARD_PLACEMENT_TEST = false;
@@ -626,7 +625,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool SKIP_PISTON_TOP_REMOVAL = true;
         public static bool GRID_IGNORE_VOXEL_OVERLAP = false;
-        public static bool COMPENSATE_SPEED_WITH_SUPPORT = true;
+        public static bool COMPENSATE_SPEED_WITH_SUPPORT = false;
 
         public static bool ENABLE_FRACTURE_PIECE_SHAPE_CHECK = false;
 
@@ -646,13 +645,13 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_MEDIEVAL_FACTIONS = false;
 
-#if XB1_TMP
+#if XB1
         public static bool ENABLE_RUN_WITHOUT_STEAM = true;
 #else
         public static bool ENABLE_RUN_WITHOUT_STEAM = false;
 #endif
 
-        public static bool PRECISE_SIM_SPEED = true;
+        public static bool PRECISE_SIM_SPEED = false;
         public static bool ENABLE_SIMSPEED_LOCKING = false;
 
         public static bool BACKGROUND_OXYGEN = true;
@@ -702,8 +701,15 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_PRELOAD_DEFINITIONS = true;
         public static bool ENABLE_ME_DOOR_COLLISION_CHECK = true;
 
+#if XB1
+        public static bool XB1_PREVIEW = true;
+#else // !XB1
+        public static bool XB1_PREVIEW = false;
+#endif // !XB1 
+
         public static bool ENABLE_ROSLYN_SCRIPTS = true;
 
-        public static bool ENABLE_ROSLYN_SCRIPT_DIAGNOSTICS = false;
+        public static bool ENABLE_ROSLYN_SCRIPT_DIAGNOSTICS = false;      
+       
     }
 }

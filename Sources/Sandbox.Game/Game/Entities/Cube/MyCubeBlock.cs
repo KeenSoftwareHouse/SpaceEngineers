@@ -95,7 +95,7 @@ namespace Sandbox.Game.Entities
             return faction.Tag;
         }
 
-        public bool IsBeeingRemoved = false;
+        public bool IsBeingRemoved = false;
 
 
         public VRage.Game.MyRelationsBetweenPlayerAndBlock GetUserRelationToOwner(long identityId)

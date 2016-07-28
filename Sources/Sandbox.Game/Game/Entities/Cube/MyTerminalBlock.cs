@@ -102,6 +102,11 @@ namespace Sandbox.Game.Entities.Cube
         
         public MyTerminalBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_showOnHUD = SyncType.CreateAndAddProp<bool>();
+            m_showInTerminal = SyncType.CreateAndAddProp<bool>();
+            m_showInToolbarConfig = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             DetailedInfo = new StringBuilder();

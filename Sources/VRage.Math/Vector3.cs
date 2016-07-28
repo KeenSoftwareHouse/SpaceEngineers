@@ -6,6 +6,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRageMath
 {
@@ -14,7 +18,11 @@ namespace VRageMath
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
 	[Unsharper.UnsharperDisableReflection()]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Vector3 : IEquatable<Vector3>
+#else // XB1
+    public struct Vector3 : IEquatable<Vector3>, IMySetGetMemberDataHelper
+#endif // XB1
     {
         public static Vector3 Zero = new Vector3();
         public static Vector3 One = new Vector3(1f, 1f, 1f);
@@ -378,6 +386,11 @@ namespace VRageMath
                 return (double)this.Z == (double)other.Z;
             else
                 return false;
+        }
+
+        public bool Equals(Vector3 other,float epsilon)
+        {
+            return Math.Abs(this.X - other.X) < epsilon && Math.Abs(this.Y - other.Y) < epsilon && Math.Abs(this.Z - other.Z) < epsilon;
         }
 
         /// <summary>
@@ -1811,6 +1824,21 @@ namespace VRageMath
         {
             return new Vector3(Math.Round(v.X, numDecimals), Math.Round(v.Y, numDecimals), Math.Round(v.Z, numDecimals));
         }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "X")
+                return X;
+            if (m.Name == "Y")
+                return Y;
+            if (m.Name == "Z")
+                return Z;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 
     public static class NullableVector3Extensions

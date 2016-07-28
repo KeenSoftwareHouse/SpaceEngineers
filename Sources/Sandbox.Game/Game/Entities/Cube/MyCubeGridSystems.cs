@@ -18,6 +18,7 @@ using System.Text;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using IMyLandingGear = Sandbox.Game.Entities.Interfaces.IMyLandingGear;
+using Sandbox.Game.Multiplayer;
 
 #endregion
 
@@ -137,7 +138,7 @@ namespace Sandbox.Game.Entities.Cube
 			ProfilerShort.Begin("Thrusters");
 	        MyEntityThrustComponent thrustComp;
 			if(CubeGrid.Components.TryGet(out thrustComp))
-				thrustComp.UpdateBeforeSimulation();
+                thrustComp.UpdateBeforeSimulation(false, Sync.IsServer || CubeGrid.GridSystems.ControlSystem.IsLocallyControlled);
             ProfilerShort.End();
 
             // Only update gyros if there are gyros in the system

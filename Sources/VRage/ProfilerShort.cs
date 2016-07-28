@@ -9,6 +9,7 @@ using VRageRender;
 
 namespace VRage
 {
+#if !XB1 // XB1_NOPROFILER
     /// <summary>
     /// Helper class, "shortcuts" to profiler
     /// </summary>
@@ -75,4 +76,44 @@ namespace VRage
             }
         }
     }
+#else // XB1
+    public static class ProfilerShort
+    {
+        public const string PerformanceProfilingSymbol = VRageRender.Profiler.MyRenderProfiler.PerformanceProfilingSymbol;
+
+        public static bool Autocommit;
+
+        public static void CustomValue(string name, float value, MyTimeSpan? customTime, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void CustomValue(string name, float value, float customTimeMs, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void Begin(string blockName = null, float customValue = 0, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void End(float customValue = 0, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void End(float customValue, float customTimeMs, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void BeginNextBlock(string blockName = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void Commit()
+        {
+        }
+
+        public static void DestroyThread()
+        {
+        }
+    }
+#endif // XB1
 }

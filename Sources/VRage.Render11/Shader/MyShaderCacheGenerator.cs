@@ -25,9 +25,13 @@ namespace VRage.Render11.Shader
             var outputPath = Path.Combine(MyFileSystem.UserDataPath, MyShadersDefines.CachePath);
             if (clean)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 string[] cacheFiles = Directory.GetFiles(outputPath, "*.cache");
                 for (int i = 0; i < cacheFiles.Length; i++)
                     File.Delete(cacheFiles[i]);
+#endif // !XB1
             }
 
             GenerateInternal(onShaderCacheProgress);
@@ -43,6 +47,9 @@ namespace VRage.Render11.Shader
 
         private static void GenerateInternal(OnShaderCacheProgressDelegate onShaderCacheProgress)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             var shaderPath = Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath);
             string[] files = Directory.GetFiles(shaderPath, "*.hlsl");
             var macroVariants = new List<string[]>();
@@ -160,6 +167,7 @@ namespace VRage.Render11.Shader
                         onShaderCacheProgress(progress, file, "", "", "", "No entry point found.", true);
                 }
             }
+#endif // !XB1
         }
 
         private static ShaderMacro[] m_globalMacros = new[] {new ShaderMacro("MS_SAMPLE_COUNT", 2), new ShaderMacro("MS_SAMPLE_COUNT", 4), new ShaderMacro("MS_SAMPLE_COUNT", 8)};//, new ShaderMacro("FXAA_ENABLED",null)};

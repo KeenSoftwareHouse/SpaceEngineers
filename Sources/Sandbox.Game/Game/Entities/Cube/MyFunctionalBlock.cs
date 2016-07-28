@@ -45,6 +45,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyFunctionalBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_enabled = SyncType.CreateAndAddProp<bool>();
+#endif // BX1
             CreateTerminalControls();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;

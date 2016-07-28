@@ -36,6 +36,7 @@ using ParallelTasks;
 using Sandbox.Definitions;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Library;
 
 #endregion
 
@@ -91,10 +92,14 @@ namespace Sandbox.Game.Entities
 
         static MyEntities()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            MyEntityFactory.RegisterDescriptorsFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             MyEntityFactory.RegisterDescriptorsFromAssembly(Assembly.GetCallingAssembly());
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.GameAssembly);
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.SandboxAssembly);
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyPlugins.UserAssembly);
+#endif // !XB1
 
             // ------------------ PLEASE READ -------------------------
             // VRAGE TODO: Delegates in MyEntity help us to get rid of sandbox. There are too many dependencies and this was the easy way to cut MyEntity out of sandbox.
@@ -1947,8 +1952,15 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                if (!Environment.Is64BitProcess && MySandboxGame.Config.MemoryLimits)
+                if (!MyEnvironment.Is64BitProcess && MySandboxGame.Config.MemoryLimits)
+#if !XB1
                     return GC.GetTotalMemory(false) > EntityManagedMemoryLimit || WinApi.WorkingSet > EntityNativeMemoryLimit;
+#else // XB1
+                {
+                    System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+                    return false;
+                }
+#endif // XB1
                 else
                     return false;
             }

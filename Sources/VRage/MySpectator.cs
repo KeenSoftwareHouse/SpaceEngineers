@@ -127,6 +127,8 @@ namespace VRage
         //  Moves and rotates player by specified vector and angles
         public virtual void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
+            // this method is overriden by MySpecatorCameraController, content of MySpectator::MoveAndRotate is not run
+
             var oldPosition = Position;
 
             moveIndicator *= m_speedModeLinear;

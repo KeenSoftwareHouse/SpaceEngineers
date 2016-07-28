@@ -69,7 +69,11 @@ namespace Sandbox.Engine.Networking
 
         public MyReceiveQueue(int channel, Mode readMode = Mode.Synchronized, int defaultMessageCount = 1, Func<TimeSpan> timestampProvider = null)
         {
+#if !XB1
             Trace.Assert(readMode != Mode.Spin, "Spin mode should be used only for testing purposes, it keeps CPU under heavy load!");
+#else // XB1
+            System.Diagnostics.Debug.Assert(readMode != Mode.Spin, "Spin mode should be used only for testing purposes, it keeps CPU under heavy load!");
+#endif // XB1
 
             Disposed = false;
             Channel = channel;

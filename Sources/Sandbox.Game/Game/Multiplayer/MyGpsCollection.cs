@@ -17,7 +17,9 @@ using VRage.Serialization;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 
 using Sandbox.Definitions;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRageMath;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;
@@ -530,6 +532,9 @@ namespace Sandbox.Game.Multiplayer
         //parses input string, searches for only one valid coords
         public static bool ParseOneGPS(string input ,StringBuilder name, ref Vector3D coords)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             foreach (Match match in Regex.Matches(input, m_ScanPattern))
             {
                 double x, y, z;
@@ -551,12 +556,16 @@ namespace Sandbox.Game.Multiplayer
                 coords.X = x; coords.Y = y; coords.Z = z;
                 return true;
             }
+#endif // !XB1
             return false;
         }
 
         //parses input string, searches for only one valid coords
         public static bool ParseOneGPSExtended(string input, StringBuilder name, ref Vector3D coords, StringBuilder additionalData)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             foreach (Match match in Regex.Matches(input, m_ScanPatternExtended))
             {
                 double x, y, z;
@@ -584,6 +593,7 @@ namespace Sandbox.Game.Multiplayer
 
                 return true;
             }
+#endif // !XB1
             return false;
         }
         
@@ -601,6 +611,9 @@ namespace Sandbox.Game.Multiplayer
         public int ScanText(string input, string desc = null)
         {//scans given text and adds all as uncorfirmed
             int count = 0;
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             // GPS:name without doublecolons:123.4:234.5:3421.6:
             foreach (Match match in Regex.Matches(input, m_ScanPattern))
             {
@@ -633,6 +646,7 @@ namespace Sandbox.Game.Multiplayer
                 if (count == PARSE_MAX_COUNT)
                     break;
             }
+#endif // !XB1
 
             return count;
         }

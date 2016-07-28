@@ -14,6 +14,7 @@ using Sandbox.Game.Replication;
 using Sandbox.Game.Multiplayer;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Utils;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -26,9 +27,9 @@ namespace Sandbox.Game.EntityComponents
 		private float m_levitationPeriodLength = 1.3f;
 		private float m_levitationTorqueCoeficient = 0.25f;
 
-        protected override void UpdateThrusts(bool networkUpdate = false)
+        protected override void UpdateThrusts(bool networkUpdate, bool enableDampeners)
 		{
-            base.UpdateThrusts(networkUpdate);
+            base.UpdateThrusts(networkUpdate, enableDampeners);
 
             ProfilerShort.Begin("ThrusterBlockComponent.UpdateThrusts");
             if (CubeGrid != null && CubeGrid.Physics != null)
@@ -43,8 +44,8 @@ namespace Sandbox.Game.EntityComponents
                             thrust = Vector3.TransformNormal(thrust, CubeGrid.WorldMatrix);
                             thrust = Vector3.TransformNormal(thrust, Matrix.Invert(CubeGrid.Physics.RigidBody.GetRigidBodyMatrix()));
                         }
-                        CubeGrid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, thrust, null, null);
 
+                        CubeGrid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, thrust, null, null);
 
                         Vector3 velocity = CubeGrid.Physics.LinearVelocity;
                         float maxSpeed = CubeGrid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();

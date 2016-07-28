@@ -140,10 +140,25 @@ namespace VRageRender
             return adapterIndex;
         }
 
+#if XB1
+        private static MyRenderDeviceSettings CreateXB1Settings()
+        {
+            return new MyRenderDeviceSettings()
+            {
+                AdapterOrdinal = 0,
+                BackBufferHeight = 720,
+                BackBufferWidth = 1280,
+                WindowMode = MyWindowModeEnum.Window,
+                VSync = true,
+            };
+        }
+#endif
+
         internal static MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
             bool deviceCreated = CreateDeviceInternalSafe(windowHandle, settingsToTry);
 
+#if !XB1
             if (!settingsToTry.HasValue || !settingsToTry.Value.SettingsMandatory)
             {
                 if (!deviceCreated)
@@ -203,10 +218,22 @@ namespace VRageRender
                     deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings);
                 }
             }
+#else
+#if !XB1_SKIPASSERTFORNOW
+            System.Diagnostics.Debug.Assert(false, "simpleSettings is initialized but not used?");
+#endif // !XB1_SKIPASSERTFORNOW
+            Log.WriteLine("XB1 res fallback.");
+            var simpleSettings = CreateXB1Settings();
+#endif
+
 
             if (!deviceCreated)
             {
+#if !XB1
                 VRage.Utils.MyMessageBox.Show("Unsupported graphics card", "Graphics card is not supported, please see minimum requirements");
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "Unsupported graphics card");
+#endif // XB1
                 throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
             }
             return m_settings;
@@ -252,6 +279,7 @@ namespace VRageRender
                 flags |= DeviceCreationFlags.Debug;
 #endif
 
+#if !XB1
             WinApi.DEVMODE mode = new WinApi.DEVMODE();
             WinApi.EnumDisplaySettings(null, WinApi.ENUM_REGISTRY_SETTINGS, ref mode);
 
@@ -264,6 +292,9 @@ namespace VRageRender
                 RefreshRate = 60000,
                 VSync = false,
             };
+#else
+            var settings = CreateXB1Settings();
+#endif
             settings.AdapterOrdinal = ValidateAdapterIndex(settings.AdapterOrdinal);
 
             if (settings.AdapterOrdinal == -1)

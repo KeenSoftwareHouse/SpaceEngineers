@@ -14,6 +14,7 @@ using VRageMath;
 
 namespace VRageRender.Profiler
 {
+#if !XB1 // XB1_NOPROFILER
     /// <summary>
     /// Provides profiling capability
     /// </summary>
@@ -28,6 +29,7 @@ namespace VRageRender.Profiler
     /// For threads which does not call commit (background workers, parallel tasks), mechanism which calls commit automatically after each top level End should be added.
     /// This way each task will be one "frame" on display
     /// </remarks>
+	[Unsharper.UnsharperDisableReflection]
     public abstract class MyRenderProfiler
     {
         /// <summary>
@@ -356,10 +358,14 @@ namespace VRageRender.Profiler
                         if (pathBuilder.Length > 0)
                         {
                             // Clipboard can only be accessed from a thread on the STA apartment
+#if !XB1
                             System.Threading.Thread thread = new System.Threading.Thread(() => System.Windows.Forms.Clipboard.SetText(pathBuilder.ToString()));
                             thread.SetApartmentState(System.Threading.ApartmentState.STA);
                             thread.Start();
                             thread.Join();
+#else
+                            System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
                         }
                         break;
                     }
@@ -368,6 +374,7 @@ namespace VRageRender.Profiler
                     {
                         string fullPath = string.Empty;
 
+#if !XB1
                         Exception threadEx = null;
                         System.Threading.Thread staThread = new System.Threading.Thread(
                             delegate()
@@ -416,6 +423,10 @@ namespace VRageRender.Profiler
                             if (pathBlock != null)
                                 m_selectedProfiler.SelectedRoot = pathBlock;
                         }
+
+#else
+                        System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
                         break;
                     }
 
@@ -675,4 +686,62 @@ namespace VRageRender.Profiler
             catch { }
         }
     }
+#else // XB1
+    public abstract class MyRenderProfiler
+    {
+        public const string PerformanceProfilingSymbol = VRage.MyCompilationSymbols.PerformanceProfiling ? "WINDOWS" : "__RANDOM_UNDEFINED_PROFILING_SYMBOL__";
+
+        public static bool ProfilerVisible;
+
+        public void Draw([CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        protected abstract void Draw(MyProfiler drawProfiler, int lastFrameIndex, int frameToDraw);
+
+        public void Dump()
+        {
+        }
+
+        public void StartProfilingBlock(string blockName = null, float customValue = 0, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public void EndProfilingBlock(float customValue = 0, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public void StartNextBlock(string name, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public void Commit([CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public static void HandleInput(RenderProfilerCommand command, int index)
+        {
+        }
+
+        public void ProfileCustomValue(string name, float value, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public void InitMemoryHack(string name)
+        {
+        }
+
+        public void SetLevel(int index)
+        {
+        }
+
+        public void GPU_EndProfilingBlock(float customValue = 0, MyTimeSpan? customTime = null, string timeFormat = null, string valueFormat = null, [CallerMemberName] string member = "", [CallerLineNumber] int line = 0, [CallerFilePath] string file = "")
+        {
+        }
+
+        public void SetAutocommit(bool val)
+        {
+        }
+    }
+#endif // XB1
 }

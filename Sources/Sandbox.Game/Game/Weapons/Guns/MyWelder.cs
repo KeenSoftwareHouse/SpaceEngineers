@@ -69,7 +69,7 @@ namespace Sandbox.Game.Weapons
             : base(250)
         {
             HasCubeHighlight = true;
-            HighlightColor = Color.Green * 0.45f;
+            HighlightColor = Color.Green * 0.75f;
 			HighlightMaterial = "GizmoDrawLine";
 
             SecondaryLightIntensityLower = 0.4f;

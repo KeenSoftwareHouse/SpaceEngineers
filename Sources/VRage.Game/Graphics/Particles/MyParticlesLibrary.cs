@@ -177,7 +177,11 @@ namespace VRage.Game
             {
                 MyLog.Default.WriteLine("ERROR: Failed to load particles library.");
                 MyLog.Default.WriteLine(ex);
+#if !XB1
                 WinApi.MessageBox(new IntPtr(), ex.Message, "Loading Error", 0);
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "Particles loading Error");
+#endif // XB1
                 throw;
             }
         }

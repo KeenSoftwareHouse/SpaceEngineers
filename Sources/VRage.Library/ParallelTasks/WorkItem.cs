@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using VRage;
 using VRage.Collections;
+using VRage.Library;
 
 namespace ParallelTasks
 {
@@ -122,7 +123,7 @@ namespace ParallelTasks
 #if WINDOWS_PHONE
         static Hashtable<Thread, Stack<Task>> runningTasks = new Hashtable<Thread, Stack<Task>>(1);
 #else
-        static Hashtable<Thread, Stack<Task>> runningTasks = new Hashtable<Thread, Stack<Task>>(Environment.ProcessorCount);
+        static Hashtable<Thread, Stack<Task>> runningTasks = new Hashtable<Thread, Stack<Task>>(MyEnvironment.ProcessorCount);
 #endif
 
         public int RunCount

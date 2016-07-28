@@ -161,11 +161,18 @@ namespace Sandbox.Game.Entities
         bool m_retryAttachPilot = false;
 
         long? m_attachedCharacterIdSaved;
+
+        bool m_pilotFirstPerson = false;
         #endregion
 
         #region Init
         public MyCockpit()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_pilotRelativeWorld = SyncType.CreateAndAddProp<Matrix?>();
+            m_attachedCharacterId = SyncType.CreateAndAddProp<long?>();
+            m_storeOriginalPlayerWorldMatrix = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             m_pilotClosedHandler = new Action<MyEntity>(m_pilot_OnMarkForClose);
             ResourceSink = new MyResourceSinkComponent(2);
 
@@ -840,8 +847,11 @@ namespace Sandbox.Game.Entities
 
                 if (MySession.Static.CameraController == this && pilot == MySession.Static.LocalCharacter)
                 {
-                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);
-                }   
+                    bool isInFirstPerson = IsInFirstPersonView;
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);                
+                }
+                pilot.IsInFirstPersonView = m_pilotFirstPerson;
+
                 return true;
             }
             else
@@ -1135,7 +1145,7 @@ namespace Sandbox.Game.Entities
             {
                 BlockDefinition.CharacterAnimation = null;
             }
-
+            m_pilotFirstPerson = pilot.IsInFirstPersonView;
             PlacePilotInSeat(pilot);
             m_pilot.SuitBattery.ResourceSink.TemporaryConnectedEntity = this;
             m_rechargeSocket.PlugIn(m_pilot.SuitBattery.ResourceSink);
@@ -1173,6 +1183,7 @@ namespace Sandbox.Game.Entities
             if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit)
                 PlayUseSound(true);
             m_playIdleSound = true;
+
         }
 
         protected virtual void PlacePilotInSeat(MyCharacter pilot)

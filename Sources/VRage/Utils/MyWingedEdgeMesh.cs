@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using VRageMath;
 using VRageRender;
+using VRage.Library;
 
 namespace VRage.Utils
 {
@@ -2129,12 +2130,12 @@ namespace VRage.Utils
 
         public int ApproximateMemoryFootprint()
         {
-            int listOverhead = Environment.Is64BitProcess ? 32 : 20; // Counting with 1 ptr, 2 ints and 8/16B internal GC data
-            int navTriOverhead = Environment.Is64BitProcess ? 88 : 56; // Approximation of the navigation triangle size plus its pathfinding data and heap item
-            int selfOverhead = Environment.Is64BitProcess ? 52 : 32; // 3*int, 3*ptr, 8/16 GC data
+            int listOverhead = MyEnvironment.Is64BitProcess ? 32 : 20; // Counting with 1 ptr, 2 ints and 8/16B internal GC data
+            int navTriOverhead = MyEnvironment.Is64BitProcess ? 88 : 56; // Approximation of the navigation triangle size plus its pathfinding data and heap item
+            int selfOverhead = MyEnvironment.Is64BitProcess ? 52 : 32; // 3*int, 3*ptr, 8/16 GC data
             int vSize = 16;
             int eSize = 32;
-            int fSize = (Environment.Is64BitProcess ? 8 : 12) + navTriOverhead;
+            int fSize = (MyEnvironment.Is64BitProcess ? 8 : 12) + navTriOverhead;
             return selfOverhead + 3 * listOverhead + m_edgeTable.Capacity * eSize + m_faceTable.Capacity * fSize + m_vertexTable.Capacity * vSize;
         }
     }

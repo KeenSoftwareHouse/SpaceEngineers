@@ -695,7 +695,12 @@ namespace Sandbox.Game.WorldEnvironment
                         var offset = view.SectorOffsets[sector];
 
                         if (logicalItem < ItemCountForLod[view.Lod])
-                            mod.HandleSyncEvent(logicalItem + offset, data, fromClient);
+                        {
+                            if (mod != null)
+                            {
+                                mod.HandleSyncEvent(logicalItem + offset, data, fromClient);
+                            }
+                        }
                     }
                 }
             }

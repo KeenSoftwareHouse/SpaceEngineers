@@ -11,7 +11,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "Debug draw settings")]
     class MyGuiScreenDebugDrawSettings : MyGuiScreenDebugBase

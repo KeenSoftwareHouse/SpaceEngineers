@@ -38,8 +38,10 @@ namespace Sandbox.Graphics.GUI
 {
     public class MyDX9Gui : IMyGuiSandbox
     {
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+#endif // !XB1
 
         public static int TotalGamePlayTimeInMilliseconds;
 
@@ -163,8 +165,11 @@ namespace Sandbox.Graphics.GUI
             UserDebugInputComponents.Add(new MyRenderDebugInputComponent());
             UserDebugInputComponents.Add(new MyComponentsDebugInputComponent());
             UserDebugInputComponents.Add(new MyVoxelDebugInputComponent());
+#if !XB1 // XB1_NOOPENVRWRAPPER
             UserDebugInputComponents.Add(new MyVRDebugInputComponent());
+#endif // !XB1
             UserDebugInputComponents.Add(new MyResearchDebugInputComponent());
+            UserDebugInputComponents.Add(new MyAlesDebugInputComponent());
             LoadDebugInputsFromConfig();
         }
 
@@ -208,6 +213,7 @@ namespace Sandbox.Graphics.GUI
 
         private void EnableSoundsBasedOnWindowFocus()
         {
+#if !XB1
             if (MySandboxGame.Static.WindowHandle == GetForegroundWindow() && MyScreenManager.GetScreenWithFocus() != null)
             { // allow
                 // this works bad (	0007128: BUG B - audio sliders are broken)
@@ -220,6 +226,7 @@ namespace Sandbox.Graphics.GUI
                 //MyAudio.Static.SetAllVolume(0,0);
                 MyAudio.Static.Mute = true;
             }
+#endif // !XB1
         }
 
         public bool OpenSteamOverlay(string url)
@@ -381,7 +388,9 @@ namespace Sandbox.Graphics.GUI
                     //WS size
                     if (MyInput.Static.IsNewKeyPressed(MyKeys.F3) && MyInput.Static.IsKeyPress(MyKeys.LeftShift))
                     {
+#if !XB1
                         WinApi.SetProcessWorkingSetSize(Process.GetCurrentProcess().Handle, -1, -1);
+#endif // !XB1
                     }
 
                     inputHandled = HandleDebugInput();
@@ -622,6 +631,7 @@ namespace Sandbox.Graphics.GUI
 
         private void SwitchStatisticsScreen()
         {
+#if !XB1
             if (!(m_currentStatisticsScreen is MyGuiScreenDebugStatistics))
             {
                 if (m_currentStatisticsScreen != null)
@@ -633,6 +643,9 @@ namespace Sandbox.Graphics.GUI
                 RemoveScreen(m_currentStatisticsScreen);
                 m_currentStatisticsScreen = null;
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
 
         private void SwitchInputScreen()
@@ -664,12 +677,21 @@ namespace Sandbox.Graphics.GUI
 
             MyGuiScreenBase screenWithFocus = MyScreenManager.GetScreenWithFocus();
 
+#if !XB1
             bool gameFocused = (MySandboxGame.Static.IsActive == true
                 &&
                 ((Sandbox.AppCode.MyExternalAppBase.Static == null && MySandboxGame.Static.WindowHandle == GetForegroundWindow())
                 ||
                 (Sandbox.AppCode.MyExternalAppBase.Static != null && !Sandbox.AppCode.MyExternalAppBase.IsEditorActive))
                 );
+#else // XB1
+            bool gameFocused = (MySandboxGame.Static.IsActive == true
+                &&
+                ((Sandbox.AppCode.MyExternalAppBase.Static == null)
+                ||
+                (Sandbox.AppCode.MyExternalAppBase.Static != null && !Sandbox.AppCode.MyExternalAppBase.IsEditorActive))
+                );
+#endif // XB1
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("MyGuiSandbox::Update3");
             //We have to know current focus screen because of centerize mouse

@@ -1,4 +1,4 @@
-﻿
+﻿#if !XB1 // XB1_NOWORKSHOP
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
@@ -221,3 +221,4 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+#endif // !XB1

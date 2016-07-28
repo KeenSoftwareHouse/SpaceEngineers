@@ -36,7 +36,11 @@ namespace Sandbox.Game.Entities.Cube
 
         private Vector3 m_dummyPos;
 
+#if XB1 // XB1_SYNC_NOREFLECTION
+        protected /*readonly*/ Sync<float> m_dummyDisplacement;
+#else // !XB1
         protected readonly Sync<float> m_dummyDisplacement;
+#endif // !XB1
         protected event Action<MyMotorBase> AttachedEntityChanged;
 
 

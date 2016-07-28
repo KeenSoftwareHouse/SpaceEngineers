@@ -10,6 +10,7 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Utils;
+using VRage.Library;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -47,7 +48,7 @@ namespace Sandbox.Game.World.Triggers
                 if (!MySessionComponentMissionTriggers.Static.MissionTriggers.TryGetValue(player.Id, out mtrig))
                     continue;
                 if (!mtrig.Lost && !mtrig.Won)
-                    m_progress.Append(Environment.NewLine).Append("   ").Append(player.DisplayName);
+                    m_progress.Append(MyEnvironment.NewLine).Append("   ").Append(player.DisplayName);
             }
 
             return m_progress;

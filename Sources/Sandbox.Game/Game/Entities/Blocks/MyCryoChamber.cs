@@ -62,6 +62,10 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyCryoChamber()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_attachedPlayerId = SyncType.CreateAndAddProp<MyPlayer.PlayerId?>();
+#endif // XB1
+
             ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
             m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
         }

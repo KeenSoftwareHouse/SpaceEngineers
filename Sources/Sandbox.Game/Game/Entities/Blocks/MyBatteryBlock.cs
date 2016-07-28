@@ -125,6 +125,14 @@ namespace Sandbox.Game.Entities
 
         public MyBatteryBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isFull = SyncType.CreateAndAddProp<bool>();
+            m_onlyRecharge = SyncType.CreateAndAddProp<bool>();
+            m_onlyDischarge = SyncType.CreateAndAddProp<bool>();
+            m_semiautoEnabled = SyncType.CreateAndAddProp<bool>();
+            m_producerEnabled = SyncType.CreateAndAddProp<bool>();
+            m_storedPower = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             SourceComp = new MyResourceSourceComponent();

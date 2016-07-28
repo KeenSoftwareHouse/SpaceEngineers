@@ -117,6 +117,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MySoundBlock() : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_soundRadius = SyncType.CreateAndAddProp<float>();
+            m_volume = SyncType.CreateAndAddProp<float>();
+            m_cueId = SyncType.CreateAndAddProp<MyCueId>();
+            m_loopPeriod = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_soundPair = new MySoundPair();

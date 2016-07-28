@@ -14,6 +14,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Utils;
+using VRage.Library;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -100,7 +101,7 @@ namespace Sandbox.Game.World.Triggers
             m_progress.Clear().Append(MyTexts.Get(MySpaceTexts.ScenarioProgressDestroyBlocks));
             foreach (var block in m_blocks)
                 if (block.Value == BlockState.Ok)
-                    m_progress.Append(Environment.NewLine).Append("   ").Append(block.Key.CustomName);
+                    m_progress.Append(MyEnvironment.NewLine).Append("   ").Append(block.Key.CustomName);
             return m_progress;
         }
 

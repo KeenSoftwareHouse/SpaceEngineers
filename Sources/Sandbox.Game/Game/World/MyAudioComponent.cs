@@ -100,6 +100,7 @@ namespace Sandbox.Game.World
                 m_singleUseEmitterPool.Enqueue(m_emittersToRemove[i]);
                 m_borrowedEmitters.Remove(m_emittersToRemove[i]);
             }
+            m_emittersToRemove.Clear();
         }
 
         protected override void UnloadData()

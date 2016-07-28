@@ -82,6 +82,13 @@ namespace Sandbox.Game.Entities.Blocks
         public MyProjectorBase()
             : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_keepProjection = SyncType.CreateAndAddProp<bool>();
+            m_instantBuildingEnabled = SyncType.CreateAndAddProp<bool>();
+            m_maxNumberOfProjections = SyncType.CreateAndAddProp<int>();
+            m_maxNumberOfBlocksPerProjection = SyncType.CreateAndAddProp<int>();
+            m_getOwnershipFromProjector = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             m_clipboard = new MyProjectorClipboard(this, MyClipboardComponent.ClipboardDefinition.PastingSettings);
             m_spawnClipboard = new MyProjectorClipboard(this, MyClipboardComponent.ClipboardDefinition.PastingSettings);
 

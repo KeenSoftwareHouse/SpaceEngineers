@@ -62,10 +62,14 @@ namespace Sandbox.Game.World
             static OperationFactory()
             {
                 m_objectFactory = new MyObjectFactory<OperationTypeAttribute, MyWorldGeneratorOperationBase>();
+#if XB1 // XB1_ALLINONEASSEMBLY
+                m_objectFactory.RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
                 m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
+#endif // !XB1
             }
 
             public static MyWorldGeneratorOperationBase CreateInstance(MyObjectBuilder_WorldGeneratorOperation builder)

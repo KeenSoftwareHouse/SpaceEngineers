@@ -7,20 +7,31 @@ using System.Reflection;
 using VRage.Plugins;
 using VRage.Voxels;
 using VRageMath;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace Sandbox.Engine.Voxels
 {
     partial class MyOctreeStorage
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         private static readonly Dictionary<int, MyStorageDataProviderAttribute> m_attributesById = new Dictionary<int, MyStorageDataProviderAttribute>();
         private static readonly Dictionary<Type, MyStorageDataProviderAttribute> m_attributesByType = new Dictionary<Type, MyStorageDataProviderAttribute>();
 
         static MyOctreeStorage()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterTypes(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterTypes(Assembly.GetExecutingAssembly());
             RegisterTypes(MyPlugins.GameAssembly);
             RegisterTypes(MyPlugins.SandboxAssembly);
             RegisterTypes(MyPlugins.UserAssembly);
+#endif // !XB1
         }
 
         private static void RegisterTypes(Assembly assembly)
@@ -28,7 +39,15 @@ namespace Sandbox.Engine.Voxels
             if (assembly == null)
                 return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 var attributes = type.GetCustomAttributes(typeof(MyStorageDataProviderAttribute), false);
                 if (attributes == null || attributes.Length == 0)

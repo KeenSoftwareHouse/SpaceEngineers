@@ -46,6 +46,10 @@ using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
 using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
 using IMyEntity = VRage.ModAPI.IMyEntity;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 
 #endregion
@@ -396,10 +400,27 @@ namespace Sandbox.Game.Weapons
             public float Elevation;
         }
 
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         struct CurrentTargetSync
+#else // XB1
+        struct CurrentTargetSync : IMySetGetMemberDataHelper
+#endif // XB1
         {
             public long TargetId;
             public bool IsPotential;
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+            public object GetMemberData(MemberInfo m)
+            {
+                if (m.Name == "TargetId")
+                    return TargetId;
+                if (m.Name == "IsPotential")
+                    return IsPotential;
+
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+                return null;
+            }
+#endif // XB1
         }
 
         readonly Sync<SyncRotationAndElevation> m_rotationAndElevationSync;
@@ -577,6 +598,13 @@ namespace Sandbox.Game.Weapons
         public MyLargeTurretBase()
             : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_shootingRange = SyncType.CreateAndAddProp<float>();
+            m_enableIdleRotation = SyncType.CreateAndAddProp<bool>();
+            m_rotationAndElevationSync = SyncType.CreateAndAddProp<SyncRotationAndElevation>();
+            m_targetSync = SyncType.CreateAndAddProp<CurrentTargetSync>();
+            m_targetFlags = SyncType.CreateAndAddProp<MyTurretTargetFlags>();
+#endif // XB1
             CreateTerminalControls();
 
             m_status = MyLargeShipGunStatus.MyWeaponStatus_Deactivated;
@@ -604,12 +632,18 @@ namespace Sandbox.Game.Weapons
 
             ControllerInfo.ControlReleased += OnControlReleased;
 
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_gunBase = new MyGunBase(SyncType);
+#else // !XB1
             m_gunBase = new MyGunBase();
+#endif // !XB1
             m_outOfAmmoNotification = new MyHudNotification(MyCommonTexts.OutOfAmmo, 1000, level: MyNotificationLevel.Important);
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
 
+#if !XB1 // XB1_SYNC_NOREFLECTION
             SyncType.Append(m_gunBase);
+#endif // !XB1
 
             m_shootingRange.ValueChanged += (x) => ShootingRangeChanged();
             m_rotationAndElevationSync.ValueChanged += (x) => RotationAndElevationSync();
@@ -1061,7 +1095,7 @@ namespace Sandbox.Game.Weapons
             {
                 //by Gregory RotationAndElevation uses target! maybe shouldn't?
                 bool isAimed = Target != null && RotationAndElevation() && CanShoot(out gunStatus) && IsTargetVisible(Target);
-                UpdateShooting(isAimed && !m_isPotentialTarget);
+                UpdateShooting(isAimed && !m_isPotentialTarget);//TODO smaz todo
             }
             else
             {
@@ -1914,6 +1948,7 @@ namespace Sandbox.Game.Weapons
             {
                 TestTarget(target, onlyPotential, ref nearestTarget, ref minDistanceSq, ref foundDecoy);
             }
+
             VRage.ProfilerShort.End(targetList.Count);
             return nearestTarget;
         }
@@ -1924,12 +1959,15 @@ namespace Sandbox.Game.Weapons
                 return;
 
             var grid = target as MyCubeGrid;
+            bool isDecoy = IsDecoy(target);
+            double dist;
             if (grid != null)
             {
                 if (grid.GridSystems.TerminalSystem == this.CubeGrid.GridSystems.TerminalSystem && grid.BigOwners.Contains(this.OwnerId))
                     return; // Me
 
-                if(grid.PositionComp.WorldAABB.DistanceSquared(PositionComp.GetPosition()) > minDistanceSq)
+                dist = grid.PositionComp.WorldAABB.DistanceSquared(PositionComp.GetPosition());
+                if ((dist >= minDistanceSq && foundDecoy))
                     return; //none block closer than nearest target
 
                 var blockList = CubeGrid.Components.Get<MyGridTargeting>().TargetBlocks.GetList(grid);
@@ -1952,13 +1990,15 @@ namespace Sandbox.Game.Weapons
                 }
             }
 
-            bool isDecoy = IsDecoy(target);
+            
             if (foundDecoy && !isDecoy) //found decoy search only for closer decoy
                 return;
-            var dist = Vector3D.DistanceSquared(target.PositionComp.GetPosition(), PositionComp.GetPosition());
+            dist = Vector3D.DistanceSquared(target.PositionComp.GetPosition(), PositionComp.GetPosition());
 
             //we have closer target;
-            if (dist >= minDistanceSq)
+            //if block is further away but is decoy and decoy is not found yet this block have to pass
+            if ((dist >= minDistanceSq && (!isDecoy || foundDecoy)) || (!isDecoy && foundDecoy))
+            //if (dist >= minDistanceSq)
                 return;
 
             //only check targets
@@ -2087,6 +2127,7 @@ namespace Sandbox.Game.Weapons
 
             MyEntity nearestTarget = null;
             float targetRange = 0;
+            //GetNearestVisibleTarget(m_searchingRange, true);//TODO smaz radek
             if (Target != null)
             {
 

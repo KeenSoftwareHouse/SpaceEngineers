@@ -146,8 +146,15 @@ namespace Sandbox.Game.Weapons
 
         #endregion
 
+#if XB1 // XB1_SYNC_NOREFLECTION
+        public MyGunBase(SyncType syncType)
+#else // !XB1
         public MyGunBase()
+#endif // !XB1
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_cachedAmmunitionAmount = syncType.CreateAndAddProp<int>();
+#endif // XB1
             m_dummiesByAmmoType = new Dictionary<int, DummyContainer>();
             m_remainingAmmos = new Dictionary<MyDefinitionId, int>();
             ShootIntervalModifier = 1;

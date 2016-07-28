@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using VRage.Game.Entity;
 using VRage.Network;
+using VRage.Library;
 
 namespace Sandbox.Game.Replication
 {
@@ -55,7 +56,7 @@ namespace Sandbox.Game.Replication
             NetworkId netId;
             if (MySession.Static.Ready && obj != null && MyMultiplayer.Static.ReplicationLayer.TryGetNetworkIdByObject(obj, out netId))
             {
-                Debug.Fail("Deleting entity, but network object is still there! Close called by client?" + Environment.NewLine + m_proxy.ToString());
+                Debug.Fail("Deleting entity, but network object is still there! Close called by client?" + MyEnvironment.NewLine + m_proxy.ToString());
             }
         }
     }

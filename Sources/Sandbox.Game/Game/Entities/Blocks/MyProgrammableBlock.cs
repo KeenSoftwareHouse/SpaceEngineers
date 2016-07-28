@@ -177,6 +177,7 @@ public void Main(string argument) {{
 
         bool IMyProgrammableBlock.TryRun(string argument)
         {
+#if !XB1 // XB1_NOILINJECTOR
             // If we find some reason why a run couldn't possibly work, return false
             if (m_instance == null || m_isRunning || this.IsWorking == false || this.IsFunctional == false)
             {
@@ -194,6 +195,10 @@ public void Main(string argument) {{
             if (result == ScriptTerminationReason.InstructionOverflow)
                 throw new ScriptOutOfRangeException();
             return result == ScriptTerminationReason.None;
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "No scripts on XB1!");
+            return false;
+#endif // XB1
         }
 
         public ulong UserId
@@ -432,6 +437,7 @@ public void Main(string argument) {{
 
             m_isRunning = true;
             response = "";
+#if !XB1 // XB1_NOILINJECTOR
             try {
                 using (var handle = IlInjector.BeginRunBlock(MAX_NUM_EXECUTED_INSTRUCTIONS, MAX_NUM_METHOD_CALLS)) {
                     m_runtime.InjectorHandle = handle;
@@ -471,6 +477,10 @@ public void Main(string argument) {{
                 m_runtime.InjectorHandle = null;
                 m_isRunning = false;
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "No scripts on XB1!");
+            return m_terminationReason;
+#endif // XB1
         }
 
         private void OnProgramTermination(ScriptTerminationReason reason)
@@ -597,6 +607,7 @@ public void Main(string argument) {{
             {
                 if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
                 {
+#if !XB1
                     m_assembly = MyScriptCompiler.Static.Compile(
                         MyApiTarget.Ingame,
                         Path.Combine(MyFileSystem.UserDataPath, GetAssemblyName()),
@@ -607,6 +618,11 @@ public void Main(string argument) {{
                     m_compilerErrors.AddRange(m_compilerMessages.Select(m => m.Text));
 
                     CreateInstance(m_assembly, m_compilerErrors, storage);
+#else // XB1
+#if !XB1_SKIPASSERTFORNOW
+                    System.Diagnostics.Debug.Assert(false, "No scripts on XB1");
+#endif // !XB1_SKIPASSERTFORNOW
+#endif // XB1
                 }
                 else
                 {
@@ -614,7 +630,12 @@ public void Main(string argument) {{
                     MyGuiScreenEditor.CompileProgram(program, m_compilerErrors, ref temp);
                     if (temp != null)
                     {
+#if !XB1 // XB1_NOILINJECTOR
                         m_assembly = IlInjector.InjectCodeToAssembly("IngameScript_safe", temp, typeof(IlInjector).GetMethod("CountInstructions", BindingFlags.Public | BindingFlags.Static), typeof(IlInjector).GetMethod("CountMethodCalls", BindingFlags.Public | BindingFlags.Static));
+#else // XB1
+                        System.Diagnostics.Debug.Assert(false, "No scripts on XB1");
+                        return;
+#endif // XB1
 
                         CreateInstance(m_assembly, m_compilerErrors, storage);
                     }
@@ -912,12 +933,15 @@ public void Main(string argument) {{
         {
             double m_lastMainRunTimeMs;
             long m_startTicks;
+#if !XB1 // XB1_NOILINJECTOR
             public IlInjector.ICounterHandle InjectorHandle { get; set; }
+#endif // !XB1
 
             public TimeSpan TimeSinceLastRun { get; private set; }
 
             public double LastRunTimeMs { get; private set; }
 
+#if !XB1 // XB1_NOILINJECTOR
             public int MaxInstructionCount
             {
                 get { return InjectorHandle.MaxInstructionCount; }
@@ -937,6 +961,27 @@ public void Main(string argument) {{
             {
                 get { return InjectorHandle.MethodCallCount; }
             }
+#else // XB1
+            public int MaxInstructionCount
+            {
+                get { System.Diagnostics.Debug.Assert(false, "No scripts on XB1"); return 0; }
+            }
+
+            public int CurrentInstructionCount
+            {
+                get { System.Diagnostics.Debug.Assert(false, "No scripts on XB1"); return 0; }
+            }
+
+            public int MaxMethodCallCount
+            {
+                get { System.Diagnostics.Debug.Assert(false, "No scripts on XB1"); return 0; }
+            }
+
+            public int CurrentMethodCallCount
+            {
+                get { System.Diagnostics.Debug.Assert(false, "No scripts on XB1"); return 0; }
+            }
+#endif // XB1
 
             public void Reset()
             {

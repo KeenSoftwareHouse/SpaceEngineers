@@ -211,10 +211,14 @@ namespace Sandbox.Game.Entities.Cube
                     sb.Append(Math.Round(self.HeadPos.X, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
                     sb.Append(Math.Round(self.HeadPos.Y, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
                     sb.Append(Math.Round(self.HeadPos.Z, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+#if !XB1
                     Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(sb.ToString()));
                     thread.SetApartmentState(ApartmentState.STA);
                     thread.Start();
                     thread.Join();
+#else
+                    Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
                 });
             MyTerminalControlFactory.AddControl(copyCoordsButton);
 
@@ -230,11 +234,14 @@ namespace Sandbox.Game.Entities.Cube
                     sb.Append(Math.Round(self.m_targetCoords.X, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
                     sb.Append(Math.Round(self.m_targetCoords.Y, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
                     sb.Append(Math.Round(self.m_targetCoords.Z, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+#if !XB1
                     Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(sb.ToString()));
                     thread.SetApartmentState(ApartmentState.STA);
                     thread.Start();
                     thread.Join();
-
+#else
+                    Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
                 });
             copyTargetCoordsButton.Enabled = (x) => x.m_targetId != null;
             MyTerminalControlFactory.AddControl(copyTargetCoordsButton);
@@ -314,7 +321,12 @@ namespace Sandbox.Game.Entities.Cube
         }
         static void PasteFromClipboard()
         {
+#if !XB1
            m_clipboardText = System.Windows.Forms.Clipboard.GetText();
+#else
+            Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
+           
         }
         
         Vector3D m_temp;

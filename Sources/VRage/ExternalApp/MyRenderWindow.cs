@@ -36,7 +36,15 @@ namespace VRage
 
         public IntPtr Handle
         {
+#if !XB1
             get { return Control.Handle; }
+#else // XB1
+            get
+            {
+                System.Diagnostics.Debug.Assert(false);
+                return IntPtr.Zero;
+            }
+#endif // XB1
         }
 
         public void BeforeDraw()
@@ -82,7 +90,15 @@ namespace VRage
 
         Vector2 IMyBufferedInputSource.MouseAreaSize
         {
+#if !XB1
             get { return new Vector2(Control.ClientSize.Width, Control.ClientSize.Height); }
+#else // XB1
+            get
+            {
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+                return new Vector2();//TODO
+            }
+#endif // XB1
         }
     }
 

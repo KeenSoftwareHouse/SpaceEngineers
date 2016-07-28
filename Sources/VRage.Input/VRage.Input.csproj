@@ -71,7 +71,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug_XB1\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP;XB1_SKIPASSERTFORNOW</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -127,6 +127,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />
+	<Reference Include="System.Runtime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Input\IMyControlNameLookup.cs" />
@@ -182,6 +183,10 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
+      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
+      <Name>XB1Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

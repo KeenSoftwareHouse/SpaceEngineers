@@ -278,6 +278,26 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyMotorSuspension()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_dummyDisplacement = SyncType.CreateAndAddProp<float>(); //<== from base class
+
+            m_steerAngle = SyncType.CreateAndAddProp<float>();
+            m_brake = SyncType.CreateAndAddProp<bool>();
+            m_damping = SyncType.CreateAndAddProp<float>();
+            m_strenth = SyncType.CreateAndAddProp<float>();
+            m_friction = SyncType.CreateAndAddProp<float>();
+            m_height = SyncType.CreateAndAddProp<float>();
+            m_suspensionTravel = SyncType.CreateAndAddProp<float>();
+            m_speedLimit = SyncType.CreateAndAddProp<float>();
+            m_maxSteerAngle = SyncType.CreateAndAddProp<float>();
+            m_steerSpeed = SyncType.CreateAndAddProp<float>();
+            m_steerReturSpeed = SyncType.CreateAndAddProp<float>();
+            m_invertSteer = SyncType.CreateAndAddProp<bool>();
+            m_invertPropulsion = SyncType.CreateAndAddProp<bool>();
+            m_power = SyncType.CreateAndAddProp<float>();
+            m_steering = SyncType.CreateAndAddProp<bool>();
+            m_propulsion = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_brake.ValueChanged += (x) => UpdateBrake();

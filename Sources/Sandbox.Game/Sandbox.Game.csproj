@@ -77,7 +77,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug_XB1\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP;XB1_NOMULTIPLAYER;XB1_SKIPASSERTFORNOW</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -154,7 +154,7 @@
     <Reference Include="SharpDX.Toolkit">
       <HintPath>..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll</HintPath>
     </Reference>
-    <Reference Include="SteamSDK">
+    <Reference Include="SteamSDK" Condition="('$(Configuration)' != 'Debug_XB1') And ('$(Configuration)' != 'Release_XB1')">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SteamSDK\$(Configuration)\$(Platform)\SteamSDK.dll</HintPath>
     </Reference>
@@ -536,6 +536,8 @@
     <Compile Include="Game\EntityComponents\MyEntityReferenceComponent.cs" />
     <Compile Include="Game\EntityComponents\MyGridOwnershipComponentBase.cs" />
     <Compile Include="Game\EntityComponents\MyShipSoundComponent.cs" />
+
+    <Compile Include="Game\GUI\DebugInputComponents\MyAlesDebugInputComponent.cs" />
     <Compile Include="Game\EntityComponents\MyEntityTerrainHeightProviderComponent.cs" />
     <Compile Include="Game\Entities\Planet\MyGravityProviderComponent.cs" />
     <Compile Include="Game\Entities\Planet\MySphericalNaturalGravityComponent.cs" />
@@ -1541,6 +1543,10 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
+      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
+      <Name>XB1Interface</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Sandbox.Common\Sandbox.Common.csproj">
       <Project>{2c96f0ab-7962-4b73-a075-b0e0b09f6195}</Project>
       <Name>Sandbox.Common</Name>

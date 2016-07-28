@@ -141,8 +141,15 @@ namespace Sandbox.Game.Entities.Character.Components
 
 		public override void UpdateBeforeSimulation()
 		{
-			ThrustComp.UpdateBeforeSimulation();
+            ThrustComp.UpdateBeforeSimulation(false, Sync.IsServer || Character == MySession.Static.LocalCharacter);
 		}
+
+        public void UpdateThrustFromNetwork()
+        {
+            ThrustComp.UpdateBeforeSimulation(true,true);
+            ClearMovement();    
+        }
+
         public override void OnCharacterDead()
         {
             base.OnCharacterDead();
@@ -162,7 +169,7 @@ namespace Sandbox.Game.Entities.Character.Components
             ThrustComp.Enabled = newState;
 			ThrustComp.ControlThrust = Vector3.Zero;
             ThrustComp.MarkDirty();
-            ThrustComp.UpdateBeforeSimulation();
+            ThrustComp.UpdateBeforeSimulation(false,true);
 		    if (!ThrustComp.Enabled)
 		        ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f, null);
 
@@ -213,7 +220,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     ThrustComp.Enabled = false;
                     ThrustComp.ControlThrust = Vector3.Zero;
                     ThrustComp.MarkDirty();
-                    ThrustComp.UpdateBeforeSimulation();
+                    ThrustComp.UpdateBeforeSimulation(false,true);
                     ThrustComp.SetRequiredFuelInput(ref FuelDefinition.Id, 0f, null);
                     ThrustComp.ResourceSink(Character).Update();
                 }
@@ -366,7 +373,6 @@ namespace Sandbox.Game.Entities.Character.Components
                 moveDirection.Normalize();
 
             ThrustComp.ControlThrust += moveDirection * ForceMagnitude;
-            ThrustComp.ControlThrustMagnitude += Vector3.One;
 		}
 
 		public bool UpdatePhysicalMovement()
@@ -448,7 +454,6 @@ namespace Sandbox.Game.Entities.Character.Components
 
         public void ClearMovement()
         {
-            ThrustComp.ControlThrustMagnitude = Vector3.Zero;
             ThrustComp.ControlThrust = Vector3.Zero;
         }
 	}

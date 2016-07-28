@@ -136,12 +136,14 @@ namespace Sandbox.Game.AI
                 m_processQueue = new MyConcurrentQueue<AgentSpawnData>();
                 m_lock = new FastResourceLock();
 
+#if !XB1
                 if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION)
                 {
                     MyMessageLoop.AddMessageHandler(MyWMCodes.BEHAVIOR_GAME_UPLOAD_TREE, OnUploadNewTree);
                     MyMessageLoop.AddMessageHandler(MyWMCodes.BEHAVIOR_GAME_STOP_SENDING, OnBreakDebugging);
                     MyMessageLoop.AddMessageHandler(MyWMCodes.BEHAVIOR_GAME_RESUME_SENDING, OnResumeDebugging);
                 }
+#endif
 
                 MyToolbarComponent.CurrentToolbar.SelectedSlotChanged += CurrentToolbar_SelectedSlotChanged;
                 MyToolbarComponent.CurrentToolbar.SlotActivated += CurrentToolbar_SlotActivated;
@@ -283,12 +285,14 @@ namespace Sandbox.Game.AI
                 m_botCollection = null;
                 m_pathfinding = null;
 
+#if !XB1
                 if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION)
                 {
                     MyMessageLoop.RemoveMessageHandler(MyWMCodes.BEHAVIOR_GAME_UPLOAD_TREE, OnUploadNewTree);
                     MyMessageLoop.RemoveMessageHandler(MyWMCodes.BEHAVIOR_GAME_STOP_SENDING, OnBreakDebugging);
                     MyMessageLoop.RemoveMessageHandler(MyWMCodes.BEHAVIOR_GAME_RESUME_SENDING, OnResumeDebugging);
                 }
+#endif
 
                 if (MyToolbarComponent.CurrentToolbar != null)
                 {
@@ -779,8 +783,10 @@ namespace Sandbox.Game.AI
                     m_botCollection.CheckCompatibilityWithBots(behaviorTree);
                 }
                 IntPtr toolWindowHandle = IntPtr.Zero;
+#if !XB1
                 if (m_behaviorTreeCollection.TryGetValidToolWindow(out toolWindowHandle))
                     WinApi.PostMessage(toolWindowHandle, MyWMCodes.BEHAVIOR_TOOL_TREE_UPLOAD_SUCCESS, IntPtr.Zero, IntPtr.Zero);
+#endif // !XB1
             }
         }
 

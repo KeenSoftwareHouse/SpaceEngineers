@@ -336,11 +336,7 @@ namespace Sandbox.Game.Gui
                         }
                         else if (MyInput.Static.IsAnyShiftKeyPressed())
                         {
-                            if (MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS)
-                            {
-                                MyFakes.ENABLE_SPECTATOR_ROLL_MOVEMENT = !MyFakes.ENABLE_SPECTATOR_ROLL_MOVEMENT;
-                            }
-                            MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS = !MyFakes.ENABLE_DEVELOPER_SPECTATOR_CONTROLS;
+                            MySpectatorCameraController.Static.AlignSpectatorToGravity = !MySpectatorCameraController.Static.AlignSpectatorToGravity;
                         }
 
                         if (MyInput.Static.IsAnyCtrlKeyPressed() && MySession.Static.ControlledEntity != null)

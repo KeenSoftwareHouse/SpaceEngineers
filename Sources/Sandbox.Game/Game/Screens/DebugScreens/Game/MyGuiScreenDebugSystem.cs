@@ -18,7 +18,7 @@ using Sandbox.Graphics;
 
 namespace Sandbox.Game.Gui
 {
-#if !XB1_TMP
+#if !XB1
     [MyDebugScreen("Game", "System")]
     class MyGuiScreenDebugSystem : MyGuiScreenDebugBase
     {

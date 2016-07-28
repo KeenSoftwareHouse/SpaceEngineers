@@ -18,6 +18,7 @@ namespace VRage.Compiler
     {
     }
 
+#if !XB1 // XB1_NOILINJECTOR
 #if UNSHARPER
     public class IlInjector
     {
@@ -759,5 +760,6 @@ namespace VRage.Compiler
         }
     }
 #endif
+#endif // !XB1
 }
 

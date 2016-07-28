@@ -18,6 +18,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Win32;
 using VRageRender;
+using VRage.Library;
 
 namespace Sandbox
 {
@@ -29,17 +30,21 @@ namespace Sandbox
     {
         private string[] m_args;
 
+#if !XB1
         private static MySplashScreen splashScreen;
+#endif // !XB1
         private static IMyRender m_renderer;
 
         private MyBasicGameInfo GameInfo { get { return MyPerGameSettings.BasicGameInfo; } }
 
+#if !XB1
         //  IMPORTANT: Don't use this for regular game message boxes. It's supposed to be used only when showing exception, errors or other system messages to user.
         public static void MessageBoxWrapper(string caption, string text)
         {
             // No dialogs in autobuild please
             WinApi.MessageBox(new IntPtr(), text, caption, 0);
         }
+#endif // !XB1
 
         public MyCommonProgramStartup(string[] args)
         {
@@ -77,13 +82,14 @@ namespace Sandbox
                     if (IPAddressExtensions.TryParseEndpoint(m_args[index + 1], out MySandboxGame.ConnectToServer))
                     {
                         Console.WriteLine(GameInfo.GameName + " " + MyFinalBuildConstants.APP_VERSION_STRING);
-                        Console.WriteLine("Obfuscated: " + MyObfuscation.Enabled + ", Platform: " + (Environment.Is64BitProcess ? " 64-bit" : " 32-bit"));
+                        Console.WriteLine("Obfuscated: " + MyObfuscation.Enabled + ", Platform: " + (MyEnvironment.Is64BitProcess ? " 64-bit" : " 32-bit"));
                         Console.WriteLine("Connecting to: " + m_args[index + 1]);
                     }
                 }
             }
         }
 
+#if !XB1
         public bool CheckSingleInstance()
         {
             MySingleProgramInstance spi = new MySingleProgramInstance(MyFileSystem.MainAssemblyName);
@@ -95,6 +101,7 @@ namespace Sandbox
 
             return true;
         }
+#endif // !XB1
 
         /// <summary>
         /// Determines the application data path to use for configuration, save games and other dynamic data.
@@ -105,6 +112,7 @@ namespace Sandbox
         {
             string appDataPath = null;
 
+#if !XB1
             // A user can customize their own data path by calling 
             // SpaceEngineers.exe -appdata "%appdata%/MyCustomFolder".
             // The %appdata% macro (or any other such environment variable macro) 
@@ -120,38 +128,46 @@ namespace Sandbox
             // No customized data path has been set, so we fall back to the default.
             if (appDataPath == null)
                 appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), GameInfo.ApplicationName);
+#else // XB1
+            appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), GameInfo.ApplicationName);
+#endif // XB1
             return appDataPath;
         }
 
         public void InitSplashScreen()
         {
+#if !XB1
             if (MyFakes.ENABLE_SPLASHSCREEN && !m_args.Contains("-nosplash"))
             {
                 splashScreen = new MySplashScreen(GameInfo.SplashScreenImage, new PointF(0.7f, 0.7f));
                 splashScreen.Draw();
             }
+#endif// !XB1
         }
 
         public void DisposeSplashScreen()
         {
+#if !XB1
             if (splashScreen != null)
             {
                 splashScreen.Hide();
                 splashScreen.Dispose();
             }
+#endif // !XB1
         }
 
         public bool Check64Bit()
         {
+#if !XB1
             // This won't crash with BadFormatExpection when 64-bit game started as 32-bit process, it will show message
             // Will uncomment when it's possible to test it
-            if (!Environment.Is64BitProcess && AssemblyExtensions.TryGetArchitecture("SteamSDK.dll") == ProcessorArchitecture.Amd64)
+            if (!MyEnvironment.Is64BitProcess && AssemblyExtensions.TryGetArchitecture("SteamSDK.dll") == ProcessorArchitecture.Amd64)
             {
                 string text = GameInfo.GameName + " cannot be started in 64-bit mode, ";
-                text += "because 64-bit version of .NET framework is not available or is broken." + Environment.NewLine + Environment.NewLine;
-                text += "Do you want to open website with more information about this particular issue?" + Environment.NewLine + Environment.NewLine;
-                text += "Press Yes to open website with info" + Environment.NewLine;
-                text += "Press No to run in 32-bit mode (smaller potential of " + GameInfo.GameName + "!)" + Environment.NewLine;
+                text += "because 64-bit version of .NET framework is not available or is broken." + MyEnvironment.NewLine + MyEnvironment.NewLine;
+                text += "Do you want to open website with more information about this particular issue?" + MyEnvironment.NewLine + MyEnvironment.NewLine;
+                text += "Press Yes to open website with info" + MyEnvironment.NewLine;
+                text += "Press No to run in 32-bit mode (smaller potential of " + GameInfo.GameName + "!)" + MyEnvironment.NewLine;
                 text += "Press Cancel to close this dialog";
 
                 var result = Sandbox.MyMessageBox.Show(IntPtr.Zero, text, ".NET Framework 64-bit error", MessageBoxOptions.YesNoCancel);
@@ -174,6 +190,7 @@ namespace Sandbox
                 }
                 return false;
             }
+#endif // !XB1
 
             return true;
         }
@@ -215,8 +232,13 @@ namespace Sandbox
                     MySandboxGame.Log.WriteLineAndConsole("Steam.UserId: " + steamService.UserId);
                     MySandboxGame.Log.WriteLineAndConsole("Steam.UserName: " + steamService.UserName ?? "[n/a]");
                     MySandboxGame.Log.WriteLineAndConsole("Steam.Branch: " + steamService.BranchName ?? "[n/a]");
+#if !XB1
                     MySandboxGame.Log.WriteLineAndConsole("Build date: " + MySandboxGame.BuildDateTime.ToString("yyyy-MM-dd hh:mm", CultureInfo.InvariantCulture));
                     MySandboxGame.Log.WriteLineAndConsole("Build version: " + MySandboxGame.BuildVersion.ToString());
+#else // XB1
+                    MySandboxGame.Log.WriteLineAndConsole("Build date: N/A (XB1 TODO?)");
+                    MySandboxGame.Log.WriteLineAndConsole("Build version: N/A (XB1 TODO?)");
+#endif // XB1
                 }
                 else if (MyFinalBuildConstants.IS_OFFICIAL) //We dont need Steam only in VS 
                 {
@@ -224,18 +246,24 @@ namespace Sandbox
                     {
                         if (MyFakes.ENABLE_RUN_WITHOUT_STEAM == false)
                         {
-                            MessageBoxWrapper("Steam is not running!", "Please run this game from Steam." + Environment.NewLine + "(restart Steam if already running)");
+#if !XB1
+                            MessageBoxWrapper("Steam is not running!", "Please run this game from Steam." + MyEnvironment.NewLine + "(restart Steam if already running)");
+#else // XB1
+                            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                             return false;
                         }
                     }
                 }
                 else
                 {
+#if !XB1
                     // At the moment in some cases we can't really distinguish if Steam is
                     // active but the user doesn't own the game
                     MessageBoxWrapper("Steam is not running!", "Game might be unstable when run without Steam\n"
                         + "or when the game is not present in the user's library!\n"
                         + "FOR DEBUG: Set MyFakes.ENABLE_RUN_WITHOUT_STEAM to true");
+#endif // !XB1
                 }
             }
 

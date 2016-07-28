@@ -7,7 +7,7 @@ using VRageRender;
 namespace Sandbox.Game.Gui
 {
 
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "Outdoor rendering settings", MyDirectXSupport.DX11)]
     class MyGuiScreenDebugRender3 : MyGuiScreenDebugBase

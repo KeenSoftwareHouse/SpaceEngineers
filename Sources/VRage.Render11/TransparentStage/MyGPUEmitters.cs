@@ -8,7 +8,7 @@ namespace VRageRender
 {
     internal static class MyGPUEmitters
     {
-        internal const int MAX_LIVE_EMITTERS = 256;
+        internal const int MAX_LIVE_EMITTERS = 1024;
         internal const int MAX_PARTICLES = 400 * 1024;
 
         private const int ATLAS_INDEX_BITS = 12;

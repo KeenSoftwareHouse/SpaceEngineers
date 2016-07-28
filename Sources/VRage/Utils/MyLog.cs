@@ -11,6 +11,7 @@ using System.Reflection;
 using SystemTrace = System.Diagnostics.Trace;
 using VRage.Library.Utils;
 using VRage.FileSystem;
+using VRage.Library;
 
 namespace VRage.Utils
 {
@@ -145,7 +146,7 @@ namespace VRage.Utils
                     m_stream = MyFileSystem.OpenWrite(m_filepath);
                     m_streamWriter = new StreamWriter(m_stream);
                     m_normalWriter = new Action<string>(WriteLine);
-                    m_closedLogWriter = new Action<string>((s) => File.AppendAllText(m_filepath, s + Environment.NewLine));
+                    m_closedLogWriter = new Action<string>((s) => File.AppendAllText(m_filepath, s + MyEnvironment.NewLine));
                     m_enabled = true;
                 }
                 catch (Exception e)
@@ -274,7 +275,7 @@ namespace VRage.Utils
 
         long GetSystemMemory()
         {
-            return Environment.WorkingSet;
+            return MyEnvironment.WorkingSetForMyLog;
         }
 
         //	Must be called before application ends
@@ -307,7 +308,7 @@ namespace VRage.Utils
             }
             else if (m_filepath != null)
             {
-                File.AppendAllText(m_filepath, text + Environment.NewLine);
+                File.AppendAllText(m_filepath, text + MyEnvironment.NewLine);
             }
         }
 

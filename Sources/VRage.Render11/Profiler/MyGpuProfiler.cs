@@ -36,6 +36,7 @@ namespace VRageRender
         internal Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
     }
 
+#if !XB1 // XB1_NOPROFILER
     class MyFrameProfiling
     {
         internal MyQuery m_disjoint;
@@ -230,4 +231,32 @@ namespace VRageRender
             MyImmediateRC.RC.EndProfilingBlock();
         }
     }
+#else // XB1
+    class MyGpuProfiler
+    {
+        internal static void IC_BeginBlock(string tag)
+        {
+        }
+
+        internal static void IC_EndBlock()
+        {
+        }
+
+        internal static void StartFrame()
+        {
+        }
+
+        internal static void EndFrame()
+        {
+        }
+
+        internal static void IC_Enqueue(MyIssuedQuery q)
+        {
+        }
+
+        internal static void Join(MyFrameProfilingContext context)
+        {
+        }
+    }
+#endif // XB1
 }

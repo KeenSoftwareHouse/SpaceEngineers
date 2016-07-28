@@ -93,6 +93,9 @@ namespace Sandbox.Game.Entities
 
         public MyConveyorSorter()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_drainAll = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_drainAll.ValueChanged += x => DoChangeDrainAll();

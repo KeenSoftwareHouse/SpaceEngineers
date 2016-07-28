@@ -212,6 +212,7 @@
     <Compile Include="DShow\DsUuids.cs" />
     <Compile Include="DShow\QEdit.cs" />
     <Compile Include="DShow\VideoPlayer.cs" />
+    <Compile Include="Environment\MyEnvironment.cs" />
     <Compile Include="Extensions\AttributeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />
@@ -453,6 +454,7 @@
     <Compile Include="Trace\MyTrace.cs" />
     <Compile Include="Trace\MyWintraceWrapper.cs" />
     <Compile Include="Utils\BlittableHelper.cs" />
+    <Compile Include="Utils\MyAssembly.cs" />
     <Compile Include="Utils\Disposable.cs" />
     <Compile Include="Utils\DontCheckAttribute.cs" />
     <Compile Include="Utils\FixedLoop.cs" />

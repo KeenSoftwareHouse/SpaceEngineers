@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -329,3 +330,4 @@ namespace VRage.Game.SessionComponents
         }
     }
 }
+#endif // !XB1

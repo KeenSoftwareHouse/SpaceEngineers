@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 
 namespace ProtoBuf
 {
@@ -38,3 +39,4 @@ namespace ProtoBuf
         private readonly string memberName;
     }
 }
+#endif // !XB1

@@ -55,5 +55,13 @@ namespace VRage.Game
         {
             return (false == string.IsNullOrEmpty(m_materialName)) || (MaterialTypeName.HasValue && MaterialTypeName.Value.GetHashCode() != 0);
         }
+
+        override public MyObjectBuilder_Base Clone()
+        {
+            MyObjectBuilder_Ore clone = MyObjectBuilderSerializer.Clone(this) as MyObjectBuilder_Ore;
+            clone.MaterialTypeName = MaterialTypeName;
+            return clone;
+
+        }
     }
 }

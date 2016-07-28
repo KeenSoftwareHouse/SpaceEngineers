@@ -212,6 +212,14 @@ namespace Sandbox.Game.Gui
 
         private Type FindTerminalTypeFromInterface<TBlock>()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            var type = MyAssembly.GetTypes().FirstOrDefault(x => typeof(TBlock).IsAssignableFrom(x) && !x.IsInterface);
+            if (type == null)
+            {
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+            }
+            return type;
+#else // !XB1
             var type = Assembly.GetExecutingAssembly().GetTypes().FirstOrDefault(x => typeof(TBlock).IsAssignableFrom(x) && !x.IsInterface);
             if (type == null)
             {
@@ -221,6 +229,7 @@ namespace Sandbox.Game.Gui
             }
 
             return type;
+#endif // !XB1
         }
 
         private bool IsTypeValid<TBlock>()

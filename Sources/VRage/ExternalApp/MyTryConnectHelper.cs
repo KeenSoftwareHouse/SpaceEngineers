@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -79,3 +80,4 @@ namespace VRage
         }
     }
 }
+#endif // !XB1

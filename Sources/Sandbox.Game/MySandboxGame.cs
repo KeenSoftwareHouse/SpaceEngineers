@@ -59,6 +59,7 @@ using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Screens;
 using VRage.Game.ObjectBuilder;
+using VRage.Library;
 using VRage.Game.SessionComponents;
 
 #endregion
@@ -68,17 +69,25 @@ namespace Sandbox
 {
     public class MySandboxGame : Sandbox.Engine.Platform.Game, IDisposable
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_preloaded = false;
+#endif // XB1
+
         #region Fields
 
         public static readonly MyStringId DirectX9RendererKey = MyStringId.GetOrCompute("DirectX 9");
         public static readonly MyStringId DirectX11RendererKey = MyStringId.GetOrCompute("DirectX 11");
 
+#if !XB1
         public static Version BuildVersion = Assembly.GetExecutingAssembly().GetName().Version;
+#endif // !XB1
 
         /// <summary>
         /// Build time of GameLib. Local time (without DST) of machine which build the assembly.
         /// </summary>
+#if !XB1
         public static DateTime BuildDateTime = new DateTime(2000, 1, 1).AddDays(BuildVersion.Build).AddSeconds(BuildVersion.Revision * 2);
+#endif // !XB1
 
         public static MySandboxGame Static;
         public static Vector2I ScreenSize;
@@ -155,7 +164,9 @@ namespace Sandbox
         public static bool ShowGpuUnderMinimumNotification = false;
 
         // TODO: OP! Window handle should not be used anywhere
+#if !XB1
         public IntPtr WindowHandle { get; protected set; }
+#endif // !XB1
         protected IMyBufferedInputSource m_bufferedInputSource;
 
         /// <summary>
@@ -251,6 +262,7 @@ namespace Sandbox
             }
             else
             {
+#if !XB1
                 ProfilerShort.BeginNextBlock("Dedicated server setup");
                 MySandboxGame.ConfigDedicated.Load();
                 //ignum
@@ -279,6 +291,9 @@ namespace Sandbox
                     e.Data["Silent"] = true;
                     throw e;
                 }
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "No dedicated server on XB1");
+#endif // XB1
             }
 
             // Game tags contain game data hash, so they need to be sent after preallocation
@@ -302,7 +317,9 @@ namespace Sandbox
                 SteamSDK.Peer2Peer.ConnectionFailed += Peer2Peer_ConnectionFailed;
             }
 
+#if !XB1
             MyMessageLoop.AddMessageHandler(MyWMCodes.GAME_IS_RUNNING_REQUEST, OnToolIsGameRunningMessage);
+#endif
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.Constructor() - END");
@@ -347,10 +364,12 @@ namespace Sandbox
             ProfilerShort.End();
             ProfilerShort.End();
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
             foreach (var plugin in MyPlugins.Plugins)
             {
                 plugin.Init(this);
             }
+#endif // !XB1
 
             if (MyPerGameSettings.Destruction && !HkBaseSystem.DestructionEnabled)
             {
@@ -548,6 +567,7 @@ namespace Sandbox
             }
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         protected virtual void InitSteamWorkshop()
         {
             MySteamWorkshop.Init(
@@ -577,6 +597,7 @@ namespace Sandbox
                 {
                 });
         }
+#endif // !XB1
 
         protected static void AddDefaultGameControl(
             Dictionary<MyStringId, MyControl> self,
@@ -592,6 +613,7 @@ namespace Sandbox
 
         private void ParseArgs(string[] args)
         {
+#if !XB1 // XB1_ALLINONEASSEMBLY
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
             if (MyPerGameSettings.GameModBaseObjBuildersAssembly != null)
                 MyPlugins.RegisterBaseGameObjectBuildersAssemblyFile(MyPerGameSettings.GameModBaseObjBuildersAssembly);
@@ -600,6 +622,7 @@ namespace Sandbox
             MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
             MyPlugins.RegisterFromArgs(args);
             MyPlugins.Load();
+#endif // !XB1
 
             if (args == null)
                 return;
@@ -689,6 +712,7 @@ namespace Sandbox
 
                         if (MySession.IsCompatibleVersion(checkpoint))
                         {
+#if !XB1
                             MySteamWorkshop.ResultData result =  MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods);
                             if (result.Success)
                             {
@@ -705,6 +729,7 @@ namespace Sandbox
                             {
                                 MyLog.Default.WriteLineAndConsole("Unable to download mods");
                             }
+#endif // !XB1
                         }
                         else
                         {
@@ -727,6 +752,7 @@ namespace Sandbox
 
                             if (MySession.IsCompatibleVersion(checkpoint))
                             {
+#if !XB1
                                 if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods).Success)
                                 {
                                     MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
@@ -742,6 +768,7 @@ namespace Sandbox
                                 {
                                     MyLog.Default.WriteLineAndConsole("Unable to download mods");
                                 }
+#endif // !XB1
                             }
                             else
                             {
@@ -785,6 +812,7 @@ namespace Sandbox
                             }
                         }
 
+#if !XB1
                         if (MySteamWorkshop.DownloadWorldModsBlocking(mods).Success)
                         {
                             MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
@@ -802,6 +830,7 @@ namespace Sandbox
                         {
                             MyLog.Default.WriteLineAndConsole("Unable to download mods");
                         }
+#endif // !XB1
                     }
                     else
                     {
@@ -839,7 +868,7 @@ namespace Sandbox
         static void InitNumberOfCores()
         {
             //  Get number of cores of local machine. As I don't know what values it can return, I clamp it to <1..4> (min 1 core, max 4 cores). That are tested values. I can't test eight cores...
-            NumberOfCores = Environment.ProcessorCount;
+            NumberOfCores = MyEnvironment.ProcessorCount;
             MySandboxGame.Log.WriteLine("Found processor count: " + NumberOfCores);       //  What we found
             NumberOfCores = MyUtils.GetClampInt(NumberOfCores, 1, 16);
             MySandboxGame.Log.WriteLine("Using processor count: " + NumberOfCores);       //  What are we really going use
@@ -867,11 +896,15 @@ namespace Sandbox
             Debug.Assert(MyPerGameSettings.GameIcon != null, "Set the game icon file in executable project.");
 
             DrawThread = Thread.CurrentThread;
-
+#if XB1
+            var form = new XB1Interface.XB1GameWindow();
+#else
             var form = new MySandboxForm();
             WindowHandle = form.Handle;
+#endif
             m_bufferedInputSource = form;
             m_windowCreatedEvent.Set();
+#if !XB1
             form.Text = MyPerGameSettings.GameName;
             try
             {
@@ -881,7 +914,9 @@ namespace Sandbox
             {
                 form.Icon = null;
             }
+#endif // !XB1
             form.FormClosed += (o, e) => ExitThreadSafe();
+#if !XB1
             Action showCursor = () =>
                 {
                     if (!form.IsDisposed)
@@ -905,6 +940,7 @@ namespace Sandbox
                         }
                     }
                 };
+#endif // !XB1
             return form;
         }
 
@@ -953,7 +989,11 @@ namespace Sandbox
                 StartRenderComponent(initialSettings);
 
                 m_windowCreatedEvent.WaitOne();
+#if !XB1
                 Debug.Assert(WindowHandle != IntPtr.Zero && m_bufferedInputSource != null);
+#else // XB1
+                Debug.Assert(m_bufferedInputSource != null);
+#endif // XB1
                 // TODO: OP! Window handle should not be used anywhere
             }
 
@@ -962,9 +1002,11 @@ namespace Sandbox
             InitInput();
             ProfilerShort.End();
 
+#if !XB1 // XB1_NOWORKSHOP
             ProfilerShort.Begin("Init Steam workshop");
             InitSteamWorkshop();
             ProfilerShort.End();
+#endif // !XB1
 
             MyAnalyticsHelper.ReportPlayerId();
 
@@ -1029,11 +1071,16 @@ namespace Sandbox
             try
             {
                 // May be required to extend this to more assemblies than just current
+#if XB1 // XB1_ALLINONEASSEMBLY
+                PreloadTypesFrom(MyAssembly.AllInOneAssembly);
+                ForceStaticCtor(typesToForceStaticCtor);
+#else // !XB1
                 PreloadTypesFrom(MyPlugins.GameAssembly);
                 PreloadTypesFrom(MyPlugins.SandboxAssembly);
                 PreloadTypesFrom(MyPlugins.UserAssembly);
                 ForceStaticCtor(typesToForceStaticCtor);
                 PreloadTypesFrom(typeof(MySandboxGame).Assembly);
+#endif // !XB1
             }
             catch (ReflectionTypeLoadException ex)
             {
@@ -1062,8 +1109,19 @@ namespace Sandbox
 
         private static void PreloadTypesFrom(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            if (assembly == null)
+                return;
+
+            System.Diagnostics.Debug.Assert(m_preloaded == false);
+            if (m_preloaded == true)
+                return;
+            m_preloaded = true;
+            ForceStaticCtor(MyAssembly.GetTypes().Where(type => Attribute.IsDefined(type, typeof(PreloadRequiredAttribute))).ToArray());
+#else // !XB1
             if (assembly != null)
                 ForceStaticCtor(assembly.GetTypes().Where(type => Attribute.IsDefined(type, typeof(PreloadRequiredAttribute))).ToArray());
+#endif // !XB1
         }
 
         public static void ForceStaticCtor(Type[] types)
@@ -1093,7 +1151,11 @@ namespace Sandbox
                     MyAudio.Static.Mute = false;
 
             if (MyInput.Static != null)
+#if !XB1
                 MyInput.Static.LoadContent(WindowHandle);
+#else // XB1
+                MyInput.Static.LoadContent();
+#endif // XB1
 
             VRage.Voxels.MyClipmap.CameraFrustumGetter = GetCameraFrustum;
 
@@ -1310,6 +1372,7 @@ namespace Sandbox
             }
 
             Log.DecreaseIndent();
+#if !XB1
             if (MyFakes.ENABLE_SCRIPTS_PDB)
             {
                 if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
@@ -1317,10 +1380,12 @@ namespace Sandbox
                 else
                     IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
             }
+#endif
         }
 
         internal static void InitIlChecker()
         {
+#if !XB1
             if (GameCustomInitialization != null)
                 GameCustomInitialization.InitIlChecker();
 
@@ -1635,6 +1700,7 @@ namespace Sandbox
 
             // access to renderer - unfortunatelly it is not safe now
             // IlChecker.AllowedOperands.Add(typeof(VRageRender.MyRenderProxy), null);
+#endif
         }
 
         void Matchmaking_LobbyJoinRequest(Lobby lobby, ulong invitedBy)
@@ -1852,9 +1918,12 @@ namespace Sandbox
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning)));
             }
 
+#if !XB1
             if (IsDedicated)
                 VRage.Service.ExitListenerSTA.Listen();
+
             MyMessageLoop.Process();
+#endif
 
             using (Stats.Generic.Measure("InvokeQueue"))
             {
@@ -1965,7 +2034,12 @@ namespace Sandbox
                 //audio muting when game is not in focus
                 if (Config.EnableMuteWhenNotInFocus)
                 {
+#if !XB1
                     if (GameWindowForm.ActiveForm == null)
+#else
+                    if (XB1Interface.XB1Interface.IsApplicationInForegorund() == false)
+#endif
+
                     {
                         if (hasFocus)//lost focus
                         {
@@ -1988,12 +2062,14 @@ namespace Sandbox
                 ProfilerShort.End();
             }
 
+#if !XB1 // XB1_ALLINONEASSEMBLY
             ProfilerShort.Begin("Mods");
             foreach (var plugin in MyPlugins.Plugins)
             {
                 plugin.Update();
             }
             ProfilerShort.End();
+#endif // !XB1
 
             ProfilerShort.Begin("Others");
 
@@ -2342,11 +2418,13 @@ namespace Sandbox
 
         public void Dispose()
         {
+#if !XB1
             if (MySessionComponentExtDebug.Static != null)
             {
                 MySessionComponentExtDebug.Static.Dispose();
                 MySessionComponentExtDebug.Static = null;
             }
+#endif // !XB1
 
             if (MyMultiplayer.Static != null)
                 MyMultiplayer.Static.Dispose();
@@ -2356,15 +2434,19 @@ namespace Sandbox
                 GameRenderComponent.Dispose();
                 GameRenderComponent = null;
             }
+#if !XB1 // XB1_ALLINONEASSEMBLY
             MyPlugins.Unload();
+#endif // !XB1
 
             Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10));
             m_windowCreatedEvent.Dispose();
 
+#if !XB1
             if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
                 MyScriptCompiler.Static.Whitelist.Clear();
             else
                 IlChecker.Clear();
+#endif
 
             Services = null;
             MyObjectBuilderType.UnregisterAssemblies();
@@ -2401,11 +2483,13 @@ namespace Sandbox
             }
         }
 
+#if !XB1
         void OnToolIsGameRunningMessage(ref System.Windows.Forms.Message msg)
         {
             IntPtr gameState = new IntPtr(MySession.Static == null ? 0 : 1);
             WinApi.PostMessage(msg.WParam, MyWMCodes.GAME_IS_RUNNING_RESULT, gameState, IntPtr.Zero);
         }
+#endif // !XB1
 
         public static void ReloadDedicatedServerSession()
         {

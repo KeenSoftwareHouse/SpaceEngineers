@@ -144,9 +144,13 @@ namespace Sandbox
 
         public static void ReportAppAlreadyRunning(string gameName)
         {
+#if !XB1
             System.Windows.Forms.MessageBox.Show(
                 String.Format(APP_ALREADY_RUNNING, gameName),
                 String.Format(MESSAGE_BOX_CAPTION, gameName));
+#else
+            System.Diagnostics.Debug.Assert(false, "Report support on XB1!");
+#endif
         }
 
         private static void SendReport(string logName, string id, out string log, out HttpStatusCode code)
@@ -166,6 +170,9 @@ namespace Sandbox
                     }
                 }
 
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 try
                 {
                     foreach (var renderLog in Directory.GetFiles(Path.GetDirectoryName(logName), "VRageRender*.log", SearchOption.TopDirectoryOnly))
@@ -181,6 +188,7 @@ namespace Sandbox
                     }
                 }
                 catch { }
+#endif // !XB1
 
                 if (!String.IsNullOrEmpty(log))
                 {

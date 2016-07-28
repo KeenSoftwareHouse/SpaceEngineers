@@ -47,7 +47,9 @@ namespace Sandbox.Game.Gui
             //AddSlider("Backlight intensity", 0.0f, 10.0f, MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.BacklightMult));
 
             m_currentPosition.Y += 0.01f;
+#if !XB1
             AddCheckBox("Display HDR debug", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayHdrDebug));
+#endif // !XB1
             AddSlider("MiddleGrey (0=automatic)", 0.0f, 1.0f, () => MyPostprocessSettingsWrapper.Settings.MiddleGrey, (float f) => MyPostprocessSettingsWrapper.Settings.MiddleGrey = f);
             AddSlider("MiddleGreyCurveSharpness", 1.0f, 10.0f, () => MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness, (float f) => MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = f);
             AddSlider("MiddleGreyAt0", 0.0f, 0.5f, () => MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0, (float f) => MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = f);

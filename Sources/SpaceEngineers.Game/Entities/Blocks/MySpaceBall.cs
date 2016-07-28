@@ -99,6 +99,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public MySpaceBall()
             : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_friction = SyncType.CreateAndAddProp<float>();
+            m_virtualMass = SyncType.CreateAndAddProp<float>();
+            m_restitution = SyncType.CreateAndAddProp<float>();
+            m_broadcastSync = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_baseIdleSound.Init("BlockArtMass");

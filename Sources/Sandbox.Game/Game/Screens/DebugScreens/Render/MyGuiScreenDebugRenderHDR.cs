@@ -9,7 +9,7 @@ using VRageRender;
 namespace Sandbox.Game.Gui
 {
 
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "HDR", MyDirectXSupport.ALL)]
     class MyGuiScreenDebugRenderHDR : MyGuiScreenDebugBase

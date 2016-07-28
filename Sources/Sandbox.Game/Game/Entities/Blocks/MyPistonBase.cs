@@ -91,6 +91,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyPistonBase()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_currentPos = SyncType.CreateAndAddProp<float>();
+            Velocity = SyncType.CreateAndAddProp<float>();
+            MinLimit = SyncType.CreateAndAddProp<float>();
+            MaxLimit = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_currentPos.ValueChanged += (o) => UpdatePosition(true);

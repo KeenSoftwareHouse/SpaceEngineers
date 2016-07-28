@@ -11,7 +11,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Render", "Global FX")]
     class MyGuiScreenDebugRenderGlobalFX : MyGuiScreenDebugBase

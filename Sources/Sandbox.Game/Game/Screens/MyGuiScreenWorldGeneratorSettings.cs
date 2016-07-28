@@ -133,15 +133,23 @@ namespace Sandbox.Game.Gui
 
             m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
             m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
+#if XB1
+            m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+#else // !XB1
             if (Environment.Is64BitProcess)
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+#endif // !XB1
 
             if (MyFakes.ENABLE_ASTEROID_FIELDS)
             {
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
                 m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
+#if XB1
+                m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#else // !XB1
                 if (Environment.Is64BitProcess)
                     m_asteroidAmountCombo.AddItem((int)AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#endif // !XB1
             }
 
             m_asteroidAmountLabel = MakeLabel(MySpaceTexts.Asteroid_Amount);

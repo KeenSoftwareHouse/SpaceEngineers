@@ -148,7 +148,13 @@ namespace Sandbox.Game
             m_maxMass = maxMass;
             m_flags = flags;
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+            m_currentVolume = SyncType.CreateAndAddProp<MyFixedPoint>();
+            m_currentMass = SyncType.CreateAndAddProp<MyFixedPoint>();
+#endif // XB1
             m_currentVolume.ValueChanged += (x) => PropertiesChanged();
             m_currentVolume.ValidateNever();
 

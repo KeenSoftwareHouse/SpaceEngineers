@@ -34,7 +34,9 @@ namespace Sandbox.Game.Gui
         public static MyGuiScreenWorldSettings Static;
         internal MyGuiScreenAdvancedWorldSettings Advanced;
         internal MyGuiScreenWorldGeneratorSettings WorldGenerator;
+#if !XB1 // XB1_NOWORKSHOP
         internal MyGuiScreenMods ModsScreen;
+#endif // !XB1
 
         bool m_nameRewritten;
         protected bool m_isNewGame;
@@ -162,9 +164,11 @@ namespace Sandbox.Game.Gui
             if (Advanced != null)
                 Advanced.CloseScreen();
             Advanced = null;
+#if !XB1 // XB1_NOWORKSHOP
             if (ModsScreen != null)
                 ModsScreen.CloseScreen();
             ModsScreen = null;
+#endif // !XB1
             Static = null;
             return base.CloseScreen();
         }
@@ -288,7 +292,9 @@ namespace Sandbox.Game.Gui
 
             var advanced = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Advanced), onButtonClick: OnAdvancedClick);
 
+#if !XB1 // XB1_NOWORKSHOP
             var mods = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MyCommonTexts.WorldSettings_Mods), onButtonClick: OnModsClick);
+#endif // !XB1
 
             m_worldGeneratorButton = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_WorldGenerator), onButtonClick: OnWorldGeneratorClick);
 
@@ -331,8 +337,11 @@ namespace Sandbox.Game.Gui
             Controls.Add(scenarioEditModeLabel);
             Controls.Add(m_scenarioEditMode);
 
-            if (MyFakes.ENABLE_WORKSHOP_MODS)
-                Controls.Add(mods);
+#if !XB1 // XB1_NOWORKSHOP
+            if (!MyFakes.XB1_PREVIEW)
+                if (MyFakes.ENABLE_WORKSHOP_MODS)
+                    Controls.Add(mods);
+#endif // !XB1
 
             Controls.Add(advanced);
 
@@ -396,11 +405,31 @@ namespace Sandbox.Game.Gui
             advanced.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             advanced.Position = pos2;
 
+#if !XB1 // XB1_NOWORKSHOP
             mods.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             mods.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, 0);
+#endif // !XB1
 
             m_worldGeneratorButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             m_worldGeneratorButton.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, -0.06f);
+
+            if (MyFakes.XB1_PREVIEW)
+            {
+                var pos2p = m_worldGeneratorButton.Position;
+                pos2p.X = Size.HasValue ? Size.Value.X / 2.0f - m_worldGeneratorButton.Size.X - MARGIN_RIGHT : 0.0f;
+                m_worldGeneratorButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                m_worldGeneratorButton.Position = pos2p;
+
+                advanced.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                if (m_isNewGame)
+                {
+                    advanced.Position = m_worldGeneratorButton.Position - new Vector2(m_worldGeneratorButton.Size.X + 0.017f, 0);
+                }
+                else
+                {
+                    advanced.Position = m_worldGeneratorButton.Position - new Vector2(m_worldGeneratorButton.Size.X + 0.017f, 0.008f);
+                }
+            }
 
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
@@ -571,10 +600,12 @@ namespace Sandbox.Game.Gui
         }
 
 
+#if !XB1 // XB1_NOWORKSHOP
         private void OnModsClick(object sender)
         {
             MyGuiSandbox.AddScreen(new MyGuiScreenMods(m_mods));
         }
+#endif // !XB1
 
         private void UpdateSurvivalState(bool survivalEnabled)
         {
@@ -870,15 +901,23 @@ namespace Sandbox.Game.Gui
             {
                 m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
                 m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
+#if XB1
+                m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+#else // !XB1
                 if (Environment.Is64BitProcess)
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+#endif // !XB1
 
                 if (MyFakes.ENABLE_ASTEROID_FIELDS)
                 {
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
+#if XB1
+                    m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#else // !XB1
                     if (Environment.Is64BitProcess)
                         m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#endif // !XB1
                 }
 
             }

@@ -20,7 +20,11 @@ namespace Sandbox.Game.Entities.Cube
 
         public MySyncedBlock()
         {
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+#endif // XB1
         }
     }
 }

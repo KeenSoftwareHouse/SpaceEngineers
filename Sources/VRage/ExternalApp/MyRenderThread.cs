@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-#if !UNSHARPER
+#if !XB1
 using System.Windows.Forms;
 #endif
 using VRage.Collections;
@@ -48,7 +48,7 @@ namespace VRage
         IMyRenderWindow m_renderWindow;
         MyRenderQualityEnum m_currentQuality;
 
-#if !UNSHARPER
+#if !XB1
 		System.Windows.Forms.Control m_form;
 #else
 		RenderForm m_form;
@@ -112,7 +112,11 @@ namespace VRage
             MyRenderProxy.SendCreatedDeviceSettings(result.m_settings);
 
             result.m_currentQuality = renderQuality;
+#if XB1
+            Debug.Assert(false);
+#else
             result.m_form = Control.FromHandle(renderWindow.Handle);
+#endif
 
             result.LoadContent();
             result.UpdateSize();
@@ -125,10 +129,14 @@ namespace VRage
             {
                 if ((m_timer.Elapsed - m_appEventsTime).Miliseconds > 10)
                 {
+#if !XB1
                     Application.DoEvents();
+#endif
                     m_appEventsTime = m_timer.Elapsed;
                 }
+#if !XB1
                 Application.DoEvents();
+#endif
             }
             RenderCallback();
         }
@@ -163,7 +171,7 @@ namespace VRage
                 // TODO: OP! Should be done better
                 try
 				{
-#if !UNSHARPER
+#if !XB1
 					if (!m_form.IsDisposed)
                        m_form.Invoke(new Action(OnExit));
 #endif
@@ -198,7 +206,7 @@ namespace VRage
             var startParams = (StartParams)param;
 
             m_renderWindow = startParams.InitHandler();
-#if !UNSHARPER
+#if !XB1
 			var control = System.Windows.Forms.Control.FromHandle(m_renderWindow.Handle);
 #endif
 
@@ -207,7 +215,7 @@ namespace VRage
                 return;
             MyRenderProxy.SendCreatedDeviceSettings(m_settings);
             m_currentQuality = startParams.RenderQuality;
-#if !UNSHARPER
+#if !XB1
 			m_form = control;
 #else
 			m_form = m_renderWindow as RenderForm;
@@ -402,13 +410,18 @@ namespace VRage
             switch (customMode.HasValue ? customMode.Value : m_settings.WindowMode)
             {
                 case MyWindowModeEnum.Fullscreen:
+#if XB1
+                    System.Diagnostics.Debug.Assert(false, "XB1 form not support fullscreen yet");
+                    m_renderWindow.OnModeChanged(MyWindowModeEnum.Window, m_settings.BackBufferWidth, m_settings.BackBufferHeight);
+#else
                     m_renderWindow.OnModeChanged(MyWindowModeEnum.Fullscreen, m_settings.BackBufferWidth, m_settings.BackBufferHeight);
+#endif
                     break;
 
                 case MyWindowModeEnum.FullscreenWindow:
 					{
-#if UNSHARPER
-						Debug.Assert(false);
+#if XB1
+                        m_renderWindow.OnModeChanged(MyWindowModeEnum.FullscreenWindow, m_settings.BackBufferWidth, m_settings.BackBufferHeight);
 #else
                         WinApi.DEVMODE mode = new WinApi.DEVMODE();
                         WinApi.EnumDisplaySettings(null, WinApi.ENUM_REGISTRY_SETTINGS, ref mode);

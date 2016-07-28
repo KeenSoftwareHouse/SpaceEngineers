@@ -435,6 +435,10 @@
       <Project>{1713E6CD-808A-4A44-9532-04771499BB01}</Project>
       <Name>VRage.Render</Name>
     </ProjectReference>
+    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
+      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
+      <Name>XB1Interface</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\app.manifest" />

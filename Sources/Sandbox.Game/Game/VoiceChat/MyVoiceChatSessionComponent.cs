@@ -24,6 +24,7 @@ using VRage.Network;
 using VRage.Library.Collections;
 using VRage.Game.Components;
 using VRage.Game;
+using VRage.Library;
 
 namespace Sandbox.Game.VoiceChat
 {
@@ -344,10 +345,10 @@ namespace Sandbox.Game.VoiceChat
                     else
                     {
                         // this player should be muted - send him a mute message
-                        if (lastMessageTime == 0 || System.Environment.TickCount > lastMessageTime + 5000) // sending of mute messages is diluted
+                        if (lastMessageTime == 0 || MyEnvironment.TickCount > lastMessageTime + 5000) // sending of mute messages is diluted
                         {
                             MutePlayerRequest(player.Id.SteamId, true);
-                            lastMessageTime = System.Environment.TickCount;
+                            lastMessageTime = MyEnvironment.TickCount;
                         }
                     }
                 }

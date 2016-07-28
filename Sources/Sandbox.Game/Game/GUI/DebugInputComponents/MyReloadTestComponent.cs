@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -37,3 +38,4 @@ namespace Sandbox.Game.Gui.DebugInputComponents
         }
     }
 }
+#endif // !XB1

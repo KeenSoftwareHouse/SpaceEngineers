@@ -225,6 +225,7 @@ namespace Sandbox.Game.Gui
         }
     }
 
+#if !XB1 // XB1_NOWORKSHOP
     class MyGuiDetailScreenSteam : MyGuiDetailScreenBase
     {
         private ulong? m_publishedItemId;
@@ -326,6 +327,7 @@ namespace Sandbox.Game.Gui
             }
         }
     }
+#endif // !XB1
 
     class MyGuiDetailScreenDefault : MyGuiDetailScreenBase
     {
@@ -418,14 +420,20 @@ namespace Sandbox.Game.Gui
             var renameButton = CreateButton(width, new StringBuilder("Rename"), OnRename, textScale: m_textScale);
             renameButton.Position = buttonPosition;
 
-            var publishButton = CreateButton(width, new StringBuilder("Publish"), OnPublish, textScale: m_textScale);
-            publishButton.Position = buttonPosition + new Vector2(1f, 0f) * buttonOffset;
+            if (!MyFakes.XB1_PREVIEW)
+            {
+                var publishButton = CreateButton(width, new StringBuilder("Publish"), OnPublish, textScale: m_textScale);
+                publishButton.Position = buttonPosition + new Vector2(1f, 0f) * buttonOffset;
+            }
 
             var deleteButton = CreateButton(width, new StringBuilder("Delete"), OnDelete, textScale: m_textScale);
             deleteButton.Position = buttonPosition + new Vector2(0f, 1f) * buttonOffset;
 
-            var openWorkshopButton = CreateButton(width, new StringBuilder("Open WorkShop"), OnOpenWorkshop, textScale: m_textScale);
-            openWorkshopButton.Position = buttonPosition + new Vector2(1f, 1f) * buttonOffset;
+            if (!MyFakes.XB1_PREVIEW)
+            {
+                var openWorkshopButton = CreateButton(width, new StringBuilder("Open WorkShop"), OnOpenWorkshop, textScale: m_textScale);
+                openWorkshopButton.Position = buttonPosition + new Vector2(1f, 1f) * buttonOffset;
+            }
 
             var closeButton = CreateButton(width, new StringBuilder("Close"), OnCloseButton, textScale: m_textScale);
             closeButton.Position = buttonPosition + new Vector2(1f, 2f) * buttonOffset;
@@ -621,7 +629,11 @@ namespace Sandbox.Game.Gui
 
         void OnPublish(MyGuiControlButton button)
         {
+#if !XB1 // XB1_NOWORKSHOP
             Publish(m_loadedPrefab, m_blueprintName);
+#else // XB1
+            System.Diagnostics.Debug.Assert(false); //TODO?
+#endif // XB1
         }
 
         void OnOpenWorkshop(MyGuiControlButton button)

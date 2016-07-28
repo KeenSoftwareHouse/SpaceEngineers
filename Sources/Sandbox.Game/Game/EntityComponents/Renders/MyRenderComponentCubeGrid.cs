@@ -23,6 +23,9 @@ using VRage.Game.Components;
 using Sandbox.Game.GameSystems;
 using VRage;
 using VRage.Game;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace Sandbox.Game.Components
 {
@@ -64,6 +67,9 @@ namespace Sandbox.Game.Components
         // Create additional model generators from plugins using reflection.
         public void CreateAdditionalModelGenerators(MyCubeSize gridSizeEnum)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            {
+#else // !XB1
             Assembly[] assemblies = new Assembly[] {
                 Assembly.GetExecutingAssembly(),
                 MyPlugins.GameAssembly,
@@ -75,11 +81,17 @@ namespace Sandbox.Game.Components
             {
                 if (assembly == null)
                     continue;
+#endif // !XB1
 
                 // Lookup
                 Type lookupType = typeof(IMyBlockAdditionalModelGenerator);
+#if XB1 // XB1_ALLINONEASSEMBLY
+                IEnumerable<Type> lookupTypes = MyAssembly.GetTypes().Where(
+                        t => lookupType.IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
+#else // !XB1
                 IEnumerable<Type> lookupTypes = assembly.GetTypes().Where(
                         t => lookupType.IsAssignableFrom(t) && t.IsClass && !t.IsAbstract);
+#endif // !XB1
 
                 // Create instances
                 foreach (var type in lookupTypes)

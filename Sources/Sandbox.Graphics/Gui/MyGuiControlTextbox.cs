@@ -811,6 +811,7 @@ namespace Sandbox.Graphics.GUI
 
             public void CopyText(MyGuiControlTextbox sender)
             {
+#if !XB1
                 ClipboardText = sender.Text.Substring(Start, Length);
 
                 if (!string.IsNullOrEmpty(ClipboardText))
@@ -820,6 +821,9 @@ namespace Sandbox.Graphics.GUI
                     thread.Start();
                     thread.Join();
                 }
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif // XB1
             }
 
             void CopyToClipboard()

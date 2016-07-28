@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if !XB1
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Sandbox.Graphics.GUI;
@@ -14,7 +16,6 @@ using VRage.Game.Entity;
 
 namespace Sandbox.Game.Gui
 {
-#if !XB1_TMP
     [MyDebugScreen("Game", "Large Ship properties")]
     class MyGuiScreenDebugShipLargeProperties : MyGuiScreenDebugBase
     {
@@ -114,5 +115,6 @@ namespace Sandbox.Game.Gui
             return entity as MyCubeGrid;
         }
     }
-#endif
 }
+
+#endif

@@ -115,6 +115,7 @@ namespace Sandbox.Engine.Utils
 
         // Put various debug draw here. If this cathegory becomes cluttered, create a separate one.
         public static bool DEBUG_DRAW_MISCELLANEOUS = false;
+        public static bool DEBUG_DRAW_METEORITS_DIRECTIONS = false;
 
         //Destruction
         public static bool BREAKABLE_SHAPE_CHILD_COUNT = false;

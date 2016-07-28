@@ -51,6 +51,8 @@ namespace VRage.Scripting
         readonly HashSet<string> m_implicitScriptNamespaces = new HashSet<string>();
         readonly HashSet<string> m_ignoredWarnings = new HashSet<string>();
         readonly HashSet<Type> m_unblockableIngameExceptions = new HashSet<Type>();
+        readonly HashSet<string> m_conditionalCompilationSymbols = new HashSet<string>();
+        readonly CSharpParseOptions m_conditionalParseOptions;
 
         public MyScriptCompiler()
         {
@@ -76,6 +78,7 @@ namespace VRage.Scripting
             m_whitelist = new MyScriptWhitelist(this);
             m_ingameWhitelistDiagnosticAnalyzer = new WhitelistDiagnosticAnalyzer(m_whitelist, MyWhitelistTarget.Ingame);
             m_modApiWhitelistDiagnosticAnalyzer = new WhitelistDiagnosticAnalyzer(m_whitelist, MyWhitelistTarget.ModApi);
+            m_conditionalParseOptions = new CSharpParseOptions();
         }
 
         /// <summary>
@@ -100,6 +103,14 @@ namespace VRage.Scripting
         public HashSetReader<Type> UnblockableIngameExceptions
         {
             get { return m_unblockableIngameExceptions; }
+        }
+
+        /// <summary>
+        ///     Gets the conditional compilation symbols scripts are compiled with.
+        /// </summary>
+        public HashSetReader<string> ConditionalCompilationSymbols
+        {
+            get { return m_conditionalCompilationSymbols; }
         }
 
         /// <summary>
@@ -352,7 +363,7 @@ namespace VRage.Scripting
             IEnumerable<SyntaxTree> syntaxTrees = null;
             if (scripts != null)
             {
-                syntaxTrees = scripts.Select(s => CSharpSyntaxTree.ParseText(s.Code, path: s.Name));
+                syntaxTrees = scripts.Select(s => CSharpSyntaxTree.ParseText(s.Code, options: m_conditionalParseOptions.WithPreprocessorSymbols(ConditionalCompilationSymbols), path: s.Name));
             }
             if (assemblyFileName != null)
             {
@@ -427,6 +438,27 @@ namespace VRage.Scripting
                     throw new ArgumentException("Generic exceptions are not supported", "types");
                 }
                 m_unblockableIngameExceptions.Add(type);
+            }
+        }
+
+        /// <summary>
+        ///     Adds a conditional compilation symbol
+        /// </summary>
+        /// <param name="symbols"></param>
+        public void AddConditionalCompilationSymbols(params string[] symbols)
+        {
+            for (var i = 0; i < symbols.Length; i++)
+            {
+                var symbol = symbols[i];
+                if (symbol == null)
+                {
+                    throw new ArgumentNullException("symbols");
+                }
+                else if (symbol == string.Empty)
+                {
+                    continue;
+                }
+                m_conditionalCompilationSymbols.Add(symbols[i]);
             }
         }
 

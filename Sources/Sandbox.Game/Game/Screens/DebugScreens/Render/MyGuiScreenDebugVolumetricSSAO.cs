@@ -7,7 +7,7 @@ using Sandbox.Graphics.Render;
 
 namespace Sandbox.Game.Gui
 {
-#if !XB1_TMP
+#if !XB1
     [MyDebugScreen("Render", "SSAO")]
     class MyGuiScreenDebugVolumetricSSAO : MyGuiScreenDebugBase
     {

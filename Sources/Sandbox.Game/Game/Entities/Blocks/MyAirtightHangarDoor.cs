@@ -23,11 +23,15 @@ namespace Sandbox.Game.Entities
                 if (subpart != null && subpart.Physics != null)
                 {
                     subpart.PositionComp.LocalMatrix = Matrix.CreateTranslation(new Vector3(0f, (opening < maxOpening ? maxOpening : opening), 0f));
-                    if (subpart.Physics.LinearVelocity != this.CubeGrid.Physics.LinearVelocity)
+                    if (subpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
+                    {
                         subpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
+                    }
 
-                    if (subpart.Physics.AngularVelocity != this.CubeGrid.Physics.AngularVelocity)
+                    if (subpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
+                    {
                         subpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
+                    }
                 }
             }
         }

@@ -188,7 +188,11 @@ namespace Sandbox.Engine.Platform
             }
             catch (SEHException exception)
             {
+#if !XB1
                 MyLog.Default.WriteLine("SEHException caught. Error code: " + exception.ErrorCode.ToString());
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "System.Runtime.InteropServices.ExternalException.ErrorCode not supported on XB1");
+#endif // XB1
                 throw exception;
             }
         }

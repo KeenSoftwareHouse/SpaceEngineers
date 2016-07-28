@@ -9,7 +9,7 @@ using System;
 
 namespace Sandbox.Game.Gui
 {
-#if !XB1_TMP
+#if !XB1
     [MyDebugScreen("Render", "Sector FX", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugRenderSectorFX : MyGuiScreenDebugBase
     {

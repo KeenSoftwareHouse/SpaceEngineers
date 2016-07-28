@@ -931,6 +931,8 @@ namespace Sandbox.Game.Entities
 
         public virtual bool HandleGameInput()
         {
+            if (!IsActivated)  // do not consume input when not active
+                return false;
 
             int frameDt = MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastInputHandleTime;
             m_lastInputHandleTime += frameDt;
@@ -1219,10 +1221,12 @@ namespace Sandbox.Game.Entities
 
                 if (DynamicMode)
                 {
-                    if (MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION))
+                        //GR: Go here when not in creative. When in survival and Admin menu is enabled will have duplicates of the same cubeblock (on the server)!
+                        if (!MySession.Static.SurvivalMode && MyControllerHelper.IsControl(context, MyControlsSpace.PRIMARY_TOOL_ACTION))
                     {
                         Add();
                     }
+                    
                 }
                 else if (CurrentGrid != null)
                 {
@@ -1790,7 +1794,7 @@ namespace Sandbox.Game.Entities
 
             
             MatrixD inverseDrawMatrix = MatrixD.Invert(drawMatrix);
-            if (MySession.Static.SurvivalMode && !SpectatorIsBuilding)
+            if (MySession.Static.SurvivalMode && !SpectatorIsBuilding && !MySession.Static.IsAdminModeEnabled(Sync.MyId))
             {
                 if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref inverseDrawMatrix, localAABB, gridSize, IntersectionDistance) 
                     || MySession.Static.GetCameraControllerEnum() == MyCameraControllerEnum.Spectator)
@@ -4058,7 +4062,7 @@ namespace Sandbox.Game.Entities
             Debug.Assert(BuildComponent != null, "The build component was not set in cube builder!");
 
             MyEntity builder = null;
-            bool isAdmin = (MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value));
+            bool isAdmin = (MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value) || MySession.Static.IsAdminModeEnabled(Sync.MyId));
             MyEntities.TryGetEntityById(builderEntityId, out builder);
 
             var blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(definition);

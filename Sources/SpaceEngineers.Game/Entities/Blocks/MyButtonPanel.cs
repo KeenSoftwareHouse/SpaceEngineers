@@ -60,6 +60,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyButtonPanel()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_anyoneCanUse = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
             m_openedToolbars = new List<MyToolbar>();
         }

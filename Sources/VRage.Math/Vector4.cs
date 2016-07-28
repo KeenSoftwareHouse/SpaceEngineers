@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Globalization;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRageMath
 {
@@ -7,7 +11,11 @@ namespace VRageMath
     /// Defines a vector with four components.
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Vector4 : IEquatable<Vector4>
+#else // XB1
+    public struct Vector4 : IEquatable<Vector4>, IMySetGetMemberDataHelper
+#endif // XB1
     {
         public static Vector4 Zero = new Vector4();
         public static Vector4 One = new Vector4(1f, 1f, 1f, 1f);
@@ -1288,5 +1296,21 @@ namespace VRageMath
         {
             return new Vector4(X * W, Y * W, Z * W, W);
         }
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "X")
+                return X;
+            if (m.Name == "Y")
+                return Y;
+            if (m.Name == "Z")
+                return Z;
+            if (m.Name == "W")
+                return W;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 }

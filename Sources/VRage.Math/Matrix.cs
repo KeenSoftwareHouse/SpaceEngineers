@@ -6,6 +6,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
+
 
 namespace VRageMath
 {
@@ -14,7 +19,12 @@ namespace VRageMath
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]    
     [StructLayout(LayoutKind.Explicit)]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Matrix : IEquatable<Matrix>
+#else // XB1
+    public struct Matrix : IEquatable<Matrix>, IMySetGetMemberDataHelper
+#endif // XB1
+
     {
         private unsafe struct F16
         {
@@ -3724,6 +3734,84 @@ return flag;
         //        (double)m.M41, (double)m.M42, (double)m.M43, (double)m.M44);
         //}
 
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name.Length > 1)
+            {
+                if (m.Name[0] != 'M')
+                {
+                    if (m.Name == "Up")
+                        return Up;
+                    if (m.Name == "Down")
+                        return Down;
+                    if (m.Name == "Right")
+                        return Right;
+                    if (m.Name == "Left")
+                        return Left;
+                    if (m.Name == "Forward")
+                        return Forward;
+                    if (m.Name == "Backward")
+                        return Backward;
+                    if (m.Name == "Translation")
+                        return Translation;
+                }
+                else
+                {
+                    if (m.Name.Length > 2)
+                    {
+                        if (m.Name[1] == '1')
+                        {
+                            if (m.Name[2] == '1')
+                                return M11;
+                            if (m.Name[2] == '2')
+                                return M12;
+                            if (m.Name[2] == '3')
+                                return M13;
+                            if (m.Name[2] == '4')
+                                return M14;
+                        }
+                        if (m.Name[1] == '2')
+                        {
+                            if (m.Name[2] == '1')
+                                return M21;
+                            if (m.Name[2] == '2')
+                                return M22;
+                            if (m.Name[2] == '3')
+                                return M23;
+                            if (m.Name[2] == '4')
+                                return M24;
+                        }
+                        if (m.Name[1] == '3')
+                        {
+                            if (m.Name[2] == '1')
+                                return M31;
+                            if (m.Name[2] == '2')
+                                return M32;
+                            if (m.Name[2] == '3')
+                                return M33;
+                            if (m.Name[2] == '4')
+                                return M34;
+                        }
+                        if (m.Name[1] == '4')
+                        {
+                            if (m.Name[2] == '1')
+                                return M41;
+                            if (m.Name[2] == '2')
+                                return M42;
+                            if (m.Name[2] == '3')
+                                return M43;
+                            if (m.Name[2] == '4')
+                                return M44;
+                        }
+                    }
+                }
+            }
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 
 }

@@ -569,6 +569,11 @@ namespace VRageMath
                 return false;
         }
 
+        public bool Equals(Vector3D other, double epsilon)
+        {
+            return Math.Abs(this.X - other.X) < epsilon && Math.Abs(this.Y - other.Y) < epsilon && Math.Abs(this.Z - other.Z) < epsilon;
+        }
+
         /// <summary>
         /// Returns a value that indicates whether the current instance is equal to a specified object.
         /// </summary>
@@ -1573,6 +1578,13 @@ namespace VRageMath
             result.X = num1;
             result.Y = num2;
             result.Z = num3;
+        }
+
+        public static Vector3D Rotate(Vector3D vector, MatrixD rotationMatrix)
+        {
+            Vector3D result;
+            Rotate(ref vector, ref rotationMatrix, out result);
+            return result;
         }
 
         /// <summary>

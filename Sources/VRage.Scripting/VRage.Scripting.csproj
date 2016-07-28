@@ -59,6 +59,7 @@
     <Compile Include="AnalysisExtensions.cs" />
     <Compile Include="Analyzers\WhitelistDiagnosticAnalyzer.cs" />
     <Compile Include="MyApiTarget.cs" />
+    <Compile Include="MyIngameScripting.cs" />
     <Compile Include="Rewriters\InstructionCountingRewriter.cs" />
     <Compile Include="IMyWhitelistBatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

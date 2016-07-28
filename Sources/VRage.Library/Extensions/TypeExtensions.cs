@@ -9,12 +9,14 @@ namespace VRage
 {
     public static class MemberHelper<T>
     {
-#if UNSHARPER_TMP
-		public static Func<T,TValue> GetMember<TValue>(Func<T,TValue> selector)
-		{
-            Debug.Assert(false, "Check this is working properly");
-			return selector;
-		}
+#if XB1
+        // Not suported on XB1 version
+
+        //public static Func<T,TValue> GetMember<TValue>(Func<T,TValue> selector)
+        //{
+        //    Debug.Assert(false, "Check this is working properly");
+        //    return selector;
+        //}
 #else
         /// <summary>
         ///  Gets the memberinfo of field/property on instance class.
@@ -38,11 +40,13 @@ namespace VRage
 
     public static class MemberHelper
     {
-#if UNSHARPER_TMP
-    public static Func<TValue> GetMember<TValue>(Func<TValue> selector)
-    {
-		return selector;
-	}
+#if XB1
+    // Not suported on XB1 version
+
+    //public static Func<TValue> GetMember<TValue>(Func<TValue> selector)
+    //{
+    //    return selector;
+    //}
 
 #else
         /// <summary>

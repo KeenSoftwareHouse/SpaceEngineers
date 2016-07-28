@@ -17,6 +17,11 @@ namespace Sandbox.Game.Entities.Cube
     public class MyProjectorClipboard : MyGridClipboard
     {
         private MyProjectorBase m_projector;
+        Vector3I m_oldProjectorRotation;
+        Vector3I m_oldProjectorOffset;
+        MatrixD m_oldProjectorMatrix;
+
+        bool first = false;
 
 
         public MyProjectorClipboard(MyProjectorBase projector, MyPlacementSettings settings)
@@ -126,29 +131,34 @@ namespace Sandbox.Game.Entities.Cube
         {
             MatrixD worldMatrix = m_projector.WorldMatrix;
 
-            // Update rotation based on projector settings
-            Quaternion rotation = m_projector.ProjectionRotationQuaternion;
-            Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);
-            worldMatrix = Matrix.Multiply(rotationMatrix, worldMatrix);
-
-            // Update PreviewGrids
-            for (int i = 0; i < PreviewGrids.Count; i++)
+            if (first || (m_oldProjectorRotation != m_projector.ProjectionRotation || m_oldProjectorOffset != m_projector.ProjectionOffset || !m_oldProjectorMatrix.EqualsFast(ref worldMatrix)))
             {
-                // First, set the translated position
-                PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix);// Set the corrected position
+                first = false;
+                m_oldProjectorRotation = m_projector.ProjectionRotation;
+                m_oldProjectorMatrix = worldMatrix;
+                m_oldProjectorOffset = m_projector.ProjectionOffset;
 
-                // Next, always ensure the first block touches the projector base at (0,0,0) projector offset config
-                MySlimBlock firstBlock = PreviewGrids[0].CubeBlocks.First();
-                Vector3D firstBlockPos = PreviewGrids[0].GridIntegerToWorld(firstBlock.Position);
+                // Update rotation based on projector settings
+                Quaternion rotation = m_projector.ProjectionRotationQuaternion;
+                Matrix rotationMatrix = Matrix.CreateFromQuaternion(rotation);
+                worldMatrix = Matrix.Multiply(rotationMatrix, worldMatrix);
 
-                Vector3D delta = firstBlockPos - m_projector.WorldMatrix.Translation;
+                // Update PreviewGrids
+                for (int i = 0; i < PreviewGrids.Count; i++)
+                {
+                    // ensure the first block touches the projector base at (0,0,0) projector offset config
+                    MySlimBlock firstBlock = PreviewGrids[i].CubeBlocks.First();
+                    Vector3D firstBlockPos = MyCubeGrid.GridIntegerToWorld(PreviewGrids[i].GridSize, firstBlock.Position, worldMatrix);
 
-                // Re-adjust position
-                Vector3D projectionOffset = m_projector.GetProjectionTranslationOffset();
-                projectionOffset = Vector3D.Transform(projectionOffset, m_projector.WorldMatrix.GetOrientation());
-                worldMatrix.Translation -= delta + projectionOffset;
+                    Vector3D delta = firstBlockPos - m_projector.WorldMatrix.Translation;
 
-                PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix);
+                    // Re-adjust position
+                    Vector3D projectionOffset = m_projector.GetProjectionTranslationOffset();
+                    projectionOffset = Vector3D.Transform(projectionOffset, m_projector.WorldMatrix.GetOrientation());
+                    worldMatrix.Translation -= delta + projectionOffset;
+
+                    PreviewGrids[i].PositionComp.SetWorldMatrix(worldMatrix);
+                }
             }
         }
 
@@ -169,6 +179,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             ChangeClipboardPreview(true);
             IsActive = true;
+            first = true;
         }
     }
 }

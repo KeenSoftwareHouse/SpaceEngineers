@@ -27,6 +27,8 @@ namespace Sandbox.Game.World
         public MyObjectBuilder_Sector SectorSnapshot;
         public Dictionary<string, byte[]> CompressedVoxelSnapshots;
 
+        public const int MAX_WINDOWS_PATH = 260;
+
         public ulong SavedSizeInBytes // Set after snapshots has been saved.
         {
             get;
@@ -116,6 +118,9 @@ namespace Sandbox.Game.World
                         }
 
                         Directory.Delete(saveAbsPath);
+
+                        //Backup Saves Functionality
+                        Backup();
                     }
                     else
                     {
@@ -128,6 +133,83 @@ namespace Sandbox.Game.World
                 MySandboxGame.Log.WriteLine("Session snapshot save - END");
             }
             return success;
+        }
+
+        /// <summary>
+        /// Backup Saves to Backup folder of save game according to MySession.Static.MaxBackupSaves on advanced settings.
+        /// If this is zero the backup functionality is disabled.
+        /// </summary>
+        private void Backup()
+        {
+            //Backup Section Start
+            //----------------------------------------------
+            if (MySession.Static.MaxBackupSaves > 0)
+            {
+                //GR: Used to create unique backup folder name
+                var backupName = DateTime.Now.ToString("yyyy-MM-dd HHmmss");
+
+                //GR: The backup folder for the current save
+                var resultFolder = Path.Combine(TargetDir, MyTextConstants.SESSION_SAVE_BACKUP_FOLDER, backupName);
+
+                //GR: Create Backup directory if doesn't exist
+                Directory.CreateDirectory(resultFolder);
+
+                //GR: First copy files to backup folder
+                foreach (var filepath in Directory.GetFiles(TargetDir))
+                {
+                    //An issue may arise here when reaching maximum path length at least for Windows 7
+                    var resultPath = Path.Combine(resultFolder, Path.GetFileName(filepath));
+                    if (resultPath.Length <= MAX_WINDOWS_PATH)
+                    {
+                        File.Copy(filepath, resultPath, true);
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "File "+Path.GetFileName(filepath) + " results in file path longer than 260 characters and cannot be copied to backup! Please report the save to the developers");
+                    }
+                }
+
+                //GR: Removed oldest backup directories. How many to keep is indicated by MaxBackupSaves variable.
+                var backdirs = Directory.GetDirectories(Path.Combine(TargetDir, MyTextConstants.SESSION_SAVE_BACKUP_FOLDER));
+                if (!IsSorted(backdirs))
+                {
+                    Array.Sort(backdirs);
+                }
+                if (backdirs.Length > MySession.Static.MaxBackupSaves)
+                {
+                    var savesToDeleteNum = backdirs.Length - MySession.Static.MaxBackupSaves;
+                    for (int i = 0; i < savesToDeleteNum; i++)
+                    {
+                        Directory.Delete(backdirs[i], true);
+                    }
+                }
+            }
+            else if (MySession.Static.MaxBackupSaves == 0)
+            {
+                //GR: Delete the backup folder if feature is disabled (MaxBackupSaves == 0) and remove backup folder if exists
+                if (Directory.Exists(Path.Combine(TargetDir, MyTextConstants.SESSION_SAVE_BACKUP_FOLDER)))
+                {
+                    Directory.Delete(Path.Combine(TargetDir, MyTextConstants.SESSION_SAVE_BACKUP_FOLDER), true);
+                }
+            }
+            //----------------------------------------------
+            //Backup Section End
+        }
+
+
+        /// <summary>
+        /// Determines if string array is sorted from A -> Z
+        /// </summary>
+        public static bool IsSorted(string[] arr)
+        {
+            for (int i = 1; i < arr.Length; i++)
+            {
+                if (arr[i - 1].CompareTo(arr[i]) > 0) // If previous is bigger, return false
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private bool SaveVoxelSnapshot(string storageName, byte[] snapshotData)

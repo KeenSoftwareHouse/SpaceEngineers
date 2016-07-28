@@ -67,7 +67,7 @@ namespace VRage.ObjectBuilders
 
         #region Clone
 
-        public MyObjectBuilder_Base Clone()
+        virtual public MyObjectBuilder_Base Clone()
         {
             return MyObjectBuilderSerializer.Clone(this);
         }

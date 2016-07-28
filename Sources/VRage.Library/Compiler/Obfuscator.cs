@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-#if XB1
-using System.Diagnostics;
-#endif
-
-#if true //!XB1_TMP
 
 namespace System.Reflection
 {
-#if XB1
+#if UNSHARPER
 	[Unsharper.UnsharperDisableReflection()]
 #endif
 	public static class Obfuscator
@@ -20,7 +15,7 @@ namespace System.Reflection
 #if XB1
 		public static bool CheckAttribute(this MemberInfo member)
 		{
-			Debug.Assert(false);
+            System.Diagnostics.Debug.Assert(false);
 			return false;
 		}
 #else
@@ -41,5 +36,3 @@ namespace System.Reflection
 #endif
     }
 }
-
-#endif

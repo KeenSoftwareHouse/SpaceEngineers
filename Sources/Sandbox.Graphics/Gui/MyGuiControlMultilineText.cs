@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using System.Threading;
 #if !XB1
 using System.Windows.Forms;
@@ -893,6 +895,7 @@ namespace Sandbox.Graphics.GUI
 
             public void CopyText(MyGuiControlMultilineText sender)
             {
+#if !XB1
                 ClipboardText = Regex.Replace(sender.Text.ToString().Substring(Start, Length), "\n", "\r\n");
 
                 if (!string.IsNullOrEmpty(ClipboardText))
@@ -902,6 +905,9 @@ namespace Sandbox.Graphics.GUI
                     thread.Start();
                     thread.Join();
                 }
+#else
+                Debug.Assert(false, "Clipboard not supported on XB1.");
+#endif
             }
 
             public void CutText(MyGuiControlMultilineText sender)
@@ -928,7 +934,11 @@ namespace Sandbox.Graphics.GUI
                 //We have to wait for the thread to end to make sure we got the text
                 myth.Join();
 
+#if !XB1
                 sender.Text = new StringBuilder(prefix).Append(Regex.Replace(ClipboardText, "\r\n", " \n")).Append(suffix);
+#else
+                sender.Text = new StringBuilder(prefix).Append( ClipboardText.Replace("\r\n", " \n") ).Append(suffix);
+#endif
                 sender.CarriagePositionIndex = prefix.Length + ClipboardText.Length;
                 Reset(sender);
             }

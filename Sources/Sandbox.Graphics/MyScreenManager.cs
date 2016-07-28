@@ -31,8 +31,10 @@ namespace Sandbox.Graphics.GUI
 {
     public static class MyScreenManager
     {
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+#endif // !XB1
 
         public static int TotalGamePlayTimeInMilliseconds;
 

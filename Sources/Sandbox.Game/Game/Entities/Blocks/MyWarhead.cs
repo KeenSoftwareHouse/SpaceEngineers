@@ -91,6 +91,10 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyWarhead()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_countdownMs = SyncType.CreateAndAddProp<int>();
+            m_isArmed = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_isArmed.ValueChanged += (x) => UpdateEmissivity();

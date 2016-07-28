@@ -63,7 +63,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x64\Debug_XB1\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP;XB1_SKIPASSERTFORNOW</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -336,6 +336,10 @@
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
+      <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
+      <Name>XB1Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

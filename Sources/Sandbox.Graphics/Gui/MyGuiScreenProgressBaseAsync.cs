@@ -26,10 +26,12 @@ namespace Sandbox.Graphics.GUI
         protected MyGuiScreenProgressBaseAsync(MyStringId progressText, MyStringId? cancelText = null)
             : base(progressText, cancelText)
         {
+#if !XB1
             if (Debugger.IsAttached)
             {
                 m_constructorStackTrace = Environment.StackTrace;
             }
+#endif // !XB1
         }
 
         // Sets IAsyncResult which is checked for completed on each update
