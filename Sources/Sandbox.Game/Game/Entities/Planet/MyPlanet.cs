@@ -47,6 +47,7 @@ namespace Sandbox.Game.Entities
         public bool SpherizeWithDistance;
         public MyPlanetGeneratorDefinition Generator;
         public bool UserCreated;
+        public bool InitializeComponents;
     }
 
     [MyEntityType(typeof(MyObjectBuilder_Planet))]
@@ -337,6 +338,8 @@ namespace Sandbox.Game.Entities
                 m_planetInitValues.Storage = MyStorageBase.Load(ob.StorageName);
             }
 
+            m_planetInitValues.InitializeComponents = false;
+
             ProfilerShort.BeginNextBlock("Init Internal");
             Init(m_planetInitValues);
             ProfilerShort.End();
@@ -403,7 +406,9 @@ namespace Sandbox.Game.Entities
             PrepareSectors();
 
             // Prepare components
-            HackyComponentInitByMiroPleaseDontUseEver(new MyDefinitionId(typeof(MyObjectBuilder_Planet), Generator.Id.SubtypeId));
+            // TODO: breaks loading of worlds. Overrides loaded deserialization of ownership components replacing them with clean one. Will be fixed after Daniel fixes generation of components on planet when new world is created. Also remove bool from arguments.
+            if (arguments.InitializeComponents)
+                HackyComponentInitByMiroPleaseDontUseEver(new MyDefinitionId(typeof(MyObjectBuilder_Planet), Generator.Id.SubtypeId));
 
             if (Generator.EnvironmentDefinition != null)
             {

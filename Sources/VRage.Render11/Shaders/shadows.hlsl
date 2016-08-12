@@ -60,12 +60,12 @@ float GetShadowmapValue(int2 Texel, uint2 rotationOffset)
 
 #ifndef MS_SAMPLE_COUNT
 	int stencilValue = Stencil[Texel].y;
-	if (stencilValue & 0x10) // check whether the pixel should be discarded
+	if (! (stencilValue & 0x0f)) // check whether the pixel should be discarded
 		return 1;
 	uint cascadeIndex = cascade_id_stencil(stencilValue);
 #else
 	int stencilValue = StencilMS.Load(Texel, 0).y;
-	if (stencilValue & 0x10) // check whether the pixel should be discarded
+	if (! (stencilValue & 0x0f)) // check whether the pixel should be discarded
 		return 1;
 	uint cascadeIndex = cascade_id_stencil(StencilMS.Load(Texel, 0).y);
 #endif

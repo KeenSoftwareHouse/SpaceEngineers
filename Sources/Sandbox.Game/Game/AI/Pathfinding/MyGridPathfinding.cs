@@ -179,7 +179,7 @@ namespace Sandbox.Game.AI.Pathfinding
         [Conditional("DEBUG")]
         public void DebugDraw()
         {
-            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW == false) return;
+            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW == false || MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES == MyWEMDebugDrawMode.NONE) return;
 
             foreach (var entry in m_navigationMeshes)
             {

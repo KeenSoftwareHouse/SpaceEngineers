@@ -228,14 +228,6 @@ namespace Sandbox.Game
         public static bool EnableCollisionSparksEffect = true;
 
         private static bool m_useAnimationInsteadOfIK = false;
-        public static bool UseAnimationInsteadOfIK { set { m_useAnimationInsteadOfIK = value; } }
-        public static bool CheckUseAnimationInsteadOfIK(IMyHandheldGunObject<MyDeviceBase> currentWeapon = null)
-        {
-            if (currentWeapon != null)
-                return m_useAnimationInsteadOfIK || currentWeapon.ForceAnimationInsteadOfIK;
-
-            return m_useAnimationInsteadOfIK;
-        }
 
         public static bool MultiplayerEnabled = true;
         public static Type ClientStateType = typeof(MyClientState);

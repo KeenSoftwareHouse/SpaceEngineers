@@ -188,35 +188,9 @@ namespace Sandbox.Game.Entities.Blocks
             MaxLimit.Value = ob.MaxLimit.HasValue ? Math.Min(DenormalizeDistance(ob.MaxLimit.Value), BlockDefinition.Maximum) : BlockDefinition.Maximum;
             MinLimit.Value = ob.MinLimit.HasValue ? Math.Max(DenormalizeDistance(ob.MinLimit.Value), BlockDefinition.Minimum) : BlockDefinition.Minimum;
 
-            if (ob.TopBlockId.HasValue && ob.TopBlockId.Value != 0)
-            {
-                MyDeltaTransform? deltaTransform = ob.MasterToSlaveTransform.HasValue ? ob.MasterToSlaveTransform.Value : (MyDeltaTransform?)null;
-                m_connectionState.Value = new State() { TopBlockId = ob.TopBlockId, MasterToSlave = deltaTransform, Welded = ob.IsWelded || ob.ForceWeld};
-            }
-
             m_currentPos.Value = ob.CurrentPosition;
 
-            CubeGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
-
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-
-            float defaultWeldSpeed = ob.WeldSpeed; //weld before reaching the max speed
-            defaultWeldSpeed *= defaultWeldSpeed;
-            m_weldSpeedSq.Value = defaultWeldSpeed;
-            m_forceWeld.Value = ob.ForceWeld;
-        }
-
-        protected override void cubeGrid_OnPhysicsChanged()
-        {
-            DisposeSubpartsPhysics();
-
-            // If the physics isn't being changed because we are being closed, reload the subparts, and update physics
-            if (!Closed)
-            {
-                LoadSubparts();
-                UpdatePosition(true);
-                UpdatePhysicsShape();;
-            }
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -225,14 +199,7 @@ namespace Sandbox.Game.Entities.Blocks
             ob.Velocity = Velocity / BlockDefinition.MaxVelocity;
             ob.MaxLimit = NormalizeDistance(MaxLimit);
             ob.MinLimit = NormalizeDistance(MinLimit);
-            ob.TopBlockId = m_connectionState.Value.TopBlockId;
             ob.CurrentPosition = m_currentPos;
-            ob.WeldSpeed = (float)Math.Sqrt(m_weldSpeedSq);
-            ob.ForceWeld = m_forceWeld;
-
-            ob.IsWelded = m_connectionState.Value.Welded;
-
-            ob.MasterToSlaveTransform = m_connectionState.Value.MasterToSlave.HasValue ? m_connectionState.Value.MasterToSlave.Value : (MyPositionAndOrientation?)null;
 
             return ob;
         }
@@ -252,6 +219,11 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnAddedToScene(source);
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+
+            DisposeSubpartsPhysics();
+            LoadSubparts();
+            UpdatePosition(true);
+            UpdatePhysicsShape();
 
             if (m_subpart1 != null && m_subpart1.Physics != null)
             {
@@ -522,8 +494,13 @@ namespace Sandbox.Game.Entities.Blocks
             ProfilerShort.End();
 
             UpdateText();
+            ProfilerShort.Begin("CheckVelocities()");
             if (CheckVelocities())
+            {
+                ProfilerShort.End();
                 return;
+            }
+            ProfilerShort.End();
 
             if (m_topGrid == null || SafeConstraint == null)
                 return;
@@ -682,11 +659,6 @@ namespace Sandbox.Game.Entities.Blocks
                 Subpart3.PositionComp.SetLocalMatrix(Matrix.CreateWorld(m_subpart3LocPos + Vector3.Up * offset, Vector3.Forward, Vector3.Up));
         }
 
-        protected override void CreateTopGrid(out MyCubeGrid topGrid, out MyAttachableTopBlockBase topBlock, long ownerId)
-        {
-            CreateTopGrid(out topGrid, out topBlock, ownerId, MyDefinitionManager.Static.TryGetDefinitionGroup(BlockDefinition.TopPart));
-        }
-
         protected override bool Attach(MyAttachableTopBlockBase topBlock, bool updateGroup = true)
         {
             Debug.Assert(topBlock != null, "Top block cannot be null!");
@@ -744,54 +716,12 @@ namespace Sandbox.Game.Entities.Blocks
             return false;
         }
 
-        private void CreateTopGrid(out MyCubeGrid topGrid, out MyAttachableTopBlockBase topBlock, long builtBy, MyCubeBlockDefinitionGroup topGroup)
+        protected override MatrixD GetTopGridMatrix()
         {
-            if (topGroup == null)
-            {
-                topGrid = null;
-                topBlock = null;
-                return;
-            }
-
-            var gridSize = CubeGrid.GridSizeEnum;
-
-            float size = MyDefinitionManager.Static.GetCubeSize(gridSize);
-            var matrix = MatrixD.CreateWorld(Vector3D.Transform(m_constraintBasePos, Subpart3.WorldMatrix), WorldMatrix.Forward, WorldMatrix.Up);
-
-            var definition = topGroup[gridSize];
-            Debug.Assert(definition != null);
-
-            var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
-
-            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
-            gridBuilder.GridSizeEnum = gridSize;
-            gridBuilder.IsStatic = false;
-            gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);
-            gridBuilder.CubeBlocks.Add(block);
-
-            var grid = MyEntityFactory.CreateEntity<MyCubeGrid>(gridBuilder);
-            grid.Init(gridBuilder);
-
-            topGrid = grid;
-            topBlock = (MyPistonTop)topGrid.GetCubeBlock(Vector3I.Zero).FatBlock;
-
-            if (!CanPlaceTop(topBlock, builtBy))
-            {
-                topGrid = null;
-                topBlock = null;
-                grid.Close();
-                return;
-            }
-            //topGrid.SetPosition(topGrid.WorldMatrix.Translation - (topBlock.WorldMatrix.Translation/*Vector3.Transform(topBlock.DummyPosLoc, topGrid.WorldMatrix) - topGrid.WorldMatrix.Translation*/));
-      
-            MyEntities.Add(grid);
-            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
-            {
-                MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(grid), MyExternalReplicable.FindByObject(CubeGrid));
-            }
+            return MatrixD.CreateWorld(Vector3D.Transform(m_constraintBasePos, Subpart3.WorldMatrix), WorldMatrix.Forward, WorldMatrix.Up);
         }
 
-        protected virtual bool CanPlaceTop(MyAttachableTopBlockBase topBlock, long builtBy)
+        protected override bool CanPlaceTop(MyAttachableTopBlockBase topBlock, long builtBy)
         {
             // Compute the rough actual position for the head, this improves the detection if it can be placed
             float topDistance = (Subpart3.Model.BoundingBoxSize.Y);
@@ -838,8 +768,6 @@ namespace Sandbox.Game.Entities.Blocks
 
             return true;
         }
-
-
 
         public override void UpdateOnceBeforeFrame()
         {

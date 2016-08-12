@@ -46,7 +46,7 @@ namespace Sandbox.Game.Gui
         protected MyObjectBuilder_Definitions m_loadedPrefab;
         protected MyGuiControlMultilineText m_textField;
         protected MyGuiControlMultilineText m_descriptionField;
-        protected MyGuiControlImageButton m_thumbnailImage;
+        protected MyGuiControlImage m_thumbnailImage;
         protected Action<MyGuiControlListbox.Item> callBack;
         protected MyGuiBlueprintScreenBase m_parent;
         protected MyGuiBlueprintTextDialog m_dialog;
@@ -54,18 +54,16 @@ namespace Sandbox.Game.Gui
         protected Vector2 m_offset = new Vector2(-0.01f, 0f);
         protected int maxNameLenght = 40;
 
-        public MyGuiDetailScreenBase(bool isTopMostScreen, MyGuiBlueprintScreenBase parent, MyGuiCompositeTexture thumbnailTexture, MyGuiControlListbox.Item selectedItem, float textScale)
+        public MyGuiDetailScreenBase(bool isTopMostScreen, MyGuiBlueprintScreenBase parent, string thumbnailTexture, MyGuiControlListbox.Item selectedItem, float textScale)
             : base(new Vector2(0.37f, 0.325f), new Vector2(0.725f, 0.4f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, isTopMostScreen)
         {
-            m_thumbnailImage = new MyGuiControlImageButton(true);
-            if (thumbnailTexture == null)
+            m_thumbnailImage = new MyGuiControlImage()
             {
-                m_thumbnailImage.Visible = false;
-            }
-            else
-            {
-                m_thumbnailImage.BackgroundTexture = thumbnailTexture;
-            }
+                BackgroundTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK,
+            };
+            m_thumbnailImage.SetPadding(new MyGuiBorderThickness(3f, 2f, 3f, 2f));
+            m_thumbnailImage.SetTexture(thumbnailTexture);
+            
             m_selectedItem = selectedItem;
             m_blueprintName = selectedItem.Text.ToString();
             m_textScale = textScale;
@@ -231,7 +229,7 @@ namespace Sandbox.Game.Gui
         private ulong? m_publishedItemId;
         private MyGuiControlCombobox m_sendToCombo;
 
-        public MyGuiDetailScreenSteam(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent , MyGuiCompositeTexture thumbnailTexture, float textScale) :
+        public MyGuiDetailScreenSteam(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent , string thumbnailTexture, float textScale) :
             base(false, parent, thumbnailTexture, selectedItem, textScale)
         {
             this.callBack = callBack;
@@ -331,7 +329,7 @@ namespace Sandbox.Game.Gui
 
     class MyGuiDetailScreenDefault : MyGuiDetailScreenBase
     {
-        public MyGuiDetailScreenDefault(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent, MyGuiCompositeTexture thumbnailTexture, float textScale) :
+        public MyGuiDetailScreenDefault(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent, string thumbnailTexture, float textScale) :
             base(false, parent, thumbnailTexture, selectedItem, textScale)
         {
             var prefabPath = Path.Combine(m_defaultBlueprintFolder, m_blueprintName, "bp.sbc");
@@ -379,7 +377,7 @@ namespace Sandbox.Game.Gui
 
     class MyGuiDetailScreenLocal : MyGuiDetailScreenBase
     {
-        public MyGuiDetailScreenLocal(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreenBase parent , MyGuiCompositeTexture thumbnailTexture, float textScale) :
+        public MyGuiDetailScreenLocal(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreenBase parent , string thumbnailTexture, float textScale) :
             base(false, parent, thumbnailTexture, selectedItem, textScale)
         {
             var prefabPath = Path.Combine(m_localBlueprintFolder, m_blueprintName, "bp.sbc");

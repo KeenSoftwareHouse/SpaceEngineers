@@ -740,7 +740,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Turret = MyStringId.GetOrCompute("Turret");
 
         ///<summary>
-        ///Conveyors
+        ///Conveyor Junction
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Conveyor = MyStringId.GetOrCompute("DisplayName_Block_Conveyor");
 
@@ -8918,6 +8918,16 @@ namespace Sandbox.Game.Localization
         ///Enable airtightness
         ///</summary>
         public static readonly MyStringId World_Settings_EnableOxygenPressurization = MyStringId.GetOrCompute("World_Settings_EnableOxygenPressurization");
+
+        ///<summary>
+        ///Reset orientation
+        ///</summary>
+        public static readonly MyStringId ControlName_CubeDefaultMountpoint = MyStringId.GetOrCompute("ControlName_CubeDefaultMountpoint");
+
+        ///<summary>
+        ///Press {0} to reset orientation
+        ///</summary>
+        public static readonly MyStringId NotificationHint_CubeDefaultMountpoint = MyStringId.GetOrCompute("NotificationHint_CubeDefaultMountpoint");
 
         ///<summary>
         ///Max backup saves

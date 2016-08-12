@@ -53,11 +53,11 @@ namespace VRage.Game.Entity.EntityComponents
             return true;
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_EntityOwnershipComponent;
 
-            ob.OnwerId = m_ownerId;
+            ob.OwnerId = m_ownerId;
             ob.ShareMode = m_shareMode;
 
             return ob;
@@ -69,7 +69,7 @@ namespace VRage.Game.Entity.EntityComponents
 
             var ob = builder as MyObjectBuilder_EntityOwnershipComponent;
 
-            m_ownerId = ob.OnwerId;
+            m_ownerId = ob.OwnerId;
             m_shareMode = ob.ShareMode;
         }
         #endregion

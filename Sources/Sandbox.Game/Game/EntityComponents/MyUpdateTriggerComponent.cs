@@ -44,7 +44,7 @@ namespace Sandbox.Game.Components
 
         public MyUpdateTriggerComponent() { }
 
-        public override VRage.Game.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_UpdateTrigger;
             ob.Size = m_size;

@@ -22,6 +22,7 @@ namespace Sandbox.Engine.Utils
             MyFakes.ENABLE_VOXEL_LOD_MORPHING = false;
 
             MyFakes.ENABLE_PLANETS = true;
+            MyDebugDrawSettings.DEBUG_DRAW_DECAY = true;
         }
     }
 }

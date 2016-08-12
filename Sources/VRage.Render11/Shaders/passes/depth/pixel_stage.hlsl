@@ -16,7 +16,7 @@ void __pixel_shader(PixelStageInput input) {
 	init_ps_interface(pixel);
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
 	pixel.key_color = input.key_color_alpha.xyz;
-	pixel.custom_alpha = input.key_color_alpha.w;
+	pixel.custom_alpha = input.custom_alpha;
 	
 #endif
 

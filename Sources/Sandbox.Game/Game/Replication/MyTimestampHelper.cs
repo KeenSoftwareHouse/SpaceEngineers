@@ -125,7 +125,7 @@ namespace Sandbox.Game.Replication
             return delta;
         }
 
-        public void UpdateDeltaVelocities(uint timestamp, ref Vector3D deltaLinear, ref Vector3D deltaAngular)
+        public void UpdateDeltaVelocities(uint timestamp, ref Vector3 deltaLinear, ref Vector3 deltaAngular)
         {
             if (m_timeStampData.Count <= 0)
                 return;
@@ -182,7 +182,7 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        void UpdateData(uint i, ref Vector3D deltaLinear,ref Vector3D deltaAngular)
+        void UpdateData(uint i, ref Vector3 deltaLinear,ref Vector3 deltaAngular)
         {
             if (m_timeStampData.ContainsKey(i))
             {

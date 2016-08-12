@@ -1050,5 +1050,10 @@ namespace VRageMath
             return Math.Abs(value.X) < epsilon && Math.Abs(value.Y) < epsilon;
         }
 
+        public static bool IsZero(Vector2 value, float epsilon)
+        {
+            return Math.Abs(value.X) < epsilon && Math.Abs(value.Y) < epsilon;
+        }
+
     }
 }

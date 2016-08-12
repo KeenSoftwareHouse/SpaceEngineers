@@ -119,36 +119,16 @@ namespace Sandbox.Game.Entities.Cube
 
             var ob = objectBuilder as MyObjectBuilder_MotorBase;
 
+            //Backward compatibility 1.8.2016
             if (ob.RotorEntityId.HasValue && ob.RotorEntityId.Value != 0)
             {
                 MyDeltaTransform? deltaTransform = ob.MasterToSlaveTransform.HasValue ? ob.MasterToSlaveTransform.Value : (MyDeltaTransform?)null;
-                m_connectionState.Value = new State() { TopBlockId = ob.RotorEntityId, MasterToSlave = deltaTransform,Welded = ob.WeldedEntityId.HasValue || ob.forceWeld};
+                m_connectionState.Value = new State() { TopBlockId = ob.RotorEntityId, MasterToSlave = deltaTransform, Welded = ob.WeldedEntityId.HasValue || ob.ForceWeld };
             }
           
             AddDebugRenderComponent(new Components.MyDebugRenderComponentMotorBase(this));
-            cubeGrid.OnPhysicsChanged += cubeGrid_OnPhysicsChanged;
-
-            float defaultWeldSpeed = ob.weldSpeed; //weld before reaching the max speed
-            defaultWeldSpeed *= defaultWeldSpeed;
-            m_weldSpeedSq.Value = defaultWeldSpeed;
-            m_forceWeld.Value = ob.forceWeld;
         }
         
-        public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
-        {
-            var state = m_connectionState.Value;
-            var ob = base.GetObjectBuilderCubeBlock(copy) as MyObjectBuilder_MotorBase;
-            ob.RotorEntityId = state.TopBlockId;
-            if (m_connectionState.Value.Welded)
-            {
-                ob.WeldedEntityId = m_connectionState.Value.TopBlockId;
-            }
-            ob.MasterToSlaveTransform = state.MasterToSlave.HasValue ? state.MasterToSlave.Value : (MyPositionAndOrientation?)null;
-            ob.weldSpeed = (float)Math.Sqrt(m_weldSpeedSq);
-            ob.forceWeld = m_forceWeld;
-            return ob;
-        }
-
         private void Receiver_IsPoweredChanged()
         {
             UpdateIsWorking();
@@ -213,64 +193,12 @@ namespace Sandbox.Game.Entities.Cube
             CreateTopGrid(builderId);
         }
 
-        protected override void CreateTopGrid(out MyCubeGrid rotorGrid, out MyAttachableTopBlockBase rotorBlock, long builtBy)
+        protected override MatrixD GetTopGridMatrix()
         {
-            CreateRotorGrid(out rotorGrid, out rotorBlock, builtBy, MyDefinitionManager.Static.TryGetDefinitionGroup(MotorDefinition.RotorPart));
+            return MatrixD.CreateWorld(Vector3D.Transform(DummyPosition, CubeGrid.WorldMatrix), WorldMatrix.Forward, WorldMatrix.Up);
         }
 
-        protected void CreateRotorGrid(out MyCubeGrid rotorGrid, out MyAttachableTopBlockBase rotorBlock, long builtBy, MyCubeBlockDefinitionGroup rotorGroup)
-        {
-            Debug.Assert(Sync.IsServer, "Rotor grid can be created only on server");
-            if (rotorGroup == null)
-            {
-                rotorGrid = null;
-                rotorBlock = null;
-                return;
-            }
-
-            var gridSize = CubeGrid.GridSizeEnum;
-
-            float size = MyDefinitionManager.Static.GetCubeSize(gridSize);
-            var matrix = MatrixD.CreateWorld(Vector3D.Transform(DummyPosition, CubeGrid.WorldMatrix), WorldMatrix.Forward, WorldMatrix.Up);
-            var definition = rotorGroup[gridSize];
-            Debug.Assert(definition != null);
-
-            var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
-
-            var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
-            gridBuilder.GridSizeEnum = gridSize;
-            gridBuilder.IsStatic = false;
-            gridBuilder.PositionAndOrientation = new MyPositionAndOrientation(matrix);
-            gridBuilder.CubeBlocks.Add(block);
-
-            var grid = MyEntityFactory.CreateEntity<MyCubeGrid>(gridBuilder);
-            grid.Init(gridBuilder);
-
-            rotorGrid = grid;
-            MyMotorRotor rotor = (MyMotorRotor)rotorGrid.GetCubeBlock(Vector3I.Zero).FatBlock;
-            rotorBlock = rotor;
-            rotorGrid.PositionComp.SetPosition(rotorGrid.WorldMatrix.Translation - (Vector3D.Transform(rotor.DummyPosLoc, rotorGrid.WorldMatrix) - rotorGrid.WorldMatrix.Translation));
-
-            if (!CanPlaceRotor(rotorBlock, builtBy))
-            {
-                rotorGrid = null;
-                rotorBlock = null;
-                grid.Close();
-                return;
-            }
-      
-            MyEntities.Add(grid);
-
-            if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)
-            {
-                MyMultiplayer.ReplicateImmediatelly(MyExternalReplicable.FindByObject(grid), MyExternalReplicable.FindByObject(CubeGrid));
-            }
-
-            MatrixD masterToSlave = rotorBlock.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
-            m_connectionState.Value = new State() { TopBlockId = rotorBlock.EntityId, MasterToSlave = masterToSlave};
-        }
-
-        protected virtual bool CanPlaceRotor(MyAttachableTopBlockBase rotorBlock, long builtBy)
+        protected override bool CanPlaceRotor(MyAttachableTopBlockBase rotorBlock, long builtBy)
         {
             return true;
         }

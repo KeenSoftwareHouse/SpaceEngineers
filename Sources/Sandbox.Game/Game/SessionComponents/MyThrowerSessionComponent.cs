@@ -109,7 +109,7 @@ namespace Sandbox.Game.Components
                 float deltaSeconds = (MySandboxGame.TotalGamePlayTimeInMilliseconds - m_startTime) / 1000.0f;
                 float velocity = deltaSeconds / CurrentDefinition.PushTime * CurrentDefinition.MaxSpeed;
                 velocity = MathHelper.Clamp(velocity, CurrentDefinition.MinSpeed, CurrentDefinition.MaxSpeed);
-                var linearVelocity = cameraDir * velocity;
+                var linearVelocity = cameraDir * velocity + MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
                 float mass = 0;
                 if (CurrentDefinition.Mass.HasValue)
                 {

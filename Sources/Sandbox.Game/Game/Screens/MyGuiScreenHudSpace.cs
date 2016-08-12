@@ -37,6 +37,9 @@ namespace Sandbox.Game.Gui
     {
         public static MyGuiScreenHudSpace Static;
 
+        //GR: Trigger recalculation of oxygen after when altitude differs by this amount
+        private const float ALTITUDE_CHANGE_THRESHOLD = 2000;
+
         private MyGuiControlToolbar m_toolbarControl;
         private MyGuiControlBlockInfo m_blockInfo;
         private MyGuiControlRotatingWheel m_rotatingWheelControl;
@@ -64,6 +67,8 @@ namespace Sandbox.Game.Gui
         private bool m_hiddenToolbar;
 
 		public float m_gravityHudWidth;
+
+        private float m_altitude;
 
         public MyGuiScreenHudSpace()
             : base()
@@ -300,8 +305,9 @@ namespace Sandbox.Game.Gui
 
                 //m_chatControl.Visible = !MyHud.MinimalHud;
 
-                DrawCameraInfo(MyHud.CameraInfo);
             }
+            DrawCameraInfo(MyHud.CameraInfo);
+
             ProfilerShort.Begin("Draw netgraph");
             if (MyFakes.ENABLE_NETGRAPH && MyHud.IsNetgraphVisible)
                 DrawNetgraph(MyHud.Netgraph);
@@ -691,6 +697,18 @@ namespace Sandbox.Game.Gui
 			MyFontEnum altitudeFont = MyFontEnum.Blue;
 			var altitudeAlignment = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
 			var altitude = distanceToSeaLevel;
+
+            //GR: Not the best place to start pressurization but it just sets a boolean and the Pressurization itself happens on a seperate thread
+            //Do this because the environment oxygen level will not change in the Cubegrid
+            if (Math.Abs(altitude - m_altitude) > ALTITUDE_CHANGE_THRESHOLD)
+            {
+                if (controlledEntity.CubeGrid.GridSystems.GasSystem != null)
+                {
+                    controlledEntity.CubeGrid.GridSystems.GasSystem.Pressurize();
+                    m_altitude = altitude;
+                }
+            }
+
             var altitudeText = new StringBuilder().AppendDecimal(altitude, 0).Append(" m");
 
 			var altitudeVerticalOffset = 0.03f;

@@ -170,6 +170,7 @@ namespace Sandbox.Game
             : this(definition.InventoryVolume, definition.InventoryMass, new Vector3(definition.InventorySizeX, definition.InventorySizeY, definition.InventorySizeZ), flags)
         {
             myObjectBuilder_InventoryDefinition = definition;
+
         }
 
         #endregion
@@ -1692,6 +1693,7 @@ namespace Sandbox.Game
                 RemoveEntityOnEmpty = inventoryComponentDefinition.RemoveEntityOnEmpty;
                 m_multiplierEnabled = inventoryComponentDefinition.MultiplierEnabled;
                 m_maxItemCount = inventoryComponentDefinition.MaxItemCount;
+                Constraint = inventoryComponentDefinition.InputConstraint;
             }
         }
 
@@ -1728,7 +1730,7 @@ namespace Sandbox.Game
             containerDefinition.DeselectAll();
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             return GetObjectBuilder();
         }

@@ -105,11 +105,13 @@ namespace Sandbox.Game.Gui
             return checkbox;
         }
 
-        private MyGuiControlImageButton AddIcon(Vector2 position, string texture, Vector2 size)
+        private MyGuiControlImage AddIcon(Vector2 position, string texture, Vector2 size)
         {
-            var image = new MyGuiControlImageButton();
-            image.Position = position;
-            image.Size = size;
+            var image = new MyGuiControlImage()
+            {
+                Position = position,
+                Size = size,
+            };
             image.SetTexture(texture);
             Controls.Add(image);
             return image;

@@ -107,6 +107,9 @@ namespace Sandbox.Game.GameSystems
         public void UnregisterJumpDrive(MyJumpDrive jumpDrive)
         {
             m_jumpDrives.Remove(jumpDrive);
+
+            //GR: Add this in case fov is distrorted due to deleteting ship when playing fov animation
+            MySector.MainCamera.FieldOfView = MySandboxGame.Config.FieldOfView;
         }
 
         public void UpdateBeforeSimulation()
@@ -822,13 +825,14 @@ namespace Sandbox.Game.GameSystems
 
         public bool CheckReceivedCoordinates(ref Vector3D pos)
         {
-            if (m_jumpTimeLeft > 20)
+            if (m_jumpTimeLeft > 0.1f*JUMP_DRIVE_DELAY)
                 return true;
-            if (Vector3D.DistanceSquared(m_grid.PositionComp.GetPosition(), pos) > 10000 * 10000)
+
+            if (Vector3D.DistanceSquared(m_grid.PositionComp.GetPosition(), pos) > 10000 * 10000 && m_jumped)
             {
                 //most likely comes from packet created before jump
                 MySandboxGame.Log.WriteLine(string.Format("Wrong position packet received, dist={0}, T={1})", Vector3D.Distance(m_grid.PositionComp.GetPosition(), pos), m_jumpTimeLeft));
-               // return false;
+                return false;
             }
             return true;
 

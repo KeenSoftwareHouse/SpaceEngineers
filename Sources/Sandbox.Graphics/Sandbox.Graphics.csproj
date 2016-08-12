@@ -122,6 +122,7 @@
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
     <Compile Include="Gui\MyGuiControlCountdownWheel.cs" />
     <Compile Include="Gui\MyGuiControlImage.cs" />
+    <Compile Include="Gui\MyGuiControlImageButton.cs" />
     <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />
     <Compile Include="Gui\MyGuiControlMultilineEditableText.cs" />
     <Compile Include="Gui\MyGuiControlSliderBase.cs" />
@@ -129,7 +130,7 @@
     <Compile Include="Gui\MyGuiTextShadows.cs" />
     <Compile Include="Gui\MyKeyThrottler.cs" />
     <Compile Include="Gui\MyLayoutTable.cs" />
-    <Compile Include="Gui\MyLayoutVertical.cs" />
+    <Compile Include="Gui\MyListLayouts.cs" />
     <Compile Include="Gui\MyWikiMarkupParser.cs" />
     <Compile Include="Gui\RichTextLabel\MyRichLabelLink.cs" />
     <Compile Include="Gui\ThrottledKeyStatus.cs" />

@@ -371,11 +371,15 @@ namespace Sandbox.Game.Entities.Cube
             float inflate = 0.025f * gridSize;
             gizmoBox.Inflate(inflate);
 
-            /*{
-                Vector4 blue = Color.Blue.ToVector4();
-                Matrix mtx = Matrix.Invert(invGridWorldMatrix);
-                MySimpleObjectDraw.DrawTransparentBox(ref mtx, ref gizmoBox, ref blue, MySimpleObjectRasterizer.Wireframe, 1, 0.04f);
-            }*/
+            //{
+            //    Color blue = Color.Blue;
+            //    MatrixD mtx = MatrixD.Invert(invGridWorldMatrix);
+            //    MySimpleObjectDraw.DrawTransparentBox(ref mtx, ref gizmoBox, ref blue, MySimpleObjectRasterizer.Wireframe, 1, 0.04f);
+
+
+
+            //    MyRenderProxy.DebugDrawLine3D(originCamera, originCamera + direction * (intersectionDistance + (float)cameraHeadDist), Color.Red, Color.Red, false);
+            //}
 
             double distance = double.MaxValue;
             if (gizmoBox.Intersects(ref line, out distance))

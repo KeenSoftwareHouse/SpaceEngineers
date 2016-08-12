@@ -43,6 +43,11 @@ namespace Sandbox.Game.WorldEnvironment
             return 0f;
         }
 
+        public override bool IsChild
+        {
+            get { return false; } // CH: TODO: I'm not really false should be returned here, but it was the default before my change.
+        }
+          
         public override bool OnSave(BitStream stream)
         {
             stream.WriteInt64(Instance.Owner.Entity.EntityId);

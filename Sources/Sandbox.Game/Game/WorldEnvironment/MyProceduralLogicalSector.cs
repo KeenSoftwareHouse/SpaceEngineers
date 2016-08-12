@@ -66,7 +66,8 @@ namespace Sandbox.Game.WorldEnvironment
 
             m_environment = (MyProceduralEnvironmentDefinition)provider.Owner.EnvironmentDefinition;
 
-            m_itemPositionRng = new MyRandom(provider.GetSeed() ^ ((x * 377 + y) * 377 + Lod));
+            m_seed = provider.GetSeed() ^ ((x * 377 + y) * 377 + Lod);
+            m_itemPositionRng = new MyRandom(m_seed);
 
             // Area of the scanning surface:
             // We know that the norm of the cross product of two vectors is the are of the parallelogram delimited by them.
@@ -233,6 +234,8 @@ namespace Sandbox.Game.WorldEnvironment
         #endregion
 
         #region Sampling
+
+        private int m_seed;
 
         private readonly MyRandom m_itemPositionRng;
 
@@ -733,6 +736,11 @@ namespace Sandbox.Game.WorldEnvironment
         public override string ToString()
         {
             return string.Format("x{0} y{1} l{2} : {3}", X, Y, Lod, Items.Count);
+        }
+
+        public override string DebugData
+        {
+            get { return string.Format("x:{0} y:{1} highLod:{2} localLod:{3} seed:{4:X} count:{5} ", X, Y, Lod, MinimumScannedLod, m_seed, Items.Count); }
         }
     }
 }

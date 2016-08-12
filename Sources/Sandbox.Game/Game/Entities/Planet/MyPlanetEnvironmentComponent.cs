@@ -496,7 +496,7 @@ namespace Sandbox.Game.Entities.Planet
             return true;
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = new MyObjectBuilder_PlanetEnvironmentComponent();
 

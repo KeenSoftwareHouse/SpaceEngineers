@@ -573,7 +573,7 @@ Public: Any Steam player can join</value>
     <value>Turret</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
-    <value>Conveyors</value>
+    <value>Conveyor Junction</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -5577,6 +5577,12 @@ split and not in voxel. </value>
   </data>
   <data name="World_Settings_EnableOxygenPressurization" xml:space="preserve">
     <value>Enable airtightness</value>
+  </data>
+  <data name="ControlName_CubeDefaultMountpoint" xml:space="preserve">
+    <value>Reset orientation</value>
+  </data>
+  <data name="NotificationHint_CubeDefaultMountpoint" xml:space="preserve">
+    <value>Press {0} to reset orientation</value>
   </data>
   <data name="MaxBackupSaves" xml:space="preserve">
     <value>Max backup saves</value>

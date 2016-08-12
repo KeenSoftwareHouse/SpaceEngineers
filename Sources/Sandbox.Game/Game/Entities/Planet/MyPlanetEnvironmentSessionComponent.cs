@@ -231,7 +231,8 @@ namespace Sandbox.Game.Entities.Planet
 
                             var bb = blockAabb;
                             sector.GetItemsInAabb(ref bb, m_itemsToDisable.GetOrAddList(sector));
-                            itemsVisited += sector.DataView.Items.Count;
+                            if (sector.DataView != null && sector.DataView.Items != null)
+                                itemsVisited += sector.DataView.Items.Count;
                         }
 
                         m_tmpEntityList.Clear();

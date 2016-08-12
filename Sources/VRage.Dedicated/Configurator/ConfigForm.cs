@@ -238,7 +238,11 @@ namespace VRage.Dedicated
 
             availableSaves.Sort((x, y) =>
             {
-                return x.Item1.CompareTo(y.Item1);
+                int result = y.Item2.LastSaveTime.CompareTo(x.Item2.LastSaveTime);
+                if (result != 0) return result;
+
+                result = x.Item1.CompareTo(y.Item1);
+                return result;
             });
 
             gamesListBox.Items.Clear();
@@ -259,7 +263,7 @@ namespace VRage.Dedicated
                 }
             }
 
-            gamesListBox.Sorted = true;
+            gamesListBox.Sorted = false;
         }
 
         void FillBattlesList()

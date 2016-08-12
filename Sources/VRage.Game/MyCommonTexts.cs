@@ -2494,6 +2494,11 @@ using VRage.Utils;
         public static readonly MyStringId WorldSettings_Mods = MyStringId.GetOrCompute("WorldSettings_Mods");
 
         ///<summary>
+        ///Advanced
+        ///</summary>
+        public static readonly MyStringId WorldSettings_Advanced = MyStringId.GetOrCompute("WorldSettings_Advanced");
+
+        ///<summary>
         ///Open selected mod in Workshop Steam Overlay
         ///</summary>
         public static readonly MyStringId ToolTipWorkshopOpenModInWorkshop = MyStringId.GetOrCompute("ToolTipWorkshopOpenModInWorkshop");
@@ -3852,4 +3857,14 @@ using VRage.Utils;
         ///Change block variants
         ///</summary>
         public static readonly MyStringId ControlName_ChangeBlockVariants = MyStringId.GetOrCompute("ControlName_ChangeBlockVariants");
+
+        ///<summary>
+        ///Skin
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_Skin = MyStringId.GetOrCompute("ScreenOptionsGame_Skin");
+
+        ///<summary>
+        ///Note: Not all screens support skin at the moment
+        ///</summary>
+        public static readonly MyStringId ScreenOptionsGame_SkinWarning = MyStringId.GetOrCompute("ScreenOptionsGame_SkinWarning");
     }

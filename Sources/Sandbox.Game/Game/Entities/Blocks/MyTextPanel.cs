@@ -368,6 +368,16 @@ namespace Sandbox.Game.Entities.Blocks
                     UpdateTexture();
                 }
             }
+            else if (IsOpen)
+            {
+                SendChangeOpenMessage(false);
+                if (m_textBox != null)
+                {
+                    m_textBox.CloseScreen();
+                    m_textBox = null;
+                }
+                MyScreenManager.CloseScreen(typeof(MyGuiScreenTerminal));
+            }
         }
 
         private void UpdateTexture()

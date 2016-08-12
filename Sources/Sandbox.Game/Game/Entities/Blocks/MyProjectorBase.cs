@@ -1164,12 +1164,20 @@ namespace Sandbox.Game.Entities.Blocks
         {
             MyBlockOrientation blockOrientation = projectedBlock.Orientation;
             
+            //GR: For rotation take into account:
+            //the projected block orientation
             Quaternion blockOrientationQuat;
             blockOrientation.GetQuaternion(out blockOrientationQuat);
 
+            //GR: The projector block orientation (which is relative to the Cubegrid orientation)
             Quaternion projQuat = Quaternion.Identity;
             Orientation.GetQuaternion(out projQuat);
             blockOrientationQuat = Quaternion.Multiply(projQuat, blockOrientationQuat);
+
+            //GR: The orienation settings of the projector
+            //Take into account order of multiplication to review!
+            blockOrientationQuat = Quaternion.Multiply(ProjectionRotationQuaternion, blockOrientationQuat);
+
 
             Vector3I projectedMin = CubeGrid.WorldToGridInteger(projectedBlock.CubeGrid.GridIntegerToWorld(projectedBlock.Min));
             Vector3I projectedMax = CubeGrid.WorldToGridInteger(projectedBlock.CubeGrid.GridIntegerToWorld(projectedBlock.Max));

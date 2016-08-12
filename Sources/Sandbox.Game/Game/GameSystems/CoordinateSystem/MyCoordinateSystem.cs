@@ -224,7 +224,7 @@ namespace Sandbox.Game.GameSystems.CoordinateSystem
         /// </summary>
         /// <param name="transform">Origin transform.</param>
         /// <param name="coordSysId">Coord system id.</param>
-        [Event, Reliable, Broadcast]
+        [Event, Reliable, BroadcastExcept]
         private static void CoordSysCreated_Client(MyCreateCoordSysBuffer createBuffer)
         {
             MyTransformD origin = new MyTransformD();

@@ -133,6 +133,12 @@ namespace Sandbox.Engine.Utils
                 }
                 else
                 {
+                    if (m_lastOrientationWeight < 1)
+                    {
+                        m_orientation = MatrixD.Orthogonalize(m_orientation);
+                        m_orientation.Forward = Vector3D.Cross(m_orientation.Up, m_orientation.Right);
+                    }
+
                     if (rotationIndicator.Y != 0)
                     {
                         Vector3D r, f;
@@ -151,7 +157,6 @@ namespace Sandbox.Engine.Utils
                         m_orientation.Up = u;
                         m_orientation.Forward = f;
                     }
-
                     m_lastOrientation = m_orientation;
                     m_lastOrientationWeight = 1;
                     m_roll = 0;
@@ -217,6 +222,8 @@ namespace Sandbox.Engine.Utils
 
                 resultOrientationStorage = MatrixD.Slerp(resultOrientationStorage, m_lastOrientation,
                     MathHelper.SmoothStepStable(m_lastOrientationWeight));
+                resultOrientationStorage = MatrixD.Orthogonalize(resultOrientationStorage);
+                m_orientation.Forward = Vector3D.Cross(m_orientation.Up, m_orientation.Right);
             }
             if (!inGravityField)
             {

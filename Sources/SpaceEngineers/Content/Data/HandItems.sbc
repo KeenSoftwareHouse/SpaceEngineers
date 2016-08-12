@@ -66,7 +66,7 @@
         <Y>-0.167324156</Y>
         <Z>-0.153434753</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -195,7 +195,7 @@
         <Y>-0.167324156</Y>
         <Z>-0.153434753</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -324,7 +324,7 @@
         <Y>-0.167324156</Y>
         <Z>-0.153434753</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -453,7 +453,7 @@
         <Y>-0.167324156</Y>
         <Z>-0.153434753</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1.21696043</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -582,7 +582,7 @@
         <Y>-0.322347462</Y>
         <Z>-0.102630876</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.5634576</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <SimulateLeftHand>false</SimulateLeftHand>
       <ItemOrientation3rd>
         <X>0</X>
@@ -714,7 +714,7 @@
         <Y>-0.322347462</Y>
         <Z>-0.102630876</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.5634576</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <SimulateLeftHand>false</SimulateLeftHand>
       <ItemOrientation3rd>
         <X>0</X>
@@ -845,7 +845,7 @@
         <Y>-0.322347462</Y>
         <Z>-0.102630876</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.5634576</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <SimulateLeftHand>false</SimulateLeftHand>
       <ItemOrientation3rd>
         <X>0</X>
@@ -976,7 +976,7 @@
         <Y>-0.322347462</Y>
         <Z>-0.102630876</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.5634576</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <SimulateLeftHand>false</SimulateLeftHand>
       <ItemOrientation3rd>
         <X>0</X>
@@ -1107,7 +1107,7 @@
         <Y>-0.289694577</Y>
         <Z>-0.110947408</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1238,7 +1238,7 @@
         <Y>-0.289694577</Y>
         <Z>-0.110947408</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1368,7 +1368,7 @@
         <Y>-0.289694577</Y>
         <Z>-0.110947408</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1498,7 +1498,7 @@
         <Y>-0.289694577</Y>
         <Z>-0.110947408</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.1740625</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0.593253553</X>
         <Y>0.347188234</Y>
@@ -1628,7 +1628,7 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>2.26972342</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1759,7 +1759,7 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>2.26972342</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -1890,7 +1890,7 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>2.26972342</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -2021,7 +2021,7 @@
         <Y>-0.221894562</Y>
         <Z>-0.3698231</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>2.26972342</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <ItemOrientation3rd>
         <X>0</X>
         <Y>0</Y>
@@ -2152,7 +2152,7 @@
         <Y>-0.290927768</Y>
         <Z>-0.394478023</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>1.83826208</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <SimulateLeftHand>false</SimulateLeftHand>
       <ItemOrientation3rd>
         <X>0</X>
@@ -2281,7 +2281,7 @@
         <Y>-0.322347462</Y>
         <Z>-0.102630876</Z>
       </ItemWalkingPosition3rd>
-      <AmplitudeMultiplier3rd>0.5634576</AmplitudeMultiplier3rd>
+      <AmplitudeMultiplier3rd>1</AmplitudeMultiplier3rd>
       <SimulateLeftHand>false</SimulateLeftHand>
       <ItemOrientation3rd>
         <X>0</X>

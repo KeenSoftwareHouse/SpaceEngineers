@@ -123,7 +123,7 @@ namespace Sandbox.Game.Components
             // TODO: Initialization
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_CraftingComponentBasic;           
 

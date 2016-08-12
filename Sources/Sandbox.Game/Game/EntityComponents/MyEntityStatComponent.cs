@@ -173,7 +173,7 @@ namespace Sandbox.Game.Components
 
 		#region Serialization
 
-		public override MyObjectBuilder_ComponentBase Serialize()
+		public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
 		{
 			var baseBuilder = base.Serialize();
 			var builder = baseBuilder as MyObjectBuilder_CharacterStatComponent;

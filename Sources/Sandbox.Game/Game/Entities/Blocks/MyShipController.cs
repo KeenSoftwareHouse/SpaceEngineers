@@ -450,6 +450,7 @@ namespace Sandbox.Game.Entities
             if (thrustComponent != null)
             {
                 thrustComponent.UpdateBeforeSimulation(true,true);
+                thrustComponent.ControlTrustNetwork += thrustComponent.ControlThrust;
                 thrustComponent.ControlThrust = Vector3.Zero;
             }
 

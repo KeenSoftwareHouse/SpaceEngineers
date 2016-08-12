@@ -39,6 +39,7 @@ namespace Sandbox.Graphics.GUI
         public static int TotalGamePlayTimeInMilliseconds;
 
         static MyGuiScreenBase m_lastScreenWithFocus;
+        public static MyGuiScreenBase LastScreenWithFocus { get { return m_lastScreenWithFocus; } }
 
         //  List of screens - works like stack, on the top is screen that has focus
         static List<MyGuiScreenBase> m_screens;
@@ -154,6 +155,15 @@ namespace Sandbox.Graphics.GUI
                 }
             }
         }
+
+        /// <summary>
+        /// Clears the old focus, this gets around an issue where the input does not always get cleared between frames, causing screens to handle input when they shouldn't.
+        /// </summary>
+        public static void ClearLastScreenWithFocus()
+        {
+            m_lastScreenWithFocus = null;
+        }
+
         public static int GetScreensCount()
         {
             return m_screens.Count;

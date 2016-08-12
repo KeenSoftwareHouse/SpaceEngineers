@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -525,7 +526,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            if (ownerComp != null)
+            if (ownerComp != null && builder.Owner != 0)
             {
                 ownerComp.OwnerId = builder.Owner;
                 ownerComp.ShareMode = MyOwnershipShareModeEnum.None;
@@ -568,7 +569,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            builder.ComponentContainer = Components.Serialize();
+            builder.ComponentContainer = Components.Serialize(copy);
 
             return builder;
         }
@@ -862,6 +863,7 @@ namespace Sandbox.Game.Entities
         {
             if (BlockDefinition.ContainsComputer())
             {
+                var ownerComp = Components.Get<MyEntityOwnershipComponent>();
                 if (setOwnership)
                 {
                     if (m_IDModule.Owner == 0)
@@ -871,10 +873,22 @@ namespace Sandbox.Game.Entities
                             CubeGrid.ChangeOwnerRequest(CubeGrid, this, owner, sharing);
                         }
                     }
+
+                    if (ownerComp != null && ownerComp.OwnerId == 0)
+                    {
+                        if (Sync.IsServer)
+                            CubeGrid.ChangeOwnerRequest(CubeGrid, this, owner, sharing);
+                    }
                 }
                 else
                 {
                     if (m_IDModule.Owner != 0 && Sync.IsServer)
+                    {
+                        sharing = MyOwnershipShareModeEnum.None;
+                        CubeGrid.ChangeOwnerRequest(CubeGrid, this, 0, sharing);
+                    }
+
+                    if (ownerComp != null && ownerComp.OwnerId != 0 && Sync.IsServer)
                     {
                         sharing = MyOwnershipShareModeEnum.None;
                         CubeGrid.ChangeOwnerRequest(CubeGrid, this, 0, sharing);

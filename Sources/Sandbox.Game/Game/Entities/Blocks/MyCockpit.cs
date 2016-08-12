@@ -951,20 +951,6 @@ namespace Sandbox.Game.Entities
             Render.NearFlag = MySession.Static.CameraController == this && (IsInFirstPersonView || ForceFirstPersonCamera);
         }
 
-        public override void SwitchThrusts()
-        {
-            base.SwitchThrusts();
-            if (m_pilot != null && m_enableShipControl)
-            {
-                var jetpack = m_pilot.JetpackComp;
-                if (jetpack != null)
-                {
-                    jetpack.SwitchThrusts();
-                    m_pilotJetpackEnabledBackup = null;
-                }
-            }
-        }
-
         protected virtual void UpdateCockpitModel()
         {
             if (Render.NearFlag)

@@ -103,8 +103,6 @@ namespace Sandbox.Definitions
         static MyDefinitionManager()
         {
             MyDefinitionManagerBase.Static = new MyDefinitionManager();
-
-            RegisterTypesFromAssembly(Static.GetType().Assembly);
         }
 
         private MyDefinitionManager()
@@ -3811,7 +3809,10 @@ namespace Sandbox.Definitions
             MyDefinitionBase definitionBase;
             try
             {
-                if (!m_definitions.m_definitionsById.TryGetValue(id, out definitionBase))
+                definitionBase = base.GetDefinition<T>(id.SubtypeId);
+                var definitionFound = definitionBase != null || m_definitions.m_definitionsById.TryGetValue(id, out definitionBase);
+
+                if (!definitionFound)
                 {
                     string message = String.Format("No definition '{0}'. Maybe a mistake in XML?", id);
                     MySandboxGame.Log.WriteLine(message);
@@ -4102,7 +4103,7 @@ namespace Sandbox.Definitions
 
         private static T InitDefinition<T>(MyModContext context, MyObjectBuilder_DefinitionBase builder) where T : MyDefinitionBase
         {
-            T result = GetObjectFactory().CreateInstance<T>(builder.TypeId);
+            T result = GetObjectFactory().CreateInstance<T>(builder.GetType());
             result.Context = new MyModContext();
             result.Context.Init(context);
             if (!context.IsBaseGame)

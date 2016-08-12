@@ -440,10 +440,10 @@ namespace Sandbox.Game.Gui
 
         private bool EmitTestAction()
         {
-            /*if (TestAction != null)
-                TestAction();*/
+            if (TestAction != null)
+                TestAction();
 
-            MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER = !MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER;
+            //MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER = !MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER;
 
             return true;
         }

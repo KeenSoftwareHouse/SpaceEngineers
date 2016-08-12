@@ -139,6 +139,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LargeTurretBaseDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LaserAntennaDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_LightingBlockDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MechanicalConnectionBlockBaseDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MedicalRoomDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MergeBlockDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_MissileAmmoDefinition.cs" />
@@ -212,6 +213,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_LargeMissileTurret.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_LaserAntenna.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_LightingBlock.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_MechanicalConnectionBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MedicalRoom.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_MergeBlock.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Meteor.cs" />

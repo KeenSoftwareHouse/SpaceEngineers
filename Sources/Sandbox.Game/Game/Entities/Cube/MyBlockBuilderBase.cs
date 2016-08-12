@@ -46,10 +46,19 @@ namespace Sandbox.Game.Entities
 
         protected static MyCubeBuilderDefinition m_cubeBuilderDefinition;
 
-        public float IntersectionDistance;
+        private static float m_intersectionDistance;
+        public static float IntersectionDistance
+        {
+            get { return m_intersectionDistance; }
+            set
+            {
+                m_intersectionDistance = value;
+                if(PlacementProvider != null)
+                    PlacementProvider.IntersectionDistance = value;
+            }
+        }
 
         protected static readonly int[] m_rotationDirections = new int[6] { -1, 1, 1, -1, 1, -1 };
-        private static readonly List<MyPhysics.HitInfo> m_tmpHitList = new List<MyPhysics.HitInfo>();
 
         protected MyCubeGrid m_currentGrid;
         protected internal abstract MyCubeGrid CurrentGrid { get; protected set; }
@@ -109,26 +118,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                if (PlacementProvider != null)
-                    return PlacementProvider.RayStart;
-
-                var cameraController = MySession.Static.GetCameraControllerEnum();
-                if (cameraController == MyCameraControllerEnum.Entity || cameraController == MyCameraControllerEnum.ThirdPersonSpectator)
-                {
-                    if (MySession.Static.ControlledEntity != null)
-                        return MySession.Static.ControlledEntity.GetHeadMatrix(false).Translation;
-                    else if (MySector.MainCamera != null)
-                        return MySector.MainCamera.Position;
-                    else
-                        return Vector3.Zero;
-                }
-                else
-                {
-                    if (MySector.MainCamera != null)
-                        return MySector.MainCamera.Position;
-                    else
-                        return Vector3.Zero;
-                }
+                return PlacementProvider.RayStart;
             }
         }
 
@@ -136,10 +126,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                if (PlacementProvider != null)
-                    return PlacementProvider.RayDirection;
-
-                return MySector.MainCamera.ForwardVector;
+                return PlacementProvider.RayDirection;
             }
         }
 
@@ -151,22 +138,28 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public interface IPlacementProvider
-        {
-            Vector3D RayStart { get; }
-            Vector3D RayDirection { get; }
-            MyPhysics.HitInfo? HitInfo { get; }
-            MyCubeGrid ClosestGrid { get; }
-            MyVoxelMap ClosestVoxelMap { get; }
-            bool CanChangePlacementObjectSize { get; }
+        private static IMyPlacementProvider m_placementProvider;
 
-            void RayCastGridCells(MyCubeGrid grid, List<Vector3I> outHitPositions, Vector3I gridSizeInflate);
+        public static IMyPlacementProvider PlacementProvider
+        {
+            get
+            {
+                return m_placementProvider;
+            }
+            set 
+            {
+                m_placementProvider = value ?? new MyDefaultPlacementProvider(IntersectionDistance);
+            }
         }
 
-        public static IPlacementProvider PlacementProvider { get; set; }
         public static MyCubeBuilderDefinition CubeBuilderDefinition
         {
             get {  return m_cubeBuilderDefinition; }
+        }
+
+        static MyBlockBuilderBase()
+        {
+            PlacementProvider = new MyDefaultPlacementProvider(IntersectionDistance);
         }
 
         public override void InitFromDefinition(MySessionComponentDefinition definition)
@@ -292,21 +285,7 @@ namespace Sandbox.Game.Entities
 
         public MyCubeGrid FindClosestGrid()
         {
-            LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * IntersectionDistance);
-
-            m_tmpHitList.Clear();
-            MyPhysics.CastRay(line.From, line.To, m_tmpHitList, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
-            // Remove character hits.
-            m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hit)
-            {
-                return (hit.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
-            });
-
-            if (m_tmpHitList.Count == 0)
-                return null;
-
-            MyCubeGrid closestGrid = m_tmpHitList[0].HkHitInfo.GetHitEntity() as MyCubeGrid;
-            return closestGrid;
+            return PlacementProvider.ClosestGrid;
         }
 
         /// <summary>
@@ -321,42 +300,9 @@ namespace Sandbox.Game.Entities
 
             if (MySession.Static.ControlledEntity == null) return false;
 
-            if (PlacementProvider != null)
-            {
-                closestGrid = PlacementProvider.ClosestGrid;
-                closestVoxelMap = PlacementProvider.ClosestVoxelMap;
-                m_hitInfo = PlacementProvider.HitInfo;
-            }
-            else
-            {
-                LineD line = new LineD(IntersectionStart, IntersectionStart + IntersectionDirection * IntersectionDistance);
-
-                MyPhysics.CastRay(line.From, line.To, m_tmpHitList,
-                    MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
-                // Remove character hits.
-
-                m_tmpHitList.RemoveAll(delegate(MyPhysics.HitInfo hitInfo)
-                {
-                    return (hitInfo.HkHitInfo.GetHitEntity() == MySession.Static.ControlledEntity.Entity);
-                });
-
-                if (m_tmpHitList.Count == 0)
-                    return false;
-                
-                var hit = m_tmpHitList[0];
-                closestGrid = hit.HkHitInfo.GetHitEntity() as MyCubeGrid;
-                if (closestGrid != null)
-                {
-                    m_hitInfo = hit;
-                }
-
-            //if (MyFakes.ENABLE_BLOCK_PLACEMENT_ON_VOXEL) // TODO: check this MyFake to remove or what?
-            //{
-                closestVoxelMap = hit.HkHitInfo.GetHitEntity() as MyVoxelBase;
-                    if (closestVoxelMap != null)
-                        m_hitInfo = hit;
-            //}
-            }
+            closestGrid = PlacementProvider.ClosestGrid;
+            closestVoxelMap = PlacementProvider.ClosestVoxelMap;
+            m_hitInfo = PlacementProvider.HitInfo;
 
             return closestGrid != null || closestVoxelMap != null;
         }
@@ -464,10 +410,7 @@ namespace Sandbox.Game.Entities
 
             if (grid != null)
             {
-                if (PlacementProvider != null)
-                    PlacementProvider.RayCastGridCells(grid, outHitPositions, gridSizeInflate);
-                else
-                    grid.RayCastCells(IntersectionStart, IntersectionStart + IntersectionDirection * maxDist, outHitPositions, gridSizeInflate);
+                PlacementProvider.RayCastGridCells(grid, outHitPositions, gridSizeInflate, maxDist);
             }
             else
             {
@@ -622,8 +565,5 @@ namespace Sandbox.Game.Entities
             counter = Vector3I.Abs(end - start) / rotatedSize + Vector3I.One;
             stepCount = counter.Size;
         }
-
-
-
     }
 }

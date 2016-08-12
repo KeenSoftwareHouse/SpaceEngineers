@@ -157,6 +157,9 @@ namespace Sandbox.Game.Entities
 
         private int m_lastInputHandleTime;
 
+        private bool m_alignToDefault = false;
+        private int m_lastDefault = 0;
+
         protected MyBlockBuilderRotationHints m_rotationHints = new MyBlockBuilderRotationHints();
         protected MyBlockBuilderRenderData m_renderData = new MyBlockBuilderRenderData();
 
@@ -775,7 +778,8 @@ namespace Sandbox.Game.Entities
 
             DynamicMode = false;
             IntersectionDistance = CubeBuilderDefinition.DefaultBlockBuildingDistance;
-            PlacementProvider = null;
+            //VR:TODO:check if this didnt break something
+            //PlacementProvider = null;
             m_rotationHints.ReleaseRenderData();
 
             MyCoordinateSystem.Static.Visible = false;
@@ -1098,6 +1102,12 @@ namespace Sandbox.Game.Entities
         {
             if (IsActivated)
             {
+                bool defaultMountPoint = MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_DEFAULT_MOUNTPOINT);
+                if (defaultMountPoint)
+                {
+                    m_lastDefault++;
+                    m_alignToDefault = true;
+                }
                 for (int i = 0; i < 6; ++i)
                 {
                     bool standardRotation = MyControllerHelper.IsControl(context, m_rotationControls[i], MyControlStateType.PRESSED);
@@ -1145,17 +1155,17 @@ namespace Sandbox.Game.Entities
                                 if (!newPress)
                                     return false;
                                 angleDelta = MathHelper.PiOver2;
-                        }
+                            }
                             if (MyInput.Static.IsAnyAltKeyPressed())
                             {
                                 if (!newPress)
                                     return false;
                                 angleDelta = MathHelper.ToRadians(1);
-                    }
+                            }
 
                             RotateAxis(axis, direction, angleDelta, newPress);
-                }
-            }
+                        }
+                    }
                 }
             }
 
@@ -2901,30 +2911,53 @@ namespace Sandbox.Game.Entities
 
         Vector3I? GetSingleMountPointNormal()
         {
-			if (CurrentBlockDefinition == null)
+            if (CurrentBlockDefinition == null)
                 return null;
 
-			var currentBlockMountPoints = CurrentBlockDefinition.GetBuildProgressModelMountPoints(1.0f);
-			if (currentBlockMountPoints == null || currentBlockMountPoints.Length == 0)
-				return null;
+            var currentBlockMountPoints = CurrentBlockDefinition.GetBuildProgressModelMountPoints(1.0f);
+            if (currentBlockMountPoints == null || currentBlockMountPoints.Length == 0)
+                return null;
 
-			var normal = currentBlockMountPoints[0].Normal;
+            var normal = currentBlockMountPoints[0].Normal;
+            if (m_alignToDefault)
+            {
+                m_alignToDefault = false;
+                for (int i = m_lastDefault; i < currentBlockMountPoints.Length + m_lastDefault; i++)
+                {
+                    int index = i % currentBlockMountPoints.Length;
+                    if (currentBlockMountPoints[index].Default)
+                    {
+                        m_lastDefault = index;
+                        return currentBlockMountPoints[index].Normal;
+                    }
+                }
+                for (int i = m_lastDefault; i < currentBlockMountPoints.Length + m_lastDefault; i++)
+                {
+                    int index = i % currentBlockMountPoints.Length;
+                    if (MyCubeBlockDefinition.NormalToBlockSide(currentBlockMountPoints[index].Normal) == BlockSideEnum.Bottom)
+                    {
+                        m_lastDefault = index;
+                        return currentBlockMountPoints[index].Normal;
+                    }
+                }
+            }
+
             var oppositeNormal = -normal;
             switch (CurrentBlockDefinition.AutorotateMode)
             {
                 case MyAutorotateMode.OneDirection:
-					for (int i = 1; i < currentBlockMountPoints.Length; i++)
+                    for (int i = 1; i < currentBlockMountPoints.Length; i++)
                     {
-						var currentNormal = currentBlockMountPoints[i].Normal;
+                        var currentNormal = currentBlockMountPoints[i].Normal;
                         if (currentNormal != normal)
                             return null;
                     }
                     break;
 
                 case MyAutorotateMode.OppositeDirections:
-					for (int i = 1; i < currentBlockMountPoints.Length; i++)
+                    for (int i = 1; i < currentBlockMountPoints.Length; i++)
                     {
-						var currentNormal = currentBlockMountPoints[i].Normal;
+                        var currentNormal = currentBlockMountPoints[i].Normal;
                         if (currentNormal != normal && currentNormal != oppositeNormal)
                             return null;
                     }

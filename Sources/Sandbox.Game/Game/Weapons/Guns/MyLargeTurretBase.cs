@@ -1095,7 +1095,7 @@ namespace Sandbox.Game.Weapons
             {
                 //by Gregory RotationAndElevation uses target! maybe shouldn't?
                 bool isAimed = Target != null && RotationAndElevation() && CanShoot(out gunStatus) && IsTargetVisible(Target);
-                UpdateShooting(isAimed && !m_isPotentialTarget);//TODO smaz todo
+                UpdateShooting(isAimed && !m_isPotentialTarget);
             }
             else
             {
@@ -2132,7 +2132,8 @@ namespace Sandbox.Game.Weapons
             {
 
                 targetRange = (float)GetTargetDistance();
-                if (targetRange >= m_searchingRange)
+                //GR: if in range and not enemy then this is no target (may happen if entiy is in range and have changed faction)
+                if (targetRange >= m_searchingRange || !IsTargetEnemy(Target))
                 {
                     nearestTarget = GetNearestVisibleTarget(m_searchingRange, true);
                 }
@@ -2173,12 +2174,7 @@ namespace Sandbox.Game.Weapons
 
             //nearestTarget = GetNearestVisibleTarget(m_shootingRange, false);
             //m_isPotentialTarget = false;
-
-            if (m_isPotentialTarget != oldPotentialState && nearestTarget == Target)
-            {
-                Target = null;
-            }
-
+            
             if (MyFakes.FakeTarget != null && IsTargetVisible(MyFakes.FakeTarget, MyFakes.FakeTarget.WorldMatrix.Translation))
             {
                 Target = MyFakes.FakeTarget;
@@ -2186,6 +2182,11 @@ namespace Sandbox.Game.Weapons
             else
             {
                 Target = nearestTarget;
+            }
+
+            if (nearestTarget == Target && m_isPotentialTarget != oldPotentialState)
+            {
+                Target = null;
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();

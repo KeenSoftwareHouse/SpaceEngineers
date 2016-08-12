@@ -247,7 +247,7 @@ namespace Sandbox.Game.Screens.Helpers
 
             MyCockpit cockpit = Owner as MyCockpit;
             if (cockpit != null && cockpit.CubeGrid != null)
-                cockpit.CubeGrid.OnBlockRemoved += OnBlockRemoved;
+                cockpit.CubeGrid.OnBlockClosed += OnBlockClosed;
         }
 
         public MyObjectBuilder_Toolbar GetObjectBuilder()
@@ -447,7 +447,7 @@ namespace Sandbox.Game.Screens.Helpers
             Update();
         }
 
-        private void OnBlockRemoved(MySlimBlock block)
+        private void OnBlockClosed(MySlimBlock block)
         {
             if (block.FatBlock == null)
                 return;

@@ -699,7 +699,7 @@ namespace Sandbox.Graphics.GUI
                             // drawing of control in the centre of the cell
                             cell.Control.Position = cellPos + cellSize*0.5f;    
                             cell.Control.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
-                            cell.Control.Draw(1, 1);
+                            cell.Control.Draw(transitionAlpha, transitionAlpha);
                         }
                         else
                         if (cell != null && cell.Text != null)

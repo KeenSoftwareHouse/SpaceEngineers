@@ -417,7 +417,7 @@ namespace VRageRender
                                     offsetX, offsetY, 0, 1
                                     );
 
-                                worldToClip = MyRenderProxy.BillboardsViewProjectionRead[message.CustomViewProjection].View * MyRenderProxy.BillboardsViewProjectionRead[message.CustomViewProjection].Projection * viewportTransformation;
+                                worldToClip = MyRenderProxy.BillboardsViewProjectionRead[message.CustomViewProjection].ViewAtZero * MyRenderProxy.BillboardsViewProjectionRead[message.CustomViewProjection].Projection * viewportTransformation;
                             }
 
                             var clipPosition = Vector3D.Transform(position, ref worldToClip);

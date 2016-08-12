@@ -38,7 +38,11 @@ namespace VRage.Network
 
         public static int GetHashFromType(Type type)
         {
-            return MyStringHash.GetOrCompute(type.FullName).GetHashCode();
+            // CH: Don't use type.FullName, because for generic types you'll get something like this:
+            // Namespace.MyGenericType`1[[OtherNamespace.MyWhatever, AssemblyName, Version=1.0.2.0, Cuntulre=neutral, PublicKeyToken=null]]
+            // The problem is that "Version" will be different when building at different times (e.g. when testing on 2 computers from SVN)
+            // type.ToString() should be safe for that purpose
+            return MyStringHash.GetOrCompute(type.ToString()).GetHashCode();
         }
     }
 }

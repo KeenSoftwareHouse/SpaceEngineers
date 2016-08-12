@@ -184,7 +184,10 @@ namespace Sandbox.Game.Entities
                 foreach (var pair in m_mapIdToBlock)
                 {
                     objectBuilder.BlockIds[counter] = pair.Key;
-                    objectBuilder.Blocks[counter] = pair.Value.GetObjectBuilder();
+                    if(!copy)
+                        objectBuilder.Blocks[counter] = pair.Value.GetObjectBuilder();
+                    else
+                        objectBuilder.Blocks[counter] = pair.Value.GetCopyObjectBuilder();
                     ++counter;
                 }
             }

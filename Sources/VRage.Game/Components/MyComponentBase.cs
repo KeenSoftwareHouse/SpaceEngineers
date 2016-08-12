@@ -73,7 +73,7 @@ namespace VRage.Game.Components
         {
         }
 
-        public virtual MyObjectBuilder_ComponentBase Serialize()
+        public virtual MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             return MyComponentFactory.CreateObjectBuilder(this);
         }

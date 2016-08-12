@@ -763,6 +763,7 @@ namespace Sandbox.Game.Gui
             planetInitArguments.SpherizeWithDistance = true;
             planetInitArguments.Generator = planetDefinition;
             planetInitArguments.UserCreated = true;
+            planetInitArguments.InitializeComponents = true;
 
             planet.Init(planetInitArguments);
 

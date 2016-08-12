@@ -46,7 +46,7 @@ namespace Sandbox.Game.Replication
         protected abstract object GetInstance();
         protected abstract void OnHook();
 
-        public bool IsChild { get; protected set; }
+        public abstract bool IsChild { get; }
         public abstract IMyReplicable GetDependency();
         public abstract float GetPriority(MyClientInfo client);
         public abstract bool OnSave(BitStream stream);

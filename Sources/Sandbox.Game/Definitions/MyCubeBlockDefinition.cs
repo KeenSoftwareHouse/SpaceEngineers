@@ -204,6 +204,11 @@ namespace Sandbox.Definitions
 			/// </summary>
 			public bool Enabled;
 
+            /// <summary>
+            /// Mark mount point as default for autorotate.
+            /// </summary>
+            public bool Default;
+
             public MyObjectBuilder_CubeBlockDefinition.MountPoint GetObjectBuilder(Vector3I cubeSize)
             {
                 MyObjectBuilder_CubeBlockDefinition.MountPoint ob = new MyObjectBuilder_CubeBlockDefinition.MountPoint();
@@ -221,6 +226,7 @@ namespace Sandbox.Definitions
                 ob.ExclusionMask = ExclusionMask;
                 ob.PropertiesMask = PropertiesMask;
 				ob.Enabled = Enabled;
+                ob.Default = Default;
 
                 return ob;
             }
@@ -998,6 +1004,7 @@ namespace Sandbox.Definitions
 				mountPoints[i].ExclusionMask = mpBuilder.ExclusionMask;
 				mountPoints[i].PropertiesMask = mpBuilder.PropertiesMask;
 				mountPoints[i].Enabled = mpBuilder.Enabled;
+                mountPoints[i].Default = mpBuilder.Default;
 			}
 		}
 

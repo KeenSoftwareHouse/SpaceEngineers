@@ -350,7 +350,7 @@ namespace Sandbox.Game.Screens.Terminal
                     output.Add(broadcaster);
                     continue;
                 }
-                if (ent.EntityId == grid.EntityId)
+                if (ent !=null && ent.EntityId == grid.EntityId)
                     output.Add(broadcaster);
             }
         }

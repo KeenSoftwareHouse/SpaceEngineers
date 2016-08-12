@@ -26,6 +26,7 @@ using VRage;
 
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Collections;
 using VRage.Game;
 
 #endregion
@@ -129,9 +130,9 @@ namespace Sandbox.Engine.Physics
         public delegate void PhysicsContactHandler(ref MyPhysics.MyContactPointEvent e);
         public event PhysicsContactHandler ContactPointCallback;
 
-        protected HashSet<HkConstraint> m_constraints = new HashSet<HkConstraint>();
-        protected HashSet<HkConstraint> m_constraintsAddBatch = new HashSet<HkConstraint>();
-        HashSet<HkConstraint> m_constraintsRemoveBatch = new HashSet<HkConstraint>();
+        private readonly HashSet<HkConstraint> m_constraints = new HashSet<HkConstraint>();
+        private readonly List<HkConstraint> m_constraintsAddBatch = new List<HkConstraint>();
+        private readonly List<HkConstraint> m_constraintsRemoveBatch = new List<HkConstraint>();
 
         /// <summary>
         /// Gets or sets the mass.
@@ -1073,7 +1074,7 @@ false,
                 CloseRagdollMode(world as HkWorld);
             }
 
-            if (BreakableBody != null)
+            if (BreakableBody != null && m_world.DestructionWorld != null)
             {
                 m_world.DestructionWorld.RemoveBreakableBody(BreakableBody);
             }
@@ -1108,7 +1109,6 @@ false,
                 if (IsConstraintValid(constraint))
                 {
                     m_world.AddConstraint(constraint);
-                    constraint.OnAddedToWorld();
                 }
                 else
                     Debug.Fail("Trying to add invalid constraint!");
@@ -1133,7 +1133,6 @@ false,
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
                     world.RemoveConstraint(constraint);
                 }
                 else
@@ -1441,14 +1440,21 @@ false,
             ProfilerShort.End();
         }
 
-        public static bool IsConstraintValid(HkConstraint constraint)
+        private static bool IsConstraintValid(HkConstraint constraint, bool checkBodiesInWorld)
         {
             if (constraint == null) return false;
             if (constraint.IsDisposed) return false;
             if (constraint.RigidBodyA == null | constraint.RigidBodyB == null) return false;
-            if (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld) return false;
+            //bodies are not in world when using batches
+            if (checkBodiesInWorld && (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld)) return false;
             return true;
         }
+
+        public static bool IsConstraintValid(HkConstraint constraint)
+        {
+            return IsConstraintValid(constraint, true);
+        }
+
         public void AddConstraint(HkConstraint constraint)
         {
             if (IsWelded)
@@ -1458,23 +1464,17 @@ false,
             }
             if (HavokWorld == null || RigidBody == null)
                 return;
+            Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
+            Debug.Assert(IsConstraintValid(constraint), "Cannot add invalid constraint");
+
             if (constraint.UserData == 0)
                 constraint.UserData = (uint)(WeldedRigidBody == null ? RigidBody.GetGcRoot() : WeldedRigidBody.GetGcRoot());
 
-            Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
-
-            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
-            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
-            Debug.Assert(constraint.RigidBodyA.IsAddedToWorld);
-            Debug.Assert(constraint.RigidBodyB.IsAddedToWorld);
             m_constraints.Add(constraint);
 
             HavokWorld.AddConstraint(constraint);
-
-            if (constraint.InWorld)
-                constraint.OnAddedToWorld();
-            else
-                Debug.Fail("Constraint not added!");
         }
 
         public void RemoveConstraint(HkConstraint constraint)
@@ -1491,12 +1491,11 @@ false,
 
             if (HavokWorld != null)
             {
-                constraint.OnRemovedFromWorld();
                 HavokWorld.RemoveConstraint(constraint);
             }
         }
 
-        public HashSet<HkConstraint> Constraints
+        public HashSetReader<HkConstraint> Constraints
         {
             get { return m_constraints; }
         }
@@ -1641,7 +1640,8 @@ false,
 
             foreach (var constraint in m_constraints)
             {
-                if (!IsConstraintValid(constraint)) continue;
+                //boides wont be in world yet here
+                if (!IsConstraintValid(constraint,false)) continue;
                 m_constraintsAddBatch.Add(constraint);
             }
 

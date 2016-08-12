@@ -57,6 +57,7 @@ namespace Sandbox.Game.World
                     planetInitArguments.SpherizeWithDistance = true;
                     planetInitArguments.Generator = planetDefinition;
                     planetInitArguments.UserCreated = false;
+                    planetInitArguments.InitializeComponents = true;
 
                     planet.Init(planetInitArguments);
                     MyEntities.Add(planet);
@@ -130,6 +131,7 @@ namespace Sandbox.Game.World
                 planetInitArguments.SpherizeWithDistance = true;
                 planetInitArguments.Generator = generatorDef;
                 planetInitArguments.UserCreated = userCreated;
+                planetInitArguments.InitializeComponents = true;
 
                 planet.Init(planetInitArguments);
 

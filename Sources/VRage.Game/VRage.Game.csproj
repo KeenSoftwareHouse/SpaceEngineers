@@ -60,6 +60,9 @@
   <PropertyGroup>
     <HavokDir>HavokWrapper_SE</HavokDir>
   </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(SolutionDir)\global.props" Condition="exists('$(SolutionDir)\global.props')" />
+  </ImportGroup>
   <PropertyGroup>
     <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
   </PropertyGroup>
@@ -261,6 +264,10 @@
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_EntityOwnershipComponent.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_SessionComponentResearch.cs" />
     <Compile Include="ObjectBuilders\Components\MyObjectBuilder_ItemAutoswitchComponent.cs" />
+    <Compile Include="ObjectBuilders\Definitions\GUI\MyObjectBuilder_ButtonListStyleDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\GUI\MyObjectBuilder_GuiSkinDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\GUI\SerializableCompositeTexture.cs" />
+    <Compile Include="ObjectBuilders\Gui\MyObjectBuilder_GuiControlImageButton.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_SchematicItem.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_BlockBlueprintDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_DefinitionsToPreload.cs" />

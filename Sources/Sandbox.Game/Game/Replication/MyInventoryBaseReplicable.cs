@@ -135,5 +135,10 @@ namespace Sandbox.Game.Replication
                 RaiseDestroyed();
             }
         }
+
+        public override bool IsChild
+        {
+            get { return false; }
+        }
     }
 }

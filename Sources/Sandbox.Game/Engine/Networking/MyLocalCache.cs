@@ -157,6 +157,22 @@ namespace Sandbox.Engine.Networking
             return result;
         }
 
+        public static MyObjectBuilder_CubeGrid LoadCubeGrid(string sessionPath, string fileName, out ulong sizeInBytes)
+        {
+            MyObjectBuilder_CubeGrid result;
+
+            var cubeGridFile = Path.Combine(sessionPath, fileName);
+            MyObjectBuilderSerializer.DeserializeXML<MyObjectBuilder_CubeGrid>(cubeGridFile, out result, out sizeInBytes);
+
+            if (result == null)
+            {
+                MySandboxGame.Log.WriteLine("Incorrect save data");
+                return null;
+            }
+            return result;
+
+        }
+
         public static bool SaveSector(MyObjectBuilder_Sector sector, string sessionPath, Vector3I sectorPosition, out ulong sizeInBytes)
         {
             var relativePath = GetSectorPath(sessionPath, sectorPosition);
@@ -173,6 +189,12 @@ namespace Sandbox.Engine.Networking
         {
             var checkpointFile = Path.Combine(sessionPath, CHECKPOINT_FILE);
             return MyObjectBuilderSerializer.SerializeXML(checkpointFile, MySandboxGame.Config.CompressSaveGames, checkpoint, out sizeInBytes);
+        }
+
+        public static bool SaveRespawnShip(MyObjectBuilder_CubeGrid cubegrid, string sessionPath, string fileName, out ulong sizeInBytes)
+        {
+            var cubeGridFile = Path.Combine(sessionPath, fileName);
+            return MyObjectBuilderSerializer.SerializeXML(cubeGridFile, MySandboxGame.Config.CompressSaveGames, cubegrid, out sizeInBytes);
         }
 
         public static List<Tuple<string, MyWorldInfo>> GetAvailableWorldInfos()

@@ -2279,5 +2279,33 @@ namespace Sandbox.Game.Entities
             }
             return null;
         }
+
+        public static MyEntity CreateEntity(MyDefinitionId entityContainerId, bool setPosAndRot = false, Vector3? position = null, Vector3? up = null, Vector3? forward = null)
+        {
+            MyContainerDefinition definition;
+            if (MyDefinitionManager.Static.TryGetContainerDefinition(entityContainerId, out definition))
+            {
+                var ob = MyObjectBuilderSerializer.CreateNewObject(entityContainerId) as MyObjectBuilder_EntityBase;
+
+                if (ob != null)
+                {
+                    if (setPosAndRot)
+                    {
+                        ob.PositionAndOrientation = new VRage.MyPositionAndOrientation(position.HasValue ? position.Value : Vector3.Zero, forward.HasValue ? forward.Value : Vector3.Forward, up.HasValue ? up.Value : Vector3.Up);
+                    }
+
+                    var entity = MyEntities.CreateFromObjectBuilder(ob);
+                    Debug.Assert(entity != null, "Entity wasn't created!");
+                    return entity;
+                }
+                else
+                {
+                    System.Diagnostics.Debug.Fail("Entity Creation Error: Couldn't create an object builder and cast is as MyObjectBuilder_EntityBase");
+                }
+
+                return null;
+            }
+            return null;
+        }
     }
 }

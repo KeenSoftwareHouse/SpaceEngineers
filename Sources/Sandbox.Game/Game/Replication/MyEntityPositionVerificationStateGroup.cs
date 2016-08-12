@@ -103,14 +103,9 @@ namespace Sandbox.Game.Replication
             if (Entity.Physics == null || Entity.Physics.IsStatic)
                 return 0;
 
-            if (Sync.IsServer && m_clientUpdateFlag[forClient.EndpointId.Value] == false)
-            {
-                return 0;
-            }
-
             if (MyEntityPhysicsStateGroup.ResponsibleForUpdate(Entity, forClient.EndpointId))
             {
-                return 1;
+                return 1000;
             }
 
             return 0;     
@@ -167,75 +162,86 @@ namespace Sandbox.Game.Replication
 
         void ServerWrite(VRage.Library.Collections.BitStream stream, ulong clientId)
         {
-            ClientData clientData = m_serverClientData[clientId];
-            m_clientUpdateFlag[clientId] = false;
-
-            stream.WriteUInt32(clientData.TimeStamp);
-
-            MyTransformD serverData = new MyTransformD(Entity.WorldMatrix);
-
-
-            //rotation is calculated same way for both
-            Quaternion serverRotation = serverData.Rotation;
-            serverRotation.Normalize();
-            clientData.Transform.Rotation.Normalize();
-
-            MyTimeStampValues delta = new MyTimeStampValues();
-
-            serverRotation = Quaternion.Inverse(serverRotation);
-            Quaternion.Multiply(ref clientData.Transform.Rotation, ref serverRotation, out delta.Transform.Rotation);
-
-            bool apply = false;
-            double eps = 0.001;
-            if (Math.Abs(Quaternion.Dot(clientData.Transform.Rotation, serverData.Rotation)) < 1 - eps)
+            bool clientUpdate = m_clientUpdateFlag[clientId];
+            stream.WriteBool(clientUpdate);
+            if (clientUpdate)
             {
-                apply = true;
-            }
+                ClientData clientData = m_serverClientData[clientId];
+                m_clientUpdateFlag[clientId] = false;
 
-            bool isValidPosition = true;
-            bool correctServerposition = false;
+                stream.WriteUInt32(clientData.TimeStamp);
 
-            CalculatePositionDifference(clientId, out isValidPosition, out correctServerposition, out delta.Transform.Position);
+                MyTransformD serverData = new MyTransformD(Entity.WorldMatrix);
 
-            bool sendUpdate = !isValidPosition;
 
-            if (correctServerposition)
-            {
-                apply = true;
-            }
+                //rotation is calculated same way for both
+                Quaternion serverRotation = serverData.Rotation;
+                serverRotation.Normalize();
+                clientData.Transform.Rotation.Normalize();
 
-            if (apply)
-            {
-                MatrixD matrix = Entity.WorldMatrix;
-                MatrixD correctionMatrix = MatrixD.Multiply(matrix.GetOrientation(), delta.Transform.TransformMatrix);
-                correctionMatrix.Translation += Entity.WorldMatrix.Translation;
-                Entity.PositionComp.SetWorldMatrix(correctionMatrix, null, true);
+                MyTimeStampValues delta = new MyTimeStampValues();
 
-                MyEntityPhysicsStateGroup support = MySupportHelper.FindPhysics(Entity);
-                if(support != null && support.MoveHandler != null)
+                serverRotation = Quaternion.Inverse(serverRotation);
+                Quaternion.Multiply(ref clientData.Transform.Rotation, ref serverRotation, out delta.Transform.Rotation);
+
+                bool applyRotation = false;
+                double eps = 0.001;
+                if (Math.Abs(Quaternion.Dot(clientData.Transform.Rotation, serverData.Rotation)) < 1 - eps)
                 {
-                    support.MoveHandler(ref matrix, ref correctionMatrix);
+                    applyRotation = true;
                 }
-               
-            }
 
+                bool isValidPosition = true;
+                bool correctServerPosition = false;
+
+                CalculatePositionDifference(clientId, out isValidPosition, out correctServerPosition, out delta.Transform.Position);
+
+                bool isValidClientPosition = isValidPosition;
+
+                if ((correctServerPosition && isValidPosition) || applyRotation)
+                {
+                    MatrixD matrix = Entity.WorldMatrix;
+                    MatrixD correctionMatrix = MatrixD.Multiply(matrix.GetOrientation(), delta.Transform.TransformMatrix);
+                    correctionMatrix.Translation += Entity.WorldMatrix.Translation;
+
+                    if (correctServerPosition)
+                    {
+                        isValidClientPosition = IsPositionValid(new MyTransformD(correctionMatrix));
+                    }
+
+                    if (isValidClientPosition)
+                    {
+                        Entity.PositionComp.SetWorldMatrix(correctionMatrix, null, true);
+                        MyEntityPhysicsStateGroup support = MySupportHelper.FindPhysics(Entity);
+                        if (support != null && support.MoveHandler != null)
+                        {
+                            support.MoveHandler(ref matrix, ref correctionMatrix);
+                        }
+                    }
+                    else if (applyRotation)
+                    {
+                        correctionMatrix.Translation = Entity.WorldMatrix.Translation;
+                        Entity.PositionComp.SetWorldMatrix(correctionMatrix, null, true);
+                    }
+
+                }
+
+                stream.WriteBool(!isValidClientPosition);
+
+                if (!isValidClientPosition)
+                {
+                    serverData = new MyTransformD(Entity.WorldMatrix);
+                    stream.Write(serverData.Position);
+
+                    CustomServerWrite(m_serverClientData[clientId].TimeStamp, clientId, stream);
+                }
+            }
 
             stream.Write(Entity.Physics != null ? Entity.Physics.LinearVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero);
-            stream.Write(Entity.Physics != null ? Entity.Physics.AngularVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero);
-
-            stream.WriteBool(sendUpdate);
-
-            if (sendUpdate)
-            {
-                serverData = new MyTransformD(Entity.WorldMatrix);
-                stream.Write(serverData.Position);
-                stream.WriteQuaternion(serverData.Rotation);
-
-                CustomServerWrite(m_serverClientData[clientId].TimeStamp, clientId, stream);
-            }
+            stream.Write(Entity.Physics != null ? Entity.Physics.AngularVelocity * MyEntityPhysicsStateGroup.EffectiveSimulationRatio : Vector3.Zero);           
         }
 
-        protected abstract void CalculatePositionDifference(ulong clientId, out bool isValid, out bool correctServer, out Vector3D delta);
+        protected abstract void CalculatePositionDifference(ulong clientId, out bool positionValid, out bool correctServer, out Vector3D delta);
 
         protected virtual void CustomServerWrite(uint timeStamp, ulong clientId, VRage.Library.Collections.BitStream stream)
         {
@@ -244,34 +250,49 @@ namespace Sandbox.Game.Replication
 
         void ClientRead(VRage.Library.Collections.BitStream stream)
         {
-            uint timeStamp = stream.ReadUInt32();
-            m_lastRecievedTimeStamp = timeStamp;
+            bool hasClientData= stream.ReadBool();
+            uint? timeStamp = null;
+            if (hasClientData)
+            {
+                timeStamp = stream.ReadUInt32();
+                m_lastRecievedTimeStamp = timeStamp.Value;
+        
+                bool isUpdate = stream.ReadBool();
+                if (isUpdate)
+                {
+                    MyTransformD serverTransform = new MyTransformD();
+                    serverTransform.Position = stream.ReadVector3D();
+                    serverTransform.Rotation = Quaternion.Identity;
+
+                    CustomClientRead(timeStamp.Value, ref serverTransform, stream);
+                }
+            }
 
             Vector3 serverLinearVelocity = stream.ReadVector3();
             Vector3 serverAngularVelocity = stream.ReadVector3();
 
-            MyTimeStampValues? clientData = m_timestamp.GetTransform(timeStamp);
+            MyTimeStampValues? clientData = null;
+            if (timeStamp.HasValue)
+            {
+                clientData = m_timestamp.GetTransform(timeStamp.Value);
+            }
 
             if (clientData.HasValue)
             {
-               Vector3D linearDelta = serverLinearVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio - clientData.Value.LinearVelocity;
-                Entity.Physics.LinearVelocity += Vector3D.Round(linearDelta,2);
-                Vector3D angularDelta = serverAngularVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio - clientData.Value.AngularVelocity;
-                Entity.Physics.AngularVelocity += Vector3D.Round(angularDelta, 2);
+                Vector3 linearDelta = serverLinearVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio - clientData.Value.LinearVelocity;
+                Entity.Physics.LinearVelocity += Vector3.Round(linearDelta, 2);
+                Vector3 angularDelta = serverAngularVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio - clientData.Value.AngularVelocity;
+                Entity.Physics.AngularVelocity += Vector3.Round(angularDelta, 2);
 
-                m_timestamp.UpdateDeltaVelocities(timeStamp, ref linearDelta, ref angularDelta);
+                m_timestamp.UpdateDeltaVelocities(timeStamp.Value, ref linearDelta, ref angularDelta);
             }
-            
-
-            bool isUpdate = stream.ReadBool();
-            if (isUpdate)
+            else
             {
-                MyTransformD serverTransform = new MyTransformD();
-                serverTransform.Position = stream.ReadVector3D();
-                serverTransform.Rotation = stream.ReadQuaternion();
-                serverTransform.Rotation = Quaternion.Identity;
+                Vector3 linearVelocity = serverLinearVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
+                Entity.Physics.LinearVelocity = Vector3.Round(linearVelocity, 2);
+                Vector3 angularVelocity = serverAngularVelocity / MyEntityPhysicsStateGroup.EffectiveSimulationRatio;
+                Entity.Physics.AngularVelocity = Vector3.Round(angularVelocity, 2);
 
-                CustomClientRead(timeStamp, ref serverTransform, stream);
             }
         }
 
@@ -296,6 +317,11 @@ namespace Sandbox.Game.Replication
         public MyEntityPositionVerificationStateGroup(MyEntity entity)
         {
             Entity = entity;
+        }
+
+        protected virtual bool IsPositionValid(MyTransformD clientPos)
+        {
+            return true;
         }
     }
 }

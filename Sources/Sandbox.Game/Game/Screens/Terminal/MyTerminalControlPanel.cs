@@ -185,6 +185,8 @@ namespace Sandbox.Game.Gui
             m_showAll.Selected = m_showAllTerminalBlocks;
             ClearBlockList();
             PopulateBlockList();
+            //GR: Scroll toolbar to top manually when needed from individual controls
+            m_blockListbox.ScrollToolbarToTop();
         }
 
         void groupSave_ButtonClicked(MyGuiControlButton obj)
@@ -249,6 +251,8 @@ namespace Sandbox.Game.Gui
                 foreach (var item in m_blockListbox.Items)
                     item.Visible = true;
             }
+            //GR: Scroll toolbar to top manually when needed from individual controls
+            m_blockListbox.ScrollToolbarToTop();
             //SelectBlocks();
         }
 
@@ -580,6 +584,8 @@ namespace Sandbox.Game.Gui
         {
             ClearBlockList();
             PopulateBlockList();
+            //GR: Scroll toolbar to top manually when needed from individual controls
+            m_blockListbox.ScrollToolbarToTop();
         }
     }
 }

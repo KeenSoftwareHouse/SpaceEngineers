@@ -220,6 +220,7 @@ namespace Sandbox.Game.GameSystems
         /// </summary>
         public Vector3 ControlThrust { get { return m_controlThrust; } set { if (m_controlThrust != value) m_controlThrustChanged = true; m_controlThrust = value; } }
 
+        public Vector3 ControlTrustNetwork;
         /// <summary>
         /// Final thrust (clamped by available power, added anti-gravity, slowdown).
         /// </summary>
@@ -1035,11 +1036,8 @@ namespace Sandbox.Game.GameSystems
                     if (RecomputeOverriddenParameters(thrustEntity, fuelData))
                         continue;
 
-                    if (!IsUsed(thrustEntity) && !m_secondFrameUpdate)
-                    {
+                    if (!IsUsed(thrustEntity))
                         continue;
-                    }
-
 
                     var forceMagnitude = ForceMagnitude(thrustEntity, m_lastPlanetaryInfluence, m_lastPlanetaryInfluenceHasAtmosphere);
                     var forceMultiplier = CalculateForceMultiplier(thrustEntity, m_lastPlanetaryInfluence, m_lastPlanetaryInfluenceHasAtmosphere);
@@ -1228,7 +1226,13 @@ namespace Sandbox.Game.GameSystems
 
             if (DampenersEnabled && (Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
             {
-                slowdownControl = Vector3.IsZeroVector(controlThrust, 0.001f) * Vector3.IsZeroVector(fuelData.ThrustOverride);
+                Vector3 networkThrust = Vector3.Zero;
+                if(applyLocalVelocity == false)
+                {
+                    networkThrust = ControlTrustNetwork;
+                }
+
+                slowdownControl = Vector3.IsZeroVector(controlThrust + networkThrust, 0.001f) * Vector3.IsZeroVector(fuelData.ThrustOverride);
                 Vector3 maxThrust = m_totalMaxNegativeThrust + m_totalMaxPositiveThrust;
                 Vector3 ratioOfTotal = (fuelData.MaxPositiveThrust + fuelData.MaxNegativeThrust) / (maxThrust);
                 if (!ratioOfTotal.X.IsValid())
@@ -1239,6 +1243,11 @@ namespace Sandbox.Game.GameSystems
                     ratioOfTotal.Z = 1;
 
                 slowdownControl *= ratioOfTotal;
+
+                if (applyLocalVelocity == false)
+                {
+                    ControlTrustNetwork = Vector3.Zero;
+                }
             }
 
             ProfilerShort.End();

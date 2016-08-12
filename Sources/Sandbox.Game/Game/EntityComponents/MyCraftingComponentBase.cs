@@ -1166,7 +1166,7 @@ namespace Sandbox.Game.Components
             m_lockedByEntityId = -1;
         }
 
-        public override VRage.Game.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = base.Serialize();
             var craftBuilder = builder as MyObjectBuilder_CraftingComponentBase;

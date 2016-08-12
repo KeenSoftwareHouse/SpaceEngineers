@@ -96,6 +96,7 @@ namespace Sandbox.Game.Gui
                             if (body == null || body.Layer == MyPhysics.CollisionLayers.NoCollisionLayer)
                                 continue;
                             SelectedEntity = hit.HkHitInfo.GetHitEntity();
+                            break;
                         }
                     }
 

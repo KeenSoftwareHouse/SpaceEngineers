@@ -339,7 +339,7 @@ namespace Sandbox.Game.Components
             UpdateOperatingLevel();
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_CraftingComponentBlock;
             

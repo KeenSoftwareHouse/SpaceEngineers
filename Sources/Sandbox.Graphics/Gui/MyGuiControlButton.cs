@@ -20,6 +20,7 @@ namespace Sandbox.Graphics.GUI
     }
 
     [MyGuiControlType(typeof(MyObjectBuilder_GuiControlButton))]
+    [Obsolete("Use MyGuiControlImageButton instead")]
     public class MyGuiControlButton : MyGuiControlBase
     {
         #region Styles
@@ -211,8 +212,6 @@ namespace Sandbox.Graphics.GUI
 
         public event Action<MyGuiControlButton> ButtonClicked;
 
-        protected bool m_implementedFeature;
-
         private StringBuilder m_drawText = new StringBuilder();
 
         private bool m_drawRedTextureWhenDisabled = true;
@@ -256,7 +255,6 @@ namespace Sandbox.Graphics.GUI
             float textScale                           = MyGuiConstants.DEFAULT_TEXT_SCALE,
             MyGuiDrawAlignEnum textAlignment          = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
             MyGuiControlHighlightType highlightType   = MyGuiControlHighlightType.WHEN_ACTIVE,
-            bool implementedFeature                   = true,
             Action<MyGuiControlButton> onButtonClick  = null,
             GuiSounds cueEnum                   = GuiSounds.MouseClick,
             float buttonScale                         = 1.0f,
@@ -268,12 +266,11 @@ namespace Sandbox.Graphics.GUI
                     toolTip:         toolTip,
                     highlightType:   highlightType,
                     originAlign:     originAlign,
-                    canHaveFocus:    implementedFeature)
+                    canHaveFocus:    true)
         {
             Name                             = "Button";
             ButtonClicked                    = onButtonClick;
             Index                            = buttonIndex ?? 0;
-            m_implementedFeature             = implementedFeature;
             UpdateText();
 
             m_drawText.Clear().Append(text);
@@ -312,14 +309,7 @@ namespace Sandbox.Graphics.GUI
                     (HasFocus &&  (MyInput.Static.IsNewKeyPressed(MyKeys.Enter) ||
                                   MyInput.Static.IsNewKeyPressed(MyKeys.Space)))))
                 {
-                    if (m_implementedFeature == false)
-                    {
-                        //MyAudio.Static.PlayCue(m_cueEnum);
-                        //MyGuiManager2.AddScreen(new MyGuiScreenMessageBox(
-                        //    messageText: MyTextsWrapper.Get(MyStringId.FeatureNotYetImplemented),
-                        //    messageCaption: MyTextsWrapper.Get(MyStringId.MessageBoxCaptionFeatureDisabled)));
-                    }
-                    else if (Enabled)
+                    if (Enabled)
                     {
                         MyGuiSoundManager.PlaySound(m_cueEnum);
                         if (ButtonClicked != null)
@@ -358,20 +348,19 @@ namespace Sandbox.Graphics.GUI
         {
             base.Draw(transitionAlpha, transitionAlpha);
 
-            bool isNotImplementedForbidenOrDisabled = !m_implementedFeature || !Enabled;
             Vector4 backgroundColor, textColor;
-            backgroundColor = isNotImplementedForbidenOrDisabled ? ColorMask * MyGuiConstants.DISABLED_CONTROL_COLOR_MASK_MULTIPLIER
-                                                                 : ColorMask;
-
-            textColor = isNotImplementedForbidenOrDisabled ? MyGuiConstants.DISABLED_CONTROL_COLOR_MASK_MULTIPLIER
-                                                           : Vector4.One;
+            backgroundColor = Enabled ? ColorMask : ColorMask * MyGuiConstants.DISABLED_CONTROL_COLOR_MASK_MULTIPLIER;
+            textColor = Enabled ? Vector4.One: MyGuiConstants.DISABLED_CONTROL_COLOR_MASK_MULTIPLIER;
+            textColor.W *= transitionAlpha;
 
             // Draw cross texture 
-            if (isNotImplementedForbidenOrDisabled && DrawCrossTextureWhenDisabled)
+            if (!Enabled && DrawCrossTextureWhenDisabled)
             {
                 MyGuiManager.DrawSpriteBatch(MyGuiConstants.BUTTON_LOCKED, GetPositionAbsolute(), Size * MyGuiConstants.LOCKBUTTON_SIZE_MODIFICATION,
                     MyGuiConstants.DISABLED_BUTTON_COLOR, OriginAlign);
             }
+
+            Color iconColor = new Color(1, 1, 1, transitionAlpha);
 
             var topLeft = GetPositionAbsoluteTopLeft();
             var internalTopLeft = topLeft + m_internalArea.Position;
@@ -382,7 +371,7 @@ namespace Sandbox.Graphics.GUI
                 var icon = Icon.Value;
                 var ratios = Vector2.Min(icon.SizeGui, internalSize) / icon.SizeGui;
                 float scale = Math.Min(ratios.X, ratios.Y);
-                MyGuiManager.DrawSpriteBatch((HasHighlight) ? icon.Highlight : icon.Normal, iconPosition, icon.SizeGui * scale, Color.White, IconOriginAlign, IconRotation);
+                MyGuiManager.DrawSpriteBatch((HasHighlight) ? icon.Highlight : icon.Normal, iconPosition, icon.SizeGui * scale, iconColor, IconOriginAlign, IconRotation);
             }
 
             if (m_drawText.Length > 0 && TextScaleWithLanguage > 0)
@@ -396,7 +385,7 @@ namespace Sandbox.Graphics.GUI
                 var underlinePos = topLeft;
                 underlinePos.Y += Size.Y;
                 var underlineSize = new Vector2(Size.X, MyGuiManager.GetNormalizedSizeFromScreenSize(new Vector2(0, 2)).Y);
-                MyGuiManager.DrawSpriteBatch(HasHighlight ? m_styleDef.UnderlineHighlight : m_styleDef.Underline, underlinePos, underlineSize, Color.White, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
+                MyGuiManager.DrawSpriteBatch(HasHighlight ? m_styleDef.UnderlineHighlight : m_styleDef.Underline, underlinePos, underlineSize, iconColor, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP);
             }
 
             //DebugDraw();

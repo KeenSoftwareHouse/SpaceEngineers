@@ -26,6 +26,7 @@ namespace Sandbox.Definitions
         public Matrix ItemWalkingLocation3rd;
         public Matrix ItemShootLocation;
         public Matrix ItemShootLocation3rd;
+        public Matrix ItemIronsightLocation;
 
         public float BlendTime;
 
@@ -38,7 +39,7 @@ namespace Sandbox.Definitions
         public float ZAmplitudeScale;
 
         public float RunMultiplier;
-        public float AmplitudeMultiplier3rd;
+        public float AmplitudeMultiplier3rd = 1.0f;
 
         public bool SimulateLeftHand = true;
         public bool SimulateRightHand = true;
@@ -123,6 +124,9 @@ namespace Sandbox.Definitions
             ItemShootLocation3rd.Translation = ob.ItemShootPosition3rd;
             ShootBlend = ob.ShootBlend;
 
+            ItemIronsightLocation = Matrix.CreateFromQuaternion(Quaternion.Normalize(ob.ItemIronsightOrientation));
+            ItemIronsightLocation.Translation = ob.ItemIronsightPosition;
+
             MuzzlePosition = ob.MuzzlePosition;
 
             ShootScatter = ob.ShootScatter;
@@ -198,6 +202,9 @@ namespace Sandbox.Definitions
             ob.ItemShootPosition3rd = ItemShootLocation3rd.Translation;
 
             ob.ShootBlend = ShootBlend;
+
+            ob.ItemIronsightOrientation = Quaternion.CreateFromRotationMatrix(ItemIronsightLocation);
+            ob.ItemIronsightPosition = ItemIronsightLocation.Translation;
 
             ob.MuzzlePosition = MuzzlePosition;
 

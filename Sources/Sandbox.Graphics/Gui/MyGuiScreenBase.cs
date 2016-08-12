@@ -905,7 +905,7 @@ namespace Sandbox.Graphics.GUI
             foreach (var element in Elements)
             {
                 if (element.Visible)
-                    element.Draw(transitionAlpha, backgroundTransitionAlpha);
+                    element.Draw(transitionAlpha * element.Alpha, backgroundTransitionAlpha * element.Alpha);
             }
         }
 
@@ -920,7 +920,7 @@ namespace Sandbox.Graphics.GUI
                 if (control != m_comboboxHandlingNow && control != m_listboxDragAndDropHandlingNow)
                 {
                     //if (MySandboxGame.IsPaused && !control.DrawWhilePaused) continue;
-                    control.Draw(transitionAlpha, backgroundTransitionAlpha);
+                    control.Draw(transitionAlpha * control.Alpha, backgroundTransitionAlpha * control.Alpha);
                 }
             }
 
@@ -928,12 +928,12 @@ namespace Sandbox.Graphics.GUI
 
             if (m_comboboxHandlingNow != null)
             {
-                m_comboboxHandlingNow.Draw(transitionAlpha, backgroundTransitionAlpha);
+                m_comboboxHandlingNow.Draw(transitionAlpha * m_comboboxHandlingNow.Alpha, backgroundTransitionAlpha * m_comboboxHandlingNow.Alpha);
             }
 
             if (m_listboxDragAndDropHandlingNow != null)
             {
-                m_listboxDragAndDropHandlingNow.Draw(transitionAlpha, backgroundTransitionAlpha);
+                m_listboxDragAndDropHandlingNow.Draw(transitionAlpha * m_listboxDragAndDropHandlingNow.Alpha, backgroundTransitionAlpha * m_listboxDragAndDropHandlingNow.Alpha);
             }
 
             // draw tooltips only when screen has focus

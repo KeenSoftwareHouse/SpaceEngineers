@@ -22,11 +22,11 @@ namespace Sandbox.Game.Replication
     {
         #region IMyReplicable Implementation
 
-        public override float GetPriority(MyClientInfo client)
+        public MyMeteorReplicable()
         {
-            return 500.0f;
+            m_baseVisibility = 5000;
         }
-
+ 
         public override void OnDestroy()
         {
             if (Instance != null && Instance.Save)

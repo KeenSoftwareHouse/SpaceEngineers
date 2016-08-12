@@ -240,6 +240,8 @@ namespace Sandbox.Graphics.GUI
         private RectangleF m_itemsRectangle;
         private Item m_mouseOverItem;
         private StyleDefinition m_styleDef;
+        private StyleDefinition m_customStyle;
+        private bool m_useCustomStyle;
         private MyVScrollbar m_scrollBar;
         private int m_visibleRowIndexOffset;
         #endregion
@@ -666,7 +668,14 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshVisualStyle()
         {
-            m_styleDef = GetVisualStyle(VisualStyle);
+            if (m_useCustomStyle)
+            {
+                m_styleDef = m_customStyle;
+            }
+            else
+            {
+                m_styleDef = GetVisualStyle(VisualStyle);
+            }
             ItemSize = m_styleDef.ItemSize;
             TextScale = m_styleDef.TextScale;
             RefreshInternals();
@@ -730,6 +739,15 @@ namespace Sandbox.Graphics.GUI
             m_scrollBar.Layout(position, Size.Y - margin.VerticalSum);
         }
 
+        /// <summary>
+        /// GR: Individual controls should reset toolbar postion if needed.
+        /// Do no do in refresh of toolbar becaues it may happen often and cause bugs (autoscrolling to top every few frames when not intended)
+        /// </summary>
+        public void ScrollToolbarToTop()
+        {
+            m_scrollBar.ChangeValue(0);
+        }
+
         private void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Remove ||
@@ -779,6 +797,24 @@ namespace Sandbox.Graphics.GUI
                 if (item.Visible)
                     SelectedItems.Add(item);
             }
+            if (ItemsSelected != null)
+                ItemsSelected(this);
+        }
+
+        public void ChangeSelection(List<bool> states)
+        {
+            SelectedItems.Clear();
+
+            int i = 0;
+            foreach (var item in Items)
+            {
+                if (i >= states.Count) break;
+
+                if (states[i]) SelectedItems.Add(item);
+
+                i++;
+            }
+
             if (ItemsSelected != null)
                 ItemsSelected(this);
         }
@@ -911,5 +947,12 @@ namespace Sandbox.Graphics.GUI
             return;
         }
         #endregion
+
+        public void ApplyStyle(StyleDefinition style)
+        {
+            m_useCustomStyle = true;
+            m_customStyle = style;
+            RefreshVisualStyle();
+        }
     }
 }

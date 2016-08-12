@@ -179,9 +179,9 @@ namespace VRage.Game.SessionComponents
             try
             {
 #if OFFICIAL_BUILD == true
-                m_listener = new TcpListener(IPAddress.Loopback, GameDebugPort) {ExclusiveAddressUse = false};
+            m_listener = new TcpListener(IPAddress.Loopback, GameDebugPort) {ExclusiveAddressUse = false};
 #else
-                m_listener = new TcpListener(IPAddress.Any, GameDebugPort) { ExclusiveAddressUse = false };
+            m_listener = new TcpListener(IPAddress.Any, GameDebugPort) { ExclusiveAddressUse = false };
 #endif
                 m_listener.Start();
             }

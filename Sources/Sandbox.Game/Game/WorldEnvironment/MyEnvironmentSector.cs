@@ -687,6 +687,9 @@ namespace Sandbox.Game.WorldEnvironment
             if (myShapekey == uint.MaxValue) return;
 
             var bodyB = evt.ContactPointEvent.GetPhysicsBody(1 ^ bodyIndex);
+            if (bodyB == null)
+                return;
+
             var other = bodyB.Entity;
 
             int item = GetItemFromShapeKey(myShapekey);

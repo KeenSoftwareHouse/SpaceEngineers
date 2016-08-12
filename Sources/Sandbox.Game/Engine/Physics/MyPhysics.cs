@@ -62,6 +62,17 @@ namespace Sandbox.Engine.Physics
             {
                 get { return HkHitInfo.GetHitEntity(); }
             }
+
+            public override string ToString()
+            {
+                //return base.ToString();
+                var hitEntity = HkHitInfo.GetHitEntity();
+                if (hitEntity != null)
+                {
+                    return hitEntity.ToString();
+                }
+                return base.ToString();
+            }
         }
 
         public struct MyContactPointEvent
@@ -929,32 +940,35 @@ namespace Sandbox.Engine.Physics
         {
             using (m_raycastLock.Acquire())
             {
-            m_resultWorlds.Clear();
-            Clusters.CastRay(from, to, m_resultWorlds);
+                m_resultWorlds.Clear();
+                Clusters.CastRay(from, to, m_resultWorlds);
 
-            toList.Clear();
+                toList.Clear();
 
-            foreach (var world in m_resultWorlds)
-            {
-                Vector3 fromF = from - world.AABB.Center;
-                Vector3 toF = to - world.AABB.Center;
+                foreach (var world in m_resultWorlds)
+                {
+                    Vector3 fromF = from - world.AABB.Center;
+                    Vector3 toF = to - world.AABB.Center;
 
-                m_resultHits.Clear();
+                    m_resultHits.Clear();
 
 
                     HkWorld havokWorld = (HkWorld)(world.UserData);
-                    havokWorld.CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
-
-                foreach (var hit in m_resultHits)
-                {
-                    toList.Add(new HitInfo()
+                    if (havokWorld != null)
                     {
-                        HkHitInfo = hit,
-                        Position = hit.Position + world.AABB.Center
+                        havokWorld.CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
                     }
-                    );
+
+                    foreach (var hit in m_resultHits)
+                    {
+                        toList.Add(new HitInfo()
+                        {
+                            HkHitInfo = hit,
+                            Position = hit.Position + world.AABB.Center
+                        }
+                        );
+                    }
                 }
-            }
             }
 
             m_resultWorlds.Clear();

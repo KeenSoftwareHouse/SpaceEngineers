@@ -94,7 +94,7 @@ namespace Sandbox.Game.Gui
         }
 
         public MyGuiScreenAdvancedWorldSettings(MyGuiScreenWorldSettings parent)
-            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, CalcSize(parent.Checkpoint))
+            : base(new Vector2(0.5f, 0.5f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, CalcSize())
         {
             MySandboxGame.Log.WriteLine("MyGuiScreenAdvancedWorldSettings.ctor START");
 
@@ -109,14 +109,9 @@ namespace Sandbox.Game.Gui
             MySandboxGame.Log.WriteLine("MyGuiScreenAdvancedWorldSettings.ctor END");
         }
 
-        public static Vector2 CalcSize(MyObjectBuilder_Checkpoint checkpoint)
+        public static Vector2 CalcSize()
         {
-            float width = 0.9f;
-            float height = 1.24f;
-
-            height -= 0.27f;
-
-            return new Vector2(width, height);
+            return new Vector2(0.9f, 0.97f);
         }
 
         public override void RecreateControls(bool constructor)
@@ -130,7 +125,7 @@ namespace Sandbox.Game.Gui
 
         public void BuildControls()
         {
-            MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, Size.Value.Y+0.26f));
+            MyGuiControlParent parent = new MyGuiControlParent(size: new Vector2(Size.Value.X - 0.05f, Size.Value.Y+0.4f));
             MyGuiControlScrollablePanel scrollPanel = new MyGuiControlScrollablePanel(parent);
             scrollPanel.ScrollbarVEnabled = true;
             scrollPanel.Size = new Vector2(Size.Value.X - 0.05f, 0.8f);

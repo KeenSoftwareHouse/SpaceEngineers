@@ -118,7 +118,7 @@ namespace Sandbox.Graphics.GUI
                     MyGuiControlButtonStyleEnum.Tiny,
                     new Vector2(0.1f, 0.1f),
                     null, MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, MyTexts.GetString(MyCommonTexts.AddNewNPC), new StringBuilder("+"),
-                    MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyGuiControlHighlightType.WHEN_ACTIVE, true,
+                    MyGuiConstants.DEFAULT_TEXT_SCALE, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER, MyGuiControlHighlightType.WHEN_ACTIVE,
                     OnNewNpcClick, GuiSounds.MouseClick, 0.75f);
                 Elements.Add(m_npcButton);
             }

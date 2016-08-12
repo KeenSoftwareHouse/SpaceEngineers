@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -197,6 +198,18 @@ namespace VRage.Scripting.Rewriters
         /// <returns></returns>
         SyntaxNode ProcessMethod(BaseMethodDeclarationSyntax node, FileLinePositionSpan blockResumeLocation)
         {
+            var decl = node as MethodDeclarationSyntax;
+            if (decl != null && decl.ExpressionBody != null)
+            {
+                var returnType = decl.ReturnType as PredefinedTypeSyntax;
+                var isVoid = returnType != null && returnType.Keyword.IsKind(SyntaxKind.VoidKeyword);
+                  return decl
+                      .WithExpressionBody(null)
+                      .WithBody(
+                    CreateDelegateMethodBody(decl.ExpressionBody.Expression, blockResumeLocation, !isVoid)
+                    );
+            }
+            
             return node.WithBody(
                 Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
                     SyntaxFactory.Block(
@@ -223,11 +236,74 @@ namespace VRage.Scripting.Rewriters
         }
 
         /// <summary>
+        /// Replaces an expression based method declaration with a block based one in order to facilitate instruction counting.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <param name="blockResumeLocation"></param>
+        /// <param name="hasReturnValue"></param>
+        /// <returns></returns>
+        BlockSyntax CreateDelegateMethodBody(ExpressionSyntax expression, FileLinePositionSpan blockResumeLocation, bool hasReturnValue)
+        {
+            if (hasReturnValue)
+            {
+                return Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
+                    SyntaxFactory.Block(
+                        InstructionCounterCall(),
+                        EnterMethodCall(),
+                        SyntaxFactory.TryStatement(
+                            SyntaxFactory.Block(
+                                SyntaxFactory.Token(SyntaxKind.OpenBraceToken),
+                                new SyntaxList<StatementSyntax>()
+                                    .Add(SyntaxFactory.ReturnStatement(
+                                        Barricaded(blockResumeLocation.Path, blockResumeLocation.StartLinePosition, SyntaxFactory.Token(SyntaxKind.ReturnKeyword)),
+                                        expression,
+                                        SyntaxFactory.Token(SyntaxKind.SemicolonToken)
+                                        )),
+                                SyntaxFactory.Token(SyntaxKind.CloseBraceToken)
+                                ),
+                            default(SyntaxList<CatchClauseSyntax>),
+                            Annotated(
+                                SyntaxFactory.FinallyClause(
+                                    SyntaxFactory.Block(
+                                        ExitMethodCall()
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    );
+            }
+            return Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
+                SyntaxFactory.Block(
+                    InstructionCounterCall(),
+                    EnterMethodCall(),
+                    SyntaxFactory.TryStatement(
+                        SyntaxFactory.Block(
+                            Barricaded(blockResumeLocation.Path, blockResumeLocation.StartLinePosition, SyntaxFactory.Token(SyntaxKind.OpenBraceToken)),
+                            new SyntaxList<StatementSyntax>()
+                                .Add(SyntaxFactory.ExpressionStatement(expression)),
+                            SyntaxFactory.Token(SyntaxKind.CloseBraceToken)
+                            ),
+                        default(SyntaxList<CatchClauseSyntax>),
+                        Annotated(
+                            SyntaxFactory.FinallyClause(
+                                SyntaxFactory.Block(
+                                    ExitMethodCall()
+                                    )
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+        /// <summary>
         ///     Generates the instruction counter and call chain depth counter for any form of delegate (anonymous methods,
         ///     lambdas).
         /// </summary>
         /// <param name="node"></param>
         /// <param name="blockResumeLocation"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
         SyntaxNode ProcessAnonymousFunction(AnonymousFunctionExpressionSyntax node, FileLinePositionSpan blockResumeLocation, INamedTypeSymbol type)
         {
@@ -243,78 +319,27 @@ namespace VRage.Scripting.Rewriters
                 // We don't know what's going on here, probably some kind of syntax error. Let the compiler deal with it.
                 return node;
             }
-
-            if (type.DelegateInvokeMethod.ReturnsVoid)
-            {
-                return node.WithBody(
-                    Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
-                        SyntaxFactory.Block(
-                            InstructionCounterCall(),
-                            EnterMethodCall(),
-                            SyntaxFactory.TryStatement(
-                                SyntaxFactory.Block(
-                                    Barricaded(blockResumeLocation.Path, blockResumeLocation.StartLinePosition, SyntaxFactory.Token(SyntaxKind.OpenBraceToken)),
-                                    new SyntaxList<StatementSyntax>()
-                                        .Add(SyntaxFactory.ExpressionStatement((ExpressionSyntax)node.Body)),
-                                    SyntaxFactory.Token(SyntaxKind.CloseBraceToken)
-                                    ),
-                                default(SyntaxList<CatchClauseSyntax>),
-                                Annotated(
-                                    SyntaxFactory.FinallyClause(
-                                        SyntaxFactory.Block(
-                                            ExitMethodCall()
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        ));
-            }
             return node.WithBody(
-                Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
-                    SyntaxFactory.Block(
-                        InstructionCounterCall(),
-                        EnterMethodCall(),
-                        SyntaxFactory.TryStatement(
-                            SyntaxFactory.Block(
-                                SyntaxFactory.Token(SyntaxKind.OpenBraceToken),
-                                new SyntaxList<StatementSyntax>()
-                                    .Add(SyntaxFactory.ReturnStatement(
-                                        Barricaded(blockResumeLocation.Path, blockResumeLocation.StartLinePosition, SyntaxFactory.Token(SyntaxKind.ReturnKeyword)),
-                                        (ExpressionSyntax)node.Body,
-                                        SyntaxFactory.Token(SyntaxKind.SemicolonToken)
-                                        )),
-                                SyntaxFactory.Token(SyntaxKind.CloseBraceToken)
-                                ),
-                            default(SyntaxList<CatchClauseSyntax>),
-                            Annotated(
-                                SyntaxFactory.FinallyClause(
-                                    SyntaxFactory.Block(
-                                        ExitMethodCall()
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    ));
+                CreateDelegateMethodBody((ExpressionSyntax)node.Body, blockResumeLocation, type.DelegateInvokeMethod.ReturnsVoid)
+                );
         }
 
-        //public override SyntaxNode Visit(SyntaxNode node)
-        //{
-        //    if (node == null)
-        //    {
-        //        return null; // ???
-        //    }
-        //    Debug.WriteLine(node.Kind());
-        //    Debug.Indent();
-        //    if (node is IdentifierNameSyntax)
-        //    {
-        //        Debug.WriteLine(node.GetText());
-        //    }
-        //    node = base.Visit(node);
-        //    Debug.Unindent();
-        //    return node;
-        //}
+        public override SyntaxNode Visit(SyntaxNode node)
+        {
+            if (node == null)
+            {
+                return null; // ???
+            }
+            Debug.WriteLine(node.Kind());
+            Debug.Indent();
+            if (node is IdentifierNameSyntax)
+            {
+                Debug.WriteLine(node.GetText());
+            }
+            node = base.Visit(node);
+            Debug.Unindent();
+            return node;
+        }
 
         public override SyntaxNode VisitTryStatement(TryStatementSyntax node)
         {
@@ -382,6 +407,18 @@ namespace VRage.Scripting.Rewriters
             return node;
         }
 
+        public override SyntaxNode VisitGotoStatement(GotoStatementSyntax node)
+        {
+            if (node.CaseOrDefaultKeyword.Kind() != SyntaxKind.None)
+                return base.VisitGotoStatement(node);
+
+            var resumeLocation =  node.GetLocation().GetMappedLineSpan();
+
+            node = (GotoStatementSyntax)base.VisitGotoStatement(node);
+
+            return InjectedBlock(node, resumeLocation);
+        }
+
         public override SyntaxNode VisitSwitchSection(SwitchSectionSyntax node)
         {
             var resumeLocation = node.Statements.Count > 0 ? node.Statements[0].GetLocation().GetMappedLineSpan() : new FileLinePositionSpan();
@@ -392,6 +429,16 @@ namespace VRage.Scripting.Rewriters
                 node = node.WithStatements(node.Statements.Insert(0,
                     Barricaded(resumeLocation.Path, resumeLocation.StartLinePosition, InstructionCounterCall())));
             }
+            return node;
+        }
+
+        public override SyntaxNode VisitDoStatement(DoStatementSyntax node)
+        {
+            var blockResumeLocation = GetBlockResumeLocation(node.Statement);
+
+            node = (DoStatementSyntax)base.VisitDoStatement(node);
+
+            node = node.WithStatement(InjectedBlock(node.Statement, blockResumeLocation));
             return node;
         }
 
@@ -423,6 +470,21 @@ namespace VRage.Scripting.Rewriters
 
             node = node.WithStatement(InjectedBlock(node.Statement, blockResumeLocation));
             return node;
+        }
+
+        public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
+        {
+            if (node.ExpressionBody != null)
+            {
+                var blockResumeLocation = GetBlockResumeLocation(node.ExpressionBody);
+
+                node = (PropertyDeclarationSyntax)base.VisitPropertyDeclaration(node);
+                return node.WithExpressionBody(null)
+                    .WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>()
+                        .Add(SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, CreateDelegateMethodBody(node.ExpressionBody.Expression, blockResumeLocation, true)))
+                    ));
+            }
+            return base.VisitPropertyDeclaration(node);
         }
 
         public override SyntaxNode VisitAccessorDeclaration(AccessorDeclarationSyntax node)
@@ -491,12 +553,12 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitOperatorDeclaration(OperatorDeclarationSyntax node)
         {
-            if (node.Body == null)
+            if (node.Body == null && node.ExpressionBody != null)
             {
                 return base.VisitOperatorDeclaration(node);
             }
-
-            var blockResumeLocation = GetBlockResumeLocation(node.Body);
+            
+            var blockResumeLocation = GetBlockResumeLocation((SyntaxNode)node.Body ?? node.ExpressionBody);
 
             node = (OperatorDeclarationSyntax)base.VisitOperatorDeclaration(node);
 
@@ -505,12 +567,12 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitConversionOperatorDeclaration(ConversionOperatorDeclarationSyntax node)
         {
-            if (node.Body == null)
+            if (node.Body == null && node.ExpressionBody == null)
             {
                 return base.VisitConversionOperatorDeclaration(node);
             }
 
-            var blockResumeLocation = GetBlockResumeLocation(node.Body);
+            var blockResumeLocation = GetBlockResumeLocation((SyntaxNode)node.Body ?? node.ExpressionBody);
 
             node = (ConversionOperatorDeclarationSyntax)base.VisitConversionOperatorDeclaration(node);
 
@@ -519,12 +581,12 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
         {
-            if (node.Body == null)
+            if (node.Body == null && node.ExpressionBody == null)
             {
                 return base.VisitMethodDeclaration(node);
             }
 
-            var blockResumeLocation = node.Body.GetLocation().GetMappedLineSpan();
+            var blockResumeLocation = GetBlockResumeLocation((SyntaxNode)node.Body ?? node.ExpressionBody);
 
             node = (MethodDeclarationSyntax)base.VisitMethodDeclaration(node);
 

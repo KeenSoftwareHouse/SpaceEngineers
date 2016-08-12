@@ -114,40 +114,16 @@ namespace Sandbox.Game.Replication
             }
         }
 
-        protected override void CalculatePositionDifference(ulong clientId, out bool isValid, out bool correctServer, out Vector3D delta)
+        protected override void CalculatePositionDifference(ulong clientId, out bool positionValid, out bool correctServer, out Vector3D delta)
         {
-            isValid = true;
-            correctServer = false;
+            positionValid = true;
+            correctServer = true;
 
             Vector3D clientData = m_additionalServerClientData[clientId];
             MatrixD worldMatrix = Entity.PositionComp.WorldMatrix;
 
             delta = m_additionalServerClientData[clientId] - worldMatrix.Translation;
-                   
-            Vector3D currentMoveDistance =  Entity.Physics.LinearVelocity/60.0f;
-
-            if(currentMoveDistance.Equals(-delta,0.01))
-            {
-                return;
-            }
-
-            float deltaL = (float)((currentMoveDistance + delta).LengthSquared());
-            
-            float maxSpeed = 1.04f * MyGridPhysics.ShipMaxLinearVelocity();
-
-            float maxMoveDistance = (maxSpeed * maxSpeed) / (60f * 60f);
-
-            if (deltaL > (maxMoveDistance + 0.0001))
-            {
-                correctServer = true;
-                return;
-                isValid = false;
-                delta = Vector3D.Zero;
-            }
-            else if (deltaL > 0.1*0.1)
-            {
-              correctServer = true;
-            }
+               
         }
                     
     }

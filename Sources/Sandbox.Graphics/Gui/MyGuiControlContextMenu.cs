@@ -269,7 +269,7 @@ namespace Sandbox.Graphics.GUI
         public override void Draw(float transitionAlpha, float backgroundTransitionAlpha)
         {
             base.Draw(transitionAlpha, backgroundTransitionAlpha);
-            m_itemsList.Draw(transitionAlpha, backgroundTransitionAlpha);
+            m_itemsList.Draw(transitionAlpha * m_itemsList.Alpha, backgroundTransitionAlpha * m_itemsList.Alpha);
         }
 
         private bool IsEnoughDelay(MyContextMenuKeys key, int forcedDelay)

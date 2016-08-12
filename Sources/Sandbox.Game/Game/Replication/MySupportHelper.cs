@@ -27,10 +27,6 @@ namespace Sandbox.Game.Replication
 
         public static MyEntity FindSupportForCharacterAABB(MyEntity entity)
         {
-            if(entity == null)
-            {
-                return null;
-            }
             BoundingBoxD characterBox = entity.PositionComp.WorldAABB;
             characterBox.Inflate(1.0);
             m_entities.Clear();
@@ -46,7 +42,7 @@ namespace Sandbox.Game.Replication
 
                 if(grid != null)
                 {
-                    if (grid.Physics == null || grid.Physics.IsStatic || grid.GridSizeEnum == MyCubeSize.Small)
+                    if (grid.Physics == null ||  grid.Physics.IsStatic || grid.GridSizeEnum == MyCubeSize.Small)
                     {
                         continue;
                     }
@@ -59,7 +55,6 @@ namespace Sandbox.Game.Replication
                     }
                 }
             }
-
             if (biggestGrid != null && biggestGrid.CubeBlocks.Count > 10)
             {
                 return biggestGrid;

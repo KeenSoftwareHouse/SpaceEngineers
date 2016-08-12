@@ -15,8 +15,8 @@ namespace Sandbox.Game.Entities.Cube
 
         internal static void NotifyBlockBuilt(MyCubeGrid grid, MySlimBlock block)
         {
-            if (BlockBuilt != null)
-                BlockBuilt(grid, block);
+            /*if (BlockBuilt != null)
+                BlockBuilt(grid, block);*/
         }
 
         protected override void UnloadData()

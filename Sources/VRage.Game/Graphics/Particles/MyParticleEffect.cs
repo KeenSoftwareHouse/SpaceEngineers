@@ -139,47 +139,49 @@ namespace VRage.Game
 
             m_name = "ParticleEffect";
 
-            foreach (IMyParticleGeneration generation in m_generations)
+            //lock (m_lock)
             {
-                if (done)
-                    generation.Done();
-                else
-                    generation.Close();
-
-                generation.Deallocate();
-            }
-
-            m_generations.Clear();
-
-
-            foreach (MyParticleLight particleLight in m_particleLights)
-            {
-                if (done)
-                    particleLight.Done();
-                else
-                    particleLight.Close();
-                MyParticlesManager.LightsPool.Deallocate(particleLight);
-            }
-
-            m_particleLights.Clear();
-
-
-            foreach (MyParticleSound particleSound in m_particleSounds)
-            {
-                if (done)
-                    particleSound.Done();
-                else
-                    particleSound.Close();
-                MyParticlesManager.SoundsPool.Deallocate(particleSound);
-            }
-
-            m_particleSounds.Clear();
-
-            if (m_instances != null)
-            {
-                while (m_instances.Count > 0)
+                foreach (IMyParticleGeneration generation in m_generations)
                 {
-                    MyParticlesManager.RemoveParticleEffect(m_instances[0]);
+                    if (done)
+                        generation.Done();
+                    else
+                        generation.Close();
+
+                    generation.Deallocate();
+                }
+
+                m_generations.Clear();
+
+                foreach (MyParticleLight particleLight in m_particleLights)
+                {
+                    if (done)
+                        particleLight.Done();
+                    else
+                        particleLight.Close();
+                    MyParticlesManager.LightsPool.Deallocate(particleLight);
+                }
+
+                m_particleLights.Clear();
+
+
+                foreach (MyParticleSound particleSound in m_particleSounds)
+                {
+                    if (done)
+                        particleSound.Done();
+                    else
+                        particleSound.Close();
+                    MyParticlesManager.SoundsPool.Deallocate(particleSound);
+                }
+
+                m_particleSounds.Clear();
+
+                if (m_instances != null)
+                {
+                    while (m_instances.Count > 0)
+                    {
+                        MyParticlesManager.RemoveParticleEffect(m_instances[0]);
+                    }
                 }
             }
 

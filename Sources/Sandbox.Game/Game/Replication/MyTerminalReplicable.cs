@@ -33,10 +33,7 @@ namespace Sandbox.Game.Replication
         private IMyReplicable m_gridReplicable { get { return FindByObject(Block.CubeGrid); } }
         private MyPropertySyncStateGroup m_propertySync;
 
-        public MyTerminalReplicable()
-        {
-            IsChild = true;
-        }
+        public MyTerminalReplicable() { }
 
         public override void OnServerReplicate()
         {
@@ -111,6 +108,11 @@ namespace Sandbox.Game.Replication
         public override void GetStateGroups(List<IMyStateGroup> resultList)
         {
             resultList.Add(m_propertySync);
+        }
+
+        public override bool IsChild
+        {
+            get { return true; }
         }
     }
 }

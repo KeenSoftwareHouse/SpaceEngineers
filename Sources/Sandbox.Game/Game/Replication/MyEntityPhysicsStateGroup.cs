@@ -261,7 +261,7 @@ namespace Sandbox.Game.Replication
             else
             {
                 bool apply = ReadTransform(stream, entity, deltaPosBase, applyWhenReading,movingOnServer, ref m_readTranslation, ref m_readQuaternion, ref m_readMatrix, posValidation, moveHandler);
-                if (apply)
+                if (apply && applyWhenReading)
                 {
                     var old = entity.PositionComp.WorldMatrix;
                     entity.PositionComp.SetWorldMatrix(m_readMatrix, null);
@@ -331,7 +331,8 @@ namespace Sandbox.Game.Replication
 
             if (entity != null)
             {
-                if (applyWhenReading && (posValidation == null || posValidation(entity, position)))
+                double delta = (entity.WorldMatrix.Translation - position).LengthSquared();
+                if (applyWhenReading && (movingOnServer || delta > 0.1 * 0.1) && (posValidation == null || posValidation(entity, position)))
                 {
                     MatrixD matrix = MatrixD.CreateFromQuaternion(orientation);
                     if (matrix.IsValid())
@@ -388,8 +389,8 @@ namespace Sandbox.Game.Replication
                 if ((linearVelocityDiff > 0.001f || angularVelocityDiff > 0.001f || applyWhenReading) && entity.Physics != null)
                 {
                     Vector3 oldLinear = entity.Physics.LinearVelocity;
-                    entity.Physics.LinearVelocity = m_readLinearVelocity;
-                    entity.Physics.AngularVelocity = m_readAngularVelocity;
+                    entity.Physics.LinearVelocity = Vector3.Round(m_readLinearVelocity,2);
+                    entity.Physics.AngularVelocity = Vector3.Round(m_readAngularVelocity,2);
                     entity.Physics.UpdateAccelerations();
 
                     if (velocityHandler != null && MyFakes.COMPENSATE_SPEED_WITH_SUPPORT)

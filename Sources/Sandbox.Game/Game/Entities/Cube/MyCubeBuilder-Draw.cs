@@ -117,7 +117,11 @@ namespace Sandbox.Game.Entities
 
             if (DynamicMode)
             {
-                Vector3D freePlacementIntersectionPoint = IntersectionStart + IntersectionDistance * IntersectionDirection;
+                PlaneD cameraPlane = new PlaneD(MySector.MainCamera.Position, MySector.MainCamera.UpVector);
+                Vector3D projectedPoint = IntersectionStart;
+                projectedPoint = cameraPlane.ProjectPoint(ref projectedPoint);
+                Vector3D freePlacementIntersectionPoint = projectedPoint + IntersectionDistance * IntersectionDirection;
+                
                 if (m_hitInfo != null)
                     freePlacementIntersectionPoint = m_hitInfo.Value.Position;
 
@@ -816,6 +820,7 @@ namespace Sandbox.Game.Entities
         public static void DrawMountPoints(float cubeSize, MyCubeBlockDefinition def, MatrixD drawMatrix, MyCubeBlockDefinition.MountPoint[] mountPoints)
         {
             Color color = Color.Yellow;
+            Color defaultColor = Color.Blue;
             Vector3I centerGrid = def.Center;
             Vector3 centerOffset = def.Size * 0.5f;
             Matrix drawTransf = MatrixD.CreateTranslation((centerGrid - centerOffset) * cubeSize) * drawMatrix;
@@ -843,7 +848,7 @@ namespace Sandbox.Game.Entities
 
                 MyOrientedBoundingBoxD boxD = new MyOrientedBoundingBoxD(box, drawTransf);
 
-                VRageRender.MyRenderProxy.DebugDrawOBB(boxD, color, 0.2f, true, false);
+                VRageRender.MyRenderProxy.DebugDrawOBB(boxD, mountPoints[i].Default ? defaultColor : color, 0.2f, true, false);
             }
         }
 
@@ -912,7 +917,7 @@ namespace Sandbox.Game.Entities
             dist -= (float)bb.Size.Max() * 0.866f; // sqrt(3) * 0.5 - half of the solid diagonal of a cube
             Color black = Color.Black;
             if (dist < cubeSize * 3.0f)
-                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref bb, ref black, MySimpleObjectRasterizer.Wireframe, def.Size * 10, 0.005f / (float)bb.Size.Max() * cubeSize, onlyFrontFaces: true);
+                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref bb, ref black, ref black, MySimpleObjectRasterizer.Wireframe, def.Size * 10, 0.005f / (float)bb.Size.Max() * cubeSize, onlyFrontFaces: true);
         }
 
         protected static void DrawRemovingCubes(Vector3I? startRemove, Vector3I? continueBuild, MySlimBlock removeBlock)
@@ -934,7 +939,7 @@ namespace Sandbox.Game.Entities
             aabb.Min -= new Vector3(removeBlock.CubeGrid.GridSize / 2.0f + 0.02f);
             aabb.Max += new Vector3(removeBlock.CubeGrid.GridSize / 2.0f + 0.02f);
 
-            MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref white, MySimpleObjectRasterizer.Wireframe, counter, 0.04f, null, "GizmoDrawLineRed", true);
+            MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref white, ref white, MySimpleObjectRasterizer.Wireframe, counter, 0.04f, null, "GizmoDrawLineRed", true);
             Color faceColor = new Color(Color.Red * 0.2f, 0.3f);
             MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref faceColor, MySimpleObjectRasterizer.Solid, 0, 0.04f, "Square", null, true);
         }

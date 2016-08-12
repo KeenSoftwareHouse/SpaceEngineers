@@ -267,6 +267,11 @@ namespace Sandbox.Engine.Voxels
             get { return m_radius; }
         }
 
+        public MyHeightCubemap Heightmap
+        {
+            get { return m_heightmap; }
+        }
+
         public MyPlanetShapeProvider(Vector3 translation, float radius, MyPlanetGeneratorDefinition definition)
         {
             m_radius = radius;

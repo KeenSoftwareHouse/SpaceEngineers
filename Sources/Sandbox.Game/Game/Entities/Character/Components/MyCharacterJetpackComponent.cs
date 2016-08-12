@@ -18,6 +18,7 @@ using VRageMath;
 using Vector3 = VRageMath.Vector3;
 using VRage.Game.Components;
 using Sandbox.Game.GUI;
+using VRage.Network;
 
 namespace Sandbox.Game.Entities.Character.Components
 {

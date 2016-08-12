@@ -39,51 +39,6 @@ using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiControlImageButton : MyGuiControlBase
-    {
-        private MyGuiCompositeTexture m_borderTexture;
-
-        public MyGuiCompositeTexture BorderTexture
-        {
-            get { return m_borderTexture; }
-            set { m_borderTexture = value; }
-        }
-
-        public MyGuiControlImageButton(bool visible = true)
-        {
-            BackgroundTexture = new MyGuiCompositeTexture();
-            Visible = visible;
-            HighlightType = MyGuiControlHighlightType.NEVER;
-        }
-
-        public void SetTexture(string texture)
-        {
-            if (m_borderTexture != null)
-            {
-                BackgroundTexture = new MyGuiCompositeTexture()
-                {
-                    CenterBottom = m_borderTexture.CenterBottom,
-                    CenterTop = m_borderTexture.CenterTop,
-                    LeftBottom = m_borderTexture.LeftBottom,
-                    LeftTop = m_borderTexture.LeftTop,
-                    LeftCenter = m_borderTexture.LeftCenter,
-
-                    RightBottom = m_borderTexture.RightBottom,
-                    RightCenter = m_borderTexture.RightCenter,
-                    RightTop = m_borderTexture.RightTop,
-                    Center = new MyGuiSizedTexture() { Texture = texture, },
-                };
-            }
-            else 
-            {
-                BackgroundTexture = new MyGuiCompositeTexture()
-                {
-                    Center = new MyGuiSizedTexture() { Texture = texture, },
-                };
-            }
-        }
-    }
-
     public abstract class MyGuiBlueprintScreenBase : MyGuiScreenDebugBase
     {
         public static string m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");

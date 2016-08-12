@@ -1101,6 +1101,15 @@ namespace Sandbox.Game.Multiplayer
             return m_players.Values;
         }
 
+        /// <summary>
+        /// Gets current online player count.
+        /// </summary>
+        /// <returns>Returns current online player count.</returns>
+        public int GetOnlinePlayerCount()
+        {
+            return m_players.Values.Count;
+        }
+
         public Dictionary<long, MyIdentity>.ValueCollection GetAllIdentities()
         {
             return m_allIdentities.Values;
@@ -1114,6 +1123,11 @@ namespace Sandbox.Game.Multiplayer
         public Dictionary<PlayerId, long>.KeyCollection GetAllPlayers()
         {
             return m_playerIdentityIds.Keys;
+        }
+
+        public DictionaryReader<PlayerId, long> GetAllPlayerIdentities()
+        {
+            return m_playerIdentityIds;
         }
 
         public void UpdatePlayerControllers(long controllerId)
@@ -1713,7 +1727,7 @@ namespace Sandbox.Game.Multiplayer
                 }
             }
 
-            if (Sync.IsServer)
+            if (Sync.IsServer && Sync.MyId != 0)
             {
                 MyMultiplayer.RaiseStaticEvent(s => MyPlayerCollection.OnIdentityCreated, addToNpcs, identity.IdentityId, identity.DisplayName);
             }

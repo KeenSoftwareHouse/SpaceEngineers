@@ -172,11 +172,11 @@ namespace Sandbox.Game.Entities.Character.Components
             // shooting (IK)
             MatrixD shootingMatrix = isInFirstPerson ? handItemDefinition.ItemShootLocation : handItemDefinition.ItemShootLocation3rd;
             // ironsight (IK)
-            MatrixD ironsightMatrix = MatrixD.Identity;
+            MatrixD ironsightMatrix = handItemDefinition.ItemIronsightLocation;
             // animation pose
             MatrixD weaponAnimMatrix = animController.CharacterBones.IsValidIndex(Character.WeaponBone)
-                ? (MatrixD)GetWeaponRelativeMatrix() * animController.CharacterBones[Character.WeaponBone].AbsoluteTransform
-                : (MatrixD)GetWeaponRelativeMatrix();
+                ? GetWeaponRelativeMatrix() * animController.CharacterBones[Character.WeaponBone].AbsoluteTransform
+                : GetWeaponRelativeMatrix();
 
             ironsightMatrix.Translation = m_weaponIronsightTranslation;
             if (Character.CurrentWeapon is MyEngineerToolBase)
@@ -205,7 +205,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 weaponDataPosWeight += variantWeights.Z;
             
             weaponDataPosWeight += variantWeights.W;
-            // weaponDataPosWeight /= variantWeights.X + variantWeights.Y + variantWeights.Z + variantWeights.W; // already normalized
+            weaponDataPosWeight /= variantWeights.X + variantWeights.Y + variantWeights.Z + variantWeights.W;
             // now computing hand IK weight 
             double armsIkWeight = 0;
             if (handItemDefinition.ItemPositioning != MyItemPositioningEnum.TransformFromAnim && isInFirstPerson
@@ -217,15 +217,15 @@ namespace Sandbox.Game.Entities.Character.Components
             if (handItemDefinition.ItemPositioningShoot != MyItemPositioningEnum.TransformFromAnim && isInFirstPerson
                 || handItemDefinition.ItemPositioningShoot3rd != MyItemPositioningEnum.TransformFromAnim && !isInFirstPerson)
                 armsIkWeight += variantWeights.Z;
-            //armsIkWeight /= variantWeights.X + variantWeights.Y + variantWeights.Z + variantWeights.W; // already normalized
+            armsIkWeight /= variantWeights.X + variantWeights.Y + variantWeights.Z + variantWeights.W;
 
             ApplyWeaponBouncing(handItemDefinition, ref weaponMatrixLocal);
             
             // apply head transform on top of it
             if (!isInFirstPerson)
             {
-                weaponMatrixPositioned.M43 += 0.5 * weaponMatrixLocal.M43 * Math.Max(0.0, weaponMatrixPositioned.M32);   // offset not to interfere with body
-                weaponMatrixPositioned.M42 += 0.5 * weaponMatrixLocal.M42 * Math.Max(0.0, weaponMatrixPositioned.M32);   // offset not to interfere with body
+                weaponMatrixPositioned.M43 += 0.5 * weaponMatrixLocal.M43 * Math.Max(0, weaponMatrixPositioned.M32);   // offset not to interfere with body
+                weaponMatrixPositioned.M42 += 0.5 * weaponMatrixLocal.M42 * Math.Max(0, weaponMatrixPositioned.M32);   // offset not to interfere with body
             }
             
             MatrixD weaponMatrixPositionedLocal = weaponMatrixLocal * weaponMatrixPositioned;
@@ -282,6 +282,10 @@ namespace Sandbox.Game.Entities.Character.Components
                 bounceOffset.X *= handItemDefinition.XAmplitudeScale;
                 bounceOffset.Y *= handItemDefinition.YAmplitudeScale;
                 bounceOffset.Z *= handItemDefinition.ZAmplitudeScale;
+            }
+            else
+            {
+                bounceOffset *= handItemDefinition.AmplitudeMultiplier3rd;
             }
 
             bounceOffset.Z += m_backkickPos;
@@ -368,7 +372,7 @@ namespace Sandbox.Game.Entities.Character.Components
         /// </summary>
         internal void UpdateIkTransitions()
         {
-            m_animationToIkState = (Character.HandItemDefinition == null || Character.CurrentWeapon == null || Character.UseAnimationForWeapon) ? -1 : 1;
+            m_animationToIkState = (Character.HandItemDefinition == null || Character.CurrentWeapon == null) ? -1 : 1;
 
             m_currentAnimationToIkTime += m_animationToIkState * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
             if (m_currentAnimationToIkTime >= m_animationToIKDelay)

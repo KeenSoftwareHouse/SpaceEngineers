@@ -116,48 +116,22 @@ namespace Sandbox.Game.Entities.Character
                 UpdateLeftHandItemPosition();
             }
 
-            if (m_currentWeapon != null && WeaponPosition != null)
+            if (m_currentWeapon != null && WeaponPosition != null && m_handItemDefinition != null)
             {
-                if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
+                WeaponPosition.Update();
+                //mainly IK and some zoom + ironsight stuff
+                if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1)
                 {
-                    WeaponPosition.Update();
-                    //mainly IK and some zoom + ironsight stuff
-                    if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1 && (!UseAnimationForWeapon))
-                    {
-                        MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                        CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
-                    }
-
-                    if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && (!UseAnimationForWeapon) && IsSitting == false)
-                    {
-                        MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                        CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
-                    }
+                    MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                    CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
                 }
-                else
-                {
-                    GetHeadMatrix(true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
-                    Debug.Assert(m_rightHandItemBone != -1, "Invalid bone for weapon.");
-                    if (m_rightHandItemBone != -1)
-                    {
-                        //use animation for right hand item
-                        MyCharacterBone boneRightHand = AnimationController.CharacterBones[m_rightHandItemBone];
-                        ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = boneRightHand.AbsoluteTransform * PositionComp.WorldMatrix;
 
-                        if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
-                        {
-                            MyRenderProxy.DebugDrawAxis(((MyEntity)m_currentWeapon).PositionComp.WorldMatrix, 0.5f, false);
-                        }
-                    }
+                if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && IsSitting == false)
+                {
+                    MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                    CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
                 }
             }
-            else
-            {
-                if (WeaponPosition != null)
-                    WeaponPosition.UpdateIkTransitions();
-                GetHeadMatrix(true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
-            }
-
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeBoneTransform");
 
@@ -210,7 +184,6 @@ namespace Sandbox.Game.Entities.Character
                 //    (m_rightFingersPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped))
                 {
                     m_resetWeaponAnimationState = false;
-                    UseAnimationForWeapon = false;
                 }
             }
         }
@@ -332,11 +305,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (animDefinition.AllowWithWeapon)
             {
-                if (!UseAnimationForWeapon)
-                {
-                    UseAnimationForWeapon = true;
-                    m_resetWeaponAnimationState = true;
-                }
+                m_resetWeaponAnimationState = true;
             }
         }
 

@@ -498,9 +498,12 @@ namespace VRageRender
             var model = child.GetRenderable().GetModel();
             var material = MyMeshes.GetMeshPart(model, 0, 0).Info.Material;
 
+            MeshPartId part1;
+            bool AreMultipleParts = MyMeshes.TryGetMeshPart(model, 0, 1, out part1);
+
             bool fracture = model.Info.RuntimeGenerated || model.Info.Dynamic;
 
-            if (MyMeshMaterials1.IsMergable(material) && MyBigMeshTable.Table.IsMergable(model) && !fracture)
+            if (MyMeshMaterials1.IsMergable(material) && MyBigMeshTable.Table.IsMergable(model) && !fracture && !AreMultipleParts)
             {
                 child.GetGroupLeaf().Mergeable = true;
 

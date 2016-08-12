@@ -217,7 +217,7 @@ namespace Sandbox.Game.Weapons
 
         void OnIsWorkingChanged(MyCubeBlock obj)
         {
-            ResourceSink.Update();
+            WantstoDrillChanged();
         }
 
         void Receiver_IsPoweredChanged()
@@ -307,6 +307,7 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateBeforeSimulation10()
         {
+            Receiver_IsPoweredChanged();
             base.UpdateBeforeSimulation10();
 
             Debug.Assert(WantsToDrill || Enabled);

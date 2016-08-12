@@ -592,7 +592,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            float hitDistance = Vector3.Distance(detectorComponent.HitPosition, PositionComp.GetPosition());
+            float hitDistance = Vector3.Distance(detectorComponent.HitPosition, detectorComponent.StartPosition);
             canHit = hitDistance <= m_toolItemDef.HitDistance;
             if (!canHit)
             {
@@ -667,7 +667,7 @@ namespace Sandbox.Game.Entities
                 hitEntity = detectorComponent.DetectedEntity;
                 shapeKey = detectorComponent.ShapeKey;
 
-                float hitDistance = Vector3.Distance(detectorComponent.HitPosition, PositionComp.GetPosition());
+                float hitDistance = Vector3.Distance(detectorComponent.HitPosition, detectorComponent.StartPosition);
 
                 if (hitDistance > m_toolItemDef.HitDistance)
                     hitEntity = null;

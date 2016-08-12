@@ -71,6 +71,15 @@ namespace SpaceEngineers.Game.AI
 
         public void StartBurrowing()
         {
+            
+            //GR: Added simple check so burrowing functions should happen only when on Voxel physics.
+            //Not sure though if this check should be somewhere else (e.g. behaviour Tree)
+            var result = Sandbox.Engine.Physics.MyPhysics.CastRay(AgentBot.BotEntity.WorldMatrix.Translation - 3 * AgentBot.BotEntity.WorldMatrix.Up, AgentBot.BotEntity.WorldMatrix.Translation + 3 * AgentBot.BotEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+            if (result != null && (result as VRage.Game.ModAPI.IHitInfo).HitEntity != AgentBot.BotEntity)
+            {
+                return;
+            }
+
             if (AgentBot.AgentEntity.UseNewAnimationSystem)
             {
                 MySpiderLogic.TriggerAnimationEvent(AgentBot.AgentEntity.EntityId, "burrow");
@@ -94,6 +103,15 @@ namespace SpaceEngineers.Game.AI
 
         public void StartDeburrowing()
         {
+
+            //GR: Added simple check so burrowing functions should happen only when on Voxel physics.
+            //Not sure though if this check should be somewhere else (e.g. behaviour Tree)
+            var result = Sandbox.Engine.Physics.MyPhysics.CastRay(AgentBot.BotEntity.WorldMatrix.Translation - 3 * AgentBot.BotEntity.WorldMatrix.Up, AgentBot.BotEntity.WorldMatrix.Translation + 3 * AgentBot.BotEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+            if (result != null && (result as VRage.Game.ModAPI.IHitInfo).HitEntity != AgentBot.BotEntity)
+            {
+                return;
+            }
+
             if (AgentBot.AgentEntity.UseNewAnimationSystem)
             {
                 MySpiderLogic.TriggerAnimationEvent(AgentBot.AgentEntity.EntityId, "deburrow");

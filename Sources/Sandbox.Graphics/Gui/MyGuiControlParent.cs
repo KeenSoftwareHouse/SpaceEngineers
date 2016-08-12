@@ -69,7 +69,7 @@ namespace Sandbox.Graphics.GUI
                     continue;
                 }
 
-                control.Draw(transitionAlpha, backgroundTransitionAlpha);
+                control.Draw(transitionAlpha * control.Alpha, backgroundTransitionAlpha * control.Alpha);
             }
         }
 

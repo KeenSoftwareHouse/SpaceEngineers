@@ -742,7 +742,7 @@ namespace VRageRender
                 {
                     var rMessage = (MyRenderMessageSetRenderEntityData)message;
 
-                    Debug.Assert(false, "MyRenderMessageSetRenderEntityData is deprecated!");
+                    MyRenderProxy.Assert(false, "MyRenderMessageSetRenderEntityData is deprecated!");
 
                     break;
                 }

@@ -1037,7 +1037,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool CanContinueBuild(MyInventoryBase sourceInventory)
         {
-            if (IsFullIntegrity || sourceInventory == null) return false;
+            if (IsFullIntegrity || (sourceInventory == null && !MySession.Static.CreativeMode)) return false;
 
             if (FatBlock != null && !FatBlock.CanContinueBuild()) return false;
 

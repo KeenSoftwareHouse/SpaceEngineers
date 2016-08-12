@@ -157,8 +157,8 @@ namespace Sandbox.Game.Weapons
             }
             else
             {
-                if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
-                    character.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
+                //if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
+                //    character.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
             }
         }
 
@@ -183,11 +183,15 @@ namespace Sandbox.Game.Weapons
 
             if (Owner != null)
             {
-                if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
+                if (owner.UseNewAnimationSystem)
                 {
-                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
                     Owner.TriggerCharacterAnimationEvent("building", false);
                 }
+                else
+                {
+                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
+                }
+
                 if (Owner.ControllerInfo.IsLocallyHumanControlled())
                 {
                     BlockBuilder.Activate();

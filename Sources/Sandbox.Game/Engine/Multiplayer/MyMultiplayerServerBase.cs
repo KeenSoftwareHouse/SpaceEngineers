@@ -125,9 +125,6 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
-
-
-
         #region ReplicationServer
         void IReplicationServerCallback.SendServerData(BitStream stream, EndpointId endpoint)
         {

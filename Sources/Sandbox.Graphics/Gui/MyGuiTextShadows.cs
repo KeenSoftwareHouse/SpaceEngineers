@@ -89,6 +89,14 @@ namespace Sandbox.Graphics.GUI
                     position.Y -= diffHeight / 2;
                     break;
                 }
+                case MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP:
+                {
+                    float diffWidth = shadowSize.X - textSize.X;
+                    float diffHeight = shadowSize.Y - textSize.Y;
+                    position.X += diffWidth / 2;
+                    position.Y -= diffHeight / 2;
+                    break;
+                }
             }
 
             return position;

@@ -35,12 +35,15 @@ namespace Sandbox.Game.Replication
         };
 
 
+        float m_previousRotationSpeed = 0.0f;
+
         override protected bool IsMoving(MyEntity entity)
         {
             // Never know if somebody is moving entity when physics is null
             return Entity.Physics == null
                 || Vector3.IsZero(entity.Physics.LinearVelocity, PRECISION) == false
-                || Entity.RotationSpeed > 0.0f;
+                || Vector2.IsZero(Entity.RotationIndicator, PRECISION) == false 
+                || Math.Abs(Entity.RollIndicator - 0.0f) > 0.001f;
         }
 
         public new MyCharacter Entity { get { return (MyCharacter)base.Entity; } }
@@ -130,6 +133,8 @@ namespace Sandbox.Game.Replication
                    Entity.SetStateFromNetwork(ref charNetState);
                 }             
             }
+
+            m_previousRotationSpeed = Entity.RotationSpeed;
             return true;
         }
 

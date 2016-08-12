@@ -699,7 +699,7 @@ namespace Sandbox.Game.AI
                     closestValidHit = hitInfo;
                     break;
                 }
-                else if (ent is MyVoxelMap)
+                else if (ent is MyVoxelBase)
                 {
                     closestValidHit = hitInfo;
                     break;

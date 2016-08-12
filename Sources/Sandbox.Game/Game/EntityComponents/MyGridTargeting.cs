@@ -11,6 +11,7 @@ using VRage.Game.Entity;
 using VRage.Library.Collections;
 using VRage.ModAPI;
 using VRageMath;
+using Sandbox.Game.Entities.Cube;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -129,6 +130,37 @@ namespace Sandbox.Game.EntityComponents
                         grid.Hierarchy.QuerySphere(ref bs, list);
                         VRage.ProfilerShort.End();
                     }
+                    else
+                    {
+                        MyIDModule module;
+                        //performance unfriendly case when grid is not clearly neutral or enemy
+                        foreach (var block in grid.GetFatBlocks())
+                        {
+                            var moduleOwner = ((MyEntity)block) as IMyComponentOwner<MyIDModule>;
+                            if (!(moduleOwner != null && moduleOwner.GetComponent(out module)))
+                                continue;
+
+                            var myID = block.OwnerId;
+                            foreach (var owner in m_ownersA)
+                            {
+                                if (MyIDModule.GetRelation(owner, myID) == VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies)
+                                {
+                                    enemy = true;
+                                    break;
+                                }
+                            }
+                            if (enemy)
+                                break;
+                        }
+
+                        if (enemy)
+                        {
+                            VRage.ProfilerShort.Begin("grid.Hierarchy.QuerySphere");
+                            var list = m_targetBlocks.GetOrAddList(grid);
+                            grid.Hierarchy.QuerySphere(ref bs, list);
+                            VRage.ProfilerShort.End();
+                        }
+                    }
                 }
             }
             m_ownersA.Clear();
@@ -149,6 +181,11 @@ namespace Sandbox.Game.EntityComponents
             VRage.ProfilerShort.End();
         }
 
+        private static bool IsSameOrSubclass(Type potentialBase, Type potentialDescendant)
+        {
+            return potentialDescendant.IsSubclassOf(potentialBase)
+                   || potentialDescendant == potentialBase;
+        }
 
 
         public override string ComponentTypeDebugString

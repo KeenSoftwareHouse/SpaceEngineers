@@ -148,7 +148,14 @@ namespace VRage.Game
                     Definitions[defgrp.Key] = dict;
                 }
 
+                // TODO: Postprocessing should be per definition type, not typeid.
                 var pp = MyDefinitionManagerBase.GetPostProcessor(defgrp.Key);
+
+                // Since that is too big a refactor this should fix it in the meantime.
+                // This line gets me sick :(
+                if (pp == null)
+                    pp = MyDefinitionManagerBase.GetPostProcessor(
+                        MyDefinitionManagerBase.GetObjectBuilderType(defgrp.Value.First().Value.GetType()));
 
                 myBundle.Definitions = dict;
                 thyBundle.Definitions = defgrp.Value;

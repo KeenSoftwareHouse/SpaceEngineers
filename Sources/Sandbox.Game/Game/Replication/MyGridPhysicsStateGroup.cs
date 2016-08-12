@@ -45,6 +45,11 @@ namespace Sandbox.Game.Replication
 
         bool ValidatePosition(MyEntity entity, Vector3D position)
         {
+            var grid = entity as MyCubeGrid;
+            if (grid != null && grid.PositionComp != null && grid.GridSystems.JumpSystem != null)
+            {
+                return grid.GridSystems.JumpSystem.CheckReceivedCoordinates(ref position);
+            }
             return true;
         }
 
@@ -91,7 +96,7 @@ namespace Sandbox.Game.Replication
             foreach (var node in group.Nodes)
             {
                 // Static in never master
-                if (node.NodeData.Physics.IsStatic)
+                if (node.NodeData.Physics == null || node.NodeData.Physics.IsStatic)
                     continue;
 
                 // Sort by radius, then by EntityId (to make stable sort of two same-size grids)
@@ -103,7 +108,7 @@ namespace Sandbox.Game.Replication
                 }
             }
 
-            return biggestGrid == null ? grid : biggestGrid; // Only biggest grid does the sync
+            return biggestGrid; // Only biggest grid does the sync
         }
 
         protected override float GetGroupPriority(int frameCountWithoutSync, MyClientInfo client, PrioritySettings settings)

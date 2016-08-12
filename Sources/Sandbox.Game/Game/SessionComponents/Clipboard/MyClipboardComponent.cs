@@ -247,7 +247,7 @@ namespace Sandbox.Game.SessionComponents.Clipboard
             if (this.HandleBlueprintInput())
                 return true;
             
-            if (m_clipboard.IsActive &&(MyControllerHelper.IsControl(context, MyControlsSpace.FREE_ROTATION) ||
+            if (m_clipboard != null && m_clipboard.IsActive &&(MyControllerHelper.IsControl(context, MyControlsSpace.FREE_ROTATION) ||
                                         MyControllerHelper.IsControl(context, MyControlsSpace.SWITCH_BUILDING_MODE)))
             {
 

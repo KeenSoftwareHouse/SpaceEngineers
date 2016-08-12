@@ -397,7 +397,6 @@ namespace Sandbox.Game.Gui
                 text: MyTexts.Get(text),
                 textScale: MyGuiConstants.MAIN_MENU_BUTTON_TEXT_SCALE,
                 onButtonClick: onClick,
-                implementedFeature: onClick != null,
                 originAlign: MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM);
 
             if (tooltip.HasValue)

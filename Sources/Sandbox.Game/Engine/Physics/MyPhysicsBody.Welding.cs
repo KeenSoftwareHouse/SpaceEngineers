@@ -405,7 +405,6 @@ namespace Sandbox.Engine.Physics
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
                     HavokWorld.RemoveConstraint(constraint);
                 }
             }

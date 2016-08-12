@@ -53,7 +53,7 @@ namespace SpaceEngineers.Game.AI
             }
             else
             {
-                return MyBehaviorTreeState.SUCCESS;
+                return MyBehaviorTreeState.NOT_TICKED;
             }
         }
 
@@ -72,7 +72,7 @@ namespace SpaceEngineers.Game.AI
             }
             else
             {
-                return MyBehaviorTreeState.SUCCESS;
+                return MyBehaviorTreeState.NOT_TICKED;
             }
         }
 
@@ -90,6 +90,24 @@ namespace SpaceEngineers.Game.AI
             if (!success) return MyBehaviorTreeState.FAILURE;
 
             Vector3D pos = teleportPos.Translation;
+
+            //GR: Added simple check so burrowing (and Teleport) functions should happen only when on Voxel physics.
+            //Not sure though if this check should be somewhere else (e.g. behaviour Tree)
+            //Check position of Teleport if is clear
+            var resultOnTeleportPos = Sandbox.Engine.Physics.MyPhysics.CastRay(pos + 3 * Bot.AgentEntity.WorldMatrix.Up, pos - 3 * Bot.AgentEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+            if (resultOnTeleportPos != null)
+            {
+                return MyBehaviorTreeState.NOT_TICKED;
+            }
+
+            //GR: Also check current position of spider if on CubeGrid do not teleport
+            var resultOnSpiderPos = Sandbox.Engine.Physics.MyPhysics.CastRay(Bot.AgentEntity.WorldMatrix.Translation - 3 * Bot.AgentEntity.WorldMatrix.Up, Bot.AgentEntity.WorldMatrix.Translation + 3 * Bot.AgentEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+            if (resultOnSpiderPos != null && (resultOnSpiderPos as VRage.Game.ModAPI.IHitInfo).HitEntity != Bot.AgentEntity)
+            {
+                resultOnSpiderPos = Sandbox.Engine.Physics.MyPhysics.CastRay(Bot.AgentEntity.WorldMatrix.Translation - 3 * Bot.AgentEntity.WorldMatrix.Up, Bot.AgentEntity.WorldMatrix.Translation + 3 * Bot.AgentEntity.WorldMatrix.Up, Sandbox.Engine.Physics.MyPhysics.CollisionLayers.NoVoxelCollisionLayer);
+                return MyBehaviorTreeState.NOT_TICKED;
+            }
+
             float radius = (float)Bot.AgentEntity.PositionComp.WorldVolume.Radius;
             var planet = MyGamePruningStructure.GetClosestPlanet(pos);
             if (planet != null)

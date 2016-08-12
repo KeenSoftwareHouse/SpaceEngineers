@@ -11,6 +11,7 @@ using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Game.GameSystems.CoordinateSystem;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -20,9 +21,7 @@ namespace Sandbox.Game.Entities.Cube
         Vector3I m_oldProjectorRotation;
         Vector3I m_oldProjectorOffset;
         MatrixD m_oldProjectorMatrix;
-
-        bool first = false;
-
+        bool m_firstUpdateAfterNewBlueprint = false;
 
         public MyProjectorClipboard(MyProjectorBase projector, MyPlacementSettings settings)
             : base(settings) //Pasting Settings here ?
@@ -112,6 +111,7 @@ namespace Sandbox.Game.Entities.Cube
         public bool ActuallyTestPlacement()
         {
             m_projectionCanBePlaced = base.TestPlacement();
+            MyCoordinateSystem.Static.Visible = false;
             return m_projectionCanBePlaced;
         }
 
@@ -131,9 +131,9 @@ namespace Sandbox.Game.Entities.Cube
         {
             MatrixD worldMatrix = m_projector.WorldMatrix;
 
-            if (first || (m_oldProjectorRotation != m_projector.ProjectionRotation || m_oldProjectorOffset != m_projector.ProjectionOffset || !m_oldProjectorMatrix.EqualsFast(ref worldMatrix)))
+            if (m_firstUpdateAfterNewBlueprint || m_oldProjectorRotation != m_projector.ProjectionRotation || m_oldProjectorOffset != m_projector.ProjectionOffset || !m_oldProjectorMatrix.EqualsFast(ref worldMatrix))
             {
-                first = false;
+                m_firstUpdateAfterNewBlueprint = false;
                 m_oldProjectorRotation = m_projector.ProjectionRotation;
                 m_oldProjectorMatrix = worldMatrix;
                 m_oldProjectorOffset = m_projector.ProjectionOffset;
@@ -179,7 +179,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             ChangeClipboardPreview(true);
             IsActive = true;
-            first = true;
+            m_firstUpdateAfterNewBlueprint = true;
         }
     }
 }

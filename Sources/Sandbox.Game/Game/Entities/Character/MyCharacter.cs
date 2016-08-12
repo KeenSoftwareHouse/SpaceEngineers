@@ -237,7 +237,7 @@ namespace Sandbox.Game.Entities.Character
         public event Action<IMyHandheldGunObject<MyDeviceBase>> WeaponEquiped;
         IMyHandheldGunObject<MyDeviceBase> m_currentWeapon;
 
-
+        
         public bool DebugMode = false;
 
         float m_headLocalXAngle = 0;
@@ -475,8 +475,6 @@ namespace Sandbox.Game.Entities.Character
             }
         }
 
-        bool m_useAnimationForWeapon = true;
-
         private static bool? m_localCharacterWasInThirdPerson = null;
 
         MyCharacterDefinition m_characterDefinition;
@@ -485,12 +483,6 @@ namespace Sandbox.Game.Entities.Character
         {
             get { return m_characterDefinition; }
         }
-
-        public bool UseAnimationForWeapon
-        {
-            get { return m_useAnimationForWeapon; }
-            private set { m_useAnimationForWeapon = value; }
-                    }
 
         //Backwards compatibility for MyThirdPersonSpectator
         //Default needs to be true
@@ -911,8 +903,6 @@ namespace Sandbox.Game.Entities.Character
 
             Render.InitLight(m_characterDefinition);
             Render.InitJetpackThrusts(m_characterDefinition);
-
-            m_useAnimationForWeapon = MyPerGameSettings.CheckUseAnimationInsteadOfIK();
 
             m_lightEnabled = characterOb.LightEnabled;
 
@@ -2076,12 +2066,9 @@ namespace Sandbox.Game.Entities.Character
                 //fix for grinding on DS 
                 if (m_currentWeapon != null && WeaponPosition != null)
                 {
-                    if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
-                    {
                         WeaponPosition.Update();
                     }
                 }
-            }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Update Character State");
             UpdateCharacterStateChange();
@@ -2892,15 +2879,9 @@ namespace Sandbox.Game.Entities.Character
 
             if (!jetpackRunning)
             {
-                float ratio = 1.0f;
-                if (MyFakes.ENABLE_CHARACTER_CONTROL_ON_SERVER)
-                {
-                    ratio = (float)Math.Min(1.0,Sync.RelativeSimulationRatio);
-                }
-
                 if (rotationIndicator.Y != 0 && (canRotate || m_isFalling || m_currentJumpTime > 0))
                 {
-                    MatrixD rotationMatrix = MatrixD.CreateRotationY((-rotationIndicator.Y * RotationSpeed * CHARACTER_Y_ROTATION_FACTOR * ratio));
+                    MatrixD rotationMatrix = MatrixD.CreateRotationY((-rotationIndicator.Y * RotationSpeed * CHARACTER_Y_ROTATION_FACTOR));
                     MatrixD characterMatrix = MatrixD.CreateWorld(Physics.CharacterProxy.Position, Physics.CharacterProxy.Forward, Physics.CharacterProxy.Up);
                     Vector3D headBoneTranslation = Vector3D.Zero;
           
@@ -2916,7 +2897,7 @@ namespace Sandbox.Game.Entities.Character
                         ||
                         (m_currentMovementState != MyCharacterMovementEnum.Died))
                     {
-                        SetHeadLocalXAngle(m_headLocalXAngle - rotationIndicator.X * ratio * RotationSpeed);
+                        SetHeadLocalXAngle(m_headLocalXAngle - rotationIndicator.X  * RotationSpeed);
 
                         int headBone = IsInFirstPersonView ? m_headBoneIndex : m_camera3rdBoneIndex;
 
@@ -4162,7 +4143,7 @@ namespace Sandbox.Game.Entities.Character
         {
             if (preferLocalOverSync || ControllerInfo.IsLocallyControlled())
             {
-            int headBone = IsInFirstPersonView || forceHeadBone || ForceFirstPersonCamera ? m_headBoneIndex : m_camera3rdBoneIndex;
+                int headBone = IsInFirstPersonView || forceHeadBone || ForceFirstPersonCamera ? m_headBoneIndex : m_camera3rdBoneIndex;
                 MatrixD headMatrix = GetHeadMatrixInternal(headBone, includeY, includeX, forceHeadAnim, forceHeadBone);
                 MatrixD headMatrixLocal = headMatrix * PositionComp.WorldMatrixInvScaled;
                 MyTransform transformToBeSent = new MyTransform(headMatrixLocal);
@@ -4172,7 +4153,7 @@ namespace Sandbox.Game.Entities.Character
                 m_localHeadTransform.Value = transformToBeSent;
 
                 return headMatrix;
-        }
+            }
             else
             {
                 return m_localHeadTransform.Value.TransformMatrix * PositionComp.WorldMatrix;
@@ -4477,7 +4458,6 @@ namespace Sandbox.Game.Entities.Character
             if (shootingAction.HasValue && m_currentWeapon.CanShoot(shootingAction.Value, ControllerInfo.ControllingIdentityId, out status))
             {
                 m_currentWeapon.Shoot(shootingAction.Value, ShootDirection, WeaponPosition.LogicalPositionWorld);
-                UseAnimationForWeapon = MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon);
                 //if(!UseAnimationForWeapon)
                 // StopUpperCharacterAnimation(0);
             }
@@ -4602,11 +4582,11 @@ namespace Sandbox.Game.Entities.Character
                     {
                         if (MySession.Static.CameraController == this || !ControllerInfo.IsLocallyControlled())
                         {
-                            //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate, m_secondarySoundEmitter, Common.ObjectBuilders.Audio.MyAudioHelpers.Dimensions.D3);
-                            //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate);
-                            SoundComp.PlaySecondarySound(CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND, true);
-                            EnableIronsight(false, newKeyPress, true);
-                        }
+                        //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate, m_secondarySoundEmitter, Common.ObjectBuilders.Audio.MyAudioHelpers.Dimensions.D3);
+                        //MyAudio.Static.PlayCue(MySoundCuesEnum.ArcPlayIronSightDeactivate);
+                        SoundComp.PlaySecondarySound(CharacterSoundsEnum.IRONSIGHT_DEACT_SOUND, true);
+                        EnableIronsight(false, newKeyPress, true);
+                    }
                     }
                     break;
             }
@@ -4864,8 +4844,6 @@ namespace Sandbox.Game.Entities.Character
             UnequipWeapon();
 
             StopCurrentWeaponShooting();
-
-            UseAnimationForWeapon = MyPerGameSettings.CheckUseAnimationInsteadOfIK();
 
             MyObjectBuilder_EntityBase weaponEntityBuilder = GetObjectBuilderForWeapon(weaponDefinition, ref inventoryItemId, weaponEntityId);
             var gun = CreateGun(weaponEntityBuilder, inventoryItemId);
@@ -5148,9 +5126,9 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (HasEnoughSpaceToStandUp())
                 {
-                    WantsCrouch = !WantsCrouch;
-                }
+                WantsCrouch = !WantsCrouch;
             }
+        }
         }
 
         public void Down()
@@ -5185,6 +5163,7 @@ namespace Sandbox.Game.Entities.Character
             WantsWalk = !WantsWalk;
         }
 
+        [Event,Reliable,Server]
         public void Jump()
         {
 
@@ -5495,18 +5474,17 @@ namespace Sandbox.Game.Entities.Character
             Static_CameraAttachedToChanged(null, null);
             m_oldController = controller;
 
-            //---
-            //When losing control turn off character lights until we regain control
-            m_lightWasEnabled = LightEnabled;
-            if (m_lightWasEnabled)
-            {
-                EnableLights(false);
-                RecalculatePowerRequirement();
-            }
-            //---
-
             if (MySession.Static.LocalHumanPlayer == controller.Player)
             {
+                //---
+                //When losing control turn off character lights until we regain control
+                m_lightWasEnabled = LightEnabled;
+                if (m_lightWasEnabled)
+                {
+                    EnableLights(false);
+                    RecalculatePowerRequirement();
+                }
+                //---
 
                 MyHud.SelectedObjectHighlight.RemoveHighlight();
 
@@ -5777,7 +5755,7 @@ namespace Sandbox.Game.Entities.Character
                 MyEntities.Remove(weaponEntity);
 
                 weaponEntity.Close();
-                var useAnimationInsteadOfIK = MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon);
+                //var useAnimationInsteadOfIK = MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon);
 
                 m_currentWeapon = null;
 
@@ -5786,14 +5764,16 @@ namespace Sandbox.Game.Entities.Character
                     MySector.MainCamera.Zoom.ResetZoom();
                 }
 
-                if (useAnimationInsteadOfIK)
+                if (UseNewAnimationSystem)
+                {
+                    TriggerCharacterAnimationEvent("unequip_left_tool", true);
+                    TriggerCharacterAnimationEvent("unequip_right_tool", true);
+                }
+                else
                 {
                     StopUpperAnimation(0.2f);
                     SwitchAnimation(m_currentMovementState, false);
                 }
-
-                TriggerCharacterAnimationEvent("unequip_left_tool", true);
-                TriggerCharacterAnimationEvent("unequip_right_tool", true);
 
                 MyAnalyticsHelper.ReportActivityEnd(this, "item_equip");
             }
@@ -5827,8 +5807,6 @@ namespace Sandbox.Game.Entities.Character
             m_handItemDefinition = null;
             m_currentWeapon = newWeapon;
             m_currentWeapon.OnControlAcquired(this);
-
-            UseAnimationForWeapon |= m_currentWeapon.ForceAnimationInsteadOfIK;
 
             if (WeaponEquiped != null)
                 WeaponEquiped(m_currentWeapon);
@@ -6149,7 +6127,8 @@ namespace Sandbox.Game.Entities.Character
 
         public bool DoDamage(float damage, MyStringHash damageType, bool updateSync, long attackerId = 0)
         {
-            if (damageType != MyDamageType.Suicide && ControllerInfo.IsLocallyControlled())
+            if (damageType != MyDamageType.Suicide && ControllerInfo.IsLocallyControlled() 
+                && MySession.Static.CameraController == this)
             {
                 const float maxShake = 5.0f;
                 MySector.MainCamera.CameraShake.AddShake(maxShake * damage / (damage + maxShake));
@@ -7616,6 +7595,10 @@ namespace Sandbox.Game.Entities.Character
         void IMyModdingControllableEntity.Jump()
         {
             Jump();
+            if(Sync.IsServer == false)
+            {
+                MyMultiplayer.RaiseEvent(this,x => x.Jump);
+            }
         }
 
         void IMyControllableEntity.Sprint(bool enabled)
@@ -8726,6 +8709,15 @@ namespace Sandbox.Game.Entities.Character
         public MatrixD GetSyncedToolTransform()
         {
             return m_localHeadTransformTool.Value.TransformMatrix * PositionComp.WorldMatrix;
+        }
+
+        [Event, Reliable, Client]
+        public void SwitchJetpack()
+        {
+            if (JetpackComp != null)
+            {
+                JetpackComp.SwitchThrusts();
+            }
         }
 
     }

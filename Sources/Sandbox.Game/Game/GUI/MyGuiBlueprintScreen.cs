@@ -92,13 +92,13 @@ namespace Sandbox.Game.Gui
         private MyGuiControlButton m_searchClear;
         private static MyGuiControlListbox m_blueprintList = new MyGuiControlListbox(visualStyle: MyGuiControlListboxStyleEnum.Blueprints);
         private MyGuiDetailScreenBase m_detailScreen = null;
-        private MyGuiControlImageButton m_thumbnailImage;
-        private MyGuiControlImageButton m_selectedImage;
+        private MyGuiControlImage m_thumbnailImage;
         private bool m_activeDetail = false;
         private MyGuiControlListbox.Item m_selectedItem = null;
         private MyGuiControlRotatingWheel m_wheel;
         private MyGridClipboard m_clipboard;
         private bool m_allowCopyToClipboard;
+        private string m_selectedThumbnailPath = null;
 
         static HashSet<ulong> m_downloadQueued = new HashSet<ulong>();
         static MyConcurrentHashSet<ulong> m_downloadFinished = new MyConcurrentHashSet<ulong>();
@@ -236,13 +236,11 @@ namespace Sandbox.Game.Gui
 
         public void RefreshThumbnail()
         {
-            m_selectedImage = new MyGuiControlImageButton();
-            m_selectedImage.BorderTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK;
-
-            m_thumbnailImage = new MyGuiControlImageButton();
+            m_thumbnailImage = new MyGuiControlImage();
             m_thumbnailImage.Position = new Vector2(-0.31f, -0.2f);
             m_thumbnailImage.Size = new Vector2(0.2f, 0.175f);
-            m_thumbnailImage.BorderTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK;
+            m_thumbnailImage.BackgroundTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK;
+            m_thumbnailImage.SetPadding(new MyGuiBorderThickness(3f, 2f, 3f, 2f));
             m_thumbnailImage.Visible = false;
         }
 
@@ -659,7 +657,7 @@ namespace Sandbox.Game.Gui
                     m_thumbnailImage.SetTexture(path);
                     if (!m_activeDetail)
                     {
-                        if (m_thumbnailImage.BackgroundTexture != null)
+                        if (m_thumbnailImage.IsAnyTextureValid())
                         {
                             m_thumbnailImage.Visible = true;
                         }
@@ -668,7 +666,7 @@ namespace Sandbox.Game.Gui
                 else
                 {
                     m_thumbnailImage.Visible = false;
-                    m_thumbnailImage.BackgroundTexture = null;
+                    m_thumbnailImage.SetTexture();
                 }
             }
             else
@@ -724,12 +722,12 @@ namespace Sandbox.Game.Gui
 
             if (File.Exists(path))
             {
-                m_selectedImage.SetTexture(path);
+                m_selectedThumbnailPath = path;
             }
 
             else
             {
-                m_selectedImage.BackgroundTexture = null;
+                m_selectedThumbnailPath = null;
             }
         }
 
@@ -812,8 +810,8 @@ namespace Sandbox.Game.Gui
                 }
                 else
                 {
-                    return CopyBlueprintPrefabToClipboard(prefab, m_clipboard);
-                }
+                return CopyBlueprintPrefabToClipboard(prefab, m_clipboard);
+            }
             }
             else
             {
@@ -1085,7 +1083,7 @@ namespace Sandbox.Game.Gui
                             },
                             selectedItem: m_selectedItem,
                             parent: this,
-                            thumbnailTexture: m_selectedImage.BackgroundTexture,
+                            thumbnailTexture: m_selectedThumbnailPath,
                             textScale: m_textScale
                             );
                         m_activeDetail = true;
@@ -1128,7 +1126,7 @@ namespace Sandbox.Game.Gui
                             },
                             selectedItem: m_selectedItem,
                             parent: this,
-                            thumbnailTexture: m_selectedImage.BackgroundTexture,
+                            thumbnailTexture: m_selectedThumbnailPath,
                             textScale: m_textScale
                             );
                         m_activeDetail = true;
@@ -1190,7 +1188,7 @@ namespace Sandbox.Game.Gui
                     },
                     selectedItem: m_selectedItem,
                     parent: this,
-                    thumbnailTexture: m_selectedImage.BackgroundTexture,
+                    thumbnailTexture: m_selectedThumbnailPath,
                     textScale: m_textScale
                     );
                 m_activeDetail = true;
@@ -1218,7 +1216,7 @@ namespace Sandbox.Game.Gui
                 m_thumbnailImage.SetTexture(path);
                 if (!m_activeDetail)
                 {
-                    if (m_thumbnailImage.BackgroundTexture != null)
+                    if (m_thumbnailImage.IsAnyTextureValid())
                     {
                         m_thumbnailImage.Visible = true;
                     }
@@ -1227,7 +1225,7 @@ namespace Sandbox.Game.Gui
             else
             {
                 m_thumbnailImage.Visible = false;
-                m_thumbnailImage.BackgroundTexture = null;
+                m_thumbnailImage.SetTexture();
             }
             m_downloadQueued.Remove(item.PublishedFileId);
             m_downloadFinished.Add(item.PublishedFileId);

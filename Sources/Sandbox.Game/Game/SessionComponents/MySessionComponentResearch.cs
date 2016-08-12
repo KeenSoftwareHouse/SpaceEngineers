@@ -39,11 +39,13 @@ namespace Sandbox.Game.SessionComponents
         public MyHudNotification m_unlockedResearchNotification;
         public MyHudNotification m_knownResearchNotification;
 
+        public bool WhitelistMode { get; private set; }
+
         public override bool IsRequiredByGame
         {
             get { return MyPerGameSettings.EnableResearch; }
         }
-
+        
         public override Type[] Dependencies
         {
             get { return base.Dependencies; }
@@ -87,6 +89,8 @@ namespace Sandbox.Game.SessionComponents
             var def = definition as MySessionComponentResearchDefinition;
             if (def == null)
                 return;
+
+            WhitelistMode = def.WhitelistMode;
 
             foreach (var id in def.Researches)
             {
@@ -261,7 +265,7 @@ namespace Sandbox.Game.SessionComponents
 
         public bool RequiresResearch(MyDefinitionId id)
         {
-            return m_requiredResearch.Contains(id);
+            return WhitelistMode || m_requiredResearch.Contains(id);
         }
 
         public bool IsResearchUnlocked(MyCharacter character, MyDefinitionId id)

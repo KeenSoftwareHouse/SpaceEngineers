@@ -470,7 +470,7 @@ namespace VRage.Game.Components
             return Definition != null && Definition.Serialize;
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_PhysicsComponentBase;
             builder.LinearVelocity = LinearVelocity;

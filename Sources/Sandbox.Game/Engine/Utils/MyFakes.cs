@@ -194,6 +194,9 @@ namespace Sandbox.Engine.Utils
 
         // When enabled replication distance is 100m and sleep time 30 seconds.
         public static bool MULTIPLAYER_REPLICATION_TEST = false;
+        
+        // When enabled, specific asserts in multiplayer code no longer trigger
+        public static bool DISABLE_MULTIPLAYER_ASSERTS = true;
 
         public static bool ENABLE_PISTON = true;
 
@@ -663,6 +666,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_SMALL_GRID_BLOCK_COMPONENT_INFO = true;
 
         public static bool ENABLE_MEDIEVAL_AREA_INVENTORY = false;
+        public static bool ENABLE_MEDIEVAL_CREATIVE_OWNERSHIP = true;
 
         public static bool ENABLE_BOUNDINGBOX_SHRINKING = true;
 

@@ -518,7 +518,7 @@ namespace Sandbox.Graphics.GUI
                         m_componentLines[i].NameLabel.TextToDraw.Clear();
                         m_componentLines[i].NameLabel.TextToDraw.Append(info.ComponentName);
                         //m_componentLines[i].IconPanel.BackgroundTexture = new MyGuiCompositeTexture(info.Icons[0]);
-                        m_componentLines[i].IconImage.Textures = info.Icons;
+                        m_componentLines[i].IconImage.SetTextures(info.Icons);
                         m_componentLines[i].NumbersLabel.Font = font;
                         m_componentLines[i].NumbersLabel.ColorMask = color;
                         m_componentLines[i].NumbersLabel.TextToDraw.Clear();
@@ -555,7 +555,7 @@ namespace Sandbox.Graphics.GUI
                 m_blockNameLabel.TextToDraw.ToUpper();
 
                 //m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcons[0]);
-                m_blockIconImage.Textures = BlockInfo.BlockIcons;
+                m_blockIconImage.SetTextures(BlockInfo.BlockIcons);
 
                 Reposition();
 

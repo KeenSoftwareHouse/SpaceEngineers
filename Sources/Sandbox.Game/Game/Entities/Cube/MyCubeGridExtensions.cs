@@ -64,7 +64,7 @@ namespace Sandbox
 
         public static void HookMultiplayer(this MyCubeBlock cubeBlock)
         {
-            if(cubeBlock != null)
+            if (cubeBlock != null)
             {
                 MyEntities.RaiseEntityCreated(cubeBlock);
             }

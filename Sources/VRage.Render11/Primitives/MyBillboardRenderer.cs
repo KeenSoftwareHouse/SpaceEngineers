@@ -576,7 +576,7 @@ namespace VRageRender
                     offsetX, offsetY, 0, 1
                     );
 
-                var transpose = Matrix.Transpose(viewprojection.View * viewprojection.Projection * viewportTransformation);
+                var transpose = Matrix.Transpose(viewprojection.ViewAtZero * viewprojection.Projection * viewportTransformation);
                 mapping.WriteAndPosition(ref transpose);
             }
 

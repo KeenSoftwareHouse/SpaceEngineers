@@ -13,6 +13,7 @@ namespace Sandbox.Definitions
     [MyDefinitionType(typeof(MyObjectBuilder_SessionComponentResearchDefinition))]
     public class MySessionComponentResearchDefinition: MySessionComponentDefinition
     {
+        public bool WhitelistMode;
         public List<MyDefinitionId> Researches = new List<MyDefinitionId>();
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
@@ -21,6 +22,7 @@ namespace Sandbox.Definitions
 
             var ob = builder as MyObjectBuilder_SessionComponentResearchDefinition;
 
+            WhitelistMode = ob.WhitelistMode;
             if (ob.Researches != null)
                 foreach (var research in ob.Researches)
                     Researches.Add(research);

@@ -26,6 +26,8 @@ namespace VRage.Animations
         private bool m_loop = true;
         // If true, animation will interpolate between keyframes.
         private bool m_interpolate = true;
+        // Time advances only if it has not already advanced.
+        private int m_timeAdvancedOnFrameNum = 0;
 
         // Synchronize time with the current node of specified layer. Storing reference for performance.
         private MyAnimationStateMachine m_synchronizeWithLayerRef = null;
@@ -99,8 +101,10 @@ namespace VRage.Animations
                 }
 
                 // advance local time
-                if (!ProcessLayerTimeSync(ref data))
+                if (!ProcessLayerTimeSync(ref data)
+                    && m_timeAdvancedOnFrameNum != data.Controller.FrameCounter) // time advances only if it has not already advanced
                 {
+                    m_timeAdvancedOnFrameNum = data.Controller.FrameCounter;
                     m_localTime += data.DeltaTimeInSeconds * Speed;
                     if (m_loop)
                     {

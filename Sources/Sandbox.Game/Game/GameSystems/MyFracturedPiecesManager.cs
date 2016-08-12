@@ -15,6 +15,7 @@ using Sandbox.Game.Multiplayer;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using Sandbox.Definitions;
+using VRage.Game;
 using VRage.Utils;
 
 namespace Sandbox.Game.GameSystems
@@ -26,35 +27,12 @@ namespace Sandbox.Game.GameSystems
         public static MyFracturedPiecesManager Static;
         static float LIFE_OF_CUBIC_PIECE = 300; //1m3 will live for 300secs
 
-        class MyFracturePieceAgeComparer : IComparer<MyFracturedPiece>
-        {
-            public int Compare(MyFracturedPiece f1, MyFracturedPiece f2)
-            {
-                MyTimeSpan t1, t2;
-                if (!MyFracturedPiecesManager.Static.m_piecesTimesOfDeath.TryGetValue(f1, out t1))
-                    return 0;
-
-                if (!MyFracturedPiecesManager.Static.m_piecesTimesOfDeath.TryGetValue(f2, out t2))
-                    return 0;
-
-                return t1 == t2 ? 0 : (t1 < t2 ? -1 : 1);
-            }
-        }
-
-        MyFracturePieceAgeComparer m_fracturedPieceAgeComparer = new MyFracturePieceAgeComparer();
-
         Queue<MyFracturedPiece> m_piecesPool = new Queue<MyFracturedPiece>();
-        Dictionary<MyFracturedPiece, MyTimeSpan> m_piecesTimesOfDeath = new Dictionary<MyFracturedPiece, MyTimeSpan>();
-        HashSet<MyFracturedPiece> m_blendingPieces = new HashSet<MyFracturedPiece>();
-        HashSet<MyFracturedPiece> m_inactivePieces = new HashSet<MyFracturedPiece>();
-
+        
         const int MAX_ALLOC_PER_FRAME = 50; //somehow allocations here are superfast compared to callback 10alloc ~0.03ms
-        public static float BLEND_TIME = 2; //sec
         private int m_allocatedThisFrame = 0;
 
-        HashSet<MyFracturedPiece> m_tmpToRemove = new HashSet<MyFracturedPiece>();
         HashSet<HkdBreakableBody> m_tmpToReturn = new HashSet<HkdBreakableBody>();
-        List<MyFracturedPiece> m_tmpFracturesList = new List<MyFracturedPiece>();
 
         HashSet<long> m_dbgCreated = new HashSet<long>();
         HashSet<long> m_dbgRemoved = new HashSet<long>();
@@ -72,12 +50,6 @@ namespace Sandbox.Game.GameSystems
         {
             base.LoadData();
 
-            if (Sync.IsServer)
-            {
-                MyEntities.OnEntityAdd += MyEntities_OnEntityAdd;
-                MyEntities.OnEntityRemove += MyEntities_OnEntityRemove;
-            }
-
             InitPools();
             
             Static = this;
@@ -88,7 +60,7 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.Begin("AllocCounter");
             m_allocatedThisFrame++;
 
-            var fp = new MyFracturedPiece();
+            var fp = MyEntities.CreateEntity(new MyDefinitionId(typeof(MyObjectBuilder_FracturedPiece))) as MyFracturedPiece;
             fp.Physics = new MyPhysicsBody(fp, RigidBodyFlag.RBF_DEBRIS);
             fp.Physics.CanUpdateAccelerations = true;
             ProfilerShort.End();
@@ -97,227 +69,26 @@ namespace Sandbox.Game.GameSystems
 
         protected override void UnloadData()
         {
-            MyEntities.OnEntityAdd -= MyEntities_OnEntityAdd;
-            MyEntities.OnEntityRemove -= MyEntities_OnEntityRemove;
-
             foreach (var bodies in m_bodyPool)
             {
                 bodies.Breakable.ClearListener();
             }
             m_bodyPool.Clear();
-
-            m_tmpToRemove.Clear();
-            m_piecesTimesOfDeath.Clear();
-            m_blendingPieces.Clear();
-            m_inactivePieces.Clear();
             m_piecesPool.Clear();
 
             base.UnloadData();
         }
 
         int m_addedThisFrame = 0;
-        void MyEntities_OnEntityAdd(MyEntity obj)
-        {
-            var fp = obj as MyFracturedPiece;
-            if (fp != null)
-            {
-                Debug.Assert(fp.Physics != null && fp.Physics.RigidBody != null);
-                MyTimeSpan age = GetPieceAgeLength(fp);
-                if (age.Ticks == 0)
-                {
-                    if (Sync.IsServer)
-                        RemoveInternal(fp);
-                }
-                else
-                {
-                    m_piecesTimesOfDeath[fp] = MySandboxGame.Static.UpdateTime + age;
-                    m_addedThisFrame++;
-                    if (!fp.Physics.RigidBody.IsActive)
-                        m_inactivePieces.Add(fp);
-                    fp.Physics.RigidBody.Activated += RigidBody_Activated;
-                    fp.Physics.RigidBody.Deactivated += RigidBody_Deactivated;
-                }
-            }
-        }
-
-        void RigidBody_Deactivated(HkEntity entity)
-        {
-            Debug.Assert(entity.GetEntity(0) is MyFracturedPiece);
-            var fp = entity.GetEntity(0) as MyFracturedPiece;
-            if (fp == null || m_blendingPieces.Contains(fp))
-                return;
-            m_inactivePieces.Add(fp);
-        }
-
-        void RigidBody_Activated(HkEntity entity)
-        {
-            Debug.Assert(entity.GetEntity(0) is MyFracturedPiece);
-            var fp = entity.GetEntity(0) as MyFracturedPiece;
-            if (fp == null || m_blendingPieces.Contains(fp))
-                return;
-            m_inactivePieces.Remove(fp);
-        }
-
-        void MyEntities_OnEntityRemove(MyEntity obj)
-        {
-            //var fp = obj as MyFracturedPiece;
-            //if (fp != null)
-            //{
-            //    if (m_piecesTimesOfBirth.ContainsKey(fp))
-            //        m_activePieces.Remove(m_piecesTimesOfBirth[fp].Miliseconds);
-            //    m_piecesTimesOfDeath.Remove(fp);
-            //    m_piecesTimesOfBirth.Remove(fp);
-            //    m_blendingPieces.Remove(fp);
-            //}
-        }
-
-        MyTimeSpan GetPieceAgeLength(MyFracturedPiece piece)
-        {
-            if (piece.Physics == null || piece.Physics.BreakableBody == null)
-                return MyTimeSpan.Zero;
-
-            if (piece.Physics.RigidBody.Layer == FakePieceLayer)
-                return MyTimeSpan.FromSeconds(8 + MyRandom.Instance.NextFloat(0, 4));
-
-            int? pieceAgeFromDef = GetPieceAgeLengthFromDefinition(piece);
-            if (pieceAgeFromDef != null)
-                return MyTimeSpan.FromSeconds(pieceAgeFromDef.Value);
-
-            float volume = piece.Physics.BreakableBody.BreakableShape.Volume;
-            float proposedAgeInSecs = volume * LIFE_OF_CUBIC_PIECE;
-
-            return MyTimeSpan.FromSeconds(proposedAgeInSecs);
-        }
-
-        int? GetPieceAgeLengthFromDefinition(MyFracturedPiece piece)
-        {
-            if (piece.OriginalBlocks == null || piece.OriginalBlocks.Count == 0)
-                return null;
-
-            if (MyDefinitionManager.Static.DestructionDefinition == null || MyDefinitionManager.Static.DestructionDefinition.FracturedPieceDefinitions == null)
-                return null;
-
-            MyDestructionDefinition.MyFracturedPieceDefinition fracDefDefault = null;
-            MyDestructionDefinition.MyFracturedPieceDefinition fracDef = null;
-            foreach (var fd in MyDefinitionManager.Static.DestructionDefinition.FracturedPieceDefinitions)
-            {
-                if (piece.OriginalBlocks[0].TypeId == fd.Id.TypeId)
-                {
-                    if (fd.Id.SubtypeId == MyStringHash.NullOrEmpty)
-                        fracDefDefault = fd;
-                    else if (piece.OriginalBlocks[0].SubtypeId == fd.Id.SubtypeId)
-                        fracDef = fd;
-                }
-            }
-
-            if (fracDef != null)
-                return fracDef.Age;
-            else if (fracDefDefault != null)
-                return fracDefDefault.Age;
-
-            return null;
-        }
-
         public override void UpdateAfterSimulation()
         {
-            CheckConsistency();
-
-            m_addedThisFrame = 0;
             base.UpdateAfterSimulation();
 
-            foreach(var body in m_tmpToReturn)
+            foreach (var body in m_tmpToReturn)
             {
                 ReturnToPoolInternal(body);
             }
             m_tmpToReturn.Clear();
-
-            if (Sync.IsServer)
-            {
-                foreach (var piece in m_piecesTimesOfDeath)
-                {
-                    Debug.Assert(piece.Key.Physics == null || !piece.Key.Physics.RigidBody.IsDisposed, "Disposed piece rigid body!!");
-                    if (piece.Value <= MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(BLEND_TIME))
-                    {
-                        RemoveFracturePiece(piece.Key, BLEND_TIME);
-                    }
-                }
-
-                int currentFracturedPiecesCount = m_piecesTimesOfDeath.Count - m_blendingPieces.Count;
-                var maxFracturePieces = MySession.Static.Settings.MaxActiveFracturePieces;
-                if (currentFracturedPiecesCount > maxFracturePieces)
-                {
-                    m_tmpFracturesList.AddHashset(m_inactivePieces);
-                    m_tmpFracturesList.Sort(m_fracturedPieceAgeComparer);
-
-                    foreach (var piece in m_tmpFracturesList)
-                    {
-                        if (currentFracturedPiecesCount <= maxFracturePieces)
-                            break;
-                        if (m_blendingPieces.Contains(piece))
-                            continue;
-                        RemoveFracturePiece(piece, BLEND_TIME);
-                        currentFracturedPiecesCount--;
-                    }
-                    m_tmpFracturesList.Clear();
-
-                    if (currentFracturedPiecesCount > maxFracturePieces)
-                    {
-                        m_tmpFracturesList.AddRange(m_piecesTimesOfDeath.Keys);
-                        m_tmpFracturesList.Sort(m_fracturedPieceAgeComparer);
-
-                        foreach (var piece in m_tmpFracturesList)
-                        {
-                            if (currentFracturedPiecesCount <= maxFracturePieces)
-                                break;
-                            if (m_blendingPieces.Contains(piece) || m_inactivePieces.Contains(piece))
-                                continue;
-                            m_tmpToRemove.Add(piece);
-                            currentFracturedPiecesCount--;
-                        }
-
-                        m_tmpFracturesList.Clear();
-                    }
-
-                    foreach (var piece in m_tmpToRemove)
-                    {
-                        RemoveFracturePiece(piece, BLEND_TIME);
-                    }
-                    m_tmpToRemove.Clear();
-                }
-            }
-
-            foreach (var piece in m_blendingPieces)
-            {
-                float blend = (float)(m_piecesTimesOfDeath[piece] - MySandboxGame.Static.UpdateTime).Seconds / BLEND_TIME;
-
-                if (piece.Render != null)
-                {
-                    foreach (var id in piece.Render.RenderObjectIDs)
-                    {
-                        VRageRender.MyRenderProxy.UpdateRenderEntity(
-                            id,
-                            null,
-                            null,
-                            1 - blend);
-                    }
-                }
-                else
-                {
-                    Debug.Assert(false);
-                }
-
-                if (Sync.IsServer && m_piecesTimesOfDeath[piece] <= MySandboxGame.Static.UpdateTime)
-                {
-                    m_tmpToRemove.Add(piece);
-                }
-            }
-
-            foreach (var fp in m_tmpToRemove)
-            {
-                Debug.Assert(Sync.IsServer);
-                RemoveInternal(fp);
-            }
-            m_tmpToRemove.Clear();
 
             ProfilerShort.Begin("Allocate");
             while (m_bodyPool.Count < PREALLOCATE_BODIES && m_allocatedThisFrame < MAX_ALLOC_PER_FRAME)
@@ -333,20 +104,6 @@ namespace Sandbox.Game.GameSystems
             m_allocatedThisFrame = 0;
         }
 
-        [Conditional("DEBUG")]
-        private void CheckConsistency()
-        {
-            foreach (var piece in m_inactivePieces)
-            {
-                Debug.Assert(m_piecesTimesOfDeath.ContainsKey(piece));
-            }
-
-            foreach (var piece in m_blendingPieces)
-            {
-                Debug.Assert(m_piecesTimesOfDeath.ContainsKey(piece));
-            }
-        }
-
         private void RemoveInternal(MyFracturedPiece fp,bool fromServer = false)
         {
             if (fp.Physics != null && fp.Physics.RigidBody != null)
@@ -354,13 +111,9 @@ namespace Sandbox.Game.GameSystems
                 Debug.Assert(!fp.Physics.RigidBody.IsDisposed, "Disposed piece rigid body!!");
                 if (fp.Physics.RigidBody.IsDisposed)
                 {
-                    var rb = fp.Physics.BreakableBody.GetRigidBody();
                     fp.Physics.BreakableBody = fp.Physics.BreakableBody;
                 }
             }
-            bool a = m_piecesTimesOfDeath.Remove(fp);
-            bool b = m_blendingPieces.Remove(fp);
-            bool c = m_inactivePieces.Remove(fp);
 
             if (fp.Physics == null || fp.Physics.RigidBody == null || fp.Physics.RigidBody.IsDisposed)
             {
@@ -368,9 +121,6 @@ namespace Sandbox.Game.GameSystems
                 MyEntities.Remove(fp);
                 return;
             }
-
-            fp.Physics.RigidBody.Activated -= RigidBody_Activated;
-            fp.Physics.RigidBody.Deactivated -= RigidBody_Deactivated;
 
             //Let objects staying on this fp to fall
             if (!fp.Physics.RigidBody.IsActive)
@@ -381,22 +131,11 @@ namespace Sandbox.Game.GameSystems
 
             var bb = fp.Physics.BreakableBody;
             bb.AfterReplaceBody -= fp.Physics.FracturedBody_AfterReplaceBody;
-            if (fromServer == false)
-            {
-                MyFracturedPiecesManager.Static.ReturnToPool(bb);
-            }
-            else
-            {
-                bb.Dispose();
-            }
-
+            this.ReturnToPool(bb);
             
             fp.Physics.Enabled = false;
             MyEntities.Remove(fp);
             fp.Physics.BreakableBody = null;
-            //fp.Shape.RemoveReference();
-            //System.Diagnostics.Debug.Assert(bb.ReferenceCount == 1);//not true anymore, since FP can be removed from callback immediately
-
             fp.Render.ClearModels();
             fp.OriginalBlocks.Clear();
             if (Sync.IsServer)
@@ -436,8 +175,6 @@ namespace Sandbox.Game.GameSystems
 
 		public void GetFracturesInSphere(ref BoundingSphereD searchSphere, ref List<MyFracturedPiece> output)
 		{
-			var activeFractures = m_piecesTimesOfDeath.Keys;
-
 			HkShape shape = new HkSphereShape((float)searchSphere.Radius);
 			try
 			{
@@ -459,8 +196,6 @@ namespace Sandbox.Game.GameSystems
 
         public void GetFracturesInBox(ref BoundingBoxD searchBox, List<MyFracturedPiece> output)
         {
-            var activeFractures = m_piecesTimesOfDeath.Keys;
-
             Debug.Assert(m_rigidList.Count == 0);
             m_rigidList.Clear();
 
@@ -473,7 +208,7 @@ namespace Sandbox.Game.GameSystems
                 foreach (var rigidBody in m_rigidList)
                 {
                     var fracture = rigidBody.GetCollisionEntity() as MyFracturedPiece;
-                    if (fracture != null && m_piecesTimesOfDeath.ContainsKey(fracture))
+                    if (fracture != null /*&& m_piecesTimesOfDeath.ContainsKey(fracture)*/)
                         output.Add(fracture);
                 }
             }
@@ -483,24 +218,6 @@ namespace Sandbox.Game.GameSystems
                 shape.RemoveReference();
             }
         }
-
-		public bool TryGetFractureById(long entityId, out MyFracturedPiece outFracture)
-		{
-			outFracture = null;
-			var activeFractures = m_piecesTimesOfDeath.Keys;
-
-			foreach(var fracture in activeFractures)
-			{
-				if (fracture.EntityId == entityId)
-				{
-					outFracture = fracture;
-					return true;
-				}
-			}
-
-
-			return false;
-		}
 
         //jn: TODO move to some more general position 
         private Queue<Bodies> m_bodyPool = new Queue<Bodies>();
@@ -567,44 +284,6 @@ namespace Sandbox.Game.GameSystems
                 RemoveInternal(piece, fromServer);
                 return;
             }
-
-            MyTimeSpan newDeath = MySandboxGame.Static.UpdateTime + MyTimeSpan.FromSeconds(blendTimeSeconds);
-            if (m_blendingPieces.Add(piece))
-            {
-
-                if (!m_piecesTimesOfDeath.ContainsKey(piece))
-                {
-                    Debug.Assert(fromServer, "Fracture piece missing time of death on server!");
-                    m_piecesTimesOfDeath.Add(piece, newDeath);
-                }
-
-                MyTimeSpan currentDeath;
-                if (m_piecesTimesOfDeath.TryGetValue(piece, out currentDeath))
-                {
-                    if (currentDeath > newDeath)
-                    {
-                        m_piecesTimesOfDeath[piece] = newDeath;
-                    }
-                }
-                else
-                    Debug.Fail("Fracture Piece missing time of death!");
-            }
-            else
-            {
-                MyTimeSpan currentDeath;
-                if (m_piecesTimesOfDeath.TryGetValue(piece, out currentDeath))
-                {
-                    if (currentDeath > newDeath)
-                    {
-                        m_piecesTimesOfDeath[piece] = newDeath;
-
-                    }
-                }
-                else
-                {
-                    Debug.Assert(false, "Shouldnt get here");
-                }
-            }
         }
 
         public void RemoveFracturesInBox(ref BoundingBoxD box, float blendTimeSeconds)
@@ -648,14 +327,12 @@ namespace Sandbox.Game.GameSystems
                 return;
             }
             rb.ContactPointCallbackEnabled = false;
-            //Debug.Assert(m_givenRBs.Remove(rb), "New body from outside in pool!");
             m_givenRBs.Remove(rb);
             foreach(var b0 in m_bodyPool)
             {
                 if (body == b0.Breakable || rb == b0.Rigid)
                     Debug.Fail("Body already in pool!");
             }
-            // body.BreakableShape.AddReference();
             var bs = body.BreakableShape;
             bs.ClearConnections();
             body.Clear();

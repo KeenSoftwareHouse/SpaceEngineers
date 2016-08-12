@@ -119,6 +119,13 @@ namespace VRage.ObjectBuilders
             return m_attributesByObjectBuilder[objectBuilderType].ProducedType;
         }
 
+        public Type TryGetProducedType(MyObjectBuilderType objectBuilderType)
+        {
+            TAttribute attrib = null;
+            if (!m_attributesByObjectBuilder.TryGetValue(objectBuilderType, out attrib)) return null;
+            return attrib.ProducedType;
+        }
+
         public TObjectBuilder CreateObjectBuilder<TObjectBuilder>(TCreatedObjectBase instance) where TObjectBuilder : MyObjectBuilder_Base
         {
             return CreateObjectBuilder<TObjectBuilder>(instance.GetType());

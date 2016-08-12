@@ -72,5 +72,9 @@ namespace VRage.Game.Components
             return m_objectFactory.GetProducedType(type);
         }
 
+        public static Type TryGetCreatedInstanceType(MyObjectBuilderType type)
+        {
+            return m_objectFactory.TryGetProducedType(type);
+        }
     }
 }

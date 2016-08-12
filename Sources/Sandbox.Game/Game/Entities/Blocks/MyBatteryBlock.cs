@@ -104,8 +104,10 @@ namespace Sandbox.Game.Entities
             get { return m_onlyRecharge.Value; }
             set
             {
+                if (value)
+                    OnlyDischarge = false;
                 m_onlyRecharge.Value = value;
-                m_producerEnabled.Value = !value;          
+                m_producerEnabled.Value = !value;
             }
         }
 
@@ -114,6 +116,8 @@ namespace Sandbox.Game.Entities
             get { return m_onlyDischarge.Value; }
             set
             {
+                if (value)
+                    OnlyRecharge = false;
                 m_onlyDischarge.Value = value;
             }
         }
