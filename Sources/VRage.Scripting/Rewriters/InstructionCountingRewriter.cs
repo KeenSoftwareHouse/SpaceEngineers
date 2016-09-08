@@ -23,7 +23,7 @@ namespace VRage.Scripting.Rewriters
         static NameSyntax AnnotatedIdentifier(string identifierName)
         {
             var dotIndex = identifierName.LastIndexOf('.');
-            if(dotIndex >= 0)
+            if (dotIndex >= 0)
             {
                 return Annotated(SyntaxFactory.QualifiedName(
                     AnnotatedIdentifier(identifierName.Substring(0, dotIndex)),
@@ -53,9 +53,9 @@ namespace VRage.Scripting.Rewriters
 
         public InstructionCountingRewriter(MyScriptCompiler compiler, CSharpCompilation compilation, SyntaxTree syntaxTree)
         {
-            this.m_compiler = compiler;
-            this.m_compilation = compilation;
-            this.m_syntaxTree = syntaxTree;
+            m_compiler = compiler;
+            m_compilation = compilation;
+            m_syntaxTree = syntaxTree;
         }
 
         /// <summary>
@@ -164,9 +164,9 @@ namespace VRage.Scripting.Rewriters
         FileLinePositionSpan GetBlockResumeLocation(SyntaxNode node)
         {
             var block = node as BlockSyntax;
-            if(block != null)
+            if (block != null)
             {
-                if(block.Statements.Count == 0)
+                if (block.Statements.Count == 0)
                 {
                     return block.CloseBraceToken.GetLocation().GetMappedLineSpan();
                 }
@@ -188,7 +188,7 @@ namespace VRage.Scripting.Rewriters
         {
             injection = injection ?? InstructionCounterCall();
             var block = node as BlockSyntax;
-            if(block != null)
+            if (block != null)
             {
                 return block.WithStatements(block.Statements.Insert(0, Barricaded(resumeLocation.Path, resumeLocation.StartLinePosition, injection)));
             }
@@ -283,7 +283,7 @@ namespace VRage.Scripting.Rewriters
         /// <returns></returns>
         BlockSyntax CreateDelegateMethodBody(ExpressionSyntax expression, FileLinePositionSpan blockResumeLocation, bool hasReturnValue)
         {
-            if(hasReturnValue)
+            if (hasReturnValue)
             {
                 return Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
                     SyntaxFactory.Block(
@@ -305,7 +305,7 @@ namespace VRage.Scripting.Rewriters
                                 SyntaxFactory.FinallyClause(
                                     SyntaxFactory.Block(
                                         ExitMethodCall()
-                                        )
+                                        )   
                                     )
                                 )
                             )
@@ -347,13 +347,13 @@ namespace VRage.Scripting.Rewriters
         SyntaxNode ProcessAnonymousFunction(AnonymousFunctionExpressionSyntax node, FileLinePositionSpan blockResumeLocation, INamedTypeSymbol type)
         {
             var bodyBlock = node.Body as BlockSyntax;
-            if(bodyBlock != null)
+            if (bodyBlock != null)
             {
                 node = node.WithBody(InjectedBlock(bodyBlock, blockResumeLocation));
                 return node;
             }
 
-            if(type == null || type.DelegateInvokeMethod == null)
+            if (type == null || type.DelegateInvokeMethod == null)
             {
                 // We don't know what's going on here, probably some kind of syntax error. Let the compiler deal with it.
                 return node;
@@ -405,13 +405,13 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode Visit(SyntaxNode node)
         {
-            if(node == null)
+            if (node == null)
             {
                 return null; // ???
             }
             Debug.WriteLine(node.Kind());
             Debug.Indent();
-            if(node is IdentifierNameSyntax)
+            if (node is IdentifierNameSyntax)
             {
                 Debug.WriteLine(node.GetText());
             }
@@ -599,7 +599,7 @@ namespace VRage.Scripting.Rewriters
             node = (ElseClauseSyntax)base.VisitElseClause(node);
 
             // We leave "else if" alone.
-            if(node.Statement.Kind() == SyntaxKind.IfStatement)
+            if (node.Statement.Kind() == SyntaxKind.IfStatement)
             {
                 return node;
             }
@@ -609,7 +609,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitGotoStatement(GotoStatementSyntax node)
         {
-            if(node.CaseOrDefaultKeyword.Kind() != SyntaxKind.None)
+            if (node.CaseOrDefaultKeyword.Kind() != SyntaxKind.None)
                 return base.VisitGotoStatement(node);
 
             var resumeLocation = node.GetLocation().GetMappedLineSpan();
@@ -624,7 +624,7 @@ namespace VRage.Scripting.Rewriters
             var resumeLocation = node.Statements.Count > 0 ? node.Statements[0].GetLocation().GetMappedLineSpan() : new FileLinePositionSpan();
 
             node = (SwitchSectionSyntax)base.VisitSwitchSection(node);
-            if(node.Statements.Count > 0)
+            if (node.Statements.Count > 0)
             {
                 node = node.WithStatements(node.Statements.Insert(0,
                     Barricaded(resumeLocation.Path, resumeLocation.StartLinePosition, InstructionCounterCall())));
@@ -674,7 +674,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
         {
-            if(node.ExpressionBody != null)
+            if (node.ExpressionBody != null)
             {
                 var blockResumeLocation = GetBlockResumeLocation(node.ExpressionBody);
 
@@ -689,7 +689,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitAccessorDeclaration(AccessorDeclarationSyntax node)
         {
-            if(node.Body == null)
+            if (node.Body == null)
             {
                 return base.VisitAccessorDeclaration(node);
             }
@@ -725,7 +725,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
         {
-            if(node.Body == null)
+            if (node.Body == null)
             {
                 return base.VisitConstructorDeclaration(node);
             }
@@ -739,7 +739,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitDestructorDeclaration(DestructorDeclarationSyntax node)
         {
-            if(node.Body == null)
+            if (node.Body == null)
             {
                 return base.VisitDestructorDeclaration(node);
             }
@@ -755,7 +755,7 @@ namespace VRage.Scripting.Rewriters
         {
             //Inflex note: This is oversight mistake for sure. 
             //It's necessary to prohibit any possible infinite recursion.
-            if(node.Body == null && node.ExpressionBody == null)
+            if (node.Body == null && node.ExpressionBody == null)
             {
                 return base.VisitOperatorDeclaration(node);
             }
@@ -769,7 +769,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitConversionOperatorDeclaration(ConversionOperatorDeclarationSyntax node)
         {
-            if(node.Body == null && node.ExpressionBody == null)
+            if (node.Body == null && node.ExpressionBody == null)
             {
                 return base.VisitConversionOperatorDeclaration(node);
             }
@@ -783,7 +783,7 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitMethodDeclaration(MethodDeclarationSyntax node)
         {
-            if(node.Body == null && node.ExpressionBody == null)
+            if (node.Body == null && node.ExpressionBody == null)
             {
                 return base.VisitMethodDeclaration(node);
             }
@@ -798,7 +798,7 @@ namespace VRage.Scripting.Rewriters
         public override SyntaxNode VisitAnonymousMethodExpression(AnonymousMethodExpressionSyntax node)
         {
             var blockResumeLocation = GetBlockResumeLocation(node.Body);
-            var type = this.m_semanticModel.GetTypeInfo(node).ConvertedType as INamedTypeSymbol;
+            var type = m_semanticModel.GetTypeInfo(node).ConvertedType as INamedTypeSymbol;
 
             node = (AnonymousMethodExpressionSyntax)base.VisitAnonymousMethodExpression(node);
             return ProcessAnonymousFunction(node, blockResumeLocation, type);
@@ -807,7 +807,7 @@ namespace VRage.Scripting.Rewriters
         public override SyntaxNode VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
         {
             var blockResumeLocation = GetBlockResumeLocation(node.Body);
-            var type = this.m_semanticModel.GetTypeInfo(node).ConvertedType as INamedTypeSymbol;
+            var type = m_semanticModel.GetTypeInfo(node).ConvertedType as INamedTypeSymbol;
 
             node = (ParenthesizedLambdaExpressionSyntax)base.VisitParenthesizedLambdaExpression(node);
             return ProcessAnonymousFunction(node, blockResumeLocation, type);
@@ -816,7 +816,7 @@ namespace VRage.Scripting.Rewriters
         public override SyntaxNode VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node)
         {
             var blockResumeLocation = GetBlockResumeLocation(node.Body);
-            var type = this.m_semanticModel.GetTypeInfo(node).ConvertedType as INamedTypeSymbol;
+            var type = m_semanticModel.GetTypeInfo(node).ConvertedType as INamedTypeSymbol;
 
             node = (SimpleLambdaExpressionSyntax)base.VisitSimpleLambdaExpression(node);
             return ProcessAnonymousFunction(node, blockResumeLocation, type);
@@ -858,10 +858,10 @@ namespace VRage.Scripting.Rewriters
         /// <returns></returns>
         public async Task<SyntaxTree> Rewrite()
         {
-            var root = (CSharpSyntaxNode)await this.m_syntaxTree.GetRootAsync().ConfigureAwait(false);
-            this.m_semanticModel = this.m_compilation.GetSemanticModel(this.m_syntaxTree);
+            var root = (CSharpSyntaxNode)await m_syntaxTree.GetRootAsync().ConfigureAwait(false);
+            m_semanticModel = m_compilation.GetSemanticModel(m_syntaxTree);
             root = (CSharpSyntaxNode)Visit(root);
-            return CSharpSyntaxTree.Create(root, path: this.m_syntaxTree.FilePath);
+            return CSharpSyntaxTree.Create(root, path: m_syntaxTree.FilePath);
         }
     }
 }

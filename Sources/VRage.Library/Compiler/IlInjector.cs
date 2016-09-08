@@ -742,7 +742,7 @@ namespace VRage.Compiler
 
         private class InstructionCounterHandle : ICounterHandle
         {
-            private int m_runDepth;
+            int m_runDepth;
 
             public int Depth { get { return m_runDepth; } }
 
