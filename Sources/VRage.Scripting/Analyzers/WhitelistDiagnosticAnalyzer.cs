@@ -33,7 +33,7 @@ namespace VRage.Scripting.Analyzers
         public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(Analyze,
-                SyntaxKind.FinallyClause,
+                //SyntaxKind.FinallyClause,
                 SyntaxKind.AliasQualifiedName,
                 SyntaxKind.QualifiedName,
                 SyntaxKind.GenericName,
@@ -52,16 +52,18 @@ namespace VRage.Scripting.Analyzers
 
             // The exception finally clause cannot be allowed ingame because it can be used
             // to circumvent the instruction counter exception and crash the game
-            if (node.Kind() == SyntaxKind.FinallyClause)
-            {
-                var kw = ((FinallyClauseSyntax)node).FinallyKeyword;
-                if (m_target == MyWhitelistTarget.Ingame)
-                {
-                    var diagnostic = Diagnostic.Create(PROHIBITED_LANGUAGE_ELEMENT_RULE, kw.GetLocation(), kw.ToString());
-                    context.ReportDiagnostic(diagnostic);
-                }
-                return;
-            }
+            //
+            // Inflex note: No more true. InstructionCountingRewriter is capable of handling such situations from now on
+            //if (node.Kind() == SyntaxKind.FinallyClause)
+            //{
+            //    var kw = ((FinallyClauseSyntax)node).FinallyKeyword;
+            //    if (m_target == MyWhitelistTarget.Ingame)
+            //    {
+            //        var diagnostic = Diagnostic.Create(PROHIBITED_LANGUAGE_ELEMENT_RULE, kw.GetLocation(), kw.ToString());
+            //        context.ReportDiagnostic(diagnostic);
+            //    }
+            //    return;
+            //}
 
             // We'll check the qualified names on their own.
             if (IsQualifiedName(node.Parent))
