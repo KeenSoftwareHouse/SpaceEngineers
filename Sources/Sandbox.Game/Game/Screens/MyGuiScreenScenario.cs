@@ -38,6 +38,8 @@ namespace Sandbox.Game.Gui
 
         string m_sessionPath;
 
+        MyGuiControlTable.Row m_selectedScenario = null;
+
 #if !XB1 // XB1_NOWORKSHOP
         private List<MySteamWorkshop.SubscribedItem> m_subscribedScenarios;
 #endif // !XB1
@@ -69,10 +71,14 @@ namespace Sandbox.Game.Gui
 
         //BUTTONS:
         MyGuiControlButton m_removeButton, m_publishButton, m_editButton, m_browseWorkshopButton;
-        MyGuiControlButton m_refreshButton, m_openInWorkshopButton;  
+        MyGuiControlButton m_refreshButton, m_openInWorkshopButton;
 
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
+
+        int m_maxKeensScenario = 2;
+        int m_maxWorkshopScenario = 0;
+        int m_maxLocalScenario = 0;
 
         public MyGuiScreenScenario()
             : base()
@@ -132,17 +138,20 @@ namespace Sandbox.Game.Gui
             m_scenarioTypesList = new MyGuiControlList();
 
             //BUTTONS
-            m_removeButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonRemove), onButtonClick: OnOkButtonClick);
 #if !XB1 // XB1_NOWORKSHOP
+            m_removeButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonRemove), onButtonClick: OnRemoveButtonClick);
             m_publishButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonPublish), onButtonClick: OnPublishButtonClick);
+            m_openInWorkshopButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonOpenInWorkshop), onButtonClick: OnOpenInWorkshopClick);
 #else // XB1
+            m_removeButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonRemove), onButtonClick: OnOkButtonClick);
             m_publishButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonPublish), onButtonClick: OnOkButtonClick);
+            m_openInWorkshopButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonOpenInWorkshop), onButtonClick: OnOkButtonClick);
 #endif // XB1
             m_editButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonEdit), onButtonClick: OnEditButtonClick);
             m_browseWorkshopButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonBrowseWorkshop), onButtonClick: OnBrowseWorkshopClick);
 
             m_refreshButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonRefresh), onButtonClick: OnRefreshButtonClick);
-            m_openInWorkshopButton = new MyGuiControlButton(text: MyTexts.Get(MySpaceTexts.buttonOpenInWorkshop), onButtonClick: OnOkButtonClick);
+
 
             m_removeButton.Enabled = false;
             m_publishButton.Enabled = false;
@@ -280,8 +289,14 @@ namespace Sandbox.Game.Gui
         {
             base.OnTableItemSelected(sender, eventArgs);
 
-            if (eventArgs.RowIndex<2)
+            m_selectedScenario = sender.SelectedRow;
+
+            if (eventArgs.RowIndex < m_maxKeensScenario )
             {
+#if !XB1 // XB1_NOWORKSHOP
+                m_removeButton.Enabled = false;
+                m_openInWorkshopButton.Enabled = false;
+#endif
                 m_publishButton.Enabled = false;
                 m_onlineMode.Enabled = false;
                 m_onlineMode.SelectItemByIndex(0);
@@ -289,6 +304,18 @@ namespace Sandbox.Game.Gui
             }
             else
             {
+#if !XB1 // XB1_NOWORKSHOP
+                if (eventArgs.RowIndex < m_maxKeensScenario+m_maxWorkshopScenario)
+                {
+                    m_removeButton.Enabled = true;
+                    m_openInWorkshopButton.Enabled = true;
+                }
+                else
+                {
+                    m_removeButton.Enabled = false; // TODO: Remove this if RemoveLocal() is implemented
+                    m_openInWorkshopButton.Enabled = false;
+                }
+#endif
                 m_publishButton.Enabled = false;
                 m_onlineMode.Enabled = true;
 
@@ -301,6 +328,68 @@ namespace Sandbox.Game.Gui
                         m_editButton.Enabled = true;
                 }
             }
+        }
+        
+        private void OnRemoveButtonClick(MyGuiControlButton obj)
+        {
+            if (m_selectedScenario == null)
+                return;
+
+            Tuple<string, MyWorldInfo> tuple = (Tuple<string, MyWorldInfo>)m_selectedScenario.UserData;
+            if (tuple == null)
+                return;
+            MyWorldInfo scenario = tuple.Item2;
+
+#if !XB1 // XB1_NOWORKSHOP
+            if (m_selectedRowIndex < m_maxKeensScenario + m_maxWorkshopScenario)
+                MySandboxGame.Services.SteamService.SteamAPI.UGC.UnsubscribeItem((ulong)scenario.WorkshopId, OnCallResultSteamAPI);
+            else
+            {
+                RemoveLocal();
+            }
+#else
+            RemoveLocal();
+#endif
+        }
+
+#if !XB1 // XB1_NOWORKSHOP
+        private void OnCallResultSteamAPI(bool arg1, RemoteStorageUnsubscribePublishedFileResult arg2)
+        {
+            m_scenarioTable.RemoveSelectedRow();
+            m_selectedScenario = null;
+            m_openInWorkshopButton.Enabled = false;
+            m_removeButton.Enabled = false;
+            m_state = StateEnum.ListNeedsReload;
+        }
+#endif
+        // TODO: Remove local
+        private void RemoveLocal()
+        {
+            // TODO: Remove local file...
+
+            //m_scenarioTable.RemoveSelectedRow();
+            //m_selectedScenario = null;
+            //m_removeButton.Enabled = false;
+            //m_state = StateEnum.ListNeedsReload;
+        }
+
+        private void OnBrowseWorkshopClick(MyGuiControlButton obj)
+        {
+            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_BROWSE_WORKSHOP_SCENARIOS, "Steam Workshop");
+        }
+
+        private void OnOpenInWorkshopClick(MyGuiControlButton obj)
+        {
+            if (m_selectedScenario == null)
+                return;
+
+            Tuple<string, MyWorldInfo> tuple = (Tuple<string, MyWorldInfo>)m_selectedScenario.UserData;
+            if (tuple == null)
+                return;
+
+            MyWorldInfo scenario = tuple.Item2;
+            string url = string.Format(MySteamConstants.URL_WORKSHOP_VIEW_ITEM_FORMAT, scenario.WorkshopId);
+            MyGuiSandbox.OpenUrlWithFallback(url, "Steam Workshop");
         }
 
         #endregion
@@ -362,11 +451,14 @@ namespace Sandbox.Game.Gui
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError));
                 MyGuiSandbox.AddScreen(messageBox);
             }
+
+            m_maxKeensScenario = m_availableSavesKeens.Count;
+
             AfterPartLoaded();
             screen.CloseScreen();
         }
 
-        
+
         private IMyAsyncResult beginLocal()
         {
             return new MyLoadWorldInfoListResult();
@@ -401,6 +493,7 @@ namespace Sandbox.Game.Gui
                 m_availableSavesWorkshop.Add(new Tuple<string, MyWorldInfo>(WORKSHOP_PATH_TAG, wi));
             }
             m_availableSavesWorkshop.Sort((x, y) => x.Item2.SessionName.CompareTo(y.Item2.SessionName));
+            m_maxWorkshopScenario = m_subscribedScenarios.Count;
             AfterPartLoaded();
             screen.CloseScreen();
         }
@@ -460,7 +553,7 @@ namespace Sandbox.Game.Gui
             //var mod = (MyObjectBuilder_Checkpoint.ModItem)row.UserData;
             //var nameSB = m_selectedRow.GetCell(1).Text;
             //var name = nameSB.ToString();
-            
+
             MyStringId textQuestion, captionQuestion;
             if (worldInfo.WorkshopId != null)
             {
@@ -501,44 +594,44 @@ namespace Sandbox.Game.Gui
                         {
                             if (tagsResult == MyGuiScreenMessageBox.ResultEnum.YES)
                             {*/
-                                MySteamWorkshop.PublishScenarioAsync(fullPath, worldInfo.SessionName, worldInfo.Description, worldInfo.WorkshopId, /*outTags,*/ SteamSDK.PublishedFileVisibility.Public, callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)//TODO public visibility!!
+                        MySteamWorkshop.PublishScenarioAsync(fullPath, worldInfo.SessionName, worldInfo.Description, worldInfo.WorkshopId, /*outTags,*/ SteamSDK.PublishedFileVisibility.Public, callbackOnFinished: delegate(bool success, Result result, ulong publishedFileId)//TODO public visibility!!
+                        {
+                            if (success)
+                            {
+                                ulong dummy;
+                                var checkpoint = MyLocalCache.LoadCheckpoint(fullPath, out dummy);
+                                worldInfo.WorkshopId = publishedFileId;
+                                checkpoint.WorkshopId = publishedFileId;
+                                MyLocalCache.SaveCheckpoint(checkpoint, fullPath);
+
+                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                    styleEnum: MyMessageBoxStyleEnum.Info,
+                                    messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextScenarioPublished),
+                                    messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionScenarioPublished),
+                                    callback: (a) =>
+                                    {
+                                        MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
+                                        FillList();
+                                    }));
+                            }
+                            else
+                            {
+                                MyStringId error;
+                                switch (result)
                                 {
-                                    if (success)
-                                    {
-                                        ulong dummy;
-                                        var checkpoint = MyLocalCache.LoadCheckpoint(fullPath, out dummy);
-                                        worldInfo.WorkshopId = publishedFileId;
-                                        checkpoint.WorkshopId = publishedFileId;
-                                        MyLocalCache.SaveCheckpoint(checkpoint, fullPath);
+                                    case Result.AccessDenied:
+                                        error = MyCommonTexts.MessageBoxTextPublishFailed_AccessDenied;
+                                        break;
+                                    default:
+                                        error = MySpaceTexts.MessageBoxTextScenarioPublishFailed;
+                                        break;
+                                }
 
-                                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                            styleEnum: MyMessageBoxStyleEnum.Info,
-                                            messageText: MyTexts.Get(MySpaceTexts.MessageBoxTextScenarioPublished),
-                                            messageCaption: MyTexts.Get(MySpaceTexts.MessageBoxCaptionScenarioPublished),
-                                            callback: (a) =>
-                                            {
-                                                MySteam.API.OpenOverlayUrl(string.Format("http://steamcommunity.com/sharedfiles/filedetails/?id={0}", publishedFileId));
-                                                FillList();
-                                            }));
-                                    }
-                                    else
-                                    {
-                                        MyStringId error;
-                                        switch (result)
-                                        {
-                                            case Result.AccessDenied:
-                                                error = MyCommonTexts.MessageBoxTextPublishFailed_AccessDenied;
-                                                break;
-                                            default:
-                                                error = MySpaceTexts.MessageBoxTextScenarioPublishFailed;
-                                                break;
-                                        }
-
-                                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                            messageText: MyTexts.Get(error),
-                                            messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionModPublishFailed)));
-                                    }
-                                });/*
+                                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                                    messageText: MyTexts.Get(error),
+                                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionModPublishFailed)));
+                            }
+                        });/*
                             }
                         }));*/
                     }
@@ -547,11 +640,6 @@ namespace Sandbox.Game.Gui
 #endif // !XB1
 
         #endregion
-
-        private void OnBrowseWorkshopClick(MyGuiControlButton obj)
-        {
-            MyGuiSandbox.OpenUrlWithFallback(MySteamConstants.URL_BROWSE_WORKSHOP_SCENARIOS, "Steam Workshop");
-        }
 
         protected override MyStringId ScreenCaption
         {
