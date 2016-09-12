@@ -93,9 +93,6 @@ namespace Sandbox.Game.Gui
         {
             base.BuildControls();
 
-            Vector2 buttonSize = MyGuiConstants.BACK_BUTTON_SIZE;
-            Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.65f, 0.1f);
-
             var difficultyLabel = MakeLabel(MySpaceTexts.Difficulty);
             var onlineModeLabel = MakeLabel(MyCommonTexts.WorldSettings_OnlineMode);
             m_maxPlayersLabel = MakeLabel(MyCommonTexts.MaxPlayers);

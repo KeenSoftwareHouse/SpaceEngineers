@@ -127,8 +127,8 @@ namespace Sandbox.Game.Screens
             {
                 int buttonRowCount = 2;
                 int buttonColumnCount = 4;
-                Vector2 buttonSize = new Vector2(300f / 1600f, 70f / 1200f);
-                Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.83f, 0.16f);
+                Vector2 buttonSize = new Vector2(320f / 1600f, 70f / 1200f);
+                Vector2 buttonsOrigin = m_size.Value / 2 - new Vector2(0.865f, 0.16f);
                 Vector2 buttonOffset = new Vector2(0.01f, 0.01f);
                 Vector2 buttonLayoutSize = new Vector2((buttonSize.X + buttonOffset.X) * (buttonColumnCount), (buttonSize.Y + buttonOffset.Y) * (buttonRowCount));
                 m_buttonsLayout = new MyLayoutTable(this, buttonsOrigin, buttonLayoutSize);
