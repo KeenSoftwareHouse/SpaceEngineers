@@ -1,28 +1,19 @@
 ﻿using ParallelTasks;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.GameSystems;
-using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens;
-using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text;
 using VRage;
-using VRage.FileSystem;
 using VRage.Game;
-using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 
@@ -76,6 +67,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
 
+        // Counter for scenario type
         int m_maxKeensScenario = 2;
         int m_maxWorkshopScenario = 0;
         int m_maxLocalScenario = 0;
@@ -290,7 +282,7 @@ namespace Sandbox.Game.Gui
             base.OnTableItemSelected(sender, eventArgs);
 
             m_selectedScenario = sender.SelectedRow;
-
+            // First check the keens scenario 
             if (eventArgs.RowIndex < m_maxKeensScenario )
             {
 #if !XB1 // XB1_NOWORKSHOP
@@ -302,6 +294,7 @@ namespace Sandbox.Game.Gui
                 m_onlineMode.SelectItemByIndex(0);
                 m_editButton.Enabled = false;
             }
+            // workshop scenario and local
             else
             {
 #if !XB1 // XB1_NOWORKSHOP
@@ -315,6 +308,9 @@ namespace Sandbox.Game.Gui
                     m_removeButton.Enabled = false; // TODO: Remove this if RemoveLocal() is implemented
                     m_openInWorkshopButton.Enabled = false;
                 }
+#else 
+                m_removeButton.Enabled = false; // TODO: Remove this if RemoveLocal() is implemented
+                m_openInWorkshopButton.Enabled = false;
 #endif
                 m_publishButton.Enabled = false;
                 m_onlineMode.Enabled = true;
@@ -340,28 +336,52 @@ namespace Sandbox.Game.Gui
                 return;
             MyWorldInfo scenario = tuple.Item2;
 
-#if !XB1 // XB1_NOWORKSHOP
-            if (m_selectedRowIndex < m_maxKeensScenario + m_maxWorkshopScenario)
-                MySandboxGame.Services.SteamService.SteamAPI.UGC.UnsubscribeItem((ulong)scenario.WorkshopId, OnCallResultSteamAPI);
-            else
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                buttonType: MyMessageBoxButtonsType.YES_NO,
+                messageText: new StringBuilder().AppendFormat(MyCommonTexts.MessageBoxTextAreYouSureYouWantToDeleteSave, scenario.SessionName),
+                messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                callback: OnDeleteConfirm));
+        }
+
+
+        private void OnDeleteConfirm(MyGuiScreenMessageBox.ResultEnum callbackReturn)
+        {
+            if (callbackReturn == MyGuiScreenMessageBox.ResultEnum.YES)
             {
-                RemoveLocal();
-            }
+
+#if !XB1 // XB1_NOWORKSHOP
+                Tuple<string, MyWorldInfo> tuple = (Tuple<string, MyWorldInfo>)m_selectedScenario.UserData;
+                MyWorldInfo scenario = tuple.Item2;
+                // For workshop items
+                if (m_selectedRowIndex < m_maxKeensScenario + m_maxWorkshopScenario)
+                {
+                    // Use steamAPI for unsubcribeItem...
+                    MySandboxGame.Services.SteamService.SteamAPI.UGC.UnsubscribeItem((ulong)scenario.WorkshopId, OnCallResultSteamAPI);
+                }
+                // //user's from saves
+                else
+                {
+                    RemoveLocal();
+                }
 #else
             RemoveLocal();
 #endif
+            }
         }
+
 
 #if !XB1 // XB1_NOWORKSHOP
         private void OnCallResultSteamAPI(bool arg1, RemoteStorageUnsubscribePublishedFileResult arg2)
         {
             m_scenarioTable.RemoveSelectedRow();
             m_selectedScenario = null;
+            m_maxWorkshopScenario -= 1;
             m_openInWorkshopButton.Enabled = false;
             m_removeButton.Enabled = false;
-            m_state = StateEnum.ListNeedsReload;
+            FillRight();
         }
 #endif
+
         // TODO: Remove local
         private void RemoveLocal()
         {
@@ -369,8 +389,9 @@ namespace Sandbox.Game.Gui
 
             //m_scenarioTable.RemoveSelectedRow();
             //m_selectedScenario = null;
+            //m_maxLocalScenario -= 1;
             //m_removeButton.Enabled = false;
-            //m_state = StateEnum.ListNeedsReload;
+            //FillRight();
         }
 
         private void OnBrowseWorkshopClick(MyGuiControlButton obj)
