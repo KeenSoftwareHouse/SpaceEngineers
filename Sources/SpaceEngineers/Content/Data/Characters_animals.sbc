@@ -1120,6 +1120,7 @@
       <LoopingFootsteps>true</LoopingFootsteps>
       <PhysicalMaterial>Wolf</PhysicalMaterial>
       <Mass>1</Mass>
+      <MaxHealth>5</MaxHealth>
       <LootingTime>300</LootingTime>
       <Skeleton>Tetrapod_simple</Skeleton>
       <SpineBone>Wolf_Spine_3</SpineBone>
@@ -1170,7 +1171,7 @@
       <CharacterHeadHeight>0.15</CharacterHeadHeight>
       <CharacterCollisionScale>0.7</CharacterCollisionScale>
 
-	  <MaxForce>500</MaxForce>
+	  <MaxForce>0.1</MaxForce>
 
       <BoneSet>
         <Name>Body</Name>
