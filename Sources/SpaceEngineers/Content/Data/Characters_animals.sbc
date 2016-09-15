@@ -1170,7 +1170,7 @@
       <CharacterHeadHeight>0.15</CharacterHeadHeight>
       <CharacterCollisionScale>0.7</CharacterCollisionScale>
 
-	  <MaxForce>500</MaxForce>
+	  <MaxForce>0.1</MaxForce>
 
       <BoneSet>
         <Name>Body</Name>
