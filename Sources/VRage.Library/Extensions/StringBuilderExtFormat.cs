@@ -260,5 +260,20 @@ namespace System.Text
             return self;
         }
 
+        //! Change all characters to lower case without allocation and return this instance.
+        public static StringBuilder ToLower(this StringBuilder self)
+        {
+            for (int i = 0; i < self.Length; ++i)
+                self[i] = Char.ToLower(self[i]);
+            return self;
+        }
+
+        //! Change first characters to upper case without allocation and return this instance.
+        public static StringBuilder FirstLetterUpperCase(this StringBuilder self)
+        {
+            if (self.Length > 0)
+                self[0] = Char.ToUpper(self[0]);
+            return self;
+        }
     }
 }

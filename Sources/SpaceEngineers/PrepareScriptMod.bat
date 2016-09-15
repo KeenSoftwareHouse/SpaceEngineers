@@ -112,6 +112,9 @@ echo     ^</Reference^>>> %scriptProjectFile%
 echo     ^<Reference Include="VRage.Game"^>>>%scriptProjectFile%
 echo       ^<HintPath^>%appdir%\VRage.Game.dll^</HintPath^>>>%scriptProjectFile%
 echo     ^</Reference^>>> %scriptProjectFile%
+echo     ^<Reference Include="VRage.Render"^>>>%scriptProjectFile%
+echo       ^<HintPath^>%appdir%\VRage.Render.dll^</HintPath^>>>%scriptProjectFile%
+echo     ^</Reference^>>> %scriptProjectFile%
 echo     ^<Reference Include="SpaceEngineers.ObjectBuilders"^>>>%scriptProjectFile%
 echo       ^<HintPath^>%appdir%\SpaceEngineers.ObjectBuilders.dll^</HintPath^>>>%scriptProjectFile%
 echo     ^</Reference^>>> %scriptProjectFile%

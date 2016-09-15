@@ -20,6 +20,7 @@ namespace Sandbox.Game.Screens.Helpers
         public bool ShowOnHud;
         public bool AlwaysVisible;
         public TimeSpan? DiscardAt;//final=null. Not final=time at which we should drop it from the list, relative to ElapsedPlayTime
+        public bool IsLocal = false;
         public int Hash
         {
             get;

@@ -10,6 +10,7 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 

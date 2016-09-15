@@ -23,7 +23,7 @@ namespace Sandbox.Game.WorldEnvironment
             return FindByObject(Instance.Owner.Entity);
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             var state = client.State as MyClientState;
 

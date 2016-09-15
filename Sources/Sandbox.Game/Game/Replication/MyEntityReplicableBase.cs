@@ -15,6 +15,7 @@ namespace Sandbox.Game.Replication
     public abstract class MyEntityReplicableBase<T> : MyExternalReplicable<T>
         where T : MyEntity
     {
+        protected Dictionary<ulong, float> m_cachedPriorityForClient = null;
         protected float m_baseVisibility = 130; // 1m object is visible for 130m (9km for blue ship, 12km for red ship)
         protected IMyStateGroup m_physicsSync;
         protected Action<MyEntity> OnCloseAction;
@@ -80,9 +81,25 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client, bool cached)
         {
-            return GetBasePriority(Instance.PositionComp.GetPosition(), Instance.PositionComp.WorldAABB.Size, client);
+            ulong clientEndpoint = client.EndpointId.Value;
+            if (cached)
+            {
+
+                if (m_cachedPriorityForClient != null && m_cachedPriorityForClient.ContainsKey(clientEndpoint))
+                {
+                    return m_cachedPriorityForClient[clientEndpoint];
+                }
+            }
+
+
+            if (m_cachedPriorityForClient == null)
+            {
+                m_cachedPriorityForClient = new Dictionary<ulong, float>();
+            }
+            m_cachedPriorityForClient[clientEndpoint] = GetBasePriority(Instance.PositionComp.GetPosition(), Instance.PositionComp.WorldAABB.Size, client);
+            return m_cachedPriorityForClient[clientEndpoint];
         }
 
         public override bool OnSave(BitStream stream)

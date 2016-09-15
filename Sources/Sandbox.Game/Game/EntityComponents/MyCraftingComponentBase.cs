@@ -15,7 +15,6 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.ComponentSystem;
-using VRage.Library.Sync;
 using VRage.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Network;

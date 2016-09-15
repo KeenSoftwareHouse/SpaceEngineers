@@ -295,7 +295,7 @@ namespace VRageMath.Spatial
         }
 
 
-        public void MoveObject(ulong id, BoundingBoxD oldAabb, BoundingBoxD aabb, Vector3 velocity)
+        public void MoveObject(ulong id, BoundingBoxD aabb, Vector3 velocity)
         {
             System.Diagnostics.Debug.Assert(id != CLUSTERED_OBJECT_ID_UNITIALIZED, "Unitialized object in cluster!");
 
@@ -305,31 +305,29 @@ namespace VRageMath.Spatial
                 System.Diagnostics.Debug.Assert(!objectData.ActivationHandler.IsStaticForCluster, "Cannot move static object!");
 
                 var oldAABB = objectData.AABB;
-                m_objectsData[id].AABB = aabb;
+                objectData.AABB = aabb;
 
-                BoundingBoxD originalAABB = aabb;
-                Vector3 velocityDir = velocity;
-               
                 if(velocity.LengthSquared() > 0.001f)
                 {
-                   velocityDir = Vector3.Normalize(velocity);
+                    velocity.Normalize();
                 }
                 
-                BoundingBoxD extendedAABB = aabb.Include(aabb.Center + velocityDir * 2000);
+                aabb.Include(aabb.Center + velocity * 2000.0f);
                 //                BoundingBoxD newClusterAABB = aabb.Include(aabb.Center + velocityDir * IdealClusterSize / 2);
-
-                originalAABB.InflateToMinimum(IdealClusterSize);
 
                 System.Diagnostics.Debug.Assert(m_clusters.Contains(objectData.Cluster));
 
-                var newContainmentType = objectData.Cluster.AABB.Contains(extendedAABB);
+                var newContainmentType = objectData.Cluster.AABB.Contains(aabb);
                 if (newContainmentType != ContainmentType.Contains && !SingleCluster.HasValue)
                 {
                     if (newContainmentType == ContainmentType.Disjoint)
-                    { //Probably caused by teleport 
-                        m_clusterTree.OverlapAllBoundingBox(ref extendedAABB, m_returnedClusters);
-                        if ((m_returnedClusters.Count == 1) && (m_returnedClusters[0].AABB.Contains(extendedAABB) == ContainmentType.Contains))
-                        { //Just move object from one cluster to another
+                    {
+                        //Probably caused by teleport 
+                        m_clusterTree.OverlapAllBoundingBox(ref aabb, m_returnedClusters);
+                        if ((m_returnedClusters.Count == 1) &&
+                            (m_returnedClusters[0].AABB.Contains(aabb) == ContainmentType.Contains))
+                        {
+                            //Just move object from one cluster to another
                             var oldCluster = objectData.Cluster;
                             RemoveObjectFromCluster(objectData, false);
                             if (oldCluster.Objects.Count == 0)
@@ -338,10 +336,16 @@ namespace VRageMath.Spatial
                             AddObjectToCluster(m_returnedClusters[0], objectData.Id, false);
                         }
                         else
-                            ReorderClusters(originalAABB.Include(oldAABB), id);
+                        {
+                            aabb.InflateToMinimum(IdealClusterSize);
+                            ReorderClusters(aabb.Include(oldAABB), id);
+                        }
                     }
                     else
-                        ReorderClusters(originalAABB.Include(oldAABB), id);
+                    {
+                        aabb.InflateToMinimum(IdealClusterSize);
+                        ReorderClusters(aabb.Include(oldAABB), id);
+                    }
                 }
 
                 System.Diagnostics.Debug.Assert(m_objectsData[id].Cluster.AABB.Contains(objectData.AABB) == ContainmentType.Contains || SingleCluster.HasValue, "Inconsistency in clusters");

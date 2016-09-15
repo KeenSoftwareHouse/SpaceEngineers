@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using VRage.Collections;
 using VRage.Game.Components;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace VRage.Game.SessionComponents

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Generics;
+using VRage.Profiler;
+using VRage.Render11.Common;
 
 namespace VRageRender
 {
@@ -23,8 +25,10 @@ namespace VRageRender
 
         static readonly List<MyRenderingWork> m_workList = new List<MyRenderingWork>();
 
-        private readonly Dictionary<ulong, List<MyRenderCullResultFlat>> m_tmpSortListDictionary = new Dictionary<ulong, List<MyRenderCullResultFlat>>();
-        private readonly MyDynamicObjectPool<List<MyRenderCullResultFlat>> m_sortListPool = new MyDynamicObjectPool<List<MyRenderCullResultFlat>>(16);
+        private readonly List<ulong> m_resultSortedKeys = new List<ulong>();
+        private readonly Dictionary<ulong, List<MyPassCullResult>> m_tmpSortListDictionary = new Dictionary<ulong, List<MyPassCullResult>>();
+        private readonly MyDynamicObjectPool<List<MyRenderCullResultFlat>> m_resultListPool = new MyDynamicObjectPool<List<MyRenderCullResultFlat>>(8);
+        private readonly MyDynamicObjectPool<List<MyPassCullResult>> m_sortListPool = new MyDynamicObjectPool<List<MyPassCullResult>>(8);
 
         private readonly List<Task> m_taskList = new List<Task>(8);
 
@@ -47,7 +51,7 @@ namespace VRageRender
             foreach (List<MyRenderCullResultFlat> cullResults in m_passElements)
             {
                 cullResults.Clear();
-                m_sortListPool.Deallocate(cullResults);
+                m_resultListPool.Deallocate(cullResults);
             }
             m_passElements.Clear();
             m_passElements2.Clear();
@@ -59,7 +63,7 @@ namespace VRageRender
                     processedCullQuery.RenderingPasses[renderPassIndex].SetImmediate(true);
                 }
 
-                m_passElements.Add(m_sortListPool.Allocate());
+                m_passElements.Add(m_resultListPool.Allocate());
                 m_passElements2.Add(null);
             }
 
@@ -158,31 +162,40 @@ namespace VRageRender
                     m_passElements2[m_affectedQueueIds[l]] = flattenedProxies;
                 }
             }
+
             ProfilerShort.BeginNextBlock("Sort");
-            foreach (var flatCullResults in m_passElements)
+
+            m_tmpSortListDictionary.Clear();
+            m_resultSortedKeys.Clear();
+            for (int i = 0; i < m_passElements.Count; i++)
             {
+                var flatCullResults = m_passElements[i];
+
                 foreach (MyRenderCullResultFlat element in flatCullResults)
                 {
-                    List<MyRenderCullResultFlat> sortList;
-                    if (m_tmpSortListDictionary.TryGetValue(element.SortKey, out sortList))
-                    {
-                        sortList.Add(element);
-                    }
-                    else
+                    List<MyPassCullResult> sortList;
+                    if (!m_tmpSortListDictionary.TryGetValue(element.SortKey, out sortList))
                     {
                         sortList = m_sortListPool.Allocate();
-                        sortList.Add(element);
                         m_tmpSortListDictionary.Add(element.SortKey, sortList);
+                        m_resultSortedKeys.Add(element.SortKey);
                     }
+
+                    sortList.Add(new MyPassCullResult() { PassIndex = i, CullResult = element });
                 }
+
                 flatCullResults.Clear();
-                foreach (var sortList in m_tmpSortListDictionary.Values)
-                {
-                    flatCullResults.AddList(sortList);
-                    sortList.SetSize(0);
-                    m_sortListPool.Deallocate(sortList);
-                }
-                m_tmpSortListDictionary.Clear();
+            }
+
+            m_resultSortedKeys.Sort();
+            foreach (ulong sortKey in m_resultSortedKeys)
+            {
+                List<MyPassCullResult> sortList = m_tmpSortListDictionary[sortKey];
+                foreach (var result in sortList)
+                    m_passElements[result.PassIndex].Add(result.CullResult);
+
+                sortList.SetSize(0);
+                m_sortListPool.Deallocate(sortList);
             }
 
             int jobsNum = GetRenderingThreadsNum();
@@ -257,7 +270,7 @@ namespace VRageRender
                     if (MyRender11.DeferredContextsEnabled)
                     {
                         var renderWork = MyObjectPoolManager.Allocate<MyRenderingWorkRecordCommands>();
-                        renderWork.Init(MyRenderContextPool.AcquireRC(), m_subworks);
+                        renderWork.Init(MyManagers.DeferredRCs.AcquireRC(), m_subworks);
                         m_workList.Add(renderWork);
                     }
                     else
@@ -277,7 +290,7 @@ namespace VRageRender
                 if (MyRender11.DeferredContextsEnabled)
                 {
                     var renderWork = MyObjectPoolManager.Allocate<MyRenderingWorkRecordCommands>();
-                    renderWork.Init(MyRenderContextPool.AcquireRC(), m_subworks);
+                    renderWork.Init(MyManagers.DeferredRCs.AcquireRC(), m_subworks);
                     m_workList.Add(renderWork);
                 }
                 else
@@ -297,6 +310,12 @@ namespace VRageRender
 
             foreach(var renderWork in m_workList)
             {
+                foreach (var pass in renderWork.Passes)
+                {
+                    ProfilerShort.Begin(pass.DebugName);
+                    ProfilerShort.End(0,
+                        new VRage.Library.Utils.MyTimeSpan(pass.Elapsed));
+                }
                 MyObjectPoolManager.Deallocate(renderWork);
             }
             m_workList.Clear();
@@ -351,11 +370,10 @@ namespace VRageRender
                 pass.Join();
             }
 
-            foreach (var rc in work.Contexts)
+            foreach (var rc in work.RCs)
             {
-                accumulator.Enqueue(rc.GrabCommandList());
-                rc.Join();
-                MyRenderContextPool.FreeRC(rc);
+                accumulator.Enqueue(MyRenderUtils.JoinAndGetCommandList(rc));
+                MyManagers.DeferredRCs.FreeRC(rc);
             }
         }
 
@@ -372,6 +390,12 @@ namespace VRageRender
                 }
             }
             return jobsNum;
+        }
+
+        private struct MyPassCullResult
+        {
+            public int PassIndex;
+            public MyRenderCullResultFlat CullResult;
         }
     }
 }

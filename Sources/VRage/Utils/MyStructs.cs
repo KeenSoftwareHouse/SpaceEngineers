@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
 
 //  Place for declaration of various structs, classes and enums
-using VRageRender;
 
 namespace VRage.Utils
 {
@@ -50,20 +48,20 @@ namespace VRage.Utils
 
     public struct MyTriangle_Vertex_Normal
     {
-        public MyTriangle_Vertexes Vertexes;
+        public MyTriangle_Vertices Vertexes;
         public Vector3 Normal;
     }
 
     public struct MyTriangle_Vertex_Normals_Tangents
     {
-        public MyTriangle_Vertexes Vertices;
+        public MyTriangle_Vertices Vertices;
         public MyTriangle_Normals Normals;
         public MyTriangle_Normals Tangents;
     }
 
     public struct MyTriangle_Vertex_Normals
     {
-        public MyTriangle_Vertexes Vertices;
+        public MyTriangle_Vertices Vertices;
         public MyTriangle_Normals Normals;
     }
 
@@ -92,7 +90,7 @@ namespace VRage.Utils
             Normal = normal;
         }
 
-        public MyPlane(ref MyTriangle_Vertexes triangle)
+        public MyPlane(ref MyTriangle_Vertices triangle)
         {
             Point = triangle.Vertex0;
             Normal = MyUtils.Normalize(Vector3.Cross((triangle.Vertex1 - triangle.Vertex0), (triangle.Vertex2 - triangle.Vertex0)));

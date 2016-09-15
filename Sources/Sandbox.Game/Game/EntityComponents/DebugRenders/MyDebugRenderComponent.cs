@@ -24,6 +24,7 @@ using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Models;
 using VRage.Game.Entity;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Components
 {

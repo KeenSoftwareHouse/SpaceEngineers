@@ -1710,7 +1710,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationArgStation = MyStringId.GetOrCompute("NotificationArgStation");
 
         ///<summary>
-        ///{0} is not available for {1}
+        ///{0} {1} cannot be connected to a {2}
         ///</summary>
         public static readonly MyStringId NotificationBlockNotAvailableFor = MyStringId.GetOrCompute("NotificationBlockNotAvailableFor");
 
@@ -3545,7 +3545,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_RealisticSound = MyStringId.GetOrCompute("WorldSettings_RealisticSound");
 
         ///<summary>
-        ///Sound Mode
+        ///Sound mode
         ///</summary>
         public static readonly MyStringId WorldSettings_SoundMode = MyStringId.GetOrCompute("WorldSettings_SoundMode");
 
@@ -8125,14 +8125,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_EnableDrones = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableDrones");
 
         ///<summary>
-        ///Enable / disable spawning of cyberhounds
+        ///Enable / disable spawning of Wolves
         ///</summary>
-        public static readonly MyStringId ToolTipWorldSettings_EnableCyberhounds = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableCyberhounds");
+        public static readonly MyStringId ToolTipWorldSettings_EnableWolfs = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableWolfs");
 
         ///<summary>
-        ///Enable cyberhounds
+        ///Enable wolves
         ///</summary>
-        public static readonly MyStringId WorldSettings_EnableCyberhounds = MyStringId.GetOrCompute("WorldSettings_EnableCyberhounds");
+        public static readonly MyStringId WorldSettings_EnableWolfs = MyStringId.GetOrCompute("WorldSettings_EnableWolfs");
 
         ///<summary>
         ///Enable / disable spawning of spiders

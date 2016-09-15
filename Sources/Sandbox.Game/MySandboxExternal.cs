@@ -14,6 +14,7 @@ using VRage;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.ExternalApp;
 
 namespace Sandbox
 {
@@ -84,7 +85,7 @@ namespace Sandbox
 
             if (settings == null)
             {
-                settings = new MyRenderDeviceSettings(0, MyWindowModeEnum.Window, wnd.Control.ClientSize.Width, wnd.Control.ClientSize.Height, 0, false, false, false);
+                settings = new MyRenderDeviceSettings(0, MyWindowModeEnum.Window, wnd.Control.ClientSize.Width, wnd.Control.ClientSize.Height, 0, false, MyCompilationSymbols.DX11ForceStereo, false);
             }
 
             GameRenderComponent.StartSync(m_gameTimer, wnd, settings, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);

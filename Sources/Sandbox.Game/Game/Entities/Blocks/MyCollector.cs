@@ -26,6 +26,8 @@ using VRage.Game.Entity;
 using VRage;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -102,6 +104,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_useConveyorSystem.Value = ob.UseConveyorSystem;
 
             ResourceSink.Update();
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         protected float ComputeRequiredPower()
@@ -270,19 +273,19 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (!Sync.IsServer)
                 return;
-            VRage.ProfilerShort.Begin("CollectorLeave");
+            ProfilerShort.Begin("CollectorLeave");
             var entities = body.GetAllEntities();
             foreach(var entity in entities)
                 m_entitiesToTake.Remove(entity as MyFloatingObject);
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
             if (!Sync.IsServer)
                 return;
-            VRage.ProfilerShort.Begin("CollectorEnter");
+            ProfilerShort.Begin("CollectorEnter");
             var entities = body.GetAllEntities();
             foreach (var entity in entities)
             {
@@ -293,7 +296,7 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
             //if (!Sync.IsServer)
             //    return;
             //var entity = body.GetEntity();

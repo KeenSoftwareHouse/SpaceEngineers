@@ -24,6 +24,7 @@ using VRage;
 
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Profiler;
 
 #endregion
 

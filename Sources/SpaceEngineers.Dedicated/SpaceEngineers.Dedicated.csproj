@@ -217,10 +217,6 @@
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
-      <Project>{1713E6CD-808A-4A44-9532-04771499BB01}</Project>
-      <Name>VRage.Render</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\app.manifest" />
@@ -276,7 +272,7 @@
   <Target Name="AfterBuild">
     <Exec Command="echo %time% Copying content..." />
     <!-- This will create Content junction (directory hardlink) in output, takes few ms -->
-     <!-- <RemoveDir Directories="$(OutDir)..\Content" /> -->
+    <!-- <RemoveDir Directories="$(OutDir)..\Content" /> -->
     <Exec Command="mklink /J &quot;$(OutDir)..\Content&quot; &quot;$(ContentPath)&quot;" IgnoreExitCode="true" />
     <Exec Command="echo %time% Content copied" />
     <Copy Condition="'$(Configuration)|$(Platform)' == 'Release Official|x86'" SourceFiles="@(Redists86)" DestinationFolder="$(OutDir)" />

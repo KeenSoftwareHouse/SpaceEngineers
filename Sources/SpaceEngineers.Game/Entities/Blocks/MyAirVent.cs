@@ -28,8 +28,10 @@ using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Import;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {

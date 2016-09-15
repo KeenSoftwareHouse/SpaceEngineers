@@ -9,7 +9,6 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Screens.Helpers;
-using Sandbox.Graphics.Render;
 using SpaceEngineers.Game.GUI;
 using SpaceEngineers.Game.VoiceChat;
 using System.Collections.Generic;
@@ -30,7 +29,7 @@ namespace SpaceEngineers.Game
 {
     public partial class SpaceEngineersGame : MySandboxGame
     {
-        const int SE_VERSION = 01148001;
+        const int SE_VERSION = 01152002;
 
         #region Constructor
 
@@ -71,6 +70,7 @@ namespace SpaceEngineers.Game
             MyPerGameSettings.UseVolumeLimiter = MyFakes.ENABLE_NEW_SOUNDS && MyFakes.ENABLE_REALISTIC_LIMITER;
             MyPerGameSettings.UseSameSoundLimiter = true;
             MyPerGameSettings.UseMusicController = true;
+            MyPerGameSettings.UseReverbEffect = true;
 
             MyPerGameSettings.Destruction = false;
             //MyPerGameSettings.ConstantVoxelAmbient = -0.35f;
@@ -137,7 +137,7 @@ namespace SpaceEngineers.Game
 
             MyPerGameSettings.VoiceChatEnabled = false;
             MyPerGameSettings.VoiceChatLogic = typeof(MyVoiceChatLogic);
-            MyRenderSettings.PerInstanceLods = false;
+            MyRenderProxy.Settings.PerInstanceLods = false;
 
 			MyPerGameSettings.ClientStateType = typeof(MySpaceClientState);
             //MyFakes.ENABLE_HAVOK_MULTITHREADING = true;
@@ -150,50 +150,10 @@ namespace SpaceEngineers.Game
             MyFakesLocal.SetupLocalPerGameSettings();
         }
 
+        [Obsolete]
+        // REMOVE-ME: Move all settings in the MyEnvironmentDefinition, and store them in MySector
 		public static void SetupRender()
 		{
-			// Video settings manager has not been initialized yet, so accessing config file directly.
-			if (MySandboxGame.Config != null && // Dedicated server calls this as first thing, even before it has loaded config ... doesn't need render though.
-				MySandboxGame.Config.GraphicsRenderer == MySandboxGame.DirectX11RendererKey)
-			{
-				MyPostProcessVolumetricSSAO2.MinRadius = 0.115f;
-				MyPostProcessVolumetricSSAO2.MaxRadius = 25;
-				MyPostProcessVolumetricSSAO2.RadiusGrowZScale = 1.007f;
-				MyPostProcessVolumetricSSAO2.Falloff = 3.08f;
-				MyPostProcessVolumetricSSAO2.Bias = 0.25f;
-				MyPostProcessVolumetricSSAO2.Contrast = 2.617f;
-				MyPostProcessVolumetricSSAO2.NormValue = 0.075f;
-
-				MyPostprocessSettingsWrapper.Settings.Brightness = 0;
-				MyPostprocessSettingsWrapper.Settings.Contrast = 0;
-				MyPostprocessSettingsWrapper.Settings.LuminanceExposure = 0.0f;
-				MyPostprocessSettingsWrapper.Settings.BloomExposure = 0;
-				MyPostprocessSettingsWrapper.Settings.BloomMult = 0.1f;
-				MyPostprocessSettingsWrapper.Settings.EyeAdaptationTau = 3;
-				MyPostprocessSettingsWrapper.Settings.MiddleGreyAt0 = 0.068f;
-				MyPostprocessSettingsWrapper.Settings.MiddleGreyCurveSharpness = 4.36f;
-				MyPostprocessSettingsWrapper.Settings.LogLumThreshold = -5.0f;
-                MyPostprocessSettingsWrapper.Settings.NightLogLumThreshold = MyPostprocessSettingsWrapper.Settings.LogLumThreshold;
-				MyPostprocessSettingsWrapper.Settings.BlueShiftRapidness = 0;
-				MyPostprocessSettingsWrapper.Settings.BlueShiftScale = 0;
-				MyPostprocessSettingsWrapper.Settings.Tonemapping_A = 0.147f;
-				MyPostprocessSettingsWrapper.Settings.Tonemapping_B = 0.120f;
-				MyPostprocessSettingsWrapper.Settings.Tonemapping_C = 0.321f;
-				MyPostprocessSettingsWrapper.Settings.Tonemapping_D = 0.699f;
-				MyPostprocessSettingsWrapper.Settings.Tonemapping_E = 0.001f;
-				MyPostprocessSettingsWrapper.Settings.Tonemapping_F = 0.160f;
-
-				MyPostprocessSettingsWrapper.PlanetSettings = MyPostprocessSettingsWrapper.Settings;
-				MyPostprocessSettingsWrapper.PlanetSettings.LuminanceExposure = 1.2f;
-
-                MyRenderProxy.Settings.ShadowCascadeCount = 6;
-			}
-
-			MyRenderProxy.Settings.ShadowFadeoutMultiplier = 0.0f;
-		    MyRenderProxy.Settings.UpdateCascadesEveryFrame = false;
-		    MyRenderProxy.Settings.ShadowCascadeMaxDistance = 8000f;
-		    MyRenderProxy.Settings.ShadowCascadeZOffset = 6000f;
-		    MyRenderProxy.Settings.ShadowCascadeSpreadFactor = 0f;
 		    MyRenderProxy.Settings.GrassMaxDrawDistance = 400;
             MyRenderProxy.Settings.DrawMergeInstanced = false;
 		}

@@ -20,6 +20,7 @@ using VRageMath;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {

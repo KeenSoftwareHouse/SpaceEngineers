@@ -9,8 +9,10 @@ using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
@@ -214,7 +216,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_gridPathfinding.DebugDraw();
             m_voxelPathfinding.DebugDraw();
 
-            if (MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES != VRage.Utils.MyWEMDebugDrawMode.NONE)
+            if (MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES != MyWEMDebugDrawMode.NONE)
             {
                 m_navmeshCoordinator.Links.DebugDraw(Color.Khaki);
             }

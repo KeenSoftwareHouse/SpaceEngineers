@@ -19,6 +19,8 @@ using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 using VRage.OpenVRWrapper;
+using VRage.Profiler;
+using VRageRender.ExternalApp;
 
 #endregion
 

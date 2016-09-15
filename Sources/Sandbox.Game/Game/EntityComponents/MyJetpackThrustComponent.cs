@@ -1,32 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Sandbox.Common.ObjectBuilders;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Character.Components;
-using Sandbox.Game.GameSystems;
-using Sandbox.Game.World;
-using VRage.Game.Components;
-using VRageMath;
-using VRage;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.Multiplayer;
-using Sandbox.Engine.Physics;
+using Sandbox.Game.World;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using VRage;
 using VRage.Game;
+using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Profiler;
+using VRageMath;
 
 namespace Sandbox.Game.EntityComponents
 {
-    class MyJetpackThrustComponent : MyEntityThrustComponent
+    internal class MyJetpackThrustComponent : MyEntityThrustComponent
     {
         public new MyCharacter Entity { get { return base.Entity as MyCharacter; } }
         public MyCharacter Character { get { return Entity; } }
         public MyCharacterJetpackComponent Jetpack { get { return Character.JetpackComp; } }
 
-        protected override void UpdateThrusts(bool networkUpdate,bool enableDampers)
+        protected override void UpdateThrusts(bool networkUpdate, bool enableDampers)
         {
             base.UpdateThrusts(networkUpdate, enableDampers);
 
@@ -40,7 +41,6 @@ namespace Sandbox.Game.EntityComponents
                     if (Character.Physics.IsInWorld)
                     {
                         Character.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, FinalThrust, null, null);
-
 
                         Vector3 velocity = Character.Physics.LinearVelocity;
                         float maxCharacterSpeedRelativeToShip = Math.Max(Character.Definition.MaxSprintSpeed, Math.Max(Character.Definition.MaxRunSpeed, Character.Definition.MaxBackrunSpeed));
@@ -157,7 +157,7 @@ namespace Sandbox.Game.EntityComponents
         protected override Vector3 ApplyThrustModifiers(ref MyDefinitionId fuelType, ref Vector3 thrust, ref Vector3 thrustOverride, MyResourceSinkComponentBase resourceSink)
         {
             thrust += thrustOverride;
-            if (Character.ControllerInfo.Controller == null || MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false || 
+            if (Character.ControllerInfo.Controller == null || MySession.Static.IsAdminModeEnabled(Character.ControllerInfo.Controller.Player.Id.SteamId) == false ||
                 (MySession.Static.LocalCharacter != Character && Sync.IsServer == false))
             {
                 thrust *= resourceSink.SuppliedRatioByType(fuelType);
@@ -165,6 +165,11 @@ namespace Sandbox.Game.EntityComponents
             thrust *= MyFakes.THRUST_FORCE_RATIO;
 
             return thrust;
+        }
+
+        protected override float GetMagicFactor()
+        {
+            return (Sync.IsServer && Entity.ControllerInfo.IsLocallyControlled() == false) ? 1.0f : (1f - 1f / 30f);
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using VRage;
 using VRageRender.Vertex;
 using VRage.Generics;
+using VRage.Render11.Resources;
+using VRageRender.Messages;
 
 namespace VRageRender
 {

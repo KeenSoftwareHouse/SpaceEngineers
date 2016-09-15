@@ -155,6 +155,7 @@ namespace Sandbox.Game
 
         public static bool UseVolumeLimiter = false;
         public static bool UseMusicController = false;
+        public static bool UseReverbEffect = false;
 
         public static bool UseSameSoundLimiter = false;
         public static bool UseNewDamageEffects = false;

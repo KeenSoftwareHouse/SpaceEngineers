@@ -20,6 +20,7 @@ using VRage;
 using VRage.Game;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -263,7 +264,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
     
             if (m_countdownMsCurrent > 0)
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 	       
             ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
 			ResourceSink.Update();
@@ -347,9 +347,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
-            base.UpdateBeforeSimulation100();
+            base.UpdateSoundEmitters();
             if (m_beepEmitter != null)
                 m_beepEmitter.Update();
         }

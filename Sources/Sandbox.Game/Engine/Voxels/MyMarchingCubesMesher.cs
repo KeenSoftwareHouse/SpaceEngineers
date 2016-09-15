@@ -1,16 +1,12 @@
-﻿using Sandbox.Engine.Utils;
-using Sandbox.Game;
+﻿using Sandbox.Game;
 using System;
-using System.Linq;
 using System.Diagnostics;
-using VRage;
-using VRage.Import;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 using VRage.Native;
 using System.Collections.Generic;
+using VRage.Profiler;
+using VRage.Voxels;
 
 //  This class is used for precalculation of voxels into triangles and vertex buffers
 //  It is not static and not thread too. But it may be called from thread.

@@ -9,7 +9,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Import;
 using VRageMath;
 using VRage.Utils;
@@ -25,7 +25,7 @@ using VRage.Game;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Entity;
 using Sandbox.Game.Multiplayer;
-
+using VRage.Profiler;
 
 #endregion
 
@@ -133,19 +133,11 @@ namespace Sandbox.Game.Entities.Character
                 }
             }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeBoneTransform");
+            MyRenderProxy.GetRenderProfiler().StartNextBlock("UpdateTransformations");
 
-            var characterBones = AnimationController.CharacterBones;
-            if (characterBones == null)
-                return;
-            for (int i = 0; i < characterBones.Length; i++)
-            {
-                MyCharacterBone bone = characterBones[i];
-                bone.ComputeBoneTransform();
-                BoneRelativeTransforms[i] = bone.RelativeTransform;
-            }
+            AnimationController.UpdateTransformations();
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+            MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             ProfilerShort.End();
         }

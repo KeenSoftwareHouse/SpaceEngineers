@@ -16,6 +16,7 @@ using VRage.ObjectBuilders;
 using System;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -68,6 +69,7 @@ namespace Sandbox.Game.Entities.Cube
             OnUpgradeValuesChanged += UpdateDetailedInfo;
 
             UpdateDetailedInfo();
+            NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
         }       
 
         protected override void OnBeforeInventoryRemovedFromAggregate(Inventory.MyInventoryAggregate aggregate, MyInventoryBase inventory)

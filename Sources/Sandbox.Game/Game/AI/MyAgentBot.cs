@@ -15,6 +15,7 @@ using VRage.Utils;
 using VRageMath;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.AI
 {

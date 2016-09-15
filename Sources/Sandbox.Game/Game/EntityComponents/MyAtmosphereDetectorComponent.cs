@@ -28,6 +28,7 @@ namespace Sandbox.Game.EntityComponents
         private AtmosphereStatus m_atmosphereStatus = AtmosphereStatus.NotSet;
         public bool InAtmosphere { get { return m_atmosphereStatus == AtmosphereStatus.Atmosphere; } }
         public bool InShipOrStation { get { return m_atmosphereStatus == AtmosphereStatus.ShipOrStation; } }
+        public bool InVoid { get { return m_atmosphereStatus == AtmosphereStatus.Space; } }
 
         public void InitComponent(bool onlyLocalPlayer, MyCharacter character)
         {

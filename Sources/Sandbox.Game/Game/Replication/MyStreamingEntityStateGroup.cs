@@ -162,7 +162,7 @@ namespace Sandbox.Game.Replication
                 return 0.0f;
             }
 
-            float priority = forClient.HasReplicable(Instance as IMyReplicable) && clientData.Dirty ? Instance.GetPriority(forClient) * Instance.PriorityScale() : 0.0f;
+            float priority = forClient.HasReplicable(Instance as IMyReplicable) && clientData.Dirty ? Instance.GetPriority(forClient,false) * Instance.PriorityScale() : 0.0f;
 
             if (priority < 0.01f && (clientData.ForceSend || clientData.FailedIncompletePackets.Count >0))
             {

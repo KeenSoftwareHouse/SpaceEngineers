@@ -630,7 +630,7 @@ namespace Sandbox.Engine.Utils
             var worldToLocal = topControlledEntity.PositionComp.WorldMatrixNormalizedInv;
             Vector3D targetInLocal = Vector3D.Transform(m_target, worldToLocal);
             MatrixD orientationInLocal = m_targetOrientation * worldToLocal;
-            var localAABBHr = topControlledEntity.PositionComp.LocalAABBHr;
+            var localAABBHr = topControlledEntity.PositionComp.LocalAABB;
             Vector3D centerToTarget = targetInLocal - localAABBHr.Center;
             Vector3D backVec = Vector3D.Normalize(orientationInLocal.Backward);
 

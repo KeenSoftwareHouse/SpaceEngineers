@@ -16,6 +16,7 @@ using VRage.Plugins;
 using VRage.Utils;
 using VRage.Collections;
 using VRage.Game.Definitions;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.World

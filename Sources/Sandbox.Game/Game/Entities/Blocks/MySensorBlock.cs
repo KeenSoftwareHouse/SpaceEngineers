@@ -1,10 +1,7 @@
 ﻿using Havok;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
@@ -21,11 +18,12 @@ using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.Screens.Terminal.Controls;
 using VRage.ModAPI;
-using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
+using VRage.Sync;
+using VRage.Voxels;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -611,7 +609,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_fieldShape.RemoveReference();
             };
 
-            m_gizmoColor = MySandboxGame.IsDirectX11 ? new Vector4(0.35f, 0, 0, 0.5f) : new Vector4(0.1f, 0, 0, 0.1f);
+            m_gizmoColor = new Vector4(0.35f, 0, 0, 0.5f);
 
         }
 
@@ -922,7 +920,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            var boundingBox = new BoundingBoxD(m_fieldMin.Value, m_fieldMax.Value).Translate(PositionComp.LocalVolume.Center).Transform(WorldMatrix.GetOrientation()).Translate(PositionComp.GetPosition());
+            var boundingBox = new BoundingBoxD(m_fieldMin.Value, m_fieldMax.Value).Translate(PositionComp.LocalVolume.Center).TransformFast(WorldMatrix.GetOrientation()).Translate(PositionComp.GetPosition());
              
             m_potentialPenetrations.Clear();
             MyGamePruningStructure.GetTopMostEntitiesInBox(ref boundingBox, m_potentialPenetrations);
@@ -966,8 +964,8 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         Vector3D localPositionMin, localPositionMax;
 
-                        VRage.Voxels.MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Min, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMin);
-                        VRage.Voxels.MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Max, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMax);
+                        MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Min, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMin);
+                        MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Max, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMax);
                         var aabb = new BoundingBox(localPositionMin, localPositionMax);
                         aabb.Translate(voxel.StorageMin);
                         if (voxel.Storage.Intersect(ref aabb) != ContainmentType.Disjoint)

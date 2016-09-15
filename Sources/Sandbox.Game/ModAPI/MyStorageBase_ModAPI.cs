@@ -2,7 +2,6 @@
 using Sandbox.Definitions;
 using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 
 namespace Sandbox.Engine.Voxels
 {

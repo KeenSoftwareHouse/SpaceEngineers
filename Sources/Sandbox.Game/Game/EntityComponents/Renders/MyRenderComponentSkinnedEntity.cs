@@ -13,6 +13,7 @@ using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Components
 {
@@ -69,28 +70,15 @@ namespace Sandbox.Game.Components
 
                 for (int i = 0; i < characterBones.Length; i++)
                 {
-                    skeletonDescription[i].Parent = -1;
-                    if (characterBones[i].Parent != null)
-                    {
-                        for (int j = 0; j < characterBones.Length; j++)
-                        {
-                            if (characterBones[j].Name == characterBones[i].Parent.Name)
-                            {
-                                skeletonDescription[i].Parent = j;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (characterBones[i].Parent != null)
-                    {
-                        Debug.Assert(skeletonDescription[i].Parent > -1, "Can't find bone with parent name!");
-                    }
+                    if (characterBones[i].Parent == null)
+                        skeletonDescription[i].Parent = -1;
+                    else
+                        skeletonDescription[i].Parent = characterBones[i].Parent.Index;
 
                     skeletonDescription[i].SkinTransform = characterBones[i].SkinTransform;
                 }
 
-                VRageRender.MyRenderProxy.SetCharacterSkeleton(RenderObjectIDs[0], skeletonDescription, Model.Animations.Skeleton.ToArray());
+                MyRenderProxy.SetCharacterSkeleton(RenderObjectIDs[0], skeletonDescription, Model.Animations.Skeleton.ToArray());
             }
         }
 
@@ -100,7 +88,7 @@ namespace Sandbox.Game.Components
 
             UpdateCharacterSkeleton();
 
-            VRageRender.MyRenderProxy.SetCharacterTransforms(RenderObjectIDs[0], m_skinnedEntity.BoneRelativeTransforms);
+            MyRenderProxy.SetCharacterTransforms(RenderObjectIDs[0], m_skinnedEntity.BoneAbsoluteTransforms, m_skinnedEntity.DecalBoneUpdates);
         }
 
         #endregion   

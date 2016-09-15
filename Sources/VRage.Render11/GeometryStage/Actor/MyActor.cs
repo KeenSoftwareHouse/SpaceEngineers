@@ -18,7 +18,7 @@ namespace VRageRender
             get
             {
                 var result = WorldMatrix;
-                result.Translation = result.Translation - MyRender11.Environment.CameraPosition;
+                result.Translation = result.Translation - MyRender11.Environment.Matrices.CameraPosition;
                 return (Matrix)result;
             }
         }
@@ -151,7 +151,7 @@ namespace VRageRender
 
         internal float CalculateCameraDistance()
         {
-            return (float)Aabb.Distance(MyRender11.Environment.CameraPosition);
+            return (float)Aabb.Distance(MyRender11.Environment.Matrices.CameraPosition);
         }
 
         private readonly MyIndexedComponentContainer<MyActorComponent> m_components = new MyIndexedComponentContainer<MyActorComponent>();

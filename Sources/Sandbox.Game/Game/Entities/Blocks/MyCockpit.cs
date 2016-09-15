@@ -46,6 +46,8 @@ using VRage.Serialization;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Replication;
 using VRage.Game.Utils;
+using VRage.Sync;
+using Sandbox.Engine.Physics;
 
 #endregion
 
@@ -774,9 +776,16 @@ namespace Sandbox.Game.Entities
             MatrixD placementMatrix = MatrixD.Identity;
             if (m_pilotRelativeWorld.Value.HasValue)
             {
+                Vector3D cockpitWorldPos = Vector3D.Transform(Position * CubeGrid.GridSize, CubeGrid.WorldMatrix);
                 placementMatrix = MatrixD.Multiply((MatrixD)m_pilotRelativeWorld.Value.Value, this.WorldMatrix);
-                if (m_pilot.CanPlaceCharacter(ref placementMatrix))
-                    usePilotOriginalWorld = true;
+                var hi = MyPhysics.CastRay(placementMatrix.Translation, cockpitWorldPos, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                if (hi != null && hi.HasValue)
+                {
+                    var ent = hi.Value.HkHitInfo.GetHitEntity();
+                    if (CubeGrid.Equals(ent))
+                        if (m_pilot.CanPlaceCharacter(ref placementMatrix))
+                            usePilotOriginalWorld = true;
+                }
             }
 
             Vector3D? allowedPosition = null;
@@ -1053,7 +1062,7 @@ namespace Sandbox.Game.Entities
 
             if (m_savedPilot != null)
             {
-                AttachPilot(m_savedPilot, false);
+                AttachPilot(m_savedPilot, false, merged:true);
                 m_savedPilot = null;
             }
         }
@@ -1086,7 +1095,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void AttachPilot(MyCharacter pilot, bool storeOriginalPilotWorld = true, bool calledFromInit = false)
+        public void AttachPilot(MyCharacter pilot, bool storeOriginalPilotWorld = true, bool calledFromInit = false, bool merged = false)
         {
             System.Diagnostics.Debug.Assert(pilot != null);
             System.Diagnostics.Debug.Assert(m_pilot == null);
@@ -1166,7 +1175,7 @@ namespace Sandbox.Game.Entities
             }
 
             m_lastPilot = pilot;
-            if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit)
+            if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit && !merged)
                 PlayUseSound(true);
             m_playIdleSound = true;
 

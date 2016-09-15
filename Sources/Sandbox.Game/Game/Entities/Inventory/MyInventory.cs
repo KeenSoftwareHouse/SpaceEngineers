@@ -32,7 +32,6 @@ using VRage.Serialization;
 using Sandbox.Game.Replication;
 using Sandbox.Common;
 using Sandbox.Engine.Utils;
-using VRage.Library.Sync;
 using VRage.Game.Entity;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
@@ -40,6 +39,7 @@ using VRage.Game.ModAPI.Ingame;
 using Sandbox.Game.Entities.Interfaces;
 using Sandbox.Game.GUI;
 using Sandbox.Game.SessionComponents;
+using VRage.Sync;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
 #endregion

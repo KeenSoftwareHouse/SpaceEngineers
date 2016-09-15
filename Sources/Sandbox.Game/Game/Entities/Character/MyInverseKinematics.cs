@@ -7,7 +7,7 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Engine.Utils;
 using Havok;
 using Sandbox.Engine.Physics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game.Entity;
 using VRage.Utils;
 

@@ -96,7 +96,6 @@ namespace VRageRender.Resources
         internal static TexId DebugPinkTexId;
         internal static TexId MissingCubeTexId;
         internal static TexId IntelFallbackCubeTexId;
-        internal static TexId RandomTexId;
 
         internal static void InitOnce()
         {
@@ -648,34 +647,6 @@ namespace VRageRender.Resources
 
                 MissingAlphamaskTexId = RegisterTexture("MISSING_ALPHAMASK", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox),
                     new Vector2(2, 1), 1);
-            }
-
-            {
-                var desc = new Texture2DDescription();
-                desc.ArraySize = 1;
-                desc.BindFlags = BindFlags.ShaderResource;
-                desc.Format = SharpDX.DXGI.Format.R32G32B32A32_Float;
-                desc.Height = 1024;
-                desc.Width = 1024;
-                desc.Usage = ResourceUsage.Immutable;
-                desc.MipLevels = 1;
-                desc.SampleDescription.Count = 1;
-                desc.SampleDescription.Quality = 0;
-                float[] values = new float[desc.Width * desc.Height * 3];
-                VRage.Library.Utils.MyRandom random = new VRage.Library.Utils.MyRandom();
-                for (uint i = 0, ctr = 0; i < desc.Width * desc.Height; i++)
-                {
-                    values[ctr++] = random.NextFloat() * 2.0f - 1.0f;
-                    values[ctr++] = random.NextFloat() * 2.0f - 1.0f;
-                    values[ctr++] = random.NextFloat() * 2.0f - 1.0f;
-                }
-
-                fixed (float* dptr = values)
-                {
-                    DataBox[] databox = new DataBox[1] { new DataBox(new IntPtr(dptr), desc.Width, 0) };
-                    RandomTexId = MyTextures.RegisterTexture("Random", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox),
-                       new Vector2(desc.Width, desc.Height), desc.Height * desc.Width * sizeof(float) * 3);
-                }
             }
         }
 

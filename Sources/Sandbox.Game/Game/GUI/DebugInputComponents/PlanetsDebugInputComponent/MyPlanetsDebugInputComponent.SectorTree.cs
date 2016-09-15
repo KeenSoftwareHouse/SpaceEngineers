@@ -183,7 +183,7 @@ namespace Sandbox.Game.Gui
 
                     var matrix = m_parent.m_tree[m_parent.m_activeClipmap].WorldMatrix;
 
-                    Bounds = Bounds.Transform(matrix);
+                    Bounds = Bounds.TransformFast(matrix);
 
                     Coords = new Vector2I(x, y);
 

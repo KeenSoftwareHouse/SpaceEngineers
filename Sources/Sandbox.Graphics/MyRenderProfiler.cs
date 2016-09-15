@@ -3,7 +3,9 @@
 using System.Diagnostics;
 using VRage;
 using VRage.Input;
+using VRage.Profiler;
 using VRageRender;
+using VRageRender.Profiler;
 
 #endregion
 

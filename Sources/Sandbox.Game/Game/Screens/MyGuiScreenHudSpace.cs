@@ -22,8 +22,8 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.Gui;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using Color = VRageMath.Color;
@@ -719,7 +719,7 @@ namespace Sandbox.Game.Gui
             if (MyVideoSettingsManager.IsTripleHead())
                 altitudePosition.X -= 1.0f;
 
-			MyGuiManager.DrawString(altitudeFont, altitudeText, altitudePosition, m_textScale, drawAlign: altitudeAlignment, fullscreen: true);
+            MyGuiManager.DrawString(altitudeFont, altitudeText, altitudePosition, m_textScale, drawAlign: altitudeAlignment, useFullClientArea : true);
 
             var planetSurfaceNormal = (controlledEntityCenterOfMass - nearestPlanet.WorldMatrix.Translation);
             planetSurfaceNormal.Normalize();

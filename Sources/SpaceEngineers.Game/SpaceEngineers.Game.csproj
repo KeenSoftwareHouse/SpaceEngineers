@@ -119,11 +119,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AI\MySpaceBotFactory.cs" />
-    <Compile Include="AI\MyCyberhoundActions.cs" />
+    <Compile Include="AI\MyWolfActions.cs" />
     <Compile Include="AI\MySpiderActions.cs" />
-    <Compile Include="AI\MyCyberhoundLogic.cs" />
+    <Compile Include="AI\MyWolfLogic.cs" />
     <Compile Include="AI\MySpiderLogic.cs" />
-    <Compile Include="AI\MyCyberhoundTarget.cs" />
+    <Compile Include="AI\MyWolfTarget.cs" />
     <Compile Include="AI\MySpiderTarget.cs" />
     <Compile Include="AI\MySpaceFaunaComponent.cs" />
     <Compile Include="Definitions\MyDemoComponentDefinition.cs" />
@@ -163,7 +163,6 @@
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
-    <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
     <Compile Include="ModAPI\IMyAirVent.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
     <Compile Include="ModAPI\IMyControlPanel.cs" />
@@ -263,6 +262,10 @@
     <ProjectReference Include="..\VRage.Network\VRage.Network.csproj">
       <Project>{76080059-9756-4065-bce8-373e7150a8f7}</Project>
       <Name>VRage.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Scripting\VRage.Scripting.csproj">
       <Project>{47e07dc1-03cb-4668-a031-71816def8955}</Project>

@@ -1338,29 +1338,29 @@
     </Atmosphere>
 
     <!-- Earthlike Planet's Atmosphere settings -->
-    <AtmosphereSettings>
-      <RayleighScattering>
-        <X>54</X>
-        <Y>46</Y>
-        <Z>40</Z>
-      </RayleighScattering>
-      <MieScattering>50</MieScattering>
-      <MieColorScattering>
-        <X>20</X>
-        <Y>32</Y>
-        <Z>91</Z>
-      </MieColorScattering>
-      <RayleighHeight>36</RayleighHeight>
-      <RayleighHeightSpace>15</RayleighHeightSpace>
-      <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
-      <MieHeight>30</MieHeight>
-      <MieG>0.998</MieG>
-      <Intensity>2.5</Intensity>
-      <SeaLevelModifier>0.992</SeaLevelModifier>
-      <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
-      <FogIntensity>0.65</FogIntensity>
-      <Scale>1</Scale>
-    </AtmosphereSettings>
+      <AtmosphereSettings>
+          <RayleighScattering>
+              <X>100</X>
+              <Y>84</Y>
+              <Z>63</Z>
+          </RayleighScattering>
+          <MieScattering>50</MieScattering>
+          <MieColorScattering>
+              <X>44</X>
+              <Y>62</Y>
+              <Z>150</Z>
+          </MieColorScattering>
+          <RayleighHeight>36</RayleighHeight>
+          <RayleighHeightSpace>15</RayleighHeightSpace>
+          <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
+          <MieHeight>200</MieHeight>
+          <MieG>0.9995474</MieG>
+          <Intensity>6</Intensity>
+          <SeaLevelModifier>1.0</SeaLevelModifier>
+          <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
+          <FogIntensity>1.0</FogIntensity>
+          <Scale>1</Scale>
+      </AtmosphereSettings>
 
     <!-- Earthlike Planet's Clouds settings-->
 
@@ -1448,7 +1448,7 @@
 
     <AnimalSpawnInfo>
       <Animals>
-        <Animal Type="Cyberhound"/>
+        <Animal Type="Wolf"/>
       </Animals>
       <SpawnDelayMin>60000</SpawnDelayMin>
       <SpawnDelayMax>80000</SpawnDelayMax>
@@ -1459,7 +1459,7 @@
     </AnimalSpawnInfo>
     <NightAnimalSpawnInfo>
       <Animals>
-        <Animal Type="Cyberhound"/>
+        <Animal Type="Wolf"/>
       </Animals>
       <SpawnDelayMin>30000</SpawnDelayMin>
       <SpawnDelayMax>60000</SpawnDelayMax>
@@ -2745,24 +2745,24 @@
     <!-- Alien Planet's Atmosphere -->
     <AtmosphereSettings>
       <RayleighScattering>
-        <X>16.2478943</X>
+        <X>57</X>
         <Y>17.9645233</Y>
-        <Z>83.19634</Z>
+        <Z>100</Z>
       </RayleighScattering>
       <MieScattering>50</MieScattering>
       <MieColorScattering>
-        <X>41.5802</X>
-        <Y>10.1520576</Y>
-        <Z>51.2181664</Z>
+        <X>26</X>
+        <Y>51</Y>
+        <Z>26</Z>
       </MieColorScattering>
       <RayleighHeight>21</RayleighHeight>
       <RayleighHeightSpace>11.2</RayleighHeightSpace>
       <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
-      <MieHeight>28.8370361</MieHeight>
-      <MieG>0.99</MieG>
-      <Intensity>4.400003</Intensity>
+      <MieHeight>200</MieHeight>
+      <MieG>0.9998</MieG>
+      <Intensity>6</Intensity>
       <FogIntensity>1</FogIntensity>
-      <SeaLevelModifier>0.942</SeaLevelModifier>
+      <SeaLevelModifier>1.0</SeaLevelModifier>
       <AtmosphereTopModifier>1.100</AtmosphereTopModifier>
     </AtmosphereSettings>
 
@@ -3095,19 +3095,19 @@
       </RayleighScattering>
       <MieScattering>147.671082</MieScattering>
       <MieColorScattering>
-        <X>147.671082</X>
-        <Y>147.671082</Y>
-        <Z>147.671082</Z>
+        <X>67</X>
+        <Y>80</Y>
+        <Z>150</Z>
       </MieColorScattering>
       <RayleighHeight>10</RayleighHeight>
       <RayleighHeightSpace>6</RayleighHeightSpace>
       <RayleighTransitionModifier>0.415</RayleighTransitionModifier>
-      <MieHeight>17.1977844</MieHeight>
-      <MieG>0.992</MieG>
-      <SeaLevelModifier>0.986</SeaLevelModifier>
+      <MieHeight>200</MieHeight>
+      <MieG>0.9998</MieG>
+      <SeaLevelModifier>0.98</SeaLevelModifier>
       <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
-      <Intensity>1.25285375</Intensity>
-      <FogIntensity>0.971873641</FogIntensity>
+      <Intensity>6.0</Intensity>
+      <FogIntensity>1.0</FogIntensity>
     </AtmosphereSettings>
 
     <Atmosphere>
@@ -3876,7 +3876,7 @@
       </MieColorScattering>
       <RayleighHeight>10</RayleighHeight>
       <MieHeight>41</MieHeight>
-      <MieG>0.9961641</MieG>
+      <MieG>0.9998</MieG>
       <Intensity>4.1</Intensity>
       <FogIntensity>1</FogIntensity>
       <SeaLevelModifier>0.933</SeaLevelModifier>
@@ -4008,7 +4008,7 @@
     <SoundRules>
       <!-- Day -->
       <SoundRule>
-        <Height Min="0" Max="0.87"/>
+        <Height Min="0" Max="1"/>
         <Latitude Min="0" Max="90"/>
         <SunAngleFromZenith Min="0" Max="90"/>
         <EnvironmentSound>AmbTitanMoonDay</EnvironmentSound>
@@ -4016,18 +4016,10 @@
 
       <!-- Day -->
       <SoundRule>
-        <Height Min="0" Max="0.87"/>
+        <Height Min="0" Max="1"/>
         <Latitude Min="0" Max="90"/>
         <SunAngleFromZenith Min="90" Max="180"/>
         <EnvironmentSound>AmbTitanMoonNight</EnvironmentSound>
-      </SoundRule>
-
-      <!-- TopHigh -->
-      <SoundRule>
-        <Height Min="0.87" Max="1"/>
-        <Latitude Min="0" Max="90"/>
-        <SunAngleFromZenith Min="0" Max="180"/>
-        <EnvironmentSound>AmbHigh</EnvironmentSound>
       </SoundRule>
     </SoundRules>
 
@@ -4281,7 +4273,7 @@
       </MieColorScattering>
       <RayleighHeight>9.386989</RayleighHeight>
       <MieHeight>45.1775055</MieHeight>
-      <MieG>0.9961641</MieG>
+      <MieG>0.9998</MieG>
       <Intensity>6.00218773</Intensity>
       <FogIntensity>1</FogIntensity>
       <SeaLevelModifier>0.912886143</SeaLevelModifier>
@@ -5776,29 +5768,29 @@
     </Atmosphere>
 
     <!-- EarthLikeTutorial Planet's Atmosphere settings-->
-    <AtmosphereSettings>
-      <RayleighScattering>
-        <X>54</X>
-        <Y>46.38412</Y>
-        <Z>40.3868523</Z>
-      </RayleighScattering>
-      <MieScattering>50</MieScattering>
-      <MieColorScattering>
-        <X>20</X>
-        <Y>32</Y>
-        <Z>91</Z>
-      </MieColorScattering>
-      <RayleighHeight>36</RayleighHeight>
-      <RayleighHeightSpace>15</RayleighHeightSpace>
-      <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
-      <MieHeight>30</MieHeight>
-      <MieG>0.998</MieG>
-      <Intensity>2.5</Intensity>
-      <SeaLevelModifier>0.992</SeaLevelModifier>
-      <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
-      <FogIntensity>0.65</FogIntensity>
-      <Scale>1</Scale>
-    </AtmosphereSettings>
+      <AtmosphereSettings>
+          <RayleighScattering>
+              <X>100</X>
+              <Y>84</Y>
+              <Z>63</Z>
+          </RayleighScattering>
+          <MieScattering>50</MieScattering>
+          <MieColorScattering>
+              <X>44</X>
+              <Y>62</Y>
+              <Z>150</Z>
+          </MieColorScattering>
+          <RayleighHeight>36</RayleighHeight>
+          <RayleighHeightSpace>15</RayleighHeightSpace>
+          <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
+          <MieHeight>200</MieHeight>
+          <MieG>0.9995474</MieG>
+          <Intensity>6</Intensity>
+          <SeaLevelModifier>1.0</SeaLevelModifier>
+          <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
+          <FogIntensity>1.0</FogIntensity>
+          <Scale>1</Scale>
+      </AtmosphereSettings>
 
     <!-- Earthlike Clouds settings-->
 
@@ -6577,28 +6569,28 @@
 
     <!-- Mars Planet's Atmosphere settings-->
 
-    <AtmosphereSettings>
-      <RayleighScattering>
-        <X>2.51488018</X>
-        <Y>16.398098</Y>
-        <Z>100</Z>
-      </RayleighScattering>
-      <MieScattering>147.671082</MieScattering>
-      <MieColorScattering>
-        <X>147.671082</X>
-        <Y>147.671082</Y>
-        <Z>147.671082</Z>
-      </MieColorScattering>
-      <RayleighHeight>10</RayleighHeight>
-      <RayleighHeightSpace>6</RayleighHeightSpace>
-      <RayleighTransitionModifier>0.415</RayleighTransitionModifier>
-      <MieHeight>17.1977844</MieHeight>
-      <MieG>0.992</MieG>
-      <SeaLevelModifier>0.986</SeaLevelModifier>
-      <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
-      <Intensity>1.25285375</Intensity>
-      <FogIntensity>0.971873641</FogIntensity>
-    </AtmosphereSettings>
+      <AtmosphereSettings>
+          <RayleighScattering>
+              <X>2.51488018</X>
+              <Y>16.398098</Y>
+              <Z>100</Z>
+          </RayleighScattering>
+          <MieScattering>147.671082</MieScattering>
+          <MieColorScattering>
+              <X>67</X>
+              <Y>80</Y>
+              <Z>150</Z>
+          </MieColorScattering>
+          <RayleighHeight>10</RayleighHeight>
+          <RayleighHeightSpace>6</RayleighHeightSpace>
+          <RayleighTransitionModifier>0.415</RayleighTransitionModifier>
+          <MieHeight>200</MieHeight>
+          <MieG>0.9998</MieG>
+          <SeaLevelModifier>0.98</SeaLevelModifier>
+          <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
+          <Intensity>6.0</Intensity>
+          <FogIntensity>1.0</FogIntensity>
+      </AtmosphereSettings>
 
     <Atmosphere>
       <Breathable>false</Breathable>
@@ -7602,29 +7594,29 @@
     </Atmosphere>
 
     <!-- EarthLikeModExample Planet's Atmosphere settings-->
-    <AtmosphereSettings>
-      <RayleighScattering>
-        <X>54</X>
-        <Y>46.38412</Y>
-        <Z>40.3868523</Z>
-      </RayleighScattering>
-      <MieScattering>50</MieScattering>
-      <MieColorScattering>
-        <X>20</X>
-        <Y>32</Y>
-        <Z>91</Z>
-      </MieColorScattering>
-      <RayleighHeight>36</RayleighHeight>
-      <RayleighHeightSpace>15</RayleighHeightSpace>
-      <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
-      <MieHeight>30</MieHeight>
-      <MieG>0.998</MieG>
-      <Intensity>2.5</Intensity>
-      <SeaLevelModifier>0.992</SeaLevelModifier>
-      <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
-      <FogIntensity>0.65</FogIntensity>
-      <Scale>1</Scale>
-    </AtmosphereSettings>
+      <AtmosphereSettings>
+          <RayleighScattering>
+              <X>100</X>
+              <Y>84</Y>
+              <Z>63</Z>
+          </RayleighScattering>
+          <MieScattering>50</MieScattering>
+          <MieColorScattering>
+              <X>44</X>
+              <Y>62</Y>
+              <Z>150</Z>
+          </MieColorScattering>
+          <RayleighHeight>36</RayleighHeight>
+          <RayleighHeightSpace>15</RayleighHeightSpace>
+          <RayleighTransitionModifier>0.4</RayleighTransitionModifier>
+          <MieHeight>200</MieHeight>
+          <MieG>0.9995474</MieG>
+          <Intensity>6</Intensity>
+          <SeaLevelModifier>1.0</SeaLevelModifier>
+          <AtmosphereTopModifier>1.1</AtmosphereTopModifier>
+          <FogIntensity>1.0</FogIntensity>
+          <Scale>1</Scale>
+      </AtmosphereSettings>
 
     <!-- Earthlike Clouds settings-->
     <CloudLayers>

@@ -106,7 +106,7 @@ namespace Sandbox.Game.Weapons
         }
 
 	    MyPhysicalItemDefinition m_physItemDef;
-        MyDefinitionId m_physicalItemId;
+        static MyDefinitionId m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "HandDrillItem");
 
         public MyHandDrill()
         {
@@ -116,15 +116,8 @@ namespace Sandbox.Game.Weapons
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             if (objectBuilder.SubtypeName != null && objectBuilder.SubtypeName.Length > 0)
-            {
-                PhysicalObject = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>(objectBuilder.SubtypeName + "Item");
-                m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), objectBuilder.SubtypeName + "Item"));
-            }
-            else
-            {
-                PhysicalObject = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_PhysicalGunObject>("HandDrillItem");
-                m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "HandDrillItem"));
-            }
+                m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), objectBuilder.SubtypeName + "Item");
+            PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
 
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
 
@@ -146,8 +139,8 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new Components.MyDebugRenderCompomentDrawDrillBase(m_drillBase));
             base.Init(objectBuilder);
 
-            var physDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(definition.PhysicalItemId);
-            Init(null, physDefinition.Model, null, null, null);
+            m_physItemDef = MyDefinitionManager.Static.GetPhysicalItemDefinition(m_physicalItemId);
+            Init(null, m_physItemDef.Model, null, null, null);
             Render.CastShadows = true;
             Render.NeedsResolveCastShadow = false;
 
@@ -396,8 +389,13 @@ namespace Sandbox.Game.Weapons
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            m_drillBase.UpdateAfterSimulation100();
+            m_drillBase.UpdateSoundEmitter();
             m_oreDetectorBase.Update(PositionComp.GetPosition());
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            m_drillBase.UpdateSoundEmitter();
         }
 
         bool OnCheckControl()

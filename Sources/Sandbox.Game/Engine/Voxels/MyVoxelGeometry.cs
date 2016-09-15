@@ -1,20 +1,15 @@
-﻿
-using Sandbox.Common;
-using Sandbox.Engine.Physics;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using VRage;
 using VRage.Collections;
-using VRage;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 using MyGridIntersection = Sandbox.Engine.Utils.MyGridIntersection;
 using VRage.Game.Components;
 using Sandbox.Engine.Utils;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -100,7 +95,7 @@ namespace Sandbox.Engine.Voxels
                         {
                             MyVoxelTriangle voxelTriangle = cachedData.VoxelTriangles[i];
 
-                            MyTriangle_Vertexes triangle;
+                            MyTriangle_Vertices triangle;
                             cachedData.GetUnpackedPosition(voxelTriangle.VertexIndex0, out triangle.Vertex0);
                             cachedData.GetUnpackedPosition(voxelTriangle.VertexIndex1, out triangle.Vertex1);
                             cachedData.GetUnpackedPosition(voxelTriangle.VertexIndex2, out triangle.Vertex2);
@@ -319,7 +314,7 @@ namespace Sandbox.Engine.Voxels
 
                 MyVoxelTriangle voxelTriangle = cachedDataCell.VoxelTriangles[i];
 
-                MyTriangle_Vertexes triangleVertices;
+                MyTriangle_Vertices triangleVertices;
                 cachedDataCell.GetUnpackedPosition(voxelTriangle.VertexIndex0, out triangleVertices.Vertex0);
                 cachedDataCell.GetUnpackedPosition(voxelTriangle.VertexIndex1, out triangleVertices.Vertex1);
                 cachedDataCell.GetUnpackedPosition(voxelTriangle.VertexIndex2, out triangleVertices.Vertex2);

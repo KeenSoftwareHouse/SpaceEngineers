@@ -34,6 +34,7 @@ using VRage.Game.Models;
 using VRage.Game.ModAPI;
 using Sandbox.Game.ParticleEffects;
 using VRage.Game.Entity.EntityComponents;
+using VRageRender.Import;
 
 #endregion
 

@@ -48,6 +48,7 @@ using Sandbox.Game.Entities.Cube.CubeBuilder;
 using Sandbox.Game.GameSystems.ContextHandling;
 using VRage.Game.Components.Session;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using VRage.Profiler;
 
 #endregion
 
@@ -159,6 +160,11 @@ namespace Sandbox.Game.Entities
 
         private bool m_alignToDefault = false;
         private int m_lastDefault = 0;
+
+        private float m_animationSpeed = 0.1f;
+        private bool m_animationLock = false;
+
+        private bool m_stationPlacement = false;
 
         protected MyBlockBuilderRotationHints m_rotationHints = new MyBlockBuilderRotationHints();
         protected MyBlockBuilderRenderData m_renderData = new MyBlockBuilderRenderData();
@@ -525,17 +531,22 @@ namespace Sandbox.Game.Entities
             if (index == 2)
                 sign *= -1;
 
+            Vector3D tmpRotationAnimation = Vector3D.Zero;
+
             switch (index)
             {
-                case 0:   //X
+                case 0: //X
+                    tmpRotationAnimation.X += sign * angle;
                     rotation = Matrix.CreateFromAxisAngle(currentMatrix.Right, sign * angle);
                     break;
 
                 case 1: //Y
+                    tmpRotationAnimation.Y += sign * angle;
                     rotation = Matrix.CreateFromAxisAngle(currentMatrix.Up, sign * angle);
                     break;
 
                 case 2: //Z
+                    tmpRotationAnimation.Z += sign * angle;
                     rotation = Matrix.CreateFromAxisAngle(currentMatrix.Forward, sign * angle);
                     break;
 
@@ -547,7 +558,15 @@ namespace Sandbox.Game.Entities
             rotatedMatrix = currentMatrix;
             rotatedMatrix *= rotation;
 
-            return CheckValidBlockRotation(rotatedMatrix, blockDirection, blockRotation);
+            bool isValid = CheckValidBlockRotation(rotatedMatrix, blockDirection, blockRotation);
+            if (isValid && MySandboxGame.Config.AnimatedRotation)
+                if (!Static.DynamicMode)
+                    if (!Static.m_animationLock)
+                        Static.m_animationLock = true;
+                    else
+                        isValid = !isValid;
+
+            return isValid;
         }
 
         private void ActivateBlockCreation(MyDefinitionId? blockDefinitionId = null)
@@ -561,11 +580,7 @@ namespace Sandbox.Game.Entities
 
             UpdateCubeBlockDefinition(blockDefinitionId);
 
-            if (MySession.Static.SurvivalMode && !SpectatorIsBuilding && MySession.Static.IsAdminModeEnabled(Sync.MyId) == false)
-                IntersectionDistance = (float)CubeBuilderDefinition.BuildingDistSurvivalCharacter;
-            else
-                IntersectionDistance = CubeBuilderDefinition.DefaultBlockBuildingDistance;
-
+            SetSurvivalIntersectionDist();
 
             if (MySession.Static.CreativeMode)
             {
@@ -772,14 +787,15 @@ namespace Sandbox.Game.Entities
 
             CurrentBlockDefinition = null;
 
+            m_stationPlacement = false;
             CurrentGrid = null;
             CurrentVoxelBase = null;
             IsBuildMode = false;
 
             DynamicMode = false;
-            IntersectionDistance = CubeBuilderDefinition.DefaultBlockBuildingDistance;
+            
             //VR:TODO:check if this didnt break something
-            //PlacementProvider = null;
+            PlacementProvider = null;
             m_rotationHints.ReleaseRenderData();
 
             MyCoordinateSystem.Static.Visible = false;
@@ -806,9 +822,21 @@ namespace Sandbox.Game.Entities
         {
             Debug.Assert(stageCubeBlockDefinition != null);
 
+            if (CurrentBlockDefinition != null && stageCubeBlockDefinition != null)
+            {
+                Quaternion rotation = Quaternion.CreateFromRotationMatrix(m_gizmo.SpaceDefault.m_localMatrixAdd);
+                m_cubeBuildlerState.RotationsByDefinitionHash[CurrentBlockDefinition.Id] = rotation;
+            }
+
             CurrentBlockDefinition = stageCubeBlockDefinition;
 
             m_gizmo.RotationOptions = MyCubeGridDefinitions.GetCubeRotationOptions(CurrentBlockDefinition);
+
+            Quaternion lastRot;
+            if (m_cubeBuildlerState.RotationsByDefinitionHash.TryGetValue(stageCubeBlockDefinition.Id, out lastRot))
+                m_gizmo.SpaceDefault.m_localMatrixAdd = Matrix.CreateFromQuaternion(lastRot);
+            else
+                m_gizmo.SpaceDefault.m_localMatrixAdd = Matrix.Identity;
         }
 
         protected virtual void UpdateCubeBlockDefinition(MyDefinitionId? id)
@@ -828,8 +856,6 @@ namespace Sandbox.Game.Entities
             Quaternion lastRot;
 
             MyDefinitionId defBlockId = id.HasValue ? id.Value : new MyDefinitionId();
-            if (m_cubeBuildlerState.CurrentBlockDefinitionStages.Count > 1)
-                defBlockId = m_cubeBuildlerState.CurrentBlockDefinitionStages[0].Id;
 
             if (m_cubeBuildlerState.RotationsByDefinitionHash.TryGetValue(defBlockId, out lastRot))
                 m_gizmo.SpaceDefault.m_localMatrixAdd = Matrix.CreateFromQuaternion(lastRot);
@@ -935,6 +961,9 @@ namespace Sandbox.Game.Entities
 
         public virtual bool HandleGameInput()
         {
+            if (this.HandleExportInput())
+                return true;
+
             if (!IsActivated)  // do not consume input when not active
                 return false;
 
@@ -954,8 +983,7 @@ namespace Sandbox.Game.Entities
             if (this.HandleDevInput())
                 return true;
 
-            if (this.HandleExportInput())
-                return true;
+            
 
             var context = (IsActivated && MySession.Static.ControlledEntity is MyCharacter) ? MySession.Static.ControlledEntity.ControlContext : MyStringId.NullOrEmpty;
 
@@ -996,8 +1024,28 @@ namespace Sandbox.Game.Entities
 
             if (CurrentGrid != null && MyControllerHelper.IsControl(context, MyControlsSpace.CUBE_COLOR_CHANGE, MyControlStateType.PRESSED))
             {
-                int expand = MyInput.Static.IsAnyCtrlKeyPressed() ? 1 : 0;
-                expand = MyInput.Static.IsAnyShiftKeyPressed() ? 3 : expand;
+                int expand = 0;
+
+                //If Ctrl + Shift + Middle mouse button are pressed, recolor a huge area of blocks
+                //THANK YOU PETR!
+                
+                if (MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsAnyShiftKeyPressed())
+                {
+                    expand = 400;
+                }
+                else
+                {
+                    // If only Ctrl + Middle mouse button are pressed, recolor a tiny block area
+
+                    if (MyInput.Static.IsAnyCtrlKeyPressed())
+                        expand =  1;
+                    else
+                        // If only Shift + Middle mouse button are pressed, recolor a medium block area
+
+                        if (MyInput.Static.IsAnyShiftKeyPressed())
+                            expand = 3;
+                }
+
                 Change(expand);
             }
 
@@ -1092,10 +1140,26 @@ namespace Sandbox.Game.Entities
 
                 MyCubeSize newCubeSize = m_cubeBuildlerState.CubeSizeMode == MyCubeSize.Large ? MyCubeSize.Small : MyCubeSize.Large;
                 m_cubeBuildlerState.SetCubeSize(newCubeSize);
+                SetSurvivalIntersectionDist();
                 return true;
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Refresh intersection distance for survival. Usable when switching grid size.
+        /// </summary>
+        private void SetSurvivalIntersectionDist()
+        {
+            if (CurrentBlockDefinition != null)
+            {
+                if (MySession.Static.SurvivalMode && !SpectatorIsBuilding && MySession.Static.IsAdminModeEnabled(Sync.MyId) == false)
+                    if (CurrentBlockDefinition.CubeSize == MyCubeSize.Large)
+                        IntersectionDistance = (float)CubeBuilderDefinition.BuildingDistLargeSurvivalCharacter;
+                    else
+                        IntersectionDistance = (float)CubeBuilderDefinition.BuildingDistSmallSurvivalCharacter;
+            }
         }
 
         private bool HandleRotationInput(MyStringId context, int frameDt)
@@ -1779,6 +1843,7 @@ namespace Sandbox.Game.Entities
         private void UpdateGizmo_DynamicMode(MyCubeBuilderGizmo.MyGizmoSpaceProperties gizmoSpace)
         {
             Debug.Assert(DynamicMode);
+            gizmoSpace.m_animationProgress = 1;
 
             float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
             BoundingBoxD localAABB = new BoundingBoxD(-CurrentBlockDefinition.Size * gridSize * 0.5f, CurrentBlockDefinition.Size * gridSize * 0.5f);
@@ -1865,6 +1930,22 @@ namespace Sandbox.Game.Entities
 
         private void UpdateGizmo_VoxelMap(MyCubeBuilderGizmo.MyGizmoSpaceProperties gizmoSpace, bool add, bool remove, bool draw)
         {
+
+            if (!m_animationLock)
+            {
+                gizmoSpace.m_animationLastMatrix = gizmoSpace.m_localMatrixAdd;
+            }
+            MatrixD animationMatrix = gizmoSpace.m_localMatrixAdd;
+            if (MySandboxGame.Config.AnimatedRotation && gizmoSpace.m_animationProgress < 1)
+            {
+                animationMatrix = MatrixD.Slerp(gizmoSpace.m_animationLastMatrix, gizmoSpace.m_localMatrixAdd, gizmoSpace.m_animationProgress);
+            }
+            else if (MySandboxGame.Config.AnimatedRotation && gizmoSpace.m_animationProgress >= 1)
+            {
+                m_animationLock = false;
+                gizmoSpace.m_animationLastMatrix = gizmoSpace.m_localMatrixAdd;
+            }
+            
             Color green = new Color(Color.Green * 0.6f, 1f);
 
             float gridSize = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize);
@@ -1872,7 +1953,7 @@ namespace Sandbox.Game.Entities
             Vector3 temp;
             Vector3D worldCenter = Vector3D.Zero;
             MatrixD drawMatrix = gizmoSpace.m_worldMatrixAdd;
-            MatrixD localOrientation = gizmoSpace.m_localMatrixAdd.GetOrientation();
+            MatrixD localOrientation = animationMatrix.GetOrientation();
 
             Color color = green;
 
@@ -1889,21 +1970,30 @@ namespace Sandbox.Game.Entities
                             gridRelative += new Vector3D(0.5 * gridSize, 0.5 * gridSize, -0.5 * gridSize);
                         Vector3D tempWorldPos = Vector3D.Transform(gridRelative, gizmoSpace.m_worldMatrixAdd);
 
-                        worldCenter += tempWorldPos;
+                        worldCenter += gridRelative;
 
-                        MyCubeGrid.GetCubeParts(CurrentBlockDefinition, gridPosition, localOrientation, gridSize, gizmoSpace.m_cubeModelsTemp, gizmoSpace.m_cubeMatricesTemp, gizmoSpace.m_cubeNormals, gizmoSpace.m_patternOffsets);
+                        MyCubeGrid.GetCubePartsWithoutTopologyCheck(
+                            CurrentBlockDefinition, 
+                            gridPosition,
+                            localOrientation, 
+                            gridSize, 
+                            gizmoSpace.m_cubeModelsTemp,
+                            gizmoSpace.m_cubeMatricesTemp, 
+                            gizmoSpace.m_cubeNormals, 
+                            gizmoSpace.m_patternOffsets
+                            );
 
                         if (gizmoSpace.m_showGizmoCube)
                         {
                             for (int i = 0; i < gizmoSpace.m_cubeMatricesTemp.Count; i++)
                             {
-                                MatrixD modelMatrix = gizmoSpace.m_cubeMatricesTemp[i];
+                                MatrixD modelMatrix = gizmoSpace.m_cubeMatricesTemp[i] * gizmoSpace.m_worldMatrixAdd;
                                 modelMatrix.Translation = tempWorldPos;
                                 gizmoSpace.m_cubeMatricesTemp[i] = modelMatrix;
                             }
-
-                            MatrixD invDrawMatrix = MatrixD.Invert(localOrientation * MatrixD.CreateTranslation(tempWorldPos));
-
+                            drawMatrix.Translation = tempWorldPos;
+                            MatrixD invDrawMatrix = MatrixD.Invert(localOrientation * drawMatrix);
+                            
                             m_gizmo.AddFastBuildParts(gizmoSpace, CurrentBlockDefinition, null);
                             m_gizmo.UpdateGizmoCubeParts(gizmoSpace, m_renderData, ref invDrawMatrix, CurrentBlockDefinition);
                         }
@@ -1911,6 +2001,16 @@ namespace Sandbox.Game.Entities
 
             //calculate world center for block model
             worldCenter /= CurrentBlockDefinition.Size.Size;
+            if (!m_animationLock)
+            {
+                gizmoSpace.m_animationProgress = 0;
+                gizmoSpace.m_animationLastPosition = worldCenter;
+            }
+            else if (MySandboxGame.Config.AnimatedRotation && gizmoSpace.m_animationProgress < 1)
+            {
+                worldCenter = Vector3D.Lerp(gizmoSpace.m_animationLastPosition, worldCenter, gizmoSpace.m_animationProgress);
+            }
+            worldCenter = Vector3D.Transform(worldCenter, gizmoSpace.m_worldMatrixAdd);
             drawMatrix.Translation = worldCenter;
             drawMatrix = localOrientation * drawMatrix;
 
@@ -1932,7 +2032,7 @@ namespace Sandbox.Game.Entities
 
             if (MySession.Static.SurvivalMode && !SpectatorIsBuilding && MySession.Static.IsAdminModeEnabled(Sync.MyId) == false)
             {
-                BoundingBoxD gizmoBox = localAABB.Transform(ref drawMatrix);
+                BoundingBoxD gizmoBox = localAABB.TransformFast(ref drawMatrix);
 
                 if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref MatrixD.Identity, gizmoBox, gridSize, IntersectionDistance) || CameraControllerSpectator)
                 {
@@ -1967,7 +2067,7 @@ namespace Sandbox.Game.Entities
                 }
 
                 AddFastBuildModels(gizmoSpace, MatrixD.Identity, gizmoSpace.m_cubeMatricesTemp, gizmoSpace.m_cubeModelsTemp, gizmoSpace.m_blockDefinition);
-                
+
                 Debug.Assert(gizmoSpace.m_cubeMatricesTemp.Count == gizmoSpace.m_cubeModelsTemp.Count);
                 for (int i = 0; i < gizmoSpace.m_cubeMatricesTemp.Count; ++i)
                 {
@@ -1976,7 +2076,7 @@ namespace Sandbox.Game.Entities
                         m_renderData.AddInstance(MyModel.GetId(model), gizmoSpace.m_cubeMatricesTemp[i], ref MatrixD.Identity);
                 }
             }
-
+            gizmoSpace.m_animationProgress += m_animationSpeed;
         }
 
         private void UpdateGizmo_Grid(MyCubeBuilderGizmo.MyGizmoSpaceProperties gizmoSpace, bool add, bool remove, bool draw)
@@ -1992,6 +2092,23 @@ namespace Sandbox.Game.Entities
             ProfilerShort.BeginNextBlock("Add");
             if (add)
             {
+                if (!m_animationLock)
+                {
+                    gizmoSpace.m_animationLastMatrix = gizmoSpace.m_localMatrixAdd;
+                }
+                MatrixD animationMatrix = gizmoSpace.m_localMatrixAdd;
+                if (MySandboxGame.Config.AnimatedRotation && gizmoSpace.m_animationProgress < 1)
+                {
+                    animationMatrix = MatrixD.Slerp(gizmoSpace.m_animationLastMatrix, gizmoSpace.m_localMatrixAdd, gizmoSpace.m_animationProgress);
+                }
+                else if (MySandboxGame.Config.AnimatedRotation && gizmoSpace.m_animationProgress >= 1)
+                {
+                    m_animationLock = false;
+                    gizmoSpace.m_animationLastMatrix = gizmoSpace.m_localMatrixAdd;
+                }
+                MatrixD modelTransform = animationMatrix * CurrentGrid.WorldMatrix;
+
+
                 if (gizmoSpace.m_startBuild != null && gizmoSpace.m_continueBuild != null)
                 {
                     gizmoSpace.m_buildAllowed = true;
@@ -2097,9 +2214,7 @@ namespace Sandbox.Game.Entities
                     for (temp.X = 0; temp.X < CurrentBlockDefinition.Size.X; temp.X++)
                         for (temp.Y = 0; temp.Y < CurrentBlockDefinition.Size.Y; temp.Y++)
                             for (temp.Z = 0; temp.Z < CurrentBlockDefinition.Size.Z; temp.Z++)
-                            {
-                                color = gizmoSpace.m_buildAllowed ? green : gray;
-
+                                #region if(PlacingSmallGridOnLargeStatic)
                                 if (PlacingSmallGridOnLargeStatic)
                                 {
                                     float smallToLarge = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize) / CurrentGrid.GridSize;
@@ -2128,16 +2243,26 @@ namespace Sandbox.Game.Entities
                                         m_gizmo.UpdateGizmoCubeParts(gizmoSpace, m_renderData, ref m_invGridWorldMatrix);
                                     }
                                 }
+                                #endregion
                                 else
                                 {
                                     Vector3I gridPosition = gizmoSpace.m_positions[posIndex++];
                                     Vector3D tempWorldPos = Vector3D.Transform(gridPosition * CurrentGrid.GridSize, CurrentGrid.WorldMatrix);
 
-                                    worldCenter += tempWorldPos;
-                                    drawMatrix.Translation = tempWorldPos;
+                                    worldCenter += gridPosition * CurrentGrid.GridSize;
 
-                                    MyCubeGrid.GetCubeParts(CurrentBlockDefinition, gridPosition, gizmoSpace.m_localMatrixAdd.GetOrientation(), CurrentGrid.GridSize, gizmoSpace.m_cubeModelsTemp, gizmoSpace.m_cubeMatricesTemp, gizmoSpace.m_cubeNormals, gizmoSpace.m_patternOffsets);
+                                    MyCubeGrid.GetCubePartsWithoutTopologyCheck(
+                                        CurrentBlockDefinition,
+                                        gridPosition,
+                                        animationMatrix.GetOrientation(),
+                                        CurrentGrid.GridSize,
+                                        gizmoSpace.m_cubeModelsTemp,
+                                        gizmoSpace.m_cubeMatricesTemp,
+                                        gizmoSpace.m_cubeNormals,
+                                        gizmoSpace.m_patternOffsets
+                                        );
 
+                                    //armor render
                                     if (gizmoSpace.m_showGizmoCube)
                                     {
                                         for (int i = 0; i < gizmoSpace.m_cubeMatricesTemp.Count; i++)
@@ -2146,18 +2271,28 @@ namespace Sandbox.Game.Entities
                                             modelMatrix.Translation = tempWorldPos;
                                             gizmoSpace.m_cubeMatricesTemp[i] = modelMatrix;
                                         }
-
+                                        
                                         m_gizmo.AddFastBuildParts(gizmoSpace, CurrentBlockDefinition, CurrentGrid);
                                         m_gizmo.UpdateGizmoCubeParts(gizmoSpace, m_renderData, ref m_invGridWorldMatrix, CurrentBlockDefinition);
                                     }
                                 }
-                            }
 
 
                     //calculate world center for block model
                     worldCenter /= CurrentBlockDefinition.Size.Size;
+                    
+                    if (!m_animationLock)
+                    {
+                        gizmoSpace.m_animationProgress = 0;
+                        gizmoSpace.m_animationLastPosition = worldCenter;
+                    }
+                    else if (MySandboxGame.Config.AnimatedRotation && gizmoSpace.m_animationProgress < 1)
+                    {
+                        worldCenter = Vector3D.Lerp(gizmoSpace.m_animationLastPosition, worldCenter, gizmoSpace.m_animationProgress);
+                    }
+                    worldCenter = Vector3D.Transform(worldCenter, CurrentGrid.WorldMatrix);
                     drawMatrix.Translation = worldCenter;
-
+                    
                     float gridSize = PlacingSmallGridOnLargeStatic ? MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize) : CurrentGrid.GridSize;
                     BoundingBoxD localAABB = new BoundingBoxD(-CurrentBlockDefinition.Size * gridSize * 0.5f, CurrentBlockDefinition.Size * gridSize * 0.5f);
 
@@ -2168,6 +2303,7 @@ namespace Sandbox.Game.Entities
                     gizmoSpace.m_buildAllowed &= voxelTest;
 
                     ProfilerShort.BeginNextBlock("CheckConnectivity");
+                    #region if(PlacingSmallGridOnLargeStatic)
                     if (PlacingSmallGridOnLargeStatic)
                     {
                         if (MySession.Static.SurvivalMode && !SpectatorIsBuilding && MySession.Static.IsAdminModeEnabled(Sync.MyId) == false)
@@ -2175,7 +2311,7 @@ namespace Sandbox.Game.Entities
                             MatrixD invDrawMatrix = Matrix.Invert(drawMatrix);
 
                             MyCubeBuilder.BuildComponent.GetBlockPlacementMaterials(CurrentBlockDefinition, gizmoSpace.m_addPos, gizmoAddOrientation, CurrentGrid);
-                            
+
                             gizmoSpace.m_buildAllowed &= MyCubeBuilder.BuildComponent.HasBuildingMaterials(MySession.Static.LocalCharacter);
 
                             if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invDrawMatrix, localAABB, gridSize, IntersectionDistance) || CameraControllerSpectator)
@@ -2202,8 +2338,8 @@ namespace Sandbox.Game.Entities
 
                         gizmoSpace.m_worldMatrixAdd = drawMatrix;
                     }
+                    #endregion
 
-                    //color = gizmoSpace.m_buildAllowed ? green : gray;
                     color = Color.White;
                     string lineMaterial = gizmoSpace.m_buildAllowed ? "GizmoDrawLine" : "GizmoDrawLineRed";
 
@@ -2211,10 +2347,11 @@ namespace Sandbox.Game.Entities
                     if (gizmoSpace.SymmetryPlane == MySymmetrySettingModeEnum.Disabled)
                     {
                         ProfilerShort.Begin("DrawTransparentBox");
+                        #region if(MyFakes.ENABLE_VR_BUILDING)
                         if (MyFakes.ENABLE_VR_BUILDING)
                         {
                             Vector3 centerOffset = -0.5f * gizmoSpace.m_addDir;
-                            if (gizmoSpace.m_addPosSmallOnLarge != null) 
+                            if (gizmoSpace.m_addPosSmallOnLarge != null)
                             {
                                 float smallToLarge = MyDefinitionManager.Static.GetCubeSize(CurrentBlockDefinition.CubeSize) / CurrentGrid.GridSize;
                                 centerOffset = -0.5f * smallToLarge * gizmoSpace.m_addDir;
@@ -2230,14 +2367,15 @@ namespace Sandbox.Game.Entities
                             MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix,
                                 ref vrAabb, ref color, MySimpleObjectRasterizer.Wireframe, 1, gizmoSpace.m_addPosSmallOnLarge != null ? 0.04f : 0.06f, null, lineMaterial, false, -1, 0);
                         }
+                        #endregion
                         else
                         {
-                            MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix,
+                            //Wireframe box
+                            modelTransform.Translation = drawMatrix.Translation;
+                            MySimpleObjectDraw.DrawTransparentBox(ref modelTransform,
                                 ref localAABB, ref color, MySimpleObjectRasterizer.Wireframe, 1, 0.04f, null, lineMaterial, false, -1, 0);
-                        }
 
-                        ProfilerShort.BeginNextBlock("CalculateRotationHints");
-                        m_rotationHints.CalculateRotationHints(drawMatrix, localAABB, !MyHud.MinimalHud && MySandboxGame.Config.RotationHints && draw && MyFakes.ENABLE_ROTATION_HINTS);
+                        }
 
                         ProfilerShort.End();
                     }
@@ -2249,6 +2387,7 @@ namespace Sandbox.Game.Entities
                     ProfilerShort.BeginNextBlock("m_showGizmoCube");
                     if (gizmoSpace.m_showGizmoCube)
                     {
+                        #region Draw_mount_points
                         // Draw mount points of added cube block as yellow squares in neighboring cells.
                         if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW && MyDebugDrawSettings.DEBUG_DRAW_MOUNT_POINTS)
                         {
@@ -2258,13 +2397,15 @@ namespace Sandbox.Game.Entities
 
                             DrawMountPoints(cubeSize, CurrentBlockDefinition, ref drawMatrix);
                         }
+                        #endregion
 
                         Vector3D rotatedModelOffset;
                         Vector3D.TransformNormal(ref CurrentBlockDefinition.ModelOffset, ref gizmoSpace.m_worldMatrixAdd, out rotatedModelOffset);
 
-                        drawMatrix.Translation = worldCenter + CurrentGrid.GridScale * rotatedModelOffset;
+                        modelTransform.Translation = worldCenter + CurrentGrid.GridScale * rotatedModelOffset;
 
-                        AddFastBuildModels(gizmoSpace, drawMatrix, gizmoSpace.m_cubeMatricesTemp, gizmoSpace.m_cubeModelsTemp, gizmoSpace.m_blockDefinition);
+                        //Render add gizmo for model
+                        AddFastBuildModels(gizmoSpace, modelTransform, gizmoSpace.m_cubeMatricesTemp, gizmoSpace.m_cubeModelsTemp, gizmoSpace.m_blockDefinition);
 
                         Debug.Assert(gizmoSpace.m_cubeMatricesTemp.Count == gizmoSpace.m_cubeModelsTemp.Count);
                         for (int i = 0; i < gizmoSpace.m_cubeMatricesTemp.Count; ++i)
@@ -2275,11 +2416,18 @@ namespace Sandbox.Game.Entities
                         }
                     }
 
+                    if (gizmoSpace.SymmetryPlane == MySymmetrySettingModeEnum.Disabled)
+                    {
+                        ProfilerShort.BeginNextBlock("CalculateRotationHints");
+                        m_rotationHints.CalculateRotationHints(modelTransform, localAABB, !MyHud.MinimalHud && MySandboxGame.Config.RotationHints && draw && MyFakes.ENABLE_ROTATION_HINTS);
+                    }
+
                     ProfilerShort.End();
                 }
                 ProfilerShort.End();
             }
 
+            #region AfterAdd
             ProfilerShort.BeginNextBlock("After Add");
             if (gizmoSpace.m_startRemove != null && gizmoSpace.m_continueBuild != null)
             {
@@ -2345,6 +2493,8 @@ namespace Sandbox.Game.Entities
             }
             ProfilerShort.End();
             //*/
+            #endregion
+            gizmoSpace.m_animationProgress += m_animationSpeed;
         }
 
         private bool IntersectsCharacterOrCamera(MyCubeBuilderGizmo.MyGizmoSpaceProperties gizmoSpace, float gridSize, ref MatrixD inverseBlockInGridWorldMatrix)
@@ -2544,7 +2694,8 @@ namespace Sandbox.Game.Entities
             m_renderData.ClearInstanceData();
             m_rotationHints.Clear();
             int gizmoCt = m_gizmo.Spaces.Length;
-
+            if(CurrentGrid!=null)
+                m_invGridWorldMatrix = MatrixD.Invert(CurrentGrid.WorldMatrix);
             for (int i = 0; i < gizmoCt; i++)
             {
                 var gizmoSpace = m_gizmo.Spaces[i];
@@ -3070,10 +3221,11 @@ namespace Sandbox.Game.Entities
             {
                 if (changeText || m_blockNotAvailableNotification == null)
                 {
-                    ShowNotificationBlockNotAvailable(CurrentBlockDefinition.DisplayNameText,
-                                                        (CurrentGrid.GridSizeEnum == MyCubeSize.Small) ? MySpaceTexts.NotificationArgSmallShip
+                    MyStringId myGrid = (CurrentGrid.GridSizeEnum == MyCubeSize.Small) ? MySpaceTexts.NotificationArgLargeShip : MySpaceTexts.NotificationArgSmallShip;
+                    MyStringId targetGrid = (CurrentGrid.GridSizeEnum == MyCubeSize.Small) ? MySpaceTexts.NotificationArgSmallShip
                                                                                                     : (CurrentGrid.IsStatic) ? MySpaceTexts.NotificationArgStation
-                                                                                                                                : MySpaceTexts.NotificationArgLargeShip);
+                                                                                                                                : MySpaceTexts.NotificationArgLargeShip;
+                    ShowNotificationBlockNotAvailable(myGrid, CurrentBlockDefinition.DisplayNameText, targetGrid);
                 }
                 else
                 {
@@ -3090,7 +3242,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Notification visible when looking at grid whose size is nto supported current block.
         /// </summary>
-        private void ShowNotificationBlockNotAvailable(String blockDisplayName, MyStringId gridTypeText)
+        private void ShowNotificationBlockNotAvailable(MyStringId grid1Text, String blockDisplayName, MyStringId grid2Text)
         {
             if (!MyFakes.ENABLE_NOTIFICATION_BLOCK_NOT_AVAILABLE)
                 return;
@@ -3098,7 +3250,7 @@ namespace Sandbox.Game.Entities
             if (m_blockNotAvailableNotification == null)
                 m_blockNotAvailableNotification = new MyHudNotification(MySpaceTexts.NotificationBlockNotAvailableFor, 0, font: MyFontEnum.Red, priority: 1);
 
-            m_blockNotAvailableNotification.SetTextFormatArguments(blockDisplayName, MyTexts.Get(gridTypeText));
+            m_blockNotAvailableNotification.SetTextFormatArguments(MyTexts.Get(grid1Text).ToLower().FirstLetterUpperCase(), blockDisplayName.ToLower(), MyTexts.Get(grid2Text).ToLower()); 
             MyHud.Notifications.Add(m_blockNotAvailableNotification);
         }
 
@@ -3596,7 +3748,7 @@ namespace Sandbox.Game.Entities
 
         #region Grid creation
 
-        public void StartNewGridPlacement(MyCubeSize cubeSize, bool isStatic)
+        public void StartStaticGridPlacement(MyCubeSize cubeSize, bool isStatic)
         {
             var character = MySession.Static.LocalCharacter;
             if (character != null)
@@ -3604,27 +3756,13 @@ namespace Sandbox.Game.Entities
                 character.SwitchToWeapon(null);
             }
 
-            string prefabName;
-            MyDefinitionManager.Static.GetBaseBlockPrefabName(cubeSize, isStatic, MySession.Static.CreativeMode, out prefabName);
-            if (prefabName == null)
-                return;
-            var gridBuilders = MyPrefabManager.Static.GetGridPrefab(prefabName);
-            Debug.Assert(gridBuilders != null && gridBuilders.Length > 0);
-            if (gridBuilders == null || gridBuilders.Length == 0)
-                return;
+            MyDefinitionId id = new MyDefinitionId(typeof(MyObjectBuilder_CubeBlock), "LargeBlockArmorBlock");
+            MyCubeBlockDefinition def;
+            MyDefinitionManager.Static.TryGetCubeBlockDefinition(id, out def);
+            Activate(def.Id);
+            m_stationPlacement = true;
 
-            foreach (var gridBuilder in gridBuilders)
-            {
-                if (gridBuilder.IsStatic && gridBuilder.PositionAndOrientation.HasValue)
-                {
-                    gridBuilder.PositionAndOrientation = MyPositionAndOrientation.Default;
-                }
-                foreach (var blockBuilder in gridBuilder.CubeBlocks)
-                {
-					blockBuilder.ColorMaskHSV = MyPlayer.SelectedColor;
-                }
-            }
-                }
+        }
 
         protected static MyObjectBuilder_CubeGrid CreateMultiBlockGridBuilder(MyMultiBlockDefinition multiCubeBlockDefinition, Matrix rotationMatrix, Vector3D position = default(Vector3D))
         {
@@ -4108,7 +4246,7 @@ namespace Sandbox.Game.Entities
             VoxelPlacementSettings voxelPlacementDef = new VoxelPlacementSettings() { PlacementMode = VoxelPlacementMode.OutsideVoxel };
             settings.VoxelPlacement = voxelPlacementDef;
 
-            bool isStatic = forceStatic || MyCubeGrid.IsAabbInsideVoxel(worldMatrix, localAABB, settings);
+            bool isStatic = forceStatic || MyCubeGrid.IsAabbInsideVoxel(worldMatrix, localAABB, settings) || Static.m_stationPlacement;
 
             BuildComponent.GetGridSpawnMaterials(blockDefinition, worldMatrix, isStatic);
             bool hasBuildMat = (isAdmin && instantBuild) || MyCubeBuilder.BuildComponent.HasBuildingMaterials(builder);

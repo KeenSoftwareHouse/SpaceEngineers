@@ -78,7 +78,7 @@ namespace VRageMath
         }
 
         /// <summary>
-        /// Gets an array of points that make up the corners of the BoundingBox.
+        /// Gets an array of points that make up the corners of the BoundingBox. ALLOCATION!
         /// </summary>
         public Vector3[] GetCorners()
         {
@@ -449,12 +449,12 @@ namespace VRageMath
         /// </summary>
         public Vector3 Center
         {
-            get { return (Min + Max) / 2; }
+            get { return (Min + Max) * 0.5f; }
         }
 
         public Vector3 HalfExtents
         {
-            get { return (Max - Min) / 2; }
+            get { return (Max - Min) * 0.5f; }
         }
 
         public Vector3 Extents
@@ -849,9 +849,9 @@ namespace VRageMath
             result.Z = (double)v.Z >= 0.0 ? this.Max.Z : this.Min.Z;
         }
 
+        /// <summary>
         /// Translate
         /// </summary>
-        /// <param name="bbox"></param>
         /// <param name="worldMatrix"></param>
         /// <returns></returns>
         public BoundingBox Translate(Matrix worldMatrix)
@@ -865,7 +865,6 @@ namespace VRageMath
         /// <summary>
         /// Translate
         /// </summary>
-        /// <param name="bbox"></param>
         /// <param name="vctTranlsation"></param>
         /// <returns></returns>
         public BoundingBox Translate(Vector3 vctTranlsation)
@@ -914,45 +913,67 @@ namespace VRageMath
             return Transform(ref worldMatrix);
         }
 
-        public unsafe BoundingBox Transform(ref Matrix worldMatrix)
+        public BoundingBox Transform(ref Matrix m)
         {
-            BoundingBox oobb = BoundingBox.CreateInvalid();
-
-            Vector3* temporaryCorners = stackalloc Vector3[8];
-
-            GetCornersUnsafe((Vector3*)temporaryCorners);
-
-            for (int i = 0; i < 8; i++)
-            {
-                Vector3 vctTransformed;
-                Vector3.Transform(ref temporaryCorners[i], ref worldMatrix, out vctTransformed);
-                oobb = oobb.Include(ref vctTransformed);
-            }
-
-            return oobb;
+            var bb = BoundingBox.CreateInvalid();
+            Transform(ref m, ref bb);
+            return bb;
         }
 
-        public unsafe BoundingBoxD Transform(ref MatrixD worldMatrix)
+        public void Transform(ref Matrix m, ref BoundingBox bb)
         {
-            BoundingBoxD oobb = BoundingBoxD.CreateInvalid();
+            bb.Min = bb.Max = m.Translation;
+            Vector3 min = m.Right * Min.X;
+            Vector3 max = m.Right * Max.X;
+            Vector3.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
 
-            Vector3* temporaryCorners = stackalloc Vector3[8];
+            min = m.Up * Min.Y;
+            max = m.Up * Max.Y;
+            Vector3.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
 
-            GetCornersUnsafe((Vector3*)temporaryCorners);
+            min = m.Backward * Min.Z;
+            max = m.Backward * Max.Z;
+            Vector3.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
+        }
 
-            for (int i = 0; i < 8; i++)
-            {
-                Vector3D vctTransformed = Vector3.Transform(temporaryCorners[i], worldMatrix);
-                oobb = oobb.Include(ref vctTransformed);
-            }
+        public BoundingBoxD Transform (ref MatrixD m)
+        {
+            var bb = BoundingBoxD.CreateInvalid();
+            Transform(ref m, ref bb);
+            return bb;
+        }
 
-            return oobb;
+        public void Transform(ref MatrixD m, ref BoundingBoxD bb)
+        {
+            bb.Min = bb.Max = m.Translation;
+            Vector3D min = m.Right * Min.X;
+            Vector3D max = m.Right * Max.X;
+            Vector3D.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
+
+            min = m.Up * Min.Y;
+            max = m.Up * Max.Y;
+            Vector3D.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
+
+            min = m.Backward * Min.Z;
+            max = m.Backward * Max.Z;
+            Vector3D.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
         }
 
         /// <summary>
-        /// return expanded aabb (abb include point)
+        /// return expanded aabb (aabb include point)
         /// </summary>
-        /// <param name="bbox"></param>
         /// <param name="point"></param>
         /// <returns></returns>
         public BoundingBox Include(ref Vector3 point)
@@ -994,10 +1015,9 @@ namespace VRageMath
         }
 
         /// <summary>
-        /// return expanded aabb (abb include point)
+        /// return expanded aabb (aabb include aabb)
         /// </summary>
-        /// <param name="bbox"></param>
-        /// <param name="point"></param>
+        /// <param name="box"></param>
         /// <returns></returns>
         public BoundingBox Include(ref BoundingBox box)
         {
@@ -1037,23 +1057,20 @@ namespace VRageMath
             return this;
         }
 
-        static Vector3[] m_frustumPoints = null;
-
-        public BoundingBox Include(ref BoundingFrustum frustum)
+        public unsafe BoundingBox Include(ref BoundingFrustum frustum)
         {
-            if (m_frustumPoints == null)
-                m_frustumPoints = new Vector3[8];
+            Vector3* temporaryCorners = stackalloc Vector3[8];
 
-            frustum.GetCorners(m_frustumPoints);
+            frustum.GetCornersUnsafe(temporaryCorners);
 
-            Include(ref m_frustumPoints[0]);
-            Include(ref m_frustumPoints[1]);
-            Include(ref m_frustumPoints[2]);
-            Include(ref m_frustumPoints[3]);
-            Include(ref m_frustumPoints[4]);
-            Include(ref m_frustumPoints[5]);
-            Include(ref m_frustumPoints[6]);
-            Include(ref m_frustumPoints[7]);
+            Include(ref temporaryCorners[0]);
+            Include(ref temporaryCorners[1]);
+            Include(ref temporaryCorners[2]);
+            Include(ref temporaryCorners[3]);
+            Include(ref temporaryCorners[4]);
+            Include(ref temporaryCorners[5]);
+            Include(ref temporaryCorners[6]);
+            Include(ref temporaryCorners[7]);
 
             return this;
         }
@@ -1116,18 +1133,18 @@ namespace VRageMath
             Vector3 minCenter = Center;
             if (Size.X < minimumSize.X)
             {
-                Min.X = minCenter.X - minimumSize.X / 2;
-                Max.X = minCenter.X + minimumSize.X / 2;
+                Min.X = minCenter.X - minimumSize.X * 0.5f;
+                Max.X = minCenter.X + minimumSize.X * 0.5f;
             }
             if (Size.Y < minimumSize.Y)
             {
-                Min.Y = minCenter.Y - minimumSize.Y / 2;
-                Max.Y = minCenter.Y + minimumSize.Y / 2;
+                Min.Y = minCenter.Y - minimumSize.Y * 0.5f;
+                Max.Y = minCenter.Y + minimumSize.Y * 0.5f;
             }
             if (Size.Z < minimumSize.Z)
             {
-                Min.Z = minCenter.Z - minimumSize.Z / 2;
-                Max.Z = minCenter.Z + minimumSize.Z / 2;
+                Min.Z = minCenter.Z - minimumSize.Z * 0.5f;
+                Max.Z = minCenter.Z + minimumSize.Z * 0.5f;
             }
         }
         #region Comparer

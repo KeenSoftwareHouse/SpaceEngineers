@@ -9,6 +9,7 @@ using VRage.FileSystem;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using ImageFileFormat = SharpDX.Direct3D9.ImageFileFormat;
 
 namespace VRageRender
 {

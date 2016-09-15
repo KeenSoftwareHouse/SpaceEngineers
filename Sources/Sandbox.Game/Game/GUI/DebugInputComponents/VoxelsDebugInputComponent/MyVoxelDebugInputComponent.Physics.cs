@@ -17,7 +17,6 @@ using VRage.FileSystem;
 using VRage.Game.Entity;
 using VRage.Input;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 

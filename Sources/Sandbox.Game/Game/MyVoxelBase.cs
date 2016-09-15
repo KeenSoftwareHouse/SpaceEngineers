@@ -1,27 +1,16 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Voxels;
-using Sandbox.Game.Components;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Multiplayer;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRageRender;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRage.Game;
 using VRage.Game.Components;
-using Sandbox.Engine.Utils;
 using System.Threading;
 using VRage.Network;
 using Sandbox.Game.World;
@@ -30,6 +19,8 @@ using Sandbox.Game.Entities.Character;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.ModAPI;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Game.Entities
 {
@@ -382,7 +373,7 @@ namespace Sandbox.Game.Entities
             MatrixD toVoxel = worldMatrix * PositionComp.WorldMatrixNormalizedInv;
             MatrixD toGrid; MatrixD.Invert(ref toVoxel, out toGrid);
 
-            BoundingBoxD transAABB = localAabb.Transform(toVoxel);
+            BoundingBoxD transAABB = localAabb.TransformFast(toVoxel);
             transAABB.Translate(SizeInMetresHalf + StorageMin);
             Vector3I minI = Vector3I.Floor(transAABB.Min);
             Vector3I maxI = Vector3I.Ceiling(transAABB.Max);

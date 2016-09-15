@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Sandbox.Game.Gui;
 using VRage.Voxels;
-using VRageMath;
 using TLeafData = System.Byte;
 
 namespace Sandbox.Engine.Voxels
@@ -19,7 +17,7 @@ namespace Sandbox.Engine.Voxels
         /// Computes filtered value given 8 values in child.
         /// </summary>
         /// <param name="pData">Pointer to 8 values. Do NOT go further than that.</param>
-        public delegate TLeafData FilterFunction(TLeafData* pData);
+        public delegate TLeafData FilterFunction(TLeafData* pData, int lod);
 
         [ThreadStatic]
         private static Dictionary<TLeafData, int> Histogram;
@@ -95,9 +93,9 @@ namespace Sandbox.Engine.Voxels
                 return ptr[cellIndex];
         }
 
-        public TLeafData ComputeFilteredValue(FilterFunction filter)
+        public TLeafData ComputeFilteredValue(FilterFunction filter, int lod)
         {
-            fixed (TLeafData* ptr = Data) { return filter(ptr); }
+            fixed (TLeafData* ptr = Data) { return filter(ptr, lod); }
         }
 
         public bool AllDataSame()
@@ -166,18 +164,21 @@ namespace Sandbox.Engine.Voxels
         /// <summary>
         /// Treats value as normalized signed distance in given LOD. Since LOD size doubles, distance halves for all cases except max value.
         /// </summary>
-        private static unsafe TLeafData SignedDistanceFilterInternal(TLeafData* pData)
+        private static unsafe TLeafData SignedDistanceFilterInternal(TLeafData* pData, int lod)
         {
-            int totWeight = 0;
-            for (int i = 0; i < 8; i++)
+            if (lod > 2)
             {
-                totWeight += pData[i];
+                int totWeight = 0;
+                for (int i = 0; i < 8; i++)
+                {
+                    totWeight += pData[i];
+                }
+
+                return (TLeafData)(totWeight >> 3);
             }
 
-            return (TLeafData)(totWeight >> 3);
-
             float signedDist = ToSignedDistance(pData[0]);
-            var average = AverageValueFilterInternal(pData);
+            var average = AverageValueFilterInternal(pData, lod);
             var averageSDist = ToSignedDistance(average);
 
             if (averageSDist != signedDist || (signedDist != 1f && signedDist != -1f))
@@ -191,7 +192,7 @@ namespace Sandbox.Engine.Voxels
         /// <summary>
         /// Chooses average of all values.
         /// </summary>
-        private static unsafe TLeafData AverageValueFilterInternal(TLeafData* pData)
+        private static unsafe TLeafData AverageValueFilterInternal(TLeafData* pData, int lod)
         {
             float sum = 0;
             for (int i = 0; i < CHILD_COUNT; ++i)
@@ -209,7 +210,7 @@ namespace Sandbox.Engine.Voxels
         /// Chooses value which is the closest to isosurface level. Whether
         /// from above, or from below is chosen depending on which is majority.
         /// </summary>
-        private static unsafe TLeafData IsoSurfaceFilterInternal(TLeafData* pData)
+        private static unsafe TLeafData IsoSurfaceFilterInternal(TLeafData* pData, int lod)
         {
             TLeafData bestBelow = 0;
             TLeafData bestAbove = TLeafData.MaxValue;
@@ -246,7 +247,7 @@ namespace Sandbox.Engine.Voxels
         /// <summary>
         /// Chooses the most common value.
         /// </summary>
-        private static unsafe TLeafData HistogramFilterInternal(TLeafData* pdata)
+        private static unsafe TLeafData HistogramFilterInternal(TLeafData* pdata, int lod)
         {
             if (Histogram == null) Histogram = new Dictionary<byte, int>(8);
 

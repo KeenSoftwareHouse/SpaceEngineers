@@ -19,6 +19,7 @@ using Sandbox.Game.World;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Localization;
 using VRage.Game;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace Sandbox.Game.Gui

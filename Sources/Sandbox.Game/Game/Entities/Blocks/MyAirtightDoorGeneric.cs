@@ -17,6 +17,7 @@ using Havok;
 using VRage.Game.Entity;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
@@ -191,12 +192,6 @@ namespace Sandbox.Game.Entities
         }
 
         #region update
-        public override void UpdateBeforeSimulation100()
-        {
-            base.UpdateBeforeSimulation100();
-            if(m_soundEmitter != null)
-                m_soundEmitter.Update();
-        }
 
         bool m_stateChange = false;
         public override void UpdateBeforeSimulation()

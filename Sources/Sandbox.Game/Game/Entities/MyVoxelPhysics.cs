@@ -1,23 +1,17 @@
 ﻿using Sandbox.Engine.Voxels;
 using Sandbox.Game.Components;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.World;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
-using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
     // This is assumed to be from a planet in the code
-    class MyVoxelPhysics : MyVoxelBase
+    internal class MyVoxelPhysics : MyVoxelBase
     {
-        MyPlanet m_parent;
+        private MyPlanet m_parent;
 
         internal new MyVoxelPhysicsBody Physics
         {
@@ -34,7 +28,6 @@ namespace Sandbox.Game.Entities
 
         public override void Init(VRage.ObjectBuilders.MyObjectBuilder_EntityBase builder, IMyStorage storage)
         {
-            
         }
 
         public void Init(IMyStorage storage, Vector3D positionMinCorner, Vector3I storageMin, Vector3I storageMax, MyPlanet parent)
@@ -66,14 +59,12 @@ namespace Sandbox.Game.Entities
 
             base.Init(null);
             InitVoxelMap(worldMatrix, Size, false);
-
         }
 
         public MyPlanet Parent
         {
             get { return m_parent; }
         }
-
 
         protected override void InitVoxelMap(MatrixD worldMatrix, Vector3I size, bool useOffset = true)
         {
@@ -96,6 +87,7 @@ namespace Sandbox.Game.Entities
                 Physics != null)
             {
                 Physics.InvalidateRange(minChanged, maxChanged);
+                RaisePhysicsChanged();
             }
 
             ProfilerShort.End();

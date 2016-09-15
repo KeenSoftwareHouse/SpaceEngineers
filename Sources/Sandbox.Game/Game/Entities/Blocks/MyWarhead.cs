@@ -37,6 +37,7 @@ using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Network;
+using VRage.Sync;
 
 #endregion
 

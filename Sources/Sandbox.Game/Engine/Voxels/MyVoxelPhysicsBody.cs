@@ -14,11 +14,12 @@ using VRage;
 using VRage.Game.Components;
 using VRage.ModAPI;
 using VRage.Trace;
-using VRage.Voxels;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.Game;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -230,7 +231,7 @@ namespace Sandbox.Engine.Voxels
             var result = m_voxelMap.Storage.Intersect(ref bb, false) != ContainmentType.Intersects;
             {
                 var bbd = new BoundingBoxD(new Vector3(minX, minY, minZ) * 8, new Vector3(maxX, maxY, maxZ) * 8);
-                bbd.Transform(Entity.WorldMatrix);
+                bbd.TransformFast(Entity.WorldMatrix);
                 var obb = new MyOrientedBoundingBoxD(bbd, Entity.WorldMatrix);
                 MyRenderProxy.DebugDrawAABB(bbd, result ? Color.Green : Color.Red, 1, 1, false);
             }
@@ -456,7 +457,7 @@ namespace Sandbox.Engine.Voxels
                 Vector3I min, max;
                 Vector3D localPositionMin, localPositionMax;
 
-                aabb = aabb.Transform(m_voxelMap.PositionComp.WorldMatrixInvScaled);
+                aabb = aabb.TransformFast(m_voxelMap.PositionComp.WorldMatrixInvScaled);
 
                 aabb.Translate(m_voxelMap.SizeInMetresHalf);
 

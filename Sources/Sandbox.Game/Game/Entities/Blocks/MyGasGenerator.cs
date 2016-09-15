@@ -28,6 +28,7 @@ using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
+using VRage.Sync;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities.Blocks
@@ -355,8 +356,6 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_soundEmitter.StopSound(false);
             }
-
-            m_soundEmitter.Update();
         }
 
         protected override bool CheckIsWorking()

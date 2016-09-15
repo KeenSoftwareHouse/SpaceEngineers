@@ -29,7 +29,9 @@ using VRage.Import;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Profiler;
 using VRage.Serialization;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities
 {
@@ -1755,5 +1757,7 @@ namespace Sandbox.Game.Entities
                 manipulationTool.RotateManipulatedEntity(ref rotation);
             }
         }
+
+        public void UpdateSoundEmitter(){ }
     }
 }

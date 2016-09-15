@@ -3,8 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SharpDX.Direct3D;
+using VRage.Render11.Common;
+using VRage.Render11.RenderContext;
 using VRageMath;
-using VRageRender.Resources;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
@@ -12,9 +14,9 @@ namespace VRageRender
     {
         public struct MyCloudTextureInfo
         {
-            public TexId ColorMetalTexture;
-            public TexId AlphaTexture;
-            public TexId NormalGlossTexture;
+            public ISrvBindable ColorMetalTexture;
+            public ISrvBindable AlphaTexture;
+            public ISrvBindable NormalGlossTexture;
         }
 
         internal Vector3D CenterPoint;
@@ -64,33 +66,22 @@ namespace VRageRender
         static PixelShaderId m_cloudPs;
         static ComputeShaderId m_fogShader;
         static InputLayoutId m_proxyIL;
-        static SamplerId m_textureSampler;
-
+ 
         const int m_numFogThreads = 8;
 
         public static bool DrawFog = false;
 
         internal static void Init()
         {
-            m_proxyVs = MyShaders.CreateVs("clouds.hlsl");
-            m_cloudPs = MyShaders.CreatePs("clouds.hlsl");
+            m_proxyVs = MyShaders.CreateVs("Transparent/Clouds/Clouds.hlsl");
+            m_cloudPs = MyShaders.CreatePs("Transparent/Clouds/Clouds.hlsl");
             m_proxyIL = MyShaders.CreateIL(m_proxyVs.BytecodeId, MyVertexLayouts.GetLayout(
                     new MyVertexInputComponent(MyVertexInputComponentType.POSITION_PACKED, 0),
                     new MyVertexInputComponent(MyVertexInputComponentType.NORMAL, 1),
                     new MyVertexInputComponent(MyVertexInputComponentType.TANGENT_SIGN_OF_BITANGENT, 1),
                     new MyVertexInputComponent(MyVertexInputComponentType.TEXCOORD0_H, 1)));
 
-            m_fogShader = MyShaders.CreateCs("clouds.hlsl", new [] {new ShaderMacro("NUMTHREADS", m_numFogThreads)});
-
-            SamplerStateDescription description = new SamplerStateDescription
-            {
-                AddressU = TextureAddressMode.Wrap,
-                AddressV = TextureAddressMode.Wrap,
-                AddressW = TextureAddressMode.Wrap,
-                Filter = Filter.MinMagMipLinear,
-                MaximumLod = System.Single.MaxValue
-            };
-            m_textureSampler = MyPipelineStates.CreateSamplerState(description);
+            m_fogShader = MyShaders.CreateCs("Transparent/Clouds/Clouds.hlsl", new[] { new ShaderMacro("NUMTHREADS", m_numFogThreads) });
         }
 
         private static readonly Dictionary<uint, MyCloudLayer> m_cloudLayers = new Dictionary<uint, MyCloudLayer>();
@@ -120,20 +111,24 @@ namespace VRageRender
                 var cmTexture = textures[0].Insert(textures[0].LastIndexOf('.'), "_cm");
                 var alphaTexture = textures[0].Insert(textures[0].LastIndexOf('.'), "_alphamask");
                 var normalGlossTexture = textures[0].Insert(textures[0].LastIndexOf('.'), "_ng");
+                MyFileTextureManager texManager = MyManagers.FileTextures; 
                 textureInfo = new MyCloudLayer.MyCloudTextureInfo
                 {
-                    ColorMetalTexture = MyTextures.GetTexture(cmTexture, MyTextureEnum.COLOR_METAL),
-                    AlphaTexture = MyTextures.GetTexture(alphaTexture, MyTextureEnum.ALPHAMASK),
-                    NormalGlossTexture = MyTextures.GetTexture(normalGlossTexture, MyTextureEnum.NORMALMAP_GLOSS),
+                    ColorMetalTexture = texManager.GetTexture(cmTexture, MyFileTextureEnum.COLOR_METAL),
+                    AlphaTexture = texManager.GetTexture(alphaTexture, MyFileTextureEnum.ALPHAMASK),
+                    NormalGlossTexture = texManager.GetTexture(normalGlossTexture, MyFileTextureEnum.NORMALMAP_GLOSS),
                 };
             }
             else
+            {
+                MyFileTextureManager texManager = MyManagers.FileTextures; 
                 textureInfo = new MyCloudLayer.MyCloudTextureInfo
                 {
-                    ColorMetalTexture = MyTextures.GetTexture(MyMeshes.GetMeshPart(mesh, 0, 0).Info.Material.Info.ColorMetal_Texture.ToString(), MyTextureEnum.COLOR_METAL),
-                    AlphaTexture = MyTextures.GetTexture(MyMeshes.GetMeshPart(mesh, 0, 0).Info.Material.Info.Alphamask_Texture.ToString(), MyTextureEnum.ALPHAMASK),
-                    NormalGlossTexture = MyTextures.GetTexture(MyMeshes.GetMeshPart(mesh, 0, 0).Info.Material.Info.NormalGloss_Texture.ToString(), MyTextureEnum.NORMALMAP_GLOSS),
+                    ColorMetalTexture = texManager.GetTexture(MyMeshes.GetMeshPart(mesh, 0, 0).Info.Material.Info.ColorMetal_Texture.ToString(), MyFileTextureEnum.COLOR_METAL),
+                    AlphaTexture = texManager.GetTexture(MyMeshes.GetMeshPart(mesh, 0, 0).Info.Material.Info.Alphamask_Texture.ToString(), MyFileTextureEnum.ALPHAMASK),
+                    NormalGlossTexture = texManager.GetTexture(MyMeshes.GetMeshPart(mesh, 0, 0).Info.Material.Info.NormalGloss_Texture.ToString(), MyFileTextureEnum.NORMALMAP_GLOSS),
                 };
+            }
 
             m_cloudLayers.Add(ID, new MyCloudLayer
             {
@@ -150,7 +145,7 @@ namespace VRageRender
                 RotationAxis = rotationAxis,
                 AngularVelocity = angularVelocity,
             });
-            m_modifiableCloudLayerData.Add(ID, new MyModifiableCloudLayerData { RadiansAroundAxis = radiansAroundAxis, LastGameplayFrameUpdate = MyRender11.Settings.GameplayFrame });
+            m_modifiableCloudLayerData.Add(ID, new MyModifiableCloudLayerData { RadiansAroundAxis = radiansAroundAxis, LastGameplayFrameUpdate = MyRender11.GameplayFrameCounter });
         }
 
         internal static void RemoveCloud(uint ID)
@@ -166,24 +161,24 @@ namespace VRageRender
 
             var immediateContext = MyImmediateRC.RC;
 
-            immediateContext.SetVS(m_proxyVs);
-            immediateContext.SetPS(m_cloudPs);
-            immediateContext.SetIL(m_proxyIL);
+            immediateContext.VertexShader.Set(m_proxyVs);
+            immediateContext.PixelShader.Set(m_cloudPs);
+            immediateContext.SetInputLayout(m_proxyIL);
 
-            immediateContext.SetRS(MyRender11.m_nocullRasterizerState);
-            immediateContext.SetBS(MyRender11.BlendTransparent);
-            immediateContext.SetDS(MyDepthStencilState.DepthTest);
+            immediateContext.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
+            immediateContext.SetBlendState(MyBlendStateManager.BlendTransparent);
+            immediateContext.SetDepthStencilState(MyDepthStencilStateManager.DepthTestReadOnly);
 
             var cb = MyCommon.GetObjectCB(sizeof(CloudsConstants));
-            immediateContext.SetCB(1, cb);
-            immediateContext.DeviceContext.PixelShader.SetSamplers(0, m_textureSampler);
+            immediateContext.AllShaderStages.SetConstantBuffer(1, cb);
+            immediateContext.PixelShader.SetSamplers(0, MySamplerStateManager.CloudSampler);
 
-            immediateContext.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadOnly, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer));
+            immediateContext.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, MyGBuffer.Main.LBuffer);
 
             m_cloudLayers.OrderByDescending(x =>
             {
                 MyCloudLayer cloudLayer = x.Value;
-                Vector3D cameraToLayer = cloudLayer.CenterPoint - MyRender11.Environment.CameraPosition;
+                Vector3D cameraToLayer = cloudLayer.CenterPoint - MyRender11.Environment.Matrices.CameraPosition;
                 Vector3D layerToCameraDirection = -Vector3D.Normalize(cameraToLayer);
                 return (cameraToLayer + layerToCameraDirection * cloudLayer.Altitude).Length();
             });
@@ -191,7 +186,7 @@ namespace VRageRender
             foreach (var cloudLayer in m_cloudLayers)
             {
                 var modifiableData = m_modifiableCloudLayerData[cloudLayer.Key];
-                int currentGameplayFrame = MyRender11.Settings.GameplayFrame;
+                int currentGameplayFrame = MyRender11.GameplayFrameCounter;
                 var increment = cloudLayer.Value.AngularVelocity * (float)(currentGameplayFrame - modifiableData.LastGameplayFrameUpdate) / 10.0f;
                 modifiableData.RadiansAroundAxis += increment; // Constant for backward compatibility
                 if (modifiableData.RadiansAroundAxis >= 2 * Math.PI)
@@ -201,7 +196,7 @@ namespace VRageRender
 
                 double scaledAltitude = cloudLayer.Value.Altitude;
                 Vector3D centerPoint = cloudLayer.Value.CenterPoint;
-                Vector3D cameraPosition = MyRender11.Environment.CameraPosition;
+                Vector3D cameraPosition = MyRender11.Environment.Matrices.CameraPosition;
                 double cameraDistanceFromCenter = (centerPoint - cameraPosition).Length();
 
                 if (cloudLayer.Value.ScalingEnabled)
@@ -215,7 +210,7 @@ namespace VRageRender
 
                 MatrixD worldMatrix = MatrixD.CreateScale(scaledAltitude) * MatrixD.CreateFromAxisAngle(cloudLayer.Value.RotationAxis, (float)modifiableData.RadiansAroundAxis);
                 worldMatrix.Translation = cloudLayer.Value.CenterPoint;
-                worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
+                worldMatrix.Translation -= MyRender11.Environment.Matrices.CameraPosition;
 
                 float layerAlpha = 1.0f;
 
@@ -233,7 +228,7 @@ namespace VRageRender
 
                 var constants = new CloudsConstants();
                 constants.World = MatrixD.Transpose(worldMatrix);
-                constants.ViewProj = MatrixD.Transpose(MyRender11.Environment.ViewProjectionAt0);
+                constants.ViewProj = MatrixD.Transpose(MyRender11.Environment.Matrices.ViewProjectionAt0);
                 constants.Color = layerColor;
 
                 var mapping = MyMapping.MapDiscard(cb);
@@ -243,29 +238,30 @@ namespace VRageRender
                 MeshId sphereMesh = cloudLayer.Value.Mesh;
                 LodMeshId lodMesh = MyMeshes.GetLodMesh(sphereMesh, 0);
                 MyMeshBuffers buffers = lodMesh.Buffers;
-                immediateContext.DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(buffers.VB0.Buffer, buffers.VB0.Stride, 0));
-                immediateContext.DeviceContext.InputAssembler.SetVertexBuffers(1, new VertexBufferBinding(buffers.VB1.Buffer, buffers.VB1.Stride, 0));
-                immediateContext.SetIB(buffers.IB.Buffer, buffers.IB.Format);
+                immediateContext.SetVertexBuffer(0, buffers.VB0.Buffer, buffers.VB0.Stride);
+                immediateContext.SetVertexBuffer(1, buffers.VB1.Buffer, buffers.VB1.Stride);
+                immediateContext.SetIndexBuffer(buffers.IB.Buffer, buffers.IB.Format);
 
-                immediateContext.DeviceContext.PixelShader.SetShaderResource(0, MyTextures.GetView(cloudLayer.Value.TextureInfo.ColorMetalTexture));
-                immediateContext.DeviceContext.PixelShader.SetShaderResource(1, MyTextures.GetView(cloudLayer.Value.TextureInfo.AlphaTexture));
-                immediateContext.DeviceContext.PixelShader.SetShaderResource(2, MyTextures.GetView(cloudLayer.Value.TextureInfo.NormalGlossTexture));
+                immediateContext.PixelShader.SetSrv(0, cloudLayer.Value.TextureInfo.ColorMetalTexture);
+                immediateContext.PixelShader.SetSrv(1, cloudLayer.Value.TextureInfo.AlphaTexture);
+                immediateContext.PixelShader.SetSrv(2, cloudLayer.Value.TextureInfo.NormalGlossTexture);
 
-                immediateContext.DeviceContext.DrawIndexed(lodMesh.Info.IndicesNum, 0, 0);
+                immediateContext.DrawIndexed(lodMesh.Info.IndicesNum, 0, 0);
             }
 
-            immediateContext.DeviceContext.PixelShader.SetShaderResource(0, null);
-            immediateContext.DeviceContext.PixelShader.SetShaderResource(1, null);
-            immediateContext.DeviceContext.PixelShader.SetShaderResource(2, null);
-            immediateContext.SetDS(null);
-            immediateContext.SetBS(null);
-            immediateContext.SetRS(null);
+            immediateContext.PixelShader.SetSrv(0, null);
+            immediateContext.PixelShader.SetSrv(1, null);
+            immediateContext.PixelShader.SetSrv(2, null);
+            immediateContext.SetDepthStencilState(null);
+            immediateContext.SetBlendState(null);
+            immediateContext.SetRasterizerState(null);
+            immediateContext.SetRtv(null);
         }
 
         private static void FindClosestClouds(List<uint> indexList)
         {
             m_closestCloudsIndexList.Clear();
-            Vector3D cameraPosition = MyRender11.Environment.CameraPosition;
+            Vector3D cameraPosition = MyRender11.Environment.Matrices.CameraPosition;
 
             foreach (KeyValuePair<uint, MyCloudLayer> cloudLayer in m_cloudLayers)
             {
@@ -288,7 +284,7 @@ namespace VRageRender
 
             var immediateContext = MyImmediateRC.RC;
 
-            immediateContext.BindSRV(0, MyGBuffer.Main.DepthStencil.Depth);
+            immediateContext.AllShaderStages.SetSrv(0, MyGBuffer.Main.DepthStencil.Depth);
 
             Vector3D cameraPosition = MyRender11.Environment.CameraPosition;
             foreach (var cloudLayerIndex in m_closestCloudsIndexList)
@@ -309,13 +305,13 @@ namespace VRageRender
 
                 var textureSize = sourceTexture.GetSize();
 
-                immediateContext.BindUAV(0, destinationTexture);
+                immediateContext.BindUav(0, destinationTexture);
 
-                immediateContext.BindSRV(1, sourceTexture);
+                immediateContext.AllShaderStages.SetSrv(1, sourceTexture);
                 immediateContext.DeviceContext.ComputeShader.SetShaderResource(2, MyTextures.GetView(cloudLayer.TextureInfo.AlphaTexture));
-                immediateContext.SetCS(m_fogShader);
+                immediateContext.ComputeShader.Set(m_fogShader);
                 var cb = MyCommon.GetObjectCB(sizeof(FogConstants));
-                immediateContext.CSSetCB(1, cb);
+                immediateContext.ComputeShader.SetConstantBuffer(1, cb);
 
                 var modifiableData = m_modifiableCloudLayerData[cloudLayerIndex];
                 MatrixD worldMatrix = MatrixD.CreateFromAxisAngle(cloudLayer.RotationAxis, (float)modifiableData.RadiansAroundAxis);
@@ -342,7 +338,7 @@ namespace VRageRender
 
                 immediateContext.DeviceContext.Dispatch((textureSize.X + m_numFogThreads - 1) / m_numFogThreads, (textureSize.Y + m_numFogThreads - 1) / m_numFogThreads, 1);
 
-                immediateContext.SetCS(null);
+                immediateContext.ComputeShader.Set(null);
 
                 immediateContext.DeviceContext.CopySubresourceRegion(destinationTexture.m_resource, 0, new ResourceRegion(0, 0, 0, textureSize.X, textureSize.Y, 1), sourceTexture.m_resource, 0); // TODO: Combine this with something else instead
 

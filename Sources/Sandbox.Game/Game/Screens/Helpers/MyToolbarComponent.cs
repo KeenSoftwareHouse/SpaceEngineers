@@ -17,6 +17,8 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRage.Utils;
 using Sandbox.Game.Weapons;
+using VRage.Profiler;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.Screens.Helpers
 {

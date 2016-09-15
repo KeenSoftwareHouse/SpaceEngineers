@@ -26,10 +26,11 @@ using VRage.Utils;
 using VRage.Network;
 using VRage.ModAPI;
 using VRage.Game.Entity;
-using VRage.Library.Sync;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {

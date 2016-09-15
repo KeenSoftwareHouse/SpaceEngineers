@@ -14362,6 +14362,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\ControlPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Display" Count="1" />
@@ -14429,6 +14430,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\ControlPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Display" Count="1" />
@@ -14976,6 +14978,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\beacon.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="SmallTube" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -15056,6 +15059,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\InteriorLight.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
       </Components>
       <CriticalComponent Subtype="Construction" Index="0" />
@@ -15533,6 +15537,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\warhead.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Girder" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="SmallTube" Count="2" />
@@ -15563,6 +15568,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\decoy.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="2" />
         <Component Subtype="RadioCommunication" Count="1" />
@@ -15609,6 +15615,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\decoy.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="RadioCommunication" Count="1" />
@@ -15880,6 +15887,8 @@
       <RefineSpeed>1.3</RefineSpeed>
       <MaterialEfficiency>0.8</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <Center x="1" y="0" z="0" />
+      <MirroringZ>Y</MirroringZ>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
       <PrimarySound>BlockRafinery</PrimarySound>
       <ActionSound>BlockRafineryProcess</ActionSound>
@@ -16069,7 +16078,7 @@
       <GenerateSound>BlockOxyGenProcess</GenerateSound>
       <IdleSound>BlockOxyGenIdle</IdleSound>
       
-<!--       <Effects>
+      <!--<Effects>
         <Effect Name="Damage" ParameterMin="0.5">
           <ParticleEffects>
             <ParticleEffect Origin="Damage_02" Name="SmokeWhite" Loop="true" Duration="3" SpawnTimeMin="2" SpawnTimeMax="5" />
@@ -16782,7 +16791,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>LargeBlockCockpit</SubtypeId>
+        <SubtypeId>LargeBlockCockpit</SubtypeId><!-- Station control seat -->
       </Id>
       <DisplayName>DisplayName_Block_Cockpit2</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Cockpit.dds</Icon>
@@ -16837,16 +16846,15 @@
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <EnableBuilderCockpit>false</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <PrimarySound>BlockCockpitLrg</PrimarySound>
-      <GetInSound>ShipLrgCockpitIn</GetInSound>
-      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+        <SubtypeId>LargeBlockCockpitSeat</SubtypeId><!-- Large block cockpit -->
       </Id>
       <DisplayName>DisplayName_Block_Cockpit1</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\CockpitSmall.dds</Icon>
@@ -16860,12 +16868,12 @@
       <GlassModel>Models\Cubes\Large\CockpitGlass.mwm</GlassModel>
       <CharacterAnimation>cockpit1_large</CharacterAnimation>
       <Components>
-        <Component Subtype="InteriorPlate" Count="20" />
+        <Component Subtype="SteelPlate" Count="20" />
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Display" Count="8" />
         <Component Subtype="Computer" Count="100" />
-        <Component Subtype="InteriorPlate" Count="10" />
+        <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="BulletproofGlass" Count="60" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
@@ -16907,7 +16915,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>SmallBlockCockpit</SubtypeId>
+        <SubtypeId>SmallBlockCockpit</SubtypeId><!-- Small block cockpit -->
       </Id>
       <DisplayName>DisplayName_Block_Cockpit1</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\CockpitSmall.dds</Icon>
@@ -16921,12 +16929,12 @@
       <GlassModel>Models\Cubes\Small\cockpitglass.mwm</GlassModel>
       <CharacterAnimation>cockpit1_small</CharacterAnimation>
       <Components>
-        <Component Subtype="InteriorPlate" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="10" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Display" Count="5" />
         <Component Subtype="Computer" Count="15" />
-        <Component Subtype="InteriorPlate" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="BulletproofGlass" Count="30" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
@@ -16972,7 +16980,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>DBSmallBlockFighterCockpit</SubtypeId>
+        <SubtypeId>DBSmallBlockFighterCockpit</SubtypeId><!-- Fighter cockpit -->
       </Id>
       <DisplayName>DisplayName_Block_FighterCockpit</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\FighterCockpit.dds</Icon>
@@ -16985,6 +16993,7 @@
       <InteriorModel>Models\Cubes\small\CockpitFighter_interior.mwm</InteriorModel>
       <CharacterAnimation>FighterCockpitPosture</CharacterAnimation>
       <Components>
+        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="SteelPlate" Count="10" />
@@ -17045,7 +17054,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>CockpitOpen</SubtypeId>
+        <SubtypeId>CockpitOpen</SubtypeId><!-- Flight seat -->
       </Id>
       <public>false</public>
       <DisplayName>DisplayName_Block_Cockpit3</DisplayName>
@@ -17096,16 +17105,15 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <EnableBuilderCockpit>true</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
-      <GetInSound>ShipLrgCockpitIn</GetInSound>
-      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <!-- End region Cockpits -->
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>PassengerSeatLarge</SubtypeId>
+        <SubtypeId>PassengerSeatLarge</SubtypeId><!-- Large block passenger seat -->
       </Id>
       <DisplayName>DisplayName_Block_PassengerSeat</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\PassengerSeat.dds</Icon>
@@ -17150,13 +17158,14 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
       <EnableBuilderCockpit>false</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>PassengerSeatSmall</SubtypeId>
+        <SubtypeId>PassengerSeatSmall</SubtypeId><!-- Small block passenger seat -->
       </Id>
       <DisplayName>DisplayName_Block_PassengerSeat</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\PassengerSeat.dds</Icon>
@@ -17200,6 +17209,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
       <EnableBuilderCockpit>false</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -17263,6 +17273,7 @@
       <IdlePowerConsumption>0.00003</IdlePowerConsumption>
       <OutsideSound>BlockCryoOut</OutsideSound>
       <InsideSound>BlockCryoIn</InsideSound>
+      <EnclosedCockpit>true</EnclosedCockpit>
       <EdgeType>Light</EdgeType>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -17283,6 +17294,7 @@
       <UnlockSound>ShipLandGearOff</UnlockSound>
       <FailedAttachSound>ShipLandGearNothing01</FailedAttachSound>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Motor" Count="1" />
@@ -17708,6 +17720,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\OreDetector.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="2" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -17946,6 +17959,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\TextPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="4" />
         <Component Subtype="Computer" Count="4" />
         <Component Subtype="Display" Count="3" />
@@ -17996,6 +18010,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\LCDPanelWide.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="8" />
         <Component Subtype="Computer" Count="8" />
         <Component Subtype="Display" Count="6" />
@@ -18049,6 +18064,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\LCDPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="4" />
         <Component Subtype="Computer" Count="4" />
         <Component Subtype="Display" Count="3" />
@@ -18204,6 +18220,7 @@
       <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <IceConsumptionPerSecond>83</IceConsumptionPerSecond>
       <InventoryMaxVolume>1</InventoryMaxVolume>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <InventorySize>
         <X>2</X>
         <Y>2</Y>
@@ -18251,6 +18268,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\TextPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="6" />
         <Component Subtype="Computer" Count="6" />
         <Component Subtype="Display" Count="10" />
@@ -18288,6 +18306,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\LCDPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="6" />
         <Component Subtype="Computer" Count="6" />
         <Component Subtype="Display" Count="10" />
@@ -18338,6 +18357,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\LCDPanelWide.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="2" />
         <Component Subtype="Construction" Count="12" />
         <Component Subtype="Computer" Count="12" />
         <Component Subtype="Display" Count="20" />
@@ -18380,6 +18400,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\antenna.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="SmallTube" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Construction" Count="1" />
@@ -19026,12 +19047,12 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
-        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" Default="true" />
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="3" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\CargoContainerMediumConstruction_1.mwm" />
@@ -19193,6 +19214,7 @@
       <ThrusterType>Ion</ThrusterType>
       <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Thrust" Count="1" />
         <Component Subtype="Construction" Count="1" />
@@ -22029,9 +22051,9 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\SolarPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Construction" Count="7" />
         <Component Subtype="LargeTube" Count="1" />
-        <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Computer" Count="2" />
         <Component Subtype="SolarCell" Count="64" />
         <Component Subtype="Construction" Count="3" />
@@ -22092,9 +22114,9 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\SolarPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Girder" Count="4" />
-        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="SolarCell" Count="16" />
         <Component Subtype="Construction" Count="1" />
@@ -23391,7 +23413,7 @@
       </Id>
       <DisplayName>DisplayName_Block_ConveyorTubeCurved</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorTubeCurved.dds</Icon>
-      <GuiVisible>true</GuiVisible>
+      <GuiVisible>false</GuiVisible>
       <CubeSize>Large</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -23466,6 +23488,7 @@
       <DisplayName>DisplayName_Block_ConveyorTubeCurved</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorTubeCurved.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -26519,5 +26542,3 @@
     </BlockPosition>
   </BlockPositions>
 </Definitions>
-
-    

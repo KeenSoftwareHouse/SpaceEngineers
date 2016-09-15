@@ -48,7 +48,7 @@ namespace Sandbox.Engine.Networking
         public long LoadingDuration;
         public string WorldType;
         public string hostility;
-        public bool cyberHounds;
+        public bool Wolfs;
         public bool spaceSpiders;
         public bool voxelSupport;
         public bool destructibleBlocks;
@@ -88,7 +88,7 @@ namespace Sandbox.Engine.Networking
         public bool Scenario;
         public Dictionary<string, MyFixedPoint> TotalAmountMined;
         public string hostility;
-        public bool cyberHounds;
+        public bool Wolfs;
         public bool spaceSpiders;
         public bool voxelSupport;
         public bool destructibleBlocks;

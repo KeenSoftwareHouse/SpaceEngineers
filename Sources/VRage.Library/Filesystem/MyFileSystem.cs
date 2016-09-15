@@ -16,11 +16,13 @@ namespace VRage.FileSystem
 #else
 		public static string ExePath = @"."; // OM: Need to be able to alter this due to starting game from tools
 #endif
+        private static string m_shadersBasePath;
         private static string m_contentPath;
         private static string m_modsPath;
         private static string m_userDataPath;
         private static string m_savesPath;
 
+        public static string ShadersBasePath { get { CheckInitialized(); return m_shadersBasePath; } }
         public static string ContentPath { get { CheckInitialized();  return m_contentPath; } }
         public static string ModsPath { get { CheckInitialized(); return m_modsPath; } }
         public static string UserDataPath { get { CheckInitialized(); return m_userDataPath; } }        
@@ -49,7 +51,7 @@ namespace VRage.FileSystem
                 throw new InvalidOperationException("User specific path not initialized, call 'InitUserSpecific'");
         }
 
-        public static void Init(string contentPath, string userData, string modDirName = "Mods")
+        public static void Init(string contentPath, string userData, string modDirName = "Mods", string shadersBasePath = null)
         {
             if (m_contentPath != null)
 #if XB1
@@ -57,9 +59,9 @@ namespace VRage.FileSystem
 #else
                 throw new InvalidOperationException("Paths already initialized");
 #endif
-
-            m_contentPath = contentPath;
-            m_userDataPath = userData;
+            m_contentPath = Path.GetFullPath(contentPath);
+            m_shadersBasePath = string.IsNullOrEmpty(shadersBasePath) ? m_contentPath : Path.GetFullPath(shadersBasePath);
+            m_userDataPath = Path.GetFullPath(userData);
             m_modsPath = Path.Combine(m_userDataPath, modDirName);
             Directory.CreateDirectory(m_modsPath);
         }
@@ -78,7 +80,7 @@ namespace VRage.FileSystem
 
         public static void Reset()
         {
-            m_contentPath = m_modsPath = m_userDataPath = m_savesPath = null;
+            m_contentPath = m_shadersBasePath = m_modsPath = m_userDataPath = m_savesPath = null;
         }
         
         public static Stream Open(string path, FileMode mode, FileAccess access, FileShare share)

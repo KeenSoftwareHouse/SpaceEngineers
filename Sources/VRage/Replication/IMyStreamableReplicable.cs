@@ -14,7 +14,7 @@ namespace VRage.Network
 
         IMyStateGroup GetStreamingStateGroup();
 
-        float GetPriority(MyClientInfo state);
+        float GetPriority(MyClientInfo state,bool cached);
 
         float PriorityScale();
 

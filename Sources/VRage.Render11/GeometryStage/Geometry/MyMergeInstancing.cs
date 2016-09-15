@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 using VRageMath;
 using Matrix = VRageMath.Matrix;
 using Vector4 = VRageMath.Vector4;
@@ -50,11 +52,11 @@ namespace VRageRender
 
     class MyMergeInstancing
     {
-        internal MyMeshTableSRV m_meshTable;
+        internal MyMeshTableSrv m_meshTable;
 
         internal StructuredBufferId m_indirectionBuffer = StructuredBufferId.NULL;
         internal StructuredBufferId m_instanceBuffer = StructuredBufferId.NULL;
-        internal IShaderResourceBindable[] m_SRVs = new IShaderResourceBindable[2];
+        internal ShaderResourceView[] m_srvs = new ShaderResourceView[2];
 
         Dictionary<uint, MyInstanceInfo> m_entities = new Dictionary<uint, MyInstanceInfo>();
 
@@ -67,7 +69,7 @@ namespace VRageRender
 
         internal int VerticesNum { get { return m_meshTable.PageSize * m_instancingTable.Size; } }
 
-        internal MyMergeInstancing(MyMeshTableSRV meshTable)
+        internal MyMergeInstancing(MyMeshTableSrv meshTable)
         {
             m_meshTable = meshTable;
 
@@ -96,7 +98,7 @@ namespace VRageRender
             m_entities[ID] = new MyInstanceInfo { InstanceIndex = instanceIndex, PageHandles = new List<MyPackedPoolHandle>() };
 
             int pageOffset = -1;
-            foreach (var id in m_meshTable.Pages(MyMeshTableSRV.MakeKey(model)))
+            foreach (var id in m_meshTable.Pages(MyMeshTableSrv.MakeKey(model)))
             {
                 if (pageOffset == -1)
                     pageOffset = id;
@@ -152,7 +154,8 @@ namespace VRageRender
 
             m_indirectionBuffer = StructuredBufferId.NULL;
             m_instanceBuffer = StructuredBufferId.NULL;
-            Array.Clear(m_SRVs, 0, m_SRVs.Length);
+            
+            Array.Clear(m_srvs, 0, m_srvs.Length);
 
             m_tableDirty = true;
             m_instancesDataDirty = true;
@@ -160,7 +163,7 @@ namespace VRageRender
 
         internal unsafe void MoveToGPU()
         {
-            var context = MyImmediateRC.RC.DeviceContext;
+            var context = MyImmediateRC.RC;
 
             if (m_tableDirty)
             {
@@ -169,9 +172,9 @@ namespace VRageRender
                 fixed (void* ptr = array)
                 {
                     var intPtr = new IntPtr(ptr);
-                    MyHwBuffers.ResizeAndUpdateStaticStructuredBuffer(ref m_indirectionBuffer, array.Length, sizeof(MyInstancingTableEntry), intPtr, 
+                    MyHwBuffers.ResizeAndUpdateStaticStructuredBuffer(ref m_indirectionBuffer, array.Length, sizeof(MyInstancingTableEntry), intPtr,
                         "MyMergeInstancing/Tables", context);
-                    m_SRVs[0] = m_indirectionBuffer;
+                    m_srvs[0] = m_indirectionBuffer.Srv;
                 }
 
                 m_tableDirty = false;
@@ -189,16 +192,16 @@ namespace VRageRender
                     {
                         MyHwBuffers.Destroy(m_instanceBuffer);
                         m_instanceBuffer = StructuredBufferId.NULL;
-                        m_SRVs[1] = null;
+                        m_srvs[1] = null;
                     }
                     if (m_instanceBuffer == StructuredBufferId.NULL)
                     {
                         m_instanceBuffer = MyHwBuffers.CreateStructuredBuffer(array.Length, sizeof(MyPerInstanceData), true, intPtr, "MyMergeInstancing instances");
-                        m_SRVs[1] = m_instanceBuffer;
+                        m_srvs[1] = m_instanceBuffer.Srv;
                     }
                     else
                     {
-                        var mapping = MyMapping.MapDiscard(context, m_instanceBuffer.Buffer);
+                        var mapping = MyMapping.MapDiscard(MyImmediateRC.RC, m_instanceBuffer.Buffer);
                         mapping.WriteAndPosition(array, 0, array.Length);
                         mapping.Unmap();
                     }

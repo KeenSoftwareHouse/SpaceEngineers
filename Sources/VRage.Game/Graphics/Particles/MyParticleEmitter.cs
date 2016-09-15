@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Animations;
 
 namespace VRage.Game
 {

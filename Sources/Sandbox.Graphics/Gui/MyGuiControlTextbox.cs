@@ -897,6 +897,17 @@ namespace Sandbox.Graphics.GUI
             private set;
         }
 
+        /// <summary>
+        /// GR: Use this to select all text outside for current textbox.
+        /// </summary>
+        public void SelectAll()
+        {
+            if (m_selection != null)
+            {
+                m_selection.SelectAll(this);
+            }
+        }
+
         public void ApplyStyle(StyleDefinition style)
         {
             m_useCustomStyle = true;

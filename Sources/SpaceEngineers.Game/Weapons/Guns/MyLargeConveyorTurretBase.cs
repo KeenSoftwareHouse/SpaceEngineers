@@ -15,6 +15,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
 using VRage.ModAPI;
+using VRage.Sync;
 
 namespace SpaceEngineers.Game.Weapons.Guns
 {

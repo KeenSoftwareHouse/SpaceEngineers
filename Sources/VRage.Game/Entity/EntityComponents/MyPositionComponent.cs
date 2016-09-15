@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using VRage.Profiler;
 using VRageMath;
 using VRage.Utils;
 
@@ -24,9 +25,7 @@ namespace VRage.Game.Components
             }
             set
             {
-                m_localAABB = value;
-                m_localVolume = BoundingSphere.CreateFromBoundingBox(m_localAABB);
-                m_worldVolumeDirty = true;
+                base.LocalAABB = value;
                 Container.Entity.UpdateGamePruningStructure();
             }
         }
@@ -152,6 +151,7 @@ namespace VRage.Game.Components
 
             UpdateChildren(source); //update children WMs
             m_worldVolumeDirty = true;
+            m_worldAABBDirty = true;
             m_normalizedInvMatrixDirty = true;
             m_invScaledMatrixDirty = true;
 

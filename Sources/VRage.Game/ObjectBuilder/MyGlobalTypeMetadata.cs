@@ -81,6 +81,8 @@ namespace VRage.Game.ObjectBuilder
 #if XB1 // XB1_ALLINONEASSEMBLY
             RegisterAssembly(MyAssembly.AllInOneAssembly);
 #else // !XB1
+            MyXmlSerializerManager.RegisterSerializableBaseType(typeof(MyObjectBuilder_Base));
+
             RegisterAssembly(GetType().Assembly); // VRage.Game
 
             RegisterAssembly(MyPlugins.GameAssembly);

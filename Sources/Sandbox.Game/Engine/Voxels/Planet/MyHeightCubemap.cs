@@ -5,6 +5,7 @@ using Sandbox.Definitions;
 using VRage;
 using VRage.Game;
 using VRage.Game.Definitions;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 

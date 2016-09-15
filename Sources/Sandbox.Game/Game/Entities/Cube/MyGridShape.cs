@@ -18,10 +18,10 @@ using Sandbox.Game.World;
 using VRage.Utils;
 using Sandbox.Game.EntityComponents;
 using VRage.ModAPI;
-using VRage.Voxels;
 using VRageMath.Spatial;
 
 using VRage.Game;
+using VRage.Profiler;
 
 
 namespace Sandbox.Game.Entities.Cube

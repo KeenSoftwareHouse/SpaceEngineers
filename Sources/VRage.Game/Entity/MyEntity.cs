@@ -13,6 +13,7 @@ using VRage.Game.Models;
 using VRage.Game.Gui;
 using VRage.Game.Utils;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Profiler;
 
 #endregion
 
@@ -1228,10 +1229,6 @@ namespace VRage.Game.Entity
             //OnPositionChanged = null;
 
             CallAndClearOnClosing();
-
-            // hide decals - decals of children are already hidden, see above
-            if (this.Render.RenderObjectIDs.Length > 0)
-                VRageRender.MyRenderProxy.HideDecals(this.Render.RenderObjectIDs[0], Vector3.Zero, 0);
 
             MyEntitiesInterface.RemoveName(this);
             MyEntitiesInterface.RemoveFromClosedEntities(this);

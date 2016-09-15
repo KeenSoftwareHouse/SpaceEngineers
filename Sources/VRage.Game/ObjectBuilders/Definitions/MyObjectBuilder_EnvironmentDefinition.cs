@@ -4,135 +4,58 @@ using VRage.Data;
 using VRage.ObjectBuilders;
 using VRageMath;
 using System.Xml.Serialization;
+using VRageRender;
+using VRageRender.Messages;
 
 namespace VRage.Game
 {
-    [ProtoContract]
+    /// <summary>
+    /// Global (environment) mergeable definitions
+    /// </summary>
     [MyObjectBuilderDefinition]
+    [XmlType("EnvironmentDefinition")]
     public class MyObjectBuilder_EnvironmentDefinition : MyObjectBuilder_DefinitionBase
     {
-        [ProtoMember]
-        public SerializableVector3 SunDirection;
+        [XmlElement(Type = typeof(MyStructXmlSerializer<MyFogProperties>))]
+        public MyFogProperties FogProperties = MyFogProperties.Default;
 
-        [ProtoMember, ModdableContentFile("dds")]
-        public string EnvironmentTexture;
+        [XmlElement(Type = typeof(MyStructXmlSerializer<MySunProperties>))]
+        public MySunProperties SunProperties = MySunProperties.Default;
 
-        [ProtoMember, ModdableContentFile("dds")]
-        public string EnvironmentTextureNight = null;
+        [XmlElement(Type = typeof(MyStructXmlSerializer<MyPostprocessSettings>))]
+        public MyPostprocessSettings PostProcessSettings = MyPostprocessSettings.Default;
 
-        [ProtoMember, ModdableContentFile("dds")]
-        public string EnvironmentTextureNightPrefiltered = null;
+        [XmlElement(Type = typeof(MyStructXmlSerializer<MySSAOSettings>))]
+        public MySSAOSettings SSAOSettings = MySSAOSettings.Default;
 
-        [ProtoMember]
-        public MyOrientation EnvironmentOrientation;
+        [XmlElement(Type = typeof(MyStructXmlSerializer<MyHBAOData>))]
+        public MyHBAOData HBAOSettings = MyHBAOData.Default;
 
-        [ProtoMember]
-        public bool EnableFog;
+        public MyShadowsSettings ShadowSettings = new MyShadowsSettings();
 
-        [ProtoMember]
-        public float FogNear;
+        public float SmallShipMaxSpeed = Defaults.SmallShipMaxSpeed;
+        public float LargeShipMaxSpeed = Defaults.LargeShipMaxSpeed;
+        public float SmallShipMaxAngularSpeed = Defaults.SmallShipMaxAngularSpeed;
+        public float LargeShipMaxAngularSpeed = Defaults.LargeShipMaxAngularSpeed;
+        public Vector4 ContourHighlightColor = Defaults.ContourHighlightColor;
+        public float ContourHighlightThickness = Defaults.ContourHighlightThickness;
+        public float HighlightPulseInSeconds = Defaults.HighlightPulseInSeconds;
 
-        [ProtoMember]
-        public float FogFar;
+        [ModdableContentFile("dds")]
+        public string EnvironmentTexture = Defaults.EnvironmentTexture;
+        public MyOrientation EnvironmentOrientation = Defaults.EnvironmentOrientation;
 
-        [ProtoMember]
-        public float FogMultiplier;
-
-        [ProtoMember]
-        public float FogBacklightMultiplier;
-
-        [ProtoMember]
-        public float FogDensity;
-
-        [ProtoMember]
-        public SerializableVector3 FogColor;
-
-        [ProtoMember]
-        public SerializableVector3 SunDiffuse = new SerializableVector3(200 / 255.0f, 200 / 255.0f, 200 / 255.0f);
-
-        [ProtoMember]
-        public float SunIntensity = 1.456f;
-
-        [ProtoMember]
-        public SerializableVector3 SunSpecular = new SerializableVector3(200 / 255.0f, 200 / 255.0f, 200 / 255.0f);
-
-        [ProtoMember]
-        public SerializableVector3 BackLightDiffuse = new SerializableVector3(200 / 255.0f, 200 / 255.0f, 200 / 255.0f);
-
-        [ProtoMember]
-        public float BackLightIntensity = 0f;
-
-        [ProtoMember, XmlArrayItem("LightDirection")]
-        public SerializableVector2[] AdditionalSunDirection = new SerializableVector2[] { new Vector2(0, 0) };
-
-        [ProtoMember]
-        public SerializableVector3 AmbientColor = new SerializableVector3(36 / 255.0f, 36 / 255.0f, 36 / 255.0f);
-
-        [ProtoMember]
-        public float AmbientMultiplier = 0.969f;
-
-        [ProtoMember]
-        public float EnvironmentAmbientIntensity = 0.500f;
-
-        [ProtoMember]
-        public SerializableVector3 BackgroundColor = new SerializableVector3(0, 0, 0);
-
-        [ProtoMember]
-        public string SunMaterial = "SunDisk";
-
-        [ProtoMember]
-        public float SunSizeMultiplier = 200;
-
-        [ProtoMember]
-        public float SmallShipMaxSpeed = 100;
-
-        [ProtoMember]
-        public float LargeShipMaxSpeed = 100;
-
-        [ProtoMember]
-        public float SmallShipMaxAngularSpeed = 36000;
-
-        [ProtoMember]
-        public float LargeShipMaxAngularSpeed = 18000;
-
-		[ProtoContract]
-		public struct EnvironmentalParticleSettings
-		{
-			[ProtoMember]
-			public SerializableDefinitionId Id;
-
-			[ProtoMember]
-			public string Material;
-
-			[ProtoMember]
-			public Vector4 Color;
-
-			[ProtoMember]
-			public float MaxSpawnDistance;
-
-			[ProtoMember]
-			public float DespawnDistance;
-
-			[ProtoMember]
-			public float Density;
-
-			[ProtoMember]
-			public int MaxLifeTime;
-
-			[ProtoMember]
-			public int MaxParticles;
-		}
-
-		[ProtoMember, XmlArrayItem("ParticleType")]
-		public List<EnvironmentalParticleSettings> EnvironmentalParticles = new List<EnvironmentalParticleSettings>();
-
-        [ProtoMember]
-        public Vector4 ContourHighlightColor = new Vector4(1.0f, 1.0f, 0.0f, 0.05f);
-
-        [ProtoMember]
-        public float ContourHighlightThickness = 1;
-
-        [ProtoMember]
-        public float HighlightPulseInSeconds = 0;
+        public static class Defaults
+        {
+            public const float SmallShipMaxSpeed = 100;
+            public const float LargeShipMaxSpeed = 100;
+            public const float SmallShipMaxAngularSpeed = 36000;
+            public const float LargeShipMaxAngularSpeed = 18000;
+            public static readonly Vector4 ContourHighlightColor = new Vector4(1.0f, 1.0f, 0.0f, 0.05f);
+            public const float ContourHighlightThickness = 5;
+            public const float HighlightPulseInSeconds = 0;
+            public const string EnvironmentTexture = @"Textures\BackgroundCube\Final\BackgroundCube.dds";
+            public static readonly MyOrientation EnvironmentOrientation = new MyOrientation(MathHelper.ToRadians(60.3955536f), MathHelper.ToRadians(-61.1861954f), MathHelper.ToRadians(90.90578f));
+        }
     }
 }

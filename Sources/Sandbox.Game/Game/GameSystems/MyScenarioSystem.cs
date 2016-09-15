@@ -15,7 +15,6 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using VRage.Input;
 using VRage.Library.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using VRage.FileSystem;

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CacheGenerator xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Ignores>
+    <Ignore>Geometry/</Ignore>
+  </Ignores>
+  <Materials>
+    <Material Id="Standard" />
+    <Material Id="AlphaMasked" FlagNames="ALPHA_MASKED" UnsupportedFlagNames="USE_DEFORMED_CUBE_INSTANCING"/>
+    <Material Id="AlphaMasked" FlagNames="ALPHA_MASKED|ALPHA_MASK_ARRAY" UnsupportedFlagNames="USE_DEFORMED_CUBE_INSTANCING"/>
+    <Material Id="TriplanarSingle" />
+    <Material Id="TriplanarMulti" />
+  </Materials>
+  <Passes>
+    <Pass Id="Depth" FlagNames="DEPTH_ONLY" />
+    <Pass Id="Forward" />
+    <Pass Id="GBuffer" />
+    <Pass Id="Highlight" />
+  </Passes>
+  <Combos>
+    <ComboGroup>
+      <ComboList1>
+        <Combo FlagNames="USE_MERGE_INSTANCING" />
+        <Combo VertexInput="VOXEL_POSITION_MAT VOXEL_NORMAL" VertexInputOrder="0 1" FlagNames="DITHERED|USE_VOXEL_MORPHING|USE_VOXEL_DATA" />
+        <Combo VertexInput="VOXEL_POSITION_MAT VOXEL_NORMAL" VertexInputOrder="0 1" FlagNames="USE_MERGE_INSTANCING" />
+        <Combo VertexInput="POSITION3 CUSTOM_UNORM4_0" FlagNames="USE_MERGE_INSTANCING" />
+        <Combo VertexInput="POSITION_PACKED NORMAL TANGENT_SIGN_OF_BITANGENT TEXCOORD0_H" FlagNames="USE_SKINNING" />
+      </ComboList1>
+      <ComboList2 />
+    </ComboGroup>
+    <ComboGroup>
+      <ComboList1>
+        <Combo VertexInput="POSITION_PACKED" VertexInputOrder="0"/>
+        <Combo VertexInput="POSITION_PACKED NORMAL TANGENT_SIGN_OF_BITANGENT TEXCOORD0_H" VertexInputOrder="0 5 6 7"/>
+        <Combo VertexInput="POSITION_PACKED" VertexInputOrder="0" FlagNames="DITHERED_LOD" />
+        <Combo VertexInput="POSITION_PACKED NORMAL TANGENT_SIGN_OF_BITANGENT TEXCOORD0_H" VertexInputOrder="0 5 6 7" FlagNames="DITHERED_LOD" />
+        <Combo VertexInput="POSITION_PACKED" VertexInputOrder="0" FlagNames="DITHERED" />
+        <Combo VertexInput="POSITION_PACKED NORMAL TANGENT_SIGN_OF_BITANGENT TEXCOORD0_H" VertexInputOrder="0 5 6 7" FlagNames="DITHERED" />
+      </ComboList1>
+      <ComboList2>
+        <Combo />
+        <Combo VertexInput="BLEND_WEIGHTS BLEND_INDICES" VertexInputOrder="1 2"/>
+        <Combo VertexInput="BLEND_WEIGHTS BLEND_INDICES" VertexInputOrder="1 2" FlagNames="USE_SKINNING" />
+        <Combo VertexInput="BLEND_WEIGHTS BLEND_INDICES CUBE_INSTANCE" VertexInputOrder="1 2 10" FlagNames="USE_DEFORMED_CUBE_INSTANCING" />
+        <Combo VertexInput="CUBE_INSTANCE" VertexInputOrder="10" FlagNames="USE_CUBE_INSTANCING" />
+        <Combo VertexInput="GENERIC_INSTANCE" VertexInputOrder="10" FlagNames="USE_GENERIC_INSTANCING" />
+        <Combo VertexInput="GENERIC_INSTANCE" VertexInputOrder="10" />
+      </ComboList2>
+    </ComboGroup>
+    <ComboGroup Material="TriplanarMulti" Pass="FoliageStreaming">
+      <ComboList1>
+        <Combo VertexInput="VOXEL_POSITION_MAT VOXEL_NORMAL" VertexInputOrder="0 1" FlagNames="DITHERED|USE_VOXEL_MORPHING|USE_VOXEL_DATA" />
+        <Combo VertexInput="VOXEL_POSITION_MAT VOXEL_NORMAL" VertexInputOrder="0 1" FlagNames="USE_MERGE_INSTANCING" />
+      </ComboList1>
+    </ComboGroup>
+  </Combos>
+</CacheGenerator>

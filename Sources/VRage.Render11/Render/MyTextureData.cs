@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Diagnostics;
-
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.WIC;
-
-using VRageMath;
-using VRage;
 using System.IO;
+using VRage.Render11.Common;
+using ImageFileFormat = SharpDX.Direct3D9.ImageFileFormat;
 
 namespace VRageRender
 {
-    class MyTextureData
+    class MyTextureData: MyImmediateRC
     {
         internal static bool ToFile(Resource res, string path, ImageFileFormat fmt)
         {
@@ -72,10 +69,10 @@ namespace VRageRender
                 CpuAccessFlags = CpuAccessFlags.Read,
                 OptionFlags = ResourceOptionFlags.None
             });
-            MyRender11.DeviceContext.CopyResource(res, textureCopy);
+            RC.CopyResource(res, textureCopy);
 
             DataStream dataStream;
-            var dataBox = MyRender11.DeviceContext.MapSubresource(
+            var dataBox = RC.MapSubresource(
                 textureCopy,
                 0,
                 0,
@@ -131,7 +128,7 @@ namespace VRageRender
                 }
             }
 
-            MyRender11.DeviceContext.UnmapSubresource(textureCopy, 0);
+            RC.UnmapSubresource(textureCopy, 0);
             textureCopy.Dispose();
             bitmap.Dispose();
         }

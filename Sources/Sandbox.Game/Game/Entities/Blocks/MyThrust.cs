@@ -35,6 +35,7 @@ using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Sync;
 
 #endregion
 
@@ -289,6 +290,7 @@ namespace Sandbox.Game.Entities
             m_thrustOverride.Value = (builder.ThrustOverride * 100f) / BlockDefinition.ForceMagnitude;
 
             LoadDummies();
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_light = MyLights.AddLight();
             m_light.ReflectorDirection = WorldMatrix.Forward;
@@ -590,7 +592,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateSoundState()
         {
-            if (m_soundEmitter == null)
+            if (m_soundEmitter == null || !IsWorking)
                 return;
             if (CurrentStrength > 0.1f)
             {

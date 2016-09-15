@@ -2620,7 +2620,7 @@ void Main(string argument)
             } 
             else 
             { 
-                remote.AddWaypoint(player, "Player"); 
+                remote.AddWaypoint(player + remote.GetTotalGravity() * -2f, "Player");//20 metres above player
             } 
             remote.SetAutoPilotEnabled(true); 
         } 

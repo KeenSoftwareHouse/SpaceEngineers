@@ -118,12 +118,12 @@
     <EntityComponent xsi:type="MyObjectBuilder_EntityStatComponentDefinition">
       <Id>
         <TypeId>CharacterStatComponent</TypeId>
-        <SubtypeId>Cyberhound</SubtypeId>
+        <SubtypeId>Space_Wolf</SubtypeId>
       </Id>
       <Stats>
         <Stat>
           <TypeId>MyObjectBuilder_EntityStat</TypeId>
-          <SubtypeId>CyberHoundHealth</SubtypeId>
+          <SubtypeId>WolfHealth</SubtypeId>
         </Stat>
       </Stats>
       <Scripts>

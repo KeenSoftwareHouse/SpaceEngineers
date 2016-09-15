@@ -9,10 +9,11 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Import;
 using VRage.Library.Utils;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
+using VRageRender.Import;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
@@ -28,7 +29,7 @@ namespace VRageRender
 
         internal int[] BonesMapping;
 
-        internal string Technique; 
+        internal MyMeshDrawTechnique Technique; 
         internal string Material;
     }
 
@@ -53,8 +54,8 @@ namespace VRageRender
         internal VertexBufferId[] VB;
         internal IndexBufferId IB = IndexBufferId.NULL;
         internal int Id;
-        internal Dictionary<string, MyDrawSubmesh[]> Parts = new Dictionary<string, MyDrawSubmesh[]>();
-        internal Dictionary<string, MySubmeshInfo[]> PartsMetadata = new Dictionary<string, MySubmeshInfo[]>(); // well, we need this too after all
+        internal Dictionary<MyMeshDrawTechnique, MyDrawSubmesh[]> Parts = new Dictionary<MyMeshDrawTechnique, MyDrawSubmesh[]>();
+        internal Dictionary<MyMeshDrawTechnique, MySubmeshInfo[]> PartsMetadata = new Dictionary<MyMeshDrawTechnique, MySubmeshInfo[]>(); // well, we need this too after all
         internal int PartsNum { get { return Parts.Count; } }
         internal BoundingBox? BoundingBox;
         internal BoundingSphere? BoundingSphere;

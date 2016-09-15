@@ -6,6 +6,7 @@ using System;
 using VRage;
 using VRage.Game;
 using VRage.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -128,13 +129,10 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override void UpdateBeforeSimulation100()
+        public virtual void UpdateSoundEmitters()
         {
             if (m_soundEmitter != null)
-            {
                 m_soundEmitter.Update();
-            }
-            base.UpdateBeforeSimulation100();
         }
 
         protected virtual void OnStartWorking()

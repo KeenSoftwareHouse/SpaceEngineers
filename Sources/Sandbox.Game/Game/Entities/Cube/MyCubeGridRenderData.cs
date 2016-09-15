@@ -5,8 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Game.Models;
 using VRage.Library.Utils;
-using VRage.Render;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -20,8 +21,8 @@ namespace Sandbox.Game.Entities.Cube
         /// </summary>
         public static int SplitCellCubeCount = 30;
 
-        private const int MAX_DECALS_PER_CUBE = 10;
-        private Dictionary<Vector3I, List<uint>> m_cubeDecals = new Dictionary<Vector3I, List<uint>>();
+        private const int MAX_DECALS_PER_CUBE = 30;
+        private Dictionary<Vector3I, List<MyDecalPartIdentity>> m_cubeDecals = new Dictionary<Vector3I, List<MyDecalPartIdentity>>();
 
         Vector3 m_basePos;
         Dictionary<Vector3I, MyCubeGridRenderCell> m_cells = new Dictionary<Vector3I, MyCubeGridRenderCell>();
@@ -112,6 +113,7 @@ namespace Sandbox.Game.Entities.Cube
 
         internal MyCubeGridRenderCell GetCell(Vector3 pos)
         {
+            // NOTE: Cell position != cube position
             Vector3I cellPos = Vector3I.Round((pos - m_basePos) / (SplitCellCubeCount * m_gridRender.GridSize));
             MyCubeGridRenderCell result;
             if (!m_cells.TryGetValue(cellPos, out result))
@@ -123,33 +125,73 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        public void AddDecal(Vector3I cube, uint decalId)
+        public void AddDecal(Vector3I position, MyCubeGridHitInfo gridHitInfo, uint decalId)
         {
-            List<uint> decals;
-            bool found = m_cubeDecals.TryGetValue(cube, out decals);
+            MyCube cube;
+            bool found = m_gridRender.CubeGrid.TryGetCube(position, out cube);
+            if (!found)
+                return;
+
+            if (gridHitInfo.CubePartIndex != -1)
+            {
+                var part = cube.Parts[gridHitInfo.CubePartIndex];
+                var cell = GetCell(part.InstanceData.Translation);
+                cell.AddCubePartDecal(part, decalId);
+            }
+
+            List<MyDecalPartIdentity> decals;
+            found = m_cubeDecals.TryGetValue(position, out decals);
             if (!found)
             {
-                decals = new List<uint>();
-                m_cubeDecals[cube] = decals;
+                decals = new List<MyDecalPartIdentity>();
+                m_cubeDecals[position] = decals;
             }
 
             if (decals.Count > MAX_DECALS_PER_CUBE)
             {
-                MyDecals.RemoveDecal(decals[0]);
+                RemoveDecal(position, decals, 0);
                 decals.RemoveAt(0);
             }
 
-            decals.Add(decalId);
+            decals.Add(new MyDecalPartIdentity() { DecalId = decalId, CubePartIndex = gridHitInfo.CubePartIndex });
         }
 
-        public void RemoveDecals(Vector3I cube)
+        public void RemoveDecals(Vector3I position)
         {
-            List<uint> decals;
-            if(m_cubeDecals.TryGetValue(cube, out decals))
+            List<MyDecalPartIdentity> decals;
+            if (m_cubeDecals.TryGetValue(position, out decals))
             {
-                foreach (var decal in decals)
-                    MyRenderProxy.RemoveDecal(decal);
+                MyCube cube = null;
+                for (int it = 0; it < decals.Count; it++)
+                    RemoveDecal(position, decals, it, ref cube);
+
                 decals.Clear();
+            }
+        }
+
+        private void RemoveDecal(Vector3I position, List<MyDecalPartIdentity> decals, int index)
+        {
+            MyCube cube = null;
+            RemoveDecal(position, decals, index, ref cube);
+        }
+
+        private void RemoveDecal(Vector3I position, List<MyDecalPartIdentity> decals, int index, ref MyCube cube)
+        {
+            MyDecalPartIdentity decal = decals[index];
+            MyDecals.RemoveDecal(decal.DecalId);
+
+            if (cube == null)
+            {
+                bool found = m_gridRender.CubeGrid.TryGetCube(position, out cube);
+                if (!found)
+                    return;
+            }
+
+            if (decal.CubePartIndex != -1)
+            {
+                var part = cube.Parts[decal.CubePartIndex];
+                var cell = GetCell(position);
+                cell.RemoveCubePartDecal(part, decal.DecalId);
             }
         }
 
@@ -159,6 +201,12 @@ namespace Sandbox.Game.Entities.Cube
             {
                 cell.Value.DebugDraw();
             }
+        }
+
+        struct MyDecalPartIdentity
+        {
+            public uint DecalId;
+            public int CubePartIndex;
         }
     }
 }

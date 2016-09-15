@@ -12,6 +12,7 @@ using System.Text;
 using VRage;
 using VRage;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRageMath;
 using VRageRender;
 

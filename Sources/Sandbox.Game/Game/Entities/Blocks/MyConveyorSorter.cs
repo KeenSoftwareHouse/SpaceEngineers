@@ -30,6 +30,7 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {

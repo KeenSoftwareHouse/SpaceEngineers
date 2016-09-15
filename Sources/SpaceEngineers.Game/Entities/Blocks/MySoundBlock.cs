@@ -19,6 +19,7 @@ using VRage.Audio;
 using VRage.Game;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -36,9 +37,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private readonly Sync<float> m_soundRadius;
         private readonly Sync<float> m_volume;
-        private readonly Sync<MyCueId> m_cueId;
+        private readonly Sync<string> m_cueIdString;
         private readonly Sync<float> m_loopPeriod;
-        private MySoundPair m_soundPair;
         private bool m_isLoopable;
         private MyEntity3DSoundEmitter[] m_soundEmitters;
         private int m_soundEmitterIndex;
@@ -75,10 +75,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        public MyCueId CueId
+        private MySoundPair m_cueId = MySoundPair.Empty;
+        public MySoundPair CueId
         {
             get { return m_cueId; }
-            set { m_cueId.Value = value; }
+            set { m_cueId = value; }
         }
 
         public float LoopPeriod
@@ -108,7 +109,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public bool IsSoundSelected
         {
-            get { return !CueId.IsNull; }
+            get { return !CueId.Arcade.IsNull || !CueId.Realistic.IsNull; }
         }
 
         #endregion
@@ -125,8 +126,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
 #endif // XB1
             CreateTerminalControls();
 
-            m_soundPair = new MySoundPair();
-
             m_soundEmitterIndex = 0;
             m_soundEmitters = new MyEntity3DSoundEmitter[EMITTERS_NUMBER];
             for (int i = 0; i < EMITTERS_NUMBER; i++)
@@ -137,7 +136,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             m_volume.ValueChanged += (x) => VolumeChanged();
             m_soundRadius.ValueChanged += (x) => RadiusChanged();
-            m_cueId.ValueChanged += (x) => SelectionChanged();
+            m_cueIdString.ValueChanged += (x) => SelectionChanged();
 
         }
 
@@ -196,8 +195,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         {
             if (!MySandboxGame.IsDedicated)
             {
-                m_soundPair.Init(m_cueId);
-                var soundData = MyAudio.Static.GetCue(m_cueId);
+                if (m_cueIdString.Value.Length > 0)
+                    m_cueId = new MySoundPair(m_cueIdString.Value);
+                else
+                    m_cueId = MySoundPair.Empty;
+                var soundData = MyAudio.Static.GetCue(m_cueId.Arcade);
                 if (soundData != null)
                     IsLoopable = soundData.Loopable;
             }
@@ -249,17 +251,23 @@ namespace SpaceEngineers.Game.Entities.Blocks
             ResourceSink.Update();
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
+
+            for (int i = 0; i < EMITTERS_NUMBER; i++)
+            {
+                m_soundEmitters[i] = new MyEntity3DSoundEmitter(this);
+                m_soundEmitters[i].Force3D = true;
+            }
         }
 
         private void InitCue(string cueName)
         {
             if (string.IsNullOrEmpty(cueName))
             {
-                CueId = new MyCueId(MyStringHash.NullOrEmpty);
+                m_cueIdString.Value = "";
             }
             else
             {
-                var cueId = new MyCueId(MyStringHash.GetOrCompute(cueName));
+                var cueId = new MySoundPair(cueName);
                 MySoundCategoryDefinition.SoundDescription soundDesc = null;
                 var soundCategories = MyDefinitionManager.Static.GetSoundCategoryDefinitions();
 
@@ -268,15 +276,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 {
                     foreach (var soundDescTmp in category.Sounds)
                     {
-                        if (MySoundPair.GetCueId(soundDescTmp.SoundId) == cueId)
+                        if (soundDescTmp.SoundId.Equals(cueId.SoundId))
                             soundDesc = soundDescTmp;
                     }     
                 }
 
                 if (soundDesc != null)
-                    SelectSound(cueId, false);
+                    SelectSound(soundDesc.SoundId, false);
                 else
-                    CueId = new MyCueId(MyStringHash.NullOrEmpty);
+                    m_cueIdString.Value = "";
             }
         }
     
@@ -308,7 +316,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         [Event, Reliable, Server, Broadcast]
         public void PlaySound()
         {
-            if (!m_soundPair.SoundId.IsNull && Enabled && IsWorking)
+            if (CueId != MySoundPair.Empty && Enabled && IsWorking)
             {
                 StopSound();
                 if (IsLoopable)
@@ -329,14 +337,14 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
 
                 m_startLoopTimeMs = Stopwatch.GetTimestamp();
-                m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(m_soundPair, true);
+                m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(CueId, true);
 
             }
-            else if (!IsSameLoopCue(m_soundPair.SoundId))
+            else if (!IsSameLoopCue(CueId))
             {
                 m_startLoopTimeMs = Stopwatch.GetTimestamp();
                 m_soundEmitters[m_soundEmitterIndex].StopSound(true);
-                m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(m_soundPair, true);  
+                m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(CueId, true);  
             }
         }
 
@@ -347,7 +355,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             else
                 m_soundEmitters[m_soundEmitterIndex].StopSound(true);
 
-            m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(m_soundPair, true);
+            m_soundEmitters[m_soundEmitterIndex].PlaySingleSound(CueId, true);
 
             m_soundEmitterIndex++;
             if (m_soundEmitterIndex == EMITTERS_NUMBER)
@@ -356,13 +364,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public void SelectSound(List<MyGuiControlListbox.Item> cuesId, bool sync)
         {
-            var cueId = (MyCueId)cuesId[0].UserData;
-            SelectSound(cueId, sync);
+            SelectSound(cuesId[0].UserData.ToString(), sync);
         }
 
-        public void SelectSound(MyCueId cueId, bool sync)
+        public void SelectSound(string cueId, bool sync)
         {
-            CueId = cueId;        
+            m_cueIdString.Value = cueId;      
         }
 
         //public void SelectSound(int cueId, bool sync)
@@ -405,12 +412,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 foreach (var sound in soundCategory.Sounds)
                 {
                     m_helperSB.Clear().Append(sound.SoundText);
-                    var stringId = MySoundPair.GetCueId(sound.SoundId);
-                    
-                    var item = new MyGuiControlListbox.Item(text: m_helperSB, userData: stringId);
+
+                    var item = new MyGuiControlListbox.Item(text: m_helperSB, userData: sound.SoundId);
 
                     listBoxContent.Add(item);
-                    if (stringId == CueId)
+                    if (sound.SoundId.Equals(m_cueIdString))
                         listBoxSelectedItems.Add(item);
                 }
             }
@@ -449,17 +455,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
             if (!IsWorking)
                 return;
-
-            base.UpdateBeforeSimulation100();
-
             for (int i = 0; i < EMITTERS_NUMBER; i++)
-            {
-                m_soundEmitters[i].Update();
-            }
+                if(m_soundEmitters[i] != null)
+                    m_soundEmitters[i].Update();
         }
 
         private void UpdateLoopableSoundEmitter()
@@ -555,9 +557,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
             ResourceSink.Update();
         }
 
-        private bool IsSameLoopCue(MyCueId newCue)
+        private bool IsSameLoopCue(MySoundPair newCue)
         {
-            return newCue == m_soundEmitters[m_soundEmitterIndex].SoundId;
+            return newCue.Equals(m_soundEmitters[m_soundEmitterIndex].SoundPair);
         }
 
         float ModAPI.Ingame.IMySoundBlock.Volume { get {return Volume;} }

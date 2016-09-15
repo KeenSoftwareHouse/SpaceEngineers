@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
+using VRageRender.Animations;
+using VRageRender.Utils;
 
 #endregion
 
@@ -1544,7 +1544,7 @@ namespace VRage.Game
                     Vector4 color;
                     colorAnim.GetKey(j, out time, out color);
                     color = color.UnmultiplyColor();
-                    color.W = Vector4.ToLinearRGBComponent(color.W);
+                    color.W = ColorExtensions.ToLinearRGBComponent(color.W);
                     color = color.PremultiplyColor();
                     color = Vector4.Clamp(color, new Vector4(0, 0, 0, 0), new Vector4(1, 1, 1, 1));
                     anim.SetKey(j, time, color);

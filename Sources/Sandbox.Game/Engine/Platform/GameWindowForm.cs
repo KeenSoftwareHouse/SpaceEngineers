@@ -16,6 +16,7 @@ using Vector2 = VRageMath.Vector2;
 using System.Diagnostics;
 using VRageRender;
 using VRage.Utils;
+using VRageRender.ExternalApp;
 
 namespace Sandbox.Engine.Platform
 {

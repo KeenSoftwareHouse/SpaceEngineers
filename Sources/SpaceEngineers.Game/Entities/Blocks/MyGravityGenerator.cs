@@ -16,6 +16,7 @@ using Sandbox.ModAPI.Ingame;
 using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 

@@ -16,10 +16,10 @@ using System.Text;
 using VRage;
 using VRage.Collections;
 using VRage.Library.Collections;
-using VRage.Library.Sync;
 using VRage.Network;
 using VRage.Replication;
 using VRage.Serialization;
+using VRage.Sync;
 
 namespace Sandbox.Game.Replication
 {

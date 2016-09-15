@@ -27,6 +27,7 @@ using Sandbox.Game.Entities.Blocks;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Profiler;
 
 namespace Sandbox.Game.World
 {

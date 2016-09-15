@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using VRage;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
 
 

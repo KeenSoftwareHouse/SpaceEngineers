@@ -5,6 +5,7 @@ using VRage;
 using VRage.Utils;
 using VRageMath;
 using SharpDX.Toolkit.Graphics;
+using VRage.Profiler;
 
 namespace Sandbox.Engine.Voxels
 {

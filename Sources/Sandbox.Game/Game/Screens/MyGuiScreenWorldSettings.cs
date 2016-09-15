@@ -5,24 +5,20 @@ using VRageMath;
 
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
-using Sandbox.Common.ObjectBuilders;
 using System.Text;
 using Sandbox.Definitions;
 using Sandbox.Game.World;
 using Sandbox.Engine.Networking;
-using Sandbox.Game.Gui;
 using System;
-using Sandbox.Common;
 using VRage;
-using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
 using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage.Game;
-using VRage.Voxels;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Voxels;
 
 #endregion
 
@@ -53,6 +49,13 @@ namespace Sandbox.Game.Gui
             }
         }
 
+
+        public enum MySoundModeEnum
+        {
+            Arcade,
+            Realistic,
+        }
+
         MyGuiControlCheckbox m_scenarioEditMode;
 
         private List<MyObjectBuilder_Checkpoint.ModItem> m_mods;
@@ -64,7 +67,7 @@ namespace Sandbox.Game.Gui
         }
 
         MyGuiControlTextbox m_nameTextbox, m_descriptionTextbox;
-        MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo;
+        MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo, m_soundModeCombo;
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_worldGeneratorButton;
         MyGuiControlSlider m_maxPlayersSlider;
         MyGuiControlLabel m_maxPlayersLabel, m_asteroidAmountLabel;
@@ -147,6 +150,8 @@ namespace Sandbox.Game.Gui
         {
             float width = checkpoint == null ? 0.9f : 0.65f;
             float height = checkpoint == null ? 1.24f : 1.00f;
+            if (MyFakes.ENABLE_NEW_SOUNDS)
+                height += 0.05f;
             if (checkpoint != null)
                 height -= 0.05f;
             height -= 0.27f;
@@ -218,6 +223,7 @@ namespace Sandbox.Game.Gui
             m_maxPlayersLabel = MakeLabel(MyCommonTexts.MaxPlayers);
             var environmentLabel = MakeLabel(MySpaceTexts.WorldSettings_EnvironmentHostility);
             var scenarioLabel = MakeLabel(MySpaceTexts.WorldSettings_Scenario);
+            var soundModeLabel = MakeLabel(MySpaceTexts.WorldSettings_SoundMode);
 
             float width = 0.284375f + 0.025f;
 
@@ -242,6 +248,7 @@ namespace Sandbox.Game.Gui
             m_asteroidAmountCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             m_asteroidAmountCombo.ItemSelected += m_asteroidAmountCombo_ItemSelected;
+            m_soundModeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             m_scenarioTypesList = new MyGuiControlList();
 
@@ -266,6 +273,9 @@ namespace Sandbox.Game.Gui
             m_environment.AddItem((int)MyEnvironmentHostilityEnum.CATACLYSM_UNREAL, MySpaceTexts.WorldSettings_EnvironmentHostilityCataclysmUnreal);
             m_environment.ItemSelected += HostilityChanged;
 
+            m_soundModeCombo.AddItem((int)MySoundModeEnum.Arcade, MySpaceTexts.WorldSettings_ArcadeSound);
+            m_soundModeCombo.AddItem((int)MySoundModeEnum.Realistic, MySpaceTexts.WorldSettings_RealisticSound);
+
             if (m_isNewGame)
             {
                 m_scenarioTypesGroup = new MyGuiControlRadioButtonGroup();
@@ -287,8 +297,10 @@ namespace Sandbox.Game.Gui
             m_onlineMode.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsOnlineMode));
             m_maxPlayersSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxPlayer));
             m_asteroidAmountCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAsteroidAmount));
+            m_soundModeCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsSoundMode));
 
             m_nameTextbox.TextChanged += m_nameTextbox_TextChanged;
+            m_soundModeCombo.ItemSelected += m_soundModeCombo_ItemSelected;
 
             var advanced = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Advanced), onButtonClick: OnAdvancedClick);
 
@@ -306,6 +318,12 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(gameModeLabel);
             Controls.Add(m_creativeModeButton);
+
+            if (MyFakes.ENABLE_NEW_SOUNDS)
+            {
+                Controls.Add(soundModeLabel);
+                Controls.Add(m_soundModeCombo);
+            }
 
             Controls.Add(onlineModeLabel);
             Controls.Add(m_onlineMode);
@@ -435,6 +453,12 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_cancelButton);
 
             CloseButtonEnabled = true;
+        }
+
+        void m_soundModeCombo_ItemSelected()
+        {
+            if(m_soundModeCombo.GetSelectedIndex() == (int)MySoundModeEnum.Realistic)
+                m_settings.EnableOxygenPressurization = true;//needed for sound selection - otherwise there would be wrong sounds in stations/ships located in space
         }
 
         void m_nameTextbox_TextChanged(MyGuiControlTextbox obj)
@@ -722,6 +746,7 @@ namespace Sandbox.Game.Gui
             m_settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
             m_settings.AutoSaveInMinutes = m_autoSave.IsChecked ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0;
             m_settings.GameMode = GetGameMode();
+            m_settings.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
             m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;
         }
 
@@ -734,6 +759,7 @@ namespace Sandbox.Game.Gui
 
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
             m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
+            m_soundModeCombo.SelectItemByKey(m_settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
         }
 
         private string GetPassword()

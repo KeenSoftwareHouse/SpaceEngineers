@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using VRage.Generics;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using Matrix = VRageMath.Matrix;
@@ -76,7 +77,7 @@ namespace VRageRender
 
     class MyBigMeshTable
     {
-        internal static MyMeshTableSRV Table = new MyMeshTableSRV();
+        internal static MyMeshTableSrv Table = new MyMeshTableSrv();
     }
 
     class MyCullProxy_2
@@ -147,7 +148,7 @@ namespace VRageRender
             get { return m_mergeGroup; }
         }
 
-        internal MyMaterialMergeGroup(MyMeshTableSRV meshTable, MyMeshMaterialId matId, int index)
+        internal MyMaterialMergeGroup(MyMeshTableSrv meshTable, MyMeshMaterialId matId, int index)
         {
             m_mergeGroup = new MyMergeInstancing(meshTable);
             m_rootMaterialRK = MyMeshMaterials1.Table[matId.Index].RepresentationKey;
@@ -198,13 +199,12 @@ namespace VRageRender
 
                 ObjectConstants = new MyConstantsPack { },
 
-                ObjectSRVs = new MySrvTable { StartSlot = MyCommon.INSTANCE_INDIRECTION, SRVs = m_mergeGroup.m_SRVs, BindFlag = MyBindFlag.BIND_VS, Version = this.GetHashCode() },
-                VertexData = new MyVertexDataProxy_2 { },
+                ObjectSrvs = new MySrvTable { StartSlot = MyCommon.INSTANCE_INDIRECTION, Srvs = m_mergeGroup.m_srvs, BindFlag = MyBindFlag.BIND_VS, Version = this.GetHashCode() },
 
-                DepthShaders = GetMergeInstancing(MyGeometryRenderer.DEFAULT_DEPTH_PASS, MyShaderUnifiedFlags.DEPTH_ONLY),
-                HighlightShaders = GetMergeInstancing(MyGeometryRenderer.DEFAULT_HIGHLIGHT_PASS),
-                Shaders = GetMergeInstancing(MyGeometryRenderer.DEFAULT_OPAQUE_PASS),
-                ForwardShaders = GetMergeInstancing(MyGeometryRenderer.DEFAULT_FORWARD_PASS, MyShaderUnifiedFlags.USE_SHADOW_CASCADES),
+                DepthShaders = GetMergeInstancing(X.TEXT_(MyMaterialShaders.DEPTH_PASS), MyShaderUnifiedFlags.DEPTH_ONLY),
+                HighlightShaders = GetMergeInstancing(X.TEXT_(MyMaterialShaders.HIGHLIGHT_PASS)),
+                Shaders = GetMergeInstancing(X.TEXT_(MyMaterialShaders.GBUFFER_PASS)),
+                ForwardShaders = GetMergeInstancing(X.TEXT_(MyMaterialShaders.FORWARD_PASS), MyShaderUnifiedFlags.USE_SHADOW_CASCADES),
 
                 RenderFlags = MyRenderableProxyFlags.DepthSkipTextures,
 
@@ -218,15 +218,14 @@ namespace VRageRender
             key = 0;
         }
 
-        private static MyMergeInstancingShaderBundle GetMergeInstancing(string pass, MyShaderUnifiedFlags flags = MyShaderUnifiedFlags.NONE)
+        private static MyMergeInstancingShaderBundle GetMergeInstancing(MyStringId pass, MyShaderUnifiedFlags flags = MyShaderUnifiedFlags.NONE)
         {
             MyMergeInstancingShaderBundle ret = new MyMergeInstancingShaderBundle();
 
             flags |= MyShaderUnifiedFlags.USE_MERGE_INSTANCING;
 
-            var passId = MyStringId.GetOrCompute(pass);
-            ret.MultiInstance = MyMaterialShaders.Get(STANDARD_MATERIAL, passId, MyVertexLayouts.Empty, flags);
-            ret.SingleInstance = MyMaterialShaders.Get(STANDARD_MATERIAL, passId, MyVertexLayouts.Empty, flags | MyShaderUnifiedFlags.USE_SINGLE_INSTANCE);
+            ret.MultiInstance = MyMaterialShaders.Get(STANDARD_MATERIAL, pass, MyVertexLayouts.Empty, flags, MyFileTextureEnum.UNSPECIFIED);
+            ret.SingleInstance = MyMaterialShaders.Get(STANDARD_MATERIAL, pass, MyVertexLayouts.Empty, flags | MyShaderUnifiedFlags.USE_SINGLE_INSTANCE, MyFileTextureEnum.UNSPECIFIED);
             return ret;
         }
 

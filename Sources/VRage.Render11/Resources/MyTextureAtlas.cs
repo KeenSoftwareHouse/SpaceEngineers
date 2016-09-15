@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.IO;
 using VRage.FileSystem;
+using VRage.Render11.Common;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
-namespace VRageRender.Resources
+namespace VRage.Render11.Resources
 {
     internal class MyTextureAtlas
     {
         internal struct Element
         {
-            internal TexId TextureId;
+            internal ISrvBindable Texture;
             internal Vector4 UvOffsetScale;
         }
-        private Dictionary<string, Element> m_elements;
+        Dictionary<string, Element> m_elements;
 
         internal MyTextureAtlas(string textureDir, string atlasFile)
         {
@@ -23,9 +25,10 @@ namespace VRageRender.Resources
 
         internal Element FindElement(string id) { return m_elements[id]; }
 
-        private static void ParseAtlasDescription(string textureDir, string atlasFile, out Dictionary<string, Element> atlasDict)
+        static void ParseAtlasDescription(string textureDir, string atlasFile, out Dictionary<string, Element> atlasDict)
         {
             atlasDict = new Dictionary<string, Element>();
+            MyFileTextureManager texManager = MyManagers.FileTextures;
             try
             {
                 //var atlas = new MyTextureAtlas(64);
@@ -57,7 +60,7 @@ namespace VRageRender.Resources
                         var atlasTexture = textureDir + atlasName;
 
                         var element = new Element();
-                        element.TextureId = MyTextures.GetTexture(atlasTexture, MyTextureEnum.GUI, true);
+                        element.Texture = texManager.GetTexture(atlasTexture, MyFileTextureEnum.GUI, true);
                         element.UvOffsetScale = uv;
                         atlasDict[name] = element;
                     }

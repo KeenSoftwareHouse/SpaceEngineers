@@ -14,7 +14,6 @@ using System.Text;
 using VRage;
 using VRage.Collections;
 using VRage.Utils;
-using VRage.Voxels;
 using VRage.Serialization;
 using VRageMath;
 using Sandbox.Game.World.Generator;

@@ -27,6 +27,7 @@ using VRageMath;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Profiler;
 
 namespace Sandbox.Game.AI
 {

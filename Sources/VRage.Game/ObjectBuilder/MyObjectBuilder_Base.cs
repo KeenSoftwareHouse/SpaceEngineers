@@ -65,13 +65,14 @@ namespace VRage.ObjectBuilders
 
         #endregion
 
-        #region Clone
+        public void Save(string filepath)
+        {
+            MyObjectBuilderSerializer.SerializeXML(filepath, false, this);
+        }
 
         virtual public MyObjectBuilder_Base Clone()
         {
             return MyObjectBuilderSerializer.Clone(this);
         }
-
-        #endregion
     }
 }

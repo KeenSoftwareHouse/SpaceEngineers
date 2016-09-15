@@ -594,7 +594,7 @@ namespace Sandbox.Game.Gui
             {
                 var playerIdentity = MySession.Static.Players.TryGetIdentity(MySession.Static.Players.TryGetIdentityId(player.SteamId, player.SerialId));
 
-                if (playerIdentity.IdentityId != MySession.Static.LocalPlayerId && player.SerialId == 0)
+                if (playerIdentity != null && playerIdentity.IdentityId != MySession.Static.LocalPlayerId && player.SerialId == 0)
                 {
                     if (playerIdentity.Character == null)
                     {

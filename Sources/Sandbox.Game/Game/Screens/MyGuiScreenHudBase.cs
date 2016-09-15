@@ -230,9 +230,9 @@ namespace Sandbox.Game.Gui
             Vector2 hudSize = new Vector2(rect.Width, rect.Height);
 
             var worldViewProj = selection.InteractiveObject.ActivationMatrix * MySector.MainCamera.ViewMatrix * (MatrixD)MySector.MainCamera.ProjectionMatrix;
-            BoundingBoxD screenSpaceAabb = new BoundingBoxD(-Vector3D.One / 2, Vector3D.One / 2).Transform(worldViewProj);
-            var min = new Vector2((float)screenSpaceAabb.Min.X, (float)screenSpaceAabb.Min.Y);
-            var max = new Vector2((float)screenSpaceAabb.Max.X, (float)screenSpaceAabb.Max.Y);
+            BoundingBoxD screenSpaceAabb = new BoundingBoxD(-Vector3D.Half, Vector3D.Half).TransformSlow(ref worldViewProj);
+            var min = new Vector2((float)(screenSpaceAabb.Min.X), (float)(screenSpaceAabb.Min.Y));
+            var max = new Vector2((float)(screenSpaceAabb.Max.X), (float)(screenSpaceAabb.Max.Y));
 
             var minToMax = min - max;
 

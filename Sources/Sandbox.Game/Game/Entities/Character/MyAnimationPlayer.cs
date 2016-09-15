@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRageMath;
 using Sandbox.Engine.Utils;
 using Sandbox.Common;

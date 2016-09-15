@@ -19,12 +19,13 @@ using VRage.Serialization;
 using VRageMath;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
-using VRage.Library.Sync;
 using Sandbox.Common;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders;
 using System.Diagnostics;
+using VRage.Sync;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Weapons
 {

@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using VRage.Library.Collections;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Replication;
 using VRage.Serialization;
 using VRage.Utils;
@@ -767,7 +768,7 @@ namespace VRage.Network
 
                 ProfilerShort.Begin("GetPriority");
                 ProfilerShort.Begin(replicable.GetType().Name);
-                float priority = replicable.GetPriority(new MyClientInfo(client.Value));
+                float priority = replicable.GetPriority(new MyClientInfo(client.Value),false);
 
                 if (hasObj)
                 {
@@ -933,7 +934,7 @@ namespace VRage.Network
                             {
                                 if (!clientData.HasReplicable(child))
                                 {
-                                    AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData)), false);
+                                    AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData),true), false);
                                 }
                             }
                         }

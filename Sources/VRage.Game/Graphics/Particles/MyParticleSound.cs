@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Animations;
 
 #endregion
 
@@ -30,9 +30,15 @@ namespace VRage.Game
         public float CurrentRange { get { return m_range; } }
         public Vector3 Position { get { return m_position; } }
 
-        public uint ParticleSoundId { get {return m_particleSoundId;}}
+        public uint ParticleSoundId { get { return m_particleSoundId; } }
         private uint m_particleSoundId = 0;
         private static uint m_particleSoundIdGlobal = 1;
+        private bool m_newLoop = false;
+        public bool NewLoop
+        {
+            get { return m_newLoop; }
+            set { m_newLoop = value; }
+        }
 
         private enum MySoundPropertiesEnum
         {
@@ -178,9 +184,10 @@ namespace VRage.Game
 
         #region Update
 
-        public void Update()
+        public void Update(bool newLoop = false)
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ParticleSound-Update");
+            m_newLoop |= newLoop;
 
             if (Enabled)
             {

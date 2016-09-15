@@ -3,6 +3,7 @@ using VRage.Import;
 using VRage.ModAPI;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Import;
 
 namespace VRage.Game.Entity.UseObject
 {

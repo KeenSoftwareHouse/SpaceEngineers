@@ -6,6 +6,7 @@ using VRage;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {

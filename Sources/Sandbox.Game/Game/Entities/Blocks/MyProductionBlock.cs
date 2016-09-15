@@ -25,6 +25,8 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
+using VRage.Profiler;
+using VRage.Sync;
 using VRage.Utils;
 
 namespace Sandbox.Game.Entities.Cube
@@ -204,7 +206,7 @@ namespace Sandbox.Game.Entities.Cube
             m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_queue = new List<QueueItem>();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             IsProducing = false;
             Components.ComponentAdded += OnComponentAdded;
@@ -739,13 +741,6 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.UpdateBeforeSimulation10();
             UpdateProduction();
-        }
-
-        public override void UpdateBeforeSimulation100()
-        {
-            base.UpdateBeforeSimulation100();
-            if (m_soundEmitter != null)
-                m_soundEmitter.Update();
         }
 
         #region Inventory

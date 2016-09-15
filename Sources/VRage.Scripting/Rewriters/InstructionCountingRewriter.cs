@@ -320,26 +320,26 @@ namespace VRage.Scripting.Rewriters
                 return node;
             }
             return node.WithBody(
-                CreateDelegateMethodBody((ExpressionSyntax)node.Body, blockResumeLocation, type.DelegateInvokeMethod.ReturnsVoid)
+                CreateDelegateMethodBody((ExpressionSyntax)node.Body, blockResumeLocation, !type.DelegateInvokeMethod.ReturnsVoid)
                 );
         }
 
-        public override SyntaxNode Visit(SyntaxNode node)
-        {
-            if (node == null)
-            {
-                return null; // ???
-            }
-            Debug.WriteLine(node.Kind());
-            Debug.Indent();
-            if (node is IdentifierNameSyntax)
-            {
-                Debug.WriteLine(node.GetText());
-            }
-            node = base.Visit(node);
-            Debug.Unindent();
-            return node;
-        }
+        //public override SyntaxNode Visit(SyntaxNode node)
+        //{
+        //    if (node == null)
+        //    {
+        //        return null; // ???
+        //    }
+        //    Debug.WriteLine(node.Kind());
+        //    Debug.Indent();
+        //    if (node is IdentifierNameSyntax)
+        //    {
+        //        Debug.WriteLine(node.GetText());
+        //    }
+        //    node = base.Visit(node);
+        //    Debug.Unindent();
+        //    return node;
+        //}
 
         public override SyntaxNode VisitTryStatement(TryStatementSyntax node)
         {

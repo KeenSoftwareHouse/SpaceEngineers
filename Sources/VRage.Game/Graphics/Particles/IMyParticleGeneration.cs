@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRageMath;
 
 namespace VRage.Game

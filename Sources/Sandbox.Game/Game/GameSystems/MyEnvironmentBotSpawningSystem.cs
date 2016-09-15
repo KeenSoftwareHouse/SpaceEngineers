@@ -16,6 +16,7 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Components;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;

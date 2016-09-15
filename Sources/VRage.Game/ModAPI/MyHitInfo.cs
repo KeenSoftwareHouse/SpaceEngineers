@@ -10,9 +10,12 @@ namespace VRage.Game.ModAPI
         public Vector3D Position;
 
         [ProtoMember]
-        public Vector3D Normal;
+        public Vector3 Normal;
 
         [ProtoMember]
         public Vector3D Velocity; //of impacting entity/bulet, normalize to get direction
+
+        [ProtoMember]
+        public uint ShapeKey;
     }
 }
