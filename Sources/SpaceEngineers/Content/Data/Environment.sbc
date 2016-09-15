@@ -1,50 +1,183 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Environment>
+  <Definition xsi:type="EnvironmentDefinition">
     <Id>
-        <TypeId>EnvironmentDefinition</TypeId>
-        <SubtypeId>Default</SubtypeId>
+      <TypeId>EnvironmentDefinition</TypeId>
+      <SubtypeId>Default</SubtypeId>
     </Id>
-  <SunDirection x="0.339467347" y="0.709795356" z="-0.617213368" />
-  <EnvironmentTexture>Textures\BackgroundCube\Final\BackgroundCube.dds</EnvironmentTexture>
-  <EnvironmentOrientation Yaw="60.3955536" Pitch="-61.1861954" Roll="90.90578" />
-  <EnableFog>true</EnableFog>
-  <FogNear>100</FogNear>
-  <FogFar>200</FogFar>
-  <FogMultiplier>0.13</FogMultiplier>
-  <FogBacklightMultiplier>1</FogBacklightMultiplier>
-  <FogColor x="1" y="1" z="1" />
-  <FogDensity>0.0005</FogDensity>
-  <SunDiffuse x="1" y="1" z="1" />
-  <SunIntensity>1.0</SunIntensity>
-  <SunSpecular x="0.784313738" y="0.784313738" z="0.784313738" />
-  <BackLightDiffuse x="0.784313738" y="0.784313738" z="0.784313738" />
-  <BackLightIntensity>2.0</BackLightIntensity>
-  <AdditionalSunDirection>
-    <LightDirection x="0" y ="3.14159265359" />
-    <LightDirection x="0" y ="1.57079632679" />
-    <LightDirection x="0.78539816339" y ="1.57079632679" />
-    <LightDirection x="1.57079632679" y ="1.57079632679" />
-    <LightDirection x="2.35619449019" y ="1.57079632679" />
-  </AdditionalSunDirection>
-  <AmbientColor x="0.141176477" y="0.141176477" z="0.141176477" />
-  <AmbientMultiplier>0.969</AmbientMultiplier>
-  <EnvironmentAmbientIntensity>0.5</EnvironmentAmbientIntensity>
-  <BackgroundColor x="1" y="1" z="1" />
-  <SunMaterial>SunDisk</SunMaterial>
-  <SunSizeMultiplier>200</SunSizeMultiplier>
-  <SmallShipMaxSpeed>100</SmallShipMaxSpeed>
-  <LargeShipMaxSpeed>100</LargeShipMaxSpeed>
-  <SmallShipMaxAngularSpeed>360</SmallShipMaxAngularSpeed>
-  <LargeShipMaxAngularSpeed>180</LargeShipMaxAngularSpeed>
-  <ContourHighlightColor>
-      <X>1.0</X>
-      <Y>1.0</Y>
-      <Z>0.0</Z>
+
+    <SmallShipMaxSpeed>100</SmallShipMaxSpeed>
+    <LargeShipMaxSpeed>100</LargeShipMaxSpeed>
+    <SmallShipMaxAngularSpeed>360</SmallShipMaxAngularSpeed>
+    <LargeShipMaxAngularSpeed>180</LargeShipMaxAngularSpeed>
+    
+    <FogProperties>
+      <FogMultiplier>0</FogMultiplier>
+      <FogDensity>0.003</FogDensity>
+      <FogColor>
+        <X>0</X>
+        <Y>0</Y>
+        <Z>0</Z>
+      </FogColor>
+    </FogProperties>
+
+    <SunProperties>
+      <SunIntensity>5</SunIntensity>
+      <BackLightIntensity1>0.23</BackLightIntensity1>
+      <BackLightIntensity2>0.29</BackLightIntensity2>
+      <EnvironmentLight>
+        <SunColor>
+          <X>1</X>
+          <Y>1</Y>
+          <Z>1</Z>
+        </SunColor>
+        <BackLightColor1>
+          <X>0.59</X>
+          <Y>0.73</Y>
+          <Z>1</Z>
+        </BackLightColor1>
+        <BackLightColor2>
+          <X>0.59</X>
+          <Y>0.73</Y>
+          <Z>1</Z>
+        </BackLightColor2>
+
+        <SunDiffuseFactor>1.0</SunDiffuseFactor>
+        <SunGlossFactor>0.75</SunGlossFactor>
+        <BackLightGlossFactor>0.5</BackLightGlossFactor>
+        
+        <AmbientDiffuseFactor>1.0</AmbientDiffuseFactor>
+        <AmbientSpecularFactor>1.5</AmbientSpecularFactor>
+        <AmbientForwardPass>0.03</AmbientForwardPass>
+        <AmbientGlobalMinimum>0</AmbientGlobalMinimum>
+        <AmbientGlobalDensity>0</AmbientGlobalDensity>
+        <AmbientGlobalMultiplier>0</AmbientGlobalMultiplier>
+
+        <SunDiscColor>
+          <X>1.5</X>
+          <Y>1.35</Y>
+          <Z>1.0</Z>
+        </SunDiscColor>
+        <SunDiscInnerDot>0.999</SunDiscInnerDot>
+        <SunDiscOuterDot>0.9965</SunDiscOuterDot>
+      
+        <AODirLight>1</AODirLight>
+        <AOIndirectLight>1</AOIndirectLight>
+        <AOPointLight>0.7</AOPointLight>
+        <AOSpotLight>0.7</AOSpotLight>
+
+        <SkyboxBrightness>1</SkyboxBrightness>
+        <EnvSkyboxBrightness>2</EnvSkyboxBrightness>
+        <ShadowFadeoutMultiplier>0.02</ShadowFadeoutMultiplier>
+        <EnvShadowFadeoutMultiplier>0</EnvShadowFadeoutMultiplier>
+        <EnvAtmosphereBrightness>0.15</EnvAtmosphereBrightness>
+
+      </EnvironmentLight>
+    </SunProperties>
+
+    <PostProcessSettings>
+      <BloomSize>4</BloomSize>
+      <Data>
+        <Contrast>1</Contrast>
+        <Brightness>1</Brightness>
+        <Saturation>1</Saturation>
+        <BrightnessFactorR>1</BrightnessFactorR>
+        <BrightnessFactorG>1</BrightnessFactorG>
+        <BrightnessFactorB>1</BrightnessFactorB>
+        <LightColor>
+          <X>1</X>
+          <Y>0.9</Y>
+          <Z>0.5</Z>
+        </LightColor>
+        <DarkColor>
+          <X>0.2</X>
+          <Y>0.05</Y>
+          <Z>0</Z>
+        </DarkColor>
+        <ConstantLuminance>0.1</ConstantLuminance>
+        <LuminanceExposure>1</LuminanceExposure>
+        <EyeAdaptationTau>0.4</EyeAdaptationTau>
+        <BloomExposure>5.04930735</BloomExposure>
+        <BloomLumaThreshold>0.798816144</BloomLumaThreshold>
+        <BloomMult>0.35</BloomMult>
+        <BloomEmissiveness>1.30834877</BloomEmissiveness>
+        <BloomDepthStrength>2.0</BloomDepthStrength>
+        <BloomDepthSlope>0.3</BloomDepthSlope>
+        <LogLumThreshold>-4</LogLumThreshold>
+    </Data>
+    </PostProcessSettings>
+    
+    <SSAOSettings>
+      <Data>
+        <MinRadius>0.115</MinRadius>
+        <MaxRadius>25</MaxRadius>
+        <RadiusGrowZScale>1.007</RadiusGrowZScale>
+        <Falloff>3.08</Falloff>
+        <RadiusBias>0.25</RadiusBias>
+        <Contrast>2.617</Contrast>
+        <Normalization>0.075</Normalization>
+        <ColorScale>0.6</ColorScale>
+      </Data>
+    </SSAOSettings>
+    
+    <HBAOSettings>
+      <Enabled>true</Enabled>
+
+      <Radius>2.0</Radius>
+      <Bias>0.2</Bias>
+
+      <SmallScaleAO>1.0</SmallScaleAO>
+      <LargeScaleAO>1.0</LargeScaleAO>
+
+      <PowerExponent>4.0</PowerExponent>
+
+      <ForegroundAOEnable>true</ForegroundAOEnable>
+      <ForegroundViewDepth>7.0</ForegroundViewDepth>
+
+      <BackgroundAOEnable>true</BackgroundAOEnable>
+      <BackgroundViewDepth>200</BackgroundViewDepth>
+
+      <DepthClampToEdge>false</DepthClampToEdge>
+      <DepthThresholdEnable>false</DepthThresholdEnable>
+      <DepthThreshold>0</DepthThreshold>
+      <DepthThresholdSharpness>100</DepthThresholdSharpness>
+
+      <BlurEnable>true</BlurEnable>
+      <BlurRadius4>true</BlurRadius4>
+      <BlurSharpness>1.0</BlurSharpness>
+
+      <BlurSharpnessFunctionEnable>false</BlurSharpnessFunctionEnable>
+      <BlurSharpnessFunctionForegroundScale>4.0</BlurSharpnessFunctionForegroundScale>
+      <BlurSharpnessFunctionForegroundViewDepth>0</BlurSharpnessFunctionForegroundViewDepth>
+      <BlurSharpnessFunctionBackgroundViewDepth>1.0</BlurSharpnessFunctionBackgroundViewDepth>
+    </HBAOSettings>
+    
+    <ShadowSettings>
+      <Data>
+        <ShowShadowCascadeSplits>false</ShowShadowCascadeSplits>
+        <UpdateCascadesEveryFrame>false</UpdateCascadesEveryFrame>
+        <EnableShadowBlur>true</EnableShadowBlur>
+        <ShadowCascadeMaxDistance>8000</ShadowCascadeMaxDistance>
+        <ShadowCascadeMaxDistanceMultiplierMedium>2</ShadowCascadeMaxDistanceMultiplierMedium>
+        <ShadowCascadeMaxDistanceMultiplierHigh>3.5</ShadowCascadeMaxDistanceMultiplierHigh>
+        <ShadowCascadeSpreadFactor>0</ShadowCascadeSpreadFactor>
+        <ShadowCascadeZOffset>6000</ShadowCascadeZOffset>
+        <DisplayFrozenShadowCascade>false</DisplayFrozenShadowCascade>
+      </Data>
+    </ShadowSettings>
+
+    <EnvironmentTexture>Textures\BackgroundCube\Final\BackgroundCube.dds</EnvironmentTexture>
+    <EnvironmentOrientation Yaw="60.3955536" Pitch="-61.1861954" Roll="90.90578" />
+
+    <ContourHighlightColor>
+      <X>1</X>
+      <Y>1</Y>
+      <Z>0</Z>
       <W>0.05</W>
-  </ContourHighlightColor>
-  <ContourHighlightThickness>1.5</ContourHighlightThickness>
-  <HighlightPulseInSeconds>3</HighlightPulseInSeconds>
+    </ContourHighlightColor>
+    <ContourHighlightThickness>7.5</ContourHighlightThickness>
+    <HighlightPulseInSeconds>3</HighlightPulseInSeconds>
+    
   <EnvironmentalParticles>
     <ParticleType>
       <Id>
@@ -101,5 +234,5 @@
       <MaxParticles>48</MaxParticles>
     </ParticleType>-->
   </EnvironmentalParticles>
-  </Environment>
+	</Definition>
 </Definitions>

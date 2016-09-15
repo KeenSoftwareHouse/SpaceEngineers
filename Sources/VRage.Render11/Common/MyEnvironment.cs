@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRageMath;
-using VRageRender.Resources;
+using VRageRender.Messages;
 
 namespace VRageRender
 {
@@ -38,33 +38,10 @@ namespace VRageRender
         internal BoundingFrustumD ViewFrustumClippedD;
     }
 
-    class MyEnvironment: MyEnvironmentMatrices
+    class MyEnvironment
     {
-        Vector3 m_directionalLightIntensity;
-
-        internal MyRenderFogSettings FogSettings;
-
-        internal float DayTime;
-
-        internal Vector3 DirectionalLightDir;
-        internal Vector3 DirectionalLightIntensity;
-
-        internal Vector3 SunColor;
-        internal float   SunDistance;
-        internal string  SunMaterial;
-        internal float   SunSizeMultiplier;
-        internal bool    SunBillboardEnabled;
-        internal float[]   AdditionalSunIntensities;
-        internal Vector3[] AdditionalSunColors;
-        internal Vector2[] AdditionalSunDirections;
-        internal float   PlanetFactor;
-
-        internal string DaySkybox = null;
-
-		internal string NightSkybox = null;
-		internal string NightSkyboxPrefiltered = null;
-
-        internal Quaternion BackgroundOrientation;
-		internal Color BackgroundColor = Color.Black;
+        internal MyEnvironmentMatrices Matrices = new MyEnvironmentMatrices();
+        internal MyEnvironmentData Data;
+        internal MyRenderFogSettings Fog;
     }
 }

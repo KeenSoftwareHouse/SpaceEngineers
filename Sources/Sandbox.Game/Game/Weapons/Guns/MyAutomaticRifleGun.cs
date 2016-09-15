@@ -25,7 +25,6 @@ using Sandbox.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using VRage;
-using VRage.Library.Sync;
 using VRage.Network;
 using VRage.Game.Models;
 using VRage.Game.Components;
@@ -33,6 +32,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.ModAPI.Weapons;
+using VRage.Sync;
 
 #endregion
 
@@ -49,7 +49,7 @@ namespace Sandbox.Game.Weapons
         MyParticleEffect m_smokeEffect;
 
         MyGunBase m_gunBase;
-        MyDefinitionId m_handItemDefId;
+        static MyDefinitionId m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AutomaticRifleGun");
         MyPhysicalItemDefinition m_physicalItemDef;
 
         MyCharacter m_owner;
@@ -103,10 +103,10 @@ namespace Sandbox.Game.Weapons
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
+            if (objectBuilder.SubtypeName != null && objectBuilder.SubtypeName.Length > 0)
+                m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_AutomaticRifle), objectBuilder.SubtypeName);
+
             MyObjectBuilder_AutomaticRifle rifleBuilder = (MyObjectBuilder_AutomaticRifle)objectBuilder;
-            m_handItemDefId = rifleBuilder.GetId();
-            if (string.IsNullOrEmpty(m_handItemDefId.SubtypeName))
-                m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_AutomaticRifle), "RifleGun");
            
             var handItemDef = MyDefinitionManager.Static.TryGetHandItemDefinition(ref m_handItemDefId);
             m_physicalItemDef = MyDefinitionManager.Static.GetPhysicalItemForHandItem(m_handItemDefId);
@@ -549,6 +549,12 @@ namespace Sandbox.Game.Weapons
             {
                 return m_gunBase.CurrentAmmo;
             }
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
     }
 }

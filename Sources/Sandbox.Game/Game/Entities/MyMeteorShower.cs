@@ -24,6 +24,7 @@ using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using Sandbox.Engine.Physics;
 
 namespace Sandbox.Game.Entities
 {
@@ -190,7 +191,18 @@ namespace Sandbox.Game.Entities
             var rand = MyUtils.GetRandomFloat(0, 1);
             Vector3D randomCircleInPlain = randCircle.X * m_rightVector + randCircle.Z * m_downVector;
             var hitPosition = m_currentTarget.Value.Center + Math.Pow(rand, 0.7f) * m_currentTarget.Value.Radius * randomCircleInPlain * METEOR_BLUR_KOEF;
+            //Cast Ray for sure
 
+            var antigravityDir = -Vector3D.Normalize(MyGravityProviderSystem.CalculateNaturalGravityInPoint(hitPosition));
+            if (antigravityDir != Vector3D.Zero)
+            {
+                var hi = MyPhysics.CastRay(hitPosition + antigravityDir * (3000), hitPosition, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                if (hi != null)
+                {
+                    hitPosition = hi.Value.Position;
+                }
+            }
+            m_meteorHitPos = hitPosition;
             for (int i = 0; i < waveMeteorCount; i++)
             {
                 // hit
@@ -263,12 +275,16 @@ namespace Sandbox.Game.Entities
             StartWave();
         }
 
+        private static Vector3D m_meteorHitPos;
+
         public override void Draw()
         {
             base.Draw();
             if (MyDebugDrawSettings.DEBUG_DRAW_METEORITS_DIRECTIONS)
             {
                 Vector3D m_currDir = GetCorrectedDirection(MySector.DirectionToSunNormalized);
+                MyRenderProxy.DebugDrawPoint(m_meteorHitPos, Color.White, false);
+                MyRenderProxy.DebugDrawText3D(m_meteorHitPos, "Hit position", Color.White, 0.5f, false);
                 MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * MySector.DirectionToSunNormalized, Color.Yellow, Color.Yellow, false);
                 MyRenderProxy.DebugDrawText3D(m_tgtPos + 10 * MySector.DirectionToSunNormalized, "Sun direction (sd)", Color.Yellow, 0.5F, false, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_BOTTOM);
                 MyRenderProxy.DebugDrawLine3D(m_tgtPos, m_tgtPos + 10 * m_currDir, Color.Red, Color.Red, false);

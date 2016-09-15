@@ -18,8 +18,6 @@ using System.Threading;
 
 using Sandbox.Game.Entities;
 
-using VRage.Voxels;
-
 namespace Sandbox.Game.Components
 {
     class MyDebugRenderComponentVoxelMap : MyDebugRenderComponent

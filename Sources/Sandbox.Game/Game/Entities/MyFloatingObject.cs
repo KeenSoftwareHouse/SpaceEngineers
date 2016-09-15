@@ -33,12 +33,13 @@ using System.Diagnostics;
 using VRage.Network;
 using VRage.Game.Entity;
 using VRage.Import;
-using VRage.Library.Sync;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Engine.Multiplayer;
+using VRage.Sync;
+using VRageRender.Import;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
 #endregion

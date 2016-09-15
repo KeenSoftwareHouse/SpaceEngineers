@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.FileSystem;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Models;
@@ -49,14 +49,14 @@ namespace VRage.Game.Components
                 switch (objBuilderLayer.Mode)
                 {
                     case VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationLayer.MyLayerMode.Add:
-                        layer.Mode = VRage.Animations.MyAnimationStateMachine.MyBlendingMode.Add;
+                        layer.Mode = VRageRender.Animations.MyAnimationStateMachine.MyBlendingMode.Add;
                         break;
                     case VRage.Game.ObjectBuilders.MyObjectBuilder_AnimationLayer.MyLayerMode.Replace:
-                        layer.Mode = VRage.Animations.MyAnimationStateMachine.MyBlendingMode.Replace;
+                        layer.Mode = VRageRender.Animations.MyAnimationStateMachine.MyBlendingMode.Replace;
                         break;
                     default:
                         Debug.Fail("Unknown layer mode.");
-                        layer.Mode = VRage.Animations.MyAnimationStateMachine.MyBlendingMode.Replace;
+                        layer.Mode = VRageRender.Animations.MyAnimationStateMachine.MyBlendingMode.Replace;
                         break;
                 }
                 if (objBuilderLayer.BoneMask != null)
@@ -112,7 +112,7 @@ namespace VRage.Game.Components
                 }
                 else
                 {
-                    var smNode = new VRage.Animations.MyAnimationStateMachineNode(absoluteNodeName);
+                    var smNode = new VRageRender.Animations.MyAnimationStateMachineNode(absoluteNodeName);
                     if (objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.PassThrough
                         || objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.Any
                         || objBuilderNode.Type == MyObjectBuilder_AnimationSMNode.MySMNodeType.AnyExceptTarget)
@@ -187,8 +187,8 @@ namespace VRage.Game.Components
             {
                 // generate transition for each condition conjunction
                 var transition = layer.AddTransition(absoluteNameNodeFrom, absoluteNameNodeTo,
-                    new VRage.Animations.MyAnimationStateMachineTransition()) as
-                    VRage.Animations.MyAnimationStateMachineTransition;
+                    new VRageRender.Animations.MyAnimationStateMachineTransition()) as
+                    VRageRender.Animations.MyAnimationStateMachineTransition;
                 // if ok, fill in conditions
                 if (transition != null)
                 {
@@ -276,7 +276,7 @@ namespace VRage.Game.Components
                 MyModel modelAnimation = objBuilderNodeTrack.PathToModel != null ? MyModels.GetModelOnlyAnimationData(objBuilderNodeTrack.PathToModel, forceReloadMwm) : null;
                 if (modelAnimation != null && modelAnimation.Animations != null && modelAnimation.Animations.Clips != null && modelAnimation.Animations.Clips.Count > 0)
                 {
-                    VRage.Animations.MyAnimationClip selectedClip = modelAnimation.Animations.Clips.FirstOrDefault(clipItem => clipItem.Name == objBuilderNodeTrack.AnimationName);
+                    VRageRender.Animations.MyAnimationClip selectedClip = modelAnimation.Animations.Clips.FirstOrDefault(clipItem => clipItem.Name == objBuilderNodeTrack.AnimationName);
                     selectedClip = selectedClip ?? modelAnimation.Animations.Clips[0]; // fallback
                     if (selectedClip == null)
                     {

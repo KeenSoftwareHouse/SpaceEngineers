@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using VRage;
+using VRage.Library.Utils;
+using VRage.Profiler;
+using VRage.Render11.Tools;
 using VRageMath;
 
 namespace VRageRender
@@ -42,9 +45,16 @@ namespace VRageRender
             }
             m_tmpCullingTasks.Clear();
 
+
+            int i = 0;
             foreach (MyFrustumCullingWork cullWork in m_tmpAllocatedWork)
             {
+                ProfilerShort.Begin(frustumCullQueries.FrustumCullQueries[i].Type.ToString());
+                ProfilerShort.End(frustumCullQueries.FrustumCullQueries[i].List.Count + frustumCullQueries.FrustumCullQueries[i].List2.Count,
+                    new VRage.Library.Utils.MyTimeSpan(cullWork.Elapsed));
+
                 MyObjectPoolManager.Deallocate(cullWork);
+                i++;
             }
             m_tmpAllocatedWork.Clear();
 
@@ -112,7 +122,7 @@ namespace VRageRender
                                 break;
                             }
                             var worldMat = proxy.WorldMatrix;
-                            worldMat.Translation -= MyRender11.Environment.CameraPosition;
+                            worldMat.Translation -= MyRender11.Environment.Matrices.CameraPosition;
                             proxy.CommonObjectData.LocalMatrix = worldMat;
                             proxy.CommonObjectData.MaterialIndex = MySceneMaterials.GetDrawMaterialIndex(proxy.PerMaterialIndex);
                         }
@@ -130,20 +140,23 @@ namespace VRageRender
                 ProfilerShort.BeginNextBlock("Culling by query type");
                 if (frustumQuery.Type == MyFrustumEnum.MainFrustum)
                 {
-                    MyPerformanceCounter.PerCameraDraw11Write.ViewFrustumObjectsNum = frustumQuery.List.Count;
+                    MyStatsUpdater.Passes.GBufferObjects += cullProxies.Count;
+                    int tris = 0;
+                    for (int cullProxyIndex = 0; cullProxyIndex < cullProxies.Count; ++cullProxyIndex)
+                    {
+                        var cullProxy = cullProxies[cullProxyIndex];
+                        if (cullProxy.RenderableProxies != null)
+                            foreach (var renderableProxy in cullProxy.RenderableProxies)
+                                tris += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
+                    }
+                    MyStatsUpdater.Passes.GBufferTris += tris;
                 }
                 else if (frustumQuery.Type == MyFrustumEnum.ShadowCascade)
                 {
-                    while (m_shadowCascadeProxies2.Count < MyRenderProxy.Settings.ShadowCascadeCount)
+                    while (m_shadowCascadeProxies2.Count < MyShadowCascades.Settings.NewData.CascadesCount)
                         m_shadowCascadeProxies2.Add(new HashSet<MyCullProxy_2>());
 
                     bool isHighCascade = frustumQuery.CascadeIndex < 3;
-
-                    if (cullProxies.Count == 0)
-                    {
-                        MyShadowCascades.ShadowCascadeObjectsCounter[frustumQuery.CascadeIndex] = 0;
-                        MyShadowCascades.ShadowCascadeTriangleCounter[frustumQuery.CascadeIndex] = 0;
-                    }
 
                     // List 1
                     for (int cullProxyIndex = 0; cullProxyIndex < cullProxies.Count; ++cullProxyIndex)
@@ -163,7 +176,8 @@ namespace VRageRender
                         {
                             foreach (var renderableProxy in cullProxy.RenderableProxies)
                             {
-                                MyShadowCascades.ShadowCascadeTriangleCounter[frustumQuery.CascadeIndex] += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
+                                MyStatsUpdater.CSMObjects[frustumQuery.CascadeIndex]++;
+                                MyStatsUpdater.CSMTris[frustumQuery.CascadeIndex] += (renderableProxy.InstanceCount > 0 ? renderableProxy.InstanceCount : 1) * renderableProxy.DrawSubmesh.IndexCount / 3;
                             }
 
                             if (frustumQuery.IsInsideList[cullProxyIndex])
@@ -199,12 +213,9 @@ namespace VRageRender
                             m_shadowCascadeProxies2[frustumQuery.CascadeIndex].Add(cullProxy2);
                         }
                     }
-
-                    MyShadowCascades.ShadowCascadeObjectsCounter[frustumQuery.CascadeIndex] = cullProxies.Count;
                 }
                 else if (frustumQuery.Type == MyFrustumEnum.ShadowProjection)
                 {
-                    MyShadows.OtherShadowsTriangleCounter = 0;
                     for (int cullProxyIndex = 0; cullProxyIndex < cullProxies.Count; ++cullProxyIndex)
                     {
                         var cullProxy = frustumQuery.List[cullProxyIndex];
@@ -217,7 +228,8 @@ namespace VRageRender
                         }
                         foreach (var proxy in cullProxy.RenderableProxies)
                         {
-                            MyShadows.OtherShadowsTriangleCounter += Math.Max(proxy.InstanceCount, 1) * proxy.DrawSubmesh.IndexCount / 3;
+                            MyStatsUpdater.Passes.ShadowProjectionObjects++;
+                            MyStatsUpdater.Passes.ShadowProjectionTris += Math.Max(proxy.InstanceCount, 1) * proxy.DrawSubmesh.IndexCount / 3;
                         }
                     }
                 }
@@ -236,24 +248,6 @@ namespace VRageRender
                     }
 
                 }
-            }
-            for (int cascadeIndex = 0; cascadeIndex < MyRenderProxy.Settings.ShadowCascadeCount; ++cascadeIndex)
-            {
-                if (MyShadowCascades.ShadowCascadeObjectsCounter[cascadeIndex] >= 0)
-                {
-                    MyPerformanceCounter.PerCameraDraw11Write.ShadowCascadeObjectsNum[cascadeIndex] = MyShadowCascades.ShadowCascadeObjectsCounter[cascadeIndex];
-                    MyShadowCascades.ShadowCascadeObjectsCounter[cascadeIndex] = -1;
-                }
-                if (MyShadowCascades.ShadowCascadeTriangleCounter[cascadeIndex] >= 0)
-                {
-                    MyPerformanceCounter.PerCameraDraw11Write.ShadowCascadeTriangles[cascadeIndex] = MyShadowCascades.ShadowCascadeTriangleCounter[cascadeIndex];
-                    MyShadowCascades.ShadowCascadeTriangleCounter[cascadeIndex] = -1;
-                }
-            }
-            if (MyShadows.OtherShadowsTriangleCounter >= 0)
-            {
-                MyPerformanceCounter.PerCameraDraw11Write.OtherShadowTriangles = MyShadows.OtherShadowsTriangleCounter;
-                MyShadows.OtherShadowsTriangleCounter = -1;
             }
         }
     }

@@ -134,7 +134,7 @@ namespace Sandbox.Game.Entities.Debris
 
                 HkShape shape;
                 m_massProperties = new HkMassProperties();
-                m_massProperties.Mass = 50;
+                m_massProperties.Mass = (float)(0.5236f * Math.Pow(2 * RandomScale, 3)) * 2600;//0.5236f = pi / 6, 2600 = default stone density
                 Container.Entity.Physics = GetPhysics(RigidBodyFlag.RBF_DEBRIS);
                 (Container.Entity.Physics as MyDebrisPhysics).CreatePhysicsShape(out shape, ref m_massProperties);
                 (Container.Entity.Physics as MyDebrisPhysics).CreateFromCollisionObject(shape, Vector3.Zero, MatrixD.Identity, m_massProperties, MyPhysics.CollisionLayers.DebrisCollisionLayer);

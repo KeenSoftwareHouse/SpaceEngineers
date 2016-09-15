@@ -10,6 +10,7 @@ using VRage.Import;
 using VRageMath;
 using VRageMath.PackedVector;
 using VRageRender;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Components
 {

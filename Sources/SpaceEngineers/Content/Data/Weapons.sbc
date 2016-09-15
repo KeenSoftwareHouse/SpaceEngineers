@@ -170,7 +170,7 @@
 	    <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
       <NoAmmoSoundName>WepShipGatlingNoAmmo</NoAmmoSoundName>
-      <SecondarySoundName>ArcWepShipGatlingRotation</SecondarySoundName>
+      <SecondarySoundName>WepShipGatlingRotation</SecondarySoundName>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
       </AmmoMagazines>

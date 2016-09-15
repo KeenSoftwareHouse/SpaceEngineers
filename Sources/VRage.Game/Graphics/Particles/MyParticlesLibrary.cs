@@ -5,7 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Xml;
 using System.Linq;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.FileSystem;
 using VRage.Utils;
 using VRage.Win32;

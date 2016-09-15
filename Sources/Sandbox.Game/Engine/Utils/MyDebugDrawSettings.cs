@@ -3,6 +3,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using VRage.Game;
 using VRage.Utils;
+using VRageRender.Utils;
 
 namespace Sandbox.Engine.Utils
 {
@@ -10,7 +11,6 @@ namespace Sandbox.Engine.Utils
     {
         //  If true, then debug draw rendering is enabled
         public static bool ENABLE_DEBUG_DRAW = false;
-        public static bool ENABLE_DX11_RENDERER = false;
 
         // These debug draw constants can be set via the in-game debug menu
         public static bool DEBUG_DRAW_ENTITY_IDS = false;
@@ -105,7 +105,6 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_FLORA_SPAWNED_ITEMS = false;
         public static bool DEBUG_DRAW_ENTITY_COMPONENTS = false;
         public static bool DEBUG_DRAW_GRIDS_DECAY = false;
-        public static bool DEBUG_DRAW_ADDITIONAL_ENVIRONMENTAL_LIGHTS = false;
 
         public static MyWEMDebugDrawMode DEBUG_DRAW_NAVMESHES = MyWEMDebugDrawMode.NONE;
         internal static MyVoxelDebugDrawMode DEBUG_DRAW_VOXELS_MODE = MyVoxelDebugDrawMode.None;

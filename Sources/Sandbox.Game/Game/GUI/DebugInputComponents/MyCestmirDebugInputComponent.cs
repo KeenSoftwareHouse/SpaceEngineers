@@ -28,6 +28,7 @@ using Sandbox.Common;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.Gui
 {

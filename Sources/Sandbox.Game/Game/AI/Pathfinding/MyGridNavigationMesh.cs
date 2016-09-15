@@ -7,9 +7,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {

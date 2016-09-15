@@ -189,16 +189,6 @@
     <Compile Include="MyRenderProfiler.cs" />
     <Compile Include="MyTextureAtlas.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessAntiAlias.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessChromaticAberration.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessColorMapping.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessContrast.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessGodRays.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessHDR.cs" />
-    <Compile Include="Render\PostProcesses\MyPostprocessSettingsWrapper.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessVignetting.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessVolumetricFog.cs" />
-    <Compile Include="Render\PostProcesses\MyPostProcessVolumetricSSAO2.cs" />
     <Compile Include="StringBuilderExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -224,6 +214,10 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>

@@ -18,6 +18,7 @@ using VRage;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
+using VRage.Sync;
 
 namespace Sandbox.Game.Weapons
 {

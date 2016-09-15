@@ -24,7 +24,7 @@ namespace Sandbox.Game
 
         public static void GenerateMuzzleFlash(Vector3D position, Vector3 dir, int renderObjectID, ref MatrixD worldToLocal, float radius, float length, bool near = false)
         {
-            float angle = MyUtils.GetRandomFloat(0, MathHelper.PiOver2);
+            float angle = MyParticlesManager.Paused ? 0 : MyUtils.GetRandomFloat(0, MathHelper.PiOver2);
 
             float colorComponent = 1.3f;
             Vector4 color = new Vector4(colorComponent, colorComponent, colorComponent, 1);
@@ -34,32 +34,42 @@ namespace Sandbox.Game
             MyTransparentGeometry.AddPointBillboard("MuzzleFlashMachineGunFront", color, position, renderObjectID, ref worldToLocal, radius, angle, 0, false, near);
         }
 
-        public static void GenerateMuzzleFlashLocal(IMyEntity entity, Vector3 localPos, Vector3 localDir, float radius, float length, bool near = false)
-        {
-            float angle = MyUtils.GetRandomFloat(0, MathHelper.PiOver2);
-
-            float colorComponent = 1.3f;
-            Vector4 color = new Vector4(colorComponent, colorComponent, colorComponent, 1);
-
-            VRageRender.MyRenderProxy.AddLineBillboardLocal(entity.Render.RenderObjectIDs[0], "MuzzleFlashMachineGunSide", color, localPos, 
-                localDir, length, 0.15f, 0, near);
-
-            VRageRender.MyRenderProxy.AddPointBillboardLocal(entity.Render.RenderObjectIDs[0], "MuzzleFlashMachineGunFront", color, localPos, radius, angle, 0, false, near);
-        }
-
-
         private class EffectSoundEmitter
         {
             public readonly uint ParticleSoundId;
             public bool Updated;
             public MyEntity3DSoundEmitter Emitter;
+            public MySoundPair SoundPair;
             public float OriginalVolume;
 
             public EffectSoundEmitter(uint id, Vector3 position, MySoundPair sound)
             {
                 ParticleSoundId = id;
                 Updated = true;
-                Emitter = new MyEntity3DSoundEmitter(null);
+                MyEntity entity = null;
+                if (MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)//snap emitter to closest block - used for realistic sounds
+                {
+                    List<MyEntity> m_detectedObjects = new List<MyEntity>();
+                    BoundingSphereD effectSphere = new BoundingSphereD(MySession.Static.LocalCharacter.PositionComp.GetPosition(), 2f);
+                    MyGamePruningStructure.GetAllEntitiesInSphere(ref effectSphere, m_detectedObjects);
+                    float distBest = float.MaxValue;
+                    float dist;
+                    for (int i = 0; i < m_detectedObjects.Count; i++)
+                    {
+                        MyCubeBlock block = m_detectedObjects[i] as MyCubeBlock;
+                        if (block != null)
+                        {
+                            dist = Vector3.DistanceSquared(MySession.Static.LocalCharacter.PositionComp.GetPosition(), block.PositionComp.GetPosition());
+                            if (dist < distBest)
+                            {
+                                dist = distBest;
+                                entity = block;
+                            }
+                        }
+                    }
+                    m_detectedObjects.Clear();
+                }
+                Emitter = new MyEntity3DSoundEmitter(entity);
                 Emitter.SetPosition(position);
                 Emitter.PlaySound(sound);
                 if (Emitter.Sound != null)
@@ -67,6 +77,7 @@ namespace Sandbox.Game
                 else
                     OriginalVolume = 1f;
                 Emitter.Update();
+                SoundPair = sound;
             }
         }
         private static List<EffectSoundEmitter> m_soundEmitters = new List<EffectSoundEmitter>();
@@ -93,15 +104,23 @@ namespace Sandbox.Game
                         m_soundEmitters[i].Emitter.CustomVolume = m_soundEmitters[i].OriginalVolume * soundEffect.CurrentVolume;
                         m_soundEmitters[i].Emitter.CustomMaxDistance = soundEffect.CurrentRange;
                         newSound = false;
+                        if (!m_soundEmitters[i].Emitter.Loop && soundEffect.NewLoop)
+                        {
+                            soundEffect.NewLoop = false;
+                            m_soundEmitters[i].Emitter.PlaySound(m_soundEmitters[i].SoundPair, false);
+                        }
                         break;
                     }
                 }
-                if (newSound && soundEffect.Enabled && soundEffect.Position != Vector3.Zero)//create new sound emitter
+                if (newSound && soundEffect.Enabled)//create new sound emitter
                 {
-                    MySoundPair sound = new MySoundPair(soundEffect.SoundName);
-                    if (sound != MySoundPair.Empty)
+                    if (soundEffect.Position != Vector3.Zero)
                     {
-                        m_soundEmitters.Add(new EffectSoundEmitter(soundEffect.ParticleSoundId,Vector3.Zero,sound));
+                        MySoundPair sound = new MySoundPair(soundEffect.SoundName);
+                        if (sound != MySoundPair.Empty)
+                        {
+                            m_soundEmitters.Add(new EffectSoundEmitter(soundEffect.ParticleSoundId, soundEffect.Position, sound));
+                        }
                     }
                 }
             }

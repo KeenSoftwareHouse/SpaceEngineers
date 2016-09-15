@@ -32,6 +32,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
+using VRage.Profiler;
+using VRage.Sync;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 #if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
 using System.Reflection;

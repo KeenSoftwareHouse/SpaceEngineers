@@ -9,7 +9,6 @@ using VRage.Library.Utils;
 using VRage.Noise;
 using VRageMath;
 using VRage;
-using VRage.Voxels;
 using System.IO.MemoryMappedFiles;
 using System.IO;
 using Sandbox.Engine.Utils;

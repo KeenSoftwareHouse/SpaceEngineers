@@ -137,7 +137,7 @@ namespace Sandbox.Game.Entities
 
             LineD l = new LineD(pivot + MySector.DirectionToSunNormalized * 100, pivot + MySector.DirectionToSunNormalized * m_solarBlock.CubeGrid.GridSize / 4); //shadows are drawn only 1000m
 
-            MyPhysics.CastRay(l.From, l.To, m_hitList, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+            MyPhysics.CastRay(l.To, l.From, m_hitList, MyPhysics.CollisionLayers.DefaultCollisionLayer);
             m_isPivotInSun[m_currentPivot] = true;
             foreach (var hit in m_hitList)
             {

@@ -1162,7 +1162,8 @@ Recommendations help to grow the community. Thank you!</value>
     <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
   </data>
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
-    <value>{0} is not available for {1}</value>
+    <value>{0} {1} cannot be connected to a {2}</value>
+    <comment>{0} + {2} are type of grid, {1} is DisplayName</comment>
   </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Angle grinder</value>
@@ -2293,7 +2294,7 @@ uncontrolled, without a medbay and far enough from all players so that they can 
     <value>Realistic</value>
   </data>
   <data name="WorldSettings_SoundMode" xml:space="preserve">
-    <value>Sound Mode</value>
+    <value>Sound mode</value>
   </data>
   <data name="Terminal_ShowOnHUD" xml:space="preserve">
     <value>Show on HUD</value>
@@ -5075,11 +5076,11 @@ Allowed sites: steamcommunity, youtube, KSH forum.</value>
     <value>Random NPC pirate ship will be generated from time to time.
 These ships are enemies and will try to attack you with their drones.</value>
   </data>
-  <data name="ToolTipWorldSettings_EnableCyberhounds" xml:space="preserve">
-    <value>Enable / disable spawning of cyberhounds</value>
+  <data name="ToolTipWorldSettings_EnableWolfs" xml:space="preserve">
+    <value>Enable / disable spawning of Wolves</value>
   </data>
-  <data name="WorldSettings_EnableCyberhounds" xml:space="preserve">
-    <value>Enable cyberhounds</value>
+  <data name="WorldSettings_EnableWolfs" xml:space="preserve">
+    <value>Enable wolves</value>
   </data>
   <data name="ToolTipWorldSettings_EnableSpiders" xml:space="preserve">
     <value>Enable / disable spawning of spiders</value>

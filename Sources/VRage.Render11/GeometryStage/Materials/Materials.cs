@@ -6,13 +6,14 @@ using VRage.Utils;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using VRageMath;
-using VRageRender.Resources;
 using System.Diagnostics;
 using VRage.Import;
 using VRage;
 using VRage.Library.Utils;
 using System.IO;
 using VRage.FileSystem;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
@@ -32,6 +33,11 @@ namespace VRageRender
         }
 
         internal static readonly MyMaterialProxyId NULL = new MyMaterialProxyId { Index = -1 };
+
+        public MyMaterialProxy_2 Info
+        {
+            get { return MyMaterials1.ProxyPool.Data[Index]; }
+        }
     }
 
     struct MyVoxelMaterialConstants
@@ -107,9 +113,17 @@ namespace VRageRender
                 Table[index].FoliageArray_Texture = list[i].ExtensionTextureArray1;
                 Table[index].FoliageArray_NormalTexture = list[i].ExtensionTextureArray2;
 
-                Table[index].FoliageColorTextureArray = MyTextureArray.FromStringArray(list[i].FoliageColorTextureArray, MyTextureEnum.COLOR_METAL, "CM Foliage");
-                Table[index].FoliageNormalTextureArray = MyTextureArray.FromStringArray(list[i].FoliageNormalTextureArray, MyTextureEnum.NORMALMAP_GLOSS, "NG Foliage");
-
+                MyFileArrayTextureManager arrayManager = MyManagers.FileArrayTextures;
+                if (list[i].FoliageColorTextureArray != null)
+                    Table[index].FoliageColorTextureArray = arrayManager.CreateFromFiles("MyVoxelMaterial1.FoliageColorTextureArray", list[i].FoliageColorTextureArray, MyFileTextureEnum.COLOR_METAL);
+                else
+                    Table[index].FoliageColorTextureArray = null;
+                
+                if (list[i].FoliageNormalTextureArray != null)
+                    Table[index].FoliageNormalTextureArray = arrayManager.CreateFromFiles("MyVoxelMaterial1.FoliageNormalTextureArray", list[i].FoliageNormalTextureArray, MyFileTextureEnum.NORMALMAP_GLOSS);
+                else
+                    Table[index].FoliageNormalTextureArray = null;
+                
                 Table[index].FoliageDensity = list[i].ExtensionDensity;
                 Table[index].FoliageScale = list[i].ExtensionScale;
                 Table[index].FoliageScaleVariation = list[i].ExtensionRandomRescaleMult;
@@ -147,12 +161,13 @@ namespace VRageRender
 
                 if (Table[i].FoliageColorTextureArray != null)
                 {
-                    arraySize = (uint)Table[i].FoliageColorTextureArray.ArrayLen;
+                    arraySize = (uint)Table[i].FoliageColorTextureArray.SubtexturesCount;
                 }
                 else
-                { 
-                    var arrayTexId = MyTextures.GetTexture(Table[i].FoliageArray_Texture, MyTextureEnum.COLOR_METAL, true);
-                    arraySize = (uint)((Texture2D)MyTextures.Textures.Data[arrayTexId.Index].Resource).Description.ArraySize;
+                {
+                    MyFileTextureManager texManager = MyManagers.FileTextures;
+                    var arrayTex = texManager.GetTexture(Table[i].FoliageArray_Texture, MyFileTextureEnum.COLOR_METAL, true);
+                    arraySize = (uint)((Texture2D)arrayTex.Resource).Description.ArraySize;
                 }
 
                 array[i] = new MaterialFoliageConstantsElem {
@@ -266,45 +281,45 @@ namespace VRageRender
 					BindFlag = MyBindFlag.BIND_PS, 
 					StartSlot = 0,
 					Version = version,
-					SRVs = singleMaterial
-						? 
-                            new IShaderResourceBindable[] 
+					Srvs = singleMaterial
+                        ?
+                            new ShaderResourceView[] 
 							{ 
-								Table[triple.I0].Near.ColorMetalArray, Table[triple.I0].Far1.ColorMetalArray, Table[triple.I0].Far2.ColorMetalArray,
-								Table[triple.I0].Near.NormalGlossArray, Table[triple.I0].Far1.NormalGlossArray, Table[triple.I0].Far2.NormalGlossArray,
-								Table[triple.I0].Near.ExtArray, Table[triple.I0].Far1.ExtArray, Table[triple.I0].Far2.ExtArray,
+								Table[triple.I0].Near.ColorMetalArray.Srv, Table[triple.I0].Far1.ColorMetalArray.Srv, Table[triple.I0].Far2.ColorMetalArray.Srv,
+								Table[triple.I0].Near.NormalGlossArray.Srv, Table[triple.I0].Far1.NormalGlossArray.Srv, Table[triple.I0].Far2.NormalGlossArray.Srv,
+								Table[triple.I0].Near.ExtArray.Srv, Table[triple.I0].Far1.ExtArray.Srv, Table[triple.I0].Far2.ExtArray.Srv,
 							}
 						: 
 						(
-						triple.I2 == -1 
-							?
-                            new IShaderResourceBindable[] 
+						triple.I2 == -1
+                            ?
+                            new ShaderResourceView[] 
 							{ 
-								Table[triple.I0].Near.ColorMetalArray, Table[triple.I0].Far1.ColorMetalArray, Table[triple.I0].Far2.ColorMetalArray,
-								Table[triple.I1].Near.ColorMetalArray, Table[triple.I1].Far1.ColorMetalArray, Table[triple.I1].Far2.ColorMetalArray,
+								Table[triple.I0].Near.ColorMetalArray.Srv, Table[triple.I0].Far1.ColorMetalArray.Srv, Table[triple.I0].Far2.ColorMetalArray.Srv,
+								Table[triple.I1].Near.ColorMetalArray.Srv, Table[triple.I1].Far1.ColorMetalArray.Srv, Table[triple.I1].Far2.ColorMetalArray.Srv,
 								null, null, null,
-								Table[triple.I0].Near.NormalGlossArray, Table[triple.I0].Far1.NormalGlossArray, Table[triple.I0].Far2.NormalGlossArray,
-								Table[triple.I1].Near.NormalGlossArray, Table[triple.I1].Far1.NormalGlossArray, Table[triple.I1].Far2.NormalGlossArray,
+								Table[triple.I0].Near.NormalGlossArray.Srv, Table[triple.I0].Far1.NormalGlossArray.Srv, Table[triple.I0].Far2.NormalGlossArray.Srv,
+								Table[triple.I1].Near.NormalGlossArray.Srv, Table[triple.I1].Far1.NormalGlossArray.Srv, Table[triple.I1].Far2.NormalGlossArray.Srv,
 								null, null, null,
 
-								Table[triple.I0].Near.ExtArray, Table[triple.I0].Far1.ExtArray, Table[triple.I0].Far2.ExtArray,
-								Table[triple.I1].Near.ExtArray, Table[triple.I1].Far1.ExtArray, Table[triple.I1].Far2.ExtArray,
+								Table[triple.I0].Near.ExtArray.Srv, Table[triple.I0].Far1.ExtArray.Srv, Table[triple.I0].Far2.ExtArray.Srv,
+								Table[triple.I1].Near.ExtArray.Srv, Table[triple.I1].Far1.ExtArray.Srv, Table[triple.I1].Far2.ExtArray.Srv,
 								null, null, null
 							}
-							:
-                            new IShaderResourceBindable[] 
+                            :
+                            new ShaderResourceView[] 
 							{ 
-								Table[triple.I0].Near.ColorMetalArray, Table[triple.I0].Far1.ColorMetalArray, Table[triple.I0].Far2.ColorMetalArray,
-								Table[triple.I1].Near.ColorMetalArray, Table[triple.I1].Far1.ColorMetalArray, Table[triple.I1].Far2.ColorMetalArray,
-								Table[triple.I2].Near.ColorMetalArray, Table[triple.I2].Far1.ColorMetalArray, Table[triple.I2].Far2.ColorMetalArray,
+								Table[triple.I0].Near.ColorMetalArray.Srv, Table[triple.I0].Far1.ColorMetalArray.Srv, Table[triple.I0].Far2.ColorMetalArray.Srv,
+								Table[triple.I1].Near.ColorMetalArray.Srv, Table[triple.I1].Far1.ColorMetalArray.Srv, Table[triple.I1].Far2.ColorMetalArray.Srv,
+								Table[triple.I2].Near.ColorMetalArray.Srv, Table[triple.I2].Far1.ColorMetalArray.Srv, Table[triple.I2].Far2.ColorMetalArray.Srv,
 
-								Table[triple.I0].Near.NormalGlossArray, Table[triple.I0].Far1.NormalGlossArray, Table[triple.I0].Far2.NormalGlossArray,
-								Table[triple.I1].Near.NormalGlossArray, Table[triple.I1].Far1.NormalGlossArray, Table[triple.I1].Far2.NormalGlossArray,
-								Table[triple.I2].Near.NormalGlossArray, Table[triple.I2].Far1.NormalGlossArray, Table[triple.I2].Far2.NormalGlossArray,
+								Table[triple.I0].Near.NormalGlossArray.Srv, Table[triple.I0].Far1.NormalGlossArray.Srv, Table[triple.I0].Far2.NormalGlossArray.Srv,
+								Table[triple.I1].Near.NormalGlossArray.Srv, Table[triple.I1].Far1.NormalGlossArray.Srv, Table[triple.I1].Far2.NormalGlossArray.Srv,
+								Table[triple.I2].Near.NormalGlossArray.Srv, Table[triple.I2].Far1.NormalGlossArray.Srv, Table[triple.I2].Far2.NormalGlossArray.Srv,
 
-								Table[triple.I0].Near.ExtArray, Table[triple.I0].Far1.ExtArray, Table[triple.I0].Far2.ExtArray,
-								Table[triple.I1].Near.ExtArray, Table[triple.I1].Far1.ExtArray, Table[triple.I1].Far2.ExtArray,
-								Table[triple.I2].Near.ExtArray, Table[triple.I2].Far1.ExtArray, Table[triple.I2].Far2.ExtArray,
+								Table[triple.I0].Near.ExtArray.Srv, Table[triple.I0].Far1.ExtArray.Srv, Table[triple.I0].Far2.ExtArray.Srv,
+								Table[triple.I1].Near.ExtArray.Srv, Table[triple.I1].Far1.ExtArray.Srv, Table[triple.I1].Far2.ExtArray.Srv,
+								Table[triple.I2].Near.ExtArray.Srv, Table[triple.I2].Far1.ExtArray.Srv, Table[triple.I2].Far2.ExtArray.Srv,
 							}
 						)
 				};
@@ -312,7 +327,7 @@ namespace VRageRender
             return new MyMaterialProxy_2
                 {
                     MaterialConstants = materialConstants,
-                    MaterialSRVs = srvTable
+                    MaterialSrvs = srvTable
                 };
         }
 
@@ -323,10 +338,11 @@ namespace VRageRender
                 MyVoxelMaterialDetailSet.ReleaseResources(ref Table[i].Near);
                 MyVoxelMaterialDetailSet.ReleaseResources(ref Table[i].Far1);
                 MyVoxelMaterialDetailSet.ReleaseResources(ref Table[i].Far2);
+                MyFileArrayTextureManager manager = MyManagers.FileArrayTextures;
                 if (Table[i].FoliageColorTextureArray != null)
-                    Table[i].FoliageColorTextureArray.Dispose();
+                    manager.DisposeTex(ref Table[i].FoliageColorTextureArray);
                 if (Table[i].FoliageNormalTextureArray != null)
-                    Table[i].FoliageNormalTextureArray.Dispose();
+                    manager.DisposeTex(ref Table[i].FoliageNormalTextureArray);
             }
         }
 
@@ -339,7 +355,8 @@ namespace VRageRender
                 MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Far1);
                 MyVoxelMaterialDetailSet.RequestResources(ref Table[id].Far2);
                 //MyTextureManager.GetTexture(Table[id].FoliageArray_Texture);
-                MyTextures.GetTexture(Table[id].FoliageArray_Texture, MyTextureEnum.COLOR_METAL);
+                MyFileTextureManager texManager = MyManagers.FileTextures;
+                texManager.GetTexture(Table[id].FoliageArray_Texture, MyFileTextureEnum.COLOR_METAL);
             }
         }
 

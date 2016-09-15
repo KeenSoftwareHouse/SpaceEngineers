@@ -15,6 +15,7 @@ using VRage.Game.Definitions;
 using VRage.Game.SessionComponents;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Win32;
 
@@ -153,7 +154,7 @@ namespace Sandbox.Game.AI.BehaviorTree
 
         public void Update()
         {
-            VRage.ProfilerShort.Begin("Behaviors update");
+            ProfilerShort.Begin("Behaviors update");
             foreach (var bt in m_BTDataByName.Values)
             {
                 var behaviorTree = bt.BehaviorTree;
@@ -176,7 +177,7 @@ namespace Sandbox.Game.AI.BehaviorTree
                         if (MyFakes.ENABLE_BEHAVIOR_TREE_TOOL_COMMUNICATION && DebugBot == data.Bot && !DebugBreakDebugging && MyDebugDrawSettings.DEBUG_DRAW_BOTS)
                         {
 #if !XB1
-                            VRage.ProfilerShort.Begin("Sending debug data");
+                            ProfilerShort.Begin("Sending debug data");
                             if (TryGetValidToolWindow(out m_toolWindowHandle))
                             {
                                 if (!DebugSelectedTreeHashSent || m_toolWindowHandle != DebugLastWindowHandle
@@ -184,13 +185,13 @@ namespace Sandbox.Game.AI.BehaviorTree
                                     SendSelectedTreeForDebug(behaviorTree);
                                 SendDataToTool(data.Bot, data.Bot.BotMemory.CurrentTreeBotMemory);
                             }
-                            VRage.ProfilerShort.End();
+                            ProfilerShort.End();
 #endif // !XB1
                         }
                     }
                 }
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         public bool AssignBotToBehaviorTree(string behaviorName, IMyBot bot)

@@ -6,24 +6,13 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Game.Components;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.Components
 {
     class MyFracturePiecePositionComponent : MyPositionComponent
     {
-        protected override void UpdateWorldVolume()
-        {
-            m_worldAABB.Min = m_worldMatrix.Translation;// -Vector3.One * m_localVolume.Radius;
-            m_worldAABB.Max = m_worldMatrix.Translation;// +Vector3.One * m_localVolume.Radius;
-            m_worldVolume.Center = m_worldMatrix.Translation;
-            m_worldVolume.Radius = m_localVolume.Radius;
-            var component = Container.Get<MyRenderComponentBase>();
-            Debug.Assert(component != null, "Missing render component!!");
-			if(component != null)
-				component.InvalidateRenderObjects();
-        }
-
         protected override void UpdateChildren(object source)
         {
             return;
@@ -33,13 +22,18 @@ namespace Sandbox.Game.Components
         {
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
             ProfilerShort.Begin("FP.Volume+InvalidateRender");
-            UpdateWorldVolume();
+            m_worldVolumeDirty = true;
+            m_worldAABBDirty = true;
+            m_normalizedInvMatrixDirty = true;
+            m_invScaledMatrixDirty = true;
 
             if (Entity.Physics != null && Entity.Physics.Enabled && Entity.Physics != source)
             {
                 Entity.Physics.OnWorldPositionChanged(source);
             }
 
+            if(Container.Entity.Render != null)
+                Container.Entity.Render.InvalidateRenderObjects();
             //ProfilerShort.BeginNextBlock("FP.Prunning.Move");
             //MyGamePruningStructure.Move(Entity as MyEntity);
             ProfilerShort.End();

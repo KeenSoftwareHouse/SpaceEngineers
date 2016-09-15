@@ -61,6 +61,12 @@ using Sandbox.Game.Screens;
 using VRage.Game.ObjectBuilder;
 using VRage.Library;
 using VRage.Game.SessionComponents;
+using VRage.Profiler;
+using VRage.Voxels;
+using VRageRender.ExternalApp;
+using VRageRender.Messages;
+using VRageRender.Utils;
+using VRageRender.Voxels;
 
 #endregion
 
@@ -75,7 +81,6 @@ namespace Sandbox
 
         #region Fields
 
-        public static readonly MyStringId DirectX9RendererKey = MyStringId.GetOrCompute("DirectX 9");
         public static readonly MyStringId DirectX11RendererKey = MyStringId.GetOrCompute("DirectX 11");
 
 #if !XB1
@@ -1159,7 +1164,7 @@ namespace Sandbox
                 MyInput.Static.LoadContent();
 #endif // XB1
 
-            VRage.Voxels.MyClipmap.CameraFrustumGetter = GetCameraFrustum;
+            MyClipmap.CameraFrustumGetter = GetCameraFrustum;
 
             HkBaseSystem.Init(16 * 1024 * 1024, LogWriter);
             WriteHavokCodeToLog();
@@ -1436,7 +1441,7 @@ namespace Sandbox
                         typeof(Sandbox.Definitions.MyDefinitionManager),
                         typeof(VRage.MyFixedPoint),
                         typeof(VRage.Collections.ListReader<>),
-                        typeof(VRage.Voxels.MyStorageData),
+                        typeof(MyStorageData),
                         typeof(VRage.Utils.MyEventArgs),
                         typeof(VRage.Library.Utils.MyGameTimer),
                         typeof(Sandbox.Game.Lights.MyLight),
@@ -1614,7 +1619,7 @@ namespace Sandbox
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.MyFixedPoint));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Collections.ListReader<>));
 
-            IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Voxels.MyStorageData));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(MyStorageData));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Utils.MyEventArgs));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Library.Utils.MyGameTimer));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(VRage.Game.ModAPI.Ingame.IMyInventoryItem));
@@ -1820,6 +1825,7 @@ namespace Sandbox
                         MyAudio.Static.ResumeGameSounds();
                     m_isPaused = false;
                 }
+                MyParticlesManager.Paused = value;
             }
         }
 
@@ -2092,7 +2098,10 @@ namespace Sandbox
             // NOTICE: up vector is reverted, don't know why, I still have to investigate it
             if (MySector.MainCamera != null)
             {
-                position = MySector.MainCamera.Position;
+                if (MySession.Static != null && MySession.Static.LocalCharacter != null && MySession.Static.CameraController == MySession.Static.LocalCharacter)
+                    position = MySession.Static.LocalCharacter.PositionComp.GetPosition();
+                else
+                    position = MySector.MainCamera.Position;
                 // PARODY
                 up = -Vector3D.Normalize(MySector.MainCamera.UpVector);
                 forward = Vector3D.Normalize(MySector.MainCamera.ForwardVector);
@@ -2221,7 +2230,7 @@ namespace Sandbox
         /// </summary>
         public static void ProcessRenderOutput()
         {
-            VRageRender.MyRenderMessageBase message;
+            MyRenderMessageBase message;
             while (VRageRender.MyRenderProxy.OutputQueue.TryDequeue(out message))
             {
                 //devicelost
@@ -2230,12 +2239,12 @@ namespace Sandbox
 
                 switch (message.MessageType)
                 {
-                    case VRageRender.MyRenderMessageEnum.RequireClipmapCell:
+                    case MyRenderMessageEnum.RequireClipmapCell:
                         {
                             if (MySession.Static == null)
                                 break;
 
-                            var rMessage = (VRageRender.MyRenderMessageRequireClipmapCell)message;
+                            var rMessage = (MyRenderMessageRequireClipmapCell)message;
                             MyRenderComponentVoxelMap render;
                             if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
                             {
@@ -2244,12 +2253,12 @@ namespace Sandbox
                             break;
                         }
 
-                    case VRageRender.MyRenderMessageEnum.CancelClipmapCell:
+                    case MyRenderMessageEnum.CancelClipmapCell:
                         {
                             if (MySession.Static == null)
                                 break;
 
-                            var rMessage = (VRageRender.MyRenderMessageCancelClipmapCell)message;
+                            var rMessage = (MyRenderMessageCancelClipmapCell)message;
                             MyRenderComponentVoxelMap render;
                             if (MySession.Static.VoxelMaps.TryGetRenderComponent(rMessage.ClipmapId, out render))
                             {
@@ -2289,18 +2298,18 @@ namespace Sandbox
                             break;
                         }
 
-                    case VRageRender.MyRenderMessageEnum.Error:
+                    case MyRenderMessageEnum.Error:
                         {
-                            var rMessage = (VRageRender.MyRenderMessageError)message;
+                            var rMessage = (MyRenderMessageError)message;
                             ErrorConsumer.OnError("Renderer error", rMessage.Message, rMessage.Callstack);
                             break;
                         }
-                    case VRageRender.MyRenderMessageEnum.ScreenshotTaken:
+                    case MyRenderMessageEnum.ScreenshotTaken:
                         {
                             if (MySession.Static == null)
                                 break;
 
-                            var rMessage = (VRageRender.MyRenderMessageScreenshotTaken)message;
+                            var rMessage = (MyRenderMessageScreenshotTaken)message;
 
                             if (rMessage.ShowNotification)
                             {
@@ -2316,12 +2325,12 @@ namespace Sandbox
                             }
                             break;
                         }
-                    case VRageRender.MyRenderMessageEnum.TextNotDrawnToTexture:
+                    case MyRenderMessageEnum.TextNotDrawnToTexture:
                         {
                             if (MySession.Static == null)
                                 break;
 
-                            var rMessage = (VRageRender.MyRenderMessageTextNotDrawnToTexture)message;
+                            var rMessage = (MyRenderMessageTextNotDrawnToTexture)message;
                             MyTextPanel panel = MyEntities.GetEntityById(rMessage.EntityId) as MyTextPanel;
                             if (panel != null)
                             {
@@ -2331,12 +2340,12 @@ namespace Sandbox
                             break;
                         }
 
-                    case VRageRender.MyRenderMessageEnum.RenderTextureFreed:
+                    case MyRenderMessageEnum.RenderTextureFreed:
                         {
                             if (MySession.Static == null || MySession.Static.LocalCharacter == null)
                                 break;
 
-                            var rMessage = (VRageRender.MyRenderMessageRenderTextureFreed)message;
+                            var rMessage = (MyRenderMessageRenderTextureFreed)message;
                             var camera = MySector.MainCamera;
                             if (camera == null)
                                 return;
@@ -2365,23 +2374,23 @@ namespace Sandbox
                             entities.Clear();
                             break;
                         }
-                    case VRageRender.MyRenderMessageEnum.ExportToObjComplete:
+                    case MyRenderMessageEnum.ExportToObjComplete:
                         {
-                            var rMessage = (VRageRender.MyRenderMessageExportToObjComplete)message;
+                            var rMessage = (MyRenderMessageExportToObjComplete)message;
 
                             break;
                         }
 
                     case MyRenderMessageEnum.CreatedDeviceSettings:
                         {
-                            var rMessage = (VRageRender.MyRenderMessageCreatedDeviceSettings)message;
+                            var rMessage = (MyRenderMessageCreatedDeviceSettings)message;
                             MyVideoSettingsManager.OnCreatedDeviceSettings(rMessage);
                             break;
                         }
 
                     case MyRenderMessageEnum.VideoAdaptersResponse:
                         {
-                            var rMessage = (VRageRender.MyRenderMessageVideoAdaptersResponse)message;
+                            var rMessage = (MyRenderMessageVideoAdaptersResponse)message;
                             MyVideoSettingsManager.OnVideoAdaptersResponse(rMessage);
                             Static.CheckGraphicsCard(rMessage);
                             // All hardware info is gathered now, send the app start analytics.

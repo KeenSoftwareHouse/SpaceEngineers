@@ -42,7 +42,7 @@ namespace Sandbox.Game.Components
 
             for (int i = 0; i < m_invetoryItem.IconTextures.Length; i++ )
                 MyGuiManager.DrawSprite(m_invetoryItem.IconTextures[i], projectedPoint2D, new Rectangle(0, 0, 128, 128), Color.White,
-                     0, new Vector2(64, 64), new Vector2(0.5f), VRageRender.Graphics.SpriteEffects.None, 0);
+                     0, new Vector2(64, 64), new Vector2(0.5f), SpriteEffects.None, 0);
         }
         
         #endregion

@@ -10,6 +10,7 @@ using VRage;
 using VRage.Collections;
 using VRage.Library.Collections;
 using VRage.Network;
+using VRage.Sync;
 
 namespace Sandbox.Game.Replication
 {

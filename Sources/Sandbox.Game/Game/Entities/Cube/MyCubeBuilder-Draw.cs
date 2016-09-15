@@ -24,7 +24,9 @@ using Sandbox.Graphics.GUI;
 using VRage.Game.Models;
 using VRage.Game;
 using VRage.Input;
-using VRage.Render.Models;
+using VRage.Profiler;
+using VRageRender.Models;
+using VRageRender.Utils;
 
 #endregion
 
@@ -268,6 +270,8 @@ namespace Sandbox.Game.Entities
         {
             if (MyHud.MinimalHud) return;
 
+            if (!MySandboxGame.Config.ShowBuildingSizeHint) return;
+
             if (MyGuiScreenGamePlay.ActiveGameplayScreen != null)
                 return;
 
@@ -304,7 +308,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         /// <param name="defaultPos">Proposed position.</param>
         /// <returns>If True than success.</returns>
-        protected virtual bool CaluclateDynamicModePos(Vector3 defaultPos, bool isDynamicOverride = false)
+        protected virtual bool CaluclateDynamicModePos(Vector3D defaultPos, bool isDynamicOverride = false)
         {
             ProfilerShort.Begin("DynamicMode");
 

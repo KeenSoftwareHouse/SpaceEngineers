@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRageMath;
 using System.Linq;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
+using VRageRender.Messages;
 
 namespace VRageRender
 {
@@ -19,17 +22,18 @@ namespace VRageRender
 
         private class MyLiveData:IComparable
         {
-            public float ParticlesEmittedFraction;
-            public int BufferIndex;
-            public Resources.TexId TextureId;
-            public MyGPUEmitter GPUEmitter;
-            public float DieAt;
+            internal float ParticlesEmittedFraction;
+            internal int BufferIndex;
+            internal MyGPUEmitter GPUEmitter;
+            internal float DieAt;
+            internal bool JustAdded;
+            public Vector3D LastWorldPosition;
 
             public int CompareTo(object obj)
             {
                 var c = obj as MyLiveData;
-                var cDist = Vector3D.DistanceSquared(c.GPUEmitter.WorldPosition, MyRender11.Environment.CameraPosition);
-                var dist = Vector3D.DistanceSquared(GPUEmitter.WorldPosition, MyRender11.Environment.CameraPosition);
+                var cDist = Vector3D.DistanceSquared(c.GPUEmitter.WorldPosition, MyRender11.Environment.Matrices.CameraPosition);
+                var dist = Vector3D.DistanceSquared(GPUEmitter.WorldPosition, MyRender11.Environment.Matrices.CameraPosition);
                 return dist < cDist ? -1 : 1;
             }
         }
@@ -38,11 +42,11 @@ namespace VRageRender
 
         private class MyTextureArrayIndex
         {
-            public uint Index;
-            public uint Counter;
+            internal uint Index;
+            internal uint Counter;
         }
-        private static Dictionary<Resources.TexId, MyTextureArrayIndex> m_textureArrayIndices = new Dictionary<Resources.TexId, MyTextureArrayIndex>();
-        private static Resources.MyTextureArray m_textureArray;
+        private static Dictionary<string, MyTextureArrayIndex> m_textureArrayIndices = new Dictionary<string, MyTextureArrayIndex>();
+        private static IFileArrayTexture m_textureArray;
         private static bool m_textureArrayDirty;
 
         private static Dictionary<uint, MyLiveData> m_emitters = new Dictionary<uint, MyLiveData>();
@@ -62,13 +66,16 @@ namespace VRageRender
         }
         private static void DoneDevice()
         {
-            if (m_textureArray != null)
-                m_textureArray.Dispose();
+            var arrayManager = MyManagers.FileArrayTextures;
+            arrayManager.DisposeTex(ref m_textureArray);
             m_textureArray = null;
             m_textureArrayDirty = false;
         }
         internal static void OnSessionEnd()
         {
+            Debug.Assert(m_emitters.Count == 0);
+            DoneDevice();
+
             Init();
         }
 
@@ -77,9 +84,9 @@ namespace VRageRender
             m_emitters.Add(GID, new MyLiveData 
             {
                 BufferIndex = -1,
-                TextureId = Resources.TexId.NULL,
                 DieAt = float.MaxValue,
-                GPUEmitter = new MyGPUEmitter { GID = GID }
+                GPUEmitter = new MyGPUEmitter { GID = GID },
+                JustAdded = true
             });
         }
 
@@ -100,6 +107,8 @@ namespace VRageRender
             }
             else MyRenderProxy.Assert(check, "Invalid emitter id: " + GID);
         }
+
+        const double MAX_DISTANCE = 100;
         internal static void UpdateData(MyGPUEmitter[] def)
         {
             for (int i = 0; i < def.Length; i++)
@@ -107,19 +116,16 @@ namespace VRageRender
                 MyLiveData emitter;
                 if (m_emitters.TryGetValue(def[i].GID, out emitter))
                 {
-                    var texId = Resources.MyTextures.GetTexture(def[i].AtlasTexture, Resources.MyTextureEnum.GUI, true);
-                    if (emitter.TextureId != texId)
-                    {
-                        RemoveTexture(emitter.TextureId);
-                        AddTexture(texId);
-                    }
-                    emitter.TextureId = texId;
-                    MyRenderProxy.Assert(emitter.TextureId != Resources.TexId.NULL);
+                    MarkTextureUnused(emitter.GPUEmitter.AtlasTexture);
+                    AddTexture(def[i].AtlasTexture);
 
                     emitter.GPUEmitter = def[i];
                     emitter.GPUEmitter.Data.TextureIndex1 = GenerateTextureIndex(emitter);
                     emitter.GPUEmitter.Data.TextureIndex2 = (uint)def[i].AtlasFrameModulo;
                     emitter.GPUEmitter.Data.RotationMatrix = Matrix.Transpose(def[i].Data.RotationMatrix);
+                    if (emitter.JustAdded)
+                        emitter.LastWorldPosition = emitter.GPUEmitter.WorldPosition;
+                    emitter.JustAdded = false;
                 }
                 else MyRenderProxy.Assert(false, "invalid emitter id: " + def[i].GID);
             }
@@ -149,54 +155,82 @@ namespace VRageRender
 
             m_emitters.Remove(emitter.GPUEmitter.GID);
 
-            RemoveTexture(emitter.TextureId);
+            MarkTextureUnused(emitter.GPUEmitter.AtlasTexture);
         }
 
-        private static void AddTexture(Resources.TexId texId)
+        private static void AddTexture(string tex)
         {
-            if (texId == Resources.TexId.NULL)
+            if (tex == null)
                 return;
 
-            if (m_textureArrayIndices.ContainsKey(texId))
-                m_textureArrayIndices[texId].Counter++;
+            if (m_textureArrayIndices.ContainsKey(tex))
+                m_textureArrayIndices[tex].Counter++;
             else
             {
-                m_textureArrayIndices.Add(texId,
+                m_textureArrayIndices.Add(tex,
                     new MyTextureArrayIndex() { Index = (uint)m_textureArrayIndices.Count, Counter = 1 });
                 m_textureArrayDirty = true;
             }
         }
-        private static void RemoveTexture(Resources.TexId texId)
+
+        private static void CleanUpTextures()
         {
-            if (texId == Resources.TexId.NULL)
+            // cleanup unused textures with incompatible format
+            // leave the ones, that are not used
+            var toRemove = new List<string>();
+            foreach (var item in m_textureArrayIndices)
+            {
+                if (item.Value.Counter == 0)
+                    toRemove.Add(item.Key);
+            }
+            foreach (var item in toRemove)
+                RemoveTexture(item);
+        }
+
+        private static void RemoveTexture(string tex)
+        {
+            var arrayIndex = m_textureArrayIndices[tex];
+            m_textureArrayIndices.Remove(tex);
+
+            foreach (var item in m_textureArrayIndices)
+                if (item.Value.Index > arrayIndex.Index)
+                    m_textureArrayIndices[item.Key].Index--;
+        }
+        private static void MarkTextureUnused(string tex)
+        {
+            if (string.IsNullOrEmpty(tex))
                 return;
 
-            var arrayIndex = m_textureArrayIndices[texId];
+            var arrayIndex = m_textureArrayIndices[tex];
             arrayIndex.Counter--;
-            if (arrayIndex.Counter == 0)
-            {
-                m_textureArrayIndices.Remove(texId);
-
-                foreach (var item in m_textureArrayIndices)
-                    if (item.Value.Index > arrayIndex.Index)
-                        m_textureArrayIndices[item.Key].Index--;
-
-                m_textureArrayDirty = true;
-            }
+        }
+        private static string[] GetTextureArrayFileList()
+        {
+            var texts = new string[m_textureArrayIndices.Count];
+            foreach (var item in m_textureArrayIndices)
+                texts[item.Value.Index] = item.Key;
+            return texts;
         }
         private static void UpdateTextureArray()
         {
             if (m_textureArrayDirty)
             {
-                if (m_textureArray != null)
-                    m_textureArray.Dispose();
+                var arrayManager = MyManagers.FileArrayTextures;
+                arrayManager.DisposeTex(ref m_textureArray);
+
                 m_textureArray = null;
 
-                Resources.TexId[] textIds = new Resources.TexId[m_textureArrayIndices.Count];
-                foreach (var item in m_textureArrayIndices)
-                    textIds[item.Value.Index] = item.Key;
-                if (textIds.Length > 0)
-                    m_textureArray = new Resources.MyTextureArray(textIds, "gpuParticles");
+                var texts = GetTextureArrayFileList();
+                if (texts.Length > 0)
+                {
+                    if (!arrayManager.CheckConsistency(texts))
+                    {
+                        CleanUpTextures();
+                        texts = GetTextureArrayFileList();
+                    }
+                    if (texts.Length > 0)
+                        m_textureArray = arrayManager.CreateFromFiles("gpuParticles", texts, MyFileTextureEnum.GPUPARTICLES);
+                }
 
                 m_textureArrayDirty = false;
             }
@@ -219,7 +253,7 @@ namespace VRageRender
                 ((uint)emitter.GPUEmitter.AtlasDimension.Y << (ATLAS_INDEX_BITS));
         }
 
-        internal static int Gather(MyGPUEmitterData[] data, out SharpDX.Direct3D11.ShaderResourceView textureArraySRV)
+        internal static int Gather(MyGPUEmitterData[] data, out ISrvBindable textureArraySrv)
         {
             for (int i = 0; i < MAX_LIVE_EMITTERS; i++)
             {
@@ -277,34 +311,33 @@ namespace VRageRender
                         emitter.ParticlesEmittedFraction = toEmit - emitter.GPUEmitter.Data.NumParticlesToEmitThisFrame;
                     }
 
-                    if (emitter.TextureId != Resources.TexId.NULL)
+                    if (string.IsNullOrEmpty(emitter.GPUEmitter.AtlasTexture))
                     {
-                        MyRenderProxy.Assert(m_textureArrayIndices.ContainsKey(emitter.TextureId));
-                        textureIndex = m_textureArrayIndices[emitter.TextureId].Index;
+                        MyRenderProxy.Assert(m_textureArrayIndices.ContainsKey(emitter.GPUEmitter.AtlasTexture));
+                        textureIndex = m_textureArrayIndices[emitter.GPUEmitter.AtlasTexture].Index;
                     }
                     else textureIndex = 0;
 
                     int bufferIndex = emitter.BufferIndex;
                     data[bufferIndex] = emitter.GPUEmitter.Data;
-                    Vector3 pos = emitter.GPUEmitter.WorldPosition - MyRender11.Environment.CameraPosition;
+                    Vector3 pos = emitter.GPUEmitter.WorldPosition - MyRender11.Environment.Matrices.CameraPosition;
                     data[bufferIndex].RotationMatrix.M14 = pos.X;
                     data[bufferIndex].RotationMatrix.M24 = pos.Y;
                     data[bufferIndex].RotationMatrix.M34 = pos.Z;
+                    data[bufferIndex].PositionDelta = emitter.LastWorldPosition - emitter.GPUEmitter.WorldPosition;
                     data[bufferIndex].TextureIndex1 |= textureIndex << (ATLAS_INDEX_BITS + ATLAS_DIMENSION_BITS * 2);
 
                     if (bufferIndex > maxEmitterIndex)
                         maxEmitterIndex = bufferIndex;
-
                 }
+                emitter.LastWorldPosition = emitter.GPUEmitter.WorldPosition;
             }
             /*MyRenderStats.Generic.WriteFormat("GPU particles allocated: {0}", totalParticles, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);
             MyRenderStats.Generic.WriteFormat("GPU particles overload: {0}", overloadedParticles ? 1.0f : 0, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);
             MyRenderStats.Generic.WriteFormat("GPU emitters overload: {0}", overloadedEmitters ? 1.0f : 0, VRage.Stats.MyStatTypeEnum.CurrentValue, 300, 0);*/
 
             UpdateTextureArray();
-            if (m_textureArray != null)
-                textureArraySRV = m_textureArray.SRV;
-            else textureArraySRV = null;
+            textureArraySrv = m_textureArray;
 
             // stop emitters far away to make room for emitters nearby
             if (skipCount > 0 && unsortedCount > 0)

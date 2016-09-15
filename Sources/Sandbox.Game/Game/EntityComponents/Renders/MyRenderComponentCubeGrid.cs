@@ -23,6 +23,8 @@ using VRage.Game.Components;
 using Sandbox.Game.GameSystems;
 using VRage;
 using VRage.Game;
+using VRage.Profiler;
+
 #if XB1 // XB1_ALLINONEASSEMBLY
 using VRage.Utils;
 #endif // XB1
@@ -433,13 +435,13 @@ namespace Sandbox.Game.Components
         protected override void UpdateRenderObjectVisibility(bool visible)
         {
             base.UpdateRenderObjectVisibility(visible);
-            for (int i = 0; i < AdditionalRenderObjects.Length; i++)
+            /*for (int i = 0; i < AdditionalRenderObjects.Length; i++)
             {
                 if (AdditionalRenderObjects[i] != MyRenderProxy.RENDER_ID_UNASSIGNED)
                 {
                     VRageRender.MyRenderProxy.UpdateRenderObjectVisibility(AdditionalRenderObjects[i], visible, Container.Entity.NearFlag);
                 }
-            }
+            }*/
         }
         #endregion
     }

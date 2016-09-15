@@ -24,6 +24,7 @@ using VRage.Game.ModAPI;
 using VRage.Import;
 using VRage.Game.Models;
 using VRage.Game.ModAPI.Interfaces;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities
 {
@@ -33,6 +34,8 @@ namespace Sandbox.Game.Entities
     [MyCubeBlockType(typeof(MyObjectBuilder_CompoundCubeBlock))]
     public class MyCompoundCubeBlock : MyCubeBlock, IMyDecalProxy
     {
+        static List<VertexArealBoneIndexWeight> m_boneIndexWeightTmp;
+
         private class MyCompoundBlockPosComponent : MyCubeBlock.MyBlockPosComponent
         {
             private MyCompoundCubeBlock m_block;
@@ -984,6 +987,7 @@ namespace Sandbox.Game.Entities
         void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
         {
             Debug.Assert(m_mapIdToBlock.Count > 0);
+            MyCubeGridHitInfo gridHitInfo = customdata as MyCubeGridHitInfo;
             MySlimBlock block = m_mapIdToBlock.First().Value;
             MyPhysicalMaterialDefinition physicalMaterial = block.BlockDefinition.PhysicalMaterial;
             MyDecalRenderInfo renderable = new MyDecalRenderInfo();
@@ -993,9 +997,23 @@ namespace Sandbox.Game.Entities
             renderable.RenderObjectId = CubeGrid.Render.GetRenderObjectID();
             renderable.Material = MyStringHash.GetOrCompute(physicalMaterial.Id.SubtypeName);
 
-            var decalId = decalHandler.AddDecal(ref renderable);
-            if (decalId != null)
-                CubeGrid.RenderData.AddDecal(Position, decalId.Value);
+            if (gridHitInfo != null)
+            {
+                VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
+                if (boneIndicesWeights.HasValue)
+                {
+                    renderable.BoneIndices = boneIndicesWeights.Value.Indices;
+                    renderable.BoneWeights = boneIndicesWeights.Value.Weights;
+
+                    var decalId = decalHandler.AddDecal(ref renderable);
+                    if (decalId != null)
+                        CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
+
+                    return;
+                }
+            }
+
+            decalHandler.AddDecal(ref renderable);
         }
 
         public bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, out ushort blockId, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES, bool checkZFight = false, bool ignoreGenerated = false)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using VRage.Profiler;
 #if !XB1 // XB1_NOOPENVRWRAPPER
 using Valve.VR;
 #endif // !XB1

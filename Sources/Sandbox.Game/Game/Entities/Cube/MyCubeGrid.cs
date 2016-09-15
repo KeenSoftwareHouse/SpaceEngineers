@@ -39,9 +39,7 @@ using VRageRender;
 using Sandbox.Game.EntityComponents;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using Sandbox.Game.Replication;
-using VRage.Library.Sync;
 using Sandbox.Game.GameSystems.CoordinateSystem;
-using VRage.Game.Entity;
 using VRage.Game.Entity;
 using VRage.Game.Models;
 using Sandbox.Game.Weapons;
@@ -52,6 +50,8 @@ using Sandbox.Game.Gui;
 using Sandbox.Game.SessionComponents.Clipboard;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Game.Entity.EntityComponents;
+using VRage.Profiler;
+using VRage.Sync;
 
 #endregion
 
@@ -86,6 +86,8 @@ namespace Sandbox.Game.Entities
     [MyEntityType(typeof(MyObjectBuilder_CubeGrid))]
     public partial class MyCubeGrid : MyEntity, IMyGridConnectivityTest, IMyEventProxy
     {
+        static MyCubeGridHitInfo m_hitInfoTmp;
+
         static HashSet<MyCubeGrid.MyBlockLocation> m_tmpBuildList = new HashSet<MyCubeGrid.MyBlockLocation>();
         static List<Vector3I> m_tmpPositionListReceive = new List<Vector3I>();
         static List<Vector3I> m_tmpPositionListSend = new List<Vector3I>();
@@ -1942,9 +1944,19 @@ namespace Sandbox.Game.Entities
             GridSystems.AfterGridClose();
         }
 
-        public override bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
+        public override bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? tri, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
         {
-            t = null;
+            bool ret = GetIntersectionWithLine(ref line, ref m_hitInfoTmp, flags);
+            tri = m_hitInfoTmp.Triangle;
+            return ret;
+        }
+
+        public bool GetIntersectionWithLine(ref LineD line, ref MyCubeGridHitInfo info, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
+        {
+            if (info == null)
+                info = new MyCubeGridHitInfo();
+
+            info.Reset();
 
             RayCastCells(line.From, line.To, m_cacheRayCastCells);
             if (m_cacheRayCastCells.Count == 0)
@@ -1955,17 +1967,24 @@ namespace Sandbox.Game.Entities
                 if (m_cubes.ContainsKey(hit))
                 {
                     var cube = m_cubes[hit];
-                    GetBlockIntersection(cube, ref line, out t, flags);
+                    MyIntersectionResultLineTriangleEx? tri;
+                    int cubePartIndex;
+                    GetBlockIntersection(cube, ref line, flags, out tri, out cubePartIndex);
 
-                    if (t.HasValue)
-                        break;
+                    if (tri.HasValue)
+                    {
+                        info.Position = cube.CubeBlock.Position;
+                        info.Triangle = tri.Value;
+                        info.CubePartIndex = cubePartIndex;
+                        return true;
+                    }
                 }
             }
 
-            return t.HasValue;
+            return false;
         }
 
-        internal bool GetIntersectionWithLine(ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, out MySlimBlock slimBlock, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
+        internal bool GetIntersectionWithLine(ref LineD line, out MyIntersectionResultLineTriangleEx? t, out MySlimBlock slimBlock, IntersectionFlags flags = IntersectionFlags.ALL_TRIANGLES)
         {
             t = null;
             slimBlock = null;
@@ -1979,7 +1998,8 @@ namespace Sandbox.Game.Entities
                 if (m_cubes.ContainsKey(hit))
                 {
                     var cube = m_cubes[hit];
-                    GetBlockIntersection(cube, ref line, out t, flags);
+                    int cubePartIndex;
+                    GetBlockIntersection(cube, ref line, flags, out t, out cubePartIndex);
 
                     if (t.HasValue)
                     {
@@ -2029,7 +2049,7 @@ namespace Sandbox.Game.Entities
                 BoundingBoxD box = new BoundingBoxD(sphere.Center - new Vector3D(sphere.Radius), sphere.Center + new Vector3D(sphere.Radius));
 
                 var invee = MatrixD.Invert(WorldMatrix);
-                box = box.Transform(ref invee);
+                box = box.TransformFast(ref invee);
                 Vector3 min = box.Min;
                 Vector3 max = box.Max;
 
@@ -2065,7 +2085,7 @@ namespace Sandbox.Game.Entities
 
                                         foreach (var triangleIndices in part.Model.Triangles)
                                         {
-                                            MyTriangle_Vertexes triangle = new MyTriangle_Vertexes();
+                                            MyTriangle_Vertices triangle = new MyTriangle_Vertices();
 
                                             triangle.Vertex0 = part.Model.GetVertex(triangleIndices.I0);
                                             triangle.Vertex1 = part.Model.GetVertex(triangleIndices.I1);
@@ -4815,6 +4835,11 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
         }
 
+        public bool TryGetCube(Vector3I position, out MyCube cube)
+        {
+            return m_cubes.TryGetValue(position, out cube);
+        }
+
         /// <summary>
         /// Add new cube in the grid
         /// </summary>
@@ -5227,7 +5252,7 @@ namespace Sandbox.Game.Entities
             BoundingBoxD aabb = (BoundingBoxD)new BoundingBox(block.Min * GridSize - GridSizeHalf, block.Max * GridSize + GridSizeHalf);
             // Inflate by half cube, so it will intersect for sure when there's anything
             aabb.Inflate(GridSizeHalf);
-            aabb = aabb.Transform(WorldMatrix);
+            aabb = aabb.TransformFast(WorldMatrix);
             bool clearNearEntities = false;
             if (nearEntities == null)
             {
@@ -6032,7 +6057,8 @@ namespace Sandbox.Game.Entities
                 else
                 {
                     VRage.Game.Models.MyIntersectionResultLineTriangleEx? intersection;
-                    GetBlockIntersection(cube, ref line, out intersection, IntersectionFlags.ALL_TRIANGLES);
+                    int cubePartIndex;
+                    GetBlockIntersection(cube, ref line, IntersectionFlags.ALL_TRIANGLES, out intersection, out cubePartIndex);
                     if (intersection.HasValue)
                         distSq = Vector3.DistanceSquared(line.From, intersection.Value.IntersectionPointInWorldSpace);
                 }
@@ -6048,7 +6074,7 @@ namespace Sandbox.Game.Entities
             return result;
         }
 
-        private void GetBlockIntersection(MyCube cube, ref LineD line, out VRage.Game.Models.MyIntersectionResultLineTriangleEx? t, IntersectionFlags flags)
+        private void GetBlockIntersection(MyCube cube, ref LineD line, IntersectionFlags flags, out MyIntersectionResultLineTriangleEx? t, out int cubePartIndex)
         {
             if (cube.CubeBlock.FatBlock != null)
             {
@@ -6084,7 +6110,7 @@ namespace Sandbox.Game.Entities
 
                         if (t != null)
                         {
-                            VRage.Game.Models.MyIntersectionResultLineTriangleEx correctIntersection = t.Value;
+                            MyIntersectionResultLineTriangleEx correctIntersection = t.Value;
 
                             var hitPoint = Vector3D.Transform(t.Value.IntersectionPointInObjectSpace, block.FatBlock.WorldMatrix);
                             var distance = Vector3D.Distance(hitPoint, line.From);
@@ -6092,10 +6118,8 @@ namespace Sandbox.Game.Entities
                             if (distance < closestDistance)
                             {
                                 closestDistance = distance;
-                                correctIntersection.IntersectionPointInObjectSpace = Vector3.Transform(t.Value.IntersectionPointInObjectSpace, local);
-                                correctIntersection.IntersectionPointInWorldSpace = Vector3D.Transform(t.Value.IntersectionPointInObjectSpace, block.FatBlock.WorldMatrix);
-                                correctIntersection.NormalInObjectSpace = Vector3.TransformNormal(t.Value.NormalInObjectSpace, local);
-                                correctIntersection.NormalInWorldSpace = (Vector3)Vector3D.TransformNormal(correctIntersection.NormalInObjectSpace, WorldMatrix);
+                                MatrixD? cubeWorldMatrix = block.FatBlock.WorldMatrix;
+                                TransformCubeToGrid(ref correctIntersection, ref local, ref cubeWorldMatrix);
                                 closestHit = correctIntersection;
                             }
                         }
@@ -6129,14 +6153,14 @@ namespace Sandbox.Game.Entities
 
                     if (t != null)
                     {
-                        VRage.Game.Models.MyIntersectionResultLineTriangleEx correctIntersection = t.Value;
-                        correctIntersection.IntersectionPointInObjectSpace = Vector3.Transform(t.Value.IntersectionPointInObjectSpace, local);
-                        correctIntersection.IntersectionPointInWorldSpace = Vector3.Transform(t.Value.IntersectionPointInObjectSpace, cube.CubeBlock.FatBlock.WorldMatrix);
-                        correctIntersection.NormalInObjectSpace = Vector3.TransformNormal(t.Value.NormalInObjectSpace, local);
-                        correctIntersection.NormalInWorldSpace = Vector3.TransformNormal(correctIntersection.NormalInObjectSpace, WorldMatrix);
+                        MyIntersectionResultLineTriangleEx correctIntersection = t.Value;
+                        MatrixD? cubeWorldMatrix = cube.CubeBlock.FatBlock.WorldMatrix;
+                        TransformCubeToGrid(ref correctIntersection, ref local, ref cubeWorldMatrix);
                         t = correctIntersection;
                     }
                 }
+
+                cubePartIndex = -1;
             }
             else
             {
@@ -6144,16 +6168,19 @@ namespace Sandbox.Game.Entities
                 VRage.Game.Models.MyIntersectionResultLineTriangleEx? closestHit = null;
                 float closestDistance = float.MaxValue;
                 Vector3? closestHitpoint = null;
+                int closestCubePartIndex = -1;
 
-                foreach (var cubepart in cube.Parts)
+                for (int it = 0; it < cube.Parts.Length; it++)
                 {
+                    MyCubePart cubepart = cube.Parts[it];
+
                     MatrixD world = cubepart.InstanceData.LocalMatrix * WorldMatrix;
                     MatrixD invWorld = MatrixD.Invert(world);
 
                     t = cubepart.Model.GetTrianglePruningStructure().GetIntersectionWithLine(this, ref line, ref invWorld, flags);
                     if (t != null)
                     {
-                        VRage.Game.Models.MyIntersectionResultLineTriangleEx correctIntersection = t.Value;
+                        MyIntersectionResultLineTriangleEx correctIntersection = t.Value;
 
                         var hitPoint = Vector3.Transform(t.Value.IntersectionPointInObjectSpace, world);
                         float distance = Vector3.Distance(hitPoint, line.From);
@@ -6161,17 +6188,18 @@ namespace Sandbox.Game.Entities
                         if (distance < closestDistance)
                         {
                             closestDistance = distance;
-                            correctIntersection.IntersectionPointInObjectSpace = Vector3.Transform(t.Value.IntersectionPointInObjectSpace, cubepart.InstanceData.LocalMatrix);
-                            correctIntersection.IntersectionPointInWorldSpace = Vector3.Transform(correctIntersection.IntersectionPointInObjectSpace, WorldMatrix);
-                            correctIntersection.NormalInObjectSpace = Vector3.TransformNormal(t.Value.NormalInObjectSpace, cubepart.InstanceData.LocalMatrix);
-                            correctIntersection.NormalInWorldSpace = Vector3.TransformNormal(correctIntersection.NormalInObjectSpace, WorldMatrix);
+                            Matrix localMatrix = cubepart.InstanceData.LocalMatrix;
+                            MatrixD? cubeWorldMatrix = null;
+                            TransformCubeToGrid(ref correctIntersection, ref localMatrix, ref cubeWorldMatrix);
                             closestHitpoint = correctIntersection.IntersectionPointInWorldSpace;
                             closestHit = correctIntersection;
+                            closestCubePartIndex = it;
                         }
                     }
                 }
 
                 t = closestHit;
+                cubePartIndex = closestCubePartIndex;
             }
         }
 
@@ -6274,7 +6302,7 @@ namespace Sandbox.Game.Entities
                 return;
             BoundingBoxD box = new BoundingBoxD(sphere.Center - new Vector3D(sphere.Radius), sphere.Center + new Vector3D(sphere.Radius));
 
-            box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
+            box = box.TransformFast(this.PositionComp.WorldMatrixNormalizedInv);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
             Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
@@ -6309,7 +6337,7 @@ namespace Sandbox.Game.Entities
 
             BoundingBoxD box = new BoundingBoxD(sphere.Center - new Vector3D(sphere.Radius), sphere.Center + new Vector3D(sphere.Radius));
 
-            box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
+            box = box.TransformFast(this.PositionComp.WorldMatrixNormalizedInv);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
             Vector3I start = new Vector3I((int)Math.Round(min.X / GridSize), (int)Math.Round(min.Y / GridSize), (int)Math.Round(min.Z / GridSize));
@@ -6364,7 +6392,7 @@ namespace Sandbox.Game.Entities
 
             BoundingBoxD box = new BoundingBoxD(sphere.Center - new Vector3D(sphere.Radius), sphere.Center + new Vector3D(sphere.Radius));
 
-            box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
+            box = box.TransformFast(this.PositionComp.WorldMatrixNormalizedInv);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
             Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
@@ -6443,6 +6471,33 @@ namespace Sandbox.Game.Entities
                 }
             }
             m_tmpQueryCubeBlocks.Clear();
+        }
+
+        /// <summary>
+        /// Correct interesection transforming vertices from cube to grid coordinates
+        /// </summary>
+        private void TransformCubeToGrid(ref MyIntersectionResultLineTriangleEx triangle, ref Matrix cubeLocalMatrix, ref MatrixD? cubeWorldMatrix)
+        {
+            if (cubeWorldMatrix == null)
+            {
+                MatrixD gridWorldMatrix = WorldMatrix;
+                triangle.IntersectionPointInObjectSpace = Vector3.Transform(triangle.IntersectionPointInObjectSpace, ref cubeLocalMatrix);
+                triangle.IntersectionPointInWorldSpace = Vector3.Transform(triangle.IntersectionPointInObjectSpace, gridWorldMatrix);
+                triangle.NormalInObjectSpace = Vector3.TransformNormal(triangle.NormalInObjectSpace, ref cubeLocalMatrix);
+                triangle.NormalInWorldSpace = Vector3.TransformNormal(triangle.NormalInObjectSpace, gridWorldMatrix);
+            }
+            else
+            {
+                Vector3 intersectionLocal = triangle.IntersectionPointInObjectSpace;
+                Vector3 normalLocal = triangle.NormalInObjectSpace;
+
+                triangle.IntersectionPointInObjectSpace = Vector3.Transform(intersectionLocal, ref cubeLocalMatrix);
+                triangle.IntersectionPointInWorldSpace = Vector3.Transform(intersectionLocal, cubeWorldMatrix.Value);
+                triangle.NormalInObjectSpace = Vector3.TransformNormal(normalLocal, ref cubeLocalMatrix);
+                triangle.NormalInWorldSpace = Vector3.TransformNormal(normalLocal, cubeWorldMatrix.Value);
+            }
+
+            triangle.Triangle.InputTriangle.Transform(ref cubeLocalMatrix);
         }
 
         private void QueryLine(LineD line, List<MyLineSegmentOverlapResult<MyEntity>> blocks)
@@ -6524,7 +6579,7 @@ namespace Sandbox.Game.Entities
             var obb = MyOrientedBoundingBoxD.Create(box, PositionComp.WorldMatrixNormalizedInv);
             obb.Center *= GridSizeR;
             obb.HalfExtent *= GridSizeR;
-            box = box.Transform(this.PositionComp.WorldMatrixNormalizedInv);
+            box = box.TransformFast(this.PositionComp.WorldMatrixNormalizedInv);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
             Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
@@ -6659,7 +6714,7 @@ namespace Sandbox.Game.Entities
             var obb = MyOrientedBoundingBoxD.Create(box, compositeTransform);
             obb.Center *= GridSizeR;
             obb.HalfExtent *= GridSizeR;
-            box = box.Transform(compositeTransform);
+            box = box.TransformFast(compositeTransform);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
             Vector3I start = new Vector3I((int)Math.Round(min.X * GridSizeR), (int)Math.Round(min.Y * GridSizeR), (int)Math.Round(min.Z * GridSizeR));
@@ -6747,7 +6802,7 @@ namespace Sandbox.Game.Entities
 
             BoundingBoxD box = new BoundingBoxD(sphere3.Center - new Vector3D(sphere3.Radius), sphere3.Center + new Vector3D(sphere3.Radius));
 
-            box = box.Transform(ref invWorldGrid);
+            box = box.TransformFast(ref invWorldGrid);
             Vector3D min = box.Min;
             Vector3D max = box.Max;
             Vector3D center;
@@ -7205,27 +7260,6 @@ namespace Sandbox.Game.Entities
             {
                 base.OnAddedToContainer();
                 m_grid = Container.Entity as MyCubeGrid;
-            }
-
-            public override BoundingBox LocalAABBHr
-            {
-                get
-                {
-                    Matrix worldInv = WorldMatrixNormalizedInv;
-
-                    BoundingBox localAABBHr = LocalAABB;
-
-                    foreach (var node in MyCubeGridGroups.Static.Logical.GetGroup(m_grid).Nodes)
-                    {
-                        if (node.NodeData != m_grid)
-                        {
-                            BoundingBox box = node.NodeData.PositionComp.LocalAABB.Transform((Matrix)(node.NodeData.PositionComp.WorldMatrix * worldInv));
-                            localAABBHr = localAABBHr.Include(box);
-                        }
-                    }
-
-                    return localAABBHr;
-                }
             }
 
             protected override void OnWorldPositionChanged(object source)
@@ -8695,5 +8729,33 @@ namespace Sandbox.Game.Entities
         }
 
         #endregion
+    }
+
+    public class MyCubeGridHitInfo
+    {
+        public MyIntersectionResultLineTriangleEx Triangle
+        {
+            get;
+            set;
+        }
+
+        public Vector3I Position
+        {
+            get;
+            set;
+        }
+
+        public int CubePartIndex
+        {
+            get;
+            set;
+        }
+
+        public void Reset()
+        {
+            Triangle = new MyIntersectionResultLineTriangleEx();
+            Position = new Vector3I();
+            CubePartIndex = -1;
+        }
     }
 }

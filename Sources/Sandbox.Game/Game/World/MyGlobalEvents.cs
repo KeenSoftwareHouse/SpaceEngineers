@@ -13,6 +13,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRageMath;
 using VRageRender;
 

@@ -28,11 +28,11 @@ namespace Sandbox.Game.Entities.Cube
     {
         private Vector3D[] m_cubeVertices = new Vector3D[8];
 
-        public int RotationRightAxis        { get; private set; }
-        public int RotationRightDirection   { get; private set; }
-        public int RotationUpAxis           { get; private set; }
-        public int RotationUpDirection      { get; private set; }
-        public int RotationForwardAxis      { get; private set; }
+        public int RotationRightAxis { get; private set; }
+        public int RotationRightDirection { get; private set; }
+        public int RotationUpAxis { get; private set; }
+        public int RotationUpDirection { get; private set; }
+        public int RotationForwardAxis { get; private set; }
         public int RotationForwardDirection { get; private set; }
 
         private struct BoxEdge
@@ -142,7 +142,7 @@ namespace Sandbox.Game.Entities.Cube
 
             m_viewProjection.ViewAtZero = cameraViewAtZero;
 
-            
+
 
             Vector2 screenSize = MyGuiManager.GetScreenSizeFromNormalizedSize(Vector2.One);
             float previewRatio = 2.75f;
@@ -161,12 +161,12 @@ namespace Sandbox.Game.Entities.Cube
 
 
             worldBox = new BoundingBoxD(-new Vector3(MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large) * 0.5f), new Vector3(MyDefinitionManager.Static.GetCubeSize(MyCubeSize.Large)) * 0.5f);
-          
-  
+
+
             //m_rotationHintsViewProjection.Projection = MySector.MainCamera.ProjectionMatrix;
 
 
-            
+
 
             int projectionId = 0;
             VRageRender.MyRenderProxy.AddBillboardViewProjection(projectionId, m_viewProjection);
@@ -177,12 +177,12 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var white = Color.White;
                 var red = Color.Red;
-                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix,
-                              ref worldBox, ref white, ref red, MySimpleObjectRasterizer.Solid, 1, 0.04f, "SquareFullColor", null, false, projectionId, 100);
 
-                Vector2 hintText = new Vector2((int)(MySector.MainCamera.Viewport.Width - hintsWidth - hintsXOffset + hintsWidth / 2), hintsYOffset + 0.9f * hintsHeight);
+                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref worldBox, ref white, ref red, MySimpleObjectRasterizer.Solid, 1, 0.04f, "SquareFullColor", null, false, projectionId, 100);
+
+                Vector2 hintTextPos = new Vector2((int)(MySector.MainCamera.Viewport.Width - hintsWidth - hintsXOffset + hintsWidth / 2), hintsYOffset + 0.9f * hintsHeight);
                 m_mountpointNotification.SetTextFormatArguments(MyInput.Static.GetGameControl(MyControlsSpace.CUBE_DEFAULT_MOUNTPOINT).GetControlButtonName(MyGuiInputDeviceEnum.Keyboard));
-                VRageRender.MyRenderProxy.DebugDrawText2D(hintText, m_mountpointNotification.GetText(), Color.White, 1, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP);
+                VRageRender.MyRenderProxy.DebugDrawText2D(hintTextPos, m_mountpointNotification.GetText(), Color.White, 1, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP);
             }
 
             MyOrientedBoundingBoxD rotateHintsBox = new MyOrientedBoundingBoxD(Vector3D.Transform(worldBox.Center, drawMatrix), worldBox.HalfExtents, Quaternion.CreateFromRotationMatrix(drawMatrix));

@@ -11,6 +11,7 @@ using System.Text;
 using VRageMath;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {
@@ -98,15 +99,15 @@ namespace Sandbox.Game.Entities
             if (!MyFakes.ENABLE_RADIO_HUD || !Enabled)
                 return;
 
-            VRage.ProfilerShort.Begin("Relay");
+            ProfilerShort.Begin("Relay");
             MyDataBroadcaster radioBroadcaster;
             if (Entity.Components.TryGet<MyDataBroadcaster>(out radioBroadcaster))
             {
                 relayedBroadcasters.Add(radioBroadcaster);
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
 
-            VRage.ProfilerShort.Begin("UpdateBroadcasters");
+            ProfilerShort.Begin("UpdateBroadcasters");
             //add all from same grid:
             MyCubeGrid grid = Entity.GetTopMostParent() as MyCubeGrid;
             if (grid != null && !gridsQueued.Contains(grid.EntityId)) //astronaut has no grid
@@ -129,9 +130,9 @@ namespace Sandbox.Game.Entities
                                 MyDataReceiver radioReceiver;
                                 if (broadcaster.Container.TryGet<MyDataReceiver>(out radioReceiver))
                                 {
-                                    VRage.ProfilerShort.Begin("UpdateReceiver");
+                                    ProfilerShort.Begin("UpdateReceiver");
                                     radioReceiver.UpdateBroadcastersInRange(relayedBroadcasters, localPlayerId, gridsQueued);
-                                    VRage.ProfilerShort.End();
+                                    ProfilerShort.End();
 
                                 }
                             }
@@ -139,11 +140,11 @@ namespace Sandbox.Game.Entities
                     }
                 }
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
 
-            VRage.ProfilerShort.Begin("GetAllBroadcastersInMyRange");
+            ProfilerShort.Begin("GetAllBroadcastersInMyRange");
             GetAllBroadcastersInMyRange(ref relayedBroadcasters, localPlayerId, gridsQueued);
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         abstract protected void GetAllBroadcastersInMyRange(ref HashSet<MyDataBroadcaster> relayedBroadcasters, long localPlayerId, HashSet<long> gridsQueued);

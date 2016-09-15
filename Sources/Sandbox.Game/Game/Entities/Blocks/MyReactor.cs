@@ -24,6 +24,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
+using VRage.Profiler;
+using VRage.Sync;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities

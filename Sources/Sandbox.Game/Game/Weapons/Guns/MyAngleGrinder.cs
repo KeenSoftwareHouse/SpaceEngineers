@@ -50,7 +50,7 @@ namespace Sandbox.Game.Weapons
         int m_lastUpdateTime;
         float m_rotationSpeed;
 
-        MyDefinitionId m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AngleGrinderItem");
+        static MyDefinitionId m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AngleGrinderItem");
         private float m_grinderCameraMaxShakeIntensity = 1.5f;
         private double m_grinderCameraMeanShakeIntensity = 1.0f;
 

@@ -9,7 +9,9 @@ using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Game;
+using VRage.Profiler;
 using VRageMath;
+using VRageRender.Import;
 
 namespace Sandbox.Game.GameSystems.Conveyors
 {
@@ -176,7 +178,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             return GetLinePositions(cubeBlock, VRage.Game.Models.MyModels.GetModelOnlyDummies(cubeBlock.BlockDefinition.Model).Dummies, dummyName);
         }
 
-        public static ConveyorLinePosition[] GetLinePositions(MyCubeBlock cubeBlock, IDictionary<string, VRage.Import.MyModelDummy> dummies, string dummyName)
+        public static ConveyorLinePosition[] GetLinePositions(MyCubeBlock cubeBlock, IDictionary<string, MyModelDummy> dummies, string dummyName)
         {
             var definition = cubeBlock.BlockDefinition;
             float cubeSize = MyDefinitionManager.Static.GetCubeSize(definition.CubeSize);

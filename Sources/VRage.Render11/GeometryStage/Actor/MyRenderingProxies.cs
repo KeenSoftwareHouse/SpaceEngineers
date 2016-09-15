@@ -41,14 +41,6 @@ namespace VRageRender
         }
     }
 
-    struct MyVertexDataProxy_2
-    {
-        internal Buffer[] VB;
-        internal int[] VertexStrides;
-        internal Buffer IB;
-        internal Format IndexFormat;
-    }
-
     /// <summary>
     /// Contains data used for culling, but should not own any itself
     /// </summary>
@@ -143,6 +135,7 @@ namespace VRageRender
 
         internal MyMaterialShadersBundleId DepthShaders;
         internal MyMaterialShadersBundleId Shaders;
+        internal MyMaterialShadersBundleId HighlightShaders;
         internal MyMaterialShadersBundleId ForwardShaders;
 
         internal MyDrawSubmesh DrawSubmesh;
@@ -165,7 +158,7 @@ namespace VRageRender
 
         internal MyActorComponent Parent;
 
-        internal MyStringId Material;
+        internal MyMeshMaterialId Material;
 
 #if XB1
         public void ObjectCleaner()
@@ -203,7 +196,7 @@ namespace VRageRender
             Lod = 0;
             ObjectBuffer = null;
             Parent = null;
-            Material = MyStringId.NullOrEmpty;
+            Material = MyMeshMaterialId.NULL;
         }
 	};
 
@@ -237,7 +230,7 @@ namespace VRageRender
     struct MySrvTable
     {
         internal int StartSlot;
-        internal IShaderResourceBindable[] SRVs;
+        internal ShaderResourceView[] Srvs;
         internal MyBindFlag BindFlag;
         internal int Version;
     }
@@ -245,7 +238,7 @@ namespace VRageRender
     struct MyMaterialProxy_2
     {
         internal MyConstantsPack MaterialConstants;
-        internal MySrvTable MaterialSRVs;
+        internal MySrvTable MaterialSrvs;
     }
 
     enum MyDrawCommandEnum
@@ -278,8 +271,7 @@ namespace VRageRender
 
         // object
         internal MyConstantsPack ObjectConstants;
-        internal MySrvTable ObjectSRVs;
-        internal MyVertexDataProxy_2 VertexData;
+        internal MySrvTable ObjectSrvs;
         internal int InstanceCount;
         internal int StartInstance;
 

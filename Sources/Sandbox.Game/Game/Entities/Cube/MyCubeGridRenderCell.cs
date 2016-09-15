@@ -18,12 +18,13 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using Sandbox.Common;
 using Sandbox.Game.Components;
-using VRage.Utils;
-using VRage;
 using VRage.Game;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Game.Models;
+using VRage.Profiler;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -61,19 +62,20 @@ namespace Sandbox.Game.Entities.Cube
 
 
         static List<MyCubeInstanceData> m_tmpInstanceData = new List<MyCubeInstanceData>(); // Merge instance data
-        static Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>> m_tmpInstanceParts = new Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>>();
+        static Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> m_tmpInstanceParts = new Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>>();
+        static List<MyCubeInstanceDecalData> m_tmpDecalData = new List<MyCubeInstanceDecalData>();
 
         uint m_parentCullObject = MyRenderProxy.RENDER_ID_UNASSIGNED;
         uint m_instanceBufferId = MyRenderProxy.RENDER_ID_UNASSIGNED;
         Dictionary<ModelId, MyRenderInstanceInfo> m_instanceInfo = new Dictionary<ModelId, MyRenderInstanceInfo>();
         Dictionary<ModelId, uint> m_instanceGroupRenderObjects = new Dictionary<ModelId, uint>();
 
-        HashSet<MyCubePart> m_cubeParts = new HashSet<MyCubePart>();
+        Dictionary<MyCubePart, List<uint>> m_cubeParts = new Dictionary<MyCubePart, List<uint>>();
         Dictionary<long, MyFourEdgeInfo> m_edgeInfosNew = new Dictionary<long, MyFourEdgeInfo>();
 
         List<EdgeInfoNormal> m_edgesToCompare = new List<EdgeInfoNormal>();
 
-        public HashSet<MyCubePart> CubeParts { get { return m_cubeParts; } }
+        public IEnumerable<MyCubePart> CubeParts { get { return m_cubeParts.Keys; } }
 
         public MyCubeGridRenderCell(MyRenderComponentCubeGrid gridRender)
         {
@@ -81,14 +83,56 @@ namespace Sandbox.Game.Entities.Cube
             EdgeViewDistance = gridRender.GridSizeEnum == MyCubeSize.Large ? 130 : 35;
         }
 
-        public bool AddCubePart(MyCubePart part)
+        public void AddCubePart(MyCubePart part)
         {
-            return m_cubeParts.Add(part);
+            if (!m_cubeParts.ContainsKey(part))
+                m_cubeParts.Add(part, null);
         }
 
         public bool RemoveCubePart(MyCubePart part)
         {
             return m_cubeParts.Remove(part);
+        }
+
+        internal void AddCubePartDecal(MyCubePart part, uint decalId)
+        {
+            List<uint> decals;
+            bool found = m_cubeParts.TryGetValue(part, out decals);
+            if (!found)
+            {
+                decals = new List<uint>();
+                m_cubeParts.Add(part, decals);
+            }
+
+            if (decals == null)
+            {
+                // Decals list can be null as well
+                decals = new List<uint>();
+                m_cubeParts[part] = decals;
+            }
+
+            decals.Add(decalId);
+        }
+
+        internal void RemoveCubePartDecal(MyCubePart part, uint decalId)
+        {
+            List<uint> decals;
+            bool found = m_cubeParts.TryGetValue(part, out decals);
+            if (!found || decals == null)
+                return;
+
+            int indexToRemove = -1;
+            for (int it = 0; it < decals.Count; it++)
+            {
+                if (decals[it] == decalId)
+                {
+                    indexToRemove = it;
+                    break;
+                }
+            }
+
+            if (indexToRemove != -1)
+                decals.RemoveAt(indexToRemove);
         }
 
         public bool AddEdgeInfo(long hash, MyEdgeInfo info, MySlimBlock owner)
@@ -113,7 +157,7 @@ namespace Sandbox.Game.Entities.Cube
             return result;
         }
 
-        bool InstanceDataCleared(Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>> instanceParts)
+        bool InstanceDataCleared(Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> instanceParts)
         {
             foreach (var data in instanceParts)
             {
@@ -132,9 +176,12 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
 
             ProfilerShort.Begin("Add cube parts");
-            foreach (var part in m_cubeParts)
+            foreach (var pair in m_cubeParts)
             {
-                AddInstancePart(list, part.Model.UniqueId, ref part.InstanceData, MyInstanceFlagsEnum.ShowLod1 | MyInstanceFlagsEnum.CastShadows | MyInstanceFlagsEnum.EnableColorMask);
+                MyCubePart part = pair.Key;
+                List<uint> decals = pair.Value;
+                AddInstancePart(list, part.Model.UniqueId, ref part.InstanceData, decals,
+                    MyInstanceFlagsEnum.ShowLod1 | MyInstanceFlagsEnum.CastShadows | MyInstanceFlagsEnum.EnableColorMask);
             }
             ProfilerShort.End();
 
@@ -149,7 +196,7 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
         }
 
-        private void AddEdgeParts(Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>> instanceParts)
+        private void AddEdgeParts(Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> instanceParts)
         {
             // This can be optimized in same way as cube parts are
             m_edgesToCompare.Clear();
@@ -293,12 +340,12 @@ namespace Sandbox.Game.Entities.Cube
                         //m_cubeEdgeModelIds[(int)Grid.GridSizeEnum][(int)edgeInfoPair.Value.EdgeType];
 
                     inst.PackedOrthoMatrix = edgeInfoPair.Value.LocalOrthoMatrix;
-                    AddInstancePart(instanceParts, modelId, ref inst, 0, EdgeViewDistance);
+                    AddInstancePart(instanceParts, modelId, ref inst, null, 0, EdgeViewDistance);
                 }
             }
         }
 
-        void ClearInstanceParts(Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>> instanceParts)
+        void ClearInstanceParts(Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> instanceParts)
         {
             m_boundingBox = BoundingBox.CreateInvalid();
 
@@ -308,20 +355,22 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        void AddInstancePart(Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>> instanceParts, ModelId modelId, ref MyCubeInstanceData instance, MyInstanceFlagsEnum flags, float maxViewDistance = float.MaxValue)
+        void AddInstancePart(Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> instanceParts,
+            ModelId modelId, ref MyCubeInstanceData instance, List<uint> decals,
+            MyInstanceFlagsEnum flags, float maxViewDistance = float.MaxValue)
         {
-            Tuple<List<MyCubeInstanceData>, MyInstanceInfo> matrices;
+            Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo> matrices;
             if (!instanceParts.TryGetValue(modelId, out matrices))
             {
-                matrices = new Tuple<List<MyCubeInstanceData>, MyInstanceInfo>(new List<MyCubeInstanceData>(), new MyInstanceInfo(flags, maxViewDistance));
+                matrices = Tuple.Create(new List<MyCubeInstanceMergedData>(), new MyInstanceInfo(flags, maxViewDistance));
                 instanceParts.Add(modelId, matrices);
             }
-
+            
             m_tmpBoundingBox.Min = instance.LocalMatrix.Translation - new Vector3(m_gridRenderComponent.GridSize);
             m_tmpBoundingBox.Max = instance.LocalMatrix.Translation + new Vector3(m_gridRenderComponent.GridSize);
             m_boundingBox.Include(m_tmpBoundingBox);
 
-            matrices.Item1.Add(instance);
+            matrices.Item1.Add(new MyCubeInstanceMergedData() { CubeInstanceData = instance, Decals = decals });
         }
 
         void AddRenderObjectId(uint renderObjectId, bool forPositionUpdates)
@@ -375,19 +424,23 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
         }
-
-        private void UpdateRenderInstanceData(Dictionary<ModelId, Tuple<List<MyCubeInstanceData>, MyInstanceInfo>> instanceParts, RenderFlags renderFlags)
+        
+        private void UpdateRenderInstanceData(Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> instanceParts, RenderFlags renderFlags)
         {
-            if (m_instanceBufferId == MyRenderProxy.RENDER_ID_UNASSIGNED)
-            {
-                m_instanceBufferId = MyRenderProxy.CreateRenderInstanceBuffer(m_gridRenderComponent.Container.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Container.Entity.EntityId.ToString() + ", instance buffer " + DebugName, MyRenderInstanceBufferType.Cube);
-                AddRenderObjectId(m_instanceBufferId, false);
-            }
-
             if (m_parentCullObject == MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
                 m_parentCullObject = MyRenderProxy.CreateManualCullObject(m_gridRenderComponent.Container.Entity.GetFriendlyName() + " " + m_gridRenderComponent.Container.Entity.EntityId.ToString() + ", cull object", m_gridRenderComponent.Container.Entity.PositionComp.WorldMatrix);
                 AddRenderObjectId(m_parentCullObject, true);
+            }
+
+            if (m_instanceBufferId == MyRenderProxy.RENDER_ID_UNASSIGNED)
+            {
+                m_instanceBufferId = MyRenderProxy.CreateRenderInstanceBuffer(
+                    m_gridRenderComponent.Container.Entity.GetFriendlyName() + " "
+                    + m_gridRenderComponent.Container.Entity.EntityId.ToString()
+                    + ", instance buffer " + DebugName, MyRenderInstanceBufferType.Cube,
+                    m_gridRenderComponent.GetRenderObjectID());
+                AddRenderObjectId(m_instanceBufferId, false);
             }
 
             ProfilerShort.Begin("Merge render parts");
@@ -395,18 +448,35 @@ namespace Sandbox.Game.Entities.Cube
             // Merge data into one buffer
             Debug.Assert(m_tmpInstanceData.Count == 0, "Instance data is not cleared");
             m_instanceInfo.Clear();
-            foreach (var part in instanceParts)
+            m_tmpDecalData.Clear();
+            int instaceDataIndex = -1;
+            foreach (var pair in instanceParts)
             {
-                m_instanceInfo.Add(part.Key, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, part.Value.Item1.Count, part.Value.Item2.MaxViewDistance, part.Value.Item2.Flags));
+                var modeId = pair.Key;
+                var tuple = pair.Value;
+                m_instanceInfo.Add(modeId, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, tuple.Item1.Count, tuple.Item2.MaxViewDistance, tuple.Item2.Flags));
 
-                m_tmpInstanceData.AddList(part.Value.Item1);
+                var instaceDatas = tuple.Item1;
+                for (int it1 = 0; it1 < instaceDatas.Count; it1++)
+                {
+                    instaceDataIndex++;
+                    m_tmpInstanceData.Add(instaceDatas[it1].CubeInstanceData);
+
+                    var decals = instaceDatas[it1].Decals;
+                    if (decals == null)
+                        continue;
+
+                    for (int it2 = 0; it2 < decals.Count; it2++)
+                        m_tmpDecalData.Add(new MyCubeInstanceDecalData() { DecalId = decals[it2], InstanceIndex = instaceDataIndex });
+                }
             }
             ProfilerShort.End();
 
             if (m_tmpInstanceData.Count > 0)
             {
                 ProfilerShort.Begin("Update instance buffer");
-                MyRenderProxy.UpdateRenderCubeInstanceBuffer(m_instanceBufferId, m_tmpInstanceData, (int)(m_tmpInstanceData.Count * 1.2f));
+
+                MyRenderProxy.UpdateRenderCubeInstanceBuffer(m_instanceBufferId, m_tmpInstanceData, (int)(m_tmpInstanceData.Count * 1.2f), m_tmpDecalData);
                 ProfilerShort.End();
             }
             m_tmpInstanceData.Clear();
@@ -488,5 +558,10 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        struct MyCubeInstanceMergedData
+        {
+            public MyCubeInstanceData CubeInstanceData;
+            public List<uint> Decals;
+        }
     }
 }

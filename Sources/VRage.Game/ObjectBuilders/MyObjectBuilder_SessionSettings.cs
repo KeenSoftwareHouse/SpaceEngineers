@@ -326,9 +326,9 @@ namespace VRage.Game
         public bool EnableDrones = true;
 
         [ProtoMember]
-        [Display(Name = "Enable cyberhounds")]
+        [Display(Name = "Enable wolfs")]
         [GameRelation(Game.SpaceEngineers)]
-        public bool? EnableCyberhounds = true;
+        public bool? EnableWolfs = true;
 
         [ProtoMember]
         [Display(Name = "Enable spiders")]

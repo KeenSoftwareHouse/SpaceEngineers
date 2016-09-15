@@ -51,6 +51,8 @@ using VRage.Serialization;
 using Sandbox.Game.Replication;
 using VRage.Audio;
 using Sandbox.Game.Entities.Blocks;
+using VRage.Sync;
+
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -1954,6 +1956,15 @@ namespace Sandbox.Game.Entities
                 PlayUseSound(false);
         }
 
+        [Event, Reliable, Server, Broadcast]
+        void OnSwitchHelmet()
+        {
+            if(Pilot != null && Pilot.OxygenComponent != null)
+            {
+                Pilot.OxygenComponent.SwitchHelmet();
+            }
+        }
+
         protected virtual void OnControlledEntity_Used() { }
 
         #endregion
@@ -2303,7 +2314,8 @@ namespace Sandbox.Game.Entities
 
         void IMyModdingControllableEntity.SwitchHelmet()
         {
-
+            if(Pilot != null)
+                MyMultiplayer.RaiseEvent(this, x => x.OnSwitchHelmet);
         }
 
         void IMyModdingControllableEntity.Die()

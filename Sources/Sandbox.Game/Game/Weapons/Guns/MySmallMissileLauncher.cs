@@ -36,6 +36,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Sync;
 
 namespace Sandbox.Game.Weapons
 {
@@ -367,6 +368,12 @@ namespace Sandbox.Game.Weapons
         public MyDefinitionId DefinitionId
         {       
             get { return BlockDefinition.Id; }
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
         #endregion

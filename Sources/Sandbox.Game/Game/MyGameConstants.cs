@@ -1,10 +1,4 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Engine.Utils;
-using Sandbox.Game.Weapons;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+﻿using System.Collections.Generic;
 using VRage.Game;
 using VRage.Utils;
 using VRage.Voxels;
@@ -194,8 +188,8 @@ namespace Sandbox.Game
 
     public static class MyDebrisConstants
     {
-        public const int EXPLOSION_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS = 5000;
-        public const int EXPLOSION_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS = 10000;
+        public const int EXPLOSION_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS = 10000;
+        public const int EXPLOSION_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS = 20000;
         public const int EXPLOSION_DEBRIS_OBJECTS_MAX = 150;
         public const float EXPLOSION_DEBRIS_INITIAL_SPEED_MIN = 4.0f;
         public const float EXPLOSION_DEBRIS_INITIAL_SPEED_MAX = 8.0f;

@@ -11,6 +11,7 @@ using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.Gui
 {
@@ -91,13 +92,6 @@ namespace Sandbox.Game.Gui
             //        return true;
             //    });
 
-            //AddShortcut(MyKeys.NumPad7, true, false, false, false,
-            //    () => "Toggle fog: " + MySector.FogProperties.EnableFog,
-            //    delegate
-            //    {
-            //        MySector.FogProperties.EnableFog = !MySector.FogProperties.EnableFog;
-            //        return true;
-            //    });
 
             //AddShortcut(MyKeys.NumPad8, true, false, false, false,
             //    () => "Debug draw procedural cells: " + m_drawCells,
@@ -131,6 +125,12 @@ namespace Sandbox.Game.Gui
             //        return true;
             //    });
 
+            AddShortcut(MyKeys.NumPad3, true, false, false, false, () => "Enable Meteor Debug Draw", delegate
+            {
+                MyDebugDrawSettings.DEBUG_DRAW_METEORITS_DIRECTIONS = true;
+                return true;
+            });
+
             AddShortcut(MyKeys.NumPad2, true, false, false, false, () => "Spawn meteor shower", delegate
             {
                 MyMeteorShower.StartDebugWave(MySession.Static.LocalCharacter.WorldMatrix.Translation);
@@ -158,7 +158,6 @@ namespace Sandbox.Game.Gui
             Vector3 myDirection = MySession.Static.LocalCharacter.WorldMatrix.Forward;
 
             MyPhysics.CastRay(myPosition, myPosition + myDirection * 100);
-
 
 
         }

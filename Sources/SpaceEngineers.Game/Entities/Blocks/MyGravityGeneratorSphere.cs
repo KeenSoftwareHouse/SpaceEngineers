@@ -17,6 +17,7 @@ using SpaceEngineers.Game.EntityComponents.DebugRenders;
 using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 

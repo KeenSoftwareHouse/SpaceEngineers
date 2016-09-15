@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using VRage.Voxels;
 using VRageMath;
+using VRageRender.Messages;
+using VRageRender.Voxels;
 
 namespace VRageRender
 {

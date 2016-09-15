@@ -34,7 +34,7 @@ namespace Sandbox.Engine.Physics
             {
                 posB = Vector3.Transform(posB, bodyB.WeldInfo.Transform);
                 axisB = Vector3.TransformNormal(axisB, bodyB.WeldInfo.Transform);
-                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyA.WeldInfo.Transform);
+                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyB.WeldInfo.Transform);
             }
 
             data.SetInBodySpaceInternal(ref posA, ref posB, ref axisA, ref axisB, ref axisAPerp, ref axisBPerp);
@@ -68,7 +68,7 @@ namespace Sandbox.Engine.Physics
             {
                 posB = Vector3.Transform(posB, bodyB.WeldInfo.Transform);
                 axisB = Vector3.TransformNormal(axisB, bodyB.WeldInfo.Transform);
-                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyA.WeldInfo.Transform);
+                axisBPerp = Vector3.TransformNormal(axisBPerp, bodyB.WeldInfo.Transform);
             }
 
             data.SetInBodySpaceInternal(ref posA, ref posB, ref axisA, ref axisB, ref axisAPerp, ref axisBPerp);

@@ -173,6 +173,10 @@
       <Project>{26fe022e-42ab-40be-ba9d-97cbe34e7d99}</Project>
       <Name>VRage.Library</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
+      <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
+      <Name>VRage.Render11</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
       <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
       <Name>VRage.Render</Name>

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using VRage;
 using VRage.Game.ObjectBuilders;
+using VRage.Profiler;
 using VRageMath;
-using EnvironmentalParticleSettings = VRage.Game.MyObjectBuilder_EnvironmentDefinition.EnvironmentalParticleSettings;
 
 namespace Sandbox.Game.World
 {

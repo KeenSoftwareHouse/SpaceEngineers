@@ -1,4 +1,6 @@
 ﻿using SharpDX.Direct3D11;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
@@ -10,51 +12,51 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_copyPixelShader = MyShaders.CreatePs("postprocess_copy.hlsl");
-            m_stencilTestPixelShader = MyShaders.CreatePs("postprocess_copy_stencil.hlsl");
-            m_stencilInverseTestPixelShader = MyShaders.CreatePs("postprocess_copy_inversestencil.hlsl");
+            m_copyPixelShader = MyShaders.CreatePs("Postprocess/PostprocessCopy.hlsl");
+            m_stencilTestPixelShader = MyShaders.CreatePs("Postprocess/PostprocessCopyStencil.hlsl");
+            m_stencilInverseTestPixelShader = MyShaders.CreatePs("Postprocess/PostprocessCopyInverseStencil.hlsl");
         }
 
-        internal static void Run(MyBindableResource dst, MyBindableResource src, BlendState bs = null)
+        internal static void Run(IRtvBindable dst, ISrvBindable src, IBlendState bs = null)
         {
-            RC.SetBS(bs);
-            RC.SetRS(null);
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, dst);
-            RC.BindSRV(0, src);
-            RC.SetPS(m_copyPixelShader);
+            RC.SetBlendState(bs);
+            RC.SetRasterizerState(null);
+            RC.SetRtv(dst);
+            RC.PixelShader.SetSrv(0, src);
+            RC.PixelShader.Set(m_copyPixelShader);
 
             DrawFullscreenQuad();
-            RC.SetBS(null);
+            RC.SetBlendState(null);
         }
 
-        internal static void RunWithStencil(MyBindableResource destinationResource, MyBindableResource sourceResource, BlendState blendState, DepthStencilState depthStencilState, int stencilMask)
+        internal static void RunWithStencil(IRtvBindable destinationResource, ISrvBindable sourceResource, IBlendState blendState, IDepthStencilState depthStencilState, int stencilMask)
         {
-            RC.SetDS(depthStencilState, stencilMask);
-            RC.SetBS(blendState);
-            RC.SetRS(null);
-            RC.BindDepthRT(MyGBuffer.Main.DepthStencil, DepthStencilAccess.ReadOnly, destinationResource);
-            RC.BindSRV(0, sourceResource);
-            RC.SetPS(m_copyPixelShader);
+            RC.SetDepthStencilState(depthStencilState, stencilMask);
+            RC.SetBlendState(blendState);
+            RC.SetRasterizerState(null);
+            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, destinationResource);
+            RC.PixelShader.SetSrv(0, sourceResource);
+            RC.PixelShader.Set(m_copyPixelShader);
 
             DrawFullscreenQuad();
-            RC.SetBS(null);
+            RC.SetBlendState(null);
         }
 
-        internal static void RunWithPixelStencilTest(MyBindableResource dst, MyBindableResource src, BlendState bs = null, bool inverseTest = false)
+        internal static void RunWithPixelStencilTest(IRtvBindable dst, ISrvBindable src, IBlendState bs = null, bool inverseTest = false)
         {
-            RC.SetDS(null);
-            RC.SetBS(bs);
-            RC.SetRS(null);
-            RC.BindDepthRT(null, DepthStencilAccess.ReadOnly, dst);
-            RC.BindSRV(0, src);
-            RC.BindSRV(1, MyGBuffer.Main.DepthStencil.Stencil);
+            RC.SetDepthStencilState(null);
+            RC.SetBlendState(bs);
+            RC.SetRasterizerState(null);
+            RC.SetRtv(dst);
+            RC.PixelShader.SetSrv(0, src);
+            RC.PixelShader.SetSrv(1, MyGBuffer.Main.DepthStencil.SrvStencil);
             if (!inverseTest)
-                RC.SetPS(m_stencilTestPixelShader);
+                RC.PixelShader.Set(m_stencilTestPixelShader);
             else
-                RC.SetPS(m_stencilInverseTestPixelShader);
+                RC.PixelShader.Set(m_stencilInverseTestPixelShader);
 
             DrawFullscreenQuad();
-            RC.SetBS(null);
+            RC.SetBlendState(null);
         }
     }
 }

@@ -11,6 +11,7 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Trace;
 
 namespace Sandbox.Engine.Multiplayer

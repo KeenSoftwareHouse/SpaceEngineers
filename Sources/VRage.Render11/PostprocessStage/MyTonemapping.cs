@@ -1,11 +1,8 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using SharpDX.Direct3D;
-using VRageMath;
+﻿using SharpDX.Direct3D;
+using SharpDX.DXGI;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
+using VRage.Render11.Resources.Internal;
 
 namespace VRageRender
 {
@@ -18,45 +15,44 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_cs = MyShaders.CreateCs("tonemapping.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8) });
-            m_csSkip = MyShaders.CreateCs("tonemapping.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8), new ShaderMacro("DISABLE_TONEMAPPING", null) });
+            m_cs = MyShaders.CreateCs("Postprocess/Tonemapping/Main.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8) });
+            m_csSkip = MyShaders.CreateCs("Postprocess/Tonemapping/Main.hlsl", new[] { new ShaderMacro("NUMTHREADS", 8), new ShaderMacro("DISABLE_TONEMAPPING", null) });
         }
 
-        internal static void Run(MyBindableResource dst, MyBindableResource src, MyBindableResource avgLum, MyBindableResource bloom, bool enableTonemapping = true)
+        internal static IBorrowedUavTexture Run(ISrvBindable src, ISrvBindable avgLum, ISrvBindable bloom, bool enableTonemapping = true)
         {
-            //Debug.Assert(src.GetSize() == dst.GetSize());
+            IBorrowedUavTexture dst;
+            if (MyRender11.FxaaEnabled)
+                dst = MyManagers.RwTexturesPool.BorrowUav("DrawGameScene.Tonemapped", Format.R8G8B8A8_UNorm);
+            else
+                dst = MyManagers.RwTexturesPool.BorrowUav("DrawGameScene.Tonemapped", Format.R10G10B10A2_UNorm);
 
-            var buffer = MyCommon.GetObjectCB(16);
-            var mapping = MyMapping.MapDiscard(buffer);
-            mapping.WriteAndPosition(ref MyRender11.Settings.MiddleGrey);
-            mapping.WriteAndPosition(ref MyRender11.Settings.LuminanceExposure);
-            mapping.WriteAndPosition(ref MyRender11.Settings.BloomExposure);
-            mapping.WriteAndPosition(ref MyRender11.Settings.BloomMult);
-            mapping.Unmap();
+            RC.ComputeShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.ComputeShader.SetConstantBuffer(1, MyCommon.GetObjectCB(16));
 
-            RC.CSSetCB(0, MyCommon.FrameConstants);
-            RC.CSSetCB(1, MyCommon.GetObjectCB(16));
+            RC.ComputeShader.SetUav(0, dst);
+            RC.ComputeShader.SetSrvs(0, src, avgLum, bloom);
 
-            RC.BindUAV(0, dst);
-            RC.BindSRVs(0, src, avgLum, bloom);
-
-            RC.DeviceContext.ComputeShader.SetSampler(0, SamplerStates.m_default);
+            RC.ComputeShader.SetSampler(0, MySamplerStateManager.Default);
+            RC.ComputeShader.SetSampler(1, MySamplerStateManager.Point);
+            RC.ComputeShader.SetSampler(2, MySamplerStateManager.Default);
 
             if (enableTonemapping)
             {
-                RC.SetCS(m_cs);
+                RC.ComputeShader.Set(m_cs);
             }
             else
             {
-                RC.SetCS(m_csSkip);
+                RC.ComputeShader.Set(m_csSkip);
             }
 
-            var size = dst.GetSize();
-            RC.DeviceContext.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
+            var size = dst.Size;
+            RC.Dispatch((size.X + m_numthreads - 1) / m_numthreads, (size.Y + m_numthreads - 1) / m_numthreads, 1);
 
-            ComputeShaderId.TmpUav[0] = null;
-            RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-            RC.SetCS(null);
+            RC.ComputeShader.SetUav(0, null);
+            RC.ComputeShader.Set(null);
+
+            return dst;
         }
     }
 }

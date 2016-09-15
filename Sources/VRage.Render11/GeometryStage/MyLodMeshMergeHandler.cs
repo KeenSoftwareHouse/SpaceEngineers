@@ -4,10 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
+using VRageRender.Voxels;
 
 namespace VRageRender
 {
@@ -507,7 +510,7 @@ namespace VRageRender
 
         internal bool Update()
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            if (!MyRender11.Settings.EnableVoxelMerging)
                 return false;
 
             if (MyCommon.FrameCounter - m_mergeCounter < m_updateCheckInterval)
@@ -523,7 +526,7 @@ namespace VRageRender
 
         internal void UpdateMesh(MyRenderMessageUpdateMergedVoxelMesh updateMessage)
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            if (!MyRender11.Settings.EnableVoxelMerging)
                 return;
 
             m_mergesPerLod[updateMessage.Lod].UpdateMesh(updateMessage);
@@ -531,7 +534,7 @@ namespace VRageRender
 
         internal void OnAddedToScene(MyClipmapCellProxy cellProxy)
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            if (!MyRender11.Settings.EnableVoxelMerging)
                 return;
 
             if (m_mergesPerLod[cellProxy.Lod].OnAddedToScene(cellProxy))
@@ -540,7 +543,7 @@ namespace VRageRender
 
         internal void OnRemovedFromScene(MyClipmapCellProxy cellProxy)
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            if (!MyRender11.Settings.EnableVoxelMerging)
                 return;
 
             if (m_mergesPerLod[cellProxy.Lod].OnRemovedFromScene(cellProxy))
@@ -549,7 +552,7 @@ namespace VRageRender
 
         internal bool OnDeleteCell(MyClipmapCellProxy cellProxy)
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            if (!MyRender11.Settings.EnableVoxelMerging)
                 return false;
 
             bool cellDeleted = m_mergesPerLod[cellProxy.Lod].OnDeleteCell(cellProxy);
@@ -561,7 +564,7 @@ namespace VRageRender
 
         internal void ResetMeshes()
         {
-            if (!MyRenderProxy.Settings.EnableVoxelMerging)
+            if (!MyRender11.Settings.EnableVoxelMerging)
             {
                 foreach (var lodMerge in m_mergesPerLod)
                     lodMerge.ResetMeshes();
@@ -583,7 +586,7 @@ namespace VRageRender
 
         internal static bool ShouldAllocate(MyLodMeshMergeHandler mergeHandler)
         {
-            return MyRenderProxy.Settings.EnableVoxelMerging && mergeHandler == null;
+            return MyRender11.Settings.EnableVoxelMerging && mergeHandler == null;
         }
     }
 

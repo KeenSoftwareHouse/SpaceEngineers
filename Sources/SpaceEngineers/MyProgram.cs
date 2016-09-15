@@ -133,7 +133,7 @@ namespace SpaceEngineers
             {
                 m_renderer = new MyNullRender();
             }
-            else if (MyFakes.ENABLE_DX11_RENDERER)
+            else
             {
                 var rendererId = MySandboxGame.Config.GraphicsRenderer;
                 if (rendererId == MySandboxGame.DirectX11RendererKey)
@@ -141,7 +141,7 @@ namespace SpaceEngineers
                     m_renderer = new MyDX11Render();
                     if (!m_renderer.IsSupported)
                     {
-                        MySandboxGame.Log.WriteLine("DirectX 11 renderer not supported. Reverting to DirectX 9.");
+                        MySandboxGame.Log.WriteLine("DirectX 11 renderer not supported. No renderer to revert back to.");
                         m_renderer = null;
                     }
                 }
@@ -149,17 +149,11 @@ namespace SpaceEngineers
                 if (m_renderer == null)
                 {
                     //hardcoded mesage becaouse of mytexts are not initialized yet
-                    throw new MyRenderException(@"The current version of the game requires a Dx11 card. If you would like to play the game without it, please select the Dx9-32bit BETA tab from properties. \n For more information please see : http://blog.marekrosa.org/2016/02/space-engineers-news-full-source-code_26.html", MyRenderExceptionEnum.GpuNotSupported);
+                    throw new MyRenderException(@"The current version of the game requires a Dx11 card. \n For more information please see : http://blog.marekrosa.org/2016/02/space-engineers-news-full-source-code_26.html", MyRenderExceptionEnum.GpuNotSupported);
                 }
 
                 MySandboxGame.Config.GraphicsRenderer = rendererId;
             }
-            else
-            {
-                m_renderer = new MyDX9Render();
-            }
-
-            MyFakes.ENABLE_PLANETS &= MySandboxGame.Config.GraphicsRenderer != MySandboxGame.DirectX9RendererKey;
 
             VRageRender.MyRenderProxy.Initialize(m_renderer);
             VRageRender.MyRenderProxy.IS_OFFICIAL = MyFinalBuildConstants.IS_OFFICIAL;

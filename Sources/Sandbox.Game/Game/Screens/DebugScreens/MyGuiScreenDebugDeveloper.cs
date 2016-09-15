@@ -8,6 +8,7 @@ using VRage;
 using VRage.Game;
 using VRage.Input;
 using VRage.Plugins;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -15,9 +16,8 @@ using VRageRender;
 [Flags]
 public enum MyDirectXSupport : byte
 {
-    DX9 = 1,
-    DX11 = 2,
-    ALL = DX9|DX11
+    DX11 = 1,
+    ALL = DX11,
 }
 
 namespace Sandbox.Game.Gui
@@ -86,7 +86,7 @@ namespace Sandbox.Game.Gui
                 Name = name;
                 DirectXSupport = directXSupport;
             }
-            
+
         };
 
         //Main groups
@@ -133,12 +133,12 @@ namespace Sandbox.Game.Gui
 
         static bool EnableProfiler
         {
-            get { return VRageRender.Profiler.MyRenderProfiler.ProfilerVisible; }
+            get { return VRage.Profiler.MyRenderProfiler.ProfilerVisible; }
             set
             {
-                if(VRageRender.Profiler.MyRenderProfiler.ProfilerVisible != value)
+                if (VRage.Profiler.MyRenderProfiler.ProfilerVisible != value)
                 {
-                    VRageRender.MyRenderProxy.RenderProfilerInput(VRageRender.RenderProfilerCommand.Enable, 0);
+                    VRageRender.MyRenderProxy.RenderProfilerInput(RenderProfilerCommand.Enable, 0);
                 }
             }
         }
@@ -302,7 +302,7 @@ namespace Sandbox.Game.Gui
 
             float groupStartPosition = m_currentPosition.Y;
             var renderer = MySandboxGame.Config.GraphicsRenderer;
-            bool rendererIsDirectX11 = !renderer.ToString().Equals(MySandboxGame.DirectX9RendererKey);
+            bool rendererIsDirectX11 = renderer.ToString() == MySandboxGame.DirectX11RendererKey.ToString();
 
             foreach (var groupEntry in s_developScreenTypes)
             {
@@ -310,9 +310,8 @@ namespace Sandbox.Game.Gui
 
                 foreach (var typeEntry in groupEntry.Value)
                 {
-                    //check for incompatible checkboxes (DirectX9/DirectX11)
-                    if (typeEntry.Value.DirectXSupport == MyDirectXSupport.DX9 && rendererIsDirectX11) continue;
-                    if (typeEntry.Value.DirectXSupport == MyDirectXSupport.DX11 && !rendererIsDirectX11) continue;
+                    //check for incompatible checkboxes (DirectX11 and newer in the future)
+                    if (typeEntry.Value.DirectXSupport < MyDirectXSupport.DX11 || !rendererIsDirectX11) continue;
                     AddGroupBox(typeEntry.Key, typeEntry.Value.Name, group.ControlList);
                 }
                 m_currentPosition.Y = groupStartPosition;

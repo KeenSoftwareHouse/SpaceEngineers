@@ -1,5 +1,5 @@
-﻿using Sandbox.Engine.Platform;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
+using Sandbox.Game.Audio;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Weapons;
@@ -7,19 +7,13 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using VRage;
 using VRage.Audio;
-using VRage.Utils;
-using VRage.Data;
-using VRageMath;
-using VRageRender;
-using VRage.Library.Utils;
 using VRage.Data.Audio;
-using Sandbox.Game.GameSystems;
 using VRage.Game.Entity;
-using Sandbox.Game.Audio;
+using VRage.ModAPI;
+using VRage.Utils;
+using VRageMath;
 
 namespace Sandbox.Game.Entities
 {
@@ -118,7 +112,7 @@ namespace Sandbox.Game.Entities
         public override bool Equals(object obj)
         {
             if (obj is MySoundPair)
-                return SoundId == (obj as MySoundPair).SoundId;
+                return (Arcade == (obj as MySoundPair).Arcade) && (Realistic == (obj as MySoundPair).Realistic);
             return base.Equals(obj);
         }
 
@@ -223,6 +217,19 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public MySoundData LastSoundData
+        {
+            get { return m_lastSoundData; }
+        }
+
+        private float RealisticVolumeChange
+        {
+            get
+            {
+                return (m_realistic && m_lastSoundData != null) ? m_lastSoundData.RealisticVolumeChange : 1f;
+            }
+        }
+
         public float VolumeMultiplier
         {
             get { return m_volumeMultiplier; }
@@ -238,7 +245,7 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return m_soundPair;
+                return m_closeSoundSoundPair;
             }
         }
 
@@ -336,9 +343,9 @@ namespace Sandbox.Game.Entities
                 else if (m_secondaryEnabled)
                 {
                     if(Sound != null)
-                        Sound.SetVolume(m_baseVolume * (1f - m_secondaryVolumeRatio));
+                        Sound.SetVolume(RealisticVolumeChange * m_baseVolume * (1f - m_secondaryVolumeRatio));
                     if(m_secondarySound != null)
-                        m_secondarySound.SetVolume(m_secondaryBaseVolume * m_secondaryVolumeRatio);
+                        m_secondarySound.SetVolume(RealisticVolumeChange * m_secondaryBaseVolume * m_secondaryVolumeRatio);
                 }
             }
             if (validSoundIsPlaying && Loop)
@@ -422,14 +429,29 @@ namespace Sandbox.Game.Entities
                         return false;
                     if (MySession.Static.LocalCharacter.AtmosphereDetectorComp.InShipOrStation)
                         firstCubeGrid = MySession.Static.LocalCharacter.OxygenComponent.OxygenSourceGrid;
-                    if (firstCubeGrid == null)
-                        return false;
                 }
                 MyCubeGrid secondCubeGrid = Entity is MyCubeBlock ? (Entity as MyCubeBlock).CubeGrid : (Entity as MyCubeGrid);
+                if (firstCubeGrid == null && MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.SoundComp != null
+                    && MySession.Static.LocalCharacter.SoundComp.StandingOnVoxel != null)
+                {
+                    if (secondCubeGrid.IsStatic)
+                        return true;//character is standing on voxel near this station
+                    else
+                    {
+                        List<IMyEntity> entities = secondCubeGrid.GridSystems.LandingSystem.GetAttachedEntities();
+                        foreach (IMyEntity entity in entities)
+                        {
+                            if ((entity is MyVoxelBase) && (entity as MyVoxelBase == MySession.Static.LocalCharacter.SoundComp.StandingOnVoxel as MyVoxelBase))
+                                return true;//character is standing on voxel that is connected to this ship via landing gears
+                        }
+                    }
+                }
+                if (firstCubeGrid == null)
+                    return false;
                 if (firstCubeGrid == secondCubeGrid)
-                    return true;
+                    return true;//character is standing on this grid
                 if (MyCubeGridGroups.Static.Physical.HasSameGroup(firstCubeGrid, secondCubeGrid))
-                    return true;
+                    return true;//character is on neighbouring grid
             }
             else if (Entity is MyVoxelBase)
             {
@@ -437,9 +459,25 @@ namespace Sandbox.Game.Entities
                     return false;
                 else
                 {
-                    if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.SoundComp != null &&
-                        MySession.Static.LocalCharacter.SoundComp.StandingOnVoxel as MyVoxelBase == Entity as MyVoxelBase)
-                        return true;
+                    if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.SoundComp != null)
+                    {
+                        if (MySession.Static.LocalCharacter.SoundComp.StandingOnVoxel as MyVoxelBase == Entity as MyVoxelBase)
+                            return true;//character is standing on this voxel
+                        if (MySession.Static.LocalCharacter.SoundComp.StandingOnGrid != null)
+                        {
+                            if (MySession.Static.LocalCharacter.SoundComp.StandingOnGrid.IsStatic)
+                                return true;//character is standing on station grid near this voxel
+                            else
+                            {
+                                List<IMyEntity> entities = MySession.Static.LocalCharacter.SoundComp.StandingOnGrid.GridSystems.LandingSystem.GetAttachedEntities();
+                                foreach (IMyEntity entity in entities)
+                                {
+                                    if ((entity is MyVoxelBase) && (entity as MyVoxelBase == Entity as MyVoxelBase))
+                                        return true;//character is standing on ship that is connected to this voxel via landing gears
+                                }
+                            }
+                        }
+                    }
                 }
             }
             return false;
@@ -518,7 +556,7 @@ namespace Sandbox.Game.Entities
             // player is in pressurized ship or in planet with atmosphere
             if (MySession.Static.LocalCharacter == null || MySession.Static.LocalCharacter.AtmosphereDetectorComp == null)
                 return false;
-            return MySession.Static.LocalCharacter.AtmosphereDetectorComp.InAtmosphere || MySession.Static.LocalCharacter.AtmosphereDetectorComp.InShipOrStation;
+            return !MySession.Static.LocalCharacter.AtmosphereDetectorComp.InVoid;
         }
 
         private bool IsInAtmosphere()
@@ -533,7 +571,18 @@ namespace Sandbox.Game.Entities
         {
             if (m_useRealisticByDefault)
             {
-                if (IsThereAir())
+                if (m_lastSoundData == null)
+                    m_lastSoundData = MyAudio.Static.GetCue(sound.Realistic);
+
+                if (m_lastSoundData != null && m_lastSoundData.AlwaysUseOneMode)
+                {
+                    m_realistic = true;
+                    return sound.Realistic;
+                }
+
+                MyCockpit cockpit = MySession.Static.LocalCharacter != null ? MySession.Static.LocalCharacter.Parent as MyCockpit : null;
+                bool isLargePressurizedCockpit = (cockpit != null && cockpit.CubeGrid.GridSizeEnum == VRage.Game.MyCubeSize.Large && cockpit.BlockDefinition.IsPressurized);
+                if (IsThereAir() || isLargePressurizedCockpit)
                 {
                     m_realistic = false;
                     return sound.Arcade;
@@ -553,21 +602,30 @@ namespace Sandbox.Game.Entities
 
         static MyStringHash m_effectHasHelmetInOxygen = MyStringHash.GetOrCompute("LowPassHelmet");
         static MyStringHash m_effectNoHelmetNoOxygen = MyStringHash.GetOrCompute("LowPassNoHelmetNoOxy");
+        static MyStringHash m_effectEnclosedCockpitInSpace = MyStringHash.GetOrCompute("LowPassCockpitNoOxy");
+        static MyStringHash m_effectEnclosedCockpitInAir = MyStringHash.GetOrCompute("LowPassCockpit");
         private MyStringHash SelectEffect()
         {
             if (m_lastSoundData != null && m_lastSoundData.ModifiableByHelmetFilters == false)
                 return MyStringHash.NullOrEmpty;
-            if (MySession.Static.LocalCharacter == null || MySession.Static.LocalCharacter.OxygenComponent == null || MyFakes.ENABLE_NEW_SOUNDS == false || MySession.Static.Settings.RealisticSound == false)
+            if (MySession.Static == null || MySession.Static.LocalCharacter == null || MySession.Static.LocalCharacter.OxygenComponent == null || MyFakes.ENABLE_NEW_SOUNDS == false || MySession.Static.Settings.RealisticSound == false)
                 return MyStringHash.NullOrEmpty;
             bool air = IsThereAir();
+            MyCockpit cockpit = MySession.Static.LocalCharacter.Parent as MyCockpit;
+            bool isPressurizedCockpit = (cockpit != null && cockpit.BlockDefinition != null && cockpit.BlockDefinition.IsPressurized);
+            if (air && isPressurizedCockpit)
+                return m_effectEnclosedCockpitInAir;//in enclosed cockpit in oxygen
+            if (air == false && isPressurizedCockpit && cockpit.CubeGrid != null && cockpit.CubeGrid.GridSizeEnum == VRage.Game.MyCubeSize.Large)
+                return m_effectEnclosedCockpitInSpace;//in enclosed large cockpit in space
             if (MySession.Static.LocalCharacter.OxygenComponent.HelmetEnabled && air)
                 return m_effectHasHelmetInOxygen;//helmet in oxygen
-            else if (MySession.Static.LocalCharacter.OxygenComponent.HelmetEnabled && air == false && m_lastSoundData != null)
+            if (m_lastSoundData != null && MySession.Static.LocalCharacter.OxygenComponent.HelmetEnabled && air == false)
                 return m_lastSoundData.RealisticFilter;//helmet in space
-            else if (MySession.Static.LocalCharacter.OxygenComponent.HelmetEnabled == false && air == false && MySession.Static.LocalCharacter.Parent is MyCockpit == false)
+            if (MySession.Static.LocalCharacter.OxygenComponent.HelmetEnabled == false && air == false && (cockpit == null || cockpit.BlockDefinition == null || cockpit.BlockDefinition.IsPressurized == false))
                 return m_effectNoHelmetNoOxygen;//no helmet in space
-            else
-                return MyStringHash.NullOrEmpty;//no helmet in oxygen
+            if (m_lastSoundData != null && cockpit != null && cockpit.BlockDefinition != null && cockpit.BlockDefinition.IsPressurized && cockpit.CubeGrid != null && cockpit.CubeGrid.GridSizeEnum == VRage.Game.MyCubeSize.Small)
+                return m_lastSoundData.RealisticFilter;//no helmet in small ship in space
+            return MyStringHash.NullOrEmpty;//no helmet in oxygen
         }
 
         private bool CheckForSynchronizedSounds()
@@ -619,7 +677,7 @@ namespace Sandbox.Game.Entities
                 PlaySoundWithDistance(soundId, stopPrevious, skipIntro);
         }
 
-        public void PlaySingleSound(MySoundPair soundId, /*bool loop = false,*/ bool stopPrevious = false, bool skipIntro = false)
+        public void PlaySingleSound(MySoundPair soundId, /*bool loop = false,*/ bool stopPrevious = false, bool skipIntro = false, bool skipToEnd = false)
         {
             m_closeSoundSoundPair = soundId;
             m_soundPair = soundId;
@@ -632,10 +690,10 @@ namespace Sandbox.Game.Entities
             if (m_cueEnum.Equals(cueId))
                 return;
             else
-                PlaySoundWithDistance(cueId, stopPrevious, skipIntro);
+                PlaySoundWithDistance(cueId, stopPrevious, skipIntro, skipToEnd: skipToEnd);
         }
 
-        public void PlaySound(MySoundPair soundId, bool stopPrevious = false, bool skipIntro = false, bool force2D = false, bool alwaysHearOnRealistic = false)
+        public void PlaySound(MySoundPair soundId, bool stopPrevious = false, bool skipIntro = false, bool force2D = false, bool alwaysHearOnRealistic = false, bool skipToEnd = false)
         {
             m_closeSoundSoundPair = soundId;
             m_soundPair = soundId;
@@ -645,20 +703,23 @@ namespace Sandbox.Game.Entities
                 var select = (Func<MySoundPair, MyCueId>)EmitterMethods[MethodsEnum.CueType][0];
                 cueId = select(soundId);
             }
-            PlaySoundWithDistance(cueId, stopPrevious, skipIntro, force2D : force2D, alwaysHearOnRealistic: alwaysHearOnRealistic);
+            PlaySoundWithDistance(cueId, stopPrevious, skipIntro, force2D : force2D, alwaysHearOnRealistic: alwaysHearOnRealistic, skipToEnd: skipToEnd);
         }
 
         #endregion
 
         #region PlaySoundWithDistance
 
-        public void PlaySoundWithDistance(MyCueId soundId, bool stopPrevious = false, bool skipIntro = false, bool force2D = false, bool useDistanceCheck = true, bool alwaysHearOnRealistic = false)
+        public void PlaySoundWithDistance(MyCueId soundId, bool stopPrevious = false, bool skipIntro = false, bool force2D = false, bool useDistanceCheck = true, bool alwaysHearOnRealistic = false, bool skipToEnd = false)
         {
             m_lastSoundData = MyAudio.Static.GetCue(soundId);
+
             if (useDistanceCheck)
                 m_closeSoundCueId = soundId;
+
             if (useDistanceCheck && ShouldPlay2D() == false && force2D == false)
                 soundId = CheckDistanceSounds(soundId);
+
             bool usesDistanceSoundsCache = m_usesDistanceSounds;
             if (m_sound != null)
             {
@@ -676,7 +737,7 @@ namespace Sandbox.Game.Entities
                 m_secondarySound.Stop(true);
             }
             SoundId = soundId;
-            PlaySoundInternal(skipIntro, force2D: force2D, alwaysHearOnRealistic: alwaysHearOnRealistic);
+            PlaySoundInternal((skipIntro || skipToEnd), force2D: force2D, alwaysHearOnRealistic: alwaysHearOnRealistic, skipToEnd: skipToEnd);
             m_usesDistanceSounds = usesDistanceSoundsCache;
         }
 
@@ -764,6 +825,7 @@ namespace Sandbox.Game.Entities
                 if (MyMusicController.Static != null && m_lastSoundData != null && m_lastSoundData.DynamicMusicCategory != MyStringId.NullOrEmpty && m_lastSoundData.DynamicMusicAmount > 0)
                     MyMusicController.Static.IncreaseCategory(m_lastSoundData.DynamicMusicCategory, m_lastSoundData.DynamicMusicAmount);
                 m_baseVolume = Sound.Volume;
+                Sound.SetVolume(Sound.Volume * RealisticVolumeChange);
                 if (m_secondaryEnabled && m_secondaryCueEnum != null)
                 {
                     m_secondarySound = MyAudio.Static.PlaySound(m_secondaryCueEnum, this, MySoundDimensions.D3, skipIntro, skipToEnd);
@@ -772,8 +834,8 @@ namespace Sandbox.Game.Entities
                     if (m_secondarySound != null)
                     {
                         m_secondaryBaseVolume = m_secondarySound.Volume;
-                        Sound.SetVolume(m_baseVolume * (1f - m_secondaryVolumeRatio));
-                        m_secondarySound.SetVolume(m_secondaryBaseVolume * m_secondaryVolumeRatio);
+                        Sound.SetVolume(RealisticVolumeChange * m_baseVolume * (1f - m_secondaryVolumeRatio));
+                        m_secondarySound.SetVolume(RealisticVolumeChange * m_secondaryBaseVolume * m_secondaryVolumeRatio);
                         m_secondarySound.VolumeMultiplier = m_volumeMultiplier;
                     }
                 }
@@ -881,7 +943,7 @@ namespace Sandbox.Game.Entities
         public static void UpdateEntityEmitters(bool removeUnused, bool updatePlaying, bool updateNotPlaying)
         {
             int now = MyFpsManager.GetSessionTotalFrames();
-            if (Math.Abs(m_lastUpdate - now) < 5)
+            if (now == 0 || Math.Abs(m_lastUpdate - now) < 5)
                 return;
             m_lastUpdate = now;
             for (int i = 0; i < m_entityEmitters.Count; i++)
@@ -956,7 +1018,7 @@ namespace Sandbox.Game.Entities
                 m_customVolume = value;
                 if (m_customVolume.HasValue && Sound != null)
                 {
-                    Sound.SetVolume(m_customVolume.Value);
+                    Sound.SetVolume(RealisticVolumeChange * m_customVolume.Value);
                 }
             }
         }

@@ -359,21 +359,24 @@ namespace Sandbox.Game.Gui
                 m_joystickSensitivitySlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierSensitivity * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
                     minValue: 0.1f,
-                    maxValue: 6.0f);
+                    maxValue: 6.0f,
+                    defaultValue: MyInput.Static.GetJoystickSensitivity());
                 m_joystickSensitivitySlider.Value = MyInput.Static.GetJoystickSensitivity();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickSensitivitySlider);
 
                 m_joystickExponentSlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierExponent * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
                     minValue: 1.0f,
-                    maxValue: 8.0f);
+                    maxValue: 8.0f,
+                    defaultValue: MyInput.Static.GetJoystickExponent());
                 m_joystickExponentSlider.Value = MyInput.Static.GetJoystickExponent();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickExponentSlider);
 
                 m_joystickDeadzoneSlider = new MyGuiControlSlider(
                     position: m_controlsOriginRight + multiplierDeadzone * MyGuiConstants.CONTROLS_DELTA + new Vector2(MyGuiConstants.COMBOBOX_MEDIUM_SIZE.X / 2.0f, 0),
                     minValue: 0.0f,
-                    maxValue: 0.5f);
+                    maxValue: 0.5f,
+                    defaultValue: MyInput.Static.GetJoystickDeadzone());
                 m_joystickDeadzoneSlider.Value = MyInput.Static.GetJoystickDeadzone();
                 m_allControls[MyGuiControlTypeEnum.General].Add(m_joystickDeadzoneSlider);
             }

@@ -13,6 +13,7 @@ using VRage.Game.Utils;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Game.Entities;
 
 namespace Sandbox.Engine.Utils
 {
@@ -73,26 +74,29 @@ namespace Sandbox.Engine.Utils
         // ------------------------------------------------------------------------------------------------
         private void MoveAndRotate_UserControlled(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
-            if (MyInput.Static.IsAnyCtrlKeyPressed())
+            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition == null)
             {
-                if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
+                if (MyInput.Static.IsAnyCtrlKeyPressed())
                 {
-                    SpeedModeAngular = Math.Min(SpeedModeAngular * 1.5f, MAX_SPECTATOR_ANGULAR_SPEED);
+                    if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
+                    {
+                        SpeedModeAngular = Math.Min(SpeedModeAngular * 1.5f, MAX_SPECTATOR_ANGULAR_SPEED);
+                    }
+                    else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
+                    {
+                        SpeedModeAngular = Math.Max(SpeedModeAngular / 1.5f, MIN_SPECTATOR_ANGULAR_SPEED);
+                    }
                 }
-                else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
+                else
                 {
-                    SpeedModeAngular = Math.Max(SpeedModeAngular / 1.5f, MIN_SPECTATOR_ANGULAR_SPEED);
-                }
-            }
-            else
-            {
-                if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
-                {
-                    SpeedModeLinear = Math.Min(SpeedModeLinear * 1.5f, MAX_SPECTATOR_LINEAR_SPEED);
-                }
-                else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
-                {
-                    SpeedModeLinear = Math.Max(SpeedModeLinear / 1.5f, MIN_SPECTATOR_LINEAR_SPEED);
+                    if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
+                    {
+                        SpeedModeLinear = Math.Min(SpeedModeLinear * 1.5f, MAX_SPECTATOR_LINEAR_SPEED);
+                    }
+                    else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
+                    {
+                        SpeedModeLinear = Math.Max(SpeedModeLinear / 1.5f, MIN_SPECTATOR_LINEAR_SPEED);
+                    }
                 }
             }
 
@@ -283,6 +287,8 @@ namespace Sandbox.Engine.Utils
             m_light.ReflectorRange = MyCharacter.REFLECTOR_RANGE;
             m_light.ReflectorColor = MyCharacter.REFLECTOR_COLOR;
             m_light.ReflectorIntensity = MyCharacter.REFLECTOR_INTENSITY;
+            m_light.ReflectorGlossFactor = MyCharacter.REFLECTOR_GLOSS_FACTOR;
+            m_light.ReflectorDiffuseFactor = MyCharacter.REFLECTOR_DIFFUSE_FACTOR;
             m_light.Color = MyCharacter.POINT_COLOR;
             m_light.SpecularColor = new Vector3(MyCharacter.POINT_COLOR_SPECULAR);
             m_light.Intensity = MyCharacter.POINT_LIGHT_INTENSITY;

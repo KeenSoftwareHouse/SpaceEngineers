@@ -118,6 +118,7 @@ namespace Sandbox.Game.Multiplayer
         void IMyGpsCollection.AddLocalGps(IMyGps gps)
         {
             var internalGps = (MyGps)gps;
+            internalGps.IsLocal = true;
             if (AddPlayerGps(MySession.Static.LocalPlayerId, ref internalGps) && gps.ShowOnHud)
                 MyHud.GpsMarkers.RegisterMarker(internalGps);
         }

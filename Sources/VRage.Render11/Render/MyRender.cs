@@ -9,7 +9,11 @@ using SharpDX.Direct3D;
 using VRage;
 using VRage.FileSystem;
 using VRage.Library.Utils;
+using VRage.Profiler;
+using VRage.Render11.Profiler;
+using VRage.Render11.Profiler.Internal;
 using VRage.Utils;
+using VRageRender.Messages;
 using VRageRender.Profiler;
 
 namespace VRageRender
@@ -31,7 +35,8 @@ namespace VRageRender
 
         internal static uint GlobalMessageCounter = 0;
 
-        internal static readonly MyRenderSettings Settings = new MyRenderSettings();
+        public static int GameplayFrameCounter { get; private set; }
+        internal static MyRenderSettings Settings = MyRenderSettings.Default;
 
         internal static MyEnvironment Environment = new MyEnvironment();
 

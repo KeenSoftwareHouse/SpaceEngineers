@@ -188,6 +188,30 @@ namespace VRageMath
                 return true;
         }
 
+        public static Vector3D operator %(Vector3D value1, double value2)
+        {
+            Vector3D vector3;
+            vector3.X = value1.X % value2;
+            vector3.Y = value1.Y % value2;
+            vector3.Z = value1.Z % value2;
+            return vector3;
+        }
+
+        /// <summary>
+        /// Modulo division of two vectors.
+        /// </summary>
+        /// <param name="value1"></param>
+        /// <param name="value2"></param>
+        /// <returns></returns>
+        public static Vector3D operator %(Vector3D value1, Vector3D value2)
+        {
+            Vector3D vector3;
+            vector3.X = value1.X % value2.X;
+            vector3.Y = value1.Y % value2.Y;
+            vector3.Z = value1.Z % value2.Z;
+            return vector3;
+        }
+
         /// <summary>
         /// Adds two vectors.
         /// </summary>
@@ -1047,6 +1071,34 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Separates minimal and maximal values of any two input vectors
+        /// </summary>
+        /// <param name="min">minimal values of the two vectors</param>
+        /// <param name="max">maximal values of the two vectors</param>
+        public static void MinMax(ref Vector3D min, ref Vector3D max)
+        {
+            double tmp;
+            if (min.X > max.X)
+            {
+                tmp = min.X;
+                min.X = max.X;
+                max.X = tmp;
+            }
+            if (min.Y > max.Y)
+            {
+                tmp = min.Y;
+                min.Y = max.Y;
+                max.Y = tmp;
+            }
+            if (min.Z > max.Z)
+            {
+                tmp = min.Z;
+                min.Z = max.Z;
+                max.Z = tmp;
+            }
+        }
+
+        /// <summary>
         /// Returns a vector that is equal to the projection of the input vector to the coordinate axis that corresponds
         /// to the original vector's largest value.
         /// </summary>
@@ -1206,6 +1258,25 @@ namespace VRageMath
             result.X = (double)((double)value1.X + (double)amount1 * ((double)value2.X - (double)value1.X) + (double)amount2 * ((double)value3.X - (double)value1.X));
             result.Y = (double)((double)value1.Y + (double)amount1 * ((double)value2.Y - (double)value1.Y) + (double)amount2 * ((double)value3.Y - (double)value1.Y));
             result.Z = (double)((double)value1.Z + (double)amount1 * ((double)value2.Z - (double)value1.Z) + (double)amount2 * ((double)value3.Z - (double)value1.Z));
+        }
+
+        /// <summary>
+        /// Compute barycentric coordinates (u, v, w) for point p with respect to triangle (a, b, c)
+        /// From : Real-Time Collision Detection, Christer Ericson, CRC Press
+        /// 3.4 Barycentric Coordinates
+        /// </summary>
+        public static void Barycentric(Vector3D p, Vector3D a, Vector3D b, Vector3D c, out double u, out double v, out double w)
+        {
+            Vector3D v0 = b - a, v1 = c - a, v2 = p - a;
+            double d00 = Dot(v0, v0);
+            double d01 = Dot(v0, v1);
+            double d11 = Dot(v1, v1);
+            double d20 = Dot(v2, v0);
+            double d21 = Dot(v2, v1);
+            double denom = d00 * d11 - d01 * d01;
+            v = (d11 * d20 - d01 * d21) / denom;
+            w = (d00 * d21 - d01 * d20) / denom;
+            u = 1.0f - v - w;
         }
 
         /// <summary>

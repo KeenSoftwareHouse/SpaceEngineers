@@ -30,6 +30,7 @@ using VRage;
 using Sandbox.Engine.Multiplayer;
 using VRage.Network;
 using VRage.Game;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
@@ -277,7 +278,7 @@ namespace Sandbox.Game.Entities
             float speed = ((MyDoorDefinition)BlockDefinition).OpeningSpeed;
             m_currSpeed = m_open ? speed : -speed;
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             if (Sync.IsServer)
             {
@@ -297,11 +298,6 @@ namespace Sandbox.Game.Entities
 
             m_soundEmitter.StopSound(true);
             m_soundEmitter.PlaySingleSound(cuePair, true);
-        }
-
-        public override void UpdateBeforeSimulation100()
-        {
-            base.UpdateBeforeSimulation100();
         }
 
         public override void UpdateAfterSimulation()

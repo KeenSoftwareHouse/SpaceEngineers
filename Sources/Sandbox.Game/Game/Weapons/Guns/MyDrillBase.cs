@@ -1,8 +1,5 @@
 ﻿using System;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
@@ -12,12 +9,10 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Utils;
 using Sandbox.Game.Weapons.Guns;
 using Sandbox.Game.World;
-using Sandbox.ModAPI.Interfaces;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using VRage.ObjectBuilders;
@@ -25,6 +20,8 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Library.Utils;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Game.Weapons
 {
@@ -164,7 +161,7 @@ namespace Sandbox.Game.Weapons
 
             m_drilledMaterialBuffer = new Dictionary<MyVoxelMaterialDefinition, int>();
 
-            m_soundEmitter = new MyEntity3DSoundEmitter(m_drillEntity);
+            m_soundEmitter = new MyEntity3DSoundEmitter(m_drillEntity, true);
         }
 
         public bool Drill(bool collectOre = true, bool performCutout = true, bool assignDamagedMaterial = false)
@@ -184,6 +181,8 @@ namespace Sandbox.Game.Weapons
                 StopDustParticles();
                 var entitiesInRange = m_sensor.EntitiesInRange;
                 MyStringHash targetMaterial = MyStringHash.NullOrEmpty;
+                MyStringHash bestMaterial = MyStringHash.NullOrEmpty;
+                float distanceBest = float.MaxValue;
                 bool targetIsBlock = false;
                 foreach (var entry in entitiesInRange)
                 {
@@ -288,23 +287,30 @@ namespace Sandbox.Game.Weapons
                     if (drillingSuccess)
                     {
                         m_lastContactTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
+                        float dist = Vector3.DistanceSquared(entry.Value.DetectionPoint, Sensor.Center);
+                        if (targetMaterial != null && targetMaterial != MyStringHash.NullOrEmpty && dist < distanceBest)
+                        {
+                            bestMaterial = targetMaterial;
+                            distanceBest = dist;
+                        }
                     }
                 }
-                if (targetMaterial != null && targetMaterial != MyStringHash.NullOrEmpty)
+
+                if (bestMaterial != null && bestMaterial != MyStringHash.NullOrEmpty)
                 {
-                    sound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_drillMaterial, targetMaterial);
+                    sound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_drillMaterial, bestMaterial);
                     if (sound == null || sound == MySoundPair.Empty)//target material was not set in definition - using metal/rock sound
                     {
                         if (targetIsBlock)
                         {
-                            targetMaterial = m_metalMaterial;
+                            bestMaterial = m_metalMaterial;
                         }
                         else
                         {
-                            targetMaterial = m_rockMaterial;
+                            bestMaterial = m_rockMaterial;
                         }
                     }
-                    sound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_drillMaterial, targetMaterial);
+                    sound = MyMaterialPropertiesHelper.Static.GetCollisionCue(MyMaterialPropertiesHelper.CollisionType.Start, m_drillMaterial, bestMaterial);
                 }
             }
 
@@ -373,19 +379,45 @@ namespace Sandbox.Game.Weapons
 
         private void StartIdleSound(MySoundPair cuePair)
         {
-            if (m_soundEmitter == null || (m_soundEmitter.IsPlaying && m_soundEmitter.SoundId != cuePair.Arcade && m_soundEmitter.SoundId != cuePair.Realistic && MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastContactTime < 100))
+            if (m_soundEmitter == null)
                 return;
-            StartLoopSound(cuePair);
+            if (!m_soundEmitter.IsPlaying)
+            {
+                //no sound is playing, start idle sound normally
+                m_soundEmitter.PlaySound(cuePair);
+            }
+            else if (!m_soundEmitter.SoundPair.Equals(cuePair))
+            {
+                //different sound is playing, play end sound for currently playing and start idle sound without intro
+                m_soundEmitter.StopSound(false);
+                m_soundEmitter.PlaySound(cuePair, false, true);
+            }
         }
 
         private void StartLoopSound(MySoundPair cueEnum)
         {
             if (m_soundEmitter == null)
                 return;
-            if (m_soundEmitter.Loop)
-                m_soundEmitter.PlaySingleSound(cueEnum, true, true);
-            else
+            if (!m_soundEmitter.IsPlaying)
+            {
+                //no sound is playing, start sound normally
                 m_soundEmitter.PlaySound(cueEnum);
+            }
+            else if (!m_soundEmitter.SoundPair.Equals(cueEnum))
+            {
+                if (m_soundEmitter.SoundPair.Equals(m_idleSoundLoop))
+                {
+                    //idle sound is playing, stop idle sound and start new sound normally
+                    m_soundEmitter.StopSound(true);
+                    m_soundEmitter.PlaySound(cueEnum);
+                }
+                else
+                {
+                    //different sound is playing, play end sound for currently playing and start new sound without intro
+                    m_soundEmitter.StopSound(false);
+                    m_soundEmitter.PlaySound(cueEnum, false, true);
+                }
+            }
         }
 
         public void StopLoopSound()
@@ -627,9 +659,9 @@ namespace Sandbox.Game.Weapons
             return debrisDir;
         }
 
-        public void UpdateAfterSimulation100()
+        public void UpdateSoundEmitter()
         {
-            if(m_soundEmitter != null)
+            if (m_soundEmitter != null)
                 m_soundEmitter.Update();
         }
     }

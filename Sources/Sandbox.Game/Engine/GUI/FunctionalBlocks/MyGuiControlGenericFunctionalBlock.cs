@@ -22,6 +22,7 @@ using VRage.Library.Utils;
 using Sandbox.Game.SessionComponents;
 using Sandbox.Game.Entities.Blocks;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Graphics.GUI
 {

@@ -783,7 +783,7 @@ If the game doesn't run smoothly, decrease your screen resolution.</value>
     <value>HW mouse cursor is independent of game framerate. We recommend to turn it on.</value>
   </data>
   <data name="ToolTipVideoOptionsCaptureMouse" xml:space="preserve">
-    <value>Weather the cursor should be captured by the game window (for Windowed and Fullscreen Window modes).</value>
+    <value>Whether the cursor should be captured by the game window (for Windowed and Fullscreen Window modes).</value>
   </data>
   <data name="ToolTipVideoOptionsVerticalSync" xml:space="preserve">
     <value>The game will synchronize with the refresh rate of the monitor. We recommend to turn it off.</value>
@@ -1307,7 +1307,7 @@ Refinery speed {2}x</value>
     <value>Player disconnected: {0}</value>
   </data>
   <data name="MultiplayerError_IncorrectVersion" xml:space="preserve">
-    <value>Server has different version of the game. Your version: {0}; Server version: {1}</value>
+    <value>Server has different version of the game. Your version: {0}; Server version: {1}; You can change the branch, before launching the game, in game properties.</value>
   </data>
   <data name="ShowCrosshair" xml:space="preserve">
     <value>Show crosshair</value>
@@ -1754,7 +1754,7 @@ Open admin profile?</value>
     <value>Hud Warnings</value>
   </data>
   <data name="DialogTextIncompatibleWorldVersion" xml:space="preserve">
-    <value>This world can not be loaded. It has been created in newer version of the game.</value>
+    <value>This world cannot be loaded. It has been created in a newer version of the game or in a different branch of the game. You can change the branch, before launching the game, in game properties.</value>
   </data>
   <data name="MessageBoxTextPublishFailed_AccessDenied" xml:space="preserve">
     <value>This workshop item does not seem to belong to you. Make sure you are logged in with the right account.</value>
@@ -2448,5 +2448,14 @@ Do you want to continue?</value>
   </data>
   <data name="ScreenOptionsGame_SkinWarning" xml:space="preserve">
     <value>Note: Not all screens support skin at the moment</value>
+  </data>
+  <data name="AnimatedRotation" xml:space="preserve">
+    <value>Animated block preview</value>
+  </data>
+  <data name="BuildingSizeHint" xml:space="preserve">
+    <value>Show building size hint</value>
+  </data>
+  <data name="AudioSettings_ShipSoundsBasedOnSpeed" xml:space="preserve">
+    <value>Speed based ship sounds</value>
   </data>
 </root>

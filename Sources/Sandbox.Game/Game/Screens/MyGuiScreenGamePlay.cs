@@ -16,7 +16,6 @@ using Sandbox.Game.VoiceChat;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.Render;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;
@@ -36,6 +35,9 @@ using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.Audio;
 using Sandbox.Game.SessionComponents.Clipboard;
+using VRage.Profiler;
+using VRageRender.Messages;
+using VRageRender.Utils;
 
 #endregion
 
@@ -655,7 +657,7 @@ namespace Sandbox.Game.Gui
                     }
                 }
             }
-            if (!VRageRender.Profiler.MyRenderProfiler.ProfilerVisible && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
+            if (!VRage.Profiler.MyRenderProfiler.ProfilerVisible && MyControllerHelper.IsControl(context, MyControlsSpace.CHAT_SCREEN, MyControlStateType.NEW_PRESSED))
             {
                 if (MyGuiScreenChat.Static == null)
                 {
@@ -1054,81 +1056,16 @@ namespace Sandbox.Game.Gui
 
             MyRenderProxy.UpdateGameplayFrame(MySession.Static.GameplayFrameCounter);
 
-            VRageRender.MyRenderProxy.UpdateGodRaysSettings(
-                MySector.GodRaysProperties.Enabled,
-                MySector.GodRaysProperties.Density,
-                MySector.GodRaysProperties.Weight,
-                MySector.GodRaysProperties.Decay,
-                MySector.GodRaysProperties.Exposition,
-                false
-            );
-
-            VRageRender.MyRenderProxy.UpdateAntiAliasSettings(
-                MyPostProcessAntiAlias.Enabled
-            );
-
-            VRageRender.MyRenderProxy.UpdateVignettingSettings(
-                MyPostProcessVignetting.Enabled,
-                MyPostProcessVignetting.VignettingPower
-            );
-
-            VRageRender.MyRenderProxy.UpdateColorMappingSettings(
-                MyPostProcessColorMapping.Enabled
-            );
-
-            VRageRender.MyRenderProxy.UpdateChromaticAberrationSettings(
-                MyPostProcessChromaticAberration.Enabled,
-                MyPostProcessChromaticAberration.DistortionLens,
-                MyPostProcessChromaticAberration.DistortionCubic,
-                new Vector3(MyPostProcessChromaticAberration.DistortionWeightRed,
-                            MyPostProcessChromaticAberration.DistortionWeightGreen,
-                            MyPostProcessChromaticAberration.DistortionWeightBlue)
-            );
-
-            VRageRender.MyRenderProxy.UpdateContrastSettings(
-                MyPostProcessContrast.Enabled,
-                MyPostProcessContrast.Contrast,
-                MyPostProcessContrast.Hue,
-                MyPostProcessContrast.Saturation
-            );
-
-            VRageRender.MyRenderFogSettings fogSettings = new VRageRender.MyRenderFogSettings()
+            MyRenderFogSettings fogSettings = new MyRenderFogSettings()
             {
-                Enabled = MySector.FogProperties.EnableFog,
-                FogNear = MySector.FogProperties.FogNear,
-                FogFar = MySector.FogProperties.FogFar,
                 FogMultiplier = MySector.FogProperties.FogMultiplier,
-                FogBacklightMultiplier = MySector.FogProperties.FogBacklightMultiplier,
                 FogColor = MySector.FogProperties.FogColor,
                 FogDensity = MySector.FogProperties.FogDensity / 100.0f
             };
             VRageRender.MyRenderProxy.UpdateFogSettings(ref fogSettings);
 
-            VRageRender.MyRenderProxy.UpdateHDRSettings(
-                MyPostProcessHDR.DebugHDRChecked,
-                MyPostProcessHDR.Exposure,
-                MyPostProcessHDR.Threshold,
-                MyPostProcessHDR.BloomIntensity,
-                MyPostProcessHDR.BloomIntensityBackground,
-                MyPostProcessHDR.VerticalBlurAmount,
-                MyPostProcessHDR.HorizontalBlurAmount,
-                (int)MyPostProcessHDR.NumberOfBlurPasses
-            );
-
-
-            VRageRender.MyRenderProxy.UpdateSSAOSettings(
-                MyPostProcessVolumetricSSAO2.Enabled,
-                MyPostProcessVolumetricSSAO2.ShowOnlySSAO,
-                MyPostProcessVolumetricSSAO2.UseBlur,
-                MyPostProcessVolumetricSSAO2.MinRadius,
-                MyPostProcessVolumetricSSAO2.MaxRadius,
-                MyPostProcessVolumetricSSAO2.RadiusGrowZScale,
-                MyPostProcessVolumetricSSAO2.CameraZFarScale * MySector.MainCamera.FarPlaneDistance,
-                MyPostProcessVolumetricSSAO2.Bias,
-                MyPostProcessVolumetricSSAO2.Falloff,
-                MyPostProcessVolumetricSSAO2.NormValue,
-                MyPostProcessVolumetricSSAO2.Contrast
-            );
+            MyRenderProxy.UpdateSSAOSettings(ref MySector.SSAOSettings);
+            MyRenderProxy.UpdateHBAOSettings(MySector.HBAOSettings);
 
             var gravityProviders = Sandbox.Game.GameSystems.MyGravityProviderSystem.NaturalGravityProviders;
             float planetFactor = 0;
@@ -1167,50 +1104,26 @@ namespace Sandbox.Game.Gui
                 }
             }
 
-            VRageRender.MyRenderProxy.UpdateRenderEnvironment(
-                -MySector.SunProperties.SunDirectionNormalized,
-                MySector.SunProperties.SunDiffuse,
-                MySector.SunProperties.AdditionalSunDiffuse,
-                MySector.SunProperties.SunSpecular,
-                MySector.SunProperties.SunIntensity,
-                MySector.SunProperties.AdditionalSunIntensity,
-                MySector.SunProperties.AdditionalSunDirection,
-                true,
-                MySector.SunProperties.AmbientColor,
-                MySector.SunProperties.AmbientMultiplier,
-                MySector.SunProperties.EnvironmentAmbientIntensity,
-                MySector.SunProperties.BackgroundColor,
-                MySector.BackgroundTexture,
-                MySector.BackgroundTextureNight,
-                MySector.BackgroundTextureNightPrefiltered,
-                MySector.BackgroundOrientation,
-                MySector.SunProperties.SunSizeMultiplier,
-                MySector.DistanceToSun,
-                MySector.SunProperties.SunMaterial,
-                MySector.DayTime,
-                MySector.ResetEyeAdaptation,
-                MyFakes.ENABLE_SUN_BILLBOARD,
-                planetFactor
-            );
+            var envData = MySector.SunProperties.EnvironmentData;
+            envData.Skybox = MySector.EnvironmentDefinition.EnvironmentTexture;
+            envData.SkyboxOrientation = MySector.EnvironmentDefinition.EnvironmentOrientation.ToQuaternion();
+            envData.EnvironmentLight.SunLightDirection = -MySector.SunProperties.SunDirectionNormalized;
+            MyEnvironmentLightData.CalculateBackLightDirections(envData.EnvironmentLight.SunLightDirection, MySector.SunRotationAxis, 
+                out envData.EnvironmentLight.BackLightDirection1, out envData.EnvironmentLight.BackLightDirection2);
 
-            if (MyDebugDrawSettings.DEBUG_DRAW_ADDITIONAL_ENVIRONMENTAL_LIGHTS)
-            {
-                Color[] colors = { Color.Red, Color.Green, Color.Blue, Color.Yellow, Color.SlateGray };
-                for (int lightIndex = 0; lightIndex < MySector.SunProperties.AdditionalSunDirection.Length; ++lightIndex)
-                {
-                    var lightDirection = MySector.SunProperties.AdditionalSunDirection[lightIndex];
-                    MyRenderProxy.DebugDrawSphere(
-                        MySector.MainCamera.Position + 2f * MathHelper.CalculateVectorOnSphere(MySector.SunProperties.SunDirectionNormalized, lightDirection[0], lightDirection[1]),
-                        0.25f, colors[lightIndex], 1f, false);
+            envData.PlanetFactor = planetFactor;
+            envData.SunBillboardEnabled = MyFakes.ENABLE_SUN_BILLBOARD;
 
-                }
-            }
+            VRageRender.MyRenderProxy.UpdateRenderEnvironment(ref envData, MySector.ResetEyeAdaptation);
 
             MySector.ResetEyeAdaptation = false;
             VRageRender.MyRenderProxy.UpdateEnvironmentMap();
 
+            var postprocessedSettings = MyPostprocessSettings.LerpExposure(ref MyPostprocessSettingsWrapper.Settings, ref MyPostprocessSettingsWrapper.PlanetSettings, planetFactor);
+            MyRenderProxy.SwitchPostprocessSettings(ref postprocessedSettings);
 
-            VRageRender.MyRenderProxy.SwitchProsprocessSettings(VRageRender.MyPostprocessSettings.LerpExposure(ref MyPostprocessSettingsWrapper.Settings, ref MyPostprocessSettingsWrapper.PlanetSettings, planetFactor));
+            if (MyRenderProxy.SettingsDirty)
+                MyRenderProxy.SwitchRenderSettings(MyRenderProxy.Settings);
 
             VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Main render");
 

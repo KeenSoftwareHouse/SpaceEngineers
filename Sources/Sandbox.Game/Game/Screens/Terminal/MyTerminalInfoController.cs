@@ -179,6 +179,7 @@ namespace Sandbox.Game.Gui
             }
 
             setDestructibleBlocks.IsChecked = m_grid.DestructibleBlocks;
+            setDestructibleBlocks.IsCheckedChanged = setDestructibleBlocks_IsCheckedChanged;
 
             int gravityCounter = 0;
             if (m_grid.BlocksCounters.ContainsKey(typeof(MyObjectBuilder_GravityGenerator)))
@@ -235,6 +236,11 @@ namespace Sandbox.Game.Gui
 				pilot = mainCockpit.Pilot;
 			MyGuiControlLabel gridMass = new MyGuiControlLabel(text: new StringBuilder().AppendStringBuilder(MyTexts.Get(MySpaceTexts.TerminalTab_Info_GridMass)).AppendInt32(m_grid.GetCurrentMass(pilot)).ToString());
 			list.InitControls(new MyGuiControlBase[] { cubeCount, blockCount, conveyorCount, thrustCountLabel, lightCount, reflectorCount, gravityCount, massCount, polygonCount, gridMass });
+        }
+
+        private void setDestructibleBlocks_IsCheckedChanged(MyGuiControlCheckbox obj)
+        {
+            m_grid.DestructibleBlocks = obj.IsChecked;
         }
 
         //Rule: Count the player who has the most number of FUNCTIONAL blocks: only he can rename the ship

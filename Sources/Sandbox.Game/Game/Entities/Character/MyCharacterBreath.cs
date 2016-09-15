@@ -97,7 +97,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void Update(bool force=false)
         {
-            if (!Sandbox.Game.World.MySession.Static.Settings.RealisticSound || MySession.Static == null || MySession.Static.LocalCharacter != m_character)
+            if (MySession.Static == null || MySession.Static.LocalCharacter != m_character)
                 return;
 
             if (CurrentState == State.Heated)
@@ -132,12 +132,12 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (m_staminaDepletion < STAMINA_RECOVERY_CALM_TO_ZERO && health > 20f)
                 {
-                    if (m_sound == null || m_sound.CueEnum != BREATH_CALM.SoundId)
+                    if (!BREATH_CALM.SoundId.IsNull && (m_sound == null || m_sound.CueEnum != BREATH_CALM.SoundId))
                         PlaySound(BREATH_CALM.SoundId, true);
                 }
                 else
                 {
-                    if (m_sound == null || m_sound.CueEnum != BREATH_HEAVY.SoundId)
+                    if (!BREATH_HEAVY.SoundId.IsNull && (m_sound == null || m_sound.CueEnum != BREATH_HEAVY.SoundId))
                         PlaySound(BREATH_HEAVY.SoundId, true);
                 }
             }

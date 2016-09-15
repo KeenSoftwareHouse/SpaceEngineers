@@ -1109,7 +1109,7 @@ using VRage.Utils;
         public static readonly MyStringId ToolTipVideoOptionsHardwareCursor = MyStringId.GetOrCompute("ToolTipVideoOptionsHardwareCursor");
 
         ///<summary>
-        ///Weather the cursor should be captured by the game window (for Windowed and Fullscreen Window modes).
+        ///Whether the cursor should be captured by the game window (for Windowed and Fullscreen Window modes).
         ///</summary>
         public static readonly MyStringId ToolTipVideoOptionsCaptureMouse = MyStringId.GetOrCompute("ToolTipVideoOptionsCaptureMouse");
 
@@ -1974,7 +1974,7 @@ using VRage.Utils;
         public static readonly MyStringId NotificationClientDisconnected = MyStringId.GetOrCompute("NotificationClientDisconnected");
 
         ///<summary>
-        ///Server has different version of the game. Your version: {0}; Server version: {1}
+        ///Server has different version of the game. Your version: {0}; Server version: {1}; You can change the branch, before launching the game, in game properties.
         ///</summary>
         public static readonly MyStringId MultiplayerError_IncorrectVersion = MyStringId.GetOrCompute("MultiplayerError_IncorrectVersion");
 
@@ -2714,7 +2714,7 @@ using VRage.Utils;
         public static readonly MyStringId HudWarnings = MyStringId.GetOrCompute("HudWarnings");
 
         ///<summary>
-        ///This world can not be loaded. It has been created in newer version of the game.
+        ///This world cannot be loaded. It has been created in a newer version of the game or in a different branch of the game. You can change the branch, before launching the game, in game properties.
         ///</summary>
         public static readonly MyStringId DialogTextIncompatibleWorldVersion = MyStringId.GetOrCompute("DialogTextIncompatibleWorldVersion");
 
@@ -3867,4 +3867,19 @@ using VRage.Utils;
         ///Note: Not all screens support skin at the moment
         ///</summary>
         public static readonly MyStringId ScreenOptionsGame_SkinWarning = MyStringId.GetOrCompute("ScreenOptionsGame_SkinWarning");
+
+        ///<summary>
+        ///Animated block preview
+        ///</summary>
+        public static readonly MyStringId AnimatedRotation = MyStringId.GetOrCompute("AnimatedRotation");
+
+        ///<summary>
+        ///Show building size hint
+        ///</summary>
+        public static readonly MyStringId BuildingSizeHint = MyStringId.GetOrCompute("BuildingSizeHint");
+
+        ///<summary>
+        ///Speed based ship sounds
+        ///</summary>
+        public static readonly MyStringId AudioSettings_ShipSoundsBasedOnSpeed = MyStringId.GetOrCompute("AudioSettings_ShipSoundsBasedOnSpeed");
     }

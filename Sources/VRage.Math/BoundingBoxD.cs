@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+//using VRage.Utils;
 
 namespace VRageMath
 {
@@ -67,7 +68,7 @@ namespace VRageMath
         }
 
         /// <summary>
-        /// Gets an array of points that make up the corners of the BoundingBox.
+        /// Gets an array of points that make up the corners of the BoundingBox. ALLOCATION!
         /// </summary>
         public Vector3D[] GetCorners()
         {
@@ -434,12 +435,12 @@ namespace VRageMath
         /// </summary>
         public Vector3D Center
         {
-            get { return (Min + Max) / 2; }
+            get { return (Min + Max) * 0.5; }
         }
 
         public Vector3D HalfExtents
         {
-            get { return (Max - Min) / 2; }
+            get { return (Max - Min) * 0.5; }
         }
 
         public Vector3D Extents
@@ -895,9 +896,9 @@ namespace VRageMath
             result.Z = (double)v.Z >= 0.0 ? this.Max.Z : this.Min.Z;
         }
 
+        /// <summary>
         /// Translate
         /// </summary>
-        /// <param name="bbox"></param>
         /// <param name="worldMatrix"></param>
         /// <returns></returns>
         public BoundingBoxD Translate(MatrixD worldMatrix)
@@ -911,7 +912,6 @@ namespace VRageMath
         /// <summary>
         /// Translate
         /// </summary>
-        /// <param name="bbox"></param>
         /// <param name="vctTranlsation"></param>
         /// <returns></returns>
         public BoundingBoxD Translate(Vector3D vctTranlsation)
@@ -950,12 +950,22 @@ namespace VRageMath
             }
         }
 
-        public unsafe BoundingBoxD Transform(MatrixD worldMatrix)
+        /// <summary>
+        /// Transform this AABB by matrix.
+        /// </summary>
+        /// <param name="m">transformation matrix</param>
+        /// <returns>transformed aabb</returns>
+        public unsafe BoundingBoxD TransformSlow(MatrixD m)
         {
-            return Transform(ref worldMatrix);
+            return TransformSlow(ref m);
         }
 
-        public unsafe BoundingBoxD Transform(ref MatrixD worldMatrix)
+        /// <summary>
+        /// Transform this AABB by matrix.
+        /// </summary>
+        /// <param name="m">transformation matrix</param>
+        /// <returns>transformed aabb</returns>
+        public unsafe BoundingBoxD TransformSlow(ref MatrixD worldMatrix)
         {
             BoundingBoxD oobb = BoundingBoxD.CreateInvalid();
 
@@ -973,9 +983,65 @@ namespace VRageMath
         }
 
         /// <summary>
-        /// return expanded aabb (abb include point)
+        /// Transform this AABB by matrix. Matrix has to be only rotation and translation.
         /// </summary>
-        /// <param name="bbox"></param>
+        /// <param name="m">transformation matrix</param>
+        /// <returns>transformed aabb</returns>
+        public BoundingBoxD TransformFast(MatrixD m)
+        {
+            var bb = BoundingBoxD.CreateInvalid();
+            TransformFast(ref m, ref bb);
+            return bb;
+        }
+
+        /// <summary>
+        /// Transform this AABB by matrix. Matrix has to be only rotation and translation.
+        /// </summary>
+        /// <param name="m">transformation matrix</param>
+        /// <returns>transformed aabb</returns>
+        public BoundingBoxD TransformFast(ref MatrixD m)
+        {
+            var bb = BoundingBoxD.CreateInvalid();
+            TransformFast(ref m, ref bb);
+            return bb;
+        }
+
+        /// <summary>
+        /// Transform this AABB by matrix. Matrix has to be only rotation and translation.
+        /// </summary>
+        /// <param name="m">transformation matrix</param>
+        /// <param name="bb">output transformed aabb</param>
+        public void TransformFast(ref MatrixD m, ref BoundingBoxD bb)
+        {
+            Debug.Assert(Math.Abs(m.Up.LengthSquared() - 1) < 1e-6f);
+            Debug.Assert(Math.Abs(m.Right.LengthSquared() - 1) < 1e-6f);
+            Debug.Assert(Math.Abs(m.Forward.LengthSquared() - 1) < 1e-6f);
+            Debug.Assert(Math.Abs(m.Right.Dot(m.Up)) < 1e-6f);
+            Debug.Assert(Math.Abs(m.Right.Dot(m.Forward)) < 1e-6f);
+
+            bb.Min = bb.Max = m.Translation;
+            Vector3D min = m.Right * Min.X;
+            Vector3D max = m.Right * Max.X;
+            Vector3D.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
+
+            min = m.Up * Min.Y;
+            max = m.Up * Max.Y;
+            Vector3D.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
+
+            min = m.Backward * Min.Z;
+            max = m.Backward * Max.Z;
+            Vector3D.MinMax(ref min, ref max);
+            bb.Min += min;
+            bb.Max += max;
+        }
+
+        /// <summary>
+        /// return expanded aabb (aabb include point)
+        /// </summary>
         /// <param name="point"></param>
         /// <returns></returns>
         public BoundingBoxD Include(ref Vector3D point)
@@ -1010,10 +1076,9 @@ namespace VRageMath
         }
 
         /// <summary>
-        /// return expanded aabb (abb include point)
+        /// return expanded aabb (aabb include aabb)
         /// </summary>
-        /// <param name="bbox"></param>
-        /// <param name="point"></param>
+        /// <param name="box"></param>
         /// <returns></returns>
         public BoundingBoxD Include(ref BoundingBoxD box)
         {
@@ -1053,37 +1118,27 @@ namespace VRageMath
             return this;
         }
 
-        static Vector3D[] m_frustumPoints = null;
-
-        public BoundingBoxD Include(ref BoundingFrustumD frustum)
+        public unsafe BoundingBoxD Include(ref BoundingFrustumD frustum)
         {
-            if (m_frustumPoints == null)
-                m_frustumPoints = new Vector3D[8];
+            Vector3D* temporaryCorners = stackalloc Vector3D[8];
 
-            frustum.GetCorners(m_frustumPoints);
+            frustum.GetCornersUnsafe(temporaryCorners);
 
-            Include(ref m_frustumPoints[0]);
-            Include(ref m_frustumPoints[1]);
-            Include(ref m_frustumPoints[2]);
-            Include(ref m_frustumPoints[3]);
-            Include(ref m_frustumPoints[4]);
-            Include(ref m_frustumPoints[5]);
-            Include(ref m_frustumPoints[6]);
-            Include(ref m_frustumPoints[7]);
+            Include(ref temporaryCorners[0]);
+            Include(ref temporaryCorners[1]);
+            Include(ref temporaryCorners[2]);
+            Include(ref temporaryCorners[3]);
+            Include(ref temporaryCorners[4]);
+            Include(ref temporaryCorners[5]);
+            Include(ref temporaryCorners[6]);
+            Include(ref temporaryCorners[7]);
 
             return this;
         }
 
         public static BoundingBoxD CreateInvalid()
         {
-            BoundingBoxD bbox = new BoundingBoxD();
-            Vector3D vctMin = new Vector3D(double.MaxValue, double.MaxValue, double.MaxValue);
-            Vector3D vctMax = new Vector3D(double.MinValue, double.MinValue, double.MinValue);
-
-            bbox.Min = vctMin;
-            bbox.Max = vctMax;
-
-            return bbox;
+            return new BoundingBoxD(new Vector3D(double.MaxValue), new Vector3D(double.MinValue));
         }
 
         public double SurfaceArea
@@ -1197,18 +1252,18 @@ namespace VRageMath
             Vector3D minCenter = Center;
             if (Size.X < minimumSize.X)
             {
-                Min.X = minCenter.X - minimumSize.X / 2;
-                Max.X = minCenter.X + minimumSize.X / 2;
+                Min.X = minCenter.X - minimumSize.X * 0.5;
+                Max.X = minCenter.X + minimumSize.X * 0.5;
             }
             if (Size.Y < minimumSize.Y)
             {
-                Min.Y = minCenter.Y - minimumSize.Y / 2;
-                Max.Y = minCenter.Y + minimumSize.Y / 2;
+                Min.Y = minCenter.Y - minimumSize.Y * 0.5;
+                Max.Y = minCenter.Y + minimumSize.Y * 0.5;
             }
             if (Size.Z < minimumSize.Z)
             {
-                Min.Z = minCenter.Z - minimumSize.Z / 2;
-                Max.Z = minCenter.Z + minimumSize.Z / 2;
+                Min.Z = minCenter.Z - minimumSize.Z * 0.5;
+                Max.Z = minCenter.Z + minimumSize.Z * 0.5;
             }
         }
 
@@ -1217,18 +1272,18 @@ namespace VRageMath
             Vector3D minCenter = Center;
             if (Size.X < minimumSize)
             {
-                Min.X = minCenter.X - minimumSize / 2;
-                Max.X = minCenter.X + minimumSize / 2;
+                Min.X = minCenter.X - minimumSize * 0.5;
+                Max.X = minCenter.X + minimumSize * 0.5;
             }
             if (Size.Y < minimumSize)
             {
-                Min.Y = minCenter.Y - minimumSize / 2;
-                Max.Y = minCenter.Y + minimumSize / 2;
+                Min.Y = minCenter.Y - minimumSize * 0.5;
+                Max.Y = minCenter.Y + minimumSize * 0.5;
             }
             if (Size.Z < minimumSize)
             {
-                Min.Z = minCenter.Z - minimumSize / 2;
-                Max.Z = minCenter.Z + minimumSize / 2;
+                Min.Z = minCenter.Z - minimumSize * 0.5;
+                Max.Z = minCenter.Z + minimumSize * 0.5;
             }
         }
 

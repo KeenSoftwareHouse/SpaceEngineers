@@ -434,7 +434,7 @@ namespace Sandbox.Game.Gui
 
             void okButton_ButtonClicked(MyGuiControlButton obj)
             {
-                MyCubeBuilder.Static.StartNewGridPlacement((MyCubeSize)m_sizeCombobox.GetSelectedKey(), m_staticCheckbox.IsChecked);
+                MyCubeBuilder.Static.StartStaticGridPlacement((MyCubeSize)m_sizeCombobox.GetSelectedKey(), m_staticCheckbox.IsChecked);
                 CloseScreen();
             }
         }

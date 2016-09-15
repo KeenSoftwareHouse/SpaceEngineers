@@ -156,12 +156,16 @@
     <Compile Include="Definitions\Animation\MyAnimationDefinition.cs" />
     <Compile Include="Definitions\MyDefinitionErrors.cs" />
     <Compile Include="Definitions\MyDefinitionManagerBase.cs" />
+    <Compile Include="Definitions\MyDefinitionManagerSimple.cs" />
     <Compile Include="Definitions\MyDefinitionPostprocessor.cs" />
     <Compile Include="Definitions\MyDefinitionSet.cs" />
+    <Compile Include="Definitions\MyFogProperties.cs" />
     <Compile Include="Definitions\MyGameDefinition.cs" />
     <Compile Include="Definitions\SessionComponents\MyClipboardDefinition.cs" />
     <Compile Include="Definitions\SessionComponents\MyCoordinateSystemDefinition.cs" />
     <Compile Include="Definitions\SessionComponents\MyCubeBuilderDefinition.cs" />
+    <Compile Include="Definitions\MySunProperties.cs" />
+    <Compile Include="Definitions\MyVisualSettingsDefinition.cs" />
     <Compile Include="Entity\EntityComponents\MyAnimationControllerComponent.cs" />
     <Compile Include="Entity\EntityComponents\MyAnimationControllerComponent.LoadFromDef.cs" />
     <Compile Include="Entity\EntityComponents\MyEntityOwnershipComponent.cs" />
@@ -252,6 +256,7 @@
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CharacterPickupComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractive.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_CraftingComponentInteractiveDefinition.cs" />
+    <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_EntityReverbDetectorComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_InventoryComponentDefinition.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_ShipSoundComponent.cs" />
     <Compile Include="ObjectBuilders\ComponentSystem\MyObjectBuilder_PhysicsBodyComponent.cs" />
@@ -276,6 +281,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GameDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GhostCharacterDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GpsCollectionDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_VisualSettingsDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ResearchDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SchematicItemDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_SessionComponentDefinition.cs" />
@@ -312,6 +318,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemMedievalWeapon.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ToolbarItemUsable.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_UsableItem.cs" />
+    <Compile Include="ObjectBuilder\MyDefinitionXmlSerializer.cs" />
     <Compile Include="ObjectBuilder\MyGlobalTypeMetadata.cs" />
     <Compile Include="Utils\MyCamera.cs" />
     <Compile Include="Utils\MyCameraShake.cs" />
@@ -675,7 +682,6 @@
     <Compile Include="ObjectBuilders\VRageData\GameRelationAttribute.cs" />
     <Compile Include="ObjectBuilders\VRageData\SerializableBlockOrientation.cs" />
     <Compile Include="ObjectBuilder\DynamicObjectBuilderAttribute.cs" />
-    <Compile Include="ObjectBuilder\MyAbstractXmlSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderDynamicSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderSerializer.cs" />
     <Compile Include="ObjectBuilder\MyObjectBuilderType.cs" />
@@ -713,6 +719,10 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
       <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>

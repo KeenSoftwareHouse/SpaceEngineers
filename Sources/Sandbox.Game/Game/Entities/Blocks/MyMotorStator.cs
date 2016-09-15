@@ -23,6 +23,7 @@ using VRage.Network;
 using VRage.Utils;
 using VRageMath;
 using VRage.Library;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Cube
 {

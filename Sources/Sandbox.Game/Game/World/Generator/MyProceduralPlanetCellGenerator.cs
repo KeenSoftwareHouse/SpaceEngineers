@@ -6,10 +6,10 @@ using System.Diagnostics;
 using VRage;
 using VRage.Library.Utils;
 using VRage.Noise;
-using VRage.Voxels;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Game.World.Generator
 {
@@ -36,7 +36,7 @@ namespace Sandbox.Game.World.Generator
 
         internal const int FALLOFF = 16 * 1000;
 
-        internal const double GRAVITY_SIZE_MULTIPLIER = 2.0;
+        internal const double GRAVITY_SIZE_MULTIPLIER = 1.1;
 
         internal readonly double OBJECT_SEED_RADIUS;
 

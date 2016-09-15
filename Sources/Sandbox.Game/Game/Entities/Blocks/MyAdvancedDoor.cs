@@ -23,6 +23,8 @@ using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities
 {
@@ -306,7 +308,7 @@ namespace Sandbox.Game.Entities
                     if (((MyAdvancedDoorDefinition)BlockDefinition).Subparts[i].PivotPosition == null)
                     {
                         // ...try to get pivot from Model...
-                        VRage.Import.MyModelBone bone = foundPart.Model.Bones.First(b => !b.Name.Contains("Root"));
+                        MyModelBone bone = foundPart.Model.Bones.First(b => !b.Name.Contains("Root"));
 
                         if (bone != null)
                             m_hingePosition.Add(bone.Transform.Translation);
@@ -449,12 +451,11 @@ namespace Sandbox.Game.Entities
             m_emitter[emitterId].PlaySingleSound(cuePair);
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
-            base.UpdateBeforeSimulation100();
-
             for (int i = 0; i < m_emitter.Count; i++)
-                m_emitter[i].Update();
+                if(m_emitter[i] != null)
+                    m_emitter[i].Update();
         }
 
         public override void UpdateAfterSimulation()

@@ -13,6 +13,7 @@ using VRage.ModAPI;
 using VRageMath;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {

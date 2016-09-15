@@ -14,7 +14,6 @@ namespace VRageRender
     {
         internal MyRenderableProxy[] RenderableProxies;
         internal UInt64[] SortingKeys;
-        internal MyMaterialShadersBundleId[] HighlightShaders;
 
         internal VertexLayoutId VertexLayout1;
         internal MyShaderUnifiedFlags VertexShaderFlags;
@@ -71,7 +70,6 @@ namespace VRageRender
         {
             DeallocateProxies();
             SortingKeys = null;
-            HighlightShaders = null;
             VertexLayout1 = VertexLayoutId.NULL;
             VertexShaderFlags = MyShaderUnifiedFlags.NONE;
             Distance = float.MinValue;

@@ -97,7 +97,7 @@ namespace VRage.ObjectBuilders
 
         public TBase CreateInstance<TBase>(MyObjectBuilderType objectBuilderType) where TBase : class, TCreatedObjectBase
         {
-            Debug.Assert(m_attributesByObjectBuilder.ContainsKey(objectBuilderType));
+            Debug.Assert(m_attributesByObjectBuilder.ContainsKey(objectBuilderType), "'" + objectBuilderType + "' cannot be resolved");
 
             TAttribute attribute;
             if (m_attributesByObjectBuilder.TryGetValue(objectBuilderType, out attribute))

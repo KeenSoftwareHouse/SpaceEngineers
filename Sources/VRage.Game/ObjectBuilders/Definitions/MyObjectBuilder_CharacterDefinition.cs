@@ -264,6 +264,9 @@ namespace VRage.Game
         public bool UsesAtmosphereDetector = false;
 
         [ProtoMember]
+        public bool UsesReverbDetector = false;
+
+        [ProtoMember]
         public bool NeedsOxygen = false;
 
         [ProtoMember]
@@ -350,6 +353,8 @@ namespace VRage.Game
         public string CrouchDownSoundName = "";
         [ProtoMember]
         public string CrouchUpSoundName = "";
+        [ProtoMember]
+        public string MovementSoundName = "";
 
         [ProtoMember]
         public string PainSoundName = "";

@@ -37,6 +37,7 @@ using Sandbox.Definitions;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Library;
+using VRage.Profiler;
 
 #endregion
 

@@ -2768,6 +2768,11 @@ return flag;
         /// <param name="matrix">Source matrix.</param>
         public static Matrix Invert(Matrix matrix)
         {
+            return Invert(ref matrix);
+        }
+
+        public static Matrix Invert(ref Matrix matrix)
+        {
             float num1 = matrix.M11;
             float num2 = matrix.M12;
             float num3 = matrix.M13;

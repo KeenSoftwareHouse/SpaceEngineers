@@ -29,6 +29,7 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
+using VRage.Profiler;
 
 namespace Sandbox.Game.SessionComponents.Clipboard
 {
@@ -165,9 +166,18 @@ namespace Sandbox.Game.SessionComponents.Clipboard
         {
             base.UnloadData();
 
-            m_clipboard.Deactivate();
-            m_floatingObjectClipboard.Deactivate();
-            m_voxelClipboard.Deactivate();
+            if (m_clipboard != null)
+            {
+                m_clipboard.Deactivate();
+            }
+            if (m_floatingObjectClipboard != null)
+            {
+                m_floatingObjectClipboard.Deactivate();
+            }
+            if (m_voxelClipboard != null)
+            {
+                m_voxelClipboard.Deactivate();
+            }
 
             Static = null;
         }

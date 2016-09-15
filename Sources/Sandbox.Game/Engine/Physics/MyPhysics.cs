@@ -24,7 +24,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Multiplayer;
-
+using VRage.Profiler;
 
 #endregion
 
@@ -1481,9 +1481,9 @@ namespace Sandbox.Engine.Physics
         /// <param name="oldAabb"></param>
         /// <param name="aabb"></param>
         /// <param name="velocity"></param>
-        public static void MoveObject(ulong id, BoundingBoxD oldAabb, BoundingBoxD aabb, Vector3 velocity)
+        public static void MoveObject(ulong id, BoundingBoxD aabb, Vector3 velocity)
         {
-            Clusters.MoveObject(id, oldAabb, aabb, velocity);
+            Clusters.MoveObject(id, aabb, velocity);
         }
 
         /// <summary>

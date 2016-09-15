@@ -16,7 +16,6 @@ using System.Diagnostics;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ObjectBuilders;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 

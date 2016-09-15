@@ -269,7 +269,7 @@ namespace Sandbox.Engine.Networking
                                 //World settings data
                                 var worldSettings = new Dictionary<string, object> ();
                                 worldSettings.Add("hostility", attributes.GameplayStart.hostility);
-                                worldSettings.Add("cyber_hounds", attributes.GameplayStart.cyberHounds);
+                                worldSettings.Add("cyber_hounds", attributes.GameplayStart.Wolfs);
                                 worldSettings.Add("space_spiders", attributes.GameplayStart.spaceSpiders);
                                 worldSettings.Add("voxel_support", attributes.GameplayStart.voxelSupport);
                                 worldSettings.Add("destructible_blocks", attributes.GameplayStart.destructibleBlocks);

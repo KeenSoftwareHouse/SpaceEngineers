@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using VRage.Voxels;
 using VRage.Native;
 using VRageMath;
-using VRageRender;
 using System.Diagnostics;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {

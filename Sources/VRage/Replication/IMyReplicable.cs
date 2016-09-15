@@ -25,7 +25,7 @@ namespace VRage.Network
         /// When priority is lower than zero, it means the object is not relevant for client.
         /// Default priority is 1.0f.
         /// </summary>
-        float GetPriority(MyClientInfo client);
+        float GetPriority(MyClientInfo client,bool cached);
 
         /// <summary>
         /// Serializes object for replication to client.

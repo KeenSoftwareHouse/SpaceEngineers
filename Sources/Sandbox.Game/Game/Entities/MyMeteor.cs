@@ -32,6 +32,7 @@ using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.Entities.EnvironmentItems;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {

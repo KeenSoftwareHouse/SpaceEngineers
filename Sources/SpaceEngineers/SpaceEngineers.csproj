@@ -210,6 +210,7 @@
     <None Include="App.config" />
     <None Include="Content\Data\Characters_animals.sbc" />
     <None Include="Content\Data\Decals.sbc" />
+    <None Include="Content\Data\DefinitionsToPreload.sbc" />
     <None Include="Content\Data\EntityComponents.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -419,6 +420,10 @@
       <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
       <Name>VRage.Render11</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1C814936-C9A7-4FAF-B543-28F021D98B6C}</Project>
       <Name>VRage</Name>
@@ -430,10 +435,6 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40CE67D5-C89F-4A56-AE52-85DB1BEA07FE}</Project>
       <Name>VRage.Math</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
-      <Project>{1713E6CD-808A-4A44-9532-04771499BB01}</Project>
-      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\XB1Interface\XB1Interface.csproj" Condition="('$(Configuration)' == 'Debug_XB1') Or ('$(Configuration)' == 'Release_XB1')">
       <Project>{b6068a9d-54a1-425a-9dfb-87fd9ec5e822}</Project>
@@ -476,15 +477,10 @@
     <!-- Recreate content dir -->
     <RemoveDir Directories="$(OutDir)..\Content" ContinueOnError="true" />
     <MakeDir Directories="$(OutDir)..\Content" />
-    <!-- Link Effects and Shaders from Render projects to SpaceEngineers\Content dir -->
-    <RemoveDir Directories="$(ProjectDir)Content\Shaders" ContinueOnError="true" />
-    <RemoveDir Directories="$(ProjectDir)Content\Effects2" ContinueOnError="true" />
-    <Exec Command="mklink /J &quot;$(ProjectDir)Content\Shaders&quot; &quot;..\VRage.Render11\Shaders" IgnoreExitCode="true" />
-    <Exec Command="mklink /J &quot;$(ProjectDir)Content\Effects2&quot; &quot;..\VRage.Render\Effects2" IgnoreExitCode="true" />
     <!-- Link Data and Effects from original source (always from source location) -->
+    <RemoveDir Directories="$(OutDir)..\Content\Shaders" ContinueOnError="true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data&quot; &quot;$(ProjectDir)Content\Data&quot;" IgnoreExitCode="true" Condition="$(DataFromSources)==true" />
-    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Effects2&quot; &quot;$(ProjectDir)Content\Effects2&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
-    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;$(ProjectDir)Content\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
+    <Exec Command="mklink /J &quot;$(OutDir)..\Content\Shaders&quot; &quot;..\VRage.Render11\Shaders&quot;" IgnoreExitCode="true" Condition="$(EffectsFromSources)==true" />
     <!-- This will create link for common texts -->
     <RemoveDir Directories="$(OutDir)..\Content\Data\Localization\Common" ContinueOnError="true" />
     <Exec Command="mklink /J &quot;$(OutDir)..\Content\Data\Localization\Common&quot; &quot;$(ProjectDir)..\VRage.Game\Content\Data\Localization&quot;" IgnoreExitCode="true" />

@@ -11,6 +11,7 @@ using VRage.Input;
 using VRage.ModAPI;
 using VRageMath;
 using VRage.Game;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities.Cube
 {

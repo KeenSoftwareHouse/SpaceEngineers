@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using VRage.Render11.Resources;
 using VRageMath;
+using System.IO;
 
 namespace VRageRender
 {
@@ -26,7 +28,10 @@ namespace VRageRender
             var soStrides = new int[] { sizeof(Vector3) + sizeof(uint) };
 
             if(m_geometryShader == GeometryShaderId.NULL)
-                m_geometryShader = MyShaders.CreateGs("passes/foliage_streaming/geometry_stage.hlsl", null, new MyShaderStreamOutputInfo { Elements = soElements, Strides = soStrides, RasterizerStreams = GeometryShader.StreamOutputNoRasterizedStream });
+            {
+                string stageFile = Path.Combine(MyMaterialShaders.PassesFolder, MyMaterialShaders.FOLIAGE_STREAMING_PASS, "GeometryStage.hlsl");
+                m_geometryShader = MyShaders.CreateGs(stageFile, null, new MyShaderStreamOutputInfo { Elements = soElements, Strides = soStrides, RasterizerStreams = GeometryShader.StreamOutputNoRasterizedStream });
+            }
 
             SetImmediate(true);
         }
@@ -35,10 +40,10 @@ namespace VRageRender
         {
             base.Begin();
 
-            Context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            RC.SetGS(m_geometryShader);
-            RC.SetPS(null);
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, null);
+            RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
+            RC.GeometryShader.Set(m_geometryShader);
+            RC.PixelShader.Set(null);
+            RC.SetRtv(null);
         }
 
         internal sealed override void End()
@@ -49,7 +54,7 @@ namespace VRageRender
 
         internal void CleanupPipeline()
         {
-            Context.GeometryShader.Set(null);
+            RC.GeometryShader.Set(null);
         }
 
         internal unsafe void RecordCommands(MyRenderableProxy proxy, MyFoliageStream stream, int voxelMatId,
@@ -69,17 +74,17 @@ namespace VRageRender
             MyObjectDataCommon objectData = proxy.CommonObjectData;
             objectData.LocalMatrix = worldMat;
 
-            MyMapping mapping = MyMapping.MapDiscard(RC.DeviceContext, proxy.ObjectBuffer);
+            MyMapping mapping = MyMapping.MapDiscard(RC, proxy.ObjectBuffer);
             mapping.WriteAndPosition(ref proxy.VoxelCommonObjectData);
             mapping.WriteAndPosition(ref objectData);
             mapping.Unmap();
 
-            RC.SetCB(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.OBJECT_SLOT, proxy.ObjectBuffer);
 
             BindProxyGeometry(proxy, RC);
 
-            RC.SetVS(vertexShader);
-            RC.SetIL(inputLayout);
+            RC.VertexShader.Set(vertexShader);
+            RC.SetInputLayout(inputLayout);
 
             int offset = -1;
             if (!stream.Append)
@@ -88,20 +93,20 @@ namespace VRageRender
                 stream.Append = true;
             }
 
-            Context.StreamOutput.SetTarget(stream.m_stream.Buffer, offset);
-            RC.SetCB(MyCommon.FOLIAGE_SLOT, MyCommon.FoliageConstants);
+            RC.SetTarget(stream.m_stream.Buffer, offset);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.FOLIAGE_SLOT, MyCommon.FoliageConstants);
 
             float densityFactor = MyVoxelMaterials1.Table[voxelMatId].FoliageDensity * MyRender11.Settings.GrassDensityFactor;
 
             float zero = 0;
-            mapping = MyMapping.MapDiscard(Context, MyCommon.FoliageConstants);
+            mapping = MyMapping.MapDiscard(RC, MyCommon.FoliageConstants);
             mapping.WriteAndPosition(ref densityFactor);
             mapping.WriteAndPosition(ref materialIndex);
             mapping.WriteAndPosition(ref voxelMatId);
             mapping.WriteAndPosition(ref zero);
             mapping.Unmap();
 
-            Context.DrawIndexed(indexCount, startIndex, baseVertex);
+            RC.DrawIndexed(indexCount, startIndex, baseVertex);
         }
 
         internal override void Cleanup()

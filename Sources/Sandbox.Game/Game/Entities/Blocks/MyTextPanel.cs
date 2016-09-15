@@ -25,6 +25,7 @@ using VRage.Game.GUI.TextPanel;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -494,10 +495,6 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (CheckIsWorking() == false)
                 {
-                    if (ShowTextOnScreen)
-                    {
-                        Render.ReleaseRenderTexture();
-                    }
                     Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
                 }
                 else
@@ -525,10 +522,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (CheckIsWorking() == false)
             {
-                if (ShowTextOnScreen)
-                {
-                    Render.ReleaseRenderTexture();
-                }
                 Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
             }
             else
@@ -561,10 +554,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
             else
             {
-                if (ShowTextOnScreen)
-                {
-                    Render.ReleaseRenderTexture();
-                }
                 Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
             }
         }
@@ -1085,7 +1074,6 @@ namespace Sandbox.Game.Entities.Blocks
         public void ReleaseRenderTexture()
         {
             m_descriptionChanged = true;
-            Render.ReleaseRenderTexture();
             Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
         }
 
@@ -1119,10 +1107,6 @@ namespace Sandbox.Game.Entities.Blocks
             if (ResourceSink != null)
                 if (CheckIsWorking() == false)
                 {
-                    if (ShowTextOnScreen)
-                    {
-                        Render.ReleaseRenderTexture();
-                    }
                     Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
                 }
                 else

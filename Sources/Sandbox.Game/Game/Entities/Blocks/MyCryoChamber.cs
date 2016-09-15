@@ -26,6 +26,8 @@ using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.ModAPI;
 using VRage.Game.Entity;
+using VRage.Sync;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities.Blocks
 {

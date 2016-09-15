@@ -13,6 +13,7 @@ using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using VRage;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -43,7 +44,7 @@ namespace Sandbox.Game.Entities.Cube
             m_disconnectHelper.Clear();
             foreach (var block in grid.GetBlocks())
             {
-                if ( block == testBlock )
+                if (block == testBlock)
                     continue;
 
                 m_disconnectHelper.Add(block);
@@ -102,19 +103,23 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.End();
 
             ProfilerShort.Begin("CreateSplits");
-            if ( m_groups.Count > 0 )
+            if (m_groups.Count > 0)
             {
-                if ( testDisconnect )
+                if (testDisconnect)
                 {
                     m_groups.Clear();
                     m_sortedBlocks.Clear();
                     m_disconnectHelper.Clear();
                     return true;
                 }
-                MyCubeGrid.CreateSplits( grid, m_sortedBlocks, m_groups );
+                MyCubeGrid.CreateSplits(grid, m_sortedBlocks, m_groups);
             }
-                ProfilerShort.End();
-
+            else
+            {
+                if (grid.IsStatic)
+                    grid.TestDynamic = true;
+            }
+            ProfilerShort.End();
 
             m_groups.Clear();
             m_sortedBlocks.Clear();
@@ -138,7 +143,7 @@ namespace Sandbox.Game.Entities.Cube
                 var currentBlock = m_neighborSearchBaseStack.Dequeue();
                 foreach (var n in currentBlock.Neighbours)
                 {
-                    if ( n == testBlock )
+                    if (n == testBlock)
                         continue;
 
                     if (m_disconnectHelper.Remove(n))
@@ -169,7 +174,7 @@ namespace Sandbox.Game.Entities.Cube
                 return MyEntities.IsInsideVoxel(blockPos, oldPos, out tmp);
             }
         }
-        
+
         //this tests if removing a block will cause a grid to split
         //this can take several ms per query, so should be called in a thread or very sparingly
         public bool TryDisconnect(MySlimBlock testBlock)

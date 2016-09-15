@@ -1,18 +1,13 @@
-﻿using ProtoBuf;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Localization;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using Sandbox.Game.World.Generator;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +17,6 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRage.Library.Utils;
 using VRage.FileSystem;
@@ -31,8 +25,9 @@ using VRage.Network;
 using VRage.Serialization;
 using System.Diagnostics;
 using VRage.Game;
-using VRageRender;
 using Sandbox.Game.SessionComponents.Clipboard;
+using VRage.Voxels;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Gui
 {

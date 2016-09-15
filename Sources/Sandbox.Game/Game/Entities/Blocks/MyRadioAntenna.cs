@@ -20,6 +20,7 @@ using VRage.Game.Components;
 using VRage.Utils;
 using VRage.ModAPI;
 using VRage.Game.Gui;
+using VRage.Sync;
 
 #endregion
 
@@ -242,7 +243,7 @@ namespace Sandbox.Game.Entities.Cube
 
             ShowOnHUD = false;
 
-            m_gizmoColor = MySandboxGame.IsDirectX11 ? new Vector4(0.2f, 0.2f, 0.0f, 0.5f) : new Vector4(0.1f, 0.1f, 0.0f, 0.1f);
+            m_gizmoColor = new Vector4(0.2f, 0.2f, 0.0f, 0.5f);
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }

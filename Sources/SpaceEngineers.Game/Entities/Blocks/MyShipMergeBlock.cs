@@ -15,6 +15,7 @@ using SpaceEngineers.Game.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.ModAPI;
+using VRage.Profiler;
 using VRageMath;
 using VRageRender;
 
@@ -178,19 +179,19 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            VRage.ProfilerShort.Begin("MergeLeave");
+            ProfilerShort.Begin("MergeLeave");
             var entities = MyPhysicsExtensions.GetAllEntities(body);
             foreach (var entity in entities)
             {
                 m_gridList.Remove(entity as MyCubeGrid);
             }
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            VRage.ProfilerShort.Begin("MergeEnter");
+            ProfilerShort.Begin("MergeEnter");
             var entities = MyPhysicsExtensions.GetAllEntities(body);
             foreach (var entity in entities)
             {
@@ -203,7 +204,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 //Debug.Assert(added, "entity already in list");
             }
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         private void CalculateMergeArea(out Vector3I minI, out Vector3I maxI)

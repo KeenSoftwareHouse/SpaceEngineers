@@ -177,7 +177,7 @@ namespace Sandbox.Game.Entities
                 return false;
             }
 
-            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
+            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceItem);
 
             MyEntities.RemapObjectBuilderCollection(m_copiedFloatingObjects);
 

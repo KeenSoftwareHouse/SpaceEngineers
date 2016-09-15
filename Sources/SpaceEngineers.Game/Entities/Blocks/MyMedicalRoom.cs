@@ -31,6 +31,7 @@ using VRage.ModAPI;
 using VRage.Network;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {
@@ -221,7 +222,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 	         
             m_rechargeSocket = new MyRechargeSocket();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
 
             SteamUserId = (objectBuilder as MyObjectBuilder_MedicalRoom).SteamUserId;
 
@@ -292,11 +293,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return builder;
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
-            base.UpdateBeforeSimulation100();
-            m_idleSoundEmitter.Update();
-            m_progressSoundEmitter.Update();
+            base.UpdateSoundEmitters();
+            if(m_idleSoundEmitter != null)
+                m_idleSoundEmitter.Update();
+            if(m_progressSoundEmitter != null)
+                m_progressSoundEmitter.Update();
         }
 
         public override void UpdateBeforeSimulation10()

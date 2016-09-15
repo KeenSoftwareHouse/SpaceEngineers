@@ -1,31 +1,16 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
-using Sandbox.Engine.Voxels;
+﻿using Sandbox.Engine.Voxels;
 using Sandbox.Game.Components;
-using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System.Diagnostics;
-using System.Threading;
-
-using VRage;
 using VRageMath;
-using VRageRender;
-
 using Sandbox.Engine.Utils;
-using VRage.Voxels;
 using VRage.Utils;
-using System;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
-using VRage.Network;
-using VRage.Library.Collections;
-using System.Collections.Generic;
-using Sandbox.Engine.Multiplayer;
-using Sandbox.Game.Replication;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
+using VRage.Voxels;
 
 
 namespace Sandbox.Game.Entities
@@ -152,7 +137,6 @@ namespace Sandbox.Game.Entities
 
         public override void UpdateOnceBeforeFrame()
         {
-            PositionComp.UpdateAABBHr();
             base.UpdateOnceBeforeFrame();
         }
 

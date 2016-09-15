@@ -7,12 +7,16 @@ using System.Linq;
 using VRage;
 using VRage.Import;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageMath.PackedVector;
 using VRageRender.Vertex;
 using VRage.FileSystem;
 using SharpDX.Direct3D11;
+using VRage.Profiler;
+using VRage.Render11.Resources;
+using VRage.Voxels;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 namespace VRageRender
 {

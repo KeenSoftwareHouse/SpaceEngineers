@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.Profiler;
 using VRage.Voxels;
 using VRageMath;
+using VRageRender.Messages;
+using VRageRender.Voxels;
 
 namespace VRageRender
 {
@@ -21,7 +24,7 @@ namespace VRageRender
         readonly RenderFlags m_renderFlags;
         public RenderFlags RenderFlags { get { return m_renderFlags; } }
 
-        internal MyClipmapHandler(uint id, MyClipmapScaleEnum scaleGroup, MatrixD worldMatrix, Vector3I sizeLod0, Vector3D massiveCenter, float massiveRadius, bool spherize, RenderFlags additionalFlags, VRage.Voxels.MyClipmap.PruningFunc prunningFunc)
+        internal MyClipmapHandler(uint id, MyClipmapScaleEnum scaleGroup, MatrixD worldMatrix, Vector3I sizeLod0, Vector3D massiveCenter, float massiveRadius, bool spherize, RenderFlags additionalFlags, MyClipmap.PruningFunc prunningFunc)
         {
             m_clipmapBase = new MyClipmap(id, scaleGroup, worldMatrix, sizeLod0, this, massiveCenter, massiveRadius, prunningFunc);
             m_massiveCenter = massiveCenter;
@@ -34,7 +37,7 @@ namespace VRageRender
             if (MyLodMeshMergeHandler.ShouldAllocate(m_mergeHandler))
                 m_mergeHandler = AllocateMergeHandler();
 
-            MyClipmap.AddToUpdate(MyRender11.Environment.CameraPosition, Base);
+            MyClipmap.AddToUpdate(MyRender11.Environment.Matrices.CameraPosition, Base);
         }
 
         private MyLodMeshMergeHandler AllocateMergeHandler()
@@ -134,7 +137,8 @@ namespace VRageRender
         {
             if (!MyRender11.Settings.FreezeTerrainQueries)
             {
-                MyClipmap.UpdateQueued(MyRender11.Environment.CameraPosition, MyRender11.Environment.InvView.Forward, MyRender11.Environment.FarClipping, MyRender11.Environment.LargeDistanceFarClipping);
+                MyClipmap.UpdateQueued(MyRender11.Environment.Matrices.CameraPosition, MyRender11.Environment.Matrices.InvView.Forward, 
+                    MyRender11.Environment.Matrices.FarClipping, MyRender11.Environment.Matrices.LargeDistanceFarClipping);
             }
         }
 

@@ -1,8 +1,9 @@
 ﻿using System;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Animations;
+using VRageRender.Utils;
 
 
 namespace VRage.Game
@@ -235,7 +236,7 @@ namespace VRage.Game
         //  Return false if particle dies/timeouts in this tick.
         public bool Draw(VRageRender.MyBillboard billboard)
         {
-            if (Pivot != null)
+            if (Pivot != null && !MyParticlesManager.Paused)
             {
                 if (PivotRotation != null)
                 {
@@ -286,7 +287,7 @@ namespace VRage.Game
             billboard.ContainedBillboards.Clear();
 
             billboard.Near = m_generation.GetEffect().Near;
-            billboard.Lowres = m_generation.GetEffect().LowRes || VRageRender.MyRenderConstants.RenderQualityProfile.LowResParticles;
+            billboard.Lowres = VRageRender.MyRenderConstants.RenderQualityProfile.LowResParticles;
             billboard.CustomViewProjection = -1;
             billboard.ParentID = -1;
             billboard.AlphaCutout = actualAlphaCutout;

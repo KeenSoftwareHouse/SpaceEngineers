@@ -450,6 +450,7 @@ namespace Sandbox.Game.Entities
                             MyHitInfo hitInfo = new MyHitInfo();
                             hitInfo.Position = detectorComponent.HitPosition;
                             hitInfo.Normal = detectorComponent.HitNormal;
+                            hitInfo.ShapeKey = detectorComponent.ShapeKey; 
 
                             bool isBlock = false;
                             float efficiencyMultiplier = 1.0f;
@@ -848,5 +849,11 @@ namespace Sandbox.Game.Entities
 
         public int CurrentAmmunition { set; get; }
         public int CurrentMagazineAmmunition { set; get; }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
+        }
     }
 }

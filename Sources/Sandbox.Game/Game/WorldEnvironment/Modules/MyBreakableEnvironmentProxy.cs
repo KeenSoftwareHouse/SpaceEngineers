@@ -27,6 +27,7 @@ using VRageRender;
 using VRage.Import;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
+using VRage.Profiler;
 using VRage.Serialization;
 
 namespace Sandbox.Game.WorldEnvironment.Modules

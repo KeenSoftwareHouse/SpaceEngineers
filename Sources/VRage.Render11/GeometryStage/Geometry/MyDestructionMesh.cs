@@ -10,7 +10,6 @@ using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 

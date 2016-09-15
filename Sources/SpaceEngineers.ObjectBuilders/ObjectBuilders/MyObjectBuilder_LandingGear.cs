@@ -37,6 +37,9 @@ namespace Sandbox.Common.ObjectBuilders
         public bool AutoLock = true;
 
         [ProtoMember]
+        public bool FirstLockAttempt = true;
+
+        [ProtoMember]
         [Serialize(MyObjectFlags.Nullable)]
         public string LockSound;
 

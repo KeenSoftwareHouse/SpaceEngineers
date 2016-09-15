@@ -50,19 +50,18 @@ namespace VRage.Utils
             {
                 object valueSource = field.GetValue(source);
                 object valueOther = field.GetValue(other);
-                if (valueSource == valueOther)
+                if (valueSource == valueOther) // Ref check only
                     continue;
 
-                if (IsPrimitive(field.FieldType) && !valueSource.Equals(valueOther)
+                bool equals = false;
+                if (IsPrimitive(field.FieldType) && !(equals = valueSource.Equals(valueOther))
                     || valueSource != null && valueOther == null)
                 {
                     field.SetValue(self, valueSource);
                 }
-                else // valueOther != null
+                else if (!equals)// valueOther != null
                 {
-                    object valueSelf = null;
-                    if (!field.FieldType.IsValueType)
-                        valueSelf = field.GetValue(self);
+                    object valueSelf = field.GetValue(self);
 
                     MergeInternal(field.FieldType, ref valueSelf, ref valueSource, ref valueOther);
                     field.SetValue(self, valueSelf);
@@ -72,7 +71,7 @@ namespace VRage.Utils
 
         private static bool IsPrimitive(Type type)
         {
-            return type.IsPrimitive || type == typeof(String);
+            return type.IsPrimitive || type == typeof(String) || type == typeof(Type);
         }
     }
 }

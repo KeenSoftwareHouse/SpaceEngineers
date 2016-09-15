@@ -14,8 +14,10 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ModAPI;
+using VRage.Profiler;
 using VRage.Trace;
 using VRage.Utils;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.EntityComponents
 {
@@ -862,10 +864,21 @@ namespace Sandbox.Game.EntityComponents
 
 			m_dataPerType[typeIndex].SourcesEnabled = state;
 			bool enabled = (state == MyMultipleEnabledEnum.AllEnabled);
+            IMyFaction faction1 = MySession.Static.Factions.TryGetPlayerFaction(playerId);
 			foreach (var group in m_dataPerType[typeIndex].SourcesByPriority)
 			{
 				foreach (var source in group)
 				{
+                    if (source.Entity != null)
+                    {
+                        MyFunctionalBlock fb = source.Entity as MyFunctionalBlock;
+                        if (fb != null && fb.OwnerId != 0)
+                        {
+                            IMyFaction faction2 = MySession.Static.Factions.TryGetPlayerFaction(fb.OwnerId);
+                            if (faction2 != null && MySession.Static.Factions.GetRelationBetweenFactions(faction1 != null ? faction1.FactionId : 0, faction2.FactionId) == MyRelationsBetweenFactions.Enemies)
+                                continue;
+                        }
+                    }
 					source.MaxOutputChanged -= source_MaxOutputChanged;
 				    source.ProductionEnabledChanged -= source_ProductionEnabledChanged;
 					source.Enabled = enabled;

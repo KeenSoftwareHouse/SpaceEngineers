@@ -1,11 +1,14 @@
-﻿using SharpDX.Direct3D11;
-using SharpDX.DXGI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
+using SharpDX.DXGI;
 using VRage;
+using VRage.Profiler;
+using VRage.Render11.Common;
+using VRage.Render11.Profiler;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
+using VRage.Render11.Tools;
 using VRage.Utils;
 using VRageMath;
 
@@ -86,7 +89,7 @@ namespace VRageRender
             return m_outlines.Count > 0;
         }
 
-        internal static void Run()
+        internal static IBorrowedRtvTexture Run()
         {
             ProfilerShort.Begin("MyOutline.Run");
             MyGpuProfiler.IC_BeginBlock("MyOutline.Run");
@@ -95,30 +98,21 @@ namespace VRageRender
             // blur
             // blend to main target testing with stencil again
 
-            MyOutlinePass.Instance.ViewProjection = MyRender11.Environment.ViewProjectionAt0;
+            MyOutlinePass.Instance.ViewProjection = MyRender11.Environment.Matrices.ViewProjectionAt0;
             MyOutlinePass.Instance.Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
 
             MyOutlinePass.Instance.PerFrame();
             MyOutlinePass.Instance.Begin();
 
-            RC.Clear();
-            RC.DeviceContext.VertexShader.SetShaderResources(0, null, null, null, null, null, null);
-            RC.DeviceContext.GeometryShader.SetShaderResources(0, null, null, null, null, null, null);
-            RC.DeviceContext.PixelShader.SetShaderResources(0, null, null, null, null, null, null);
-            RC.DeviceContext.ComputeShader.SetShaderResources(0, null, null, null, null, null, null);
+            RC.VertexShader.SetSrvs(0, null, null, null, null, null, null);
+            RC.GeometryShader.SetSrvs(0, null, null, null, null, null, null);
+            RC.PixelShader.SetSrvs(0, null, null, null, null, null, null);
+            RC.ComputeShader.SetSrvs(0, null, null, null, null, null, null);
 
-            if (MyRender11.MultisamplingEnabled)
-            {
-                RC.DeviceContext.ClearRenderTargetView(MyRender11.m_rgba8_ms.m_RTV, new SharpDX.Color4(0, 0, 0, 0));
-
-                RC.DeviceContext.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_ms.m_RTV);
-            }
-            else
-            {
-                RC.DeviceContext.ClearRenderTargetView(MyRender11.m_rgba8_1.m_RTV, new SharpDX.Color4(0, 0, 0, 0));
-
-                RC.DeviceContext.OutputMerger.SetTargets(MyGBuffer.Main.DepthStencil.m_DSV, MyRender11.m_rgba8_1.m_RTV);
-            }
+            int samples = MyRender11.RenderSettings.AntialiasingMode.SamplesCount();
+            IBorrowedRtvTexture rgba8_1 = MyManagers.RwTexturesPool.BorrowRtv("MyOutline.Rgba8_1", Format.R8G8B8A8_UNorm_SRgb, samples);
+            RC.ClearRtv(rgba8_1, new SharpDX.Color4(0, 0, 0, 0));
+            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadWrite, rgba8_1);
 
             float maxThickness = 0f;
 
@@ -169,26 +163,29 @@ namespace VRageRender
             }
 
             MyOutlinePass.Instance.End();
-            RC.SetBS(null);
+            RC.SetBlendState(null);
 
             foreach (var outlineKey in m_keysToRemove)
                 m_outlines.Remove(outlineKey);
 
             m_keysToRemove.SetSize(0);
 
-            ShaderResourceView initialSourceView = MyRender11.MultisamplingEnabled ? MyRender11.m_rgba8_ms.m_SRV : MyRender11.m_rgba8_1.m_SRV;
-            RenderTargetView renderTargetview = MyRender11.MultisamplingEnabled ? MyRender11.m_rgba8_ms.m_RTV : MyRender11.m_rgba8_1.m_RTV;
+            ISrvBindable initialSourceView = rgba8_1;
+            IRtvBindable renderTargetview = rgba8_1;
 
             if (maxThickness > 0)
             {
-                MyBlur.Run(renderTargetview, MyRender11.m_rgba8_2.m_RTV, MyRender11.m_rgba8_2.m_SRV, initialSourceView,
-                    (int)Math.Round(5 * maxThickness),
-                    MyBlur.MyBlurDensityFunctionType.Exponential, 0.25f,
-                    null, MyFoliageRenderingPass.GrassStencilMask, MyRender11.Settings.BlurCopyOnDepthStencilFail);
+                IBorrowedRtvTexture rgba8_2 = MyManagers.RwTexturesPool.BorrowRtv("MyOutline.Rgba8_2", Format.R8G8B8A8_UNorm_SRgb);
+                MyBlur.Run(renderTargetview, rgba8_2, initialSourceView,
+                    (int)Math.Round(maxThickness), MyBlur.MyBlurDensityFunctionType.Exponential, 0.25f,
+                    MyDepthStencilStateManager.TestSkipGrassStencil, MyFoliageRenderingPass.GrassStencilMask);
+                rgba8_2.Release();
             }
 
             MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();
+
+            return rgba8_1;
         }
 
         private static void RecordMeshPartCommands(MeshId model, MyActor actor, MyGroupRootComponent group,
@@ -203,7 +200,7 @@ namespace VRageRender
             maxThickness = Math.Max(desc.Thickness, maxThickness);
             constants.Color = desc.Color.ToVector4();
             if (desc.PulseTimeInFrames > 0)
-                constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
+                constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
 
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
@@ -243,13 +240,13 @@ namespace VRageRender
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
                 if (desc.PulseTimeInFrames > 0)
-                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
+                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
 
                 var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
 
-                RC.BindShaders(renderLod.HighlightShaders[submeshIndex]);
+                MyRenderUtils.BindShaderBundle(RC, renderLod.RenderableProxies[submeshIndex].HighlightShaders);
                 MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex], -1, desc.InstanceId);
             }
         }
@@ -279,13 +276,13 @@ namespace VRageRender
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
                 if (desc.PulseTimeInFrames > 0)
-                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
+                    constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.GameplayFrameCounter / (float)desc.PulseTimeInFrames), 2.0);
 
                 var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
 
-                RC.BindShaders(renderLod.HighlightShaders[sectionInfo.PartIndex]);
+                MyRenderUtils.BindShaderBundle(RC, renderLod.RenderableProxies[sectionInfo.PartIndex].HighlightShaders);
 
                 MyRenderableProxy proxy = renderLod.RenderableProxies[sectionInfo.PartIndex];
                 MyOutlinePass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex, desc.InstanceId);
@@ -303,7 +300,6 @@ namespace VRageRender
             MyLog.Default.WriteLine("model.Info.Name: " + model.Info.Name);
             MyLog.Default.WriteLine("render.CurrentLod: " + render.CurrentLod);
             MyLog.Default.WriteLine("renderLod.RenderableProxies.Length: " + renderLod.RenderableProxies.Length);
-            MyLog.Default.WriteLine("renderLod.HighlightShaders.Length: " + renderLod.HighlightShaders.Length);
             MyLog.Default.WriteLine("meshes.Length: " + meshes.Length);
             MyLog.Default.WriteLine("Mesh index: " + index);
             MyLog.Default.WriteLine("Mesh part index: " + meshes[index].PartIndex);

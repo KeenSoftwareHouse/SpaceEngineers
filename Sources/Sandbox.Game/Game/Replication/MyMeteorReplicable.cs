@@ -12,7 +12,6 @@ using VRage.Library.Collections;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Replication;
-using VRage.Voxels;
 using VRageMath;
 
 

@@ -15,6 +15,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using VRage.Game.Models;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Components
 {

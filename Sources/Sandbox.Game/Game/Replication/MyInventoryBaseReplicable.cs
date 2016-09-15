@@ -54,7 +54,7 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             if (m_clientList.Contains(client.EndpointId.Value))
             {

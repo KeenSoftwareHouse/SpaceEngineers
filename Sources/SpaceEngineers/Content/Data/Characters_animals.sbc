@@ -274,6 +274,8 @@
     </DeadBodyShape>
 		
 		<RotationToSupport>Full</RotationToSupport>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
 
     <!-- Space spider brown -->
@@ -546,6 +548,8 @@
       <RelativeShapeTranslation x="0" y="-0.5" z="0"/>
       <Friction>20</Friction>
     </DeadBodyShape>
+		
+		<RotationToSupport>Full</RotationToSupport>
 		
 		<RotationToSupport>Full</RotationToSupport>
     </Character>
@@ -822,6 +826,8 @@
     </DeadBodyShape>
 		
 		<RotationToSupport>Full</RotationToSupport>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
     
     <!-- Space spider normal -->
@@ -1096,85 +1102,75 @@
     </DeadBodyShape>
 		
 		<RotationToSupport>Full</RotationToSupport>
+		
+		<RotationToSupport>Full</RotationToSupport>
     </Character>
-  
-  <!--  Cyberhound -->
-  <Character>
+	
+	<!-- Wolf -->
+    <Character>
       <Id>
         <TypeId>MyObjectBuilder_Character</TypeId>
-        <SubtypeId>Cyberhound</SubtypeId>
+        <SubtypeId>Space_Wolf</SubtypeId>
       </Id>
-
-      <AnimationController>Cyberhound</AnimationController>
-
-      <Name>Space_cyberhound</Name>
-      <Model>Models\Characters\Wildlife\Cyberhound\Cyberhound.mwm</Model>
-      <DeathSoundName>ArcBotCyberhoundDeath</DeathSoundName>
-      <LoopingFootsteps>true</LoopingFootsteps>
-      <PhysicalMaterial>Cyberhound</PhysicalMaterial>
-      <Mass>100</Mass>
-      <MaxHealth>20</MaxHealth>
-      <LootingTime>45</LootingTime>
-      <Skeleton>Tetrapod_simple</Skeleton>
-      <SpineBone>Wolf_Spine_1</SpineBone>
-    
-      <AnimationMappings>
-      <Mapping Name="Idle" AnimationSubtypeName="CyberhoundIdle1" />
-        <Mapping Name="Run" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunBack" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunLeftBack" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunRightBack" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunLeft" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunRight" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunLeftFront" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="RunRightFront" AnimationSubtypeName="CyberhoundRun" />
-        <Mapping Name="Walk" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="WalkBack" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="WalkLeftBack" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="WalkRightBack" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="StrafeLeft" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="StrafeRight" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="WalkLeftFront" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="WalkRightFront" AnimationSubtypeName="CyberhoundWalk" />
-        <Mapping Name="Died" AnimationSubtypeName="CyberhoundDied" />
-        <Mapping Name="Attack" AnimationSubtypeName="CyberhoundAttack" />
-      </AnimationMappings>                                                                                
       
-      <VisibleOnHud>false</VisibleOnHud>
-      <UsableByPlayer>false</UsableByPlayer>
+      <Name>Space_Wolf</Name>
+	  <AnimationController>Wolf</AnimationController>
+      <Model>Models\Characters\Wildlife\Wolf\Wolf01.mwm</Model>
+      <DeathSoundName>BotWolfDeath</DeathSoundName>
+      <LoopingFootsteps>true</LoopingFootsteps>
+      <PhysicalMaterial>Wolf</PhysicalMaterial>
+      <Mass>1</Mass>
+      <LootingTime>300</LootingTime>
+      <Skeleton>Tetrapod_simple</Skeleton>
+      <SpineBone>Wolf_Spine_3</SpineBone>
+      <AnimationMappings>
+        <Mapping Name="Idle" AnimationSubtypeName="IdleWolf1" />
+        <Mapping Name="Run" AnimationSubtypeName="RunWolf" />
+        <Mapping Name="Walk" AnimationSubtypeName="WalkWolf" />
+        <Mapping Name="Attack" AnimationSubtypeName="AttackWolf" />
+        <Mapping Name="Died" AnimationSubtypeName="DiedDeer" />
+      </AnimationMappings>
 
-    <!-- ENABLED COMPONENTS -->
-    <EnabledComponents>RagdollComponent</EnabledComponents>
+      <VisibleOnHud>false</VisibleOnHud>
+
+      <Inventory>
+        <InventoryVolume>1</InventoryVolume>
+        <!-- in m3 ! -->
+        <InventoryMass>50</InventoryMass>
+      </Inventory>
+
+	  <!-- ENABLED COMPONENTS -->
+	  <EnabledComponents>RagdollComponent</EnabledComponents>
 
 
       <!-- BONES -->
-      <HeadBone>Wolf_Head</HeadBone>
-      <ModelRootBoneName>ME_Wolf_dummy</ModelRootBoneName>
+      <HeadBone>deer_Scull</HeadBone>
+      <ModelRootBoneName>DEER_dummy</ModelRootBoneName>
       <!-- Character control -->
 
       <VerticalPositionFlyingOnly>false</VerticalPositionFlyingOnly>
       <UseOnlyWalking>false</UseOnlyWalking>
 
       <MaxSlope>65</MaxSlope>
-      <MaxSprintSpeed>11</MaxSprintSpeed>
+      <MaxSprintSpeed>14</MaxSprintSpeed>
 
-      <MaxRunSpeed>10</MaxRunSpeed>
-      <MaxBackrunSpeed>10</MaxBackrunSpeed>
-      <MaxRunStrafingSpeed>8</MaxRunStrafingSpeed>
+      <MaxRunSpeed>11</MaxRunSpeed>
+      <MaxBackrunSpeed>8</MaxBackrunSpeed>
+      <MaxRunStrafingSpeed>0</MaxRunStrafingSpeed>
 
       <MaxWalkSpeed>1</MaxWalkSpeed>
       <MaxBackwalkSpeed>1</MaxBackwalkSpeed>
-      <MaxWalkStrafingSpeed>1</MaxWalkStrafingSpeed>
+      <MaxWalkStrafingSpeed>0</MaxWalkStrafingSpeed>
 
       <MaxCrouchWalkSpeed>1</MaxCrouchWalkSpeed>
       <MaxCrouchBackwalkSpeed>1</MaxCrouchBackwalkSpeed>
-      <MaxCrouchStrafingSpeed>1</MaxCrouchStrafingSpeed>
+      <MaxCrouchStrafingSpeed>0</MaxCrouchStrafingSpeed>
 
       <CharacterHeadSize>0.35</CharacterHeadSize>
-      <CharacterHeadHeight>0.0</CharacterHeadHeight>
-      <CharacterCollisionScale>1.6</CharacterCollisionScale>
-    
-    <MaxForce>500</MaxForce>
+      <CharacterHeadHeight>0.15</CharacterHeadHeight>
+      <CharacterCollisionScale>0.7</CharacterCollisionScale>
+
+	  <MaxForce>500</MaxForce>
 
       <BoneSet>
         <Name>Body</Name>
@@ -1288,16 +1284,17 @@
     </BoneSet>
      </RagdollBonesMappings>
 
-     <InitialAnimation>CyberhoundIdle1</InitialAnimation>
+     <InitialAnimation>IdleWolf1</InitialAnimation>
 
-   <DeadBodyShape>
-    <BoxShapeScale x="1" y="0.1" z="2"/>
-    <RelativeCenterOfMass x="0" y="0" z="0"/>
-    <RelativeShapeTranslation x="-2.2" y="-0.7" z="0"/>
-    <Friction>20</Friction>
-   </DeadBodyShape>
+	 <DeadBodyShape>
+		<BoxShapeScale x="1" y="0.15" z="2"/>
+		<RelativeCenterOfMass x="0" y="0" z="0"/>
+		<RelativeShapeTranslation x="-2.2" y="-0.7" z="0"/>
+		<Friction>20</Friction>
+	 </DeadBodyShape>
 	 
 	 <RotationToSupport>OneAxis</RotationToSupport>
     </Character>
+	
   </Characters>
 </Definitions>

@@ -4,10 +4,12 @@ using System;
 using System.Diagnostics;
 using VRage;
 using VRage.Game;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRageRender.Lights;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Lights
 {
@@ -22,7 +24,7 @@ namespace Sandbox.Game.Lights
         [Flags]
         public enum LightTypeEnum
         {
-            None,
+            None = 0,
             PointLight = 1 << 0,
             Spotlight = 1 << 1,
             Hemisphere = 1 << 2,
@@ -81,6 +83,7 @@ namespace Sandbox.Game.Lights
         private Color m_specularColor = Color.White;
         private float m_falloff;
         private float m_glossFactor;
+        private float m_diffuseFactor;
         private float m_range;
         private float m_intensity;
         private bool m_lightOn;        //  If true, we use the light in lighting calculation. Otherwise it's like turned off, but still in the buffer.
@@ -98,6 +101,7 @@ namespace Sandbox.Game.Lights
         private float m_reflectorRange;
         private float m_reflectorFalloff;
         private float m_reflectorGlossFactor;
+        private float m_reflectorDiffuseFactor;
         private string m_reflectorTexture;
 
         private bool m_castShadows;
@@ -225,6 +229,18 @@ namespace Sandbox.Game.Lights
                 if (m_glossFactor != value)
                 {
                     m_glossFactor = value;
+                    m_propertiesDirty = true;
+                }
+            }
+        }
+        public float DiffuseFactor
+        {
+            get { return m_diffuseFactor; }
+            set
+            {
+                if (m_diffuseFactor != value)
+                {
+                    m_diffuseFactor = value;
                     m_propertiesDirty = true;
                 }
             }
@@ -427,6 +443,22 @@ namespace Sandbox.Game.Lights
                 if (m_reflectorGlossFactor != value)
                 {
                     m_reflectorGlossFactor = value;
+                    m_propertiesDirty = true;
+                }
+            }
+        }
+
+        public float ReflectorDiffuseFactor
+        {
+            get
+            {
+                return m_reflectorDiffuseFactor;
+            }
+            set
+            {
+                if (m_reflectorDiffuseFactor != value)
+                {
+                    m_reflectorDiffuseFactor = value;
                     m_propertiesDirty = true;
                 }
             }
@@ -707,49 +739,75 @@ namespace Sandbox.Game.Lights
         {
             UpdateSpotParams();
 
-            if (m_propertiesDirty)
+            if (m_propertiesDirty || m_positionDirty)
             {
                 ProfilerShort.Begin("UpdateRenderLight");
 
-                m_propertiesDirty = false;
-                VRageRender.MyRenderProxy.UpdateRenderLight(
-                    RenderObjectID,
-                    (VRageRender.LightTypeEnum)(int)LightType,
-                    Position,
-                    ParentID,
-                    PointLightOffset,
-                    Color,
-                    SpecularColor,
-                    Falloff,
-                    GlossFactor,
-                    Range,
-                    Intensity,
-                    LightOn,
-                    UseInForwardRender,
-                    ReflectorIntensity,
-                    ReflectorOn,
-                    ReflectorDirection,
-                    ReflectorUp,
-                    ReflectorConeMaxAngleCos,
-                    ReflectorColor,
-                    ReflectorRange,
-                    ReflectorFalloff,
-                    ReflectorGlossFactor,
-                    ReflectorTexture,
-                    ShadowDistance,
-                    CastShadows,
-                    GlareOn,
-                    GlareType,
-                    GlareSize,
-                    GlareQuerySize,
-                    GlareIntensity,
-                    GlareMaterial,
-                    GlareMaxDistance);
+                m_propertiesDirty = m_positionDirty = false;
+
+                MyLightLayout pointLight = new MyLightLayout()
+                {
+                    Range = Range,
+                    Color = Color,
+                    Falloff = Falloff,
+                    GlossFactor = GlossFactor,
+                    DiffuseFactor = DiffuseFactor,
+                };
+                
+                MySpotLightLayout spotLight = new MySpotLightLayout()
+                {
+                    Light = new MyLightLayout()
+                    {
+                        Range = ReflectorRange,
+                        Color = ReflectorColor,
+                        Falloff = ReflectorFalloff,
+                        GlossFactor = ReflectorGlossFactor,
+                        DiffuseFactor = ReflectorDiffuseFactor,
+                    },
+                    Up = ReflectorUp,
+                    Direction = ReflectorDirection,
+                };
+
+                MyFlareDesc glare = new MyFlareDesc()
+                {
+                    Enabled = GlareOn,
+                    Direction = ReflectorDirection,
+                    Range = Range,
+                    Color = Color,
+                    Type = GlareType,
+                    Size = GlareSize,
+                    QuerySize = GlareQuerySize,
+                    Intensity = GlareIntensity,
+                    Material = MyStringId.GetOrCompute(GlareMaterial),
+                    MaxDistance = GlareMaxDistance,
+                };
+
+                UpdateRenderLightData renderLightData = new UpdateRenderLightData()
+                {
+                    ID = RenderObjectID,
+                    Position = Position,
+                    Type = (VRageRender.LightTypeEnum)(int)LightType,
+                    ParentID = ParentID,
+                    PointPositionOffset = PointLightOffset,
+                    SpecularColor = SpecularColor,
+                    UseInForwardRender = UseInForwardRender,
+                    ReflectorConeMaxAngleCos = ReflectorConeMaxAngleCos,
+                    ShadowDistance = ShadowDistance,
+                    CastShadows = CastShadows,
+                    PointLightOn = LightOn,
+                    PointLightIntensity = Intensity,
+                    PointLight = pointLight,
+                    SpotLightOn = ReflectorOn,
+                    SpotLightIntensity = ReflectorIntensity,
+                    SpotLight = spotLight,
+                    ReflectorTexture = ReflectorTexture,
+                    Glare = glare,
+                };
+
+                MyRenderProxy.UpdateRenderLight(ref renderLightData);
 
                 ProfilerShort.End();
             }
-
-            UpdateLightPosition();
         }
 
         /// <summary>
@@ -810,7 +868,7 @@ namespace Sandbox.Game.Lights
         /// <param name="range"></param>
         public void UpdateReflectorRangeAndAngle(float reflectorConeMaxAngleCos, float reflectorRange)
         {
-            SpotlightNotTooLarge(reflectorConeMaxAngleCos, reflectorRange);
+            Debug.Assert(SpotlightNotTooLarge(reflectorConeMaxAngleCos, reflectorRange));
             m_reflectorRange = reflectorRange;
             m_reflectorConeMaxAngleCos = reflectorConeMaxAngleCos;
         }
@@ -824,10 +882,12 @@ namespace Sandbox.Game.Lights
             m_propertiesDirty = true;
             m_spotParamsDirty = true;
 
+            /// todo: defaults should be supplied from Environemnt.sbc
             ReflectorRange     = 1;
             ReflectorUp        = Vector3.Up;
             ReflectorDirection = Vector3.Forward;
-            ReflectorGlossFactor = 0.75f;
+            ReflectorGlossFactor = 1.0f;
+            ReflectorDiffuseFactor = 3.14f;
             LightOn            = true;
             Intensity          = 1.0f;
             UseInForwardRender = false;
@@ -835,61 +895,13 @@ namespace Sandbox.Game.Lights
             PointLightOffset   = 0;
             CastShadows        = true;
             Range              = 0.5f;
-            GlossFactor        = 0.75f;
+            GlossFactor        = 1.0f;
+            DiffuseFactor      = 3.14f;
             ShadowDistance     = MyLightsConstants.MAX_SPOTLIGHT_SHADOW_RANGE;
             ParentID           = -1;
 
+            m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight();
             UpdateLight();
-
-            m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight(
-                (VRageRender.LightTypeEnum)(int)LightType,
-                (Vector3D)Position,
-                -1,
-                PointLightOffset,
-                Color,
-                SpecularColor,
-                Falloff,
-                GlossFactor,
-                Range,
-                Intensity,
-                LightOn,
-                UseInForwardRender,
-                ReflectorIntensity,
-                ReflectorOn,
-                ReflectorDirection,
-                ReflectorUp,
-                ReflectorConeMaxAngleCos,
-                ReflectorColor,
-                ReflectorRange,
-                ReflectorFalloff,
-                ReflectorGlossFactor,
-                ReflectorTexture,
-                ShadowDistance,
-                CastShadows,
-                GlareOn,
-                GlareType,
-                GlareSize,
-                GlareQuerySize,
-                GlareIntensity,
-                GlareMaterial,
-                GlareMaxDistance);
-        }
-
-        private void UpdateLightPosition()
-        {
-            if (!m_positionDirty)
-                return;
-
-            ProfilerShort.Begin("UpdateLightPosition");
-            m_positionDirty = false;
-
-            MatrixD lightMatrix = MatrixD.CreateTranslation(Position);
-            VRageRender.MyRenderProxy.UpdateRenderObject(
-                RenderObjectID,
-                ref lightMatrix,
-                LightOwner == LightOwnerEnum.None);
-
-            ProfilerShort.End();
         }
 
         private void UpdateSpotParams()

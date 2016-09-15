@@ -17,6 +17,7 @@ using Sandbox.Game.Multiplayer;
 using VRage;
 using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.EntityComponents

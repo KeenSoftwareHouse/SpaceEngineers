@@ -1,31 +1,32 @@
 ﻿using SharpDX;
 using SharpDX.Direct3D11;
 using System.Diagnostics;
+using VRage.Render11.RenderContext;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
 namespace VRageRender
 {
     struct MyMapping
     {
-        private DeviceContext m_context;
+        private MyRenderContext m_rc;
         private Resource m_buffer;
         private int m_bufferSize;
         private DataBox m_dataBox;
         private System.IntPtr m_dataPointer;
 
-        internal static MyMapping MapDiscard(DeviceContext context, Buffer buffer)
+        internal static MyMapping MapDiscard(MyRenderContext rc, Buffer buffer)
         {
-            return MapDiscard(context, buffer, buffer.Description.SizeInBytes);
+            return MapDiscard(rc, buffer, buffer.Description.SizeInBytes);
         }
 
         internal static MyMapping MapDiscard(Buffer buffer)
         {
-            return MapDiscard(MyRender11.DeviceContext, buffer, buffer.Description.SizeInBytes);
+            return MapDiscard(MyRender11.RC, buffer, buffer.Description.SizeInBytes);
         }
 
         internal static MyMapping MapDiscard(Resource buffer)
         {
-            var mapping = MapDiscard(MyRender11.DeviceContext, buffer, 0);
+            var mapping = MapDiscard(MyRender11.RC, buffer, 0);
             if (mapping.m_dataBox.SlicePitch != 0)
                 mapping.m_bufferSize = mapping.m_dataBox.SlicePitch;
             else if (buffer is Texture2D)
@@ -33,13 +34,13 @@ namespace VRageRender
                 Texture2D tex = buffer as Texture2D;
                 mapping.m_bufferSize = mapping.m_dataBox.RowPitch * tex.Description.Height;
             }
-            else Debug.Assert(false);
+            else MyRenderProxy.Assert(false);
             return mapping;
         }
 
         internal static MyMapping MapRead(Resource buffer)
         {
-            var mapping = MapRead(MyRender11.DeviceContext, buffer, 0);
+            var mapping = MapRead(MyRender11.RC, buffer, 0);
             if (mapping.m_dataBox.SlicePitch != 0)
                 mapping.m_bufferSize = mapping.m_dataBox.SlicePitch;
             else if (buffer is Texture2D)
@@ -47,7 +48,7 @@ namespace VRageRender
                 Texture2D tex = buffer as Texture2D;
                 mapping.m_bufferSize = mapping.m_dataBox.RowPitch * tex.Description.Height;
             }
-            else Debug.Assert(false);
+            else MyRenderProxy.Assert(false);
             return mapping;
         }
 
@@ -79,16 +80,16 @@ namespace VRageRender
 
         internal void Unmap()
         {
-            m_context.UnmapSubresource(m_buffer, 0);
+            m_rc.UnmapSubresource(m_buffer, 0);
         }
 
-        private static MyMapping MapDiscard(DeviceContext context, Resource buffer, int bufferSize)
+        private static MyMapping MapDiscard(MyRenderContext rc, Resource buffer, int bufferSize)
         {
             MyMapping mapping;
-            mapping.m_context = context;
+            mapping.m_rc = rc;
             mapping.m_buffer = buffer;
             mapping.m_bufferSize = bufferSize;
-            mapping.m_dataBox = context.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
+            mapping.m_dataBox = rc.MapSubresource(buffer, 0, MapMode.WriteDiscard, MapFlags.None);
 
             if (mapping.m_dataBox.IsEmpty)
                 throw new MyRenderException("Resource mapping failed!");
@@ -97,13 +98,13 @@ namespace VRageRender
             return mapping;
         }
 
-        private static MyMapping MapRead(DeviceContext context, Resource buffer, int bufferSize)
+        private static MyMapping MapRead(MyRenderContext rc, Resource buffer, int bufferSize)
         {
             MyMapping mapping;
-            mapping.m_context = context;
+            mapping.m_rc = rc;
             mapping.m_buffer = buffer;
             mapping.m_bufferSize = bufferSize;
-            mapping.m_dataBox = context.MapSubresource(buffer, 0, MapMode.Read, MapFlags.None);
+            mapping.m_dataBox = rc.MapSubresource(buffer, 0, MapMode.Read, MapFlags.None);
 
             if (mapping.m_dataBox.IsEmpty)
                 throw new MyRenderException("Resource mapping failed!");

@@ -1,25 +1,99 @@
 ﻿using System;
+using System.Linq;
 using VRageMath;
-using VRage.Utils;
+using VRageRender.Textures;
 
 namespace VRageRender
 {
-    static class MyLightsConstants
+    public class MyShadowConstants
     {
-        //  This number tells us how many light can be enabled during drawing using one effect. 
-        //  IMPORTANT: This number is also hardcoded inside of hlsl effect file.
-        //  IMPORTANT: So if you change it here, change it too in MyCommonEffects.fxh
-        //  It means, how many lights can player see (meaning light as lighted triangleVertexes, not light flare, etc).
-        public const int MAX_LIGHTS_FOR_EFFECT = 8;
-
-        // Maximum radius for all types of point lights. Any bigger value will assert
-        public const int MAX_POINTLIGHT_RADIUS = 120;
+        public const int NumSplits = 4;    
     }
 
-    static class MyHudConstants
+    public class MyRenderQualityProfile
     {
-        public const float BACK_CAMERA_HEIGHT = 0.18f;
-        public const float BACK_CAMERA_ASPECT_RATIO = 1.6f;
+        public MyRenderQualityEnum RenderQuality;
+
+        //LODs
+        public float[][] LodClipmapRanges;
+
+        //Textures
+        public TextureQuality TextureQuality;
+
+        //Voxels
+        public Effects.MyEffectVoxelsTechniqueEnum VoxelsRenderTechnique;
+
+        //Models
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsRenderTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsBlendedRenderTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsMaskedRenderTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsHoloRenderTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsStencilTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsSkinnedTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsInstancedTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsInstancedSkinnedTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsInstancedGenericTechnique;
+        public Effects.MyEffectModelsDNSTechniqueEnum ModelsInstancedGenericMaskedTechnique;
+
+        //Shadows
+        /// <summary>
+        /// Determines last index of cascade, which will use LOD0 objects. Lower cascade index means
+        /// closer cascade to camera. Ie. 0 means all cascaded will use LOD1 models (worst shadow quality),
+        /// 5 means best quality, because all cascades will use LOD0 objects (we have 4 cascades currently);
+        /// </summary>
+        public int ShadowCascadeLODTreshold;
+
+        /// <summary>
+        /// Size in pixels for one shadow map cascade (of 4 total). Be carefull, we are limited by 8192 in texture size on PC.
+        /// </summary>
+        public int ShadowMapCascadeSize;
+        public int SecondaryShadowMapCascadeSize; // For back camera
+
+        public float ShadowBiasMultiplier;
+        public float ShadowSlopeBiasMultiplier;
+        public bool EnableCascadeBlending;
+
+        //HDR
+        public bool EnableHDR;
+
+        //SSAO
+        public bool EnableSSAO;
+
+        //FXAA
+        public bool EnableFXAA;
+
+        //Environmentals
+        public bool EnableEnvironmentals;
+
+        //GodRays
+        public bool EnableGodRays;
+
+        //Geometry quality
+        public bool UseNormals;
+
+        // Spot shadow max distance multiplier 
+        public float SpotShadowsMaxDistanceMultiplier;
+
+        // Low resolution particles
+        public bool LowResParticles;
+
+        // Distant impostors
+        public bool EnableDistantImpostors;
+
+        //Explosion voxel debris
+        public float ExplosionDebrisCountMultiplier;
+    }
+
+    static public class MyRenderGuiConstants
+    {
+        public static readonly Vector2 HUD_FREE_SPACE = new Vector2(0.01f, 0.01f);
+
+        //  This is screen height we use as reference, so all fonts, textures, etc are made for it and if this height resolution used, it will be 1.0
+        //  If e.g. we use vertical resolution 600, then averything must by scaled by 600 / 1200 = 0.5
+        public const float REFERENCE_SCREEN_HEIGHT = 1080;
+
+        public const float FONT_SCALE = 28.8f / 37f;  // Ratio between font size and line height has changed: old was 28, new is 37 (28.8 makes it closer to the font size change 18->23)
+        public const float FONT_TOP_SIDE_BEARING = 3 * 23f / 18f;  // This is exact: old font size was 18, new font size 23, X padding is 7 and Y padding is 4, so (7-4)*23/18
     }
 
     static class MyTransparentGeometryConstants
@@ -49,112 +123,338 @@ namespace VRageRender
         public const float SOFT_PARTICLE_DISTANCE_DECAL_PARTICLES = 10000;
     }
 
-    static class MySecondaryCameraConstants
+    public static class MyRenderConstants
     {
-        public const float NEAR_PLANE_DISTANCE = 1.0f;
-        public const int FIELD_OF_VIEW = 50;
-    }
+        /// <summary>
+        /// Maximum distance for which a light uses occlusion an occlusion query.
+        /// </summary>
+        public const float MAX_GPU_OCCLUSION_QUERY_DISTANCE = 150;
 
-    static class MyDecalsConstants
-    {
-        public const int DECAL_BUFFERS_COUNT = 10;
-        public const int DECALS_FADE_OUT_INTERVAL_MILISECONDS = 1000;
+        public const int RENDER_STEP_IN_MILLISECONDS = (int)(1000.0f / 60.0f);
+        public const float RENDER_STEP_IN_SECONDS = RENDER_STEP_IN_MILLISECONDS / 1000.0f;
 
-        public const int MAX_DECAL_TRIANGLES_IN_BUFFER = 128;
-        public const int MAX_DECAL_TRIANGLES_IN_BUFFER_SMALL = 128;
-        public const int MAX_DECAL_TRIANGLES_IN_BUFFER_LARGE = 32;
+        public static readonly int MAX_RENDER_ELEMENTS_COUNT = Environment.Is64BitProcess ? 2 * 65536 : 2 * 32768;
+        public static readonly int DEFAULT_RENDER_MODULE_PRIORITY = 100;
+        public static readonly int SPOT_SHADOW_RENDER_TARGET_COUNT = 16;
+        public static readonly int ENVIRONMENT_MAP_SIZE = 128;
+        public static readonly int MAX_OCCLUSION_QUERIES = 96;
 
-        public const int TEXTURE_LARGE_MAX_NEIGHBOUR_TRIANGLES = 36;
-        public const float TEXTURE_LARGE_FADING_OUT_START_LIMIT_PERCENT = 0.7f;     //  Number of decal triangles for large texture (explosion smut). It's used for voxels and phys objects too.
-        public const float TEXTURE_LARGE_FADING_OUT_MINIMAL_TRIANGLE_COUNT_PERCENT = 1 - TEXTURE_LARGE_FADING_OUT_START_LIMIT_PERCENT;
+        public static readonly int MIN_OBJECTS_IN_CULLING_STRUCTURE = 128;
+        public static readonly int MAX_CULLING_OBJECTS = 64;
 
-        public const int TEXTURE_SMALL_MAX_NEIGHBOUR_TRIANGLES = 32;
-        public const float TEXTURE_SMALL_FADING_OUT_START_LIMIT_PERCENT = 0.7f;      //  Number of decal triangles for small texture (bullet hole). It's used for voxels and phys objects too.
-        public const float TEXTURE_SMALL_FADING_OUT_MINIMAL_TRIANGLE_COUNT_PERCENT = 1 - TEXTURE_SMALL_FADING_OUT_START_LIMIT_PERCENT;
+        public static readonly int MIN_PREFAB_OBJECTS_IN_CULLING_STRUCTURE = 32;
+        public static readonly int MAX_CULLING_PREFAB_OBJECTS = 256;
 
-        public const int VERTEXES_PER_DECAL = 3;
-        public static readonly float MAX_NEIGHBOUR_ANGLE = MathHelper.ToRadians(80);
+        public static readonly int MIN_VOXEL_RENDER_CELLS_IN_CULLING_STRUCTURE = 2;
+        public static readonly int MAX_CULLING_VOXEL_RENDER_CELLS = 128;
 
-        //  This will how far or distance decals we have to draw. Every decal that is two times farest than reflector spot won't be drawn.
-        public const float MAX_DISTANCE_FOR_DRAWING_DECALS_MULTIPLIER_FOR_REFLECTOR = 2.0f;
+        public static float m_maxCullingPrefabObjectMultiplier = 1.0f;
 
-        //  Don't create decals if it is farther than this distance
-        public const float MAX_DISTANCE_FOR_ADDING_DECALS = 500;
+        public static readonly float DISTANCE_CULL_RATIO = 150; //in meters, how far must be 1m radius object to be culled by distance
+        public static readonly float DISTANCE_LIGHT_CULL_RATIO = 40;
 
-        //  Don't draw decals if it is farther than this distance
-        public const float MAX_DISTANCE_FOR_DRAWING_DECALS = 200;
+        public static readonly int MAX_SHADER_BONES = 60;
 
-        //  We will draw large decals in larger distance
-        public const float DISTANCE_MULTIPLIER_FOR_LARGE_DECALS = 3.5f;
+        public static readonly MyRenderQualityProfile[] m_renderQualityProfiles = new MyRenderQualityProfile[Enum.GetValues(typeof(MyRenderQualityEnum)).Length];
 
-        //  This value isn't really needed, because models doesn't have sun defined in triangles, but in shade per object
-        //  It's only because some parts of decals are same for voxels and I want this information not lost.
-        //public const byte SUN_FOR_MODEL_DECALS = 255;
+        public static MyRenderQualityProfile RenderQualityProfile { get; private set; }
+        public static event EventHandler OnRenderQualityChange = null;
 
-        public static readonly Color PROJECTILE_DECAL_COLOR = new Color(1.0f, 0.6f, 0.1f);
-
-        // These values give the percentage of how much we move decals in the direction of the dominant normal.
-        public const float DECAL_OFFSET_BY_NORMAL = 0.10f;
-        public const float DECAL_OFFSET_BY_NORMAL_FOR_SMUT_DECALS = 0.25f;
-    }
-
-    static class MyVoxelMapImpostorsConstants
-    {
-        public const float RANDOM_COLOR_MULTIPLIER_MIN = 0.9f;
-        public const float RANDOM_COLOR_MULTIPLIER_MAX = 1.0f;
-
-        public const int TRIANGLES_PER_IMPOSTOR = 2;
-        public const int VERTEXES_PER_IMPOSTOR = TRIANGLES_PER_IMPOSTOR * 3;
-    }
-
-    static class MyDistantObjectsImpostorsConstants
-    {
-        public const int MAX_NUMBER_DISTANT_OBJECTS = 50;
-        public const float MAX_MOVE_DISTANCE = .00045f;
-        public static readonly float DISTANT_OBJECTS_SPHERE_RADIUS = MySectorConstants.SECTOR_DIAMETER * 2.5f;
-        public const float RANDOM_COLOR_MULTIPLIER_MIN = 0.9f;
-        public const float RANDOM_COLOR_MULTIPLIER_MAX = 1.0f;
-        public const float BLINKER_FADE = .005f;
-        public const float EXPLOSION_FADE = .02f;
-        public const float EXPLOSION_WAIT_MILLISECONDS = 1000f;
-        public const float BLINKER_WAIT_MILLISECONDS = 1500f;
-        public const float EXPLOSION_MOVE_DISTANCE = .01f;
-        public const int TRIANGLES_PER_IMPOSTOR = 2;
-        public const int VERTEXES_PER_IMPOSTOR = TRIANGLES_PER_IMPOSTOR * 3;
-    }
-
-    static class MySunConstants
-    {
-        // for zoom values lower than this, there are no glare effects, because occlusion doesn't work well for some reason
-        public const float ZOOM_LEVEL_GLARE_END = 0.6f;
-
-        // for screen edge falloff of glare - when center of sun is this many pixels away from the border of the screen, glare starts to fall off
-        public const float SCREEN_BORDER_DISTANCE_THRESHOLD = 25;
-
-        // for changing the maximum intensity of the sun (when it is in the centre of the screen). Acceptable values are [0, 10]
-        public const float MAX_GLARE_MULTIPLIER = 2.5f;
-
-        // distance in which render sun
-        public static float RENDER_SUN_DISTANCE
+        static MyRenderConstants()
         {
-            get
+            var massiveClipmapLodRangesHigh = new float[]   { 66f, 200f, 550f, 1000f, 1700, 3000, 6000, 15000, 40000, 100000, 250000 };
+            var massiveClipmapLodRangesNormal = new float[] { 60f, 180f, 500f, 900f, 1600, 2800, 5500, 14000, 35000, 90000, 220000 };
+            var massiveClipmapLodRangesLow = new float[]    { 55f, 150f, 450f, 800f, 1500, 2600, 4000, 13000, 30000, 80000, 200000 };
+            
+            
+
+            m_renderQualityProfiles[(int)MyRenderQualityEnum.NORMAL] = new MyRenderQualityProfile()
             {
-                return MyRenderCamera.FAR_PLANE_DISTANCE;
-            }
+                RenderQuality = MyRenderQualityEnum.NORMAL,
+
+                //LODs
+                LodClipmapRanges = new float[][]
+                { 
+                    new float[] { 100f, 300f, 800f, 2000f, 4500f, 13500f, 30000f, 100000f, },
+                    massiveClipmapLodRangesNormal
+                },
+
+                //Textures
+                TextureQuality = TextureQuality.Half,
+
+                //Voxels
+                VoxelsRenderTechnique = Effects.MyEffectVoxelsTechniqueEnum.Normal,
+
+                //Models
+                ModelsRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Normal,
+                ModelsBlendedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.NormalBlended,
+                ModelsMaskedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.NormalMasked,
+                ModelsHoloRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Holo,
+                ModelsStencilTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Stencil,
+                ModelsSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighSkinned,
+                ModelsInstancedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.NormalInstanced,
+                ModelsInstancedSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.NormalInstancedSkinned,
+                ModelsInstancedGenericTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGeneric,
+                ModelsInstancedGenericMaskedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGenericMasked,
+                
+
+                //Shadows
+                ShadowCascadeLODTreshold = 3,
+                ShadowMapCascadeSize = 1024,
+                SecondaryShadowMapCascadeSize = 64,
+                ShadowBiasMultiplier = 1,
+                ShadowSlopeBiasMultiplier = 2.5f,
+                EnableCascadeBlending = false,
+
+                //HDR
+                EnableHDR = false,
+
+                //SSAO
+                EnableSSAO = false,
+
+                //FXAA
+                EnableFXAA = false,
+
+                //Environmentals
+                EnableEnvironmentals = false,
+
+                //GodRays
+                EnableGodRays = false,
+
+
+                //Geometry quality
+                UseNormals = true,
+
+                // Spot shadow max distance multiplier 
+                SpotShadowsMaxDistanceMultiplier = 1.0f,
+
+                // Low res particles
+                LowResParticles = true,
+
+                // Distant impostors
+                EnableDistantImpostors = false,
+
+                //Explosion voxel debris
+                ExplosionDebrisCountMultiplier = 0.5f,
+            };
+
+            m_renderQualityProfiles[(int)MyRenderQualityEnum.LOW] = new MyRenderQualityProfile()
+            {
+                RenderQuality = MyRenderQualityEnum.LOW,
+
+                //LODs
+                LodClipmapRanges = new float[][]
+                { 
+                    new float[] { 80f, 240f, 600f, 1600f, 4800f, 14000f, 35000f, 100000f, },
+                    massiveClipmapLodRangesLow, 
+                },
+
+                //Textures
+                TextureQuality = TextureQuality.OneFourth,
+
+                //Voxels
+                VoxelsRenderTechnique = Effects.MyEffectVoxelsTechniqueEnum.Low,
+
+                //Models
+                ModelsRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Low,
+                ModelsBlendedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.LowBlended,
+                ModelsMaskedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.LowMasked,
+                ModelsHoloRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Holo,
+                ModelsStencilTechnique = Effects.MyEffectModelsDNSTechniqueEnum.StencilLow,
+                ModelsSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighSkinned,
+                ModelsInstancedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighInstanced,
+                ModelsInstancedSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighInstancedSkinned,
+                ModelsInstancedGenericTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGeneric,
+                ModelsInstancedGenericMaskedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGenericMasked,
+
+                //Shadows
+                ShadowCascadeLODTreshold = 3,
+                ShadowMapCascadeSize = 512,
+                SecondaryShadowMapCascadeSize = 32,
+                ShadowBiasMultiplier = 1,
+                ShadowSlopeBiasMultiplier = 1,
+                EnableCascadeBlending = false,
+
+                //HDR
+                EnableHDR = false,
+
+                //SSAO
+                EnableSSAO = false,
+
+                //FXAA
+                EnableFXAA = false,
+
+                //Environmentals
+                EnableEnvironmentals = false,
+
+                //GodRays
+                EnableGodRays = false,
+
+                //Geometry quality
+                UseNormals = false,
+
+                // Spot shadow max distance multiplier 
+                SpotShadowsMaxDistanceMultiplier = 0.0f,
+
+                // Low res particles
+                LowResParticles = false,
+
+                // Distant impostors
+                EnableDistantImpostors = false,
+
+                //Explosion voxel debris
+                ExplosionDebrisCountMultiplier = 0,
+            };
+
+            m_renderQualityProfiles[(int)MyRenderQualityEnum.HIGH] = new MyRenderQualityProfile()
+            {
+                RenderQuality = MyRenderQualityEnum.HIGH,
+
+                //LODs
+                LodClipmapRanges = new float[][]
+                { // base was 32f * 6f
+                    new float[] { 120f, 360f, 900f, 2000f, 4500f, 13500f, 30000f, 100000f, },
+                    massiveClipmapLodRangesHigh,
+                },
+
+                //Textures
+                TextureQuality = TextureQuality.Full,
+
+                //Voxels
+                VoxelsRenderTechnique = Effects.MyEffectVoxelsTechniqueEnum.High,
+
+                //Models
+                ModelsRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.High,
+                ModelsBlendedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighBlended,
+                ModelsMaskedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighMasked,
+                ModelsHoloRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Holo,
+                ModelsStencilTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Stencil,
+                ModelsSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighSkinned,
+                ModelsInstancedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighInstanced,
+                ModelsInstancedSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.HighInstancedSkinned,
+                ModelsInstancedGenericTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGeneric,
+                ModelsInstancedGenericMaskedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGenericMasked,
+
+                //Shadows
+                ShadowCascadeLODTreshold = 3,
+                ShadowMapCascadeSize = 1024,
+                SecondaryShadowMapCascadeSize = 64,
+                ShadowBiasMultiplier = 0.5f,
+                ShadowSlopeBiasMultiplier = 2.5f,
+                EnableCascadeBlending = true,
+
+                //HDR
+                EnableHDR = true,
+
+                //SSAO
+                EnableSSAO = true,
+
+                //FXAA
+                EnableFXAA = true,
+
+                //Environmentals
+                EnableEnvironmentals = true,
+
+                //GodRays
+                EnableGodRays = true,
+
+                //Geometry quality
+                UseNormals = true,
+
+                // Spot shadow max distance multiplier 
+                SpotShadowsMaxDistanceMultiplier = 2.5f,
+
+                // Low res particles
+                LowResParticles = false,
+
+                // Distant impostors
+                EnableDistantImpostors = true,
+
+                //Explosion voxel debris
+                ExplosionDebrisCountMultiplier = 0.8f,
+            };
+
+            m_renderQualityProfiles[(int)MyRenderQualityEnum.EXTREME] = new MyRenderQualityProfile()
+            {
+                RenderQuality = MyRenderQualityEnum.EXTREME,
+
+                //LODs
+                LodClipmapRanges = new float[][]
+                { // base was 32f * 8f
+                    new float[] { 140f, 400f, 1000f, 2000f, 4500f, 13500f, 30000f, 100000f, },
+                    massiveClipmapLodRangesHigh,
+                },
+
+                //Textures
+                TextureQuality = TextureQuality.Full,
+
+                //Voxels
+                VoxelsRenderTechnique = Effects.MyEffectVoxelsTechniqueEnum.Extreme,
+
+                //Models
+                ModelsRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Extreme,
+                ModelsBlendedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.ExtremeBlended,
+                ModelsMaskedRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.ExtremeMasked,
+                ModelsHoloRenderTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Holo,
+                ModelsStencilTechnique = Effects.MyEffectModelsDNSTechniqueEnum.Stencil,
+                ModelsSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.ExtremeSkinned,
+                ModelsInstancedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.ExtremeInstanced,
+                ModelsInstancedSkinnedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.ExtremeInstancedSkinned,
+                ModelsInstancedGenericTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGeneric,
+                ModelsInstancedGenericMaskedTechnique = Effects.MyEffectModelsDNSTechniqueEnum.InstancedGenericMasked,
+
+                //Shadows
+                ShadowCascadeLODTreshold = 4,
+                ShadowMapCascadeSize = 2048,
+                SecondaryShadowMapCascadeSize = 128,
+                ShadowBiasMultiplier = 0.5f,
+                ShadowSlopeBiasMultiplier = 1,
+                EnableCascadeBlending = true,
+
+                //HDR
+                EnableHDR = true,
+
+                //SSAO
+                EnableSSAO = true,
+
+                //FXAA
+                EnableFXAA = true,
+
+                //Environmentals
+                EnableEnvironmentals = true,
+
+                //GodRays
+                EnableGodRays = true,
+
+                //Geometry quality
+                UseNormals = true,
+
+                // Spot shadow max distance multiplier 
+                SpotShadowsMaxDistanceMultiplier = 3.0f,
+
+                // Low res particles
+                LowResParticles = false,
+
+                // Distant impostors
+                EnableDistantImpostors = true,
+
+                //Explosion voxel debris
+                ExplosionDebrisCountMultiplier = 3.0f,
+            };
+
+            //Default value
+            RenderQualityProfile = m_renderQualityProfiles[(int)MyRenderQualityEnum.NORMAL];
         }
 
-        // sun glow and glare size multiplier
-        public static float SUN_SIZE_MULTIPLIER = 1.0f;
-       
+        /// <summary>
+        /// This should be called only from LoadContent
+        /// </summary>
+        public static void SwitchRenderQuality(MyRenderQualityEnum renderQuality)
+        {
+            RenderQualityProfile = m_renderQualityProfiles[(int)renderQuality];
 
-        // minimum and maximum sun glow and glare sizes (in no specific unit)
-        public const float MIN_SUN_SIZE = 250;  // will be used in sectors distant from sun (e.g. post-uranus)
-        public const float MAX_SUN_SIZE = 4000; // will be used in sectors close to sun
-
-        // for sun occlusion query
-        public static readonly int MIN_QUERY_SIZE = 1000;
-
-        // maximum number of occlusion query pixels - higher numbers are discarded as faulty query results
-        public const int MAX_SUNGLARE_PIXELS = 100000;
+            if (OnRenderQualityChange != null)
+                OnRenderQualityChange(renderQuality, null);
+        }
     }
 }

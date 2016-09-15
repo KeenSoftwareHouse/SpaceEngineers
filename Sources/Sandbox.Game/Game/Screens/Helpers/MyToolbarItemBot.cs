@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Entity;
-using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.Screens.Helpers

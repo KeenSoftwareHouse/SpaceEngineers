@@ -49,7 +49,7 @@ using IMyModdingControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllabl
 using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Game.Models;
-using VRage.Render.Models;
+using VRageRender.Import;
 
 #endregion
 

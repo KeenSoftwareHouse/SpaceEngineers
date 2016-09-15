@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -29,8 +30,14 @@ namespace VRage
         public const bool DX11DebugOutput = false;
         // enable/disable print of DirectX Debug messages that have type of Information
         public const bool DX11DebugOutputEnableInfo = false;
+
         // force stereo rendering even when OpenVR is not available
         public const bool DX11ForceStereo = false;
+
+        public const bool EnableShaderDebuggingInNSight = false;
+        public const bool EnableShaderPreprocessorInNSight = false; // In NSight, all preprocessors will be processed and you will see postprocessed code
+
+        public static bool LogRenderGIDs = false;
 
 #if !XB1
         /// <summary>
@@ -44,5 +51,21 @@ namespace VRage
             return CorProfiling.Trim() == "1" || CoreClrProfiling.Trim() == "1";
         }
 #endif // !XB1
+
+        public static bool IsDebugBuild
+        {
+            get
+            {
+                bool debugging = false;
+                SetDebug(ref debugging);
+                return debugging;
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private static void SetDebug(ref bool debugging)
+        {
+            debugging = true;
+        }
     }
 }

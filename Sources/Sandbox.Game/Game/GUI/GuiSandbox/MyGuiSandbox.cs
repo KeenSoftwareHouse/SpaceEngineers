@@ -14,6 +14,7 @@ using VRage;
 using VRage.Input;
 using VRage.Library.Utils;
 using VRage.Plugins;
+using VRage.Profiler;
 using VRage.Utils;
 using Vector2 = VRageMath.Vector2;
 

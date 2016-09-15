@@ -35,6 +35,7 @@
       
       <LootingTime>30</LootingTime>
       <UsesAtmosphereDetector>true</UsesAtmosphereDetector>
+      <UsesReverbDetector>true</UsesReverbDetector>
 
       <!-- CHARACTER CONTROL -->
 		<UseOnlyWalking>false</UseOnlyWalking>
@@ -378,11 +379,12 @@
 
       <CrouchDownSoundName>PlayCrouchDwn</CrouchDownSoundName>
       <CrouchUpSoundName>PlayCrouchUp</CrouchUpSoundName>
+      <MovementSoundName></MovementSoundName>
 
       <PainSoundName>PlayVocPain</PainSoundName>
       <SuffocateSoundName>PlayChokeHit</SuffocateSoundName>
       <DeathSoundName>PlayVocDeath</DeathSoundName>
-      <DeathBySuffocationSoundName>RealPlayChokeDeath</DeathBySuffocationSoundName>
+      <DeathBySuffocationSoundName>PlayChokeDeath</DeathBySuffocationSoundName>
 
       <IronsightActSoundName>PlayIronSightActivate</IronsightActSoundName>
       <IronsightDeactSoundName>PlayIronSightDeactivate</IronsightDeactSoundName>
