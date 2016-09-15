@@ -25,6 +25,7 @@ using VRage.Game.Entity;
 using VRage.Network;
 using Sandbox.Game.Replication;
 using Sandbox.Game.Entities.Blocks;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -125,8 +126,9 @@ namespace Sandbox.Game.Entities.Cube
                 MyDeltaTransform? deltaTransform = ob.MasterToSlaveTransform.HasValue ? ob.MasterToSlaveTransform.Value : (MyDeltaTransform?)null;
                 m_connectionState.Value = new State() { TopBlockId = ob.RotorEntityId, MasterToSlave = deltaTransform, Welded = ob.WeldedEntityId.HasValue || ob.ForceWeld };
             }
-          
+
             AddDebugRenderComponent(new Components.MyDebugRenderComponentMotorBase(this));
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
         
         private void Receiver_IsPoweredChanged()

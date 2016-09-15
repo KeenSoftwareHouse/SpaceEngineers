@@ -69,7 +69,8 @@ namespace SpaceEngineers.Game.GUI
             },
         };
 
-        private MyGuiControlCombobox m_comboDx9RenderQuality;
+        private bool m_writingSettings;
+
         private MyGuiControlCombobox m_comboRenderer;
         private MyGuiControlCombobox m_comboAntialiasing;
         private MyGuiControlCombobox m_comboShadowMapResolution;
@@ -98,7 +99,7 @@ namespace SpaceEngineers.Game.GUI
 
             if (MyFakes.ENABLE_PLANETS)
             {
-                Size += new Vector2(0f, 60f)/MyGuiConstants.GUI_OPTIMAL_SIZE;
+                Size += new Vector2(0f, 60f) / MyGuiConstants.GUI_OPTIMAL_SIZE;
             }
 
             RecreateControls(true);
@@ -131,7 +132,6 @@ namespace SpaceEngineers.Game.GUI
             var labelFoliageDetails         = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_FoliageDetails));
             var labelGrassDensity           = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.WorldSettings_GrassDensity));
             var labelEnableDamageEffects    = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.EnableDamageEffects));
-            var labelDx9RenderQuality       = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MySpaceTexts.RenderQuality));
 
             var labelVegetationDistance = new MyGuiControlLabel(textScale: TEXT_SCALE, text: MyTexts.GetString(MyCommonTexts.WorldSettings_VegetationDistance));
 
@@ -141,7 +141,6 @@ namespace SpaceEngineers.Game.GUI
             m_comboShadowMapResolution    = new MyGuiControlCombobox();
             m_comboTextureQuality         = new MyGuiControlCombobox();
             m_comboAnisotropicFiltering   = new MyGuiControlCombobox();
-            m_comboDx9RenderQuality       = new MyGuiControlCombobox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsRenderQuality));
             m_checkboxHardwareCursor      = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionsHardwareCursor));
             m_checkboxRenderInterpolation = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipVideoOptionRenderIterpolation));
             //m_checkboxMultithreadedRender = new MyGuiControlCheckbox();
@@ -151,7 +150,8 @@ namespace SpaceEngineers.Game.GUI
                 labelText: new StringBuilder("{0}").ToString(),
                 labelSpaceWidth: 0.035f,
                 labelScale: TEXT_SCALE,
-                labelFont: MyFontEnum.Blue);
+                labelFont: MyFontEnum.Blue,
+                defaultValue: MathHelper.ToDegrees(MySandboxGame.Config.FieldOfView));
 
             m_comboVoxelQuality = new MyGuiControlCombobox();
 
@@ -160,7 +160,8 @@ namespace SpaceEngineers.Game.GUI
                 labelText: new StringBuilder("{0}").ToString(),
                 labelSpaceWidth: 0.035f,
                 labelScale: TEXT_SCALE,
-                labelFont: MyFontEnum.Blue);
+                labelFont: MyFontEnum.Blue,
+                defaultValue: MySandboxGame.Config.GrassDensityFactor);
 
             /* Vegetation View Distance */
 
@@ -169,13 +170,10 @@ namespace SpaceEngineers.Game.GUI
                 labelSpaceWidth: 0.063f,
                 labelScale: TEXT_SCALE,
                 labelFont: MyFontEnum.Blue);
+            m_vegetationViewDistance.DefaultRatio = m_vegetationViewDistance.Propeties.ValueToRatio(MySandboxGame.Config.VegetationDrawDistance);
 
             var okButton = new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Ok), onButtonClick: OnOkClick);
             var cancelButton = new MyGuiControlButton(text: MyTexts.Get(MyCommonTexts.Cancel), onButtonClick: OnCancelClick);
-
-            m_comboDx9RenderQuality.AddItem((int)MyRenderQualityEnum.NORMAL, MySpaceTexts.RenderQualityNormal);
-            m_comboDx9RenderQuality.AddItem((int)MyRenderQualityEnum.HIGH, MySpaceTexts.RenderQualityHigh);
-            m_comboDx9RenderQuality.AddItem((int)MyRenderQualityEnum.EXTREME, MySpaceTexts.RenderQualityExtreme);
 
             m_comboGraphicsPresets.AddItem((int)PresetEnum.Low, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_QualityPreset_Low));
             m_comboGraphicsPresets.AddItem((int)PresetEnum.Medium, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_QualityPreset_Medium));
@@ -193,9 +191,9 @@ namespace SpaceEngineers.Game.GUI
             m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.MEDIUM, MyTexts.GetString(MySpaceTexts.ScreenGraphicsOptions_ShadowMapResolution_Medium));
             m_comboShadowMapResolution.AddItem((int)MyShadowsQuality.HIGH, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_ShadowMapResolution_High));
 
-            m_comboTextureQuality.AddItem((int)MyTextureQuality.LOW,    MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality_Low));
+            m_comboTextureQuality.AddItem((int)MyTextureQuality.LOW, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality_Low));
             m_comboTextureQuality.AddItem((int)MyTextureQuality.MEDIUM, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality_Medium));
-            m_comboTextureQuality.AddItem((int)MyTextureQuality.HIGH,   MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality_High));
+            m_comboTextureQuality.AddItem((int)MyTextureQuality.HIGH, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_TextureQuality_High));
 
             m_comboAnisotropicFiltering.AddItem((int)MyTextureAnisoFiltering.NONE, MyTexts.GetString(MyCommonTexts.ScreenGraphicsOptions_AnisotropicFiltering_Off));
             m_comboAnisotropicFiltering.AddItem((int)MyTextureAnisoFiltering.ANISO_1, "1x");
@@ -239,8 +237,7 @@ namespace SpaceEngineers.Game.GUI
             table.Add(m_checkboxEnableDamageEffects, hAlign, vAlign, row++, rightCol);
             table.Add(labelFov, hAlign, vAlign, row, leftCol);
             table.Add(m_sliderFov, hAlign, vAlign, row++, rightCol);
-            table.Add(labelFovDefault, hAlign, MyAlignV.Top , row++, rightCol);
-            int moveWhenDirX9 = 0;
+            table.Add(labelFovDefault, hAlign, MyAlignV.Top, row++, rightCol);
             if (MyVideoSettingsManager.RunningGraphicsRenderer == MySandboxGame.DirectX11RendererKey)
             {
                 table.Add(labelGraphicsPresets, hAlign, vAlign, row, leftCol);
@@ -268,22 +265,17 @@ namespace SpaceEngineers.Game.GUI
 
                     table.Add(labelVegetationDistance, hAlign, vAlign, row, leftCol);
                     table.Add(m_vegetationViewDistance, hAlign, vAlign, row++, rightCol);
-                }                
-            }
-            else // Dx9 or nothing specified
-            {
-                table.Add(labelDx9RenderQuality, hAlign, vAlign, row, leftCol);
-                table.Add(m_comboDx9RenderQuality, hAlign, vAlign, row++, rightCol);
-                moveWhenDirX9 = 1;
+                }
             }
 
-            table.Add(okButton, MyAlignH.Left, MyAlignV.Bottom, table.LastRow - moveWhenDirX9, leftCol);
-            table.Add(cancelButton, MyAlignH.Right, MyAlignV.Bottom, table.LastRow - moveWhenDirX9, rightCol);
+            table.Add(okButton, MyAlignH.Left, MyAlignV.Bottom, table.LastRow, leftCol);
+            table.Add(cancelButton, MyAlignH.Right, MyAlignV.Bottom, table.LastRow, rightCol);
 
             { // Set FoV bounds based on current display setting.
                 float fovMin, fovMax;
                 MyVideoSettingsManager.GetFovBounds(out fovMin, out fovMax);
                 m_sliderFov.SetBounds(MathHelper.ToDegrees(fovMin), MathHelper.ToDegrees(fovMax));
+                m_sliderFov.DefaultValue = MathHelper.ToDegrees(MySandboxGame.Config.FieldOfView);
             }
 
             {
@@ -310,7 +302,6 @@ namespace SpaceEngineers.Game.GUI
                 m_comboFoliageDetails.ItemSelected       += onComboItemSelected;
                 m_comboVoxelQuality.ItemSelected         += onComboItemSelected;
                 m_comboTextureQuality.ItemSelected       += onComboItemSelected;
-                m_comboDx9RenderQuality.ItemSelected     += onComboItemSelected;
 
                 m_checkboxHardwareCursor.IsCheckedChanged = onCheckboxChanged;
                 //m_checkboxMultithreadedRender.IsCheckedChanged = onCheckboxChanged;
@@ -319,7 +310,7 @@ namespace SpaceEngineers.Game.GUI
                 m_checkboxEnableDamageEffects.IsCheckedChanged = onCheckboxChanged;
 
                 m_sliderFov.ValueChanged = (slider) => OnSettingsChanged();
-      //          m_grassDensitySlider.ValueChanged = (slider) => OnSettingsChanged();
+                //          m_grassDensitySlider.ValueChanged = (slider) => OnSettingsChanged();
             }
             RefreshPresetCombo(m_settingsOld.Render);
 
@@ -355,7 +346,7 @@ namespace SpaceEngineers.Game.GUI
                 return;
 
             var presetSettings = m_presets[(int)preset];
-           // presetSettings.MultithreadingEnabled = m_checkboxMultithreadedRender.IsChecked;
+            // presetSettings.MultithreadingEnabled = m_checkboxMultithreadedRender.IsChecked;
             presetSettings.InterpolationEnabled = m_checkboxRenderInterpolation.IsChecked;
             //presetSettings.TonemappingEnabled = m_checkboxTonemapping.IsChecked;
             m_settingsNew.Render = presetSettings;
@@ -372,6 +363,9 @@ namespace SpaceEngineers.Game.GUI
         /// <returns>Bool indicating a game restart is required</returns>
         private bool ReadSettingsFromControls(ref MyGraphicsSettings graphicsSettings)
         {
+            if (m_writingSettings)
+                return false;
+
             bool restartIsNeeded;
 
             {
@@ -387,14 +381,7 @@ namespace SpaceEngineers.Game.GUI
                 //read.Render.TonemappingEnabled    = m_checkboxTonemapping.IsChecked;
                 read.Render.TextureQuality        = (MyTextureQuality)m_comboTextureQuality.GetSelectedKey();
                 read.Render.AnisotropicFiltering  = (MyTextureAnisoFiltering)m_comboAnisotropicFiltering.GetSelectedKey();
-
-                MyRenderProxy.Settings.EnableShadows = (read.Render.ShadowQuality != MyShadowsQuality.DISABLED);
-
-                if (MyVideoSettingsManager.RunningGraphicsRenderer != MySandboxGame.DirectX11RendererKey)
-                    read.Render.Dx9Quality = (MyRenderQualityEnum)m_comboDx9RenderQuality.GetSelectedKey();
-                else
-                    read.Render.Dx9Quality = graphicsSettings.Render.Dx9Quality;
-
+                read.Render.Dx9Quality            = graphicsSettings.Render.Dx9Quality;
                 read.Render.FoliageDetails        = (MyFoliageDetails)m_comboFoliageDetails.GetSelectedKey();
                 read.Render.VoxelQuality          = (MyRenderQualityEnum)m_comboVoxelQuality.GetSelectedKey();
                 read.Render.GrassDensityFactor    = m_grassDensitySlider.Value;
@@ -409,6 +396,8 @@ namespace SpaceEngineers.Game.GUI
 
         private void WriteSettingsToControls(MyGraphicsSettings graphicsSettings)
         {
+            m_writingSettings = true;
+
             int selectedRender = Math.Max(0, Array.IndexOf(m_renderers, graphicsSettings.GraphicsRenderer));
             m_comboRenderer.SelectItemByKey(selectedRender);
             m_checkboxHardwareCursor.IsChecked = graphicsSettings.HardwareCursor;
@@ -422,15 +411,14 @@ namespace SpaceEngineers.Game.GUI
 
             m_checkboxEnableDamageEffects.IsChecked = graphicsSettings.EnableDamageEffects;
             m_checkboxRenderInterpolation.IsChecked = graphicsSettings.Render.InterpolationEnabled;
-//            m_checkboxMultithreadedRender.IsChecked = graphicsSettings.Render.MultithreadingEnabled;
+            //            m_checkboxMultithreadedRender.IsChecked = graphicsSettings.Render.MultithreadingEnabled;
             //m_checkboxTonemapping.IsChecked = graphicsSettings.Render.TonemappingEnabled;
             m_comboAntialiasing.SelectItemByKey((long)graphicsSettings.Render.AntialiasingMode, sendEvent: false);
             m_comboShadowMapResolution.SelectItemByKey((long)graphicsSettings.Render.ShadowQuality, sendEvent: false);
             m_comboTextureQuality.SelectItemByKey((long)graphicsSettings.Render.TextureQuality, sendEvent: false);
             m_comboAnisotropicFiltering.SelectItemByKey((long)graphicsSettings.Render.AnisotropicFiltering, sendEvent: false);
-            m_comboDx9RenderQuality.SelectItemByKey((int)graphicsSettings.Render.Dx9Quality, sendEvent: false);
-            if (m_comboDx9RenderQuality.GetSelectedKey() == -1)
-                m_comboDx9RenderQuality.SelectItemByIndex(0);
+
+            m_writingSettings = false;
         }
 
         public void OnCancelClick(MyGuiControlButton sender)

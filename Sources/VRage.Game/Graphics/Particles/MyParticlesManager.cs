@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using VRage.Generics;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 #endregion
 
@@ -15,6 +16,20 @@ namespace VRage.Game
     public class MyParticlesManager : VRage.Game.Components.MySessionComponentBase
     {
         public static bool Enabled;
+        private static bool m_paused = false;
+        public static bool Paused
+        {
+            get { return m_paused; }
+            set
+            {
+                m_paused = value;
+                lock (m_particleEffectsForUpdate)
+                {
+                    foreach (MyParticleEffect effect in m_particleEffectsForUpdate)
+                        effect.SetDirty();
+                }
+            }
+        }
 
         public static Func<Vector3D, Vector3> CalculateGravityInPoint;
 
@@ -143,9 +158,6 @@ namespace VRage.Game
             if (!Enabled)
                 return;
 
-            MyPerformanceCounter.PerCameraDrawWrite.ParticleEffectsTotal = 0;
-            MyPerformanceCounter.PerCameraDrawWrite.ParticleEffectsDrawn = 0;
-
             UpdateEffects();
 
             //TestGPUParticles();
@@ -160,8 +172,6 @@ namespace VRage.Game
             {
                 foreach (MyParticleEffect effect in m_particleEffectsForUpdate)
                 {
-                    MyPerformanceCounter.PerCameraDrawWrite.ParticleEffectsTotal++;
-
                     if (effect.Update())
                         m_effectsToDelete.Add(effect);
                 }

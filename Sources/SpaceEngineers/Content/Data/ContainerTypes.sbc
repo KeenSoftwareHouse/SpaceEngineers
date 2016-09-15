@@ -61,7 +61,7 @@
 	<ContainerType CountMin="1" CountMax="2">
       <Id>
         <TypeId>ContainerTypeDefinition</TypeId>
-        <SubtypeId>CyberhoundLoot</SubtypeId>
+        <SubtypeId>WolfLoot</SubtypeId>
       </Id>
       <Items>
         <Item AmountMin="4" AmountMax="7">

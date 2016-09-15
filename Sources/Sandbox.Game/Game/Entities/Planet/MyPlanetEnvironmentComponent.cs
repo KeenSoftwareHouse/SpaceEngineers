@@ -22,6 +22,7 @@ using VRage.ObjectBuilders;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.WorldEnvironment.ObjectBuilders;
 using VRage.ModAPI;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Planet
 {

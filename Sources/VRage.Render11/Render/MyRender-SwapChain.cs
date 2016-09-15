@@ -5,8 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using SharpDX.Direct3D;
+using VRage.Render11.Common;
+using VRage.Render11.Profiler;
+using VRage.Render11.Resources;
+using VRage.Render11.Tools;
 using VRageMath;
-using VRageRender.Resources;
+
 using Resource = SharpDX.Direct3D11.Resource;
 
 
@@ -64,13 +68,12 @@ namespace VRageRender
 		{
 			switch(shadowQuality)
 			{
+                // CHECK-ME: This is no sense. Previous revision is the same
                 case MyShadowsQuality.DISABLED:
                 case MyShadowsQuality.LOW:
-                    return (int)MyRenderProxy.Settings.ShadowCascadeZOffset;
 				case MyShadowsQuality.MEDIUM:
-                    return (int)MyRenderProxy.Settings.ShadowCascadeZOffset;
 				case MyShadowsQuality.HIGH:
-                    return (int)MyRenderProxy.Settings.ShadowCascadeZOffset;
+                    return (int)MyShadowCascades.Settings.Data.ShadowCascadeZOffset;
 			}
 			return -1;
 		}
@@ -80,19 +83,19 @@ namespace VRageRender
 			if (cascade == 0)
 				return 1.0f;
 
-            var lastCascadeSplit = MyRenderProxy.Settings.ShadowCascadeMaxDistance;
+            var lastCascadeSplit = MyShadowCascades.Settings.Data.ShadowCascadeMaxDistance;
 			switch(shadowQuality)
 			{
 				case MyShadowsQuality.MEDIUM:
-                    lastCascadeSplit *= MyRenderProxy.Settings.ShadowCascadeMaxDistanceMultiplierMedium;
+                    lastCascadeSplit *= MyShadowCascades.Settings.Data.ShadowCascadeMaxDistanceMultiplierMedium;
 					break;
 				case MyShadowsQuality.HIGH:
-                    lastCascadeSplit *= MyRenderProxy.Settings.ShadowCascadeMaxDistanceMultiplierHigh;
+                    lastCascadeSplit *= MyShadowCascades.Settings.Data.ShadowCascadeMaxDistanceMultiplierHigh;
 					break;
 			}
 
-            var spreadFactor = MyRenderProxy.Settings.ShadowCascadeSpreadFactor;
-            float logSplit = (float)Math.Pow(lastCascadeSplit, (cascade + spreadFactor) / (MyRenderProxy.Settings.ShadowCascadeCount + spreadFactor));
+            var spreadFactor = MyShadowCascades.Settings.Data.ShadowCascadeSpreadFactor;
+            float logSplit = (float)Math.Pow(lastCascadeSplit, (cascade + spreadFactor) / (MyShadowCascades.Settings.NewData.CascadesCount + spreadFactor));
             return logSplit;
 		}
 
@@ -124,7 +127,7 @@ namespace VRageRender
 
         public static int GrassDrawDistance(this MyFoliageDetails foliageDetails)
         {
-            int drawDistance = (int)MyRenderProxy.Settings.GrassMaxDrawDistance;
+            int drawDistance = (int)MyRender11.Settings.GrassMaxDrawDistance;
             switch (foliageDetails)
             {
                 case MyFoliageDetails.DISABLED:
@@ -200,10 +203,8 @@ namespace VRageRender
             var msDefine = ShaderMultisamplingDefine();
             if (msDefine.HasValue)
                 defineList.Add(msDefine.Value);
-            if (DebugMode)
-                defineList.Add(MyShadersDefines.DebugMacro);
 
-            GlobalShaderMacro = defineList.ToArray();
+            MyShaders.SetGlobalMacros(defineList);
 
             MyShaders.Recompile();
             MyMaterialShaders.Recompile();
@@ -227,19 +228,20 @@ namespace VRageRender
 
             MyRenderConstants.SwitchRenderQuality(settings.Dx9Quality); //because of lod ranges
 
-            MyRenderProxy.Settings.EnableCameraInterpolation = settings.InterpolationEnabled;
-            MyRenderProxy.Settings.EnableObjectInterpolation = settings.InterpolationEnabled;
+            // THIS IS SHIT! MOVE TO USE JUST ONE STRUCT FOR RENDER SETTINGS!!!!!
+            MyRender11.Settings.EnableCameraInterpolation = settings.InterpolationEnabled;
+            MyRender11.Settings.EnableObjectInterpolation = settings.InterpolationEnabled;
 
-            MyRenderProxy.Settings.GrassDensityFactor = settings.GrassDensityFactor;
+            MyRender11.Settings.GrassDensityFactor = settings.GrassDensityFactor;
             if (settings.GrassDensityFactor == 0.0f) m_renderSettings.FoliageDetails = MyFoliageDetails.DISABLED;
-            MyRenderProxy.Settings.VoxelQuality = settings.VoxelQuality;
+            MyRender11.Settings.VoxelQuality = settings.VoxelQuality;
 
             //       if(settings.GrassDensityFactor != prevSettings.GrassDensityFactor)
             //           MyRenderProxy.ReloadGrass();
 
             if (settings.ShadowQuality != prevSettings.ShadowQuality)
             {
-                ResetShadows(MyRenderProxy.Settings.ShadowCascadeCount, settings.ShadowQuality.ShadowCascadeResolution());
+                ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, settings.ShadowQuality.ShadowCascadeResolution());
             }
 
             if (settings.AntialiasingMode != prevSettings.AntialiasingMode)
@@ -247,16 +249,14 @@ namespace VRageRender
 
             if (settings.AnisotropicFiltering != prevSettings.AnisotropicFiltering)
             {
-                SamplerStates.UpdateFiltering();
+                MySamplerStateManager.UpdateFiltering();
             }
             
             if(settings.TextureQuality != prevSettings.TextureQuality)
             {
-                //MyTextureManager.UnloadTextures();
-
                 MyVoxelMaterials1.InvalidateMaterials();
                 MyMeshMaterials1.InvalidateMaterials();
-                MyTextures.ReloadQualityDependantTextures();
+                MyManagers.FileTextures.DisposeTex(MyFileTextureManager.MyFileTextureHelper.IsQualityDependantFilter);
 
                 //MyVoxelMaterials.ReloadTextures();
                 //MyMaterialProxyFactory.ReloadTextures();
@@ -285,7 +285,7 @@ namespace VRageRender
 
         private static void ResizeSwapchain(int width, int height)
         {
-            DeviceContext.ClearState();
+            RC.ClearState();
             if (Backbuffer != null)
             {
                 Backbuffer.Release();
@@ -293,10 +293,10 @@ namespace VRageRender
             }
 
             Backbuffer = new MyBackbuffer(m_swapchain.GetBackBuffer<Texture2D>(0));
-
+       
             m_resolution = new Vector2I(width, height);
             CreateScreenResources();
-            ResetShadows(MyRenderProxy.Settings.ShadowCascadeCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
+            ResetShadows(MyShadowCascades.Settings.NewData.CascadesCount, RenderSettings.ShadowQuality.ShadowCascadeResolution());
         }
 
         internal static bool m_profilingStarted = false;
@@ -316,7 +316,7 @@ namespace VRageRender
                     if (m_screenshot.Value.SizeMult == VRageMath.Vector2.One)
                     {
                         MyCopyToRT.ClearAlpha(Backbuffer);
-                        SaveScreenshotFromResource(Backbuffer.m_resource);
+                        SaveScreenshotFromResource(Backbuffer.Resource);
                     }
                     else
                     {
@@ -327,11 +327,14 @@ namespace VRageRender
 
                 try
                 {
+                    MyManagers.OnFrameEnd();
                     MyGpuProfiler.IC_BeginBlock("Waiting for present");
                     GetRenderProfiler().StartProfilingBlock("Waiting for present");
                     m_swapchain.Present(m_settings.VSync ? 1 : 0, 0);
                     GetRenderProfiler().EndProfilingBlock();
                     MyGpuProfiler.IC_EndBlock();
+
+                    MyStatsUpdater.Timestamps.Update(ref MyStatsUpdater.Timestamps.Present, ref MyStatsUpdater.Timestamps.PreviousPresent);
 
                     if (VRage.OpenVRWrapper.MyOpenVR.Static != null)
                     {
@@ -410,15 +413,6 @@ namespace VRageRender
                 TryChangeToFullscreen();
                 GetRenderProfiler().EndProfilingBlock();
             }
-        }
-
-        internal static void ClearBackbuffer(VRageMath.Color clearColor)
-        {
-            if(Backbuffer != null)
-			{
-				var v3 = clearColor.ToVector3();
-                DeviceContext.ClearRenderTargetView((Backbuffer as IRenderTargetBindable).RTV, new Color4(v3.X, v3.Y, v3.Z, 1));            
-        }
         }
 
         internal static bool SettingsChanged(MyRenderDeviceSettings settings)

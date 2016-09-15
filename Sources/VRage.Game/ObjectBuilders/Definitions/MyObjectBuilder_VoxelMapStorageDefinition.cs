@@ -1,7 +1,7 @@
 ﻿using ProtoBuf;
-using VRage.Voxels;
 using VRage.Data;
 using VRage.ObjectBuilders;
+using VRage.Voxels;
 
 namespace VRage.Game
 {

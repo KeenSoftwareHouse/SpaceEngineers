@@ -27,7 +27,6 @@ using VRage.Plugins;
 using System.Reflection;
 
 using Sandbox.Game.Entities;
-using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
@@ -40,10 +39,13 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Game.GameSystems;
 using VRage.Game;
 using VRage.Network;
-using VRage.Render.Models;
 using VRage.Game.Models;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using VRage.Profiler;
+using VRageRender.Import;
+using VRageRender.Messages;
+using VRageRender.Models;
 
 namespace Sandbox.Game.Entities
 {
@@ -191,6 +193,203 @@ namespace Sandbox.Game.Entities
 
         private const double ROTATION_PRECISION = 0.001f;
 
+        public static void GetCubePartsWithoutTopologyCheck(
+            MyCubeBlockDefinition block,
+            Vector3I inputPosition,
+            Matrix rotation,
+            float gridSize,
+            List<string> outModels,
+            List<MatrixD> outLocalMatrices,
+            List<Vector3> outLocalNormals,
+            List<Vector2> outPatternOffsets)
+        {
+            // CH:TODO: Is rotation argument really needed as a Matrix? It should suffice for it to be MyBlockOrientation
+
+            outModels.Clear();
+            outLocalMatrices.Clear();
+            outLocalNormals.Clear();
+            outPatternOffsets.Clear();
+
+            if (block.CubeDefinition == null)
+                return;
+
+            MyTileDefinition[] tiles = MyCubeGridDefinitions.GetCubeTiles(block);
+
+            int count = tiles.Length;
+            int start = 0;
+            int avoidZeroMirrorOffset = 32768;
+            float epsilon = 0.01f;
+
+            for (int i = 0; i < count; i++)
+            {
+                var entry = tiles[start + i];
+                var localMatrix = (MatrixD)entry.LocalMatrix * rotation;
+                var localNormal = Vector3.Transform(entry.Normal, rotation.GetOrientation());
+
+                var position = inputPosition;
+                if(block.CubeDefinition.CubeTopology == MyCubeTopology.Slope2Base)
+                {
+                    var addition = new Vector3I(Vector3.Sign(localNormal.MaxAbsComponent()));
+                    position += addition;
+                }
+                
+
+                string modelPath = block.CubeDefinition.Model[i];
+                Vector2I patternSize = block.CubeDefinition.PatternSize[i];
+
+                int scale = (int)MyModels.GetModelOnlyData(modelPath).PatternScale;
+
+                patternSize = new Vector2I(patternSize.X * scale, patternSize.Y * scale);
+
+                const float sinConst = 10;
+
+                int u = 0;
+                int v = 0;
+
+                float yAxis = Vector3.Dot(Vector3.UnitY, localNormal);
+                float xAxis = Vector3.Dot(Vector3.UnitX, localNormal);
+                float zAxis = Vector3.Dot(Vector3.UnitZ, localNormal);
+                if (MyUtils.IsZero(Math.Abs(yAxis) - 1, epsilon))
+                {
+                    int patternRow = (position.X + avoidZeroMirrorOffset) / patternSize.Y;
+                    int offset = (MyMath.Mod(patternRow + (int)(patternRow * Math.Sin(patternRow * sinConst)), patternSize.X));
+                    u = MyMath.Mod(position.Z + position.Y + offset + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.X + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(yAxis) == 1)
+                        v = (patternSize.Y - 1) - v;
+                }
+                else if (MyUtils.IsZero(Math.Abs(xAxis) - 1, epsilon))
+                {
+                    int patternRow = (position.Z + avoidZeroMirrorOffset) / patternSize.Y;
+                    int offset = (MyMath.Mod(patternRow + (int)(patternRow * Math.Sin(patternRow * sinConst)), patternSize.X));
+                    u = MyMath.Mod(position.X + position.Y + offset + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(xAxis) == 1)
+                        v = (patternSize.Y - 1) - v;
+                }
+                else if (MyUtils.IsZero(Math.Abs(zAxis) - 1, epsilon))
+                {
+                    int patternRow = (position.Y + avoidZeroMirrorOffset) / patternSize.Y;
+                    int offset = (MyMath.Mod(patternRow + (int)(patternRow * Math.Sin(patternRow * sinConst)), patternSize.X));
+                    u = MyMath.Mod(position.X + offset + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Y + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(zAxis) == 1)
+                        u = (patternSize.X - 1) - u;
+
+                }
+                else if (MyUtils.IsZero(xAxis, epsilon))
+                {   //slope in YZ
+                    u = MyMath.Mod(position.X + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.Y);
+
+                    if (Math.Sign(zAxis) == -1)
+                    {
+                        if (Math.Sign(yAxis) == 1)
+                        {
+                            //v = (patternSize.Y - 1) - v;
+                            //u = (patternSize.X - 1) - u;
+                        }
+                        else
+                        {
+                            // u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Sign(yAxis) == -1)
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            //  v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                }
+                else if (MyUtils.IsZero(zAxis, epsilon))
+                {   //slope in XY
+                    u = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Y + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(xAxis) == 1)
+                    {
+                        if (Math.Sign(yAxis) == 1)
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            //v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Sign(yAxis) == 1)
+                        {
+                            u = (patternSize.X - 1) - u;
+                            // v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            // u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                }
+                else if (MyUtils.IsZero(yAxis, epsilon))
+                {   //slope in XZ
+                    u = MyMath.Mod(position.Y + avoidZeroMirrorOffset, patternSize.X);
+                    v = MyMath.Mod(position.Z + avoidZeroMirrorOffset, patternSize.Y);
+                    if (Math.Sign(zAxis) == -1)
+                    {
+                        if (Math.Sign(xAxis) == 1)
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            u = (patternSize.X - 1) - u;
+                            v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Sign(xAxis) == 1)
+                        {
+                            u = (patternSize.X - 1) - u;
+                            //v = (patternSize.Y - 1) - v;
+                        }
+                        else
+                        {
+                            //u = (patternSize.X - 1) - u;
+                            // v = (patternSize.Y - 1) - v;
+                        }
+                    }
+                }
+
+                localMatrix.Translation = inputPosition * gridSize;
+
+                if (entry.DontOffsetTexture)
+                {
+                    u = 0;
+                    v = 0;
+                }
+
+                Vector2 uv = new Vector2(u, v);
+                Vector2 patternOffset = uv / patternSize;
+
+                outPatternOffsets.Add(patternOffset);
+                outModels.Add(modelPath);
+                outLocalMatrices.Add(localMatrix);
+                outLocalNormals.Add(localNormal);
+            }
+        }
+
         public static void GetCubeParts(
             MyCubeBlockDefinition block,
             Vector3I inputPosition,
@@ -229,12 +428,12 @@ namespace Sandbox.Game.Entities
                 var localNormal = Vector3.Transform(entry.Normal, rotation.GetOrientation());
 
                 var position = inputPosition;
-                if(block.CubeDefinition.CubeTopology == MyCubeTopology.Slope2Base)
+                if (block.CubeDefinition.CubeTopology == MyCubeTopology.Slope2Base)
                 {
                     var addition = new Vector3I(Vector3.Sign(localNormal.MaxAbsComponent()));
                     position += addition;
                 }
-                
+
 
                 string modelPath = block.CubeDefinition.Model[i];
                 Vector2I patternSize = block.CubeDefinition.PatternSize[i];
@@ -1153,7 +1352,7 @@ namespace Sandbox.Game.Entities
                 localToExport = grid.WorldMatrix * baseGridWorldInv;
                 foreach (var cell in grid.RenderData.Cells)
                 {
-                    HashSet<MyCubePart> parts = cell.Value.CubeParts;
+                    var parts = cell.Value.CubeParts;
                     foreach (var part in parts)
                     {
                         Vector3 HSV = new Vector3(part.InstanceData.ColorMaskHSV.X, part.InstanceData.ColorMaskHSV.Y, part.InstanceData.ColorMaskHSV.Z);
@@ -1604,7 +1803,7 @@ namespace Sandbox.Game.Entities
             halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
             if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
                 halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Vector3D translation = localAabb.TransformFast(ref worldMatrix).Center;
             Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
             quaternion.Normalize();
             ProfilerShort.End();
@@ -1654,7 +1853,7 @@ namespace Sandbox.Game.Entities
             halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
             if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
                 halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Vector3D translation = localAabb.TransformFast(ref worldMatrix).Center;
             Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
             quaternion.Normalize();
             ProfilerShort.End();
@@ -1700,7 +1899,7 @@ namespace Sandbox.Game.Entities
         public static bool IsAabbInsideVoxel(MatrixD worldMatrix, BoundingBoxD localAabb, MyGridPlacementSettings settings)
         {
 
-            var worldAabb = localAabb.Transform(ref worldMatrix);
+            var worldAabb = localAabb.TransformFast(ref worldMatrix);
 
             List<MyVoxelBase> voxels = new List<MyVoxelBase>();
             MyGamePruningStructure.GetAllVoxelMapsInBox(ref worldAabb, voxels);
@@ -1725,7 +1924,7 @@ namespace Sandbox.Game.Entities
             halfExtents += settings.SearchHalfExtentsDeltaAbsolute; //this works for SE
             if (MyFakes.ENABLE_BLOCK_PLACING_IN_OCCUPIED_AREA)
                 halfExtents -= new Vector3D(GRID_PLACING_AREA_FIX_VALUE);
-            Vector3D translation = localAabb.Transform(ref worldMatrix).Center;
+            Vector3D translation = localAabb.TransformFast(ref worldMatrix).Center;
             Quaternion quaternion = Quaternion.CreateFromRotationMatrix(worldMatrix);
             quaternion.Normalize();
             ProfilerShort.End();
@@ -1904,26 +2103,23 @@ namespace Sandbox.Game.Entities
                 baseTextureName = baseTextureName.Substring(0, textureName.LastIndexOf('_'));
             }
 
-            if (MySandboxGame.IsDirectX11)
+            string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+            if (File.Exists(srcDiffuseTex))
             {
-                string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
-                if (File.Exists(srcDiffuseTex))
-                {
-                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
-                }
+                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
             }
-            else
+
+            // Alternative/fallback paths to texture (dx9 leftovers)
+            srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+            if (File.Exists(srcDiffuseTex))
             {
-                string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
-                if (File.Exists(srcDiffuseTex))
-                {
-                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
-                }
-                srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
-                if (File.Exists(srcDiffuseTex))
-                {
-                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
-                }
+                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+            }
+
+            srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+            if (File.Exists(srcDiffuseTex))
+            {
+                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
             }
 
             return diffuseTextureName;
@@ -1984,7 +2180,7 @@ namespace Sandbox.Game.Entities
             float gridSize = targetGrid.GridSize;
             bool isStatic = targetGridIsStatic;
 
-            var worldAabb = localAabb.Transform(ref worldMatrix);
+            var worldAabb = localAabb.TransformFast(ref worldMatrix);
 
             bool entityOverlap = false;
             MyVoxelBase overlappedVoxelMap = null;
@@ -2040,9 +2236,9 @@ namespace Sandbox.Game.Entities
         private static void TestGridPlacement(ref MyGridPlacementSettings settings, ref MatrixD worldMatrix, ref MyCubeGrid touchingGrid, float gridSize, bool isStatic, ref BoundingBoxD localAABB, MyCubeBlockDefinition blockDefinition,
            MyBlockOrientation? blockOrientation, ref bool entityOverlap, ref bool touchingStaticGrid, MyCubeGrid grid)
         {
-            var worldAabb = localAABB.Transform(ref worldMatrix);
+            var worldAabb = localAABB.TransformFast(ref worldMatrix);
             var invWorldMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-            var otherLocalAabb = worldAabb.Transform(ref invWorldMatrix);
+            var otherLocalAabb = worldAabb.TransformFast(ref invWorldMatrix);
 
             Vector3D minToWorld = Vector3D.Transform(localAABB.Min, worldMatrix);
             Vector3D maxToWorld = Vector3D.Transform(localAABB.Max, worldMatrix);
@@ -2258,7 +2454,7 @@ namespace Sandbox.Game.Entities
         {
             ProfilerShort.Begin("TestPlacementVoxelMapOverlap");
 
-            var worldAabb = localAabb.Transform(ref worldMatrix);
+            var worldAabb = localAabb.TransformFast(ref worldMatrix);
 
             const int IntersectsOrInside = 1;
             const int Outside = 2;
@@ -2417,7 +2613,7 @@ namespace Sandbox.Game.Entities
         {
             foreach (var def in MyDefinitionManager.Static.GetAllDefinitions().OfType<MyCubeBlockDefinition>())
             {
-                if (def.Id.SubtypeId == block.SubtypeId)
+                if (def.Id.SubtypeId == block.SubtypeId && String.IsNullOrEmpty(block.SubtypeId.String) == false)
                 {
                     blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(def.Id);
                     return MyObjectBuilder_CubeBlock.Upgrade(block, blockDefinition.Id.TypeId, block.SubtypeName);

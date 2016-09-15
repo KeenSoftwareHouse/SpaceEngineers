@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Definition xsi:type="AnimationControllerDefinition">
+    <Id Type="MyObjectBuilder_AnimationControllerDefinition" Subtype="Wolf" />
+    <Layers>
+      <Layer>
+        <Name>Body</Name>
+        <Mode>Replace</Mode>
+        <StateMachine>SMWolfBody</StateMachine>
+        <InitialSMNode>Start</InitialSMNode>
+      </Layer>
+    </Layers>
+    <StateMachines>
+      <StateMachine>
+        <Name>SMWolfBody</Name>
+        <Nodes>
+          <Node>
+            <Name>Move</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-278</X>
+                <Y>-46</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeMix1D">
+                <EdPos>
+                  <X>-11</X>
+                  <Y>-14</Y>
+                </EdPos>
+                <ParameterName>speed</ParameterName>
+                <Child>
+                  <Param>4.1</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>488</X>
+                      <Y>-89</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\Creatures\Wolf\Wolf_Walk.mwm</PathToModel>
+                    <AnimationName>AnimStack::Wolf animations</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Child>
+                  <Param>8</Param>
+                  <Node xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                    <EdPos>
+                      <X>468</X>
+                      <Y>105</Y>
+                    </EdPos>
+                    <PathToModel>Models\Characters\Animations\Creatures\Wolf\Wolf_Run.mwm</PathToModel>
+                    <AnimationName>AnimStack::Wolf animations</AnimationName>
+                    <Loop>true</Loop>
+                    <Speed>1</Speed>
+                    <Interpolate>true</Interpolate>
+                  </Node>
+                </Child>
+                <Circular>false</Circular>
+                <Sensitivity>1</Sensitivity>
+                <MaxChange xsi:nil="true" />
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>450</X>
+              <Y>10</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Attack</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>46</X>
+                <Y>-2</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>321</X>
+                  <Y>-81</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Wolf\Wolf_Attack.mwm</PathToModel>
+                <AnimationName>AnimStack::Wolf animations</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>10</X>
+              <Y>380</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Death</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>453</X>
+                  <Y>-49</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Wolf\Wolf_Death.mwm</PathToModel>
+                <AnimationName>AnimStack::ME_wolf_2012</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>450</X>
+              <Y>380</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>all</Name>
+            <EdPos>
+              <X>419</X>
+              <Y>223</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
+            <Name>Idle</Name>
+            <StateMachineName>SMWolfIdle</StateMachineName>
+            <EdPos>
+              <X>-41</X>
+              <Y>24</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Start</Name>
+            <EdPos>
+              <X>-30</X>
+              <Y>-81</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition Name="Attack" From="Move" To="Attack" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Attack" To="Move" TimeInSec="0.2" Sync="NoSynchonization">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="Speed" Op="GreaterOrEqual" Rhs="1.5" />
+                <Condition Lhs="@AnimationFinished" Op="Greater" Rhs="0.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="all" To="Death" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="dead" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="Attack" To="Idle/Idle1" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@AnimationFinished" Op="Equal" Rhs="1" />
+                <Condition Lhs="Speed" Op="Less" Rhs="1.5" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Move" To="Idle/Idle1" TimeInSec="0.3" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="Speed" Op="Less" Rhs="0.9" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Attack" From="Idle/Any" To="Attack" TimeInSec="0.1" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Start" To="Idle/Idle1" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Idle/Any" To="Move" TimeInSec="0.2" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="speed" Op="Greater" Rhs="0.95" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine>
+        <Name>SMWolfIdle</Name>
+        <Nodes>
+          <Node>
+            <Name>Idle1</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-95</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>143</X>
+                  <Y>-99</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Wildlife\Wolf\Wolf_idle_02.mwm</PathToModel>
+                <AnimationName>AnimStack::Take 001</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-266</X>
+              <Y>-88</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Howling</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>-91</X>
+                <Y>62</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>94</X>
+                  <Y>-11</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\Creatures\Wolf\Wolf_Idle_01.mwm</PathToModel>
+                <AnimationName>AnimStack::cyberhound animations</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>150</X>
+              <Y>-84</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Any</Name>
+            <EdPos>
+              <X>-53</X>
+              <Y>20</Y>
+            </EdPos>
+            <Type>Any</Type>
+          </Node>
+          <Node>
+            <Name>IdleToHowl</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>181</X>
+                  <Y>-5</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>-59</X>
+              <Y>-182</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
+        </Nodes>
+        <Transitions>
+          <Transition From="Howling" To="Idle1" TimeInSec="0.3" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Idle1" To="IdleToHowl" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="IdleToHowl" To="Howling" TimeInSec="0.1" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@randomstable" Op="Less" Rhs="0.2" />
+              </Conjunction>
+            </Conditions>
+            <Priority>1</Priority>
+          </Transition>
+          <Transition From="IdleToHowl" To="Idle1" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Op="AlwaysTrue" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <FootIkChains>
+      <FootIkChain>
+        <FootBone>Wolf_L_FrontLeg_Digit01</FootBone>
+        <ChainLength>3</ChainLength>
+        <AlignBoneWithTerrain>true</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Wolf_R__FrontLeg_Digit01</FootBone>
+        <ChainLength>3</ChainLength>
+        <AlignBoneWithTerrain>true</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Wolf_L_Leg_Digit01</FootBone>
+        <ChainLength>3</ChainLength>
+        <AlignBoneWithTerrain>true</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Wolf_R_Leg_Digit01</FootBone>
+        <ChainLength>3</ChainLength>
+        <AlignBoneWithTerrain>true</AlignBoneWithTerrain>
+      </FootIkChain>
+    </FootIkChains>
+    <IkIgnoredBones>
+      <Bone>HeadDummy</Bone>
+      <Bone>ThirdCameraDummy</Bone>
+    </IkIgnoredBones>
+  </Definition>
+</Definitions>

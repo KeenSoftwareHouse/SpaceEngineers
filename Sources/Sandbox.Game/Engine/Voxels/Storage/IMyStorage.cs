@@ -1,11 +1,8 @@
 ﻿using System;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
-using System.Collections.Generic;
 using System.Linq;
 using Sandbox.Game.World;
-using VRage.Collections;
-using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;

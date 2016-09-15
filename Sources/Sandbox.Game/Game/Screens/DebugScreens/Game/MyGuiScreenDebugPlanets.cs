@@ -11,6 +11,7 @@ using VRage;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRageRender.Voxels;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {

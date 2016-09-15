@@ -23,6 +23,7 @@ using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.Profiler;
 
 namespace Sandbox.Game.GameSystems
 {

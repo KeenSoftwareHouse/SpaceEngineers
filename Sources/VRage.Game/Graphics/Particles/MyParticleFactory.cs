@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using VRage.Animations;
+using VRageRender.Animations;
 
 namespace VRage.Game
 {

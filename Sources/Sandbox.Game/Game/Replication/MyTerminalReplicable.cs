@@ -16,7 +16,6 @@ using System.Text;
 using VRage;
 using VRage.Collections;
 using VRage.Library.Collections;
-using VRage.Library.Sync;
 using VRage.Network;
 using VRage.Replication;
 using VRage.Serialization;
@@ -69,7 +68,7 @@ namespace Sandbox.Game.Replication
             return m_gridReplicable;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client, bool cached)
         {
             Debug.Fail("Getting priority of child replicable: MyTerminalReplicable");
             return 0; // This is child replicable

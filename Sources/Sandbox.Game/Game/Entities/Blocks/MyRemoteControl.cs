@@ -36,7 +36,6 @@ using VRage.Library.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.EntityComponents;
 using VRageRender;
-using VRage.Voxels;
 using Sandbox.Game.AI.Navigation;
 using VRage.Game;
 using VRage.Network;
@@ -46,6 +45,8 @@ using VRage.Game.ModAPI;
 using VRage.Serialization;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
+using VRage.Sync;
+using VRage.Voxels;
 using TerminalActionParameter = Sandbox.ModAPI.Ingame.TerminalActionParameter;
 using MyWaypointInfo = Sandbox.ModAPI.Ingame.MyWaypointInfo;
 
@@ -1857,7 +1858,7 @@ namespace Sandbox.Game.Entities
                 Vector3D steeringDelta = Vector3D.Zero;
                 Vector3D avoidanceDelta = Vector3D.Zero;
 
-                if ((entity is MyCubeGrid) || (entity is MyVoxelMap))
+                if ((entity is MyCubeGrid) || (entity is MyVoxelMap) || (entity is MySkinnedEntity))
                 {
                     if (MyFakes.ENABLE_VR_DRONE_COLLISIONS && (entity is MyCubeGrid))
                     {

@@ -33,6 +33,7 @@ using VRage.Network;
 using VRage.Game.Models;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Profiler;
 
 #endregion
 

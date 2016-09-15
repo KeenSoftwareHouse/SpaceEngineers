@@ -19,6 +19,7 @@ using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Input;
 using VRage.Library.Collections;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 

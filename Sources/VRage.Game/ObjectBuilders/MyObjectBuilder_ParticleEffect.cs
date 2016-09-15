@@ -3,7 +3,7 @@ using ProtoBuf;
 using VRage.ObjectBuilders;
 using System.Collections.Generic;
 using VRageMath;
-using VRage.Animations;
+using VRageRender.Animations;
 
 namespace VRage.Game
 {

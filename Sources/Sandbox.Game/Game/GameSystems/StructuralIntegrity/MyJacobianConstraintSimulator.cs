@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using ConstraintKey = VRage.MyTuple<Sandbox.Game.Entities.Cube.MySlimBlock, Sandbox.Game.Entities.Cube.MySlimBlock>;

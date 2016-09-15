@@ -13,6 +13,8 @@ using Sandbox.Definitions;
 using Sandbox.Game.World;
 using VRage.Game;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
+using VRageRender.ExternalApp;
 
 namespace Sandbox.AppCode
 {

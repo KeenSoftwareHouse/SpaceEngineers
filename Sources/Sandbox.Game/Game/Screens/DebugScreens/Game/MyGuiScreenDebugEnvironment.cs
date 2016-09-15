@@ -25,7 +25,7 @@ namespace Sandbox.Game.Screens.DebugScreens
 
         public override string GetFriendlyName()
         {
-            return "MyGuiScreenDebugEnvironment";
+            return "MyGuiScreenDebugRenderEnvironment";
         }
 
         public override void RecreateControls(bool constructor)

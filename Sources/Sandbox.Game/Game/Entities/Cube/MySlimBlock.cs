@@ -17,7 +17,6 @@ using System.Diagnostics;
 using System.Linq;
 using VRage;
 using VRageRender;
-using VRage.Render;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -31,6 +30,8 @@ using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Network;
+using VRage.Game.Models;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -38,6 +39,8 @@ namespace Sandbox.Game.Entities.Cube
     [MyCubeBlockType(typeof(MyObjectBuilder_CubeBlock))]
     public partial class MySlimBlock : IMyDestroyableObject, IMyDecalProxy
     {
+        static List<VertexArealBoneIndexWeight> m_boneIndexWeightTmp;
+
         static MySoundPair CONSTRUCTION_START = new MySoundPair("PrgConstrPh01Start");
         static MySoundPair CONSTRUCTION_PROG = new MySoundPair("PrgConstrPh02Proc");
         static MySoundPair CONSTRUCTION_END = new MySoundPair("PrgConstrPh03Fin");
@@ -1182,6 +1185,7 @@ namespace Sandbox.Game.Entities.Cube
         void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
         {
             MyDecalRenderInfo renderable = new MyDecalRenderInfo();
+            MyCubeGridHitInfo gridHitInfo = customdata as MyCubeGridHitInfo;
             renderable.Flags = BlockDefinition.PhysicalMaterial.Transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
             if (FatBlock == null)
             {
@@ -1197,9 +1201,23 @@ namespace Sandbox.Game.Entities.Cube
             }
             renderable.Material = MyStringHash.GetOrCompute(BlockDefinition.PhysicalMaterial.Id.SubtypeName);
 
-            var decalId = decalHandler.AddDecal(ref renderable);
-            if (decalId != null)
-                CubeGrid.RenderData.AddDecal(Position, decalId.Value);
+            if (gridHitInfo != null)
+            {
+                VertexBoneIndicesWeights? boneIndicesWeights = gridHitInfo.Triangle.GetAffectingBoneIndicesWeights(ref m_boneIndexWeightTmp);
+                if (boneIndicesWeights.HasValue)
+                {
+                    renderable.BoneIndices = boneIndicesWeights.Value.Indices;
+                    renderable.BoneWeights = boneIndicesWeights.Value.Weights;
+
+                    var decalId = decalHandler.AddDecal(ref renderable);
+                    if (decalId != null)
+                        CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
+
+                    return;
+                }
+            }
+
+            decalHandler.AddDecal(ref renderable);
         }
 
         /// <summary>
@@ -1992,7 +2010,7 @@ namespace Sandbox.Game.Entities.Cube
             {
                 float gridSize = CubeGrid.GridSize;
                 aabb = new BoundingBoxD(Min * gridSize - gridSize / 2, Max * gridSize + gridSize / 2);
-                aabb = aabb.Transform(CubeGrid.WorldMatrix);
+                aabb = aabb.TransformFast(CubeGrid.WorldMatrix);
             }
         }
 

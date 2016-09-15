@@ -30,6 +30,8 @@ using VRageMath;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Network;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -515,7 +517,7 @@ namespace Sandbox.Game.Entities.Blocks
             m_statsDirty = true;
             UpdateText();
 
-            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
 

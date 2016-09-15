@@ -6,10 +6,13 @@ using Rectangle = VRageMath.Rectangle;
 using Color = VRageMath.Color;
 using Vector2 = VRageMath.Vector2;
 using System;
-using VRageRender.Resources;
 using System.Diagnostics;
 using System.Collections.Concurrent;
 using System.Threading;
+using SharpDX.Direct3D11;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
+using VRageRender.Messages;
 
 #if XB1
 using XB1Interface;
@@ -170,14 +173,17 @@ namespace VRageRender
 
     class MyVideoPlayer : DShowNET.VideoPlayer
     {
-        RwTexId m_texture = RwTexId.NULL;
+        ISrvTexture m_texture;
 
         const SharpDX.DXGI.Format VideoFormat = SharpDX.DXGI.Format.B8G8R8A8_UNorm_SRgb;
 
         public MyVideoPlayer(string filename)
             : base(filename)
         {
-            m_texture = MyRwTextures.CreateDynamicTexture(VideoWidth, VideoHeight, VideoFormat);
+            m_texture = MyManagers.RwTextures.CreateSrv("MyVideoPlayer.Texture", 
+                VideoWidth, VideoHeight, VideoFormat,
+                resourceUsage: ResourceUsage.Dynamic,
+                cpuAccessFlags: CpuAccessFlags.Write);
         }
 
         protected override unsafe void OnFrame(byte[] frameData)
@@ -198,12 +204,7 @@ namespace VRageRender
 
         public override void Dispose()
         {
-            if (m_texture != RwTexId.NULL)
-            {
-                MyRwTextures.Destroy(m_texture);
-                m_texture = RwTexId.NULL;
-            }
-
+            MyManagers.RwTextures.DisposeTex(ref m_texture);
             base.Dispose();
         }
 
@@ -293,6 +294,17 @@ namespace VRageRender
             }
 
             VideoMutex.ReleaseMutex();
+        }
+        internal static void Remove(uint GID)
+        {
+            var video = Videos.Get(GID);
+            if (video != null)
+            {
+                video.Stop();
+                video.Dispose();
+                Videos.Remove(GID);
+            }
+            else MyRenderProxy.Assert(false);
         }
     }
 }

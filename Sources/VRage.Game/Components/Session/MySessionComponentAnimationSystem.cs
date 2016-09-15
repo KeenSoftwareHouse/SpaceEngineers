@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.FileSystem;
 using VRage.Game.Components;
 using VRage.Game.Definitions;
@@ -10,6 +10,7 @@ using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders;
 using VRage.Generics;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace VRage.Game.SessionComponents

@@ -4,18 +4,16 @@ using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
 using VRage.Utils;
-using VRage.Voxels;
 using VRage.Trace;
 using VRageMath;
 using VRage.Generics;
-using Sandbox.Game.World;
-using VRageMath.Spatial;
+using VRage.Profiler;
+using VRage.Voxels;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {

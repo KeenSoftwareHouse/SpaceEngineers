@@ -16,6 +16,7 @@ using VRage;
 using Sandbox.Common;
 using VRage;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {

@@ -86,7 +86,7 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             // TODO: This can be adjusted, but for now, make sure it is always created on clients
             return 1.0f;

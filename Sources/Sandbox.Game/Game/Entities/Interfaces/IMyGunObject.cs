@@ -86,5 +86,7 @@ namespace Sandbox.Game.Entities
         void OnControlReleased();
 
         void DrawHud(IMyCameraController camera, long playerId);
+
+        void UpdateSoundEmitter();
     }
 }

@@ -8,34 +8,36 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using VRage;
+using VRage.Render11.Common;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
-using VRageRender.Resources;
+using VRageRender.Messages;
 using DecalNode = System.Collections.Generic.LinkedListNode<VRageRender.MyScreenDecal>;
 
 namespace VRageRender
 {
     class MyScreenDecal
     {
-        public uint FadeTimestamp; // ms from start of the game
-        public MyDecalTopoData Data;
-        public Matrix OBBox;
-        public uint ID;
-        public uint ParentID;
-        public MyDecalFlags Flags;
-        public string SourceTarget;
-        public string Material;
-        public MyStringId MaterialId;
-        public int MaterialIndex;
+        internal uint FadeTimestamp; // ms from start of the game
+        internal MyDecalTopoData TopoData;
+        internal uint ID;
+        internal uint ParentID;
+        internal MyDecalFlags Flags;
+        internal string SourceTarget;
+        internal string Material;
+        internal MyStringId MaterialId;
+        internal int MaterialIndex;
     }
 
     struct MyDecalTextures
     {
-        public MyScreenDecalType DecalType;
-        public TexId NormalmapTexture;
-        public TexId ColorMetalTexture;
-        public TexId AlphamaskTexture;
-        public TexId ExtensionsTexture;
+        public MyFileTextureEnum DecalType;
+        public string NormalmapTexture;
+        public string ColorMetalTexture;
+        public string AlphamaskTexture;
+        public string ExtensionsTexture;
     }
 
     [StructLayout(LayoutKind.Explicit)]
@@ -62,6 +64,7 @@ namespace VRageRender
 
     static class MyScreenDecals
     {
+        public const float VISIBLE_DECALS_SQ_TH = 10000;       // 100m
         const int DECAL_BATCH_SIZE = 512;
         const uint DECAL_FADE_DURATION = 6000; // ms
 
@@ -89,16 +92,16 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_vs = MyShaders.CreateVs("decal.hlsl");
-            var normalMapMacro = new ShaderMacro("USE_NORMALMAP_DECAL", null);
-            var colorMapMacro = new ShaderMacro("USE_COLORMAP_DECAL", null);
+            m_vs = MyShaders.CreateVs("Decals/Decals.hlsl");
             var transparentMacro = new ShaderMacro("RENDER_TO_TRANSPARENT", null);
-            var extensionsMacro = new ShaderMacro("USE_EXTENSIONS_TEXTURE", null);
-            m_psColorMap = MyShaders.CreatePs("decal.hlsl", new ShaderMacro[] { colorMapMacro });
-            m_psColorMapTransparent = MyShaders.CreatePs("decal.hlsl", new ShaderMacro[] { colorMapMacro, transparentMacro });
-            m_psNormalMap = MyShaders.CreatePs("decal.hlsl", new ShaderMacro[] { normalMapMacro });
-            m_psNormalColorMap = MyShaders.CreatePs("decal.hlsl", new ShaderMacro[] { colorMapMacro, normalMapMacro });
-            m_psNormalColorExtMap = MyShaders.CreatePs("decal.hlsl", new ShaderMacro[] { colorMapMacro, normalMapMacro, extensionsMacro });
+            m_psColorMapTransparent = MyShaders.CreatePs("Decals/Decals.hlsl", new ShaderMacro[] { transparentMacro });
+            m_psColorMap = MyShaders.CreatePs("Decals/Decals.hlsl", MyMeshMaterials1.GetMaterialTextureMacros(MyFileTextureEnum.COLOR_METAL));
+            m_psNormalMap = MyShaders.CreatePs("Decals/Decals.hlsl", MyMeshMaterials1.GetMaterialTextureMacros(MyFileTextureEnum.NORMALMAP_GLOSS));
+            m_psNormalColorMap = MyShaders.CreatePs("Decals/Decals.hlsl",
+                MyMeshMaterials1.GetMaterialTextureMacros(MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS));
+            m_psNormalColorExtMap = MyShaders.CreatePs("Decals/Decals.hlsl",
+                MyMeshMaterials1.GetMaterialTextureMacros(
+                MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS| MyFileTextureEnum.EXTENSIONS));
 
             InitIB();
         }
@@ -163,22 +166,27 @@ namespace VRageRender
             }
         }
 
-        public static void AddDecal(uint ID, uint ParentID, ref MyDecalTopoData data, MyDecalFlags flags, string sourceTarget, string material, int matIndex)
+        internal static void AddDecal(uint ID, uint ParentID, ref MyDecalTopoData topoData, MyDecalFlags flags, string sourceTarget, string material, int matIndex)
         {
-            if (m_decals.Count == m_decalsQueueSize)
-                MarkForRemove(m_decals.First.Value);
+            if (m_decals.Count >= m_decalsQueueSize)
+                MarkForRemove(m_decals.First);
 
             MyScreenDecal decal = new MyScreenDecal();
             decal.FadeTimestamp = uint.MaxValue;
             decal.ID = ID;
             decal.ParentID = ParentID;
-            decal.Data = data;
+            decal.TopoData = topoData;
             decal.Flags = flags;
-            decal.OBBox = ComputeOBB(ref data, flags);
             decal.SourceTarget = sourceTarget;
             decal.Material = material;
             decal.MaterialId = X.TEXT_(material);
             decal.MaterialIndex = matIndex;
+
+            if (!flags.HasFlag(MyDecalFlags.World))
+            {
+                var parent = MyIDTracker<MyActor>.FindByID(ParentID);
+                decal.TopoData.WorldPosition = Vector3D.Transform(topoData.MatrixCurrent.Translation, ref parent.WorldMatrix);
+            }
 
             DecalNode node = m_decals.AddLast(decal);
 
@@ -195,8 +203,10 @@ namespace VRageRender
             handles.Add(node);
         }
 
-        public static void UpdateDecals(List<MyDecalPositionUpdate> decals)
+        public static void UpdateDecals(IReadOnlyList<MyDecalPositionUpdate> decals)
         {
+            uint currentObjectId = MyRenderProxy.RENDER_ID_UNASSIGNED;
+            MatrixD currentWorldMatrix = new MatrixD();
             for (int it = 0; it < decals.Count; it++)
             {
                 MyDecalPositionUpdate position = decals[it];
@@ -205,26 +215,25 @@ namespace VRageRender
                 bool found = m_nodeMap.TryGetValue(position.ID, out node);
                 if (!found)
                     continue;
-
                 MyScreenDecal decal = node.Value;
-                decal.Data.Position = position.Position;
-                decal.Data.Normal = position.Normal;
-                node.Value.OBBox = ComputeOBB(ref decal.Data, decal.Flags);
-            }
-        }
+                if (decal.Flags.HasFlag(MyDecalFlags.World))
+                {
+                    decal.TopoData.WorldPosition = position.Position;
+                }
+                else
+                {
+                    if (currentObjectId != decal.ParentID)
+                    {
+                        var parent = MyIDTracker<MyActor>.FindByID(decal.ParentID);
+                        currentWorldMatrix = parent.WorldMatrix;
+                        currentObjectId = decal.ParentID;
+                    }
 
-        private static Matrix ComputeOBB(ref MyDecalTopoData data, MyDecalFlags flags)
-        {
-            var perp = Vector3.CalculatePerpendicularVector(data.Normal);
-            if (data.Rotation != 0)
-            {
-                // Rotate around normal
-                Quaternion q = Quaternion.CreateFromAxisAngle(data.Normal, data.Rotation);
-                perp = new Vector3((new Quaternion(perp, 0) * q).ToVector4());
-            }
+                    decal.TopoData.WorldPosition = Vector3D.Transform(position.Transform.Translation, ref currentWorldMatrix);
+                }
 
-            Matrix pos = Matrix.CreateWorld(data.Position, data.Normal, perp);
-            return Matrix.CreateScale(data.Scale) * pos;
+                node.Value.TopoData.MatrixCurrent = position.Transform;
+            }
         }
 
         public static void RemoveDecal(uint ID)
@@ -234,13 +243,18 @@ namespace VRageRender
             if (!found)
                 return;
 
-            MarkForRemove(node.Value);
+            MarkForRemove(node);
         }
 
-        private static void MarkForRemove(MyScreenDecal decal)
+        private static void MarkForRemove(DecalNode decal)
         {
             uint now = GetTimeStampSinceStart();
-            decal.FadeTimestamp = now + DECAL_FADE_DURATION;
+            decal.Value.FadeTimestamp = now + DECAL_FADE_DURATION;
+
+            // Reinsert the node at the end of the queue to allow
+            // following decals to be candidate for removal
+            m_decals.Remove(decal);
+            m_decals.AddLast(decal);
         }
 
         public static void RemoveEntityDecals(uint id)
@@ -298,11 +312,11 @@ namespace VRageRender
                 {
                     list.Add(new MyDecalTextures()
                     {
-                        DecalType = desc.DecalType,
-                        NormalmapTexture = MyTextures.GetTexture(desc.NormalmapTexture, MyTextureEnum.NORMALMAP_GLOSS),
-                        ColorMetalTexture = MyTextures.GetTexture(desc.ColorMetalTexture, MyTextureEnum.COLOR_METAL),
-                        AlphamaskTexture = MyTextures.GetTexture(desc.AlphamaskTexture, MyTextureEnum.ALPHAMASK),
-                        ExtensionsTexture = MyTextures.GetTexture(desc.ExtensionsTexture, MyTextureEnum.EXTENSIONS),
+                        DecalType = MyMeshMaterials1.GetMaterialTextureTypes(desc.NormalmapTexture, desc.ColorMetalTexture, desc.ExtensionsTexture, null),
+                        NormalmapTexture = desc.NormalmapTexture,
+                        ColorMetalTexture = desc.ColorMetalTexture,
+                        ExtensionsTexture = desc.ExtensionsTexture,
+                        AlphamaskTexture = desc.AlphamaskTexture,
                     });
                 }
 
@@ -310,58 +324,63 @@ namespace VRageRender
             }
         }
 
-        unsafe static void DrawBatches(MyRenderContext RC, MyStringId material, int matIndex, bool transparent)
+        public static bool GetDecalTopoData(uint decalId, out MyDecalTopoData data)
+        {
+            DecalNode node;
+            bool found = m_nodeMap.TryGetValue(decalId, out node);
+            if (!found)
+            {
+                data = new MyDecalTopoData();
+                return false;
+            }
+
+            data = node.Value.TopoData;
+            return true;
+        }
+
+        unsafe static void DrawBatches(MyRenderContext rc, MyStringId material, int matIndex, bool transparent)
         {
             if (m_jobs.Count == 0)
                 return;
 
             var matDesc = m_materials[material][matIndex];
-            MyScreenDecalType type = matDesc.DecalType;
+
+            rc.PixelShader.SetSrv(0, MyGBuffer.Main.DepthStencil.SrvDepth);
+            rc.PixelShader.SetSrv(1, MyGlobalResources.Gbuffer1Copy);
             if (transparent)
             {
-                // Always fallback to colormap for transparent surface decals
-                type = MyScreenDecalType.ColorMap;
+                rc.PixelShader.Set(m_psColorMapTransparent);
             }
-
-            switch (type)
+            else
             {
-                case MyScreenDecalType.NormalMap:
-                    BindResources(RC);
-                    RC.SetPS(m_psNormalMap);
-                    RC.SetBS(MyRender11.BlendDecalNormal);
-                    break;
-                case MyScreenDecalType.ColorMap:
-                    if (transparent)
-                    {
-                        BindResourcesTransparentBillboards(RC);
-                        RC.SetPS(m_psColorMapTransparent);
-                    }
-                    else
-                    {
-                        BindResources(RC);
-                        RC.SetPS(m_psColorMap);
-                        RC.SetBS(MyRender11.BlendDecalColor);
-                    }
-                    break;
-                case MyScreenDecalType.NormalColorMap:
-                    BindResources(RC);
-                    RC.SetPS(m_psNormalColorMap);
-                    RC.SetBS(MyRender11.BlendDecalNormalColor);
-                    break;
-                case MyScreenDecalType.NormalColorExtMap:
-                    BindResources(RC);
-                    RC.SetPS(m_psNormalColorExtMap);
-                    RC.SetBS(MyRender11.BlendDecalNormalColorExt);
-                    break;
-                default:
-                    throw new Exception("Unknown decal type");
+                rc.SetRtvs(MyGBuffer.Main, MyDepthStencilAccess.ReadOnly);
+                MyFileTextureEnum type = matDesc.DecalType;
+                switch (type)
+                {
+                    case MyFileTextureEnum.NORMALMAP_GLOSS:
+                        rc.PixelShader.Set(m_psNormalMap);
+                        break;
+                    case MyFileTextureEnum.COLOR_METAL:
+                        rc.PixelShader.Set(m_psColorMap);
+                        break;
+                    case MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS:
+                        rc.PixelShader.Set(m_psNormalColorMap);
+                        break;
+                    case MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS | MyFileTextureEnum.EXTENSIONS:
+                        rc.PixelShader.Set(m_psNormalColorExtMap);
+                        break;
+                    default:
+                        throw new Exception("Unknown decal type");
+                }
+                MyMeshMaterials1.BindMaterialTextureBlendStates(rc, type);
             }
 
             // factor 1 makes overwriting of gbuffer color & subtracting from ao
-            RC.DeviceContext.PixelShader.SetShaderResource(3, MyTextures.GetView(matDesc.AlphamaskTexture));
-            RC.DeviceContext.PixelShader.SetShaderResource(4, MyTextures.GetView(matDesc.ColorMetalTexture));
-            RC.DeviceContext.PixelShader.SetShaderResource(5, MyTextures.GetView(matDesc.NormalmapTexture));
-            RC.DeviceContext.PixelShader.SetShaderResource(6, MyTextures.GetView(matDesc.ExtensionsTexture));
+            MyFileTextureManager texManager = MyManagers.FileTextures;
+            rc.PixelShader.SetSrv(3, texManager.GetTexture(matDesc.AlphamaskTexture,  MyFileTextureEnum.ALPHAMASK));
+            rc.PixelShader.SetSrv(4, texManager.GetTexture(matDesc.ColorMetalTexture, MyFileTextureEnum.COLOR_METAL));
+            rc.PixelShader.SetSrv(5, texManager.GetTexture(matDesc.NormalmapTexture, MyFileTextureEnum.NORMALMAP_GLOSS));
+            rc.PixelShader.SetSrv(6, texManager.GetTexture(matDesc.ExtensionsTexture, MyFileTextureEnum.EXTENSIONS));
 
             var decalCb = MyCommon.GetObjectCB(sizeof(MyDecalConstants) * DECAL_BATCH_SIZE);
 
@@ -376,71 +395,33 @@ namespace VRageRender
                 for (int i2 = 0; i2 < decalCount; ++i2)
                 {
                     MyDecalConstants constants = new MyDecalConstants();
-                    EncodeJobConstants(i2, ref constants);
+                    EncodeJobConstants(i2 + offset, ref constants);
                     mapping.WriteAndPosition(ref constants);
                 }
 
                 mapping.Unmap();
 
                 // Draw a box without buffer: 36 vertices -> 12 triangles. 2 triangles per face -> 6 faces
-                MyImmediateRC.RC.DeviceContext.DrawIndexed(36 * decalCount, 0, 0);
+                MyImmediateRC.RC.DrawIndexed(36 * decalCount, 0, 0);
 
                 offset += DECAL_BATCH_SIZE;
             }
         }
 
-        internal static void Draw(bool transparent)
-        {
-            if (m_decals.Count == 0)
-                return;
-
-            uint sinceStart = GetTimeStampSinceStart();
-
-            MyDecalFlags targetFlag = transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
-            bool decalsToDraw = false;
-
-            DecalNode current = m_decals.First;
-            while (current != null)
-            {
-                DecalNode next = current.Next;
-                if (current.Value.FadeTimestamp < sinceStart)
-                {
-                    RemoveDecalByNode(current);
-                    current = next;
-                    continue;
-                }
-
-                MyDecalFlags flag = current.Value.Flags & MyDecalFlags.Transparent;
-                if (targetFlag == flag)
-                {
-                    AddDecalForDraw(current.Value);
-                    decalsToDraw = true;
-                }
-
-                current = next;
-            }
-
-            if (!decalsToDraw)
-                return;
-
-            DrawInternal(transparent, sinceStart);
-        }
-
-        // ENABLE-ME: As soon as a relieble list of frustum visible ojects IDs is available
-        internal static void Draw(HashSet<uint> visibleRenderIDs, bool transparent)
+        /// <param name="visibleRenderIDs">Optional list of visible render object IDs</param>
+        internal static void Draw(bool transparent, HashSet<uint> visibleRenderIDs = null, float squaredDistanceMax = VISIBLE_DECALS_SQ_TH)
         {
             if (m_decals.Count == 0)
                 return;
 
             uint sinceStartTs = GetTimeStampSinceStart();
-
             MyDecalFlags targetFlag = transparent ? MyDecalFlags.Transparent : MyDecalFlags.None;
 
             bool visibleDecals;
-            if (visibleRenderIDs.Count > m_decals.Count)
-                visibleDecals = IterateDecals(visibleRenderIDs, targetFlag, sinceStartTs);
+            if (visibleRenderIDs == null || visibleRenderIDs.Count > m_decals.Count)
+                visibleDecals = IterateDecals(visibleRenderIDs, targetFlag, squaredDistanceMax, sinceStartTs);
             else
-                visibleDecals = IterateVisibleRenderIDs(visibleRenderIDs, targetFlag, sinceStartTs);
+                visibleDecals = IterateVisibleRenderIDs(visibleRenderIDs, targetFlag, squaredDistanceMax, sinceStartTs);
 
             if (!visibleDecals)
                 return;
@@ -449,7 +430,7 @@ namespace VRageRender
         }
 
         /// <returns>True if visible decals are found</returns>
-        private static bool IterateVisibleRenderIDs(HashSet<uint> visibleRenderIDs, MyDecalFlags targetFlag, uint sinceStartTs)
+        private static bool IterateVisibleRenderIDs(HashSet<uint> visibleRenderIDs, MyDecalFlags targetFlag, float squaredDistanceMax, uint sinceStartTs)
         {
             bool ret = false;
             foreach (uint renderID in visibleRenderIDs)
@@ -467,8 +448,9 @@ namespace VRageRender
                         continue;
                     }
 
-                    MyDecalFlags flag = node.Value.Flags & MyDecalFlags.Transparent;
-                    if (flag == targetFlag)
+                    MyScreenDecal decal = node.Value;
+                    MyDecalFlags flag = decal.Flags & MyDecalFlags.Transparent;
+                    if (flag == targetFlag && IsDecalWithinRadius(decal, squaredDistanceMax))
                     {
                         AddDecalNodeForDraw(node);
                         ret = true;
@@ -480,7 +462,7 @@ namespace VRageRender
         }
 
         /// <returns>True if visible decals are found</returns>
-        private static bool IterateDecals(HashSet<uint> visibleRenderIDs, MyDecalFlags targetFlag, uint sinceStartTs)
+        private static bool IterateDecals(HashSet<uint> visibleRenderIDs, MyDecalFlags targetFlag, float squaredDistanceMax, uint sinceStartTs)
         {
             bool ret = false;
 
@@ -497,8 +479,10 @@ namespace VRageRender
                     continue;
                 }
 
-                MyDecalFlags flag = current.Value.Flags & MyDecalFlags.Transparent;
-                if (flag == targetFlag && visibleRenderIDs.Contains(current.Value.ParentID))
+                MyScreenDecal decal = current.Value;
+                MyDecalFlags flag = decal.Flags & MyDecalFlags.Transparent;
+                if (flag == targetFlag && (visibleRenderIDs == null || visibleRenderIDs.Contains(decal.ParentID))
+                    && IsDecalWithinRadius(decal, squaredDistanceMax))
                 {
                     AddDecalNodeForDraw(current);
                     ret = true;
@@ -513,7 +497,8 @@ namespace VRageRender
 
         private static void AddDecalNodeForDraw(DecalNode node)
         {
-            // Reinsert the node at the end of the queue
+            // Reinsert the node at the end of the queue to
+            // make it less likely to be candidate for removal
             m_decals.Remove(node);
             m_decals.AddLast(node);
             AddDecalForDraw(node.Value);
@@ -527,8 +512,8 @@ namespace VRageRender
             {
                 if (!MyStereoRender.Enable)
                 {
-                    RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-                    RC.DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+                    RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+                    RC.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
                 }
                 else
                 {
@@ -537,16 +522,16 @@ namespace VRageRender
                     MyStereoRender.SetViewport(RC);
                 }
 
-                RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-                RC.SetIB(m_IB.Buffer, m_IB.Format);
-                RC.SetIL(null);
+                RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
+                RC.SetIndexBuffer(m_IB.Buffer, m_IB.Format);
+                RC.SetInputLayout(null);
                 
-                RC.SetVS(m_vs);
-                RC.SetDS(MyDepthStencilState.DepthTest);
-                RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
+                RC.VertexShader.Set(m_vs);
+                RC.SetDepthStencilState(MyDepthStencilStateManager.DepthTestReadOnly);
+                RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
 
                 var decalCb = MyCommon.GetObjectCB(sizeof(MyDecalConstants) * DECAL_BATCH_SIZE);
-                RC.SetCB(2, decalCb);
+                RC.AllShaderStages.SetConstantBuffer(2, decalCb);
 
                 foreach (var pair in m_materialsToDraw)
                 {
@@ -559,17 +544,19 @@ namespace VRageRender
             // Clear materials to draw outside eye rendering passes
             foreach (var pair in m_materialsToDraw)
                 pair.Value.Clear();
+            
+            RC.SetBlendState(null);
+            RC.PixelShader.SetSrv(0, null);
 
-            RC.SetBS(null);
             if (MyStereoRender.Enable)
             {
-                RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-                RC.DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+                RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+                RC.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
                 MyStereoRender.RenderRegion = MyStereoRegion.FULLSCREEN;
             }
         }
 
-        private static void PrepareMaterialBatches(MyRenderContext RC, List<MyScreenDecal> decals, uint sinceStartTs)
+        private static void PrepareMaterialBatches(MyRenderContext rc, List<MyScreenDecal> decals, uint sinceStartTs)
         {
             if (decals.Count == 0)
                 return;
@@ -588,39 +575,37 @@ namespace VRageRender
                 Matrix volumeMatrix;
                 if (world)
                 {
-                    volumeMatrix = decal.OBBox;
-                    Vector3D translation = decal.Data.Position - MyRender11.Environment.CameraPosition;
-                    volumeMatrix.Translation = translation;
+                    volumeMatrix = decal.TopoData.MatrixCurrent;
+                    volumeMatrix.Translation = decal.TopoData.WorldPosition - MyRender11.Environment.Matrices.CameraPosition;
                 }
                 else
                 {
-                    MatrixD transform = decal.OBBox * parent.WorldMatrix;
-                    transform.Translation = transform.Translation - MyRender11.Environment.CameraPosition;
-                    volumeMatrix = transform;
+                    volumeMatrix = decal.TopoData.MatrixCurrent * parent.WorldMatrix;
+                    volumeMatrix.Translation = volumeMatrix.Translation - MyRender11.Environment.Matrices.CameraPosition;
                 }
 
                 uint fadeDiff = decal.FadeTimestamp - sinceStartTs;
                 float fadeAlpha = decal.FadeTimestamp - sinceStartTs >= DECAL_FADE_DURATION ? 1 : fadeDiff / (float)DECAL_FADE_DURATION;
                 m_jobs.Add(new MyDecalJob() { WorldMatrix = volumeMatrix, FadeAlpha = fadeAlpha });
 
-                if (MyRenderProxy.Settings.DebugDrawDecals)
+                if (MyRender11.Settings.DebugDrawDecals)
                 {
                     MatrixD worldMatrix;
                     if (parent == null)
                     {
-                        worldMatrix = decal.OBBox;
-                        worldMatrix.Translation = decal.Data.Position;
+                        worldMatrix = decal.TopoData.MatrixCurrent;
+                        worldMatrix.Translation = decal.TopoData.WorldPosition;
                     }
                     else
                     {
-                        worldMatrix = decal.OBBox * parent.WorldMatrix;
+                        worldMatrix = decal.TopoData.MatrixCurrent * parent.WorldMatrix;
                     }
 
                     MyRenderProxy.DebugDrawAxis(worldMatrix, 0.2f, false, true);
                     MyRenderProxy.DebugDrawOBB(worldMatrix, Color.Blue, 0.1f, false, false);
 
                     Vector3 position = worldMatrix.Translation;
-                    MyRenderProxy.DebugDrawText3D(position, decal.SourceTarget, Color.White, 1, false);
+                    MyRenderProxy.DebugDrawText3D(position, decal.SourceTarget, Color.White, 0.5f, false);
                 }
             }
 
@@ -655,16 +640,10 @@ namespace VRageRender
             constants.InvWorldMatrix = inverseMatrix;
         }
 
-        static void BindResources(MyRenderContext RC)
+        static bool IsDecalWithinRadius(MyScreenDecal decal, float squaredDistanceMax)
         {
-            RC.BindGBufferForWrite(MyGBuffer.Main, DepthStencilAccess.ReadOnly);
-            RC.BindSRVs(0, MyGBuffer.Main.DepthStencil.Depth, MyRender11.Gbuffer1Copy);
-        }
-
-        static void BindResourcesTransparentBillboards(MyRenderContext RC)
-        {
-            RC.BindRawSRV(0, MyGBuffer.Main.DepthStencil.Depth);
-            RC.BindRawSRV(1, MyRender11.Gbuffer1Copy);
+            float squaredDistance = (float)(decal.TopoData.WorldPosition - MyRender11.Environment.Matrices.CameraPosition).LengthSquared();
+            return squaredDistance <= squaredDistanceMax;
         }
 
         static uint GetTimeStampSinceStart()

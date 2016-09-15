@@ -15,6 +15,7 @@ namespace VRage.ObjectBuilders
 #if XB1 // XB1_ALLINONEASSEMBLY
         private static bool m_registered = false;
 #endif // XB1
+        const string LEGACY_TYPE_PREFIX = "MyObjectBuilder_";
 
         public static readonly MyObjectBuilderType Invalid = new MyObjectBuilderType(null);
 
@@ -145,7 +146,7 @@ namespace VRage.ObjectBuilders
             return m_typeByName.Count > 0;
         }
 
-        internal static void RegisterFromAssembly(Assembly assembly, bool registerLegacyNames = false)
+        public static void RegisterFromAssembly(Assembly assembly, bool registerLegacyNames = false)
         {
             if (assembly == null)
                 return;
@@ -172,9 +173,8 @@ namespace VRage.ObjectBuilders
                     m_idByType.Add(myType, myId);
                     m_typeByName.Add(type.Name, myType);
 
-                    const string PREFIX = "MyObjectBuilder_";
-                    if (registerLegacyNames && type.Name.StartsWith(PREFIX))
-                        RegisterLegacyName(myType, type.Name.Substring(PREFIX.Length));
+                    if (registerLegacyNames && type.Name.StartsWith(LEGACY_TYPE_PREFIX))
+                        RegisterLegacyName(myType, type.Name.Substring(LEGACY_TYPE_PREFIX.Length));
 
                     var attrs = type.GetCustomAttributes(typeof(MyObjectBuilderDefinitionAttribute), true);
                     if (attrs.Length > 0)
@@ -192,6 +192,25 @@ namespace VRage.ObjectBuilders
         internal static void RegisterLegacyName(MyObjectBuilderType type, string legacyName)
         {
             m_typeByLegacyName.Add(legacyName, type);
+        }
+
+        /// <summary>
+        /// Used for type remapping when overriding definition types
+        /// </summary>
+        internal static void RemapType(ref SerializableDefinitionId id, Dictionary<string, string> typeOverrideMap)
+        {
+            string overrideType;
+            bool found = typeOverrideMap.TryGetValue(id.TypeIdString, out overrideType);
+            if (!found)
+            {
+                if (id.TypeIdString.StartsWith(LEGACY_TYPE_PREFIX))
+                    found = typeOverrideMap.TryGetValue(id.TypeIdString.Substring(LEGACY_TYPE_PREFIX.Length), out overrideType);
+            }
+
+            if (!found)
+                return;
+
+            id.TypeIdString = overrideType;
         }
 
         public static void UnregisterAssemblies()

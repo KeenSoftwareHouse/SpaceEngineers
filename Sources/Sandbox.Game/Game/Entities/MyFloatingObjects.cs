@@ -16,8 +16,6 @@ using VRageMath;
 using VRage;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
-
-using VRage.Voxels;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Entities.Character;
@@ -27,6 +25,7 @@ using Sandbox.Engine.Multiplayer;
 using VRage.Game.Entity;
 using Sandbox.Game.Entities.Inventory;
 using VRage.Game;
+using VRage.Profiler;
 
 #endregion
 

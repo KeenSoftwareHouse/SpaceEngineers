@@ -12,6 +12,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Models;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Debris
 {

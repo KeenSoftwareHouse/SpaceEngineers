@@ -472,6 +472,7 @@
     <Compile Include="Utils\MyTimer.cs" />
     <Compile Include="Utils\MyTimeSpan.cs" />
     <Compile Include="Utils\MyLibraryUtils.cs" />
+    <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="Utils\WaitForTargetFrameRate.cs" />
     <Compile Include="Win32\WinApi-Constants.cs" />
     <Compile Include="Win32\WinApi-Functions.cs" />

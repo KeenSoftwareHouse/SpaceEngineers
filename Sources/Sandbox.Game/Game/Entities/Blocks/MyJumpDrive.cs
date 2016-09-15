@@ -23,6 +23,7 @@ using VRageMath;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {

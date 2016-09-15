@@ -1,24 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX;
-using SharpDX.Direct3D;
+﻿using System.Collections.Generic;
 using SharpDX.Direct3D11;
-using VRageMath;
-using RectangleF = VRageMath.RectangleF;
-using Vector2 = VRageMath.Vector2;
-using Vector3 = VRageMath.Vector3;
-using Color = VRageMath.Color;
-using Matrix = VRageMath.Matrix;
-using BoundingSphere = VRageMath.BoundingSphere;
-using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
-using VRageRender.Vertex;
-using VRageMath.PackedVector;
 using VRage.Collections;
 using System.Diagnostics;
-
+using VRage.Render11.Common;
 
 
 namespace VRageRender
@@ -101,7 +85,7 @@ namespace VRageRender
         }
     }
 
-    class MyOcclusionQuery
+    class MyOcclusionQuery: MyImmediateRC
     {
         Query m_query;
 
@@ -119,23 +103,23 @@ namespace VRageRender
 
         internal void Begin()
         {
-            MyRender11.DeviceContext.Begin(m_query);
+            RC.Begin(m_query);
         }
 
         internal void End()
         {
-            MyRender11.DeviceContext.End(m_query);
+            RC.End(m_query);
         }
 
         internal bool GetResult(out int num, bool stalling = false)
         {
             if (!stalling)
             {
-                return MyRender11.DeviceContext.GetData(m_query, AsynchronousFlags.DoNotFlush, out num);
+                return RC.GetData(m_query, AsynchronousFlags.DoNotFlush, out num);
             }
             else
             {
-                while (!MyRender11.DeviceContext.GetData(m_query, AsynchronousFlags.None, out num))
+                while (!RC.GetData(m_query, AsynchronousFlags.None, out num))
                 {
                     System.Threading.Thread.Sleep(1);
                 }

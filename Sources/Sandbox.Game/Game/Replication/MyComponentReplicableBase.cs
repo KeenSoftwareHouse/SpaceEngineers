@@ -75,7 +75,7 @@ namespace Sandbox.Game.Replication
             return m_parent;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             UpdateParent();
 

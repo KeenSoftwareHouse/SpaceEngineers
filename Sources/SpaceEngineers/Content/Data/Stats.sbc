@@ -37,7 +37,7 @@
     <Stat xsi:type="MyObjectBuilder_EntityStatDefinition">
       <Id>
         <TypeId>MyObjectBuilder_EntityStat</TypeId>
-        <SubtypeId>CyberHoundHealth</SubtypeId>
+        <SubtypeId>WolfHealth</SubtypeId>
       </Id>
       <Name>Health</Name>
       <MinValue>0</MinValue>

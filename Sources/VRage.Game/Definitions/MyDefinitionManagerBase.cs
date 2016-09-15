@@ -80,7 +80,7 @@ namespace VRage.Game
                         pp.DefinitionType = descriptor.ObjectBuilderType;
                         m_postProcessors.Add(pp);
                         m_postprocessorsByType.Add(descriptor.ObjectBuilderType, pp);
-                        MyXmlSerializerManager.RegisterObSerialzier(descriptor.ObjectBuilderType);
+                        MyXmlSerializerManager.RegisterSerializer(descriptor.ObjectBuilderType);
                     }
 
                     var tp = type;

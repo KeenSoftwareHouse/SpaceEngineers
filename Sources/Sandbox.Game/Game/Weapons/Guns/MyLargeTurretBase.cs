@@ -44,6 +44,9 @@ using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
+using VRage.Profiler;
+using VRage.Sync;
+using VRageRender.Import;
 using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 #if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
@@ -1719,7 +1722,10 @@ namespace Sandbox.Game.Weapons
 
         public bool IsShooting
         {
-            get { return false; }
+            get
+            {
+                return m_isShooting.Value;
+            }
         }
 
         int IMyGunObject<MyGunBase>.ShootDirectionUpdateTime
@@ -1886,7 +1892,7 @@ namespace Sandbox.Game.Weapons
                 to = to + Vector3.Transform(target.Physics.Center, target.WorldMatrix.GetOrientation());
             }
 
-            VRage.ProfilerShort.Begin("RayCast");
+            ProfilerShort.Begin("RayCast");
 
             var physTarget = MyPhysics.CastRay(from, to, MyPhysics.CollisionLayers.DefaultCollisionLayer);
             //MyPhysics.HitInfo? physTarget = null;
@@ -1894,7 +1900,7 @@ namespace Sandbox.Game.Weapons
             //    physTarget = MyPhysics.CastLongRay(from, to);
             //else
             //    physTarget = MyPhysics.CastRay(from, to, MyPhysics.CollisionLayers.DefaultCollisionLayer);
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
             IMyEntity hitEntity = null;
 
             if (physTarget.HasValue)
@@ -1941,7 +1947,7 @@ namespace Sandbox.Game.Weapons
 
             MyEntity nearestTarget = null;
             double minDistanceSq = range * range;// double.MaxValue;
-            VRage.ProfilerShort.Begin("FindNearest");
+            ProfilerShort.Begin("FindNearest");
 
             bool foundDecoy = false;
             foreach (var target in targetList)
@@ -1949,7 +1955,7 @@ namespace Sandbox.Game.Weapons
                 TestTarget(target, onlyPotential, ref nearestTarget, ref minDistanceSq, ref foundDecoy);
             }
 
-            VRage.ProfilerShort.End(targetList.Count);
+            ProfilerShort.End(targetList.Count);
             return nearestTarget;
         }
 
@@ -2044,9 +2050,9 @@ namespace Sandbox.Game.Weapons
 
         private bool IsTargetInView(MyEntity target, Vector3D predPos)
         {
-            VRage.ProfilerShort.Begin("InView");
+            ProfilerShort.Begin("InView");
             //var predPos = m_currentPrediction.GetPredictedTargetPosition(target);
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
             var lookAtPositionEuler = LookAt(predPos);
             float needElevation = lookAtPositionEuler.X;
 
@@ -3640,6 +3646,12 @@ namespace Sandbox.Game.Weapons
         void IMyControllableEntity.Teleport(Vector3D pos)
         {
 
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
     }
 

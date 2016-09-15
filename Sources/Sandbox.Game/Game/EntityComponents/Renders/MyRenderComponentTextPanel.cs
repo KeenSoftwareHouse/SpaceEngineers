@@ -32,16 +32,11 @@ namespace Sandbox.Game.Components
         {
             MyRenderProxy.RenderTextToTexture(RenderObjectIDs[0], entityId, PANEL_MATERIAL_NAME, text, scale, fontColor, backgroundColor, textureResolution, aspectRatio);
         }
-        public void ReleaseRenderTexture()
-        {
-            MyRenderProxy.ReleaseRenderTexture(Container.Entity.EntityId, RenderObjectIDs[0]);
-        }
         public override void ReleaseRenderObjectID(int index)
         {
             if (m_renderObjectIDs[index] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
                 MyEntities.RemoveRenderObjectFromMap(m_renderObjectIDs[index]);
-                VRageRender.MyRenderProxy.ReleaseRenderTexture(Container.Entity.EntityId, m_renderObjectIDs[index]);
                 VRageRender.MyRenderProxy.RemoveRenderObject(m_renderObjectIDs[index]);
                 m_renderObjectIDs[index] = VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED;
             }

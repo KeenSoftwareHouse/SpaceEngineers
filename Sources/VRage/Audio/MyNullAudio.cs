@@ -14,6 +14,7 @@ namespace VRage.Audio
         Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return null; } }
         MySoundData IMyAudio.SoloCue { get; set; }
         bool IMyAudio.ApplyReverb { get { return false; } set { } }
+        void IMyAudio.SetReverbParameters(float diffusion, float roomSize) { }
         float IMyAudio.VolumeMusic { get; set; }
         float IMyAudio.VolumeHud { get { return 0; } set { } }
         float IMyAudio.VolumeGame { get; set; }
@@ -61,7 +62,7 @@ namespace VRage.Audio
         IMySourceVoice IMyAudio.PlaySound(MyCueId cue, IMy3DSoundEmitter source, MySoundDimensions type, bool skipIntro, bool skipToEnd) { return null; }
         IMySourceVoice IMyAudio.GetSound(MyCueId cue, IMy3DSoundEmitter source, MySoundDimensions type) { return null; }
         ListReader<IMy3DSoundEmitter> IMyAudio.Get3DSounds() { return null; }
-        IMyAudioEffect IMyAudio.ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds, float? duration) { return null; }
+        IMyAudioEffect IMyAudio.ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds, float? duration, bool musicEffect) { return null; }
         IMySourceVoice IMyAudio.GetSound(IMy3DSoundEmitter source, int sampleRate, int channels, MySoundDimensions dimension) { return null; }
     }
 }

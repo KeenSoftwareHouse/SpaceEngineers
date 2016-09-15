@@ -8,11 +8,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
 using System.Reflection;
+using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 namespace Sandbox.Engine.Platform.VideoMode
 {
@@ -174,7 +176,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             SetEnableDamageEffects(config.EnableDamageEffects);
             // Need to send both messages as I don't know which one will be used. One of them will be ignored.
             MyRenderProxy.SwitchRenderSettings(m_currentGraphicsSettings.Render);
-            MyRenderProxy.Settings.EnableShadows = (m_currentGraphicsSettings.Render.ShadowQuality != MyShadowsQuality.DISABLED);
+            MyRenderProxy.SwitchRenderSettings(MyRenderProxy.Settings);
 
             // Load previous device settings that will be used for device creation.
             // If there are no settings in the config (eg. game is run for the first time), null is returned, leaving the decision up
@@ -193,11 +195,16 @@ namespace Sandbox.Engine.Platform.VideoMode
                     VSync            = config.VerticalSync,
                     WindowMode       = config.WindowMode,
                 };
+
                 if (MyPerGameSettings.DefaultRenderDeviceSettings.HasValue)
                 {
                     settings.UseStereoRendering = MyPerGameSettings.DefaultRenderDeviceSettings.Value.UseStereoRendering;
                     settings.SettingsMandatory = MyPerGameSettings.DefaultRenderDeviceSettings.Value.SettingsMandatory;
                 }
+
+                if (MyCompilationSymbols.DX11ForceStereo)
+                    settings.UseStereoRendering = true;
+
                 return settings;
             }
             else

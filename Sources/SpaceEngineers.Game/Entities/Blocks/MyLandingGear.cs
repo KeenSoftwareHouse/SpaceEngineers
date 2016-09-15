@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using Havok;
+﻿using Havok;
 using Sandbox;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -18,13 +13,20 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Terminal.Controls;
 using SpaceEngineers.Game.EntityComponents.DebugRenders;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
+
 #if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
 using System.Reflection;
 using VRage.Reflection;
@@ -36,6 +38,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
     public class MyLandingGear : MyFunctionalBlock, IMyLandingGear, ModAPI.IMyLandingGear
     {
 #if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+
         protected struct State
 #else // XB1
         protected struct State : IMySetGetMemberDataHelper
@@ -70,14 +73,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private MySoundPair m_lockSound;
         private MySoundPair m_unlockSound;
         private MySoundPair m_failedAttachSound;
+        private bool m_firstlockAttempt = false;
 
-        static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
+        private static List<HkBodyCollision> m_penetrations = new List<HkBodyCollision>();
 
-        Matrix[] m_lockPositions;
+        private Matrix[] m_lockPositions;
 
         public Matrix[] LockPositions { get { return m_lockPositions; } }
 
-        HkConstraint m_constraint;
+        private HkConstraint m_constraint;
 
         private HkConstraint SafeConstraint
         {
@@ -92,11 +96,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         }
 
         private readonly Sync<LandingGearMode> m_lockModeSync;
-        LandingGearMode m_lockMode = LandingGearMode.Unlocked;
+        private LandingGearMode m_lockMode = LandingGearMode.Unlocked;
 
-        Action<IMyEntity> m_physicsChangedHandler;
+        private Action<IMyEntity> m_physicsChangedHandler;
 
-        IMyEntity m_attachedTo;
+        private IMyEntity m_attachedTo;
 
         private bool m_needsToRetryLock = false;
         private int m_autolockTimer = 0;
@@ -125,9 +129,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 }
             }
         }
+
         public bool IsLocked { get { return LockMode == LandingGearMode.Locked; } }
 
         public event LockModeChangedHandler LockModeChanged;
+
         private float m_breakForce;
         private readonly Sync<bool> m_autoLock;
         private readonly Sync<State> m_attachedState;
@@ -136,9 +142,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private long? m_attachedEntityId;
 
-        float m_savedBreakForce = 0;
+        private float m_savedBreakForce = 0;
 
-        bool m_converted = false;
+        private bool m_converted = false;
 
         public MyLandingGear()
         {
@@ -161,7 +167,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_lockModeSync.ValueChanged += x => OnLockModeChanged();
         }
 
-        static void CreateTerminalControls()
+        private static void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLandingGear>())
                 return;
@@ -208,17 +214,17 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        void OnLockModeChanged()
+        private void OnLockModeChanged()
         {
             LockMode = m_lockModeSync;
         }
 
-        void BreakForceChanged()
+        private void BreakForceChanged()
         {
             BreakForce = m_breakForceSync;
         }
 
-        void AutolockChanged()
+        private void AutolockChanged()
         {
             m_autolockTimer = 0;
             UpdateEmissivity();
@@ -354,13 +360,14 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
             AutoLock = builder.AutoLock;
             m_lockModeSync.Value = builder.LockMode;
+            m_firstlockAttempt = builder.FirstLockAttempt;
 
             IsWorkingChanged += MyLandingGear_IsWorkingChanged;
             UpdateText();
             AddDebugRenderComponent(new MyDebugRenderComponentLandingGear(this));
         }
 
-        void MyLandingGear_IsWorkingChanged(MyCubeBlock obj)
+        private void MyLandingGear_IsWorkingChanged(MyCubeBlock obj)
         {
             RaisePropertiesChanged();
             UpdateEmissivity();
@@ -450,7 +457,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                             {
                                 return entity;
                             }
-
                         }
                         else if (CanAttachTo(obj, entity))
                             return entity;
@@ -492,7 +498,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private void UpdateEmissivity()
         {
-            if (InScene)
+            if (InScene && IsWorking)
             {
                 switch (LockMode)
                 {
@@ -542,6 +548,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             gear.BrakeForce = ThresholdToRatio(BreakForce);
             gear.AutoLock = AutoLock;
             gear.LockSound = m_lockSound.ToString();
+            gear.FirstLockAttempt = m_firstlockAttempt;
             gear.UnlockSound = m_unlockSound.ToString();
             gear.FailedAttachSound = m_failedAttachSound.ToString();
             gear.AttachedEntityId = m_attachedEntityId;
@@ -587,10 +594,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             // TODO: change to phantom
             base.UpdateAfterSimulation10();
 
-            if (Sync.IsServer == false)
+            if (Sync.IsServer == false || (IsWorking == false && m_firstlockAttempt == false))
             {
                 return;
             }
+            m_firstlockAttempt = false;
 
             if (LockMode != LandingGearMode.Locked)
             {
@@ -643,6 +651,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         }
 
         private int m_retryCounter = 0;
+
         private void RetryLockServer()
         {
             Vector3D pivot;
@@ -927,11 +936,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
             OnConstraintRemoved(GridLinkTypeEnum.Physical, attachedTo);
             if (!m_needsToRetryLock && !MarkedForClose)
                 StartSound(m_unlockSound);
+
+            m_attachedState.Value = new State() { OtherEntityId = null };
             var handle = StateChanged;
             if (handle != null) handle(false);
         }
 
-        void PhysicsChanged(IMyEntity entity)
+        private void PhysicsChanged(IMyEntity entity)
         {
             if (entity is MyVoxelBase && entity.Physics == null)
             {
@@ -971,7 +982,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        void ComponentStack_IsFunctionalChanged()
+        private void ComponentStack_IsFunctionalChanged()
         {
         }
 
@@ -1005,7 +1016,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
             {
                 MyMultiplayer.RaiseEvent(this, x => x.AttachRequest, enable);
             }
-
         }
 
         private void StartSound(MySoundPair cueEnum)
@@ -1014,7 +1024,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 m_soundEmitter.PlaySound(cueEnum, true);
         }
 
-        event Action<bool> StateChanged;
+        private event Action<bool> StateChanged;
+
         event Action<bool> ModAPI.IMyLandingGear.StateChanged
         {
             add { StateChanged += value; }
@@ -1027,7 +1038,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         }
 
         [Event, Reliable, Server]
-        void AttachRequest(bool enable)
+        private void AttachRequest(bool enable)
         {
             if (enable)
             {
@@ -1069,7 +1080,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             Attach(otherEntity, gearPivotPosition, other);
         }
 
-        void AttachedValueChanged()
+        private void AttachedValueChanged()
         {
             if (Sync.IsServer)
             {
@@ -1099,7 +1110,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                         m_needsToRetryLock = false;
                     }
                 }
-                
             }
             else
             {
@@ -1107,18 +1117,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-
         public override void OnUnregisteredFromGridSystems()
         {
             base.OnUnregisteredFromGridSystems();
 
             if (Sync.IsServer)
             {
-             
                 CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
             }
         }
-
 
         public override void OnRegisteredToGridSystems()
         {
@@ -1126,7 +1133,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (Sync.IsServer)
             {
-
                 if (m_attachedState.Value.OtherEntityId.HasValue)
                 {
                     if (this.CubeGrid.Physics == null)
@@ -1142,7 +1148,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     }
                 }
 
-                
                 CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
             }
         }
@@ -1150,14 +1155,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
             ResetLockConstraint(true,true);
-            if (m_attachedState.Value.OtherEntityId.HasValue)
-            {
-                RetryLockClient();
-                var state = m_attachedState.Value;
-                state.Force = true;
-                m_attachedState.Value = state;
-            }
         }
-      
+
+        public IMyEntity GetAttachedEntity()
+        {
+            return m_attachedTo;
+        }
     }
 }

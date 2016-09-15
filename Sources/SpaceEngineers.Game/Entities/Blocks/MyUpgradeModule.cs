@@ -15,6 +15,7 @@ using VRage.ModAPI;
 using SpaceEngineers.ObjectBuilders.Definitions;
 using Sandbox.Game.Entities;
 using SpaceEngineers.Definitions;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {
@@ -43,7 +44,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         {
             base.Init(builder, cubeGrid);
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_connectedBlocks = new Dictionary<ConveyorLinePosition, MyCubeBlock>();
             m_dummies = new SortedDictionary<string,MyModelDummy>(VRage.Game.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model).Dummies);
@@ -128,11 +129,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             bool powered = false;
             foreach(var block in m_connectedBlocks.Values)
             {
-                if (block == null)
-                {
-                    continue;
-                }
-                powered |= block.ResourceSink != null && block.ResourceSink.IsPowered && block.IsWorking;
+                powered |= block != null && block.ResourceSink != null && block.ResourceSink.IsPowered && block.IsWorking;
                 if (powered)
                     break;
             }

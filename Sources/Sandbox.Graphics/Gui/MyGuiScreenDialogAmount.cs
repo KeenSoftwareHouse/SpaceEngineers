@@ -91,6 +91,8 @@ namespace Sandbox.Graphics.GUI
             m_cancelButton.TextAlignment = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER;
 
             RefreshAmountTextbox();
+            //GR: in int have all text selected
+            m_amountTextbox.SelectAll();
         }
 
         public override void HandleUnhandledInput(bool receivedFocusInThisUpdate)

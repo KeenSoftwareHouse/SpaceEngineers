@@ -5,6 +5,7 @@ using System.Text;
 
 using SharpDX.Direct3D11;
 using System.Diagnostics;
+using SharpDX.Direct3D;
 
 namespace VRageRender
 {
@@ -128,8 +129,7 @@ namespace VRageRender
     {
         internal MyVertexInputComponent[] Components;
         internal InputElement[] Elements;
-        internal string SourceDeclarations;
-        internal string SourceDataMove;
+        internal ShaderMacro[] Macros;
         internal bool HasBonesInfo;
     }
 
@@ -151,9 +151,8 @@ namespace VRageRender
             HashIndex[0] = id;
             Layouts.Data[id.Index] = new MyVertexLayoutInfo 
             { 
-                Elements = new InputElement[0], 
-                SourceDeclarations = "struct __VertexInput { \n \n \n };",
-                SourceDataMove = ""
+                Elements = new InputElement[0],
+                Macros = new ShaderMacro[0],
             };
 
             Empty = id;
@@ -222,8 +221,7 @@ namespace VRageRender
             Layouts.Data[id.Index] = new MyVertexLayoutInfo {
                 Components = components,
                 Elements = elementsList.GetInternalArray(),
-                SourceDataMove = sourceBuilder.ToString(),
-                SourceDeclarations = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder.ToString()).ToString(),
+                Macros = MyComponent.GetComponentMacros(declarationBuilder.ToString(), sourceBuilder.ToString()),
                 HasBonesInfo = components.Any(x => x.Type == MyVertexInputComponentType.BLEND_INDICES)
             };
 
@@ -240,8 +238,7 @@ namespace VRageRender
         int m_id;
 
         internal InputElement[] m_elements;
-        internal string m_declarationsSrc;
-        internal string m_transferSrc;
+        internal ShaderMacro[] m_macros;
 
         internal int Hash { get { return m_hash; } }
         internal int ID { get { return m_id; } }
@@ -304,22 +301,12 @@ namespace VRageRender
             return next;
         }
 
-        internal static string DeclarationsSrc(int hash)
+        internal static ShaderMacro[] GetMacros(int hash)
         {
             MyVertexInputLayout cached;
             if (m_cached.TryGetValue(hash, out cached))
             {
-                return cached.m_declarationsSrc;
-            }
-            return null;
-        }
-
-        internal static string TransferSrc(int hash)
-        {
-            MyVertexInputLayout cached;
-            if (m_cached.TryGetValue(hash, out cached))
-            {
-                return cached.m_transferSrc;
+                return cached.m_macros;
             }
             return null;
         }
@@ -345,9 +332,8 @@ namespace VRageRender
                 m_mapComponent[component.Type].AddComponent(component, elementsList, semanticDict, declarationBuilder, sourceBuilder);
             }
 
-            m_declarationsSrc = new StringBuilder().AppendFormat("struct __VertexInput {{ \n {0} \n }};", declarationBuilder.ToString()).ToString();
-            m_transferSrc = sourceBuilder.ToString();
             m_elements = elementsList.ToArray();
+            m_macros = MyComponent.GetComponentMacros(declarationBuilder.ToString(), sourceBuilder.ToString());
         }
     }
 }

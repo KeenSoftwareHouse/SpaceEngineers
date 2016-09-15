@@ -51,6 +51,7 @@ namespace SpaceEngineers.Game
                     Path.Combine(MyFileSystem.ExePath, "VRage.Library.dll"),
                     Path.Combine(MyFileSystem.ExePath, "VRage.Math.dll"),
                     Path.Combine(MyFileSystem.ExePath, "VRage.Game.dll"),
+                    Path.Combine(MyFileSystem.ExePath, "VRage.Render.dll"),
                     Path.Combine(MyFileSystem.ExePath, "VRage.Input.dll"),
                     Path.Combine(MyFileSystem.ExePath, "SpaceEngineers.ObjectBuilders.dll"),
                     Path.Combine(MyFileSystem.ExePath, "SpaceEngineers.Game.dll")
@@ -97,6 +98,7 @@ namespace SpaceEngineers.Game
                 ,Path.Combine(MyFileSystem.ExePath, "VRage.Library.dll")
                 ,Path.Combine(MyFileSystem.ExePath, "VRage.Math.dll")
                 ,Path.Combine(MyFileSystem.ExePath, "VRage.Game.dll")
+                ,Path.Combine(MyFileSystem.ExePath, "VRage.Render.dll")
                 ,"System.Core.dll"
                 ,"System.dll"
                 ,Path.Combine(MyFileSystem.ExePath, "SpaceEngineers.ObjectBuilders.dll")

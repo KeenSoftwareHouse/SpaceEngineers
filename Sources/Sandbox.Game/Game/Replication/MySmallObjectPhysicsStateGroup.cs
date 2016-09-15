@@ -57,11 +57,11 @@ namespace Sandbox.Game.Replication
 
         bool ValidatePosition(MyEntity entity, Vector3D position)
         {
-            float positionTolerancy = Math.Max(entity.PositionComp.MaximalSize * 0.1f, 0.1f);
+            float positionTolerancy = Math.Max(entity.PositionComp.LocalAABB.HalfExtents.Max() * 0.1f, 0.1f);
             float smallSpeed = 0.1f;
             if (entity.m_serverLinearVelocity == Vector3.Zero || entity.m_serverLinearVelocity.Length() < smallSpeed)
                 // some tolerancy of position for not moving objects
-                positionTolerancy = Math.Max(entity.PositionComp.MaximalSize * 0.5f, 1.0f);
+                positionTolerancy = Math.Max(entity.PositionComp.LocalAABB.HalfExtents.Max() * 0.5f, 1.0f);
 
             if ((position - entity.PositionComp.GetPosition()).Length() < positionTolerancy)
                 return false;

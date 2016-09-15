@@ -3,8 +3,11 @@ using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath.PackedVector;
+using VRageRender.Messages;
 using VRageRender.Vertex;
 
 

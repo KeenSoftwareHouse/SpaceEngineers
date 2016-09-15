@@ -21,6 +21,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -38,6 +39,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -55,6 +57,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -72,6 +75,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -89,6 +93,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -106,6 +111,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -123,6 +129,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -140,6 +147,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -157,6 +165,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -174,6 +183,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -191,6 +201,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -208,6 +219,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -225,6 +237,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -242,6 +255,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Calm</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -263,6 +277,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -280,6 +295,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -297,6 +313,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -314,6 +331,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -331,6 +349,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -351,6 +370,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -368,6 +388,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -385,6 +406,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Mystery</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -406,6 +428,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -423,6 +446,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -440,6 +464,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -463,6 +488,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -480,6 +506,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -497,6 +524,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -514,6 +542,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Building</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -535,6 +564,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -552,6 +582,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -572,6 +603,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -589,6 +621,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -606,6 +639,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -623,6 +657,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -640,6 +675,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -657,6 +693,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -674,6 +711,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -691,6 +729,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -711,6 +750,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -728,6 +768,7 @@
       </Waves>
       <TransitionCategory>CalmAtmosphere</TransitionCategory>
       <MusicCategory>Space</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -749,6 +790,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -772,6 +814,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -789,6 +832,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -806,6 +850,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -826,6 +871,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -843,6 +889,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -863,6 +910,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -883,6 +931,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -900,6 +949,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -917,6 +967,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -934,6 +985,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -951,6 +1003,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -968,6 +1021,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -985,6 +1039,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>LightFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -1006,6 +1061,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1023,6 +1079,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -1040,6 +1097,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -1057,6 +1115,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -1074,6 +1133,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -1091,6 +1151,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
 
     <Sound>
@@ -1108,6 +1169,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1131,6 +1193,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1148,6 +1211,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1165,6 +1229,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1182,6 +1247,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1199,6 +1265,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1216,6 +1283,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1233,6 +1301,7 @@
       </Waves>
       <TransitionCategory>Combat</TransitionCategory>
       <MusicCategory>HeavyFight</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -1254,6 +1323,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1271,6 +1341,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1288,6 +1359,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1305,6 +1377,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1322,6 +1395,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1339,6 +1413,7 @@
       </Waves>
       <TransitionCategory>Neutral</TransitionCategory>
       <MusicCategory>Danger</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -1360,6 +1435,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1377,6 +1453,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1394,6 +1471,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1411,6 +1489,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1428,6 +1507,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1445,6 +1525,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Earthlike</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -1466,6 +1547,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1483,6 +1565,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1500,6 +1583,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1517,6 +1601,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1534,6 +1619,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1551,6 +1637,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Planet</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -1572,6 +1659,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1589,6 +1677,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1606,6 +1695,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1623,6 +1713,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     
     <Sound>
@@ -1640,6 +1731,7 @@
       </Waves>
       <TransitionCategory>Planet</TransitionCategory>
       <MusicCategory>Alien</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
     <!--
     
@@ -1661,6 +1753,7 @@
       </Waves>
       <TransitionCategory>NoRandom</TransitionCategory>
       <MusicCategory>MusFun</MusicCategory>
+      <StreamSound>true</StreamSound>
     </Sound>
   </Sounds>
 </Definitions>

@@ -96,12 +96,12 @@ namespace Sandbox.Engine.Utils
         public static bool SHOW_INVALID_TRIANGLES = false;
 
         //Sound Myfakes
-        public static bool ENABLE_NEW_SOUNDS = false;
-        public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
+        public static bool ENABLE_NEW_SOUNDS = true;
+        public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = true;
         public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
         public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
         public static bool ENABLE_MUSIC_CONTROLLER = true;
-        public static bool ENABLE_REALISTIC_LIMITER = true;
+        public static bool ENABLE_REALISTIC_LIMITER = false;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;
@@ -111,7 +111,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_COLOR_MASK_FOR_EVERYTHING = false;
 
-        public static bool ENABLE_CHARACTER_AND_DEBRIS_COLLISIONS = false;
+        public static bool ENABLE_CHARACTER_AND_DEBRIS_COLLISIONS = true;
         
         //  When true, every update will contain few miliseconds of delay - use only for testing/debugging
         public static bool SIMULATE_SLOW_UPDATE = false;
@@ -126,8 +126,6 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_CARGO_SHIPS = true;
 
         public static bool ENABLE_METEOR_SHOWERS = true;
-
-        public static bool ENABLE_DX11_RENDERER = true;
 
         public static bool SHOW_INVENTORY_ITEM_IDS = false;
         

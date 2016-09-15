@@ -5,16 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net.NetworkInformation;
-using VRage;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
-using Sandbox.Graphics;
 using Sandbox.Game.World;
 using Sandbox.Game.Entities.Character;
 using VRage.Game;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -1000,7 +997,7 @@ namespace Sandbox.Engine.Voxels
                     else
                     {
                         node.SetChild(i, true);
-                        node.SetData(i, childNode.ComputeFilteredValue(args.DataFilter));
+                        node.SetData(i, childNode.ComputeFilteredValue(args.DataFilter, child.Lod));
                     }
                 }
 

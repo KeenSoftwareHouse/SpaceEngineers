@@ -21,6 +21,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 #if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
@@ -988,6 +989,7 @@ namespace Sandbox.Game.Entities.Blocks
             Debug.Assert(definition != null);
 
             var block = MyCubeGrid.CreateBlockObjectBuilder(definition, Vector3I.Zero, MyBlockOrientation.Identity, MyEntityIdentifier.AllocateId(), OwnerId, fullyBuilt: MySession.Static.CreativeMode);
+            matrix.Translation = Vector3D.Transform(-definition.Center * CubeGrid.GridSize, matrix);
 
             var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             gridBuilder.GridSizeEnum = gridSize;
@@ -1008,7 +1010,7 @@ namespace Sandbox.Game.Entities.Blocks
                 grid.Close();
                 return;
             }
-            //topGrid.SetPosition(topGrid.WorldMatrix.Translation - (topBlock.WorldMatrix.Translation/*Vector3.Transform(topBlock.DummyPosLoc, topGrid.WorldMatrix) - topGrid.WorldMatrix.Translation*/));
+            grid.PositionComp.SetPosition(grid.WorldMatrix.Translation - (Vector3D.Transform(topBlock.DummyPosLoc, grid.WorldMatrix) - grid.WorldMatrix.Translation));
 
             MyEntities.Add(grid);
             if (MyFakes.ENABLE_SENT_GROUP_AT_ONCE)

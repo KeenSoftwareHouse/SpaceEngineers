@@ -41,6 +41,13 @@ namespace VRage.Game
             set { SoundData.MaxDistance = value; }
         }
 
+        [ProtoMember]
+        public float UpdateDistance
+        {
+            get { return SoundData.UpdateDistance; }
+            set { SoundData.UpdateDistance = value; }
+        }
+
         [ProtoMember, DefaultValue(1.0f)]
         public float Volume
         {
@@ -95,6 +102,27 @@ namespace VRage.Game
         {
             get { return SoundData.ModifiableByHelmetFilters; }
             set { SoundData.ModifiableByHelmetFilters = value; }
+        }
+
+        [ProtoMember, DefaultValue(false)]
+        public bool AlwaysUseOneMode
+        {
+            get { return SoundData.AlwaysUseOneMode; }
+            set { SoundData.AlwaysUseOneMode = value; }
+        }
+
+        [ProtoMember, DefaultValue(true)]
+        public bool CanBeSilencedByVoid
+        {
+            get { return SoundData.CanBeSilencedByVoid; }
+            set { SoundData.CanBeSilencedByVoid = value; }
+        }
+
+        [ProtoMember, DefaultValue(false)]
+        public bool StreamSound
+        {
+            get { return SoundData.StreamSound; }
+            set { SoundData.StreamSound = value; }
         }
 
         [ProtoMember, DefaultValue(false)]
@@ -165,6 +193,13 @@ namespace VRage.Game
         {
             get { return SoundData.RealisticFilter.String; }
             set { SoundData.RealisticFilter = MyStringHash.GetOrCompute(value); }
+        }
+
+        [ProtoMember, DefaultValue(1f)]
+        public float RealisticVolumeChange
+        {
+            get { return SoundData.RealisticVolumeChange; }
+            set { SoundData.RealisticVolumeChange = value; }
         }
     }
 }

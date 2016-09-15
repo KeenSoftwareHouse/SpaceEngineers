@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Library.Sync;
 using VRage.Network;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Cube
 {

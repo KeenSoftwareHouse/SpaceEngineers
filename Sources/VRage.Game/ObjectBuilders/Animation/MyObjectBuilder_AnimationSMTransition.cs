@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 using System.Xml.Serialization;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game.ObjectBuilders

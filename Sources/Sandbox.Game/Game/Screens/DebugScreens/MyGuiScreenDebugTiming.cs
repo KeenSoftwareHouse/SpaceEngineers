@@ -16,6 +16,8 @@ using Sandbox.Graphics;
 using Sandbox.Engine.Physics;
 using VRage.Win32;
 using VRage.Game;
+using VRageRender.Utils;
+using MyRenderProxy = VRageRender.MyRenderProxy;
 
 namespace Sandbox.Game.Gui
 {
@@ -47,13 +49,13 @@ namespace Sandbox.Game.Gui
         public override void LoadData()
         {
             base.LoadData();
-            VRageRender.MyRenderProxy.DRAW_RENDER_STATS = true;
+            MyRenderProxy.DrawRenderStats = MyRenderProxy.MyStatsState.MoveNext;
         }
 
         public override void UnloadData()
         {
             base.UnloadData();
-            VRageRender.MyRenderProxy.DRAW_RENDER_STATS = false;
+            MyRenderProxy.DrawRenderStats = MyRenderProxy.MyStatsState.NoDraw;
         }
 
         public override string GetFriendlyName()
@@ -99,7 +101,7 @@ namespace Sandbox.Game.Gui
             Stats.Timing.Write("Process memory", WinApi.WorkingSet, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 #endif // !XB1
             Stats.Timing.Write("Active parcticle effects", MyParticlesManager.ParticleEffectsForUpdate.Count, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
-            Stats.Timing.Write("Billboards total", VRageRender.MyPerformanceCounter.PerCameraDraw11Read.BillboardsDrawn, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
+            //Stats.Timing.Write("Billboards total", VRageRender.MyPerformanceCounter.PerCameraDraw11Read.BillboardsDrawn, VRage.Stats.MyStatTypeEnum.CurrentValue, 0, 0);
 
             if (MyPhysics.GetClusterList() != null)
             {

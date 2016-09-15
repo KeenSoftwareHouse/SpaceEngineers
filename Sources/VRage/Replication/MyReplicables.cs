@@ -71,6 +71,7 @@ namespace VRage.Replication
             }
             else // Add as root
             {
+                Debug.Assert(!replicable.IsChild);
                 parent = null;
                 m_roots.Add(replicable);
                 m_updateQueue.Add(replicable);

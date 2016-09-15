@@ -2,23 +2,10 @@
 using System.Collections.Generic;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Messages;
 
 namespace VRageRender
 {
-    struct MyFlareDesc
-    {
-        internal bool Enabled;
-        internal Vector3 Direction;
-        internal float Range;
-        internal Color Color;
-        internal float Intensity;
-        internal VRage.Utils.MyStringId Material;
-        internal float MaxDistance;
-        internal float Size;
-        internal float QuerySize;
-        internal Lights.MyGlareTypeEnum Type;
-    }
-
     struct FlareId
     {
         internal int Index;
@@ -36,7 +23,7 @@ namespace VRageRender
         internal static readonly FlareId NULL = new FlareId { Index = -1 };
 
         #region Equals
-        public class MyFlareIdComparerType : IEqualityComparer<FlareId>
+        internal class MyFlareIdComparerType : IEqualityComparer<FlareId>
         {
             public bool Equals(FlareId left, FlareId right)
             {
@@ -48,7 +35,7 @@ namespace VRageRender
                 return flareId.Index;
             }
         }
-        public static MyFlareIdComparerType Comparer = new MyFlareIdComparerType();
+        internal static MyFlareIdComparerType Comparer = new MyFlareIdComparerType();
         #endregion
     }
 
@@ -56,13 +43,18 @@ namespace VRageRender
     {
         private static MyFreelist<MyFlareDesc> m_flares = new MyFreelist<MyFlareDesc>(256);
 
-        internal static FlareId Update(FlareId flareId, MyFlareDesc desc)
+        internal static FlareId Update(int parentGID, FlareId flareId, MyFlareDesc desc)
         {
             if (desc.Enabled)
             {
                 if (flareId == FlareId.NULL)
-                {
                     flareId = new FlareId { Index = m_flares.Allocate() };
+
+                var gid = parentGID;
+                if (gid != -1 && MyIDTracker<MyActor>.FindByID((uint)gid) != null)
+                {
+                    var matrix = MyIDTracker<MyActor>.FindByID((uint)gid).WorldMatrix;
+                    Vector3.TransformNormal(ref desc.Direction, ref matrix, out desc.Direction);
                 }
 
                 desc.MaxDistance = (desc.MaxDistance > 0)
@@ -85,7 +77,7 @@ namespace VRageRender
         }
         internal static void Draw(FlareId flareId, Vector3D position)
         {
-            var L = MyRender11.Environment.CameraPosition - position;
+            var L = MyRender11.Environment.Matrices.CameraPosition - position;
             var distance = (float)L.Length();
 
             switch (m_flares.Data[flareId.Index].Type)
@@ -146,7 +138,7 @@ namespace VRageRender
 
             var material = MyTransparentMaterials.GetMaterial(flare.Material.ToString());
             MyBillboardsHelper.AddBillboardOriented(flare.Material.ToString(),
-                color * alpha, position, MyRender11.Environment.InvView.Left, MyRender11.Environment.InvView.Up, drawingRadius);
+                color * alpha, position, MyRender11.Environment.Matrices.InvView.Left, MyRender11.Environment.Matrices.InvView.Up, drawingRadius);
         }
 
         private static void DrawDistantFlare(Vector3D position, ref MyFlareDesc flare, float distance)
@@ -184,7 +176,7 @@ namespace VRageRender
             var material = (flare.Type == Lights.MyGlareTypeEnum.Distant && distance > MyRenderConstants.MAX_GPU_OCCLUSION_QUERY_DISTANCE) ? "LightGlareDistant" : "LightGlare";
 
             MyBillboardsHelper.AddBillboardOriented(material,
-                color * alpha, position, MyRender11.Environment.InvView.Left, MyRender11.Environment.InvView.Up, drawingRadius);
+                color * alpha, position, MyRender11.Environment.Matrices.InvView.Left, MyRender11.Environment.Matrices.InvView.Up, drawingRadius);
         }
     }
 }

@@ -113,6 +113,10 @@ namespace Sandbox.Game.Entities.Cube
 
             public HashSet<Tuple<MySlimBlock, ushort?>> m_removeBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
 
+            public MatrixD m_animationLastMatrix = MatrixD.Identity;
+            public Vector3D m_animationLastPosition = Vector3D.Zero;
+            public float m_animationProgress = 1;
+
             public Quaternion LocalOrientation
             {
                 get { return Quaternion.CreateFromRotationMatrix(m_localMatrixAdd); }
@@ -388,11 +392,17 @@ namespace Sandbox.Game.Entities.Cube
                 double distanceToPlayer = gizmoBox.Distance(localHead);
                 if (MySession.Static.ControlledEntity is MyShipController)
                 {
-                    return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSurvivalShip;
+                    if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition.CubeSize == MyCubeSize.Large)
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistLargeSurvivalShip;
+                    else
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSmallSurvivalShip;
                 }
                 else
                 {
-                    return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSurvivalCharacter;
+                    if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition.CubeSize == MyCubeSize.Large)
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistLargeSurvivalCharacter;
+                    else
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSmallSurvivalCharacter;
                 }
             }
             return false;

@@ -1,9 +1,6 @@
 ﻿#region Using
 
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
@@ -13,11 +10,8 @@ using Sandbox.Game.Entities.Debris;
 using Sandbox.Game.Lights;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Weapons;
-using Sandbox.Game.Weapons.Guns;
 using Sandbox.Game.World;
 using Sandbox.Game.GameSystems;
-using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,11 +21,11 @@ using VRage.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.Game.Components;
-using VRage.Voxels;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Voxels;
 
 #endregion
 
@@ -629,11 +623,11 @@ namespace Sandbox.Game
                     if (voxelMap.GetOrePriority() == MyVoxelConstants.PRIORITY_IGNORE_EXTRACTION) continue;
 
                     bool createDebris = first; // We want to create debris
-
+                    /*
                     if (explosionInfo.HitEntity != null) // but not when we hit prefab
                     {
                         createDebris &= explosionInfo.HitEntity is MyVoxelBase;
-                    }
+                    }*/
 
                     createDebris &= explosionInfo.CreateDebris && (createDebris || explosionInfo.ForceDebris);
 
@@ -669,12 +663,6 @@ namespace Sandbox.Game
             {
                 BoundingSphereD voxelExpSphere = new BoundingSphereD(center, radius);
 
-                //remove decals
-                VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("HideTrianglesAfterExplosion");
-                foreach (uint id in voxelMap.Render.RenderObjectIDs)
-                    VRageRender.MyRenderProxy.HideDecals(id, voxelExpSphere.Center, (float)voxelExpSphere.Radius);
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-
                 VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("CreateDebris");
 
                 if (createDebris && MyRenderConstants.RenderQualityProfile.ExplosionDebrisCountMultiplier > 0)
@@ -695,6 +683,7 @@ namespace Sandbox.Game
                     {
                         explosionEffect.WorldMatrix = MatrixD.CreateTranslation(voxelExpSphere.Center);
                         explosionEffect.UserRadiusMultiplier = (float)voxelExpSphere.Radius;
+                        explosionEffect.UserScale = 0.2f;
                     }
                 }
 

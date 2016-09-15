@@ -21,6 +21,8 @@ using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
 using VRage.Game.Models;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -358,7 +360,8 @@ namespace Sandbox.Game.Entities.Blocks
             m_light.ReflectorOn = false;
             m_light.LightOn = false;
             m_light.GlareOn = false;
-            
+
+            UpdateRadius(m_light.IsTypeSpot ? reflectorRadius : radius);
             UpdateIntensity();
             UpdateLightPosition();
 
@@ -423,13 +426,18 @@ namespace Sandbox.Game.Entities.Blocks
             Falloff = m_lightFalloff.Value;
         }
 
-        virtual protected void LightRadiusChanged()
+        virtual protected void UpdateRadius(float value)
         {
             if (m_light.IsTypeSpot)
             {
-                ReflectorRadius = m_lightRadius.Value;
+                ReflectorRadius = value;
             }
-            else Radius = m_lightRadius.Value;
+            else Radius = value;
+        }
+
+        private void LightRadiusChanged()
+        {
+            UpdateRadius(m_lightRadius.Value);
         }
 
         void LightColorChanged()

@@ -30,6 +30,8 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Weapons
 {
@@ -53,7 +55,7 @@ namespace Sandbox.Game.Weapons
         //  When gun fires too much, we start generating smokes at the muzzle
         int m_smokeLastTime;
         int m_smokesToGenerate;
-        //MyEntity3DSoundEmitter m_soundEmitterRotor;
+        MyEntity3DSoundEmitter m_soundEmitterRotor;
 
         MyEntity m_barrel;
 
@@ -147,7 +149,7 @@ namespace Sandbox.Game.Weapons
             {
                 FixSingleInventory();
             }
-            //m_soundEmitterRotor = new MyEntity3DSoundEmitter(this);
+            m_soundEmitterRotor = new MyEntity3DSoundEmitter(this);
 
             if (this.GetInventory() == null)
             {
@@ -222,8 +224,8 @@ namespace Sandbox.Game.Weapons
         {
             if (m_soundEmitter != null)
                 m_soundEmitter.StopSound(true);
-            /*if (m_soundEmitterRotor != null)
-                m_soundEmitterRotor.StopSound(true);*/
+            if (m_soundEmitterRotor != null)
+                m_soundEmitterRotor.StopSound(true);
 
             if (m_smokeEffect != null)
             {
@@ -582,15 +584,22 @@ namespace Sandbox.Game.Weapons
         {
             if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
                 m_soundEmitter.StopSound(true);
-            /*if(m_soundEmitterRotor != null)
-                m_soundEmitterRotor.StopSound(false);*/
+            if (m_soundEmitterRotor != null && m_soundEmitterRotor.IsPlaying && m_soundEmitterRotor.Loop)
+            {
+                m_soundEmitterRotor.StopSound(true);
+                m_soundEmitterRotor.PlaySound(m_gunBase.SecondarySound, skipToEnd: true);
+            }
         }
 
         private void StartLoopSound()
         {
             m_gunBase.StartShootSound(m_soundEmitter);
-            /*if (m_soundEmitterRotor != null && m_soundEmitterRotor.IsPlaying == false && m_gunBase.SecondarySound != MySoundPair.Empty)
-                m_soundEmitterRotor.PlaySound(m_gunBase.SecondarySound); */
+            if (m_soundEmitterRotor != null && m_gunBase.SecondarySound != MySoundPair.Empty && (m_soundEmitterRotor.IsPlaying == false || m_soundEmitterRotor.Loop == false))
+            {
+                if (m_soundEmitterRotor.IsPlaying)
+                    m_soundEmitterRotor.StopSound(true);
+                m_soundEmitterRotor.PlaySound(m_gunBase.SecondarySound, true);
+            }
         }
 
         #region Inventory
@@ -710,6 +719,12 @@ namespace Sandbox.Game.Weapons
         public override void ShootFromTerminal(Vector3 direction)
         {
             Shoot(MyShootActionEnum.PrimaryAction, direction, null, null);
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
         #region IMyInventoryOwner

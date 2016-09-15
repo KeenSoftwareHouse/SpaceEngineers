@@ -4,39 +4,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Render11.Resources;
 using VRageMath;
 
 namespace VRageRender
 {
-    struct MySSAO_Params
-    {
-        internal float MinRadius;
-        internal float MaxRadius;
-        internal float RadiusGrow;
-        internal float Falloff;
-        internal float RadiusBias;
-        internal float Contrast;
-        internal float Normalization;
-        internal float ColorScale;
-
-        internal static MySSAO_Params Default = new MySSAO_Params
-        {
-            MinRadius = 0.095f,
-            MaxRadius = 4.16f,
-            RadiusGrow = 1.007f,
-            Falloff = 3.08f,
-            RadiusBias = 0.25f,
-            Contrast = 2.617f,
-            Normalization = 0.075f,
-            ColorScale = 0.6f,
-        };
-    }
-    		
     class MySSAO : MyScreenPass
     {
-        internal static MySSAO_Params Params = MySSAO_Params.Default;
-
-        internal static bool UseBlur = true;
+        internal static MySSAOSettings Params = MySSAOSettings.Default;
 
         readonly static Vector2[] m_filterKernel =
 		{
@@ -81,7 +56,7 @@ namespace VRageRender
             }
 
             var colorScale = 1.0f / (2 * rsum);
-            colorScale *= Params.ColorScale;
+            colorScale *= Params.Data.ColorScale;
 
             for (int occluderIndex = 0; occluderIndex < NUM_SAMPLES; ++occluderIndex)
                 myMapping.WriteAndPosition(ref m_tmpOccluderPoints[occluderIndex]);
@@ -94,33 +69,36 @@ namespace VRageRender
 
         internal static void RecreateShadersForSettings()
         {
-            m_ps = MyShaders.CreatePs("ssao_0.hlsl");
+            m_ps = MyShaders.CreatePs("Postprocess/SSAO/Ssao.hlsl");
         }
 
-        internal static void Run(MyBindableResource dst, MyGBuffer gbuffer, MyBindableResource resolvedDepth)
+        internal static void Run(IRtvBindable dst, MyGBuffer gbuffer, ISrvBindable resolvedDepth)
         {
-            RC.DeviceContext.ClearRenderTargetView((dst as IRenderTargetBindable).RTV, new SharpDX.Color4(1, 1, 1, 1));
+            RC.ClearRtv(dst, new SharpDX.Color4(1, 1, 1, 1));
 
             var paramsCB = MyCommon.GetObjectCB(16 * (2 + NUM_SAMPLES * 2));
 
             var mapping = MyMapping.MapDiscard(paramsCB);
-            mapping.WriteAndPosition(ref Params);
+            mapping.WriteAndPosition(ref Params.Data);
             FillRandomVectors(mapping);
             mapping.Unmap();
 
             if (!MyStereoRender.Enable)
-                RC.SetCB(0, MyCommon.FrameConstants);
+                RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
             else
                 MyStereoRender.BindRawCB_FrameConstants(RC);
-            RC.SetCB(1, paramsCB);
+            RC.AllShaderStages.SetConstantBuffer(1, paramsCB);
 
-            RC.SetPS(m_ps);
-            RC.BindDepthRT(null, DepthStencilAccess.DepthReadOnly, dst);
+            RC.PixelShader.Set(m_ps);
+            RC.SetRtv(dst);
 
-            RC.BindGBufferForRead(0, gbuffer);
-            RC.BindSRV(5, resolvedDepth);
+            RC.PixelShader.SetSrvs(0, gbuffer);
+            RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
+            RC.PixelShader.SetSrv(5, resolvedDepth);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
 
             DrawFullscreenQuad();
+            RC.ResetTargets();
         }
 
         internal static void Init()

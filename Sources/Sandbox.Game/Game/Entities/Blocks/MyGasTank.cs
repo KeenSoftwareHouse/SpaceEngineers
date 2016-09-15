@@ -274,6 +274,9 @@ namespace Sandbox.Game.Entities.Blocks
 	        if (m_autoRefill && CanRefill())
 		        RefillBottles();
 
+            // this is performance unfriendly
+            // its supposed to be in Sink_CurrentInputChanged, but it dont catch slider change correctly
+            SourceComp.Enabled = CanStore;
             ExecuteGasTransfer();
         }
 
@@ -384,6 +387,7 @@ namespace Sandbox.Game.Entities.Blocks
 			if (resourceTypeId != BlockDefinition.StoredGasId)
 				return;
 
+            SourceComp.Enabled = CanStore;
             float timeSinceLastUpdateSeconds = (MySession.Static.GameplayFrameCounter - m_lastInputUpdateTime) / VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
             m_lastInputUpdateTime = MySession.Static.GameplayFrameCounter;
 			float inputAmount = oldInput*timeSinceLastUpdateSeconds;

@@ -6,8 +6,6 @@ using Sandbox.Game.WorldEnvironment.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.WorldEnvironment.ObjectBuilders;
 using VRage;

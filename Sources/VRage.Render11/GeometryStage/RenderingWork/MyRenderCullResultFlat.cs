@@ -4,7 +4,7 @@ namespace VRageRender
 {
     struct MyRenderCullResultFlat
     {
-        internal UInt64 SortKey;
+        internal ulong SortKey;
         internal MyRenderableProxy RenderProxy;
     }
 }

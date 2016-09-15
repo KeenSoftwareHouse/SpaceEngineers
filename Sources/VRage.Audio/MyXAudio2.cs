@@ -2,6 +2,7 @@
 
 using SharpDX.Multimedia;
 using SharpDX.XAudio2;
+using SharpDX.XAudio2.Fx;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,6 @@ using VRage.Audio.X3DAudio;
 using VRage.Collections;
 using VRage.Data.Audio;
 using VRage.FileSystem;
-using VRage.Library.Utils;
 using VRage.Trace;
 using VRage.Utils;
 using VRageMath;
@@ -98,6 +98,9 @@ namespace VRage.Audio
         delegate void VolumeChangeHandler(float newVolume);
         event VolumeChangeHandler OnSetVolumeHud, OnSetVolumeGame, OnSetVolumeMusic;
 
+        //reverb
+        private Reverb m_reverb = null;
+        private bool m_applyReverb = false;
 
         Dictionary<MyCueId, MySoundData>.ValueCollection IMyAudio.CueDefinitions { get { return m_canPlay ? m_cueBank.CueDefinitions : null; } }
         List<MyStringId> IMyAudio.GetCategories() { return m_canPlay ? m_cueBank.GetCategories() : null; }
@@ -194,7 +197,7 @@ namespace VRage.Audio
                 }
             }
 
-            m_masterVoice = new MasteringVoice(m_audioEngine, 0, 0, m_deviceNumber);
+            m_masterVoice = new MasteringVoice(m_audioEngine, XAudio2.DefaultChannels, XAudio2.DefaultSampleRate, m_deviceNumber);
             
             if (m_useVolumeLimiter)
             {
@@ -230,6 +233,18 @@ namespace VRage.Audio
                 m_gameAudioVoice.SetVolume(0);
                 m_musicAudioVoice.SetVolume(0);
             }
+
+            m_reverb = new Reverb(m_audioEngine);
+            m_gameAudioVoice.SetEffectChain(new EffectDescriptor(m_reverb, masterDetails.InputChannelCount));
+            m_gameAudioVoice.DisableEffect(0);
+        }
+
+        public void SetReverbParameters(float diffusion, float roomSize)
+        {
+            /*ReverbParameters newParameters = new ReverbParameters();
+            newParameters.Diffusion = MyMath.Clamp(diffusion, Reverb.MinimumDiffusion, Reverb.MaximumDiffusion);
+            newParameters.RoomSize = MyMath.Clamp(roomSize, Reverb.MinimumRoomsize, Reverb.MaximumRoomsize);
+            m_reverb.Parameter = newParameters;*/
         }
 
         public void EnableMasterLimiter(bool enable)
@@ -387,9 +402,6 @@ namespace VRage.Audio
                 m_helperEmitter = new Emitter();
                 m_helperEmitter.SetDefaultValues();
 
-                //  This is reverb turned to off, so we hear sounds as they are defined in wav files
-                ApplyReverb = false;
-
                 m_musicOn = true;
                 m_gameSoundsOn = true;
            
@@ -491,7 +503,7 @@ namespace VRage.Audio
                 if (m_cueBank == null)
                     return false;
 
-                return m_cueBank.ApplyReverb;
+                return m_applyReverb;
             }
             set
             {
@@ -501,7 +513,16 @@ namespace VRage.Audio
                 if (m_cueBank == null)
                     return;
 
+                if (m_gameAudioVoice != null)
+                {
+                    if (value)
+                        m_gameAudioVoice.EnableEffect(0);
+                    else
+                        m_gameAudioVoice.DisableEffect(0);
+                }
+
                 m_cueBank.ApplyReverb = value;
+                m_applyReverb = value;
             }
         }
 
@@ -1143,6 +1164,8 @@ namespace VRage.Audio
 
             if (customMaxDistance > 0)
                 return (distanceToSound <= customMaxDistance * customMaxDistance);
+            else if (cueDefinition.UpdateDistance > 0)
+                return (distanceToSound <= cueDefinition.UpdateDistance * cueDefinition.UpdateDistance);
             else
                 return (distanceToSound <= cueDefinition.MaxDistance * cueDefinition.MaxDistance);
         }
@@ -1301,21 +1324,26 @@ namespace VRage.Audio
         }
 
 
-        public IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds = null, float? duration = null)
+        public IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds = null, float? duration = null, bool musicEffect = false)
         {
             if (m_effectBank == null)
                 return null;
 			int waveNumber;
             List<MySourceVoice> voices = new List<MySourceVoice>();
-            if(cueIds != null)
-                foreach(var cueId in cueIds)
+            if (cueIds != null)
+            {
+                foreach (var cueId in cueIds)
                 {
                     var sound = GetSound(cueId, out waveNumber);
                     System.Diagnostics.Debug.Assert(sound != null, "Missing sound " + cueId);
                     if (sound != null)
                         voices.Add(sound);
                 }
-            return m_effectBank.CreateEffect(input, effect, voices.ToArray(), duration);
+            }
+            IMyAudioEffect result = m_effectBank.CreateEffect(input, effect, voices.ToArray(), duration);
+            if (musicEffect && result.OutputSound is MySourceVoice)
+                (result.OutputSound as MySourceVoice).SetOutputVoices(m_musicAudioVoiceDesc);
+            return result;
         }
     }
 }

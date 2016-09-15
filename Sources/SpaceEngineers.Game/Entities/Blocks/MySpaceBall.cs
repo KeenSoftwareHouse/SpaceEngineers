@@ -17,6 +17,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ModAPI;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 

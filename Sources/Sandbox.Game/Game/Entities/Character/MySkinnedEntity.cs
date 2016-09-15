@@ -22,12 +22,15 @@ using Sandbox.Definitions;
 using Sandbox.Game.Components;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Game.EntityComponents;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Collections;
 using VRage.Game;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRage.Serialization;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 #endregion
 
@@ -67,7 +70,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public bool UseNewAnimationSystem = false;
 
-        private const int MAX_BONE_DECALS_COUNT = 4;
+        private const int MAX_BONE_DECALS_COUNT = 10;
 
         #region Fields
 
@@ -87,8 +90,8 @@ namespace Sandbox.Game.Entities
         public Matrix[] BoneAbsoluteTransforms { get { return m_compAnimationController.BoneAbsoluteTransforms; } }
         public Matrix[] BoneRelativeTransforms { get { return m_compAnimationController.BoneRelativeTransforms; } }
 
-        static List<MyDecalPositionUpdate> m_decalUpdateCache = new List<MyDecalPositionUpdate>();
-        private Dictionary<int, List<MyDecalHitInfo>> m_boneDecals = new Dictionary<int, List<MyDecalHitInfo>>();
+        private Dictionary<int, List<uint>> m_boneDecals = new Dictionary<int, List<uint>>();
+        public List<MyBoneDecalUpdate> DecalBoneUpdates { get; private set; }
 
         protected ulong m_actualUpdateFrame = 0;
 		internal ulong ActualUpdateFrame { get { return m_actualUpdateFrame; } }
@@ -125,6 +128,7 @@ namespace Sandbox.Game.Entities
             m_compAnimationController.ReloadBonesNeeded = ObtainBones;
             m_compAnimationController.InverseKinematics.TerrainHeightProvider = entityTerrainHeightComp;
             Components.Add(m_compAnimationController);
+            DecalBoneUpdates = new List<MyBoneDecalUpdate>();
         }
 
         public override void Init(StringBuilder displayName,
@@ -174,7 +178,7 @@ namespace Sandbox.Game.Entities
                 }
             }
 
-            UpdateDecalPositions();
+            UpdateBoneDecals();
         }
       
         void UpdateContinuingSets()
@@ -386,22 +390,11 @@ namespace Sandbox.Game.Entities
                 UpdateBones(distance);
             }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeAbsoluteTransforms");
-            var characterBones = AnimationController.CharacterBones;
-            if (characterBones == null)
-            {
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-                ProfilerShort.End();
-                return;
-            }
-            
-            MyCharacterBone.ComputeAbsoluteTransforms(AnimationController.CharacterBonesSorted);
-            for (int i = 0; i < characterBones.Length; i++)
-            {
-                AnimationController.BoneRelativeTransforms[i] = characterBones[i].RelativeTransform;
-                AnimationController.BoneAbsoluteTransforms[i] = characterBones[i].AbsoluteTransform;
-            }
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+            MyRenderProxy.GetRenderProfiler().StartNextBlock("UpdateTransformations");
+
+            AnimationController.UpdateTransformations();
+
+            MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
             ProfilerShort.End();
         }
 
@@ -464,44 +457,33 @@ namespace Sandbox.Game.Entities
         }
 
         /// <param name="position">Position of the decal in the binding pose</param>
-        protected void AddBoneDecal(uint decalId, Vector3 hitPosition, Vector3 hitNormal, int boneIndex)
+        protected void AddBoneDecal(uint decalId, int boneIndex)
         {
-            List<MyDecalHitInfo> decals;
+            List<uint> decals;
             bool found = m_boneDecals.TryGetValue(boneIndex, out decals);
             if (!found)
             {
-                decals = new List<MyDecalHitInfo>(MAX_BONE_DECALS_COUNT);
+                decals = new List<uint>(MAX_BONE_DECALS_COUNT);
                 m_boneDecals.Add(boneIndex, decals);
             }
 
             if (decals.Count == decals.Capacity)
             {
-                MyDecals.RemoveDecal(decals[0].ID);
+                MyDecals.RemoveDecal(decals[0]);
                 decals.RemoveAt(0);
             }
 
-            decals.Add(new MyDecalHitInfo() { ID = decalId, Position = hitPosition, Normal = hitNormal });
+            decals.Add(decalId);
         }
 
-        private void UpdateDecalPositions()
+        private void UpdateBoneDecals()
         {
-            m_decalUpdateCache.Clear();
+            DecalBoneUpdates.Clear();
             foreach (var pair in m_boneDecals)
             {
-                int boneIndex = pair.Key;
-                MyCharacterBone bone = AnimationController.CharacterBones[boneIndex];
-                bone.ComputeAbsoluteTransform();
-                Matrix boneTrans = bone.SkinTransform * bone.AbsoluteTransform;;
-                for (int it = 0; it < pair.Value.Count; it++)
-                {
-                    MyDecalHitInfo decal = pair.Value[it];
-                    Vector3 positionTrans = Vector3.Transform(decal.Position, ref boneTrans);
-                    Vector3 normalTrans = Vector3.TransformNormal(decal.Normal, boneTrans);
-                    m_decalUpdateCache.Add(new MyDecalPositionUpdate() { ID = decal.ID, Position = positionTrans, Normal = normalTrans });
-                }
+                foreach (uint decalId in pair.Value)
+                    DecalBoneUpdates.Add(new MyBoneDecalUpdate() { BoneID = pair.Key, DecalID = decalId });
             }
-
-            MyDecals.UpdateDecals(m_decalUpdateCache);
         }
 
         /// <summary>
@@ -619,20 +601,16 @@ namespace Sandbox.Game.Entities
             if (containmentType != ContainmentType.Contains)
             {
                 m_actualWorldAABB.Inflate(0.5f);
-                MatrixD worldMatrix = WorldMatrix;
-                VRageRender.MyRenderProxy.UpdateRenderObject(Render.RenderObjectIDs[0], ref worldMatrix, false, m_actualWorldAABB);
+                if (Render.RenderObjectIDs[0] != VRageRender.MyRenderProxy.RENDER_ID_UNASSIGNED)
+                {
+                    MatrixD worldMatrix = WorldMatrix;
+                    VRageRender.MyRenderProxy.UpdateRenderObject(Render.RenderObjectIDs[0], ref worldMatrix, false, m_actualWorldAABB);
+                }
                 m_aabb = m_actualWorldAABB;
             }
         }
 
 
         #endregion
-
-        struct MyDecalHitInfo
-        {
-            public uint ID;
-            public Vector3 Position;
-            public Vector3 Normal;
-        }
     }
 }

@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Render11.Common;
+using VRage.Render11.Profiler;
+using VRage.Render11.Resources;
 using VRageMath;
-using VRageRender.Resources;
 
 namespace VRageRender
 {
@@ -34,41 +36,47 @@ namespace VRageRender
         static ComputeShaderId m_prefilter;
         static ComputeShaderId m_blend;
 
+        static int m_viewportSize = MyRenderSettings.EnvMapResolution;
+
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("ForwardPostprocess.hlsl");
-            m_atmosphere = MyShaders.CreatePs("AtmospherePostprocess.hlsl");
-            m_mipmap = MyShaders.CreateCs("EnvPrefiltering_mipmap.hlsl");
-            m_prefilter = MyShaders.CreateCs("EnvPrefiltering.hlsl");
-            m_blend = MyShaders.CreateCs("EnvPrefiltering_blend.hlsl");
+            m_ps = MyShaders.CreatePs("EnvProbe/ForwardPostprocess.hlsl");
+            m_atmosphere = MyShaders.CreatePs("EnvProbe/AtmospherePostprocess.hlsl");
+            m_mipmap = MyShaders.CreateCs("EnvProbe/EnvPrefilteringMipmap.hlsl");
+            m_prefilter = MyShaders.CreateCs("EnvProbe/EnvPrefiltering.hlsl");
+            m_blend = MyShaders.CreateCs("EnvProbe/EnvPrefilteringBlend.hlsl");
         }
 
-        internal unsafe static void RunForwardPostprocess(RenderTargetView rt, ShaderResourceView depth, ref Matrix viewMatrix, uint? atmosphereId)
+        internal unsafe static void RunForwardPostprocess(IRtvBindable rt, ISrvBindable depth, ref Matrix viewMatrix, uint? atmosphereId)
         {
+            MyGpuProfiler.IC_BeginBlock("Postprocess");
             var transpose = Matrix.Transpose(viewMatrix);
-            var mapping = MyMapping.MapDiscard(RC.DeviceContext, MyCommon.ProjectionConstants);
+            var mapping = MyMapping.MapDiscard(RC, MyCommon.ProjectionConstants);
             mapping.WriteAndPosition(ref transpose);
             mapping.Unmap();
 
-            RC.SetCB(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
-            RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
 
-            RC.DeviceContext.OutputMerger.SetTargets(rt);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, depth);
-            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyRender11.Environment.DaySkybox, MyTextureEnum.CUBEMAP, true)));
-            RC.DeviceContext.PixelShader.SetShaderResource(MyCommon.SKYBOX2_SLOT, MyTextures.GetView(MyTextures.GetTexture(MyRender11.Environment.NightSkybox, MyTextureEnum.CUBEMAP, true)));
-            RC.DeviceContext.PixelShader.SetSamplers(0, SamplerStates.StandardSamplers);
-            RC.DeviceContext.PixelShader.Set(m_ps);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
+            RC.SetRtv(rt);
+            RC.PixelShader.SetSrv(0, depth);
+            MyFileTextureManager texManager = MyManagers.FileTextures;
+            RC.PixelShader.SetSrv(MyCommon.SKYBOX_SLOT, texManager.GetTexture(MyRender11.Environment.Data.Skybox, MyFileTextureEnum.CUBEMAP, true));
+            RC.PixelShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
+            RC.PixelShader.Set(m_ps);
 
-            MyScreenPass.DrawFullscreenQuad(new MyViewport(256, 256));
+            MyScreenPass.DrawFullscreenQuad(new MyViewport(m_viewportSize, m_viewportSize));
+            MyGpuProfiler.IC_EndBlock();
 
+            MyGpuProfiler.IC_BeginBlock("Atmosphere");
             if (atmosphereId != null)
             {
                 var atmosphere = MyAtmosphereRenderer.GetAtmosphere(atmosphereId.Value);
                 var constants = new AtmosphereConstants();
                 //TODO(AF) These values are computed in MyAtmosphere as well. Find a way to remove the duplication
                 var worldMatrix = atmosphere.WorldMatrix;
-                worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
+                worldMatrix.Translation -= MyRender11.Environment.Matrices.CameraPosition;
 
                 double distance = worldMatrix.Translation.Length();
                 double atmosphereTop = atmosphere.AtmosphereRadius * atmosphere.Settings.AtmosphereTopModifier * atmosphere.PlanetScaleFactor * atmosphere.Settings.RayleighTransitionModifier;
@@ -102,61 +110,60 @@ namespace VRageRender
             
                 var cb = MyCommon.GetObjectCB(sizeof(AtmosphereConstants));
             
-                mapping = MyMapping.MapDiscard(RC.DeviceContext, cb);
+                mapping = MyMapping.MapDiscard(RC, cb);
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
-            
-                RC.SetBS(MyRender11.BlendAdditive);
-                RC.SetCB(2, cb);
-                RC.DeviceContext.PixelShader.SetShaderResource(2, MyAtmosphereRenderer.GetAtmosphereLuts(atmosphereId.Value).TransmittanceLut.SRV);
-                RC.DeviceContext.PixelShader.Set(m_atmosphere);
+
+                RC.SetBlendState(MyBlendStateManager.BlendAdditive);
+                RC.PixelShader.SetConstantBuffer(2, cb);
+                RC.PixelShader.SetSrv(2, MyAtmosphereRenderer.GetAtmosphereLuts(atmosphereId.Value).TransmittanceLut);
+                RC.PixelShader.Set(m_atmosphere);
 
                 MyScreenPass.DrawFullscreenQuad(new MyViewport(MyEnvironmentProbe.CubeMapResolution, MyEnvironmentProbe.CubeMapResolution));
             }
+            MyGpuProfiler.IC_EndBlock();
 
-            RC.DeviceContext.OutputMerger.SetTargets(null as RenderTargetView);
+            RC.SetRtv(null);
 
         }
 
-        internal static void BuildMipmaps(RwTexId texture)
+        internal static void BuildMipmaps(IUavArrayTexture texture)
         {
-            RC.DeviceContext.ComputeShader.Set(m_mipmap);
+            RC.ComputeShader.Set(m_mipmap);
 
-            var mipLevels = texture.Description2d.MipLevels;
-            var side = texture.Description2d.Width;
+            var mipLevels = texture.MipmapLevels;
+            var side = texture.Size.X;
             for (int j = 0; j < 6; ++j)
             {
                 var mipSide = side;
                 for (int i = 1; i < mipLevels; ++i)
                 {
-                    ComputeShaderId.TmpUav[0] = texture.SubresourceUav(j, i);
-                    RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-                    RC.DeviceContext.ComputeShader.SetShaderResource(0, texture.SubresourceSrv(j, i - 1));
-                    RC.DeviceContext.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
-                    RC.DeviceContext.ComputeShader.SetShaderResource(0, null);
+                    RC.ComputeShader.SetUav(0, texture.SubresourceUav(j, i), -1);
+                    RC.ComputeShader.SetSrv(0, texture.SubresourceSrv(j, i - 1));
+                    RC.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
+                    RC.ComputeShader.SetSrv(0, null);
 
                     mipSide >>= 1;
                 }
             }
 
-            ComputeShaderId.TmpUav[0] = null;
-            RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-            RC.DeviceContext.ComputeShader.Set(null);
+            RC.ComputeShader.SetUav(0, null, -1);
+            RC.ComputeShader.Set(null);
         }
 
-        internal static void Prefilter(RwTexId probe, RwTexId prefiltered)
+        internal static void Prefilter(IUavArrayTexture probe, IUavArrayTexture prefiltered)
         {
-            RC.DeviceContext.ComputeShader.Set(m_prefilter);
+            RC.ComputeShader.Set(m_prefilter);
 
-            var mipLevels = prefiltered.Description2d.MipLevels;
-            var side = prefiltered.Description2d.Width;
-            uint probeSide = (uint)probe.Description2d.Width;
+            var mipLevels = prefiltered.MipmapLevels;
+            var side = prefiltered.Size.X;
+            uint probeSide = (uint)probe.Size.X;
             
             ConstantsBufferId constantBuffer = MyCommon.GetObjectCB(32);
-            RC.CSSetCB(1, constantBuffer);
+            RC.ComputeShader.SetConstantBuffer(1, constantBuffer);
 
-            RC.DeviceContext.ComputeShader.SetShaderResource(0, probe.SRV);
-            RC.DeviceContext.ComputeShader.SetSamplers(0, SamplerStates.StandardSamplers);
+            RC.ComputeShader.SetSrv(0, probe);
+            RC.ComputeShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
 
             for (int j = 0; j < 6; ++j)
             {
@@ -176,19 +183,17 @@ namespace VRageRender
                     mapping.WriteAndPosition(ref mipLevelFactor);
                     mapping.Unmap();
 
-                    ComputeShaderId.TmpUav[0] = prefiltered.SubresourceUav(j, i);
-                    RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-                    RC.DeviceContext.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
+                    RC.ComputeShader.SetUav(0, prefiltered.SubresourceUav(j, i));
+                    RC.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
 
                     mipSide >>= 1;
                 }
             }
 
-            ComputeShaderId.TmpUav[0] = null;
-            RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-            RC.DeviceContext.ComputeShader.SetShaderResource(0, null);
+            RC.ComputeShader.SetUav(0, null);
+            RC.ComputeShader.SetSrv(0, null);
 
-            RC.DeviceContext.ComputeShader.Set(null);
+            RC.ComputeShader.Set(null);
         }
 
         private struct MyBlendData
@@ -200,18 +205,18 @@ namespace VRageRender
             public float W;
         }
 
-        internal static void Blend(RwTexId dst, RwTexId src0, RwTexId src1, float blendWeight)
+        internal static void Blend(IUavArrayTexture dst, IUavArrayTexture src0, IUavArrayTexture src1, float blendWeight)
         {
             //MyImmediateRC.RC.Context.CopyResource(src1.Resource, dst.Resource);
 
-            RC.DeviceContext.ComputeShader.Set(m_blend);
+            RC.ComputeShader.Set(m_blend);
 
-            var mipLevels = dst.Description2d.MipLevels;
-            var side = dst.Description2d.Width;
+            var mipLevels = dst.MipmapLevels;
+            var side = dst.Size.X;
 
-            RC.CSSetCB(1, MyCommon.GetObjectCB(32));
+            RC.ComputeShader.SetConstantBuffer(1, MyCommon.GetObjectCB(32));
 
-            RC.DeviceContext.ComputeShader.SetSamplers(0, SamplerStates.StandardSamplers);
+            RC.ComputeShader.SetSamplers(0, MySamplerStateManager.StandardSamplers);
 
             for (int j = 0; j < 6; ++j)
             {
@@ -225,24 +230,22 @@ namespace VRageRender
                     mapping.WriteAndPosition(ref blendConstantData);
                     mapping.Unmap();
 
-                    RC.DeviceContext.ComputeShader.SetShaderResource(0, src0.SubresourceSrv(j, i));
-                    RC.DeviceContext.ComputeShader.SetShaderResource(1, src1.SubresourceSrv(j, i));
+                    RC.ComputeShader.SetSrv(0, src0.SubresourceSrv(j, i));
+                    RC.ComputeShader.SetSrv(1, src1.SubresourceSrv(j, i));
 
                     // The single parameter version of SetUnorderedAccessView allocates
-                    ComputeShaderId.TmpUav[0] = dst.SubresourceUav(j, i);
-                    RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-                    RC.DeviceContext.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
+                    RC.ComputeShader.SetUav(0, dst.SubresourceUav(j, i), -1);
+                    RC.Dispatch((mipSide + 7) / 8, (mipSide + 7) / 8, 1);
 
                     mipSide >>= 1;
                 }
             }
 
-            ComputeShaderId.TmpUav[0] = null;
-            RC.DeviceContext.ComputeShader.SetUnorderedAccessViews(0, ComputeShaderId.TmpUav, ComputeShaderId.TmpCount);
-            RC.DeviceContext.ComputeShader.SetShaderResource(0, null);
-            RC.DeviceContext.ComputeShader.SetShaderResource(1, null);
+            RC.ComputeShader.SetUav(0, null);
+            RC.ComputeShader.SetSrv(0, null);
+            RC.ComputeShader.SetSrv(1, null);
 
-            RC.DeviceContext.ComputeShader.Set(null);
+            RC.ComputeShader.Set(null);
         }
     }
 }

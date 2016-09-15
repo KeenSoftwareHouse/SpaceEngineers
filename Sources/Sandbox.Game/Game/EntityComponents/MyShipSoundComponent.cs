@@ -135,6 +135,11 @@ namespace Sandbox.Game.EntityComponents
         private float m_lastFrameShipSpeed = 0f;
         private int m_speedChange = 15;
 
+        private float m_shipCurrentPower = 0f;
+        private float m_shipCurrentPowerTarget = 0f;
+        private const float POWER_CHANGE_SPEED_UP = MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 0.4f;
+        private const float POWER_CHANGE_SPEED_DOWN = MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * 0.6f;
+
         private bool m_lastWheelUpdateStart = false;
         private bool m_lastWheelUpdateStop = false;
         private DateTime m_lastContactWithGround = DateTime.UtcNow;
@@ -175,7 +180,7 @@ namespace Sandbox.Game.EntityComponents
 
             for (int i = 0; i < m_emitters.Length; i++)
             {
-                m_emitters[i] = new MyEntity3DSoundEmitter(m_shipGrid);
+                m_emitters[i] = new MyEntity3DSoundEmitter(m_shipGrid, true);
                 m_emitters[i].Force2D = m_shouldPlay2D;
                 m_emitters[i].Force3D = !m_shouldPlay2D;
             }
@@ -196,6 +201,9 @@ namespace Sandbox.Game.EntityComponents
                 //calculate current ship state
                 bool driving = ((DateTime.UtcNow - m_lastContactWithGround).TotalSeconds <= 0.2f);
                 float shipSpeed = driving == false ? m_shipGrid.Physics.LinearVelocity.Length() : (m_shipGrid.Physics.LinearVelocity * m_groupData.WheelsSpeedCompensation).Length();
+                float originalSpeed = Math.Min(shipSpeed / m_definition.FullSpeed, 1f);
+                if (!MySandboxGame.Config.ShipSoundsAreBasedOnSpeed)
+                    shipSpeed = m_shipCurrentPower * m_definition.FullSpeed;
                 ShipStateEnum lastState = m_shipState;
                 if (m_shipGrid.GridSystems.ResourceDistributor.ResourceState == MyResourceStateEnum.NoPower || m_isDebris
                     || ((m_shipThrusters == null || m_shipThrusters.ThrustCount <= 0) && (m_shipWheels == null || m_shipWheels.WheelCount <= 0)))
@@ -210,6 +218,39 @@ namespace Sandbox.Game.EntityComponents
                         m_shipState = ShipStateEnum.Medium;
                     else
                         m_shipState = ShipStateEnum.Fast;
+                }
+
+                //alternate speed calculation (based on acceleration/decceleration)
+                if (!MySandboxGame.Config.ShipSoundsAreBasedOnSpeed)
+                {
+                    m_shipCurrentPowerTarget = 0f;
+                    if (driving)
+                    {
+                        if (m_shipWheels != null && m_shipWheels.WheelCount > 0)
+                        {
+                            if (m_shipWheels.AngularVelocity.LengthSquared() >= 1f)
+                                m_shipCurrentPowerTarget = 1f;//accelerating/deccelerating
+                            else if (m_shipGrid.Physics.LinearVelocity.LengthSquared() > 5f)
+                                m_shipCurrentPowerTarget = 0.33f;//cruising
+                        }
+                    }
+                    else
+                    {
+                        if(m_shipThrusters != null)
+                        {
+                            if (m_shipThrusters.FinalThrust.LengthSquared() >= 100f)
+                                m_shipCurrentPowerTarget = 1f;//accelerating/deccelerating
+                            else if (m_shipGrid.Physics.Gravity != Vector3.Zero && m_shipThrusters.DampenersEnabled && m_shipGrid.Physics.LinearVelocity.LengthSquared() < 4f)
+                                m_shipCurrentPowerTarget = 0.33f;//hovering
+                            else
+                                m_shipCurrentPowerTarget = 0;//complete stop
+                        }
+                    }
+
+                    if (m_shipCurrentPower < m_shipCurrentPowerTarget)
+                        m_shipCurrentPower = Math.Min(m_shipCurrentPower + POWER_CHANGE_SPEED_UP, m_shipCurrentPowerTarget);
+                    else if (m_shipCurrentPower > m_shipCurrentPowerTarget)
+                        m_shipCurrentPower = Math.Max(m_shipCurrentPower - POWER_CHANGE_SPEED_DOWN, m_shipCurrentPowerTarget);
                 }
 
                 //in first person change
@@ -359,8 +400,8 @@ namespace Sandbox.Game.EntityComponents
                     shipThrusterRatio *= m_shipEngineModifier * m_singleSoundsModifier;
 
                     //large ship special emitters
-                    m_emitters[(int)ShipEmitters.ShipEngine].VolumeMultiplier = Math.Max(0f, shipSpeedVolume - shipThrusterIdleRatio);
-                    m_emitters[(int)ShipEmitters.ShipIdle].VolumeMultiplier = shipThrusterIdleRatio * m_shipEngineModifier * m_singleSoundsModifier;
+                    m_emitters[(int)ShipEmitters.ShipEngine].VolumeMultiplier = MySandboxGame.Config.ShipSoundsAreBasedOnSpeed ? Math.Max(0f, shipSpeedVolume - shipThrusterIdleRatio) : originalSpeed;
+                    m_emitters[(int)ShipEmitters.ShipIdle].VolumeMultiplier = (MySandboxGame.Config.ShipSoundsAreBasedOnSpeed ? shipThrusterIdleRatio : MyMath.Clamp(1.2f - originalSpeed * 3f, 0f, 1f)) * m_shipEngineModifier * m_singleSoundsModifier;
 
                     //ion thruster run/idle sounds volumes + pitch
                     float thrusterPitch = MyAudio.Static.SemitonesToFrequencyRatio(m_groupData.ThrusterPitchRangeInSemitones_h + m_groupData.ThrusterPitchRangeInSemitones * shipThrusterRatio);
@@ -498,9 +539,14 @@ namespace Sandbox.Game.EntityComponents
 
                     if (m_shipGrid.GridSizeEnum == MyCubeSize.Large && MySession.Static.LocalCharacter != null)
                     {
-                        BoundingSphereD playerSphere = new BoundingSphereD(MySession.Static.LocalCharacter.PositionComp.GetPosition(), m_definition.LargeShipDetectionRadius);
-                        m_shipGrid.GetBlocksInsideSphere(ref playerSphere, m_detectedBlocks);
-                        m_insideShip = m_detectedBlocks.Count > 0;
+                        if (MySession.Static.Settings.RealisticSound == false || MySession.Static.LocalCharacter.AtmosphereDetectorComp.InAtmosphere || MySession.Static.LocalCharacter.AtmosphereDetectorComp.InShipOrStation)
+                        {
+                            BoundingSphereD playerSphere = new BoundingSphereD(MySession.Static.LocalCharacter.PositionComp.GetPosition(), m_definition.LargeShipDetectionRadius);
+                            m_shipGrid.GetBlocksInsideSphere(ref playerSphere, m_detectedBlocks);
+                            m_insideShip = m_detectedBlocks.Count > 0;
+                        }
+                        else
+                            m_insideShip = false;
                     }
                 }
             }
@@ -668,9 +714,9 @@ namespace Sandbox.Game.EntityComponents
             bool originalDebris = m_isDebris;
             MyDefinitionId originalType = m_shipCategory;
             if (m_shipThrusters == null && (m_shipWheels == null || m_shipWheels.WheelCount <= 0))
-            {
                 m_isDebris = true;
-            }
+            else if (m_shipGrid.GridSystems.GyroSystem.GyroCount == 0)
+                m_isDebris = true;
             else
             {
                 bool hasController = false;

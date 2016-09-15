@@ -5,19 +5,18 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Sandbox.Common.ObjectBuilders;
-using VRage.Import;
 using VRage.Library.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using VRage.Game.Entity;
+using VRage.Voxels;
+using VRageRender.Import;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Components
 {
     class MyRenderComponentPlanet : MyRenderComponentVoxelMap
     {
-        static bool m_renderEnabled = false;
         MyPlanet m_planet = null;
 
         private int m_shadowHelperRenderObjectIndex = -1;
@@ -120,12 +119,6 @@ namespace Sandbox.Game.Components
 				   atmosphereWavelengths));
 
 				UpdateAtmosphereSettings(m_planet.AtmosphereSettings);
-			}
-
-			if (m_renderEnabled == false)
-			{
-				MyRenderProxy.EnableRenderModule((uint)MyRenderModuleEnum.Atmosphere, true);
-				m_renderEnabled = true;
 			}
 
 		    m_shadowHelperRenderObjectIndex = runningRenderObjectIndex;

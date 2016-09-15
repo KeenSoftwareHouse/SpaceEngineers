@@ -7,7 +7,6 @@ using System.Text;
 using VRage.Collections;
 
 using VRageMath;
-using VRageRender.Resources;
 using Vector3 = VRageMath.Vector3;
 using Color = VRageMath.Color;
 using Matrix = VRageMath.Matrix;

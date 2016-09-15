@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRageMath;
-using VRageRender;
 
 namespace VRage.Voxels
 {

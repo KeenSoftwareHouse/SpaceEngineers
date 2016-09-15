@@ -1,24 +1,25 @@
-﻿using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using Sandbox.Common;
+﻿using Sandbox.Common;
 using Sandbox.Definitions;
+using Sandbox.Engine.Physics;
+using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.GameSystems.Conveyors;
+using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using VRage;
 using VRage.Collections;
+using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
-using Sandbox.Game.Entities.Character;
-using VRage.Game.Entity;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Engine.Physics;
-using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -128,6 +129,7 @@ namespace Sandbox.Game.GameSystems
         }
 
         #region Fields
+
         protected float m_lastPlanetaryInfluence = -1f;
         protected bool m_lastPlanetaryInfluenceHasAtmosphere = false;
         protected float m_lastPlanetaryGravityMagnitude = 0f;
@@ -188,18 +190,20 @@ namespace Sandbox.Game.GameSystems
 
         private long m_lastPowerUpdate;
 
-        bool m_networkCommandApplied = false;
+        private bool m_networkCommandApplied = false;
 
         private Vector3? m_maxThrustOverride;
+
         public Vector3? MaxThrustOverride
         {
             get { return MyFakes.ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT ? m_maxThrustOverride : null; }
             set { m_maxThrustOverride = value; }
         }
 
-        bool m_secondFrameUpdate = false;
+        private bool m_secondFrameUpdate = false;
+        private bool m_dampenersEnabledLastFrame = true;
 
-        #endregion
+        #endregion Fields
 
         #region Properties
 
@@ -212,6 +216,7 @@ namespace Sandbox.Game.GameSystems
         /// For now just the maximum slowdown factor of any thruster registered to the component
         /// </summary>
         public float SlowdownFactor { get; set; }
+
         public int ThrustCount { get; private set; }
         public bool DampenersEnabled { get; set; }
 
@@ -221,6 +226,7 @@ namespace Sandbox.Game.GameSystems
         public Vector3 ControlThrust { get { return m_controlThrust; } set { if (m_controlThrust != value) m_controlThrustChanged = true; m_controlThrust = value; } }
 
         public Vector3 ControlTrustNetwork;
+
         /// <summary>
         /// Final thrust (clamped by available power, added anti-gravity, slowdown).
         /// </summary>
@@ -230,11 +236,12 @@ namespace Sandbox.Game.GameSystems
         /// Thrust wanted by AutoPilot
         /// </summary>
         public Vector3 AutoPilotControlThrust { get; set; }
+
         public bool AutopilotEnabled { get; set; }
 
         public bool Enabled { get; set; }
 
-        #endregion
+        #endregion Properties
 
         static MyEntityThrustComponent()
         {
@@ -651,7 +658,6 @@ namespace Sandbox.Game.GameSystems
             }
             mergeToGroup.ResourceSink.Update();
             connectedGroupIndices[0] = mergeToIndex;
-
         }
 
         public void MergeAllGroupsDirty()
@@ -792,7 +798,6 @@ namespace Sandbox.Game.GameSystems
                         fuelData.ThrustsByDirection[entityAndDirection.Item2].Remove(entityAndDirection.Item1);
                         RemoveFromGroup(entityAndDirection.Item1, returnGroup);
                     }
-
                 }
             }
 
@@ -923,7 +928,7 @@ namespace Sandbox.Game.GameSystems
             cubeGrid.GridSystems.ConveyorSystem.ResourceSink.IsPoweredChanged -= ConveyorSystem_OnPoweredChanged;
         }
 
-        public virtual void UpdateBeforeSimulation(bool networkUpdate,bool updateDampeners)
+        public virtual void UpdateBeforeSimulation(bool networkUpdate, bool updateDampeners)
         {
             if (Entity == null)
                 return;
@@ -955,7 +960,34 @@ namespace Sandbox.Game.GameSystems
             }
 
             m_networkCommandApplied = networkUpdate;
+            if (DampenersEnabled == false && m_dampenersEnabledLastFrame)//turn off thruster power for not overriden after dampener is disabled
+            {
+                foreach (var group in m_connectedGroups)
+                {
+                    if(group.DataByFuelType.Count > 0)
+                        TurnOffThrusterFlame(group.DataByFuelType);
+                }
+                if (m_dataByFuelType.Count > 0)
+                    TurnOffThrusterFlame(m_dataByFuelType);
+            }
+            m_dampenersEnabledLastFrame = DampenersEnabled;
             ProfilerShort.End();
+        }
+
+        private void TurnOffThrusterFlame(List<FuelTypeData> dataByFuelType)
+        {
+            foreach (var data in dataByFuelType)
+            {
+                foreach (var direction in data.ThrustsByDirection)
+                {
+                    foreach (var thrustEntity in direction.Value)
+                    {
+                        var thrust = thrustEntity as MyThrust;
+                        if (thrust != null && thrust.ThrustOverride <= 0)
+                            thrust.CurrentStrength = 0;
+                    }
+                }
+            }
         }
 
         private void RecomputeThrustParameters() // Only gets called when m_thrustsChanged is set
@@ -1056,11 +1088,10 @@ namespace Sandbox.Game.GameSystems
             fuelData.MaxRequiredPowerInput += Math.Max(fuelData.MaxRequirementsByDirection[Vector3I.Up], fuelData.MaxRequirementsByDirection[Vector3I.Down]);
         }
 
-        protected virtual void UpdateThrusts(bool networkUpdate,bool applyDampeners)
+        protected virtual void UpdateThrusts(bool networkUpdate, bool applyDampeners)
         {
             //if (direction != Vector3.Zero)
             //{
-
             //}
             //if (Container.Entity.Physics.IsWelded)
             //    direction = Vector3.TransformNormal(ControlThrust, m_grid.GetPhysicsBody().WeldInfo.Transform);
@@ -1068,7 +1099,7 @@ namespace Sandbox.Game.GameSystems
             //    Debugger.Break();
 
             ProfilerShort.Begin("Compute Thrust");
-            for (int i = 0; i<m_dataByFuelType.Count; i++)
+            for (int i = 0; i < m_dataByFuelType.Count; i++)
             {
                 FuelTypeData fuelData = m_dataByFuelType[i];
 
@@ -1082,7 +1113,7 @@ namespace Sandbox.Game.GameSystems
             {
                 MyConveyorConnectedGroup group = m_connectedGroups[i];
 
-                for (int j = 0; j<group.DataByFuelType.Count; j++)
+                for (int j = 0; j < group.DataByFuelType.Count; j++)
                 {
                     FuelTypeData fuelData = group.DataByFuelType[j];
 
@@ -1197,7 +1228,7 @@ namespace Sandbox.Game.GameSystems
             return finalThrust;
         }
 
-        private void ComputeBaseThrust(ref Vector3 controlThrust, FuelTypeData fuelData,bool networkUpdate,bool applyDampeners)
+        private void ComputeBaseThrust(ref Vector3 controlThrust, FuelTypeData fuelData, bool networkUpdate, bool applyDampeners)
         {
             if (Entity.Physics == null)
             {
@@ -1212,7 +1243,7 @@ namespace Sandbox.Game.GameSystems
             const float stoppingTime = 0.5f;
 
             // A hotfix for floating up/down in planetary gravity with dampeners. Should be removed and done properly
-            float magicFactor = (float)(Entity is MyCharacter ? (1f - 1f / 30f) : 0.9919);
+            float magicFactor = GetMagicFactor();
             Vector3 gravityVector = networkUpdate ? Vector3.Zero : Entity.Physics.Gravity * stoppingTime * magicFactor;
 
             bool applyLocalVelocity = networkUpdate || (m_networkCommandApplied == false && networkUpdate == false);
@@ -1223,11 +1254,10 @@ namespace Sandbox.Game.GameSystems
             Vector3 negativeControl = Vector3.Clamp(controlThrust, -Vector3.One, Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
 
-
             if (DampenersEnabled && (Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
             {
                 Vector3 networkThrust = Vector3.Zero;
-                if(applyLocalVelocity == false)
+                if (applyLocalVelocity == false)
                 {
                     networkThrust = ControlTrustNetwork;
                 }
@@ -1253,7 +1283,7 @@ namespace Sandbox.Game.GameSystems
             ProfilerShort.End();
             ProfilerShort.Begin("ComputeBaseThrust B");
 
-            float relativeSpeed =  Sync.RelativeSimulationRatio;
+            float relativeSpeed = Sync.RelativeSimulationRatio;
             float relativeSpeedOverOne = Math.Max(1.0f, relativeSpeed);
             Vector3 thrust = negativeControl * fuelData.MaxNegativeThrust + positiveControl * fuelData.MaxPositiveThrust;
             thrust = Vector3.Clamp(thrust, -fuelData.MaxNegativeThrust * relativeSpeedOverOne, fuelData.MaxPositiveThrust * relativeSpeedOverOne);
@@ -1261,7 +1291,7 @@ namespace Sandbox.Game.GameSystems
 
             Vector3 slowdownAcceleration = (-localVelocity / stoppingTime);
             Vector3 slowdownThrust = slowdownAcceleration * CalculateMass() * slowdownControl;
-       
+
             ProfilerShort.End();
             ProfilerShort.Begin("ComputeBaseThrust C");
 
@@ -1269,12 +1299,14 @@ namespace Sandbox.Game.GameSystems
             {
                 m_controlThrustChanged = true;
             }
-     
-            thrust = Vector3.Clamp(thrust + slowdownThrust, -fuelData.MaxNegativeThrust * SlowdownFactor * relativeSpeedOverOne , fuelData.MaxPositiveThrust * relativeSpeedOverOne * SlowdownFactor);
-           
+
+            thrust = Vector3.Clamp(thrust + slowdownThrust, -fuelData.MaxNegativeThrust * SlowdownFactor * relativeSpeedOverOne, fuelData.MaxPositiveThrust * relativeSpeedOverOne * SlowdownFactor);
+
             fuelData.CurrentThrust = thrust;
             ProfilerShort.End();
         }
+
+        protected abstract float GetMagicFactor();
 
         private void ComputeAiThrust(Vector3 direction, FuelTypeData fuelData)
         {
@@ -1457,12 +1489,12 @@ namespace Sandbox.Game.GameSystems
 
         private void UpdateConveyorSystemChanges()
         {
-            while(m_thrustEntitiesPending.Count > 0)
+            while (m_thrustEntitiesPending.Count > 0)
             {
                 MyTuple<MyEntity, Vector3I, Func<bool>> thrustTuple = m_thrustEntitiesPending.Dequeue();
-                if(IsThrustEntityType(thrustTuple.Item1))
+                if (IsThrustEntityType(thrustTuple.Item1))
                 {
-                    if(m_thrustEntitiesRemovedBeforeRegister.Contains(thrustTuple.Item1))
+                    if (m_thrustEntitiesRemovedBeforeRegister.Contains(thrustTuple.Item1))
                     {
                         m_thrustEntitiesRemovedBeforeRegister.Remove(thrustTuple.Item1);
                         continue;
@@ -1481,7 +1513,7 @@ namespace Sandbox.Game.GameSystems
                 m_tmpGroupIndices.Clear();
             }
 
-            while(m_conveyorEndpointsPending.Count > 0)
+            while (m_conveyorEndpointsPending.Count > 0)
             {
                 IMyConveyorEndpointBlock conveyorEndpointBlock = m_conveyorEndpointsPending.Dequeue();
                 FindConnectedGroups(conveyorEndpointBlock, m_connectedGroups, m_tmpGroupIndices);
@@ -1688,16 +1720,27 @@ namespace Sandbox.Game.GameSystems
         }
 
         protected abstract void UpdateThrustStrength(HashSet<MyEntity> entities, float thrustForce);
+
         protected abstract bool RecomputeOverriddenParameters(MyEntity thrustEntity, FuelTypeData fuelData);
+
         protected abstract bool IsUsed(MyEntity thrustEntity);
+
         protected abstract float ForceMagnitude(MyEntity thrustEntity, float planetaryInfluence, bool inAtmosphere);
+
         protected abstract float CalculateForceMultiplier(MyEntity thrustEntity, float planetaryInfluence, bool inAtmosphere);
+
         protected abstract float CalculateConsumptionMultiplier(MyEntity thrustEntity, float naturalGravityStrength);
+
         protected abstract float MaxPowerConsumption(MyEntity thrustEntity);
+
         protected abstract float MinPowerConsumption(MyEntity thrustEntity);
+
         protected abstract MyDefinitionId FuelType(MyEntity thrustEntity);
+
         protected abstract bool IsThrustEntityType(MyEntity thrustEntity);
+
         protected abstract void RemoveFromGroup(MyEntity thrustEntity, MyConveyorConnectedGroup group);
+
         protected abstract void AddToGroup(MyEntity thrustEntity, MyConveyorConnectedGroup group);
 
         public override string ComponentTypeDebugString { get { return "Thrust Component"; } }

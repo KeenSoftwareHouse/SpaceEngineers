@@ -21,6 +21,8 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game;
 using System.IO;
 using VRage.Collections;
+using VRage.Profiler;
+using VRageRender.Utils;
 
 namespace Sandbox.Engine.Platform
 {

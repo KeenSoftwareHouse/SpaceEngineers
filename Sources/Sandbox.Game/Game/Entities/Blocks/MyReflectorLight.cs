@@ -7,6 +7,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Lights;
 using Sandbox.ModAPI;
 using VRage;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.Entities
@@ -27,12 +28,15 @@ namespace Sandbox.Game.Entities
         {
             light.Start(MyLight.LightTypeEnum.PointLight | MyLight.LightTypeEnum.Spotlight, color, falloff, CubeGrid.GridScale * radius);
 
+            /// todo: defaults should be supplied from Environemnt.sbc
             light.ShadowDistance = 20;
             light.LightOwner = MyLight.LightOwnerEnum.SmallShip;
             light.UseInForwardRender = true;
             light.ReflectorTexture = BlockDefinition.ReflectorTexture;
             light.Falloff = 0.3f;
             light.GlossFactor = 0;
+            light.ReflectorGlossFactor = 0.65f;
+            light.DiffuseFactor = 3.14f;
             light.PointLightOffset = 0.15f;
 
             light.GlareOn = true;
@@ -87,10 +91,10 @@ namespace Sandbox.Game.Entities
             this.Render = new MyRenderComponentReflectorLight();
         }
 
-        protected override void LightRadiusChanged()
+        protected override void UpdateRadius(float value)
         {
-            base.LightRadiusChanged();
-            Radius = ReflectorRadius * (RadiusBounds.Max / ReflectorRadiusBounds.Max);
+            base.UpdateRadius(value);
+            Radius = 10.0f * (ReflectorRadius / ReflectorRadiusBounds.Max);
         }
 
         private static readonly Color COLOR_OFF  = new Color(30, 30, 30);

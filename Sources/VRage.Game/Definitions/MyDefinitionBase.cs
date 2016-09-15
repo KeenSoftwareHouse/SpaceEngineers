@@ -47,6 +47,8 @@ namespace VRage.Game
 
 		public bool AvailableInSurvival;
 
+        public MyModContext Context;
+
         /// <summary>
         /// Use this property when showing name in GUI instead of DisplayName. This takes into
         /// account more complex name construction.
@@ -74,8 +76,6 @@ namespace VRage.Game
                     : DescriptionString;
             }
         }
-
-        public MyModContext Context;
 
         public void Init(MyObjectBuilder_DefinitionBase builder, MyModContext modContext)
         {
@@ -126,6 +126,11 @@ namespace VRage.Game
         /// </summary>
         [Obsolete("Prefer to use MyDefinitionPostprocessor instead.")]
         public virtual void Postprocess() { return; }
+
+        public void Save(string filepath)
+        {
+            GetObjectBuilder().Save(filepath);
+        }
 
         public virtual MyObjectBuilder_DefinitionBase GetObjectBuilder()
         {

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -12,31 +10,31 @@ using SharpDX.Diagnostics;
 using SharpDX.Direct3D;
 using SharpDX.DXGI;
 using SharpDX.Direct3D11;
-using VRageRender.Resources;
 using VRageRender.Vertex;
 using Device = SharpDX.Direct3D11.Device;
 using Vector2 = VRageMath.Vector2;
 using VRageMath;
 using VRage.Win32;
 using SharpDX.WIC;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 
 namespace VRageRender
 {
     partial class MyRender11
     {
         internal static Device Device { get; private set; }
-        private static DeviceContext m_deviceContext;
-        internal static DeviceContext DeviceContext
+        private static MyRenderContext m_rc;
+        internal static MyRenderContext RC
         {
             get
             {
-                return m_deviceContext;
+                return m_rc;
             }
             private set
             {
                 MyRender11.Log.WriteLine("Device Context change");
-                m_deviceContext = value;
-                MyRenderContext.OnDeviceReset();
+                m_rc = value;
             }
         }
         internal static ImagingFactory WIC { get; private set; }
@@ -156,7 +154,8 @@ namespace VRageRender
 
         internal static MyRenderDeviceSettings CreateDevice(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
         {
-            bool deviceCreated = CreateDeviceInternalSafe(windowHandle, settingsToTry);
+            MyRenderExceptionEnum exceptionEnum;
+            bool deviceCreated = CreateDeviceInternalSafe(windowHandle, settingsToTry, out exceptionEnum);
 
 #if !XB1
             if (!settingsToTry.HasValue || !settingsToTry.Value.SettingsMandatory)
@@ -167,7 +166,7 @@ namespace VRageRender
                     {
                         var newSettings = settingsToTry.Value;
                         newSettings.UseStereoRendering = false;
-                        deviceCreated = CreateDeviceInternalSafe(windowHandle, newSettings);
+                        deviceCreated = CreateDeviceInternalSafe(windowHandle, newSettings, out exceptionEnum);
                     }
                 }
                 if (!deviceCreated)
@@ -197,7 +196,7 @@ namespace VRageRender
                                         VSync = true
                                     };
 
-                                    deviceCreated = CreateDeviceInternalSafe(windowHandle, newSettings);
+                                    deviceCreated = CreateDeviceInternalSafe(windowHandle, newSettings, out exceptionEnum);
                                     break;
                                 }
                             }
@@ -215,7 +214,7 @@ namespace VRageRender
                         WindowMode = MyWindowModeEnum.Window,
                         VSync = true,
                     };
-                    deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings);
+                    deviceCreated = CreateDeviceInternalSafe(windowHandle, simpleSettings, out exceptionEnum);
                 }
             }
 #else
@@ -229,28 +228,52 @@ namespace VRageRender
 
             if (!deviceCreated)
             {
+                if (exceptionEnum == MyRenderExceptionEnum.GpuNotSupported)
+                {
 #if !XB1
-                VRage.Utils.MyMessageBox.Show("Unsupported graphics card", "Graphics card is not supported, please see minimum requirements");
+                    VRage.Utils.MyMessageBox.Show("Unsupported graphics card",
+                        "Graphics card is not supported, please see minimum requirements");
 #else // XB1
-                System.Diagnostics.Debug.Assert(false, "Unsupported graphics card");
+                    System.Diagnostics.Debug.Assert(false, "Unsupported graphics card");
 #endif // XB1
-                throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
+                    throw new MyRenderException("No supported device detected!", MyRenderExceptionEnum.GpuNotSupported);
+                }
+                else
+                {
+#if !XB1
+                    VRage.Utils.MyMessageBox.Show("Unspecified graphics error",
+                        "Graphics error occurred, please follow troubleshooting on the game webpages");
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "Unspecified graphics error");
+#endif // XB1
+                    throw new MyRenderException("Unspecified error in renderer!", MyRenderExceptionEnum.Unassigned);                    
+                }
             }
             return m_settings;
         }
 
-        private static bool CreateDeviceInternalSafe(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry)
+        private static bool CreateDeviceInternalSafe(IntPtr windowHandle, MyRenderDeviceSettings? settingsToTry, out MyRenderExceptionEnum exceptionType)
         {
+            exceptionType = MyRenderExceptionEnum.Unassigned;
+            string errorDesc = "No details";
+
             try
             {
                 CreateDeviceInternal(windowHandle, settingsToTry);
                 return true;
             }
+            catch (MyRenderException ex)
+            {
+                errorDesc = ex.Message;
+                exceptionType = ex.Type;
+            }
             catch (Exception ex)
             {
-                Log.WriteLine("CreateDevice failed: " + ex.Message);
-                DisposeDevice();
+                errorDesc = ex.Message;
             }
+
+            Log.WriteLine("CreateDevice failed: " + errorDesc);
+            DisposeDevice();
             return false;
         }
 
@@ -329,13 +352,14 @@ namespace VRageRender
 
             InitDebugOutput();
 
-            if(DeviceContext != null)
+            if(RC != null)
             {
-                DeviceContext.Dispose();
-                DeviceContext = null;
+                RC.Dispose();
+                RC = null;
             }
 
-            DeviceContext = Device.ImmediateContext;
+            RC = new MyRenderContext();
+            RC.Initialize(Device.ImmediateContext);
 
             m_windowHandle = windowHandle;
 
@@ -397,12 +421,7 @@ namespace VRageRender
 
         private static void TweakSettingsAdapterAdHoc(Adapter adapter)
         {
-            // Workaround for some AMD/ATI cards that manifest a dirty texture
-            // when blurring for the highlight, showing for example blue grass on ME
-            if (adapter.Description.VendorId == 0x1002)
-                Settings.BlurCopyOnDepthStencilFail = true;
-            else
-                Settings.BlurCopyOnDepthStencilFail = false;
+            // Vendor/device specific workarounds here
         }
 
         internal static void DisposeDevice()
@@ -431,10 +450,10 @@ namespace VRageRender
                 m_swapchain = null;
             }
 
-            if (DeviceContext != null)
+            if (RC != null)
             {
-                DeviceContext.Dispose();
-                DeviceContext = null;
+                RC.Dispose();
+                RC = null;
             }
 
             if (Device != null)

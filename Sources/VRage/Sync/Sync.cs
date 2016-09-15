@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using VRage.Library.Collections;
 using VRage.Serialization;
 
-namespace VRage
+namespace VRage.Sync
 {
     public delegate bool SyncValidate<T>(T newValue);
 

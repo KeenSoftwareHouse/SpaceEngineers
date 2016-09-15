@@ -5,6 +5,7 @@ using Sandbox.Game.World;
 using VRage;
 using VRage.Game.Entity;
 using VRage.Input;
+using VRage.Profiler;
 using VRageMath;
 using VRageRender;
 

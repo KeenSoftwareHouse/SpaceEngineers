@@ -129,7 +129,7 @@ namespace Sandbox.Engine.Utils
     //    //  If no intersection found, method returns null.
     //    //  See below how intersection point can be calculated, because it's not so easy - for example sphere vs. triangle will 
     //    //  hardly generate just intersection point... more like intersection area or something.
-    //    public static Vector3? GetSphereTriangleIntersection(ref BoundingSphereD sphere, ref MyPlane trianglePlane, ref MyTriangle_Vertexes triangle)
+    //    public static Vector3? GetSphereTriangleIntersection(ref BoundingSphereD sphere, ref MyPlane trianglePlane, ref MyTriangle_Vertices triangle)
     //    {
     //        //	Vzdialenost gule od roviny trojuholnika
     //        float distance;
@@ -172,7 +172,7 @@ namespace Sandbox.Engine.Utils
     //    }
 
     //    //	Return true if point is inside the triangle.
-    //    public static bool GetInsidePolygonForSphereCollision(ref Vector3 point, ref MyTriangle_Vertexes triangle)
+    //    public static bool GetInsidePolygonForSphereCollision(ref Vector3 point, ref MyTriangle_Vertices triangle)
     //    {
     //        const float MATCH_FACTOR = 0.99f;		// Used to cover up the error in floating point
     //        float angle = 0.0f;						// Initialize the angle

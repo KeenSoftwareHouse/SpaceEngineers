@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game.SessionComponents;
 using VRage.Utils;
 using VRageMath;
@@ -13,9 +13,9 @@ namespace VRage.Game.Components
     public class MyAnimationControllerComponent : MyEntityComponentBase
     {
         // Animation controller. Contains definition of animation layers (state machines, its nodes are animation trees). 
-        private readonly VRage.Animations.MyAnimationController m_controller = new VRage.Animations.MyAnimationController();
+        private readonly VRageRender.Animations.MyAnimationController m_controller = new VRageRender.Animations.MyAnimationController();
         // Array of character bones (skinned entity bones with additional description).
-        private VRage.Animations.MyCharacterBone[] m_characterBones;
+        private VRageRender.Animations.MyCharacterBone[] m_characterBones;
         // Final matrices - relative.
         private Matrix[] m_boneRelativeTransforms;
         // Final matrices - absolute.
@@ -80,7 +80,7 @@ namespace VRage.Game.Components
         /// <summary>
         /// Get the animation controller instance.
         /// </summary>
-        public VRage.Animations.MyAnimationController Controller
+        public VRageRender.Animations.MyAnimationController Controller
         {
             get { return m_controller; }
         }
@@ -109,7 +109,7 @@ namespace VRage.Game.Components
             get { return m_controller.InverseKinematics; }
         }
 
-        public VRage.Animations.MyCharacterBone[] CharacterBonesSorted { get; private set; }
+        public VRageRender.Animations.MyCharacterBone[] CharacterBonesSorted { get; private set; }
 
         // Final matrices - relative.
         public Matrix[] BoneRelativeTransforms { get { return m_boneRelativeTransforms; } }
@@ -156,7 +156,7 @@ namespace VRage.Game.Components
                 if (!m_componentValid)
                     return;
 
-                VRage.Animations.MyAnimationUpdateData updateData = new Animations.MyAnimationUpdateData();
+                VRageRender.Animations.MyAnimationUpdateData updateData = new VRageRender.Animations.MyAnimationUpdateData();
                 updateData.DeltaTimeInSeconds = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 updateData.CharacterBones = m_characterBones;
                 updateData.Controller = null;  // will be set inside m_controller.Update automatically if null
@@ -198,7 +198,7 @@ namespace VRage.Game.Components
 
         // Find character bone having given name. If found, output parameter index is set.
         // Returns reference to the bone or null if not found.
-        public VRage.Animations.MyCharacterBone FindBone(string name, out int index)
+        public VRageRender.Animations.MyCharacterBone FindBone(string name, out int index)
         {
             if (name != null)
             {

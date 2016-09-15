@@ -23,6 +23,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Components;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.Spatial;
@@ -133,7 +134,7 @@ namespace SpaceEngineers.AI
         }
 
         // CH: TODO: Put the constants into definitions, when possible
-        const string CYBERHOUND_SUBTYPE_ID = "Cyberhound";
+        const string Wolf_SUBTYPE_ID = "Wolf";
         private static readonly int UPDATE_DELAY = 120;        // Interval between updates of this component
         private static readonly int CLEAN_DELAY = 2 * 60 * 20; // Interval between cleanup of spawn infos and unused identities
         private static readonly int ABANDON_DELAY = 45000;     // How long can a spawn info be abandoned
@@ -336,6 +337,11 @@ namespace SpaceEngineers.AI
             double spawnDistMax = animalSpawnInfo.SpawnDistMax;
             Vector3D center = spawnInfo.Position;
             Vector3D planetGravityVec = MyGravityProviderSystem.CalculateNaturalGravityInPoint(center);
+            //GR: if gravity is zero provide a random Vector to normalize
+            if (planetGravityVec == Vector3D.Zero)
+            {
+                planetGravityVec = Vector3D.Up;
+            }
             planetGravityVec.Normalize();
             Vector3D planetTangent = Vector3D.CalculatePerpendicularVector(planetGravityVec);
             Vector3D planetBitangent = Vector3D.Cross(planetGravityVec, planetTangent);
@@ -351,11 +357,11 @@ namespace SpaceEngineers.AI
             planet.CorrectSpawnLocation(ref spawnPos, 2.0f);
 
             MyAgentDefinition botBehavior = GetAnimalDefinition(animalSpawnInfo) as MyAgentDefinition;
-            if (botBehavior.Id.SubtypeName == CYBERHOUND_SUBTYPE_ID && MySession.Static.EnableCyberHounds)
+            if (botBehavior.Id.SubtypeName == Wolf_SUBTYPE_ID && MySession.Static.EnableWolfs)
             {
                 MyAIComponent.Static.SpawnNewBot(botBehavior, spawnPos);
             }
-            else if (botBehavior.Id.SubtypeName != CYBERHOUND_SUBTYPE_ID && MySession.Static.EnableSpiders)
+            else if (botBehavior.Id.SubtypeName != Wolf_SUBTYPE_ID && MySession.Static.EnableSpiders)
             {
                 MyAIComponent.Static.SpawnNewBot(botBehavior, spawnPos);
             }
@@ -513,7 +519,7 @@ namespace SpaceEngineers.AI
                     {
                         // Distance to surface check
                         Vector3D toSurface = planet.GetClosestSurfacePointGlobal(ref pos) - pos;
-                        if (toSurface.LengthSquared() >= PROXIMITY_DIST * PROXIMITY_DIST && planetInfo.BotNumber >= MAX_BOTS_PER_PLANET)
+                        if (toSurface.LengthSquared() >= PROXIMITY_DIST * PROXIMITY_DIST || planetInfo.BotNumber >= MAX_BOTS_PER_PLANET)
                             continue;
 
                         int spawnPointCount = 0;

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRageMath;
-using VRageRender;
-
-namespace VRage.Voxels
+﻿namespace VRage.Voxels
 {
     public struct MyClipmapCellBatch
     {

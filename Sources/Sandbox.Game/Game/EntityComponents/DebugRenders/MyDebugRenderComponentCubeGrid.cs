@@ -283,7 +283,7 @@ namespace Sandbox.Game.Components
             MyCubeGridRenderData data = gridRender.RenderData;
             foreach (var cell in data.Cells)
             {
-                HashSet<MyCubePart> parts = cell.Value.CubeParts;
+                var parts = cell.Value.CubeParts;
                 foreach (var part in parts)
                 {
                     MyModel model = part.Model;

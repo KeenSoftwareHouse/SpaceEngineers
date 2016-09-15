@@ -148,7 +148,15 @@ namespace Sandbox.Game.Gui
         {
             MyGuiControlCheckbox checkBox = AddCheckBox(text, enabled, controlGroup, color, checkBoxOffset);
             checkBox.IsChecked = checkedState;
-            checkBox.IsCheckedChanged = checkBoxChange;
+            if (checkBoxChange != null)
+            {
+                checkBox.IsCheckedChanged =
+                delegate(MyGuiControlCheckbox sender)
+                {
+                    checkBoxChange(sender);
+                    ValueChanged(sender);
+                };
+            }
             return checkBox;
         }
 
@@ -173,6 +181,7 @@ namespace Sandbox.Game.Gui
                 checkBox.IsCheckedChanged = delegate(MyGuiControlCheckbox sender)
                 {
                     setter(sender.IsChecked);
+                    ValueChanged(sender);
                 };
             }
 
@@ -442,7 +451,7 @@ namespace Sandbox.Game.Gui
         #region Color
 
 
-        private MyGuiControlColor AddColor(StringBuilder text)
+        private MyGuiControlColor AddColor(String text)
         {
             MyGuiControlColor colorControl = new MyGuiControlColor(
                 text: text,
@@ -459,7 +468,25 @@ namespace Sandbox.Game.Gui
             return colorControl;
         }
 
-        protected MyGuiControlColor AddColor(StringBuilder text, object instance, MemberInfo memberInfo)
+        protected MyGuiControlColor AddColor(String text, Func<Color> getter, Action<Color> setter)
+        {
+            return AddColor(text, getter(), (c) => setter(c.GetColor()));
+        }
+
+        protected MyGuiControlColor AddColor(String text, Color value, Action<MyGuiControlColor> setter)
+        {
+            MyGuiControlColor colorControl = AddColor(text);
+
+            colorControl.SetColor(value);
+            colorControl.OnChange += delegate(MyGuiControlColor sender)
+            {
+                setter(colorControl);
+            };
+
+            return colorControl;
+        }
+
+        protected MyGuiControlColor AddColor(String text, object instance, MemberInfo memberInfo)
         {
             MyGuiControlColor colorControl = AddColor(text);
 

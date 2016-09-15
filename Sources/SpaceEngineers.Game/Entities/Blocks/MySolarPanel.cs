@@ -22,8 +22,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
 	    public MySolarPanelDefinition SolarPanelDefinition { get; private set; }
         public MySolarGameLogicComponent SolarComponent { get; private set; }
-        protected MyEntity3DSoundEmitter m_soundEmitter;
-        internal MyEntity3DSoundEmitter SoundEmitter { get { return m_soundEmitter; } }
 
 	    private MyResourceSourceComponent m_sourceComponent;
 		public MyResourceSourceComponent SourceComp
@@ -35,9 +33,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
 	    public MySolarPanel()
 	    {
             SourceComp = new MyResourceSourceComponent();
-
-            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 	    }
 
 	    public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -130,7 +125,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public override void UpdateBeforeSimulation100()
         {
             base.UpdateBeforeSimulation100();
-            m_soundEmitter.Update();
             if (CubeGrid.Physics == null)
                 return;
 

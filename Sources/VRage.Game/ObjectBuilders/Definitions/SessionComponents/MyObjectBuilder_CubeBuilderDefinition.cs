@@ -110,14 +110,24 @@ namespace VRage.Game.ObjectBuilders.Definitions.SessionComponents
         public float MinBlockBuildingDistance = 1f;
 
         /// <summary>
-        /// Building distance in survival mode when controlling character.
+        /// Building distance for small grid in survival mode when controlling character.
         /// </summary>
-        public double BuildingDistSurvivalCharacter = 5;
+        public double BuildingDistSmallSurvivalCharacter = 5;
 
         /// <summary>
-        /// Building distance in survival mode when controlling ship.
+        /// Building distance for large grid in survival mode when controlling character.
         /// </summary>
-        public double BuildingDistSurvivalShip = 12.5;
+        public double BuildingDistLargeSurvivalCharacter = 10;
+
+        /// <summary>
+        /// Building distance for small grid in survival mode when controlling ship.
+        /// </summary>
+        public double BuildingDistSmallSurvivalShip = 12.5;
+
+        /// <summary>
+        /// Building distance for large grid in survival mode when controlling ship.
+        /// </summary>
+        public double BuildingDistLargeSurvivalShip = 12.5;
 
         /// <summary>
         /// Defines placement settings for building mode.

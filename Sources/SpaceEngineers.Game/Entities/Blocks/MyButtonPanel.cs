@@ -21,6 +21,7 @@ using VRage.Game;
 using VRage.ModAPI;
 using VRage.Network;
 using VRage.Serialization;
+using VRage.Sync;
 using VRageMath;
 
 namespace SpaceEngineers.Game.Entities.Blocks

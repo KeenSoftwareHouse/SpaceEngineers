@@ -33,7 +33,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Audio;
 using VRage.Game.Components;
 using VRage.FileSystem;

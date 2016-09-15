@@ -1,11 +1,10 @@
-﻿using Sandbox.Engine.Utils;
-using Sandbox.Game.Entities;
+﻿using Sandbox.Game.Entities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using VRage;
+using VRage.Profiler;
 using VRage.Voxels;
 using VRageMath;
 using TLeafData = System.Byte;
@@ -36,7 +35,7 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        public MySparseOctree(int height, MyOctreeNode.FilterFunction nodeFilter, TLeafData defaultContent = default(TLeafData))
+        public unsafe MySparseOctree(int height, MyOctreeNode.FilterFunction nodeFilter, TLeafData defaultContent = default(TLeafData))
         {
             Debug.Assert(height < MyCellCoord.MAX_LOD_COUNT, String.Format("Height must be < {0}", MyCellCoord.MAX_LOD_COUNT));
             m_treeHeight = height;
@@ -104,7 +103,7 @@ namespace Sandbox.Engine.Voxels
                     else
                     {
                         currentNode.SetChild(i, true);
-                        currentNode.Data[i] = m_nodeFilter(childNode.Data);
+                        currentNode.Data[i] = m_nodeFilter(childNode.Data, stack.Cell.Lod);
                         m_nodes.Add(stack.Cell.PackId32(), childNode);
                     }
                 }
@@ -134,7 +133,7 @@ namespace Sandbox.Engine.Voxels
         internal unsafe TLeafData GetFilteredValue()
         {
             var root = m_nodes[ComputeRootKey()];
-            return m_nodeFilter(root.Data);
+            return m_nodeFilter(root.Data, m_treeHeight);
         }
 
         internal unsafe void ReadRange(MyStorageData target, MyStorageDataTypeEnum type, ref Vector3I writeOffset, int lodIndex, ref Vector3I minInLod, ref Vector3I maxInLod)
@@ -274,7 +273,7 @@ namespace Sandbox.Engine.Voxels
                     else
                     {
                         node.SetChild(i, true);
-                        node.Data[i] = m_nodeFilter(childNode.Data);
+                        node.Data[i] = m_nodeFilter(childNode.Data, cell.Lod);
                     }
                 }
 

@@ -8,6 +8,7 @@ using Sandbox.Game.Entities.Cube;
 using VRage.Utils;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Localization;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -87,6 +88,18 @@ namespace Sandbox.Game.GameSystems
                 Switch(false);
             else if (Locked == MyMultipleEnabledEnum.AllDisabled)
                 Switch(true);
+        }
+
+        public List<IMyEntity> GetAttachedEntities()
+        {
+            List<IMyEntity> entities = new List<IMyEntity>();
+            foreach (var g in m_gearStates[(int)LandingGearMode.Locked])
+            {
+                var entity = g.GetAttachedEntity();
+                if (entity != null)
+                    entities.Add(entity);
+            }
+            return entities;
         }
 
         public void Switch(bool enabled)

@@ -69,7 +69,7 @@ namespace Sandbox.Game.Entities
 
         void IMyCubeBuilder.StartNewGridPlacement(MyCubeSize cubeSize, bool isStatic)
         {
-            StartNewGridPlacement(cubeSize, isStatic);
+            StartStaticGridPlacement(cubeSize, isStatic);
         }
 
         bool IMyCubeBuilder.UseSymmetry

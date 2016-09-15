@@ -21,19 +21,19 @@ namespace VRageRender
         internal void IssueQuery(MyCullProxy cullProxy)
         {   
             // Test code, WIP
-            var renderContext = MyRenderContext.Immediate;
-            var deviceContext = renderContext.DeviceContext;
+            var renderContext = MyRender11.RC;
             var renderableProxy = cullProxy.RenderableProxies[0];
-            MyRender11.DeviceContext.Begin(m_query);
+            renderContext.Begin(m_query);
 
-            MyRenderingPass.FillBuffers(renderableProxy, deviceContext);
+            MyRenderingPass.FillBuffers(renderableProxy, renderContext);
             MyRenderingPass.BindProxyGeometry(renderableProxy, renderContext);
-            renderContext.BindShaders(renderableProxy.DepthShaders);
+
+            MyRenderUtils.BindShaderBundle(renderContext, renderableProxy.DepthShaders);
 
             var submesh = renderableProxy.DrawSubmesh;
-            deviceContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+            renderContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
 
-            MyRender11.DeviceContext.End(m_query);
+            renderContext.End(m_query);
         }
     }
 }

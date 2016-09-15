@@ -17,6 +17,7 @@ using Sandbox.Game.World;
 using Sandbox.Game.WorldEnvironment.ObjectBuilders;
 using VRage.Game;
 using VRage.Network;
+using VRage.Profiler;
 using VRage.Serialization;
 using VRageRender;
 

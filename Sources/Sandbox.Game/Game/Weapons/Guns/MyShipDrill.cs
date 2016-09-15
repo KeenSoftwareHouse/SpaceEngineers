@@ -25,6 +25,7 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.ModAPI;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -297,7 +298,7 @@ namespace Sandbox.Game.Weapons
             ResourceSink.Update();
 
             base.UpdateAfterSimulation100();
-            m_drillBase.UpdateAfterSimulation100();
+            m_drillBase.UpdateSoundEmitter();
 
             if (Sync.IsServer && IsFunctional && m_useConveyorSystem && this.GetInventory().GetItems().Count > 0)
             {
@@ -636,6 +637,12 @@ namespace Sandbox.Game.Weapons
                     UpdateDetailedInfo();
                 }
             }
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
         #region IMyConveyorEndpointBlock implementation

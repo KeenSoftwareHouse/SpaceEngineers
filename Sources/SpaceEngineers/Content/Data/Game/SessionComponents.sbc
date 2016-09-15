@@ -11,8 +11,10 @@
     <DefaultBlockBuildingDistance>20</DefaultBlockBuildingDistance>
     <MaxBlockBuildingDistance>100</MaxBlockBuildingDistance>
     <MinBlockBuildingDistance>1</MinBlockBuildingDistance>
-    <BuildingDistSurvivalCharacter>10</BuildingDistSurvivalCharacter>
-    <BuildingDistSurvivalShip>12.5</BuildingDistSurvivalShip>
+    <BuildingDistLargeSurvivalCharacter>10</BuildingDistLargeSurvivalCharacter>
+    <BuildingDistSmallSurvivalCharacter>5</BuildingDistSmallSurvivalCharacter>
+    <BuildingDistSmallSurvivalShip>12.5</BuildingDistSmallSurvivalShip>
+    <BuildingDistLargeSurvivalShip>12.5</BuildingDistLargeSurvivalShip>
 
     <!--Placement settings-->
     <BuildingSettings>

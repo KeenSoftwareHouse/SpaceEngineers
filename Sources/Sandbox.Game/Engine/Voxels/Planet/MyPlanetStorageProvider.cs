@@ -5,11 +5,8 @@ using System.Diagnostics;
 using System.Text;
 using Sandbox.Game.WorldEnvironment;
 using VRage.Utils;
+using VRageMath;
 using VRage.Voxels;
-using VRageMath;
-using System.Text;
-using VRage.Utils;using VRage.Voxels;
-using VRageMath;
 
 namespace Sandbox.Engine.Voxels
 {

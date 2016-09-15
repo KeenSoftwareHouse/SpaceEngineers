@@ -7,6 +7,8 @@ using VRage.FileSystem;
 using VRage.Import;
 using VRage.ModAPI;
 using VRage.Plugins;
+using VRageRender.Import;
+
 #if XB1 // XB1_ALLINONEASSEMBLY
 using VRage.Utils;
 #endif // XB1

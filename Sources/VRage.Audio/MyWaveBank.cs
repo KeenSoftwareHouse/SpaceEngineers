@@ -30,6 +30,10 @@ namespace VRage.Audio
                 result |= exists;
                 if (exists)
                 {
+                    if (cue.StreamSound)
+                    {
+                        return true;
+                    }
                     try
                     {
                         MyInMemoryWave wave = new MyInMemoryWave(cue, fsPath);
@@ -125,6 +129,82 @@ namespace VRage.Audio
                 return null;
 
             return m_waves[filename];
+        }
+
+        public MyInMemoryWave GetStreamedWave(string filename, MySoundData cue, MySoundDimensions dim = MySoundDimensions.D2)
+        {
+            if (string.IsNullOrEmpty(filename))
+                return null;
+
+            SharpDX.Multimedia.WaveFormatEncoding encoding = SharpDX.Multimedia.WaveFormatEncoding.Unknown;
+            var fsPath = Path.IsPathRooted(filename) ? filename : Path.Combine(MyFileSystem.ContentPath, "Audio", filename);
+            var exists = MyFileSystem.FileExists(fsPath);
+            if (exists)
+            {
+                try
+                {
+                    MyInMemoryWave wave = new MyInMemoryWave(cue, fsPath);
+
+                    // check the formats
+                    if (encoding == SharpDX.Multimedia.WaveFormatEncoding.Unknown)
+                    {
+                        encoding = wave.WaveFormat.Encoding;
+                    }
+
+                    // check the formats
+                    if (wave.WaveFormat.Encoding == SharpDX.Multimedia.WaveFormatEncoding.Unknown)
+                    {
+                        if (MyAudio.OnSoundError != null)
+                        {
+                            var msg = string.Format("Unknown audio encoding '{0}', '{1}'", cue.SubtypeId.ToString(), filename);
+                            MyAudio.OnSoundError(cue, msg);
+                        }
+                        return null;
+                    }
+
+                    // 3D sounds must be mono
+                    if (dim == MySoundDimensions.D3 && wave.WaveFormat.Channels != 1)
+                    {
+                        if (MyAudio.OnSoundError != null)
+                        {
+                            var msg = string.Format("3D sound '{0}', '{1}' must be in mono, got {2} channels", cue.SubtypeId.ToString(), filename, wave.WaveFormat.Channels);
+                            MyAudio.OnSoundError(cue, msg);
+                        }
+                        return null;
+                    }
+
+                    // all parts of the sound must have the same encoding
+                    if (wave.WaveFormat.Encoding != encoding)
+                    {
+                        if (MyAudio.OnSoundError != null)
+                        {
+                            var msg = string.Format("Inconsistent sound encoding in '{0}', '{1}', got '{2}', expected '{3}'", cue.SubtypeId.ToString(), filename, wave.WaveFormat.Encoding, encoding);
+                            MyAudio.OnSoundError(cue, msg);
+                        }
+                        return null;
+                    }
+
+                    return wave;
+                }
+                catch (Exception e)
+                {
+                    if (MyAudio.OnSoundError != null)
+                    {
+                        var msg = string.Format("Unable to load audio file: '{0}', '{1}': {2}", cue.SubtypeId.ToString(), filename, e.ToString());
+                        MyAudio.OnSoundError(cue, msg);
+                    }
+                    return null;
+                }
+            }
+            else
+            {
+                if (MyAudio.OnSoundError != null)
+                {
+                    var msg = string.Format("Unable to find audio file: '{0}', '{1}'", cue.SubtypeId.ToString(), filename);
+                    MyAudio.OnSoundError(cue, msg);
+                }
+            }
+            return null;
         }
 
         public List<MyWaveFormat> GetWaveFormats()

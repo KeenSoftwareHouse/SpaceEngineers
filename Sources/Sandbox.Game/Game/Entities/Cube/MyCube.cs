@@ -1,12 +1,8 @@
-﻿#region Using
-
-using Sandbox.Game.Entities.Cube;
-
-#endregion
+﻿using Sandbox.Game.Entities.Cube;
 
 namespace Sandbox.Game.Entities
 {
-    class MyCube
+    public class MyCube
     {
         public MyCubePart[] Parts;
         public MySlimBlock CubeBlock;

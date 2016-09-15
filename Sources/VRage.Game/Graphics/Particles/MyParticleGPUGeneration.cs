@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
+using VRageRender.Animations;
+using VRageRender.Messages;
+using VRageRender.Utils;
 
 #endregion
 
@@ -646,7 +647,8 @@ namespace VRage.Game
             flags |= SleepState ? GPUEmitterFlags.SleepState : 0;
             flags |= Light ? GPUEmitterFlags.Light : 0;
             flags |= VolumetricLight ? GPUEmitterFlags.VolumetricLight : 0;
-            flags |= m_effect.IsSimulationPaused ? GPUEmitterFlags.FreezeSimulate : 0;
+            flags |= m_effect.IsEmittingStopped || MyParticlesManager.Paused ? GPUEmitterFlags.FreezeSimulate : 0;
+            flags |= MyParticlesManager.Paused ? GPUEmitterFlags.FreezeEmit : 0;
 
             emitter.Data.Flags = flags;
 
@@ -769,7 +771,7 @@ namespace VRage.Game
                     Vector4 color;
                     colorAnim.GetKey(j, out time, out color);
                     color = color.UnmultiplyColor();
-                    color.W = Vector4.ToLinearRGBComponent(color.W);
+                    color.W = ColorExtensions.ToLinearRGBComponent(color.W);
                     color = color.PremultiplyColor();
                     color = Vector4.Clamp(color, new Vector4(0, 0, 0, 0), new Vector4(1, 1, 1, 1));
                     anim.SetKey(j, time, color);

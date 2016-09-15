@@ -75,7 +75,7 @@
 	<PhysicalMaterial>
       <Id>
         <TypeId>PhysicalMaterialDefinition</TypeId>
-        <SubtypeId>Cyberhound</SubtypeId>
+        <SubtypeId>Wolf</SubtypeId>
       </Id>
     </PhysicalMaterial>
 		<PhysicalMaterial>

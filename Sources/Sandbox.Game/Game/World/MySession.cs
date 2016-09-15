@@ -1,8 +1,5 @@
 ﻿#region Using
 
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -11,29 +8,22 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World.Generator;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-
 using VRage;
 using VRage.Audio;
 using VRage.Input;
-using VRage.Plugins;
 using VRage.Utils;
-using VRage.Voxels;
 using VRage.Data.Audio;
 using VRage.Serialization;
 using VRageMath;
@@ -41,7 +31,6 @@ using VRage.Library.Utils;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.SessionComponents;
-using System.Collections;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
@@ -54,6 +43,8 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.GameSystems.ContextHandling;
+using VRage.Profiler;
+using VRage.Voxels;
 
 #endregion
 
@@ -181,13 +172,13 @@ namespace Sandbox.Game.World
             }
         }
 
-        public bool EnableCyberHounds
+        public bool EnableWolfs
         {
             get
             {
-                if (Settings.EnableCyberhounds.HasValue)
+                if (Settings.EnableWolfs.HasValue)
                 {
-                    return Settings.EnableCyberhounds.Value;
+                    return Settings.EnableWolfs.Value;
                 }
                 return false;
             }
@@ -957,6 +948,7 @@ namespace Sandbox.Game.World
             if (!MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(world.Checkpoint.Scenario, out Static.Scenario))
                 Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             FixIncorrectSettings(Static.Settings);
+            Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
 
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
@@ -1502,11 +1494,20 @@ namespace Sandbox.Game.World
                 cameraEntity = ControlledEntity as MyEntity;
                 if (cameraEntity != null)
                 {
-                    Debug.Assert(ControlledEntity is IMyCameraController, "Controlled entity is not a camera controller");
-                    if (!(ControlledEntity is IMyCameraController))
+                    MyRemoteControl control = ControlledEntity as MyRemoteControl;
+                    if (control != null)
                     {
-                        cameraEntity = null;
-                        cameraControllerToSet = MyCameraControllerEnum.Spectator;
+                        cameraEntity = control.Pilot;
+                    }
+                    else
+                    {
+                        Debug.Assert(ControlledEntity is IMyCameraController, "Controlled entity is not a camera controller");
+
+                        if (!(ControlledEntity is IMyCameraController))
+                        {
+                            cameraEntity = null;
+                            cameraControllerToSet = MyCameraControllerEnum.Spectator;
+                        }
                     }
                 }
             }
@@ -1614,9 +1615,9 @@ namespace Sandbox.Game.World
             {
                 settings.EnableSpiders = settings.EnvironmentHostility != MyEnvironmentHostilityEnum.SAFE;
             }
-            if (settings.EnableCyberhounds.HasValue == false)
+            if (settings.EnableWolfs.HasValue == false)
             {
-                settings.EnableCyberhounds = false;
+                settings.EnableWolfs = false;
             }
 
             //In case of planets ignore World Size. Null check needed when limit size already exists in a planet save
@@ -2206,6 +2207,8 @@ namespace Sandbox.Game.World
             MyDefinitionManager.Static.UnloadData();
             MyDefinitionManager.Static.PreloadDefinitions();
 
+            MyAudio.ReloadData(MyAudioExtensions.GetSoundDataFromDefinitions(), MyAudioExtensions.GetEffectData());
+
             MyDefinitionErrors.Clear();
 
             MyRenderProxy.UnloadData();
@@ -2217,7 +2220,7 @@ namespace Sandbox.Game.World
             MyDynamicAABBTree.Dispose();
             MyDynamicAABBTreeD.Dispose();
 
-            GC.Collect(2, GCCollectionMode.Forced);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
 
             MySandboxGame.Log.WriteLine("MySession::Unload END");
         }

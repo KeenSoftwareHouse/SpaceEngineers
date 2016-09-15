@@ -699,6 +699,7 @@ namespace Sandbox.Game.Replication
                     foreach (var item in  packetInfo.NewItems)
                     {
                         MyPhysicalInventoryItem inventoryItem = item.Value;
+                        stream.WriteInt32(item.Key);
                         VRage.Serialization.MySerializer.Write(stream, ref inventoryItem, MyObjectBuilderSerializer.Dynamic);
 
                         if (stream.BitPosition <= maxBitPosition)

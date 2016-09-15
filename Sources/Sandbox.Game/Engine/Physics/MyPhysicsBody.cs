@@ -28,6 +28,7 @@ using VRageMath.Spatial;
 using Sandbox.Game;
 using VRage.Collections;
 using VRage.Game;
+using VRage.Profiler;
 
 #endregion
 
@@ -873,11 +874,11 @@ namespace Sandbox.Engine.Physics
             var worldPos = ClusterToWorld(value.ContactPoint.Position);
             var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
             var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
-            if (materialA == m_character || materialB == m_character)
+            /*if (materialA == m_character || materialB == m_character)
             {
                 ProfilerShort.End();
                 return;
-            }
+            }*/
             ProfilerShort.Begin("Lambdas");
             var colision = value.Base;
             Func<bool> canHear = () =>
@@ -1333,7 +1334,7 @@ false,
                 velocity = parentEntity.Physics.LinearVelocity;
             }
             if(!IsWelded)
-                MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, parentEntity.WorldAABB, velocity);
+                MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, velocity);
 
             Matrix rigidBodyMatrix = GetRigidBodyMatrix();
 
@@ -1658,10 +1659,9 @@ false,
             Debug.Assert(Entity != null && !Entity.Closed && Entity.GetTopMostParent().Physics != null);
             if (!MyPerGameSettings.LimitedWorld && Entity != null && !Entity.Closed)
             {
-                var physics = Entity.GetTopMostParent().Physics;
-                if(physics != null)
-                    MyPhysics.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB,
-                        physics.LinearVelocity);
+                //Entity.WorldAABB triger AABB recalculation after the worldmatrix changed (part of execution time)
+                MyPhysics.MoveObject(ClusterObjectID, Entity.WorldAABB,
+                        this.LinearVelocity);
             }
         }
 
@@ -1706,11 +1706,11 @@ false,
         {
             Vector3 delta = LinearVelocity - m_lastLinearVelocity;
             m_lastLinearVelocity = LinearVelocity;
-            LinearAcceleration = delta / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            LinearAcceleration = delta * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
 
             Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
             m_lastAngularVelocity = AngularVelocity;
-            AngularAcceleration = deltaAng / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            AngularAcceleration = deltaAng * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
         }
 
         public void ClearAccelerations()

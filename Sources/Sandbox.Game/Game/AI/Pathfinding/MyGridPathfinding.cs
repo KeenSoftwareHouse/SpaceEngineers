@@ -13,8 +13,10 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {

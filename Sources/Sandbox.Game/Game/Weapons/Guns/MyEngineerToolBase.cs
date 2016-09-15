@@ -165,7 +165,7 @@ namespace Sandbox.Game.Weapons
             m_activated = false;
             m_wasPowered = false;
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             Render.NeedsDraw = true;
 
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
@@ -318,6 +318,12 @@ namespace Sandbox.Game.Weapons
 			}
 
             //MyTrace.Watch("MyEngineerToolBase.RequiredPowerInput", RequiredPowerInput);            
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
         private void WorldPositionChanged(object source)

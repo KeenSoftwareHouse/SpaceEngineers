@@ -54,14 +54,14 @@ namespace Sandbox.Engine.Utils
             }
         }
 
-        [Conditional(VRageRender.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
+        [Conditional(VRage.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
         public void Hit()
         {
             current.Count++;
             Miss();
         }
 
-        [Conditional(VRageRender.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
+        [Conditional(VRage.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
         public void Miss()
         {
             current.Cycle++;
@@ -112,7 +112,7 @@ namespace Sandbox.Engine.Utils
             History = new MyQueue<T>((int)m_historyLength);
         }
 
-        [Conditional(VRageRender.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
+        [Conditional(VRage.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
         public void Wrap()
         {
             using (m_lock.Acquire())
@@ -126,7 +126,7 @@ namespace Sandbox.Engine.Utils
 
     public static class MyDebugWorkTrackerExtensions
     {
-        [Conditional(VRageRender.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
+        [Conditional(VRage.Profiler.MyRenderProfiler.PerformanceProfilingSymbol)]
         public static void Hit(this MyDebugWorkTracker<int> self)
         {
             self.Current++;

@@ -1123,8 +1123,8 @@ namespace VRageMath
         }
 
         public void OverlapAllFrustum<T>(ref BoundingFrustumD frustum, List<T> elementsList, List<bool> isInsideList,
-            Vector3 projectionDir, float projectionFactor, float ignoreThr,
-            uint requiredFlags, bool clear = true)
+            float projectionFactor, float ignoreThr, 
+                uint requiredFlags, bool clear = true)
         {
             if (clear)
             {
@@ -1172,7 +1172,8 @@ namespace VRageMath
 
                                 if (nodeToAdd.IsLeaf())
                                 {
-                                    if (nodeToAdd.Aabb.ProjectedArea(projectionDir) * projectionFactor > ignoreThr)
+                                    double size = nodeToAdd.Aabb.Size.Length();
+                                    if (size * projectionFactor > ignoreThr)
                                     {
                                         uint flags = GetUserFlag(nodeIdToAdd);
                                         if ((flags & requiredFlags) == requiredFlags)
@@ -1196,7 +1197,8 @@ namespace VRageMath
                             {
                                 if (node.IsLeaf())
                                 {
-                                    if (node.Aabb.ProjectedArea(projectionDir) * projectionFactor > ignoreThr)
+                                    double size = node.Aabb.Size.Length();
+                                    if (size * projectionFactor > ignoreThr)
                                     {
                                         uint flags = GetUserFlag(nodeId);
                                         if ((flags & requiredFlags) == requiredFlags)

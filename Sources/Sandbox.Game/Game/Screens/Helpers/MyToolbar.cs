@@ -14,6 +14,7 @@ using VRage.Game.Entity;
 using VRage.ObjectBuilders;
 using VRageMath;
 using VRage.Collections;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Screens.Helpers
 {

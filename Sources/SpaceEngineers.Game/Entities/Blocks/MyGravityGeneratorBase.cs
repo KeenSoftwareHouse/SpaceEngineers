@@ -15,6 +15,8 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ModAPI;
+using VRage.Profiler;
+using VRage.Sync;
 using VRage.Trace;
 using VRageMath;
 using VRageRender;
@@ -220,7 +222,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         void phantom_Enter(HkPhantomCallbackShape sender, HkRigidBody body)
         {
-            VRage.ProfilerShort.Begin("GravityEnter");
+            ProfilerShort.Begin("GravityEnter");
             var entity = MyPhysicsExtensions.GetEntity(body, 0);// jn: TODO we should collect bodies not entities
             // HACK: disabled gravity for ships (there may be more changes so I won't add Entity.RespectsGravity now)
             lock (m_locker)
@@ -234,12 +236,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
                         ((MyPhysicsBody)entity.Physics).RigidBody.Activate();
                 }
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         void phantom_Leave(HkPhantomCallbackShape sender, HkRigidBody body)
         {
-            VRage.ProfilerShort.Begin("GravityLeave");
+            ProfilerShort.Begin("GravityLeave");
             var entity = MyPhysicsExtensions.GetEntity(body, 0);// jn: TODO we should collect bodies not entities
 
             lock (m_locker)
@@ -250,7 +252,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     MyTrace.Send(TraceWindow.EntityId, string.Format("Entity left gravity field, entity: {0}", entity));
                 }
             }
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
         public Color GetGizmoColor()
         {

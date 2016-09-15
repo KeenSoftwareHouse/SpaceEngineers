@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using VRage.Profiler;
+﻿using System.Text;
 using VRageMath;
-using VRageMath.PackedVector;
-using VRageRender.Vertex;
+using VRageRender;
+using VRageRender.Profiler;
 
-namespace VRageRender.Profiler
+namespace VRage.Render11.Profiler.Internal
 {
 #if !XB1 // XB1_NOPROFILER
-    class MyRenderProfilerDX11 : MyRenderProfilerRendering
+    internal class MyRenderProfilerDX11 : MyRenderProfilerRendering
     {
         private MyRenderProfilerLineBatch m_lineBatch;
 
@@ -58,7 +53,7 @@ namespace VRageRender.Profiler
             //GetRenderProfiler().StartProfilingBlock("MySpritesRenderer.Draw");
             MyLinesRenderer.Draw(MyRender11.Backbuffer, null);
             //MyCommon.UpdateFrameConstants();
-            MySpritesRenderer.Draw(MyRender11.Backbuffer.m_RTV, new MyViewport(ViewportSize.X, ViewportSize.Y));
+            MySpritesRenderer.Draw(MyRender11.Backbuffer, new MyViewport(ViewportSize.X, ViewportSize.Y));
             //GetRenderProfiler().EndProfilingBlock();
 
             //GetRenderProfiler().StartProfilingBlock("MyLinesRenderer.Draw");

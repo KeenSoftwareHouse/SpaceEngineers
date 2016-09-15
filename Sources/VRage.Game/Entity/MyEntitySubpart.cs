@@ -2,6 +2,7 @@
 using System.IO;
 using VRage.Import;
 using VRageMath;
+using VRageRender.Import;
 
 namespace VRage.Game.Entity
 {

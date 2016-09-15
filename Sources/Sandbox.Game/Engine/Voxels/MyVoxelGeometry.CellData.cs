@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using VRage;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Engine.Voxels

@@ -540,6 +540,7 @@
     <Compile Include="Game\EntityComponents\MyAtmosphereDetectorComponent.cs" />
     <Compile Include="Game\EntityComponents\MyEntityReferenceComponent.cs" />
     <Compile Include="Game\EntityComponents\MyGridOwnershipComponentBase.cs" />
+    <Compile Include="Game\EntityComponents\MyEntityReverbDetectorComponent.cs" />
     <Compile Include="Game\EntityComponents\MyShipSoundComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyAlesDebugInputComponent.cs" />
     <Compile Include="Game\EntityComponents\MyEntityTerrainHeightProviderComponent.cs" />
@@ -909,15 +910,22 @@
     <Compile Include="Game\Replication\MyExternalReplicable`1.cs" />
     <Compile Include="Game\Replication\MyExternalReplicable.cs" />
     <Compile Include="Game\Replication\MyReplicableFactory.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugDrawSettings3.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderEnvironmentShadows.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderEnvironmentLight.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderDebug.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderPostprocessBloom.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderPostprocessHBAO.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderPostprocessEyeAdaptation.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyTimeOfDayHelper.cs" />
+    <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugDrawSettings3.cs" />
     <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderOverrides.cs" />
     <Compile Include="Game\Screens\Helpers\IMyToolbarItemEntity.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemConsumable.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemCreateGrid.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugFeetIK.cs" />
+    <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugFeetIK.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPhysics.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPlanets.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderAtmosphere.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderEnvironmentAtmosphere.cs" />
     <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderShadows.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemUsable.cs" />
     <Compile Include="Game\Screens\MyGuiScreenAdminMenu.cs" />
@@ -987,10 +995,9 @@
     <Compile Include="Game\MyVoxelBase.cs" />
     <Compile Include="Game\ParticleEffects\MyExplosionDamage.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugAi.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugCharacterKinematics.cs" />
+    <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugCharacterKinematics.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugStructuralIntegrity.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugDrawSettings2.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderCulling.cs" />
+    <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugDrawSettings2.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugTravel.cs" />
     <Compile Include="Game\Screens\Helpers\IMyControlMenuItem.cs" />
     <Compile Include="Game\Screens\Helpers\IMyControlMenuInitializer.cs" />
@@ -1017,8 +1024,8 @@
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugCubeBlocks.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugErrors.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugOfficial.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRender2.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRender3.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderGBufferDebug.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderOutdoor.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugSpawnMenu.cs" />
     <Compile Include="Game\Screens\Helpers\MyGuiControlVoxelHandSettings.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemPrefabThrower.cs" />
@@ -1030,7 +1037,7 @@
     <Compile Include="Game\Screens\Helpers\MyToolbarItemActions.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemTerminalBlock.cs" />
     <Compile Include="Game\Screens\Helpers\MyToolbarItemTerminalGroup.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugImageProcessing.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderPostprocessTonemap.cs" />
     <Compile Include="Game\Screens\MyGuiScreenHudBase.cs" />
     <Compile Include="Game\Screens\MyGuiScreenEditor.cs" />
     <Compile Include="Game\Screens\Helpers\MyGridColorHelper.cs" />
@@ -1073,7 +1080,6 @@
     <Compile Include="Game\SessionComponents\MyHitReportingComponent.cs" />
     <Compile Include="Game\SessionComponents\MyRopeComponent.cs" />
     <Compile Include="Game\SessionComponents\MyScriptedGroupsSystem.cs" />
-    <Compile Include="Game\SessionComponents\MyEnvironmentalParticles.cs" />
     <Compile Include="Game\SessionComponents\MyFloraAreas.cs" />
     <Compile Include="Game\SessionComponents\MyRespawnComponentBase.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentArmorHand.cs" />
@@ -1237,7 +1243,7 @@
     <Compile Include="Game\Multiplayer\MyNetworkTimer.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyTomasDebugInputComponent.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugHandItemShoot.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugDrawSettings.cs" />
+    <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugDrawSettings.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugHandItemAnimations3rd.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugHandItemAnimations1st.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugHandItems.cs" />
@@ -1370,7 +1376,6 @@
     <Compile Include="Game\ParticleEffects\MyExplosions.cs" />
     <Compile Include="Game\ParticleEffects\MyParticleEffects.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugCharacterProperties.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugCinematicFX.cs" />
     <Compile Include="Game\Screens\MyGuiScreenJoinGame.cs" />
     <Compile Include="Game\Screens\MyGuiScreenLoadSubscribedWorld.cs" />
     <Compile Include="Game\Screens\MyGuiScreenProgress.cs" />
@@ -1418,8 +1423,6 @@
     <Compile Include="Game\World\Sector\MyGodRaysProperties.cs" />
     <Compile Include="Game\World\Sector\MyParticleDustProperties.cs" />
     <Compile Include="Game\World\Sector\MyImpostorProperties.cs" />
-    <Compile Include="Game\World\Sector\MyFogProperties.cs" />
-    <Compile Include="Game\World\Sector\MySunProperties.cs" />
     <Compile Include="ModAPI\MyFaction_ModAPI.cs" />
     <Compile Include="ModAPI\MyEntityController_ModAPI.cs" />
     <Compile Include="ModAPI\MyFactionCollection_ModAPI.cs" />
@@ -1466,24 +1469,17 @@
     <Compile Include="Game\Entities\MyEntities.cs" />
     <Compile Include="Game\Entities\MyGamePruningStructure.cs" />
     <Compile Include="Game\Entities\Cube\MyCubeBuilder.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugCharacter.cs" />
+    <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugCharacter.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugBase.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugColors.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderEnvironmentAmbient.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugInput.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPlayerCamera.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugPlayerShake.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRender.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderGlobalFX.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderHDR.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderLights.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderModelFX.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderOptimizations.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderPruning.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderSectorFX.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderGBufferMultipliers.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugStatistics.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugSystem.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenDebugTiming.cs" />
-    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugVolumetricSSAO.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Render\MyGuiScreenDebugRenderPostprocessSSAO.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenRenderModule.cs" />
     <Compile Include="Game\Screens\DebugScreens\MyGuiScreenRenderModules.cs" />
     <Compile Include="Game\Screens\MyGuiScreenGameCredits.cs" />
@@ -1597,6 +1593,10 @@
     <ProjectReference Include="..\VRage.Render11\VRage.Render11.csproj">
       <Project>{a5a97aa5-e974-479e-bf93-1202393a4a06}</Project>
       <Name>VRage.Render11</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Render\VRage.Render.csproj">
+      <Project>{1713e6cd-808a-4a44-9532-04771499bb01}</Project>
+      <Name>VRage.Render</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Scripting\VRage.Scripting.csproj">
       <Project>{47e07dc1-03cb-4668-a031-71816def8955}</Project>

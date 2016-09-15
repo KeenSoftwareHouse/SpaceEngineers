@@ -52,6 +52,8 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using VRage.Library;
+using VRage.Profiler;
+using VRageRender.Utils;
 
 #endregion
 
@@ -1794,13 +1796,6 @@ namespace Sandbox.Definitions
             return result as T;
         }
 
-        private void Save<T>(T builder, string dataPath, string fileName) where T : MyObjectBuilder_Base
-        {
-            string filePath = Path.Combine(dataPath, fileName);
-            var path = Path.Combine(MyFileSystem.ContentPath, filePath);
-            MyObjectBuilderSerializer.SerializeXML(path, false, builder);
-        }
-
         private static void InitAmmoMagazines(MyModContext context,
             DefinitionDictionary<MyDefinitionBase> output, MyObjectBuilder_AmmoMagazineDefinition[] magazines, bool failOnDebug = true)
         {
@@ -2186,13 +2181,6 @@ namespace Sandbox.Definitions
             get { return MySector.EnvironmentDefinition; }
         }
 
-        [Obsolete]
-        public void SaveEnvironmentDefinition()
-        {
-            //string dataFolder = Path.Combine(MyFileSystem.ContentPath, "Data");
-            //Save(m_definitions.m_environmentDef.GetObjectBuilder(), dataFolder, "Environment.sbc");
-        }
-
         private static void InitGlobalEvents(MyModContext context,
             DefinitionDictionary<MyDefinitionBase> output, MyObjectBuilder_GlobalEventDefinition[] events, bool failOnDebug = true)
         {
@@ -2467,8 +2455,8 @@ namespace Sandbox.Definitions
 
             objBuilder.HandItems = defList.ToArray();
 
-            string dataFolder = Path.Combine(MyFileSystem.ContentPath, "Data");
-            Save(objBuilder, dataFolder, "HandItems.sbc");
+            string filepath = Path.Combine(MyFileSystem.ContentPath, "Data", "HandItems.sbc");
+            objBuilder.Save(filepath);
         }
 
         private static void InitPhysicalItems(MyModContext context,
@@ -2644,6 +2632,7 @@ namespace Sandbox.Definitions
             {
                 MyTransparentMaterials.AddMaterial(new MyTransparentMaterial(
                     material.Id.SubtypeName,
+                    material.TextureType,
                     material.Texture,
                     material.SoftParticleDistanceScale,
                     material.CanBeAffectedByLights,
@@ -2657,7 +2646,8 @@ namespace Sandbox.Definitions
                     material.AlphaMistingEnd,
                     material.AlphaSaturation,
                     material.Reflectivity,
-                    material.AlphaCutout
+                    material.AlphaCutout,
+                    material.TargetSize
                 ));
             }
 
@@ -3136,7 +3126,15 @@ namespace Sandbox.Definitions
         public MyCubeBlockDefinition GetCubeBlockDefinition(MyDefinitionId id)
         {
             CheckDefinition<MyCubeBlockDefinition>(ref id);
-            return m_definitions.m_definitionsById[id] as MyCubeBlockDefinition;
+            if (m_definitions.m_definitionsById.ContainsKey(id))
+            {
+                return m_definitions.m_definitionsById[id] as MyCubeBlockDefinition;
+            }
+            else
+            {
+                Debug.Assert(false, "Key not in dictionary! " + id.ToString());
+                return null;
+            }
         }
 
         public MyComponentDefinition GetComponentDefinition(MyDefinitionId id)

@@ -94,7 +94,7 @@ namespace VRage.Audio
         public static int lastSoundIndex = 0;
         private const int LAST_SOUND_COUNT = 8;
 #endif
-        bool m_applyReverb;
+        bool m_applyReverb = false;
         EffectDescriptor m_effectDescriptor;
         Reverb m_reverb;
 
@@ -360,11 +360,11 @@ namespace VRage.Audio
                         switch (cuePart)
                         {
                             case CuePart.Start:
-                                return m_waveBank.GetWave(wave.Start);
+                                return cue.StreamSound ? m_waveBank.GetStreamedWave(wave.Start, cue, dim) : m_waveBank.GetWave(wave.Start);
                             case CuePart.Loop:
-                                return m_waveBank.GetWave(wave.Loop);
+                                return cue.StreamSound ? m_waveBank.GetStreamedWave(wave.Loop, cue, dim) : m_waveBank.GetWave(wave.Loop);
                             case CuePart.End:
-                                return m_waveBank.GetWave(wave.End);
+                                return cue.StreamSound ? m_waveBank.GetStreamedWave(wave.End, cue, dim) : m_waveBank.GetWave(wave.End);
                         }
                     waveNumber--;
                 }
@@ -386,16 +386,7 @@ namespace VRage.Audio
                 return null;
             voice.Flush();
             voice.SubmitSourceBuffer(cueId, wave, part);
-
-            if (m_applyReverb)
-            {
-                voice.Voice.SetEffectChain(m_effectDescriptor);
-                voice.Voice.EnableEffect(0);
-            }
-            else
-            {
-                voice.Voice.SetEffectChain(null);
-            }
+            voice.Voice.SetEffectChain(null);
             return voice;
         }
 

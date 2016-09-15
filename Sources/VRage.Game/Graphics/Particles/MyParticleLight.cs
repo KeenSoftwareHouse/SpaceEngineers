@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
+using VRageRender.Animations;
+using VRageRender.Messages;
 
 #endregion
 
@@ -162,50 +162,7 @@ namespace VRage.Game
 
         private void InitLight()
         {
-            Vector3 localPosition;
-            Position.GetInterpolatedValue(0, out localPosition);
-
-            Vector4 color;
-            Color.GetInterpolatedValue(0, out color);
-
-            float range;
-            Range.GetInterpolatedValue(0, out range);
-
-            float intensity;
-            Intensity.GetInterpolatedValue(0, out intensity);
-
-            m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight(
-               VRageRender.LightTypeEnum.PointLight,
-               Vector3D.Transform(localPosition * m_effect.GetEmitterScale(), m_effect.WorldMatrix),
-               -1,
-               0,
-               color,
-               color,
-               1,
-               0.75f,
-               range * m_effect.GetEmitterScale(),
-               intensity,
-               true,
-               false,
-               0,
-               false,
-               Vector3.Zero,
-               Vector3.Zero,
-               0,
-               Vector4.Zero,
-               0,
-               0,
-               0,
-               null,
-               0,
-               false,
-               false,
-               VRageRender.Lights.MyGlareTypeEnum.Normal,
-               0,
-               0,
-               0,
-               null,
-               0);
+            m_renderObjectID = VRageRender.MyRenderProxy.CreateRenderLight();
         }
 
         public void Close()
@@ -256,19 +213,20 @@ namespace VRage.Game
 
             bool created = false;
 
-            if (Enabled && m_renderObjectID == MyRenderProxy.RENDER_ID_UNASSIGNED)
+            if (Enabled)
             {
-                InitLight();
-                created = true;
+                if (m_renderObjectID == MyRenderProxy.RENDER_ID_UNASSIGNED)
+                {
+                    InitLight();
+                    created = true;
+                }
             }
-            if (!Enabled && m_renderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+            else 
             {
-                CloseLight();
-                VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
-                return;
-            }
-            if (!Enabled)
-            {
+                if (m_renderObjectID != MyRenderProxy.RENDER_ID_UNASSIGNED)
+                {
+                    CloseLight();
+                }
                 VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
                 return;
             }
@@ -311,18 +269,8 @@ namespace VRage.Game
                 intensity = 0;
 
             Vector3D position = Vector3D.Transform(localPosition * m_effect.GetEmitterScale(), m_effect.WorldMatrix);
-            if (m_position != position || created)
-            {
-                m_position = position;
-
-                MatrixD lightMatrix = MatrixD.CreateTranslation(m_position);
-                VRageRender.MyRenderProxy.UpdateRenderObject(
-                    m_renderObjectID,
-                    ref lightMatrix,
-                    true);
-            }
-
-            if ((m_color != color) ||
+            if ((m_position != position) ||
+                (m_color != color) ||
                 (m_range != range) ||
                 (m_intensity != intensity) ||
                 created)
@@ -330,43 +278,31 @@ namespace VRage.Game
                 m_color = color;
                 m_intensity = intensity;
                 m_range = range;
+                m_position = position;
 
-                VRageRender.MyRenderProxy.UpdateRenderLight(
-                m_renderObjectID,
-                VRageRender.LightTypeEnum.PointLight,
-                m_position,
-                -1,
-                0,
-                m_color,
-                m_color,
-                1,
-                0.75f,
-                m_range * m_effect.GetEmitterScale(),
-                m_intensity,
-                true,
-                true,
-                0,
-                false,
-                Vector3.Zero,
-                Vector3.Zero,
-                0,
-                Vector4.Zero,
-                0,
-                0,
-                0,
-                null,
-                0,
-                false,
-                false, 
-                VRageRender.Lights.MyGlareTypeEnum.Normal,
-                0,
-                0,
-                0,
-                null,
-                0);
+                MyLightLayout light = new MyLightLayout()
+                {
+                    Range = m_range * m_effect.GetEmitterScale(),
+                    Color = new Vector3(m_color),
+                    Falloff = 1,
+                    GlossFactor = 1,
+                    DiffuseFactor = 1,
+                };
+
+                UpdateRenderLightData renderLightData = new UpdateRenderLightData()
+                {
+                    ID = m_renderObjectID,
+                    Position = m_position,
+                    Type = LightTypeEnum.PointLight,
+                    ParentID = -1,
+                    UseInForwardRender = true,
+                    SpecularColor = new Vector3(m_color),
+                    PointLightOn = true,
+                    PointLightIntensity = m_intensity,
+                    PointLight = light,
+                };
+                MyRenderProxy.UpdateRenderLight(ref renderLightData);
             }
-                
-
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
         }

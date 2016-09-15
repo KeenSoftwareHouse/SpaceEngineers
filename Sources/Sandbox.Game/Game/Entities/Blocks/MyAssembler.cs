@@ -154,6 +154,7 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.Init(objectBuilder, cubeGrid);
             m_cubeGrid = cubeGrid;
+            NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             MyDebug.AssertDebug(BlockDefinition is MyAssemblerDefinition);
             m_assemblerDef = BlockDefinition as MyAssemblerDefinition;

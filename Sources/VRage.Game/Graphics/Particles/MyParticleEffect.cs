@@ -25,12 +25,12 @@ namespace VRage.Game
 
         //Version of the effect for serialization
         static readonly int Version = 0;
+        public static bool LoopOverride = false;
 
         int m_particleID; //ID of the particle stored in particles library
         float m_elapsedTime = 0; //Time elapsed from start of the effect
         string m_name; //Name of the effect
         float m_length = 90; //Length of the effect in seconds
-        float m_globalScale = 1; 
 
         float m_birthRate = 0;
         
@@ -78,6 +78,7 @@ namespace VRage.Game
         public Vector3 Gravity;
 
         bool m_positionDirty = false;
+        private bool m_newLoop = false;
 
         
         #endregion
@@ -109,8 +110,6 @@ namespace VRage.Game
 			UserAxisScale = Vector3.One;
             UserColorMultiplier = Vector4.One;
             UserDraw = false;
-            LowRes = false;
-            m_globalScale = 1.0f;
 
             Enabled = true;
             EnableLods = true;
@@ -221,8 +220,6 @@ namespace VRage.Game
                 effect.Name = Name;
                 effect.Enabled = Enabled;
                 effect.Length = Length;
-                effect.m_globalScale = m_globalScale;
-                effect.LowRes = LowRes;
                 effect.Loop = m_loop;
                 effect.DurationMin = m_durationMin;
                 effect.DurationMax = m_durationMax;
@@ -348,7 +345,6 @@ namespace VRage.Game
 
             effect.Name = Name;
             effect.m_length = m_length;
-            effect.m_globalScale = m_globalScale;
             effect.DurationMin = m_durationMin;
             effect.DurationMax = m_durationMax;
             effect.Loop = m_loop;
@@ -403,8 +399,6 @@ namespace VRage.Game
                 m_updateCounter = 0;
             }
 
-            MyPerformanceCounter.PerCameraDrawWrite.ParticleEffectsDrawn++;
-
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ParticleEffect-UpdateGen");
 
             //m_distance = MySector.MainCamera.GetDistanceWithFOV(WorldMatrix.Translation) / (100.0f); //precalculate for LODs
@@ -443,13 +437,15 @@ namespace VRage.Game
 
                 foreach (var particleSound in m_particleSounds)
                 {
-                    particleSound.Update();
+                    particleSound.Update(m_newLoop);
                 }
 
                 m_elapsedTime += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+                m_newLoop = false;
                 if (m_loop && m_elapsedTime >= m_durationActual)
                 {
                     m_elapsedTime = 0;
+                    m_newLoop = true;
                     SetRandomDuration();
                 }
             }
@@ -478,26 +474,7 @@ namespace VRage.Game
         #region Properties
 
 
-        public float GlobalScale
-        {
-            get { return m_globalScale; }
-            set
-            {
-                m_globalScale = value;
-
-                if (m_instances != null)
-                {
-                    foreach (MyParticleEffect effect in m_instances)
-                    {
-                        effect.m_globalScale = value;
-                    }
-                }
-            }
-        }
-
         public bool Enabled { get; set; }
-
-        public bool LowRes { get; set; }
 
         public int ID { get { return m_particleID; } set { SetID(value); } }
 
@@ -576,15 +553,15 @@ namespace VRage.Game
 
         public float GetScale()
         {
-            return UserScale * m_globalScale;
+            return UserScale;
         }
         public float GetEmitterScale()
         {
-            return UserScale * UserEmitterScale * m_globalScale;
+            return UserScale * UserEmitterScale;
         }
         public Vector3 GetEmitterAxisScale()
         {
-            return UserAxisScale * UserEmitterScale * m_globalScale;
+            return UserAxisScale * UserEmitterScale;
         }
 
         public float GetElapsedTime()
@@ -849,8 +826,6 @@ namespace VRage.Game
 
             writer.WriteElementString("Loop", m_loop.ToString(CultureInfo.InvariantCulture).ToLower());
 
-            writer.WriteElementString("LowRes", LowRes.ToString(CultureInfo.InvariantCulture).ToLower());
-
             writer.WriteStartElement("ParticleGenerations");
 
             foreach (IMyParticleGeneration generation in m_generations)
@@ -893,9 +868,13 @@ namespace VRage.Game
             m_length = reader.ReadElementContentAsFloat();
 
             if (reader.Name == "LowRes")
-                LowRes = reader.ReadElementContentAsBoolean();
+            {
+                bool lowres = reader.ReadElementContentAsBoolean();
+            }
             if (reader.Name == "Scale")
-                m_globalScale = reader.ReadElementContentAsFloat();
+            {
+                float globalScale = reader.ReadElementContentAsFloat();
+            }
 
             bool isEmpty = reader.IsEmptyElement;
             reader.ReadStartElement(); //Generations
@@ -999,7 +978,6 @@ namespace VRage.Game
             m_name = builder.Id.SubtypeName;
             m_particleID = builder.ParticleId;
             m_length = builder.Length;
-            LowRes = builder.LowRes;
             m_loop = builder.Loop;
             m_durationMin = builder.DurationMin;
             m_durationMax = builder.DurationMax;

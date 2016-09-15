@@ -24,6 +24,7 @@ using VRage.Game;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents.Clipboard;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {

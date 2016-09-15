@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.AI.Navigation

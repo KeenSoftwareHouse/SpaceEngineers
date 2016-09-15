@@ -29,6 +29,9 @@ using System.Collections.Generic;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Replication;
 using VRage.Network;
+using VRage.Profiler;
+using VRage.Sync;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Entities.Blocks
 {

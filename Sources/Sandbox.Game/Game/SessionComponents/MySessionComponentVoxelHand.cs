@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Physics;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
@@ -17,13 +14,13 @@ using Sandbox.Graphics.GUI;
 using VRage;
 using VRage.Input;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using Sandbox.Game.GameSystems;
 using System.Diagnostics;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Voxels;
 
 namespace Sandbox.Game.SessionComponents
 {
@@ -353,7 +350,7 @@ namespace Sandbox.Game.SessionComponents
                 return;
 
             var position = MySession.Static.IsCameraUserControlledSpectator() ? camera.Position : character.GetHeadMatrix(true).Translation;
-            var targetPosition = position + (Vector3D)camera.ForwardVector * Math.Max(2 * CurrentShape.GetBoundaries().Transform(camera.ViewMatrix).HalfExtents.Z, m_position);
+            var targetPosition = position + (Vector3D)camera.ForwardVector * Math.Max(2 * CurrentShape.GetBoundaries().TransformFast(camera.ViewMatrix).HalfExtents.Z, m_position);
 
             var vmap = m_currentVoxelMap;
 
@@ -1510,7 +1507,7 @@ namespace Sandbox.Game.SessionComponents
         {
             m_painting = true;
 
-            var max =  m_shape.Boundaries.Transform(m_transform).Center;
+            var max =  m_shape.Boundaries.TransformFast(m_transform).Center;
 
             switch (m_axis.SelectedKey)
             {

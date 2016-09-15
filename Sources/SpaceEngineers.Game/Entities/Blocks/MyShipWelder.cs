@@ -23,6 +23,7 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;

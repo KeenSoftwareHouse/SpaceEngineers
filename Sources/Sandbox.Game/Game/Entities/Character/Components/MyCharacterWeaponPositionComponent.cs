@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Utils;
 using VRageRender;
 

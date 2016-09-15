@@ -3,24 +3,18 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using VRage;
-using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.Game.Entities.EnvironmentItems;
 using VRage.ModAPI;
 using VRage.Game.Entity;
 using Sandbox.Game.AI;
 using VRage.Game.ModAPI;
-using VRage.Utils;
-using System.Diagnostics;
 using Sandbox.Game.Entities.Planet;
 using Sandbox.Game.WorldEnvironment;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -80,14 +74,14 @@ namespace Sandbox.Engine.Voxels
 
         public override BoundingBoxD GetWorldBoundaries()
         {
-            return Boundaries.Transform(Transformation);
+            return Boundaries.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
         {
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
-            return Boundaries.Transform(newTransformation);
+            return Boundaries.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -131,7 +125,7 @@ namespace Sandbox.Engine.Voxels
         {
             //return new BoundingBoxD(Center - Radius, Center + Radius);
             var bbox = new BoundingBoxD(Center - Radius, Center + Radius);
-            return bbox.Transform(Transformation);
+            return bbox.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
@@ -197,14 +191,14 @@ namespace Sandbox.Engine.Voxels
 
         public override BoundingBoxD GetWorldBoundaries()
         {
-            return m_boundaries.Transform(Transformation);
+            return m_boundaries.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
         {
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
-            return m_boundaries.Transform(newTransformation);
+            return m_boundaries.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -252,14 +246,14 @@ namespace Sandbox.Engine.Voxels
 
         public override BoundingBoxD GetWorldBoundaries()
         {
-            return Boundaries.Transform(Transformation);
+            return Boundaries.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
         {
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
-            return Boundaries.Transform(newTransformation);
+            return Boundaries.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -303,7 +297,7 @@ namespace Sandbox.Engine.Voxels
         public override BoundingBoxD GetWorldBoundaries()
         {
             var bbox = new BoundingBoxD(A - Radius, B + Radius);
-            return bbox.Transform(Transformation);
+            return bbox.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
@@ -311,7 +305,7 @@ namespace Sandbox.Engine.Voxels
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
             var bbox = new BoundingBoxD(A - Radius, B + Radius);
-            return bbox.Transform(newTransformation);
+            return bbox.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)

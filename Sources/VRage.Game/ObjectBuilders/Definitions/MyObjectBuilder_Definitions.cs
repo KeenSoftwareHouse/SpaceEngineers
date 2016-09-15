@@ -11,7 +11,7 @@ namespace VRage.Game
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_Definitions : MyObjectBuilder_Base
     {
-        [XmlElement("Definition", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_DefinitionBase>))]
+        [XmlElement(MyDefinitionXmlSerializer.DEFINITION_ELEMENT_NAME, Type = typeof(MyDefinitionXmlSerializer))]
         public MyObjectBuilder_DefinitionBase[] Definitions;
 
         [XmlArrayItem("GridCreator")]

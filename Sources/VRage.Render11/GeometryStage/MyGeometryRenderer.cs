@@ -3,25 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
-using VRageMath;
+
+using VRage.Collections;
+using VRage.Profiler;
+using VRage.Render11.LightingStage.Shadows;using VRageMath;
 using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
     struct MyCullingSmallObjects
     {
-        internal Vector3 ProjectionDir;
         internal float ProjectionFactor;
         internal float SkipThreshold;
     }
 
     class MyGeometryRenderer
     {
-        internal const string DEFAULT_OPAQUE_PASS = "gbuffer";
-        internal const string DEFAULT_DEPTH_PASS = "depth";
-        internal const string DEFAULT_FORWARD_PASS = "forward";
-        internal const string DEFAULT_HIGHLIGHT_PASS = "highlight";
-
         private readonly MyDynamicAABBTreeD m_renderablesDBVH;
         private readonly MyShadows m_shadowHandler;
 

@@ -8,6 +8,7 @@ using VRageMath;
 using VRage;
 using Sandbox.Game.Entities.Cube;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {

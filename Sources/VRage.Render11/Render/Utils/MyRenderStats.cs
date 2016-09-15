@@ -7,9 +7,11 @@ using System.Linq;
 using System.Text;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Render11.Common;
 using VRage.Stats;
 using VRageMath;
-using VRageRender.Resources;
+using VRage.Render11.Resources;
+using VRageRender.Utils;
 
 namespace VRageRender
 {
@@ -24,7 +26,7 @@ namespace VRageRender
 
         static StringBuilder m_tmpDrawText = new StringBuilder(4096);
 
-        public static void Draw(Dictionary<VRageRender.MyRenderStats.ColumnEnum, List<MyStats>> m_stats, float scale, Color color)
+        public static void Draw(Dictionary<MyRenderStats.ColumnEnum, List<MyStats>> m_stats, float scale, Color color)
         {
             foreach (var pair in m_stats)
             {
@@ -36,9 +38,9 @@ namespace VRageRender
                         m_tmpDrawText.AppendLine(); // Newline between each group
                     }
 
-                    Vector2 pos = new Vector2(0, 0);
+                    Vector2 pos = new Vector2(10, 10);
 
-                    if (pair.Key == VRageRender.MyRenderStats.ColumnEnum.Right)
+                    if (pair.Key == MyRenderStats.ColumnEnum.Right)
                     {
                         Vector2 size = MyRender11.GetDebugFont().MeasureString(m_tmpDrawText, scale);
                         if (m_rightColumnWidth < size.X)
@@ -79,7 +81,7 @@ namespace VRageRender
 
 
                     m_tmpDrawText.Append("Textures:\n");
-                    MyTextureUsageReport report = MyTextures.GetReport();
+                    MyFileTextureUsageReport report = MyManagers.FileTextures.GetReport();
 
                     m_tmpDrawText.AppendFormat("   Total: {0}\n", report.TexturesTotal);
                     m_tmpDrawText.AppendFormat("   Loaded: {0}\n", report.TexturesLoaded);
