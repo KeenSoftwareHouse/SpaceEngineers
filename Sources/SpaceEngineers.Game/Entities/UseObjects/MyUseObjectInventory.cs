@@ -14,6 +14,7 @@ using VRageMath;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRageRender.Import;
+using VRage.Game.ModAPI;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {

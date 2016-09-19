@@ -207,6 +207,7 @@
     <Compile Include="Definitions\MyGasProperties.cs" />
     <Compile Include="Definitions\MyGhostCharacterDefinition.cs" />
     <Compile Include="Definitions\MyGpsCollectionDefinition.cs" />
+    <Compile Include="Definitions\MyGravityGeneratorBaseDefinition.cs" />
     <Compile Include="Definitions\MyHandDrillDefinition.cs" />
     <Compile Include="Definitions\MyLootBagDefinition.cs" />
     <Compile Include="Definitions\MyMechanicalConnectionBlockBaseDefinition.cs" />
@@ -1144,6 +1145,7 @@
     <Compile Include="Game\World\Triggers\MyTriggerSomeoneWon.cs" />
     <Compile Include="Game\World\Triggers\MyTriggerTimeLimit.cs" />
     <Compile Include="ModAPI\Blocks\MyTextPanel_ModAPI.cs" />
+    <Compile Include="ModAPI\MyGuiModHelpers.cs" />
     <Compile Include="ModAPI\MyPhysics_ModAPI.cs" />
     <Compile Include="ModAPI\MyPistonBase_ModAPI.cs" />
     <Compile Include="ModAPI\MyMotorBase_ModAPI.cs" />

@@ -18,6 +18,11 @@ namespace Sandbox.Game.Gui
     {
         readonly MyGuiControlTextbox m_chatTextbox;
 
+        public MyGuiControlTextbox ChatTextbox
+        {
+            get { return m_chatTextbox; }
+        }
+
         public static MyGuiScreenChat Static = null;
 
         private const int MESSAGE_HISTORY_SIZE = 20;

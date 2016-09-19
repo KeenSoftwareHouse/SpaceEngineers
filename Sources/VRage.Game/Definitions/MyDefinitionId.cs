@@ -17,6 +17,67 @@ namespace VRage.Game
     /// </summary>
     public struct MyDefinitionId : IEquatable<MyDefinitionId>
     {
+        /// <summary>
+        /// Creates a new definition ID from a given content.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public static MyDefinitionId FromContent(MyObjectBuilder_Base content)
+        {
+            return new MyDefinitionId(content.TypeId, content.SubtypeId);
+        }
+
+        /// <summary>
+        /// Attempts to create a definition ID from a definition string, which has the form (using ores as an example) "MyObjectBuilder_Ore/Iron".
+        /// The first part must represent an existing type. If it does not, an exception will be thrown. The second (the subtype) is not enforced.
+        /// See <see cref="TryParse"/> for a parsing method that does not throw an exception.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static MyDefinitionId Parse(string id)
+        {
+            MyDefinitionId output;
+            if (!TryParse(id, out output))
+                throw new ArgumentException("The provided type does not conform to a definition ID.", "id");
+            return output;
+        }
+
+        /// <summary>
+        /// Attempts to create a definition ID from a definition string, which has the form (using ores as an example) "MyObjectBuilder_Ore/Iron".
+        /// The first part must represent an existing type, while the second (the subtype) is not enforced.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="definitionId"></param>
+        /// <returns></returns>
+        public static bool TryParse(string id, out MyDefinitionId definitionId)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                definitionId = new MyDefinitionId();
+                return false;
+            }
+
+            var slashIndex = id.IndexOf('/');
+            if (slashIndex == -1)
+            {
+                definitionId = new MyDefinitionId();
+                return false;
+            }
+            var typeId = id.Substring(0, slashIndex).Trim();
+            MyObjectBuilderType result;
+            if (MyObjectBuilderType.TryParse(typeId, out result))
+            {
+                var subtypeId = id.Substring(slashIndex + 1).Trim();
+                if (subtypeId == "(null)")
+                    subtypeId = null;
+                definitionId = new MyDefinitionId(result, subtypeId);
+                return true;
+            }
+            definitionId = new MyDefinitionId();
+            return false;
+        }
+
+
         #region Comparer
         public class DefinitionIdComparerType : IEqualityComparer<MyDefinitionId>
         {

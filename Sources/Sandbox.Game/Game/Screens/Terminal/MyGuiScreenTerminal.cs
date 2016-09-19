@@ -20,21 +20,10 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
-    public enum MyTerminalPageEnum
-    {
-        None =-2,
-        Properties = -1,
-        Inventory = 0,
-        ControlPanel = 1,
-        Production = 2,
-        Info = 3,
-        Factions = 4,
-        Gps = 6,
-    }
-
     public partial class MyGuiScreenTerminal : MyGuiScreenBase
     {
         public static event ScreenHandler ClosedCallback

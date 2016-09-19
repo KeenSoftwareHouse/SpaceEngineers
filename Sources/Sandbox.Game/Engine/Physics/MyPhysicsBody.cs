@@ -1094,7 +1094,10 @@ false,
 
             foreach (var constraint in m_constraints)
             {
+                if (IsConstraintValid(constraint) && constraint.InWorld)
                 m_constraintsRemoveBatch.Add(constraint);
+                else
+                    Debug.Fail("Trying to remove invalid constraint!");
             }
 
             m_world = null;

@@ -60,6 +60,15 @@ namespace Sandbox.Graphics.GUI
             Gui.LoadContent(fonts);
         }
 
+        /// <summary>
+        /// Event triggered on gui control created.
+        /// </summary>
+        public static Action<object> GuiControlCreated;
+
+        /// <summary>
+        /// Event triggered on gui control removed.
+        /// </summary>
+        public static Action<object> GuiControlRemoved;
 
 #if XB1
         //TODO for XB1
@@ -224,13 +233,17 @@ namespace Sandbox.Graphics.GUI
         public static void AddScreen(MyGuiScreenBase screen)
         {
             Gui.AddScreen(screen);
-            if (MyAPIGateway.GuiControlCreated != null)
-                MyAPIGateway.GuiControlCreated(screen);
+            if (GuiControlCreated != null)
+                GuiControlCreated(screen);
+            if ( MyAPIGateway.GuiControlCreated != null )
+                MyAPIGateway.GuiControlCreated( screen );
         }
 
         public static void RemoveScreen(MyGuiScreenBase screen)
         {
             Gui.RemoveScreen(screen);
+            if ( GuiControlRemoved != null )
+                GuiControlRemoved( screen );
         }
 
         //  Sends input (keyboard/mouse) to screen which has focus (top-most)

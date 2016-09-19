@@ -16,10 +16,10 @@ namespace Sandbox.ModAPI
     /// </summary>
     public static class MyAPIGateway
     {
-
         /// <summary>
         /// Event triggered on gui control created.
         /// </summary>
+        [Obsolete( "Use IMyGui.GuiControlCreated" )]
         public static Action<object> GuiControlCreated;
 
         /// <summary>
@@ -92,6 +92,11 @@ namespace Sandbox.ModAPI
         /// IMyPhysics contains physics related things (CastRay, etc.)
         /// </summary>
         public static IMyPhysics Physics;
+
+        /// <summary>
+        /// IMyGui exposes some useful values from the GUI systems
+        /// </summary>
+        public static IMyGui Gui;
 
         public static IMyPrefabManager PrefabManager;
 

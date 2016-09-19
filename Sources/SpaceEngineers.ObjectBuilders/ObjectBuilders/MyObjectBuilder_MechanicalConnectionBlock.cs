@@ -7,6 +7,7 @@ using System.Xml.Serialization;
 using ProtoBuf;
 using VRage;
 using VRage.Game;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 
 namespace Sandbox.Common.ObjectBuilders
@@ -30,5 +31,11 @@ namespace Sandbox.Common.ObjectBuilders
 
         [ProtoMember]
         public bool IsWelded = false;
+
+        public override void Remap(IMyRemapHelper remapHelper)
+        {
+            base.Remap(remapHelper);
+            if (TopBlockId.HasValue && TopBlockId != 0) TopBlockId = remapHelper.RemapEntityId(TopBlockId.Value);
+    }
     }
 }

@@ -375,7 +375,7 @@ namespace Sandbox.Game.Entities.Blocks
                 if (m_textBox != null)
                 {
                     m_textBox.CloseScreen();
-                    m_textBox = null;
+                    //m_textBox = null;
                 }
                 MyScreenManager.CloseScreen(typeof(MyGuiScreenTerminal));
             }
@@ -820,6 +820,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void OnClosedTextBox(ResultEnum result)
         {
+            if (m_textBox == null)
+                return;
             if (m_textBox.Description.Text.Length > MAX_NUMBER_CHARACTERS)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(

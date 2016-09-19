@@ -964,7 +964,7 @@ namespace Sandbox.Game.GameSystems
             {
                 foreach (var group in m_connectedGroups)
                 {
-                    if(group.DataByFuelType.Count > 0)
+                    if (group.DataByFuelType.Count > 0)
                         TurnOffThrusterFlame(group.DataByFuelType);
                 }
                 if (m_dataByFuelType.Count > 0)
@@ -1090,14 +1090,6 @@ namespace Sandbox.Game.GameSystems
 
         protected virtual void UpdateThrusts(bool networkUpdate, bool applyDampeners)
         {
-            //if (direction != Vector3.Zero)
-            //{
-            //}
-            //if (Container.Entity.Physics.IsWelded)
-            //    direction = Vector3.TransformNormal(ControlThrust, m_grid.GetPhysicsBody().WeldInfo.Transform);
-            //if (!Vector3.IsZero(ControlThrust))
-            //    Debugger.Break();
-
             ProfilerShort.Begin("Compute Thrust");
             for (int i = 0; i < m_dataByFuelType.Count; i++)
             {
@@ -1134,8 +1126,8 @@ namespace Sandbox.Game.GameSystems
                 var fuelData = m_dataByFuelType[typeIndex];
 
                 ProfilerShort.Begin("UpdatePowerAndThrustStrength");
-
-                UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, null, true);
+                if ((Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
+                    UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, null, true);
 
                 ProfilerShort.End();
                 Vector3 thrustBeforeApply;
@@ -1157,7 +1149,9 @@ namespace Sandbox.Game.GameSystems
                     FuelTypeData fuelData = group.DataByFuelType[typeIndex];
 
                     ProfilerShort.Begin("UpdatePowerAndThrustStrength");
-                    UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, group, true);
+                    if ((Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
+                        UpdatePowerAndThrustStrength(fuelData.CurrentThrust, fuelType, group, true);
+
                     ProfilerShort.End();
                     Vector3 thrustBeforeApply;
                     var maxThrust = (group.MaxPositiveThrust + group.MaxNegativeThrust);
@@ -1168,6 +1162,7 @@ namespace Sandbox.Game.GameSystems
                     FinalThrust += finalThrust;
                 }
             }
+
             ProfilerShort.End();
 
             m_controlThrustChanged = false;

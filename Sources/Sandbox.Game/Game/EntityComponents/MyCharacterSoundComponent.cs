@@ -675,7 +675,9 @@ namespace Sandbox.Game.Components
             // turn off breathing when helmet is off and there is no oxygen https://app.asana.com/0/64822442925263/33431071589757
             if (m_character.OxygenComponent != null && m_character.Breath != null)
             {
-                if (m_character.Parent is MyCockpit && (m_character.Parent as MyCockpit).BlockDefinition.IsPressurized)
+                if (MySession.Static.Settings.EnableOxygen)
+                {
+                    if (m_character.Parent is MyCockpit && (m_character.Parent as MyCockpit).BlockDefinition.IsPressurized)
                     {
                         if (m_character.OxygenComponent.HelmetEnabled)
                         {
@@ -710,7 +712,12 @@ namespace Sandbox.Game.Components
                         }
                     }
                 }
+                else
+                {
+                    m_character.Breath.CurrentState = MyCharacterBreath.State.Calm;
+                }
             }
+        }
 
 		public void PlayFallSound()
 		{

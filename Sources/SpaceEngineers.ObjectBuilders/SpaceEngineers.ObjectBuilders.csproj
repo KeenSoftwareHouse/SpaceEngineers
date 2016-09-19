@@ -130,6 +130,7 @@
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_ExtendedPistonBaseDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasContainerObject.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GasTankDefinition.cs" />
+    <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorBaseDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GravityGeneratorSphereDefinition.cs" />
     <Compile Include="ObjectBuilders\Definitions\MyObjectBuilder_GyroDefinition.cs" />
@@ -200,6 +201,7 @@
     <Compile Include="ObjectBuilders\MyObjectBuilder_Drill.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_ExtendedPistonBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GasTank.cs" />
+    <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGeneratorBase.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGenerator.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_GravityGeneratorSphere.cs" />
     <Compile Include="ObjectBuilders\MyObjectBuilder_Gyro.cs" />

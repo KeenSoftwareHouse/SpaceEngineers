@@ -41,7 +41,7 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Weapons.Guns.Barrels;
 using VRage;
 using VRage.Game;
-using VRage.Game.ModAPI.Ingame;
+using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
 using VRage.Profiler;
@@ -49,6 +49,8 @@ using VRage.Sync;
 using VRageRender.Import;
 using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
 using IMyEntity = VRage.ModAPI.IMyEntity;
+using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
+
 #if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
 using System.Reflection;
 using VRage.Reflection;
@@ -1097,7 +1099,7 @@ namespace Sandbox.Game.Weapons
             if (targetDistance < m_searchingRange || m_currentPrediction.ManualTargetPosition)
             {
                 //by Gregory RotationAndElevation uses target! maybe shouldn't?
-                bool isAimed = Target != null && RotationAndElevation() && CanShoot(out gunStatus) && IsTargetVisible(Target);
+                bool isAimed = (Target != null || m_currentPrediction.ManualTargetPosition) && RotationAndElevation() && CanShoot(out gunStatus) && IsTargetVisible(Target);
                 UpdateShooting(isAimed && !m_isPotentialTarget);
             }
             else

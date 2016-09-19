@@ -102,17 +102,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationBox(Boundaries, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationBox(Boundaries, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -148,17 +148,17 @@ namespace Sandbox.Engine.Voxels
         }
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationSphere(Center, Radius, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationSphere(Center, Radius, 0, OperationType.Cut);
         }
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -224,17 +224,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -274,17 +274,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -327,17 +327,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
     #endregion
@@ -548,7 +548,7 @@ namespace Sandbox.Engine.Voxels
                 MyShapeSphere sphereShape = new MyShapeSphere();
                 sphereShape.Center = sphere.Center;
                 sphereShape.Radius = (float)(sphere.Radius*1.5);
-                OnVoxelChanged(MyVoxelBase.OperationType.Cut, voxelMap, sphereShape);
+                OnVoxelChanged(OperationType.Cut, voxelMap, sphereShape);
                 ProfilerShort.End();
             }
 
@@ -731,7 +731,7 @@ namespace Sandbox.Engine.Voxels
             shape.Transformation = oldTranmsform;
 
             if (removedSum > 0)
-                OnVoxelChanged(MyVoxelBase.OperationType.Cut, voxelMap, shape);
+                OnVoxelChanged(OperationType.Cut, voxelMap, shape);
 
             ProfilerShort.End();
         }
@@ -808,7 +808,7 @@ namespace Sandbox.Engine.Voxels
             }
 
             if (retValue > 0)
-                OnVoxelChanged(MyVoxelBase.OperationType.Fill, voxelMap, shape);
+                OnVoxelChanged(OperationType.Fill, voxelMap, shape);
 
             return retValue;
         }
@@ -899,7 +899,7 @@ namespace Sandbox.Engine.Voxels
             }
 
             if (changedVolumeAmount > 0)
-                OnVoxelChanged(MyVoxelBase.OperationType.Cut, voxelMap, shape);
+                OnVoxelChanged(OperationType.Cut, voxelMap, shape);
 
             return changedVolumeAmount;
         }
@@ -1026,7 +1026,7 @@ namespace Sandbox.Engine.Voxels
             cellMaxCorner = new Vector3I(Math.Min(maxCorner.X, cellMinCorner.X + CELL_SIZE), Math.Min(maxCorner.Y, cellMinCorner.Y + CELL_SIZE), Math.Min(maxCorner.Z, cellMinCorner.Z + CELL_SIZE));
         }
 
-        private static void OnVoxelChanged(MyVoxelBase.OperationType type, MyVoxelBase voxelMap, MyShape shape)
+        private static void OnVoxelChanged(OperationType type, MyVoxelBase voxelMap, MyShape shape)
         {
             if (Sync.IsServer)
             {
@@ -1047,7 +1047,7 @@ namespace Sandbox.Engine.Voxels
                             grid.Physics.Shape.RecalculateConnectionsToWorld(grid.GetBlocks());
                         }
 
-                        if (type == MyVoxelBase.OperationType.Cut)
+                        if (type == OperationType.Cut)
                             grid.TestDynamic = true;
                     }
                 }

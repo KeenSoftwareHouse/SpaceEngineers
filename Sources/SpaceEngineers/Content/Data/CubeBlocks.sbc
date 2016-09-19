@@ -16685,6 +16685,10 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
+      <MinFieldSize x="1" y="1" z="1"/>
+      <MaxFieldSize x="150" y="150" z="150"/>
+      <MinGravityAcceleration>-9.81</MinGravityAcceleration>
+      <MaxGravityAcceleration>9.81</MaxGravityAcceleration>
       <RequiredPowerInput>0.56713</RequiredPowerInput>
       <DamageEffectId>211</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -16728,6 +16732,8 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MinRadius>10</MinRadius>
       <MaxRadius>400</MaxRadius>
+      <MinGravityAcceleration>-9.81</MinGravityAcceleration>
+      <MaxGravityAcceleration>9.81</MaxGravityAcceleration>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BasePowerInput>0.4</BasePowerInput>
       <ConsumptionPower>1</ConsumptionPower>

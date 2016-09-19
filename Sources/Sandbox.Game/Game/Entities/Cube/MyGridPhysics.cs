@@ -521,6 +521,8 @@ namespace Sandbox.Game.Entities.Cube
             var otherEntity = pt.CollidingBody.GetEntity(0);
             if (otherEntity is Sandbox.Game.WorldEnvironment.MyEnvironmentSector) //jn:HACK //ab:HACK
                 return false;
+            if (otherEntity.GetTopMostParent() == Entity)
+                return false;
             pt.ContactPosition = ClusterToWorld(pt.ContactPoint.Position);
 
             var destroyed = PerformDeformationOnGroup((MyEntity)Entity, (MyEntity)otherEntity, ref pt, separatingVelocity);
@@ -767,10 +769,10 @@ namespace Sandbox.Game.Entities.Cube
 
             int blocksDeformed = 0;
             offsetThreshold /= m_grid.GridSizeEnum == MyCubeSize.Large ? 1 : 5;
-            float roundSize = m_grid.GridSize / m_grid.Skeleton.BoneDensity;
+            float roundSize = m_grid.GridSize / MyGridSkeleton.BoneDensity;
             Vector3I roundedPos = Vector3I.Round((localPos + new Vector3(m_grid.GridSize / 2)) / roundSize);
             Vector3I gridPos = Vector3I.Round((localPos + new Vector3(m_grid.GridSize / 2)) / m_grid.GridSize);
-            Vector3I gridOffset = roundedPos - gridPos * m_grid.Skeleton.BoneDensity;
+            Vector3I gridOffset = roundedPos - gridPos * MyGridSkeleton.BoneDensity;
 
             float breakOffset = m_grid.GridSize * 0.7f;
             float breakOffsetDestruction = breakOffset;
@@ -875,7 +877,7 @@ namespace Sandbox.Game.Entities.Cube
             if (!destructionDone)
             {
                 //m_debugBones.Clear();
-                var boneDensity = m_grid.Skeleton.BoneDensity;
+                var boneDensity = MyGridSkeleton.BoneDensity;
                 ProfilerShort.Begin("Update deformation");
                 MyOrientedBoundingBox obb = new MyOrientedBoundingBox(
                     gridPos * boneDensity + gridOffset,
@@ -890,8 +892,8 @@ namespace Sandbox.Game.Entities.Cube
                 //Vector3I maxOffset = gridPos * m_grid.Skeleton.BoneDensity + gridOffset + distBones;
                 var minOffset = Vector3I.Floor(aabb.Min);
                 var maxOffset = Vector3I.Ceiling(aabb.Max);
-                minOffset = Vector3I.Max(minOffset, m_grid.Min * m_grid.Skeleton.BoneDensity);
-                maxOffset = Vector3I.Min(maxOffset, m_grid.Max * m_grid.Skeleton.BoneDensity);
+                minOffset = Vector3I.Max(minOffset, m_grid.Min * MyGridSkeleton.BoneDensity);
+                maxOffset = Vector3I.Min(maxOffset, m_grid.Max * MyGridSkeleton.BoneDensity);
 
                 Vector3I minDirtyBone = Vector3I.MaxValue;
                 Vector3I maxDirtyBone = Vector3I.MinValue;
@@ -903,8 +905,8 @@ namespace Sandbox.Game.Entities.Cube
 
                 ProfilerShort.Begin("Deform bones");
                 Vector3 bone;
-                Vector3I baseOffset = gridPos * m_grid.Skeleton.BoneDensity;
-                float boneDensityR = 1.0f / m_grid.Skeleton.BoneDensity;
+                Vector3I baseOffset = gridPos * MyGridSkeleton.BoneDensity;
+                float boneDensityR = 1.0f / MyGridSkeleton.BoneDensity;
                 var halfGridSize = new Vector3(m_grid.GridSize * 0.5f);
 
                 ProfilerShort.CustomValue("Bone Count", m_tmpBoneList.Count, 0);

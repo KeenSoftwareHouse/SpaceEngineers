@@ -31,8 +31,9 @@ namespace Sandbox.Game.Entities
         private static List<Vector3I> m_tempAffectedCubes = new List<Vector3I>();
         /// <summary>
         /// Density multiplier
+        // Many algorithm relies on this
         /// </summary>
-        public readonly int BoneDensity;
+        public const int BoneDensity = 2;
 
         public readonly Vector3I[] BoneOffsets;
         static MyGridSkeleton()
@@ -47,8 +48,6 @@ namespace Sandbox.Game.Entities
 
         public MyGridSkeleton()
         {
-            // Many algorithm relies on this
-            BoneDensity = 2;
             BoneOffsets = new Vector3I[BoneDensity * BoneDensity * BoneDensity];
             int idx = 0;
             Vector3I offset = Vector3I.Zero;

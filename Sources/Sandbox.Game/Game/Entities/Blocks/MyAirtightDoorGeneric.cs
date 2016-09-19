@@ -193,9 +193,19 @@ namespace Sandbox.Game.Entities
 
         #region update
 
+        bool m_updated = false;
         bool m_stateChange = false;
         public override void UpdateBeforeSimulation()
         {
+            if (!m_updated)
+            {
+                MatrixD tmp = PositionComp.WorldMatrix;
+                foreach (var subpart in m_subparts)
+                {
+                    subpart.PositionComp.UpdateWorldMatrix(ref tmp);
+                }
+                m_updated = true;
+            }
             if (m_stateChange && ((m_open && 1f - m_currOpening < EPSILON) || (!m_open && m_currOpening < EPSILON)))
             {
                 //END OF MOVEMENT

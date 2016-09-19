@@ -13,6 +13,7 @@ using VRageMath;
 using Sandbox.Game.Entities.Blocks;
 using VRage.Game;
 using VRageRender.Import;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Entities.Cube
 {   

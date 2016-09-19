@@ -647,7 +647,7 @@ namespace VRage.Game
             flags |= SleepState ? GPUEmitterFlags.SleepState : 0;
             flags |= Light ? GPUEmitterFlags.Light : 0;
             flags |= VolumetricLight ? GPUEmitterFlags.VolumetricLight : 0;
-            flags |= m_effect.IsEmittingStopped || MyParticlesManager.Paused ? GPUEmitterFlags.FreezeSimulate : 0;
+            flags |= m_effect.IsSimulationPaused || MyParticlesManager.Paused ? GPUEmitterFlags.FreezeSimulate : 0;
             flags |= MyParticlesManager.Paused ? GPUEmitterFlags.FreezeEmit : 0;
 
             emitter.Data.Flags = flags;

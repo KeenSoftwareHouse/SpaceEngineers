@@ -11,9 +11,9 @@ namespace Sandbox.Game.Entities.Blocks
 {
     partial class MyPistonBase : Sandbox.ModAPI.IMyPistonBase
     {
-        IMyCubeGrid ModAPI.IMyPistonBase.TopGrid { get { return m_topGrid; } }
+        IMyCubeGrid ModAPI.IMyPistonBase.TopGrid { get { return TopGrid; } }
 
-        IMyCubeBlock ModAPI.IMyPistonBase.Top { get { return m_topBlock; } }
+        IMyCubeBlock ModAPI.IMyPistonBase.Top { get { return TopBlock; } }
 
         float IMyPistonBase.Velocity
         {
@@ -45,9 +45,9 @@ namespace Sandbox.Game.Entities.Blocks
             get { return m_connectionState.Value.TopBlockId == 0; }
         }
 
-        Action<MyPistonBase> GetDelegate(Action<ModAPI.IMyPistonBase> value)
+        Action<MyMechanicalConnectionBlockBase> GetDelegate(Action<ModAPI.IMyPistonBase> value)
         {
-            return (Action<MyPistonBase>)Delegate.CreateDelegate(typeof(Action<MyPistonBase>), value.Target, value.Method);
+            return (Action<MyMechanicalConnectionBlockBase>)Delegate.CreateDelegate(typeof(Action<MyMechanicalConnectionBlockBase>), value.Target, value.Method);
         }
 
         event Action<bool> ModAPI.IMyPistonBase.LimitReached

@@ -45,6 +45,7 @@ using VRage.Game.ModAPI.Interfaces;
 using VRage.Serialization;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Replication;
+using VRage.Game.ModAPI;
 using VRage.Game.Utils;
 using VRage.Sync;
 using Sandbox.Engine.Physics;

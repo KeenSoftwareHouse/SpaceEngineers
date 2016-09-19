@@ -11,8 +11,6 @@ namespace Sandbox.Game.Entities.Cube
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorRotor))]
     public class MyMotorRotor : MyAttachableTopBlockBase, IMyMotorRotor
     {
-        public MyMechanicalConnectionBlockBase Stator { get { return m_parentBlock; } }
-
         #region ModAPI implementation
         ModAPI.IMyMotorBase ModAPI.IMyMotorRotor.Stator
         {

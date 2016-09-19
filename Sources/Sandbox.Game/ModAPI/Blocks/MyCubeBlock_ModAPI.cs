@@ -224,6 +224,14 @@ namespace Sandbox.Game.Entities
             SetDamageEffect(start);
         }
 
+        IMySlimBlock IMyCubeBlock.SlimBlock
+        {
+            get
+            {
+                return SlimBlock;
+            }
+        }
+
         uint ModAPI.Ingame.IMyUpgradableBlock.UpgradeCount
         {
             get

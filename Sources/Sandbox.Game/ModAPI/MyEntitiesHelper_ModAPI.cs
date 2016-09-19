@@ -175,10 +175,30 @@ namespace Sandbox.ModAPI
             return result;
         }
 
+        List<IMyEntity> IMyEntities.GetTopMostEntitiesInSphere(ref VRageMath.BoundingSphereD boundingSphere)
+        {
+            var lst = MyEntities.GetTopMostEntitiesInSphere( ref boundingSphere );
+            var result = new List<IMyEntity>(lst.Count);
+            foreach (var entity in lst)
+                result.Add(entity);
+            lst.Clear();
+            return result;
+        }
+
         List<IMyEntity> IMyEntities.GetElementsInBox(ref VRageMath.BoundingBoxD boundingBox)
         {
             m_entityList.Clear();
             MyEntities.GetElementsInBox(ref boundingBox, m_entityList);
+            var result = new List<IMyEntity>(m_entityList.Count);
+            foreach (var entity in m_entityList)
+                result.Add(entity);
+            return result;
+        }
+
+        List<IMyEntity> IMyEntities.GetTopMostEntitiesInBox(ref VRageMath.BoundingBoxD boundingBox)
+        {
+            m_entityList.Clear();
+            MyEntities.GetTopMostEntitiesInBox(ref boundingBox, m_entityList);
             var result = new List<IMyEntity>(m_entityList.Count);
             foreach (var entity in m_entityList)
                 result.Add(entity);

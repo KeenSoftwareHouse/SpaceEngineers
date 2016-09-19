@@ -36,6 +36,7 @@ namespace Sandbox.ModAPI
             MyAPIGateway.PrefabManager = MyPrefabManager.Static;
             MyAPIGateway.Input = (VRage.ModAPI.IMyInput)VRage.Input.MyInput.Static;
             MyAPIGateway.TerminalControls = MyTerminalControls.Static;
+            MyAPIGateway.Gui = new MyGuiModHelpers();
         }
 
         [StaticEventOwner]

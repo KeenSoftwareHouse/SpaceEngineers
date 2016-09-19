@@ -26,11 +26,5 @@ namespace Sandbox.Common.ObjectBuilders
         public bool Reverse;
 
         public float CurrentPosition;
-
-        public override void Remap(IMyRemapHelper remapHelper)
-        {
-            base.Remap(remapHelper);
-            if (TopBlockId.HasValue && TopBlockId != 0) TopBlockId = remapHelper.RemapEntityId(TopBlockId.Value);
-        }
     }
 }

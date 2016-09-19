@@ -75,7 +75,10 @@ namespace Sandbox.Game.Entities
         /// </summary>
         public bool BreakLink(GridLinkTypeEnum type, long linkId, MyCubeGrid parent, MyCubeGrid child = null)
         {
-            PhysicalDynamic.BreakLink(linkId, parent, child);
+            if (type == GridLinkTypeEnum.Physical)
+            {
+                PhysicalDynamic.BreakLink(linkId, parent, child);
+            }
             return GetGroups(type).BreakLink(linkId, parent, child);
         }
 

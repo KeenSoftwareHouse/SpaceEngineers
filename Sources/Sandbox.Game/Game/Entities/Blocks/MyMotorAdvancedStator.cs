@@ -43,9 +43,9 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (ret &&updateGroup)
                 {
-                    if (m_topBlock is MyMotorAdvancedRotor)
+                    if (TopBlock is MyMotorAdvancedRotor)
                     {
-                        m_conveyorEndpoint.Attach((m_topBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
+                        m_conveyorEndpoint.Attach((TopBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
                     }
                 }
 
@@ -53,34 +53,22 @@ namespace Sandbox.Game.Entities.Cube
             }
             return false;
         }
-        public override bool Detach(bool updateGroup = true)
+        protected override void Detach(bool updateGroup = true)
         {
-            if (m_topBlock != null && updateGroup)
+            if (TopBlock != null && updateGroup)
             {
-                var topBlock = m_topBlock;
+                var topBlock = TopBlock;
                 if (topBlock is MyMotorAdvancedRotor)
                 {
                     m_conveyorEndpoint.Detach((topBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
                 }
             }
-            var ret = base.Detach(updateGroup);
-            return ret;
+            base.Detach(updateGroup);
         }
 
         public MyMotorAdvancedStator()
         {
             m_canBeDetached = true;
-        }
-
-        protected override void CustomUnweld()
-        {
-            base.CustomUnweld();
-
-            MyMotorAdvancedRotor topBlock = m_topBlock as MyMotorAdvancedRotor;
-            if (topBlock != null)
-            {
-                m_conveyorEndpoint.Detach(topBlock.ConveyorEndpoint as MyAttachableConveyorEndpoint);
-            }
         }
     }
 }

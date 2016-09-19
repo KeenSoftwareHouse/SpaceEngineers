@@ -16,6 +16,7 @@ using VRage.Network;
 using Sandbox.Game.World;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities.Character;
+using Sandbox.Game.Multiplayer;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.ModAPI;
@@ -44,13 +45,6 @@ namespace Sandbox.Game.Entities
             public byte Material;
         }
 
-
-        public enum OperationType : byte
-        {
-            Fill,
-            Paint,
-            Cut
-        }
         public int VoxelMapPruningProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
         protected Vector3I m_storageMin = new Vector3I(0, 0, 0);
@@ -277,6 +271,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        #region ModAPI
         VRage.ModAPI.IMyStorage IMyVoxelBase.Storage
         {
             get { return Storage; }
@@ -286,6 +281,69 @@ namespace Sandbox.Game.Entities
         {
             get { return StorageName; }
         }
+
+        IMyVoxelBase IMyVoxelBase.RootVoxel
+        {
+            get { return RootVoxel; }
+        }
+
+        int IMyVoxelBase.CountCornersInside(MatrixD aabbWorldTransform, BoundingBoxD aabb)
+        {
+            return CountCornersInside(ref aabbWorldTransform, ref aabb);
+        }
+
+        bool IMyVoxelBase.AreAllAabbCornersInside(MatrixD aabbWorldTransform, BoundingBoxD aabb)
+        {
+            return AreAllAabbCornersInside(ref aabbWorldTransform, aabb);
+        }
+
+        bool IMyVoxelBase.IsAnyAabbCornerInside(MatrixD aabbWorldTransform, BoundingBoxD aabb)
+        {
+            return IsAnyAabbCornerInside(ref aabbWorldTransform, aabb);
+        }
+
+        void IMyVoxelBase.CreateMeteorCrater(Vector3D center, float radius, Vector3 normal, byte materialIdx)
+        {
+            Debug.Assert(Sync.IsServer);
+            var material = MyDefinitionManager.Static.GetVoxelMaterialDefinition(materialIdx);
+
+            if (Sync.IsServer)
+            {
+                CreateVoxelMeteorCrater(center, radius, normal, material);
+                MyVoxelGenerator.MakeCrater(this, new BoundingSphere(center, radius), normal, material);
+            }
+        }
+
+        void IMyVoxelBase.VoxelCutoutSphere(Vector3D center, float radius, bool createDebris, bool damage)
+        {
+            RequestVoxelCutoutSphere(center, radius, createDebris, damage);
+        }
+
+        void IMyVoxelBase.VoxelOperationCapsule(Vector3D A, Vector3D B, float radius, MatrixD Transformation, byte material, OperationType operation)
+        {
+            RequestVoxelOperationCapsule(A, B, radius, Transformation, material, operation);
+        }
+
+        void IMyVoxelBase.VoxelOperationBox(BoundingBoxD box, MatrixD Transformation, byte material, OperationType operation)
+        {
+            RequestVoxelOperationBox(box, Transformation, material, operation);
+        }
+
+        void IMyVoxelBase.VoxelOperationElipsoid(Vector3 radius, MatrixD Transformation, byte material, OperationType operation)
+        {
+            RequestVoxelOperationElipsoid(radius, Transformation, material, operation);
+        }
+
+        void IMyVoxelBase.VoxelOperationRamp(BoundingBoxD box, Vector3D rampNormal, double rampNormalW, MatrixD Transformation, byte material, OperationType operation)
+        {
+            RequestVoxelOperationRamp(box, rampNormal, rampNormalW, Transformation, material, operation);
+        }
+
+        void IMyVoxelBase.VoxelOperationSphere(Vector3D center, float radius, byte material, OperationType operation)
+        {
+            RequestVoxelOperationSphere(center, radius, material, operation);
+        }
+        #endregion
 
         public override MyObjectBuilder_EntityBase GetObjectBuilder(bool copy = false)
         {
@@ -714,11 +772,11 @@ namespace Sandbox.Game.Entities
         public void RequestVoxelCutoutSphere(Vector3D center, float radius, bool createDebris, bool damage)
         {
             BeforeContentChanged = true;
-            MyMultiplayer.RaiseEvent(RootVoxel, x => x.VoxelCutoutSphere_Implemenentation, center, radius, createDebris, damage);
+            MyMultiplayer.RaiseEvent(RootVoxel, x => x.VoxelCutoutSphere_Implementation, center, radius, createDebris, damage);
         }
 
         [Event, Reliable, Broadcast, RefreshReplicable]
-        private void VoxelCutoutSphere_Implemenentation(Vector3D center, float radius, bool createDebris, bool damage = false)
+        private void VoxelCutoutSphere_Implementation(Vector3D center, float radius, bool createDebris, bool damage = false)
         {
             MyExplosion.CutOutVoxelMap(radius, center, this, createDebris && MySession.Static.Ready, damage);
         }
@@ -1084,5 +1142,4 @@ namespace Sandbox.Game.Entities
             return Storage.Intersect(ref box, lazy);
         }
     }
-
 }

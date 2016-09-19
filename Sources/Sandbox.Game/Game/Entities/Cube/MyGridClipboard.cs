@@ -48,6 +48,7 @@ namespace Sandbox.Game.Entities.Cube
         private List<MyObjectBuilder_CubeGrid> m_copiedGrids = new List<MyObjectBuilder_CubeGrid>();
         protected List<Vector3> m_copiedGridOffsets = new List<Vector3>();
         private List<MyCubeGrid> m_previewGrids = new List<MyCubeGrid>();
+        private List<bool> m_isStaticStorage = new List<bool>();
 
         private MyComponentList m_buildComponents = new MyComponentList();
 
@@ -696,14 +697,21 @@ namespace Sandbox.Game.Entities.Cube
 
                 //if (anyGridInGround && !smallInMedieval)
                 //    return false;
-
+                m_isStaticStorage.Clear();
                 foreach (var gridOb in m_copiedGrids)
                 {
+                    m_isStaticStorage.Add(gridOb.IsStatic);
                     gridOb.IsStatic = smallInMedieval || anyGridInGround || (MySession.Static.EnableConvertToStation && gridOb.IsStatic);
+                    
                 }
 
-
                 MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.TryPasteGrid_Implementation, m_copiedGrids, missingDefinitions, inventoryOwnerId, m_objectVelocity, multiBlock, isAdmin);
+
+                int idx = 0;
+                foreach (var gridOb in m_copiedGrids)
+                {
+                    gridOb.IsStatic = m_isStaticStorage[idx++];
+                }
             }
 
             if (deactivate)

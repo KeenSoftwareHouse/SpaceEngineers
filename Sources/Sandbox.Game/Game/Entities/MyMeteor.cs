@@ -37,7 +37,7 @@ using VRage.Profiler;
 namespace Sandbox.Game.Entities
 {
     [MyEntityType(typeof(MyObjectBuilder_Meteor))]
-    class MyMeteor : MyEntity, IMyDestroyableObject, IMyDecalProxy, IMyMeteor, IMyEventProxy
+    public class MyMeteor : MyEntity, IMyDestroyableObject, IMyDecalProxy, IMyMeteor, IMyEventProxy
     {
         private static readonly int MAX_TRAJECTORY_LENGTH = 10000;
         private static readonly int SPEED = 90;

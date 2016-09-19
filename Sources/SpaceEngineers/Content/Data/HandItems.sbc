@@ -1043,7 +1043,7 @@
       <ToolSounds />
     </HandItem>
     <HandItem xsi:type="MyObjectBuilder_HandItemDefinition">
-      <Id Type="MyObjectBuilder_AngleGrinder" Subtype="" />
+      <Id Type="MyObjectBuilder_AngleGrinder" Subtype="AngleGrinder" />
       <LeftHandOrientation>
         <X>-0.3098157</X>
         <Y>-0.591285348</Y>

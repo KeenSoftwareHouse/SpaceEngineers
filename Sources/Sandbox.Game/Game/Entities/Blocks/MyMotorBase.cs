@@ -42,8 +42,6 @@ namespace Sandbox.Game.Entities.Cube
 #else // !XB1
         protected readonly Sync<float> m_dummyDisplacement;
 #endif // !XB1
-        protected event Action<MyMotorBase> AttachedEntityChanged;
-
 
         public Vector3 DummyPosition
         {
@@ -70,9 +68,9 @@ namespace Sandbox.Game.Entities.Cube
             set { m_dummyDisplacement.Value = value - ModelDummyDisplacement; }
         }
 
-        public MyCubeGrid RotorGrid { get { return m_topGrid; } }
+        public MyCubeGrid RotorGrid { get { return TopGrid; } }
 
-        public MyCubeBlock Rotor { get { return m_topBlock; } }
+        public MyCubeBlock Rotor { get { return TopBlock; } }
 
         public float RequiredPowerInput { get { return MotorDefinition.RequiredPowerInput; } }
 
@@ -83,7 +81,7 @@ namespace Sandbox.Game.Entities.Cube
         public Vector3 RotorAngularVelocity
         {
             // TODO: Imho it would be better to read velocity from constraint
-            get { return CubeGrid.Physics.RigidBody.AngularVelocity - m_topGrid.Physics.RigidBody.AngularVelocity; }
+            get { return CubeGrid.Physics.RigidBody.AngularVelocity - TopGrid.Physics.RigidBody.AngularVelocity; }
         }
 
         public float MaxRotorAngularVelocity
@@ -162,68 +160,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override void OnBuildSuccess(long builtBy)
-        {
-            Debug.Assert(m_constraint == null);
-
-            if (Sync.IsServer)
-            {
-                CreateTopGrid(builtBy);
-            }
-
-            NeedsUpdate &= ~MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-            base.OnBuildSuccess(builtBy);
-        }
-
-        public void RecreateRotor(long? builderId = null)
-        {
-            if (builderId.HasValue)
-            {
-                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateRotor, builderId.Value);
-            }
-            else
-            {
-                MyMultiplayer.RaiseEvent(this, x => x.DoRecreateRotor, MySession.Static.LocalPlayerId);
-            }
-        }
-
-        [Event, Reliable, Server]
-        private void DoRecreateRotor(long builderId)
-        {
-            if (m_topBlock != null) return;
-
-            CreateTopGrid(builderId);
-        }
-
         protected override MatrixD GetTopGridMatrix()
         {
             return MatrixD.CreateWorld(Vector3D.Transform(DummyPosition, CubeGrid.WorldMatrix), WorldMatrix.Forward, WorldMatrix.Up);
-        }
-
-        protected override bool CanPlaceRotor(MyAttachableTopBlockBase rotorBlock, long builtBy)
-        {
-            return true;
-        }
-
-        public override void UpdateOnceBeforeFrame()
-        {
-            base.UpdateOnceBeforeFrame();
-            TryWeld();
-            TryAttach();
-
-
-            if (AttachedEntityChanged != null)
-            {
-                // OtherEntityId is null when detached, 0 when ready to connect, and other when attached
-                AttachedEntityChanged(this);
-            }
-        }
-
-        public override void UpdateBeforeSimulation10()
-        {
-            base.UpdateBeforeSimulation10();
-            TryWeld();
-            TryAttach();
         }
 
         public override void UpdateBeforeSimulation100()
@@ -246,13 +185,13 @@ namespace Sandbox.Game.Entities.Cube
             if (!MySandboxGame.IsGameReady || m_soundEmitter == null || IsWorking == false)
                 return;
 
-            if (m_topGrid == null || m_topGrid.Physics == null)
+            if (TopGrid == null || TopGrid.Physics == null)
             {
                 m_soundEmitter.StopSound(true);
                 return;
             }
 
-            if (IsWorking && Math.Abs(m_topGrid.Physics.RigidBody.DeltaAngle.W) > 0.00025f)
+            if (IsWorking && Math.Abs(TopGrid.Physics.RigidBody.DeltaAngle.W) > 0.00025f)
                 m_soundEmitter.PlaySingleSound(BlockDefinition.PrimarySound, true);
             else
                 m_soundEmitter.StopSound(false);

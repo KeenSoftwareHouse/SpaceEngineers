@@ -161,8 +161,8 @@ namespace Sandbox.Game.Components
 
                 foreach (var bone in m_cubeGrid.Skeleton.Bones)
                 {
-                    var bonePos = (bone.Key / (float)m_cubeGrid.Skeleton.BoneDensity) * gridRender.GridSize + bone.Value;
-                    bonePos -= new Vector3(gridRender.GridSize / m_cubeGrid.Skeleton.BoneDensity);
+                    var bonePos = (bone.Key / (float)MyGridSkeleton.BoneDensity) * gridRender.GridSize + bone.Value;
+                    bonePos -= new Vector3(gridRender.GridSize / MyGridSkeleton.BoneDensity);
                     Vector3 pos = Vector3.Transform(bonePos, (Matrix)m_cubeGrid.PositionComp.WorldMatrix);
                     MyRenderProxy.DebugDrawSphere(pos, 0.05f, Color.Red.ToVector3(), 0.5f, false, true);
                     if ((cameraPos - pos).LengthSquared() < 200.0f)

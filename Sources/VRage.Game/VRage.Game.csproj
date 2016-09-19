@@ -198,6 +198,7 @@
     <Compile Include="ModAPI\IMyGamePaths.cs" />
     <Compile Include="ModAPI\IMyGps.cs" />
     <Compile Include="ModAPI\IMyGpsCollection.cs" />
+    <Compile Include="ModAPI\IMyGui.cs" />
     <Compile Include="ModAPI\IMyHudNotification.cs" />
     <Compile Include="ModAPI\IMyHudObjectiveLine.cs" />
     <Compile Include="ModAPI\IMyIdentity.cs" />

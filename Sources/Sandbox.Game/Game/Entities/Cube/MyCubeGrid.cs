@@ -2629,8 +2629,8 @@ namespace Sandbox.Game.Entities
             float boneErrorSquared = MyGridSkeleton.GetMaxBoneError(GridSize);
             boneErrorSquared *= boneErrorSquared;
 
-            Vector3I boneMax = (cubeBlock.Min + Vector3I.One) * Skeleton.BoneDensity;
-            Vector3I bonePos = cubeBlock.Min * Skeleton.BoneDensity;
+            Vector3I boneMax = (cubeBlock.Min + Vector3I.One) * MyGridSkeleton.BoneDensity;
+            Vector3I bonePos = cubeBlock.Min * MyGridSkeleton.BoneDensity;
             for (var it = new Vector3I_RangeIterator(ref bonePos, ref boneMax); it.IsValid(); it.GetNext(out bonePos))
             {
                 Vector3 boneOffset = Skeleton.GetDefinitionOffsetWithNeighbours(cubeBlock.Min, bonePos, this);
@@ -3589,10 +3589,40 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
         }
 
+        /// <summary>
+        /// Color block in area. Verry slow.
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <param name="newHSV"></param>
+        /// <param name="playSound"></param>
         public void ColorBlocks(Vector3I min, Vector3I max, Vector3 newHSV, bool playSound)
         {
             ProfilerShort.Begin("MyCubeGrid.ColorBlocks");
             MyMultiplayer.RaiseEvent(this, x => x.ColorBlockRequest, min, max, newHSV, playSound);
+            ProfilerShort.End();
+        }
+
+        public void ColorGrid(Vector3 newHSV, bool playSound)
+        {
+            ProfilerShort.Begin("MyCubeGrid.ColorBlocks");
+            MyMultiplayer.RaiseEvent(this, x => x.ColorGridFriendlyRequest, newHSV, playSound);
+            ProfilerShort.End();
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        private void ColorGridFriendlyRequest(Vector3 newHSV,bool playSound)
+        {
+            ProfilerShort.Begin("MyCubeGrid.ColorBlockRequest");
+            bool sound = false;
+            foreach (var block in CubeBlocks)
+            {
+                sound |= ChangeColor(block, newHSV);
+            }
+            if (playSound && sound)
+            {
+                MyGuiAudio.PlaySound(MyGuiSounds.HudColorBlock);
+            }
             ProfilerShort.End();
         }
 
@@ -3613,7 +3643,7 @@ namespace Sandbox.Game.Entities
                         }
                     }
 
-            if (sound && Vector3D.Distance(MySector.MainCamera.Position, Vector3D.Transform(min * GridSize, WorldMatrix)) < 200)
+            if (playSound && sound && Vector3D.Distance(MySector.MainCamera.Position, Vector3D.Transform(min * GridSize, WorldMatrix)) < 200)
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudColorBlock);
             }
@@ -3768,8 +3798,8 @@ namespace Sandbox.Game.Entities
             if (block == null)
                 return;
 
-            var min = block.Min * Skeleton.BoneDensity;
-            var max = block.Max * Skeleton.BoneDensity + Skeleton.BoneDensity;
+            var min = block.Min * MyGridSkeleton.BoneDensity;
+            var max = block.Max * MyGridSkeleton.BoneDensity + MyGridSkeleton.BoneDensity;
 
             bool bonesChanged = false;
 
@@ -4308,12 +4338,12 @@ namespace Sandbox.Game.Entities
 
                 m_tmpBoneSet.Clear();
                 ProfilerShort.Begin("GetExistingBones");
-                GetExistingBones(cubePos * Skeleton.BoneDensity + table.MinOffset, cubePos * Skeleton.BoneDensity + table.MaxOffset, m_tmpBoneSet);
+                GetExistingBones(cubePos * MyGridSkeleton.BoneDensity + table.MinOffset, cubePos * MyGridSkeleton.BoneDensity + table.MaxOffset, m_tmpBoneSet);
 
                 ProfilerShort.BeginNextBlock("table.OffsetTable");
                 foreach (var offset in table.OffsetTable)
                 {
-                    if (m_tmpBoneSet.ContainsKey(cubePos * Skeleton.BoneDensity + offset.Key))
+                    if (m_tmpBoneSet.ContainsKey(cubePos * MyGridSkeleton.BoneDensity + offset.Key))
                     {
                         boneOffset = offset.Key;
                         clamp = new Vector3(GridSizeHalf - random.NextFloat(0, gridSizeTenth));
@@ -5177,8 +5207,8 @@ namespace Sandbox.Game.Entities
 
         public void GetExistingBones(Vector3I boneMin, Vector3I boneMax, Dictionary<Vector3I, MySlimBlock> resultSet, MyDamageInformation? damageInfo = null)
         {
-            Vector3I cubeMin = Vector3I.Floor((boneMin - Vector3I.One) / (float)Skeleton.BoneDensity);
-            Vector3I cubeMax = Vector3I.Ceiling((boneMax - Vector3I.One) / (float)Skeleton.BoneDensity);
+            Vector3I cubeMin = Vector3I.Floor((boneMin - Vector3I.One) / (float)MyGridSkeleton.BoneDensity);
+            Vector3I cubeMax = Vector3I.Ceiling((boneMax - Vector3I.One) / (float)MyGridSkeleton.BoneDensity);
             MyDamageInformation info = damageInfo.HasValue ? damageInfo.Value : default(MyDamageInformation);
             resultSet.Clear();
             Vector3I cube, boneBase;
@@ -5197,7 +5227,7 @@ namespace Sandbox.Game.Entities
                                     continue;
                             }
 
-                            boneBase = cube * Skeleton.BoneDensity;
+                            boneBase = cube * MyGridSkeleton.BoneDensity;
                             foreach (var offset in Skeleton.BoneOffsets)
                                 resultSet[boneBase + offset] = cubeInst.CubeBlock;
                         }
@@ -5207,7 +5237,7 @@ namespace Sandbox.Game.Entities
         private void MoveBone(ref Vector3I cubePos, ref Vector3I boneOffset, ref Vector3 moveDirection, ref float displacementLength, ref Vector3 clamp)
         {
             m_totalBoneDisplacement += displacementLength;
-            var pos = cubePos * Skeleton.BoneDensity + boneOffset;
+            var pos = cubePos * MyGridSkeleton.BoneDensity + boneOffset;
             var boneValue = Skeleton[pos] + moveDirection;
             Skeleton[pos] = Vector3.Clamp(boneValue, -clamp, clamp);
         }

@@ -143,7 +143,7 @@ namespace Sandbox.Engine.Physics
 
         public static int ThreadId;
 
-        private static MyHavokCluster Clusters;
+        public static MyHavokCluster Clusters;
 
         private static HkJobThreadPool m_threadPool;
         private static HkJobQueue m_jobQueue;
@@ -653,7 +653,12 @@ namespace Sandbox.Engine.Physics
                 if (MySession.Static.ControlledEntity != null
                     && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody() != null
                     && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody().HavokWorld == world)
+                {
+                    world.VisualDebuggerEnabled = true;
                     world.StepVDB(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+            }
+                else
+                    world.VisualDebuggerEnabled = false;
             }
 
             ProfilerShort.End();
@@ -732,7 +737,7 @@ namespace Sandbox.Engine.Physics
         {
             using (m_tmpEntityResults.GetClearToken())
             {
-                MyGamePruningStructure.GetAllEntitiesInBox(ref box, m_tmpEntityResults);
+                MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_tmpEntityResults, MyEntityQueryType.Dynamic);
                 foreach (var entity in m_tmpEntityResults)
                 {
                     if (entity.Physics != null && entity.Physics.Enabled && entity.Physics.RigidBody != null)

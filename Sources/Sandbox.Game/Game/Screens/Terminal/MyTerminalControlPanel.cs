@@ -585,8 +585,11 @@ namespace Sandbox.Game.Gui
         {
             ClearBlockList();
             PopulateBlockList();
-            //GR: Scroll toolbar to top manually when needed from individual controls
-            m_blockListbox.ScrollToolbarToTop();
+            
+            //JC: This should never be null at this point but is happening...
+            if (m_blockListbox != null)
+                //GR: Scroll toolbar to top manually when needed from individual controls
+                m_blockListbox.ScrollToolbarToTop();
         }
     }
 }

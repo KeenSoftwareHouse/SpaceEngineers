@@ -94,7 +94,7 @@ namespace Sandbox.Definitions
             get { return m_definitions[(int)size]; }
             set
             {
-                Debug.Assert(m_definitions[(int)size] == null, "You're overwriting an existing definition in the group. Is this what you want?");
+                //Debug.Assert(m_definitions[(int)size] == null, "You're overwriting an existing definition in the group. Is this what you want?");
                 m_definitions[(int)size] = value;
             }
         }

@@ -964,6 +964,15 @@ namespace Sandbox.Game.Entities
             if (this.HandleExportInput())
                 return true;
 
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.LANDING_GEAR) && MySession.Static.ControlledEntity == MySession.Static.LocalCharacter && MySession.Static.LocalHumanPlayer != null && MySession.Static.LocalHumanPlayer.Identity.Character == MySession.Static.ControlledEntity)
+            {
+                if (!MyInput.Static.IsAnyShiftKeyPressed() && MyGuiScreenGamePlay.ActiveGameplayScreen == null)
+                {
+                    MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
+                    MyGuiSandbox.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = new MyGuiScreenColorPicker());
+                }
+            }
+
             if (!IsActivated)  // do not consume input when not active
                 return false;
 
@@ -1000,15 +1009,6 @@ namespace Sandbox.Game.Entities
             if (this.HandleAdminAndCreativeInput(context))
                 return true;
 
-            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.LANDING_GEAR) && MySession.Static.LocalHumanPlayer != null && MySession.Static.LocalHumanPlayer.Identity.Character == MySession.Static.ControlledEntity)
-            {
-                if (!MyInput.Static.IsAnyShiftKeyPressed() && MyGuiScreenGamePlay.ActiveGameplayScreen == null)
-                {
-                    MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
-                    MyGuiSandbox.AddScreen(MyGuiScreenGamePlay.ActiveGameplayScreen = new MyGuiScreenColorPicker());
-                }
-            }
-
             // Color Picker
             if (CurrentGrid != null && MyInput.Static.IsNewGameControlPressed(MyControlsSpace.LANDING_GEAR))
             {
@@ -1031,7 +1031,7 @@ namespace Sandbox.Game.Entities
                 
                 if (MyInput.Static.IsAnyCtrlKeyPressed() && MyInput.Static.IsAnyShiftKeyPressed())
                 {
-                    expand = 400;
+                    expand = -1;
                 }
                 else
                 {
@@ -2996,6 +2996,12 @@ namespace Sandbox.Game.Entities
         {
             ProfilerShort.Begin("MyCubeBuilder.Change");
             m_tmpBlockPositionList.Clear();
+
+            //Repaint ALL
+            if (expand == -1)
+            {
+                CurrentGrid.ColorGrid(MyPlayer.SelectedColor, true);
+            }
 
             int count = -1;
             bool playSound = false;

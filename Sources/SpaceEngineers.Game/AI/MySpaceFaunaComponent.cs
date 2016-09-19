@@ -356,14 +356,17 @@ namespace SpaceEngineers.AI
 
             planet.CorrectSpawnLocation(ref spawnPos, 2.0f);
 
-            MyAgentDefinition botBehavior = GetAnimalDefinition(animalSpawnInfo) as MyAgentDefinition;
-            if (botBehavior.Id.SubtypeName == Wolf_SUBTYPE_ID && MySession.Static.EnableWolfs)
+            MyAgentDefinition botBehavior = TryGetAnimalDefinition(animalSpawnInfo) as MyAgentDefinition;
+            if (botBehavior != null)
             {
-                MyAIComponent.Static.SpawnNewBot(botBehavior, spawnPos);
-            }
-            else if (botBehavior.Id.SubtypeName != Wolf_SUBTYPE_ID && MySession.Static.EnableSpiders)
-            {
-                MyAIComponent.Static.SpawnNewBot(botBehavior, spawnPos);
+                if (botBehavior.Id.SubtypeName == Wolf_SUBTYPE_ID && MySession.Static.EnableWolfs)
+                {
+                    MyAIComponent.Static.SpawnNewBot(botBehavior, spawnPos);
+                }
+                else if (botBehavior.Id.SubtypeName != Wolf_SUBTYPE_ID && MySession.Static.EnableSpiders)
+                {
+                    MyAIComponent.Static.SpawnNewBot(botBehavior, spawnPos);
+                }
             }
         }
 
@@ -425,7 +428,7 @@ namespace SpaceEngineers.AI
             }
         }
 
-        private MyBotDefinition GetAnimalDefinition(MyPlanetAnimalSpawnInfo animalSpawnInfo)
+        private MyBotDefinition TryGetAnimalDefinition(MyPlanetAnimalSpawnInfo animalSpawnInfo)
         {
             Debug.Assert(animalSpawnInfo != null, "Missing animal spawn info in planet definition.");
             Debug.Assert(animalSpawnInfo.Animals != null, "Missing array of animals in planet definition.");
@@ -433,7 +436,9 @@ namespace SpaceEngineers.AI
 
             int animalIndex = MyUtils.GetRandomInt(0, animalSpawnInfo.Animals.Length);
             var animalDefinition = new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), animalSpawnInfo.Animals[animalIndex].AnimalType);
-            return MyDefinitionManager.Static.GetBotDefinition(animalDefinition) as MyAgentDefinition;
+            MyBotDefinition ret;
+            MyDefinitionManager.Static.TryGetBotDefinition(animalDefinition,out ret);
+            return ret as MyAgentDefinition;
         }
 
         public override void UpdateAfterSimulation()

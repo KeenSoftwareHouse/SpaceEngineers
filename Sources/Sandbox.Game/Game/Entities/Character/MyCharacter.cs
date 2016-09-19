@@ -1935,7 +1935,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (ReverbDetectorComp != null && this == MySession.Static.LocalCharacter)
             {
-                ProfilerShort.BeginNextBlock("ReverbDetection");
+                //ProfilerShort.BeginNextBlock("ReverbDetection");
                 ReverbDetectorComp.Update();
             }
         }
@@ -5761,6 +5761,12 @@ namespace Sandbox.Game.Entities.Character
                 SaveAmmoToWeapon();
 
                 m_currentWeapon.OnControlReleased();
+                if (m_zoomMode == MyZoomModeEnum.IronSight && MySession.Static.CameraController == this)
+                {
+                    bool backupIsInFirstPerson = IsInFirstPersonView;
+                    EnableIronsight(false, true, changeCamera: true);
+                    IsInFirstPersonView = backupIsInFirstPerson;
+                }
 
                 var weaponSink = weaponEntity.Components.Get<MyResourceSinkComponent>();
                 if (weaponSink != null)

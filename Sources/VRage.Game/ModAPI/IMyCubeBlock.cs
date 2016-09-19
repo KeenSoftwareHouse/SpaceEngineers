@@ -235,6 +235,11 @@ namespace VRage.Game.ModAPI
         void AddUpgradeValue(string upgrade, float defaultValue);
 
         /// <summary>
+        /// Gets the SlimBlock associated with this block
+        /// </summary>
+        IMySlimBlock SlimBlock { get; }
+
+        /// <summary>
         /// Event called when upgrade values are changed
         /// Either upgrades were built or destroyed, or they become damaged or unpowered
         /// </summary>

@@ -1401,6 +1401,17 @@ namespace Sandbox
             {
                 using (var handle = MyScriptCompiler.Static.Whitelist.OpenBatch())
                 {
+                    //TODO: BM: Remove these once the dependency issues for IMyCubeBuilder are resolved
+                    handle.AllowMembers(MyWhitelistTarget.ModApi,
+                        typeof(Sandbox.Game.Entities.MyCubeBuilder).GetField("Static"),
+                        typeof(Sandbox.Game.Entities.MyCubeBuilder).GetProperty("CubeBuilderState"),
+                        typeof(Sandbox.Game.Entities.Cube.CubeBuilder.MyCubeBuilderState).GetProperty("CurrentBlockDefinition"),
+                        typeof(Sandbox.Game.Gui.MyHud).GetField("BlockInfo"));
+                    //BM: remove this one, too
+                    handle.AllowTypes(MyWhitelistTarget.ModApi,
+                        typeof(Sandbox.Game.Gui.MyHudBlockInfo),
+                        typeof(Sandbox.Game.Gui.MyHudBlockInfo.ComponentInfo));
+                        
                     handle.AllowNamespaceOfTypes(MyWhitelistTarget.Both,
                         typeof(System.Collections.Generic.ListExtensions),
                         typeof(VRage.Game.ModAPI.Ingame.IMyCubeBlock),
@@ -1553,8 +1564,10 @@ namespace Sandbox
                         typeof(Sandbox.Game.Weapons.MyDeviceBase),
                         typeof(ParallelTasks.IWork),
                         typeof(ParallelTasks.Task),
-                        typeof(ParallelTasks.WorkOptions)
+                        typeof(ParallelTasks.WorkOptions),
+                        typeof(System.Diagnostics.Stopwatch)
                     );
+
                     return;
                 }
             }

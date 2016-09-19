@@ -1197,7 +1197,7 @@ namespace Sandbox.Definitions
 
                 ToDefinitions(context, definitionSet.m_definitionsById, definitionSet.m_uniqueCubeBlocksBySize, objBuilder.CubeBlocks, failOnDebug);
 
-                MySandboxGame.Log.WriteLine( "Created block definitions" );
+                MySandboxGame.Log.WriteLine("Created block definitions");
                 foreach (var size in definitionSet.m_uniqueCubeBlocksBySize)
                     PrepareBlockBlueprints(context, definitionSet.m_blueprintsById, size);
             }
@@ -2029,8 +2029,8 @@ namespace Sandbox.Definitions
                 Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
                 output[res[i].Id] = res[i];
 
-                if(!context.IsBaseGame)
-                    MySandboxGame.Log.WriteLine( "Loaded component: " + res[i].Id );
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Loaded component: " + res[i].Id);
             }
         }
 
@@ -2150,8 +2150,8 @@ namespace Sandbox.Definitions
             {
                 var cubeBlock = entry.Value;
 
-                if(!context.IsBaseGame)
-                    MySandboxGame.Log.WriteLine( "Loading cube block: " + entry.Key );
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Loading cube block: " + entry.Key);
 
                 if (!MyFakes.ENABLE_NON_PUBLIC_BLOCKS && cubeBlock.Public == false) continue;
 
@@ -2666,8 +2666,8 @@ namespace Sandbox.Definitions
                 Check(!output.ContainsKey(res[i].Id.SubtypeName), res[i].Id.SubtypeName, failOnDebug);
                 output[res[i].Id.SubtypeName] = res[i];
 
-                if(!context.IsBaseGame)
-                    MySandboxGame.Log.WriteLine( "Loaded voxel material: " + res[i].Id.SubtypeName );
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Loaded voxel material: " + res[i].Id.SubtypeName);
             }
         }
 
@@ -4073,8 +4073,8 @@ namespace Sandbox.Definitions
                 Check(!outputDefinitions.ContainsKey(result.Id), result.Id, failOnDebug);
                 outputDefinitions[result.Id] = result;
 
-                if(!context.IsBaseGame)
-                    MySandboxGame.Log.WriteLine( "Created definition for: " + result.DisplayNameText );
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Created definition for: " + result.DisplayNameText);
 
                 //if (currentDef.Variants != null)
                 //{
@@ -4183,8 +4183,8 @@ namespace Sandbox.Definitions
 
             if (extensions.IsNullOrEmpty())
             {
-                if ( logNoExtensions )
-                    MyDefinitionErrors.Add( context, "No file extensions.", TErrorSeverity.Warning );
+                if (logNoExtensions)
+                    MyDefinitionErrors.Add(context, "No file extensions.", TErrorSeverity.Warning);
                 return;
             }
 
