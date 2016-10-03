@@ -163,6 +163,7 @@
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
+    <Compile Include="GUI\MyGuiScreenPerformanceWarnings.cs" />
     <Compile Include="ModAPI\IMyAirVent.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
     <Compile Include="ModAPI\IMyControlPanel.cs" />

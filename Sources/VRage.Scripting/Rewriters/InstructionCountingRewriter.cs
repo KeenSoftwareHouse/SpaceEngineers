@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -103,6 +104,19 @@ namespace VRage.Scripting.Rewriters
         }
 
         /// <summary>
+        /// Creates a call to determine wheather or not is given script instance dead.
+        /// </summary>
+        /// <returns></returns>
+        ExpressionSyntax IsDeadCall()
+        {
+            return SyntaxFactory.InvocationExpression(
+                SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    AnnotatedIdentifier(typeof(IlInjector).FullName),
+                    (SimpleNameSyntax)AnnotatedIdentifier("IsDead"))
+            );
+        }
+
+        /// <summary>
         ///     Creates a code block which is barricaded behind line directives, so they will for all intents and purposes
         ///     be invisible for the compiler when reporting errors.
         /// </summary>
@@ -198,45 +212,73 @@ namespace VRage.Scripting.Rewriters
         /// <returns></returns>
         SyntaxNode ProcessMethod(BaseMethodDeclarationSyntax node, FileLinePositionSpan blockResumeLocation)
         {
-            var decl = node as MethodDeclarationSyntax;
-            if (decl != null && decl.ExpressionBody != null)
+            //var decl = node as MethodDeclarationSyntax;
+            //if (decl != null && decl.ExpressionBody != null)
+            //Inflex correction: Original implementation missdetected expression bodied methods as statement bodied in certain cases, causing NPE and ultimately game crash
+            if (node.Body != null)
             {
-                var returnType = decl.ReturnType as PredefinedTypeSyntax;
-                var isVoid = returnType != null && returnType.Keyword.IsKind(SyntaxKind.VoidKeyword);
-                  return decl
-                      .WithExpressionBody(null)
-                      .WithBody(
-                    CreateDelegateMethodBody(decl.ExpressionBody.Expression, blockResumeLocation, !isVoid)
-                    );
-            }
-            
-            return node.WithBody(
-                Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
-                    SyntaxFactory.Block(
-                        InstructionCounterCall(),
-                        EnterMethodCall(),
-                        SyntaxFactory.TryStatement(
-                            SyntaxFactory.Block(
-                                Barricaded(blockResumeLocation.Path, blockResumeLocation.StartLinePosition, SyntaxFactory.Token(SyntaxKind.OpenBraceToken)),
-                                new SyntaxList<StatementSyntax>()
-                                    .Add(node.Body),
-                                SyntaxFactory.Token(SyntaxKind.CloseBraceToken)
-                                ),
-                            default(SyntaxList<CatchClauseSyntax>),
-                            Annotated(
-                                SyntaxFactory.FinallyClause(
-                                    SyntaxFactory.Block(
-                                        ExitMethodCall()
+                return node.WithBody(
+                    Barricaded(blockResumeLocation.Path, blockResumeLocation.EndLinePosition,
+                        SyntaxFactory.Block(
+                            InstructionCounterCall(),
+                            EnterMethodCall(),
+                            SyntaxFactory.TryStatement(
+                                SyntaxFactory.Block(
+                                    Barricaded(blockResumeLocation.Path, blockResumeLocation.StartLinePosition, SyntaxFactory.Token(SyntaxKind.OpenBraceToken)),
+                                    new SyntaxList<StatementSyntax>()
+                                        .Add(node.Body),
+                                    SyntaxFactory.Token(SyntaxKind.CloseBraceToken)
+                                    ),
+                                default(SyntaxList<CatchClauseSyntax>),
+                                Annotated(
+                                    SyntaxFactory.FinallyClause(
+                                        SyntaxFactory.Block(
+                                            ExitMethodCall()
+
                                         )
                                     )
                                 )
                             )
                         )
                     ));
+            }
+            var method = node as MethodDeclarationSyntax;
+            if (method != null)
+            {
+                var returnType = method.ReturnType as PredefinedTypeSyntax;
+                var isVoid = returnType != null && returnType.Keyword.IsKind(SyntaxKind.VoidKeyword);
+
+                return method.WithExpressionBody(null)
+                             .WithBody(CreateDelegateMethodBody(method.ExpressionBody.Expression, blockResumeLocation, isVoid == false));
+            }
+
+            var opOperator = node as OperatorDeclarationSyntax;
+            if (opOperator != null)
+            {
+                return opOperator.WithExpressionBody(null)
+                                 .WithBody(CreateDelegateMethodBody(opOperator.ExpressionBody.Expression, blockResumeLocation, true));
+            }
+
+            var conversionOperator = node as ConversionOperatorDeclarationSyntax;
+            if (conversionOperator != null)
+            {
+                return conversionOperator.WithExpressionBody(null)
+                                         .WithBody(CreateDelegateMethodBody(conversionOperator.ExpressionBody.Expression, blockResumeLocation, true));
+            }
+
+            if (node is ConstructorDeclarationSyntax || node is DestructorDeclarationSyntax)
+            {
+                //Ctor or Dtor with null body??
+                //VisitConstructorDeclaration and VisitDestructorDeclaration should handle this case
+                throw new ArgumentException("Constructors and destructors have to have bodies!", "node"); //nameof(node));
+            }
+
+            throw new ArgumentException("Unknown " + node.GetType().FullName, "node"); //nameof(node));
         }
 
+
         /// <summary>
-        /// Replaces an expression based method declaration with a block based one in order to facilitate instruction counting.
+        /// Replaces an expression based method declaration with a block based one in order to facilitate instruction and method call chain counting.
         /// </summary>
         /// <param name="expression"></param>
         /// <param name="blockResumeLocation"></param>
@@ -298,6 +340,46 @@ namespace VRage.Scripting.Rewriters
         }
 
         /// <summary>
+        /// Generates dead checking if statement with injected body block 
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="resumeLocation"></param>
+        /// <returns></returns>
+        StatementSyntax DeadCheckIfStatement(StatementSyntax body, FileLinePositionSpan resumeLocation)
+        {
+            return SyntaxFactory.IfStatement(
+                    SyntaxFactory.PrefixUnaryExpression(
+                        SyntaxKind.LogicalNotExpression,
+                        IsDeadCall()),
+                    InjectedBlock(body, resumeLocation)
+                );
+        }
+
+        /// <summary>
+        /// Generates uniq identifier based on location.
+        /// Cross fingers and prey for no user identifier collisions
+        /// </summary>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        static string GenerateUniqIdentifier(FileLinePositionSpan location)
+        {
+            return "IWantToCollideWithHiddenCompilerVariable_" + location.StartLinePosition.Line + "_" + location.StartLinePosition.Character;
+        }
+
+        /// <summary>
+        /// Generates finally clause with injected block
+        /// </summary>
+        /// <param name="body"></param>
+        /// <param name="resumeLocation"></param>
+        /// <returns></returns>
+        FinallyClauseSyntax InjectedFinally(StatementSyntax body, FileLinePositionSpan resumeLocation)
+        {
+            return SyntaxFactory.FinallyClause(
+                SyntaxFactory.Block(DeadCheckIfStatement(body, resumeLocation))
+            );
+        }
+
+        /// <summary>
         ///     Generates the instruction counter and call chain depth counter for any form of delegate (anonymous methods,
         ///     lambdas).
         /// </summary>
@@ -341,47 +423,162 @@ namespace VRage.Scripting.Rewriters
         //    return node;
         //}
 
-        public override SyntaxNode VisitTryStatement(TryStatementSyntax node)
+        public override SyntaxNode VisitCatchClause(CatchClauseSyntax node)
         {
             // Goal: Inject instruction counter, but also inject an auto catcher for all exceptions that have been marked
             // as unblockable in the compiler.
+            if (node.Span.IsEmpty || node.Block.Span.IsEmpty)
+                return base.VisitCatchClause(node);
 
             var blockResumeLocation = GetBlockResumeLocation(node.Block);
-            var successiveBlockLocation = GetBlockResumeLocation((SyntaxNode)node.Catches.FirstOrDefault() ?? node.Finally);
-            var catchClauseLocations = node.Catches.Select(c => GetBlockResumeLocation(c.Block)).ToArray();
-            var finallyLocation = node.Finally != null ? GetBlockResumeLocation(node.Finally.Block) : new FileLinePositionSpan();
+            node = (CatchClauseSyntax)base.VisitCatchClause(node);
 
-            node = (TryStatementSyntax)base.VisitTryStatement(node);
-
-            node = node.WithBlock(InjectedBlock(node.Block, blockResumeLocation));
-
-            var catches = new SyntaxList<CatchClauseSyntax>();
-            foreach (var exceptionType in m_compiler.UnblockableIngameExceptions)
+            if(node.Declaration == null)
             {
-                catches = catches.Add(Barricaded(successiveBlockLocation.Path, successiveBlockLocation.StartLinePosition, SyntaxFactory.CatchClause(
-                    SyntaxFactory.CatchDeclaration(AnnotatedIdentifier(exceptionType.FullName)),
-                    null,
-                    SyntaxFactory.Block(
-                        SyntaxFactory.ThrowStatement())
-                    )));
+                node = node.WithDeclaration(
+                    SyntaxFactory.CatchDeclaration(
+                        SyntaxFactory.ParseTypeName(typeof(Exception).FullName),
+                        SyntaxFactory.Identifier(GenerateUniqIdentifier(blockResumeLocation))
+                    )
+                );
+            }
+            else if(node.Declaration.Type.IsMissing)
+            {
+                //Invalid catch declaration. Let compiler deal with it
+                return node;
+            }
+            else if(node.Declaration.Identifier.IsKind(SyntaxKind.None))
+            {
+                node = node.WithDeclaration(
+                    node.Declaration.WithIdentifier(
+                        SyntaxFactory.Identifier(GenerateUniqIdentifier(blockResumeLocation))
+                    )
+                );
             }
 
-            for (var i = 0; i < node.Catches.Count; i++)
+            var exceptionIdentifier = node.Declaration.Identifier.ValueText;
+            var compilerExceptionsFilterConditions = SyntaxFactory.PrefixUnaryExpression(
+                SyntaxKind.LogicalNotExpression,
+                SyntaxFactory.ParenthesizedExpression(
+                    this.m_compiler.UnblockableIngameExceptions.Aggregate<Type, BinaryExpressionSyntax>(null, (aggregation, current) =>
+                    {
+                        var isTypeExpression = SyntaxFactory.BinaryExpression(
+                            SyntaxKind.IsExpression,
+                            SyntaxFactory.IdentifierName(exceptionIdentifier),
+                            AnnotatedIdentifier(current.FullName)
+                        );
+
+                        if(aggregation == null)
+                            return isTypeExpression;
+
+                        return SyntaxFactory.BinaryExpression(
+                            SyntaxKind.LogicalOrExpression,
+                            isTypeExpression,
+                            aggregation
+                        );
+                    })
+                )
+            );
+
+            if (node.Filter == null)
+                node = node.WithFilter(SyntaxFactory.CatchFilterClause(compilerExceptionsFilterConditions));
+            else
             {
-                var catchClause = node.Catches[i];
-                var resumeLocation = catchClauseLocations[i];
-                catches = catches.Add(catchClause.WithBlock(InjectedBlock(catchClause.Block, resumeLocation)));
+                node = node.WithFilter(
+                    SyntaxFactory.CatchFilterClause(
+                        SyntaxFactory.BinaryExpression(SyntaxKind.LogicalAndExpression,
+                            SyntaxFactory.ParenthesizedExpression(
+                                node.Filter.FilterExpression
+                            ),
+                            compilerExceptionsFilterConditions
+                        )
+                    )
+                );
             }
-
-            node = node.WithCatches(catches);
-
-            if (node.Finally != null)
-            {
-                node = node.WithFinally(node.Finally.WithBlock(InjectedBlock(node.Finally.Block, finallyLocation)));
-            }
-
-            return node;
+            return node.WithBlock(InjectedBlock(node.Block, blockResumeLocation));
         }
+
+        public override SyntaxNode VisitFinallyClause(FinallyClauseSyntax node)
+        {
+            if(node.Span.IsEmpty || node.Block.Span.IsEmpty)
+                return base.VisitFinallyClause(node);
+
+            var blockResumeLocation = GetBlockResumeLocation(node.Block);
+            node = (FinallyClauseSyntax)base.VisitFinallyClause(node);
+            return InjectedFinally(node.Block, blockResumeLocation);
+        }
+
+        //Goal: Rewrite each `using` statement to try/finally construct to allow easy dead checking
+        public override SyntaxNode VisitUsingStatement(UsingStatementSyntax node)
+        {
+            var usingLocation = GetBlockResumeLocation(node);
+
+            ExpressionSyntax disposable = null;
+            StatementSyntax disposableInstantiation = null;
+            if(node.Declaration != null && node.Declaration.Variables.Count > 0)
+             {
+
+                disposableInstantiation = SyntaxFactory.LocalDeclarationStatement(node.Declaration);
+                disposable = SyntaxFactory.IdentifierName(
+                    node.Declaration.Variables[0].Identifier
+                );
+             }
+            else if(node.Expression != null)
+            {
+                disposable = SyntaxFactory.IdentifierName(GenerateUniqIdentifier(usingLocation));
+                disposableInstantiation = SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(
+                        SyntaxFactory.IdentifierName("var"),
+                        new SeparatedSyntaxList<VariableDeclaratorSyntax>().Add(
+                            SyntaxFactory.VariableDeclarator(
+                                SyntaxFactory.Identifier(GenerateUniqIdentifier(usingLocation)),
+                                default(BracketedArgumentListSyntax),
+                                SyntaxFactory.EqualsValueClause(
+                                    node.Expression
+                                )
+                            )
+ 
+                        )
+                    )
+                );
+            }
+ 
+            if(disposable == null ||
+               node.Statement.IsMissing ||
+               node.UsingKeyword.IsMissing ||
+               node.OpenParenToken.IsMissing ||
+               node.CloseParenToken.IsMissing)
+             {
+                //Invalid using declaration. Let compiler deal with it
+                return base.VisitUsingStatement(node);
+             }
+ 
+
+            var blockResumeLocation = GetBlockResumeLocation(node.Statement);
+            node = (UsingStatementSyntax)base.VisitUsingStatement(node);
+
+            return SyntaxFactory.Block(
+                disposableInstantiation,
+                SyntaxFactory.TryStatement(
+                InjectedBlock(node.Statement, blockResumeLocation),
+                default(SyntaxList<CatchClauseSyntax>),
+                InjectedFinally(
+                    SyntaxFactory.Block(
+                        SyntaxFactory.ExpressionStatement(
+                            SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    disposable,
+                                    SyntaxFactory.IdentifierName("Dispose")
+                                )
+                            )
+                        )
+                    ),
+                    usingLocation
+                )
+            )
+            );
+         }
 
         public override SyntaxNode VisitIfStatement(IfStatementSyntax node)
         {
@@ -412,7 +609,7 @@ namespace VRage.Scripting.Rewriters
             if (node.CaseOrDefaultKeyword.Kind() != SyntaxKind.None)
                 return base.VisitGotoStatement(node);
 
-            var resumeLocation =  node.GetLocation().GetMappedLineSpan();
+            var resumeLocation = node.GetLocation().GetMappedLineSpan();
 
             node = (GotoStatementSyntax)base.VisitGotoStatement(node);
 
@@ -553,11 +750,11 @@ namespace VRage.Scripting.Rewriters
 
         public override SyntaxNode VisitOperatorDeclaration(OperatorDeclarationSyntax node)
         {
-            if (node.Body == null && node.ExpressionBody != null)
+            if (node.Body == null && node.ExpressionBody == null)
             {
                 return base.VisitOperatorDeclaration(node);
             }
-            
+
             var blockResumeLocation = GetBlockResumeLocation((SyntaxNode)node.Body ?? node.ExpressionBody);
 
             node = (OperatorDeclarationSyntax)base.VisitOperatorDeclaration(node);
@@ -618,6 +815,36 @@ namespace VRage.Scripting.Rewriters
 
             node = (SimpleLambdaExpressionSyntax)base.VisitSimpleLambdaExpression(node);
             return ProcessAnonymousFunction(node, blockResumeLocation, type);
+        }
+
+        public override SyntaxNode VisitIndexerDeclaration(IndexerDeclarationSyntax node)
+        {
+            if(node.ExpressionBody == null)
+                return base.VisitIndexerDeclaration(node);
+
+            if(node.AccessorList != null)
+            {
+                //Invalid indexer declaration. No need to pass it further. Let compiler deal with it directly.
+                return node;
+            }
+
+            var blockResumeLocation = GetBlockResumeLocation(node.ExpressionBody);
+            node = (IndexerDeclarationSyntax)base.VisitIndexerDeclaration(node);
+            return node.WithExpressionBody(null)
+                       .WithAccessorList(
+                            SyntaxFactory.AccessorList(
+                                new SyntaxList<AccessorDeclarationSyntax>().Add(
+                                    SyntaxFactory.AccessorDeclaration(
+                                        SyntaxKind.GetAccessorDeclaration,
+                                        CreateDelegateMethodBody(
+                                            node.ExpressionBody.Expression,
+                                            blockResumeLocation,
+                                            hasReturnValue: true
+                                        )
+                                    )
+                                )
+                            )
+                        );
         }
 
         /// <summary>

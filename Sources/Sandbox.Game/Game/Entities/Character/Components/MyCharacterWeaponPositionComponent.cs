@@ -219,7 +219,7 @@ namespace Sandbox.Game.Entities.Character.Components
                 armsIkWeight += variantWeights.Z;
             armsIkWeight /= variantWeights.X + variantWeights.Y + variantWeights.Z + variantWeights.W;
 
-            ApplyWeaponBouncing(handItemDefinition, ref weaponMatrixLocal);
+            ApplyWeaponBouncing(handItemDefinition, ref weaponMatrixLocal, (float)(1.0 - 0.95 * variantWeights.W));
             
             // apply head transform on top of it
             if (!isInFirstPerson)
@@ -255,7 +255,7 @@ namespace Sandbox.Game.Entities.Character.Components
         /// </summary>
         /// <param name="handItemDefinition">definition of hand item</param>
         /// <param name="weaponMatrixLocal">current weapon matrix (character local space)</param>
-        private void ApplyWeaponBouncing(MyHandItemDefinition handItemDefinition, ref MatrixD weaponMatrixLocal)
+        private void ApplyWeaponBouncing(MyHandItemDefinition handItemDefinition, ref MatrixD weaponMatrixLocal, float fpsBounceMultiplier)
         {
             if (!Character.AnimationController.CharacterBones.IsValidIndex(Character.SpineBoneIndex))
                 return;
@@ -271,7 +271,7 @@ namespace Sandbox.Game.Entities.Character.Components
             Vector3 spineAbsRigPos = spineBone.GetAbsoluteRigTransform().Translation;
             Vector3 spineRestPos = new Vector3(spineAbsRigPos.X, m_spineRestPositionY.Get(), spineAbsRigPos.Z);
 
-            Vector3 bounceOffset = (spinePos - spineRestPos);
+            Vector3 bounceOffset = (spinePos - spineRestPos) * fpsBounceMultiplier;
             bounceOffset.Z = isInFirstPerson ? bounceOffset.Z : 0;
             m_sprintStatusWeight += Character.IsSprinting ? m_sprintStatusGainSpeed : -m_sprintStatusGainSpeed;
             m_sprintStatusWeight = MathHelper.Clamp(m_sprintStatusWeight, 0, 1);

@@ -24,6 +24,7 @@ using VRage.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using Sandbox.Game.Localization;
 using VRage.Profiler;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -335,16 +336,20 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation()
         {
+            MySimpleProfiler.Begin("Conveyor");
             foreach (var line in m_lines)
             {
                 if (!line.IsEmpty)
                     line.Update();
             }
+            MySimpleProfiler.End("Conveyor");
         }
 
         public void UpdateBeforeSimulation10()
         {
+            MySimpleProfiler.Begin("Conveyor");
             ResourceSink.Update();
+            MySimpleProfiler.End("Conveyor");
         }
 
         public void FlagForRecomputation()
@@ -373,8 +378,10 @@ namespace Sandbox.Game.GameSystems
         {
             if (m_needsRecomputation)
             {
+                MySimpleProfiler.Begin("Conveyor");
                 RecomputeConveyorEndpoints();
                 m_needsRecomputation = false;
+                MySimpleProfiler.End("Conveyor");
             }
         }
 

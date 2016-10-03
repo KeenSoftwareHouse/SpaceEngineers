@@ -703,14 +703,13 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_PRELOAD_DEFINITIONS = true;
         public static bool ENABLE_ME_DOOR_COLLISION_CHECK = true;
 
+		public static bool ENABLE_CESTMIR_PATHFINDING = false;
 #if XB1
         public static bool XB1_PREVIEW = true;
 #else // !XB1
         public static bool XB1_PREVIEW = false;
-#endif // !XB1 
-
+#endif // !XB1         
         public static bool ENABLE_ROSLYN_SCRIPTS = true;
-
         public static bool ENABLE_ROSLYN_SCRIPT_DIAGNOSTICS = false;      
        
     }

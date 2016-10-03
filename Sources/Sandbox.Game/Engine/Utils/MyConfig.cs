@@ -68,6 +68,7 @@ namespace Sandbox.Engine.Utils
         readonly string CONTROLS_BUTTONS = "ControlsButtons";
         readonly string SCREENSHOT_SIZE_MULTIPLIER = "ScreenshotSizeMultiplier";
         readonly string FIRST_TIME_RUN = "FirstTimeRun";
+        readonly string SYNC_RENDERING = "SyncRendering";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
         readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
@@ -80,6 +81,7 @@ namespace Sandbox.Engine.Utils
         readonly string COMPRESS_SAVE_GAMES = "CompressSaveGames";
         readonly string SHOW_PLAYER_NAMES_ON_HUD = "ShowPlayerNamesOnHud";
         readonly string RELEASING_ALT_RESETS_CAMERA = "ReleasingAltResetsCamera";
+        readonly string ENABLE_PERFORMANCE_WARNINGS_TEMP = "EnablePerformanceWarningsTemp";
         readonly string LAST_CHECKED_VERSION = "LastCheckedVersion";
         readonly string WINDOW_MODE = "WindowMode";
         readonly string MOUSE_CAPTURE = "CaptureMouse";
@@ -139,6 +141,18 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(FIRST_TIME_RUN, value);
+            }
+        }
+
+        public bool SyncRendering
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(SYNC_RENDERING), false);
+            }
+            set
+            {
+                SetParameterValue(SYNC_RENDERING, value);
             }
         }
 
@@ -769,6 +783,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(RELEASING_ALT_RESETS_CAMERA), true); }
             set { SetParameterValue(RELEASING_ALT_RESETS_CAMERA, value); }
+        }
+
+        public bool EnablePerformanceWarnings
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_PERFORMANCE_WARNINGS_TEMP), false); }
+            set { SetParameterValue(ENABLE_PERFORMANCE_WARNINGS_TEMP, value); }
         }
 
         public int LastCheckedVersion

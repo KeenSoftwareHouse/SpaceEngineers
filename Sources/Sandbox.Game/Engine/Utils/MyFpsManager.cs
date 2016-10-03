@@ -3,7 +3,7 @@ using Sandbox.Game.World;
 
 namespace Sandbox.Engine.Utils
 {
-    static class MyFpsManager
+    public static class MyFpsManager
     {
         static long m_lastTime = 0;
         static uint m_fpsCounter = 0;

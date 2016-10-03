@@ -390,6 +390,7 @@ namespace Sandbox.Game.GameSystems
             if (MyFakes.BACKGROUND_OXYGEN && m_bgTaskRunning)
                 return;//wait
 
+            MySimpleProfiler.Begin("Oxygen");
             if (m_pressurizationPending && !m_doPostProcess)
             {
                 ProfilerShort.Begin("Oxygen Initialize");
@@ -432,6 +433,7 @@ namespace Sandbox.Game.GameSystems
                 m_deletedBlocks.Clear();
                 ProfilerShort.End();
             }
+            MySimpleProfiler.End("Oxygen");
         }
         protected void BackgroundPressurizeStart()
         {   //reading grid in realtime can clash with main thread, but process will be restarted anyway after grid change
@@ -446,6 +448,7 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation100()
         {
+            MySimpleProfiler.Begin("Oxygen");
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             float deltaTime = (currentTime - m_lastUpdateTime) / 1000f;
 
@@ -463,6 +466,7 @@ namespace Sandbox.Game.GameSystems
                     m_cubeGrid.UpdateOxygenAmount(oxygenAmount);
                 }
             }
+            MySimpleProfiler.End("Oxygen");
         }
 
         #region Pressurization

@@ -169,6 +169,7 @@
     <Compile Include="ModdableContentFileAttribute.cs" />
     <Compile Include="MyCompilationSymbols.cs" />
     <Compile Include="MyDeltaTransform.cs" />
+    <Compile Include="MySimpleProfiler.cs" />
     <Compile Include="MyRenderCustomMaterialData.cs" />
     <Compile Include="Generics\MySparseGrid.cs" />
     <Compile Include="MyConsoleMethodNotFoundException.cs" />

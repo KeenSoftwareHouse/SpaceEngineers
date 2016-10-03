@@ -110,6 +110,11 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+        public void GetShapesInInterval(Vector3I min, Vector3I max, List<HkShape> shapeList)
+        {
+            m_root.GetShapesInInterval(min, max, shapeList);
+        }
+
         private void AddShapesFromCollector()
         {
             int num = 0;

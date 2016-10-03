@@ -91,6 +91,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private EmissivityState m_emissivityState = EmissivityState.UNSET;
         private bool HasConstraint = false;
 
+        private bool IsWithinWorldLimits
+        {
+            get
+            {
+                if (!Sandbox.Game.World.MySession.Static.EnableBlockLimits) return true;
+                return Sandbox.Game.World.MySession.Static.MaxGridSize == 0 || CubeGrid.BlocksCount + m_other.CubeGrid.BlocksCount <= Sandbox.Game.World.MySession.Static.MaxGridSize;
+            }
+        }
+
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
             base.Init(objectBuilder, cubeGrid);
@@ -472,7 +481,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             if (SafeConstraint != null)
             {
                 bool staticOk = this.CubeGrid.IsStatic || !m_other.CubeGrid.IsStatic;
-                if (!staticOk || !IsWorking || !m_other.IsWorking)
+                if (!staticOk || !IsWorking || !m_other.IsWorking || !IsWithinWorldLimits)
                     return;
 
                 Debug.Assert(!m_other.CubeGrid.MarkedForClose && !CubeGrid.MarkedForClose);

@@ -2614,7 +2614,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>8</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -2641,7 +2641,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>12</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -2668,7 +2668,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1.2</Volume>
-      <MaxDistance>100</MaxDistance>
+      <MaxDistance>200</MaxDistance>
       <PitchVariation>300</PitchVariation>
       <PreventSynchronization>12</PreventSynchronization>
       <SoundLimit>3</SoundLimit>
@@ -2700,7 +2700,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1.2</Volume>
-      <MaxDistance>150</MaxDistance>
+      <MaxDistance>400</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <PreventSynchronization>12</PreventSynchronization>
       <SoundLimit>3</SoundLimit>
@@ -2732,7 +2732,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>800</MaxDistance>
+      <MaxDistance>750</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <PreventSynchronization>10</PreventSynchronization>
       <SoundLimit>4</SoundLimit>
@@ -2761,7 +2761,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>800</MaxDistance>
+      <MaxDistance>1000</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <PreventSynchronization>10</PreventSynchronization>
       <SoundLimit>4</SoundLimit>
@@ -2790,7 +2790,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>8</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -2817,7 +2817,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>10</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -2844,7 +2844,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>14</MaxDistance>
+      <MaxDistance>200</MaxDistance>
       <PitchVariation>300</PitchVariation>
       <PreventSynchronization>12</PreventSynchronization>
       <SoundLimit>3</SoundLimit>
@@ -2922,7 +2922,7 @@
         <SubtypeId>RealImpRockRockCat1</SubtypeId>
       </Id>
       <Volume>1</Volume>
-      <MaxDistance>9</MaxDistance>
+      <MaxDistance>11</MaxDistance>
       <PitchVariation>150</PitchVariation>
       <VolumeVariation>1</VolumeVariation>
       <!--<Pitch>-2</Pitch>-->
@@ -3006,7 +3006,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3033,7 +3033,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3060,7 +3060,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3087,7 +3087,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3114,7 +3114,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3141,7 +3141,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3168,7 +3168,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>8</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3195,7 +3195,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>10</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3222,7 +3222,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3249,7 +3249,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>7</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>200</PitchVariation>
       <VolumeVariation>2</VolumeVariation>
       <PreventSynchronization>6</PreventSynchronization>
@@ -3275,7 +3275,7 @@
         <SubtypeId>RealImpRockCharacterCat0</SubtypeId>
       </Id>
       <Volume>1</Volume>
-      <MaxDistance>8</MaxDistance>
+      <MaxDistance>10</MaxDistance>
       <PitchVariation>100</PitchVariation>
       <VolumeVariation>1</VolumeVariation>
       <!--<Pitch>-2</Pitch>-->
@@ -3325,7 +3325,7 @@
         <SubtypeId>RealImpRockCharacterCat1</SubtypeId>
       </Id>
       <Volume>1</Volume>
-      <MaxDistance>11</MaxDistance>
+      <MaxDistance>15</MaxDistance>
       <PitchVariation>150</PitchVariation>
       <VolumeVariation>1</VolumeVariation>
       <!--<Pitch>-2</Pitch>-->
@@ -4227,7 +4227,7 @@
       </Id>
       <Category>R_IMP</Category>
       <Volume>1</Volume>
-      <MaxDistance>45</MaxDistance>
+      <MaxDistance>50</MaxDistance>
       <PitchVariation>100</PitchVariation>
       <VolumeVariation>1</VolumeVariation>
       <PreventSynchronization>5</PreventSynchronization>

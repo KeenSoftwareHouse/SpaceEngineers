@@ -24,10 +24,24 @@ namespace VRage
         public const float DEFAULT_SPECTATOR_ANGULAR_SPEED = 1f;
         public const float MIN_SPECTATOR_ANGULAR_SPEED = 0.0001f;
         public const float MAX_SPECTATOR_ANGULAR_SPEED = 6.0f;
-
-
+         
         public Vector3D ThirdPersonCameraDelta = new Vector3D(-10, 10, -10);
-        public MySpectatorCameraMovementEnum SpectatorCameraMovement = MySpectatorCameraMovementEnum.UserControlled;
+
+        public MySpectatorCameraMovementEnum SpectatorCameraMovement
+        {
+            get { return m_spectatorCameraMovement; }
+            set
+            {
+                if (m_spectatorCameraMovement != value)
+                    OnChangingMode(oldMode: m_spectatorCameraMovement, newMode: value);
+
+                m_spectatorCameraMovement = value;
+            }
+        }
+
+        protected virtual void OnChangingMode(MySpectatorCameraMovementEnum oldMode, MySpectatorCameraMovementEnum newMode) 
+        {    
+        }
 
         public bool IsInFirstPersonView { get; set; }
         public bool ForceFirstPersonCamera { get; set; }
@@ -38,8 +52,9 @@ namespace VRage
             Static = this;
         }
 
-        Vector3D m_position;
-        Vector3D m_target;
+        private MySpectatorCameraMovementEnum m_spectatorCameraMovement = MySpectatorCameraMovementEnum.UserControlled;
+        private Vector3D m_position;
+        private Vector3D m_target;
 
         public Vector3D Position
         {
@@ -123,7 +138,7 @@ namespace VRage
 
         float m_orbitY = 0;
         float m_orbitX = 0;
-
+        
         //  Moves and rotates player by specified vector and angles
         public virtual void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {

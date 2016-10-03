@@ -15519,6 +15519,7 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WarheadConstruction_3.mwm" />
       </BuildProgressModels>
       <BlockPairName>Warhead</BlockPairName>
+      <ActionSound>WepSmallWarheadExpl</ActionSound>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
       <ExplosionRadius>22.4415</ExplosionRadius>
@@ -15550,6 +15551,7 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\WarheadConstruction_2.mwm" />
       </BuildProgressModels>
       <BlockPairName>Warhead</BlockPairName>
+      <ActionSound>WepLrgWarheadExpl</ActionSound>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <ExplosionRadius> 4.4883 </ExplosionRadius>
@@ -22982,16 +22984,6 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorConstruction_2.mwm" />
       </BuildProgressModels>
       <BlockPairName>ConveyorSmall</BlockPairName>
-      <BlockVariants>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeSmall</SubtypeId>
-        </BlockVariant>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeSmallCurved</SubtypeId>
-        </BlockVariant>
-      </BlockVariants>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
@@ -23332,6 +23324,16 @@
       <BuildProgressModels>
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorTubeConstruction_1.mwm" />
       </BuildProgressModels>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Conveyor</TypeId>
+          <SubtypeId>SmallBlockConveyor</SubtypeId>
+        </BlockVariant>
+        <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeSmallCurved</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <BlockPairName>ConveyorTubeSmall</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
@@ -23361,6 +23363,16 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorTubeMediumConstruction_2.mwm" />
       </BuildProgressModels>
       <BlockPairName>ConveyorTube</BlockPairName>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Conveyor</TypeId>
+          <SubtypeId>SmallShipConveyorHub</SubtypeId>
+        </BlockVariant>
+        <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeCurvedMedium</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>7</BuildTimeSeconds>
       <MountPoints>
@@ -23575,19 +23587,8 @@
         <MountPoint Side="Front" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" />
       </MountPoints>
       <BlockPairName>Conveyor</BlockPairName>
-      <BlockVariants>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeMedium</SubtypeId>
-        </BlockVariant>
-      <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeCurvedMedium</SubtypeId>
-        </BlockVariant>
-      </BlockVariants>
       <MirroringZ>X</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>

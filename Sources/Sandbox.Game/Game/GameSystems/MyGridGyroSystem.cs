@@ -370,6 +370,7 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation(bool networkUpdate = false)
         {
+            VRage.MySimpleProfiler.Begin("Gyro");
             if (m_gyrosChanged)
                 RecomputeGyroParameters();
 
@@ -389,6 +390,7 @@ namespace Sandbox.Game.GameSystems
                 UpdateOverriddenGyros();
 
             m_networkCommandApplied = networkUpdate;
+            VRage.MySimpleProfiler.End("Gyro");
         }
 
         private void RecomputeGyroParameters()

@@ -661,46 +661,50 @@ namespace Sandbox.Engine.Voxels
             for (pos.X = minCorner.X; pos.X <= maxCorner.X; ++pos.X)
                 for (pos.Y = minCorner.Y; pos.Y <= maxCorner.Y; ++pos.Y)
                     for (pos.Z = minCorner.Z; pos.Z <= maxCorner.Z; ++pos.Z)
-            {
-                // get original amount
-                var relPos = pos - cacheMin;
-                var lin = m_cache.ComputeLinear(ref relPos);
-                var original = m_cache.Content(lin);
+                    {
+                        // get original amount
+                        var relPos = pos - cacheMin;
+                        var lin = m_cache.ComputeLinear(ref relPos);
+                        var original = m_cache.Content(lin);
 
-                if (original == MyVoxelConstants.VOXEL_CONTENT_EMPTY) // if there is nothing to remove
-                    continue;
+                        if (original == MyVoxelConstants.VOXEL_CONTENT_EMPTY) // if there is nothing to remove
+                            continue;
 
-                Vector3D spos = (Vector3D)(pos - voxelMap.StorageMin) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
-                var volume = shape.GetVolume(ref spos);
+                        Vector3D spos = (Vector3D)(pos - voxelMap.StorageMin) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
+                        var volume = shape.GetVolume(ref spos);
 
-                if (volume == 0f) // if there is no intersection
-                    continue;
+                        if (volume == 0f) // if there is no intersection
+                            continue;
 
-                var maxRemove = (int)(volume * MyVoxelConstants.VOXEL_CONTENT_FULL);
-                var toRemove = maxRemove;// (int)(maxRemove * voxelMat.DamageRatio);
-                var newVal = Math.Max(original - toRemove, 0);//MathHelper.Clamp(original - toRemove, 0, original-maxRemove);
-                var removed  = original - newVal;
+                        var maxRemove = (int)(volume * MyVoxelConstants.VOXEL_CONTENT_FULL);
+                        var toRemove = maxRemove;// (int)(maxRemove * voxelMat.DamageRatio);
+                        var newVal = Math.Max(original - toRemove, 0);//MathHelper.Clamp(original - toRemove, 0, original-maxRemove);
+                        var removed = original - newVal;
 
-                if (!onlyCheck && !onlyApplyMaterial)
-                    m_cache.Content(lin, (byte)newVal);
+                        if (!onlyCheck && !onlyApplyMaterial)
+                            m_cache.Content(lin, (byte)newVal);
 
-                originalSum += original;
-                removedSum += removed;
+                        originalSum += original;
+                        removedSum += removed;
 
-                if (readMaterial)
-                    voxelMat = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_cache.Material(lin));
+                        var material = m_cache.Material(lin);
+                        if (material != MyVoxelConstants.NULL_MATERIAL)
+                        {
+                            if (readMaterial)
+                                voxelMat = MyDefinitionManager.Static.GetVoxelMaterialDefinition(material);
 
-                if (exactCutOutMaterials != null)
-                {
-                    int value = 0;
-                    exactCutOutMaterials.TryGetValue(voxelMat, out value);
-                    value += (MyFakes.ENABLE_REMOVED_VOXEL_CONTENT_HACK ? (int)(removed * 3.9f) : removed);
-                    exactCutOutMaterials[voxelMat] = value;
-                }
+                            if (exactCutOutMaterials != null)
+                            {
+                                int value = 0;
+                                exactCutOutMaterials.TryGetValue(voxelMat, out value);
+                                value += (MyFakes.ENABLE_REMOVED_VOXEL_CONTENT_HACK ? (int)(removed * 3.9f) : removed);
+                                exactCutOutMaterials[voxelMat] = value;
+                            }
 
-                if (applyDamageMaterial && voxelMat.HasDamageMaterial && !onlyCheck)
-                    m_cache.Material(lin, voxelMat.DamagedMaterialId);
-            }
+                            if (applyDamageMaterial && voxelMat.HasDamageMaterial && !onlyCheck)
+                                m_cache.Material(lin, voxelMat.DamagedMaterialId);
+                        }
+                    }
 
             if (removedSum > 0 && updateSync && Sync.IsServer)
             {
@@ -720,7 +724,7 @@ namespace Sandbox.Engine.Voxels
                 //RemoveSmallVoxelsUsingChachedVoxels();
 
                 var dataTypeFlags = applyDamageMaterial ? MyStorageDataTypeFlags.ContentAndMaterial : MyStorageDataTypeFlags.Content;
-                if (MyFakes.LOG_NAVMESH_GENERATION) MyAIComponent.Static.Pathfinding.VoxelPathfinding.DebugLog.LogStorageWrite(voxelMap, m_cache, dataTypeFlags, cacheMin, cacheMax);
+                if (MyFakes.LOG_NAVMESH_GENERATION && MyAIComponent.Static.Pathfinding != null) MyAIComponent.Static.Pathfinding.GetPathfindingLog().LogStorageWrite(voxelMap, m_cache, dataTypeFlags, cacheMin, cacheMax);
                 voxelMap.Storage.WriteRange(m_cache, dataTypeFlags, ref cacheMin, ref cacheMax);
             }
             ProfilerShort.End();

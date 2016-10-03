@@ -348,6 +348,7 @@ namespace Sandbox.Engine.Platform
             }
 
             ProfilerShort.Commit();
+            MySimpleProfiler.Commit();
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update End");
         }
 

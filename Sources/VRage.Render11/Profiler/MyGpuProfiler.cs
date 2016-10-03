@@ -141,6 +141,7 @@ namespace VRage.Render11.Profiler
                     {
                         stackDepth++;
                         MyRender11.GetRenderProfiler().GPU_StartProfilingBlock(q.m_tag);
+                        MySimpleProfiler.BeginGPUBlock(q.m_tag);
                         m_timestampStack.Push(timestamp);
                     }
                     else if (q.m_info == MyIssuedQueryEnum.BlockEnd)
@@ -151,6 +152,7 @@ namespace VRage.Render11.Profiler
 
                         // tick is 100 nanoseconds = 10^-7 second
                         MyRender11.GetRenderProfiler().GPU_EndProfilingBlock(0, MyTimeSpan.FromSeconds(time));
+                        MySimpleProfiler.EndGPUBlock(MyTimeSpan.FromSeconds(time));
                     }
 
                     Debug.Assert(stackDepth >= 0);
@@ -179,7 +181,6 @@ namespace VRage.Render11.Profiler
             }
         }
 
-        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         internal static void StartFrame()
         {
             if (m_pooledFrames.Count == 0)
@@ -197,7 +198,6 @@ namespace VRage.Render11.Profiler
             IC_BeginBlock("Frame");
         }
 
-        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         internal static void EndFrame()
         {
             if (m_currentFrame == null)
@@ -211,6 +211,8 @@ namespace VRage.Render11.Profiler
             m_frames.Enqueue(m_currentFrame);
         }
 
+        //IMPORTANT: If you change anything here, also change it in IC_BeginBlockAlways
+        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         internal static void IC_BeginBlock(string tag)
         {
             MyImmediateRC.RC.BeginDxAnnotationBlock(tag);
@@ -224,13 +226,31 @@ namespace VRage.Render11.Profiler
             MyImmediateRC.RC.EndProfilingBlock();
             MyImmediateRC.RC.BeginProfilingBlock(tag);
         }
-        
+
+        //IMPORTANT: If you change anything here, also change it in IC_EndBlockAlways
         internal static void IC_EndBlock()
         {
             MyImmediateRC.RC.EndDxAnnotationBlock();
             MyImmediateRC.RC.EndProfilingBlock();
         }
+
+        /// <summary>
+        /// IC_BeginBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal static void IC_BeginBlockAlways(string tag)
+        {
+            MyImmediateRC.RC.BeginProfilingBlockAlways(tag);
+        }
+
+        /// <summary>
+        /// IC_EndBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal static void IC_EndBlockAlways()
+        {
+            MyImmediateRC.RC.EndProfilingBlockAlways();
+        }
     }
+
 #else // XB1
     class MyGpuProfiler
     {

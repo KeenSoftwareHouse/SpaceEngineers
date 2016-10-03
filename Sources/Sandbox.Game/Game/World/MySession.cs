@@ -81,6 +81,8 @@ namespace Sandbox.Game.World
         internal MyTimeSpan m_timeOfSave;
         internal DateTime m_lastTimeMemoryLogged;
 
+        private Dictionary<string, short> EmptyBlockTypeLimitDictionary = new Dictionary<string, short>();
+
         internal Dictionary<long, MyCameraControllerSettings> m_cameraControllerSettings = new Dictionary<long, MyCameraControllerSettings>();
 
         public static MySession Static { get; set; }
@@ -146,6 +148,12 @@ namespace Sandbox.Game.World
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
         public short MaxBackupSaves { get { return Settings.MaxBackupSaves; } }
+
+        public int MaxGridSize { get { return Settings.MaxGridSize; } }
+        public int MaxBlocksPerPlayer { get { return Settings.MaxBlocksPerPlayer; } }
+        public Dictionary<string, short> BlockTypeLimits { get { return Settings.EnableBlockLimits ? Settings.BlockTypeLimits.Dictionary : EmptyBlockTypeLimitDictionary; } }
+        public bool EnableRemoteBlockRemoval { get { return Settings.EnableRemoteBlockRemoval; } }
+        public bool EnableBlockLimits { get { return MyPerGameSettings.Game == GameEnum.SE_GAME; } }
         public float InventoryMultiplier { get { return Settings.InventorySizeMultiplier; } }
         public float RefinerySpeedMultiplier { get { return Settings.RefinerySpeedMultiplier; } }
         public float AssemblerSpeedMultiplier { get { return Settings.AssemblerSpeedMultiplier; } }
@@ -474,6 +482,23 @@ namespace Sandbox.Game.World
         }
 
         /// <summary>
+        /// Show performance warning from server
+        /// </summary>
+        [Event, Broadcast]
+        private static void OnServerPerformanceWarning(string key)
+        {
+            MySimpleProfiler.ShowServerPerformanceWarning(key);
+        }
+
+        /// <summary>
+        /// Send performance warnings to clients
+        /// </summary>
+        void PerformanceWarning(MySimpleProfiler.MySimpleProfilingBlock block)
+        {
+            MyMultiplayer.RaiseStaticEvent(s => OnServerPerformanceWarning, (block.Name));
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MySession"/> class.
         /// </summary>
         private MySession(MySyncLayer syncLayer, bool registerComponents = true)
@@ -555,7 +580,10 @@ namespace Sandbox.Game.World
             multiplayer.Scenario = IsScenario;
 
             if (Engine.Platform.Game.IsDedicated)
+            {
                 (multiplayer as MyDedicatedServerBase).SendGameTagsToSteam();
+                VRage.MySimpleProfiler.ShowPerformanceWarning += PerformanceWarning;
+            }
 
             MyHud.Chat.RegisterChat(multiplayer);
             Static.Gpss.RegisterChat(multiplayer);
@@ -1501,15 +1529,15 @@ namespace Sandbox.Game.World
                     }
                     else
                     {
-                        Debug.Assert(ControlledEntity is IMyCameraController, "Controlled entity is not a camera controller");
+                    Debug.Assert(ControlledEntity is IMyCameraController, "Controlled entity is not a camera controller");
 
-                        if (!(ControlledEntity is IMyCameraController))
-                        {
-                            cameraEntity = null;
-                            cameraControllerToSet = MyCameraControllerEnum.Spectator;
-                        }
+                    if (!(ControlledEntity is IMyCameraController))
+                    {
+                        cameraEntity = null;
+                        cameraControllerToSet = MyCameraControllerEnum.Spectator;
                     }
                 }
+            }
             }
             else
             {
@@ -2391,6 +2419,17 @@ namespace Sandbox.Game.World
                 return Static.LocalHumanPlayer.GetPosition();
             else
                 return default(Vector3D);
+        }
+
+        public short GetBlockTypeLimit(string blockType)
+        {
+            int divisor = 1;//OnlineMode == MyOnlineModeEnum.OFFLINE || OnlineMode == MyOnlineModeEnum.PRIVATE ? 1 : MaxPlayers;
+            short limit;
+            if (!BlockTypeLimits.TryGetValue(blockType, out limit))
+                return 0;
+            if (limit > 0 && limit / divisor == 0)
+                return 1;
+            else return (short)(limit / divisor);
         }
     }
 }

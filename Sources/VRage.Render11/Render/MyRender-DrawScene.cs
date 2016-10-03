@@ -342,7 +342,7 @@ namespace VRageRender
         // Returns the final image and copies it to renderTarget if non-null
         private static IRtvTexture DrawGameScene(IRtvBindable renderTarget)
         {
-            MyGpuProfiler.IC_BeginBlock("Clear & Geometry Render");
+            MyGpuProfiler.IC_BeginBlockAlways("ClearAndGeometryRender");
                        
             PrepareGameScene();
 
@@ -392,7 +392,7 @@ namespace VRageRender
                 ProfilerShort.End();
             }
             
-            MyGpuProfiler.IC_EndBlock();
+            MyGpuProfiler.IC_EndBlockAlways();
 
             ProfilerShort.Begin("Render decals - Opaque");
             MyGpuProfiler.IC_BeginBlock("Render decals - Opaque");
@@ -401,9 +401,9 @@ namespace VRageRender
             MyGpuProfiler.IC_EndBlock();
 
             ProfilerShort.BeginNextBlock("Render foliage");
-            MyGpuProfiler.IC_BeginBlock("Render foliage");
+            MyGpuProfiler.IC_BeginBlockAlways("RenderFoliage");
             m_foliageRenderer.Render();
-            MyGpuProfiler.IC_EndBlock();
+            MyGpuProfiler.IC_EndBlockAlways();
 
             MyGpuProfiler.IC_BeginBlock("GBuffer Resolve");
             ProfilerShort.BeginNextBlock("MySceneMaterials.MoveToGPU");
@@ -427,7 +427,7 @@ namespace VRageRender
                 }
 
                 ProfilerShort.BeginNextBlock("Shadows");
-                MyGpuProfiler.IC_BeginBlock("Shadows");
+                MyGpuProfiler.IC_BeginBlockAlways("Shadows");
                 IBorrowedUavTexture postProcessedShadows;
                 if (MyScene.SeparateGeometry)
                 {
@@ -443,17 +443,17 @@ namespace VRageRender
                     postProcessedShadows = DynamicShadows.ShadowCascades.PostProcess(DynamicShadows.ShadowCascades.CascadeShadowmapArray);
                     //postProcessedShadows = MyManagers.Shadow.Evaluate();
                 }
-                MyGpuProfiler.IC_EndBlock();
+                MyGpuProfiler.IC_EndBlockAlways();
 
                 if (MySSAO.Params.Enabled && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
                 {
-                    ProfilerShort.BeginNextBlock("SSAO");
-                    MyGpuProfiler.IC_BeginBlock("SSAO");
+                ProfilerShort.BeginNextBlock("SSAO");
+                MyGpuProfiler.IC_BeginBlockAlways("SSAO");
                     MySSAO.Run(MyScreenDependants.m_ambientOcclusion, MyGBuffer.Main, MyRender11.MultisamplingEnabled ? MyScreenDependants.m_resolvedDepth.SrvDepth : MyGBuffer.Main.DepthStencil.SrvDepth);
 
                     if (MySSAO.Params.UseBlur)
                         MyBlur.Run(MyScreenDependants.m_ambientOcclusion, MyScreenDependants.m_ambientOcclusionHelper, MyScreenDependants.m_ambientOcclusion, clearColor : Color4.White);
-                    MyGpuProfiler.IC_EndBlock();
+                    MyGpuProfiler.IC_EndBlockAlways();
                 }
                 else if (MyHBAO.Params.Enabled && m_debugOverrides.Postprocessing && m_debugOverrides.SSAO)
                 {
@@ -469,10 +469,10 @@ namespace VRageRender
                 }
 
                 ProfilerShort.BeginNextBlock("Lights");
-                MyGpuProfiler.IC_BeginBlock("Lights");
+                MyGpuProfiler.IC_BeginBlockAlways("Lights");
                 if (m_debugOverrides.Lighting)
                     MyLightRendering.Render(postProcessedShadows);
-                MyGpuProfiler.IC_EndBlock();
+                MyGpuProfiler.IC_EndBlockAlways();
                 postProcessedShadows.Release();
 
                 if (MyRender11.DebugOverrides.Flares)
@@ -483,23 +483,23 @@ namespace VRageRender
 
             // Rendering for VR is solved inside of Transparent rendering
             ProfilerShort.BeginNextBlock("Transparent Pass");
-            MyGpuProfiler.IC_BeginBlock("Transparent Pass");
+            MyGpuProfiler.IC_BeginBlockAlways("TransparentPass");
             if (m_debugOverrides.Transparent)
                 MyTransparentRendering.Render();
-            MyGpuProfiler.IC_EndBlock();
+            MyGpuProfiler.IC_EndBlockAlways();
 
             ProfilerShort.BeginNextBlock("PostProcess");
-            MyGpuProfiler.IC_BeginBlock("PostProcess");
+            MyGpuProfiler.IC_BeginBlockAlways("PostProcess");
             MyGpuProfiler.IC_BeginBlock("Luminance reduction");
             IBorrowedUavTexture avgLum = null;
 
             if (MyRender11.Postprocess.EnableEyeAdaptation)
             {
-                if (m_resetEyeAdaptation)
-                {
+            if (m_resetEyeAdaptation)
+            {
                     MyLuminanceAverage.Reset();
-                    m_resetEyeAdaptation = false;
-                }
+                m_resetEyeAdaptation = false;
+            }
 
                 avgLum = MyLuminanceAverage.Run(MyGBuffer.Main.LBuffer);
             }
@@ -607,7 +607,7 @@ namespace VRageRender
                 if (renderTarget != null && avgLum != null)
                     MyHdrDebugTools.DisplayHistogram(renderTarget, avgLum, histogram);
             }
-            MyGpuProfiler.IC_EndBlock();
+            MyGpuProfiler.IC_EndBlockAlways();
             ProfilerShort.End();
 
             if (rgba8_0 != null)
@@ -653,6 +653,7 @@ namespace VRageRender
 
         private static void UpdateSceneFrame()
         {
+            MySimpleProfiler.Begin("Textures");
             ProfilerShort.Begin("LoadMeshes");
             MyMeshes.Load();
             ProfilerShort.End();
@@ -666,6 +667,7 @@ namespace VRageRender
             ProfilerShort.Begin("GatherTextures");
             GatherTextures();
             ProfilerShort.End();
+            MySimpleProfiler.End("Textures");
 
             MyBillboardRenderer.OnFrameStart();
 

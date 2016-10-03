@@ -1018,8 +1018,11 @@ namespace Sandbox.Game.Entities
 
                 ProfilerShort.BeginNextBlock("Each update");
                 m_entitiesForUpdate.ApplyChanges();
+
+                MySimpleProfiler.Begin("Blocks");
                 foreach (MyEntity entity in m_entitiesForUpdate)
                 {
+                    string typeName = entity.GetType().Name;
                     //ProfilerShort.Begin(Partition.Select(entity.GetType().GetHashCode(), "Part1", "Part2", "Part3"));
                     ProfilerShort.Begin(entity.GetType().Name);
                     if (entity.MarkedForClose == false)
@@ -1075,6 +1078,7 @@ namespace Sandbox.Game.Entities
                 }
                 ProfilerShort.End();
             }
+            MySimpleProfiler.End("Blocks");
 
             UpdateInProgress = false;
 
@@ -1108,6 +1112,8 @@ namespace Sandbox.Game.Entities
 
                 ProfilerShort.Begin("UpdateAfter1");
                 m_entitiesForUpdate.ApplyChanges();
+
+                MySimpleProfiler.Begin("Blocks");
                 for (int i = 0; i < m_entitiesForUpdate.Count; i++)
                 {
                     MyEntity entity = m_entitiesForUpdate[i];
@@ -1166,6 +1172,7 @@ namespace Sandbox.Game.Entities
                     }
                 }
                 ProfilerShort.End();
+                MySimpleProfiler.End("Blocks");
 
                 UpdateInProgress = false;
 
@@ -1206,6 +1213,7 @@ namespace Sandbox.Game.Entities
 
         public static void Draw()
         {
+            MySimpleProfiler.Begin("Render");
             ProfilerShort.Begin("Each draw");
             m_entitiesForDraw.ApplyChanges();
 
@@ -1236,6 +1244,7 @@ namespace Sandbox.Game.Entities
                 var worldToLocal = MatrixD.Invert(worldMatrix);
                 MySimpleObjectDraw.DrawAttachedTransparentBox(ref worldMatrix, ref localAABB, ref args.Color, entry.Key.Render.GetRenderObjectID(), ref worldToLocal, MySimpleObjectRasterizer.Wireframe, Vector3I.One, args.LineWidth, lineMaterial: args.lineMaterial);
             }
+            MySimpleProfiler.End("Render");
         }
 
 
@@ -2293,7 +2302,7 @@ namespace Sandbox.Game.Entities
                     if (setPosAndRot)
                     {
                         ob.PositionAndOrientation = new VRage.MyPositionAndOrientation(position.HasValue ? position.Value : Vector3.Zero, forward.HasValue ? forward.Value : Vector3.Forward, up.HasValue ? up.Value : Vector3.Up);
-                    }
+    }
 
                     var entity = MyEntities.CreateFromObjectBuilder(ob);
                     Debug.Assert(entity != null, "Entity wasn't created!");

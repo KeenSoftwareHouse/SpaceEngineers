@@ -395,10 +395,31 @@ namespace Sandbox.Game.Gui
             }
             else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
-                    cue = MyGuiSounds.HudVocStationFuelLow;
+                MyCockpit cockpit = (MyCockpit)MySession.Static.ControlledEntity.Entity;
+                bool hasReactor = false;
+                List<MyCubeGrid> connectedGroups = MyCubeGridGroups.Static.Logical.GetGroupNodes(cockpit.CubeGrid);
+                if (connectedGroups == null || connectedGroups.Count == 0)
+                    return false;
+
+                foreach (var grid in connectedGroups)
+                {
+                    if (grid.NumberOfReactors > 0)
+                    {
+                        hasReactor = true;
+                        break;
+                    }
+                }
+
+                if (hasReactor)
+                {
+                    if (cockpit.CubeGrid.IsStatic)
+                        cue = MyGuiSounds.HudVocStationFuelLow;
+                    else
+                        cue = MyGuiSounds.HudVocShipFuelLow;
+                }
                 else
-                    cue = MyGuiSounds.HudVocShipFuelLow;
+                    return false;
+
                 if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null 
                     && MySession.Static.LocalCharacter.OxygenComponent.NeedsOxygenFromSuit && MySession.Static.Settings.EnableOxygen)
                 {
@@ -435,10 +456,31 @@ namespace Sandbox.Game.Gui
             }
             else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
-                    cue = MyGuiSounds.HudVocStationFuelCrit;
+                MyCockpit cockpit = (MyCockpit)MySession.Static.ControlledEntity.Entity;
+                bool hasReactor = false;
+                List<MyCubeGrid> connectedGroups = MyCubeGridGroups.Static.Logical.GetGroupNodes(cockpit.CubeGrid);
+                if (connectedGroups == null || connectedGroups.Count == 0)
+                    return false;
+
+                foreach (var grid in connectedGroups)
+                {
+                    if (grid.NumberOfReactors > 0)
+                    {
+                        hasReactor = true;
+                        break;
+                    }
+                }
+
+                if (hasReactor)
+                {
+                    if (cockpit.CubeGrid.IsStatic)
+                        cue = MyGuiSounds.HudVocStationFuelCrit;
+                    else
+                        cue = MyGuiSounds.HudVocShipFuelCrit;
+                }
                 else
-                    cue = MyGuiSounds.HudVocShipFuelCrit;
+                    return false;
+
                 if (MySession.Static.LocalCharacter != null && MySession.Static.LocalCharacter.OxygenComponent != null
                     && MySession.Static.LocalCharacter.OxygenComponent.NeedsOxygenFromSuit && MySession.Static.Settings.EnableOxygen)
                 {
@@ -467,11 +509,32 @@ namespace Sandbox.Game.Gui
             }
             else if (MySession.Static.ControlledEntity.Entity is MyCockpit)
             {
-                if ((MySession.Static.ControlledEntity.Entity as MyCockpit).CubeGrid.IsStatic)
-                    cue = MyGuiSounds.HudVocStationFuelNo;
+                MyCockpit cockpit = (MyCockpit)MySession.Static.ControlledEntity.Entity;
+                bool hasReactor = false;
+                List<MyCubeGrid> connectedGroups = MyCubeGridGroups.Static.Logical.GetGroupNodes(cockpit.CubeGrid);
+                if (connectedGroups == null || connectedGroups.Count == 0)
+                    return false;
+
+                foreach (var grid in connectedGroups)
+                {
+                    if (grid.NumberOfReactors > 0)
+                    {
+                        hasReactor = true;
+                        break;
+                    }
+                }
+                
+                if (hasReactor)
+                {
+                    if (cockpit.CubeGrid.IsStatic)
+                        cue = MyGuiSounds.HudVocStationFuelNo;
+                    else
+                        cue = MyGuiSounds.HudVocShipFuelNo;
+
+                    text = MySpaceTexts.NotificationFuelNo;
+                }
                 else
-                    cue = MyGuiSounds.HudVocShipFuelNo;
-                text = MySpaceTexts.NotificationFuelNo;
+                    return false;
             }
             else
                 return false;

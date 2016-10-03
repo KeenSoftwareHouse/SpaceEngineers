@@ -72,6 +72,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlSlider m_maxPlayersSlider;
         MyGuiControlLabel m_maxPlayersLabel, m_asteroidAmountLabel;
         MyGuiControlCheckbox m_autoSave;
+        MyGuiControlCheckbox m_blockLimits;
 
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
@@ -152,8 +153,6 @@ namespace Sandbox.Game.Gui
             float height = checkpoint == null ? 1.24f : 1.00f;
             if (MyFakes.ENABLE_NEW_SOUNDS)
                 height += 0.05f;
-            if (checkpoint != null)
-                height -= 0.05f;
             height -= 0.27f;
 
             return new Vector2(width, height);
@@ -342,6 +341,13 @@ namespace Sandbox.Game.Gui
                 Controls.Add(m_asteroidAmountCombo);
             }
 
+            var blockLimitsLabel = MakeLabel(MyCommonTexts.WorldSettings_BlockLimits);
+            m_blockLimits = new MyGuiControlCheckbox();
+            m_blockLimits.IsCheckedChanged = blockLimits_CheckedChanged;
+            m_blockLimits.SetToolTip(MyTexts.GetString(MyCommonTexts.ToolTipWorldSettingsBlockLimits));
+            Controls.Add(blockLimitsLabel);
+            Controls.Add(m_blockLimits);
+
             var autoSaveLabel = MakeLabel(MyCommonTexts.WorldSettings_AutoSave);
             m_autoSave = new MyGuiControlCheckbox();
             m_autoSave.SetToolTip(new StringBuilder().AppendFormat(MyCommonTexts.ToolTipWorldSettingsAutoSave, MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES).ToString());
@@ -357,8 +363,8 @@ namespace Sandbox.Game.Gui
 
 #if !XB1 // XB1_NOWORKSHOP
             if (!MyFakes.XB1_PREVIEW)
-                if (MyFakes.ENABLE_WORKSHOP_MODS)
-                    Controls.Add(mods);
+            if (MyFakes.ENABLE_WORKSHOP_MODS)
+                Controls.Add(mods);
 #endif // !XB1
 
             Controls.Add(advanced);
@@ -498,6 +504,24 @@ namespace Sandbox.Game.Gui
             else
             {
                 UpdateAsteroidAmountEnabled((m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled);
+            }
+        }
+
+        private void blockLimits_CheckedChanged(MyGuiControlCheckbox checkbox)
+        {
+            if (!checkbox.IsChecked)
+            {
+                var messageBox = MyGuiSandbox.CreateMessageBox(
+                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextBlockLimitDisableWarning),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning));
+                MyGuiSandbox.AddScreen(messageBox);
+                Settings.MaxBlocksPerPlayer = 0;
+                Settings.MaxGridSize = 0;
+            }
+            else
+            {
+                Settings.MaxBlocksPerPlayer = 100000;
+                Settings.MaxGridSize = 50000;
             }
         }
 
@@ -748,6 +772,7 @@ namespace Sandbox.Game.Gui
             m_settings.GameMode = GetGameMode();
             m_settings.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
             m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;
+            m_settings.EnableBlockLimits = m_blockLimits.IsChecked;
         }
 
         protected virtual void SetSettingsToControls()
@@ -760,6 +785,7 @@ namespace Sandbox.Game.Gui
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
             m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
             m_soundModeCombo.SelectItemByKey(m_settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
+            m_blockLimits.IsChecked = m_settings.EnableBlockLimits;
         }
 
         private string GetPassword()

@@ -479,6 +479,12 @@ namespace VRage.Utils
 
         void WriteStringBuilder(StringBuilder sb)
         {
+            //JC: fix for a NullReferenceException, when the game is closed
+            if (sb == null || 
+                m_tmpWrite == null ||
+                m_streamWriter == null)
+                return;
+
             if (m_tmpWrite.Length < sb.Length)
             {
                 Array.Resize(ref m_tmpWrite, Math.Max(m_tmpWrite.Length * 2, sb.Length));

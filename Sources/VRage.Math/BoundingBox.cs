@@ -1128,6 +1128,12 @@ namespace VRageMath
             Min -= new Vector3(size);
         }
 
+        public void Inflate(Vector3 size)
+        {
+            Max += size;
+            Min -= size;
+        }
+
         public void InflateToMinimum(Vector3 minimumSize)
         {
             Vector3 minCenter = Center;

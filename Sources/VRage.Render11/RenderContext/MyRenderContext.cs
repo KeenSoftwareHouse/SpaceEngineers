@@ -217,6 +217,38 @@ namespace VRage.Render11.RenderContext
                 MyGpuProfiler.IC_Enqueue(info);
             }
         }
+
+        internal void BeginProfilingBlockAlways(string tag)
+        {
+            var q = MyQueryFactory.CreateTimestampQuery();
+            End(q);
+            var info = new MyIssuedQuery(q, tag, MyIssuedQueryEnum.BlockStart);
+
+            if (m_isDeferred)
+            {
+                m_profilingQueries.m_issued.Enqueue(info);
+            }
+            else
+            {
+                MyGpuProfiler.IC_Enqueue(info);
+            }
+        }
+
+        internal void EndProfilingBlockAlways()
+        {
+            var q = MyQueryFactory.CreateTimestampQuery();
+            End(q);
+            var info = new MyIssuedQuery(q, "", MyIssuedQueryEnum.BlockEnd);
+
+            if (m_isDeferred)
+            {
+                m_profilingQueries.m_issued.Enqueue(info);
+            }
+            else
+            {
+                MyGpuProfiler.IC_Enqueue(info);
+            }
+        }
         #endregion
 
         #region DeviceContext

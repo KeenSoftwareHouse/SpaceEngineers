@@ -36,6 +36,7 @@ namespace VRage.Game
 
         bool IsDirty { get; }
         void SetDirty();
+        bool Show { get; set; }
 
         void Draw(List<VRageRender.MyBillboard> collectedBillboards);
         void PrepareForDraw(ref VRageRender.MyBillboard effectBillboard);

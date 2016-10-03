@@ -41,7 +41,7 @@ namespace Sandbox.Engine.Voxels
             return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true, MyFakes.ENABLE_VOXEL_COMPUTED_OCCLUSION);
         }
 
-        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck = false)
+        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck = false, bool adviseCache = false)
         {
             // change range so normal can be computed at edges (expand by 1 in all directions)
             voxelStart -= 1;
@@ -54,6 +54,8 @@ namespace Sandbox.Engine.Voxels
                 if (storage.Closed) return null;    
 
                 MyVoxelRequestFlags request = MyVoxelRequestFlags.ContentChecked; // | (doNotCheck ? MyVoxelRequestFlags.DoNotCheck : 0);
+                if (adviseCache)
+                    request |= MyVoxelRequestFlags.AdviseCache;
                 //if (lod == 0 && generateMaterials) request |= MyVoxelRequestFlags.AdviseCache;
 
                 bool readAmbient = false;

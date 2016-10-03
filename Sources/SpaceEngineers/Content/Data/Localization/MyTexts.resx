@@ -5595,4 +5595,43 @@ When this is 0 then the backup feature is disabled and all backups are deleted u
   <data name="TerminalTab_Chat_ChatHistory" xml:space="preserve">
     <value>-Global Chat History-</value>
   </data>
+  <data name="NotificationShipOverLimits" xml:space="preserve">
+    <value>Cannot place. Ship would exceed regulations.</value>
+  </data>
+  <data name="WorldSettings_MaxBlocksPerPlayer" xml:space="preserve">
+    <value>Max blocks per player</value>
+  </data>
+  <data name="WorldSettings_MaxGridSize" xml:space="preserve">
+    <value>Max ship size</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxBlocksPerPlayer" xml:space="preserve">
+    <value>Maximum number of blocks each player can build. Destroyed blocks are refunded</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxGridSize" xml:space="preserve">
+    <value>Maximum size (in blocks) of ships and stations</value>
+  </data>
+  <data name="TerminalTab_Info_Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="TerminalTab_Info_BlocksLower" xml:space="preserve">
+    <value>blocks</value>
+  </data>
+  <data name="TerminalTab_Info_Overview" xml:space="preserve">
+    <value>Owned blocks overview</value>
+  </data>
+  <data name="TerminalTab_Info_YouBuilt" xml:space="preserve">
+    <value>You built</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableRemoteBlockRemoval" xml:space="preserve">
+    <value>Enable players to remotely remove owned blocks to free up their limit.</value>
+  </data>
+  <data name="WorldSettings_EnableRemoteBlockRemoval" xml:space="preserve">
+    <value>Remote block removal</value>
+  </data>
+  <data name="ToolTipWorldSettings_StationVoxelSupport" xml:space="preserve">
+    <value>By enabling this option grids will no longer turn dynamic when disconnected from static grids</value>
+  </data>
+  <data name="WorldSettings_StationVoxelSupport" xml:space="preserve">
+    <value>Unsupported Stations</value>
+  </data>
 </root>

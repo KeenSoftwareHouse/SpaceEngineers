@@ -573,6 +573,7 @@ namespace Sandbox.Engine.Utils
                             m_positionSafeZoomingOutTimeout = 0;// controlledEntity.Parent != null ? m_positionSafeZoomingOutDefaultTimeoutMs : 0;
                             m_positionSafe = safePositionCandidate;
                             m_disableSpringThisFrame = true;
+                            m_positionCurrentIsSafe = distFromCandidateToTarget >= m_safeMinimumDistance;
                         }
                     }
                     break;

@@ -516,9 +516,16 @@ namespace Sandbox.Game.EntityComponents
 
         public void Update100()
         {
-            //thruster composition + ship category
-            m_distanceToShip = m_initialized && m_shipGrid.Physics != null ? (m_shouldPlay2D ? 0 : (float)Vector3D.DistanceSquared(MySector.MainCamera.Position, m_shipGrid.PositionComp.GetPosition())) : float.MaxValue;
-            if (m_initialized && m_shipGrid.Physics != null && m_shipGrid.IsStatic == false)
+            m_distanceToShip = m_initialized && m_shipGrid != null && m_definition != null && m_shipGrid.Physics != null ? (m_shouldPlay2D ? 0 : (float)Vector3D.DistanceSquared(MySector.MainCamera.Position, m_shipGrid.PositionComp.GetPosition())) : float.MaxValue;
+            UpdateCategory();
+            UpdateSounds();
+            UpdateWheels();
+        }
+
+        //thruster composition + ship category
+        private void UpdateCategory()
+        {
+            if (m_initialized && m_shipGrid != null && m_shipGrid.Physics != null && m_shipGrid.IsStatic == false && m_definition != null)
             {
                 if (m_distanceToShip < m_definition.MaxUpdateRange_sq)
                 {
@@ -529,7 +536,7 @@ namespace Sandbox.Game.EntityComponents
 
                     CalculateShipCategory();
                     if (m_isDebris == false && m_shipState != ShipStateEnum.NoPower && (m_singleThrusterTypeShip == false || ShipHasChanged
-                        || m_shipThrusters == null || m_shipThrusters.FinalThrust == Vector3.Zero || m_shipWheels.HasWorkingWheels(false)))
+                        || m_shipThrusters == null || m_shipThrusters.FinalThrust == Vector3.Zero || (m_shipWheels != null && m_shipWheels.HasWorkingWheels(false))))
                         CalculateThrusterComposition();
 
                     if (m_shipSoundSource == null)
@@ -537,9 +544,10 @@ namespace Sandbox.Game.EntityComponents
                     if (m_shipGrid.MainCockpit != null && m_shipGrid.GridSizeEnum == MyCubeSize.Small)
                         m_shipSoundSource = m_shipGrid.MainCockpit;
 
-                    if (m_shipGrid.GridSizeEnum == MyCubeSize.Large && MySession.Static.LocalCharacter != null)
+                    if (m_shipGrid.GridSizeEnum == MyCubeSize.Large && MySession.Static != null && MySession.Static.LocalCharacter != null)
                     {
-                        if (MySession.Static.Settings.RealisticSound == false || MySession.Static.LocalCharacter.AtmosphereDetectorComp.InAtmosphere || MySession.Static.LocalCharacter.AtmosphereDetectorComp.InShipOrStation)
+                        if (MySession.Static.Settings.RealisticSound == false 
+                            || (MySession.Static.LocalCharacter.AtmosphereDetectorComp != null && (MySession.Static.LocalCharacter.AtmosphereDetectorComp.InAtmosphere || MySession.Static.LocalCharacter.AtmosphereDetectorComp.InShipOrStation)))
                         {
                             BoundingSphereD playerSphere = new BoundingSphereD(MySession.Static.LocalCharacter.PositionComp.GetPosition(), m_definition.LargeShipDetectionRadius);
                             m_shipGrid.GetBlocksInsideSphere(ref playerSphere, m_detectedBlocks);
@@ -550,16 +558,25 @@ namespace Sandbox.Game.EntityComponents
                     }
                 }
             }
+        }
 
-            //sound emitter update
+        //sound emitter update
+        private void UpdateSounds()
+        {
             for (int i = 0; i < m_emitters.Length; i++)
             {
-                m_emitters[i].Entity = m_shipSoundSource;
-                m_emitters[i].Update();
+                if (m_emitters[i] != null)
+                {
+                    m_emitters[i].Entity = m_shipSoundSource;
+                    m_emitters[i].Update();
+                }
             }
+        }
 
-            //wheel contact point callbacks
-            if (m_shipGrid.Physics != null && m_shipWheels != null && m_shipWheels.WheelCount > 0)
+        //wheel contact point callbacks
+        private void UpdateWheels()
+        {
+            if (m_shipGrid != null && m_shipGrid.Physics != null && m_shipWheels != null && m_shipWheels.WheelCount > 0)
             {
                 bool start = m_distanceToShip < m_definition.WheelsCallbackRangeCreate_sq && m_isDebris == false;
                 bool stop = m_distanceToShip > m_definition.WheelsCallbackRangeRemove_sq || m_isDebris;
@@ -567,7 +584,7 @@ namespace Sandbox.Game.EntityComponents
                 {
                     foreach (var motor in m_shipWheels.Wheels)
                     {
-                        if (motor.RotorGrid == null || motor.RotorGrid.Physics == null)
+                        if (motor == null || motor.RotorGrid == null || motor.RotorGrid.Physics == null || motor.RotorGrid.Physics.RigidBody == null)
                             continue;
                         if (motor.RotorGrid.HasShipSoundEvents == false && start)
                         {

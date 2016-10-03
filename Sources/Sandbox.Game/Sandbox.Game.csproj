@@ -134,6 +134,9 @@
     <Reference Include="InfinarioSDK">
       <HintPath>..\..\3rd\Infinario\InfinarioSDK.dll</HintPath>
     </Reference>
+    <Reference Include="RecastDetourWrapper">
+      <HintPath>..\..\3rd\RecastDetourWrapper\release\x64\RecastDetourWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\3rd\SharpDX\SharpDX.dll</HintPath>
     </Reference>
@@ -470,6 +473,7 @@
     <Compile Include="Game\AI\MyAIPlugin.cs" />
     <Compile Include="Game\AI\MyBotAiming.cs" />
     <Compile Include="Game\AI\MyBotCollection.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyNavmeshManager.cs" />
     <Compile Include="Game\AI\MyRandomLocationSphere.cs" />
     <Compile Include="Game\AI\Navigation\MyBotNavigation.cs" />
     <Compile Include="Game\AI\Navigation\MyCharacterAvoidance.cs" />
@@ -479,28 +483,37 @@
     <Compile Include="Game\AI\Navigation\MyStuckDetection.cs" />
     <Compile Include="Game\AI\Navigation\MyTargetSteering.cs" />
     <Compile Include="Game\AI\Navigation\MyTreeAvoidance.cs" />
+    <Compile Include="Game\AI\Pathfinding\IMyPathfindingLog.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyDestinationShape.cs" />
     <Compile Include="Game\AI\MyHumanoidBot.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyHighLevelComponent.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyHighLevelPrimitiveObserver.cs" />
     <Compile Include="Game\AI\Pathfinding\IMyNavigationGroup.cs" />
+    <Compile Include="Game\AI\Pathfinding\IMyPath.cs" />
+    <Compile Include="Game\AI\Pathfinding\IMyPathfinding.cs" />
     <Compile Include="Game\AI\Pathfinding\MyBlockNavigationDefinition.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyCestmirPathfindingShorts.cs" />
     <Compile Include="Game\AI\Pathfinding\MyDestinationRing.cs" />
     <Compile Include="Game\AI\Pathfinding\MyDestinationSphere.cs" />
     <Compile Include="Game\AI\Pathfinding\MyDynamicObstacles.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyExternalPathfinding.cs" />
     <Compile Include="Game\AI\Pathfinding\MyGridHighLevelHelper.cs" />
     <Compile Include="Game\AI\Pathfinding\MyGridNavigationMesh.cs" />
     <Compile Include="Game\AI\Pathfinding\MyGridPathfinding.cs" />
     <Compile Include="Game\AI\Pathfinding\MyHighLevelGroup.cs" />
     <Compile Include="Game\AI\Pathfinding\MyHighLevelPrimitive.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavigationEdge.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyNavigationInputMesh.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavigationMesh.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavigationPrimitive.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavigationTriangle.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavmeshCoordinator.cs" />
     <Compile Include="Game\AI\Pathfinding\MyNavgroupLinks.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyNavmeshOBBs.cs" />
     <Compile Include="Game\AI\Pathfinding\MyPathfinding.cs" />
     <Compile Include="Game\AI\Pathfinding\MyPathfindingStopwatch.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyRDPath.cs" />
+    <Compile Include="Game\AI\Pathfinding\MyRDPathfinding.cs" />
     <Compile Include="Game\AI\Pathfinding\MySmartGoal.cs" />
     <Compile Include="Game\AI\Pathfinding\MySmartPath.cs" />
     <Compile Include="Game\AI\Pathfinding\MyVoxelHighLevelHelper.cs" />
@@ -527,6 +540,7 @@
     <Compile Include="Game\Entities\Character\Components\MyInventorySpawnComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterJetpackComponent.cs" />
     <Compile Include="Game\Entities\Character\Components\MyCharacterOxygenComponent.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\MyAIDebugInputComponent.cs" />
     <Compile Include="Game\Entities\Cube\IMyPlacementProvider.cs" />
     <Compile Include="Game\Entities\Cube\MyDefaultPlacementProvider.cs" />
     <Compile Include="Game\Entities\Interfaces\IMyBlockPlacerBase.cs" />
@@ -1543,6 +1557,7 @@
       <Link>Game\Localization\MyTexts.resx</Link>
       <SubType>Designer</SubType>
     </None>
+    <None Include="Resources\cubeblocks.sbc" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

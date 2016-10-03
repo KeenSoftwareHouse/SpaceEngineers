@@ -60,7 +60,7 @@ namespace Sandbox.Game.GUI
             Static = new MyGuiAudio();
 
             foreach (MyGuiSounds sound in Enum.GetValues(typeof(MyGuiSounds)))
-                m_sounds.Add(sound, new MySoundPair(sound.ToString()));
+                m_sounds.Add(sound, new MySoundPair(sound.ToString(), false));
         }
 
 

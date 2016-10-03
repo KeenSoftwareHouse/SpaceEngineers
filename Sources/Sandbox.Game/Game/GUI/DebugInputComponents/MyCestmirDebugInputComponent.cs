@@ -146,7 +146,7 @@ namespace Sandbox.Game.Gui
         void confirmButton_OnButtonClick(MyGuiControlButton sender)
         {
             int index = Convert.ToInt32(m_textbox.Text);
-            MyAIComponent.Static.Pathfinding.VoxelPathfinding.RemoveTriangle(index);
+            MyCestmirPathfindingShorts.Pathfinding.VoxelPathfinding.RemoveTriangle(index);
             CloseScreen();
         }
 
@@ -220,7 +220,7 @@ namespace Sandbox.Game.Gui
         private Vector3D m_point1;
         private Vector3D m_point2;
 
-        private MySmartPath m_smartPath;
+        private IMyPath m_smartPath;
         private Vector3D m_currentTarget;
         private List<Vector3D> m_pastTargets = new List<Vector3D>();
 
@@ -1157,13 +1157,15 @@ namespace Sandbox.Game.Gui
             {
                 m_point1 = m_point2;
                 m_point2 = firstHit.Value;
-                MyAIComponent.Static.Pathfinding.FindPathLowlevel(m_point1, m_point2);
+                MyCestmirPathfindingShorts.Pathfinding.FindPathLowlevel(m_point1, m_point2);
             }
             return true;
         }
 
         private bool FindSmartPath()
         {
+            if (MyAIComponent.Static.Pathfinding == null) return false;
+
             Vector3D? firstHit;
             IMyEntity entity;
             Raycast(out firstHit, out entity);
@@ -1178,7 +1180,7 @@ namespace Sandbox.Game.Gui
                 {
                     m_smartPath.Invalidate();
                 }
-                m_smartPath = MyAIComponent.Static.Pathfinding.FindPathGlobal(m_point1, shape);
+                m_smartPath = MyAIComponent.Static.Pathfinding.FindPathGlobal(m_point1, shape, null);
                 m_pastTargets.Clear();
                 m_currentTarget = m_point1;
                 m_pastTargets.Add(m_currentTarget);
@@ -1191,7 +1193,7 @@ namespace Sandbox.Game.Gui
             if (m_smartPath == null) return false;
 
             float radius;
-            MyEntity relativeEntity;
+            IMyEntity relativeEntity;
             m_smartPath.GetNextTarget(m_currentTarget, out m_currentTarget, out radius, out relativeEntity);
             m_pastTargets.Add(m_currentTarget);
             return true;

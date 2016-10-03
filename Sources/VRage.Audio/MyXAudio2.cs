@@ -1199,8 +1199,8 @@ namespace VRage.Audio
             if ((SoloCue != null) && (SoloCue != cue))
                 return null;
 
-			int waveNumberToIgnore = (source != null ? source.LastPlayedWaveNumber : -1);
-			var sound = m_cueBank.GetVoice(cueId, out waveNumber, type, waveNumberToIgnore);
+            int waveNumberToIgnore = (source != null ? source.LastPlayedWaveNumber : -1);
+            var sound = m_cueBank.GetVoice(cueId, out waveNumber, type, waveNumberToIgnore);
             var originalType = type;
             if (sound == null && source != null && source.Force3D)
             {
@@ -1217,16 +1217,15 @@ namespace VRage.Audio
             {
                 float variation = VolumeVariation(cue);
                 volume = MathHelper.Clamp(volume + variation, 0f, 1f);
-            }       
+            }
             sound.SetVolume(volume);
-            var wave = m_cueBank.GetWave(m_sounds.ItemAt(0), MySoundDimensions.D2, 0, MyCueBank.CuePart.Start);
-
+            
             float semitones = cue.Pitch;
             if (cue.PitchVariation != 0f)
                 semitones += PitchVariation(cue);
             if (cue.DisablePitchEffects)
                 semitones = 0f;
-            if(semitones != 0f)
+            if (semitones != 0f)
                 sound.FrequencyRatio = SemitonesToFrequencyRatio(semitones);
             else
                 sound.FrequencyRatio = 1f;

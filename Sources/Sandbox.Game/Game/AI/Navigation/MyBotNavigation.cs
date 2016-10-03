@@ -435,7 +435,8 @@ namespace Sandbox.Game.AI.Navigation
         public void Goto(Vector3D position, float radius = 0.0f, MyEntity relativeEntity = null)
         {
             m_destinationSphere.Init(ref position, radius);
-            Goto(m_destinationSphere, relativeEntity);
+            Goto(m_destinationSphere, relativeEntity); 
+            //m_path.SetTarget(position, 0.5f, relativeEntity, 1);
         }
 
         /// <summary>
@@ -444,6 +445,8 @@ namespace Sandbox.Game.AI.Navigation
         /// </summary>
         public void Goto(IMyDestinationShape destination, MyEntity relativeEntity = null)
         {
+            if (MyAIComponent.Static.Pathfinding == null) return;
+
             var path = MyAIComponent.Static.Pathfinding.FindPathGlobal(PositionAndOrientation.Translation, destination, relativeEntity);
             if (path == null)
             {
@@ -463,6 +466,8 @@ namespace Sandbox.Game.AI.Navigation
 
         public bool CheckReachability(Vector3D worldPosition, float threshold, MyEntity relativeEntity = null)
         {
+            if (MyAIComponent.Static.Pathfinding == null) return false;
+
             m_destinationSphere.Init(ref worldPosition, 0.0f);
             return MyAIComponent.Static.Pathfinding.ReachableUnderThreshold(PositionAndOrientation.Translation, m_destinationSphere, threshold);
         }
@@ -494,7 +499,7 @@ namespace Sandbox.Game.AI.Navigation
                 MoveCharacter();
         }
 
-        public void FollowPath(MySmartPath path)
+        public void FollowPath(IMyPath path)
         {
             m_path.SetPath(path);
             m_stuckDetection.Reset();

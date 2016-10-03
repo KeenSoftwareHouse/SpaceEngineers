@@ -356,7 +356,7 @@ namespace SpaceEngineers.AI
 
             planet.CorrectSpawnLocation(ref spawnPos, 2.0f);
 
-            MyAgentDefinition botBehavior = TryGetAnimalDefinition(animalSpawnInfo) as MyAgentDefinition;
+            MyAgentDefinition botBehavior = GetAnimalDefinition(animalSpawnInfo) as MyAgentDefinition;
             if (botBehavior != null)
             {
                 if (botBehavior.Id.SubtypeName == Wolf_SUBTYPE_ID && MySession.Static.EnableWolfs)
@@ -428,7 +428,7 @@ namespace SpaceEngineers.AI
             }
         }
 
-        private MyBotDefinition TryGetAnimalDefinition(MyPlanetAnimalSpawnInfo animalSpawnInfo)
+        private MyBotDefinition GetAnimalDefinition(MyPlanetAnimalSpawnInfo animalSpawnInfo)
         {
             Debug.Assert(animalSpawnInfo != null, "Missing animal spawn info in planet definition.");
             Debug.Assert(animalSpawnInfo.Animals != null, "Missing array of animals in planet definition.");
@@ -436,9 +436,7 @@ namespace SpaceEngineers.AI
 
             int animalIndex = MyUtils.GetRandomInt(0, animalSpawnInfo.Animals.Length);
             var animalDefinition = new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), animalSpawnInfo.Animals[animalIndex].AnimalType);
-            MyBotDefinition ret;
-            MyDefinitionManager.Static.TryGetBotDefinition(animalDefinition,out ret);
-            return ret as MyAgentDefinition;
+            return MyDefinitionManager.Static.GetBotDefinition(animalDefinition) as MyAgentDefinition;
         }
 
         public override void UpdateAfterSimulation()

@@ -41,6 +41,8 @@ namespace Sandbox.Game.Gui
         protected MyGuiControlButton m_banButton;
         protected MyGuiControlCombobox m_lobbyTypeCombo;
         protected MyGuiControlSlider m_maxPlayersSlider;
+        protected MyGuiControlTextbox m_playerBlockLimitTextbox;
+        protected MyGuiControlButton m_confirmLimitChangeButton;
         protected HashSet<ulong> m_mutedPlayers;
 
         public MyGuiScreenPlayers() :
@@ -169,6 +171,25 @@ namespace Sandbox.Game.Gui
             m_maxPlayersSlider.ValueChanged = MaxPlayersSlider_Changed;
             aboveControl = m_maxPlayersSlider;
 
+            var playerBlockLimitLabel = new MyGuiControlLabel(
+                position: aboveControl.Position + new Vector2(0f, aboveControl.Size.Y + 0.05f),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                text: MyTexts.GetString(MyCommonTexts.PlayerMaxBlocks));
+            aboveControl = playerBlockLimitLabel;
+
+            m_playerBlockLimitTextbox = new MyGuiControlTextbox(
+                position: aboveControl.Position + new Vector2(0.09f, aboveControl.Size.Y + verticalSpacing + 0.02f),
+                maxLength: 6,
+                type: MyGuiControlTextboxType.DigitsOnly);
+            aboveControl = m_playerBlockLimitTextbox;
+
+            m_playerBlockLimitTextbox.Size = new Vector2(0.18f, m_playerBlockLimitTextbox.Size.Y);
+
+            m_confirmLimitChangeButton = new MyGuiControlButton(
+                position: new Vector2(topLeft.X, aboveControl.Position.Y + aboveControl.Size.Y + verticalSpacing),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
+                text: MyTexts.Get(MyCommonTexts.ScreenMenuButtonSave));
+
             m_playersTable = new MyGuiControlTable()
             {
                 Position = new Vector2(-m_inviteButton.Position.X, m_inviteButton.Position.Y),
@@ -211,6 +232,7 @@ namespace Sandbox.Game.Gui
             m_kickButton.ButtonClicked += kickButton_ButtonClicked;
             m_banButton.ButtonClicked += banButton_ButtonClicked;
             m_lobbyTypeCombo.ItemSelected += lobbyTypeCombo_OnSelect;
+            m_confirmLimitChangeButton.ButtonClicked += confirmLimitChange_ButtonClicked;
 
             Controls.Add(m_inviteButton);
             Controls.Add(m_promoteButton);
@@ -221,6 +243,12 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_lobbyTypeCombo);
             Controls.Add(m_maxPlayersSlider);
             Controls.Add(maxPlayersLabel);
+            if (MySession.Static.MaxBlocksPerPlayer > 0)
+            {
+                Controls.Add(m_playerBlockLimitTextbox);
+                Controls.Add(m_confirmLimitChangeButton);
+                Controls.Add(playerBlockLimitLabel);
+            }
             
             UpdateButtonsEnabledState();
         }
@@ -358,6 +386,20 @@ namespace Sandbox.Game.Gui
             }
             m_lobbyTypeCombo.Enabled = isOwner;
             m_maxPlayersSlider.Enabled = isOwner;
+
+            if (isAdmin)
+            {
+                var identity = MySession.Static.Players.TryGetIdentity(MySession.Static.Players.TryGetIdentityId(selectedUserId));
+                if (identity != null)
+                {
+                    m_playerBlockLimitTextbox.Text = (MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier).ToString();
+                }
+                m_confirmLimitChangeButton.Enabled = true;
+            }
+            else
+            {
+                m_confirmLimitChangeButton.Enabled = false;
+            }
         }
 
         #region Event handlers
@@ -450,6 +492,17 @@ namespace Sandbox.Game.Gui
                 MyMultiplayer.RaiseStaticEvent(x => Promote, (ulong)selectedRow.UserData, false);
         }
 
+        protected void confirmLimitChange_ButtonClicked(MyGuiControlButton obj)
+        {
+            var selectedRow = m_playersTable.SelectedRow;
+            int newAmount;
+            if (selectedRow != null && int.TryParse(m_playerBlockLimitTextbox.Text, out newAmount) && newAmount >= 0)
+            {
+                var identityID = MySession.Static.Players.TryGetIdentityId((ulong)selectedRow.UserData);
+                MyMultiplayer.RaiseStaticEvent(x => ChangePlayerBlockLimit, identityID, newAmount - MySession.Static.MaxBlocksPerPlayer);
+            }
+        }
+
         [Event, Reliable, Server, Broadcast]
         protected static void Promote(ulong playerId, bool promote)
         {
@@ -483,6 +536,16 @@ namespace Sandbox.Game.Gui
         {
             MyHud.Notifications.Remove(promote ? MyNotificationSingletons.PlayerDemoted : MyNotificationSingletons.PlayerPromoted);
             MyHud.Notifications.Add(promote ? MyNotificationSingletons.PlayerPromoted : MyNotificationSingletons.PlayerDemoted);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        protected static void ChangePlayerBlockLimit(long identityID, int newAmount)
+        {
+            var identity = MySession.Static.Players.TryGetIdentity(identityID);
+            if (identity != null)
+            {
+                identity.BlockLimitModifier = newAmount;
+            }
         }
 
         protected static void Refresh()

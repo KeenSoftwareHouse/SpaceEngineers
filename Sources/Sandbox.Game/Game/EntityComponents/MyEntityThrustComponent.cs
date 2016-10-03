@@ -886,11 +886,15 @@ namespace Sandbox.Game.GameSystems
         private void Sink_CurrentInputChanged(MyDefinitionId resourceTypeId, float oldInput, MyResourceSinkComponent sink)
         {
             m_controlThrustChanged = true;
+            if (Entity is MyCubeGrid && Entity.Physics != null && !Entity.Physics.RigidBody.IsActive)
+                (Entity as MyCubeGrid).ActivatePhysics();
         }
 
         private void Sink_IsPoweredChanged()
         {
             MarkDirty();
+            if (Entity is MyCubeGrid && Entity.Physics != null && !Entity.Physics.RigidBody.IsActive)
+                (Entity as MyCubeGrid).ActivatePhysics();
         }
 
         public override void OnAddedToContainer()
@@ -1249,7 +1253,7 @@ namespace Sandbox.Game.GameSystems
             Vector3 negativeControl = Vector3.Clamp(controlThrust, -Vector3.One, Vector3.Zero);
             Vector3 slowdownControl = Vector3.Zero;
 
-            if (DampenersEnabled && (Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive))
+            if (DampenersEnabled && (Entity.Physics.RigidBody == null || Entity.Physics.RigidBody.IsActive || controlThrust != Vector3.Zero))
             {
                 Vector3 networkThrust = Vector3.Zero;
                 if (applyLocalVelocity == false)

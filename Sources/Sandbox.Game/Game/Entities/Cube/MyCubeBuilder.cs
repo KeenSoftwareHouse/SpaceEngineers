@@ -91,6 +91,17 @@ namespace Sandbox.Game.Entities
             Default                       = AddToScene | CreatePhysics | EnableSmallTolargeConnections
         }
 
+        struct Author
+        {
+            public long EntityId;
+            public long IdentityId;
+            public Author(long entityId, long identityId)
+            {
+                EntityId = entityId;
+                IdentityId = identityId;
+            }
+        }
+
         #endregion
 
         #region Enums
@@ -535,7 +546,7 @@ namespace Sandbox.Game.Entities
 
             switch (index)
             {
-                case 0: //X
+                case 0:   //X
                     tmpRotationAnimation.X += sign * angle;
                     rotation = Matrix.CreateFromAxisAngle(currentMatrix.Right, sign * angle);
                     break;
@@ -1219,17 +1230,17 @@ namespace Sandbox.Game.Entities
                                 if (!newPress)
                                     return false;
                                 angleDelta = MathHelper.PiOver2;
-                            }
+                        }
                             if (MyInput.Static.IsAnyAltKeyPressed())
                             {
                                 if (!newPress)
                                     return false;
                                 angleDelta = MathHelper.ToRadians(1);
-                            }
+                    }
 
                             RotateAxis(axis, direction, angleDelta, newPress);
-                        }
-                    }
+                }
+            }
                 }
             }
 
@@ -2634,11 +2645,37 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private bool IsWithinWorldLimits(long ownerID, string name)
+        {
+            if (!MySession.Static.EnableBlockLimits) return true;
+
+            var identity = MySession.Static.Players.TryGetIdentity(ownerID);
+            bool withinLimits = true;
+            if (MySession.Static.MaxBlocksPerPlayer != 0 && identity != null)
+            {
+                withinLimits &= identity.BlocksBuilt < MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier;
+            }
+            short typeLimit = MySession.Static.GetBlockTypeLimit(name);
+            int typeBuilt;
+            if (identity != null && typeLimit > 0)
+            {
+                withinLimits &= (identity.BlockTypeBuilt.TryGetValue(name, out typeBuilt) ? typeBuilt : 0) < typeLimit;
+            }
+            return withinLimits;
+        }
+
         protected bool AddBlocksToBuildQueueOrSpawn(MyCubeBlockDefinition blockDefinition, ref MatrixD worldMatrixAdd, Vector3I min, Vector3I max, Vector3I center, Quaternion localOrientation)
         {
-
             bool added = false;
             BuildData position = new BuildData();
+
+            if (!IsWithinWorldLimits(MySession.Static.LocalPlayerId, blockDefinition.BlockPairName))
+            {
+                MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                MyHud.Notifications.Add(MyNotificationSingletons.ShipOverLimits);
+                return false;
+            }
+
             if (GridAndBlockValid)
             {
                 if (PlacingSmallGridOnLargeStatic)
@@ -2648,7 +2685,7 @@ namespace Sandbox.Game.Entities
                     position.Forward = (Vector3) gridWorldMatrix.Forward;
                     position.Up = (Vector3) gridWorldMatrix.Up;
 
-                    MyMultiplayer.RaiseStaticEvent(s => RequestGridSpawn, MySession.Static.LocalCharacterEntityId, (DefinitionIdBlit)blockDefinition.Id, position, MySession.Static.IsAdminModeEnabled(Sync.MyId), true, MyPlayer.SelectedColor.PackHSVToUint());
+                    MyMultiplayer.RaiseStaticEvent(s => RequestGridSpawn, new Author(MySession.Static.LocalCharacterEntityId, MySession.Static.LocalPlayerId), (DefinitionIdBlit)blockDefinition.Id, position, MySession.Static.IsAdminModeEnabled(Sync.MyId), true, MyPlayer.SelectedColor.PackHSVToUint());
                 }
                 else
                 {
@@ -2665,7 +2702,7 @@ namespace Sandbox.Game.Entities
                 position.Forward = worldMatrixAdd.Forward;
                 position.Up = worldMatrixAdd.Up;
 
-                MyMultiplayer.RaiseStaticEvent(s => RequestGridSpawn, MySession.Static.LocalCharacterEntityId, (DefinitionIdBlit)blockDefinition.Id, position, MySession.Static.IsAdminModeEnabled(Sync.MyId), false, MyPlayer.SelectedColor.PackHSVToUint());
+                MyMultiplayer.RaiseStaticEvent(s => RequestGridSpawn, new Author(MySession.Static.LocalCharacterEntityId, MySession.Static.LocalPlayerId), (DefinitionIdBlit)blockDefinition.Id, position, MySession.Static.IsAdminModeEnabled(Sync.MyId), false, MyPlayer.SelectedColor.PackHSVToUint());
                 MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
                 added = true;
             }
@@ -3068,14 +3105,14 @@ namespace Sandbox.Game.Entities
 
         Vector3I? GetSingleMountPointNormal()
         {
-            if (CurrentBlockDefinition == null)
+			if (CurrentBlockDefinition == null)
                 return null;
 
-            var currentBlockMountPoints = CurrentBlockDefinition.GetBuildProgressModelMountPoints(1.0f);
-            if (currentBlockMountPoints == null || currentBlockMountPoints.Length == 0)
-                return null;
+			var currentBlockMountPoints = CurrentBlockDefinition.GetBuildProgressModelMountPoints(1.0f);
+			if (currentBlockMountPoints == null || currentBlockMountPoints.Length == 0)
+				return null;
 
-            var normal = currentBlockMountPoints[0].Normal;
+			var normal = currentBlockMountPoints[0].Normal;
             if (m_alignToDefault)
             {
                 m_alignToDefault = false;
@@ -3103,18 +3140,18 @@ namespace Sandbox.Game.Entities
             switch (CurrentBlockDefinition.AutorotateMode)
             {
                 case MyAutorotateMode.OneDirection:
-                    for (int i = 1; i < currentBlockMountPoints.Length; i++)
+					for (int i = 1; i < currentBlockMountPoints.Length; i++)
                     {
-                        var currentNormal = currentBlockMountPoints[i].Normal;
+						var currentNormal = currentBlockMountPoints[i].Normal;
                         if (currentNormal != normal)
                             return null;
                     }
                     break;
 
                 case MyAutorotateMode.OppositeDirections:
-                    for (int i = 1; i < currentBlockMountPoints.Length; i++)
+					for (int i = 1; i < currentBlockMountPoints.Length; i++)
                     {
-                        var currentNormal = currentBlockMountPoints[i].Normal;
+						var currentNormal = currentBlockMountPoints[i].Normal;
                         if (currentNormal != normal && currentNormal != oppositeNormal)
                             return null;
                     }
@@ -3169,6 +3206,7 @@ namespace Sandbox.Game.Entities
             //    m_gizmo.SetupLocalAddMatrix(m_gizmo.SpaceDefault, normal.Value);
             //}
             UpdateNotificationBlockNotAvailable(changeText: false);
+            UpdateNotificationBlockLimit();
 
             ProfilerShort.End();
 
@@ -3212,6 +3250,39 @@ namespace Sandbox.Game.Entities
             m_gizmo.RemoveGizmoCubeParts();
 
             m_renderData.UnloadRenderObjects();
+        }
+
+        /// <summary>
+        /// Update notification telling player how many blocks they have left if per player limits are present
+        /// </summary>
+        private void UpdateNotificationBlockLimit()
+        {
+            if (MySession.Static.EnableBlockLimits && MySession.Static.MaxBlocksPerPlayer > 0)
+            {
+                if (IsActivated)
+                {
+                    var identity = MySession.Static.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
+                    if (identity != null)
+                    {
+                        int maxLimit = MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier;
+                        int blocksBuilt = MySession.Static.Players.TryGetIdentity(MySession.Static.LocalPlayerId).BlocksBuilt;
+                        if (((float)blocksBuilt / (float)maxLimit) >= 0.9f)
+                        {
+                        MyHud.BlocksLeft.Start(MyFontEnum.White, Vector2.Zero, Color.White, 1, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM);
+                            MyHud.BlocksLeft.GetStringBuilder().AppendFormat(MyCommonTexts.NotificationBlocksLeft, maxLimit - blocksBuilt);
+                        MyHud.BlocksLeft.Visible = true;
+                    }
+                }
+                }
+                else
+                {
+                    MyHud.BlocksLeft.Visible = false;
+                }
+            }
+            else
+            {
+                MyHud.BlocksLeft.Visible = false;
+        }
         }
 
         public void UpdateNotificationBlockNotAvailable(bool changeText = true)
@@ -3768,7 +3839,7 @@ namespace Sandbox.Game.Entities
             Activate(def.Id);
             m_stationPlacement = true;
 
-        }
+                }
 
         protected static MyObjectBuilder_CubeGrid CreateMultiBlockGridBuilder(MyMultiBlockDefinition multiCubeBlockDefinition, Matrix rotationMatrix, Vector3D position = default(Vector3D))
         {
@@ -3946,7 +4017,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Spawn static grid - must have identity rotation matrix! If dontAdd is true, grid won't be added to enitites. Also it won't have entityId set.
         /// </summary>
-        public static MyCubeGrid SpawnStaticGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, SpawnFlags spawnFlags = SpawnFlags.Default)
+        public static MyCubeGrid SpawnStaticGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, SpawnFlags spawnFlags = SpawnFlags.Default, long builtBy = 0)
         {
             Debug.Assert(Sync.IsServer, "Only server can spawn grids! Clients have to send requests!");
 
@@ -3969,6 +4040,7 @@ namespace Sandbox.Game.Entities
             if ((spawnFlags & SpawnFlags.AddToScene) != SpawnFlags.None)
                 blockBuilder.EntityId = MyEntityIdentifier.AllocateId();
             blockBuilder.ColorMaskHSV = color;
+            blockBuilder.BuiltBy = builtBy;
             
             MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDefinition, builder, blockBuilder, buildAsAdmin: (spawnFlags & SpawnFlags.SpawnAsMaster) != SpawnFlags.None);
 
@@ -3988,7 +4060,7 @@ namespace Sandbox.Game.Entities
             return grid;
         }
 
-        public static MyCubeGrid SpawnDynamicGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, long entityId = 0, SpawnFlags spawnFlags = SpawnFlags.Default)
+        public static MyCubeGrid SpawnDynamicGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, long entityId = 0, SpawnFlags spawnFlags = SpawnFlags.Default, long builtBy = 0)
         {
             var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             Vector3 offset = Vector3.TransformNormal(MyCubeBlock.GetBlockGridOffset(blockDefinition), worldMatrix);
@@ -4003,6 +4075,7 @@ namespace Sandbox.Game.Entities
             blockBuilder.Orientation = Quaternion.CreateFromForwardUp(Vector3I.Forward, Vector3I.Up);
             blockBuilder.Min = blockDefinition.Size / 2 - blockDefinition.Size + Vector3I.One;
             blockBuilder.ColorMaskHSV = color;
+            blockBuilder.BuiltBy = builtBy;
             MyCubeBuilder.BuildComponent.BeforeCreateBlock(blockDefinition, builder, blockBuilder, buildAsAdmin: (spawnFlags & SpawnFlags.SpawnAsMaster) != SpawnFlags.None);
 
             gridBuilder.CubeBlocks.Add(blockBuilder);
@@ -4234,13 +4307,13 @@ namespace Sandbox.Game.Entities
         }
 
         [Event,Reliable,Server]
-        static void RequestGridSpawn(long builderEntityId, DefinitionIdBlit definition, BuildData position, bool instantBuild, bool forceStatic, uint colorMaskHsv)
+        static void RequestGridSpawn(Author author, DefinitionIdBlit definition, BuildData position, bool instantBuild, bool forceStatic, uint colorMaskHsv)
         {
             Debug.Assert(BuildComponent != null, "The build component was not set in cube builder!");
 
             MyEntity builder = null;
             bool isAdmin = (MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value) || MySession.Static.IsAdminModeEnabled(Sync.MyId));
-            MyEntities.TryGetEntityById(builderEntityId, out builder);
+            MyEntities.TryGetEntityById(author.EntityId, out builder);
 
             var blockDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(definition);
             MatrixD worldMatrix = MatrixD.CreateWorld(position.Position, position.Forward, position.Up);
@@ -4283,10 +4356,10 @@ namespace Sandbox.Game.Entities
 
             if (isStatic)
             {
-                grid = SpawnStaticGrid(blockDefinition, builder, worldMatrix, color, flags);
+                grid = SpawnStaticGrid(blockDefinition, builder, worldMatrix, color, flags, author.IdentityId);
             }
             else
-                grid = SpawnDynamicGrid(blockDefinition, builder, worldMatrix, color, spawnFlags: flags);
+                grid = SpawnDynamicGrid(blockDefinition, builder, worldMatrix, color, spawnFlags: flags, builtBy: author.IdentityId);
 
             
 

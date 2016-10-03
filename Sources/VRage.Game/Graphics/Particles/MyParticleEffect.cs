@@ -25,7 +25,6 @@ namespace VRage.Game
 
         //Version of the effect for serialization
         static readonly int Version = 0;
-        public static bool LoopOverride = false;
 
         int m_particleID; //ID of the particle stored in particles library
         float m_elapsedTime = 0; //Time elapsed from start of the effect
@@ -67,6 +66,37 @@ namespace VRage.Game
 		public Vector3 UserAxisScale;
         public Vector4 UserColorMultiplier;
         public bool UserDraw;
+        private int m_showOnlyThisGeneration = -1;
+        [Browsable(false)]
+        public int ShowOnlyThisGeneration { get { return m_showOnlyThisGeneration; } }
+
+        public void SetShowOnlyThisGeneration(IMyParticleGeneration generation)
+        {
+            for (int i=0; i < m_generations.Count;i++)
+            {
+                if (m_generations[i] == generation)
+                {
+                    SetShowOnlyThisGeneration(i);
+                    return;
+                }
+            }
+            SetShowOnlyThisGeneration(-1);
+        }
+
+        public void SetShowOnlyThisGeneration(int generationIndex)
+        {
+            m_showOnlyThisGeneration = generationIndex;
+            for (int i = 0; i < m_generations.Count; i++)
+                m_generations[i].Show = (generationIndex < 0 || i == generationIndex);
+
+            if (m_instances != null)
+            {
+                foreach (MyParticleEffect effect in m_instances)
+                {
+                    effect.SetShowOnlyThisGeneration(generationIndex);
+                }
+            }
+        }
 
         public bool CalculateDeltaMatrix;
         public bool Near;
@@ -416,38 +446,35 @@ namespace VRage.Game
                 m_worldMatrix = MatrixD.CreateWorld(position, Vector3D.Normalize(Velocity), m_worldMatrix.Up);
             }
 
-            if (!m_isSimulationPaused)
+            for (int i = 0; i < m_generations.Count;i++ )
             {
-                foreach (IMyParticleGeneration generation in m_generations)
-                {
-                    generation.EffectMatrix = WorldMatrix;
-                    generation.Update();
+                if (m_showOnlyThisGeneration >= 0 && i != m_showOnlyThisGeneration)
+                    continue;
+                m_generations[i].EffectMatrix = WorldMatrix;
+                m_generations[i].Update();
 
-                    m_particlesCount += generation.GetParticlesCount();
-                    m_birthRate += generation.GetBirthRate();
+                m_particlesCount += m_generations[i].GetParticlesCount();
+                m_birthRate += m_generations[i].GetBirthRate();
 
-                    generation.MergeAABB(ref m_AABB);
-                }
+                m_generations[i].MergeAABB(ref m_AABB);
+            }
 
 
-                foreach (var particleLight in m_particleLights)
-                {
-                    particleLight.Update();
-                }
+            foreach (var particleLight in m_particleLights)
+            {
+                particleLight.Update();
+            }
 
-                foreach (var particleSound in m_particleSounds)
-                {
-                    particleSound.Update(m_newLoop);
-                }
+            foreach (var particleSound in m_particleSounds)
+            {
+                particleSound.Update();
+            }
 
-                m_elapsedTime += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-                m_newLoop = false;
-                if (m_loop && m_elapsedTime >= m_durationActual)
-                {
-                    m_elapsedTime = 0;
-                    m_newLoop = true;
-                    SetRandomDuration();
-                }
+            m_elapsedTime += MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            if (m_loop && m_elapsedTime >= m_durationActual)
+            {
+                m_elapsedTime = 0;
+                SetRandomDuration();
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
@@ -460,7 +487,7 @@ namespace VRage.Game
             if (m_isStopped)
             {
                 // if the effect is stopped, kill it after all particles will die off
-                return !m_isSimulationPaused && m_particlesCount == 0;
+                return m_particlesCount == 0;
             }
             else
             {
@@ -495,9 +522,9 @@ namespace VRage.Game
             }
         }
 
+        [Browsable(false)]
         public float Duration { get { return m_durationActual; } }
         public float DurationMin { get { return m_durationMin; } set { SetDurationMin(value); } }
-
         public float DurationMax { get { return m_durationMax; } set { SetDurationMax(value); } }
 
         public bool Loop { get { return m_loop; } set { SetLoop(value); } }

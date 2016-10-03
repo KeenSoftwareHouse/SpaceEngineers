@@ -134,6 +134,31 @@ namespace SpaceEngineers.Game.Entities.Blocks
             builder.HelpOthers = m_helpOthers;
             return builder;
         }
+
+        /// <summary>
+        /// Determines whether the projected grid still fits within block limits set by server after a new block is added
+        /// </summary>
+        private bool IsWithinWorldLimits(MyProjectorBase projector, string name)
+        {
+            if (!MySession.Static.EnableBlockLimits) return true;
+
+            bool withinLimits = true;
+            var identity = MySession.Static.Players.TryGetIdentity(BuiltBy);
+            if (MySession.Static.MaxBlocksPerPlayer > 0)
+            {
+                withinLimits &= BuiltBy == 0 || IDModule.GetUserRelationToOwner(BuiltBy) != MyRelationsBetweenPlayerAndBlock.Enemies; // Don't allow stolen enemy welders to build
+                withinLimits &= projector.BuiltBy == 0 || IDModule.GetUserRelationToOwner(projector.BuiltBy) != MyRelationsBetweenPlayerAndBlock.Enemies; // Don't allow welders to build from enemy projectors
+                withinLimits &= identity == null || identity.BlocksBuilt < MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier;
+            }
+            withinLimits &= MySession.Static.MaxGridSize == 0 || projector.CubeGrid.BlocksCount < MySession.Static.MaxGridSize;
+            short typeLimit = MySession.Static.GetBlockTypeLimit(name);
+            int typeBuilt;
+            if (identity != null && typeLimit > 0)
+            {
+                withinLimits &= (identity.BlockTypeBuilt.TryGetValue(name, out typeBuilt) ? typeBuilt : 0) < typeLimit;
+            }
+            return withinLimits;
+        }
         
         protected override bool Activate(HashSet<MySlimBlock> targets)
         {
@@ -249,10 +274,18 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
                 foreach (var info in blocks)
                 {
-                    if (MySession.Static.CreativeMode || this.GetInventory().ContainItems(1, info.hitCube.BlockDefinition.Components[0].Definition.Id))
+                    if (IsWithinWorldLimits(info.cubeProjector, info.hitCube.BlockDefinition.BlockPairName) && (MySession.Static.CreativeMode || this.GetInventory().ContainItems(1, info.hitCube.BlockDefinition.Components[0].Definition.Id)))
                     {
-                        info.cubeProjector.Build(info.hitCube, OwnerId, EntityId);
-                        welding = true;
+                        if (MySession.Static.MaxBlocksPerPlayer == 0 || BuiltBy != 0)
+                        {
+                            info.cubeProjector.Build(info.hitCube, OwnerId, EntityId, builtBy: BuiltBy);
+                            welding = true;
+                        }
+                        else if (OwnerId != 0)
+                        {
+                            info.cubeProjector.Build(info.hitCube, OwnerId, EntityId, builtBy: OwnerId);
+                            welding = true;
+                        }
                     }
                 }
             }

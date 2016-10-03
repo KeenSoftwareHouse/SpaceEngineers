@@ -1,5 +1,6 @@
 ﻿using Sandbox.Game.AI;
 using Sandbox.Game.AI.Actions;
+using Sandbox.Game.AI.Pathfinding;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
@@ -21,6 +22,7 @@ namespace SpaceEngineers.Game.AI
         MyWolfTarget WolfTarget { get { return AiTargetBase as MyWolfTarget; } }
         private Vector3D? m_runAwayPos = null;
         private Vector3D? m_lastTargetedEntityPosition = null;
+		private Vector3D? m_debugTarget;
 
         protected MyWolfLogic WolfLogic
         {
@@ -40,6 +42,50 @@ namespace SpaceEngineers.Game.AI
             return MyBehaviorTreeState.RUNNING;
         }
 
+		[MyBehaviorTreeAction("GoToPlayerDefinedTarget", ReturnsRunning = true)]
+        protected MyBehaviorTreeState GoToPlayerDefinedTarget()
+        {
+            if (m_debugTarget != MyAIComponent.Static.DebugTarget)
+            {
+                m_debugTarget = MyAIComponent.Static.DebugTarget;
+
+                if (MyAIComponent.Static.DebugTarget.HasValue)
+                    ;//CyberhoundTarget.SetTargetPosition(MyAIComponent.Static.DebugTarget.Value);
+                else
+                    return MyBehaviorTreeState.FAILURE;
+            }
+
+            var botPosition = Bot.Player.Character.PositionComp.GetPosition();
+
+            // Distance to target
+            if (m_debugTarget != null)
+            {
+                if (Vector3D.Distance(botPosition, m_debugTarget.Value) <= 1f)
+                    return MyBehaviorTreeState.SUCCESS;
+
+                //var nextPoint = MyAIComponent.Static.PathEngineGetNextPathPoint(botPosition, MyAIComponent.Static.DebugTarget.Value);
+                //var nextPoint = MyAIComponent.Static.PathfindingGetNextPathPoint(botPosition, m_debugTarget.Value);
+                Vector3D point = m_debugTarget.Value;
+                MyDestinationSphere destSphere = new MyDestinationSphere(ref point, 1);
+                var path = MyAIComponent.Static.Pathfinding.FindPathGlobal(botPosition, destSphere, null);
+                
+                Vector3D nextPoint;
+                float targetRadius;
+                VRage.ModAPI.IMyEntity entity;
+                if (path.GetNextTarget(botPosition, out nextPoint, out targetRadius, out entity))
+                {
+                    if (WolfTarget.TargetPosition != nextPoint)
+                        //WolfTarget.SetTargetPosition(m_debugTarget.Value/*nextPoint*/);
+                        WolfTarget.SetTargetPosition(nextPoint);
+                    WolfTarget.AimAtTarget();
+                    WolfTarget.GotoTargetNoPath(0.0f, false);
+                }
+                else
+                    return MyBehaviorTreeState.FAILURE;
+            }
+            return MyBehaviorTreeState.RUNNING;
+        }
+		
         [MyBehaviorTreeAction("Attack", MyBehaviorTreeActionType.INIT)]
         protected void Init_Attack()
         {

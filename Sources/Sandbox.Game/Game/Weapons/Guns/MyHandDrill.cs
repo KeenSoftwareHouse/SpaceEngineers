@@ -115,6 +115,7 @@ namespace Sandbox.Game.Weapons
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
+            m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "HandDrillItem");
             if (objectBuilder.SubtypeName != null && objectBuilder.SubtypeName.Length > 0)
                 m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), objectBuilder.SubtypeName + "Item");
             PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);

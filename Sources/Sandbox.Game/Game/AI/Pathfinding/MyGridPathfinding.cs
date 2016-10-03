@@ -66,7 +66,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
             if (!GridCanHaveNavmesh(grid)) return;
 
-            m_navigationMeshes.Add(grid, new MyGridNavigationMesh(grid, m_coordinator, 32, MyAIComponent.Static.Pathfinding.NextTimestampFunction));
+            m_navigationMeshes.Add(grid, new MyGridNavigationMesh(grid, m_coordinator, 32, MyCestmirPathfindingShorts.Pathfinding.NextTimestampFunction));
             RegisterGridEvents(grid);
         }
 

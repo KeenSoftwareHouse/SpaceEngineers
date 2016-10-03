@@ -2103,24 +2103,24 @@ namespace Sandbox.Game.Entities
                 baseTextureName = baseTextureName.Substring(0, textureName.LastIndexOf('_'));
             }
 
-            string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
-            {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
-            }
+                string srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_cm" + Path.GetExtension(diffuseTextureName));
+                }
 
             // Alternative/fallback paths to texture (dx9 leftovers)
             srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
-            {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
-            }
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_me" + Path.GetExtension(diffuseTextureName));
+                }
 
-            srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
-            if (File.Exists(srcDiffuseTex))
-            {
-                return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
-            }
+                srcDiffuseTex = Path.Combine(MyFileSystem.ContentPath, Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+                if (File.Exists(srcDiffuseTex))
+                {
+                    return Path.Combine(Path.GetDirectoryName(diffuseTextureName), baseTextureName + "_de" + Path.GetExtension(diffuseTextureName));
+                }
 
             return diffuseTextureName;
         }
@@ -2577,6 +2577,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.EntityId = entityID;
             objectBuilder.Min = min;
             objectBuilder.BlockOrientation = orientation;
+            objectBuilder.BuiltBy = owner;
 
             if (definition.ContainsComputer())
             {

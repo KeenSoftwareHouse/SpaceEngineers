@@ -50,7 +50,7 @@ namespace Sandbox.Game
                 if (MyFakes.ENABLE_NEW_SOUNDS && MySession.Static.Settings.RealisticSound)//snap emitter to closest block - used for realistic sounds
                 {
                     List<MyEntity> m_detectedObjects = new List<MyEntity>();
-                    BoundingSphereD effectSphere = new BoundingSphereD(MySession.Static.LocalCharacter.PositionComp.GetPosition(), 2f);
+                    BoundingSphereD effectSphere = new BoundingSphereD(MySession.Static.LocalCharacter != null ? MySession.Static.LocalCharacter.PositionComp.GetPosition() : MySector.MainCamera.Position, 2f);
                     MyGamePruningStructure.GetAllEntitiesInSphere(ref effectSphere, m_detectedObjects);
                     float distBest = float.MaxValue;
                     float dist;
@@ -71,6 +71,8 @@ namespace Sandbox.Game
                 }
                 Emitter = new MyEntity3DSoundEmitter(entity);
                 Emitter.SetPosition(position);
+                if (sound == null)
+                    sound = MySoundPair.Empty;
                 Emitter.PlaySound(sound);
                 if (Emitter.Sound != null)
                     OriginalVolume = Emitter.Sound.Volume;

@@ -1,6 +1,7 @@
 ﻿
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Utils;
+using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Character;
@@ -28,9 +29,16 @@ namespace Sandbox.Game.Gui
     {
         private MyGuiControlTabPage m_infoPage;
         private MyCubeGrid m_grid;
+        private List<MyCubeGrid> m_infoGrids = new List<MyCubeGrid>();
+        private List<MyPlayer.PlayerId> m_playerIds = new List<MyPlayer.PlayerId>();
 
         internal void Close()
         {
+            foreach (var grid in m_infoGrids)
+            {
+                grid.OnAuthorshipChanged -= grid_OnAuthorshipChanged;
+            }
+
             if (m_grid == null) return;
             if (m_infoPage == null) return;
 
@@ -153,8 +161,8 @@ namespace Sandbox.Game.Gui
             {
                 convertBtn.Enabled = false;
                 convertToStationBtn.Enabled = false;
-                MyGuiControlLabel noShip = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.ScreenTerminalError_ShipNotConnected), font: MyFontEnum.Red);
-                list.Controls.Add(noShip);
+
+                RecreateServerLimitInfo(list);
                 return;
             }
 
@@ -243,6 +251,109 @@ namespace Sandbox.Game.Gui
             m_grid.DestructibleBlocks = obj.IsChecked;
         }
 
+        private void RecreateServerLimitInfo(MyGuiControlList list)
+        {
+            var identity = MySession.Static.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
+            int built;
+
+            if (MySession.Static.MaxBlocksPerPlayer > 0 || MySession.Static.BlockTypeLimits.Keys.Count > 0)
+            {
+                MyGuiControlLabel totalBlocksLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_Overview), textScale: 1.3f);
+                list.Controls.Add(totalBlocksLabel);
+            }
+
+            if (MySession.Static.MaxBlocksPerPlayer > 0)
+            {
+                MyGuiControlLabel totalBlocksLabel = new MyGuiControlLabel(text: String.Format("{0} {1}/{2} {3}", MyTexts.Get(MySpaceTexts.TerminalTab_Info_YouBuilt), identity.BlocksBuilt, MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier, MyTexts.Get(MySpaceTexts.TerminalTab_Info_BlocksLower)));
+                list.Controls.Add(totalBlocksLabel);
+            }
+            foreach (var blockType in MySession.Static.BlockTypeLimits)
+            {
+                identity.BlockTypeBuilt.TryGetValue(blockType.Key, out built);
+                var definition = Sandbox.Definitions.MyDefinitionManager.Static.TryGetDefinitionGroup(blockType.Key);
+                if (built == null || definition == null)
+                    continue;
+                MyGuiControlLabel blockTypeLabel = new MyGuiControlLabel(text: String.Format("{0} {1}/{2} {3}", MyTexts.Get(MySpaceTexts.TerminalTab_Info_YouBuilt), built, MySession.Static.GetBlockTypeLimit(blockType.Key), definition.Any.DisplayNameText));
+                list.Controls.Add(blockTypeLabel);
+            }
+
+            foreach (var grid in m_infoGrids)
+            {
+                grid.OnAuthorshipChanged -= grid_OnAuthorshipChanged;
+            }
+
+            m_infoGrids.Clear();
+            foreach (var grid in identity.BlocksBuiltByGrid)
+            {
+                MyGuiControlParent panel = new MyGuiControlParent();
+
+                if (m_infoGrids.Count == 0)
+                {
+                    MyGuiControlSeparatorList infoSeparator = new MyGuiControlSeparatorList();
+                    infoSeparator.AddHorizontal(new Vector2(-0.2f, -0.052f), 0.4f, width: 0.004f);
+                    panel.Controls.Add(infoSeparator);
+                }
+
+                MyGuiControlLabel gridNameLabel = new MyGuiControlLabel(text: grid.Key.DisplayName, textScale: 0.9f);
+                MyGuiControlLabel gridBlockCountLabel = new MyGuiControlLabel(text: String.Format("{0} {1}", grid.Value, MyTexts.Get(MySpaceTexts.TerminalTab_Info_BlocksLower)), textScale: 0.9f);
+                MyGuiControlLabel assignLabel = new MyGuiControlLabel(text: MyTexts.GetString(MySpaceTexts.TerminalTab_Info_Assign), originAlign: VRage.Utils.MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, textScale: 0.9f);
+                MyGuiControlCombobox assignCombobox = new MyGuiControlCombobox(originAlign: VRage.Utils.MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, size: new Vector2(0.11f, 0.008f));
+                MyGuiControlSeparatorList lineSeparator = new MyGuiControlSeparatorList();
+
+                gridNameLabel.Position = new Vector2(-0.15f, -0.025f);
+                gridBlockCountLabel.Position = new Vector2(-0.15f, 0.000f);
+                assignLabel.Position = new Vector2(0.035f, 0.025f);
+                assignCombobox.Position = new Vector2(0.15f, 0.025f);
+
+                assignCombobox.ItemSelected += delegate()
+                {
+                    assignCombobox_ItemSelected(grid.Key, m_playerIds[(int)assignCombobox.GetSelectedKey()]);
+                };
+
+                m_playerIds.Clear();
+                foreach (var player in MySession.Static.Players.GetOnlinePlayers())
+                {
+                    if (MySession.Static.LocalHumanPlayer != player)
+                    {
+                        assignCombobox.AddItem(m_playerIds.Count, player.DisplayName);
+                        m_playerIds.Add(player.Id);
+                    }
+                }
+                lineSeparator.AddHorizontal(new Vector2(-0.15f, 0.05f), 0.3f, width: 0.002f);
+
+                panel.Controls.Add(gridNameLabel);
+                panel.Controls.Add(gridBlockCountLabel);
+                panel.Controls.Add(assignLabel);
+                panel.Controls.Add(assignCombobox);
+                panel.Controls.Add(lineSeparator);
+
+                if (MySession.Static.EnableRemoteBlockRemoval)
+                {
+                    MyGuiControlLabel deleteOwnedBlocksLabel = new MyGuiControlLabel(
+                        text: MyTexts.GetString(MySpaceTexts.buttonRemove), 
+                        originAlign: VRage.Utils.MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER, 
+                        textScale: 0.9f);
+                    MyGuiControlButton deleteOwnedBlocksButton = new MyGuiControlButton(
+                        text: new StringBuilder("X"), 
+                        onButtonClick: deleteOwnedBlocksButton_ButtonClicked, 
+                        buttonIndex: m_infoGrids.Count, 
+                        visualStyle: MyGuiControlButtonStyleEnum.SquareSmall, 
+                        originAlign: VRage.Utils.MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_CENTER);
+                    deleteOwnedBlocksLabel.Position = new Vector2(0.11f, -0.02f);
+                    deleteOwnedBlocksButton.Position = new Vector2(0.15f, -0.02f);
+                    panel.Controls.Add(deleteOwnedBlocksLabel);
+                    panel.Controls.Add(deleteOwnedBlocksButton);
+                }
+
+                grid.Key.OnAuthorshipChanged += grid_OnAuthorshipChanged;
+
+                m_infoGrids.Add(grid.Key);
+
+                panel.Size = new Vector2(panel.Size.X, 0.09f);
+                list.Controls.Add(panel);
+            }
+        }
+
         //Rule: Count the player who has the most number of FUNCTIONAL blocks: only he can rename the ship
         private bool IsPlayerOwner(MyCubeGrid grid)
         {
@@ -292,6 +403,88 @@ namespace Sandbox.Game.Gui
             
         }
 
+        void deleteOwnedBlocksButton_ButtonClicked(MyGuiControlButton obj)
+        {
+            var grid = m_infoGrids[obj.Index];
+            var messageBox = MyGuiSandbox.CreateMessageBox(
+                    buttonType: MyMessageBoxButtonsType.YES_NO,
+                    messageText: new StringBuilder().AppendFormat(MyCommonTexts.MessageBoxTextConfirmDeleteGrid, grid.DisplayName),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                    canHideOthers: false,
+                    callback: (result) =>
+                    {
+                        if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                        {
+                            if (grid != null)
+                            {
+                                MyMultiplayer.RaiseEvent(grid, x => x.RemoveBlocksBuiltByID, MySession.Static.LocalPlayerId);
+                            }
+                        }
+                    });
+            MyGuiSandbox.AddScreen(messageBox);
+        }
+
+        void assignCombobox_ItemSelected(MyCubeGrid grid, MyPlayer.PlayerId playerId)
+        {
+            ulong steamId = playerId.SteamId;
+            var identity = MySession.Static.Players.TryGetPlayerIdentity(playerId);
+            if (identity == null)
+            {
+                Debug.Fail("Transfering grid to nonexistent player.");
+                return;
+            }
+            if (grid.IsTransferBlocksBuiltByIDPossible(MySession.Static.LocalPlayerId, identity.IdentityId))
+            {
+                var messageBox = MyGuiSandbox.CreateMessageBox(
+                        styleEnum: Graphics.GUI.MyMessageBoxStyleEnum.Info,
+                        buttonType: MyMessageBoxButtonsType.YES_NO,
+                        messageText: new StringBuilder().AppendFormat(MyTexts.GetString(MyCommonTexts.MessageBoxTextConfirmTransferGrid), new object[] { grid.DisplayName, identity.DisplayName }),
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
+                        canHideOthers: false,
+                        callback: (result) =>
+                        {
+                            if (result == MyGuiScreenMessageBox.ResultEnum.YES)
+                            {
+                                if (MySession.Static.Players.GetOnlinePlayers().Contains(MySession.Static.Players.GetPlayerById(playerId)))
+                                {
+                                    MyMultiplayer.RaiseEvent(grid, x => x.SendTransferRequestMessage, MySession.Static.LocalPlayerId, identity.IdentityId, steamId);
+                                }
+                                else
+                                {
+                                    ShowPlayerNotOnlineMessage(identity);
+                                }
+                            }
+                        });
+                MyGuiSandbox.AddScreen(messageBox);
+            }
+            else
+            {
+                var messageBox = MyGuiSandbox.CreateMessageBox(
+                    buttonType: MyMessageBoxButtonsType.OK,
+                        messageText: new StringBuilder().AppendFormat(MyCommonTexts.MessageBoxTextNotEnoughFreeBlocksForTransfer, identity.DisplayName),
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                        canHideOthers: false
+                    );
+                MyGuiSandbox.AddScreen(messageBox);
+            }
+        }
+
+        private void ShowPlayerNotOnlineMessage(MyIdentity identity)
+        {
+            var messageBox = MyGuiSandbox.CreateMessageBox(
+                    buttonType: MyMessageBoxButtonsType.OK,
+                        messageText: new StringBuilder().AppendFormat(MyCommonTexts.MessageBoxTextPlayerNotOnline, identity.DisplayName),
+                        messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
+                        canHideOthers: false,
+                        callback: (result) =>
+                        {
+                            RecreateControls();
+                        }
+                    );
+            MyGuiSandbox.AddScreen(messageBox);
+        }
+
+
         private void grid_OnBlockRemoved(MySlimBlock obj)
         {
             RecreateControls();
@@ -308,6 +501,11 @@ namespace Sandbox.Game.Gui
         }
 
         private void grid_OnBlockOwnershipChanged(MyEntity obj)
+        {
+            RecreateControls();
+        }
+
+        private void grid_OnAuthorshipChanged(MyEntity obj)
         {
             RecreateControls();
         }

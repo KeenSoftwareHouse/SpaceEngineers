@@ -864,7 +864,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_coordinator.InvalidateVoxelsBBox(ref bbox);
 
             MarkBlockChanged(block);
-            MyAIComponent.Static.Pathfinding.GridPathfinding.MarkHighLevelDirty();
+            MyCestmirPathfindingShorts.Pathfinding.GridPathfinding.MarkHighLevelDirty();
 
             if (ignore)
             {
@@ -893,7 +893,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private void MarkBlockChanged(MySlimBlock block)
         {
             m_higherLevelHelper.MarkBlockChanged(block);
-            MyAIComponent.Static.Pathfinding.GridPathfinding.MarkHighLevelDirty();
+            MyCestmirPathfindingShorts.Pathfinding.GridPathfinding.MarkHighLevelDirty();
         }
 
         private void AddBlock(MySlimBlock block)

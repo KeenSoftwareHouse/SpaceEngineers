@@ -128,6 +128,17 @@ namespace Sandbox.Game.Gui
             set { m_searchItems = value.Split(' '); }
         }
 
+        public bool IsValid
+        {
+            get { return m_searchItems != null; }
+        }
+
+        public void Clean()
+        {
+            m_searchItems = null;
+            CleanDefinitionGroups();
+        }
+
         public bool MatchesCondition(string itemId)
         {
             foreach (string item in m_searchItems)
@@ -897,9 +908,9 @@ namespace Sandbox.Game.Gui
                         var def = group[(MyCubeSize)i];
                         if (MyFakes.ENABLE_NON_PUBLIC_BLOCKS || (def != null && def.Public && def.Enabled))
                         {
-                            if (null != def && (!MyFakes.ENABLE_GUI_HIDDEN_CUBEBLOCKS || def.GuiVisible))
+                            if (null != def)//&& (!MyFakes.ENABLE_GUI_HIDDEN_CUBEBLOCKS || def.GuiVisible))
                             {
-                                if (true == searchCondition.MatchesCondition(def))
+                                if (true == searchCondition.MatchesCondition(def) && (!MyFakes.ENABLE_GUI_HIDDEN_CUBEBLOCKS || def.GuiVisible || searchCondition is MySearchByStringCondition))
                                 {
                                     matchesCondition = true;
                                     break;
@@ -948,7 +959,7 @@ namespace Sandbox.Game.Gui
                     newItemPosition++;
                     AddCubeDefinition(m_gridBlocks, blockGroup, pos);
                     var anyDef = MyFakes.ENABLE_NON_PUBLIC_BLOCKS ? blockGroup.Any : blockGroup.AnyPublic;
-                    if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0)
+                    if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0 && searchCondition is MySearchByCategoryCondition)
                     {
                         for (int i = 0; i < anyDef.BlockStages.Count(); i++)
                         {
@@ -957,7 +968,7 @@ namespace Sandbox.Game.Gui
                             newItemPosition++;
                             var def = MyDefinitionManager.Static.GetCubeBlockDefinition(anyDef.BlockStages[i]);
                             if (def != null)
-                                AddDefinitionAtPosition(m_gridBlocks, def, pos);
+                                AddDefinitionAtPosition(m_gridBlocks, def, pos, MyCubeBuilder.Static.IsCubeSizeAvailable(def));
                         }
                     }
                 }
@@ -1331,7 +1342,7 @@ namespace Sandbox.Game.Gui
             AddToolsAndAnimations(m_categorySearchCondition);
 
             m_categorySearchCondition.SelectedCategories = m_searchInBlockCategories;
-            UpdateGridBlocksBySearchCondition(isAllSelected ? null : m_categorySearchCondition);
+            UpdateGridBlocksBySearchCondition(isAllSelected ? m_nameSearchCondition.IsValid ? (IMySearchCondition)m_nameSearchCondition : null : (IMySearchCondition)m_categorySearchCondition);
         }
 
         void grid_ItemClicked(MyGuiControlGrid sender, MyGuiControlGrid.EventArgs eventArgs)
@@ -1510,6 +1521,7 @@ namespace Sandbox.Game.Gui
                 {
                     AddShipBlocksDefinitions(m_screenCubeGrid, true, null);
                 }
+                m_nameSearchCondition.Clean();
                 return;
             }
 

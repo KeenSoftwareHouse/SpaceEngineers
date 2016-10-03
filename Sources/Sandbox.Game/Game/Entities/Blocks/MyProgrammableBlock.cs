@@ -499,6 +499,7 @@ public void Main(string argument) {{
 
         public void Run(string argument)
         {
+            MySimpleProfiler.Begin("Scripts");
             if (this.IsWorking == false || this.IsFunctional == false)
             {
                 return;
@@ -513,6 +514,7 @@ public void Main(string argument) {{
             {
                SendRunProgramRequest(argument);
             }
+            MySimpleProfiler.End("Scripts");
         }
 
         private void SetDetailedInfo(string detailedInfo)

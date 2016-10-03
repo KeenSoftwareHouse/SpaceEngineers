@@ -36,12 +36,12 @@ namespace Sandbox.Game.Entities
             Init(null);
         }
 
-        public MySoundPair(string cueName)
+        public MySoundPair(string cueName, bool useLog = true)
         {
-            Init(cueName);
+            Init(cueName, useLog);
         }
 
-        public void Init(string cueName)
+        public void Init(string cueName, bool useLog = true)
         {
             if (string.IsNullOrEmpty(cueName) || MySandboxGame.IsDedicated || MyAudio.Static == null)
             {
@@ -64,14 +64,17 @@ namespace Sandbox.Game.Entities
                 m_realistic = MyAudio.Static.GetCueId(m_cache.ToString());
 
                 //Debug.Assert(m_arcade.Hash != MyStringHash.NullOrEmpty || m_realistic.Hash != MyStringHash.NullOrEmpty, string.Format("Could not find any sound for '{0}'", cueName));
-                if (m_arcade.Hash == MyStringHash.NullOrEmpty && m_realistic.Hash == MyStringHash.NullOrEmpty)
-                    MySandboxGame.Log.WriteLine(string.Format("Could not find any sound for '{0}'", cueName));
-                else
+                if (useLog)
                 {
-                    if (m_arcade.IsNull)
-                        string.Format("Could not find arcade sound for '{0}'", cueName);
-                    if (m_realistic.IsNull)
-                        string.Format("Could not find realistic sound for '{0}'", cueName);
+                    if (m_arcade.Hash == MyStringHash.NullOrEmpty && m_realistic.Hash == MyStringHash.NullOrEmpty)
+                        MySandboxGame.Log.WriteLine(string.Format("Could not find any sound for '{0}'", cueName));
+                    else
+                    {
+                        if (m_arcade.IsNull)
+                            string.Format("Could not find arcade sound for '{0}'", cueName);
+                        if (m_realistic.IsNull)
+                            string.Format("Could not find realistic sound for '{0}'", cueName);
+                    }
                 }
             }
         }

@@ -685,6 +685,7 @@ namespace Sandbox.Game.Weapons
             MyHud.BlockInfo.CriticalIntegrity = block.BlockDefinition.CriticalIntegrityRatio;
             MyHud.BlockInfo.CriticalComponentIndex = block.BlockDefinition.CriticalGroup;
             MyHud.BlockInfo.OwnershipIntegrity = block.BlockDefinition.OwnershipIntegrityRatio;
+            MyHud.BlockInfo.BlockBuiltBy = block.BuiltBy;
 
             MySlimBlock.SetBlockComponents(MyHud.BlockInfo, block);
         }

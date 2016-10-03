@@ -335,7 +335,7 @@ namespace VRage.Groups
         private bool TryReleaseNode(Node node)
         {
             // Node is completely disconnected
-            if (node.m_children.Count == 0 && node.m_parents.Count == 0)
+            if (node.m_node != null && node.m_group != null && node.m_children.Count == 0 && node.m_parents.Count == 0)
             {
                 var group = node.m_group;
 

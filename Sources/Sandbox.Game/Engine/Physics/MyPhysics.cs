@@ -70,7 +70,7 @@ namespace Sandbox.Engine.Physics
                 if (hitEntity != null)
                 {
                     return hitEntity.ToString();
-                }
+        }
                 return base.ToString();
             }
         }
@@ -143,7 +143,7 @@ namespace Sandbox.Engine.Physics
 
         public static int ThreadId;
 
-        public static MyHavokCluster Clusters;
+        private static MyHavokCluster Clusters;
 
         private static HkJobThreadPool m_threadPool;
         private static HkJobQueue m_jobQueue;
@@ -564,6 +564,7 @@ namespace Sandbox.Engine.Physics
             if (!MySandboxGame.IsGameReady)
                 return;
 
+            MySimpleProfiler.Begin("Physics");
             AddTimestamp();
 
             InsideSimulation = true;
@@ -662,6 +663,7 @@ namespace Sandbox.Engine.Physics
             }
 
             ProfilerShort.End();
+            MySimpleProfiler.End("Physics");
         }
 
         private static void StepWorld(HkWorld world)
@@ -945,35 +947,35 @@ namespace Sandbox.Engine.Physics
         {
             using (m_raycastLock.Acquire())
             {
-                m_resultWorlds.Clear();
-                Clusters.CastRay(from, to, m_resultWorlds);
+            m_resultWorlds.Clear();
+            Clusters.CastRay(from, to, m_resultWorlds);
 
-                toList.Clear();
+            toList.Clear();
 
-                foreach (var world in m_resultWorlds)
-                {
-                    Vector3 fromF = from - world.AABB.Center;
-                    Vector3 toF = to - world.AABB.Center;
+            foreach (var world in m_resultWorlds)
+            {
+                Vector3 fromF = from - world.AABB.Center;
+                Vector3 toF = to - world.AABB.Center;
 
-                    m_resultHits.Clear();
+                m_resultHits.Clear();
 
 
                     HkWorld havokWorld = (HkWorld)(world.UserData);
                     if (havokWorld != null)
                     {
-                        havokWorld.CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
+                    havokWorld.CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
                     }
 
-                    foreach (var hit in m_resultHits)
+                foreach (var hit in m_resultHits)
+                {
+                    toList.Add(new HitInfo()
                     {
-                        toList.Add(new HitInfo()
-                        {
-                            HkHitInfo = hit,
-                            Position = hit.Position + world.AABB.Center
-                        }
-                        );
+                        HkHitInfo = hit,
+                        Position = hit.Position + world.AABB.Center
                     }
+                    );
                 }
+            }
             }
 
             m_resultWorlds.Clear();

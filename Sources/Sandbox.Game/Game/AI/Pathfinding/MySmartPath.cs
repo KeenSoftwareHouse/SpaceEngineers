@@ -9,13 +9,12 @@ using VRage;
 using VRage.Algorithms;
 using VRage.Collections;
 using VRage.Game.Entity;
-using VRage.Profiler;
-using VRageMath;
+using VRage.Profiler;using VRage.ModAPI;using VRageMath;
 using VRageRender;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
-    public class MySmartPath : IMyHighLevelPrimitiveObserver
+    public class MySmartPath : IMyHighLevelPrimitiveObserver, IMyPath
     {
         private MyPathfinding m_pathfinding;
 
@@ -40,7 +39,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private const float TRANSITION_RADIUS = 1.0f;
 
         public IMyDestinationShape Destination { get { return m_goal.Destination; } }
-        public MyEntity EndEntity { get { return m_goal.EndEntity; } }
+        public IMyEntity EndEntity { get { return m_goal.EndEntity; } }
 
         public bool IsValid
         {
@@ -154,12 +153,7 @@ namespace Sandbox.Game.AI.Pathfinding
             Init(newStart, previousGoal);
         }
 
-        public void Dispose()
-        {
-            Invalidate();
-        }
-
-        public bool GetNextTarget(Vector3D currentPosition, out Vector3D targetWorld, out float radius, out MyEntity relativeEntity)
+        public bool GetNextTarget(Vector3D currentPosition, out Vector3D targetWorld, out float radius, out IMyEntity relativeEntity)
         {
             bool shouldReinit = false;
 

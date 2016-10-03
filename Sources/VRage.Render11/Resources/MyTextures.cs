@@ -15,6 +15,7 @@ using Resource = SharpDX.Direct3D11.Resource;
 using SharpDX.DXGI;
 using SharpDX.Direct3D;
 using VRage.FileSystem;
+using VRage;
 
 namespace VRageRender.Resources
 {
@@ -648,7 +649,7 @@ namespace VRageRender.Resources
                 MissingAlphamaskTexId = RegisterTexture("MISSING_ALPHAMASK", null, MyTextureEnum.SYSTEM, new Texture2D(MyRender11.Device, desc, databox),
                     new Vector2(2, 1), 1);
             }
-        }
+                }
 
         internal static void ReloadAllTextures()
         {

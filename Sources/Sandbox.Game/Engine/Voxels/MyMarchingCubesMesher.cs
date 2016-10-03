@@ -356,7 +356,7 @@ namespace Sandbox.Engine.Voxels
             return Precalc(args.Storage, args.GeometryCell.Lod, voxelStart, voxelEnd, true, true, false);
         }
 
-        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck)
+        public MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I voxelStart, Vector3I voxelEnd, bool generateMaterials, bool useAmbient, bool doNotCheck, bool adviceCache = false)
         {
 
             m_resultVerticesCounter = 0;

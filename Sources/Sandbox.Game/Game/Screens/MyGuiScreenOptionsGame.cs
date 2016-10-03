@@ -32,6 +32,7 @@ namespace Sandbox.Game.Gui
             public bool CompressSaveGames;
             public bool ShowPlayerNamesOnHud;
             public bool ReleasingAltResetsCamera;
+            public bool EnablePerformanceWarnings;
             public float UIOpacity;
             public float UIBkOpacity;
         }
@@ -177,18 +178,18 @@ namespace Sandbox.Game.Gui
             MyGuiControlLabel rotationHintsLabel = null;
             if (MyFakes.ENABLE_ROTATION_HINTS)
             {
-                rowIndex++;
-                rotationHintsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ShowRotationHints))
-                {
-                    Position = controlsOriginLeft + rowIndex * controlsDelta,
-                    OriginAlign = leftAlign
-                };
-                m_rotationHintsCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipGameOptionsShowRotationHints))
-                {
-                    Position = controlsOriginRight + rowIndex * controlsDelta,
-                    OriginAlign = rightAlign,
-                };
-                m_rotationHintsCheckbox.IsCheckedChanged += checkboxChanged;
+            rowIndex++;
+            rotationHintsLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ShowRotationHints))
+            {
+                Position = controlsOriginLeft + rowIndex * controlsDelta,
+                OriginAlign = leftAlign
+            };
+            m_rotationHintsCheckbox = new MyGuiControlCheckbox(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipGameOptionsShowRotationHints))
+            {
+                Position = controlsOriginRight + rowIndex * controlsDelta,
+                OriginAlign = rightAlign,
+            };
+            m_rotationHintsCheckbox.IsCheckedChanged += checkboxChanged;
             }
 
             //  Animated Gizmo Rotation
@@ -286,14 +287,14 @@ namespace Sandbox.Game.Gui
                 OriginAlign = rightAlign,
             };
             m_releasingAltResetsCameraCheckbox.IsCheckedChanged += checkboxChanged;
-
+            
             rowIndex++;
-            var UIOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ScreenOptionsGame_UIOpacity))
+			var UIOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ScreenOptionsGame_UIOpacity))
             {
                 Position = controlsOriginLeft + rowIndex * controlsDelta,
                 OriginAlign = leftAlign
             };
-            m_UIOpacitySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipGameOptionsUIOpacity), minValue: 0.1f, maxValue: 1.0f, defaultValue: 1.0f)
+			m_UIOpacitySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipGameOptionsUIOpacity), minValue: 0.1f, maxValue: 1.0f, defaultValue: 1.0f)
             {
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,
@@ -301,12 +302,12 @@ namespace Sandbox.Game.Gui
             m_UIOpacitySlider.ValueChanged += sliderChanged;
 
             rowIndex++;
-            var UIBkOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ScreenOptionsGame_UIBkOpacity))
+			var UIBkOpacityLabel = new MyGuiControlLabel(text: MyTexts.GetString(MyCommonTexts.ScreenOptionsGame_UIBkOpacity))
             {
                 Position = controlsOriginLeft + rowIndex * controlsDelta,
                 OriginAlign = leftAlign
             };
-            m_UIBkOpacitySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipGameOptionsUIBkOpacity), minValue: 0, maxValue: 1.0f, defaultValue: 1.0f)
+			m_UIBkOpacitySlider = new MyGuiControlSlider(toolTip: MyTexts.GetString(MyCommonTexts.ToolTipGameOptionsUIBkOpacity), minValue: 0, maxValue: 1.0f, defaultValue: 1.0f)
             {
                 Position = controlsOriginRight + rowIndex * controlsDelta,
                 OriginAlign = rightAlign,

@@ -1426,6 +1426,13 @@ namespace Sandbox.Game.Entities
                 IsInFirstPersonView = false;
             }
 
+            // in case that the cockpit was destroyed but still is for some reason camera controller
+            // (e.g. user was looking through camera block but both camera block and this cockpit were destroyed)
+            if (Closed && MySession.Static.LocalCharacter != null)
+            {
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
+            }
+
             currentCamera.SetViewMatrix(GetViewMatrix());
             
             currentCamera.CameraSpring.Enabled = true;

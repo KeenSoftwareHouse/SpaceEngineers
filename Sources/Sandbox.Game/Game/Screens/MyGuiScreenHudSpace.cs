@@ -46,6 +46,7 @@ namespace Sandbox.Game.Gui
         private MyGuiControlMultilineText m_cameraInfoMultilineControl;
 
         private MyGuiControlLabel m_buildModeLabel;
+        private MyGuiControlLabel m_blocksLeft;
 
         private MyHudControlChat m_chatControl;
         private MyHudMarkerRender m_markerRender;
@@ -158,6 +159,14 @@ namespace Sandbox.Game.Gui
                 text: MyTexts.GetString(MyCommonTexts.Hud_BuildMode));
             Controls.Add(m_buildModeLabel);
 
+            m_blocksLeft = new MyGuiControlLabel(
+                position: new Vector2(0.238f, 0.89f),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
+                font: MyFontEnum.White,
+                text: MyHud.BlocksLeft.GetStringBuilder().ToString()
+                );
+            Controls.Add(m_blocksLeft);
+
             m_relayNotification = new MyGuiControlLabel(new Vector2(1, 0), font: MyFontEnum.White, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
             m_relayNotification.TextEnum = MyCommonTexts.Multiplayer_IndirectConnection;
             m_relayNotification.Visible = false;
@@ -252,6 +261,9 @@ namespace Sandbox.Game.Gui
             {
                 m_buildModeLabel.Visible = MyHud.IsBuildMode;
 
+                m_blocksLeft.Text = MyHud.BlocksLeft.GetStringBuilder().ToString();
+                m_blocksLeft.Visible = MyHud.BlocksLeft.Visible;
+
                 if (MyHud.ShipInfo.Visible)
                     DrawShipInfo(MyHud.ShipInfo);
 
@@ -260,9 +272,24 @@ namespace Sandbox.Game.Gui
 
                 if (MyHud.ObjectiveLine.Visible && MyFakes.ENABLE_OBJECTIVE_LINE)
                     DrawObjectiveLine(MyHud.ObjectiveLine);
+
+                if (MySandboxGame.Config.EnablePerformanceWarnings)
+                {
+                    foreach (var warning in MySimpleProfiler.CurrentWarnings)
+                    {
+                        if (warning.Value.Time < 120)
+                        {
+                            DrawPerformanceWarning();
+                            break;
+                        }
+                    }
+                }
             }
             else
+            {
                 m_buildModeLabel.Visible = false;
+                m_blocksLeft.Visible = false;
+            }
 
             MyHud.BlockInfo.Visible = false;
             m_blockInfo.BlockInfo = null;
@@ -306,7 +333,7 @@ namespace Sandbox.Game.Gui
                 //m_chatControl.Visible = !MyHud.MinimalHud;
 
             }
-            DrawCameraInfo(MyHud.CameraInfo);
+                DrawCameraInfo(MyHud.CameraInfo);
 
             ProfilerShort.Begin("Draw netgraph");
             if (MyFakes.ENABLE_NETGRAPH && MyHud.IsNetgraphVisible)
@@ -972,6 +999,16 @@ namespace Sandbox.Game.Gui
             {
                 ProfilerShort.End();
             }
+        }
+
+        private void DrawPerformanceWarning()
+        {
+            var bgPos = new Vector2(0.01f, 0.3f);
+            bgPos = ConvertHudToNormalizedGuiPosition(ref bgPos);
+            var bg = MyGuiConstants.TEXTURE_HUD_BG_PERFORMANCE;
+            MyGuiManager.DrawSpriteBatch(bg.Texture, bgPos, bg.SizeGui, Color.White, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            StringBuilder sb = new StringBuilder();
+            MyGuiManager.DrawString(MyFontEnum.White, sb.AppendFormat(MyCommonTexts.PerformanceWarningHeading, MyGuiSandbox.GetKeyName(MyControlsSpace.HELP_SCREEN)), bgPos + new Vector2(0.02f, 0f), 1f, drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
         }
 
         protected override void OnHide()

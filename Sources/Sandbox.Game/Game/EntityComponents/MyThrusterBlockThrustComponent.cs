@@ -223,11 +223,15 @@ namespace Sandbox.Game.EntityComponents
         private void thrust_EnabledChanged(MyTerminalBlock obj)
         {
             MarkDirty();
+            if (!CubeGrid.Physics.RigidBody.IsActive)
+                CubeGrid.ActivatePhysics();
         }
 
         private void ComponentStack_IsFunctionalChanged()
         {
             MarkDirty();
+            if (!CubeGrid.Physics.RigidBody.IsActive)
+                CubeGrid.ActivatePhysics();
         }
 
         private static bool IsOverridden(MyThrust thrust)

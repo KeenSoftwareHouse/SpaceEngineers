@@ -88,6 +88,21 @@ namespace Sandbox.Game.Entities.Cube
         public Vector3I Max;
         public MyBlockOrientation Orientation = MyBlockOrientation.Identity;
         public Vector3I Position;
+		
+		public Vector3D WorldPosition
+        {
+            get { return CubeGrid.GridIntegerToWorld(Position); }
+        }
+
+        public BoundingBoxD WorldAABB
+        {
+            get 
+			{ 
+				return new BoundingBoxD((Min * CubeGrid.GridSize) - CubeGrid.GridSizeHalfVector, 
+										(Max * CubeGrid.GridSize) + CubeGrid.GridSizeHalfVector).TransformFast(CubeGrid.PositionComp.WorldMatrix); 
+			}
+        }
+		
         private MyCubeGrid m_cubeGrid;
         public MyCubeGrid CubeGrid
         {
@@ -125,6 +140,8 @@ namespace Sandbox.Game.Entities.Cube
 
         private MyConstructionStockpile m_stockpile = null;
         private float m_cachedMaxDeformation;
+
+        private long m_builtByID;
 
         /// <summary>
         /// Neighbours which are connected by mount points
@@ -254,6 +271,11 @@ namespace Sandbox.Game.Entities.Cube
             {
                 return m_componentStack;
             }
+        }
+
+        public long BuiltBy
+        {
+            get { return m_builtByID; }
         }
 
         public event Action<MySlimBlock, MyCubeGrid> CubeGridChanged;
@@ -412,6 +434,8 @@ namespace Sandbox.Game.Entities.Cube
 
             UpdateMaxDeformation();
 
+            m_builtByID = objectBuilder.BuiltBy;
+
             ProfilerShort.End();
         }
         public void ResumeDamageEffect()
@@ -499,6 +523,7 @@ namespace Sandbox.Game.Entities.Cube
             builder.IntegrityPercent = m_componentStack.Integrity / m_componentStack.MaxIntegrity;
             builder.BuildPercent = m_componentStack.BuildRatio;
             builder.ColorMaskHSV = ColorMaskHSV;
+            builder.BuiltBy = m_builtByID;
 
             if (m_stockpile == null || m_stockpile.GetItems().Count == 0)
                 builder.ConstructionStockpile = null;
@@ -1209,12 +1234,12 @@ namespace Sandbox.Game.Entities.Cube
                     renderable.BoneIndices = boneIndicesWeights.Value.Indices;
                     renderable.BoneWeights = boneIndicesWeights.Value.Weights;
 
-                    var decalId = decalHandler.AddDecal(ref renderable);
-                    if (decalId != null)
+            var decalId = decalHandler.AddDecal(ref renderable);
+            if (decalId != null)
                         CubeGrid.RenderData.AddDecal(Position, gridHitInfo, decalId.Value);
 
                     return;
-                }
+        }
             }
 
             decalHandler.AddDecal(ref renderable);
@@ -2436,6 +2461,41 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             block.DoDamage(msg.Damage, msg.Type, hitInfo: msg.HitInfo, attackerId: msg.AttackerEntityId);
+        }
+
+        /// <summary>
+        /// Makes sure this block no longer counts towards the block limit of the player who built it
+        /// </summary>
+        public void RemoveAuthorship()
+        {
+            var identity = MySession.Static.Players.TryGetIdentity(m_builtByID);
+            if (identity != null)
+                identity.DecreaseBlocksBuilt(BlockDefinition.BlockPairName, CubeGrid);
+        }
+
+        /// <summary>
+        /// Makes the block count towards the block limit of the player who built it
+        /// </summary>
+        public void AddAuthorship()
+        {
+            var identity = MySession.Static.Players.TryGetIdentity(m_builtByID);
+            if (identity != null)
+                identity.IncreaseBlocksBuilt(BlockDefinition.BlockPairName, CubeGrid);
+        }
+
+        /// <summary>
+        /// Transfers the block to count towards other player's limit
+        /// </summary>
+        public void TransferAuthorship(long newOwner)
+        {
+            var oldIdentity = MySession.Static.Players.TryGetIdentity(m_builtByID);
+            var newIdentity = MySession.Static.Players.TryGetIdentity(newOwner);
+            if (oldIdentity != null && newIdentity != null)
+            {
+                oldIdentity.DecreaseBlocksBuilt(BlockDefinition.BlockPairName, CubeGrid);
+                m_builtByID = newOwner;
+                newIdentity.IncreaseBlocksBuilt(BlockDefinition.BlockPairName, CubeGrid);
+            }
         }
 
         [ProtoContract]

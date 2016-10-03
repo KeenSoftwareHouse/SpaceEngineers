@@ -496,7 +496,7 @@
         <string>ConveyorTubeCurved</string>
         <string>ConveyorTubeSmallCurved</string>
         <string>ConveyorTubeCurvedMedium</string>
-        <string>SmallShipConveyorHub</string>
+        <!--<string>SmallShipConveyorHub</string>-->
         <string>ConveyorSorter/LargeBlockConveyorSorter</string>
         <string>ConveyorSorter/MediumBlockConveyorSorter</string>
         <string>ConveyorSorter/SmallBlockConveyorSorter</string>

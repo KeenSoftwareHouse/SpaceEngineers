@@ -8943,5 +8943,70 @@ namespace Sandbox.Game.Localization
         ///-Global Chat History-
         ///</summary>
         public static readonly MyStringId TerminalTab_Chat_ChatHistory = MyStringId.GetOrCompute("TerminalTab_Chat_ChatHistory");
+
+        ///<summary>
+        ///Cannot place. Ship would exceed regulations.
+        ///</summary>
+        public static readonly MyStringId NotificationShipOverLimits = MyStringId.GetOrCompute("NotificationShipOverLimits");
+
+        ///<summary>
+        ///Max blocks per player
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxBlocksPerPlayer = MyStringId.GetOrCompute("WorldSettings_MaxBlocksPerPlayer");
+
+        ///<summary>
+        ///Max ship size
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxGridSize = MyStringId.GetOrCompute("WorldSettings_MaxGridSize");
+
+        ///<summary>
+        ///Maximum number of blocks each player can build. Destroyed blocks are refunded
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsMaxBlocksPerPlayer = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxBlocksPerPlayer");
+
+        ///<summary>
+        ///Maximum size (in blocks) of ships and stations
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsMaxGridSize = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxGridSize");
+
+        ///<summary>
+        ///Assign
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_Assign = MyStringId.GetOrCompute("TerminalTab_Info_Assign");
+
+        ///<summary>
+        ///blocks
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_BlocksLower = MyStringId.GetOrCompute("TerminalTab_Info_BlocksLower");
+
+        ///<summary>
+        ///Owned blocks overview
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_Overview = MyStringId.GetOrCompute("TerminalTab_Info_Overview");
+
+        ///<summary>
+        ///You built
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_YouBuilt = MyStringId.GetOrCompute("TerminalTab_Info_YouBuilt");
+
+        ///<summary>
+        ///Enable players to remotely remove owned blocks to free up their limit.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableRemoteBlockRemoval = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableRemoteBlockRemoval");
+
+        ///<summary>
+        ///Remote block removal
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableRemoteBlockRemoval = MyStringId.GetOrCompute("WorldSettings_EnableRemoteBlockRemoval");
+
+        ///<summary>
+        ///By enabling this option grids will no longer turn dynamic when disconnected from static grids
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_StationVoxelSupport = MyStringId.GetOrCompute("ToolTipWorldSettings_StationVoxelSupport");
+
+        ///<summary>
+        ///Unsupported Stations
+        ///</summary>
+        public static readonly MyStringId WorldSettings_StationVoxelSupport = MyStringId.GetOrCompute("WorldSettings_StationVoxelSupport");
     }
 }

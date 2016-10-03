@@ -2458,4 +2458,197 @@ Do you want to continue?</value>
   <data name="AudioSettings_ShipSoundsBasedOnSpeed" xml:space="preserve">
     <value>Speed based ship sounds</value>
   </data>
+
+  <data name="NotificationPerformanceLow" xml:space="preserve">
+    <value>Game performance is low. Cause: {0}</value>
+  </data>
+  <data name="PerformanceWarningAreaAI" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="PerformanceWarningAreaBlocks" xml:space="preserve">
+    <value>Blocks update</value>
+  </data>
+  <data name="PerformanceWarningAreaConveyor" xml:space="preserve">
+    <value>Conveyor system</value>
+  </data>
+  <data name="PerformanceWarningAreaGrid" xml:space="preserve">
+    <value>Grids update</value>
+  </data>
+  <data name="PerformanceWarningAreaGyro" xml:space="preserve">
+    <value>Gyroscope system</value>
+  </data>
+  <data name="PerformanceWarningAreaOxygen" xml:space="preserve">
+    <value>Oxygen system</value>
+  </data>
+  <data name="PerformanceWarningAreaPhysics" xml:space="preserve">
+    <value>Physics</value>
+  </data>
+  <data name="PerformanceWarningAreaRender" xml:space="preserve">
+    <value>Render (CPU)</value>
+  </data>
+  <data name="PerformanceWarningAreaScripts" xml:space="preserve">
+    <value>Scripts</value>
+  </data>
+  <data name="PerformanceWarningAreaTextures" xml:space="preserve">
+    <value>Loading mesh/texture</value>
+  </data>
+  <data name="ScreenOptionsGame_EnablePerformanceWarnings" xml:space="preserve">
+    <value>Show warnings in game</value>
+  </data>
+  <data name="ToolTipGameOptionsEnablePerformanceWarnings" xml:space="preserve">
+    <value>Show a warning whenever the game's performance slows down</value>
+  </data>
+  <data name="PerformanceWarningAreaClearAndGeometryRender" xml:space="preserve">
+    <value>GPU (geometry)</value>
+  </data>
+  <data name="PerformanceWarningAreaLights" xml:space="preserve">
+    <value>GPU (lights)</value>
+  </data>
+  <data name="PerformanceWarningAreaPostProcess" xml:space="preserve">
+    <value>GPU (postprocessing)</value>
+  </data>
+  <data name="PerformanceWarningAreaRenderFoliage" xml:space="preserve">
+    <value>GPU (foliage)</value>
+  </data>
+  <data name="PerformanceWarningAreaShadows" xml:space="preserve">
+    <value>GPU (shadows)</value>
+  </data>
+  <data name="PerformanceWarningAreaSSAO" xml:space="preserve">
+    <value>GPU (SSAO)</value>
+  </data>
+  <data name="PerformanceWarningAreaTransparentPass" xml:space="preserve">
+    <value>GPU (transparency)</value>
+  </data>
+  <data name="PerformanceWarningHeading" xml:space="preserve">
+    <value>PERFORMANCE WARNINGS
+Press Ctrl + {0} for more info</value>
+  </data>
+  <data name="PerformanceWarningAreaAIDescription" xml:space="preserve">
+    <value>Updating AI and pathfinding. Turn off cyberhounds and spiders.</value>
+  </data>
+  <data name="PerformanceWarningAreaBlocksDescription" xml:space="preserve">
+    <value>Update of individual blocks. Too many blocks in the world.</value>
+  </data>
+  <data name="PerformanceWarningAreaClearAndGeometryRenderDescription" xml:space="preserve">
+    <value>Rendering world geometry. Lower your voxel quality.</value>
+  </data>
+  <data name="PerformanceWarningAreaConveyorDescription" xml:space="preserve">
+    <value>Update of conveyors. Too many conveyors or blocks using conveyors
+in the world.</value>
+  </data>
+  <data name="PerformanceWarningAreaGridDescription" xml:space="preserve">
+    <value>Updating of ship systems other than oxygen, gyroscopes and conveyors.</value>
+  </data>
+  <data name="PerformanceWarningAreaGyroDescription" xml:space="preserve">
+    <value>Update of gyroscope systems. Too many gyroscopes in the world.</value>
+  </data>
+  <data name="PerformanceWarningAreaLightsDescription" xml:space="preserve">
+    <value>Rendering lights. Too many artificial lights in the world.</value>
+  </data>
+  <data name="PerformanceWarningAreaOxygenDescription" xml:space="preserve">
+    <value>Update of oxygen systems. Too many or too large pressurized areas.</value>
+  </data>
+  <data name="PerformanceWarningAreaPhysicsDescription" xml:space="preserve">
+    <value>Update of physics. Too many individual objects interacting with each 
+other.</value>
+  </data>
+  <data name="PerformanceWarningAreaPostProcessDescription" xml:space="preserve">
+    <value>GPU postprocessing. Includes antialiasing.</value>
+  </data>
+  <data name="PerformanceWarningAreaRenderDescription" xml:space="preserve">
+    <value>CPU preparing world for rendering.</value>
+  </data>
+  <data name="PerformanceWarningAreaRenderFoliageDescription" xml:space="preserve">
+    <value>Rendering foliage (grass). Lower your foliage settings.</value>
+  </data>
+  <data name="PerformanceWarningAreaScriptsDescription" xml:space="preserve">
+    <value>Executing programmable blocks' scripts. Too many or too complicated 
+scripts.</value>
+  </data>
+  <data name="PerformanceWarningAreaShadowsDescription" xml:space="preserve">
+    <value>Rendering shadows. Lower your shadow quality.</value>
+  </data>
+  <data name="PerformanceWarningAreaSSAODescription" xml:space="preserve">
+    <value>Ambient occlusion.</value>
+  </data>
+  <data name="PerformanceWarningAreaTexturesDescription" xml:space="preserve">
+    <value>Loading of meshes or textures.</value>
+  </data>
+  <data name="PerformanceWarningAreaTransparentPassDescription" xml:space="preserve">
+    <value>Rendering transparent objects and particles.</value>
+  </data>
+  <data name="PerformanceWarningHelpHeader" xml:space="preserve">
+    <value>Performance Warnings</value>
+  </data>
+  <data name="NotificationBlocksLeft" xml:space="preserve">
+    <value>You can still place {0} blocks</value>
+  </data>
+  <data name="PlayerMaxBlocks" xml:space="preserve">
+    <value>Player's block limit</value>
+  </data>
+  <data name="BuiltBy" xml:space="preserve">
+    <value>Built by</value>
+  </data>
+  <data name="ScreenTerminalInfo_Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="ScreenTerminalInfo_Blocks" xml:space="preserve">
+    <value>blocks</value>
+  </data>
+  <data name="MessageBoxTextConfirmAcceptTransferGrid" xml:space="preserve">
+    <value>Player {0} is transfering ownership of {1} blocks in ship {2} to you. Do you accept?</value>
+  </data>
+  <data name="MessageBoxTextConfirmDeleteGrid" xml:space="preserve">
+    <value>Are you sure you want to delete all your blocks from {0}? The ship may fall apart.</value>
+  </data>
+  <data name="MessageBoxTextConfirmTransferGrid" xml:space="preserve">
+    <value>Are you sure you want to transfer ownership of your blocks from {0} to player {1}?</value>
+  </data>
+  <data name="MessageBoxTextNotEnoughFreeBlocksForTransfer" xml:space="preserve">
+    <value>Player {0} does not have enough free blocks to accept your part of the ship</value>
+  </data>
+  <data name="ScreenTerminalInfo_Overview" xml:space="preserve">
+    <value>Owned blocks overview</value>
+  </data>
+  <data name="ScreenTerminalInfo_YouBuilt" xml:space="preserve">
+    <value>You built</value>
+  </data>
+  <data name="MessageBoxTextPlayerNotOnline" xml:space="preserve">
+    <value>Player {0} is no longer online.</value>
+  </data>
+  <data name="WorldSettings_BlockLimits" xml:space="preserve">
+    <value>Block limits</value>
+  </data>
+  <data name="MessageBoxTextBlockLimitDisableWarning" xml:space="preserve">
+    <value>Block limits are set to ensure good performance.
+Please disable this option only for experimental purposes.</value>
+  </data>
+  <data name="ToolTipWorldSettingsBlockLimits" xml:space="preserve">
+    <value>Use recommended block limits.</value>
+  </data>
+  <data name="PerformanceWarningIssuesBlocks" xml:space="preserve">
+    <value>Blocks issues</value>
+  </data>
+  <data name="PerformanceWarningIssuesGraphics" xml:space="preserve">
+    <value>Graphics issues</value>
+  </data>
+  <data name="PerformanceWarningIssuesOther" xml:space="preserve">
+    <value>Other issues</value>
+  </data>
+  <data name="ScreenOptionsButtonGraphics" xml:space="preserve">
+    <value>Graphics</value>
+  </data>
+  <data name="PerformanceWarningShowAll" xml:space="preserve">
+    <value>Show all warnings</value>
+  </data>
+  <data name="ToolTipPerformanceWarningShowAll" xml:space="preserve">
+    <value>Off - Only current performance warnings are displayed.
+On - All performance warnings of this session are displayed.</value>
+  </data>
+  <data name="PerformanceWarningLastOccurrence" xml:space="preserve">
+    <value>Last occurrence</value>
+  </data>
+  <data name="PerformanceWarningTooManyBlocks" xml:space="preserve">
+    <value>Too many blocks of this type.</value>
+  </data>
 </root>

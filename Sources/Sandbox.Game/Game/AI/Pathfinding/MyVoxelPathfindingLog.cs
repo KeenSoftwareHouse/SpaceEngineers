@@ -17,7 +17,7 @@ using VRageRender;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
-    public class MyVoxelPathfindingLog
+    public class MyVoxelPathfindingLog : IMyPathfindingLog
     {
         private abstract class Operation
         {
@@ -43,7 +43,7 @@ namespace Sandbox.Game.AI.Pathfinding
                 Debug.Assert(map != null);
                 if (map == null) return;
 
-                var navmesh = MyAIComponent.Static.Pathfinding.VoxelPathfinding.GetVoxelMapNavmesh(map);
+                var navmesh = MyCestmirPathfindingShorts.Pathfinding.VoxelPathfinding.GetVoxelMapNavmesh(map);
                 Debug.Assert(navmesh != null);
                 if (navmesh == null) return;
 

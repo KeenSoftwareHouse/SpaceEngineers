@@ -1233,7 +1233,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public void Build(MySlimBlock cubeBlock, long owner, long builder, bool requestInstant = true)
+        public void Build(MySlimBlock cubeBlock, long owner, long builder, bool requestInstant = true, long builtBy = 0)
         {
             Quaternion quat = Quaternion.Identity;
             var orientation = cubeBlock.Orientation;
@@ -1279,6 +1279,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
 
             objectBuilder.ConstructionInventory = null;
+            objectBuilder.BuiltBy = builtBy;
             bool buildInstant = requestInstant && MySession.Static.IsAdminModeEnabled(Sync.MyId);
             MyMultiplayer.RaiseEvent(projectorGrid, x => x.BuildBlockRequest, cubeBlock.ColorMaskHSV.PackHSVToUint(), location, objectBuilder, builder, buildInstant, owner);
             HideCube(cubeBlock);
@@ -1330,8 +1331,8 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (MyEventContext.Current.IsLocallyInvoked == false)
             {
-                SetNewBlueprint(projectedGrid);
-            }
+            SetNewBlueprint(projectedGrid);
+        }
         }
 
         public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)

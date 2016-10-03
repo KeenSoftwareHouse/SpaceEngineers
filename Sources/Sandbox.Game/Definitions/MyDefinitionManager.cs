@@ -3625,7 +3625,9 @@ namespace Sandbox.Definitions
         {
             Debug.Assert(m_definitions.m_definitionsById.ContainsKey(id));
             CheckDefinition<MyBotDefinition>(ref id);
-            return m_definitions.m_definitionsById[id] as MyBotDefinition;
+            if (m_definitions.m_definitionsById.ContainsKey(id))
+                return m_definitions.m_definitionsById[id] as MyBotDefinition;
+            return null;
         }
 
         public bool TryGetBotDefinition(MyDefinitionId id, out MyBotDefinition botDefinition)

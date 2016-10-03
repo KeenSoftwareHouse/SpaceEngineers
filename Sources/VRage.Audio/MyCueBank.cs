@@ -13,7 +13,7 @@ using VRage.Utils;
 
 namespace VRage.Audio
 {
-    struct MyWaveFormat : IEquatable<MyWaveFormat>
+    public struct MyWaveFormat : IEquatable<MyWaveFormat>
     {
         public class Comparer : IEqualityComparer<MyWaveFormat>
         {

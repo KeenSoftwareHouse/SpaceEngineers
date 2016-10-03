@@ -947,6 +947,12 @@ namespace Sandbox
                         }
                     }
                 };
+
+            if (MySandboxGame.Config.SyncRendering)
+            {
+                VRageRender.MyViewport vp = new MyViewport(0, 0, (float)MySandboxGame.Config.ScreenWidth, (float)MySandboxGame.Config.ScreenHeight);
+                RenderThread_SizeChanged((int)vp.Width, (int)vp.Height, vp);
+            }
 #endif // !XB1
             return form;
         }
@@ -1031,7 +1037,14 @@ namespace Sandbox
 
         protected virtual void StartRenderComponent(MyRenderDeviceSettings? settingsToTry)
         {
-            GameRenderComponent.Start(m_gameTimer, InitializeRenderThread, settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
+            if (MySandboxGame.Config.SyncRendering)
+            {
+                GameRenderComponent.StartSync(m_gameTimer, InitializeRenderThread(), settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
+            }
+            else
+            {
+                GameRenderComponent.Start(m_gameTimer, InitializeRenderThread, settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
+            }
             GameRenderComponent.RenderThread.SizeChanged += RenderThread_SizeChanged;
             GameRenderComponent.RenderThread.BeforeDraw += RenderThread_BeforeDraw;
         }
@@ -1957,6 +1970,13 @@ namespace Sandbox
             ProfilerShort.End();
 
             ProfilerShort.Begin("Update");
+
+            if (MySandboxGame.Config.SyncRendering)
+            {
+                ProfilerShort.Begin("SyncRendering");
+                GameRenderComponent.RenderThread.TickSync();
+                ProfilerShort.End();
+            }
 
             using (Stats.Generic.Measure("RenderRequests"))
             {

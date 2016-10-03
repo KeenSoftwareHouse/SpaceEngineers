@@ -293,6 +293,9 @@ namespace Sandbox.Game.Entities.Cube
                     if (deserializedItem.Blueprint != null)
                     {
                         m_queue.Add(deserializedItem);
+                    }
+                    else
+                    {
                         MySandboxGame.Log.WriteLine(string.Format("Could not add item into production block's queue: Blueprint {0} was not found.", item.Id));
                     }
                 }

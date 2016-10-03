@@ -70,6 +70,7 @@ namespace Sandbox.Game
         public Type FactionScreen;
         public Type CreateFactionScreen;
         public Type PlayersScreen;
+        public Type PerformanceWarningScreen;
 
         public string[] MainMenuBackgroundVideos;
 
@@ -260,10 +261,11 @@ namespace Sandbox.Game
             ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
             AdminMenuScreen = typeof(Sandbox.Game.Gui.MyGuiScreenAdminMenu),
             CreateFactionScreen = typeof(Sandbox.Game.Gui.MyGuiScreenCreateOrEditFaction),
-            PlayersScreen = typeof(Sandbox.Game.Gui.MyGuiScreenPlayers)
+            PlayersScreen = typeof(Sandbox.Game.Gui.MyGuiScreenPlayers),
         };
 
         // Artificial intelligence
+        public static Type PathfindingType = null;
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
         public static bool EnablePathfinding = false;

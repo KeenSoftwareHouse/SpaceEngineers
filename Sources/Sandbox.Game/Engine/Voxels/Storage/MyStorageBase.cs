@@ -127,7 +127,10 @@ namespace Sandbox.Engine.Voxels
                 {
                     byte to;
                     if (map.TryGetValue(data[i], out to))
+                    {
                         data[i] = to;
+                        rewrites++;
+                    }
                 }
 
             if (rewrites > 0) this.WriteRange(cache, MyStorageDataTypeFlags.Material, ref minCorner, ref maxCorner);

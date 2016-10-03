@@ -227,7 +227,7 @@ namespace Sandbox.Engine.Utils
                 resultOrientationStorage = MatrixD.Slerp(resultOrientationStorage, m_lastOrientation,
                     MathHelper.SmoothStepStable(m_lastOrientationWeight));
                 resultOrientationStorage = MatrixD.Orthogonalize(resultOrientationStorage);
-                m_orientation.Forward = Vector3D.Cross(m_orientation.Up, m_orientation.Right);
+                resultOrientationStorage.Forward = Vector3D.Cross(resultOrientationStorage.Up, resultOrientationStorage.Right);
             }
             if (!inGravityField)
             {
@@ -257,11 +257,26 @@ namespace Sandbox.Engine.Utils
                 m_roll = 0;
                 m_yaw = 0;
                 m_pitch = 0;
+                m_lastOrientationWeight = 0;
                 ComputeGravityAlignedOrientation(out gravityOrientationMatrix);
                 var target = (Vector3D)MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition();
                 Position = target + Vector3D.Transform(ThirdPersonCameraDelta, gravityOrientationMatrix);
                 Target = target;
                 m_orientation.Up = gravityOrientationMatrix.Up;
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        protected override void OnChangingMode(MySpectatorCameraMovementEnum oldMode, MySpectatorCameraMovementEnum newMode)
+        {
+            if (newMode == MySpectatorCameraMovementEnum.UserControlled && oldMode == MySpectatorCameraMovementEnum.ConstantDelta)
+            {
+                MatrixD gravityOrientationMatrix;
+                ComputeGravityAlignedOrientation(out gravityOrientationMatrix);
+                m_orientation.Up = gravityOrientationMatrix.Up;
+                m_orientation.Forward = Vector3D.Normalize(Target - Position);
+                m_orientation.Right = Vector3D.Cross(m_orientation.Forward, m_orientation.Up);
+                AlignSpectatorToGravity = false;
             }
         }
 

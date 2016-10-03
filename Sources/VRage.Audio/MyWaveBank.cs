@@ -7,7 +7,7 @@ using VRage.Library.Utils;
 
 namespace VRage.Audio
 {
-    class MyWaveBank : IDisposable
+    public class MyWaveBank : IDisposable
     {
         Dictionary<string, MyInMemoryWave> m_waves = new Dictionary<string, MyInMemoryWave>();
 
@@ -36,7 +36,7 @@ namespace VRage.Audio
                     }
                     try
                     {
-                        MyInMemoryWave wave = new MyInMemoryWave(cue, fsPath);
+                        MyInMemoryWave wave = new MyInMemoryWave(cue, fsPath, this);
                         if (i != 2)
                             wave.Buffer.LoopCount = 0;
                         m_waves[waveFilename] = wave;
@@ -131,6 +131,8 @@ namespace VRage.Audio
             return m_waves[filename];
         }
 
+        internal readonly Dictionary<string, MyInMemoryWave> LoadedStreamedWaves = new Dictionary<string, MyInMemoryWave>();
+
         public MyInMemoryWave GetStreamedWave(string filename, MySoundData cue, MySoundDimensions dim = MySoundDimensions.D2)
         {
             if (string.IsNullOrEmpty(filename))
@@ -143,7 +145,11 @@ namespace VRage.Audio
             {
                 try
                 {
-                    MyInMemoryWave wave = new MyInMemoryWave(cue, fsPath);
+                    MyInMemoryWave wave;
+                    if (!LoadedStreamedWaves.TryGetValue(fsPath, out wave))
+                        wave = LoadedStreamedWaves[fsPath] = new MyInMemoryWave(cue, fsPath, this, true);
+                    else
+                        wave.Reference();
 
                     // check the formats
                     if (encoding == SharpDX.Multimedia.WaveFormatEncoding.Unknown)

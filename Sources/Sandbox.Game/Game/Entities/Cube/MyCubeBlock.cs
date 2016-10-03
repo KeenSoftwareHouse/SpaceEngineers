@@ -74,6 +74,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public long BuiltBy
+        {
+            get { return SlimBlock == null ? 0 : SlimBlock.BuiltBy; }
+        }
+
         private MyResourceSinkComponent m_sinkComp;
 
         public MyResourceSinkComponent ResourceSink
@@ -879,7 +884,7 @@ namespace Sandbox.Game.Entities
                     {
                         if (Sync.IsServer)
                             CubeGrid.ChangeOwnerRequest(CubeGrid, this, owner, sharing);
-                    }
+                }
                 }
                 else
                 {
@@ -893,9 +898,9 @@ namespace Sandbox.Game.Entities
                     {
                         sharing = MyOwnershipShareModeEnum.None;
                         CubeGrid.ChangeOwnerRequest(CubeGrid, this, 0, sharing);
-                    }
                 }
             }
+        }
         }
 
         public void ChangeBlockOwnerRequest(long playerId, MyOwnershipShareModeEnum shareMode)

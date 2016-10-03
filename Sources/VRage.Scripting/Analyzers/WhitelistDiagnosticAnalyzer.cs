@@ -33,7 +33,7 @@ namespace VRage.Scripting.Analyzers
         public override void Initialize(AnalysisContext context)
         {
             context.RegisterSyntaxNodeAction(Analyze,
-                SyntaxKind.FinallyClause,
+                //SyntaxKind.FinallyClause,
                 SyntaxKind.AliasQualifiedName,
                 SyntaxKind.QualifiedName,
                 SyntaxKind.GenericName,

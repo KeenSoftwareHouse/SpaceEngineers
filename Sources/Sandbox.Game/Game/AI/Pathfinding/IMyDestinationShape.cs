@@ -6,6 +6,10 @@ using VRageMath;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
+    /// <summary>
+    /// A shape describing the destination of a pathfinding query. It is abstracted like this, so that the destination
+    /// for an agent can be anything from a simple point to the space inside a building or a perimeter around an object.
+    /// </summary>
     public interface IMyDestinationShape
     {
         /// <summary>

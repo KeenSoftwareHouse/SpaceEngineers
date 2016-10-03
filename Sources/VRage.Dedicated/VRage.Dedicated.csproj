@@ -78,6 +78,12 @@
     <Compile Include="Configurator\AddNewInstanceForm.Designer.cs">
       <DependentUpon>AddNewInstanceForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Configurator\BlockTypeList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Configurator\BlockTypeList.Designer.cs">
+      <DependentUpon>BlockTypeList.cs</DependentUpon>
+    </Compile>
     <Compile Include="Configurator\ConfigForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,6 +150,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Configurator\AddNewInstanceForm.resx">
       <DependentUpon>AddNewInstanceForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Configurator\BlockTypeList.resx">
+      <DependentUpon>BlockTypeList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Configurator\ConfigForm.resx">
       <DependentUpon>ConfigForm.cs</DependentUpon>

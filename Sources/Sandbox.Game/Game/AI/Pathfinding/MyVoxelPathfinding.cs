@@ -79,7 +79,7 @@ namespace Sandbox.Game.AI.Pathfinding
             if (voxelMap == null) return;
             if (MyPerGameSettings.Game == GameEnum.SE_GAME && !(voxelMap is MyPlanet)) return;
 
-            m_navigationMeshes.Add(voxelMap, new MyVoxelNavigationMesh(voxelMap, m_coordinator, MyAIComponent.Static.Pathfinding.NextTimestampFunction));
+            m_navigationMeshes.Add(voxelMap, new MyVoxelNavigationMesh(voxelMap, m_coordinator, MyCestmirPathfindingShorts.Pathfinding.NextTimestampFunction));
             RegisterVoxelMapEvents(voxelMap);
         }
 

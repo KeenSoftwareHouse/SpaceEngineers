@@ -1455,6 +1455,8 @@ namespace Sandbox.Game.Entities
 
         public void Down()
         {
+            if (!CubeGrid.Physics.RigidBody.IsActive)
+                CubeGrid.ActivatePhysics();
         }
 
         public virtual void ShowInventory()
@@ -1474,6 +1476,8 @@ namespace Sandbox.Game.Entities
         {
             if (m_enableShipControl && EntityThrustComponent != null)
                 EnableDampingInternal(!EntityThrustComponent.DampenersEnabled, true);
+            if (!CubeGrid.Physics.RigidBody.IsActive)
+                CubeGrid.ActivatePhysics();
         }
 
         internal void EnableDampingInternal(bool enableDampeners, bool updateProxy)

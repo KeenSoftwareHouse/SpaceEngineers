@@ -904,8 +904,22 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.UpdateAfterSimulation10();
 
-			if (!Sync.IsServer || !IsWorking || !ResourceSink.IsPowered)
+            if (!Sync.IsServer || !IsWorking)
                 return;
+
+            if (!ResourceSink.IsPowered)
+            {
+                if(ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, BlockDefinition.RequiredPowerInput))
+                {
+                    float origInput = ResourceSink.RequiredInput;
+                    ResourceSink.SetRequiredInputByType(MyResourceDistributorComponent.ElectricityId, 0);
+                    ResourceSink.SetRequiredInputByType(MyResourceDistributorComponent.ElectricityId, origInput);
+                }
+                else
+                {
+                    return;
+                }
+            }
 
             var rotation1 = Quaternion.CreateFromForwardUp(WorldMatrix.Forward, WorldMatrix.Up);
             var position1 = PositionComp.GetPosition() + Vector3D.Transform(PositionComp.LocalVolume.Center + (m_fieldMax.Value + m_fieldMin.Value) * 0.5f, rotation1);

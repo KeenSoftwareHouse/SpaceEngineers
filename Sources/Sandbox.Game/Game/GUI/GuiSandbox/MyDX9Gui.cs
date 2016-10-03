@@ -170,6 +170,7 @@ namespace Sandbox.Graphics.GUI
             UserDebugInputComponents.Add(new MyVRDebugInputComponent());
 #endif // !XB1
             UserDebugInputComponents.Add(new MyResearchDebugInputComponent());
+            UserDebugInputComponents.Add(new MyAIDebugInputComponent());
             UserDebugInputComponents.Add(new MyAlesDebugInputComponent());
             LoadDebugInputsFromConfig();
         }

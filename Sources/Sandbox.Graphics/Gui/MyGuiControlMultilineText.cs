@@ -295,6 +295,7 @@ namespace Sandbox.Graphics.GUI
         public void Clear()
         {
             m_label.Clear();
+            m_scrollbar.SetPage(0);
             RecalculateScrollBar();
         }
 

@@ -42,6 +42,12 @@ namespace VRage.Dedicated
 
         ServiceController m_serviceController;
 
+        List<ComboBox> m_blockTypeLimitNames = new List<ComboBox>();
+        List<NumericUpDown> m_blockTypeLimits = new List<NumericUpDown>();
+        BlockTypeList blockTypeList = new BlockTypeList();
+
+        string[] m_blockTypeNames;
+
         public ConfigForm(bool isService, string serviceName)
         {
             m_isService = isService;
@@ -50,6 +56,13 @@ namespace VRage.Dedicated
             if (isService) // if it's service get its handler
             {
                 m_serviceController = new ServiceController(serviceName);
+            }
+
+            var blockTypeResources = new System.ComponentModel.ComponentResourceManager(typeof(BlockTypeList));
+            m_blockTypeNames = blockTypeResources.GetString("textBox1.Text").Split(',');
+            foreach (var name in m_blockTypeNames)
+            {
+                name.Trim();
             }
 
             this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); 
@@ -466,6 +479,8 @@ namespace VRage.Dedicated
             tableLayoutPanel1.RowCount = 0;
             tableLayoutPanel1.RowStyles.Clear();
             tableLayoutPanel1.Controls.Clear();
+            m_blockTypeLimitNames.Clear();
+            m_blockTypeLimits.Clear();
 
             Type sessionSettingsType = typeof(T);
             foreach (var sessionField in sessionSettingsType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField))
@@ -625,6 +640,23 @@ namespace VRage.Dedicated
                     fieldPanel.Controls.Add(checkBox);
 
                     AddNewRow(fieldPanel);
+                }
+
+                if (sessionField.Name == "BlockTypeLimits")
+                {
+                    FlowLayoutPanel fieldPanel = AddFieldLabel(sessionField, displayName);
+
+                    Button buttonNewLimit = new Button();
+                    buttonNewLimit.Tag = sessionField;
+                    buttonNewLimit.Text = "Add new";
+                    buttonNewLimit.Click += buttonNewLimit_Click;
+                    fieldPanel.Controls.Add(buttonNewLimit);
+
+                    AddNewRow(fieldPanel);
+                    foreach (var limit in m_selectedSessionSettings.BlockTypeLimits.Dictionary)
+                    {
+                        CreateNewBlockTypeLimit(limit.Key, limit.Value);
+                    }
                 }
 
                 if (sessionField.FieldType.IsGenericType && sessionField.FieldType.GetGenericArguments()[0] == typeof(bool))
@@ -808,6 +840,26 @@ namespace VRage.Dedicated
             tableLayoutPanel1.SetRow(fieldPanel, tableLayoutPanel1.RowCount - 1);
         }
 
+        private void CreateNewBlockTypeLimit(string name = "", short value = 0)
+        {
+            FlowLayoutPanel newLimit = CreateFieldPanel();
+            ComboBox newLimitName = new ComboBox();
+            NumericUpDown newLimitValue = new NumericUpDown();
+            newLimitName.Width = 190;
+            newLimitName.Text = name;
+            newLimitValue.Minimum = 0;
+            newLimitValue.Maximum = short.MaxValue;
+            newLimitValue.Value = value;
+            m_blockTypeLimitNames.Add(newLimitName);
+            m_blockTypeLimits.Add(newLimitValue);
+            newLimit.Controls.Add(newLimitName);
+            newLimit.Controls.Add(newLimitValue);
+
+            newLimitName.Items.AddRange(m_blockTypeNames);
+
+            AddNewRow(newLimit);
+        }
+
         void SaveConfiguration(string file = null)
         {
             MySandboxGame.ConfigDedicated.IP = IPTextBox.Text;
@@ -878,6 +930,17 @@ namespace VRage.Dedicated
                     {
                         MessageBox.Show(id + " is not valid ID for mod!");
                     }
+                }
+            }
+
+            m_selectedSessionSettings.BlockTypeLimits.Dictionary.Clear();
+            for (int i = 0; i < m_blockTypeLimitNames.Count; i++)
+            {
+                string key = m_blockTypeLimitNames[i].Text;
+                short value = (short)m_blockTypeLimits[i].Value;
+                if (key != "" && value > 0)
+                {
+                    m_selectedSessionSettings.BlockTypeLimits.Dictionary.Add(key, value);
                 }
             }
 
@@ -986,6 +1049,20 @@ namespace VRage.Dedicated
             HasToExit = true;
             MyFileSystem.Reset();
             Close();
+        }
+
+        private void buttonNewLimit_Click(object sender, EventArgs e)
+        {
+            CreateNewBlockTypeLimit();
+        }
+
+        private void buttonTypeList_Click(object sender, EventArgs e)
+        {
+            if (blockTypeList.IsDisposed)
+            {
+                blockTypeList = new BlockTypeList();
+            }
+            blockTypeList.Show();
         }
         
         #region Service Controls

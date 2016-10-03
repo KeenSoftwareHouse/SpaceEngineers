@@ -853,17 +853,20 @@ namespace Sandbox.Game.Replication
         {
             if (!VRage.Game.MyFinalBuildConstants.IS_OFFICIAL)
                 Console.WriteLine(String.Format("delivery: {0}, {1}", packetId, delivered));
-            InventoryClientData clientData = m_clientInventoryUpdate[forClient.EndpointId.Value];
-            InventoryDeltaInformation packetInfo;
-            if (clientData.SendPackets.TryGetValue(packetId, out packetInfo))
+            InventoryClientData clientData;
+            if (m_clientInventoryUpdate.TryGetValue(forClient.EndpointId.Value, out clientData))
             {
-                if (delivered == false)
+                InventoryDeltaInformation packetInfo;
+                if (clientData.SendPackets.TryGetValue(packetId, out packetInfo))
                 {
+                    if (delivered == false)
+                    {
 
-                    clientData.FailedIncompletePackets.Add(packetInfo);
+                        clientData.FailedIncompletePackets.Add(packetInfo);
+                    }
+
+                    clientData.SendPackets.Remove(packetId);
                 }
-
-                clientData.SendPackets.Remove(packetId);
             }
         }
 

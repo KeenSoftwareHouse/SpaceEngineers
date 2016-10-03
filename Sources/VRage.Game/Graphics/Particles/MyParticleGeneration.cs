@@ -705,6 +705,16 @@ namespace VRage.Game
             return m_properties;
         }
 
+        private bool m_show = true;
+        public bool Show
+        {
+            get { return m_show; }
+            set
+            {
+                m_show = value;
+            }
+        }
+
         #endregion
 
         #region Update
@@ -828,7 +838,7 @@ namespace VRage.Game
 
         private void UpdateParticlesCreation()
         {
-            if (!Enabled.GetValue<bool>())
+            if (!Enabled.GetValue<bool>() || !m_show)
                 return;
 
             if (m_effect.CalculateDeltaMatrix == false)
@@ -1029,13 +1039,19 @@ namespace VRage.Game
             {
                 float velVar;
                 VelocityVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out velVar);
+                if (velVar != 0)
+                {
+                    float min = 1 / velVar;
+                    float max = velVar;
 
-                float min = 1 / velVar;
-                float max = velVar;
+                    velVar = MyUtils.GetRandomFloat(min, max);
 
-                velVar = MyUtils.GetRandomFloat(min, max);
-
-                vel *= m_effect.GetScale() * velVar;
+                    vel *= m_effect.GetScale() * velVar;
+                }
+                else
+                {
+                    vel *= m_effect.GetScale();
+                }
             }
             else
             {

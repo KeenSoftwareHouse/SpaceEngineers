@@ -971,12 +971,12 @@ namespace Sandbox.Game
             }
         }
 
-        static MySoundPair m_explPlayer = new MySoundPair("WepExplOnPlay");
-        static MySoundPair m_smMissileShip = new MySoundPair("WepSmallMissileExplShip");
-        static MySoundPair m_smMissileExpl = new MySoundPair("WepSmallMissileExpl");
-        static MySoundPair m_lrgWarheadExpl = new MySoundPair("WepLrgWarheadExpl");
-        static MySoundPair m_smWarheadExpl = new MySoundPair("WepSmallWarheadExpl");
-        static MySoundPair m_missileExpl = new MySoundPair("WepMissileExplosion");
+        static MySoundPair m_explPlayer = new MySoundPair("WepExplOnPlay", false);//currently missing
+        static MySoundPair m_smMissileShip = new MySoundPair("WepSmallMissileExplShip", false);
+        static MySoundPair m_smMissileExpl = new MySoundPair("WepSmallMissileExpl", false);
+        static MySoundPair m_lrgWarheadExpl = new MySoundPair("WepLrgWarheadExpl", false);
+        static MySoundPair m_smWarheadExpl = new MySoundPair("WepSmallWarheadExpl", false);
+        static MySoundPair m_missileExpl = new MySoundPair("WepMissileExplosion", false);//currently missing
 
         MySoundPair GetCueByExplosionType(MyExplosionTypeEnum explosionType)
         {

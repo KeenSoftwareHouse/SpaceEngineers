@@ -29,6 +29,7 @@ namespace Sandbox.Game.Gui
         public Color Color;
         public float Scale;
         public MyGuiDrawAlignEnum Alignement;
+        public bool Visible;
         readonly StringBuilder m_text;
 
 
