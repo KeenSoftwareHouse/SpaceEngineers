@@ -7,11 +7,12 @@ using Sandbox.Game.World;
 using System.Linq;
 using Sandbox.Definitions;
 using Sandbox.Game.Multiplayer;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.Entity.UseObject;
 using VRage.Game.Models;
+using VRage.Game.SessionComponents;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;
@@ -69,10 +70,10 @@ namespace Sandbox.Game.Gui
                });
 
             AddShortcut(MyKeys.NumPad9, true, false, false, false,
-                () => "Reload animations (old system)",
+                () => "Reload animation tracks",
                 delegate
                 {
-                    ReloadAnimationsOldSystem();
+                    ReloadAnimations();
                     return true;
                 });
 
@@ -117,7 +118,7 @@ namespace Sandbox.Game.Gui
             m_toggleShowSkeleton = !m_toggleShowSkeleton;
         }
         
-        private void ReloadAnimationsOldSystem()
+        private void ReloadAnimations()
         {
             if (MySession.Static.LocalCharacter != null)
             foreach (var animPlayer in MySession.Static.LocalCharacter.GetAllAnimationPlayers())
@@ -134,6 +135,8 @@ namespace Sandbox.Game.Gui
                 if (modelFps != null)
                     modelFps.UnloadData();
             }
+
+            MySessionComponentAnimationSystem.Static.ReloadMwmTracks();
         }
 
         public static MyCharacter SpawnCharacter(string model = null)
@@ -208,6 +211,11 @@ namespace Sandbox.Game.Gui
         public override void Draw()
         {
             base.Draw();
+
+            if (MySession.Static != null && MySession.Static.LocalCharacter != null)
+            {
+                MyAnimationInverseKinematics.DebugTransform = MySession.Static.LocalCharacter.WorldMatrix;
+            }
 
             if (m_toggleMovementState)
             {
@@ -303,24 +311,31 @@ namespace Sandbox.Game.Gui
                 m_boneRefToIndex = new Dictionary<MyCharacterBone, int>(256);
             }
 
-            MyCharacter character = MySession.Static != null ? MySession.Static.LocalCharacter : null;
-            if (character == null)
+            if (MySessionComponentAnimationSystem.Static == null)
                 return;
-            List<MyAnimationClip.BoneState> bones = character.AnimationController.LastRawBoneResult;
-            MyCharacterBone[] characterBones = character.AnimationController.CharacterBones;
-            m_boneRefToIndex.Clear();
-            for (int i = 0; i < characterBones.Length; i++)
+
+
+            foreach (var animComp in MySessionComponentAnimationSystem.Static.RegisteredAnimationComponents)
             {
-                m_boneRefToIndex.Add(character.AnimationController.CharacterBones[i], i);
-            }
-
-
-            for (int i = 0; i < characterBones.Length; i++)
-                if (characterBones[i].Parent == null)
+                MyCharacter character = animComp != null ? (animComp.Entity as MyCharacter) : null;
+                if (character == null)
+                    return;
+                List<MyAnimationClip.BoneState> bones = character.AnimationController.LastRawBoneResult;
+                MyCharacterBone[] characterBones = character.AnimationController.CharacterBones;
+                m_boneRefToIndex.Clear();
+                for (int i = 0; i < characterBones.Length; i++)
                 {
-                    MatrixD worldMatrix = character.PositionComp.WorldMatrix;
-                    DrawBoneHierarchy(character, ref worldMatrix, characterBones, bones, i);
+                    m_boneRefToIndex.Add(character.AnimationController.CharacterBones[i], i);
                 }
+
+
+                for (int i = 0; i < characterBones.Length; i++)
+                    if (characterBones[i].Parent == null)
+                    {
+                        MatrixD worldMatrix = character.PositionComp.WorldMatrix;
+                        DrawBoneHierarchy(character, ref worldMatrix, characterBones, bones, i);
+                    }
+            }
         }
 
         private void DrawBoneHierarchy(MyCharacter character, ref MatrixD parentTransform, MyCharacterBone[] characterBones, List<MyAnimationClip.BoneState> rawBones, int boneIndex)

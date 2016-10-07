@@ -70,11 +70,15 @@ namespace VRage.Library.Utils
         private const int MZ = 0;
         private int[] SeedArray;
 
-        private static byte[] m_tmpLongArray = new byte[8];
+        private byte[] m_tmpLongArray = new byte[8];
 
         // Methods
         public MyRandom()
-            : this(Environment.TickCount)
+#if XB1
+            : this(MyEnvironment.TickCount)
+#else
+            : this(MyEnvironment.TickCount + System.Threading.Thread.CurrentThread.ManagedThreadId)
+#endif
         {
         }
 
@@ -97,7 +101,14 @@ namespace VRage.Library.Utils
             state.Inextp = inextp;
             fixed (int* ptr = state.Seed)
             {
+#if !XB1
                 Marshal.Copy(SeedArray, 0, new IntPtr(ptr), 0x38);
+#else // XB1
+                for (int i = 0; i < SeedArray.Length; i++)
+                {
+                    ptr[i] = SeedArray[i];
+                }
+#endif // !XB1
             }
         }
 
@@ -107,7 +118,14 @@ namespace VRage.Library.Utils
             inextp = state.Inextp;
             fixed (int* ptr = state.Seed)
             {
+#if !XB1
                 Marshal.Copy(new IntPtr(ptr), SeedArray, 0, 0x38);
+#else // XB1
+                for (int i = 0; i < SeedArray.Length; i++)
+                {
+                    SeedArray[i] = ptr[i];
+                }
+#endif // XB1
             }
         }
 
@@ -115,7 +133,7 @@ namespace VRage.Library.Utils
 
         public int CreateRandomSeed()
         {
-            return Environment.TickCount ^ Next();
+            return MyEnvironment.TickCount ^ Next();
         }
 
         /// <summary>

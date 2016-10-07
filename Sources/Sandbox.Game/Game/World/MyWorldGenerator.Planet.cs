@@ -1,23 +1,16 @@
-﻿using Sandbox.Common.ObjectBuilders.Definitions;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
-using Sandbox.Game.World.Generator;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Collections;
 using VRage.Library.Utils;
 using VRageMath;
 using VRage;
 using VRage.FileSystem;
-using VRage.Voxels;
 using Sandbox.Engine.Utils;
-using VRageRender;
-using Sandbox.Game.Screens.Helpers;
 using VRage.Game;
 using VRage.Utils;
+using VRage.Voxels;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.World
 {
@@ -57,6 +50,7 @@ namespace Sandbox.Game.World
                     planetInitArguments.SpherizeWithDistance = true;
                     planetInitArguments.Generator = planetDefinition;
                     planetInitArguments.UserCreated = false;
+                    planetInitArguments.InitializeComponents = true;
 
                     planet.Init(planetInitArguments);
                     MyEntities.Add(planet);
@@ -130,6 +124,7 @@ namespace Sandbox.Game.World
                 planetInitArguments.SpherizeWithDistance = true;
                 planetInitArguments.Generator = generatorDef;
                 planetInitArguments.UserCreated = userCreated;
+                planetInitArguments.InitializeComponents = true;
 
                 planet.Init(planetInitArguments);
 

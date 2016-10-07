@@ -139,7 +139,14 @@ namespace VRage.Audio.X3DAudio
                         matrixCoefficients[i] *= decay;
                     }
                 }
+#if !XB1
                 voice.SetOutputMatrix(null, settings.SrcChannelCount, settings.DstChannelCount, matrixCoefficients);
+#else // XB1
+                var matCoefs = new float[matrixCoefficientCount];
+                for (int i = 0; i < matrixCoefficientCount; i++)
+                    matCoefs[i] = matrixCoefficients[i];
+                voice.SetOutputMatrix(null, settings.SrcChannelCount, settings.DstChannelCount, matCoefs);
+#endif // XB1
                 return settings.EmitterToListenerDistance;
             }
         }

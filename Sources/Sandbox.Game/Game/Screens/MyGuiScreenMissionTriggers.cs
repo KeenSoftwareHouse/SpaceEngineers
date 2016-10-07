@@ -49,10 +49,17 @@ namespace Sandbox.Game.Screens
 
         public static List<Type> GetTriggerTypes()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            return MyAssembly.GetTypes().Where(type => type.IsSubclassOf(typeof(MyTrigger))
+                                                                          && (MyFakes.ENABLE_NEW_TRIGGERS || (type != typeof(MyTriggerTimeLimit)
+                                                                                                              && type != typeof(MyTriggerBlockDestroyed))
+                                                                          )).ToList();
+#else // !XB1
             return Assembly.GetCallingAssembly().GetTypes().Where(type => type.IsSubclassOf(typeof(MyTrigger)) 
                                                                           && (MyFakes.ENABLE_NEW_TRIGGERS || (type!=typeof(MyTriggerTimeLimit)
                                                                                                               && type!=typeof(MyTriggerBlockDestroyed))
                                                                           )).ToList();
+#endif // !XB1
         }
 
         public override void RecreateControls(bool constructor)

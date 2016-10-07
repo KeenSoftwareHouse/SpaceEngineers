@@ -1,4 +1,6 @@
-﻿namespace Sandbox.Game.GUI.DebugInputComponents.HonzaDebugInputComponent
+﻿#if !XB1
+
+namespace Sandbox.Game.GUI.DebugInputComponents.HonzaDebugInputComponent
 {
     partial class LiveWatch
     {
@@ -123,3 +125,5 @@
 
     }
 }
+
+#endif

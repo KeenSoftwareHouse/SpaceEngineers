@@ -230,7 +230,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
         public void DebugDraw(bool lite)
         {
-            var lastTimestamp = MyAIComponent.Static.Pathfinding.LastHighLevelTimestamp;
+            var lastTimestamp = MyCestmirPathfindingShorts.Pathfinding.LastHighLevelTimestamp;
 
             foreach (var entry in m_primitives)
             {

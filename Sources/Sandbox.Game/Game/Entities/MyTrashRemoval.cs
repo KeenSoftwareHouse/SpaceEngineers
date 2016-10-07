@@ -143,6 +143,10 @@ namespace Sandbox.Game.Entities
                 isAccelerating = !isStationary && (grid.Physics.AngularAcceleration.AbsMax() > 0.05f || grid.Physics.LinearAcceleration.AbsMax() > 0.05f);
                 isLinearMoving = !isAccelerating && !isStationary;
             }
+            else
+            {
+                return MyTrashRemovalFlags.Default;
+            }
 
             if (!settings.HasFlag(MyTrashRemovalFlags.Stationary) && isStationary)
                 return MyTrashRemovalFlags.Stationary;

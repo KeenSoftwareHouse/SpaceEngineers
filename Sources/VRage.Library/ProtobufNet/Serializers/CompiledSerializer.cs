@@ -1,4 +1,5 @@
-﻿#if FEAT_COMPILER && !(FX11 || FEAT_IKVM)
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if FEAT_COMPILER && !(FX11 || FEAT_IKVM)
 using System;
 using ProtoBuf.Meta;
 
@@ -76,3 +77,4 @@ namespace ProtoBuf.Serializers
     }
 }
 #endif
+#endif // !XB1

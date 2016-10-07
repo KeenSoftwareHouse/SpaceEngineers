@@ -23,6 +23,8 @@ using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using Sandbox.Game.Localization;
+using VRage.Profiler;
+using Sandbox.Engine.Utils;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -334,16 +336,20 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation()
         {
+            MySimpleProfiler.Begin("Conveyor");
             foreach (var line in m_lines)
             {
                 if (!line.IsEmpty)
                     line.Update();
             }
+            MySimpleProfiler.End("Conveyor");
         }
 
         public void UpdateBeforeSimulation10()
         {
+            MySimpleProfiler.Begin("Conveyor");
             ResourceSink.Update();
+            MySimpleProfiler.End("Conveyor");
         }
 
         public void FlagForRecomputation()
@@ -372,8 +378,10 @@ namespace Sandbox.Game.GameSystems
         {
             if (m_needsRecomputation)
             {
+                MySimpleProfiler.Begin("Conveyor");
                 RecomputeConveyorEndpoints();
                 m_needsRecomputation = false;
+                MySimpleProfiler.End("Conveyor");
             }
         }
 
@@ -1001,7 +1009,7 @@ namespace Sandbox.Game.GameSystems
                 MyGridConveyorSystem conveyorSystem = (m_start as MyCubeBlock).CubeGrid.GridSystems.ConveyorSystem;
                 MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(m_start);
 
-                endpoints.AddTransfer(m_endPoint, m_itemId, false, m_canTransfer);
+                endpoints.AddTransfer(m_endPoint, m_itemId, m_isPush, m_canTransfer);
             }
         }
 
@@ -1012,7 +1020,7 @@ namespace Sandbox.Game.GameSystems
 
             // Verify that this item can, in fact, make it past sorters, etc
             bool canTransfer = true;
-            if (endpoints.TryGetTransfer(endPoint, itemId, false, out canTransfer))
+            if (endpoints.TryGetTransfer(endPoint, itemId, isPush, out canTransfer))
             {
                 return canTransfer;
             }
@@ -1068,7 +1076,7 @@ namespace Sandbox.Game.GameSystems
             if (startingBlock == null) return 0;
 
             MyFixedPoint transferred = 0;
-            
+
             // Try and get the block from the cache
             MyGridConveyorSystem conveyorSystem = startingBlock.CubeGrid.GridSystems.ConveyorSystem;
             MyGridConveyorSystem.ConveyorEndpointMapping endpoints = conveyorSystem.GetConveyorEndpointMapping(start);
@@ -1269,8 +1277,8 @@ namespace Sandbox.Game.GameSystems
 
             public void AddTransfer(IMyConveyorEndpointBlock block, MyDefinitionId itemId, bool isPush, bool canTransfer)
             {
-                var tuple = new Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>(block, itemId, isPush);
-                testedTransfers[tuple] = canTransfer;
+                    var tuple = new Tuple<IMyConveyorEndpointBlock, MyDefinitionId, bool>(block, itemId, isPush);
+                    testedTransfers[tuple] = canTransfer;
             }
 
             public bool TryGetTransfer(IMyConveyorEndpointBlock block, MyDefinitionId itemId, bool isPush, out bool canTransfer)
@@ -1379,35 +1387,7 @@ namespace Sandbox.Game.GameSystems
                         using (var invertedConductivity = new MyConveyorLine.InvertedConductivity())
                         {
                             PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, NeedsLargeTube(pullInformation.ItemDefinition) ? IsConveyorLargePredicate : null);
-                            foreach (var conveyorEndpoint in Pathfinding)
-                            {
-                                // Ignore endpoints without a block
-                                if (conveyorEndpoint.CubeBlock == null) continue;
-
-                                // Ignore blocks without inventory
-                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
-
-                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
-                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
-                                if (endpointBlock == null) continue;
-
-                                // Iterate inventories to make sure we can take the items
-                                bool isInventoryAvailable = false;
-                                for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
-                                {
-                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
-                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
-                                    if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
-                                        continue;
-
-                                    isInventoryAvailable = true;
-                                    break;
-                                }
-
-                                if (isInventoryAvailable)
-                                    endpointMap.pullElements.Add(endpointBlock);
-                            }
+                            AddReachableEndpoints(processedBlock, endpointMap.pullElements, MyInventoryFlags.CanSend);
                         }
                     }
 
@@ -1418,76 +1398,11 @@ namespace Sandbox.Game.GameSystems
                         {
                             // Once for small tubes
                             PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorSmallPredicate);
-                            foreach (var conveyorEndpoint in Pathfinding)
-                            {
-                                // Ignore originating block
-                                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
-
-                                // Ignore endpoints without a block
-                                if (conveyorEndpoint.CubeBlock == null) continue;
-
-                                // Ignore blocks without inventory
-                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
-
-                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
-                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
-                                if (endpointBlock == null) continue;
-
-                                // Iterate inventories to make sure we can take the items
-                                bool isInventoryAvailable = false;
-                                for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
-                                {
-                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
-                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
-                                    if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
-                                        continue;
-
-                                    isInventoryAvailable = true;
-                                    break;
-                                }
-
-                                if (isInventoryAvailable)
-                                    endpointMap.pullElements.Add(endpointBlock);
-                            }
+                            AddReachableEndpoints(processedBlock, endpointMap.pullElements, MyInventoryFlags.CanSend);
 
                             // Once for large tubes
                             PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, null);
-                            foreach (var conveyorEndpoint in Pathfinding)
-                            {
-                                // Ignore originating block
-                                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
-
-                                // Ignore endpoints without a block
-                                if (conveyorEndpoint.CubeBlock == null) continue;
-
-                                // Ignore blocks without inventory
-                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
-
-                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
-                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
-                                if (endpointBlock == null) continue;
-
-                                // Iterate inventories to make sure we can take the items
-                                bool isInventoryAvailable = false;
-                                for (int i = 0; i < conveyorEndpoint.CubeBlock.InventoryCount; ++i)
-                                {
-                                    var inventory = conveyorEndpoint.CubeBlock.GetInventory(i) as MyInventory;
-                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
-                                    if ((inventory.GetFlags() & MyInventoryFlags.CanSend) == 0)
-                                        continue;
-
-                                    isInventoryAvailable = true;
-                                    break;
-                                }
-
-                                if (isInventoryAvailable)
-                                {
-                                    if (!endpointMap.pullElements.Contains(endpointBlock))
-                                        endpointMap.pullElements.Add(endpointBlock);
-                                }
-                            }
+                            AddReachableEndpoints(processedBlock, endpointMap.pullElements, MyInventoryFlags.CanSend);
                         }
                     }
                 }
@@ -1525,41 +1440,7 @@ namespace Sandbox.Game.GameSystems
                     {
                         SetTraversalInventoryItemDefinitionId();
                         PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate);
-
-                        foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
-                        {
-                            // Ignore originating block
-                            if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
-
-                            // Ignore endpoints without a block
-                            if (conveyorEndpoint.CubeBlock == null) continue;
-
-                            // Ignore blocks without inventory
-                            if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
-
-                            // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
-                            IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
-                            if (endpointBlock == null) continue;
-
-                            MyCubeBlock owner = conveyorEndpoint.CubeBlock;
-
-                            // Iterate inventories to make sure they can take the items
-                            bool isInventoryAvailable = false;
-                            for (int i = 0; i < owner.InventoryCount; ++i)
-                            {
-                                var inventory = owner.GetInventory(i) as MyInventory;
-                                System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
-                                if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
-                                    continue;
-
-                                isInventoryAvailable = true;
-                                break;
-                            }
-
-                            if (isInventoryAvailable && !endpointMap.pushElements.Contains(endpointBlock))
-                                endpointMap.pushElements.Add(endpointBlock);
-                        }
+                        AddReachableEndpoints(processedBlock, endpointMap.pushElements, MyInventoryFlags.CanReceive);
                     }
                     else
                     {
@@ -1569,58 +1450,59 @@ namespace Sandbox.Game.GameSystems
                             SetTraversalInventoryItemDefinitionId(definitionId);
 
                             if (NeedsLargeTube(definitionId))
-                            {
                                 PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate, IsConveyorLargePredicate);
-                            }
                             else
-                            {
                                 PrepareTraversal(processedBlock.ConveyorEndpoint, null, IsAccessAllowedPredicate);
-                            }
 
-                            foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
-                            {
-                                // Ignore originating block
-                                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
-
-                                // Ignore endpoints without a block
-                                if (conveyorEndpoint.CubeBlock == null) continue;
-
-                                // Ignore blocks without inventory
-                                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
-
-                                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
-                                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
-                                if (endpointBlock == null) continue;
-
-                                MyCubeBlock owner = conveyorEndpoint.CubeBlock;
-
-                                // Iterate inventories to make sure they can take the items
-                                bool isInventoryAvailable = false;
-                                for (int i = 0; i < owner.InventoryCount; ++i)
-                                {
-                                    var inventory = owner.GetInventory(i) as MyInventory;
-                                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
-
-                                    if ((inventory.GetFlags() & MyInventoryFlags.CanReceive) == 0)
-                                        continue;
-
-                                    // Make sure target inventory can take this item
-                                    if (!inventory.CheckConstraint(definitionId))
-                                        continue;
-
-                                    isInventoryAvailable = true;
-                                    break;
-                                }
-
-                                if (isInventoryAvailable && !endpointMap.pushElements.Contains(endpointBlock))
-                                    endpointMap.pushElements.Add(endpointBlock);
-                            }
+                            AddReachableEndpoints(processedBlock, endpointMap.pushElements, MyInventoryFlags.CanReceive, definitionId);
                         }
                     }
                 }
             }
 
             return endpointMap;
+        }
+
+        private static void AddReachableEndpoints(IMyConveyorEndpointBlock processedBlock, List<IMyConveyorEndpointBlock> resultList, MyInventoryFlags flagToCheck, MyDefinitionId? definitionId = null)
+        {
+            foreach (var conveyorEndpoint in MyGridConveyorSystem.Pathfinding)
+            {
+                // Ignore originating block
+                if (conveyorEndpoint.CubeBlock == processedBlock as MyCubeBlock) continue;
+
+                // Ignore endpoints without a block
+                if (conveyorEndpoint.CubeBlock == null) continue;
+
+                // Ignore blocks without inventory
+                if (!conveyorEndpoint.CubeBlock.HasInventory) continue;
+
+                // Ignore blocks that do not implement IMyConveyorEndpointBlock interface
+                IMyConveyorEndpointBlock endpointBlock = conveyorEndpoint.CubeBlock as IMyConveyorEndpointBlock;
+                if (endpointBlock == null) continue;
+
+                MyCubeBlock owner = conveyorEndpoint.CubeBlock;
+
+                // Iterate inventories to make sure they can take the items
+                bool isInventoryAvailable = false;
+                for (int i = 0; i < owner.InventoryCount; ++i)
+                {
+                    var inventory = owner.GetInventory(i) as MyInventory;
+                    System.Diagnostics.Debug.Assert(inventory != null, "Null or other inventory type!");
+
+                    if ((inventory.GetFlags() & flagToCheck) == 0)
+                        continue;
+
+                    // Make sure target inventory can take this item
+                    if (definitionId.HasValue && !inventory.CheckConstraint(definitionId.Value))
+                        continue;
+
+                    isInventoryAvailable = true;
+                    break;
+                }
+
+                if (isInventoryAvailable && !resultList.Contains(endpointBlock))
+                    resultList.Add(endpointBlock);
+            }
         }
 
         /// <summary>

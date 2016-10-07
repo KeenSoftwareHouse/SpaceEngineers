@@ -8,17 +8,15 @@ using System.Reflection;
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.Text;
-using VRage.Utils;
-using System.Collections.Generic;
-using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Engine.Utils;
-using VRage.Plugins;
 using Sandbox.Game;
 using System.ComponentModel.DataAnnotations;
 using Sandbox.Game.Screens.Helpers;
 using System.IO;
 using VRage.Game;
+using VRage.Voxels;
+using System.Collections.Generic;
 
 namespace VRage.Dedicated
 {
@@ -44,6 +42,12 @@ namespace VRage.Dedicated
 
         ServiceController m_serviceController;
 
+        List<ComboBox> m_blockTypeLimitNames = new List<ComboBox>();
+        List<NumericUpDown> m_blockTypeLimits = new List<NumericUpDown>();
+        BlockTypeList blockTypeList = new BlockTypeList();
+
+        string[] m_blockTypeNames;
+
         public ConfigForm(bool isService, string serviceName)
         {
             m_isService = isService;
@@ -52,6 +56,13 @@ namespace VRage.Dedicated
             if (isService) // if it's service get its handler
             {
                 m_serviceController = new ServiceController(serviceName);
+            }
+
+            var blockTypeResources = new System.ComponentModel.ComponentResourceManager(typeof(BlockTypeList));
+            m_blockTypeNames = blockTypeResources.GetString("textBox1.Text").Split(',');
+            foreach (var name in m_blockTypeNames)
+            {
+                name.Trim();
             }
 
             this.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); 
@@ -238,7 +249,11 @@ namespace VRage.Dedicated
 
             availableSaves.Sort((x, y) =>
             {
-                return x.Item1.CompareTo(y.Item1);
+                int result = y.Item2.LastSaveTime.CompareTo(x.Item2.LastSaveTime);
+                if (result != 0) return result;
+
+                result = x.Item1.CompareTo(y.Item1);
+                return result;
             });
 
             gamesListBox.Items.Clear();
@@ -259,7 +274,7 @@ namespace VRage.Dedicated
                 }
             }
 
-            gamesListBox.Sorted = true;
+            gamesListBox.Sorted = false;
         }
 
         void FillBattlesList()
@@ -449,7 +464,7 @@ namespace VRage.Dedicated
                     m_selectedSessionSettings.EnableFlora = (MyPerGameSettings.Game == GameEnum.SE_GAME) && MyFakes.ENABLE_PLANETS;
                     m_selectedSessionSettings.EnableSunRotation = MyPerGameSettings.Game == GameEnum.SE_GAME;
                     m_selectedSessionSettings.CargoShipsEnabled = true;
-                    m_selectedSessionSettings.EnableCyberhounds = false;
+                    m_selectedSessionSettings.EnableWolfs = false;
                     m_selectedSessionSettings.EnableSpiders = true;
 
                     m_selectedSessionSettings.Battle = false;                    
@@ -464,6 +479,8 @@ namespace VRage.Dedicated
             tableLayoutPanel1.RowCount = 0;
             tableLayoutPanel1.RowStyles.Clear();
             tableLayoutPanel1.Controls.Clear();
+            m_blockTypeLimitNames.Clear();
+            m_blockTypeLimits.Clear();
 
             Type sessionSettingsType = typeof(T);
             foreach (var sessionField in sessionSettingsType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField))
@@ -625,6 +642,23 @@ namespace VRage.Dedicated
                     AddNewRow(fieldPanel);
                 }
 
+                if (sessionField.Name == "BlockTypeLimits")
+                {
+                    FlowLayoutPanel fieldPanel = AddFieldLabel(sessionField, displayName);
+
+                    Button buttonNewLimit = new Button();
+                    buttonNewLimit.Tag = sessionField;
+                    buttonNewLimit.Text = "Add new";
+                    buttonNewLimit.Click += buttonNewLimit_Click;
+                    fieldPanel.Controls.Add(buttonNewLimit);
+
+                    AddNewRow(fieldPanel);
+                    foreach (var limit in m_selectedSessionSettings.BlockTypeLimits.Dictionary)
+                    {
+                        CreateNewBlockTypeLimit(limit.Key, limit.Value);
+                    }
+                }
+
                 if (sessionField.FieldType.IsGenericType && sessionField.FieldType.GetGenericArguments()[0] == typeof(bool))
                 {
                     FlowLayoutPanel fieldPanel = AddFieldLabel(sessionField, displayName);
@@ -702,7 +736,7 @@ namespace VRage.Dedicated
             {
                 var voxelGeneratorControl = foundControls[0] as NumericUpDown;
                 voxelGeneratorControl.Minimum = 0;
-                voxelGeneratorControl.Maximum = VRage.Voxels.MyVoxelConstants.VOXEL_GENERATOR_VERSION;
+                voxelGeneratorControl.Maximum = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
 
                 var oxygenControl = tableLayoutPanel1.Controls.Find("EnableOxygen", true)[0] as CheckBox;
                 oxygenControl.CheckedChanged += oxygenCheckBox_CheckedChanged;
@@ -710,7 +744,7 @@ namespace VRage.Dedicated
                 if (newGameSettingsPanel.Enabled && !loadFromConfig)
                 {
                     oxygenControl.Checked = true;
-                    voxelGeneratorControl.Value = VRage.Voxels.MyVoxelConstants.VOXEL_GENERATOR_VERSION;
+                    voxelGeneratorControl.Value = MyVoxelConstants.VOXEL_GENERATOR_VERSION;
                 }
             }
         }
@@ -721,9 +755,9 @@ namespace VRage.Dedicated
             var oxygenControl = (CheckBox)sender;
             if (oxygenControl.Checked)
             {
-                if (voxelGeneratorControl.Value < VRage.Voxels.MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION)
+                if (voxelGeneratorControl.Value < MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION)
                 {
-                    voxelGeneratorControl.Value = VRage.Voxels.MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION;
+                    voxelGeneratorControl.Value = MyVoxelConstants.VOXEL_GENERATOR_MIN_ICE_VERSION;
                 }
             }
         }
@@ -806,6 +840,26 @@ namespace VRage.Dedicated
             tableLayoutPanel1.SetRow(fieldPanel, tableLayoutPanel1.RowCount - 1);
         }
 
+        private void CreateNewBlockTypeLimit(string name = "", short value = 0)
+        {
+            FlowLayoutPanel newLimit = CreateFieldPanel();
+            ComboBox newLimitName = new ComboBox();
+            NumericUpDown newLimitValue = new NumericUpDown();
+            newLimitName.Width = 190;
+            newLimitName.Text = name;
+            newLimitValue.Minimum = 0;
+            newLimitValue.Maximum = short.MaxValue;
+            newLimitValue.Value = value;
+            m_blockTypeLimitNames.Add(newLimitName);
+            m_blockTypeLimits.Add(newLimitValue);
+            newLimit.Controls.Add(newLimitName);
+            newLimit.Controls.Add(newLimitValue);
+
+            newLimitName.Items.AddRange(m_blockTypeNames);
+
+            AddNewRow(newLimit);
+        }
+
         void SaveConfiguration(string file = null)
         {
             MySandboxGame.ConfigDedicated.IP = IPTextBox.Text;
@@ -876,6 +930,17 @@ namespace VRage.Dedicated
                     {
                         MessageBox.Show(id + " is not valid ID for mod!");
                     }
+                }
+            }
+
+            m_selectedSessionSettings.BlockTypeLimits.Dictionary.Clear();
+            for (int i = 0; i < m_blockTypeLimitNames.Count; i++)
+            {
+                string key = m_blockTypeLimitNames[i].Text;
+                short value = (short)m_blockTypeLimits[i].Value;
+                if (key != "" && value > 0)
+                {
+                    m_selectedSessionSettings.BlockTypeLimits.Dictionary.Add(key, value);
                 }
             }
 
@@ -984,6 +1049,20 @@ namespace VRage.Dedicated
             HasToExit = true;
             MyFileSystem.Reset();
             Close();
+        }
+
+        private void buttonNewLimit_Click(object sender, EventArgs e)
+        {
+            CreateNewBlockTypeLimit();
+        }
+
+        private void buttonTypeList_Click(object sender, EventArgs e)
+        {
+            if (blockTypeList.IsDisposed)
+            {
+                blockTypeList = new BlockTypeList();
+            }
+            blockTypeList.Show();
         }
         
         #region Service Controls

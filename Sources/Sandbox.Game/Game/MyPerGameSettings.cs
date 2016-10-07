@@ -70,6 +70,7 @@ namespace Sandbox.Game
         public Type FactionScreen;
         public Type CreateFactionScreen;
         public Type PlayersScreen;
+        public Type PerformanceWarningScreen;
 
         public string[] MainMenuBackgroundVideos;
 
@@ -155,6 +156,7 @@ namespace Sandbox.Game
 
         public static bool UseVolumeLimiter = false;
         public static bool UseMusicController = false;
+        public static bool UseReverbEffect = false;
 
         public static bool UseSameSoundLimiter = false;
         public static bool UseNewDamageEffects = false;
@@ -228,14 +230,6 @@ namespace Sandbox.Game
         public static bool EnableCollisionSparksEffect = true;
 
         private static bool m_useAnimationInsteadOfIK = false;
-        public static bool UseAnimationInsteadOfIK { set { m_useAnimationInsteadOfIK = value; } }
-        public static bool CheckUseAnimationInsteadOfIK(IMyHandheldGunObject<MyDeviceBase> currentWeapon = null)
-        {
-            if (currentWeapon != null)
-                return m_useAnimationInsteadOfIK || currentWeapon.ForceAnimationInsteadOfIK;
-
-            return m_useAnimationInsteadOfIK;
-        }
 
         public static bool MultiplayerEnabled = true;
         public static Type ClientStateType = typeof(MyClientState);
@@ -267,10 +261,11 @@ namespace Sandbox.Game
             ScenarioLobbyClientScreen = typeof(Sandbox.Game.Screens.MyGuiScreenScenarioMpClient),
             AdminMenuScreen = typeof(Sandbox.Game.Gui.MyGuiScreenAdminMenu),
             CreateFactionScreen = typeof(Sandbox.Game.Gui.MyGuiScreenCreateOrEditFaction),
-            PlayersScreen = typeof(Sandbox.Game.Gui.MyGuiScreenPlayers)
+            PlayersScreen = typeof(Sandbox.Game.Gui.MyGuiScreenPlayers),
         };
 
         // Artificial intelligence
+        public static Type PathfindingType = null;
         public static Type BotFactoryType = null;
         public static bool EnableAi = false;
         public static bool EnablePathfinding = false;

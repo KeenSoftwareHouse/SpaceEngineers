@@ -1,19 +1,16 @@
-﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using VRage.FileSystem;
+using VRage.Render11.Common;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 using VRageMath;
-using VRageRender.Resources;
+using VRageRender.Messages;
 
 namespace VRageRender
 {
     struct AtmosphereLuts
     {
-        internal RwTexId TransmittanceLut;
+        internal IUavTexture TransmittanceLut;
     }
 
     struct MyAtmosphere
@@ -84,12 +81,12 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_ps = MyShaders.CreatePs("atmosphere.hlsl");
-            m_psPerSample = MyShaders.CreatePs("atmosphere.hlsl", MyRender11.ShaderSampleFrequencyDefine());
+            m_ps = MyShaders.CreatePs("Transparent/Atmosphere/Atmosphere.hlsl");
+            m_psPerSample = MyShaders.CreatePs("Transparent/Atmosphere/Atmosphere.hlsl", MyRender11.ShaderSampleFrequencyDefine());
 
-            m_precomputeDensity = MyShaders.CreateCs("AtmospherePrecompute.hlsl");
+            m_precomputeDensity = MyShaders.CreateCs("Transparent/Atmosphere/AtmospherePrecompute.hlsl");
 
-            m_proxyVs = MyShaders.CreateVs("atmosphere.hlsl");
+            m_proxyVs = MyShaders.CreateVs("Transparent/Atmosphere/Atmosphere.hlsl");
             m_proxyIL = MyShaders.CreateIL(m_proxyVs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION_PACKED));
         }
 
@@ -98,9 +95,10 @@ namespace VRageRender
 
         internal unsafe static void AllocateLuts(ref AtmosphereLuts luts)
         {
-            if (luts.TransmittanceLut == RwTexId.NULL)
+            if (luts.TransmittanceLut == null)
             {
-                luts.TransmittanceLut = MyRwTextures.CreateUav2D(512, 128, SharpDX.DXGI.Format.R32G32_Float);
+                luts.TransmittanceLut = MyManagers.RwTextures.CreateUav("AtmosphereLuts.TransmittanceLut",
+                    512, 128, SharpDX.DXGI.Format.R32G32_Float);
             }
         }
 
@@ -148,10 +146,10 @@ namespace VRageRender
             float RadiusAtmosphere = atmosphere.AtmosphereRadius;
 
             var cb = MyCommon.GetObjectCB(sizeof(AtmospherePrecomputeConstants));
-            RC.DeviceContext.ComputeShader.SetConstantBuffer(1, cb);
+            RC.ComputeShader.SetConstantBuffer(1, cb);
 
             var worldMatrix = atmosphere.WorldMatrix;
-            worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
+            worldMatrix.Translation -= MyRender11.Environment.Matrices.CameraPosition;
 
             AtmospherePrecomputeConstants constants = new AtmospherePrecomputeConstants();
             // Raise the ground a bit for better sunsets
@@ -171,12 +169,12 @@ namespace VRageRender
             mapping.Unmap();
 
             // transmittance
-            RC.DeviceContext.ComputeShader.SetUnorderedAccessView(0, luts.TransmittanceLut.Uav);
+            RC.ComputeShader.SetUav(0, luts.TransmittanceLut);
 
-            RC.SetCS(m_precomputeDensity);
-            RC.DeviceContext.Dispatch(512 / 8, 128 / 8, 1);
+            RC.ComputeShader.Set(m_precomputeDensity);
+            RC.Dispatch(512 / 8, 128 / 8, 1);
 
-            RC.DeviceContext.ComputeShader.SetUnorderedAccessView(0, null);
+            RC.ComputeShader.SetUav(0, null);
         }
 
         internal static void CreateAtmosphere(uint ID, MatrixD worldMatrix, float planetRadius, float atmosphereRadius, 
@@ -190,7 +188,7 @@ namespace VRageRender
                                                    PlanetScaleFactor = planetScaleFactor, AtmosphereScaleFactor = atmosphereScaleFactor
             });
 
-            AtmosphereLuts luts = new AtmosphereLuts { TransmittanceLut = RwTexId.NULL };
+            AtmosphereLuts luts = new AtmosphereLuts();
             AllocateLuts(ref luts);
             Precompute1(Atmospheres[ID], ref luts);
             AtmosphereLUT[ID] = luts;
@@ -212,7 +210,8 @@ namespace VRageRender
 
             if (AtmosphereLUT.ContainsKey(ID))
             {
-                MyRwTextures.Destroy(AtmosphereLUT[ID].TransmittanceLut);
+                IUavTexture uav = AtmosphereLUT[ID].TransmittanceLut;
+                MyManagers.RwTextures.DisposeTex(ref uav);
             }
 
             AtmosphereLUT.Remove(ID);
@@ -228,24 +227,26 @@ namespace VRageRender
 
             var sphereMesh = MyMeshes.GetMeshId(X.TEXT_("Models/Debug/Sphere.mwm"), 1.0f);
             var buffers = MyMeshes.GetLodMesh(sphereMesh, 0).Buffers;
-            RC.SetVB(0, buffers.VB0.Buffer, buffers.VB0.Stride);
-            RC.SetIB(buffers.IB.Buffer, buffers.IB.Format);
+            RC.SetVertexBuffer(0, buffers.VB0.Buffer, buffers.VB0.Stride);
+            RC.SetIndexBuffer(buffers.IB.Buffer, buffers.IB.Format);
 
-            RC.SetVS(m_proxyVs);
-            RC.SetIL(m_proxyIL);
+            RC.VertexShader.Set(m_proxyVs);
+            RC.SetInputLayout(m_proxyIL);
             
 
-            RC.SetRS(null);
-            RC.SetBS(MyRender11.BlendAtmosphere);
+            RC.SetRasterizerState(null);
+            RC.SetBlendState(MyBlendStateManager.BlendAtmosphere);
+
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
 
             var cb = MyCommon.GetObjectCB(sizeof(AtmosphereConstants));
-            RC.SetCB(1, cb);
-            RC.DeviceContext.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, SamplerStates.m_shadowmap);
+            RC.AllShaderStages.SetConstantBuffer(1, cb);
+            RC.PixelShader.SetSampler(MyCommon.SHADOW_SAMPLER_SLOT, MySamplerStateManager.Shadowmap);
 
             // depth, 
-            RC.BindGBufferForRead(0, MyGBuffer.Main);
+            RC.PixelShader.SetSrvs(0, MyGBuffer.Main);
 
-            RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadOnly, MyGBuffer.Main.Get(MyGbufferSlot.LBuffer));
+            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, MyGBuffer.Main.LBuffer);
 
 
             var indicesNum = MyMeshes.GetLodMesh(sphereMesh, 0).Info.IndicesNum;
@@ -253,12 +254,12 @@ namespace VRageRender
             // sort by distance
             int i = Atmospheres.Count;
 
-            foreach (var atmosphere in Atmospheres.OrderByDescending(x => (x.Value.WorldMatrix.Translation - MyRender11.Environment.CameraPosition).LengthSquared()))
+            foreach (var atmosphere in Atmospheres.OrderByDescending(x => (x.Value.WorldMatrix.Translation - MyRender11.Environment.Matrices.CameraPosition).LengthSquared()))
             {
                 var worldMatrix = atmosphere.Value.WorldMatrix;
-                worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
+                worldMatrix.Translation -= MyRender11.Environment.Matrices.CameraPosition;
                 
-                var worldViewProj = ((Matrix) worldMatrix) * MyRender11.Environment.ViewProjectionAt0;
+                var worldViewProj = ((Matrix) worldMatrix) * MyRender11.Environment.Matrices.ViewProjectionAt0;
 
                 double distance = worldMatrix.Translation.Length();
                 double atmosphereTop = atmosphere.Value.AtmosphereRadius * atmosphere.Value.Settings.AtmosphereTopModifier * atmosphere.Value.PlanetScaleFactor * atmosphere.Value.Settings.RayleighTransitionModifier;
@@ -297,63 +298,64 @@ namespace VRageRender
                 mapping.Unmap();
 
                 var luts = AtmosphereLUT[atmosphere.Key];
-                RC.DeviceContext.PixelShader.SetShaderResources(5, luts.TransmittanceLut.SRV);
+                RC.PixelShader.SetSrvs(5, luts.TransmittanceLut);
 
                 bool inside = worldMatrix.Translation.Length() < atmosphere.Value.AtmosphereRadius * atmosphere.Value.PlanetScaleFactor;
 
                 if (inside)
                 {
-                    RC.SetRS(MyRender11.m_invTriRasterizerState);
+                    RC.SetRasterizerState(MyRasterizerStateManager.InvTriRasterizerState);
 
                     if (MyRender11.MultisamplingEnabled)
                     {
-                        RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.TestEdgeStencil, 0);
                     }
                     else
                     {
-                        RC.SetDS(MyDepthStencilState.IgnoreDepthStencil);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);
                     }                    
                 }
                 else
                 {
-                    RC.SetRS(null);
+                    RC.SetRasterizerState(null);
 
                     if (MyRender11.MultisamplingEnabled)
                     {
-                        RC.SetDS(MyDepthStencilState.TestDepthAndEdgeStencil, 0);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.TestDepthAndEdgeStencil, 0);
                     }
                     else
                     {
-                        RC.SetDS(MyDepthStencilState.DepthTest);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.DepthTestReadOnly);
                     }
                 }
 
-                RC.SetPS(m_ps);
+                RC.PixelShader.Set(m_ps);
 
-                RC.DeviceContext.DrawIndexed(indicesNum, 0, 0);
+                RC.DrawIndexed(indicesNum, 0, 0);
 
                 if (MyRender11.MultisamplingEnabled)
                 {
                     if (inside)
                     {
-                        RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.TestEdgeStencil, 0x80);
                     }
                     else
                     {
-                        RC.SetDS(MyDepthStencilState.TestDepthAndEdgeStencil, 0x80);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.TestDepthAndEdgeStencil, 0x80);
                     }
 
-                    RC.SetPS(m_psPerSample);
-                    RC.DeviceContext.DrawIndexed(indicesNum, 0, 0);
+                    RC.PixelShader.Set(m_psPerSample);
+                    RC.DrawIndexed(indicesNum, 0, 0);
                     
                 }
 
                 i--;
             }
 
-            RC.DeviceContext.PixelShader.SetShaderResources(5, null, null);
-            RC.SetRS(null);
-            RC.SetDS(null);
+            RC.PixelShader.SetSrvs(5, null, null);
+            RC.SetRasterizerState(null);
+            RC.SetDepthStencilState(null);
+            RC.SetRtv(null);
         }
 
         internal static uint? GetCurrentAtmosphereId()
@@ -362,7 +364,7 @@ namespace VRageRender
             uint? minKey = null;
             foreach (var atmosphere in Atmospheres)
             {
-                double sqDistance = (MyRender11.Environment.CameraPosition - atmosphere.Value.WorldMatrix.Translation).LengthSquared();
+                double sqDistance = (MyRender11.Environment.Matrices.CameraPosition - atmosphere.Value.WorldMatrix.Translation).LengthSquared();
                 if (sqDistance < minDist)
                 {
                     minKey = atmosphere.Key;

@@ -6,6 +6,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRageMath
 {
@@ -14,7 +18,11 @@ namespace VRageMath
     /// </summary>
     [ProtoBuf.ProtoContract, Serializable]
 	[Unsharper.UnsharperDisableReflection()]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct Vector3 : IEquatable<Vector3>
+#else // XB1
+    public struct Vector3 : IEquatable<Vector3>, IMySetGetMemberDataHelper
+#endif // XB1
     {
         public static Vector3 Zero = new Vector3();
         public static Vector3 One = new Vector3(1f, 1f, 1f);
@@ -378,6 +386,11 @@ namespace VRageMath
                 return (double)this.Z == (double)other.Z;
             else
                 return false;
+        }
+
+        public bool Equals(Vector3 other,float epsilon)
+        {
+            return Math.Abs(this.X - other.X) < epsilon && Math.Abs(this.Y - other.Y) < epsilon && Math.Abs(this.Z - other.Z) < epsilon;
         }
 
         /// <summary>
@@ -846,6 +859,34 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Separates minimal and maximal values of any two input vectors
+        /// </summary>
+        /// <param name="min">minimal values of the two vectors</param>
+        /// <param name="max">maximal values of the two vectors</param>
+        public static void MinMax(ref Vector3 min, ref Vector3 max)
+        {
+            float tmp;
+            if (min.X > max.X)
+            {
+                tmp = min.X;
+                min.X = max.X;
+                max.X = tmp;
+            }
+            if (min.Y > max.Y)
+            {
+                tmp = min.Y;
+                min.Y = max.Y;
+                max.Y = tmp;
+            }
+            if (min.Z > max.Z)
+            {
+                tmp = min.Z;
+                min.Z = max.Z;
+                max.Z = tmp;
+            }
+        }
+
+        /// <summary>
         /// Returns a vector that is equal to the projection of the input vector to the coordinate axis that corresponds
         /// to the original vector's largest value.
         /// </summary>
@@ -995,6 +1036,25 @@ namespace VRageMath
             result.X = (float)((double)value1.X + (double)amount1 * ((double)value2.X - (double)value1.X) + (double)amount2 * ((double)value3.X - (double)value1.X));
             result.Y = (float)((double)value1.Y + (double)amount1 * ((double)value2.Y - (double)value1.Y) + (double)amount2 * ((double)value3.Y - (double)value1.Y));
             result.Z = (float)((double)value1.Z + (double)amount1 * ((double)value2.Z - (double)value1.Z) + (double)amount2 * ((double)value3.Z - (double)value1.Z));
+        }
+
+        /// <summary>
+        /// Compute barycentric coordinates (u, v, w) for point p with respect to triangle (a, b, c)
+        /// From : Real-Time Collision Detection, Christer Ericson, CRC Press
+        /// 3.4 Barycentric Coordinates
+        /// </summary>
+        public static void Barycentric(Vector3 p, Vector3 a, Vector3 b, Vector3 c, out float u, out float v, out float w)
+        {
+            Vector3 v0 = b - a, v1 = c - a, v2 = p - a;
+            float d00 = Dot(v0, v0);
+            float d01 = Dot(v0, v1);
+            float d11 = Dot(v1, v1);
+            float d20 = Dot(v2, v0);
+            float d21 = Dot(v2, v1);
+            float denom = d00 * d11 - d01 * d01;
+            v = (d11 * d20 - d01 * d21) / denom;
+            w = (d00 * d21 - d01 * d20) / denom;
+            u = 1.0f - v - w;
         }
 
         /// <summary>
@@ -1811,6 +1871,21 @@ namespace VRageMath
         {
             return new Vector3(Math.Round(v.X, numDecimals), Math.Round(v.Y, numDecimals), Math.Round(v.Z, numDecimals));
         }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "X")
+                return X;
+            if (m.Name == "Y")
+                return Y;
+            if (m.Name == "Z")
+                return Z;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 
     public static class NullableVector3Extensions

@@ -9,6 +9,13 @@ using VRageMath;
 
 namespace VRage.Game
 {
+    public enum MyEnumCharacterRotationToSupport
+    {
+        None,
+        OneAxis,
+        Full
+    }
+
     [ProtoContract]
     public class MyJetpackThrustDefinition
     {
@@ -257,6 +264,9 @@ namespace VRage.Game
         public bool UsesAtmosphereDetector = false;
 
         [ProtoMember]
+        public bool UsesReverbDetector = false;
+
+        [ProtoMember]
         public bool NeedsOxygen = false;
 
         [ProtoMember]
@@ -343,6 +353,8 @@ namespace VRage.Game
         public string CrouchDownSoundName = "";
         [ProtoMember]
         public string CrouchUpSoundName = "";
+        [ProtoMember]
+        public string MovementSoundName = "";
 
         [ProtoMember]
         public string PainSoundName = "";
@@ -420,8 +432,15 @@ namespace VRage.Game
         /// <summary>
         /// Name of used animation controller.
         /// </summary>
+        [ProtoMember]
         public string AnimationController = null;
 
+        [ProtoMember]
         public float? MaxForce = null;
+        /// <summary>
+        /// Align with the support? 
+        /// </summary>
+        [ProtoMember]
+        public MyEnumCharacterRotationToSupport RotationToSupport = MyEnumCharacterRotationToSupport.None;
     }
 }

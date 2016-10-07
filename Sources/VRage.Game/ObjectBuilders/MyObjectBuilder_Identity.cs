@@ -35,5 +35,8 @@ namespace VRage.Game
         [ProtoMember]
         public SerializableVector3? ColorMask;
         public bool ShouldSerializeColorMask() { return ColorMask != null; }
+
+        [ProtoMember]
+        public int BlockLimitModifier;
     }
 }

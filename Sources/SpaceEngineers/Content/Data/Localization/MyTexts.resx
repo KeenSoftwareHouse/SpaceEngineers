@@ -573,7 +573,7 @@ Public: Any Steam player can join</value>
     <value>Turret</value>
   </data>
   <data name="DisplayName_Block_Conveyor" xml:space="preserve">
-    <value>Conveyors</value>
+    <value>Conveyor Junction</value>
   </data>
   <data name="Terminal" xml:space="preserve">
     <value>Terminal</value>
@@ -1162,7 +1162,8 @@ Recommendations help to grow the community. Thank you!</value>
     <comment>Possible value for argument {1} in NotificationBlockNotAvailableFor ( {0} is not available for {1}. )</comment>
   </data>
   <data name="NotificationBlockNotAvailableFor" xml:space="preserve">
-    <value>{0} is not available for {1}</value>
+    <value>{0} {1} cannot be connected to a {2}</value>
+    <comment>{0} + {2} are type of grid, {1} is DisplayName</comment>
   </data>
   <data name="NotificationArgAngleGrinder" xml:space="preserve">
     <value>Angle grinder</value>
@@ -2293,7 +2294,7 @@ uncontrolled, without a medbay and far enough from all players so that they can 
     <value>Realistic</value>
   </data>
   <data name="WorldSettings_SoundMode" xml:space="preserve">
-    <value>Sound Mode</value>
+    <value>Sound mode</value>
   </data>
   <data name="Terminal_ShowOnHUD" xml:space="preserve">
     <value>Show on HUD</value>
@@ -3313,10 +3314,10 @@ Characters leaving the game area will be killed.</value>
   <data name="WorkshopTag_Exploration" xml:space="preserve">
     <value>Exploration</value>
   </data>
-   <data name="BlueprintScreen_DevMismatchCaption" xml:space="preserve">
+  <data name="BlueprintScreen_DevMismatchCaption" xml:space="preserve">
     <value>Blueprint created in development version</value>
   </data>
-    <data name="BlueprintScreen_DevMismatchMessage" xml:space="preserve">
+  <data name="BlueprintScreen_DevMismatchMessage" xml:space="preserve">
     <value>This blueprint was created in development version. It could cause issues in game.</value>
   </data>
   <data name="WorkshopTag_Dev" xml:space="preserve">
@@ -4056,7 +4057,7 @@ To connect to lasers not listed here you can connect to coordinates.</value>
     <value>Are you sure you want to enable oxygen? Doing so will cause materials on untouched asteroids to change. This is irreversible.</value>
   </data>
   <data name="ToolTipWorldSettings_EnableOxygen" xml:space="preserve">
-    <value>Enable ice material, pressurization detection and oxygen generation and circulation</value>
+    <value>Enable oxygen processing. Used by space suit and cockpits.</value>
   </data>
   <data name="World_Settings_EnableOxygen" xml:space="preserve">
     <value>Enable oxygen</value>
@@ -5075,11 +5076,11 @@ Allowed sites: steamcommunity, youtube, KSH forum.</value>
     <value>Random NPC pirate ship will be generated from time to time.
 These ships are enemies and will try to attack you with their drones.</value>
   </data>
-  <data name="ToolTipWorldSettings_EnableCyberhounds" xml:space="preserve">
-    <value>Enable / disable spawning of cyberhounds</value>
+  <data name="ToolTipWorldSettings_EnableWolfs" xml:space="preserve">
+    <value>Enable / disable spawning of Wolves</value>
   </data>
-  <data name="WorldSettings_EnableCyberhounds" xml:space="preserve">
-    <value>Enable cyberhounds</value>
+  <data name="WorldSettings_EnableWolfs" xml:space="preserve">
+    <value>Enable wolves</value>
   </data>
   <data name="ToolTipWorldSettings_EnableSpiders" xml:space="preserve">
     <value>Enable / disable spawning of spiders</value>
@@ -5568,5 +5569,69 @@ split and not in voxel. </value>
   </data>
   <data name="RemoteControlWaypoint" xml:space="preserve">
     <value>Current waypoint:</value>
+  </data>
+  <data name="MessageBoxTextAreYouSureEnableOxygenPressurization" xml:space="preserve">
+    <value>Are you sure you want to enable airtightness? This can have negative influence to performance.</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableOxygenPressurization" xml:space="preserve">
+    <value>Allow pressurization of ships and stations.</value>
+  </data>
+  <data name="World_Settings_EnableOxygenPressurization" xml:space="preserve">
+    <value>Enable airtightness</value>
+  </data>
+  <data name="ControlName_CubeDefaultMountpoint" xml:space="preserve">
+    <value>Reset orientation</value>
+  </data>
+  <data name="NotificationHint_CubeDefaultMountpoint" xml:space="preserve">
+    <value>Press {0} to reset orientation</value>
+  </data>
+  <data name="MaxBackupSaves" xml:space="preserve">
+    <value>Max backup saves</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxBackupSaves" xml:space="preserve">
+    <value>Configure the maximum number of saves that should be backed up. The backup folder is located on the respective save directory.
+When this is 0 then the backup feature is disabled and all backups are deleted upon save!</value>
+  </data>
+  <data name="TerminalTab_Chat_ChatHistory" xml:space="preserve">
+    <value>-Global Chat History-</value>
+  </data>
+  <data name="NotificationShipOverLimits" xml:space="preserve">
+    <value>Cannot place. Ship would exceed regulations.</value>
+  </data>
+  <data name="WorldSettings_MaxBlocksPerPlayer" xml:space="preserve">
+    <value>Max blocks per player</value>
+  </data>
+  <data name="WorldSettings_MaxGridSize" xml:space="preserve">
+    <value>Max ship size</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxBlocksPerPlayer" xml:space="preserve">
+    <value>Maximum number of blocks each player can build. Destroyed blocks are refunded</value>
+  </data>
+  <data name="ToolTipWorldSettingsMaxGridSize" xml:space="preserve">
+    <value>Maximum size (in blocks) of ships and stations</value>
+  </data>
+  <data name="TerminalTab_Info_Assign" xml:space="preserve">
+    <value>Assign</value>
+  </data>
+  <data name="TerminalTab_Info_BlocksLower" xml:space="preserve">
+    <value>blocks</value>
+  </data>
+  <data name="TerminalTab_Info_Overview" xml:space="preserve">
+    <value>Owned blocks overview</value>
+  </data>
+  <data name="TerminalTab_Info_YouBuilt" xml:space="preserve">
+    <value>You built</value>
+  </data>
+  <data name="ToolTipWorldSettings_EnableRemoteBlockRemoval" xml:space="preserve">
+    <value>Enable players to remotely remove owned blocks to free up their limit.</value>
+  </data>
+  <data name="WorldSettings_EnableRemoteBlockRemoval" xml:space="preserve">
+    <value>Remote block removal</value>
+  </data>
+  <data name="ToolTipWorldSettings_StationVoxelSupport" xml:space="preserve">
+    <value>By enabling this option grids will no longer turn dynamic when disconnected from static grids</value>
+  </data>
+  <data name="WorldSettings_StationVoxelSupport" xml:space="preserve">
+    <value>Unsupported Stations</value>
   </data>
 </root>

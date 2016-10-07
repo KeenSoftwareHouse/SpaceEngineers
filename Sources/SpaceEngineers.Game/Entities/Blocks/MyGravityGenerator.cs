@@ -16,6 +16,7 @@ using Sandbox.ModAPI.Ingame;
 using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -38,10 +39,22 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public Vector3 FieldSize
         {
             get { return m_fieldSize; }
+            set { m_fieldSize.Value = value; }
+        }
+
+        private Vector3 FieldSizeClamped
+        {
+            get { return FieldSize; }
             set
             {
-
-                m_fieldSize.Value = value;           
+                if (m_fieldSize.Value != value)
+                {
+                    var field = value;
+                    field.X = MathHelper.Clamp(field.X, BlockDefinition.MinFieldSize.X, BlockDefinition.MaxFieldSize.X);
+                    field.Y = MathHelper.Clamp(field.Y, BlockDefinition.MinFieldSize.Y, BlockDefinition.MaxFieldSize.Y);
+                    field.Z = MathHelper.Clamp(field.Z, BlockDefinition.MinFieldSize.Z, BlockDefinition.MaxFieldSize.Z);
+                    m_fieldSize.Value = field;
+                }
             }
         }
         
@@ -54,18 +67,21 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyGravityGenerator()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_fieldSize = SyncType.CreateAndAddProp<Vector3>();
+#endif // XB1
             CreateTerminalControls();
 
             m_fieldSize.ValueChanged += (x) => UpdateFieldShape();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyGravityGenerator>())
                 return;
-
+            base.CreateTerminalControls();
             var fieldWidth = new MyTerminalControlSlider<MyGravityGenerator>("Width", MySpaceTexts.BlockPropertyTitle_GravityFieldWidth, MySpaceTexts.BlockPropertyDescription_GravityFieldWidth);
-            fieldWidth.SetLimits(1, 150);
+            fieldWidth.SetLimits((x) => x.BlockDefinition.MinFieldSize.X, (x) => x.BlockDefinition.MaxFieldSize.X);
             fieldWidth.DefaultValue = 150;
             fieldWidth.Getter = (x) => x.m_fieldSize.Value.X;
             fieldWidth.Setter = (x, v) =>
@@ -79,7 +95,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldWidth);
 
             var fieldHeight = new MyTerminalControlSlider<MyGravityGenerator>("Height", MySpaceTexts.BlockPropertyTitle_GravityFieldHeight, MySpaceTexts.BlockPropertyDescription_GravityFieldHeight);
-            fieldHeight.SetLimits(1, 150);
+            fieldHeight.SetLimits((x) => x.BlockDefinition.MinFieldSize.Y, (x) => x.BlockDefinition.MaxFieldSize.Y);
             fieldHeight.DefaultValue = 150;
             fieldHeight.Getter = (x) => x.m_fieldSize.Value.Y;
             fieldHeight.Setter = (x, v) =>
@@ -94,7 +110,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldHeight);
 
             var fieldDepth = new MyTerminalControlSlider<MyGravityGenerator>("Depth", MySpaceTexts.BlockPropertyTitle_GravityFieldDepth, MySpaceTexts.BlockPropertyDescription_GravityFieldDepth);
-            fieldDepth.SetLimits(1, 150);
+            fieldDepth.SetLimits((x) => x.BlockDefinition.MinFieldSize.Z, (x) => x.BlockDefinition.MaxFieldSize.Z);
             fieldDepth.DefaultValue = 150;
             fieldDepth.Getter = (x) => x.m_fieldSize.Value.Z;
             fieldDepth.Setter = (x, v) =>
@@ -108,11 +124,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             MyTerminalControlFactory.AddControl(fieldDepth);
 
             var gravityAcceleration = new MyTerminalControlSlider<MyGravityGenerator>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-            gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
-			gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
+            gravityAcceleration.SetLimits((x) => x.BlockDefinition.MinGravityAcceleration, (x) => x.BlockDefinition.MaxGravityAcceleration);
+            gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
             gravityAcceleration.Getter = (x) => x.GravityAcceleration;
             gravityAcceleration.Setter = (x, v) => x.GravityAcceleration = v;
-            gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.m_gravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
+            gravityAcceleration.Writer = (x, result) => result.AppendDecimal(x.GravityAcceleration / MyGravityProviderSystem.G, 2).Append(" G");
             gravityAcceleration.EnableActions();
             MyTerminalControlFactory.AddControl(gravityAcceleration);
         }
@@ -122,8 +138,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             base.Init(objectBuilder, cubeGrid);
 
             var builder = (MyObjectBuilder_GravityGenerator)objectBuilder;
-            m_fieldSize.Value = builder.FieldSize;
-            m_gravityAcceleration.Value = builder.GravityAcceleration;
+            FieldSize = builder.FieldSize;
+            GravityAcceleration = builder.GravityAcceleration;
         }
 
 	    protected override void InitializeSinkComponent()
@@ -195,10 +211,23 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return new HkBoxShape(m_fieldSize.Value * 0.5f);
         }
 
+        #region ModAPI
+        Vector3 ModAPI.IMyGravityGenerator.FieldSize
+        {
+            get { return FieldSize; }
+            set { FieldSize = value; }
+        }
+
         float ModAPI.Ingame.IMyGravityGenerator.FieldWidth { get { return m_fieldSize.Value.X; } }
         float ModAPI.Ingame.IMyGravityGenerator.FieldHeight { get { return m_fieldSize.Value.Y; } }
         float ModAPI.Ingame.IMyGravityGenerator.FieldDepth { get { return m_fieldSize.Value.Z; } }
-        float ModAPI.Ingame.IMyGravityGenerator.Gravity { get { return GravityAcceleration / MyGravityProviderSystem.G; } }
+
+        Vector3 ModAPI.Ingame.IMyGravityGenerator.FieldSize
+        {
+            get { return FieldSize; }
+            set { FieldSizeClamped = value; }
+        }
+        #endregion ModAPI
     }
 }
 

@@ -1,4 +1,5 @@
 ﻿using SharpDX.Direct3D11;
+using VRage.Render11.Resources;
 using VRageMath;
 
 namespace VRageRender
@@ -9,12 +10,16 @@ namespace VRageRender
     };
 
     [PooledObject]
+#if XB1
+    class MyOutlinePass : MyRenderingPass, IMyPooledObjectCleaner
+#else // !XB1
     class MyOutlinePass : MyRenderingPass
+#endif // !XB1
     {
         internal static MyOutlinePass Instance = new MyOutlinePass();
 
-        internal DepthStencilView DSV;
-        internal RenderTargetView RTV;
+        internal DepthStencilView Dsv;
+        internal RenderTargetView Rtv;
 
         public MyOutlinePass()
         {
@@ -27,13 +32,13 @@ namespace VRageRender
 
             base.Begin();
 
-            //Context.OutputMerger.SetTargets(DSV, RTV);
+            //Context.OutputMerger.SetTargets(Dsv, Rtv);
 
-            RC.SetDS(MyDepthStencilState.OutlineMesh, 0xFF);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.OutlineMesh, 0xFF);
             //RC.SetDS(null);
-            RC.SetBS(null);
+            RC.SetBlendState(null);
 
-            Context.PixelShader.SetConstantBuffer(4, MyCommon.OutlineConstants);
+            RC.PixelShader.SetConstantBuffer(4, MyCommon.OutlineConstants);
         }
 
         public void RecordCommands(MyRenderableProxy proxy, int sectionmesh, int inctanceId)
@@ -50,9 +55,9 @@ namespace VRageRender
             BindProxyGeometry(proxy, RC);
 
             if ((proxy.Flags & MyRenderableProxyFlags.DisableFaceCulling) > 0)
-                RC.SetRS(MyRender11.m_nocullRasterizerState);
+                RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
             else
-                RC.SetRS(null);
+                RC.SetRasterizerState(null);
 
             Stats.Submeshes++;
 
@@ -66,25 +71,23 @@ namespace VRageRender
             {
                 Locals.matTexturesID = submesh.MaterialId;
                 var material = MyMaterials1.ProxyPool.Data[submesh.MaterialId.Index];
-                RC.MoveConstants(ref material.MaterialConstants);
-                RC.SetConstants(ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
-                RC.SetSRVs(ref material.MaterialSRVs);
+                MyRenderUtils.MoveConstants(RC, ref material.MaterialConstants);
+                MyRenderUtils.SetConstants(RC, ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
+                MyRenderUtils.SetSrvs(RC, ref material.MaterialSrvs);
             }
 
             if (proxy.InstanceCount == 0 && submesh.IndexCount > 0)
             {
-                RC.DeviceContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
-                RC.Stats.DrawIndexed++;
+                RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
                 Stats.Instances++;
                 Stats.Triangles += submesh.IndexCount / 3;
             }
             else if (submesh.IndexCount > 0)
             {
                 if (inctanceId >= 0)
-                    RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, 1, submesh.StartIndex, submesh.BaseVertex, inctanceId);
+                    RC.DrawIndexedInstanced(submesh.IndexCount, 1, submesh.StartIndex, submesh.BaseVertex, inctanceId);
                 else
-                    RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
-                RC.Stats.DrawIndexedInstanced++;
+                    RC.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 Stats.Instances += proxy.InstanceCount;
                 Stats.Triangles += proxy.InstanceCount * submesh.IndexCount / 3;
             }
@@ -92,14 +95,13 @@ namespace VRageRender
 
         protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)
         {
-            RC.SetSRVs(ref proxy.ObjectSRVs);
-            RC.BindVertexData(ref proxy.VertexData);
+            MyRenderUtils.SetSrvs(RC, ref proxy.ObjectSrvs);
 
             Stats.Meshes++;
             
             if (instanceIndex == -1)
             {
-                RC.BindShaders(proxy.HighlightShaders.MultiInstance);
+                MyRenderUtils.BindShaderBundle(RC, proxy.HighlightShaders.MultiInstance);
                 for (int it = 0; it < proxy.Submeshes.Length; it++)
                 {
                     MyDrawSubmesh_2 submesh = proxy.Submeshes[it];
@@ -108,7 +110,7 @@ namespace VRageRender
             }
             else
             {
-                RC.BindShaders(proxy.HighlightShaders.SingleInstance);
+                MyRenderUtils.BindShaderBundle(RC, proxy.HighlightShaders.SingleInstance);
                 MyDrawSubmesh_2 submesh;
                 if (sectionIndex == -1)
                     submesh = proxy.Submeshes[instanceIndex];
@@ -122,9 +124,9 @@ namespace VRageRender
         private void DrawSubmesh(ref MyRenderableProxy_2 proxy, ref MyDrawSubmesh_2 submesh, int instanceIndex)
         {
             var material = MyMaterials1.ProxyPool.Data[submesh.MaterialId.Index];
-            RC.MoveConstants(ref material.MaterialConstants);
-            RC.SetConstants(ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
-            RC.SetSRVs(ref material.MaterialSRVs);
+            MyRenderUtils.MoveConstants(RC, ref material.MaterialConstants);
+            MyRenderUtils.SetConstants(RC, ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
+            MyRenderUtils.SetSrvs(RC, ref material.MaterialSrvs);
 
             MyMergeInstancingConstants constants = new MyMergeInstancingConstants();
             constants.InstanceIndex = instanceIndex;
@@ -136,10 +138,10 @@ namespace VRageRender
                 switch (submesh.DrawCommand)
                 {
                     case MyDrawCommandEnum.DrawIndexed:
-                        RC.DeviceContext.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
+                        RC.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
                         break;
                     case MyDrawCommandEnum.Draw:
-                        RC.DeviceContext.Draw(submesh.Count, submesh.Start);
+                        RC.Draw(submesh.Count, submesh.Start);
                         break;
                     default:
                         break;
@@ -150,10 +152,10 @@ namespace VRageRender
                 switch (submesh.DrawCommand)
                 {
                     case MyDrawCommandEnum.DrawIndexed:
-                        RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
+                        RC.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                         break;
                     case MyDrawCommandEnum.Draw:
-                        RC.DeviceContext.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
+                        RC.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
                         break;
                     default:
                         break;
@@ -170,26 +172,33 @@ namespace VRageRender
             RC.EndProfilingBlock();
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyOutlinePass renderPass)
         {
             renderPass.Cleanup();
         }
+#endif // !XB1
 
         internal override void Cleanup()
         {
             base.Cleanup();
 
-            DSV = null;
-            RTV = null;
+            Dsv = null;
+            Rtv = null;
         }
 
         internal override MyRenderingPass Fork()
         {
             var renderPass = base.Fork() as MyOutlinePass;
 
-            renderPass.DSV = DSV;
-            renderPass.RTV = RTV;
+            renderPass.Dsv = Dsv;
+            renderPass.Rtv = Rtv;
 
             return renderPass;
         }

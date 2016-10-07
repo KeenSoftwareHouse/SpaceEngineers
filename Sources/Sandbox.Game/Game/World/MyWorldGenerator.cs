@@ -1,30 +1,24 @@
-﻿using Sandbox.Common.ObjectBuilders;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Multiplayer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using VRage.Utils;
 using VRageMath;
-using VRage;
-using VRage.Voxels;
 using Sandbox.Game.World.Generator;
-using Sandbox.ModAPI;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Screens.Helpers;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.ObjectBuilders;
-using VRage.Collections;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Game;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Game.World
 {
@@ -44,6 +38,9 @@ namespace Sandbox.Game.World
         {
             if (MyFakes.TEST_PREFABS_FOR_INCONSISTENCIES)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 string prefabDir = Path.Combine(MyFileSystem.ContentPath, "Data", "Prefabs");
                 var prefabFiles = Directory.GetFiles(prefabDir);
                 foreach (var prefabFile in prefabFiles)
@@ -100,6 +97,7 @@ namespace Sandbox.Game.World
                         }
                     }
                 }
+#endif // !XB1
             }
         }
 

@@ -17,6 +17,7 @@ using Sandbox.Game.GameSystems;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -34,6 +35,7 @@ namespace Sandbox.Game.World
         public static TimeSpan NEUTRAL_SHIP_RESCHEDULE_TIME = TimeSpan.FromSeconds(10); // If spawning does not succeed, retry in 10 seconds
         public static TimeSpan NEUTRAL_SHIP_MIN_TIME = TimeSpan.FromMinutes(13); // Re-spawn time = 13-17 minutes
         public static TimeSpan NEUTRAL_SHIP_MAX_TIME = TimeSpan.FromMinutes(17);
+        private const int EVENT_SPAWN_TRY_MAX = 3;
 
         private static List<MyPhysics.HitInfo> m_raycastHits = new List<MyPhysics.HitInfo>();
         private static List<MyCubeGrid> m_tmpGridList = new List<MyCubeGrid>();
@@ -44,6 +46,8 @@ namespace Sandbox.Game.World
         private static float[] m_rightVecMultipliers = { 1.0f, -1.0f, -1.0f, 1.0f };
 
         private static List<MySpawnGroupDefinition> m_spawnGroups = new List<MySpawnGroupDefinition>();
+
+        private static int m_eventSpawnTry = 0;
 
         public override bool IsRequiredByGame
         {
@@ -277,12 +281,21 @@ namespace Sandbox.Game.World
             origin = MyEntities.TestPlaceInSpace(origin.Value, spawnGroup.SpawnRadius);
             if (!origin.HasValue)
             {
-                if (!MyFinalBuildConstants.IS_OFFICIAL)
-                    MySandboxGame.Log.WriteLine("Could not spawn neutral ships - no free place found");
-                MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
-                ProfilerShort.End();
-                return;
+                if (++m_eventSpawnTry <= EVENT_SPAWN_TRY_MAX)
+                {
+                    MySandboxGame.Log.WriteLine("Could not spawn neutral ships - no free place found. Try " + m_eventSpawnTry + " of " + EVENT_SPAWN_TRY_MAX);
+
+                    MyGlobalEvents.RescheduleEvent(senderEvent as MyGlobalEventBase, NEUTRAL_SHIP_RESCHEDULE_TIME);
+                    ProfilerShort.End();
+                    return;
+                }
+                else
+                {
+                    m_eventSpawnTry = 0;
+                    return;
+                }
             }
+            m_eventSpawnTry = 0;
 
             // Radius in arc units of the forbidden sphere in the center, when viewed from origin
             float centerArcRadius = (float)Math.Atan(forbiddenRadius / (origin.Value - spawnBox.Center).Length());

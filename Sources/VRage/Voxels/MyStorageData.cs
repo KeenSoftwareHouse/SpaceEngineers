@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using VRage.Common.Utils;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 

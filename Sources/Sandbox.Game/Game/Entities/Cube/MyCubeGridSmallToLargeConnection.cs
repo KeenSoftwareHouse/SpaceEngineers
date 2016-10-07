@@ -26,7 +26,6 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using VRage.Plugins;
 using System.Reflection;
 using Sandbox.Game.Entities;
-using VRage.Voxels;
 using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Localization;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
@@ -122,11 +121,11 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = (BoundingBoxD)block.FatBlock.Model.BoundingBox;
                 Matrix m;
                 block.FatBlock.Orientation.GetMatrix(out m);
-                aabb = aabb.Transform(m);
+                aabb = aabb.TransformFast(m);
                 aabb.Translate(aabbCenter);
             }
 
-            aabb = aabb.Transform(block.CubeGrid.WorldMatrix);
+            aabb = aabb.TransformFast(block.CubeGrid.WorldMatrix);
             aabb.Inflate(0.125);
 
             List<MyEntity> boxOverlapList = new List<MyEntity>();
@@ -174,12 +173,12 @@ namespace Sandbox.Game.Entities.Cube
                 aabb = (BoundingBoxD)block.FatBlock.Model.BoundingBox;
                 Matrix m;
                 block.FatBlock.Orientation.GetMatrix(out m);
-                aabb = aabb.Transform(m);
+                aabb = aabb.TransformFast(m);
                 aabb.Translate(aabbCenter);
             }
 
             aabb.Inflate(0.125);
-            var aabbWorld = aabb.Transform(block.CubeGrid.WorldMatrix);
+            var aabbWorld = aabb.TransformFast(block.CubeGrid.WorldMatrix);
 
             List<MyEntity> boxOverlapList = new List<MyEntity>();
             MyEntities.GetElementsInBox(ref aabbWorld, boxOverlapList);
@@ -237,7 +236,7 @@ namespace Sandbox.Game.Entities.Cube
         private static void CheckNeighborBlocks(MySlimBlock block, BoundingBoxD aabbForNeighbors, MyCubeGrid cubeGrid, List<MySlimBlock> blocks)
         {
             var compositeTransformToGrid = block.CubeGrid.WorldMatrix * cubeGrid.PositionComp.WorldMatrixNormalizedInv;
-            var aabbForNeighborsInGrid = aabbForNeighbors.Transform(ref compositeTransformToGrid);
+            var aabbForNeighborsInGrid = aabbForNeighbors.TransformFast(ref compositeTransformToGrid);
             Vector3I start = Vector3I.Round(cubeGrid.GridSizeR * aabbForNeighborsInGrid.Min);
             Vector3I end = Vector3I.Round(cubeGrid.GridSizeR * aabbForNeighborsInGrid.Max);
             Vector3I startIt = Vector3I.Min(start, end);

@@ -26,6 +26,7 @@ using VRageMath;
 using VRage.Game.Components;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
@@ -60,16 +61,19 @@ namespace Sandbox.Game.Entities
 
         public MyCameraBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_syncFov = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_syncFov.ValueChanged += (x) => OnSyncFov();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyCameraBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var viewBtn = new MyTerminalControlButton<MyCameraBlock>("View", MySpaceTexts.BlockActionTitle_View, MySpaceTexts.Blank, (b) => b.RequestSetView());
             viewBtn.Enabled = (b) => b.CanUse();
             viewBtn.SupportsMultipleBlocks = false;

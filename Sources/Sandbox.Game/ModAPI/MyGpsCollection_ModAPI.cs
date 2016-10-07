@@ -17,7 +17,9 @@ using VRage.Serialization;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 
 using Sandbox.Definitions;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRageMath;
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Gui;
@@ -116,6 +118,7 @@ namespace Sandbox.Game.Multiplayer
         void IMyGpsCollection.AddLocalGps(IMyGps gps)
         {
             var internalGps = (MyGps)gps;
+            internalGps.IsLocal = true;
             if (AddPlayerGps(MySession.Static.LocalPlayerId, ref internalGps) && gps.ShowOnHud)
                 MyHud.GpsMarkers.RegisterMarker(internalGps);
         }

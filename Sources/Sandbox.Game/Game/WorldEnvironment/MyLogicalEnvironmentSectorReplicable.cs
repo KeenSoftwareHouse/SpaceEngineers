@@ -23,7 +23,7 @@ namespace Sandbox.Game.WorldEnvironment
             return FindByObject(Instance.Owner.Entity);
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             var state = client.State as MyClientState;
 
@@ -43,6 +43,11 @@ namespace Sandbox.Game.WorldEnvironment
             return 0f;
         }
 
+        public override bool IsChild
+        {
+            get { return false; } // CH: TODO: I'm not really false should be returned here, but it was the default before my change.
+        }
+          
         public override bool OnSave(BitStream stream)
         {
             stream.WriteInt64(Instance.Owner.Entity.EntityId);
@@ -80,7 +85,10 @@ namespace Sandbox.Game.WorldEnvironment
 
             var ob = MySerializer.CreateAndRead<MyObjectBuilder_EnvironmentSector>(stream, serialInfo);
 
-            sector.Init(ob);
+            if (sector != null)
+            {
+                sector.Init(ob);
+            }
 
             Debug.Assert(sector == null || !sector.ServerOwned);
 

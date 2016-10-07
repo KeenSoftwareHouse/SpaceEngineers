@@ -16,6 +16,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.Models;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -418,7 +419,12 @@ namespace Sandbox.Game.WorldEnvironment
 
             public override string ToString()
             {
+#if !XB1
                 return String.Format("{0} {1} @ {2}", Set ? "Set" : "Requested", Lod, Trace.GetFrame(1));
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+                return String.Format("{0} {1}", Set ? "Set" : "Requested", Lod);
+#endif // XB1
             }
         }
 
@@ -682,6 +688,9 @@ namespace Sandbox.Game.WorldEnvironment
             if (myShapekey == uint.MaxValue) return;
 
             var bodyB = evt.ContactPointEvent.GetPhysicsBody(1 ^ bodyIndex);
+            if (bodyB == null)
+                return;
+
             var other = bodyB.Entity;
 
             int item = GetItemFromShapeKey(myShapekey);
@@ -979,6 +988,11 @@ namespace Sandbox.Game.WorldEnvironment
             return string.Format("S(x{0} y{1} f{2} l{3}({4}) c{6} {5})", x, y, face, lod, LodLevel, HasPhysics ? " p" : "", DataView != null ? DataView.Items.Count : 0);
         }
 
+        public override int GetHashCode()
+        {
+            return SectorId.GetHashCode();
+        }
+
         public event Action<MyEnvironmentSector, int> OnLodCommit;
 
         public void RaiseOnLodCommitEvent(int lod)
@@ -994,7 +1008,5 @@ namespace Sandbox.Game.WorldEnvironment
             if (OnPhysicsCommit != null)
                 OnPhysicsCommit(this, enabled);
         }
-
-
     }
 }

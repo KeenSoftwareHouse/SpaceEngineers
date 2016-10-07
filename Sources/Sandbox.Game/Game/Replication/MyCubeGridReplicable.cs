@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using VRage.Game.Entity;
 using VRage.Library.Collections;
+using VRage.Library.Utils;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -20,11 +21,14 @@ namespace Sandbox.Game.Replication
 {
     class MyCubeGridReplicable : MyEntityReplicableBaseEvent<MyCubeGrid>, IMyStreamableReplicable
     {
+        const int ANTENNA_UPDATE_TIME = 50;
         Action<MyCubeGrid> m_loadingDoneHandler;
         MyStreamingEntityStateGroup<MyCubeGridReplicable> m_streamingGroup;
         static List<MyCubeGrid> m_groups = new List<MyCubeGrid>();
         List<MyObjectBuilder_EntityBase> m_builders;
         List<MyEntity> m_foundEntities = null;
+        Dictionary<ulong, int> m_clientState = null;
+
         MyEntityPositionVerificationStateGroup m_posVerGroup;
 
         private MyPropertySyncStateGroup m_propertySync;
@@ -36,33 +40,72 @@ namespace Sandbox.Game.Replication
             return new MyGridPhysicsStateGroup(Instance, this);
         }
 
-        public override float GetPriority(MyClientInfo state)
+        public override float GetPriority(MyClientInfo state, bool cached)
         {
             if (Grid == null || Grid.Projector != null || Grid.IsPreview)
                 return 0.0f;
 
-            float priority = base.GetPriority(state);
-            if (priority == 0.0f)
+
+            ulong clientEndpoint = state.EndpointId.Value;
+            if (cached)
             {
-                MyPlayerCollection playerCollection = MySession.Static.Players;
-
-                var connectedPlayers = playerCollection.GetOnlinePlayers();
-
-                foreach (var player in connectedPlayers)
+                if (m_cachedPriorityForClient != null && m_cachedPriorityForClient.ContainsKey(clientEndpoint))
                 {
-                    if (player.Client.SteamUserId == state.EndpointId.Value && player.Character != null)
-                    {
-                        var broadcasters = player.Character.RadioReceiver.GetRelayedBroadcastersForPlayer(player.Identity.IdentityId);
-                        foreach (var broadcaster in broadcasters)
-                        {
-                            var cubeblock = broadcaster.Entity as MyCubeBlock;
-                            if (cubeblock != null && cubeblock.CubeGrid == Grid)
-                            {
-                                return 0.1f; // Minimal priority, update, but not that often
-                            }
-                        }
+                    return m_cachedPriorityForClient[clientEndpoint];
+                }
+            }
 
+            if (m_cachedPriorityForClient == null)
+            {
+                m_cachedPriorityForClient = new Dictionary<ulong, float>();
+            }
+
+            float priority = base.GetPriority(state,cached);
+            m_cachedPriorityForClient[clientEndpoint] = priority;
+
+            if (priority < 0.1f)
+            {
+                if (m_clientState == null)
+                {
+                    m_clientState = new Dictionary<ulong, int>();
+                }
+
+                if (m_clientState.ContainsKey(clientEndpoint))
+                {
+                    m_clientState[state.EndpointId.Value]++;
+                }
+                else
+                {
+                    m_clientState[state.EndpointId.Value] = 0;
+                }
+
+                if (m_clientState[state.EndpointId.Value] % ANTENNA_UPDATE_TIME == 0)
+                {
+                    m_clientState[state.EndpointId.Value] = 0;
+                    MyPlayerCollection playerCollection = MySession.Static.Players;
+                    var connectedPlayers = playerCollection.GetOnlinePlayers();
+
+                    foreach (var player in connectedPlayers)
+                    {
+                        if (player.Client.SteamUserId == state.EndpointId.Value && player.Character != null)
+                        {
+                            var broadcasters = player.Character.RadioReceiver.GetRelayedBroadcastersForPlayer(player.Identity.IdentityId);
+                            foreach (var broadcaster in broadcasters)
+                            {
+                                var cubeblock = broadcaster.Entity as MyCubeBlock;
+                                if (cubeblock != null && cubeblock.CubeGrid == Grid)
+                                {
+                                    m_cachedPriorityForClient[clientEndpoint] = 0.1f;
+                                    return m_cachedPriorityForClient[clientEndpoint]; // Minimal priority, update, but not that often
+                                }
+                            }
+
+                        }
                     }
+                }
+                else
+                {
+                    return m_cachedPriorityForClient[clientEndpoint];
                 }
             }
 
@@ -71,7 +114,7 @@ namespace Sandbox.Game.Replication
                 MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
                 if (master != Grid)
                 {
-                    return MyExternalReplicable.FindByObject(master).GetPriority(state);
+                    return MyExternalReplicable.FindByObject(master).GetPriority(state,cached);
                 }
             }
             return priority;
@@ -257,7 +300,11 @@ namespace Sandbox.Game.Replication
             MyCubeGrid master = MyGridPhysicsStateGroup.GetMasterGrid(Grid);
             if (master != Grid)
             {
-                return MyExternalReplicable.FindByObject(master);
+                if (master != null)
+                {
+                    return MyExternalReplicable.FindByObject(master);
+                }
+                return null;
             }
 
             BoundingBoxD box = Grid.PositionComp.WorldAABB;
@@ -300,7 +347,7 @@ namespace Sandbox.Game.Replication
                 }
             }
 
-            if (biggestGrid != null && biggestGrid != Grid)
+            if (biggestGrid != null && biggestGrid != Grid && biggestGrid != null)
             {
                 return MyExternalReplicable.FindByObject(biggestGrid);
             }
@@ -312,5 +359,6 @@ namespace Sandbox.Game.Replication
         {
             m_loadingDoneHandler(null);
         }
+
     }
 }

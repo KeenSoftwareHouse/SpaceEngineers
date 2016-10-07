@@ -28,6 +28,7 @@ using IMyInventoryOwner = VRage.Game.ModAPI.Ingame.IMyInventoryOwner;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
+using VRage.Sync;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities.Blocks
@@ -73,16 +74,19 @@ namespace Sandbox.Game.Entities.Blocks
         #region Initialization
         public MyGasGenerator()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
             SourceComp = new MyResourceSourceComponent(2);
             ResourceSink = new MyResourceSinkComponent();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyGasGenerator>())
                 return;
-
+            base.CreateTerminalControls();
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyGasGenerator>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
             useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v;
@@ -352,8 +356,6 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_soundEmitter.StopSound(false);
             }
-
-            m_soundEmitter.Update();
         }
 
         protected override bool CheckIsWorking()

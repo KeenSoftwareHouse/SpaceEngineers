@@ -22,16 +22,7 @@ namespace Sandbox.Game.Replication
 
         public static MyEntityPhysicsStateGroup FindSupportForCharacter(MyEntity entity)
         {
-            var support = SphereCast(entity, 1, 2); // ?? SphereBounds(character, 8);
-            if (support != null && support.Entity.Physics != null && support.Entity.Physics.IsStatic)
-                support = null; // Static == no support
-
-            if (DEBUG_DRAW && support != null)
-            {
-                VRageRender.MyRenderProxy.DebugDrawAABB(support.Entity.PositionComp.WorldAABB, Color.Red, 1, 1, false);
-            }
-
-            return support;
+            return FindPhysics(FindSupportForCharacterAABB(entity));
         }
 
         public static MyEntity FindSupportForCharacterAABB(MyEntity entity)
@@ -44,16 +35,18 @@ namespace Sandbox.Game.Replication
 
             float maxRadius = 0;
             MyCubeGrid biggestGrid = null;
-            MyEntity voxel = null;
+
             foreach(var parent in m_entities)
             {
                 MyCubeGrid grid =  parent as MyCubeGrid;
-                if(parent is MyVoxelBase)
-                {
-                    voxel = (parent as MyVoxelBase).RootVoxel;
-                }
+
                 if(grid != null)
                 {
+                    if (grid.Physics == null ||  grid.Physics.IsStatic || grid.GridSizeEnum == MyCubeSize.Small)
+                    {
+                        continue;
+                    }
+                    grid = MyGridPhysicsStateGroup.GetMasterGrid(grid);
                     var rad = grid.PositionComp.LocalVolume.Radius;
                     if (rad > maxRadius || (rad == maxRadius && (biggestGrid == null || grid.EntityId > biggestGrid.EntityId)))
                     {
@@ -62,12 +55,11 @@ namespace Sandbox.Game.Replication
                     }
                 }
             }
-
-            if (biggestGrid == null)
+            if (biggestGrid != null && biggestGrid.CubeBlocks.Count > 10)
             {
-                 return voxel;
+                return biggestGrid;
             }
-            return biggestGrid;
+            return null;
         }
 
         public static MyEntityPhysicsStateGroup FindSupport(MyEntity entity)

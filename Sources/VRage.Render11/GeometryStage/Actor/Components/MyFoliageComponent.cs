@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using VRage.Collections;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using Vector3 = VRageMath.Vector3;
@@ -56,7 +57,7 @@ namespace VRageRender
             }
             m_pendingComponentsToInit.Clear();
 
-            BoundingSphereD sphere = new BoundingSphereD(MyRender11.Environment.CameraPosition, MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance());
+            BoundingSphereD sphere = new BoundingSphereD(MyRender11.Environment.Matrices.CameraPosition, MyRender11.RenderSettings.FoliageDetails.GrassDrawDistance());
             MyScene.FoliageDBVH.OverlapAllBoundingSphere(ref sphere, m_componentsInRadius);
 
             foreach (var foliageComponent in m_activeComponents)
@@ -299,8 +300,10 @@ namespace VRageRender
             var proxy = renderable.Lods[0].RenderableProxies[0];
             
             // get shader for streaming
-
-            var bundle = MyMaterialShaders.Get(MyStringId.GetOrCompute(MyVoxelMesh.MULTI_MATERIAL_TAG), MyStringId.GetOrCompute("foliage_streaming"), MyMeshes.VoxelLayout, renderable.Lods[0].VertexShaderFlags &~ MyShaderUnifiedFlags.USE_VOXEL_MORPHING);
+            MyFileTextureEnum textureTypes = proxy.Material == MyMeshMaterialId.NULL ? MyFileTextureEnum.UNSPECIFIED : proxy.Material.Info.TextureTypes;
+            var bundle = MyMaterialShaders.Get(MyStringId.GetOrCompute(MyMaterialShaders.MULTI_MATERIAL_TAG),
+                MyStringId.GetOrCompute(MyMaterialShaders.FOLIAGE_STREAMING_PASS), MyMeshes.VoxelLayout,
+                renderable.Lods[0].VertexShaderFlags &~ MyShaderUnifiedFlags.USE_VOXEL_MORPHING, textureTypes);
 
             MyRender11.FoliageGenerator.RecordCommands(proxy, m_streams[materialId], materialId,
                 bundle.VS, bundle.IL,
@@ -318,7 +321,7 @@ namespace VRageRender
             var invScaleMat = MatrixD.CreateScale(1.0f / renderableComponent.m_voxelScale);
 
             var worldMat = proxy.WorldMatrix;
-            worldMat.Translation -= MyRender11.Environment.CameraPosition;
+            worldMat.Translation -= MyRender11.Environment.Matrices.CameraPosition;
             proxy.CommonObjectData.LocalMatrix = invScaleMat * worldMat;
 
             foreach(var materialStreamPair in m_streams)

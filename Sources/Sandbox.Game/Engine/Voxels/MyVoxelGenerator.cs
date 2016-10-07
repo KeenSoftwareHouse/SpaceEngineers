@@ -3,22 +3,18 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using VRage;
-using VRage.Voxels;
 using VRageMath;
-using VRageRender;
 using Sandbox.Game.GameSystems.StructuralIntegrity;
-using Sandbox.Game.Entities.EnvironmentItems;
 using VRage.ModAPI;
 using VRage.Game.Entity;
 using Sandbox.Game.AI;
 using VRage.Game.ModAPI;
 using Sandbox.Game.Entities.Planet;
 using Sandbox.Game.WorldEnvironment;
+using VRage.Profiler;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -78,14 +74,14 @@ namespace Sandbox.Engine.Voxels
 
         public override BoundingBoxD GetWorldBoundaries()
         {
-            return Boundaries.Transform(Transformation);
+            return Boundaries.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
         {
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
-            return Boundaries.Transform(newTransformation);
+            return Boundaries.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -106,17 +102,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationBox(Boundaries, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationBox(Boundaries, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationBox(Boundaries, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -129,7 +125,7 @@ namespace Sandbox.Engine.Voxels
         {
             //return new BoundingBoxD(Center - Radius, Center + Radius);
             var bbox = new BoundingBoxD(Center - Radius, Center + Radius);
-            return bbox.Transform(Transformation);
+            return bbox.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
@@ -152,17 +148,17 @@ namespace Sandbox.Engine.Voxels
         }
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationSphere(Center, Radius, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationSphere(Center, Radius, 0, OperationType.Cut);
         }
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationSphere(Center, Radius, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -195,14 +191,14 @@ namespace Sandbox.Engine.Voxels
 
         public override BoundingBoxD GetWorldBoundaries()
         {
-            return m_boundaries.Transform(Transformation);
+            return m_boundaries.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
         {
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
-            return m_boundaries.Transform(newTransformation);
+            return m_boundaries.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -228,17 +224,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationElipsoid(Radius, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -250,14 +246,14 @@ namespace Sandbox.Engine.Voxels
 
         public override BoundingBoxD GetWorldBoundaries()
         {
-            return Boundaries.Transform(Transformation);
+            return Boundaries.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
         {
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
-            return Boundaries.Transform(newTransformation);
+            return Boundaries.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -278,17 +274,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationRamp(Boundaries, RampNormal, RampNormalW, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
 
@@ -301,7 +297,7 @@ namespace Sandbox.Engine.Voxels
         public override BoundingBoxD GetWorldBoundaries()
         {
             var bbox = new BoundingBoxD(A - Radius, B + Radius);
-            return bbox.Transform(Transformation);
+            return bbox.TransformFast(Transformation);
         }
 
         public override BoundingBoxD PeekWorldBoundaries(ref Vector3D targetPosition)
@@ -309,7 +305,7 @@ namespace Sandbox.Engine.Voxels
             MatrixD newTransformation = Transformation;
             newTransformation.Translation = targetPosition;
             var bbox = new BoundingBoxD(A - Radius, B + Radius);
-            return bbox.Transform(newTransformation);
+            return bbox.TransformFast(newTransformation);
         }
 
         public override float GetVolume(ref Vector3D voxelPosition)
@@ -331,17 +327,17 @@ namespace Sandbox.Engine.Voxels
 
         public override void SendPaintRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Paint);
+            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, OperationType.Paint);
         }
 
         public override void SendCutOutRequest(MyVoxelBase voxel)
         {
-            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, 0, MyVoxelBase.OperationType.Cut);
+            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, 0, OperationType.Cut);
         }
 
         public override void SendFillRequest(MyVoxelBase voxel, byte newMaterialIndex)
         {
-            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, MyVoxelBase.OperationType.Fill);
+            voxel.RequestVoxelOperationCapsule(A, B, Radius, Transformation, newMaterialIndex, OperationType.Fill);
         }
     }
     #endregion
@@ -354,33 +350,61 @@ namespace Sandbox.Engine.Voxels
         private static MyStorageData m_cache = new MyStorageData();
         static List<MyEntity> m_overlapList = new List<MyEntity>();
 
-        public static void MakeCrater(MyVoxelBase voxelMap, BoundingSphereD sphere, Vector3 normal, MyVoxelMaterialDefinition material)
+        public static void MakeCrater(MyVoxelBase voxelMap, BoundingSphereD sphere, Vector3 direction, MyVoxelMaterialDefinition material)
         {
             ProfilerShort.Begin("MakeCrater");
 
+            Vector3 normal = Vector3.Normalize(sphere.Center - voxelMap.RootVoxel.WorldMatrix.Translation);
+
             Vector3I minCorner, maxCorner;
             {
-                Vector3D sphereMin = sphere.Center - (sphere.Radius - MyVoxelConstants.VOXEL_SIZE_IN_METRES);
-                Vector3D sphereMax = sphere.Center + (sphere.Radius + MyVoxelConstants.VOXEL_SIZE_IN_METRES);
+                Vector3D sphereMin = sphere.Center - (sphere.Radius - MyVoxelConstants.VOXEL_SIZE_IN_METRES) * 1.3f;
+                Vector3D sphereMax = sphere.Center + (sphere.Radius + MyVoxelConstants.VOXEL_SIZE_IN_METRES) * 1.3f;
                 MyVoxelCoordSystems.WorldPositionToVoxelCoord(voxelMap.PositionLeftBottomCorner, ref sphereMin, out minCorner);
                 MyVoxelCoordSystems.WorldPositionToVoxelCoord(voxelMap.PositionLeftBottomCorner, ref sphereMax, out maxCorner);
             }
 
-
             voxelMap.Storage.ClampVoxelCoord(ref minCorner);
             voxelMap.Storage.ClampVoxelCoord(ref maxCorner);
+
+            Vector3I worldMinCorner = minCorner + voxelMap.StorageMin;
+            Vector3I worldMaxCorner = maxCorner + voxelMap.StorageMin;
 
             //  We are tracking which voxels were changed, so we can invalidate only needed cells in the cache
             bool changed = false;
             ProfilerShort.Begin("Reading cache");
             m_cache.Resize(minCorner, maxCorner);
-            voxelMap.Storage.ReadRange(m_cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, ref minCorner, ref maxCorner);
+
+            voxelMap.Storage.ReadRange(m_cache, MyStorageDataTypeFlags.ContentAndMaterial, 0, ref worldMinCorner, ref worldMaxCorner);
+
             ProfilerShort.End();
 
             ProfilerShort.Begin("Changing cache");
             int removedVoxelContent = 0;
             Vector3I tempVoxelCoord;
-            Vector3I cachePos;
+            Vector3I cachePos = (maxCorner - minCorner) / 2;
+
+            byte oldMaterial = m_cache.Material(ref cachePos);
+
+            float digRatio = 1 - Vector3.Dot(normal, direction);
+
+            Vector3 newCenter = sphere.Center - normal * (float)sphere.Radius * 1.1f;//0.9f;
+            float sphRadA = (float)(sphere.Radius * 1.5f);
+            float sphRadSqA = (float)(sphRadA * sphRadA);
+            float voxelSizeHalfTransformedPosA = MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * (2 * sphRadA + MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF);
+            float voxelSizeHalfTransformedNegA = MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * (-2 * sphRadA + MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF);
+
+            Vector3 newDelCenter = newCenter + normal * (float)sphere.Radius * (0.7f + digRatio) + direction * (float)sphere.Radius * 0.65f;
+            float sphRadD = (float)(sphere.Radius);
+            float sphRadSqD = (float)(sphRadD * sphRadD);
+            float voxelSizeHalfTransformedPosD = MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * (2 * sphRadD + MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF);
+            float voxelSizeHalfTransformedNegD = MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * (-2 * sphRadD + MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF);
+
+            Vector3 newSetCenter = newCenter + normal * (float)sphere.Radius * (digRatio) + direction * (float)sphere.Radius * 0.3f;
+            float sphRadS = (float)(sphere.Radius * 0.1f);
+            float sphRadSqS = (float)(sphRadS * sphRadS);
+            float voxelSizeHalfTransformedPosS = MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * (2 * sphRadS + MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF);
+
             for (tempVoxelCoord.Z = minCorner.Z, cachePos.Z = 0; tempVoxelCoord.Z <= maxCorner.Z; tempVoxelCoord.Z++, ++cachePos.Z)
             {
                 for (tempVoxelCoord.Y = minCorner.Y, cachePos.Y = 0; tempVoxelCoord.Y <= maxCorner.Y; tempVoxelCoord.Y++, ++cachePos.Y)
@@ -390,53 +414,63 @@ namespace Sandbox.Engine.Voxels
                         Vector3D voxelPosition;
                         MyVoxelCoordSystems.VoxelCoordToWorldPosition(voxelMap.PositionLeftBottomCorner, ref tempVoxelCoord, out voxelPosition);
 
-                        float addDist = (float)(voxelPosition - sphere.Center).Length();
-                        float addDiff = (float)(addDist - sphere.Radius);
+                        byte originalContent = m_cache.Content(ref cachePos);
+
+                        //Add sphere
+                        if (originalContent != MyVoxelConstants.VOXEL_CONTENT_FULL)
+                        {
+
+                            float addDist = (float)(voxelPosition - newCenter).LengthSquared();
+                            float addDiff = (float)(addDist - sphRadSqA);
 
                         byte newContent;
-                        if (addDiff > MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF)
+                            if (addDiff > voxelSizeHalfTransformedPosA)
                         {
                             newContent = MyVoxelConstants.VOXEL_CONTENT_EMPTY;
                         }
-                        else if (addDiff < -MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF)
+                            else if (addDiff < voxelSizeHalfTransformedNegA)
                         {
                             newContent = MyVoxelConstants.VOXEL_CONTENT_FULL;
                         }
                         else
                         {
+                                float value = (float)Math.Sqrt(addDist + sphRadSqA - 2 * sphRadA * Math.Sqrt(addDist));
+                                if (addDiff < 0) { value = -value; }
                             //  This formula will work even if diff is positive or negative
-                            newContent = (byte)(MyVoxelConstants.VOXEL_ISO_LEVEL - addDiff / MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * MyVoxelConstants.VOXEL_ISO_LEVEL);
+                                newContent = (byte)(MyVoxelConstants.VOXEL_ISO_LEVEL - value / MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * MyVoxelConstants.VOXEL_ISO_LEVEL);
                         }
 
-                        byte originalContent = m_cache.Content(ref cachePos);
-
-                        if (newContent > originalContent && originalContent > 0)
+                            if (newContent > originalContent)
                         {
                             if (material != null)
                             {
-                                m_cache.Material(ref cachePos, material.Index);
+                                    m_cache.Material(ref cachePos, oldMaterial);
                             }
 
                             changed = true;
                             m_cache.Content(ref cachePos, newContent);
                         }
+                        }
 
-                        float delDist = (float)(voxelPosition - (sphere.Center + (float)sphere.Radius * 0.7f * normal)).Length();
-                        float delDiff = (float)(delDist - sphere.Radius);
+                        //Delete sphere
+                        float delDist = (float)(voxelPosition - newDelCenter).LengthSquared();
+                        float delDiff = (float)(delDist - sphRadSqD);
 
                         byte contentToRemove;
-                        if (delDiff > MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF)
+                        if (delDiff > voxelSizeHalfTransformedPosD)
                         {
                             contentToRemove = MyVoxelConstants.VOXEL_CONTENT_EMPTY;
                         }
-                        else if (delDiff < -MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF)
+                        else if (delDiff < voxelSizeHalfTransformedNegD)
                         {
                             contentToRemove = MyVoxelConstants.VOXEL_CONTENT_FULL;
                         }
                         else
                         {
+                            float value = (float)Math.Sqrt(delDist + sphRadSqD - 2 * sphRadD * Math.Sqrt(delDist));
+                            if (delDiff < 0) { value = -value; }
                             //  This formula will work even if diff is positive or negative
-                            contentToRemove = (byte)(MyVoxelConstants.VOXEL_ISO_LEVEL - delDiff / MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * MyVoxelConstants.VOXEL_ISO_LEVEL);
+                            contentToRemove = (byte)(MyVoxelConstants.VOXEL_ISO_LEVEL - value / MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * MyVoxelConstants.VOXEL_ISO_LEVEL);
                         }
 
                         originalContent = m_cache.Content(ref cachePos);
@@ -453,20 +487,13 @@ namespace Sandbox.Engine.Voxels
                             removedVoxelContent += originalContent - newVal;
                         }
 
-                        float setDist = (float)(voxelPosition - (sphere.Center - (float)sphere.Radius * 0.5f * normal)).Length();
-                        float setDiff = (float)(setDist - sphere.Radius / 4f);
+                        //Set material
+
+                        float setDist = (float)(voxelPosition - newSetCenter).LengthSquared();
+                        float setDiff = (float)(setDist - sphRadSqS);
 
                         if (setDiff <= MyVoxelConstants.VOXEL_SIZE_IN_METRES * 1.5f)  // could be VOXEL_SIZE_IN_METRES_HALF, but we want to set material in empty cells correctly
                         {
-                            byte indestructibleContentToSet = MyVoxelConstants.VOXEL_CONTENT_FULL;
-                            if (setDiff >= MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF)  // outside
-                            {
-                                indestructibleContentToSet = MyVoxelConstants.VOXEL_CONTENT_EMPTY;
-                            }
-                            else if (setDiff >= -MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF)  // boundary
-                            {
-                                indestructibleContentToSet = (byte)(MyVoxelConstants.VOXEL_ISO_LEVEL - setDiff / MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF * MyVoxelConstants.VOXEL_ISO_LEVEL);
-                            }
 
                             MyVoxelMaterialDefinition originalMaterial = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_cache.Material(ref cachePos));
 
@@ -479,7 +506,7 @@ namespace Sandbox.Engine.Voxels
                                 byte content = m_cache.Content(ref cachePos);
                                 if (content == MyVoxelConstants.VOXEL_CONTENT_FULL)
                                     newMaterial = originalMaterial;
-                                if (setDiff >= MyVoxelConstants.VOXEL_SIZE_IN_METRES_HALF && content != MyVoxelConstants.VOXEL_CONTENT_EMPTY)  // set material behind boundary only for empty voxels
+                                if (setDiff >= voxelSizeHalfTransformedPosS && content != MyVoxelConstants.VOXEL_CONTENT_EMPTY)  // set material behind boundary only for empty voxels
                                     newMaterial = originalMaterial;
                             }
 
@@ -492,8 +519,8 @@ namespace Sandbox.Engine.Voxels
                             changed = true;
                         }
 
-                        float dist = (float)(voxelPosition - sphere.Center).Length();
-                        float diff = (float)(dist - sphere.Radius);
+                        float dist = (float)(voxelPosition - newCenter).LengthSquared();
+                        float diff = (float)(dist - sphRadSqA);
 
                         if (diff <= 0f)
                         {
@@ -515,7 +542,13 @@ namespace Sandbox.Engine.Voxels
                 ProfilerShort.Begin("RemoveSmallVoxelsUsingChachedVoxels");
                 RemoveSmallVoxelsUsingChachedVoxels();
                 ProfilerShort.BeginNextBlock("Writing cache");
+                minCorner += voxelMap.StorageMin;
+                maxCorner += voxelMap.StorageMin;
                 voxelMap.Storage.WriteRange(m_cache, MyStorageDataTypeFlags.ContentAndMaterial, ref minCorner, ref maxCorner);
+                MyShapeSphere sphereShape = new MyShapeSphere();
+                sphereShape.Center = sphere.Center;
+                sphereShape.Radius = (float)(sphere.Radius*1.5);
+                OnVoxelChanged(OperationType.Cut, voxelMap, sphereShape);
                 ProfilerShort.End();
             }
 
@@ -628,46 +661,50 @@ namespace Sandbox.Engine.Voxels
             for (pos.X = minCorner.X; pos.X <= maxCorner.X; ++pos.X)
                 for (pos.Y = minCorner.Y; pos.Y <= maxCorner.Y; ++pos.Y)
                     for (pos.Z = minCorner.Z; pos.Z <= maxCorner.Z; ++pos.Z)
-            {
-                // get original amount
-                var relPos = pos - cacheMin;
-                var lin = m_cache.ComputeLinear(ref relPos);
-                var original = m_cache.Content(lin);
+                    {
+                        // get original amount
+                        var relPos = pos - cacheMin;
+                        var lin = m_cache.ComputeLinear(ref relPos);
+                        var original = m_cache.Content(lin);
 
-                if (original == MyVoxelConstants.VOXEL_CONTENT_EMPTY) // if there is nothing to remove
-                    continue;
+                        if (original == MyVoxelConstants.VOXEL_CONTENT_EMPTY) // if there is nothing to remove
+                            continue;
 
-                Vector3D spos = (Vector3D)(pos - voxelMap.StorageMin) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
-                var volume = shape.GetVolume(ref spos);
+                        Vector3D spos = (Vector3D)(pos - voxelMap.StorageMin) * MyVoxelConstants.VOXEL_SIZE_IN_METRES;
+                        var volume = shape.GetVolume(ref spos);
 
-                if (volume == 0f) // if there is no intersection
-                    continue;
+                        if (volume == 0f) // if there is no intersection
+                            continue;
 
-                var maxRemove = (int)(volume * MyVoxelConstants.VOXEL_CONTENT_FULL);
-                var toRemove = maxRemove;// (int)(maxRemove * voxelMat.DamageRatio);
-                var newVal = Math.Max(original - toRemove, 0);//MathHelper.Clamp(original - toRemove, 0, original-maxRemove);
-                var removed  = original - newVal;
+                        var maxRemove = (int)(volume * MyVoxelConstants.VOXEL_CONTENT_FULL);
+                        var toRemove = maxRemove;// (int)(maxRemove * voxelMat.DamageRatio);
+                        var newVal = Math.Max(original - toRemove, 0);//MathHelper.Clamp(original - toRemove, 0, original-maxRemove);
+                        var removed = original - newVal;
 
-                if (!onlyCheck && !onlyApplyMaterial)
-                    m_cache.Content(lin, (byte)newVal);
+                        if (!onlyCheck && !onlyApplyMaterial)
+                            m_cache.Content(lin, (byte)newVal);
 
-                originalSum += original;
-                removedSum += removed;
+                        originalSum += original;
+                        removedSum += removed;
 
-                if (readMaterial)
-                    voxelMat = MyDefinitionManager.Static.GetVoxelMaterialDefinition(m_cache.Material(lin));
+                        var material = m_cache.Material(lin);
+                        if (material != MyVoxelConstants.NULL_MATERIAL)
+                        {
+                            if (readMaterial)
+                                voxelMat = MyDefinitionManager.Static.GetVoxelMaterialDefinition(material);
 
-                if (exactCutOutMaterials != null)
-                {
-                    int value = 0;
-                    exactCutOutMaterials.TryGetValue(voxelMat, out value);
-                    value += (MyFakes.ENABLE_REMOVED_VOXEL_CONTENT_HACK ? (int)(removed * 3.9f) : removed);
-                    exactCutOutMaterials[voxelMat] = value;
-                }
+                            if (exactCutOutMaterials != null)
+                            {
+                                int value = 0;
+                                exactCutOutMaterials.TryGetValue(voxelMat, out value);
+                                value += (MyFakes.ENABLE_REMOVED_VOXEL_CONTENT_HACK ? (int)(removed * 3.9f) : removed);
+                                exactCutOutMaterials[voxelMat] = value;
+                            }
 
-                if (applyDamageMaterial && voxelMat.HasDamageMaterial && !onlyCheck)
-                    m_cache.Material(lin, voxelMat.DamagedMaterialId);
-            }
+                            if (applyDamageMaterial && voxelMat.HasDamageMaterial && !onlyCheck)
+                                m_cache.Material(lin, voxelMat.DamagedMaterialId);
+                        }
+                    }
 
             if (removedSum > 0 && updateSync && Sync.IsServer)
             {
@@ -687,7 +724,7 @@ namespace Sandbox.Engine.Voxels
                 //RemoveSmallVoxelsUsingChachedVoxels();
 
                 var dataTypeFlags = applyDamageMaterial ? MyStorageDataTypeFlags.ContentAndMaterial : MyStorageDataTypeFlags.Content;
-                if (MyFakes.LOG_NAVMESH_GENERATION) MyAIComponent.Static.Pathfinding.VoxelPathfinding.DebugLog.LogStorageWrite(voxelMap, m_cache, dataTypeFlags, cacheMin, cacheMax);
+                if (MyFakes.LOG_NAVMESH_GENERATION && MyAIComponent.Static.Pathfinding != null) MyAIComponent.Static.Pathfinding.GetPathfindingLog().LogStorageWrite(voxelMap, m_cache, dataTypeFlags, cacheMin, cacheMax);
                 voxelMap.Storage.WriteRange(m_cache, dataTypeFlags, ref cacheMin, ref cacheMax);
             }
             ProfilerShort.End();
@@ -698,7 +735,7 @@ namespace Sandbox.Engine.Voxels
             shape.Transformation = oldTranmsform;
 
             if (removedSum > 0)
-                OnVoxelChanged(MyVoxelBase.OperationType.Cut, voxelMap, shape);
+                OnVoxelChanged(OperationType.Cut, voxelMap, shape);
 
             ProfilerShort.End();
         }
@@ -775,7 +812,7 @@ namespace Sandbox.Engine.Voxels
             }
 
             if (retValue > 0)
-                OnVoxelChanged(MyVoxelBase.OperationType.Fill, voxelMap, shape);
+                OnVoxelChanged(OperationType.Fill, voxelMap, shape);
 
             return retValue;
         }
@@ -866,7 +903,7 @@ namespace Sandbox.Engine.Voxels
             }
 
             if (changedVolumeAmount > 0)
-                OnVoxelChanged(MyVoxelBase.OperationType.Cut, voxelMap, shape);
+                OnVoxelChanged(OperationType.Cut, voxelMap, shape);
 
             return changedVolumeAmount;
         }
@@ -993,7 +1030,7 @@ namespace Sandbox.Engine.Voxels
             cellMaxCorner = new Vector3I(Math.Min(maxCorner.X, cellMinCorner.X + CELL_SIZE), Math.Min(maxCorner.Y, cellMinCorner.Y + CELL_SIZE), Math.Min(maxCorner.Z, cellMinCorner.Z + CELL_SIZE));
         }
 
-        private static void OnVoxelChanged(MyVoxelBase.OperationType type, MyVoxelBase voxelMap, MyShape shape)
+        private static void OnVoxelChanged(OperationType type, MyVoxelBase voxelMap, MyShape shape)
         {
             if (Sync.IsServer)
             {
@@ -1014,7 +1051,7 @@ namespace Sandbox.Engine.Voxels
                             grid.Physics.Shape.RecalculateConnectionsToWorld(grid.GetBlocks());
                         }
 
-                        if (type == MyVoxelBase.OperationType.Cut)
+                        if (type == OperationType.Cut)
                             grid.TestDynamic = true;
                     }
                 }

@@ -446,6 +446,7 @@ namespace VRage
 
         private void Draw()
         {
+            MySimpleProfiler.Begin("Render");
             ProfilerShort.Begin("BeginScene");
             MyRenderProxy.DrawBegin();
             ProfilerShort.End();
@@ -465,6 +466,7 @@ namespace VRage
             ProfilerShort.Begin("EndScene");
             MyRenderProxy.DrawEnd();
             ProfilerShort.End();
+            MySimpleProfiler.End("Render");
         }
 
         public void SetMouseCapture(bool capture)

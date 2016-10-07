@@ -7,7 +7,5 @@ namespace VRage.Game.ObjectBuilders
         // Direction of the sun
         public SerializableVector3 BaseSunDirection;
 
-        // Speed of rotation.
-        public float SunSpeed = float.NaN;
     }
 }

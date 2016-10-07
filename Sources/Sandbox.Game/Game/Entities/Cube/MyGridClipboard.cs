@@ -48,6 +48,7 @@ namespace Sandbox.Game.Entities.Cube
         private List<MyObjectBuilder_CubeGrid> m_copiedGrids = new List<MyObjectBuilder_CubeGrid>();
         protected List<Vector3> m_copiedGridOffsets = new List<Vector3>();
         private List<MyCubeGrid> m_previewGrids = new List<MyCubeGrid>();
+        private List<bool> m_isStaticStorage = new List<bool>();
 
         private MyComponentList m_buildComponents = new MyComponentList();
 
@@ -80,6 +81,7 @@ namespace Sandbox.Game.Entities.Cube
                 return m_canBePlaced;
             }
         }
+
         bool m_canBePlacedNeedsRefresh=true;//collision is only done once per X frames and therefore have to be done in the frame when we are pasting
         protected bool m_characterHasEnoughMaterials = false;
         public bool CharacterHasEnoughMaterials { get { return m_characterHasEnoughMaterials; } }
@@ -98,10 +100,14 @@ namespace Sandbox.Game.Entities.Cube
 
         protected bool m_useDynamicPreviews = false;
 
+        protected Dictionary<string, int> m_blocksPerType = new Dictionary<string,int>();
+
         /// <summary>
         /// Grids that are around pasted grid. (In proximity, possible for merge)
         /// </summary>
         protected List<MyCubeGrid> m_touchingGrids = new List<MyCubeGrid>();
+
+        private ParallelTasks.Task ActivationTask;
 
         protected delegate void UpdateAfterPasteCallback(List<MyObjectBuilder_CubeGrid> pastedBuilders);
 
@@ -122,7 +128,7 @@ namespace Sandbox.Game.Entities.Cube
         public bool IsActive
         {
             get;
-            private set;
+            protected set;
         }
 
         public bool AllowSwitchCameraMode
@@ -251,6 +257,7 @@ namespace Sandbox.Game.Entities.Cube
             get;
             set;
         }
+        public bool ShowModdedBlocksWarning = true;
 
         public MyGridClipboard(MyPlacementSettings settings, bool calculateVelocity = true)
         {
@@ -274,10 +281,53 @@ namespace Sandbox.Game.Entities.Cube
             return null;
         }
 
-        public virtual void Activate()
+        public virtual void ActivateNoAlign(Action callback = null)
+        {
+            if (!ActivationTask.IsComplete)
+                return;
+
+            ActivationTask = ParallelTasks.Parallel.Start(delegate() { ChangeClipboardPreview(true); }, delegate()
+            {
+                if (m_visible)
+                {
+                    foreach (var grid in m_previewGrids)
+                    {
+                        MyEntities.Add(grid);
+                        DisablePhysicsRecursively(grid);
+                    }
+                    if (callback != null)
+                        callback();
+
+                    IsActive = true;
+                }
+            });
+        }
+
+        public virtual void Activate(Action callback = null)
+        {
+            if (!ActivationTask.IsComplete)
+                return;
+
+            ActivationTask = ParallelTasks.Parallel.Start(ActivateInternal, delegate()
+            {
+                if (m_visible)
+                {
+                    foreach (var grid in m_previewGrids)
+                    {
+                        MyEntities.Add(grid);
+                        DisablePhysicsRecursively(grid);
+                    }
+                    if (callback != null)
+                        callback();
+
+                    IsActive = true;
+                }
+            });
+        }
+
+        private void ActivateInternal()
         {
             ChangeClipboardPreview(true);
-            IsActive = true;
 
             if (EnableStationRotation)
             {
@@ -291,13 +341,12 @@ namespace Sandbox.Game.Entities.Cube
             }
 
             MyCoordinateSystem.OnCoordinateChange += OnCoordinateChange;
-
         }
 
         private bool m_isAligning = false;
+        private int m_lastFrameAligned = 0;
         private void OnCoordinateChange()
         {
-
             if (MyCoordinateSystem.Static.LocalCoordExist && AnyCopiedGridIsStatic)
             {
                 this.EnableStationRotation = false;
@@ -312,7 +361,12 @@ namespace Sandbox.Game.Entities.Cube
             if (!m_enableStationRotation && IsActive && !m_isAligning)
             {
                 m_isAligning = true;
+                int currentFrameCount = MyFpsManager.GetSessionTotalFrames();
+                if (currentFrameCount - m_lastFrameAligned >= 12)
+                {
                 this.AlignRotationToCoordSys();
+                    m_lastFrameAligned = currentFrameCount;
+                }
                 m_isAligning = false;
             }
         }
@@ -462,7 +516,6 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            Activate();
         }
 
         public void CutGrid(MyCubeGrid grid)
@@ -474,13 +527,13 @@ namespace Sandbox.Game.Entities.Cube
 
             foreach (var block in grid.GetBlocks())
             {
+                block.RemoveAuthorship();
                 var cockpit = block.FatBlock as MyCockpit;
                 if (cockpit != null && cockpit.Pilot != null)
                     cockpit.Use();
             }
 
             grid.SyncObject.SendCloseRequest();
-            Deactivate();
         }
 
         public void CopyGrid(MyCubeGrid grid)
@@ -490,7 +543,6 @@ namespace Sandbox.Game.Entities.Cube
             m_copiedGrids.Clear();
             m_copiedGridOffsets.Clear();
             CopyGridInternal(grid);
-            Activate();
         }
 
         public void CutGroup(MyCubeGrid grid, GridLinkTypeEnum groupType)
@@ -507,6 +559,7 @@ namespace Sandbox.Game.Entities.Cube
                 {
                     foreach (var block in node.GetBlocks())
                     {
+                        block.RemoveAuthorship();
                         var cockpit = block.FatBlock as MyCockpit;
                         if (cockpit != null && cockpit.Pilot != null)
                             cockpit.Use();
@@ -518,13 +571,13 @@ namespace Sandbox.Game.Entities.Cube
             {
                 foreach (var block in grid.GetBlocks())
                 {
+                    block.RemoveAuthorship();
                     var cockpit = block.FatBlock as MyCockpit;
                     if (cockpit != null && cockpit.Pilot != null)
                         cockpit.Use();
                 }
                 grid.SyncObject.SendCloseRequest();
             }
-            Deactivate();
         }
 
         private void CopyGridInternal(MyCubeGrid toCopy)
@@ -578,15 +631,35 @@ namespace Sandbox.Game.Entities.Cube
                 return false;
             }
 
+            if (!IsWithinWorldLimits())
+            {
+                MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                MyHud.Notifications.Add(MyNotificationSingletons.ShipOverLimits);
+                return false;
+            }
+
             if (m_previewGrids.Count == 0)
                 return false;
 
-            bool missingBlockDefinitions = !CheckPastedBlocks();
+            foreach (var grid in m_copiedGrids)
+            {
+                foreach (var block in grid.CubeBlocks)
+                {
+                    block.BuiltBy = MySession.Static.LocalPlayerId;
+                }
+            }
+
+            bool missingBlockDefinitions = false;
+            if (ShowModdedBlocksWarning)
+            {
+                missingBlockDefinitions = !CheckPastedBlocks();
+            }
 
             if (missingBlockDefinitions)
             {
                 AllowSwitchCameraMode = false;
                 var messageBox = MyGuiSandbox.CreateMessageBox(
+                    styleEnum: MyMessageBoxStyleEnum.Info,
                     buttonType: MyMessageBoxButtonsType.YES_NO,
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextDoYouWantToPasteGridWithMissingBlocks),
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning),
@@ -609,11 +682,19 @@ namespace Sandbox.Game.Entities.Cube
         private bool PasteInternal(MyInventoryBase buildInventory, bool missingDefinitions, bool deactivate, List<MyObjectBuilder_CubeGrid> pastedBuilders = null, List<MyCubeGrid> touchingGrids = null,
             UpdateAfterPasteCallback updateAfterPasteCallback = null, bool multiBlock = false)
         {
-            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
 
             var grid = m_copiedGrids[0];
             bool isMergeNeeded = IsSnapped && SnapMode == SnapMode.Base6Directions && m_hitEntity is MyCubeGrid && grid != null && ((MyCubeGrid)m_hitEntity).GridSizeEnum == grid.GridSizeEnum;
-           
+
+            if (isMergeNeeded && !IsMergeWithinWorldLimits())
+            {
+                MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                MyHud.Notifications.Add(MyNotificationSingletons.ShipOverLimits);
+                return false;
+            }
+
+            MyGuiAudio.PlaySound(MyGuiSounds.HudPlaceBlock);
+
             MyCubeGrid hitGrid = null;
             if(isMergeNeeded)
             {
@@ -687,14 +768,21 @@ namespace Sandbox.Game.Entities.Cube
 
                 //if (anyGridInGround && !smallInMedieval)
                 //    return false;
-
+                m_isStaticStorage.Clear();
                 foreach (var gridOb in m_copiedGrids)
                 {
+                    m_isStaticStorage.Add(gridOb.IsStatic);
                     gridOb.IsStatic = smallInMedieval || anyGridInGround || (MySession.Static.EnableConvertToStation && gridOb.IsStatic);
+                    
                 }
 
-
                 MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.TryPasteGrid_Implementation, m_copiedGrids, missingDefinitions, inventoryOwnerId, m_objectVelocity, multiBlock, isAdmin);
+
+                int idx = 0;
+                foreach (var gridOb in m_copiedGrids)
+                {
+                    gridOb.IsStatic = m_isStaticStorage[idx++];
+            }
             }
 
             if (deactivate)
@@ -710,6 +798,43 @@ namespace Sandbox.Game.Entities.Cube
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the placed grid still fits within block limits set by server
+        /// </summary>
+        private bool IsWithinWorldLimits()
+        {
+            if (!MySession.Static.EnableBlockLimits) return true;
+
+            bool withinLimit = true;
+            int sizeSum = 0;
+            foreach (var grid in PreviewGrids)
+            {
+                if (MySession.Static.MaxGridSize != 0)
+                {
+                    withinLimit &= grid.BlocksCount <= MySession.Static.MaxGridSize;
+                }
+                sizeSum += grid.BlocksCount;
+            }
+            var identity = MySession.Static.Players.TryGetIdentity(MySession.Static.LocalPlayerId);
+            int typeBuilt;
+            foreach (var limit in MySession.Static.BlockTypeLimits)
+            {
+                if (m_blocksPerType.ContainsKey(limit.Key))
+                {
+                    withinLimit &= (identity.BlockTypeBuilt.TryGetValue(limit.Key, out typeBuilt) ? typeBuilt : 0) + m_blocksPerType[limit.Key] <= MySession.Static.GetBlockTypeLimit(limit.Key);
+                }
+            }
+            withinLimit &= MySession.Static.MaxBlocksPerPlayer == 0 || identity == null || sizeSum + identity.BlocksBuilt <= MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier;
+            return withinLimit;
+        }
+
+        /// <summary>
+        /// Determines whether the placed grid still fits within block limits set by server after it merges with a nearby grid
+        /// </summary>
+        private bool IsMergeWithinWorldLimits()
+        {
+            return MySession.Static.MaxGridSize == 0 || (m_hitEntity as MyCubeGrid).BlocksCount + PreviewGrids[0].BlocksCount <= MySession.Static.MaxGridSize;
+        }
   
         /// <summary>
         /// Checks the pasted object builder for non-existent blocks (e.g. copying from world with a cube block mod to a world without it)
@@ -749,6 +874,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public void SetGridFromBuilders(MyObjectBuilder_CubeGrid[] grids, Vector3 dragPointDelta, float dragVectorLength)
         {
+            ShowModdedBlocksWarning = true;
             if (IsActive)
             {
                 Deactivate();
@@ -777,7 +903,7 @@ namespace Sandbox.Game.Entities.Cube
                 SetGridFromBuilderInternal(grids[i], offset);
             }
 
-            Activate();
+            //Activate();
         }
 
         private void SetGridFromBuilderInternal(MyObjectBuilder_CubeGrid grid, Vector3 offset)
@@ -804,6 +930,7 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
+
         protected virtual void ChangeClipboardPreview(bool visible)
         {
                 foreach(var grid in m_previewGrids)
@@ -827,6 +954,8 @@ namespace Sandbox.Game.Entities.Cube
 
             bool first = true;
 
+            m_blocksPerType.Clear();
+
             foreach (var gridBuilder in m_copiedGrids)
             {
                 bool savedIsStatic = gridBuilder.IsStatic;
@@ -835,6 +964,20 @@ namespace Sandbox.Game.Entities.Cube
 
                 gridBuilder.CreatePhysics = false;
                 gridBuilder.EnableSmallToLargeConnections = false;
+                foreach (var blockBuilder in gridBuilder.CubeBlocks)
+                {
+                    blockBuilder.BuiltBy = 0;
+                    MyDefinitionId id = new MyDefinitionId(blockBuilder.TypeId, blockBuilder.SubtypeId);
+                    MyCubeBlockDefinition definition;
+                    if (MyDefinitionManager.Static.TryGetCubeBlockDefinition(id, out definition))
+                    {
+                        string name = definition.BlockPairName;
+                        if (m_blocksPerType.ContainsKey(name))
+                            m_blocksPerType[name]++;
+                        else
+                            m_blocksPerType.Add(name, 1);
+                    }
+                }
 
                 if (gridBuilder.PositionAndOrientation.HasValue)
                 {
@@ -851,7 +994,8 @@ namespace Sandbox.Game.Entities.Cube
                     gridBuilder.PositionAndOrientation = position;
                 }
 
-                var previewGrid = MyEntities.CreateFromObjectBuilder(gridBuilder) as MyCubeGrid;
+                var previewGrid = MyEntities.CreateFromObjectBuilder(gridBuilder, false) as MyCubeGrid;
+                previewGrid.UpdateDirty();
 
                 gridBuilder.IsStatic = savedIsStatic;
 
@@ -870,16 +1014,15 @@ namespace Sandbox.Game.Entities.Cube
                 }
 
                 MakeTransparent(previewGrid);
-                IsActive = visible;
-                m_visible = visible;
-                MyEntities.Add(previewGrid);
 
                 previewGrid.IsPreview = true;
                 previewGrid.Save = false;
-                DisablePhysicsRecursively(previewGrid);
                 m_previewGrids.Add(previewGrid);
                 previewGrid.OnClose += previewGrid_OnClose;
+
             }
+            //IsActive = visible;
+            m_visible = visible;
         }
 
         void previewGrid_OnClose(MyEntity obj)
@@ -1673,6 +1816,7 @@ namespace Sandbox.Game.Entities.Cube
                 if (!visible)
                     break;
             }
+            //GR: Issue with render not all blocks are hidden (Cubeblocks are not hidden). Put visible to false to reproduce
             foreach (var grid in m_previewGrids)
                 grid.Render.Visible = visible;
         }

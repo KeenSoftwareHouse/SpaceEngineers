@@ -2,6 +2,7 @@
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
+using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,6 +132,7 @@ namespace Sandbox.Graphics.GUI
         MyGuiControlLabel m_componentsLabel;
         MyGuiControlLabel m_installedRequiredLabel;
         MyGuiControlLabel m_integrityLabel;
+        MyGuiControlLabel m_blockBuiltByLabel;
 
         //MyGuiControlPanel m_blockIconPanel;
         //MyGuiControlPanel m_blockIconPanelBackground;
@@ -249,6 +251,12 @@ namespace Sandbox.Graphics.GUI
 			m_installedRequiredLabel.TextScale = m_smallerFontSize * baseScale;
 			m_installedRequiredLabel.Font = m_style.InstalledRequiredLabelFont;
 			Elements.Add(m_installedRequiredLabel);
+
+            m_blockBuiltByLabel = new MyGuiControlLabel(text: String.Empty);
+            m_blockBuiltByLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP;
+            m_blockBuiltByLabel.TextScale = m_smallerFontSize * baseScale;
+            m_blockBuiltByLabel.Font = m_style.InstalledRequiredLabelFont;
+            Elements.Add(m_blockBuiltByLabel);
 
 			if (m_progressMode)
 			{
@@ -451,6 +459,9 @@ namespace Sandbox.Graphics.GUI
             }
 
             m_installedRequiredLabel.Position = topRight + new Vector2(-0.011f, 0.076f * baseScale);
+            m_blockBuiltByLabel.Position = rightColumn + new Vector2(0.006f, 0.07f * baseScale);
+            m_blockBuiltByLabel.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+            m_blockBuiltByLabel.TextScale = 0.6f;
 
             //m_blockIconPanel.Position = topleft + new Vector2(0.0085f, 0.012f);
             //m_blockIconPanelBackground.Position = topleft + new Vector2(0.0085f, 0.012f);
@@ -518,7 +529,7 @@ namespace Sandbox.Graphics.GUI
                         m_componentLines[i].NameLabel.TextToDraw.Clear();
                         m_componentLines[i].NameLabel.TextToDraw.Append(info.ComponentName);
                         //m_componentLines[i].IconPanel.BackgroundTexture = new MyGuiCompositeTexture(info.Icons[0]);
-                        m_componentLines[i].IconImage.Textures = info.Icons;
+                        m_componentLines[i].IconImage.SetTextures(info.Icons);
                         m_componentLines[i].NumbersLabel.Font = font;
                         m_componentLines[i].NumbersLabel.ColorMask = color;
                         m_componentLines[i].NumbersLabel.TextToDraw.Clear();
@@ -554,8 +565,17 @@ namespace Sandbox.Graphics.GUI
                     m_blockNameLabel.TextToDraw.Append(BlockInfo.BlockName);
                 m_blockNameLabel.TextToDraw.ToUpper();
 
+                m_blockBuiltByLabel.TextToDraw.Clear();
+                var identity = MySession.Static.Players.TryGetIdentity(BlockInfo.BlockBuiltBy);
+                if (identity != null)
+                {
+                    m_blockBuiltByLabel.TextToDraw.Append(MyTexts.GetString(MyCommonTexts.BuiltBy));
+                    m_blockBuiltByLabel.TextToDraw.Append(": ");
+                    m_blockBuiltByLabel.TextToDraw.Append(identity.DisplayName);
+                }
+
                 //m_blockIconPanel.BackgroundTexture = new MyGuiCompositeTexture(BlockInfo.BlockIcons[0]);
-                m_blockIconImage.Textures = BlockInfo.BlockIcons;
+                m_blockIconImage.SetTextures(BlockInfo.BlockIcons);
 
                 Reposition();
 

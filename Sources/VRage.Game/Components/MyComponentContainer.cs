@@ -213,7 +213,7 @@ namespace VRage.Game.Components
 
         protected virtual void OnComponentRemoved(Type t, MyComponentBase component) { }
 
-        public MyObjectBuilder_ComponentContainer Serialize()
+        public MyObjectBuilder_ComponentContainer Serialize(bool copy = false)
         {
             if (m_tmpSerializedComponents == null)
                 m_tmpSerializedComponents = new List<KeyValuePair<Type, MyComponentBase>>(8);
@@ -232,7 +232,7 @@ namespace VRage.Game.Components
             var builder = new MyObjectBuilder_ComponentContainer();
             foreach (var component in m_tmpSerializedComponents)
             {
-                MyObjectBuilder_ComponentBase componentBuilder = component.Value.Serialize();
+                MyObjectBuilder_ComponentBase componentBuilder = component.Value.Serialize(copy);
                 if (componentBuilder != null)
                 {
                     var data = new MyObjectBuilder_ComponentContainer.ComponentData();

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Animations;
 
 namespace VRage.Game
 {
@@ -49,7 +49,17 @@ namespace VRage.Game
             LimitAngle
         }
 
-        IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
+        [ThreadStatic]
+        IMyConstProperty[] m_propertiesInternal;
+        IMyConstProperty[] m_properties
+        {
+            get
+            {
+                if (m_propertiesInternal == null)
+                    m_propertiesInternal = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
+                return m_propertiesInternal;
+            }
+        }
 
         public MyParticleEmitterType Type
         {

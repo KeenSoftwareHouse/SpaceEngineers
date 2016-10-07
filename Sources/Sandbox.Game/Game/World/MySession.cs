@@ -1,8 +1,5 @@
 ﻿#region Using
 
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -11,29 +8,22 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Character;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World.Generator;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-
 using VRage;
 using VRage.Audio;
 using VRage.Input;
-using VRage.Plugins;
 using VRage.Utils;
-using VRage.Voxels;
 using VRage.Data.Audio;
 using VRage.Serialization;
 using VRageMath;
@@ -41,7 +31,6 @@ using VRage.Library.Utils;
 using MyFileSystem = VRage.FileSystem.MyFileSystem;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.SessionComponents;
-using System.Collections;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
@@ -54,6 +43,8 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.GameSystems.ContextHandling;
+using VRage.Profiler;
+using VRage.Voxels;
 
 #endregion
 
@@ -89,6 +80,8 @@ namespace Sandbox.Game.World
 
         internal MyTimeSpan m_timeOfSave;
         internal DateTime m_lastTimeMemoryLogged;
+
+        private Dictionary<string, short> EmptyBlockTypeLimitDictionary = new Dictionary<string, short>();
 
         internal Dictionary<long, MyCameraControllerSettings> m_cameraControllerSettings = new Dictionary<long, MyCameraControllerSettings>();
 
@@ -154,6 +147,13 @@ namespace Sandbox.Game.World
         public bool EnableFlora { get { return Settings.EnableFlora; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
+        public short MaxBackupSaves { get { return Settings.MaxBackupSaves; } }
+
+        public int MaxGridSize { get { return Settings.MaxGridSize; } }
+        public int MaxBlocksPerPlayer { get { return Settings.MaxBlocksPerPlayer; } }
+        public Dictionary<string, short> BlockTypeLimits { get { return Settings.EnableBlockLimits ? Settings.BlockTypeLimits.Dictionary : EmptyBlockTypeLimitDictionary; } }
+        public bool EnableRemoteBlockRemoval { get { return Settings.EnableRemoteBlockRemoval; } }
+        public bool EnableBlockLimits { get { return MyPerGameSettings.Game == GameEnum.SE_GAME; } }
         public float InventoryMultiplier { get { return Settings.InventorySizeMultiplier; } }
         public float RefinerySpeedMultiplier { get { return Settings.RefinerySpeedMultiplier; } }
         public float AssemblerSpeedMultiplier { get { return Settings.AssemblerSpeedMultiplier; } }
@@ -180,13 +180,13 @@ namespace Sandbox.Game.World
             }
         }
 
-        public bool EnableCyberHounds
+        public bool EnableWolfs
         {
             get
             {
-                if (Settings.EnableCyberhounds.HasValue)
+                if (Settings.EnableWolfs.HasValue)
                 {
-                    return Settings.EnableCyberhounds.Value;
+                    return Settings.EnableWolfs.Value;
                 }
                 return false;
             }
@@ -211,6 +211,7 @@ namespace Sandbox.Game.World
         public readonly MyVoxelMaps VoxelMaps = new MyVoxelMaps();
         public readonly MyFactionCollection Factions = new MyFactionCollection();
         public MyPlayerCollection Players = new MyPlayerCollection();
+        public MyPerPlayerData PerPlayerData = new MyPerPlayerData();
         public readonly MyToolBarCollection Toolbars = new MyToolBarCollection();
         internal MyCameraCollection Cameras = new MyCameraCollection();
         internal MyGpsCollection Gpss = new MyGpsCollection();
@@ -223,6 +224,7 @@ namespace Sandbox.Game.World
         }
 
         public Dictionary<long, MyChatHistory> ChatHistory = new Dictionary<long, MyChatHistory>();
+        public MyChatHistory GlobalChatHistory = new MyChatHistory(0);
         public GameSystems.MyChatSystem ChatSystem = new GameSystems.MyChatSystem();
         public List<MyFactionChatHistory> FactionChatHistory = new List<MyFactionChatHistory>();
 
@@ -480,6 +482,23 @@ namespace Sandbox.Game.World
         }
 
         /// <summary>
+        /// Show performance warning from server
+        /// </summary>
+        [Event, Broadcast]
+        private static void OnServerPerformanceWarning(string key)
+        {
+            MySimpleProfiler.ShowServerPerformanceWarning(key);
+        }
+
+        /// <summary>
+        /// Send performance warnings to clients
+        /// </summary>
+        void PerformanceWarning(MySimpleProfiler.MySimpleProfilingBlock block)
+        {
+            MyMultiplayer.RaiseStaticEvent(s => OnServerPerformanceWarning, (block.Name));
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MySession"/> class.
         /// </summary>
         private MySession(MySyncLayer syncLayer, bool registerComponents = true)
@@ -512,7 +531,9 @@ namespace Sandbox.Game.World
 
             GC.Collect(2, GCCollectionMode.Forced);
             MySandboxGame.Log.WriteLine(String.Format("GC Memory: {0} B", GC.GetTotalMemory(false).ToString("##,#")));
+#if !XB1
             MySandboxGame.Log.WriteLine(String.Format("Process Memory: {0} B", Process.GetCurrentProcess().PrivateMemorySize64.ToString("##,#")));
+#endif // !XB1
 
             this.GameFocusManager = new MyGameFocusManager();
 
@@ -559,7 +580,10 @@ namespace Sandbox.Game.World
             multiplayer.Scenario = IsScenario;
 
             if (Engine.Platform.Game.IsDedicated)
+            {
                 (multiplayer as MyDedicatedServerBase).SendGameTagsToSteam();
+                VRage.MySimpleProfiler.ShowPerformanceWarning += PerformanceWarning;
+            }
 
             MyHud.Chat.RegisterChat(multiplayer);
             Static.Gpss.RegisterChat(multiplayer);
@@ -925,6 +949,15 @@ namespace Sandbox.Game.World
 
             //Because blocks fills SubBlocks in this method..
             //TODO: Create LoadPhase2
+
+            // Wait until all prefabs are initialized
+            while (MyPrefabManager.PendingGrids > 0)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+
+            // Make sure all objects are added to the scene before we save
+            ParallelTasks.Parallel.RunCallbacks();
             
             MyEntities.UpdateOnceBeforeFrame();
             Static.BeforeStartComponents();
@@ -952,6 +985,7 @@ namespace Sandbox.Game.World
             if (!MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(world.Checkpoint.Scenario, out Static.Scenario))
                 Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             FixIncorrectSettings(Static.Settings);
+            Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
 
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
@@ -1340,11 +1374,22 @@ namespace Sandbox.Game.World
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
 
             Toolbars.LoadToolbars(checkpoint);
+            MyEntities.PendingInits = 0;
 
             if (!MyEntities.Load(sector.SectorObjects))
             {
                 ShowLoadingError();
             }
+
+            // Wait until all entities are initialized
+            while (MyEntities.PendingInits > 0)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+
+            // Make sure everything is added to scene before we proceed
+            ParallelTasks.Parallel.RunCallbacks();
+
             MySandboxGame.Static.SessionCompatHelper.AfterEntitiesLoad(sector.AppVersion);
 
             if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
@@ -1497,13 +1542,22 @@ namespace Sandbox.Game.World
                 cameraEntity = ControlledEntity as MyEntity;
                 if (cameraEntity != null)
                 {
+                    MyRemoteControl control = ControlledEntity as MyRemoteControl;
+                    if (control != null)
+                    {
+                        cameraEntity = control.Pilot;
+                    }
+                    else
+                    {
                     Debug.Assert(ControlledEntity is IMyCameraController, "Controlled entity is not a camera controller");
+
                     if (!(ControlledEntity is IMyCameraController))
                     {
                         cameraEntity = null;
                         cameraControllerToSet = MyCameraControllerEnum.Spectator;
                     }
                 }
+            }
             }
             else
             {
@@ -1609,9 +1663,9 @@ namespace Sandbox.Game.World
             {
                 settings.EnableSpiders = settings.EnvironmentHostility != MyEnvironmentHostilityEnum.SAFE;
             }
-            if (settings.EnableCyberhounds.HasValue == false)
+            if (settings.EnableWolfs.HasValue == false)
             {
-                settings.EnableCyberhounds = false;
+                settings.EnableWolfs = false;
             }
 
             //In case of planets ignore World Size. Null check needed when limit size already exists in a planet save
@@ -2201,6 +2255,8 @@ namespace Sandbox.Game.World
             MyDefinitionManager.Static.UnloadData();
             MyDefinitionManager.Static.PreloadDefinitions();
 
+            MyAudio.ReloadData(MyAudioExtensions.GetSoundDataFromDefinitions(), MyAudioExtensions.GetEffectData());
+
             MyDefinitionErrors.Clear();
 
             MyRenderProxy.UnloadData();
@@ -2212,7 +2268,7 @@ namespace Sandbox.Game.World
             MyDynamicAABBTree.Dispose();
             MyDynamicAABBTreeD.Dispose();
 
-            GC.Collect(2, GCCollectionMode.Forced);
+            GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
 
             MySandboxGame.Log.WriteLine("MySession::Unload END");
         }
@@ -2268,6 +2324,9 @@ namespace Sandbox.Game.World
         static ulong GetVoxelsSizeInBytes(string sessionPath)
         {
             ulong size = 0;
+//NotYet #if XB1
+//NotYet            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+//NotYet #else // !XB1
             foreach (var voxelFile in Directory.GetFiles(sessionPath, "*" + MyVoxelConstants.FILE_EXTENSION, SearchOption.TopDirectoryOnly))
             {
                 using (var fileStream = MyFileSystem.OpenRead(voxelFile))
@@ -2275,6 +2334,7 @@ namespace Sandbox.Game.World
                     size += (ulong)fileStream.Length;
                 }
             }
+//NotYet #endif // !XB1
             return size;
         }
 
@@ -2380,5 +2440,16 @@ namespace Sandbox.Game.World
             else
                 return default(Vector3D);
         }
+
+        public short GetBlockTypeLimit(string blockType)
+        {
+            int divisor = 1;//OnlineMode == MyOnlineModeEnum.OFFLINE || OnlineMode == MyOnlineModeEnum.PRIVATE ? 1 : MaxPlayers;
+            short limit;
+            if (!BlockTypeLimits.TryGetValue(blockType, out limit))
+                return 0;
+            if (limit > 0 && limit / divisor == 0)
+                return 1;
+            else return (short)(limit / divisor);
+    }
     }
 }

@@ -18,7 +18,6 @@
       <Target>Default</Target>
       <Source>Default</Source>
       <Material>
-        <DecalType>NormalMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Hole_Rock_01_ng.dds</NormalmapTexture>
 		<AlphamaskTexture>Textures/Decals/Bullet_Hole_Rock_01_alphamask.dds</AlphamaskTexture>
       </Material>
@@ -34,7 +33,6 @@
       </Id>
       <Source>RifleBullet</Source>
       <Material>
-        <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_01_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_01_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/Bullet_Metal_Hit_01_alphamask.dds</AlphamaskTexture>
@@ -52,7 +50,6 @@
       </Id>
       <Source>RifleBullet</Source>
       <Material>
-        <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_02_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_02_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/Bullet_Metal_Hit_02_alphamask.dds</AlphamaskTexture>
@@ -70,7 +67,6 @@
       </Id>
       <Source>RifleBullet</Source>
       <Material>
-        <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_03_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_03_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/Bullet_Metal_Hit_03_alphamask.dds</AlphamaskTexture>
@@ -106,6 +102,23 @@
       </Id>
       <Source>GunBullet</Source>
       <Material>
+        <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_04_ng.dds</NormalmapTexture>
+        <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_04_cm.dds</ColorMetalTexture>
+        <AlphamaskTexture>Textures/Decals/Bullet_Metal_Hit_04_alphamask.dds</AlphamaskTexture>
+        <ExtensionsTexture>Textures/Decals/Bullet_Metal_Hit_04_add.dds</ExtensionsTexture>
+      </Material>
+      <MinSize>0.25</MinSize>
+      <MaxSize>0.3</MaxSize>
+      <Depth>0.05</Depth>
+    </Decal>
+
+    <Decal>
+      <Id>
+        <TypeId>DecalDefinition</TypeId>
+        <SubtypeId>GunBulletDamage1</SubtypeId>
+      </Id>
+      <Source>GunBullet</Source>
+      <Material>
         <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Metal_Hit_04_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/Bullet_Metal_Hit_04_cm.dds</ColorMetalTexture>
@@ -124,7 +137,6 @@
       </Id>
       <Source>Missile</Source>
       <Material>
-        <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/MissileDirt_01_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/MissileDirt_01_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/MissileDirt_01_alphamask.dds</AlphamaskTexture>
@@ -143,7 +155,6 @@
 	  <Target>Character</Target>
       <Source>Missile</Source>
       <Material>
-        <DecalType>NormalColorExtMap</DecalType>
         <NormalmapTexture>Textures/Decals/MissileDirt_02_ng.dds</NormalmapTexture>
         <ColorMetalTexture>Textures/Decals/MissileDirt_02_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/MissileDirt_02_alphamask.dds</AlphamaskTexture>
@@ -162,7 +173,6 @@
       <Source>RifleBullet</Source>
 	  <Target>Glass</Target>
       <Material>
-        <DecalType>ColorMap</DecalType>
         <ColorMetalTexture>Textures/Decals/Glass_Bullet_Hole_01_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/Glass_Bullet_Hole_01_alphamask.dds</AlphamaskTexture>
       </Material>
@@ -179,7 +189,6 @@
       <Source>RifleBullet</Source>
 	  <Target>Glass</Target>
       <Material>
-        <DecalType>ColorMap</DecalType>
         <ColorMetalTexture>Textures/Decals/Glass_Bullet_Hole_02_cm.dds</ColorMetalTexture>
         <AlphamaskTexture>Textures/Decals/Glass_Bullet_Hole_02_alphamask.dds</AlphamaskTexture>
       </Material>
@@ -306,7 +315,6 @@
       <Target>Wood</Target>
 	  <Source>RifleBullet</Source>
       <Material>
-        <DecalType>NormalMap</DecalType>
         <NormalmapTexture>Textures/Decals/Bullet_Hole_Rock_01_ng.dds</NormalmapTexture>
 		<AlphamaskTexture>Textures/Decals/Bullet_Hole_Rock_01_alphamask.dds</AlphamaskTexture>
       </Material>

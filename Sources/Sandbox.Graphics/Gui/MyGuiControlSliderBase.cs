@@ -376,6 +376,9 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshInternals()
         {
+            if (m_styleDef == null)
+                m_styleDef = m_styles[(int) MyGuiControlSliderStyleEnum.Default];
+
             if (HasHighlight)
             {
                 m_railTexture = m_styleDef.RailHighlightTexture;
@@ -390,6 +393,15 @@ namespace Sandbox.Graphics.GUI
             MinSize = new Vector2(m_railTexture.MinSizeGui.X + m_labelSpaceWidth, Math.Max(m_railTexture.MinSizeGui.Y, m_label.Size.Y)) * DebugScale;
             MaxSize = new Vector2(m_railTexture.MaxSizeGui.X + m_labelSpaceWidth, Math.Max(m_railTexture.MaxSizeGui.Y, m_label.Size.Y)) * DebugScale;
             m_label.Position = new Vector2(Size.X * 0.5f, 0f);
+        }
+
+        public void ApplyStyle(StyleDefinition style)
+        {
+            if (style != null)
+            {
+                m_styleDef = style;
+                RefreshInternals();
+            }
         }
 
         public float Value

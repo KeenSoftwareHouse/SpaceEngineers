@@ -29,6 +29,8 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.Audio;
 using Sandbox.Game.World;
+using VRage.Profiler;
+using VRage.Sync;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
 namespace Sandbox.Game.Weapons
@@ -72,6 +74,9 @@ namespace Sandbox.Game.Weapons
 
         public MyShipToolBase()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
         }
 
@@ -80,11 +85,11 @@ namespace Sandbox.Game.Weapons
 			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
-        internal static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipToolBase>())
                 return;
-
+            base.CreateTerminalControls();
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipToolBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => (x).UseConveyorSystem =  v;
@@ -148,7 +153,7 @@ namespace Sandbox.Game.Weapons
             IsWorkingChanged += MyShipToolBase_IsWorkingChanged;
 			ResourceSink.Update();
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME | MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -204,7 +209,7 @@ namespace Sandbox.Game.Weapons
 
         private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            VRage.ProfilerShort.Begin("ShipToolLeave");
+            ProfilerShort.Begin("ShipToolLeave");
             var entities = body.GetAllEntities();
             foreach (var ientity in entities)
             {
@@ -224,12 +229,12 @@ namespace Sandbox.Game.Weapons
                     m_entitiesInContact.Add(entity, entityCounter - 1);
             }
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
         {
-            VRage.ProfilerShort.Begin("ShipToolEnter");
+            ProfilerShort.Begin("ShipToolEnter");
             var entities = body.GetAllEntities();
             foreach (var ientity in entities)
             {
@@ -250,7 +255,7 @@ namespace Sandbox.Game.Weapons
                 }
             }
             entities.Clear();
-            VRage.ProfilerShort.End();
+            ProfilerShort.End();
         }
 
         protected void SetBuildingMusic(int amount)
@@ -625,6 +630,12 @@ namespace Sandbox.Game.Weapons
             get { return null; }
         }
         bool ModAPI.Ingame.IMyShipToolBase.UseConveyorSystem { get { return UseConveyorSystem; } }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
+        }
 
         #region IMyInventoryOwner implementation
 

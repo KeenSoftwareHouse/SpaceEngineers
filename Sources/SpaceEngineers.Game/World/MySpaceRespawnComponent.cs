@@ -26,6 +26,7 @@ using VRage.Library.Utils;
 using VRage.Network;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.Engine.Networking;
 
 namespace SpaceEngineers.Game.World
 {
@@ -344,7 +345,7 @@ namespace SpaceEngineers.Game.World
             {
                 return;
             }
-
+            LoadRespawnShip(player);
             if(false == TryFindCryoChamberCharacter(player))
             {
                 MyMultiplayer.RaiseStaticEvent(s => ShowMedicalScreen_Implementation, new EndpointId(steamPlayerId));
@@ -639,8 +640,6 @@ namespace SpaceEngineers.Game.World
             if (Sync.MultiplayerActive)
                 SyncCooldownToPlayer(player.Id.SteamId, player.Id.SteamId == Sync.MyId);
 
-            MyCharacter character = null;
-            MyCockpit cockpit = null;
             List<MyCubeGrid> respawnGrids = new List<MyCubeGrid>();
 
             var respawnShipDef = MyDefinitionManager.Static.GetRespawnShipDefinition(respawnShipId);
@@ -671,6 +670,9 @@ namespace SpaceEngineers.Game.World
 
             GetSpawnPosition(prefabDef.BoundingSphere.Radius, ref position, out forward, out up, planetSpawnHeightRatio, spawnRangeMin, spawnRangeMax);
 
+            Stack<Action> callback = new Stack<Action>();
+            callback.Push(delegate() { PutPlayerInRespawnGrid(player, respawnGrids, botDefinition); });
+
             MyPrefabManager.Static.SpawnPrefab(
                 respawnGrids,
                 prefabDef.Id.SubtypeName,
@@ -678,7 +680,14 @@ namespace SpaceEngineers.Game.World
                 forward,
                 up,
                 spawningOptions: VRage.Game.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection,
-                updateSync: true);
+                updateSync: true,
+                callbacks: callback);
+        }
+
+        private void PutPlayerInRespawnGrid(MyPlayer player, List<MyCubeGrid> respawnGrids, MyBotDefinition botDefinition)
+        {
+            MyCharacter character = null;
+            MyCockpit cockpit = null;
 
             // Find cockpits
             List<MyCockpit> shipCockpits = new List<MyCockpit>();
@@ -733,8 +742,10 @@ namespace SpaceEngineers.Game.World
             {
                 respawnGrid.ChangeGridOwnership(player.Identity.IdentityId, MyOwnershipShareModeEnum.None);
                 respawnGrid.IsRespawnGrid = true;
+                respawnGrid.m_playedTime = 0;
                 player.RespawnShip.Add(respawnGrid.EntityId);
             }
+            //SaveRespawnShip(player);
 
             if (cockpit != null)
             {
@@ -756,6 +767,8 @@ namespace SpaceEngineers.Game.World
 
         public override void AfterRemovePlayer(MyPlayer player)
         {
+            //SaveRespawnShip(player);
+            //TODOA - save respawn ship and remove it from space
             CloseRespawnShip(player);
         }
 
@@ -783,6 +796,36 @@ namespace SpaceEngineers.Game.World
             }
 
             player.RespawnShip.Clear();
+        }
+
+        private static void SaveRespawnShip(MyPlayer player)
+        {
+            if (!MySession.Static.Settings.RespawnShipDelete)
+                return;
+
+            System.Diagnostics.Debug.Assert(player.RespawnShip != null, "Saving a null respawn ship");
+            if (player.RespawnShip == null) return;
+
+            MyCubeGrid oldHome;
+            if (MyEntities.TryGetEntityById<MyCubeGrid>(player.RespawnShip[0], out oldHome))
+            {
+                ulong sizeInBytes = 0;
+                string sessionPath = MySession.Static.CurrentPath;
+                Console.WriteLine(sessionPath);
+                string fileName = "RS_" + player.Client.SteamUserId + ".sbr";
+                ParallelTasks.Parallel.Start(delegate()
+                {
+                    MyLocalCache.SaveRespawnShip((MyObjectBuilder_CubeGrid)oldHome.GetObjectBuilder(), sessionPath, fileName, out sizeInBytes);
+                });
+            }
+        }
+
+        private static void LoadRespawnShip(MyPlayer player)
+        {
+            ulong playerID = player.Client.SteamUserId;
+            string fileName = "RS_" + playerID;
+
+
         }
 
         private void SpawnInSuit(MyPlayer player, MyEntity spawnedBy, MyBotDefinition botDefinition)

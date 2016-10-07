@@ -39,51 +39,6 @@ using VRage.Game;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiControlImageButton : MyGuiControlBase
-    {
-        private MyGuiCompositeTexture m_borderTexture;
-
-        public MyGuiCompositeTexture BorderTexture
-        {
-            get { return m_borderTexture; }
-            set { m_borderTexture = value; }
-        }
-
-        public MyGuiControlImageButton(bool visible = true)
-        {
-            BackgroundTexture = new MyGuiCompositeTexture();
-            Visible = visible;
-            HighlightType = MyGuiControlHighlightType.NEVER;
-        }
-
-        public void SetTexture(string texture)
-        {
-            if (m_borderTexture != null)
-            {
-                BackgroundTexture = new MyGuiCompositeTexture()
-                {
-                    CenterBottom = m_borderTexture.CenterBottom,
-                    CenterTop = m_borderTexture.CenterTop,
-                    LeftBottom = m_borderTexture.LeftBottom,
-                    LeftTop = m_borderTexture.LeftTop,
-                    LeftCenter = m_borderTexture.LeftCenter,
-
-                    RightBottom = m_borderTexture.RightBottom,
-                    RightCenter = m_borderTexture.RightCenter,
-                    RightTop = m_borderTexture.RightTop,
-                    Center = new MyGuiSizedTexture() { Texture = texture, },
-                };
-            }
-            else 
-            {
-                BackgroundTexture = new MyGuiCompositeTexture()
-                {
-                    Center = new MyGuiSizedTexture() { Texture = texture, },
-                };
-            }
-        }
-    }
-
     public abstract class MyGuiBlueprintScreenBase : MyGuiScreenDebugBase
     {
         public static string m_localBlueprintFolder = Path.Combine(MyFileSystem.UserDataPath, "Blueprints", "local");
@@ -197,6 +152,7 @@ namespace Sandbox.Game.Gui
             }
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         public static void Publish(MyObjectBuilder_Definitions prefab, string blueprintName, Action<ulong> publishCallback = null)
         {
             string file = Path.Combine(m_localBlueprintFolder, blueprintName);
@@ -267,8 +223,6 @@ namespace Sandbox.Game.Gui
 
         public static MyObjectBuilder_Definitions LoadWorkshopPrefab(string archive, ulong? publishedItemId)
         {
-#if !XB1
-
             if (!File.Exists(archive) || publishedItemId == null)
                 return null;
             var subItem = MyGuiBlueprintScreen.m_subscribedItemsList.Find(item => item.PublishedFileId == publishedItemId);
@@ -296,9 +250,9 @@ namespace Sandbox.Game.Gui
                 objectBuilder.ShipBlueprints[0].CubeGrids[0].DisplayName = subItem.Title;
                 return objectBuilder;
             }
-#endif
 			return null;
         }
+#endif // !XB1
 
         public static MyObjectBuilder_Definitions LoadPrefab(string filePath)
         {

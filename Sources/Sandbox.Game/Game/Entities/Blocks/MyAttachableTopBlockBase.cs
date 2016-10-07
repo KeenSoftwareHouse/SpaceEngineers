@@ -4,15 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VRage.Game;
 using VRageMath;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     abstract public class MyAttachableTopBlockBase : MyCubeBlock
     {
-         long? m_parentId;
+        public Vector3 DummyPosLoc { get; private set; }
 
-        protected MyMechanicalConnectionBlockBase m_parentBlock;
+        long? m_parentId;
+
+        private MyMechanicalConnectionBlockBase m_parentBlock;
+        public MyMechanicalConnectionBlockBase Stator { get { return m_parentBlock; } }
 
         public virtual void Attach(MyMechanicalConnectionBlockBase parent)
         {
@@ -27,48 +31,24 @@ namespace Sandbox.Game.Entities.Blocks
             }
         }
 
-        public override void OnUnregisteredFromGridSystems()
+        public override void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
-            if (m_parentBlock != null)
-            {
-                var parent = m_parentBlock;
-                m_parentId = m_parentBlock.EntityId;
-                parent.Detach();
-                parent.SyncDetach();               
-            }
-
-            base.OnUnregisteredFromGridSystems();
-
-            if (Sync.IsServer)
-            {
-                CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
-            }
+            base.Init(builder, cubeGrid);
+            
+            LoadDummies();
         }
 
-        public override void OnRegisteredToGridSystems()
+        private void LoadDummies()
         {
-            base.OnRegisteredToGridSystems();
-
-            if (Sync.IsServer)
+            var finalModel = VRage.Game.Models.MyModels.GetModelOnlyDummies(BlockDefinition.Model);
+            foreach (var dummy in finalModel.Dummies)
             {
-                if (m_parentId != null)
+                if (dummy.Key.ToLower().Contains("wheel"))
                 {
-                    MyMechanicalConnectionBlockBase parent = null;
-                    MyEntities.TryGetEntityById<MyMechanicalConnectionBlockBase>(m_parentId.Value, out parent);
-                    if (parent != null && parent.CubeGrid != null && parent.Closed == false)
-                    {
-                        parent.ReattachTop(this);
-                    }
+                    Matrix dummyLocal = Matrix.Normalize(dummy.Value.Matrix) * this.PositionComp.LocalMatrix;
+                    DummyPosLoc = dummyLocal.Translation;
+                    break;
                 }
-                CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
-            }
-        }
-
-        protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
-        {
-            if (m_parentBlock != null)
-            {
-                m_parentBlock.OnGridSplit();
             }
         }
     }

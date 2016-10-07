@@ -2,6 +2,8 @@
 
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
+using Sandbox.Game.Entities.Character;
+using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using SteamSDK;
 using System;
@@ -59,6 +61,12 @@ namespace Sandbox.Game.Gui
             {
                 string userName = MyMultiplayer.Static.GetMemberName(steamUserId);
                 ShowMessage(userName, messageText);
+
+                MySession.Static.GlobalChatHistory.GlobalChatHistory.Chat.Enqueue(new MyGlobalChatItem
+                {
+                    IdentityId = MySession.Static.Players.TryGetIdentityId(steamUserId),
+                    Text = messageText
+                });
             }
         }
 

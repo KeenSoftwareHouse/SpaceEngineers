@@ -29,7 +29,7 @@ namespace Sandbox.Engine.Utils
         // Maximum distance camera-ship (also used for quick zoom)
         public const float MAX_VIEWER_DISTANCE = 200.0f;
         // "Size" of the camera.
-        public const float CAMERA_RADIUS = 0.25f;
+        public const float CAMERA_RADIUS = 0.3f;
 
         // Direction in which we are looking. View space.
         private readonly Vector3D m_lookAtDirection = Vector3D.Normalize(new Vector3D(0, 5, 12));
@@ -346,7 +346,7 @@ namespace Sandbox.Engine.Utils
                 if (distSq < closestDistanceSquared)
                 {
                     closestDistanceSquared = distSq;
-                    float dist = (float)Math.Sqrt(distSq) - CAMERA_RADIUS;
+                    double dist = Math.Sqrt(distSq) - CAMERA_RADIUS;
                     outSafePosition = raycastOrigin + rayDirection * dist;
                     positionChanged = true;
                 }
@@ -367,7 +367,7 @@ namespace Sandbox.Engine.Utils
                 MyPhysics.CastShapeReturnContactBodyDatas(raycastEnd, shapeSphere, ref raycastOriginTransform, 0,
                     0, m_raycastList);
                 //MyPhysics.CastRay(raycastOrigin + CAMERA_RADIUS * rayDirection, raycastEnd, m_raycastList, 0);
-                float closestFraction = 1.0f;
+                float closestFraction = 1;
                 foreach (MyPhysics.HitInfo rb in m_raycastList)
                 {
                     IMyEntity hitEntity = rb.HkHitInfo.GetHitEntity();
@@ -380,10 +380,13 @@ namespace Sandbox.Engine.Utils
                         // ignore player weapons
                         continue;
 
-                    if (rb.HkHitInfo.HitFraction < closestFraction)
+                    Vector3D safePos = Vector3D.Lerp(raycastOrigin, raycastEnd - CAMERA_RADIUS * rayDirection,
+                        Math.Max(rb.HkHitInfo.HitFraction, 0.0001));
+                    double distSq = Vector3D.DistanceSquared(raycastOrigin, outSafePosition);
+                    if (rb.HkHitInfo.HitFraction < closestFraction && distSq < closestDistanceSquared)
                     {
-                        outSafePosition = Vector3D.Lerp(raycastOrigin, raycastEnd - CAMERA_RADIUS * rayDirection, rb.HkHitInfo.HitFraction);
-                        closestDistanceSquared = Vector3D.DistanceSquared(raycastOrigin, outSafePosition);
+                        outSafePosition = safePos;
+                        closestDistanceSquared = distSq;
                         positionChanged = true;
                         closestFraction = rb.HkHitInfo.HitFraction;
                     }
@@ -570,6 +573,7 @@ namespace Sandbox.Engine.Utils
                             m_positionSafeZoomingOutTimeout = 0;// controlledEntity.Parent != null ? m_positionSafeZoomingOutDefaultTimeoutMs : 0;
                             m_positionSafe = safePositionCandidate;
                             m_disableSpringThisFrame = true;
+                            m_positionCurrentIsSafe = distFromCandidateToTarget >= m_safeMinimumDistance;
                         }
                     }
                     break;
@@ -627,7 +631,7 @@ namespace Sandbox.Engine.Utils
             var worldToLocal = topControlledEntity.PositionComp.WorldMatrixNormalizedInv;
             Vector3D targetInLocal = Vector3D.Transform(m_target, worldToLocal);
             MatrixD orientationInLocal = m_targetOrientation * worldToLocal;
-            var localAABBHr = topControlledEntity.PositionComp.LocalAABBHr;
+            var localAABBHr = topControlledEntity.PositionComp.LocalAABB;
             Vector3D centerToTarget = targetInLocal - localAABBHr.Center;
             Vector3D backVec = Vector3D.Normalize(orientationInLocal.Backward);
 
@@ -661,17 +665,16 @@ namespace Sandbox.Engine.Utils
         public void UpdateZoom()
         {
             bool canZoom = (!MyPerGameSettings.ZoomRequiresLookAroundPressed || MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND)) && !MySession.Static.Battle;
+            double newDistance = 0;
+            var velocity = Vector3.Zero;
+            if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null)
+                velocity = MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
 
-            if (canZoom && !MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
+            Vector3D positionSafe = m_positionSafe + (Vector3D) velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+
+            //if (canZoom && !MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
+            if (canZoom)
             {
-                double newDistance = 0;
-
-                var velocity = Vector3.Zero;
-                if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null)
-                    velocity = MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
-
-                Vector3D positionSafe = m_positionSafe + (Vector3D) velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
-
                 if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {
                     var currentDistance = (m_target - positionSafe).Length();
@@ -682,32 +685,32 @@ namespace Sandbox.Engine.Utils
                     var currentDistance = (m_target - positionSafe).Length();
                     newDistance = currentDistance * 1.2f;
                 }
-
-                if (newDistance > 0)
-                {
-                    var distance = m_lookAt.Length();
-
-                    // Limit distance 
-                    newDistance = MathHelper.Clamp(newDistance, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
-                    m_lookAt *= newDistance / distance;
-                    SaveSettings();
-                    //m_desiredPosition = positionSafe;
-                    //m_position = positionSafe;
-                    //m_velocity = Vector3.Zero;
-                }
-                else
-                {
-                    var distance = m_lookAt.Length();
-                    // Limit distance 
-                    double clampedDistance = MathHelper.Clamp(distance, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
-                    m_lookAt *= clampedDistance / distance;
-                    SaveSettings();
-                }
-
-                m_clampedlookAt = m_lookAt;
-                double oldLenToClamp = m_clampedlookAt.Length();
-                m_clampedlookAt = m_clampedlookAt * MathHelper.Clamp(oldLenToClamp, m_safeMinimumDistance, MAX_VIEWER_DISTANCE) / oldLenToClamp;
             }
+
+            if (newDistance > 0)
+            {
+                var distance = m_lookAt.Length();
+
+                // Limit distance 
+                newDistance = MathHelper.Clamp(newDistance, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
+                m_lookAt *= newDistance / distance;
+                SaveSettings();
+                //m_desiredPosition = positionSafe;
+                //m_position = positionSafe;
+                //m_velocity = Vector3.Zero;
+            }
+            else
+            {
+                var distance = m_lookAt.Length();
+                // Limit distance 
+                double clampedDistance = MathHelper.Clamp(distance, MIN_VIEWER_DISTANCE, MAX_VIEWER_DISTANCE);
+                m_lookAt *= clampedDistance / distance;
+                SaveSettings();
+            }
+
+            m_clampedlookAt = m_lookAt;
+            double oldLenToClamp = m_clampedlookAt.Length();
+            m_clampedlookAt = m_clampedlookAt * MathHelper.Clamp(oldLenToClamp, m_safeMinimumDistance, MAX_VIEWER_DISTANCE) / oldLenToClamp;
         }
 
         // ------------- viewer -------------------------------

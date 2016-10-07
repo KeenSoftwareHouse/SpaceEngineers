@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -59,3 +60,4 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+#endif // !XB1

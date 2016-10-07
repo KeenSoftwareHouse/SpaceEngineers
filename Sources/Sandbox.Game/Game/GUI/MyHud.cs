@@ -37,6 +37,7 @@ namespace Sandbox.Game.Gui
         public static MyHudNetgraph Netgraph = new MyHudNetgraph();
         public static MyHudVoiceChat VoiceChat = new MyHudVoiceChat();
         public static MyHudChangedInventoryItems ChangedInventoryItems = new MyHudChangedInventoryItems();
+        public static MyHudText BlocksLeft = new MyHudText();
 
         private static int m_rotatingWheelVisibleCounter;
         public static bool RotatingWheelVisible

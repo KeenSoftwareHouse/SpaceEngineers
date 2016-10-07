@@ -169,11 +169,12 @@ namespace Sandbox.Definitions
 
         public bool IsAmmoMagazineCompatible(MyDefinitionId ammoMagazineDefinitionId)
         {
-            bool found = false;
             for (int i = 0; i < AmmoMagazinesId.Length; i++)
                 if (ammoMagazineDefinitionId.SubtypeId == AmmoMagazinesId[i].SubtypeId)
-                    found = true;
-            return found;
+                {
+                    return true;
+                }
+            return false;
         }
 
         public int GetAmmoMagazineIdArrayIndex(MyDefinitionId ammoMagazineId)

@@ -6,6 +6,7 @@ using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ObjectBuilders;
 using VRage.Serialization;
 using VRageMath;
+using VRage;
 
 namespace Sandbox.Game.WorldEnvironment.ObjectBuilders
 {

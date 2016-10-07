@@ -1,13 +1,14 @@
 ﻿using System.Text;
 using VRage.Library.Utils;
 using VRage.Utils;
+using VRage.Library;
 
 namespace VRage.Input
 {
     public class MyGuiDescriptor
     {
         private const string LINE_SPLIT_SEPARATOR = " | ";
-        private static readonly string[] LINE_SEPARATOR = new string[] { System.Environment.NewLine };
+        private static readonly string[] LINE_SEPARATOR = new string[] { MyEnvironment.NewLine };
 
         private bool m_isDirty = true;
         protected StringBuilder m_name;

@@ -40,9 +40,11 @@ namespace Sandbox.Graphics.GUI
             StringBuilder contents = null,
             bool drawScrollbar = true,
             MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
-            int? visibleLinesCount = null
+            int? visibleLinesCount = null,
+            MyGuiCompositeTexture backgroundTexture = null,
+            MyGuiBorderThickness? textPadding = null
         )
-            : base(position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, visibleLinesCount, true)
+            : base(position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, visibleLinesCount, true, backgroundTexture: backgroundTexture, textPadding: textPadding)
         {
             m_fontHeight = MyGuiManager.GetFontHeight(Font, TextScaleWithLanguage);
             this.AllowFocusingElements = false;

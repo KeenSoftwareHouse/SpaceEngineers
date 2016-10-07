@@ -1038,5 +1038,22 @@ namespace VRageMath
             X = X * (float)Math.Cos(angle) - Y * (float)Math.Sin(angle);
             Y = Y * (float)Math.Cos(angle) + tmpX * (float)Math.Sin(angle);
         }
+
+        public static bool IsZero(ref Vector2 value)
+        {
+            return IsZero(ref value, 0.0001f);
+        }
+
+        // Per component IsZero, returns 1 for each component which equals to 0
+        public static bool IsZero(ref Vector2 value, float epsilon)
+        {
+            return Math.Abs(value.X) < epsilon && Math.Abs(value.Y) < epsilon;
+        }
+
+        public static bool IsZero(Vector2 value, float epsilon)
+        {
+            return Math.Abs(value.X) < epsilon && Math.Abs(value.Y) < epsilon;
+        }
+
     }
 }

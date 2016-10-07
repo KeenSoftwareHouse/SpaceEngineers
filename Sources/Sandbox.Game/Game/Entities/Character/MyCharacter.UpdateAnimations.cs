@@ -9,7 +9,7 @@ using Sandbox.Definitions;
 using Sandbox.Engine.Models;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Import;
 using VRageMath;
 using VRage.Utils;
@@ -25,7 +25,7 @@ using VRage.Game;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.Entity;
 using Sandbox.Game.Multiplayer;
-
+using VRage.Profiler;
 
 #endregion
 
@@ -84,30 +84,19 @@ namespace Sandbox.Game.Entities.Character
         }
 
 
-        public override void UpdateToolPosition()
-        {
-            if (m_currentWeapon != null)
-            {
-                if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
-                {
-                    UpdateWeaponPosition();
-                }
-            }
-        }
-
         protected override void CalculateTransforms(float distance)
         {
             ProfilerShort.Begin("MyCharacter.CalculateTransforms");
 
             base.CalculateTransforms(distance);
-
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("UpdateLeftHandItemPosition");
-            if (m_leftHandItem != null)
+            if (m_headBoneIndex >= 0 && AnimationController.CharacterBones != null && (IsInFirstPersonView || ForceFirstPersonCamera) && ControllerInfo.IsLocallyControlled() && !IsBot)
             {
-                UpdateLeftHandItemPosition();
+                Vector3 headHorizontalTranslation = AnimationController.CharacterBones[m_headBoneIndex].AbsoluteTransform.Translation;
+                headHorizontalTranslation.Y = 0;
+                MyCharacterBone.TranslateAllBones(AnimationController.CharacterBones, -headHorizontalTranslation);
             }
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Calculate Hand IK");
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Calculate Hand IK");
 
 
             if (this == MySession.Static.ControlledEntity)
@@ -117,55 +106,38 @@ namespace Sandbox.Game.Entities.Character
                 m_aimedPoint = GetAimedPointFromCamera();
             }
 
-            if (m_currentWeapon != null)
-            {
-                if (!MyPerGameSettings.CheckUseAnimationInsteadOfIK(m_currentWeapon))
-                {
-                    UpdateWeaponPosition();
-                    //mainly IK and some zoom + ironsight stuff
-                    if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1 && (!UseAnimationForWeapon && m_animationToIKState == 0))
-                    {
-                        MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                        CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
-                    }
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("Update anim IK");
 
-                    if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && (!UseAnimationForWeapon || m_animationToIKState != 0) && IsSitting == false)
-                    {
-                        MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
-                        CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
-                    }
-                }
-                else
+            AnimationController.UpdateInverseKinematics(); // since we already have absolute transforms
+
+            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("UpdateLeftHandItemPosition");
+            if (m_leftHandItem != null)
+            {
+                UpdateLeftHandItemPosition();
+            }
+
+            if (m_currentWeapon != null && WeaponPosition != null && m_handItemDefinition != null)
+            {
+                WeaponPosition.Update();
+                //mainly IK and some zoom + ironsight stuff
+                if (m_handItemDefinition.SimulateLeftHand && m_leftHandIKStartBone != -1 && m_leftHandIKEndBone != -1)
                 {
-                    GetHeadMatrix(true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
-                    Debug.Assert(m_rightHandItemBone != -1, "Invalid bone for weapon.");
-                    if (m_rightHandItemBone != -1)
-                    {
-                        //use animation for right hand item
-                        MyCharacterBone boneRightHand = AnimationController.CharacterBones[m_rightHandItemBone];
-                        ((MyEntity)m_currentWeapon).PositionComp.WorldMatrix = boneRightHand.AbsoluteTransform * PositionComp.WorldMatrix;
-                    }
+                    MatrixD leftHand = (MatrixD)m_handItemDefinition.LeftHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                    CalculateHandIK(m_leftHandIKStartBone, m_leftForearmBone, m_leftHandIKEndBone, ref leftHand);
+                }
+
+                if (m_handItemDefinition.SimulateRightHand && m_rightHandIKStartBone != -1 && m_rightHandIKEndBone != -1 && IsSitting == false)
+                {
+                    MatrixD rightHand = (MatrixD)m_handItemDefinition.RightHand * ((MyEntity)m_currentWeapon).WorldMatrix;
+                    CalculateHandIK(m_rightHandIKStartBone, m_rightForearmBone, m_rightHandIKEndBone, ref rightHand);
                 }
             }
-            else
-            {
-                GetHeadMatrix(true); // CH: REMOVE ME! I'M A TERRIBLE HACK!
-            }
 
+            MyRenderProxy.GetRenderProfiler().StartNextBlock("UpdateTransformations");
 
-            VRageRender.MyRenderProxy.GetRenderProfiler().StartNextBlock("ComputeBoneTransform");
+            AnimationController.UpdateTransformations();
 
-            var characterBones = AnimationController.CharacterBones;
-            if (characterBones == null)
-                return;
-            for (int i = 0; i < characterBones.Length; i++)
-            {
-                MyCharacterBone bone = characterBones[i];
-                bone.ComputeBoneTransform();
-                BoneRelativeTransforms[i] = bone.RelativeTransform;
-            }
-
-            VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
+            MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             ProfilerShort.End();
         }
@@ -185,7 +157,8 @@ namespace Sandbox.Game.Entities.Character
             MyAnimationPlayerBlendPair leftHandPlayer;
             if (TryGetAnimationPlayer("LeftHand", out leftHandPlayer))
             {
-                if (leftHandPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped && m_leftHandItem != null)
+                if (leftHandPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped 
+                    && m_leftHandItem != null && !UseNewAnimationSystem)
                 {
                     m_leftHandItem.Close();
                     m_leftHandItem = null;
@@ -203,7 +176,6 @@ namespace Sandbox.Game.Entities.Character
                 //    (m_rightFingersPlayer.GetState() == MyAnimationPlayerBlendPair.AnimationBlendState.Stopped))
                 {
                     m_resetWeaponAnimationState = false;
-                    UseAnimationForWeapon = false;
                 }
             }
         }
@@ -217,9 +189,11 @@ namespace Sandbox.Game.Entities.Character
                 Vector3 localSpeedWorldRotUnfiltered = (Physics.CharacterProxy.LinearVelocity - Physics.CharacterProxy.CharacterRigidBody.GroundVelocity) / Sync.RelativeSimulationRatio;
                 var localSpeedWorldRot = FilterLocalSpeed(localSpeedWorldRotUnfiltered);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeed, localSpeedWorldRot.Length());
+            
                 float localSpeedX = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Right);
                 float localSpeedY = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Up);
                 float localSpeedZ = localSpeedWorldRot.Dot(PositionComp.WorldMatrix.Forward);
+
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedX, localSpeedX);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedY, localSpeedY);
                 variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSpeedZ, localSpeedZ);
@@ -248,11 +222,13 @@ namespace Sandbox.Game.Entities.Character
             AnimationController.Variables.SetValue(MyAnimationVariableStorageHints.StrIdFalling, GetCurrentMovementState() == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
             MyCharacterMovementEnum movementState = GetCurrentMovementState();
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFlying, movementState == MyCharacterMovementEnum.Flying ? 1.0f : 0.0f);
-            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFalling, movementState == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFalling, m_isFalling || movementState == MyCharacterMovementEnum.Falling ? 1.0f : 0.0f);
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdCrouch, (WantsCrouch && !WantsSprint) ? 1.0f : 0.0f);
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdSitting, movementState == MyCharacterMovementEnum.Sitting ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdJumping, movementState == MyCharacterMovementEnum.Jump ? 1.0f : 0.0f);
 
             variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdFirstPerson, m_isInFirstPerson ? 1.0f : 0.0f);
+            variableStorage.SetValue(MyAnimationVariableStorageHints.StrIdHoldingTool, m_currentWeapon != null ? 1.0f : 0.0f);
         }
 
         private Vector3 FilterLocalSpeed(Vector3 localSpeedWorldRotUnfiltered)
@@ -321,36 +297,7 @@ namespace Sandbox.Game.Entities.Character
 
             if (animDefinition.AllowWithWeapon)
             {
-                if (!UseAnimationForWeapon)
-                {
-                    StoreWeaponRelativeMatrix();
-                    UseAnimationForWeapon = true;
-                    m_resetWeaponAnimationState = true;
-                }
-            }
-
-            if (!animDefinition.LeftHandItem.TypeId.IsNull)
-            {
-                if (m_leftHandItem != null)
-                {
-                    (m_leftHandItem as IMyHandheldGunObject<Sandbox.Game.Weapons.MyDeviceBase>).OnControlReleased();
-                    m_leftHandItem.Close();
-                }
-
-                // CH: TODO: The entity id is not synced, but it never was in this place. It should be fixed later
-                long handItemId = MyEntityIdentifier.AllocateId();
-                uint? inventoryItemId = null;
-                var builder = GetObjectBuilderForWeapon(animDefinition.LeftHandItem, ref inventoryItemId, handItemId);
-                var leftHandItem = CreateGun(builder, inventoryItemId);
-
-                if (leftHandItem != null)
-                {
-                    m_leftHandItem = leftHandItem as MyEntity;
-                    leftHandItem.OnControlAcquired(this);
-                    UpdateLeftHandItemPosition();
-
-                    MyEntities.Add(m_leftHandItem);
-                }
+                m_resetWeaponAnimationState = true;
             }
         }
 

@@ -11,14 +11,36 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRageMath;
 using Sandbox.Game.World;
+using VRage.Network;
+using Sandbox.Engine.Physics;
+using Havok;
 
 namespace Sandbox.Game.Replication
 {
     public class MyCharacterPositionVerificationStateGroup : MyEntityPositionVerificationStateGroup
     {
+        new struct ClientData
+        {
+            public bool HasSupport;
+            public Vector3D SupportPosition;
+        }
+
+        MyEntity m_support = null;
+         static List<HkBodyCollision> m_results = new List<HkBodyCollision>();
         private MyEntityPhysicsStateGroup m_supportPhysics;
         MyCharacter m_character;
         MyTimestampHelper m_supportTimeStamp;
+        Dictionary<ulong, ClientData> m_additionalServerClientData;
+        Dictionary<ulong, bool> m_commandsApplied;
+
+        public override long? GetSupportID()
+        {
+            if(m_supportPhysics != null)
+            {
+                return m_supportPhysics.Entity.EntityId;
+            }
+            return null;
+        }
 
         public MyCharacterPositionVerificationStateGroup(MyCharacter character):
             base(character)
@@ -39,15 +61,26 @@ namespace Sandbox.Game.Replication
                 return;
             }
 
-            MyEntity support = MySupportHelper.FindSupportForCharacterAABB(m_character);
-            if (support != null)
+            var physGroup = MyExternalReplicable.FindByObject(m_character).FindStateGroup<MyCharacterPhysicsStateGroup>();
+            if (physGroup == null)
+            {
+                if (m_supportTimeStamp != null)
+                {
+                    m_supportTimeStamp.Clear();
+                }
+                return;
+            }
+
+            m_supportPhysics = physGroup.FindSupportDelegate();
+            physGroup.SetSupport(m_supportPhysics);
+            if (m_supportPhysics != null)
             {
                 if (m_supportTimeStamp == null)
                 {
                     m_supportTimeStamp = new MyTimestampHelper(null);
                 }
 
-                m_supportTimeStamp.SetEntity(support);
+                m_supportTimeStamp.SetEntity(m_supportPhysics.Entity);
                 m_supportTimeStamp.Update(timestamp);
             }
             else
@@ -60,28 +93,21 @@ namespace Sandbox.Game.Replication
 
         }
 
-        protected override void ClientWrite(VRage.Library.Collections.BitStream stream)
+        protected override void ClientWrite(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, int maxBitPosition)
         {
-                 
-            base.ClientWrite(stream);
+            base.ClientWrite(stream, forClient,timestamp,maxBitPosition);
 
             stream.WriteBool(m_character != null);
             if (m_character != null)
             {
-                var physGroup = MyExternalReplicable.FindByObject(m_character).FindStateGroup<MyCharacterPhysicsStateGroup>();
-                long? supportId = null;
-                if (physGroup != null)
-                {
-                    physGroup.SetSupport(physGroup.FindSupportDelegate());
-                    supportId = physGroup.GetSupportId();
-                }
 
-                stream.WriteBool(supportId.HasValue);
-                if (supportId.HasValue)
+                stream.WriteBool(m_supportPhysics != null);
+                if (m_supportPhysics != null)
                 {
-                    stream.WriteInt64(supportId.Value);
+                    stream.WriteInt64(m_supportPhysics.Entity.EntityId);
+                    stream.Write(m_supportPhysics.Entity.PositionComp.GetPosition());
                 }
-
+                
                 Vector3 position = m_character.MoveIndicator;
                 stream.WriteHalf(position.X);
                 stream.WriteHalf(position.Y);
@@ -108,12 +134,6 @@ namespace Sandbox.Game.Replication
                 stream.WriteBool(m_character.TargetFromCamera);
                 stream.WriteFloat(m_character.HeadLocalXAngle);
                 stream.WriteFloat(m_character.HeadLocalYAngle);
-
-                if ((hasJetpack && m_character.JetpackComp.TurnedOn) == false)
-                {
-                    MatrixD matrix = m_character.WorldMatrix;
-                    stream.WriteQuaternionNorm(Quaternion.CreateFromForwardUp(matrix.Forward, matrix.Up));
-                }
             }        
            
         }
@@ -125,21 +145,33 @@ namespace Sandbox.Game.Replication
             if (clientHasCharacter)
             {
                 MyEntity support;
-                if (stream.ReadBool())
+                bool hasSupport = stream.ReadBool();
+                Vector3D supportPosition = Vector3D.Zero;
+
+                if (m_character != null)
                 {
-                    bool apply = MyEntities.TryGetEntityById(stream.ReadInt64(), out support);
-
-                    if (m_character != null)
+                    var physGroup = MyExternalReplicable.FindByObject(m_character).FindStateGroup<MyCharacterPhysicsStateGroup>();
+                    if (physGroup != null)
                     {
-
-                        var physGroup = MyExternalReplicable.FindByObject(m_character).FindStateGroup<MyCharacterPhysicsStateGroup>();
-                        if (physGroup != null && apply)
-                        {
-                            physGroup.SetSupport(MySupportHelper.FindPhysics(support));
-                        }
+                        m_support = MySupportHelper.FindSupportForCharacterAABB(m_character);
+                        physGroup.SetSupport(MySupportHelper.FindPhysics(m_support));
                     }
                 }
-               
+
+                 if (hasSupport)
+                 {
+                     long supportId = stream.ReadInt64();
+                     bool apply = MyEntities.TryGetEntityById(supportId, out support);
+                     supportPosition = stream.ReadVector3D();
+                 }
+
+
+                if(m_additionalServerClientData == null)
+                {
+                    m_additionalServerClientData = new Dictionary<ulong, ClientData>();
+                }
+
+                m_additionalServerClientData[clientId] = new ClientData() { HasSupport = hasSupport, SupportPosition = supportPosition };
 
                 Vector3 move = new Vector3();
                 move.X = stream.ReadHalf();
@@ -164,19 +196,12 @@ namespace Sandbox.Game.Replication
                 float headXAngle = stream.ReadFloat();
                 float headYAngle = stream.ReadFloat();
 
-                Quaternion rotation = Quaternion.Identity;
-
-                if (Jetpack == false)
-                {
-                    rotation = stream.ReadQuaternionNorm();
-                }
-
                 if(m_character == null)
                 {
                     return;
                 }
 
-                if (m_character.IsDead || m_character.IsUsing != null)
+                if (m_character.IsUsing != null)
                 {
                     return;
                 }
@@ -193,6 +218,7 @@ namespace Sandbox.Game.Replication
                         jetpack.EnableDampeners(Dampeners, false);
                     }
                 }
+
                 if (Lights != m_character.LightEnabled)
                 {
                     m_character.EnableLights(Lights);
@@ -209,36 +235,37 @@ namespace Sandbox.Game.Replication
                 // that may have side-effects to let server side Character.UpdateAfterSimulation()
                 // perform exactly same operations as on client
                 m_character.MovementFlags = MovementFlag;
-                m_character.SetCurrentMovementState(MovementState);
+                if (m_character.IsDead == false)
+                {
+                    m_character.SetCurrentMovementState(MovementState);
+                }
                 m_character.HeadLocalXAngle = headXAngle;
                 m_character.HeadLocalYAngle = headYAngle;
-
-               
-                m_character.CacheMove(ref move, ref rotate, ref roll);
-
-                if (Jetpack == false)
+                if (m_commandsApplied == null)
                 {
-                    m_character.CacheRotation(ref rotation);
+                    m_commandsApplied = new Dictionary<ulong, bool>();
                 }
 
+                if (Vector3.IsZero(move, 0.01f) == false || Vector2.IsZero(ref rotate, 0.01f) == false || Math.Abs(roll - 0.0) > 0.01f)
+                {            
+                    m_commandsApplied[clientId] = true;
+                }
 
+                m_character.CacheMove(ref move, ref rotate, ref roll);
             }    
         }
 
-        protected override void CustomServerWrite(uint timeStamp, VRage.Library.Collections.BitStream stream)
+        protected override void CustomServerWrite(uint timeStamp, ulong clientId, VRage.Library.Collections.BitStream stream)
         {
-            MyEntity support = MySupportHelper.FindSupportForCharacterAABB(m_character);
-            stream.WriteBool(support != null);
-            if (support != null)
+            stream.WriteBool(m_support != null);
+            if (m_support != null)
             {
-                stream.WriteInt64(support.EntityId);
-                Vector3D pos = support.PositionComp.GetPosition() - m_character.PositionComp.GetPosition();
-                stream.Write(pos);
-                stream.Write(support.PositionComp.GetPosition());
+                stream.WriteInt64(m_support.EntityId);
+                stream.Write(m_support.PositionComp.GetPosition());
             }
         }
 
-        protected override void CustomClientRead(uint timeStamp, ref MyTimeStampValues serverPositionAndOrientation, VRage.Library.Collections.BitStream stream)
+        protected override void CustomClientRead(uint timeStamp, ref MyTransformD serverPositionAndOrientation, VRage.Library.Collections.BitStream stream)
         {
             bool hasSupport = stream.ReadBool();
 
@@ -246,7 +273,6 @@ namespace Sandbox.Game.Replication
             {
                 long entityId = stream.ReadInt64();
 
-                Vector3D serverDelta = stream.ReadVector3D();
                 Vector3D serverSupportPos = stream.ReadVector3D();
 
                 if (!MyEntities.EntityExists(entityId))
@@ -256,8 +282,8 @@ namespace Sandbox.Game.Replication
 
                 MyTimeStampValues? clientTransform = m_timestamp.GetTransform(timeStamp);
 
-                Vector3D clientDelta = Vector3.Zero;
-                Vector3D clientVelocity = Vector3D.Zero;
+                Vector3D clientPosition = Vector3D.Zero;
+                Vector3D clientSupportPosition = Vector3D.Zero;
                 Quaternion rotationComp = Quaternion.Identity;
 
                 if (clientTransform != null)
@@ -266,8 +292,8 @@ namespace Sandbox.Game.Replication
                     {
                         return;
                     }
-                    MyTimeStampValues? supportTransform = m_supportTimeStamp.GetTransform(timeStamp);
 
+                    MyTimeStampValues? supportTransform = m_supportTimeStamp.GetTransform(timeStamp);
                     Vector3D supportPosition = support.PositionComp.WorldMatrix.Translation;
 
                     if (supportTransform.HasValue)
@@ -276,88 +302,29 @@ namespace Sandbox.Game.Replication
 
                         if(supportTransform.Value.EntityId != entityId)
                         {
-                            supportPosition = serverSupportPos;
                             return;
                         }
                     }
-   
-                    clientDelta = supportPosition - clientTransform.Value.Transform.Position;
-                    clientVelocity = clientTransform.Value.LinearVelocity;
+
+                    clientPosition = clientTransform.Value.Transform.Position;
+                    clientSupportPosition = supportPosition;
                     rotationComp = Quaternion.Inverse(clientTransform.Value.Transform.Rotation);
                 }
                 else
                 {
-                    m_character.PositionComp.SetWorldMatrix(serverPositionAndOrientation.Transform.TransformMatrix, null, true);
+                    m_character.PositionComp.SetWorldMatrix(serverPositionAndOrientation.TransformMatrix, null, true);
                     return;
                 }
 
-                MyTimeStampValues delta = new MyTimeStampValues();
-            
-                Quaternion.Multiply(ref serverPositionAndOrientation.Transform.Rotation, ref rotationComp, out delta.Transform.Rotation);
+                MyTransformD delta = new MyTransformD();
 
-                delta.Transform.Position = clientDelta - serverDelta;
-                delta.LinearVelocity = serverPositionAndOrientation.LinearVelocity - clientVelocity;
+                delta.Rotation = Quaternion.Identity;
 
-                double deltaL = delta.Transform.Position.Length();
+                Vector3D characterDelta = serverPositionAndOrientation.Position - clientPosition;
+                Vector3D supportDelta = serverSupportPos - clientSupportPosition;
 
-                //if difference is more than 
-                if (deltaL < (MyGridPhysics.ShipMaxLinearVelocity() * Sync.RelativeSimulationRatio))
-                {
-                    delta.Transform.Position = delta.Transform.Position * 0.2;
-                    delta.Transform.Rotation = Quaternion.Slerp(delta.Transform.Rotation,Quaternion.Identity,0.2f);
-                }
-
-               
-                Quaternion normalized = delta.Transform.Rotation;
-                normalized.Normalize();
-                delta.Transform.Rotation = normalized;
-                normalized = serverPositionAndOrientation.Transform.Rotation;
-                normalized.Normalize();
-                serverPositionAndOrientation.Transform.Rotation = normalized;
-
-                Quaternion clientNormalized = clientTransform.Value.Transform.Rotation;
-                clientNormalized.Normalize();
-
-                double eps = 0.001;
-                bool hasJetpack = m_character.JetpackComp != null;
-                if (hasJetpack && m_character.JetpackComp.TurnedOn && m_character.IsDead == false)
-                {
-                    if (Math.Abs(Quaternion.Dot(serverPositionAndOrientation.Transform.Rotation, clientNormalized)) < 1 - eps )
-                    {
-                        Quaternion currentOrientation = Quaternion.CreateFromForwardUp(m_character.WorldMatrix.Forward, m_character.WorldMatrix.Up);
-                        Quaternion.Multiply(ref delta.Transform.Rotation, ref currentOrientation, out currentOrientation);
-
-                        MatrixD matrix = MatrixD.CreateFromQuaternion(currentOrientation);
-                        MatrixD currentMatrix = m_character.PositionComp.WorldMatrix;
-                        currentMatrix.Translation = Vector3D.Zero;
-
-                        if (currentMatrix.EqualsFast(ref matrix) == false)
-                        {
-                            if (m_character.Physics.CharacterProxy != null)
-                            {
-                                m_character.Physics.CharacterProxy.Forward = matrix.Forward;
-                                m_character.Physics.CharacterProxy.Up = matrix.Up;
-                            }
-                        }
-                    }
-                }
-
-                if (deltaL > (MyGridPhysics.ShipMaxLinearVelocity() * Sync.RelativeSimulationRatio))
-                {
-                 
-                    m_character.PositionComp.SetPosition(serverPositionAndOrientation.Transform.Position);
-                    m_character.Physics.LinearVelocity = serverPositionAndOrientation.LinearVelocity;
-                    m_timestamp.OverwriteServerPosition(timeStamp, ref serverPositionAndOrientation);
-                    return;
-                   
-                }
-                else if (deltaL > 5.0f*MyTimestampHelper.POSITION_TOLERANCE)
-                {
-                    m_character.CacheMoveDelta(ref delta.Transform.Position);
-                }
-
-                m_character.Physics.LinearVelocity += delta.LinearVelocity;
-
+                delta.Position = characterDelta - supportDelta;           
+                m_character.CacheMoveDelta(ref delta.Position);
                 m_timestamp.UpdateDeltaPosition(timeStamp, ref delta);
             }
             else
@@ -366,5 +333,80 @@ namespace Sandbox.Game.Replication
             }
         }
 
+        protected override void CalculatePositionDifference(ulong clientId, out bool positionValid, out bool correctServer, out Vector3D delta)
+        {
+            positionValid = true;
+            correctServer = false;
+
+            delta = Vector3D.Zero;
+
+            ClientData clientData = m_additionalServerClientData[clientId];
+            MatrixD worldMatrix = Entity.PositionComp.WorldMatrix;
+     
+            if (clientData.HasSupport)
+            {
+                if (m_support != null)
+                {
+                    Vector3D characterDelta = m_serverClientData[clientId].Transform.Position - m_character.PositionComp.GetPosition();
+                    Vector3D supportDelta = clientData.SupportPosition - m_support.PositionComp.GetPosition();
+                    delta = characterDelta - supportDelta;
+                }
+                else
+                {
+                    positionValid = false;
+                    delta = m_serverClientData[clientId].Transform.Position - m_character.PositionComp.GetPosition();
+                }
+            }
+            else
+            {
+                
+                delta = m_serverClientData[clientId].Transform.Position - worldMatrix.Translation;
+            }
+
+
+            if (delta.LengthSquared() > 0.05 * 0.05)
+            {
+                if (m_commandsApplied.ContainsKey(clientId) == false || m_commandsApplied[clientId] == false)
+                {
+                    positionValid = false;
+                }
+                else
+                {
+                    correctServer = true;
+                }
+            }
+
+            m_commandsApplied[clientId] = false;
+
+        }
+
+        protected override bool IsPositionValid(MyTransformD clientDelta)
+        {
+            if (m_character.Physics != null && m_character.Physics.CharacterProxy != null)
+            {
+                float offset = 2 * MyPerGameSettings.PhysicsConvexRadius + 0.03f;
+
+                float width = (m_character.Definition.CharacterCollisionWidth * m_character.Definition.CharacterCollisionScale) - offset;
+                float height = (m_character.Definition.CharacterCollisionHeight - m_character.Definition.CharacterCollisionWidth * m_character.Definition.CharacterCollisionScale) - offset;
+
+                HkCapsuleShape capsule = new HkCapsuleShape(Vector3.Up * height / 2.0f, Vector3.Down * height / 2.0f, width / 2.0f);
+                m_results.Clear();
+
+                clientDelta.Position = clientDelta.Position + m_character.WorldMatrix.Up * (m_character.Definition.CharacterCollisionHeight/2 + offset);
+
+                MyPhysics.GetPenetrationsShape(capsule, ref clientDelta.Position, ref clientDelta.Rotation, m_results, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                bool otherFound = false;
+                foreach (var colision in m_results)
+                {
+                    if (colision.Body.Quality == HkCollidableQualityType.Character)
+                    {
+                        continue;
+                    }
+                    otherFound = true;
+                }
+                return !otherFound;
+            }
+            return false;
+        }
     }
 }

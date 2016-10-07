@@ -242,6 +242,7 @@ namespace Sandbox.Game.Gui
 
         private void CopyErrorLogToClipboard(MyGuiControlButton obj)
         {
+#if !XB1
             StringBuilder text = new StringBuilder();
 
             if (MyDefinitionErrors.GetErrors().Count() == 0)
@@ -258,6 +259,9 @@ namespace Sandbox.Game.Gui
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             thread.Join();
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
         }
     }
 }

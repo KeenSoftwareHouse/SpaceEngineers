@@ -11,6 +11,7 @@ using VRage.Collections;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace Sandbox.Game.Entities

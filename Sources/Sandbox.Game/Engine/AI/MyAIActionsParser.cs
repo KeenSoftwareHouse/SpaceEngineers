@@ -1,4 +1,5 @@
-﻿using Sandbox.Common;
+﻿#if !XB1
+using Sandbox.Common;
 using VRage.Game.AI;
 using System;
 using System.Collections.Generic;
@@ -172,3 +173,4 @@ namespace Sandbox.Engine.AI
         }
     }
 }
+#endif // !XB1

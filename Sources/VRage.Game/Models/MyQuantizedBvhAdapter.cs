@@ -154,7 +154,7 @@ namespace VRage.Game.Models
                         //if (m_triangleIndices[value] != ignoreTriangleWithIndex)
                         {
                             //  See that we swaped vertex indices!!
-                            MyTriangle_Vertexes triangle;
+                            MyTriangle_Vertices triangle;
                             MyTriangle_Normals triangleNormals;
                             //MyTriangle_Normals triangleTangents;
 
@@ -221,7 +221,7 @@ namespace VRage.Game.Models
                     if (triangleBoundingBox.Intersects(ref sphereInObjectSpace))
                     {
                         //  See that we swaped vertex indices!!
-                        MyTriangle_Vertexes triangle;
+                        MyTriangle_Vertices triangle;
                         MyTriangleVertexIndices triangleIndices = m_model.Triangles[triangleIndex];
                         triangle.Vertex0 = m_model.GetVertex(triangleIndices.I0);
                         triangle.Vertex1 = m_model.GetVertex(triangleIndices.I2);
@@ -282,7 +282,7 @@ namespace VRage.Game.Models
                         //if (m_triangleIndices[value] != ignoreTriangleWithIndex)
                         {
                             //  See that we swaped vertex indices!!
-                            MyTriangle_Vertexes triangle;
+                            MyTriangle_Vertices triangle;
 
                             MyTriangleVertexIndices triangleIndices = m_model.Triangles[triangleIndex];
                             triangle.Vertex0 = m_model.GetVertex(triangleIndices.I0);
@@ -372,7 +372,7 @@ namespace VRage.Game.Models
 
 
                     MyTriangleVertexIndices triangle = m_model.Triangles[triangleIndex];
-                    MyTriangle_Vertexes triangleVertices = new MyTriangle_Vertexes();
+                    MyTriangle_Vertices triangleVertices = new MyTriangle_Vertices();
                     m_model.GetVertex(triangle.I0, triangle.I1, triangle.I2, out triangleVertices.Vertex0, out triangleVertices.Vertex1, out triangleVertices.Vertex2);
 
                     IndexedVector3 iv0 = triangleVertices.Vertex0.ToBullet();

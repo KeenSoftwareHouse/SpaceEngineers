@@ -15,6 +15,8 @@ namespace Sandbox.Game.Replication
     public abstract class MyEntityReplicableBase<T> : MyExternalReplicable<T>
         where T : MyEntity
     {
+        protected Dictionary<ulong, float> m_cachedPriorityForClient = null;
+        protected float m_baseVisibility = 130; // 1m object is visible for 130m (9km for blue ship, 12km for red ship)
         protected IMyStateGroup m_physicsSync;
         protected Action<MyEntity> OnCloseAction;
 
@@ -23,10 +25,8 @@ namespace Sandbox.Game.Replication
             get { return m_physicsSync; }
         }
 
-        public static float GetBasePriority(Vector3 position, Vector3 size, MyClientInfo client)
+        public float GetBasePriority(Vector3 position, Vector3 size, MyClientInfo client)
         {
-            const float baseVisibility = 130; // 1m object is visible for 130m (9km for blue ship, 12km for red ship)
-
             float planeArea = Math.Max(size.X * size.Y, Math.Max(size.X * size.Z, size.Y * size.Z)) + 0.01f;
             float distSq = (float)Vector3D.DistanceSquared(((MyClientState)client.State).Position, position);
 
@@ -38,7 +38,7 @@ namespace Sandbox.Game.Replication
                 return 0;
 
             float relativeDistance = (float)Math.Sqrt(distSq / planeArea); // How far the object would be when recalculated to 1m size
-            float ratio = relativeDistance / baseVisibility; // 0 very close; 1 at the edge of visibility; >1 too far
+            float ratio = relativeDistance / m_baseVisibility; // 0 very close; 1 at the edge of visibility; >1 too far
             return MathHelper.Clamp(1 - ratio, 0, 1);
         }
         
@@ -81,9 +81,25 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client, bool cached)
         {
-            return GetBasePriority(Instance.PositionComp.GetPosition(), Instance.PositionComp.WorldAABB.Size, client);
+            ulong clientEndpoint = client.EndpointId.Value;
+            if (cached)
+            {
+
+                if (m_cachedPriorityForClient != null && m_cachedPriorityForClient.ContainsKey(clientEndpoint))
+                {
+                    return m_cachedPriorityForClient[clientEndpoint];
+                }
+            }
+
+
+            if (m_cachedPriorityForClient == null)
+            {
+                m_cachedPriorityForClient = new Dictionary<ulong, float>();
+            }
+            m_cachedPriorityForClient[clientEndpoint] = GetBasePriority(Instance.PositionComp.GetPosition(), Instance.PositionComp.WorldAABB.Size, client);
+            return m_cachedPriorityForClient[clientEndpoint];
         }
 
         public override bool OnSave(BitStream stream)
@@ -114,6 +130,11 @@ namespace Sandbox.Game.Replication
             {
                 resultList.Add(m_physicsSync);
             }
+        }
+
+        public override bool IsChild
+        {
+            get { return false; }
         }
     }
 }

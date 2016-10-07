@@ -8,11 +8,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
 using System.Reflection;
+using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.Win32;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 namespace Sandbox.Engine.Platform.VideoMode
 {
@@ -174,7 +176,7 @@ namespace Sandbox.Engine.Platform.VideoMode
             SetEnableDamageEffects(config.EnableDamageEffects);
             // Need to send both messages as I don't know which one will be used. One of them will be ignored.
             MyRenderProxy.SwitchRenderSettings(m_currentGraphicsSettings.Render);
-            MyRenderProxy.Settings.EnableShadows = (m_currentGraphicsSettings.Render.ShadowQuality != MyShadowsQuality.DISABLED);
+            MyRenderProxy.SwitchRenderSettings(MyRenderProxy.Settings);
 
             // Load previous device settings that will be used for device creation.
             // If there are no settings in the config (eg. game is run for the first time), null is returned, leaving the decision up
@@ -193,11 +195,16 @@ namespace Sandbox.Engine.Platform.VideoMode
                     VSync            = config.VerticalSync,
                     WindowMode       = config.WindowMode,
                 };
+
                 if (MyPerGameSettings.DefaultRenderDeviceSettings.HasValue)
                 {
                     settings.UseStereoRendering = MyPerGameSettings.DefaultRenderDeviceSettings.Value.UseStereoRendering;
                     settings.SettingsMandatory = MyPerGameSettings.DefaultRenderDeviceSettings.Value.SettingsMandatory;
                 }
+
+                if (MyCompilationSymbols.DX11ForceStereo)
+                    settings.UseStereoRendering = true;
+
                 return settings;
             }
             else
@@ -382,6 +389,7 @@ namespace Sandbox.Engine.Platform.VideoMode
                     }
                 }
 
+#if !XB1
                 //  Get info about memory
                 var memory = new WinApi.MEMORYSTATUSEX();
                 WinApi.GlobalMemoryStatusEx(memory);
@@ -390,6 +398,12 @@ namespace Sandbox.Engine.Platform.VideoMode
                 MySandboxGame.Log.WriteLine("ComputerInfo.TotalVirtualMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullTotalVirtual) + " bytes");
                 MySandboxGame.Log.WriteLine("ComputerInfo.AvailablePhysicalMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullAvailPhys) + " bytes");
                 MySandboxGame.Log.WriteLine("ComputerInfo.AvailableVirtualMemory: " + MyValueFormatter.GetFormatedLong((long)memory.ullAvailVirtual) + " bytes");
+#else // XB1
+                MySandboxGame.Log.WriteLine("ComputerInfo.TotalPhysicalMemory: N/A (XB1 TODO?)");
+                MySandboxGame.Log.WriteLine("ComputerInfo.TotalVirtualMemory: N/A (XB1 TODO?)");
+                MySandboxGame.Log.WriteLine("ComputerInfo.AvailablePhysicalMemory: N/A (XB1 TODO?)");
+                MySandboxGame.Log.WriteLine("ComputerInfo.AvailableVirtualMemory: N/A (XB1 TODO?)");
+#endif // XB1
 
                 //  Get info about hard drives
                 ConnectionOptions oConn = new ConnectionOptions();
@@ -424,11 +438,18 @@ namespace Sandbox.Engine.Platform.VideoMode
 
             try
             {
+#if !XB1
                 Assembly assembly = Assembly.GetExecutingAssembly();
                 MySandboxGame.Log.WriteLine("Assembly.GetName: " + assembly.GetName().ToString());
                 MySandboxGame.Log.WriteLine("Assembly.FullName: " + assembly.FullName);
                 MySandboxGame.Log.WriteLine("Assembly.Location: " + assembly.Location);
                 MySandboxGame.Log.WriteLine("Assembly.ImageRuntimeVersion: " + assembly.ImageRuntimeVersion);
+#else // XB1
+                MySandboxGame.Log.WriteLine("Assembly.GetName: N/A (on XB1)");
+                MySandboxGame.Log.WriteLine("Assembly.FullName: N/A (on XB1)");
+                MySandboxGame.Log.WriteLine("Assembly.Location: N/A (on XB1)");
+                MySandboxGame.Log.WriteLine("Assembly.ImageRuntimeVersion: N/A (on XB1)");
+#endif // XB1
             }
             catch (Exception e)
             {
@@ -452,6 +473,7 @@ namespace Sandbox.Engine.Platform.VideoMode
 
         public static bool IsHardwareCursorUsed()
         {
+#if !XB1
             // Never use hardware cursor in the exteral editor
             if (Sandbox.AppCode.MyExternalAppBase.Static != null) return false;
 
@@ -466,6 +488,9 @@ namespace Sandbox.Engine.Platform.VideoMode
                 return false;
 
             return m_currentGraphicsSettings.HardwareCursor;
+#else // XB1
+            return false;
+#endif // XB1
         }
 
         public static MyAspectRatio GetAspectRatio(MyAspectRatioEnum aspectRatioEnum)

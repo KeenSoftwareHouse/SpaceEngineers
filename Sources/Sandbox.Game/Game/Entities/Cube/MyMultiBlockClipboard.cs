@@ -24,6 +24,7 @@ using VRage.Game;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents.Clipboard;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -542,7 +543,7 @@ namespace Sandbox.Game.Entities.Cube
                     if (i == 0 && !MyCubeBuilder.Static.DynamicMode)
                     {
                         MatrixD invMatrix = grid.PositionComp.WorldMatrixNormalizedInv;
-                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.Static.IntersectionDistance))
+                        if (!MyCubeBuilderGizmo.DefaultGizmoCloseEnough(ref invMatrix, (BoundingBoxD)grid.PositionComp.LocalAABB, grid.GridSize, MyCubeBuilder.IntersectionDistance))
                         {
                             m_visible = false;
                             return false;
@@ -825,7 +826,7 @@ namespace Sandbox.Game.Entities.Cube
             base.SetupDragDistance();
 
             if (MySession.Static.SurvivalMode && !MySession.Static.IsAdminModeEnabled(Sync.MyId))
-                m_dragDistance = MyCubeBuilder.Static.IntersectionDistance;
+                m_dragDistance = MyCubeBuilder.IntersectionDistance;
         }
 
         public void SetGridFromBuilder(MyMultiBlockDefinition multiBlockDefinition, MyObjectBuilder_CubeGrid grid, Vector3 dragPointDelta, float dragVectorLength)

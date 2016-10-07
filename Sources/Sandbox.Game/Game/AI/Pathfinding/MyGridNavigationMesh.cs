@@ -7,9 +7,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
@@ -862,7 +864,7 @@ namespace Sandbox.Game.AI.Pathfinding
             m_coordinator.InvalidateVoxelsBBox(ref bbox);
 
             MarkBlockChanged(block);
-            MyAIComponent.Static.Pathfinding.GridPathfinding.MarkHighLevelDirty();
+            MyCestmirPathfindingShorts.Pathfinding.GridPathfinding.MarkHighLevelDirty();
 
             if (ignore)
             {
@@ -891,7 +893,7 @@ namespace Sandbox.Game.AI.Pathfinding
         private void MarkBlockChanged(MySlimBlock block)
         {
             m_higherLevelHelper.MarkBlockChanged(block);
-            MyAIComponent.Static.Pathfinding.GridPathfinding.MarkHighLevelDirty();
+            MyCestmirPathfindingShorts.Pathfinding.GridPathfinding.MarkHighLevelDirty();
         }
 
         private void AddBlock(MySlimBlock block)

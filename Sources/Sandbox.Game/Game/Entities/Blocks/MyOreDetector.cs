@@ -14,6 +14,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Sync;
 
 #endregion
 
@@ -30,22 +31,26 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyOreDetector()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_broadcastUsingAntennas = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_broadcastUsingAntennas.ValueChanged += (entity) => BroadcastChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyOreDetector>())
                 return;
-
+            base.CreateTerminalControls();
             var range = new MyTerminalControlSlider<MyOreDetector>("Range", MySpaceTexts.BlockPropertyTitle_OreDetectorRange, MySpaceTexts.BlockPropertyDescription_OreDetectorRange);
             range.SetLimits(1, 100);
             range.DefaultValue = 100;
             range.Getter = (x) => x.Range;
             range.Setter = (x, v) => x.Range = v;
             range.Writer = (x, result) => result.AppendInt32((int)x.m_oreDetectorComponent.DetectionRadius).Append(" m");
+            MyTerminalControlFactory.AddControl(range);
 
             var broadcastUsingAntennas = new MyTerminalControlCheckbox<MyOreDetector>("BroadcastUsingAntennas", MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas, MySpaceTexts.BlockPropertyDescription_BroadcastUsingAntennas);
             broadcastUsingAntennas.Getter = (x) => x.m_oreDetectorComponent.BroadcastUsingAntennas;

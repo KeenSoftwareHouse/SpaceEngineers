@@ -54,6 +54,7 @@ namespace Sandbox.Game
         public static readonly MyStringId MISSION_SETTINGS = MyStringId.GetOrCompute("MISSION_SETTINGS");
         public static readonly MyStringId COCKPIT_BUILD_MODE = MyStringId.GetOrCompute("COCKPIT_BUILD_MODE");
         public static readonly MyStringId CUBE_BUILDER_CUBESIZE_MODE = MyStringId.GetOrCompute("CUBE_BUILDER_CUBESIZE_MODE");
+        public static readonly MyStringId CUBE_DEFAULT_MOUNTPOINT = MyStringId.GetOrCompute("CUBE_DEFAULT_MOUNTPOINT"); // T key
 
         // Weapon selection slots
         public static readonly MyStringId SLOT1 = MyStringId.GetOrCompute("SLOT1");

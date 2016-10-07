@@ -35,7 +35,7 @@ namespace Sandbox.Game.Gui
 
         protected override MyGuiControlBase CreateGui()
         {
-            m_color = new MyGuiControlColor(MyTexts.Get(Title), 0.95f, Vector2.Zero, Color.White, Color.White, MyCommonTexts.DialogAmount_SetValueCaption, placeSlidersVertically: true);
+            m_color = new MyGuiControlColor(MyTexts.Get(Title).ToString(), 0.95f, Vector2.Zero, Color.White, Color.White, MyCommonTexts.DialogAmount_SetValueCaption, placeSlidersVertically: true);
             m_changeColor = OnChangeColor;
             m_color.OnChange += m_changeColor;
             m_color.Size = new Vector2(PREFERRED_CONTROL_WIDTH, m_color.Size.Y);

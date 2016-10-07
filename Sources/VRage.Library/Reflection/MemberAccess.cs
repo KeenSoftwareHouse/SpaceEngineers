@@ -7,8 +7,10 @@ using System.Text;
 
 namespace System.Reflection
 {
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public delegate void Getter<T, TMember>(ref T obj, out TMember value);
     public delegate void Setter<T, TMember>(ref T obj, ref TMember value);
+#endif // !XB1
 
     public static class MemberAccess
     {
@@ -59,6 +61,7 @@ namespace System.Reflection
                 throw new InvalidOperationException("Member info must be PropertyInfo, FieldInfo or MethodInfo");
         }
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public static Func<T, TMember> CreateGetter<T, TMember>(this MemberInfo memberInfo)
         {
             if (memberInfo is PropertyInfo)
@@ -78,7 +81,9 @@ namespace System.Reflection
             else
                 throw new InvalidOperationException("Member info must be PropertyInfo, FieldInfo");
         }
+#endif // !XB1
 
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
         public static Getter<T, TMember> CreateGetterRef<T, TMember>(this MemberInfo memberInfo)
         {
             if (memberInfo is PropertyInfo)
@@ -98,7 +103,9 @@ namespace System.Reflection
             else
                 throw new InvalidOperationException("Member info must be PropertyInfo, FieldInfo");
         }
+#endif // !XB1
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
         public static bool CheckGetterSignature<T, TMember>(this MemberInfo memberInfo)
         {
             if (!typeof(T).IsAssignableFrom(memberInfo.DeclaringType))
@@ -124,5 +131,17 @@ namespace System.Reflection
             else
                 throw new InvalidOperationException("Member info must be PropertyInfo, FieldInfo");
         }
+#endif // !XB1
     }
 }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+namespace VRage.Reflection
+{
+    public interface IMySetGetMemberDataHelper
+    {
+        //Note: Very slow and ugly solution but we have at least something for now.
+        object GetMemberData(MemberInfo m);
+    }
+}
+#endif // XB1

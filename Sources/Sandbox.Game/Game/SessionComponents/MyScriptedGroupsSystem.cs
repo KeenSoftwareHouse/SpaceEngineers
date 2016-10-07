@@ -23,6 +23,10 @@ namespace Sandbox.Game.SessionComponents
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation, Priority = 300)]
     public class MyScriptedGroupsSystem : MySessionComponentBase
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private bool m_scriptsLoaded = false;
+#endif // !XB1
+
         private static MyScriptedGroupsSystem Static;
         private Queue<MyStringHash> m_scriptsQueue;
 
@@ -49,8 +53,12 @@ namespace Sandbox.Game.SessionComponents
             m_groupScripts = new Dictionary<MyStringHash, MyGroupScriptBase>(MyStringHash.Comparer);
             m_definitions = new Dictionary<MyStringHash, MyScriptedGroupDefinition>(MyStringHash.Comparer);
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            LoadScripts(MyAssembly.AllInOneAssembly);
+#else // !XB1
             LoadScripts(MyPlugins.GameAssembly);
             LoadScripts(MyPlugins.SandboxGameAssembly);
+#endif // !XB1
 
             var definitions = MyDefinitionManager.Static.GetScriptedGroupDefinitions();
             foreach (var def in definitions)
@@ -66,7 +74,15 @@ namespace Sandbox.Game.SessionComponents
             if (assembly == null)
                 return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_scriptsLoaded == false);
+            if (m_scriptsLoaded == true)
+                return;
+            m_scriptsLoaded = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var type in assembly.GetTypes())
+#endif // !XB1
             {
                 var attrs = type.GetCustomAttributes(false);
                 foreach (var attr in attrs)

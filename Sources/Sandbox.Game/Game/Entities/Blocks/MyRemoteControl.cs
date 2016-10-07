@@ -36,7 +36,6 @@ using VRage.Library.Utils;
 using Sandbox.Game.Components;
 using Sandbox.Game.EntityComponents;
 using VRageRender;
-using VRage.Voxels;
 using Sandbox.Game.AI.Navigation;
 using VRage.Game;
 using VRage.Network;
@@ -46,6 +45,8 @@ using VRage.Game.ModAPI;
 using VRage.Serialization;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Game.Utils;
+using VRage.Sync;
+using VRage.Voxels;
 using TerminalActionParameter = Sandbox.ModAPI.Ingame.TerminalActionParameter;
 using MyWaypointInfo = Sandbox.ModAPI.Ingame.MyWaypointInfo;
 
@@ -397,16 +398,26 @@ namespace Sandbox.Game.Entities
 
         public MyRemoteControl()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_autopilotSpeedLimit = SyncType.CreateAndAddProp<float>();
+            m_useCollisionAvoidance = SyncType.CreateAndAddProp<bool>();
+            m_autoPilotEnabled = SyncType.CreateAndAddProp<bool>();
+            m_dockingModeEnabled = SyncType.CreateAndAddProp<bool>();
+            m_currentFlightMode = SyncType.CreateAndAddProp<FlightMode>();
+            m_currentDirection = SyncType.CreateAndAddProp<Base6Directions.Direction>();
+            m_waypointThresholdDistance = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
+            
             if (MyTerminalControlFactory.AreControlsCreated<MyRemoteControl>())
                 return;
-
+            base.CreateTerminalControls();
             var controlBtn = new MyTerminalControlButton<MyRemoteControl>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (b) => b.RequestControl());
             controlBtn.Enabled = r => r.CanControl();
             controlBtn.SupportsMultipleBlocks = false;
@@ -1848,7 +1859,7 @@ namespace Sandbox.Game.Entities
                 Vector3D steeringDelta = Vector3D.Zero;
                 Vector3D avoidanceDelta = Vector3D.Zero;
 
-                if ((entity is MyCubeGrid) || (entity is MyVoxelMap))
+                if ((entity is MyCubeGrid) || (entity is MyVoxelMap) || (entity is MySkinnedEntity))
                 {
                     if (MyFakes.ENABLE_VR_DRONE_COLLISIONS && (entity is MyCubeGrid))
                     {
@@ -2409,6 +2420,7 @@ namespace Sandbox.Game.Entities
             DetailedInfo.Append("\n");
             DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MaxRequiredInput));
             MyValueFormatter.AppendWorkInBestUnit(m_powerNeeded, DetailedInfo);
+            DetailedInfo.Append("\n");
             var pilot = m_previousControlledEntity as MyCharacter;
             if( pilot != null && pilot != MySession.Static.LocalCharacter)
             {
@@ -2624,8 +2636,6 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            RefreshTerminal();
-
             if (m_previousControlledEntity != null)
             {
                 //Corner case when cockpit was destroyed
@@ -2659,7 +2669,7 @@ namespace Sandbox.Game.Entities
                     receiver.Clear();
                 }
             }
-
+            RefreshTerminal();
             UpdateEmissivity();
         }
 

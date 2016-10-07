@@ -6,6 +6,7 @@ using VRage;
 using VRage.ObjectBuilders;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {
@@ -19,26 +20,28 @@ namespace Sandbox.Game.Entities
                 m_objectFactory.RegisterFromAssembly(assembly);
         }
 
-        public static MyEntity CreateEntity(MyObjectBuilder_Base builder)
+        public static MyEntity CreateEntity(MyObjectBuilder_Base builder, bool readyForReplication = true)
         {
-            return CreateEntity(builder.TypeId, builder.SubtypeName);
+            return CreateEntity(builder.TypeId, builder.SubtypeName, readyForReplication);
         }
 
-        public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null, bool autoRaiseCreated = true)
+        public static MyEntity CreateEntity(MyObjectBuilderType typeId, string subTypeName = null, bool readyForReplication = true)
         {
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             MyEntity entity = m_objectFactory.CreateInstance(typeId);
             AddScriptGameLogic(entity, typeId, subTypeName);
+            entity.IsReadyForReplication = readyForReplication;
             ProfilerShort.End();
             MyEntities.RaiseEntityCreated(entity);            
             return entity;
         }
 
-        public static T CreateEntity<T>(MyObjectBuilder_Base builder) where T : MyEntity
+        public static T CreateEntity<T>(MyObjectBuilder_Base builder, bool readyForReplication = true) where T : MyEntity
         {
             ProfilerShort.Begin("MyEntityFactory.CreateEntity(...)");
             T entity = m_objectFactory.CreateInstance<T>(builder.TypeId);
             AddScriptGameLogic(entity, builder.GetType(), builder.SubtypeName);
+            entity.IsReadyForReplication = readyForReplication;
             ProfilerShort.End();
             MyEntities.RaiseEntityCreated(entity);           
             return entity;

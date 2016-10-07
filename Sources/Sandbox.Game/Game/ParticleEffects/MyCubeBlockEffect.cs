@@ -9,6 +9,7 @@ using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Import;
 
 namespace Sandbox.Game.ParticleEffects
 {

@@ -54,7 +54,7 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             if (m_clientList.Contains(client.EndpointId.Value))
             {
@@ -134,6 +134,11 @@ namespace Sandbox.Game.Replication
                 ((MyEntity)Inventory.Entity).OnClose -= m_destroyEntity;
                 RaiseDestroyed();
             }
+        }
+
+        public override bool IsChild
+        {
+            get { return false; }
         }
     }
 }

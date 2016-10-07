@@ -225,6 +225,7 @@ namespace Sandbox.Game.Gui
             int adapterIndex = (int)m_comboVideoAdapter.GetSelectedKey();
             var selectedResolution = m_resolutions[(int)m_comboResolution.GetSelectedKey()];
             bool fullscreenSupported = false;
+#if !XB1
             foreach (var displayMode in MyVideoSettingsManager.Adapters[adapterIndex].SupportedDisplayModes)
             {
                 if (displayMode.Width == selectedResolution.X &&
@@ -234,6 +235,7 @@ namespace Sandbox.Game.Gui
                     break;
                 }
             }
+#endif
 
             var selectedWindowMode = (MyWindowModeEnum)m_comboWindowMode.GetSelectedKey();
             m_comboWindowMode.ClearItems();

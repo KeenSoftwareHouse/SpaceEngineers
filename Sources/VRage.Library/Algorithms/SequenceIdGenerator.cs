@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using ParallelTasks;
 
 namespace VRage.Library.Algorithms
 {
@@ -47,6 +48,8 @@ namespace VRage.Library.Algorithms
         /// Function which returns current time, units are arbitrary and same as reuse protection time.
         /// </summary>
         Func<uint> m_timeFunc;
+
+        SpinLockRef m_lock = new SpinLockRef();
 
         public int WaitingInQueue
         {
@@ -122,10 +125,13 @@ namespace VRage.Library.Algorithms
 
         public uint NextId()
         {
-            if (m_reuseQueue.Count > m_protecionCount && CheckFirstItemTime())
-                return m_reuseQueue.Dequeue().Id;
-            else
-                return ++m_maxId;
+            using (m_lock.Acquire())
+            {
+                if (m_reuseQueue.Count > m_protecionCount && CheckFirstItemTime())
+                    return m_reuseQueue.Dequeue().Id;
+                else
+                    return ++m_maxId;
+            }
         }
 
         public void Return(uint id)

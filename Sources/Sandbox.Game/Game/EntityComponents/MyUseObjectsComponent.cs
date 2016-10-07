@@ -15,6 +15,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using VRage.Game;
 using VRage.Game.Models;
+using VRageRender.Import;
 
 namespace Sandbox.Game.Components
 {
@@ -302,7 +303,7 @@ namespace Sandbox.Game.Components
             return m_customAddedDetectors.Count > 0;
         }
 
-        public override VRage.Game.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = MyComponentFactory.CreateObjectBuilder(this) as MyObjectBuilder_UseObjectsComponent;
             builder.CustomDetectorsCount = (uint)m_customAddedDetectors.Count;

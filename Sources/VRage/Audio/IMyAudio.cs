@@ -28,6 +28,7 @@ namespace VRage.Audio
             get;
             set;
         }
+        void SetReverbParameters(float diffusion, float roomSize);
 
         //  Set/get master volume for all sounds/cues for "Music" category.
         //  Interval <0..1..2>
@@ -162,6 +163,6 @@ namespace VRage.Audio
         /// <param name="effect"></param>
         /// <param name="cueIds">additional cues if effect mixes them (ie. crossfade)</param>
         /// <returns>effect output sound</returns>
-        IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds = null, float? duration = null);
+        IMyAudioEffect ApplyEffect(IMySourceVoice input, MyStringHash effect, MyCueId[] cueIds = null, float? duration = null, bool musicEffect = false);
     }
 }

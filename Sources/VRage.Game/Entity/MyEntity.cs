@@ -13,6 +13,7 @@ using VRage.Game.Models;
 using VRage.Game.Gui;
 using VRage.Game.Utils;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Profiler;
 
 #endregion
 
@@ -216,6 +217,26 @@ namespace VRage.Game.Entity
             set
             {
                 m_isPreview = value;
+            }
+        }
+
+        bool m_isreadyForReplication = true;
+        public Action ReadyForReplicationAction;
+
+        // Indicates whether the entity finished initialization and can be replicated for clients
+        public bool IsReadyForReplication
+        {
+            get { return m_isreadyForReplication; }
+            set 
+            {
+                m_isreadyForReplication = value;
+
+                // Add your replicable to priority updates once done. Kind of hacky implementation. Should be remade when possible
+                if (m_isreadyForReplication && ReadyForReplicationAction != null)
+                {
+                    ReadyForReplicationAction();
+                    ReadyForReplicationAction = null;
+                }
             }
         }
 
@@ -999,6 +1020,21 @@ namespace VRage.Game.Entity
                 if (objectBuilder.PositionAndOrientation.HasValue)
                 {
                     var posAndOrient = objectBuilder.PositionAndOrientation.Value;
+
+                    //GR: Check for NaN values and remove them (otherwise there will be problems wilth clusters)
+                    if (posAndOrient.Position.x.IsValid() == false)
+                    {
+                        posAndOrient.Position.x = 0.0f;
+                    }
+                    if (posAndOrient.Position.y.IsValid() == false)
+                    {
+                        posAndOrient.Position.y = 0.0f;
+                    }
+                    if (posAndOrient.Position.z.IsValid() == false)
+                    {
+                        posAndOrient.Position.z = 0.0f;
+                    }
+
                     MatrixD matrix = MatrixD.CreateWorld(posAndOrient.Position, posAndOrient.Forward, posAndOrient.Up);
                     //if (matrix.IsValid())
                     //    MatrixD.Rescale(ref matrix, scale);
@@ -1213,10 +1249,6 @@ namespace VRage.Game.Entity
             //OnPositionChanged = null;
 
             CallAndClearOnClosing();
-
-            // hide decals - decals of children are already hidden, see above
-            if (this.Render.RenderObjectIDs.Length > 0)
-                VRageRender.MyRenderProxy.HideDecals(this.Render.RenderObjectIDs[0], Vector3.Zero, 0);
 
             MyEntitiesInterface.RemoveName(this);
             MyEntitiesInterface.RemoveFromClosedEntities(this);

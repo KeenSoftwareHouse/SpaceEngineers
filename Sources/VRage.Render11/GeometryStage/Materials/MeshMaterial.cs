@@ -11,7 +11,6 @@ using System.Text;
 using VRage.Generics;
 
 using VRageMath;
-using VRageRender.Resources;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;
@@ -22,9 +21,15 @@ using BoundingBox = VRageMath.BoundingBox;
 using BoundingFrustum = VRageMath.BoundingFrustum;
 using Color = VRageMath.Color;
 using SharpDX.D3DCompiler;
+using VRage.FileSystem;
 using VRage.Utils;
 using VRage.Library.Utils;
 using VRage.Import;
+using VRage.Render11.Common;
+using VRage.Render11.Resources;
+using System.IO;
+using VRage.Render11.RenderContext;
+using VRageRender.Import;
 
 namespace VRageRender
 {
@@ -53,39 +58,61 @@ namespace VRageRender
         internal int RepresentationKey; // key - external ref, out 
         internal MyStringId Name;
         internal string ContentPath;
+        internal MyFileTextureEnum TextureTypes;
         internal MyStringId ColorMetal_Texture;
         internal MyStringId NormalGloss_Texture;
         internal MyStringId Extensions_Texture;
         internal MyStringId Alphamask_Texture;
-        internal string Technique;
+        internal MyMeshDrawTechnique Technique;
         internal MyFacingEnum Facing;
         internal Vector2 WindScaleAndFreq;
 
+        static string GetFilepath(string contentPath, string filepath)
+        {
+            if (string.IsNullOrEmpty(filepath))
+                return null;
+
+            if (!string.IsNullOrEmpty(contentPath))
+            {
+                // Mod models may still refer to vanilla texture
+                string path = Path.Combine(contentPath, filepath);
+                if (MyFileSystem.FileExists(path))
+                    return path;
+            }
+
+            return Path.Combine(MyFileSystem.ContentPath, filepath);
+        }
 
         internal static void RequestResources(ref MyMeshMaterialInfo info)
         {
-            MyTextures.GetTexture(info.ColorMetal_Texture, info.ContentPath, MyTextureEnum.COLOR_METAL, false, info.Facing == MyFacingEnum.Impostor);
-            MyTextures.GetTexture(info.NormalGloss_Texture, info.ContentPath, MyTextureEnum.NORMALMAP_GLOSS);
-            MyTextures.GetTexture(info.Extensions_Texture, info.ContentPath, MyTextureEnum.EXTENSIONS);
-            MyTextures.GetTexture(info.Alphamask_Texture, info.ContentPath, MyTextureEnum.ALPHAMASK);
+            MyFileTextureManager texManager = MyManagers.FileTextures;
+            string contentPath = info.ContentPath;
+
+            texManager.GetTexture(GetFilepath(contentPath, info.ColorMetal_Texture.ToString()), MyFileTextureEnum.COLOR_METAL, false, info.Facing == MyFacingEnum.Impostor);
+            texManager.GetTexture(GetFilepath(contentPath, info.NormalGloss_Texture.ToString()), MyFileTextureEnum.NORMALMAP_GLOSS);
+            texManager.GetTexture(GetFilepath(contentPath, info.Extensions_Texture.ToString()), MyFileTextureEnum.EXTENSIONS);
+            texManager.GetTexture(GetFilepath(contentPath, info.Alphamask_Texture.ToString()), MyFileTextureEnum.ALPHAMASK);
         }
 
         internal static MyMaterialProxy_2 CreateProxy(ref MyMeshMaterialInfo info)
         {
-            var A = MyTextures.GetTexture(info.ColorMetal_Texture, info.ContentPath, MyTextureEnum.COLOR_METAL);
-            var B = MyTextures.GetTexture(info.NormalGloss_Texture, info.ContentPath, MyTextureEnum.NORMALMAP_GLOSS);
-            var C = MyTextures.GetTexture(info.Extensions_Texture, info.ContentPath, MyTextureEnum.EXTENSIONS);
-            var D = MyTextures.GetTexture(info.Alphamask_Texture, info.ContentPath, MyTextureEnum.ALPHAMASK);
+            MyFileTextureManager texManager = MyManagers.FileTextures;
+            string contentPath = info.ContentPath;
+
+            var A = texManager.GetTexture(GetFilepath(contentPath, info.ColorMetal_Texture.ToString()), MyFileTextureEnum.COLOR_METAL);
+            var B = texManager.GetTexture(GetFilepath(contentPath, info.NormalGloss_Texture.ToString()), MyFileTextureEnum.NORMALMAP_GLOSS);
+            var C = texManager.GetTexture(GetFilepath(contentPath, info.Extensions_Texture.ToString()), MyFileTextureEnum.EXTENSIONS);
+            var D = texManager.GetTexture(GetFilepath(contentPath, info.Alphamask_Texture.ToString()), MyFileTextureEnum.ALPHAMASK);
 
 			var materialSrvs = new MySrvTable
 					{ 
                         BindFlag = MyBindFlag.BIND_PS, 
                         StartSlot = 0,
-                        SRVs = new IShaderResourceBindable[] { A, B, C, D },
+                        Srvs = new ShaderResourceView[] { A.Srv, B.Srv, C.Srv, D.Srv },
                         Version = info.Id.GetHashCode()
                     };
             return
-				new MyMaterialProxy_2 { MaterialSRVs = materialSrvs };
+				new MyMaterialProxy_2 { MaterialSrvs = materialSrvs };
         }
     }
 
@@ -209,7 +236,8 @@ namespace VRageRender
 				ColorMetal_Texture = X.TEXT_(colorMetalTexture),
 				NormalGloss_Texture = X.TEXT_(normalGlossTexture),
 				Extensions_Texture = X.TEXT_(extensionTexture),
-				Technique = technique,
+                Technique = ConvertToDrawTechnique(technique),
+                TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, null),
 				Facing = MyFacingEnum.None,
 			};
 
@@ -221,15 +249,21 @@ namespace VRageRender
 			MyMeshMaterialInfo desc;
 			if (importDesc != null)
 			{
+                string colorMetalTexture = importDesc.Textures.Get("ColorMetalTexture", "");
+                string normalGlossTexture = importDesc.Textures.Get("NormalGlossTexture", "");
+                string extensionTexture = importDesc.Textures.Get("AddMapsTexture", "");
+                string alphamaskTexture = importDesc.Textures.Get("AlphamaskTexture", null);
+
 				desc = new MyMeshMaterialInfo
 				{
 					Name = X.TEXT_(importDesc.MaterialName),
 					ContentPath = contentPath,
-					ColorMetal_Texture = X.TEXT_(importDesc.Textures.Get("ColorMetalTexture", "")),
-					NormalGloss_Texture = X.TEXT_(importDesc.Textures.Get("NormalGlossTexture", "")),
-					Extensions_Texture = X.TEXT_(importDesc.Textures.Get("AddMapsTexture", "")),
-					Alphamask_Texture = X.TEXT_(importDesc.Textures.Get("AlphamaskTexture", null)),
-					Technique = importDesc.Technique,
+                    ColorMetal_Texture = X.TEXT_(colorMetalTexture),
+                    NormalGloss_Texture = X.TEXT_(normalGlossTexture),
+                    Extensions_Texture = X.TEXT_(extensionTexture),
+                    Alphamask_Texture = X.TEXT_(alphamaskTexture),
+                    TextureTypes = GetMaterialTextureTypes(colorMetalTexture, normalGlossTexture, extensionTexture, alphamaskTexture),
+                    Technique = ConvertToDrawTechnique(importDesc.Technique),
 					Facing = importDesc.Facing,
 					WindScaleAndFreq = importDesc.WindScaleAndFreq
 				};
@@ -274,7 +308,7 @@ namespace VRageRender
 				NormalGloss_Texture = MyStringId.NullOrEmpty,
 				Extensions_Texture = MyStringId.NullOrEmpty,
 				Alphamask_Texture = MyStringId.NullOrEmpty,
-				Technique = "MESH"
+				Technique = MyMeshDrawTechnique.MESH
 			};
 			NullMaterialId = GetMaterialId(ref nullMatDesc);
 
@@ -285,7 +319,7 @@ namespace VRageRender
 				NormalGloss_Texture = MyStringId.NullOrEmpty,
 				Extensions_Texture = MyStringId.NullOrEmpty,
 				Alphamask_Texture = MyStringId.NullOrEmpty,
-				Technique = "MESH"
+                Technique = MyMeshDrawTechnique.MESH
 			};
 			DebugMaterialId = GetMaterialId(ref debugMatDesc);
 		}
@@ -322,6 +356,77 @@ namespace VRageRender
 
 			CreateCommonMaterials();
 		}
+
+        public static MyFileTextureEnum GetMaterialTextureTypes(string colorMetalTexture,
+            string normalGlossTexture, string extensionTexture, string alphamaskTexture)
+        {
+            MyFileTextureEnum ret = MyFileTextureEnum.UNSPECIFIED;
+            if (!string.IsNullOrEmpty(colorMetalTexture))
+                ret |= MyFileTextureEnum.COLOR_METAL;
+
+            if (!string.IsNullOrEmpty(normalGlossTexture))
+                ret |= MyFileTextureEnum.NORMALMAP_GLOSS;
+
+            if (!string.IsNullOrEmpty(extensionTexture))
+                ret |= MyFileTextureEnum.EXTENSIONS;
+
+            if (!string.IsNullOrEmpty(alphamaskTexture))
+                ret |= MyFileTextureEnum.ALPHAMASK;
+
+            return ret;
+        }
+
+        /// <summary>Get macro bundles for texture types</summary>
+        public static ShaderMacro[] GetMaterialTextureMacros(MyFileTextureEnum textures)
+        {
+            const string USE_COLORMETAL_TEXTURE = "USE_COLORMETAL_TEXTURE";
+            const string USE_NORMALGLOSS_TEXTURE = "USE_NORMALGLOSS_TEXTURE";
+            const string USE_EXTENSIONS_TEXTURE = "USE_EXTENSIONS_TEXTURE";
+
+            List<ShaderMacro> macros = new List<ShaderMacro>();
+            if (textures.HasFlag(MyFileTextureEnum.COLOR_METAL))
+                macros.Add(new ShaderMacro(USE_COLORMETAL_TEXTURE, null));
+
+            if (textures.HasFlag(MyFileTextureEnum.NORMALMAP_GLOSS))
+                macros.Add(new ShaderMacro(USE_NORMALGLOSS_TEXTURE, null));
+
+            if (textures.HasFlag(MyFileTextureEnum.EXTENSIONS))
+                macros.Add(new ShaderMacro(USE_EXTENSIONS_TEXTURE, null));
+
+            return macros.ToArray();
+        }
+
+        /// <summary>Bind blend states for alpha blending</summary>
+        public static void BindMaterialTextureBlendStates(MyRenderContext rc, MyFileTextureEnum textures)
+        {
+            textures &= ~MyFileTextureEnum.ALPHAMASK;
+            switch (textures)
+            {
+                case MyFileTextureEnum.COLOR_METAL:
+                    rc.SetBlendState(MyBlendStateManager.BlendDecalNormal);
+                    break;
+                case MyFileTextureEnum.NORMALMAP_GLOSS:
+                    rc.SetBlendState(MyBlendStateManager.BlendDecalColor);
+                    break;
+                case MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS:
+                    rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColor);
+                    break;
+                case MyFileTextureEnum.COLOR_METAL | MyFileTextureEnum.NORMALMAP_GLOSS | MyFileTextureEnum.EXTENSIONS:
+                    rc.SetBlendState(MyBlendStateManager.BlendDecalNormalColorExt);
+                    break;
+                default:
+                    throw new Exception("Unknown texture bundle type");
+            }
+        }
+
+        private static MyMeshDrawTechnique ConvertToDrawTechnique(string str)
+        {
+            MyMeshDrawTechnique ret;
+            bool success = Enum.TryParse(str, out ret);
+            Debug.Assert(success, "Cannot convert to draw technique");
+            return ret;
+        }
+
 	}
 
 }

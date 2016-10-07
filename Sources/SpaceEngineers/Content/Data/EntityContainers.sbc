@@ -96,10 +96,10 @@
     <Container>
       <Id>
         <TypeId>MyObjectBuilder_Character</TypeId>
-        <SubtypeId>Cyberhound</SubtypeId>
+        <SubtypeId>Space_Wolf</SubtypeId>
       </Id>
       <DefaultComponents>
-        <Component BuilderType="MyObjectBuilder_CharacterStatComponent" SubtypeId="Cyberhound" ForceCreate="true"/>
+        <Component BuilderType="MyObjectBuilder_CharacterStatComponent" SubtypeId="Space_Wolf" ForceCreate="true"/>
       </DefaultComponents>
     </Container>
 

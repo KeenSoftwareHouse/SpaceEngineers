@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using VRage.Collections;
+using VRage.Library;
 
 namespace ParallelTasks
 {
@@ -26,7 +27,7 @@ namespace ParallelTasks
 #if WINDOWS_PHONE
             m_instances = new MyConcurrentDictionary<Thread, MyConcurrentQueue<T>>(1);
 #else
-            m_instances = new MyConcurrentDictionary<Thread, MyConcurrentQueue<T>>(Environment.ProcessorCount);
+            m_instances = new MyConcurrentDictionary<Thread, MyConcurrentQueue<T>>(MyEnvironment.ProcessorCount);
 #endif
         }
 

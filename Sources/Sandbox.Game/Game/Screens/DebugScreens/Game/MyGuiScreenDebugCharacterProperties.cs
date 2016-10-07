@@ -17,7 +17,7 @@ using Sandbox.Game.World;
 namespace Sandbox.Game.Gui
 {
 
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Game", "Character properties")]
     class MyGuiScreenDebugCharacterProperties : MyGuiScreenDebugBase

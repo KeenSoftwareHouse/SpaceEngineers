@@ -1,19 +1,12 @@
 ﻿using SharpDX.Direct3D11;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-
+using VRage.Render11.Common;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 using VRageMath;
 
 namespace VRageRender
 {
-    class MyImmediateRC
-    {
-        internal static MyRenderContext RC { get { return MyRenderContext.Immediate; } }
-    }
-
     internal delegate void OnSettingsChangedDelegate();
 
     class MyScreenPass : MyImmediateRC
@@ -28,7 +21,7 @@ namespace VRageRender
 
         internal static void Init()
         {
-            m_VSCopy = MyShaders.CreateVs("postprocess_copy.hlsl");
+            m_VSCopy = MyShaders.CreateVs("Postprocess/PostprocessCopy.hlsl");
 
             {
                 m_VBFullscreen = MyHwBuffers.CreateVertexBuffer(4, VRageRender.Vertex.MyVertexFormatPositionTextureH.STRIDE,
@@ -41,7 +34,7 @@ namespace VRageRender
                     new VRageMath.PackedVector.HalfVector2(1, 1f));
                 m_vbData[3] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(1, 1, 0),
                     new VRageMath.PackedVector.HalfVector2(1, 0f));
-                MyMapping mapping = MyMapping.MapDiscard(RC.DeviceContext, m_VBFullscreen.Buffer);
+                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBFullscreen.Buffer);
                 mapping.WriteAndPosition(m_vbData, 0, 4);
                 mapping.Unmap();
             }
@@ -57,7 +50,7 @@ namespace VRageRender
                     new VRageMath.PackedVector.HalfVector2(0.5f, 1));
                 m_vbData[3] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(0, 1, 0),
                     new VRageMath.PackedVector.HalfVector2(0.5f, 0f));
-                MyMapping mapping = MyMapping.MapDiscard(RC.DeviceContext, m_VBLeftPart.Buffer);
+                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBLeftPart.Buffer);
                 mapping.WriteAndPosition(m_vbData, 0, 4);
                 mapping.Unmap();
             }
@@ -73,7 +66,7 @@ namespace VRageRender
                     new VRageMath.PackedVector.HalfVector2(1, 1));
                 m_vbData[3] = new VRageRender.Vertex.MyVertexFormatPositionTextureH(new Vector3(1, 1, 0),
                     new VRageMath.PackedVector.HalfVector2(1, 0));
-                MyMapping mapping = MyMapping.MapDiscard(RC.DeviceContext, m_VBRightPart.Buffer);
+                MyMapping mapping = MyMapping.MapDiscard(RC, m_VBRightPart.Buffer);
                 mapping.WriteAndPosition(m_vbData, 0, 4);
                 mapping.Unmap();
             }
@@ -86,57 +79,52 @@ namespace VRageRender
         internal static void DrawFullscreenQuad(MyViewport? customViewport = null)
         {
             if (customViewport.HasValue)
-            {
-                RC.DeviceContext.Rasterizer.SetViewport(customViewport.Value.OffsetX, customViewport.Value.OffsetY, customViewport.Value.Width, customViewport.Value.Height);
-            }
-            else
-            {
-                RC.DeviceContext.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
-            }
+                RC.SetViewport(customViewport.Value.OffsetX, customViewport.Value.OffsetY, customViewport.Value.Width, customViewport.Value.Height);
+            else 
+                RC.SetScreenViewport();
 
             // set vertex buffer:
             if (!MyStereoRender.Enable || MyStereoRender.RenderRegion == MyStereoRegion.FULLSCREEN)
-                RC.SetVB(0, m_VBFullscreen.Buffer, m_VBFullscreen.Stride);
+                RC.SetVertexBuffer(0, m_VBFullscreen.Buffer, m_VBFullscreen.Stride);
             else if (MyStereoRender.RenderRegion == MyStereoRegion.LEFT)
-                RC.SetVB(0, m_VBLeftPart.Buffer, m_VBLeftPart.Stride);
+                RC.SetVertexBuffer(0, m_VBLeftPart.Buffer, m_VBLeftPart.Stride);
             else if (MyStereoRender.RenderRegion == MyStereoRegion.RIGHT)
-                RC.SetVB(0, m_VBRightPart.Buffer, m_VBRightPart.Stride);
+                RC.SetVertexBuffer(0, m_VBRightPart.Buffer, m_VBRightPart.Stride);
 
             if (MyStereoRender.Enable)
                 MyStereoRender.PSBindRawCB_FrameConstants(RC);
 
-            RC.DeviceContext.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleStrip;
-            RC.SetIL(m_IL);
-            RC.SetVS(m_VSCopy);
-            RC.DeviceContext.Draw(4, 0);
-            MyRender11.ProcessDebugOutput();
-            RC.DeviceContext.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            RC.SetPrimitiveTopology(SharpDX.Direct3D.PrimitiveTopology.TriangleStrip);
+            RC.SetInputLayout(m_IL);
+            RC.VertexShader.Set(m_VSCopy);
+            RC.Draw(4, 0);
+            RC.SetPrimitiveTopology(SharpDX.Direct3D.PrimitiveTopology.TriangleList);
             
             if (MyStereoRender.Enable)
-                RC.DeviceContext.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+                RC.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
         }
 
-        internal static void RunFullscreenPixelFreq(MyBindableResource RT)
+        internal static void RunFullscreenPixelFreq(IRtvBindable RT)
         {
             if (MyRender11.MultisamplingEnabled)
             {
-                RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0);
+                RC.SetDepthStencilState(MyDepthStencilStateManager.TestEdgeStencil, 0);
             }
-            RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadOnly, RT);
+            RC.SetRtvs(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, RT);
             DrawFullscreenQuad();
             if (MyRender11.MultisamplingEnabled)
             {
-                RC.SetDS(MyDepthStencilState.DefaultDepthState);
+                RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
             }
         }
 
-        internal static void RunFullscreenSampleFreq(MyBindableResource RT)
+        internal static void RunFullscreenSampleFreq(IRtvBindable RT)
         {
             Debug.Assert(MyRender11.MultisamplingEnabled);
-            RC.SetDS(MyDepthStencilState.TestEdgeStencil, 0x80);
-            RC.BindDepthRT(MyGBuffer.Main.Get(MyGbufferSlot.DepthStencil), DepthStencilAccess.ReadOnly, RT);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.TestEdgeStencil, 0x80);
+            RC.SetRtv(MyGBuffer.Main.DepthStencil, MyDepthStencilAccess.ReadOnly, RT);
             DrawFullscreenQuad();
-            RC.SetDS(MyDepthStencilState.DefaultDepthState);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
         }
     }
 }

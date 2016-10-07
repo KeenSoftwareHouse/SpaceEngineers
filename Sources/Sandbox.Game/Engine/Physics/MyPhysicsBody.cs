@@ -26,7 +26,9 @@ using VRage;
 
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Collections;
 using VRage.Game;
+using VRage.Profiler;
 
 #endregion
 
@@ -129,9 +131,9 @@ namespace Sandbox.Engine.Physics
         public delegate void PhysicsContactHandler(ref MyPhysics.MyContactPointEvent e);
         public event PhysicsContactHandler ContactPointCallback;
 
-        protected HashSet<HkConstraint> m_constraints = new HashSet<HkConstraint>();
-        protected HashSet<HkConstraint> m_constraintsAddBatch = new HashSet<HkConstraint>();
-        HashSet<HkConstraint> m_constraintsRemoveBatch = new HashSet<HkConstraint>();
+        private readonly HashSet<HkConstraint> m_constraints = new HashSet<HkConstraint>();
+        private readonly List<HkConstraint> m_constraintsAddBatch = new List<HkConstraint>();
+        private readonly List<HkConstraint> m_constraintsRemoveBatch = new List<HkConstraint>();
 
         /// <summary>
         /// Gets or sets the mass.
@@ -872,11 +874,11 @@ namespace Sandbox.Engine.Physics
             var worldPos = ClusterToWorld(value.ContactPoint.Position);
             var materialA = bodyA.GetMaterialAt(worldPos + value.ContactPoint.Normal * 0.1f);
             var materialB = bodyB.GetMaterialAt(worldPos - value.ContactPoint.Normal * 0.1f);
-            if (materialA == m_character || materialB == m_character)
+            /*if (materialA == m_character || materialB == m_character)
             {
                 ProfilerShort.End();
                 return;
-            }
+            }*/
             ProfilerShort.Begin("Lambdas");
             var colision = value.Base;
             Func<bool> canHear = () =>
@@ -1073,7 +1075,7 @@ false,
                 CloseRagdollMode(world as HkWorld);
             }
 
-            if (BreakableBody != null)
+            if (BreakableBody != null && m_world.DestructionWorld != null)
             {
                 m_world.DestructionWorld.RemoveBreakableBody(BreakableBody);
             }
@@ -1092,7 +1094,10 @@ false,
 
             foreach (var constraint in m_constraints)
             {
+                if (IsConstraintValid(constraint) && constraint.InWorld)
                 m_constraintsRemoveBatch.Add(constraint);
+                else
+                    Debug.Fail("Trying to remove invalid constraint!");
             }
 
             m_world = null;
@@ -1108,7 +1113,6 @@ false,
                 if (IsConstraintValid(constraint))
                 {
                     m_world.AddConstraint(constraint);
-                    constraint.OnAddedToWorld();
                 }
                 else
                     Debug.Fail("Trying to add invalid constraint!");
@@ -1133,7 +1137,6 @@ false,
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
                     world.RemoveConstraint(constraint);
                 }
                 else
@@ -1194,17 +1197,12 @@ false,
         /// </summary>
         /// <param name="rbo">The rbo.</param>
         /// <param name="step">The step.</param>
-        public virtual void OnMotion(HkRigidBody rbo, float step)
+        public virtual void OnMotion(HkRigidBody rbo, float step, bool fromParent = false)
         {
             if (rbo == RigidBody2)
                 return;
             Debug.Assert(rbo == RigidBody);
-
-            foreach(var child in WeldInfo.Children)
-            {
-                child.OnMotion(rbo, step);
-            }
-
+         
             if (Entity == null)
                 return;
 
@@ -1240,7 +1238,7 @@ false,
             const float MinVelocitySq = 0.00000001f;
             m_motionCounter++;
             if (m_motionCounter > MaxIgnoredMovements ||
-                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq)
+                LinearVelocity.LengthSquared() > MinVelocitySq || AngularVelocity.LengthSquared() > MinVelocitySq || fromParent)
             {
                 ProfilerShort.Begin("GetWorldMatrix");
                 var matrix = GetWorldMatrix();
@@ -1250,6 +1248,15 @@ false,
                 this.Entity.PositionComp.SetWorldMatrix(matrix, this, true);
                 ProfilerShort.End();
                 m_motionCounter = 0;
+
+                foreach (var child in WeldInfo.Children)
+                {
+                    child.OnMotion(rbo, step,true);
+                }
+            }
+            else
+            {
+                Debug.Assert(fromParent == false,"well well well");
             }
 
             ProfilerShort.Begin("UpdateCluster");
@@ -1330,7 +1337,7 @@ false,
                 velocity = parentEntity.Physics.LinearVelocity;
             }
             if(!IsWelded)
-                MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, parentEntity.WorldAABB, velocity);
+                MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, velocity);
 
             Matrix rigidBodyMatrix = GetRigidBodyMatrix();
 
@@ -1437,14 +1444,21 @@ false,
             ProfilerShort.End();
         }
 
-        public static bool IsConstraintValid(HkConstraint constraint)
+        private static bool IsConstraintValid(HkConstraint constraint, bool checkBodiesInWorld)
         {
             if (constraint == null) return false;
             if (constraint.IsDisposed) return false;
             if (constraint.RigidBodyA == null | constraint.RigidBodyB == null) return false;
-            if (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld) return false;
+            //bodies are not in world when using batches
+            if (checkBodiesInWorld && (!constraint.RigidBodyA.InWorld | !constraint.RigidBodyB.InWorld)) return false;
             return true;
         }
+
+        public static bool IsConstraintValid(HkConstraint constraint)
+        {
+            return IsConstraintValid(constraint, true);
+        }
+
         public void AddConstraint(HkConstraint constraint)
         {
             if (IsWelded)
@@ -1454,23 +1468,17 @@ false,
             }
             if (HavokWorld == null || RigidBody == null)
                 return;
+            Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
+            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
+            Debug.Assert(IsConstraintValid(constraint), "Cannot add invalid constraint");
+
             if (constraint.UserData == 0)
                 constraint.UserData = (uint)(WeldedRigidBody == null ? RigidBody.GetGcRoot() : WeldedRigidBody.GetGcRoot());
 
-            Debug.Assert(!m_constraints.Contains(constraint), "Constraint added twice");
-
-            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyA), "Object must be in the world");
-            Debug.Assert(HavokWorld.RigidBodies.Contains(constraint.RigidBodyB), "Object must be in the world");
-            Debug.Assert(constraint.RigidBodyA.IsAddedToWorld);
-            Debug.Assert(constraint.RigidBodyB.IsAddedToWorld);
             m_constraints.Add(constraint);
 
             HavokWorld.AddConstraint(constraint);
-
-            if (constraint.InWorld)
-                constraint.OnAddedToWorld();
-            else
-                Debug.Fail("Constraint not added!");
         }
 
         public void RemoveConstraint(HkConstraint constraint)
@@ -1487,12 +1495,11 @@ false,
 
             if (HavokWorld != null)
             {
-                constraint.OnRemovedFromWorld();
                 HavokWorld.RemoveConstraint(constraint);
             }
         }
 
-        public HashSet<HkConstraint> Constraints
+        public HashSetReader<HkConstraint> Constraints
         {
             get { return m_constraints; }
         }
@@ -1524,9 +1531,14 @@ false,
             if (!Enabled)
                 return;
 
-            System.Diagnostics.Debug.Assert(!IsInWorld);
+            System.Diagnostics.Debug.Assert(!IsInWorld && ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED && m_world == null);
 
-            ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+            if(ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED)
+                ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+            else
+            {
+                Debug.Fail("Hotfix. Object was activated twice fix properly!");
+            }
         }
 
         public virtual void Activate(object world, ulong clusterObjectID)
@@ -1637,7 +1649,8 @@ false,
 
             foreach (var constraint in m_constraints)
             {
-                if (!IsConstraintValid(constraint)) continue;
+                //boides wont be in world yet here
+                if (!IsConstraintValid(constraint,false)) continue;
                 m_constraintsAddBatch.Add(constraint);
             }
 
@@ -1654,10 +1667,9 @@ false,
             Debug.Assert(Entity != null && !Entity.Closed && Entity.GetTopMostParent().Physics != null);
             if (!MyPerGameSettings.LimitedWorld && Entity != null && !Entity.Closed)
             {
-                var physics = Entity.GetTopMostParent().Physics;
-                if(physics != null)
-                    MyPhysics.MoveObject(ClusterObjectID, Entity.WorldAABB, Entity.WorldAABB,
-                        physics.LinearVelocity);
+                //Entity.WorldAABB triger AABB recalculation after the worldmatrix changed (part of execution time)
+                MyPhysics.MoveObject(ClusterObjectID, Entity.WorldAABB,
+                        this.LinearVelocity);
             }
         }
 
@@ -1702,11 +1714,11 @@ false,
         {
             Vector3 delta = LinearVelocity - m_lastLinearVelocity;
             m_lastLinearVelocity = LinearVelocity;
-            LinearAcceleration = delta / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            LinearAcceleration = delta * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
 
             Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
             m_lastAngularVelocity = AngularVelocity;
-            AngularAcceleration = deltaAng / VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
+            AngularAcceleration = deltaAng * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
         }
 
         public void ClearAccelerations()

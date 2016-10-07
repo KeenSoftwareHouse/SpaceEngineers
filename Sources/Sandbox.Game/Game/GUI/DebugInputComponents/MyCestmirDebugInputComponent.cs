@@ -28,6 +28,7 @@ using Sandbox.Common;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.Gui
 {
@@ -145,7 +146,7 @@ namespace Sandbox.Game.Gui
         void confirmButton_OnButtonClick(MyGuiControlButton sender)
         {
             int index = Convert.ToInt32(m_textbox.Text);
-            MyAIComponent.Static.Pathfinding.VoxelPathfinding.RemoveTriangle(index);
+            MyCestmirPathfindingShorts.Pathfinding.VoxelPathfinding.RemoveTriangle(index);
             CloseScreen();
         }
 
@@ -219,7 +220,7 @@ namespace Sandbox.Game.Gui
         private Vector3D m_point1;
         private Vector3D m_point2;
 
-        private MySmartPath m_smartPath;
+        private IMyPath m_smartPath;
         private Vector3D m_currentTarget;
         private List<Vector3D> m_pastTargets = new List<Vector3D>();
 
@@ -386,11 +387,15 @@ namespace Sandbox.Game.Gui
                                        m_sphereMatrix.Forward.X, m_sphereMatrix.Forward.Y, m_sphereMatrix.Forward.Z,
                                        m_sphereMatrix.Up.X, m_sphereMatrix.Up.Y, m_sphereMatrix.Up.Z });
                         m_string = sb.ToString();
-
+#if !XB1
                         Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(m_string));
                         thread.SetApartmentState(ApartmentState.STA);
                         thread.Start();
                         thread.Join();
+#else
+                        Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
+                        
 
                         success = true;
                         break;
@@ -436,10 +441,10 @@ namespace Sandbox.Game.Gui
 
         private bool EmitTestAction()
         {
-            /*if (TestAction != null)
-                TestAction();*/
+            if (TestAction != null)
+                TestAction();
 
-            MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER = !MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER;
+            //MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER = !MyFakes.REPLAY_NAVMESH_GENERATION_TRIGGER;
 
             return true;
         }
@@ -1115,7 +1120,7 @@ namespace Sandbox.Game.Gui
 
         private bool AddBot()
         {
-            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), "Cyberhound")) as MyAgentDefinition;
+            var barbarianBehavior = MyDefinitionManager.Static.GetBotDefinition(new MyDefinitionId(typeof(VRage.Game.ObjectBuilders.AI.Bot.MyObjectBuilder_AnimalBot), "Wolf")) as MyAgentDefinition;
             MyAIComponent.Static.SpawnNewBot(barbarianBehavior);
 
             return true;
@@ -1152,13 +1157,15 @@ namespace Sandbox.Game.Gui
             {
                 m_point1 = m_point2;
                 m_point2 = firstHit.Value;
-                MyAIComponent.Static.Pathfinding.FindPathLowlevel(m_point1, m_point2);
+                MyCestmirPathfindingShorts.Pathfinding.FindPathLowlevel(m_point1, m_point2);
             }
             return true;
         }
 
         private bool FindSmartPath()
         {
+            if (MyAIComponent.Static.Pathfinding == null) return false;
+
             Vector3D? firstHit;
             IMyEntity entity;
             Raycast(out firstHit, out entity);
@@ -1173,7 +1180,7 @@ namespace Sandbox.Game.Gui
                 {
                     m_smartPath.Invalidate();
                 }
-                m_smartPath = MyAIComponent.Static.Pathfinding.FindPathGlobal(m_point1, shape);
+                m_smartPath = MyAIComponent.Static.Pathfinding.FindPathGlobal(m_point1, shape, null);
                 m_pastTargets.Clear();
                 m_currentTarget = m_point1;
                 m_pastTargets.Add(m_currentTarget);
@@ -1186,7 +1193,7 @@ namespace Sandbox.Game.Gui
             if (m_smartPath == null) return false;
 
             float radius;
-            MyEntity relativeEntity;
+            IMyEntity relativeEntity;
             m_smartPath.GetNextTarget(m_currentTarget, out m_currentTarget, out radius, out relativeEntity);
             m_pastTargets.Add(m_currentTarget);
             return true;

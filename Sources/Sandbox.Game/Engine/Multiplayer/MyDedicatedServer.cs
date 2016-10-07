@@ -1,4 +1,5 @@
-﻿#region Using
+﻿#if !XB1
+#region Using
 
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
@@ -291,3 +292,4 @@ namespace Sandbox.Engine.Multiplayer
         }
     }
 }
+#endif // !XB1

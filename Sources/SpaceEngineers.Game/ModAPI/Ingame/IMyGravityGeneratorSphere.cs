@@ -2,7 +2,9 @@
 {
     public interface IMyGravityGeneratorSphere : IMyGravityGeneratorBase
     {
-        float Radius { get; }
-        float Gravity { get; }
+        /// <summary>
+        /// Radius of the gravity field, in meters
+        /// </summary>
+        float Radius { get; set; }
     }
 }

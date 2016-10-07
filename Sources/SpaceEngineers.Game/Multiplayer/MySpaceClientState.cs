@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using Sandbox.Game.Entities.Planet;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.Library.Collections;
 using VRageMath;
 

@@ -12,6 +12,7 @@ using Sandbox.Game;
 using Sandbox.Game.Entities.Cube;
 using SpaceEngineers.Game.Entities.Blocks;
 using VRage.Game;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.UseObjects
 {

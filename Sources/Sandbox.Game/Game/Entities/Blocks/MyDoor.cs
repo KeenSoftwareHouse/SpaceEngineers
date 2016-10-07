@@ -30,11 +30,12 @@ using VRage;
 using Sandbox.Engine.Multiplayer;
 using VRage.Network;
 using VRage.Game;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Door))]
-    public class MyDoor : MyFunctionalBlock, ModAPI.IMyDoor
+    public class MyDoor : MyDoorBase, ModAPI.IMyDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -47,8 +48,6 @@ namespace Sandbox.Game.Entities
 
         private MyEntitySubpart m_leftSubpart = null;
         private MyEntitySubpart m_rightSubpart = null;
-
-        private readonly Sync<bool> m_open;
 
         public float MaxOpen = 1.2f;
 
@@ -66,9 +65,14 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public MyDoor()
+        public MyDoor() : base()
         {
-            CreateTerminalControls();
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_currOpening = SyncType.CreateAndAddProp<float>();
+            m_open = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
+            //GR: added to base class do not use here
+            //CreateTerminalControls();
 
             m_currOpening.ValidateNever();
             m_currOpening.Value = 0f;
@@ -94,53 +98,9 @@ namespace Sandbox.Game.Entities
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
         }
 
-        public bool Open
-        {
-            get
-            {
-                return m_open;
-            }
-            set
-            {
-				if (m_open != value && Enabled && ResourceSink.IsPowered)
-                {
-                    m_open.Value = value;
-                }
-            }
-        }
-
         public float OpenRatio
         {
             get { return m_currOpening/MaxOpen; }
-        }
-
-        static void CreateTerminalControls()
-        {
-            if (MyTerminalControlFactory.AreControlsCreated<MyDoor>())
-                return;
-
-            var open = new MyTerminalControlOnOffSwitch<MyDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
-            open.Getter = (x) => x.Open;
-            open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);
-            open.EnableToggleAction();
-            open.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(open);
-        }
-
-        public void SetOpenRequest(bool open, long identityId)
-        {
-            MyMultiplayer.RaiseEvent(this, x => x.OpenRequest, open, identityId);
-        }
-
-        [Event,Reliable,Server]
-        void OpenRequest(bool open, long identityId)
-        {
-            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(identityId);
-
-            if (relation.IsFriendly())
-            {
-                Open = open;
-            }
         }
 
         protected override void OnEnabledChanged()
@@ -273,7 +233,7 @@ namespace Sandbox.Game.Entities
             float speed = ((MyDoorDefinition)BlockDefinition).OpeningSpeed;
             m_currSpeed = m_open ? speed : -speed;
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             m_lastUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             if (Sync.IsServer)
             {
@@ -293,11 +253,6 @@ namespace Sandbox.Game.Entities
 
             m_soundEmitter.StopSound(true);
             m_soundEmitter.PlaySingleSound(cuePair, true);
-        }
-
-        public override void UpdateBeforeSimulation100()
-        {
-            base.UpdateBeforeSimulation100();
         }
 
         public override void UpdateAfterSimulation()
@@ -360,12 +315,12 @@ namespace Sandbox.Game.Entities
             if (m_leftSubpart != null && m_leftSubpart.Physics != null)
             {
                 m_leftSubpart.PositionComp.LocalMatrix = Matrix.CreateTranslation(new Vector3(-opening, 0f, 0f));
-                if (m_leftSubpart.Physics.LinearVelocity != this.CubeGrid.Physics.LinearVelocity)
+                if (m_leftSubpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
                 {
                     m_leftSubpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
                 }
 
-                if (m_leftSubpart.Physics.AngularVelocity != this.CubeGrid.Physics.AngularVelocity)
+                if (m_leftSubpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
                 {
                     m_leftSubpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
                 }
@@ -374,12 +329,12 @@ namespace Sandbox.Game.Entities
             if (m_rightSubpart != null && m_rightSubpart.Physics != null)
             {
                 m_rightSubpart.PositionComp.LocalMatrix = Matrix.CreateTranslation(new Vector3(opening, 0f, 0f));
-                if (m_rightSubpart.Physics.LinearVelocity != this.CubeGrid.Physics.LinearVelocity)
+                if (m_rightSubpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
                 {
                     m_rightSubpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
                 }
 
-                if (m_rightSubpart.Physics.AngularVelocity != this.CubeGrid.Physics.AngularVelocity)
+                if (m_rightSubpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
                 {
                     m_rightSubpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
                 }

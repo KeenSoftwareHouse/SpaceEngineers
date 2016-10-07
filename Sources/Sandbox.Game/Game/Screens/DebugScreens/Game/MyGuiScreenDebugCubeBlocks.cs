@@ -16,7 +16,7 @@ using VRage.Game;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Game", "Cube Blocks")]
     class MyGuiScreenDebugCubeBlocks : MyGuiScreenDebugBase

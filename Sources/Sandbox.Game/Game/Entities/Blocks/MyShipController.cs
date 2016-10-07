@@ -51,6 +51,8 @@ using VRage.Serialization;
 using Sandbox.Game.Replication;
 using VRage.Audio;
 using Sandbox.Game.Entities.Blocks;
+using VRage.Sync;
+
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -230,8 +232,18 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        bool m_networkUpdate = false;
+        bool m_isControlled = false;
+
         public MyShipController()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_controlThrusters = SyncType.CreateAndAddProp<bool>();
+            m_controlWheels = SyncType.CreateAndAddProp<bool>();
+            m_dampenersEnabled = SyncType.CreateAndAddProp<bool>();
+            m_isMainCockpit = SyncType.CreateAndAddProp<bool>();
+            m_horizonIndicatorEnabled = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
@@ -244,11 +256,11 @@ namespace Sandbox.Game.Entities
             m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipController>())
                 return;
-
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
                 var controlThrusters = new MyTerminalControlCheckbox<MyShipController>("ControlThrusters", MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters, MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters);
@@ -427,9 +439,22 @@ namespace Sandbox.Game.Entities
             get { return !m_enableShipControl; }
         }
 
-        public void CacheMoveAndRotate(ref Vector3 moveIndicator, ref Vector2 rotationIndicator, float roll)
+        public void CacheMoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float roll)
         {
+            if (ControllerInfo.IsLocallyControlled())
+            {
+                return;
+            }
+
             MoveAndRotate(moveIndicator, rotationIndicator, roll);
+
+            var thrustComponent = EntityThrustComponent;
+            if (thrustComponent != null)
+            {
+                thrustComponent.UpdateBeforeSimulation(true,true);
+                thrustComponent.ControlTrustNetwork += thrustComponent.ControlThrust;
+                thrustComponent.ControlThrust = Vector3.Zero;
+            }
 
             if (GridGyroSystem != null)
             {
@@ -437,21 +462,11 @@ namespace Sandbox.Game.Entities
                 GridGyroSystem.ControlTorque = Vector3.Zero;
             }
 
-            var thrustComponent = EntityThrustComponent;
-            if (thrustComponent != null)
-            {
-                thrustComponent.UpdateBeforeSimulation(true);
-                thrustComponent.ControlThrust = Vector3.Zero;
-                thrustComponent.ControlThrustMagnitude = Vector3.One;
-            }
-
-            MoveIndicator = Vector3.Zero;
-            RotationIndicator = Vector2.Zero;
-            RollIndicator = 0.0f;
+            m_networkUpdate = true;
         }
 
         public void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
-        {
+        {      
             MoveIndicator = moveIndicator;
             RotationIndicator = rotationIndicator;
             RollIndicator = rollIndicator;
@@ -514,20 +529,18 @@ namespace Sandbox.Game.Entities
                     Matrix orientMatrix;
                     Orientation.GetMatrix(out orientMatrix);
 
-                    var controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
-
-
-                    var controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X , -rotationIndicator.Y , -rollIndicator), orientMatrix);
-                    Vector3.ClampToSphere(controlTorque, 1.0f);
-
                     if (thrustComponent != null)
                     {
+                        var controlThrust = Vector3.Transform(moveIndicator, orientMatrix);
                         thrustComponent.ControlThrust += controlThrust;
-                        thrustComponent.ControlThrustMagnitude += Vector3.One;
                     }
 
                     if (GridGyroSystem != null)
+                    {
+                        var controlTorque = Vector3.Transform(new Vector3(-rotationIndicator.X, -rotationIndicator.Y, -rollIndicator), orientMatrix);
+                        Vector3.ClampToSphere(controlTorque, 1.0f);
                         GridGyroSystem.ControlTorque += controlTorque;
+                    }
 
                     if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
                     {
@@ -628,7 +641,21 @@ namespace Sandbox.Game.Entities
 
         public override void UpdateBeforeSimulation()
         {
-            base.UpdateBeforeSimulation();       
+            base.UpdateBeforeSimulation();
+
+            if (ControllerInfo.IsLocallyHumanControlled())
+            {
+                return;
+            }
+            if (m_networkUpdate)
+            {
+                m_networkUpdate = false;
+                return;
+            }
+            if (m_isControlled && Sync.IsServer)
+            {
+                MoveAndRotate(MoveIndicator, RotationIndicator, RollIndicator);
+            }
         }
 
         public override void UpdateAfterSimulation()
@@ -640,7 +667,6 @@ namespace Sandbox.Game.Entities
                 bool isLocalOrServer = Sync.IsServer || ControllerInfo.Controller == MySession.Static.LocalHumanPlayer.Controller;
                 if (EntityThrustComponent != null && EntityThrustComponent.AutopilotEnabled == false && isLocalOrServer)
                 {
-                    EntityThrustComponent.ControlThrustMagnitude = Vector3.Zero;
                     EntityThrustComponent.ControlThrust = Vector3.Zero;
                 }
 
@@ -651,22 +677,6 @@ namespace Sandbox.Game.Entities
             }
 
             UpdateShipInfo();
-
-            //Debug.Assert(GridGyroSystem != null && EntityThrustComponent != null && Parent.Physics != null && m_cameraSpring != null && m_cameraShake != null, "CALL PROGRAMMER, this cant happen");
-
-            // Vector3.One is max power, larger values will be clamped
-            //if (EntityThrustComponent != null && GridGyroSystem != null && ControllerInfo.Controller.IsLocalPlayer())
-            //{
-            //    if (
-            //        (EntityThrustComponent.ControlThrust != Vector3.Zero) ||
-            //        (GridGyroSystem.ControlTorque != Vector3.Zero)
-            //        )
-            //    {
-            //        CubeGrid.SyncObject.RequestControlThrustAndTorque(Vector3.Zero, Vector3.Zero);
-            //        EntityThrustComponent.ControlThrust = Vector3.Zero;
-            //        GridGyroSystem.ControlTorque = Vector3.Zero;
-            //    }
-            //}
 
             if (ControllerInfo.Controller != null && MySession.Static.LocalHumanPlayer != null && ControllerInfo.Controller == MySession.Static.LocalHumanPlayer.Controller)
             {
@@ -1135,11 +1145,13 @@ namespace Sandbox.Game.Entities
 
         private void OnControlEntityChanged(IMyControllableEntity oldControl, IMyControllableEntity newControl)
         {
-            if (m_enableShipControl && oldControl != null)
+            if (m_enableShipControl && oldControl != null && oldControl.Entity != null && newControl != null && newControl.Entity != null)
             {
                 if (CubeGrid.IsMainCockpit(oldControl.Entity as MyTerminalBlock))
                 {
-                    if (oldControl.Entity.Parent.EntityId == newControl.Entity.Parent.EntityId)
+                    MyEntity oldParent = oldControl.Entity.Parent == null ? oldControl.Entity : oldControl.Entity.Parent;
+                    MyEntity newParent = newControl.Entity.Parent == null ? newControl.Entity : newControl.Entity.Parent;
+                    if (oldParent.EntityId == newParent.EntityId)
                     {
                         Console.WriteLine("Both controls are from same grid");
                         var group = ControlGroup.GetGroup(CubeGrid);
@@ -1157,6 +1169,8 @@ namespace Sandbox.Game.Entities
 
         protected void OnControlAcquired(MyEntityController controller)
         {
+            m_isControlled = true;
+            m_networkUpdate = true;
             controller.ControlledEntityChanged += OnControlEntityChanged;
             // Try to take control of ship
             // This won't be here at all
@@ -1242,6 +1256,7 @@ namespace Sandbox.Game.Entities
 
         protected virtual void OnControlReleased(MyEntityController controller)
         {
+            m_isControlled = false;
             controller.ControlledEntityChanged -= OnControlEntityChanged;
             m_mainCockpitOverwritten = false;
             var thrustComponent = EntityThrustComponent;
@@ -1440,6 +1455,8 @@ namespace Sandbox.Game.Entities
 
         public void Down()
         {
+            if (!CubeGrid.Physics.RigidBody.IsActive)
+                CubeGrid.ActivatePhysics();
         }
 
         public virtual void ShowInventory()
@@ -1459,6 +1476,8 @@ namespace Sandbox.Game.Entities
         {
             if (m_enableShipControl && EntityThrustComponent != null)
                 EnableDampingInternal(!EntityThrustComponent.DampenersEnabled, true);
+            if (!CubeGrid.Physics.RigidBody.IsActive)
+                CubeGrid.ActivatePhysics();
         }
 
         internal void EnableDampingInternal(bool enableDampeners, bool updateProxy)
@@ -1473,6 +1492,7 @@ namespace Sandbox.Game.Entities
                 m_dampenersEnabled.Value = enableDampeners;
             }
 
+           
             if (ControllerInfo.IsLocallyHumanControlled())
             {
                 if (m_inertiaDampenersNotification == null)
@@ -1480,7 +1500,22 @@ namespace Sandbox.Game.Entities
                 m_inertiaDampenersNotification.Text = (EntityThrustComponent.DampenersEnabled ? MyCommonTexts.NotificationInertiaDampenersOn : MyCommonTexts.NotificationInertiaDampenersOff);
                 MyHud.Notifications.Add(m_inertiaDampenersNotification);
             }
+            else if(MySession.Static.LocalHumanPlayer != null)
+            {
+                MyCockpit cockpit = MySession.Static.LocalHumanPlayer.Controller.ControlledEntity as MyCockpit;
+                if(cockpit != null)
+                {
+                    if (cockpit.CubeGrid == this.CubeGrid)
+                    {
+                        if (m_inertiaDampenersNotification == null)
+                            m_inertiaDampenersNotification = new MyHudNotification();
+                        m_inertiaDampenersNotification.Text = (EntityThrustComponent.DampenersEnabled ? MyCommonTexts.NotificationInertiaDampenersOn : MyCommonTexts.NotificationInertiaDampenersOff);
+                        MyHud.Notifications.Add(m_inertiaDampenersNotification);
+                    }
+                }
+            }
         }
+
 
         public virtual void SwitchThrusts()
         {
@@ -1565,6 +1600,11 @@ namespace Sandbox.Game.Entities
 
         public void SwitchReactors()
         {
+            //GR: How this works: if there is no MainCockpit in the Cubegrid then switch power normally. If there is however and we are not in main cockpit do not switch.
+            if (CubeGrid.MainCockpit != null && !IsMainCockpit)
+            {
+                return;
+            }
             if (m_enableShipControl)
             {
                 if (m_reactorsSwitched)
@@ -1675,29 +1715,6 @@ namespace Sandbox.Game.Entities
         }
 
         #endregion
-
-
-        //public MyGunTypeEnum? GetWeaponType(MyObjectBuilderType weapon)
-        //{
-        //    if (weapon == typeof(MyObjectBuilder_Drill))
-        //        return MyGunTypeEnum.Drill;
-
-        //    else if (weapon == typeof(MyObjectBuilder_SmallMissileLauncher))
-        //        return MyGunTypeEnum.Missile;
-
-        //    else if (weapon == typeof(MyObjectBuilder_SmallGatlingGun))
-        //        return MyGunTypeEnum.Projectile;
-
-        //    else if (weapon == typeof(MyObjectBuilder_ShipGrinder))
-        //        return MyGunTypeEnum.AngleGrinder;
-
-        //    else if (weapon == typeof(MyObjectBuilder_ShipWelder))
-        //        return MyGunTypeEnum.Welder;
-
-        //    else
-        //        return null;
-        //}
-
 
         public bool CanSwitchToWeapon(MyDefinitionId? weapon)
         {
@@ -1941,6 +1958,15 @@ namespace Sandbox.Game.Entities
             OnControlledEntity_Used();
             if(GetOutOfCockpitSound != MySoundPair.Empty)
                 PlayUseSound(false);
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void OnSwitchHelmet()
+        {
+            if(Pilot != null && Pilot.OxygenComponent != null)
+            {
+                Pilot.OxygenComponent.SwitchHelmet();
+            }
         }
 
         protected virtual void OnControlledEntity_Used() { }
@@ -2292,7 +2318,8 @@ namespace Sandbox.Game.Entities
 
         void IMyModdingControllableEntity.SwitchHelmet()
         {
-
+            if(Pilot != null)
+                MyMultiplayer.RaiseEvent(this, x => x.OnSwitchHelmet);
         }
 
         void IMyModdingControllableEntity.Die()

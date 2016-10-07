@@ -7,7 +7,7 @@ using VRageMath.PackedVector;
 using VRageRender;
 using VRageRender.Vertex;
 
-namespace VRageRender.Profiler
+namespace VRage.Render11.Profiler.Internal
 {
     class MyRenderProfilerLineBatch
     {

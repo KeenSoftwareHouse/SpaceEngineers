@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using VRage.Utils;
 
 namespace VRage.Generics
 {
@@ -24,16 +25,16 @@ namespace VRage.Generics
         public virtual MyStateMachineNode QueryNewState()
         {
             int transitionId;
-            return QueryNewState(out transitionId); // stay in current state
+            return QueryNewState(false, out transitionId); // stay in current state
         }
 
         // Should we change state? If yes, it returns reference to new state, otherwise null.
         // This variation also returns id of transition.
-        public virtual MyStateMachineNode QueryNewState(out int transitionId)
+        public virtual MyStateMachineNode QueryNewState(bool allowNamedTransitions, out int transitionId)
         {
             for (int i = 0; i < Transitions.Count; i++)
             {
-                if (Transitions[i].Evaluate()) // first transition that is valid is used
+                if ((allowNamedTransitions || Transitions[i].Name == MyStringId.NullOrEmpty) && Transitions[i].Evaluate()) // first transition that is valid is used
                 {
                     transitionId = Transitions[i].Id;
                     return Transitions[i].TargetNode;

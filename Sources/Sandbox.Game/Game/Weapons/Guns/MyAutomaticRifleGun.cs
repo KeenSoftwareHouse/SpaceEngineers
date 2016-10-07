@@ -2,6 +2,9 @@
 
 using System;
 using System.Text;
+#if XB1
+using System.Collections.Generic;
+#endif // XB1
 using VRageMath;
 using Sandbox.Game.Entities;
 using Sandbox.Engine.Utils;
@@ -22,7 +25,6 @@ using Sandbox.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using VRage;
-using VRage.Library.Sync;
 using VRage.Network;
 using VRage.Game.Models;
 using VRage.Game.Components;
@@ -30,6 +32,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.ModAPI.Weapons;
+using VRage.Sync;
 
 #endregion
 
@@ -46,7 +49,7 @@ namespace Sandbox.Game.Weapons
         MyParticleEffect m_smokeEffect;
 
         MyGunBase m_gunBase;
-        MyDefinitionId m_handItemDefId;
+        static MyDefinitionId m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "AutomaticRifleGun");
         MyPhysicalItemDefinition m_physicalItemDef;
 
         MyCharacter m_owner;
@@ -83,20 +86,27 @@ namespace Sandbox.Game.Weapons
         {
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
             Render.NeedsDraw = true;
+#if XB1 // XB1_SYNC_NOREFLECTION
+            SyncType = new SyncType(new List<SyncBase>());
+            m_gunBase = new MyGunBase(SyncType);
+#else // !XB1
             m_gunBase = new MyGunBase();
+#endif // !XB1
             m_soundEmitter = new MyEntity3DSoundEmitter(this);
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
             this.Render = new MyRenderComponentAutomaticRifle();
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
             SyncType.Append(m_gunBase);
+#endif // !XB1
         }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
+            if (objectBuilder.SubtypeName != null && objectBuilder.SubtypeName.Length > 0)
+                m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_AutomaticRifle), objectBuilder.SubtypeName);
+
             MyObjectBuilder_AutomaticRifle rifleBuilder = (MyObjectBuilder_AutomaticRifle)objectBuilder;
-            m_handItemDefId = rifleBuilder.GetId();
-            if (string.IsNullOrEmpty(m_handItemDefId.SubtypeName))
-                m_handItemDefId = new MyDefinitionId(typeof(MyObjectBuilder_AutomaticRifle), "RifleGun");
            
             var handItemDef = MyDefinitionManager.Static.TryGetHandItemDefinition(ref m_handItemDefId);
             m_physicalItemDef = MyDefinitionManager.Static.GetPhysicalItemForHandItem(m_handItemDefId);
@@ -155,10 +165,10 @@ namespace Sandbox.Game.Weapons
         public Vector3 DirectionToTarget(Vector3D target)
         {
             Vector3D direction = Vector3D.Normalize(target - PositionComp.WorldMatrix.Translation);
-            Vector3D gunDirection = PositionComp.WorldMatrix.Forward;
+            Vector3D gunDirection = m_owner.WeaponPosition.LogicalOrientationWorld;
             double d = Vector3D.Dot(direction, gunDirection);
             //Too big angle to target
-            if (d < 0.75)
+            if (d < 0.98)
                 direction = gunDirection;
             return direction;
         }
@@ -235,6 +245,11 @@ namespace Sandbox.Game.Weapons
                 Shoot(direction, overrideWeaponPos);
                 m_shotsFiredInBurst++;
                 IsShooting = true;
+
+                if (m_owner.ControllerInfo.IsLocallyControlled() && m_owner.IsInFirstPersonView)
+                {
+                    MySector.MainCamera.CameraShake.AddShake(0.5f);
+                }
             }
             else if (action == MyShootActionEnum.SecondaryAction)
             {
@@ -275,11 +290,7 @@ namespace Sandbox.Game.Weapons
             }
             else
             {
-                Vector3D localDummyPosition = m_gunBase.GetMuzzleLocalPosition();
-                MatrixD weaponWorld = m_gunBase.WorldMatrix;
-                Vector3D localDummyPositionRotated;
-                Vector3D.Rotate(ref localDummyPosition, ref weaponWorld, out localDummyPositionRotated);
-                m_gunBase.Shoot((m_owner.PositionComp.GetPosition() + overrideWeaponPos.Value + localDummyPositionRotated) + direction * (-0.25f), 
+                m_gunBase.Shoot((overrideWeaponPos.Value) + direction * (-0.25f), 
                     m_owner.Physics.LinearVelocity, direction, (MyEntity)m_owner);
             }            m_isAfterReleaseFire = false;
             if (m_gunBase.ShootSound != null)
@@ -538,6 +549,12 @@ namespace Sandbox.Game.Weapons
             {
                 return m_gunBase.CurrentAmmo;
             }
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
     }
 }

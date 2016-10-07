@@ -212,6 +212,7 @@
     <Compile Include="DShow\DsUuids.cs" />
     <Compile Include="DShow\QEdit.cs" />
     <Compile Include="DShow\VideoPlayer.cs" />
+    <Compile Include="Environment\MyEnvironment.cs" />
     <Compile Include="Extensions\AttributeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DoubleExtensions.cs" />
@@ -306,6 +307,7 @@
     <Compile Include="ParallelTasks\BackgroundWorker.cs" />
     <Compile Include="ParallelTasks\DelegateWork.cs" />
     <Compile Include="ParallelTasks\Deque.cs" />
+    <Compile Include="ParallelTasks\PrioritizedScheduler.cs" />
     <Compile Include="ParallelTasks\FixedPriorityScheduler.cs" />
     <Compile Include="ParallelTasks\Future.cs" />
     <Compile Include="ParallelTasks\Hashtable.cs" />
@@ -314,6 +316,7 @@
     <Compile Include="ParallelTasks\LoopWork.cs" />
     <Compile Include="ParallelTasks\Parallel.cs" />
     <Compile Include="ParallelTasks\Pool.cs" />
+    <Compile Include="ParallelTasks\IPrioritizedWork.cs" />
     <Compile Include="ParallelTasks\Semaphore.cs" />
     <Compile Include="ParallelTasks\Singleton.cs" />
     <Compile Include="ParallelTasks\SpinLock.cs" />
@@ -453,6 +456,7 @@
     <Compile Include="Trace\MyTrace.cs" />
     <Compile Include="Trace\MyWintraceWrapper.cs" />
     <Compile Include="Utils\BlittableHelper.cs" />
+    <Compile Include="Utils\MyAssembly.cs" />
     <Compile Include="Utils\Disposable.cs" />
     <Compile Include="Utils\DontCheckAttribute.cs" />
     <Compile Include="Utils\FixedLoop.cs" />
@@ -470,6 +474,7 @@
     <Compile Include="Utils\MyTimer.cs" />
     <Compile Include="Utils\MyTimeSpan.cs" />
     <Compile Include="Utils\MyLibraryUtils.cs" />
+    <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="Utils\WaitForTargetFrameRate.cs" />
     <Compile Include="Win32\WinApi-Constants.cs" />
     <Compile Include="Win32\WinApi-Functions.cs" />

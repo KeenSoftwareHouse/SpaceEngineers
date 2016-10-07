@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
+using VRageRender.Animations;
+using VRageRender.Utils;
 
 #endregion
 
@@ -705,6 +705,16 @@ namespace VRage.Game
             return m_properties;
         }
 
+        private bool m_show = true;
+        public bool Show
+        {
+            get { return m_show; }
+            set
+            {
+                m_show = value;
+            }
+        }
+
         #endregion
 
         #region Update
@@ -828,7 +838,7 @@ namespace VRage.Game
 
         private void UpdateParticlesCreation()
         {
-            if (!Enabled.GetValue<bool>())
+            if (!Enabled.GetValue<bool>() || !m_show)
                 return;
 
             if (m_effect.CalculateDeltaMatrix == false)
@@ -1029,13 +1039,19 @@ namespace VRage.Game
             {
                 float velVar;
                 VelocityVar.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out velVar);
+                if (velVar != 0)
+                {
+                    float min = 1 / velVar;
+                    float max = velVar;
 
-                float min = 1 / velVar;
-                float max = velVar;
+                    velVar = MyUtils.GetRandomFloat(min, max);
 
-                velVar = MyUtils.GetRandomFloat(min, max);
-
-                vel *= m_effect.GetScale() * velVar;
+                    vel *= m_effect.GetScale() * velVar;
+                }
+                else
+                {
+                    vel *= m_effect.GetScale();
+                }
             }
             else
             {
@@ -1544,7 +1560,7 @@ namespace VRage.Game
                     Vector4 color;
                     colorAnim.GetKey(j, out time, out color);
                     color = color.UnmultiplyColor();
-                    color.W = Vector4.ToLinearRGBComponent(color.W);
+                    color.W = ColorExtensions.ToLinearRGBComponent(color.W);
                     color = color.PremultiplyColor();
                     color = Vector4.Clamp(color, new Vector4(0, 0, 0, 0), new Vector4(1, 1, 1, 1));
                     anim.SetKey(j, time, color);

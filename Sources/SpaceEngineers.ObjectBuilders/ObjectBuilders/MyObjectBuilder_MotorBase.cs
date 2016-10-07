@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using ObjectBuilders;
+using ProtoBuf;
 using VRage;
 using VRage.Game;
 using VRage.ModAPI;
@@ -9,22 +10,15 @@ namespace Sandbox.Common.ObjectBuilders
     [ProtoContract]
     [MyObjectBuilderDefinition]
     [System.Xml.Serialization.XmlSerializerAssembly("SpaceEngineers.ObjectBuilders.XmlSerializers")]
-    public class MyObjectBuilder_MotorBase : MyObjectBuilder_FunctionalBlock
+    public class MyObjectBuilder_MotorBase : MyObjectBuilder_MechanicalConnectionBlock
     {
+        //Obsolete! @MyObjectBuilder_MechanicalConnectionBlock.TopBlockId
         [ProtoMember]
-        public long? RotorEntityId;
+        public long? RotorEntityId = null;
 
+        //Obsolete! @MyObjectBuilder_MechanicalConnectionBlock.IsWelded
         [ProtoMember]
-        public long? WeldedEntityId;
-
-        [ProtoMember]
-        public float weldSpeed = 95f;
-
-        [ProtoMember]
-        public bool forceWeld = false;
-
-        [ProtoMember]
-        public MyPositionAndOrientation? MasterToSlaveTransform;
+        public long? WeldedEntityId = null;
 
         public override void Remap(IMyRemapHelper remapHelper)
         {

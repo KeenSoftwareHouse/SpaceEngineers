@@ -165,7 +165,7 @@ namespace Sandbox.Game.Weapons
             m_activated = false;
             m_wasPowered = false;
 
-            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             Render.NeedsDraw = true;
 
             (PositionComp as MyPositionComponent).WorldPositionChanged = WorldPositionChanged;
@@ -320,6 +320,12 @@ namespace Sandbox.Game.Weapons
             //MyTrace.Watch("MyEngineerToolBase.RequiredPowerInput", RequiredPowerInput);            
         }
 
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
+        }
+
         private void WorldPositionChanged(object source)
         {
             m_gunBase.OnWorldPositionChanged(PositionComp.WorldMatrix);
@@ -334,17 +340,24 @@ namespace Sandbox.Game.Weapons
                 MyCharacter character = Owner as MyCharacter;
 
                 MatrixD sensorWorldMatrix = MatrixD.Identity;
-                if (character.ControllerInfo.IsLocallyControlled())
-                {
-                    sensorWorldMatrix = character.GetHeadMatrix(false, true);
-                    character.SyncHeadToolTransform(ref sensorWorldMatrix);
-                }
-                else
-                {
-                    sensorWorldMatrix = character.GetSyncedToolTransform();
-                }
+                sensorWorldMatrix.Translation = character.WeaponPosition.LogicalPositionWorld;
+                sensorWorldMatrix.Right = character.WorldMatrix.Right;
+                sensorWorldMatrix.Forward = character.WeaponPosition.LogicalOrientationWorld;
+                sensorWorldMatrix.Up = Vector3.Cross(sensorWorldMatrix.Right, sensorWorldMatrix.Forward);
+                
+                // MZ: removing code requiring synchronization
 
+                //if (character.ControllerInfo.IsLocallyControlled())
+                //{
+                //    sensorWorldMatrix = character.GetHeadMatrix(false, true);
+                //    character.SyncHeadToolTransform(ref sensorWorldMatrix);
+                //}
+                //else
+                //{
+                //    sensorWorldMatrix = character.GetSyncedToolTransform();
+                //}
 
+                // VRageRender.MyRenderProxy.DebugDrawAxis(sensorWorldMatrix, 0.2f, false);
                 m_raycastComponent.OnWorldPosChanged(ref sensorWorldMatrix);
             }
         }
@@ -672,6 +685,7 @@ namespace Sandbox.Game.Weapons
             MyHud.BlockInfo.CriticalIntegrity = block.BlockDefinition.CriticalIntegrityRatio;
             MyHud.BlockInfo.CriticalComponentIndex = block.BlockDefinition.CriticalGroup;
             MyHud.BlockInfo.OwnershipIntegrity = block.BlockDefinition.OwnershipIntegrityRatio;
+            MyHud.BlockInfo.BlockBuiltBy = block.BuiltBy;
 
             MySlimBlock.SetBlockComponents(MyHud.BlockInfo, block);
         }

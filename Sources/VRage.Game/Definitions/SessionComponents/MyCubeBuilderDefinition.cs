@@ -10,8 +10,10 @@ namespace VRage.Game.Definitions.SessionComponents
         public float MaxBlockBuildingDistance;
         public float MinBlockBuildingDistance;
 
-        public double BuildingDistSurvivalCharacter;
-        public double BuildingDistSurvivalShip;
+        public double BuildingDistSmallSurvivalCharacter;
+        public double BuildingDistLargeSurvivalCharacter;
+        public double BuildingDistSmallSurvivalShip;
+        public double BuildingDistLargeSurvivalShip;
 
         /// <summary>
         /// Defines settings for building mode.
@@ -28,8 +30,10 @@ namespace VRage.Game.Definitions.SessionComponents
             MaxBlockBuildingDistance = ob.MaxBlockBuildingDistance;
             MinBlockBuildingDistance = ob.MinBlockBuildingDistance;
 
-            BuildingDistSurvivalCharacter = ob.BuildingDistSurvivalCharacter;
-            BuildingDistSurvivalShip = ob.BuildingDistSurvivalShip;
+            BuildingDistSmallSurvivalCharacter = ob.BuildingDistSmallSurvivalCharacter;
+            BuildingDistLargeSurvivalCharacter = ob.BuildingDistLargeSurvivalCharacter;
+            BuildingDistSmallSurvivalShip = ob.BuildingDistSmallSurvivalShip;
+            BuildingDistLargeSurvivalShip = ob.BuildingDistLargeSurvivalShip;
 
             BuildingSettings = ob.BuildingSettings;
 

@@ -11,6 +11,7 @@ using VRage;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 
@@ -229,9 +230,6 @@ namespace Sandbox.Game.Components
 
             CallAndClearOnClosing();
 
-            // hide decals - decals of children are already hidden, see above
-            if (m_entity.Render.RenderObjectIDs.Length > 0)
-                VRageRender.MyRenderProxy.HideDecals(m_entity.Render.RenderObjectIDs[0], Vector3.Zero, 0);
             MyEntities.RemoveName(m_entity);
             MyEntities.RemoveFromClosedEntities(m_entity);
 

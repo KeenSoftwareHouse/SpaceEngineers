@@ -44,6 +44,24 @@ namespace Sandbox.Game.Gui
 
                 var textPrinted = false;
 
+                var current = MyPlanetEnvironmentSessionComponent.ActiveSector;
+
+                if (current != null && current.DataView != null)
+                {
+                    var storage = current.DataView.LogicalSectors;
+                    Text(Color.White, 1.5f, "Current sector: {0}", current.ToString());
+                    Text("Storage sectors:");
+                    foreach (var log in storage)
+                    {
+                        Text("   {0}", log.DebugData);
+                    }
+                }
+
+                Text("Horizon Distance: {0}", m_radius);
+
+                if (m_updateRange)
+                    UpdateViewRange(planet);
+
                 foreach (var provider in envs.Providers)
                 {
                     var sects = provider.LogicalSectors.ToArray();
@@ -71,11 +89,6 @@ namespace Sandbox.Game.Gui
                     if (proxy.EnvironmentSector != null)
                         Text(Color.White, 0.8f, "Sector {0}", proxy.EnvironmentSector.ToString());
                 }
-
-                Text("Horizon Distance: {0}", m_radius);
-
-                if (m_updateRange)
-                    UpdateViewRange(planet);
 
                 MyRenderProxy.DebugDrawCylinder(m_center, m_orientation, (float)m_radius, m_height, Color.Orange, 1, true, false);
             }

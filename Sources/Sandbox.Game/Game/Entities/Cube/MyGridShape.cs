@@ -18,10 +18,10 @@ using Sandbox.Game.World;
 using VRage.Utils;
 using Sandbox.Game.EntityComponents;
 using VRage.ModAPI;
-using VRage.Voxels;
 using VRageMath.Spatial;
 
 using VRage.Game;
+using VRage.Profiler;
 
 
 namespace Sandbox.Game.Entities.Cube
@@ -108,6 +108,11 @@ namespace Sandbox.Game.Entities.Cube
             {
                 m_blockCollector.Clear();
             }
+        }
+
+        public void GetShapesInInterval(Vector3I min, Vector3I max, List<HkShape> shapeList)
+        {
+            m_root.GetShapesInInterval(min, max, shapeList);
         }
 
         private void AddShapesFromCollector()

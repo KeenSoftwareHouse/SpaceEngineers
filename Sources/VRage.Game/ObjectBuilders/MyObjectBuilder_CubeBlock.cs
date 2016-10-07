@@ -108,6 +108,10 @@ namespace VRage.Game
         [Serialize(MyObjectFlags.DefaultZero)]
         public long Owner = 0;
 
+        [ProtoMember, DefaultValue(0)]
+        [Serialize(MyObjectFlags.DefaultZero)]
+        public long BuiltBy = 0;
+
         //[ProtoMember, DefaultValue(false)]
         //public bool ShareWithFaction = false;
 

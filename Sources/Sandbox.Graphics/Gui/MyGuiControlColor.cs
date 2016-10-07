@@ -35,7 +35,7 @@ namespace Sandbox.Graphics.GUI
         bool m_placeSlidersVertically;
 
         public MyGuiControlColor(
-            StringBuilder text,
+            String text,
             float textScale,
             Vector2 position,
             Color color,
@@ -302,6 +302,11 @@ namespace Sandbox.Graphics.GUI
         public Color GetColor()
         {
             return m_color;
+        }
+
+        public Color Color
+        {
+            get { return m_color; }
         }
     }
 }

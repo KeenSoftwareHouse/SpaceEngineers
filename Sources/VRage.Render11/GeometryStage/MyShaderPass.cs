@@ -11,7 +11,7 @@ using System.Text;
 using VRage.Generics;
 
 using VRageMath;
-using VRageRender.Resources;
+
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 using Matrix = VRageMath.Matrix;

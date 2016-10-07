@@ -10,7 +10,6 @@ using System.Text;
 using VRage.Noise;
 using VRageMath;
 using SharpDX.Toolkit.Graphics;
-using SharpDXImage = SharpDX.Toolkit.Graphics.Image;
 
 namespace Sandbox.Engine.Voxels
 {

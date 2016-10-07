@@ -8,7 +8,6 @@ using VRage.Library.Utils;
 using VRage.Noise;
 using VRageMath;
 using VRage;
-using VRage.Voxels;
 
 namespace Sandbox.Game.World.Generator
 {

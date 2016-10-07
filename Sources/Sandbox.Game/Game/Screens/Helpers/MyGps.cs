@@ -20,6 +20,7 @@ namespace Sandbox.Game.Screens.Helpers
         public bool ShowOnHud;
         public bool AlwaysVisible;
         public TimeSpan? DiscardAt;//final=null. Not final=time at which we should drop it from the list, relative to ElapsedPlayTime
+        public bool IsLocal = false;
         public int Hash
         {
             get;
@@ -49,10 +50,14 @@ namespace Sandbox.Game.Screens.Helpers
 
         public void ToClipboard()
         {
+#if !XB1
             Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(this.ToString()));
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             thread.Join();
+#else
+            System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
         }
 
         public MyGps(MyObjectBuilder_Gps.Entry builder)

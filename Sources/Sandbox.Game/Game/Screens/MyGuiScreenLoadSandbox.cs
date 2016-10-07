@@ -89,7 +89,11 @@ namespace Sandbox.Game.Gui
             Controls.Add(m_editButton = MakeButton(buttonOrigin + buttonDelta * 2, MyCommonTexts.LoadScreenButtonEditSettings, OnEditClick));
             Controls.Add(m_saveButton = MakeButton(buttonOrigin + buttonDelta * 3, MyCommonTexts.LoadScreenButtonSaveAs, OnSaveAsClick));
             Controls.Add(m_deleteButton = MakeButton(buttonOrigin + buttonDelta * 4, MyCommonTexts.LoadScreenButtonDelete, OnDeleteClick));
-            Controls.Add(m_publishButton = MakeButton(buttonOrigin + buttonDelta * 6, MyCommonTexts.LoadScreenButtonPublish, OnPublishClick));
+            m_publishButton = MakeButton(buttonOrigin + buttonDelta * 6, MyCommonTexts.LoadScreenButtonPublish, OnPublishClick);
+            if (!MyFakes.XB1_PREVIEW)
+            {
+                Controls.Add(m_publishButton);
+            }
 
             m_publishButton.SetToolTip(MyTexts.GetString(MyCommonTexts.LoadScreenButtonTooltipPublish));
 
@@ -218,6 +222,7 @@ namespace Sandbox.Game.Gui
 
         void OnPublishClick(MyGuiControlButton sender)
         {
+#if !XB1 // XB1_NOWORKSHOP
             var row = m_sessionsTable.SelectedRow;
             if (row == null)
                 return;
@@ -226,8 +231,12 @@ namespace Sandbox.Game.Gui
             {
                 Publish(save.Item1, save.Item2);
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false); // TODO?
+#endif // XB1
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         public static void Publish(string sessionPath, MyWorldInfo worlInfo)
         {
             if (MyFakes.XBOX_PREVIEW)
@@ -309,6 +318,7 @@ namespace Sandbox.Game.Gui
                 }));
 
         }
+#endif // !XB1
 
         void OnTableItemSelected(MyGuiControlTable sender, MyGuiControlTable.EventArgs eventArgs)
         {

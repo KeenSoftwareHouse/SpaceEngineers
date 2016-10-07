@@ -17,6 +17,7 @@ using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
@@ -104,8 +105,10 @@ namespace Sandbox.Game.Entities
             get { return m_onlyRecharge.Value; }
             set
             {
+                if (value)
+                    OnlyDischarge = false;
                 m_onlyRecharge.Value = value;
-                m_producerEnabled.Value = !value;          
+                m_producerEnabled.Value = !value;
             }
         }
 
@@ -114,6 +117,8 @@ namespace Sandbox.Game.Entities
             get { return m_onlyDischarge.Value; }
             set
             {
+                if (value)
+                    OnlyRecharge = false;
                 m_onlyDischarge.Value = value;
             }
         }
@@ -125,6 +130,14 @@ namespace Sandbox.Game.Entities
 
         public MyBatteryBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isFull = SyncType.CreateAndAddProp<bool>();
+            m_onlyRecharge = SyncType.CreateAndAddProp<bool>();
+            m_onlyDischarge = SyncType.CreateAndAddProp<bool>();
+            m_semiautoEnabled = SyncType.CreateAndAddProp<bool>();
+            m_producerEnabled = SyncType.CreateAndAddProp<bool>();
+            m_storedPower = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             SourceComp = new MyResourceSourceComponent();
@@ -137,11 +150,11 @@ namespace Sandbox.Game.Entities
             m_storedPower.ValueChanged += (x) => CapacityChanged();
 	    }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyBatteryBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
             recharge.Getter = (x) => x.OnlyRecharge;
             recharge.Setter = (x, v) => x.OnlyRecharge = v;

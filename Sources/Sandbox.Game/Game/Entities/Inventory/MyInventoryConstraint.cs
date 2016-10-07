@@ -89,6 +89,13 @@ namespace Sandbox.Game
             return this;
         }
 
+        public void Clear()
+        {
+            m_constrainedIds.Clear();
+            m_constrainedTypes.Clear();
+            UpdateIcon();
+        }
+
         public bool Check(MyDefinitionId checkedId)
         {
             if (IsWhitelist)

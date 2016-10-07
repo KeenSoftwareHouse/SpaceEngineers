@@ -1,10 +1,6 @@
 ﻿using Sandbox.Definitions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using VRage.Voxels;
 using Sandbox.Engine.Voxels;
+using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.Entities

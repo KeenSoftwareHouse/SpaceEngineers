@@ -46,7 +46,7 @@ namespace Sandbox.Game.Gui
         protected MyObjectBuilder_Definitions m_loadedPrefab;
         protected MyGuiControlMultilineText m_textField;
         protected MyGuiControlMultilineText m_descriptionField;
-        protected MyGuiControlImageButton m_thumbnailImage;
+        protected MyGuiControlImage m_thumbnailImage;
         protected Action<MyGuiControlListbox.Item> callBack;
         protected MyGuiBlueprintScreenBase m_parent;
         protected MyGuiBlueprintTextDialog m_dialog;
@@ -54,18 +54,16 @@ namespace Sandbox.Game.Gui
         protected Vector2 m_offset = new Vector2(-0.01f, 0f);
         protected int maxNameLenght = 40;
 
-        public MyGuiDetailScreenBase(bool isTopMostScreen, MyGuiBlueprintScreenBase parent, MyGuiCompositeTexture thumbnailTexture, MyGuiControlListbox.Item selectedItem, float textScale)
+        public MyGuiDetailScreenBase(bool isTopMostScreen, MyGuiBlueprintScreenBase parent, string thumbnailTexture, MyGuiControlListbox.Item selectedItem, float textScale)
             : base(new Vector2(0.37f, 0.325f), new Vector2(0.725f, 0.4f), MyGuiConstants.SCREEN_BACKGROUND_COLOR, isTopMostScreen)
         {
-            m_thumbnailImage = new MyGuiControlImageButton(true);
-            if (thumbnailTexture == null)
+            m_thumbnailImage = new MyGuiControlImage()
             {
-                m_thumbnailImage.Visible = false;
-            }
-            else
-            {
-                m_thumbnailImage.BackgroundTexture = thumbnailTexture;
-            }
+                BackgroundTexture = MyGuiConstants.TEXTURE_RECTANGLE_DARK,
+            };
+            m_thumbnailImage.SetPadding(new MyGuiBorderThickness(3f, 2f, 3f, 2f));
+            m_thumbnailImage.SetTexture(thumbnailTexture);
+            
             m_selectedItem = selectedItem;
             m_blueprintName = selectedItem.Text.ToString();
             m_textScale = textScale;
@@ -225,12 +223,13 @@ namespace Sandbox.Game.Gui
         }
     }
 
+#if !XB1 // XB1_NOWORKSHOP
     class MyGuiDetailScreenSteam : MyGuiDetailScreenBase
     {
         private ulong? m_publishedItemId;
         private MyGuiControlCombobox m_sendToCombo;
 
-        public MyGuiDetailScreenSteam(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent , MyGuiCompositeTexture thumbnailTexture, float textScale) :
+        public MyGuiDetailScreenSteam(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent , string thumbnailTexture, float textScale) :
             base(false, parent, thumbnailTexture, selectedItem, textScale)
         {
             this.callBack = callBack;
@@ -326,10 +325,11 @@ namespace Sandbox.Game.Gui
             }
         }
     }
+#endif // !XB1
 
     class MyGuiDetailScreenDefault : MyGuiDetailScreenBase
     {
-        public MyGuiDetailScreenDefault(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent, MyGuiCompositeTexture thumbnailTexture, float textScale) :
+        public MyGuiDetailScreenDefault(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreen parent, string thumbnailTexture, float textScale) :
             base(false, parent, thumbnailTexture, selectedItem, textScale)
         {
             var prefabPath = Path.Combine(m_defaultBlueprintFolder, m_blueprintName, "bp.sbc");
@@ -377,7 +377,7 @@ namespace Sandbox.Game.Gui
 
     class MyGuiDetailScreenLocal : MyGuiDetailScreenBase
     {
-        public MyGuiDetailScreenLocal(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreenBase parent , MyGuiCompositeTexture thumbnailTexture, float textScale) :
+        public MyGuiDetailScreenLocal(Action<MyGuiControlListbox.Item> callBack, MyGuiControlListbox.Item selectedItem, MyGuiBlueprintScreenBase parent , string thumbnailTexture, float textScale) :
             base(false, parent, thumbnailTexture, selectedItem, textScale)
         {
             var prefabPath = Path.Combine(m_localBlueprintFolder, m_blueprintName, "bp.sbc");
@@ -418,14 +418,20 @@ namespace Sandbox.Game.Gui
             var renameButton = CreateButton(width, new StringBuilder("Rename"), OnRename, textScale: m_textScale);
             renameButton.Position = buttonPosition;
 
-            var publishButton = CreateButton(width, new StringBuilder("Publish"), OnPublish, textScale: m_textScale);
-            publishButton.Position = buttonPosition + new Vector2(1f, 0f) * buttonOffset;
+            if (!MyFakes.XB1_PREVIEW)
+            {
+                var publishButton = CreateButton(width, new StringBuilder("Publish"), OnPublish, textScale: m_textScale);
+                publishButton.Position = buttonPosition + new Vector2(1f, 0f) * buttonOffset;
+            }
 
             var deleteButton = CreateButton(width, new StringBuilder("Delete"), OnDelete, textScale: m_textScale);
             deleteButton.Position = buttonPosition + new Vector2(0f, 1f) * buttonOffset;
 
-            var openWorkshopButton = CreateButton(width, new StringBuilder("Open WorkShop"), OnOpenWorkshop, textScale: m_textScale);
-            openWorkshopButton.Position = buttonPosition + new Vector2(1f, 1f) * buttonOffset;
+            if (!MyFakes.XB1_PREVIEW)
+            {
+                var openWorkshopButton = CreateButton(width, new StringBuilder("Open WorkShop"), OnOpenWorkshop, textScale: m_textScale);
+                openWorkshopButton.Position = buttonPosition + new Vector2(1f, 1f) * buttonOffset;
+            }
 
             var closeButton = CreateButton(width, new StringBuilder("Close"), OnCloseButton, textScale: m_textScale);
             closeButton.Position = buttonPosition + new Vector2(1f, 2f) * buttonOffset;
@@ -621,7 +627,11 @@ namespace Sandbox.Game.Gui
 
         void OnPublish(MyGuiControlButton button)
         {
+#if !XB1 // XB1_NOWORKSHOP
             Publish(m_loadedPrefab, m_blueprintName);
+#else // XB1
+            System.Diagnostics.Debug.Assert(false); //TODO?
+#endif // XB1
         }
 
         void OnOpenWorkshop(MyGuiControlButton button)

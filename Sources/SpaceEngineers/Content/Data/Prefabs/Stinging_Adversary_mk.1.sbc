@@ -2543,7 +2543,7 @@
               </BuildToolbar>
               <PreviousControlledEntityId xsi:nil="true" />
               <AutoPilotEnabled>true</AutoPilotEnabled>
-              <FlightMode>0</FlightMode>
+              <FlightMode>2</FlightMode>
               <CurrentWaypointIndex>-1</CurrentWaypointIndex>
               <Waypoints />
               <Direction>0</Direction>
@@ -2620,7 +2620,7 @@ void Main(string argument)
             } 
             else 
             { 
-                remote.AddWaypoint(player, "Player"); 
+                remote.AddWaypoint(player + remote.GetTotalGravity() * -2f, "Player");//20 metres above player
             } 
             remote.SetAutoPilotEnabled(true); 
         } 

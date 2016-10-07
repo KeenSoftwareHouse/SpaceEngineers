@@ -69,7 +69,7 @@ namespace Sandbox.Game.Weapons
             : base(250)
         {
             HasCubeHighlight = true;
-            HighlightColor = Color.Green * 0.45f;
+            HighlightColor = Color.Green * 0.75f;
 			HighlightMaterial = "GizmoDrawLine";
 
             SecondaryLightIntensityLower = 0.4f;
@@ -81,6 +81,7 @@ namespace Sandbox.Game.Weapons
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
+            m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), "WelderItem");
             if (objectBuilder.SubtypeName != null && objectBuilder.SubtypeName.Length > 0)
                 m_physicalItemId = new MyDefinitionId(typeof(MyObjectBuilder_PhysicalGunObject), objectBuilder.SubtypeName + "Item");
             PhysicalObject = (MyObjectBuilder_PhysicalGunObject)MyObjectBuilderSerializer.CreateNewObject(m_physicalItemId);
@@ -270,6 +271,29 @@ namespace Sandbox.Game.Weapons
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the projected grid still fits within block limits set by server after a new block is added
+        /// </summary>
+        private bool IsWithinWorldLimits(MyCubeGrid grid, long ownerID, string name)
+        {
+            if (!MySession.Static.EnableBlockLimits) return true;
+
+            bool withinLimits = true;
+            withinLimits &= MySession.Static.MaxGridSize == 0 || grid.BlocksCount <= MySession.Static.MaxGridSize;
+            var identity = MySession.Static.Players.TryGetIdentity(ownerID);
+            if (MySession.Static.MaxBlocksPerPlayer != 0 && identity != null)
+            {
+                withinLimits &= identity.BlocksBuilt < MySession.Static.MaxBlocksPerPlayer + identity.BlockLimitModifier;
+            }
+            short typeLimit = MySession.Static.GetBlockTypeLimit(name);
+            int typeBuilt;
+            if (identity != null && typeLimit > 0)
+            {
+                withinLimits &= (identity.BlockTypeBuilt.TryGetValue(name, out typeBuilt) ? typeBuilt : 0) < typeLimit;
+            }
+            return withinLimits;
+        }
+
         private MyProjectorBase GetProjector(MySlimBlock block)
         {
             var projectorSlimBlock = block.CubeGrid.GetBlocks().FirstOrDefault(b => b.FatBlock is MyProjectorBase);
@@ -302,13 +326,21 @@ namespace Sandbox.Game.Weapons
                     var info = FindProjectedBlock();
                     if (info.raycastResult == BuildCheckResult.OK)
                     {
-                        if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition) || MySession.Static.IsAdminModeEnabled(Sync.MyId))
+                        if (IsWithinWorldLimits(info.cubeProjector.CubeGrid, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, info.hitCube.BlockDefinition.BlockPairName))
                         {
-                            info.cubeProjector.Build(info.hitCube, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, Owner.EntityId);
+                            if (MySession.Static.CreativeMode || MyBlockBuilderBase.SpectatorIsBuilding || Owner.CanStartConstruction(info.hitCube.BlockDefinition) || MySession.Static.IsAdminModeEnabled(Sync.MyId))
+                            {
+                                info.cubeProjector.Build(info.hitCube, Owner.ControllerInfo.Controller.Player.Identity.IdentityId, Owner.EntityId, builtBy: Owner.ControllerInfo.Controller.Player.Identity.IdentityId);
+                            }
+                            else
+                            {
+                                MyBlockPlacerBase.OnMissingComponents(info.hitCube.BlockDefinition);
+                            }
                         }
                         else
                         {
-                            MyBlockPlacerBase.OnMissingComponents(info.hitCube.BlockDefinition);
+                            MyGuiAudio.PlaySound(MyGuiSounds.HudUnable);
+                            MyHud.Notifications.Add(MyNotificationSingletons.ShipOverLimits);
                         }
                     }
                 }

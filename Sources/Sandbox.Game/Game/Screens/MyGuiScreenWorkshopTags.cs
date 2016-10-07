@@ -1,4 +1,4 @@
-﻿
+﻿#if !XB1 // XB1_NOWORKSHOP
 using Sandbox.Engine.Networking;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
@@ -105,11 +105,13 @@ namespace Sandbox.Game.Gui
             return checkbox;
         }
 
-        private MyGuiControlImageButton AddIcon(Vector2 position, string texture, Vector2 size)
+        private MyGuiControlImage AddIcon(Vector2 position, string texture, Vector2 size)
         {
-            var image = new MyGuiControlImageButton();
-            image.Position = position;
-            image.Size = size;
+            var image = new MyGuiControlImage()
+            {
+                Position = position,
+                Size = size,
+            };
             image.SetTexture(texture);
             Controls.Add(image);
             return image;
@@ -221,3 +223,4 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+#endif // !XB1

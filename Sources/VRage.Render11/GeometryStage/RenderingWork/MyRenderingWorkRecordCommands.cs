@@ -1,10 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using VRage;
+using VRage.Profiler;
+using VRage.Render11.RenderContext;
 
 namespace VRageRender
 {
     [PooledObject(poolPreallocationSize: 2)]
+#if XB1
+    class MyRenderingWorkRecordCommands : MyRenderingWork, IMyPooledObjectCleaner
+#else // !XB1
     class MyRenderingWorkRecordCommands : MyRenderingWork
+#endif // !XB1
     {
         internal readonly List<MyRenderingWorkItem> m_subworks = new List<MyRenderingWorkItem>();
         internal bool m_isDeferred = false;
@@ -42,8 +49,11 @@ namespace VRageRender
 
             foreach (var subwork in m_subworks)
             {
+                subwork.Pass.Elapsed = 0;
+
                 if ((subwork.Begin < subwork.End) || (subwork.List2 != null && subwork.List2.Length > 0))
                 {
+                    long Started = Stopwatch.GetTimestamp();
                     subwork.Pass.Begin();
 
                     for (int subworkIndex = subwork.Begin; subworkIndex < subwork.End; subworkIndex++)
@@ -61,22 +71,30 @@ namespace VRageRender
                     }
 
                     subwork.Pass.End();
+                    subwork.Pass.Elapsed = Stopwatch.GetTimestamp() - Started;
                 }
             }
 
-            if (m_isDeferred && m_subworks.Count > 0)
-            {
-                m_subworks[0].Pass.RC.Finish();
-            }
+            //if (m_isDeferred && m_subworks.Count > 0)
+            //{
+            //    m_subworks[0].Pass.RC.Finish();
+            //}
 
             ProfilerShort.End();
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyRenderingWorkRecordCommands renderWork)
         {
             renderWork.Cleanup();
         }
+#endif // !XB1
 
         internal override void Cleanup()
         {

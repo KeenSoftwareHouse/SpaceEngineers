@@ -1,5 +1,4 @@
-﻿using ParallelTasks;
-using Sandbox.Definitions;
+﻿using Sandbox.Definitions;
 using Sandbox.Engine.Utils;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Components;
@@ -11,16 +10,17 @@ using Sandbox.Game.World.Generator;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRageRender.Messages;
 
 namespace Sandbox.Game.Entities
 {
@@ -47,6 +47,7 @@ namespace Sandbox.Game.Entities
         public bool SpherizeWithDistance;
         public MyPlanetGeneratorDefinition Generator;
         public bool UserCreated;
+        public bool InitializeComponents;
     }
 
     [MyEntityType(typeof(MyObjectBuilder_Planet))]
@@ -58,7 +59,7 @@ namespace Sandbox.Game.Entities
 
         public static bool RUN_SECTORS = false;
 
-        List<BoundingBoxD> m_clustersIntersection = new List<BoundingBoxD>();
+        private List<BoundingBoxD> m_clustersIntersection = new List<BoundingBoxD>();
 
         #region Shape properties
 
@@ -68,7 +69,7 @@ namespace Sandbox.Game.Entities
             private set;
         }
 
-        #endregion
+        #endregion Shape properties
 
         #region Oxygen & Atmosphere
 
@@ -98,12 +99,13 @@ namespace Sandbox.Game.Entities
             return 0f;
         }
 
-        #endregion
+        #endregion Oxygen & Atmosphere
 
         #region Gravity
+
         // THe gravity limit gets calculated from the GRAVITY_LIMIT_STRENGTH so that the gravity stops where it is equal to G_L_S
 
-        #endregion
+        #endregion Gravity
 
         public MyPlanetStorageProvider Provider
         {
@@ -111,12 +113,12 @@ namespace Sandbox.Game.Entities
             private set;
         }
 
-        Dictionary<Vector3I, MyVoxelPhysics> m_physicsShapes;
+        private Dictionary<Vector3I, MyVoxelPhysics> m_physicsShapes;
 
-        HashSet<Vector3I> m_sectorsPhysicsToRemove = new HashSet<Vector3I>();
-        Vector3I m_numCells;
+        private HashSet<Vector3I> m_sectorsPhysicsToRemove = new HashSet<Vector3I>();
+        private Vector3I m_numCells;
 
-        bool m_canSpawnSectors = true;
+        private bool m_canSpawnSectors = true;
 
         public override MyVoxelBase RootVoxel { get { return this; } }
 
@@ -176,7 +178,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        MyPlanetInitArguments m_planetInitValues;
+        private MyPlanetInitArguments m_planetInitValues;
 
         public MyPlanetInitArguments GetInitArguments
         {
@@ -252,7 +254,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        bool CanSpawnFlora
+        private bool CanSpawnFlora
         {
             get;
             set;
@@ -337,6 +339,8 @@ namespace Sandbox.Game.Entities
                 m_planetInitValues.Storage = MyStorageBase.Load(ob.StorageName);
             }
 
+            m_planetInitValues.InitializeComponents = false;
+
             ProfilerShort.BeginNextBlock("Init Internal");
             Init(m_planetInitValues);
             ProfilerShort.End();
@@ -403,7 +407,9 @@ namespace Sandbox.Game.Entities
             PrepareSectors();
 
             // Prepare components
-            HackyComponentInitByMiroPleaseDontUseEver(new MyDefinitionId(typeof(MyObjectBuilder_Planet), Generator.Id.SubtypeId));
+            // TODO: breaks loading of worlds. Overrides loaded deserialization of ownership components replacing them with clean one. Will be fixed after Daniel fixes generation of components on planet when new world is created. Also remove bool from arguments.
+            if (arguments.InitializeComponents)
+                HackyComponentInitByMiroPleaseDontUseEver(new MyDefinitionId(typeof(MyObjectBuilder_Planet), Generator.Id.SubtypeId));
 
             if (Generator.EnvironmentDefinition != null)
             {
@@ -483,7 +489,7 @@ namespace Sandbox.Game.Entities
             Provider = null;
         }
 
-        #endregion
+        #endregion Load/Unload
 
         public override void OnAddedToScene(object source)
         {
@@ -598,7 +604,6 @@ namespace Sandbox.Game.Entities
 
         public override void AfterPaste()
         {
-
         }
 
         private void UpdateFloraAndPhysics(bool serial = false)
@@ -690,9 +695,21 @@ namespace Sandbox.Game.Entities
                     bool keep = false;
                     foreach (var entity in m_entities)
                     {
-                        if (entity.Physics != null && !entity.Physics.IsStatic)
+                        if (entity.Physics != null)
                         {
-                            keep = true;
+                            if (entity.Physics.IsStatic)
+                            {
+                                MyCubeGrid grid = entity as MyCubeGrid;
+                                //welded grids to voxels are static but planet physics sector needs to be kept for them
+                                if (grid != null && grid.IsStatic == false)
+                                {
+                                    keep = true;
+                                }
+                            }
+                            else
+                            {
+                                keep = true;
+                            }
                         }
                     }
 
@@ -714,7 +731,8 @@ namespace Sandbox.Game.Entities
                 ProfilerShort.End();
             }
         }
-        #endregion
+
+        #endregion Planet Physics
 
         public override MyClipmapScaleEnum ScaleGroup
         {
@@ -744,7 +762,7 @@ namespace Sandbox.Game.Entities
             else
             {
                 // Calculate if the position is not inside of the planet:
-                VRage.Voxels.MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref position, out localPos);
+                MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref position, out localPos);
 
                 // Setup safe bounding box for the drone.
                 testBBox = new BoundingBox(localPos - offset, localPos + offset);
@@ -762,7 +780,7 @@ namespace Sandbox.Game.Entities
                 // Spawn it above the ground in the direction of up vector
                 fixedPosition += upVector * radius;
 
-                VRage.Voxels.MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref fixedPosition, out localPos);
+                MyVoxelCoordSystems.WorldPositionToLocalPosition(PositionLeftBottomCorner, ref fixedPosition, out localPos);
                 testBBox = new BoundingBox(localPos - offset, localPos + offset);
                 cType = Storage.Intersect(ref testBBox);
 

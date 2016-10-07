@@ -9,15 +9,17 @@ using System.IO;
 using System.Runtime.InteropServices;
 using VRage.Utils;
 using VRageMath.PackedVector;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.FileSystem;
 using VRage.Import;
 using BoundingBox = VRageMath.BoundingBox;
 using BoundingSphere = VRageMath.BoundingSphere;
 using Vector3 = VRageMath.Vector3;
-using VRage.Render.Models;
 using VRageMath;
 using VRageRender;
+using VRageRender.Fractures;
+using VRageRender.Import;
+using VRageRender.Models;
 
 #endregion
 
@@ -94,7 +96,7 @@ namespace VRage.Game.Models
 
 
         private MyCompressedVertexNormal[] m_vertices;
-        private MyCompressedBoneWeights[] m_bonesWeights;
+        private MyCompressedBoneIndicesWeights[] m_bonesIndicesWeights;
 
         private int[] m_Indices = null;
         private ushort[] m_Indices_16bit = null;
@@ -189,31 +191,31 @@ namespace VRage.Game.Models
             v3 = GetVertex(vertexIndex3);
         }
 
-        public MyTriangle_BoneWeigths? GetBoneWeights(int triangleIndex)
+        public MyTriangle_BoneIndicesWeigths? GetBoneIndicesWeights(int triangleIndex)
         {
-            if (m_bonesWeights == null)
+            if (m_bonesIndicesWeights == null)
                 return null;
 
             MyTriangleVertexIndices indices = Triangles[triangleIndex];
 
-            MyCompressedBoneWeights boneWeightV0 = m_bonesWeights[indices.I0];
-            MyCompressedBoneWeights boneWeightV1 = m_bonesWeights[indices.I1];
-            MyCompressedBoneWeights boneWeightV2 = m_bonesWeights[indices.I2];
+            MyCompressedBoneIndicesWeights boneIndicesWeightsV0 = m_bonesIndicesWeights[indices.I0];
+            MyCompressedBoneIndicesWeights boneIndicesWeightsV1 = m_bonesIndicesWeights[indices.I1];
+            MyCompressedBoneIndicesWeights boneIndicesWeightsV2 = m_bonesIndicesWeights[indices.I2];
 
-            Vector4 indicesV0 = boneWeightV0.Indices.ToVector4();
-            Vector4 weightsV0 = boneWeightV0.Weights.ToVector4();
+            Vector4UByte indicesV0 = boneIndicesWeightsV0.Indices.ToVector4UByte();
+            Vector4 weightsV0 = boneIndicesWeightsV0.Weights.ToVector4();
 
-            Vector4 indicesV1 = boneWeightV1.Indices.ToVector4();
-            Vector4 weightsV1 = boneWeightV1.Weights.ToVector4();
+            Vector4UByte indicesV1 = boneIndicesWeightsV1.Indices.ToVector4UByte();
+            Vector4 weightsV1 = boneIndicesWeightsV1.Weights.ToVector4();
 
-            Vector4 indicesV2 = boneWeightV2.Indices.ToVector4();
-            Vector4 weightsV2 = boneWeightV2.Weights.ToVector4();
+            Vector4UByte indicesV2 = boneIndicesWeightsV2.Indices.ToVector4UByte();
+            Vector4 weightsV2 = boneIndicesWeightsV2.Weights.ToVector4();
 
-            MyTriangle_BoneWeigths ret = new MyTriangle_BoneWeigths()
+            MyTriangle_BoneIndicesWeigths ret = new MyTriangle_BoneIndicesWeigths()
             {
-                Vertex0 = new MyVertex_BoneWeight() { Indices = new Vector3(indicesV0), Weights = new Vector3(weightsV0) },
-                Vertex1 = new MyVertex_BoneWeight() { Indices = new Vector3(indicesV1), Weights = new Vector3(weightsV1) },
-                Vertex2 = new MyVertex_BoneWeight() { Indices = new Vector3(indicesV2), Weights = new Vector3(weightsV2) }
+                Vertex0 = new MyVertex_BoneIndicesWeights() { Indices = indicesV0, Weights = weightsV0 },
+                Vertex1 = new MyVertex_BoneIndicesWeights() { Indices = indicesV1, Weights = weightsV1 },
+                Vertex2 = new MyVertex_BoneIndicesWeights() { Indices = indicesV2, Weights = weightsV2 }
             };
             return ret;
         }
@@ -518,12 +520,12 @@ namespace VRage.Game.Models
                 {
                     if (boneWeights != null && boneIndices.Length == boneWeights.Length && boneIndices.Length == m_vertices.Length)
                     {
-                        m_bonesWeights = new MyCompressedBoneWeights[boneIndices.Length];
+                        m_bonesIndicesWeights = new MyCompressedBoneIndicesWeights[boneIndices.Length];
 
                         for (int it = 0; it < boneIndices.Length; it++)
                         {
-                            m_bonesWeights[it].Indices = new Byte4(boneIndices[it].X, boneIndices[it].Y, boneIndices[it].Z, boneIndices[it].W);
-                            m_bonesWeights[it].Weights = new HalfVector4(boneWeights[it]);
+                            m_bonesIndicesWeights[it].Indices = new Byte4(boneIndices[it].X, boneIndices[it].Y, boneIndices[it].Z, boneIndices[it].W);
+                            m_bonesIndicesWeights[it].Weights = new HalfVector4(boneWeights[it]);
                         }
                     }
                     else
@@ -615,10 +617,10 @@ namespace VRage.Game.Models
                 MyLog.Default.WriteLine("BoundingBox: " + BoundingBox, LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("BoundingSphere: " + BoundingSphere, LoggingOptions.LOADING_MODELS);
 
-                VRage.Utils.Stats.PerAppLifetime.MyModelsCount++;
-                VRage.Utils.Stats.PerAppLifetime.MyModelsMeshesCount += m_meshContainer.Count;
-                VRage.Utils.Stats.PerAppLifetime.MyModelsVertexesCount += GetVerticesCount();
-                VRage.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount += Triangles.Length;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsCount++;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsMeshesCount += m_meshContainer.Count;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsVertexesCount += GetVerticesCount();
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount += Triangles.Length;
 
                 ModelInfo = new MyModelInfo(GetTrianglesCount(), GetVerticesCount(), BoundingBoxSize);
 
@@ -809,13 +811,13 @@ namespace VRage.Game.Models
                 m_bvh = null;
             }
 
-            VRage.Utils.Stats.PerAppLifetime.MyModelsMeshesCount -= m_meshContainer.Count;
+            VRageRender.Utils.Stats.PerAppLifetime.MyModelsMeshesCount -= m_meshContainer.Count;
             if (m_vertices != null)
-                VRage.Utils.Stats.PerAppLifetime.MyModelsVertexesCount -= GetVerticesCount();
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsVertexesCount -= GetVerticesCount();
             if (Triangles != null)
-                VRage.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount -= Triangles.Length;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsTrianglesCount -= Triangles.Length;
             if (res)
-                VRage.Utils.Stats.PerAppLifetime.MyModelsCount--;
+                VRageRender.Utils.Stats.PerAppLifetime.MyModelsCount--;
 
             if (HavokCollisionShapes != null)
             {
@@ -1084,7 +1086,7 @@ namespace VRage.Game.Models
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct MyCompressedBoneWeights
+    public struct MyCompressedBoneIndicesWeights
     {  //8 + 4 bytes
         public HalfVector4 Weights;
         public Byte4 Indices;

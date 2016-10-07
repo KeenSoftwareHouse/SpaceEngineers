@@ -30,10 +30,13 @@ using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
+    /// <summary>
+    /// This should be replaced by MyEntityOwnershipComponent
+    /// </summary>
     public class MyIDModule
     {
         long m_owner = 0; //PlayerId
-
+        
         public long Owner
         {
             get { return m_owner; }

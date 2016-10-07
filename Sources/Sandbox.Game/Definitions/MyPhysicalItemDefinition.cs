@@ -9,6 +9,7 @@ using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Utils;
 using VRageMath;
+using VRage.Library;
 
 namespace Sandbox.Definitions
 {
@@ -80,7 +81,7 @@ namespace Sandbox.Definitions
             }
             DestroyedPieces = ob.DestroyedPieces;
             if (ob.ExtraInventoryTooltipLine != null)
-                ExtraInventoryTooltipLine = new StringBuilder().Append(Environment.NewLine).Append(ob.ExtraInventoryTooltipLine);
+                ExtraInventoryTooltipLine = new StringBuilder().Append(MyEnvironment.NewLine).Append(ob.ExtraInventoryTooltipLine);
             else
                 ExtraInventoryTooltipLine = new StringBuilder();
 

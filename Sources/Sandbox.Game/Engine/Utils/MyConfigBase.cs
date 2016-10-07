@@ -6,6 +6,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using VRage;
 using VRage.FileSystem;
+using VRage.Profiler;
 using VRage.Serialization;
 using VRage.Utils;
 using VRageMath;

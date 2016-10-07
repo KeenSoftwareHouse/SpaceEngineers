@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
+using VRage.Render11.Common;
 using VRageMath;
-using RectangleF = VRageMath.RectangleF;
 using Vector2 = VRageMath.Vector2;
 using Vector3 = VRageMath.Vector3;
 using Color = VRageMath.Color;
 using Matrix = VRageMath.Matrix;
 using BoundingSphere = VRageMath.BoundingSphere;
 using BoundingBox = VRageMath.BoundingBox;
-using BoundingFrustum = VRageMath.BoundingFrustum;
 using Vector4 = VRageMath.Vector4;
 using Plane = VRageMath.Plane;
 using Ray = VRageMath.Ray;
 using VRageRender.Vertex;
-using VRageMath.PackedVector;
-using VRage.Voxels;
-using VRageRender.Resources;
+using VRage.Render11.Resources;
+using VRageRender.Voxels;
 
 namespace VRageRender
 {
@@ -31,11 +26,11 @@ namespace VRageRender
 
         static PixelShaderId m_baseColorShader;
         static PixelShaderId m_baseColorLinearShader;
+        static PixelShaderId m_albedoShader;
         static PixelShaderId m_normalShader;
         static PixelShaderId m_normalViewShader;
         static PixelShaderId m_glossinessShader;
         static PixelShaderId m_metalnessShader;
-        static PixelShaderId m_matIDShader;
         static PixelShaderId m_aoShader;
         static PixelShaderId m_emissiveShader;
         static PixelShaderId m_ambientDiffuseShader;
@@ -45,6 +40,7 @@ namespace VRageRender
         static PixelShaderId m_NDotLShader;
         private static PixelShaderId m_depthShader;
         private static PixelShaderId m_stencilShader;
+        private static PixelShaderId m_rtShader;
 
         static VertexShaderId m_screenVertexShader;
         static PixelShaderId m_blitTextureShader;
@@ -59,27 +55,27 @@ namespace VRageRender
         internal static void Init()
         {
             //MyRender11.RegisterSettingsChangedListener(new OnSettingsChangedDelegate(RecreateShadersForSettings));
-            m_screenVertexShader = MyShaders.CreateVs("debug_base_color.hlsl");
-            m_baseColorShader = MyShaders.CreatePs("debug_base_color.hlsl");
-            m_baseColorLinearShader = MyShaders.CreatePs("debug_base_color_linear.hlsl");
-            m_normalShader = MyShaders.CreatePs("debug_normal.hlsl");
-            m_normalViewShader = MyShaders.CreatePs("debug_normal_view.hlsl");
-            m_glossinessShader = MyShaders.CreatePs("debug_glossiness.hlsl");
-            m_metalnessShader = MyShaders.CreatePs("debug_metalness.hlsl");
-            m_matIDShader = MyShaders.CreatePs("debug_mat_id.hlsl");
-            m_aoShader = MyShaders.CreatePs("debug_ambient_occlusion.hlsl");
-            m_emissiveShader = MyShaders.CreatePs("debug_emissive.hlsl");
-            m_ambientDiffuseShader = MyShaders.CreatePs("debug_ambient_diffuse.hlsl");
-            m_ambientSpecularShader = MyShaders.CreatePs("debug_ambient_specular.hlsl");
-            m_edgeDebugShader = MyShaders.CreatePs("debug_edge.hlsl");
-            m_shadowsDebugShader = MyShaders.CreatePs("debug_cascades_shadow.hlsl");
-            m_NDotLShader = MyShaders.CreatePs("debug_NDotL.hlsl");
-            m_depthShader = MyShaders.CreatePs("debug_Depth.hlsl");
-            m_stencilShader = MyShaders.CreatePs("debug_Stencil.hlsl");
+            m_screenVertexShader = MyShaders.CreateVs("Debug/DebugBaseColor.hlsl");
+            m_baseColorShader = MyShaders.CreatePs("Debug/DebugBaseColor.hlsl");
+            m_albedoShader = MyShaders.CreatePs("Debug/DebugAlbedo.hlsl");
+            m_normalShader = MyShaders.CreatePs("Debug/DebugNormal.hlsl");
+            m_normalViewShader = MyShaders.CreatePs("Debug/DebugNormalView.hlsl");
+            m_glossinessShader = MyShaders.CreatePs("Debug/DebugGlossiness.hlsl");
+            m_metalnessShader = MyShaders.CreatePs("Debug/DebugMetalness.hlsl");
+            m_aoShader = MyShaders.CreatePs("Debug/DebugAmbientOcclusion.hlsl");
+            m_emissiveShader = MyShaders.CreatePs("Debug/DebugEmissive.hlsl");
+            m_ambientDiffuseShader = MyShaders.CreatePs("Debug/DebugAmbientDiffuse.hlsl");
+            m_ambientSpecularShader = MyShaders.CreatePs("Debug/DebugAmbientSpecular.hlsl");
+            m_edgeDebugShader = MyShaders.CreatePs("Debug/DebugEdge.hlsl");
+            m_shadowsDebugShader = MyShaders.CreatePs("Debug/DebugCascadesShadow.hlsl");
+            m_NDotLShader = MyShaders.CreatePs("Debug/DebugNDotL.hlsl");
+            m_depthShader = MyShaders.CreatePs("Debug/DebugDepth.hlsl");
+            m_stencilShader = MyShaders.CreatePs("Debug/DebugStencil.hlsl");
+            m_rtShader = MyShaders.CreatePs("Debug/DebugRt.hlsl");
 
-            m_blitTextureShader = MyShaders.CreatePs("debug_blitTexture.hlsl");
-            m_blitTexture3DShader = MyShaders.CreatePs("debug_blitTexture3D.hlsl");
-            m_blitTextureArrayShader = MyShaders.CreatePs("debug_blitTextureArray.hlsl");
+            m_blitTextureShader = MyShaders.CreatePs("Debug/DebugBlitTexture.hlsl");
+            m_blitTexture3DShader = MyShaders.CreatePs("Debug/DebugBlitTexture3D.hlsl");
+            m_blitTextureArrayShader = MyShaders.CreatePs("Debug/DebugBlitTextureArray.hlsl");
             m_inputLayout = MyShaders.CreateIL(m_screenVertexShader.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION2, MyVertexInputComponentType.TEXCOORD0));
 
             m_quadBuffer = MyHwBuffers.CreateVertexBuffer(6, MyVertexFormatPosition2Texcoord.STRIDE, BindFlags.VertexBuffer, ResourceUsage.Dynamic, null, "MyDebugRenderer quad");
@@ -95,8 +91,8 @@ namespace VRageRender
             else
                 usedVertexShader = customVertexShader.Value;
 
-            RC.DeviceContext.VertexShader.Set(usedVertexShader);
-            RC.SetIL(m_inputLayout);
+            RC.VertexShader.Set(usedVertexShader);
+            RC.SetInputLayout(m_inputLayout);
 
             var mapping = MyMapping.MapDiscard(m_quadBuffer.Buffer);
             var tmpFormat = new MyVertexFormatPosition2Texcoord(new Vector2(x, y), new Vector2(0, 0));
@@ -119,52 +115,47 @@ namespace VRageRender
 
             mapping.Unmap();
 
-            RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
+            RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
 
-            RC.DeviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(m_quadBuffer.Buffer, m_quadBuffer.Stride, 0));
-            RC.DeviceContext.Draw(6, 0);
+            RC.SetVertexBuffer(0, m_quadBuffer.Buffer, m_quadBuffer.Stride);
+            RC.Draw(6, 0);
         }
 
         internal unsafe static void DrawAtmosphereTransmittance(uint ID)
         {
             var tex = MyAtmosphereRenderer.AtmosphereLUT[ID].TransmittanceLut;
 
-            RC.DeviceContext.PixelShader.Set(m_blitTextureShader);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, tex.SRV);
+            RC.PixelShader.Set(m_blitTextureShader);
+            RC.PixelShader.SetSrv(0, tex);
 
             DrawQuad(256, 0, 256, 64);
 
-            RC.DeviceContext.PixelShader.SetShaderResource(0, null);
+            RC.PixelShader.SetSrv(0, null);
         }
 
-        internal static void DrawEnvProbeQuad(float x, float y, float w, float h, int i)
+        internal static void DrawSrvTexture(float x, float y, float w, float h, ISrvBindable tex)
         {
-            RC.DeviceContext.PixelShader.Set(m_blitTextureShader);
-            
-            RC.DeviceContext.PixelShader.SetShaderResource(0, MyEnvironmentProbe.Instance.cubemapPrefiltered.SubresourceSrv(i, 1));
+            RC.PixelShader.Set(m_blitTextureShader);
+
+            RC.PixelShader.SetSrv(0, tex);
 
             DrawQuad(x, y, w, h);
         }
 
-        internal static void DrawCascades(MyShadowCascades cascades, int quadStartX, int quadStartY, int quadSize)
+        internal static void DrawDepthArrayTexture(IDepthArrayTexture tex, int quadStartX, int quadStartY, int quadSize)
         {
-            DrawCascadeArray(cascades.CascadeShadowmapArray, quadStartX, quadStartY, quadSize);
+            DrawSrvArrayTexture(tex, tex.NumSlices, quadStartX, quadStartY, quadSize);
         }
 
-        internal static void DrawCombinedCascades(int quadStartX, int quadStartY, int quadSize)
+        private static void DrawSrvArrayTexture(ISrvBindable textureArray, int texCount, int quadStartX, int quadStartY, int quadSize)
         {
-            DrawCascadeArray(MyShadowCascades.CombineShadowmapArray, quadStartX, quadStartY, quadSize);
-        }
-
-        private static void DrawCascadeArray(RwTexId textureArray, int quadStartX, int quadStartY, int quadSize)
-        {
-            RC.DeviceContext.PixelShader.Set(m_blitTextureArrayShader);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, textureArray.SRV);
+            RC.PixelShader.Set(m_blitTextureArrayShader);
+            RC.PixelShader.SetSrv(0, textureArray);
 
             var cb = MyCommon.GetMaterialCB(sizeof(uint));
-            RC.DeviceContext.PixelShader.SetConstantBuffer(5, cb);
+            RC.PixelShader.SetConstantBuffer(5, cb);
 
-            for (uint cascadeIndex = 0; cascadeIndex < MyRender11.Settings.ShadowCascadeCount; cascadeIndex++)
+            for (uint cascadeIndex = 0; cascadeIndex < texCount; cascadeIndex++)
             {
                 float index = (float)cascadeIndex;
                 var mapping = MyMapping.MapDiscard(cb);
@@ -172,135 +163,142 @@ namespace VRageRender
                 mapping.Unmap();
                 DrawQuad(quadStartX + (quadSize + quadStartX / 2) * cascadeIndex, quadStartY, quadSize, quadSize * MyRender11.ViewportResolution.Y / MyRender11.ViewportResolution.X);
             }
-            RC.DeviceContext.PixelShader.SetShaderResource(0, null);
+            RC.PixelShader.SetSrv(0, null);
         }
 
-        internal static void DrawParticles(MyBindableResource particleRenderTarget, int quadStartX, int quadStartY, int quadSize)
+        internal static void DrawParticles(ISrvBindable particleRenderTarget, int quadStartX, int quadStartY, int quadSize)
         {
-            RC.DeviceContext.PixelShader.Set(m_blitTextureShader);
-            RC.BindSRV(0, particleRenderTarget);
-            RC.SetBS(MyRender11.BlendAlphaPremult);
+            RC.PixelShader.Set(m_blitTextureShader);
+            RC.AllShaderStages.SetSrv(0, particleRenderTarget);
+            RC.SetBlendState(MyBlendStateManager.BlendAlphaPremult);
 
             DrawQuad(quadStartX, quadStartY, quadSize, quadSize * MyRender11.ViewportResolution.Y / MyRender11.ViewportResolution.X);
-            RC.SetBS(null);
-            RC.DeviceContext.PixelShader.SetShaderResource(0, null);
+            RC.SetBlendState(null);
+            RC.PixelShader.SetSrv(0, null);
         }
 
         internal static void DrawEnvProbe()
         {
-            //MyGeometryRenderer.m_envProbe.cubemap
-
-            DrawEnvProbeQuad(256 * 2, 256 * 1, 256, 256, 0);
-            DrawEnvProbeQuad(256 * 0, 256 * 1, 256, 256, 1);
-            DrawEnvProbeQuad(256 * 1, 256 * 0, 256, 256, 2);
-            DrawEnvProbeQuad(256 * 1, 256 * 2, 256, 256, 3);
-            DrawEnvProbeQuad(256 * 1, 256 * 1, 256, 256, 4);
-            DrawEnvProbeQuad(256 * 3, 256 * 1, 256, 256, 5);
+            int colorMipmap = 0;
+            IUavArrayTexture colorTexture = MyManagers.EnvironmentProbe.Cubemap;
+            DrawSrvTexture(256 * 2, 256 * 1, 256, 256, colorTexture.SubresourceSrv(0, colorMipmap));
+            DrawSrvTexture(256 * 0, 256 * 1, 256, 256, colorTexture.SubresourceSrv(1, colorMipmap));
+            DrawSrvTexture(256 * 1, 256 * 0, 256, 256, colorTexture.SubresourceSrv(2, colorMipmap));
+            DrawSrvTexture(256 * 1, 256 * 2, 256, 256, colorTexture.SubresourceSrv(3, colorMipmap));
+            DrawSrvTexture(256 * 1, 256 * 1, 256, 256, colorTexture.SubresourceSrv(4, colorMipmap));
+            DrawSrvTexture(256 * 3, 256 * 1, 256, 256, colorTexture.SubresourceSrv(5, colorMipmap));
         }
 
-        internal static void Draw(MyBindableResource renderTarget)
+        internal static void Draw(IRtvBindable renderTarget)
         {
-            var context = RC.DeviceContext;
-            context.InputAssembler.PrimitiveTopology = PrimitiveTopology.TriangleList;
-            context.Rasterizer.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
-            context.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
+            RC.SetPrimitiveTopology(PrimitiveTopology.TriangleList);
+            RC.SetViewport(0, 0, MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
+            RC.PixelShader.SetConstantBuffer(MyCommon.FRAME_SLOT, MyCommon.FrameConstants);
 
-            RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, renderTarget);
-            RC.BindGBufferForRead(0, MyGBuffer.Main);
+            RC.SetRtv(renderTarget);
+            RC.PixelShader.SetSrvs(0, MyGBuffer.Main);
             
-            context.OutputMerger.BlendState = null;
+            RC.SetBlendState(null);
 
-            if(MyRender11.Settings.DisplayGbufferColor)
+            if (MyRender11.Settings.DisplayGbufferColor)
             {
-                context.PixelShader.Set(m_baseColorShader);
+                RC.PixelShader.Set(m_baseColorShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
-            if (MyRender11.Settings.DisplayGbufferColorLinear)
+            else if (MyRender11.Settings.DisplayGbufferAlbedo)
             {
-                context.PixelShader.Set(m_baseColorLinearShader);
+                RC.PixelShader.Set(m_albedoShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayGbufferNormal)
             {
-                context.PixelShader.Set(m_normalShader);
+                RC.PixelShader.Set(m_normalShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayGbufferNormalView)
             {
-                context.PixelShader.Set(m_normalViewShader);
+                RC.PixelShader.Set(m_normalViewShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayGbufferGlossiness)
             {
-                context.PixelShader.Set(m_glossinessShader);
+                RC.PixelShader.Set(m_glossinessShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayGbufferMetalness)
             {
-                context.PixelShader.Set(m_metalnessShader);
-                MyScreenPass.DrawFullscreenQuad();
-            }
-            else if (MyRender11.Settings.DisplayGbufferMaterialID)
-            {
-                context.PixelShader.Set(m_matIDShader);
+                RC.PixelShader.Set(m_metalnessShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayGbufferAO)
             {
-                context.PixelShader.Set(m_aoShader);
+                RC.PixelShader.Set(m_aoShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayEmissive)
             {
-                context.PixelShader.Set(m_emissiveShader);
+                RC.PixelShader.Set(m_emissiveShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if(MyRender11.Settings.DisplayAmbientDiffuse)
             {
-                context.PixelShader.Set(m_ambientDiffuseShader);
+                RC.PixelShader.Set(m_ambientDiffuseShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if(MyRender11.Settings.DisplayAmbientSpecular)
             {
-                context.PixelShader.Set(m_ambientSpecularShader);
+                RC.PixelShader.Set(m_ambientSpecularShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if(MyRender11.Settings.DisplayEdgeMask)
             {
-                context.PixelShader.Set(m_edgeDebugShader);
+                RC.PixelShader.Set(m_edgeDebugShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayShadowsWithDebug)
             {
-                context.PixelShader.Set(m_shadowsDebugShader);
+                RC.PixelShader.Set(m_shadowsDebugShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayNDotL)
             {
-                context.PixelShader.Set(m_NDotLShader);
+                RC.PixelShader.Set(m_NDotLShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if(MyRender11.Settings.DisplayDepth)
             {
-                context.PixelShader.Set(m_depthShader);
+                RC.PixelShader.Set(m_depthShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
             else if (MyRender11.Settings.DisplayStencil)
             {
-                context.PixelShader.Set(m_stencilShader);
+                RC.PixelShader.Set(m_stencilShader);
                 MyScreenPass.DrawFullscreenQuad();
             }
+            else if (MyRender11.Settings.DisplayAO)
+            {
+                RC.PixelShader.SetSrv(0, MyScreenDependants.m_ambientOcclusion);
+                RC.PixelShader.SetSampler(0, MySamplerStateManager.Linear);
+                RC.PixelShader.Set(m_rtShader);
+                MyScreenPass.DrawFullscreenQuad();
+            }
+            else if (MyRender11.Settings.DisplayEnvProbe)
+            {
+                DrawEnvProbe();
+            }
+
             //DrawEnvProbe();
             //DrawAtmosphereTransmittance(MyAtmosphereRenderer.AtmosphereLUT.Keys.ToArray()[0]);
             //DrawAtmosphereInscatter(MyAtmosphereRenderer.AtmosphereLUT.Keys.ToArray()[0]);
-
+ 
             if (MyRender11.Settings.DrawCascadeTextures)
             {
-                DrawCascades(MyRender11.DynamicShadows.ShadowCascades, 100, 100, 200);
+                //DrawDepthArrayTexture(MyManagers.Shadow.GetCsmForGbuffer(), 100, 100, 200);
+                DrawDepthArrayTexture(MyRender11.DynamicShadows.ShadowCascades.CascadeShadowmapArray, 100, 100, 200);
                 if (MyScene.SeparateGeometry)
                 {
-                    DrawCascades(MyRender11.StaticShadows.ShadowCascades, 100, 300, 200);
-                    DrawCombinedCascades(100, 500, 200);
+                    DrawDepthArrayTexture(MyRender11.StaticShadows.ShadowCascades.CascadeShadowmapArray, 100, 300, 200);
+                    DrawDepthArrayTexture(MyShadowCascades.CombineShadowmapArray, 100, 500, 200);
                 }
             }
 
@@ -426,7 +424,7 @@ namespace VRageRender
 
         internal static void DrawHierarchyDebug()
         {
-            var worldToClip = MyRender11.Environment.ViewProjection;
+            var worldToClip = MyRender11.Environment.Matrices.ViewProjection;
             var displayString = new StringBuilder();
 
             var batch = MyLinesRenderer.CreateBatch();
@@ -488,12 +486,12 @@ namespace VRageRender
                             }
                         }
 
-                        batch.AddBoundingBox(((BoundingBox)bb).Translate(-MyRender11.Environment.CameraPosition), Color.Red);
+                        batch.AddBoundingBox(((BoundingBox)bb).Translate(-MyRender11.Environment.Matrices.CameraPosition), Color.Red);
                         MyPrimitivesRenderer.Draw6FacedConvexZ(bb.GetCorners().Select(x => (Vector3)x).ToArray(), Color.Red, 0.1f);
                     }
                     else if (r != null && actor.GetGroupLeaf() == null)
                     {
-                        batch.AddBoundingBox(((BoundingBox)r.Owner.Aabb).Translate(-MyRender11.Environment.CameraPosition), Color.Green);
+                        batch.AddBoundingBox(((BoundingBox)r.Owner.Aabb).Translate(-MyRender11.Environment.Matrices.CameraPosition), Color.Green);
                     }
                 }
             }
@@ -631,7 +629,7 @@ namespace VRageRender
                 for(int i=0; i<4; i++)
                 {
                     float levelCellSize = cellSize * (float)Math.Pow(2, i);
-                    var position = MyRender11.Environment.CameraPosition;
+                    var position = MyRender11.Environment.Matrices.CameraPosition;
                     //var position = Vector3.Zero;
                     position.Y = 0;
                     var positionG = position.Snap(levelCellSize * 2);

@@ -18,7 +18,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using System.Xml;
 
 using VRage;
@@ -49,6 +51,9 @@ using VRage.ObjectBuilders.Definitions;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
+using VRage.Library;
+using VRage.Profiler;
+using VRageRender.Utils;
 
 #endregion
 
@@ -100,8 +105,6 @@ namespace Sandbox.Definitions
         static MyDefinitionManager()
         {
             MyDefinitionManagerBase.Static = new MyDefinitionManager();
-
-            RegisterTypesFromAssembly(Static.GetType().Assembly);
         }
 
         private MyDefinitionManager()
@@ -139,8 +142,8 @@ namespace Sandbox.Definitions
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.NONE))
             {
                 //Pre-load base definitions
-                if(MyFakes.ENABLE_PRELOAD_DEFINITIONS)
-                GetDefinitionBuilders(MyModContext.BaseGame);
+                if (MyFakes.ENABLE_PRELOAD_DEFINITIONS)
+                    GetDefinitionBuilders(MyModContext.BaseGame);
             }
 
             MySandboxGame.Log.WriteLine("MyDefinitionManager.PrepareBaseDefinitions() - END");
@@ -617,7 +620,7 @@ namespace Sandbox.Definitions
 
         private static void FailModLoading(MyModContext context, int phase = -1, int phaseNum = 0, Exception innerException = null)
         {
-            string errorMessage = (innerException != null ? ", Following Error occured:" + Environment.NewLine + innerException.Message + Environment.NewLine + innerException.Source + Environment.NewLine + innerException.StackTrace : "");
+            string errorMessage = (innerException != null ? ", Following Error occured:" + MyEnvironment.NewLine + innerException.Message + MyEnvironment.NewLine + innerException.Source + MyEnvironment.NewLine + innerException.StackTrace : "");
             if (phase == -1)
                 MyDefinitionErrors.Add(context, "MOD SKIPPED, Cannot load definition file" + errorMessage, TErrorSeverity.Critical);
             else
@@ -716,27 +719,27 @@ namespace Sandbox.Definitions
             }
 
             if (!useAttrs)
-            while (reader.Read())
-            {
-                if (reader.IsStartElement())
+                while (reader.Read())
                 {
-                    switch (reader.Name)
+                    if (reader.IsStartElement())
                     {
-                        case "TypeId":
-                            reader.Read();
-                            definition.Id.TypeIdString = reader.Value;
-                            break;
-                        case "SubtypeId":
-                            reader.Read();
-                            definition.Id.SubtypeId = reader.Value;
-                            break;
+                        switch (reader.Name)
+                        {
+                            case "TypeId":
+                                reader.Read();
+                                definition.Id.TypeIdString = reader.Value;
+                                break;
+                            case "SubtypeId":
+                                reader.Read();
+                                definition.Id.SubtypeId = reader.Value;
+                                break;
+                        }
+                    }
+                    else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "Id")
+                    {
+                        break;
                     }
                 }
-                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "Id")
-                {
-                    break;
-                }
-            }
 
             prefabs.Add(definition);
         }
@@ -1194,6 +1197,7 @@ namespace Sandbox.Definitions
 
                 ToDefinitions(context, definitionSet.m_definitionsById, definitionSet.m_uniqueCubeBlocksBySize, objBuilder.CubeBlocks, failOnDebug);
 
+                MySandboxGame.Log.WriteLine("Created block definitions");
                 foreach (var size in definitionSet.m_uniqueCubeBlocksBySize)
                     PrepareBlockBlueprints(context, definitionSet.m_blueprintsById, size);
             }
@@ -1205,7 +1209,7 @@ namespace Sandbox.Definitions
             {
                 if (MySandboxGame.Static != null)
                 {
-                    MySandboxGame.Log.WriteLine("Loading prefabs");
+                    MySandboxGame.Log.WriteLine("Loading prefab: " + context.CurrentFile);
                     InitPrefabs(context, definitionSet.m_prefabs, objBuilder.Prefabs, failOnDebug);
                 }
             }
@@ -1792,13 +1796,6 @@ namespace Sandbox.Definitions
             return result as T;
         }
 
-        private void Save<T>(T builder, string dataPath, string fileName) where T : MyObjectBuilder_Base
-        {
-            string filePath = Path.Combine(dataPath, fileName);
-            var path = Path.Combine(MyFileSystem.ContentPath, filePath);
-            MyObjectBuilderSerializer.SerializeXML(path, false, builder);
-        }
-
         private static void InitAmmoMagazines(MyModContext context,
             DefinitionDictionary<MyDefinitionBase> output, MyObjectBuilder_AmmoMagazineDefinition[] magazines, bool failOnDebug = true)
         {
@@ -2031,6 +2028,9 @@ namespace Sandbox.Definitions
                 Check(res[i].Id.TypeId == typeof(MyObjectBuilder_Component), res[i].Id.TypeId, failOnDebug, UNKNOWN_ENTRY_MESSAGE);
                 Check(!output.ContainsKey(res[i].Id), res[i].Id, failOnDebug);
                 output[res[i].Id] = res[i];
+
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Loaded component: " + res[i].Id);
             }
         }
 
@@ -2150,6 +2150,9 @@ namespace Sandbox.Definitions
             {
                 var cubeBlock = entry.Value;
 
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Loading cube block: " + entry.Key);
+
                 if (!MyFakes.ENABLE_NON_PUBLIC_BLOCKS && cubeBlock.Public == false) continue;
 
                 var uniqueCubeBlock = cubeBlock.UniqueVersion;
@@ -2176,13 +2179,6 @@ namespace Sandbox.Definitions
         public MyEnvironmentDefinition EnvironmentDefinition
         {
             get { return MySector.EnvironmentDefinition; }
-        }
-
-        [Obsolete]
-        public void SaveEnvironmentDefinition()
-        {
-            //string dataFolder = Path.Combine(MyFileSystem.ContentPath, "Data");
-            //Save(m_definitions.m_environmentDef.GetObjectBuilder(), dataFolder, "Environment.sbc");
         }
 
         private static void InitGlobalEvents(MyModContext context,
@@ -2342,7 +2338,7 @@ namespace Sandbox.Definitions
             MyGuiTextShadows.ClearShadowTextures();
             foreach (var obj in objBuilders)
             {
-                List<ShadowTexture> textures =  new List<ShadowTexture>();
+                List<ShadowTexture> textures = new List<ShadowTexture>();
                 foreach (var texture in obj.ShadowTextures)
                     textures.Add(new ShadowTexture(texture.Texture, texture.MinWidth, texture.GrowFactorWidth, texture.GrowFactorHeight, texture.DefaultAlpha));
 
@@ -2420,6 +2416,32 @@ namespace Sandbox.Definitions
             }
         }
 
+        public void ReloadParticles()
+        {
+            MyModContext context = MyModContext.BaseGame;
+
+            MySandboxGame.Log.WriteLine("Loading particles");
+            var path = Path.Combine(context.ModPathData, "Particles.sbc");
+
+            if (m_transparentMaterialsInitialized == false)
+            {
+                ProfilerShort.Begin("CreateTransparentMaterials");
+                CreateTransparentMaterials();
+                m_transparentMaterialsInitialized = true;
+            }
+
+            var objBuilder = Load<MyObjectBuilder_Definitions>(path);
+
+            MyParticlesLibrary.Close();
+
+            foreach (var classDef in objBuilder.ParticleEffects)
+            {
+                MyParticleEffect effect = MyParticlesManager.EffectsPool.Allocate();
+                effect.DeserializeFromObjectBuilder(classDef);
+                MyParticlesLibrary.AddParticleEffect(effect);
+            }
+        }
+
         public void SaveHandItems()
         {
             var objBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Definitions>();
@@ -2433,8 +2455,8 @@ namespace Sandbox.Definitions
 
             objBuilder.HandItems = defList.ToArray();
 
-            string dataFolder = Path.Combine(MyFileSystem.ContentPath, "Data");
-            Save(objBuilder, dataFolder, "HandItems.sbc");
+            string filepath = Path.Combine(MyFileSystem.ContentPath, "Data", "HandItems.sbc");
+            objBuilder.Save(filepath);
         }
 
         private static void InitPhysicalItems(MyModContext context,
@@ -2610,6 +2632,7 @@ namespace Sandbox.Definitions
             {
                 MyTransparentMaterials.AddMaterial(new MyTransparentMaterial(
                     material.Id.SubtypeName,
+                    material.TextureType,
                     material.Texture,
                     material.SoftParticleDistanceScale,
                     material.CanBeAffectedByLights,
@@ -2623,7 +2646,8 @@ namespace Sandbox.Definitions
                     material.AlphaMistingEnd,
                     material.AlphaSaturation,
                     material.Reflectivity,
-                    material.AlphaCutout
+                    material.AlphaCutout,
+                    material.TargetSize
                 ));
             }
 
@@ -2641,6 +2665,9 @@ namespace Sandbox.Definitions
 
                 Check(!output.ContainsKey(res[i].Id.SubtypeName), res[i].Id.SubtypeName, failOnDebug);
                 output[res[i].Id.SubtypeName] = res[i];
+
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Loaded voxel material: " + res[i].Id.SubtypeName);
             }
         }
 
@@ -3099,7 +3126,15 @@ namespace Sandbox.Definitions
         public MyCubeBlockDefinition GetCubeBlockDefinition(MyDefinitionId id)
         {
             CheckDefinition<MyCubeBlockDefinition>(ref id);
-            return m_definitions.m_definitionsById[id] as MyCubeBlockDefinition;
+            if (m_definitions.m_definitionsById.ContainsKey(id))
+            {
+                return m_definitions.m_definitionsById[id] as MyCubeBlockDefinition;
+            }
+            else
+            {
+                Debug.Assert(false, "Key not in dictionary! " + id.ToString());
+                return null;
+            }
         }
 
         public MyComponentDefinition GetComponentDefinition(MyDefinitionId id)
@@ -3590,7 +3625,9 @@ namespace Sandbox.Definitions
         {
             Debug.Assert(m_definitions.m_definitionsById.ContainsKey(id));
             CheckDefinition<MyBotDefinition>(ref id);
-            return m_definitions.m_definitionsById[id] as MyBotDefinition;
+            if (m_definitions.m_definitionsById.ContainsKey(id))
+                return m_definitions.m_definitionsById[id] as MyBotDefinition;
+            return null;
         }
 
         public bool TryGetBotDefinition(MyDefinitionId id, out MyBotDefinition botDefinition)
@@ -3772,7 +3809,10 @@ namespace Sandbox.Definitions
             MyDefinitionBase definitionBase;
             try
             {
-                if (!m_definitions.m_definitionsById.TryGetValue(id, out definitionBase))
+                definitionBase = base.GetDefinition<T>(id.SubtypeId);
+                var definitionFound = definitionBase != null || m_definitions.m_definitionsById.TryGetValue(id, out definitionBase);
+
+                if (!definitionFound)
                 {
                     string message = String.Format("No definition '{0}'. Maybe a mistake in XML?", id);
                     MySandboxGame.Log.WriteLine(message);
@@ -4035,6 +4075,9 @@ namespace Sandbox.Definitions
                 Check(!outputDefinitions.ContainsKey(result.Id), result.Id, failOnDebug);
                 outputDefinitions[result.Id] = result;
 
+                if (!context.IsBaseGame)
+                    MySandboxGame.Log.WriteLine("Created definition for: " + result.DisplayNameText);
+
                 //if (currentDef.Variants != null)
                 //{
                 //    result.Color = Color.Gray;
@@ -4060,7 +4103,7 @@ namespace Sandbox.Definitions
 
         private static T InitDefinition<T>(MyModContext context, MyObjectBuilder_DefinitionBase builder) where T : MyDefinitionBase
         {
-            T result = GetObjectFactory().CreateInstance<T>(builder.TypeId);
+            T result = GetObjectFactory().CreateInstance<T>(builder.GetType());
             result.Context = new MyModContext();
             result.Context.Init(context);
             if (!context.IsBaseGame)
@@ -4093,7 +4136,7 @@ namespace Sandbox.Definitions
             if (extensions.Length > 0 && field.FieldType == typeof(string))
             {
                 string contentFile = (string)field.GetValue(fieldOwnerInstance);
-                ProcessContentFilePath(context, ref contentFile, extensions);
+                ProcessContentFilePath(context, ref contentFile, extensions, true);
                 field.SetValue(fieldOwnerInstance, contentFile);
             }
             else if (field.FieldType == typeof(string[]))
@@ -4103,7 +4146,7 @@ namespace Sandbox.Definitions
                 if (stringArray != null)
                 {
                     for (int fileIndex = 0; fileIndex < stringArray.Length; ++fileIndex)
-                        ProcessContentFilePath(context, ref stringArray[fileIndex], extensions);
+                        ProcessContentFilePath(context, ref stringArray[fileIndex], extensions, false);
 
                     field.SetValue(fieldOwnerInstance, stringArray);
                 }
@@ -4133,7 +4176,7 @@ namespace Sandbox.Definitions
             }
         }
 
-        private static void ProcessContentFilePath(MyModContext context, ref string contentFile, object[] extensions)
+        private static void ProcessContentFilePath(MyModContext context, ref string contentFile, object[] extensions, bool logNoExtensions)
         {
             if (string.IsNullOrEmpty(contentFile))
                 return;
@@ -4142,7 +4185,8 @@ namespace Sandbox.Definitions
 
             if (extensions.IsNullOrEmpty())
             {
-                MyDefinitionErrors.Add(context, "None file extensions.", TErrorSeverity.Warning);
+                if (logNoExtensions)
+                    MyDefinitionErrors.Add(context, "No file extensions.", TErrorSeverity.Warning);
                 return;
             }
 
@@ -4173,6 +4217,8 @@ namespace Sandbox.Definitions
             }
             else
             {
+                MyDefinitionErrors.Add(context, "Resource not found, setting to null or error model. Resource name: " + contentFile, TErrorSeverity.Error);
+
                 if (contentFile.EndsWith(".mwm"))
                 {
                     contentFile = @"Models\Debug\Error.mwm";
@@ -4181,7 +4227,6 @@ namespace Sandbox.Definitions
                 {
                     contentFile = null;
                 }
-                MyDefinitionErrors.Add(context, "Resource not found, setting to null or error model: " + contentFile, TErrorSeverity.Error);
             }
         }
 
@@ -4195,6 +4240,9 @@ namespace Sandbox.Definitions
 
         public void Save(string filePattern = "*.*")
         {
+#if XB1
+            Debug.Assert(false, "Save Definitions not supported on XB1.");
+#else
             Regex regex = FindFilesPatternToRegex.Convert(filePattern);
 
             Dictionary<string, List<MyDefinitionBase>> defs = new Dictionary<string, List<MyDefinitionBase>>();
@@ -4233,6 +4281,7 @@ namespace Sandbox.Definitions
 
                 MyObjectBuilderSerializer.SerializeXML(defPair.Key, false, objBuilder);
             }
+#endif
         }
 
         #endregion

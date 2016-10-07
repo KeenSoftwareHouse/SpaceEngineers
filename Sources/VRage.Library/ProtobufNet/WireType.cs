@@ -1,4 +1,5 @@
-﻿namespace ProtoBuf
+﻿#if !XB1 // XB1_NOPROTOBUF
+namespace ProtoBuf
 {
     /// <summary>
     /// Indicates the encoding used to represent an individual value in a protobuf stream
@@ -48,3 +49,4 @@
         SignedVariant = WireType.Variant | (1 << 3),
     }
 }
+#endif // !XB1

@@ -1118,7 +1118,7 @@ namespace Sandbox.Game.Components
 
             var physicsA = blockA.CubeGrid.Physics;
             var physicsB = blockB.CubeGrid.Physics;
-            if (physicsA == null || physicsB == null || !physicsA.RigidBody.IsAddedToWorld || !physicsB.RigidBody.IsAddedToWorld)
+            if (physicsA == null || physicsB == null || !physicsA.RigidBody.InWorld || !physicsB.RigidBody.InWorld)
                 return;
 
             Vector3D posA, posB;

@@ -122,8 +122,8 @@ namespace VRage.Audio
             m_cueId = new MyCueId(MyStringHash.NullOrEmpty);
             m_voice.Stop();
             m_voice.FlushSourceBuffers();
-            for (int i = 0; i < m_loopBuffers.Length; i++ )
-                m_loopBuffers[i] = null;
+            DisposeWaves();
+
             m_isPlaying = false;
             m_isPaused = false;
             m_isLoopable = false;
@@ -282,9 +282,22 @@ namespace VRage.Audio
         {
             if (m_voice == null)
                 return;
+
+            DisposeWaves();
             m_voice.DestroyVoice();
             m_voice.Dispose();
             m_voice = null;
+        }
+
+        private void DisposeWaves()
+        {
+            if (m_loopBuffers != null)
+                for (int i = 0; i < m_loopBuffers.Length; i++)
+                {
+                    if (m_loopBuffers[i] != null && m_loopBuffers[i].Streamed)
+                        m_loopBuffers[i].Dereference();
+                    m_loopBuffers[i] = null;
+                }
         }
 
         internal void DestroyVoice()
@@ -295,7 +308,9 @@ namespace VRage.Audio
             m_owner = null;
             m_loopBuffers = null;
 
-            if (m_voice == null && m_dataStreams==null)
+            DisposeWaves();
+
+            if (m_voice == null && m_dataStreams == null)
                 return;
 
             lock (theLock)
@@ -304,7 +319,7 @@ namespace VRage.Audio
                 {
                     if (m_voice.NativePointer != IntPtr.Zero)
                     {
-                        if(IsValid)
+                        if (IsValid)
                             m_voice.Stop();
                     }
                     if (m_dataStreams != null)

@@ -119,6 +119,9 @@ namespace Sandbox.Game.Entities.Blocks
         bool ModAPI.Ingame.IMyProjector.LoadRandomBlueprint( string searchPattern )
         {
             bool success = false;
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             string[] files = System.IO.Directory.GetFiles( Path.Combine( MyFileSystem.ContentPath, "Data", "Blueprints" ), searchPattern );
 
             if ( files.Length > 0 )
@@ -126,6 +129,7 @@ namespace Sandbox.Game.Entities.Blocks
                 var index = MyRandom.Instance.Next() % files.Length;
                 success = LoadBlueprint( files[index] );
             }
+#endif // !XB1
             return success;
         }
 

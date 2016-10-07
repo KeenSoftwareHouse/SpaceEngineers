@@ -113,6 +113,10 @@ namespace Sandbox.Game.Entities.Cube
 
             public HashSet<Tuple<MySlimBlock, ushort?>> m_removeBlocksInMultiBlock = new HashSet<Tuple<MySlimBlock, ushort?>>();
 
+            public MatrixD m_animationLastMatrix = MatrixD.Identity;
+            public Vector3D m_animationLastPosition = Vector3D.Zero;
+            public float m_animationProgress = 1;
+
             public Quaternion LocalOrientation
             {
                 get { return Quaternion.CreateFromRotationMatrix(m_localMatrixAdd); }
@@ -371,11 +375,15 @@ namespace Sandbox.Game.Entities.Cube
             float inflate = 0.025f * gridSize;
             gizmoBox.Inflate(inflate);
 
-            /*{
-                Vector4 blue = Color.Blue.ToVector4();
-                Matrix mtx = Matrix.Invert(invGridWorldMatrix);
-                MySimpleObjectDraw.DrawTransparentBox(ref mtx, ref gizmoBox, ref blue, MySimpleObjectRasterizer.Wireframe, 1, 0.04f);
-            }*/
+            //{
+            //    Color blue = Color.Blue;
+            //    MatrixD mtx = MatrixD.Invert(invGridWorldMatrix);
+            //    MySimpleObjectDraw.DrawTransparentBox(ref mtx, ref gizmoBox, ref blue, MySimpleObjectRasterizer.Wireframe, 1, 0.04f);
+
+
+
+            //    MyRenderProxy.DebugDrawLine3D(originCamera, originCamera + direction * (intersectionDistance + (float)cameraHeadDist), Color.Red, Color.Red, false);
+            //}
 
             double distance = double.MaxValue;
             if (gizmoBox.Intersects(ref line, out distance))
@@ -384,11 +392,17 @@ namespace Sandbox.Game.Entities.Cube
                 double distanceToPlayer = gizmoBox.Distance(localHead);
                 if (MySession.Static.ControlledEntity is MyShipController)
                 {
-                    return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSurvivalShip;
+                    if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition.CubeSize == MyCubeSize.Large)
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistLargeSurvivalShip;
+                    else
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSmallSurvivalShip;
                 }
                 else
                 {
-                    return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSurvivalCharacter;
+                    if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition.CubeSize == MyCubeSize.Large)
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistLargeSurvivalCharacter;
+                    else
+                        return distanceToPlayer <= MyCubeBuilder.CubeBuilderDefinition.BuildingDistSmallSurvivalCharacter;
                 }
             }
             return false;
@@ -719,7 +733,7 @@ namespace Sandbox.Game.Entities.Cube
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationX(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     break;
                 case MySymmetryAxisEnum.Y:
-                    //targetSpace.m_gizmoLocalMatrixAdd = sourceSpace.m_gizmoLocalMatrixAdd;
+                case MySymmetryAxisEnum.YThenOffsetX:
                     targetSpace.m_localMatrixAdd = Matrix.CreateRotationY(MathHelper.Pi) * sourceSpace.m_localMatrixAdd;
                     break;
                 case MySymmetryAxisEnum.Z:
@@ -955,16 +969,25 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
+            Vector3I offset = Vector3I.Zero;
+
             if (blockMirrorOption == MySymmetryAxisEnum.ZThenOffsetX)
+                offset = new Vector3I(targetSpace.m_localMatrixAdd.Left);
+            if (blockMirrorOption == MySymmetryAxisEnum.YThenOffsetX)
+                offset = new Vector3I(targetSpace.m_localMatrixAdd.Left);
+
+
+            if ((blockMirrorOption == MySymmetryAxisEnum.ZThenOffsetX)
+                ||
+                (blockMirrorOption == MySymmetryAxisEnum.YThenOffsetX))
             {
-                Vector3I offset = new Vector3I(targetSpace.m_localMatrixAdd.Down);
                 targetSpace.m_mirroringOffset = offset;
                 targetSpace.m_addPos += targetSpace.m_mirroringOffset;
                 targetSpace.m_removePos += targetSpace.m_mirroringOffset;
                 targetSpace.m_removeBlock = cubeGrid.GetCubeBlock(targetSpace.m_removePos);
-                //targetSpace.m_gizmoAddDir = sourceSpace.m_gizmoAddDir;
                 targetSpace.m_localMatrixAdd.Translation += offset;
             }
+
 
 
             targetSpace.m_worldMatrixAdd = targetSpace.m_localMatrixAdd * cubeGrid.WorldMatrix;

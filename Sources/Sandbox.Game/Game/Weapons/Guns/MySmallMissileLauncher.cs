@@ -36,6 +36,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Sync;
 
 namespace Sandbox.Game.Weapons
 {
@@ -82,19 +83,28 @@ namespace Sandbox.Game.Weapons
 
         public MySmallMissileLauncher()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_gunBase = new MyGunBase(SyncType);
+#else // !XB1
             m_gunBase = new MyGunBase();
+#endif // !XB1
             m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_useConveyorSystem.Value = true;
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType.Append(m_gunBase);
+#endif // !XB1
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySmallMissileLauncher>())
                 return;
-
+            base.CreateTerminalControls();
             var useConveyor = new MyTerminalControlOnOffSwitch<MySmallMissileLauncher>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyor.Getter = (x) => (x).UseConveyorSystem;
             useConveyor.Setter = (x, v) => (x).UseConveyorSystem = v;
@@ -358,6 +368,12 @@ namespace Sandbox.Game.Weapons
         public MyDefinitionId DefinitionId
         {       
             get { return BlockDefinition.Id; }
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
         #endregion

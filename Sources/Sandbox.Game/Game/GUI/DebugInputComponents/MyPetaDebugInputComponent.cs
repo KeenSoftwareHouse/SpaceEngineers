@@ -24,6 +24,7 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Import;
 
 #endregion
 

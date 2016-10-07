@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Game.Gui;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 

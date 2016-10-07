@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using VRage.Library.Collections;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Replication;
 using VRage.Serialization;
 using VRage.Utils;

@@ -26,6 +26,7 @@ using VRage;
 
 using VRageMath.Spatial;
 using Sandbox.Game;
+using VRage.Profiler;
 
 #endregion
 
@@ -134,7 +135,7 @@ namespace Sandbox.Engine.Physics
 
             //other.RemoveConstraints(other.RigidBody);//jn:TODO check if this is OK
 
-            var transform = other.RigidBody.GetRigidBodyMatrix() * Matrix.Invert(RigidBody.GetRigidBodyMatrix());
+            var transform = other.Entity.WorldMatrix*Entity.WorldMatrixInvScaled;
             other.WeldInfo.Transform = transform;
             other.WeldInfo.UpdateMassProps(other.RigidBody);
             Debug.Assert(other.WeldedRigidBody == null);
@@ -405,7 +406,6 @@ namespace Sandbox.Engine.Physics
                 {
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyA), "Object was removed prior to constraint");
                     //System.Diagnostics.Debug.Assert(world.RigidBodies.Contains(constraint.RigidBodyB), "Object was removed prior to constraint");
-                    constraint.OnRemovedFromWorld();
                     HavokWorld.RemoveConstraint(constraint);
                 }
             }

@@ -11,6 +11,7 @@ using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.World.Generator
 {

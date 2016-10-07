@@ -30,11 +30,11 @@ namespace Sandbox.Game.Entities.Blocks
             CreateTerminalControls();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyTerminalBlock>())
                 return;
-
+            base.CreateTerminalControls();
             MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyTerminalBlock>());
             var idleButton = new MyTerminalControlButton<MyTerminalBlock>("CopyBlockID", MySpaceTexts.GuiScenarioEdit_CopyIds, MySpaceTexts.GuiScenarioEdit_CopyIdsTooltip,
                 delegate(MyTerminalBlock self)

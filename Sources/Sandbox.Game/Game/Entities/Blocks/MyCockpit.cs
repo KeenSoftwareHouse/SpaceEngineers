@@ -45,7 +45,10 @@ using VRage.Game.ModAPI.Interfaces;
 using VRage.Serialization;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Replication;
+using VRage.Game.ModAPI;
 using VRage.Game.Utils;
+using VRage.Sync;
+using Sandbox.Engine.Physics;
 
 #endregion
 
@@ -96,6 +99,7 @@ namespace Sandbox.Game.Entities
 
         protected Action<MyEntity> m_pilotClosedHandler;
         private bool? m_pilotJetpackEnabledBackup;
+        public bool PilotJetpackEnabledBackup { get { return m_pilotJetpackEnabledBackup == null ? false : m_pilotJetpackEnabledBackup.Value; } }
 
         public float GlassDirt = 1.0f;
 
@@ -161,11 +165,18 @@ namespace Sandbox.Game.Entities
         bool m_retryAttachPilot = false;
 
         long? m_attachedCharacterIdSaved;
+
+        bool m_pilotFirstPerson = false;
         #endregion
 
         #region Init
         public MyCockpit()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_pilotRelativeWorld = SyncType.CreateAndAddProp<Matrix?>();
+            m_attachedCharacterId = SyncType.CreateAndAddProp<long?>();
+            m_storeOriginalPlayerWorldMatrix = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             m_pilotClosedHandler = new Action<MyEntity>(m_pilot_OnMarkForClose);
             ResourceSink = new MyResourceSinkComponent(2);
 
@@ -767,9 +778,16 @@ namespace Sandbox.Game.Entities
             MatrixD placementMatrix = MatrixD.Identity;
             if (m_pilotRelativeWorld.Value.HasValue)
             {
+                Vector3D cockpitWorldPos = Vector3D.Transform(Position * CubeGrid.GridSize, CubeGrid.WorldMatrix);
                 placementMatrix = MatrixD.Multiply((MatrixD)m_pilotRelativeWorld.Value.Value, this.WorldMatrix);
-                if (m_pilot.CanPlaceCharacter(ref placementMatrix))
-                    usePilotOriginalWorld = true;
+                var hi = MyPhysics.CastRay(placementMatrix.Translation, cockpitWorldPos, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                if (hi != null && hi.HasValue)
+                {
+                    var ent = hi.Value.HkHitInfo.GetHitEntity();
+                    if (CubeGrid.Equals(ent))
+                        if (m_pilot.CanPlaceCharacter(ref placementMatrix))
+                            usePilotOriginalWorld = true;
+                }
             }
 
             Vector3D? allowedPosition = null;
@@ -840,8 +858,11 @@ namespace Sandbox.Game.Entities
 
                 if (MySession.Static.CameraController == this && pilot == MySession.Static.LocalCharacter)
                 {
-                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);
-                }   
+                    bool isInFirstPerson = IsInFirstPersonView;
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, pilot);                
+                }
+                pilot.IsInFirstPersonView = m_pilotFirstPerson;
+
                 return true;
             }
             else
@@ -939,20 +960,6 @@ namespace Sandbox.Game.Entities
         private void UpdateNearFlag()
         {
             Render.NearFlag = MySession.Static.CameraController == this && (IsInFirstPersonView || ForceFirstPersonCamera);
-        }
-
-        public override void SwitchThrusts()
-        {
-            base.SwitchThrusts();
-            if (m_pilot != null && m_enableShipControl)
-            {
-                var jetpack = m_pilot.JetpackComp;
-                if (jetpack != null)
-                {
-                    jetpack.SwitchThrusts();
-                    m_pilotJetpackEnabledBackup = null;
-                }
-            }
         }
 
         protected virtual void UpdateCockpitModel()
@@ -1057,7 +1064,7 @@ namespace Sandbox.Game.Entities
 
             if (m_savedPilot != null)
             {
-                AttachPilot(m_savedPilot, false);
+                AttachPilot(m_savedPilot, false, merged:true);
                 m_savedPilot = null;
             }
         }
@@ -1090,7 +1097,7 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public void AttachPilot(MyCharacter pilot, bool storeOriginalPilotWorld = true, bool calledFromInit = false)
+        public void AttachPilot(MyCharacter pilot, bool storeOriginalPilotWorld = true, bool calledFromInit = false, bool merged = false)
         {
             System.Diagnostics.Debug.Assert(pilot != null);
             System.Diagnostics.Debug.Assert(m_pilot == null);
@@ -1135,7 +1142,7 @@ namespace Sandbox.Game.Entities
             {
                 BlockDefinition.CharacterAnimation = null;
             }
-
+            m_pilotFirstPerson = pilot.IsInFirstPersonView;
             PlacePilotInSeat(pilot);
             m_pilot.SuitBattery.ResourceSink.TemporaryConnectedEntity = this;
             m_rechargeSocket.PlugIn(m_pilot.SuitBattery.ResourceSink);
@@ -1161,7 +1168,7 @@ namespace Sandbox.Game.Entities
             var jetpack = m_pilot.JetpackComp;
             if (jetpack != null)
             {
-                m_pilotJetpackEnabledBackup = jetpack.Running;
+                m_pilotJetpackEnabledBackup = jetpack.TurnedOn;
                 m_pilot.JetpackComp.TurnOnJetpack(false);
             }
             else
@@ -1170,9 +1177,10 @@ namespace Sandbox.Game.Entities
             }
 
             m_lastPilot = pilot;
-            if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit)
+            if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit && !merged)
                 PlayUseSound(true);
             m_playIdleSound = true;
+
         }
 
         protected virtual void PlacePilotInSeat(MyCharacter pilot)
@@ -1417,6 +1425,13 @@ namespace Sandbox.Game.Entities
             if (!m_enableFirstPerson)
             {
                 IsInFirstPersonView = false;
+            }
+
+            // in case that the cockpit was destroyed but still is for some reason camera controller
+            // (e.g. user was looking through camera block but both camera block and this cockpit were destroyed)
+            if (Closed && MySession.Static.LocalCharacter != null)
+            {
+                MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
             }
 
             currentCamera.SetViewMatrix(GetViewMatrix());

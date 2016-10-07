@@ -11,7 +11,7 @@ using Sandbox.Common;
 using Sandbox.Game.Entities;
 using Sandbox.Definitions;
 using VRage.Utils;
-using VRage.Animations;
+using VRageRender.Animations;
 
 namespace Sandbox.Engine.Physics
 {

@@ -20,6 +20,9 @@ using VRage.Library.Utils;
 using VRage.FileSystem;
 using VRage.Game.Components;
 using VRage.Game.Models;
+using VRage.Profiler;
+using VRageRender.Fractures;
+using VRageRender.Utils;
 
 namespace Sandbox
 {

@@ -11,10 +11,11 @@ using VRage.Game;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Game", "AI")]
     class MyGuiScreenDebugAi : MyGuiScreenDebugBase

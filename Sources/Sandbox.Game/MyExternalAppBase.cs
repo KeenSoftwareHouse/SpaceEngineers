@@ -13,6 +13,8 @@ using Sandbox.Definitions;
 using Sandbox.Game.World;
 using VRage.Game;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
+using VRageRender.ExternalApp;
 
 namespace Sandbox.AppCode
 {
@@ -44,7 +46,11 @@ namespace Sandbox.AppCode
 
             if (game == null)
             {
+#if !XB1
                 Static = new MySandboxExternal(this, services, null, windowHandle);
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
             }
             else
             {

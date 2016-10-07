@@ -15,7 +15,6 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.ComponentSystem;
-using VRage.Library.Sync;
 using VRage.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
@@ -1166,7 +1165,7 @@ namespace Sandbox.Game.Components
             m_lockedByEntityId = -1;
         }
 
-        public override VRage.Game.ObjectBuilders.ComponentSystem.MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = base.Serialize();
             var craftBuilder = builder as MyObjectBuilder_CraftingComponentBase;

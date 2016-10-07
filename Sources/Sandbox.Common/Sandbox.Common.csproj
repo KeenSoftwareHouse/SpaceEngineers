@@ -172,6 +172,7 @@
     <Compile Include="ModAPI\IMyGridProgram.cs" />
     <Compile Include="ModAPI\IMyGridTerminalSystem.cs" />
     <Compile Include="ModAPI\IMyGyro.cs" />
+    <Compile Include="ModAPI\IMyIngameScripting.cs" />
     <Compile Include="ModAPI\IMyInventoryBag.cs" />
     <Compile Include="ModAPI\IMyJumpDrive.cs" />
     <Compile Include="ModAPI\IMyLargeTurretBase.cs" />

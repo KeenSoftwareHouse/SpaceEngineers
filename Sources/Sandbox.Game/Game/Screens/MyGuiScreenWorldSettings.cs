@@ -5,24 +5,20 @@ using VRageMath;
 
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
-using Sandbox.Common.ObjectBuilders;
 using System.Text;
 using Sandbox.Definitions;
 using Sandbox.Game.World;
 using Sandbox.Engine.Networking;
-using Sandbox.Game.Gui;
 using System;
-using Sandbox.Common;
 using VRage;
-using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using System.Diagnostics;
 using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage.Game;
-using VRage.Voxels;
 using VRage.Library.Utils;
 using VRage.ObjectBuilders;
+using VRage.Voxels;
 
 #endregion
 
@@ -34,7 +30,9 @@ namespace Sandbox.Game.Gui
         public static MyGuiScreenWorldSettings Static;
         internal MyGuiScreenAdvancedWorldSettings Advanced;
         internal MyGuiScreenWorldGeneratorSettings WorldGenerator;
+#if !XB1 // XB1_NOWORKSHOP
         internal MyGuiScreenMods ModsScreen;
+#endif // !XB1
 
         bool m_nameRewritten;
         protected bool m_isNewGame;
@@ -51,6 +49,13 @@ namespace Sandbox.Game.Gui
             }
         }
 
+
+        public enum MySoundModeEnum
+        {
+            Arcade,
+            Realistic,
+        }
+
         MyGuiControlCheckbox m_scenarioEditMode;
 
         private List<MyObjectBuilder_Checkpoint.ModItem> m_mods;
@@ -62,11 +67,12 @@ namespace Sandbox.Game.Gui
         }
 
         MyGuiControlTextbox m_nameTextbox, m_descriptionTextbox;
-        MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo;
+        MyGuiControlCombobox m_onlineMode, m_environment, m_asteroidAmountCombo, m_soundModeCombo;
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_worldGeneratorButton;
         MyGuiControlSlider m_maxPlayersSlider;
         MyGuiControlLabel m_maxPlayersLabel, m_asteroidAmountLabel;
         MyGuiControlCheckbox m_autoSave;
+        MyGuiControlCheckbox m_blockLimits;
 
         MyGuiControlList m_scenarioTypesList;
         MyGuiControlRadioButtonGroup m_scenarioTypesGroup;
@@ -145,8 +151,8 @@ namespace Sandbox.Game.Gui
         {
             float width = checkpoint == null ? 0.9f : 0.65f;
             float height = checkpoint == null ? 1.24f : 1.00f;
-            if (checkpoint != null)
-                height -= 0.05f;
+            if (MyFakes.ENABLE_NEW_SOUNDS)
+                height += 0.05f;
             height -= 0.27f;
 
             return new Vector2(width, height);
@@ -162,9 +168,11 @@ namespace Sandbox.Game.Gui
             if (Advanced != null)
                 Advanced.CloseScreen();
             Advanced = null;
+#if !XB1 // XB1_NOWORKSHOP
             if (ModsScreen != null)
                 ModsScreen.CloseScreen();
             ModsScreen = null;
+#endif // !XB1
             Static = null;
             return base.CloseScreen();
         }
@@ -214,6 +222,7 @@ namespace Sandbox.Game.Gui
             m_maxPlayersLabel = MakeLabel(MyCommonTexts.MaxPlayers);
             var environmentLabel = MakeLabel(MySpaceTexts.WorldSettings_EnvironmentHostility);
             var scenarioLabel = MakeLabel(MySpaceTexts.WorldSettings_Scenario);
+            var soundModeLabel = MakeLabel(MySpaceTexts.WorldSettings_SoundMode);
 
             float width = 0.284375f + 0.025f;
 
@@ -238,6 +247,7 @@ namespace Sandbox.Game.Gui
             m_asteroidAmountCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             m_asteroidAmountCombo.ItemSelected += m_asteroidAmountCombo_ItemSelected;
+            m_soundModeCombo = new MyGuiControlCombobox(size: new Vector2(width, 0.04f));
 
             m_scenarioTypesList = new MyGuiControlList();
 
@@ -262,6 +272,9 @@ namespace Sandbox.Game.Gui
             m_environment.AddItem((int)MyEnvironmentHostilityEnum.CATACLYSM_UNREAL, MySpaceTexts.WorldSettings_EnvironmentHostilityCataclysmUnreal);
             m_environment.ItemSelected += HostilityChanged;
 
+            m_soundModeCombo.AddItem((int)MySoundModeEnum.Arcade, MySpaceTexts.WorldSettings_ArcadeSound);
+            m_soundModeCombo.AddItem((int)MySoundModeEnum.Realistic, MySpaceTexts.WorldSettings_RealisticSound);
+
             if (m_isNewGame)
             {
                 m_scenarioTypesGroup = new MyGuiControlRadioButtonGroup();
@@ -283,12 +296,16 @@ namespace Sandbox.Game.Gui
             m_onlineMode.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsOnlineMode));
             m_maxPlayersSlider.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsMaxPlayer));
             m_asteroidAmountCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsAsteroidAmount));
+            m_soundModeCombo.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettingsSoundMode));
 
             m_nameTextbox.TextChanged += m_nameTextbox_TextChanged;
+            m_soundModeCombo.ItemSelected += m_soundModeCombo_ItemSelected;
 
             var advanced = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_Advanced), onButtonClick: OnAdvancedClick);
 
+#if !XB1 // XB1_NOWORKSHOP
             var mods = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MyCommonTexts.WorldSettings_Mods), onButtonClick: OnModsClick);
+#endif // !XB1
 
             m_worldGeneratorButton = new MyGuiControlButton(highlightType: MyGuiControlHighlightType.WHEN_ACTIVE, text: MyTexts.Get(MySpaceTexts.WorldSettings_WorldGenerator), onButtonClick: OnWorldGeneratorClick);
 
@@ -300,6 +317,12 @@ namespace Sandbox.Game.Gui
 
             Controls.Add(gameModeLabel);
             Controls.Add(m_creativeModeButton);
+
+            if (MyFakes.ENABLE_NEW_SOUNDS)
+            {
+                Controls.Add(soundModeLabel);
+                Controls.Add(m_soundModeCombo);
+            }
 
             Controls.Add(onlineModeLabel);
             Controls.Add(m_onlineMode);
@@ -318,6 +341,13 @@ namespace Sandbox.Game.Gui
                 Controls.Add(m_asteroidAmountCombo);
             }
 
+            var blockLimitsLabel = MakeLabel(MyCommonTexts.WorldSettings_BlockLimits);
+            m_blockLimits = new MyGuiControlCheckbox();
+            m_blockLimits.IsCheckedChanged = blockLimits_CheckedChanged;
+            m_blockLimits.SetToolTip(MyTexts.GetString(MyCommonTexts.ToolTipWorldSettingsBlockLimits));
+            Controls.Add(blockLimitsLabel);
+            Controls.Add(m_blockLimits);
+
             var autoSaveLabel = MakeLabel(MyCommonTexts.WorldSettings_AutoSave);
             m_autoSave = new MyGuiControlCheckbox();
             m_autoSave.SetToolTip(new StringBuilder().AppendFormat(MyCommonTexts.ToolTipWorldSettingsAutoSave, MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES).ToString());
@@ -331,8 +361,11 @@ namespace Sandbox.Game.Gui
             Controls.Add(scenarioEditModeLabel);
             Controls.Add(m_scenarioEditMode);
 
+#if !XB1 // XB1_NOWORKSHOP
+            if (!MyFakes.XB1_PREVIEW)
             if (MyFakes.ENABLE_WORKSHOP_MODS)
                 Controls.Add(mods);
+#endif // !XB1
 
             Controls.Add(advanced);
 
@@ -396,16 +429,42 @@ namespace Sandbox.Game.Gui
             advanced.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             advanced.Position = pos2;
 
+#if !XB1 // XB1_NOWORKSHOP
             mods.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             mods.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, 0);
+#endif // !XB1
 
             m_worldGeneratorButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
             m_worldGeneratorButton.Position = advanced.Position - new Vector2(advanced.Size.X + 0.017f, -0.06f);
+
+            if (MyFakes.XB1_PREVIEW)
+            {
+                var pos2p = m_worldGeneratorButton.Position;
+                pos2p.X = Size.HasValue ? Size.Value.X / 2.0f - m_worldGeneratorButton.Size.X - MARGIN_RIGHT : 0.0f;
+                m_worldGeneratorButton.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                m_worldGeneratorButton.Position = pos2p;
+
+                advanced.OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM;
+                if (m_isNewGame)
+                {
+                    advanced.Position = m_worldGeneratorButton.Position - new Vector2(m_worldGeneratorButton.Size.X + 0.017f, 0);
+                }
+                else
+                {
+                    advanced.Position = m_worldGeneratorButton.Position - new Vector2(m_worldGeneratorButton.Size.X + 0.017f, 0.008f);
+                }
+            }
 
             Controls.Add(m_okButton);
             Controls.Add(m_cancelButton);
 
             CloseButtonEnabled = true;
+        }
+
+        void m_soundModeCombo_ItemSelected()
+        {
+            if(m_soundModeCombo.GetSelectedIndex() == (int)MySoundModeEnum.Realistic)
+                m_settings.EnableOxygenPressurization = true;//needed for sound selection - otherwise there would be wrong sounds in stations/ships located in space
         }
 
         void m_nameTextbox_TextChanged(MyGuiControlTextbox obj)
@@ -445,6 +504,24 @@ namespace Sandbox.Game.Gui
             else
             {
                 UpdateAsteroidAmountEnabled((m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario.AsteroidClustersEnabled);
+            }
+        }
+
+        private void blockLimits_CheckedChanged(MyGuiControlCheckbox checkbox)
+        {
+            if (!checkbox.IsChecked)
+            {
+                var messageBox = MyGuiSandbox.CreateMessageBox(
+                    messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextBlockLimitDisableWarning),
+                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning));
+                MyGuiSandbox.AddScreen(messageBox);
+                Settings.MaxBlocksPerPlayer = 0;
+                Settings.MaxGridSize = 0;
+            }
+            else
+            {
+                Settings.MaxBlocksPerPlayer = 100000;
+                Settings.MaxGridSize = 50000;
             }
         }
 
@@ -571,10 +648,12 @@ namespace Sandbox.Game.Gui
         }
 
 
+#if !XB1 // XB1_NOWORKSHOP
         private void OnModsClick(object sender)
         {
             MyGuiSandbox.AddScreen(new MyGuiScreenMods(m_mods));
         }
+#endif // !XB1
 
         private void UpdateSurvivalState(bool survivalEnabled)
         {
@@ -691,7 +770,9 @@ namespace Sandbox.Game.Gui
             m_settings.MaxPlayers = (short)m_maxPlayersSlider.Value;
             m_settings.AutoSaveInMinutes = m_autoSave.IsChecked ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0;
             m_settings.GameMode = GetGameMode();
+            m_settings.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
             m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;
+            m_settings.EnableBlockLimits = m_blockLimits.IsChecked;
         }
 
         protected virtual void SetSettingsToControls()
@@ -703,6 +784,8 @@ namespace Sandbox.Game.Gui
 
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
             m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
+            m_soundModeCombo.SelectItemByKey(m_settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
+            m_blockLimits.IsChecked = m_settings.EnableBlockLimits;
         }
 
         private string GetPassword()
@@ -870,15 +953,23 @@ namespace Sandbox.Game.Gui
             {
                 m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Normal, MySpaceTexts.WorldSettings_AsteroidAmountNormal);
                 m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.More, MySpaceTexts.WorldSettings_AsteroidAmountLarge);
+#if XB1
+                m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+#else // !XB1
                 if (Environment.Is64BitProcess)
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.Many, MySpaceTexts.WorldSettings_AsteroidAmountExtreme);
+#endif // !XB1
 
                 if (MyFakes.ENABLE_ASTEROID_FIELDS)
                 {
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralLow, MySpaceTexts.WorldSettings_AsteroidAmountProceduralLow);
                     m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralNormal, MySpaceTexts.WorldSettings_AsteroidAmountProceduralNormal);
+#if XB1
+                    m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#else // !XB1
                     if (Environment.Is64BitProcess)
                         m_asteroidAmountCombo.AddItem((int)MyGuiScreenWorldGeneratorSettings.AsteroidAmountEnum.ProceduralHigh, MySpaceTexts.WorldSettings_AsteroidAmountProceduralHigh);
+#endif // !XB1
                 }
 
             }

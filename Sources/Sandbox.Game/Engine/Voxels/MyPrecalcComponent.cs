@@ -12,8 +12,12 @@ using VRage.Game.Components;
 using VRage.Generics;
 using VRage.Library.Collections;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
+using VRage.Library;
+using VRage.Profiler;
+using VRage.Voxels;
+using VRageRender.Voxels;
+using VRageRender.Utils;
 using IPrioritizedWork = ParallelTasks.IPrioritizedWork;
 using IWork = ParallelTasks.IWork;
 using Parallel = ParallelTasks.Parallel;
@@ -116,7 +120,7 @@ namespace Sandbox.Engine.Voxels
         {
             m_instance = this;
 
-            if (Environment.ProcessorCount <= 2)
+            if (MyEnvironment.ProcessorCount <= 2)
             { // throttle down precalc on worker threads when it could hurt Update and Render thread.
                 MyFakes.MAX_PRECALC_TIME_IN_MILLIS = 6f;
             }

@@ -7,12 +7,21 @@ using System.Text;
 using VRage;
 using VRage.Collections;
 using VRage.Generics;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRageRender
 {
+#if !XB1
+
     [PreloadRequired]
     internal static class MyObjectPoolManager
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         private static readonly Dictionary<Type, MyTuple<MyGenericObjectPool, CleanerDelegate>> m_poolsByType = new Dictionary<Type, MyTuple<MyGenericObjectPool, CleanerDelegate>>();
         internal delegate void CleanerDelegate(object objectToClean);
 
@@ -84,12 +93,24 @@ namespace VRageRender
         #region Reflection
         static MyObjectPoolManager()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterPoolsFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterPoolsFromAssembly(Assembly.GetCallingAssembly());
+#endif // !XB1
         }
 
         private static void RegisterPoolsFromAssembly(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
             foreach(var type in assembly.GetTypes())
+#endif // !XB1
             {
                 var customAttributes = type.GetCustomAttributes(typeof(PooledObjectAttribute), false);
                 if(customAttributes != null && customAttributes.Length > 0)
@@ -124,6 +145,125 @@ namespace VRageRender
         }
         #endregion
     }
+
+#else // XB1
+
+    public interface IMyPooledObjectCleaner
+    {
+        void ObjectCleaner();
+    }
+
+    [PreloadRequired]
+    internal static class MyObjectPoolManager
+    {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
+        private static readonly Dictionary<Type, MyGenericObjectPool> m_poolsByType = new Dictionary<Type, MyGenericObjectPool>();
+
+        internal static T Allocate<T>() where T : class
+        {
+            return (T)Allocate(typeof(T));
+        }
+
+        internal static object Allocate(Type typeToAllocate)
+        {
+            MyGenericObjectPool objectPool;
+            if (!m_poolsByType.TryGetValue(typeToAllocate, out objectPool))
+            {
+                Debug.Fail("No type registered for " + typeToAllocate.ToString());
+                return null;
+            }
+
+            object allocatedObject = null;
+            if (objectPool.AllocateOrCreate(out allocatedObject))
+                ((IMyPooledObjectCleaner)allocatedObject).ObjectCleaner();
+
+            return allocatedObject;
+        }
+
+        internal static void Deallocate<T>(T objectToDeallocate) where T : class
+        {
+            MyGenericObjectPool objectPool;
+            if (!m_poolsByType.TryGetValue(objectToDeallocate.GetType(), out objectPool))
+            {
+                Debug.Fail("No type registered for " + objectToDeallocate.GetType().ToString());
+                return;
+            }
+
+            ((IMyPooledObjectCleaner)objectToDeallocate).ObjectCleaner();
+
+            objectPool.Deallocate(objectToDeallocate);
+        }
+
+        internal static void Init<T>(ref T objectToInit) where T : class
+        {
+            MyGenericObjectPool objectPool;
+            if (objectToInit == null)
+                objectToInit = Allocate<T>();
+            else
+            {
+                if (m_poolsByType.TryGetValue(typeof(T), out objectPool))
+                {
+                    ((IMyPooledObjectCleaner)objectToInit).ObjectCleaner();
+                }
+                else
+                    Debug.Fail("No type registered for " + objectToInit.GetType().ToString());
+            }
+        }
+
+        #region Reflection
+        static MyObjectPoolManager()
+        {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterPoolsFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
+            RegisterPoolsFromAssembly(Assembly.GetCallingAssembly());
+#endif // !XB1
+        }
+
+        private static void RegisterPoolsFromAssembly(Assembly assembly)
+        {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var type in MyAssembly.GetTypes())
+#else // !XB1
+            foreach(var type in assembly.GetTypes())
+#endif // !XB1
+            {
+                var customAttributes = type.GetCustomAttributes(typeof(PooledObjectAttribute), false);
+                if (customAttributes != null && customAttributes.Length > 0)
+                {
+                    Debug.Assert(customAttributes.Length == 1);
+                    PooledObjectAttribute attribute = (PooledObjectAttribute)customAttributes[0];
+                    var methods = type.GetMethods();
+                    bool delegateFound = false;
+                    {
+                        {
+                            MyGenericObjectPool objectPool = new MyGenericObjectPool(attribute.PoolPreallocationSize, type);
+
+                            // Make sure everything in the pool is always clean
+                            foreach (var objectInPool in objectPool.Unused)
+                                ((IMyPooledObjectCleaner)objectInPool).ObjectCleaner();
+
+                            m_poolsByType.Add(type, objectPool);
+                            delegateFound = true;
+                        }
+                    }
+
+                    if (!delegateFound)
+                        Debug.Fail("Pooled type does not have a cleaner method.");
+                }
+            }
+        }
+        #endregion
+    }
+
+#endif // XB1
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     /// <summary>

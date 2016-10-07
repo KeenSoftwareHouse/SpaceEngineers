@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Windows.Forms;
 using VRage.Utils;
 using VRage.Win32;
 #if !XB1
+using System.Windows.Forms;
 using MSG = VRage.Win32.WinApi.MSG;
 #endif
 
 namespace VRage.Utils
 {
     public delegate void ActionRef<T>(ref T item);
-#if !UNSHARPER
+#if !XB1
     public static class MyMessageLoop
     {
+
         [DllImport("kernel32.dll", EntryPoint = "CopyMemory", SetLastError = false)]
         public static extern void CopyMemory(IntPtr dest, IntPtr src, uint count);
 

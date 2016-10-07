@@ -740,7 +740,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId Turret = MyStringId.GetOrCompute("Turret");
 
         ///<summary>
-        ///Conveyors
+        ///Conveyor Junction
         ///</summary>
         public static readonly MyStringId DisplayName_Block_Conveyor = MyStringId.GetOrCompute("DisplayName_Block_Conveyor");
 
@@ -1710,7 +1710,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId NotificationArgStation = MyStringId.GetOrCompute("NotificationArgStation");
 
         ///<summary>
-        ///{0} is not available for {1}
+        ///{0} {1} cannot be connected to a {2}
         ///</summary>
         public static readonly MyStringId NotificationBlockNotAvailableFor = MyStringId.GetOrCompute("NotificationBlockNotAvailableFor");
 
@@ -3545,7 +3545,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId WorldSettings_RealisticSound = MyStringId.GetOrCompute("WorldSettings_RealisticSound");
 
         ///<summary>
-        ///Sound Mode
+        ///Sound mode
         ///</summary>
         public static readonly MyStringId WorldSettings_SoundMode = MyStringId.GetOrCompute("WorldSettings_SoundMode");
 
@@ -6450,7 +6450,7 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId MessageBoxTextAreYouSureEnableOxygen = MyStringId.GetOrCompute("MessageBoxTextAreYouSureEnableOxygen");
 
         ///<summary>
-        ///Enable ice material, pressurization detection and oxygen generation and circulation
+        ///Enable oxygen processing. Used by space suit and cockpits.
         ///</summary>
         public static readonly MyStringId ToolTipWorldSettings_EnableOxygen = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableOxygen");
 
@@ -8125,14 +8125,14 @@ namespace Sandbox.Game.Localization
         public static readonly MyStringId ToolTipWorldSettings_EnableDrones = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableDrones");
 
         ///<summary>
-        ///Enable / disable spawning of cyberhounds
+        ///Enable / disable spawning of Wolves
         ///</summary>
-        public static readonly MyStringId ToolTipWorldSettings_EnableCyberhounds = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableCyberhounds");
+        public static readonly MyStringId ToolTipWorldSettings_EnableWolfs = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableWolfs");
 
         ///<summary>
-        ///Enable cyberhounds
+        ///Enable wolves
         ///</summary>
-        public static readonly MyStringId WorldSettings_EnableCyberhounds = MyStringId.GetOrCompute("WorldSettings_EnableCyberhounds");
+        public static readonly MyStringId WorldSettings_EnableWolfs = MyStringId.GetOrCompute("WorldSettings_EnableWolfs");
 
         ///<summary>
         ///Enable / disable spawning of spiders
@@ -8903,5 +8903,110 @@ namespace Sandbox.Game.Localization
         ///Current waypoint:
         ///</summary>
         public static readonly MyStringId RemoteControlWaypoint = MyStringId.GetOrCompute("RemoteControlWaypoint");
+
+        ///<summary>
+        ///Are you sure you want to enable airtightness? This can have negative influence to performance.
+        ///</summary>
+        public static readonly MyStringId MessageBoxTextAreYouSureEnableOxygenPressurization = MyStringId.GetOrCompute("MessageBoxTextAreYouSureEnableOxygenPressurization");
+
+        ///<summary>
+        ///Allow pressurization of ships and stations.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableOxygenPressurization = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableOxygenPressurization");
+
+        ///<summary>
+        ///Enable airtightness
+        ///</summary>
+        public static readonly MyStringId World_Settings_EnableOxygenPressurization = MyStringId.GetOrCompute("World_Settings_EnableOxygenPressurization");
+
+        ///<summary>
+        ///Reset orientation
+        ///</summary>
+        public static readonly MyStringId ControlName_CubeDefaultMountpoint = MyStringId.GetOrCompute("ControlName_CubeDefaultMountpoint");
+
+        ///<summary>
+        ///Press {0} to reset orientation
+        ///</summary>
+        public static readonly MyStringId NotificationHint_CubeDefaultMountpoint = MyStringId.GetOrCompute("NotificationHint_CubeDefaultMountpoint");
+
+        ///<summary>
+        ///Max backup saves
+        ///</summary>
+        public static readonly MyStringId MaxBackupSaves = MyStringId.GetOrCompute("MaxBackupSaves");
+
+        ///<summary>
+        ///Configure the maximum number of saves that should be backed up. The backup folder is located on the respective save directory. When this is 0 then the backup feature is disabled and all backups are deleted upon save!
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsMaxBackupSaves = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxBackupSaves");
+
+        ///<summary>
+        ///-Global Chat History-
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Chat_ChatHistory = MyStringId.GetOrCompute("TerminalTab_Chat_ChatHistory");
+
+        ///<summary>
+        ///Cannot place. Ship would exceed regulations.
+        ///</summary>
+        public static readonly MyStringId NotificationShipOverLimits = MyStringId.GetOrCompute("NotificationShipOverLimits");
+
+        ///<summary>
+        ///Max blocks per player
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxBlocksPerPlayer = MyStringId.GetOrCompute("WorldSettings_MaxBlocksPerPlayer");
+
+        ///<summary>
+        ///Max ship size
+        ///</summary>
+        public static readonly MyStringId WorldSettings_MaxGridSize = MyStringId.GetOrCompute("WorldSettings_MaxGridSize");
+
+        ///<summary>
+        ///Maximum number of blocks each player can build. Destroyed blocks are refunded
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsMaxBlocksPerPlayer = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxBlocksPerPlayer");
+
+        ///<summary>
+        ///Maximum size (in blocks) of ships and stations
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettingsMaxGridSize = MyStringId.GetOrCompute("ToolTipWorldSettingsMaxGridSize");
+
+        ///<summary>
+        ///Assign
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_Assign = MyStringId.GetOrCompute("TerminalTab_Info_Assign");
+
+        ///<summary>
+        ///blocks
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_BlocksLower = MyStringId.GetOrCompute("TerminalTab_Info_BlocksLower");
+
+        ///<summary>
+        ///Owned blocks overview
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_Overview = MyStringId.GetOrCompute("TerminalTab_Info_Overview");
+
+        ///<summary>
+        ///You built
+        ///</summary>
+        public static readonly MyStringId TerminalTab_Info_YouBuilt = MyStringId.GetOrCompute("TerminalTab_Info_YouBuilt");
+
+        ///<summary>
+        ///Enable players to remotely remove owned blocks to free up their limit.
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_EnableRemoteBlockRemoval = MyStringId.GetOrCompute("ToolTipWorldSettings_EnableRemoteBlockRemoval");
+
+        ///<summary>
+        ///Remote block removal
+        ///</summary>
+        public static readonly MyStringId WorldSettings_EnableRemoteBlockRemoval = MyStringId.GetOrCompute("WorldSettings_EnableRemoteBlockRemoval");
+
+        ///<summary>
+        ///By enabling this option grids will no longer turn dynamic when disconnected from static grids
+        ///</summary>
+        public static readonly MyStringId ToolTipWorldSettings_StationVoxelSupport = MyStringId.GetOrCompute("ToolTipWorldSettings_StationVoxelSupport");
+
+        ///<summary>
+        ///Unsupported Stations
+        ///</summary>
+        public static readonly MyStringId WorldSettings_StationVoxelSupport = MyStringId.GetOrCompute("WorldSettings_StationVoxelSupport");
     }
 }

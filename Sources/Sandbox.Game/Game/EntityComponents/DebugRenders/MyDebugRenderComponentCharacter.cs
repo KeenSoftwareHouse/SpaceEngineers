@@ -27,7 +27,7 @@ using VRageRender;
 using Sandbox.Game.Entities.Character;
 
 using Sandbox.ModAPI;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game;
 using VRage.Game.Entity;
 
@@ -100,7 +100,7 @@ namespace Sandbox.Game.Components
 
             if (MyDebugDrawSettings.DEBUG_DRAW_CHARACTER_BONES)
             {
-                MyCharacterBone.ComputeAbsoluteTransforms(m_character.AnimationController.CharacterBonesSorted);
+                m_character.AnimationController.UpdateTransformations();
                 for (int s = 0; s < m_character.AnimationController.CharacterBones.Length; s++)
                 {
                     MyCharacterBone bone2 = m_character.AnimationController.CharacterBones[s];

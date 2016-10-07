@@ -1,4 +1,6 @@
-﻿using ProtoBuf;
+﻿using System.Collections.Generic;
+using System.Xml.Serialization;
+using ProtoBuf;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game.ObjectBuilders.ComponentSystem
@@ -7,6 +9,15 @@ namespace VRage.Game.ObjectBuilders.ComponentSystem
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_InventoryComponentDefinition : MyObjectBuilder_ComponentDefinitionBase
     {
+        public class InventoryConstraintDefinition
+        {
+            [XmlAttribute("Whitelist")]
+            public bool IsWhitelist = true;
+
+            [XmlElement("Entry")]
+            public List<SerializableDefinitionId> Entries = new List<SerializableDefinitionId>();
+        }
+
         [ProtoMember]
         public SerializableVector3? Size; //in m (if defined then it overrides Volume)
 
@@ -24,5 +35,7 @@ namespace VRage.Game.ObjectBuilders.ComponentSystem
 
         [ProtoMember]
         public int MaxItemCount = int.MaxValue;
+
+        public InventoryConstraintDefinition InputConstraint;
     }
 }

@@ -5,17 +5,28 @@ using System.Reflection;
 using System.Text;
 using VRage.Collections;
 using VRage.Network;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace VRage.Serialization
 {
     public static class MyFactory
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         static ThreadSafeStore<Type, MySerializer> m_serializers = new ThreadSafeStore<Type, MySerializer>(CreateSerializerInternal);
         static Dictionary<Type, Type> m_serializerTypes = new Dictionary<Type, Type>();
 
         static MyFactory()
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterFromAssembly(Assembly.GetExecutingAssembly());
+#endif // !XB1
         }
 
         public static MySerializer<T> GetSerializer<T>()
@@ -105,7 +116,15 @@ namespace VRage.Serialization
 
         public static void RegisterFromAssembly(Assembly assembly)
         {
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (var t in MyAssembly.GetTypes())
+#else // !XB1
             foreach (var t in assembly.GetTypes())
+#endif // !XB1
             {
                 if (!t.IsGenericType && t.BaseType != null && t.BaseType.IsGenericType && t.BaseType.GetGenericTypeDefinition() == typeof(MySerializer<>))
                 {

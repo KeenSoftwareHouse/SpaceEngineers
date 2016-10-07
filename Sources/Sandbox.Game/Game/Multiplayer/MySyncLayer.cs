@@ -190,7 +190,12 @@ namespace Sandbox.Game.Multiplayer
         {
             if (Attribute.IsDefined(typeof(TMsg), typeof(ProtoContractAttribute)))
             {
+#if !XB1 // XB1_NOPROTOBUF
                 return CreateProto<TMsg>();
+#else // XB1
+                System.Diagnostics.Debug.Assert(false);
+                return null;
+#endif // XB1
             }
             else
             {
@@ -198,11 +203,13 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+#if !XB1 // XB1_NOPROTOBUF
         // Separate methods for each serializer, don't want to to run static constructor on both
         static ISerializer<TMsg> CreateProto<TMsg>()
         {
             return DefaultProtoSerializer<TMsg>.Default;
         }
+#endif // !XB1
 
         // Separate methods for each serializer, don't want to to run static constructor on both
         static ISerializer<TMsg> CreateBlittable<TMsg>()

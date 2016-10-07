@@ -22,6 +22,7 @@ namespace VRage.Win32
             public IntPtr DataPointer;
         }
 
+#if !XB1
         [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Ansi)]
         public struct DEVMODE
         {
@@ -94,6 +95,7 @@ namespace VRage.Win32
             [FieldOffset(120)]
             public Int32 dmDisplayFrequency;
         }
+#endif // !XB1
 
         public struct POINTL
         {
@@ -157,6 +159,7 @@ namespace VRage.Win32
         }
 
 		// From Winapi-Helpers
+#if !XB1
 		public static void SendMessage<T>(ref T data, IntPtr windowHandle)
 				   where T : struct
 		{
@@ -239,8 +242,10 @@ namespace VRage.Win32
 				return m_workingSetDelegate();
 			}
 		}
+#endif // !XB1
 
 #endif
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
 
@@ -259,7 +264,9 @@ namespace VRage.Win32
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsWindow(IntPtr hWnd);
+#endif // !XB1
 
+#if !XB1
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool AllocConsole();
 
@@ -296,7 +303,9 @@ namespace VRage.Win32
 
         [DllImport("user32.dll")]
         public static extern void PostQuitMessage(int nExitCode);
+#endif // !XB1
 
+#if !XB1
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
 
@@ -371,6 +380,7 @@ namespace VRage.Win32
         // For setting system options:
         [DllImport("ntdll.dll", EntryPoint = "NtSetTimerResolution")]
         public static extern NTSTATUS NtSetTimerResolution(uint DesiredResolution, bool SetResolution, ref uint CurrentResolution);
+#endif // !XB1
 
     }
 #elif false

@@ -30,6 +30,7 @@ using VRage.Library.Utils;
 using Sandbox.Game;
 using VRage.Game;
 using SharpDX;
+using VRage.Profiler;
 
 #endregion
 
@@ -572,7 +573,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public void ReportReplicatedObjects()
         {
-            if (VRageRender.Profiler.MyRenderProfiler.ProfilerVisible)
+            if (VRage.Profiler.MyRenderProfiler.ProfilerVisible)
             {
                 ProfilerShort.Begin("ReportReplicatedObjects (only when profiler visible)");
                 ReplicationLayer.ReportReplicatedObjects();

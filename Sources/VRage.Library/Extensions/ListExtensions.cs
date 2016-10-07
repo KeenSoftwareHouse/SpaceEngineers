@@ -13,14 +13,14 @@ namespace System.Collections.Generic
     // TODO: OP! Create one generic IL, per-type is not necessary
     static class ListInternalAccessor<T>
     {
-#if !UNSHARPER
+#if !XB1 // XB1_LISTEXTENSIONS_NOEMIT - this used to be #if !UNSHARPER
 		public static Func<List<T>, T[]> GetArray;
 		public static Action<List<T>, int> SetSize;
 #endif
 
         static ListInternalAccessor()
         {
-#if UNSHARPER
+#if XB1 // XB1_LISTEXTENSIONS_NOEMIT - this used to be #if UNSHARPER
 
 #else
                 var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public, CallingConventions.Standard, typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListInternalAccessor<T>), true);
@@ -93,10 +93,20 @@ namespace System.Collections.Generic
             return list.ToArray();
         }
 #else
+#if XB1 // XB1_LISTEXTENSIONS_NOEMIT
+        public static T[] GetInternalArray<T>(this List<T> list)
+        {
+            var field = list.GetType().GetField("_items",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic);
+            return (T[])field.GetValue(list);
+        }
+#else // !XB1
         public static T[] GetInternalArray<T>(this List<T> list)
         {
             return ListInternalAccessor<T>.GetArray(list);
         }
+#endif // !XB1
 #endif
 
         public static void AddOrInsert<T>(this List<T> list, T item, int index)
@@ -125,7 +135,18 @@ namespace System.Collections.Generic
             }
 
             Array.Copy(itemsToAdd, 0, list.GetInternalArray(), list.Count, itemCount);
+#if XB1 // XB1_LISTEXTENSIONS_NOEMIT
+            var sizeField = list.GetType().GetField("_size",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic);
+            sizeField.SetValue(list, list.Count + itemCount);
+            var versionField = list.GetType().GetField("_version",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic);
+            versionField.SetValue(list, (int)versionField.GetValue(list) + 1);
+#else // !XB1
             ListInternalAccessor<T>.SetSize(list, list.Count + itemCount);
+#endif // !XB1
         }
 #endif
 
@@ -158,7 +179,18 @@ namespace System.Collections.Generic
 #else
 		public static void SetSize<T>(this List<T> list, int newSize)
         {
+#if XB1 // XB1_LISTEXTENSIONS_NOEMIT
+            var sizeField = list.GetType().GetField("_size",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic);
+            sizeField.SetValue(list, newSize);
+            var versionField = list.GetType().GetField("_version",
+                System.Reflection.BindingFlags.Instance |
+                System.Reflection.BindingFlags.NonPublic);
+            versionField.SetValue(list, (int)versionField.GetValue(list) + 1);
+#else // !XB1
             ListInternalAccessor<T>.SetSize(list, newSize);
+#endif // !XB1
         }
 #endif
         public static void AddList<T>(this List<T> list, List<T> itemsToAdd)

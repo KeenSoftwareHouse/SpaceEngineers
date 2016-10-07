@@ -94,6 +94,7 @@ namespace Sandbox.ModAPI
             throw new FileNotFoundException();
         }
 
+#if !XB1
         System.IO.TextReader IMyUtilities.ReadFileInLocalStorage(string file, Type callingType)
         {
             if (file.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
@@ -123,6 +124,7 @@ namespace Sandbox.ModAPI
             }
             throw new FileNotFoundException();
         }
+#endif // !XB1
 
         TextWriter IMyUtilities.WriteFileInGlobalStorage(string file)
         {
@@ -139,6 +141,7 @@ namespace Sandbox.ModAPI
             throw new FileNotFoundException();
         }
 
+#if !XB1
         TextWriter IMyUtilities.WriteFileInLocalStorage(string file, Type callingType)
         {
             if (file.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
@@ -170,6 +173,7 @@ namespace Sandbox.ModAPI
             }
             throw new FileNotFoundException();
         }
+#endif // !XB1
 
         event MessageEnteredDel IMyUtilities.MessageEntered
         {
@@ -259,6 +263,7 @@ namespace Sandbox.ModAPI
             return File.Exists(path);
         }
 
+#if !XB1
         bool IMyUtilities.FileExistsInLocalStorage(string file, Type callingType)
         {
             if (file.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
@@ -300,6 +305,7 @@ namespace Sandbox.ModAPI
                 File.Delete(path);
             }
         }
+#endif // !XB1
 
         void IMyUtilities.DeleteFileInGlobalStorage(string file)
         {
@@ -344,6 +350,7 @@ namespace Sandbox.ModAPI
             throw new FileNotFoundException();
         }
 
+#if !XB1
         BinaryReader IMyUtilities.ReadBinaryFileInLocalStorage(string file, Type callingType)
         {
             if (file.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
@@ -373,6 +380,7 @@ namespace Sandbox.ModAPI
             }
             throw new FileNotFoundException();
         }
+#endif // !XB1
 
         BinaryWriter IMyUtilities.WriteBinaryFileInGlobalStorage(string file)
         {
@@ -389,6 +397,7 @@ namespace Sandbox.ModAPI
             throw new FileNotFoundException();
         }
 
+#if !XB1
         BinaryWriter IMyUtilities.WriteBinaryFileInLocalStorage(string file, Type callingType)
         {
             if (file.IndexOfAny(Path.GetInvalidFileNameChars()) != -1)
@@ -418,6 +427,7 @@ namespace Sandbox.ModAPI
             }
             throw new FileNotFoundException();
         }
+#endif // !XB1
 
         public Dictionary<string, object> Variables = new Dictionary<string, object>();
         void IMyUtilities.SetVariable<T>(string name, T value)

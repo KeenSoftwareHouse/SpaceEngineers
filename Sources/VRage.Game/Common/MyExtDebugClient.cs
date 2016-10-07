@@ -1,6 +1,8 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -82,7 +84,10 @@ namespace VRage.Game.Common
         {
             m_finished = true;
             if (m_client != null)
+            {
+                m_client.Client.Disconnect(true);
                 m_client.Close();
+            }
             Marshal.FreeHGlobal(m_tempBuffer);
         }
 
@@ -90,7 +95,7 @@ namespace VRage.Game.Common
         {
             while (!m_finished)
             {
-                if (m_client == null || !m_client.Connected)
+                if (m_client == null || m_client.Client == null || !m_client.Connected)
                 {
                     var result = MyTryConnectHelper.TryConnect(IPAddress.Loopback.ToString(), GameDebugPort);
                     if (!result)
@@ -121,29 +126,48 @@ namespace VRage.Game.Common
                     if (m_client.Client == null)
                         continue;
 
-                    m_client.Client.Receive(m_arrayBuffer, 0, MyExternalDebugStructures.MsgHeaderSize, SocketFlags.None);
-                    Marshal.Copy(m_arrayBuffer, 0, m_tempBuffer, MyExternalDebugStructures.MsgHeaderSize);
-                    MyExternalDebugStructures.CommonMsgHeader header = (MyExternalDebugStructures.CommonMsgHeader)
-                        Marshal.PtrToStructure(m_tempBuffer, typeof(MyExternalDebugStructures.CommonMsgHeader));
-                    if (header.IsValid)
+                    if (m_client.Client.Receive(m_arrayBuffer, 0, MyExternalDebugStructures.MsgHeaderSize,
+                        SocketFlags.None) == 0)
                     {
-                        m_client.Client.Receive(m_arrayBuffer, header.MsgSize, SocketFlags.None);
-                        if (m_receivedMsgHandlers != null)
+                        m_client.Client.Close();
+                        m_client.Client = null;
+                        m_client = null;
+                    }
+                    else
+                    {
+                        Marshal.Copy(m_arrayBuffer, 0, m_tempBuffer, MyExternalDebugStructures.MsgHeaderSize);
+                        MyExternalDebugStructures.CommonMsgHeader header = (MyExternalDebugStructures.CommonMsgHeader)
+                            Marshal.PtrToStructure(m_tempBuffer, typeof(MyExternalDebugStructures.CommonMsgHeader));
+                        if (header.IsValid)
                         {
-                            Marshal.Copy(m_arrayBuffer, 0, m_tempBuffer, header.MsgSize);
-                            // callback
-                            foreach (var handler in m_receivedMsgHandlers)
-                                if (handler != null)
-                                    handler(header, m_tempBuffer);
+                            m_client.Client.Receive(m_arrayBuffer, header.MsgSize, SocketFlags.None);
+                            if (m_receivedMsgHandlers != null)
+                            {
+                                Marshal.Copy(m_arrayBuffer, 0, m_tempBuffer, header.MsgSize);
+                                // callback
+                                foreach (var handler in m_receivedMsgHandlers)
+                                    if (handler != null)
+                                        handler(header, m_tempBuffer);
+                            }
                         }
                     }
                 }
-                catch (SocketException e)
+                catch (SocketException)
                 {
                     if (m_client.Client != null)
                     {
                         m_client.Client.Close();
                         m_client.Client = null;
+                        m_client = null;
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    if (m_client.Client != null)
+                    {
+                        m_client.Client.Close();
+                        m_client.Client = null;
+                        m_client = null;
                     }
                 }
                 catch (Exception)
@@ -176,3 +200,4 @@ namespace VRage.Game.Common
         }
     }
 }
+#endif // !XB1

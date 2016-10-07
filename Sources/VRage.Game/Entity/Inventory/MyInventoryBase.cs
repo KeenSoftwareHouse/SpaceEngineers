@@ -59,7 +59,7 @@ namespace VRage.Game.Entity
             InventoryId = MyStringHash.GetOrCompute(ob.InventoryId ?? "Inventory");
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_InventoryBase;
             ob.InventoryId = InventoryId.ToString();

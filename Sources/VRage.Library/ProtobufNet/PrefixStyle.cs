@@ -1,4 +1,5 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
+
 namespace ProtoBuf
 {
     /// <summary>
@@ -24,3 +25,4 @@ namespace ProtoBuf
         Fixed32BigEndian
     }
 }
+#endif // !XB1

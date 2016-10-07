@@ -1,9 +1,4 @@
 ﻿using Sandbox.Engine.Voxels;
-using Sandbox.ModAPI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using VRage.Game.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Voxels;
@@ -53,8 +48,5 @@ namespace Sandbox.Game.Entities
         {
             Init(builder);
         }
-
-    
-      
     }
 }

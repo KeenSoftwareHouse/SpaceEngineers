@@ -20,6 +20,7 @@ using VRage;
 using VRage.Game;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -70,6 +71,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
         readonly Sync<int> m_timerSync;
         public MyTimerBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isCountingDown = SyncType.CreateAndAddProp<bool>();
+            m_silent = SyncType.CreateAndAddProp<bool>();
+            m_timerSync = SyncType.CreateAndAddProp<int>();
+#endif // XB1
             CreateTerminalControls();
 
             m_openedToolbars = new List<MyToolbar>();
@@ -78,11 +84,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_isCountingDown.ValidateNever();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyTimerBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var silent = new MyTerminalControlCheckbox<MyTimerBlock>("Silent", MySpaceTexts.BlockPropertyTitle_Silent, MySpaceTexts.ToolTipTimerBlock_Silent);
             silent.Getter = (x) => x.Silent;
             silent.Setter = (x, v) => x.Silent = v;
@@ -258,7 +264,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
     
             if (m_countdownMsCurrent > 0)
                 NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 	       
             ResourceSink.IsPoweredChanged += Receiver_IsPoweredChanged;
 			ResourceSink.Update();
@@ -342,9 +347,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
             RaisePropertiesChanged();
         }
 
-        public override void UpdateBeforeSimulation100()
+        public override void UpdateSoundEmitters()
         {
-            base.UpdateBeforeSimulation100();
+            base.UpdateSoundEmitters();
             if (m_beepEmitter != null)
                 m_beepEmitter.Update();
         }

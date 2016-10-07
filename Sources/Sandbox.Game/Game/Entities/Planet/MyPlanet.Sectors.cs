@@ -20,6 +20,7 @@ using Sandbox.Game.WorldEnvironment.Definitions;
 using VRage.Collections;
 using VRage.Game.Entity;
 using VRage.Library.Utils;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities
 {

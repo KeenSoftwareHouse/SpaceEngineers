@@ -15,6 +15,7 @@ using VRage;
 using VRage.Game;
 using VRage.Game.ModAPI.Ingame;
 using VRage.ModAPI;
+using VRage.Sync;
 
 namespace SpaceEngineers.Game.Weapons.Guns
 {
@@ -32,15 +33,18 @@ namespace SpaceEngineers.Game.Weapons.Guns
         public MyLargeConveyorTurretBase()
             : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLargeConveyorTurretBase>())
                 return;
-
+            base.CreateTerminalControls();
             var separator = new MyTerminalControlSeparator<MyLargeConveyorTurretBase>();
             MyTerminalControlFactory.AddControl(separator);
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyLargeConveyorTurretBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);

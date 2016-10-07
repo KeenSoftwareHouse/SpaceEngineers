@@ -1,10 +1,79 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Definition xsi:type="AnimationControllerDefinition">
-    <Id>
-      <TypeId>MyObjectBuilder_AnimationControllerDefinition</TypeId>
-      <SubtypeId>Space_spider</SubtypeId>
-    </Id>
+    <Id Type="MyObjectBuilder_AnimationControllerDefinition" Subtype="Space_spider" />
+	<FootIkChains>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_1_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_2_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_3_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_1_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_2_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_3_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+    </FootIkChains>
+	<IkIgnoredBones>
+	  <Bone>HeadDummy</Bone>
+	  <Bone>ThirdCameraDummy</Bone>
+	</IkIgnoredBones>
+	<FootIkChains>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_1_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_2_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_RLeg_3_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_1_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_2_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+	  <FootIkChain>
+	    <FootBone>Sabiroid_LLeg_3_Ankle</FootBone>
+		<ChainLength>4</ChainLength>
+		<AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+	  </FootIkChain>
+    </FootIkChains>
+	<IkIgnoredBones>
+	  <Bone>HeadDummy</Bone>
+	  <Bone>ThirdCameraDummy</Bone>
+	</IkIgnoredBones>
     <Layers>
       <Layer>
         <Name>Body</Name>
@@ -45,8 +114,8 @@
           <Node>
             <Name>Any</Name>
             <EdPos>
-              <X>-343</X>
-              <Y>-101</Y>
+              <X>-346</X>
+              <Y>-85</Y>
             </EdPos>
             <Type>AnyExceptTarget</Type>
           </Node>
@@ -54,18 +123,18 @@
             <Name>Idle</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
+                <X>-64</X>
                 <Y>0</Y>
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                 <EdPos>
-                  <X>312</X>
-                  <Y>-7</Y>
+                  <X>369</X>
+                  <Y>-75</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Wildlife\SE_spider_Walk.mwm</PathToModel>
-                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
+                <PathToModel>Models\Characters\Wildlife\SE_spider_Idle.mwm</PathToModel>
+                <AnimationName>AnimStack::Sabiroid_rig_2015_rotated180</AnimationName>
                 <Loop>true</Loop>
-                <Speed>0</Speed>
+                <Speed>1</Speed>
                 <Interpolate>true</Interpolate>
               </Child>
             </AnimationTree>
@@ -79,24 +148,25 @@
             <Name>Walk</Name>
             <AnimationTree>
               <EdPos>
-                <X>0</X>
-                <Y>0</Y>
+                <X>-31</X>
+                <Y>-114</Y>
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                 <EdPos>
-                  <X>286</X>
-                  <Y>-7</Y>
+                  <X>426</X>
+                  <Y>-52</Y>
                 </EdPos>
                 <PathToModel>Models\Characters\Wildlife\SE_spider_Walk.mwm</PathToModel>
-                <AnimationName>AnimStack::Sabiroid_rig_2015_rotated180</AnimationName>
+                <AnimationName>AnimStack::Sabiroid_rig_2012_rotated180</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
                 <Interpolate>true</Interpolate>
               </Child>
+              <Orphans />
             </AnimationTree>
             <EdPos>
-              <X>-306</X>
-              <Y>-368</Y>
+              <X>-205</X>
+              <Y>-440</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -145,8 +215,8 @@
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>-524</X>
-              <Y>-168</Y>
+              <X>-505</X>
+              <Y>-165</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -154,8 +224,8 @@
             <Name>Attack</Name>
             <StateMachineName>Attack</StateMachineName>
             <EdPos>
-              <X>-306</X>
-              <Y>-256</Y>
+              <X>-205</X>
+              <Y>-192</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -221,9 +291,6 @@
           <Transition Name="burrow" From="Any" To="Burrowing" TimeInSec="0.2" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Attack" From="Any" To="Attack/Attack" TimeInSec="0.2" Sync="Restart">
-            <Priority xsi:nil="true" />
-          </Transition>
           <Transition Name="Deburrow" From="UnderGround" To="DeBurrowing" TimeInSec="0.2" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
@@ -253,6 +320,12 @@
                 <Condition Lhs="@animationfinished" Op="GreaterOrEqual" Rhs="0.7" />
               </Conjunction>
             </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="attack" From="Idle" To="Attack/Attack" TimeInSec="0" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="attack" From="Walk" To="Attack/Attack" TimeInSec="0" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
         </Transitions>
@@ -337,6 +410,21 @@
           </Node>
           <Node>
             <Name>Attack</Name>
+            <AnimationTree>
+            <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>191</X>
+                  <Y>15</Y>
+                </EdPos>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
             <EdPos>
               <X>-8</X>
               <Y>58</Y>
@@ -380,5 +468,41 @@
         </Transitions>
       </StateMachine>
     </StateMachines>
+    <FootIkChains>
+      <FootIkChain>
+        <FootBone>Sabiroid_RLeg_1_Ankle</FootBone>
+        <ChainLength>4</ChainLength>
+        <AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Sabiroid_RLeg_2_Ankle</FootBone>
+        <ChainLength>4</ChainLength>
+        <AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Sabiroid_RLeg_3_Ankle</FootBone>
+        <ChainLength>4</ChainLength>
+        <AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Sabiroid_LLeg_1_Ankle</FootBone>
+        <ChainLength>4</ChainLength>
+        <AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Sabiroid_LLeg_2_Ankle</FootBone>
+        <ChainLength>4</ChainLength>
+        <AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+      </FootIkChain>
+      <FootIkChain>
+        <FootBone>Sabiroid_LLeg_3_Ankle</FootBone>
+        <ChainLength>4</ChainLength>
+        <AlignBoneWithTerrain>false</AlignBoneWithTerrain>
+      </FootIkChain>
+    </FootIkChains>
+    <IkIgnoredBones>
+      <Bone>HeadDummy</Bone>
+      <Bone>ThirdCameraDummy</Bone>
+    </IkIgnoredBones>
   </Definition>
 </Definitions>

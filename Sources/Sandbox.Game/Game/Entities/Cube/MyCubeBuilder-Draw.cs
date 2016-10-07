@@ -24,7 +24,9 @@ using Sandbox.Graphics.GUI;
 using VRage.Game.Models;
 using VRage.Game;
 using VRage.Input;
-using VRage.Render.Models;
+using VRage.Profiler;
+using VRageRender.Models;
+using VRageRender.Utils;
 
 #endregion
 
@@ -80,7 +82,6 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.BeginNextBlock("DebugDraw");
             DebugDraw();
-            ProfilerShort.End();
 
             if (BlockCreationIsActivated)
             {
@@ -90,6 +91,7 @@ namespace Sandbox.Game.Entities
             if (!IsActivated || CurrentBlockDefinition == null)
             {
                 this.ClearRenderData();
+                ProfilerShort.End();
                 return;
             }
 
@@ -99,6 +101,7 @@ namespace Sandbox.Game.Entities
             if (!BuildInputValid)
             {
                 this.ClearRenderData();
+                ProfilerShort.End();
                 return;
             }
 
@@ -116,7 +119,11 @@ namespace Sandbox.Game.Entities
 
             if (DynamicMode)
             {
-                Vector3D freePlacementIntersectionPoint = IntersectionStart + IntersectionDistance * IntersectionDirection;
+                PlaneD cameraPlane = new PlaneD(MySector.MainCamera.Position, MySector.MainCamera.UpVector);
+                Vector3D projectedPoint = IntersectionStart;
+                projectedPoint = cameraPlane.ProjectPoint(ref projectedPoint);
+                Vector3D freePlacementIntersectionPoint = projectedPoint + IntersectionDistance * IntersectionDirection;
+                
                 if (m_hitInfo != null)
                     freePlacementIntersectionPoint = m_hitInfo.Value.Position;
 
@@ -142,21 +149,21 @@ namespace Sandbox.Game.Entities
 
                             if (addPos)
                             {
-                            if (PlacingSmallGridOnLargeStatic)
-                                m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPosSmallOnLarge.Value;
-                            else
-                                m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPos;
+                                if (PlacingSmallGridOnLargeStatic)
+                                    m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPosSmallOnLarge.Value;
+                                else
+                                    m_gizmo.SpaceDefault.m_localMatrixAdd.Translation = m_gizmo.SpaceDefault.m_addPos;
 
-                            m_gizmo.SpaceDefault.m_worldMatrixAdd = m_gizmo.SpaceDefault.m_localMatrixAdd * CurrentGrid.WorldMatrix;
-                            ProfilerShort.End();
+                                m_gizmo.SpaceDefault.m_worldMatrixAdd = m_gizmo.SpaceDefault.m_localMatrixAdd * CurrentGrid.WorldMatrix;
 
-                            var normal = GetSingleMountPointNormal();
-                            // Gizmo add dir can be zero in some cases
-                            if (normal.HasValue && GridAndBlockValid && m_gizmo.SpaceDefault.m_addDir != Vector3I.Zero)
-                            {
-                                m_gizmo.SetupLocalAddMatrix(m_gizmo.SpaceDefault, normal.Value);
+                                var normal = GetSingleMountPointNormal();
+                                // Gizmo add dir can be zero in some cases
+                                if (normal.HasValue && GridAndBlockValid && m_gizmo.SpaceDefault.m_addDir != Vector3I.Zero)
+                                {
+                                    m_gizmo.SetupLocalAddMatrix(m_gizmo.SpaceDefault, normal.Value);
+                                }
                             }
-                        }
+                            ProfilerShort.End();
                         }
                         else
                         {
@@ -255,12 +262,15 @@ namespace Sandbox.Game.Entities
 
             ProfilerShort.BeginNextBlock("UpdateBlockInfoHud");
             UpdateBlockInfoHud();
+            ProfilerShort.End();
 
         }
 
         protected void DrawGuiIndicators()
         {
             if (MyHud.MinimalHud) return;
+
+            if (!MySandboxGame.Config.ShowBuildingSizeHint) return;
 
             if (MyGuiScreenGamePlay.ActiveGameplayScreen != null)
                 return;
@@ -298,7 +308,7 @@ namespace Sandbox.Game.Entities
         /// </summary>
         /// <param name="defaultPos">Proposed position.</param>
         /// <returns>If True than success.</returns>
-        protected virtual bool CaluclateDynamicModePos(Vector3 defaultPos, bool isDynamicOverride = false)
+        protected virtual bool CaluclateDynamicModePos(Vector3D defaultPos, bool isDynamicOverride = false)
         {
             ProfilerShort.Begin("DynamicMode");
 
@@ -311,8 +321,8 @@ namespace Sandbox.Game.Entities
                 m_gizmo.SpaceDefault.m_worldMatrixAdd.Translation = defaultPos;
             }
 
-            return addPos;
             ProfilerShort.End();
+            return addPos;
         }
 
         protected void DrawBuildingStepsCount(Vector3I? startBuild, Vector3I? startRemove, Vector3I? continueBuild, ref Matrix localMatrixAdd )
@@ -814,6 +824,7 @@ namespace Sandbox.Game.Entities
         public static void DrawMountPoints(float cubeSize, MyCubeBlockDefinition def, MatrixD drawMatrix, MyCubeBlockDefinition.MountPoint[] mountPoints)
         {
             Color color = Color.Yellow;
+            Color defaultColor = Color.Blue;
             Vector3I centerGrid = def.Center;
             Vector3 centerOffset = def.Size * 0.5f;
             Matrix drawTransf = MatrixD.CreateTranslation((centerGrid - centerOffset) * cubeSize) * drawMatrix;
@@ -841,7 +852,7 @@ namespace Sandbox.Game.Entities
 
                 MyOrientedBoundingBoxD boxD = new MyOrientedBoundingBoxD(box, drawTransf);
 
-                VRageRender.MyRenderProxy.DebugDrawOBB(boxD, color, 0.2f, true, false);
+                VRageRender.MyRenderProxy.DebugDrawOBB(boxD, mountPoints[i].Default ? defaultColor : color, 0.2f, true, false);
             }
         }
 
@@ -910,7 +921,7 @@ namespace Sandbox.Game.Entities
             dist -= (float)bb.Size.Max() * 0.866f; // sqrt(3) * 0.5 - half of the solid diagonal of a cube
             Color black = Color.Black;
             if (dist < cubeSize * 3.0f)
-                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref bb, ref black, MySimpleObjectRasterizer.Wireframe, def.Size * 10, 0.005f / (float)bb.Size.Max() * cubeSize, onlyFrontFaces: true);
+                MySimpleObjectDraw.DrawTransparentBox(ref drawMatrix, ref bb, ref black, ref black, MySimpleObjectRasterizer.Wireframe, def.Size * 10, 0.005f / (float)bb.Size.Max() * cubeSize, onlyFrontFaces: true);
         }
 
         protected static void DrawRemovingCubes(Vector3I? startRemove, Vector3I? continueBuild, MySlimBlock removeBlock)
@@ -932,7 +943,7 @@ namespace Sandbox.Game.Entities
             aabb.Min -= new Vector3(removeBlock.CubeGrid.GridSize / 2.0f + 0.02f);
             aabb.Max += new Vector3(removeBlock.CubeGrid.GridSize / 2.0f + 0.02f);
 
-            MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref white, MySimpleObjectRasterizer.Wireframe, counter, 0.04f, null, "GizmoDrawLineRed", true);
+            MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref white, ref white, MySimpleObjectRasterizer.Wireframe, counter, 0.04f, null, "GizmoDrawLineRed", true);
             Color faceColor = new Color(Color.Red * 0.2f, 0.3f);
             MySimpleObjectDraw.DrawTransparentBox(ref matrix, ref aabb, ref faceColor, MySimpleObjectRasterizer.Solid, 0, 0.04f, "Square", null, true);
         }

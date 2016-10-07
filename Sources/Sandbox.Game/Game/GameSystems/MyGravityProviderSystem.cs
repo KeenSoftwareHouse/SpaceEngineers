@@ -15,8 +15,10 @@ namespace Sandbox.Game.GameSystems
         static List<IMyGravityProvider> m_naturalGravityGenerators = new List<IMyGravityProvider>();
 		public static ListReader<IMyGravityProvider> NaturalGravityProviders { get { return m_naturalGravityGenerators; } }
 
-        static public List<Vector3> GravityVectors = new List<Vector3>();
+        [System.ThreadStatic]
+        static public List<Vector3> GravityVectors;// = new List<Vector3>();
 		private static float m_lastLargestNaturalGravityMultiplier = 0.0f;
+
 
         public static Vector3 CalculateTotalGravityInPoint(Vector3D worldPoint)
         {
@@ -25,6 +27,9 @@ namespace Sandbox.Game.GameSystems
 
         public static Vector3 CalculateTotalGravityInPoint(Vector3D worldPoint, bool clearVectors)
         {
+            if (GravityVectors == null)
+                GravityVectors = new List<Vector3>();
+
             Vector3 resultGravity = Vector3.Zero;
 
 			if(clearVectors)
@@ -39,6 +44,9 @@ namespace Sandbox.Game.GameSystems
 
 		public static Vector3 CalculateArtificialGravityInPoint(Vector3D worldPoint, bool clearVectors = true, float gravityMultiplier = 1.0f)
 		{
+            if(GravityVectors == null)
+                GravityVectors = new List<Vector3>();
+
 			Vector3 resultGravity = Vector3.Zero;
 			if(clearVectors)
 				GravityVectors.Clear();
@@ -58,6 +66,9 @@ namespace Sandbox.Game.GameSystems
 
         public static Vector3 CalculateNaturalGravityInPoint(Vector3D worldPoint, bool clearVectors = true)
         {
+            if (GravityVectors == null)
+                GravityVectors = new List<Vector3>();
+
             Vector3 resultGravity = Vector3.Zero;
 			m_lastLargestNaturalGravityMultiplier = 0.0f;
 			if(clearVectors)

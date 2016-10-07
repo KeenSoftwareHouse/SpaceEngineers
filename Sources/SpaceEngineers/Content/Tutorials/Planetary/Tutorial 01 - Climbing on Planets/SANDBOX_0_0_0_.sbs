@@ -13509,28 +13509,15 @@
                   <Items>
                     <MyObjectBuilder_InventoryItem>
                       <Amount>1</Amount>
-                      <Scale>1</Scale>
                       <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
                         <SubtypeName>HandDrillItem</SubtypeName>
-                        <DurabilityHP xsi:nil="true" />
                         <GunEntity xsi:type="MyObjectBuilder_HandDrill">
-                          <EntityId>106192987402427379</EntityId>
-                          <PersistentFlags>CastShadows InScene</PersistentFlags>
-                          <PositionAndOrientation>
-                            <Position x="2084.6611490870382" y="-3601.2576576141109" z="-19479.463633969914" />
-                            <Forward x="0.30328387" y="-0.7872647" z="-0.5368735" />
-                            <Up x="-0.487242222" y="0.3560663" z="-0.797378063" />
-                            <Orientation>
-                              <X>-0.481136769</X>
-                              <Y>-0.008405675</Y>
-                              <Z>0.3007894</Z>
-                              <W>0.823384762</W>
-                            </Orientation>
-                          </PositionAndOrientation>
+                          <SubtypeName />
+                          <EntityId>120826048819067253</EntityId>
+                          <PersistentFlags>None</PersistentFlags>
                         </GunEntity>
                       </PhysicalContent>
-                      <ItemId>0</ItemId>
-                      <AmountDecimal>1</AmountDecimal>
+                      <ItemId>5</ItemId>
                     </MyObjectBuilder_InventoryItem>
                   </Items>
                   <nextItemId>0</nextItemId>

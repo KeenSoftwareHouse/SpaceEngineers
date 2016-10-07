@@ -94,7 +94,7 @@ namespace Sandbox.Definitions
             get { return m_definitions[(int)size]; }
             set
             {
-                Debug.Assert(m_definitions[(int)size] == null, "You're overwriting an existing definition in the group. Is this what you want?");
+                //Debug.Assert(m_definitions[(int)size] == null, "You're overwriting an existing definition in the group. Is this what you want?");
                 m_definitions[(int)size] = value;
             }
         }
@@ -204,6 +204,11 @@ namespace Sandbox.Definitions
 			/// </summary>
 			public bool Enabled;
 
+            /// <summary>
+            /// Mark mount point as default for autorotate.
+            /// </summary>
+            public bool Default;
+
             public MyObjectBuilder_CubeBlockDefinition.MountPoint GetObjectBuilder(Vector3I cubeSize)
             {
                 MyObjectBuilder_CubeBlockDefinition.MountPoint ob = new MyObjectBuilder_CubeBlockDefinition.MountPoint();
@@ -221,6 +226,7 @@ namespace Sandbox.Definitions
                 ob.ExclusionMask = ExclusionMask;
                 ob.PropertiesMask = PropertiesMask;
 				ob.Enabled = Enabled;
+                ob.Default = Default;
 
                 return ob;
             }
@@ -985,8 +991,8 @@ namespace Sandbox.Definitions
 				if(addedMounts != null)
 					addedMounts.Add(mpBuilder);
 				// shrink mount points a little to avoid overlaps when they are very close.
-				var mpStart = new Vector3((Vector2)mpBuilder.Start + OFFSET_CONST, THICKNESS_HALF);
-				var mpEnd = new Vector3((Vector2)mpBuilder.End - OFFSET_CONST, -THICKNESS_HALF);
+                var mpStart = new Vector3((Vector2)Vector2.Min(mpBuilder.Start, mpBuilder.End) + OFFSET_CONST, THICKNESS_HALF);
+                var mpEnd = new Vector3((Vector2)Vector2.Max(mpBuilder.Start, mpBuilder.End) - OFFSET_CONST, -THICKNESS_HALF);
 				var sideIdx = (int)mpBuilder.Side;
 				var mpNormal = Vector3I.Forward;
 				TransformMountPointPosition(ref mpStart, sideIdx, Size, out mpStart);
@@ -998,6 +1004,7 @@ namespace Sandbox.Definitions
 				mountPoints[i].ExclusionMask = mpBuilder.ExclusionMask;
 				mountPoints[i].PropertiesMask = mpBuilder.PropertiesMask;
 				mountPoints[i].Enabled = mpBuilder.Enabled;
+                mountPoints[i].Default = mpBuilder.Default;
 			}
 		}
 

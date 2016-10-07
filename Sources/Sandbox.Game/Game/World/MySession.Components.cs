@@ -16,12 +16,17 @@ using VRage.Plugins;
 using VRage.Utils;
 using VRage.Collections;
 using VRage.Game.Definitions;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.World
 {
     public sealed partial class MySession
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private bool m_registered = false;
+#endif // XB1
+
         #region Components
 
         private class ComponentComparer : IComparer<MySessionComponentBase>
@@ -64,11 +69,7 @@ namespace Sandbox.Game.World
 
             LoadGameDefinition(checkpoint);
 
-            if(MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario) == false)
-            {
-                Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
-            }
-
+            MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario);
 
             FixIncorrectSettings(Settings);
             WorldBoundaries = checkpoint.WorldBoundaries;
@@ -86,8 +87,10 @@ namespace Sandbox.Game.World
 
         private void RegisterComponentsFromAssemblies()
         {
+#if !XB1 // XB1_ALLINONEASSEMBLY
             var execAssembly = Assembly.GetExecutingAssembly();
             var refs = execAssembly.GetReferencedAssemblies();
+#endif // !XB1
 
             // Prepare final session component lists
             m_componentsToLoad = new HashSet<string>();
@@ -95,6 +98,9 @@ namespace Sandbox.Game.World
             m_componentsToLoad.RemoveWhere(x => SessionComponentDisabled.Contains(x));
             m_componentsToLoad.UnionWith(SessionComponentEnabled);
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterComponentsFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             foreach (var assemblyName in refs)
             {
                 try
@@ -158,6 +164,7 @@ namespace Sandbox.Game.World
             }
 
             RegisterComponentsFromAssembly(execAssembly);
+#endif // !XB1
         }
 
         private readonly CachingDictionary<Type, MySessionComponentBase> m_sessionComponents = new CachingDictionary<Type, MySessionComponentBase>();
@@ -199,9 +206,20 @@ namespace Sandbox.Game.World
         {
             if (assembly == null)
                 return;
-            MySandboxGame.Log.WriteLine("Registered modules from: " + assembly.FullName);
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            MySandboxGame.Log.WriteLine("Registered modules from: N/A (on XB1)");
+
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (Type type in MyAssembly.GetTypes())
+#else // !XB1
+            MySandboxGame.Log.WriteLine("Registered modules from: " + assembly.FullName);
+            
             foreach (Type type in assembly.GetTypes())
+#endif // !XB1
             {
                 if (Attribute.IsDefined(type, typeof(MySessionComponentDescriptor)))
                 {

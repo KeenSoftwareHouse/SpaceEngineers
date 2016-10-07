@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRageMath;
+using VRage.Library;
 
 namespace VRage.Voxels
 {
@@ -45,7 +46,7 @@ namespace VRage.Voxels
         public const float GEOMETRY_CELL_SIZE_IN_METRES = GEOMETRY_CELL_SIZE_IN_VOXELS*VOXEL_SIZE_IN_METRES;
         public const float GEOMETRY_CELL_SIZE_IN_METRES_HALF = GEOMETRY_CELL_SIZE_IN_METRES/2.0f;
         public static readonly Vector3 GEOMETRY_CELL_SIZE_VECTOR_IN_METRES = new Vector3(GEOMETRY_CELL_SIZE_IN_METRES);
-        public static readonly int GEOMETRY_CELL_CACHE_SIZE = (Environment.Is64BitProcess) ? (65536*4) : (int) (65536*1.2);
+        public static readonly int GEOMETRY_CELL_CACHE_SIZE = (MyEnvironment.Is64BitProcess) ? (65536*4) : (int) (65536*1.2);
 
         // When wrinkling voxels using voxel hand, this is default wrinkle weight amount
         public const float DEFAULT_WRINKLE_WEIGHT_ADD = 0.5f;

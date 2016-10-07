@@ -22,6 +22,10 @@ namespace VRage.Game.Components
     [PreloadRequired]
     public static class MyComponentTypeFactory
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         private static Dictionary<MyStringId, Type> m_idToType;
         private static Dictionary<Type, MyStringId> m_typeToId;
 
@@ -34,11 +38,15 @@ namespace VRage.Game.Components
             m_typeToId = new Dictionary<Type, MyStringId>();
             m_typeToContainerComponentType = new Dictionary<Type, Type>();
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterFromAssembly(Assembly.GetCallingAssembly());
             RegisterFromAssembly(MyPlugins.SandboxAssembly);
             RegisterFromAssembly(MyPlugins.GameAssembly);
             RegisterFromAssembly(MyPlugins.SandboxGameAssembly);            
             RegisterFromAssembly(MyPlugins.UserAssembly);            
+#endif // !XB1
         }
 
         private static void RegisterFromAssembly(Assembly assembly)
@@ -47,7 +55,15 @@ namespace VRage.Game.Components
                 return;
 
             var baseType = typeof(MyComponentBase);
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            var types = MyAssembly.GetTypes();
+#else // !XB1
             var types = assembly.GetTypes();
+#endif // !XB1
             foreach (var type in types)
             {
                 if (baseType.IsAssignableFrom(type))

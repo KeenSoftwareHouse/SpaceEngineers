@@ -11,10 +11,11 @@ using System.Text;
 using VRage.FileSystem;
 using VRage.Import;
 using VRage.Library.Utils;
+using VRage.Render11.Resources;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
+using VRageRender.Import;
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
@@ -116,8 +117,8 @@ namespace VRageRender
                 //
                 var vertexBuffers = new List<VertexBufferId>();
                 IndexBufferId indexBuffer = IndexBufferId.NULL;
-                var submeshes = new Dictionary<string, List<MyDrawSubmesh>>();
-                var submeshes2 = new Dictionary<string, List<MySubmeshInfo>>();
+                var submeshes = new Dictionary<MyMeshDrawTechnique, List<MyDrawSubmesh>>();
+                var submeshes2 = new Dictionary<MyMeshDrawTechnique, List<MySubmeshInfo>>();
                 var submeshesMeta = new List<MySubmeshInfo>();
 
                 int indicesNum = 0;

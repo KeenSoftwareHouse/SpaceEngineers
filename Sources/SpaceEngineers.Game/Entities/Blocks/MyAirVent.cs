@@ -28,8 +28,10 @@ using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Import;
 using VRage.ModAPI;
 using VRage.Network;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Import;
 
 namespace SpaceEngineers.Game.Entities.Blocks
 {
@@ -72,7 +74,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         private bool? m_wasRoomEmpty;
         private readonly MyDefinitionId m_oxygenGasId = new MyDefinitionId(typeof (MyObjectBuilder_GasProperties), "Oxygen");
 
-        public bool CanVent { get { return (MySession.Static.Settings.EnableOxygen) && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsWorking; } }
+        public bool CanVent { get { return (MySession.Static.Settings.EnableOxygen && MySession.Static.Settings.EnableOxygenPressurization) && ResourceSink.IsPoweredByType(MyResourceDistributorComponent.ElectricityId) && IsWorking; } }
         public bool CanVentToRoom { get { return CanVent && !IsDepressurizing; } }
         public bool CanVentFromRoom { get { return CanVent && IsDepressurizing; } }
 
@@ -104,6 +106,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyAirVent()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_isDepressurizing = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             ResourceSink = new MyResourceSinkComponent(2);
@@ -111,11 +116,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_isDepressurizing.ValueChanged += (x) => SetDepressurizing();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyAirVent>())
                 return;
-
+            base.CreateTerminalControls();
             var isDepressurizing = new MyTerminalControlOnOffSwitch<MyAirVent>("Depressurize", MySpaceTexts.BlockPropertyTitle_Depressurize, MySpaceTexts.BlockPropertyDescription_Depressurize);
             isDepressurizing.Getter = (x) => x.IsDepressurizing;
             isDepressurizing.Setter = (x, v) => x.IsDepressurizing = v;
@@ -424,7 +429,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         private float ComputeRequiredPower()
         {
-            if (!MySession.Static.Settings.EnableOxygen && Enabled && IsFunctional)
+            if (!MySession.Static.Settings.EnableOxygen && Enabled && IsFunctional && !MySession.Static.Settings.EnableOxygenPressurization)
                 return 0f;
 
             return m_isProducing ? BlockDefinition.OperationalPowerConsumption : BlockDefinition.StandbyPowerConsumption;
@@ -571,9 +576,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
 			MyValueFormatter.AppendWorkInBestUnit(ResourceSink.MaxRequiredInput, DetailedInfo);
             DetailedInfo.Append("\n");
 
-            if (!MySession.Static.Settings.EnableOxygen)
+            if (!MySession.Static.Settings.EnableOxygen || !MySession.Static.Settings.EnableOxygenPressurization)
             {
-                DetailedInfo.Append("Oxygen disabled in world settigns!");
+                DetailedInfo.Append("Oxygen disabled in world settings!");
             }
             else
             {
@@ -620,7 +625,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         #region Venting
         private MyOxygenBlock GetOxygenBlock()
         {
-            if (!MySession.Static.Settings.EnableOxygen || VentDummy == null)
+            if (!MySession.Static.Settings.EnableOxygen || !MySession.Static.Settings.EnableOxygenPressurization || VentDummy == null)
             {
                 return new MyOxygenBlock();
             }

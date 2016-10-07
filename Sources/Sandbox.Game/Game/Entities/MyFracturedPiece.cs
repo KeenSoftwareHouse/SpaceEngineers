@@ -26,10 +26,11 @@ using VRage.Utils;
 using VRage.Network;
 using VRage.ModAPI;
 using VRage.Game.Entity;
-using VRage.Library.Sync;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities
 {
@@ -92,7 +93,13 @@ namespace Sandbox.Game.Entities
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
             UseDamageSystem = false;
             NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+            m_fallSoundShouldPlay = SyncType.CreateAndAddProp<bool>();
+            m_fallSoundString = SyncType.CreateAndAddProp<string>();
+#endif // XB1
             m_fallSoundShouldPlay.Value = false;
             m_fallSoundString.Value = "";
             m_fallSoundString.ValueChanged += (x) => SetFallSound();
@@ -169,8 +176,9 @@ namespace Sandbox.Game.Entities
             var ob = objectBuilder as MyObjectBuilder_FracturedPiece;
             if (ob.Shapes.Count == 0)
             {
-                Debug.Fail("Invalid fracture piece! Dont call init without valid OB. Use pool/noinit.");
-                throw new Exception("Fracture piece has no shapes."); //throwing exception, otherwise there is fp with null physics which can mess up somwhere else
+                return;
+                //Debug.Fail("Invalid fracture piece! Dont call init without valid OB. Use pool/noinit.");
+                //throw new Exception("Fracture piece has no shapes."); //throwing exception, otherwise there is fp with null physics which can mess up somwhere else
             }
 
             foreach (var shape in ob.Shapes)
@@ -618,13 +626,6 @@ namespace Sandbox.Game.Entities
                 m_easePenetrationAction.InitialAllowedPenetrationDepthMultiplier = 5f;
                 m_easePenetrationAction.InitialAdditionalAllowedPenetrationDepth = 2f;
             }
-        }
-
-        protected override void Closing()
-        {
-            base.Closing();
-            //if(Shape.IsValid())
-            //    Shape.RemoveReference();
         }
 
         class MyFracturedPieceDebugDraw : MyDebugRenderComponentBase

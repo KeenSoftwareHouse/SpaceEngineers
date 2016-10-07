@@ -41,6 +41,7 @@ namespace Sandbox.Definitions
         public float BendMultiplier1st;
         public float BendMultiplier3rd;
         public bool UsesAtmosphereDetector;
+        public bool UsesReverbDetector;
         [Obsolete("Dont ever use again.")]
         public bool NeedsOxygen;        // handled in myobjectbuilder_character
         public float OxygenConsumptionMultiplier;
@@ -71,6 +72,7 @@ namespace Sandbox.Definitions
         public string HelmetOxygenLowSoundName;
         public string HelmetOxygenCriticalSoundName;
         public string HelmetOxygenNoneSoundName;
+        public string MovementSoundName;
 
         // Bones for foot placement IK
         public bool FeetIKEnabled = false;
@@ -161,6 +163,8 @@ namespace Sandbox.Definitions
         public string AnimationController = null;
 
         public float? MaxForce = null;
+        // align with support (terrain) - useful for animals
+        public MyEnumCharacterRotationToSupport RotationToSupport = MyEnumCharacterRotationToSupport.None;
 
         /// <summary>
         /// VRAGE TODO: TEMPORARY!
@@ -208,6 +212,7 @@ namespace Sandbox.Definitions
             RightKneeBoneName = builder.RightKneeBoneName;
             RightAnkleBoneName = builder.RightAnkleBoneName;
             UsesAtmosphereDetector = builder.UsesAtmosphereDetector;
+            UsesReverbDetector = builder.UsesReverbDetector;
             NeedsOxygen = builder.NeedsOxygen;
             OxygenConsumptionMultiplier = builder.OxygenConsumptionMultiplier;
             OxygenConsumption = builder.OxygenConsumption;
@@ -231,6 +236,7 @@ namespace Sandbox.Definitions
             HelmetOxygenLowSoundName = builder.HelmetOxygenLowSoundName;
             HelmetOxygenCriticalSoundName = builder.HelmetOxygenCriticalSoundName;
             HelmetOxygenNoneSoundName = builder.HelmetOxygenNoneSoundName;
+            MovementSoundName = builder.MovementSoundName;
             LoopingFootsteps = builder.LoopingFootsteps;
             VisibleOnHud = builder.VisibleOnHud;
             UsableByPlayer = builder.UsableByPlayer;
@@ -238,6 +244,7 @@ namespace Sandbox.Definitions
             InitialAnimation = builder.InitialAnimation;
             PhysicalMaterial = builder.PhysicalMaterial;
             JumpForce = builder.JumpForce;
+            RotationToSupport = builder.RotationToSupport;
 
             FeetIKSettings = new Dictionary<MyCharacterMovementEnum,MyFeetIKSettings>();
             if (builder.IKSettings != null)
@@ -372,6 +379,7 @@ namespace Sandbox.Definitions
             ob.SpineBone = SpineBone;
             ob.MaterialsDisabledIn1st = MaterialsDisabledIn1st;
             ob.UsesAtmosphereDetector = UsesAtmosphereDetector;
+            ob.UsesReverbDetector = UsesReverbDetector;
             ob.NeedsOxygen = NeedsOxygen;
             ob.OxygenConsumptionMultiplier = OxygenConsumptionMultiplier;
             ob.OxygenConsumption = OxygenConsumption;
@@ -444,6 +452,7 @@ namespace Sandbox.Definitions
             ob.DeadBodyShape = DeadBodyShape;
             ob.AnimationController = AnimationController;
             ob.MaxForce = MaxForce;
+            ob.RotationToSupport = RotationToSupport;
 
             return ob;
         }

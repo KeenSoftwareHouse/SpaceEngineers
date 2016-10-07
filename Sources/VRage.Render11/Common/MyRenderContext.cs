@@ -1035,6 +1035,7 @@ namespace VRageRender
             MyRender11.ProcessDebugOutput();
         }
 
+        //IMPORTANT: If you change anything here, also change it in BeginProfilingBlockAlways
         [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void BeginProfilingBlock(string tag)
         {
@@ -1054,8 +1055,51 @@ namespace VRageRender
             m_annotation.BeginEvent(tag);
         }
 
+        //IMPORTANT: If you change anything here, also change it in EndProfilingBlockAlways
         [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal void EndProfilingBlock()
+        {
+            var q = MyQueryFactory.CreateTimestampQuery();
+            End(q);
+            var info = new MyIssuedQuery(q, "", MyIssuedQueryEnum.BlockEnd);
+
+            if (m_deferred)
+            {
+                ProfilingQueries.m_issued.Enqueue(info);
+            }
+            else
+            {
+                MyGpuProfiler.IC_Enqueue(info);
+            }
+            // this tag will be visible in NSight because of this call:
+            m_annotation.EndEvent();
+        }
+
+        /// <summary>
+        /// BeginProfilingBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal void BeginProfilingBlockAlways(string tag)
+        {
+            var q = MyQueryFactory.CreateTimestampQuery();
+            End(q);
+            var info = new MyIssuedQuery(q, tag, MyIssuedQueryEnum.BlockStart);
+
+            if (m_deferred)
+            {
+                ProfilingQueries.m_issued.Enqueue(info);
+            }
+            else
+            {
+                MyGpuProfiler.IC_Enqueue(info);
+            }
+            // this tag will be visible in NSight because of this call:
+            m_annotation.BeginEvent(tag);
+        }
+
+        /// <summary>
+        /// EndProfilingBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal void EndProfilingBlockAlways()
         {
             var q = MyQueryFactory.CreateTimestampQuery();
             End(q);

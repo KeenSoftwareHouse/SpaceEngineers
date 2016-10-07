@@ -10,6 +10,9 @@ using Color = VRageMath.Color;
 using System.Collections.Generic;
 using VRageMath.PackedVector;
 using VRage.Generics;
+using VRage.Render11.Common;
+using VRage.Render11.RenderContext;
+using VRage.Render11.Resources;
 using VRageMath;
 
 
@@ -102,7 +105,7 @@ namespace VRageRender
 
         internal void Add6FacedConvexWorld(Vector3D[] v, Color col)
         {
-            Vector3D c = MyRender11.Environment.CameraPosition;
+            Vector3D c = MyRender11.Environment.Matrices.CameraPosition;
             Vector3D v0 = v[0] - c, v1 = v[1] - c, v2 = v[2] - c, v3 = v[3] - c, v4 = v[4] - c, v5 = v[5] - c, v6 = v[6] - c, v7 = v[7] - c;
 
             Add(v0, v1, col);
@@ -225,8 +228,8 @@ namespace VRageRender
 
         internal unsafe static void Init()
         {
-            m_vs = MyShaders.CreateVs("line.hlsl");
-            m_ps = MyShaders.CreatePs("line.hlsl");
+            m_vs = MyShaders.CreateVs("Primitives/Lines.hlsl");
+            m_ps = MyShaders.CreatePs("Primitives/Lines.hlsl");
             m_inputLayout = MyShaders.CreateIL(m_vs.BytecodeId, MyVertexLayouts.GetLayout(MyVertexInputComponentType.POSITION3, MyVertexInputComponentType.COLOR4));
 
             m_currentBufferSize = 100000;
@@ -267,26 +270,26 @@ namespace VRageRender
             }
         }
 
-        internal static unsafe void Draw(MyBindableResource renderTarget, MyBindableResource depth)
+        internal static unsafe void Draw(IRtvBindable renderTarget, IDepthStencil depth)
         {
-            RC.SetupScreenViewport();
-            RC.DeviceContext.InputAssembler.PrimitiveTopology = PrimitiveTopology.LineList;
-            RC.SetIL(m_inputLayout);
+            RC.SetScreenViewport();
+            RC.SetPrimitiveTopology(PrimitiveTopology.LineList);
+            RC.SetInputLayout(m_inputLayout);
 
-            RC.SetRS(MyRender11.m_linesRasterizerState);
+            RC.SetRasterizerState(MyRasterizerStateManager.LinesRasterizerState);
 
-            RC.SetVS(m_vs);
-            RC.SetPS(m_ps);
-            RC.SetBS(MyRender11.BlendAlphaPremult);
+            RC.VertexShader.Set(m_vs);
+            RC.PixelShader.Set(m_ps);
+            RC.SetBlendState(MyBlendStateManager.BlendAlphaPremult);
 
-            RC.SetDS(MyDepthStencilState.DefaultDepthState);
+            RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
 
             CheckBufferSize(m_vertices.Count);
-            RC.SetVB(0, m_VB.Buffer, m_VB.Stride);
+            RC.SetVertexBuffer(0, m_VB.Buffer, m_VB.Stride);
 
-            RC.BindDepthRT(depth, DepthStencilAccess.ReadOnly, renderTarget);
+            RC.SetRtv(depth, MyDepthStencilAccess.ReadOnly, renderTarget);
             
-            RC.SetCB(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
+            RC.AllShaderStages.SetConstantBuffer(MyCommon.PROJECTION_SLOT, MyCommon.ProjectionConstants);
 
             if(m_batches.Count > 0)
             {
@@ -304,7 +307,7 @@ namespace VRageRender
                     }
                     else
                     {
-                        matrix = MyRender11.Environment.ViewProjectionAt0;
+                        matrix = MyRender11.Environment.Matrices.ViewProjectionAt0;
                     }
 
                     if (prevMatrix != matrix)
@@ -319,19 +322,19 @@ namespace VRageRender
 
                     if(batch.IgnoreDepth)
                     {
-                        RC.SetDS(MyDepthStencilState.IgnoreDepthStencil);   
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.IgnoreDepthStencil);   
                     }
                     else
                     {
-                        RC.SetDS(MyDepthStencilState.DefaultDepthState);
+                        RC.SetDepthStencilState(MyDepthStencilStateManager.DefaultDepthState);
                     }
 
-                    RC.DeviceContext.Draw(batch.VertexCount, batch.StartVertex);
+                    RC.Draw(batch.VertexCount, batch.StartVertex);
                 }
             }
 
-            RC.SetDS(null);
-            RC.SetRS(null);
+            RC.SetDepthStencilState(null);
+            RC.SetRasterizerState(null);
 
             m_vertices.Clear();
 

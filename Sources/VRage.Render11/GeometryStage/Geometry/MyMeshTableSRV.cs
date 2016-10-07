@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Render11.Resources;
 using VRageRender.Vertex;
 
 namespace VRageRender
@@ -12,7 +13,7 @@ namespace VRageRender
         internal int BaseV;
     }
 
-    struct MyMeshTableSRV_Entry
+    struct MyMeshTableSrv_Entry
     {
         internal List<int> Pages;
     }
@@ -25,7 +26,7 @@ namespace VRageRender
     }
 
 
-    class MyMeshTableSRV
+    class MyMeshTableSrv
     {
         #region Static
         internal static VertexLayoutId OneAndOnlySupportedVertexLayout;
@@ -65,7 +66,7 @@ namespace VRageRender
         int m_indexPageSize = 0;
         int m_pagesUsed = 0;
 
-        Dictionary<MyMeshTableEntry, MyMeshTableSRV_Entry> m_table = new Dictionary<MyMeshTableEntry, MyMeshTableSRV_Entry>();
+        Dictionary<MyMeshTableEntry, MyMeshTableSrv_Entry> m_table = new Dictionary<MyMeshTableEntry, MyMeshTableSrv_Entry>();
 
         internal int PageSize { get { return m_indexPageSize; } }
 
@@ -75,7 +76,7 @@ namespace VRageRender
 
         bool m_dirty;
 
-        internal MyMeshTableSRV(int pageSize = 36)
+        internal MyMeshTableSrv(int pageSize = 36)
         {
             // non multiple-of-3 page size?
             Debug.Assert((pageSize % 3) == 0);
@@ -188,7 +189,7 @@ namespace VRageRender
                     }
                 }
 
-                m_table.Add(key, new MyMeshTableSRV_Entry { Pages = list });
+                m_table.Add(key, new MyMeshTableSrv_Entry { Pages = list });
                 m_dirty = true;
             }
         }
@@ -198,7 +199,7 @@ namespace VRageRender
             if(m_dirty)
             {
                 Release();
-
+                
                 fixed(void* ptr = m_vertexStream0)
                 {
                     m_VB_positions = MyHwBuffers.CreateStructuredBuffer(m_vertices, Stride0, false, new IntPtr(ptr), "MyMergeInstancing positions");

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -73,9 +74,10 @@ namespace VRage
             if (m_Handle == new IntPtr(-1)) return false;
             new SocketPermission(NetworkAccess.Connect, TransportType.Tcp, remoteEP.Address.ToString(), remoteEP.Port).Demand();
             var buf = (byte[])m_Buffer.GetValue(socketAddress);
-            var result = (WSAConnect(m_Handle, buf, socketAddress.Size, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) == 0);
+            bool result = (WSAConnect(m_Handle, buf, socketAddress.Size, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero) == 0);
             closesocket(m_Handle);
             return result;
         }
     }
 }
+#endif // !XB1

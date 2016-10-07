@@ -1,10 +1,7 @@
 ﻿using Havok;
-using Sandbox.Common;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities.Cube;
-using Sandbox.Game.GameSystems.Electricity;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
@@ -21,11 +18,12 @@ using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.Screens.Terminal.Controls;
 using VRage.ModAPI;
-using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game;
+using VRage.Sync;
+using VRage.Voxels;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -289,8 +287,15 @@ namespace Sandbox.Game.Entities.Blocks
         private static bool m_shouldSetOtherToolbars;
         bool m_syncing = false;
 
-        public MySensorBlock()     
+        public MySensorBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_playProximitySound = SyncType.CreateAndAddProp<bool>();
+            m_active = SyncType.CreateAndAddProp<bool>();
+            m_fieldMin = SyncType.CreateAndAddProp<Vector3>();
+            m_fieldMax = SyncType.CreateAndAddProp<Vector3>();
+            m_flags = SyncType.CreateAndAddProp<MySensorFilterFlags>();
+#endif // XB1
             CreateTerminalControls();
 
             m_active.ValueChanged += (x) => IsActiveChanged();
@@ -298,11 +303,11 @@ namespace Sandbox.Game.Entities.Blocks
             m_fieldMin.ValueChanged +=(x) => UpdateField();
         }
 
-        static void CreateTerminalControls()
+        protected void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySensorBlock>())
                 return;
-
+            base.CreateTerminalControls();
             m_openedToolbars = new List<MyToolbar>();
 
             var toolbarButton = new MyTerminalControlButton<MySensorBlock>("Open Toolbar", MySpaceTexts.BlockPropertyTitle_SensorToolbarOpen, MySpaceTexts.BlockPropertyDescription_SensorToolbarOpen,
@@ -604,7 +609,7 @@ namespace Sandbox.Game.Entities.Blocks
                 m_fieldShape.RemoveReference();
             };
 
-            m_gizmoColor = MySandboxGame.IsDirectX11 ? new Vector4(0.35f, 0, 0, 0.5f) : new Vector4(0.1f, 0, 0, 0.1f);
+            m_gizmoColor = new Vector4(0.35f, 0, 0, 0.5f);
 
         }
 
@@ -836,8 +841,9 @@ namespace Sandbox.Game.Entities.Blocks
                     return true;
             
             var grid = entity as MyCubeGrid;
-            //if grids are physically connected return false (mostly for not detecting Piston and Rotor top parts)
-            if ( grid != null && MyCubeGridGroups.Static.Physical.HasSameGroup(grid, CubeGrid) )
+            
+            //GR: if grids are logically connected(not physically causes issues with detecting ships with landing gears) return false (mostly for not detecting Piston and Rotor top parts)
+            if ( grid != null && MyCubeGridGroups.Static.Logical.HasSameGroup(grid, CubeGrid) )
                 return false;
 
             if (DetectSmallShips)
@@ -898,8 +904,22 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.UpdateAfterSimulation10();
 
-			if (!Sync.IsServer || !IsWorking || !ResourceSink.IsPowered)
+            if (!Sync.IsServer || !IsWorking)
                 return;
+
+            if (!ResourceSink.IsPowered)
+            {
+                if(ResourceSink.IsPowerAvailable(MyResourceDistributorComponent.ElectricityId, BlockDefinition.RequiredPowerInput))
+                {
+                    float origInput = ResourceSink.RequiredInput;
+                    ResourceSink.SetRequiredInputByType(MyResourceDistributorComponent.ElectricityId, 0);
+                    ResourceSink.SetRequiredInputByType(MyResourceDistributorComponent.ElectricityId, origInput);
+                }
+                else
+                {
+                    return;
+                }
+            }
 
             var rotation1 = Quaternion.CreateFromForwardUp(WorldMatrix.Forward, WorldMatrix.Up);
             var position1 = PositionComp.GetPosition() + Vector3D.Transform(PositionComp.LocalVolume.Center + (m_fieldMax.Value + m_fieldMin.Value) * 0.5f, rotation1);
@@ -914,7 +934,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            var boundingBox = new BoundingBoxD(m_fieldMin.Value, m_fieldMax.Value).Translate(PositionComp.LocalVolume.Center).Transform(WorldMatrix.GetOrientation()).Translate(PositionComp.GetPosition());
+            var boundingBox = new BoundingBoxD(m_fieldMin.Value, m_fieldMax.Value).Translate(PositionComp.LocalVolume.Center).TransformFast(WorldMatrix.GetOrientation()).Translate(PositionComp.GetPosition());
              
             m_potentialPenetrations.Clear();
             MyGamePruningStructure.GetTopMostEntitiesInBox(ref boundingBox, m_potentialPenetrations);
@@ -958,8 +978,8 @@ namespace Sandbox.Game.Entities.Blocks
                     {
                         Vector3D localPositionMin, localPositionMax;
 
-                        VRage.Voxels.MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Min, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMin);
-                        VRage.Voxels.MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Max, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMax);
+                        MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Min, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMin);
+                        MyVoxelCoordSystems.WorldPositionToLocalPosition(boundingBox.Max, voxel.PositionComp.WorldMatrix, voxel.PositionComp.WorldMatrixInvScaled, voxel.SizeInMetresHalf, out localPositionMax);
                         var aabb = new BoundingBox(localPositionMin, localPositionMax);
                         aabb.Translate(voxel.StorageMin);
                         if (voxel.Storage.Intersect(ref aabb) != ContainmentType.Disjoint)

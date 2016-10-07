@@ -7,6 +7,7 @@ using VRage.Collections;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRage.Library;
 
 namespace VRage.Voxels
 {
@@ -162,7 +163,7 @@ namespace VRage.Voxels
 
             LastCameraPosition = cameraPos;
 
-            if (!Environment.Is64BitProcess)
+            if (!MyEnvironment.Is64BitProcess)
                 UseCache = false;
 
             if (NeedsResetCache)

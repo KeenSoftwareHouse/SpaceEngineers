@@ -1,4 +1,7 @@
 ﻿#region Using
+#if XB1
+using System.Collections.Generic;
+#endif // XB1
 using Havok;
 using Sandbox.Common;
 using Sandbox.Definitions;
@@ -30,12 +33,13 @@ using System.Diagnostics;
 using VRage.Network;
 using VRage.Game.Entity;
 using VRage.Import;
-using VRage.Library.Sync;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Engine.Multiplayer;
+using VRage.Sync;
+using VRageRender.Import;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
 #endregion
@@ -89,7 +93,12 @@ namespace Sandbox.Game.Entities
             m_lastTimePlayedSound = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             Render = new Components.MyRenderComponentFloatingObject();
 
+#if !XB1 // !XB1_SYNC_NOREFLECTION
             SyncType = SyncHelpers.Compose(this);
+#else // XB1
+            SyncType = new SyncType(new List<SyncBase>());
+            Amount = SyncType.CreateAndAddProp<MyFixedPoint>();
+#endif // XB1
 
             Amount.ValueChanged += (x) => { Item.Amount = Amount.Value; UpdateInternalState(); };
         }
@@ -518,12 +527,17 @@ namespace Sandbox.Game.Entities
                         effect.WorldMatrix = WorldMatrix;
                         effect.UserScale = 0.4f;
                     }
-                    MyFloatingObjects.RemoveFloatingObject(this);
+                    if (Sync.IsServer)
+                    {
+                        MyFloatingObjects.RemoveFloatingObject(this);
+                    }
                 }
                 else
                 {
                     if (Sync.IsServer)
+                    {
                         MyFloatingObjects.RemoveFloatingObject(this, (MyFixedPoint)damageinfo.Amount);
+                    }
                 }
             }
             else

@@ -5,6 +5,7 @@ using System.Text;
 
 using Sandbox.ModAPI;
 using Havok;
+using Sandbox.Game.Entities.Blocks;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -12,9 +13,9 @@ namespace Sandbox.Game.Entities.Cube
 {
     partial class MyMotorBase : IMyMotorBase
     {
-        IMyCubeGrid IMyMotorBase.RotorGrid { get { return m_topGrid; } }
+        IMyCubeGrid IMyMotorBase.RotorGrid { get { return TopGrid; } }
 
-        IMyCubeBlock IMyMotorBase.Rotor { get { return m_topBlock; } }
+        IMyCubeBlock IMyMotorBase.Rotor { get { return TopBlock; } }
 
         event Action<IMyMotorBase> IMyMotorBase.AttachedEntityChanged
         {
@@ -22,9 +23,9 @@ namespace Sandbox.Game.Entities.Cube
             remove { AttachedEntityChanged -= GetDelegate(value); }
         }
 
-        Action<MyMotorBase> GetDelegate(Action<ModAPI.IMyMotorBase> value)
+        Action<MyMechanicalConnectionBlockBase> GetDelegate(Action<ModAPI.IMyMotorBase> value)
         {
-            return (Action<MyMotorBase>)Delegate.CreateDelegate(typeof(Action<MyMotorBase>), value.Target, value.Method);
+            return (Action<MyMechanicalConnectionBlockBase>)Delegate.CreateDelegate(typeof(Action<MyMechanicalConnectionBlockBase>), value.Target, value.Method);
         }
 
         bool ModAPI.Ingame.IMyMotorBase.IsAttached

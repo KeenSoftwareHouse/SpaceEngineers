@@ -21,6 +21,7 @@ using Sandbox.Game.SessionComponents;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.ModAPI;
+using VRage.Library;
 
 namespace Sandbox.Game.World.Triggers
 {
@@ -168,20 +169,20 @@ namespace Sandbox.Game.World.Triggers
         public StringBuilder GetProgress()
         {
             StringBuilder tempSB;
-            m_progress.Clear().Append(MyTexts.Get(MySpaceTexts.ScenarioProgressWinConditions)).Append(Environment.NewLine);
+            m_progress.Clear().Append(MyTexts.Get(MySpaceTexts.ScenarioProgressWinConditions)).Append(MyEnvironment.NewLine);
             for (int i = 0; i < m_winTriggers.Count; i++)
             {
                 tempSB = m_winTriggers[i].GetProgress();
                 if (tempSB!=null)
-                    m_progress.Append(tempSB).Append(Environment.NewLine);
+                    m_progress.Append(tempSB).Append(MyEnvironment.NewLine);
             }
 
-            m_progress.Append(Environment.NewLine).Append(MyTexts.Get(MySpaceTexts.ScenarioProgressLoseConditions)).Append(Environment.NewLine);
+            m_progress.Append(MyEnvironment.NewLine).Append(MyTexts.Get(MySpaceTexts.ScenarioProgressLoseConditions)).Append(MyEnvironment.NewLine);
             for (int i = 0; i < m_loseTriggers.Count; i++)
             {
                 tempSB = m_loseTriggers[i].GetProgress();
                 if (tempSB!=null)
-                    m_progress.Append(tempSB).Append(Environment.NewLine);
+                    m_progress.Append(tempSB).Append(MyEnvironment.NewLine);
             }
             return m_progress;
         }

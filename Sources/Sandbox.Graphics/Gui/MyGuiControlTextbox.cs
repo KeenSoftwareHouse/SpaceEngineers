@@ -29,7 +29,8 @@ namespace Sandbox.Graphics.GUI
     public enum MyGuiControlTextboxStyleEnum
     {
         Default,
-        Debug
+        Debug,
+        Custom
     }
 
     [MyGuiControlType(typeof(MyObjectBuilder_GuiControlTextbox))]
@@ -95,6 +96,17 @@ namespace Sandbox.Graphics.GUI
         #endregion
 
         #region Properties
+        public int MaxLength
+        {
+            get { return m_maxLength; }
+            set
+            {
+                m_maxLength = value;
+                if (m_text.Length > m_maxLength)
+                    m_text.Remove(m_maxLength, m_text.Length - m_maxLength);
+            }
+        }
+
         public float TextScale
         {
             get { return m_textScale; }
@@ -114,7 +126,7 @@ namespace Sandbox.Graphics.GUI
         /// <summary>
         /// When setting text to textbox, make sure you won't set it to unsuported charact
         /// </summary>
-        [Obsolete("Do not use this, it allocates!")]
+        [Obsolete("Do not use this, it allocates! Use SetText instead!")]
         public string Text
         {
             get { return m_text.ToString(); }
@@ -167,6 +179,8 @@ namespace Sandbox.Graphics.GUI
         }
         private MyGuiControlTextboxStyleEnum m_visualStyle;
         private StyleDefinition m_styleDef;
+        private StyleDefinition m_customStyle;
+        private bool m_useCustomStyle;
         private static MyKeyThrottler m_keyThrottler;
 
         protected int CarriagePositionIndex
@@ -181,7 +195,14 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshVisualStyle()
         {
-            m_styleDef = GetVisualStyle(VisualStyle);
+            if (m_useCustomStyle)
+            {
+                m_styleDef = m_customStyle;
+            }
+            else
+            {
+                m_styleDef = GetVisualStyle(VisualStyle);
+            }
             RefreshInternals();
         }
 
@@ -811,6 +832,7 @@ namespace Sandbox.Graphics.GUI
 
             public void CopyText(MyGuiControlTextbox sender)
             {
+#if !XB1
                 ClipboardText = sender.Text.Substring(Start, Length);
 
                 if (!string.IsNullOrEmpty(ClipboardText))
@@ -820,6 +842,9 @@ namespace Sandbox.Graphics.GUI
                     thread.Start();
                     thread.Join();
                 }
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif // XB1
             }
 
             void CopyToClipboard()
@@ -870,6 +895,24 @@ namespace Sandbox.Graphics.GUI
         {
             get;
             private set;
+        }
+
+        /// <summary>
+        /// GR: Use this to select all text outside for current textbox.
+        /// </summary>
+        public void SelectAll()
+        {
+            if (m_selection != null)
+            {
+                m_selection.SelectAll(this);
+            }
+        }
+
+        public void ApplyStyle(StyleDefinition style)
+        {
+            m_useCustomStyle = true;
+            m_customStyle = style;
+            RefreshVisualStyle();
         }
     }
 }

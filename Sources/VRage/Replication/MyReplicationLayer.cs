@@ -11,6 +11,8 @@ using VRage.Library.Utils;
 using VRage.Plugins;
 using VRage.Utils;
 using VRageMath;
+using VRage.Library;
+using VRage.Profiler;
 
 namespace VRage.Network
 {
@@ -29,6 +31,8 @@ namespace VRage.Network
         VRage.Library.Collections.BitStream m_sendStreamEvent = new Library.Collections.BitStream();
         protected VRage.Library.Collections.BitStream m_sendStream = new Library.Collections.BitStream();
         protected VRage.Library.Collections.BitStream m_receiveStream = new Library.Collections.BitStream();
+
+        private FastResourceLock networkObjectLock = new FastResourceLock();
 
         public DictionaryKeysReader<IMyNetObject, NetworkId> NetworkObjects
         {
@@ -111,6 +115,7 @@ namespace VRage.Network
         private void AddNetworkObject(NetworkId networkID, IMyNetObject obj)
         {
             IMyNetObject foundObj;
+            networkObjectLock.AcquireExclusiveUsing();
             if (!m_networkIDToObject.TryGetValue(networkID, out foundObj))
             {
                 m_networkIDToObject.Add(networkID, obj);
@@ -135,6 +140,7 @@ namespace VRage.Network
                 }
                 Debug.Fail("Replicated object already exists!");
             }
+            networkObjectLock.ReleaseExclusive();
         }
 
         protected IMyNetObject RemoveNetworkedObject(NetworkId networkID)
@@ -167,6 +173,7 @@ namespace VRage.Network
 
         protected void RemoveNetworkedObject(NetworkId networkID, IMyNetObject obj)
         {
+            networkObjectLock.AcquireExclusiveUsing();
             bool removedId = m_objectToNetworkID.Remove(obj);
             bool removedObj = m_networkIDToObject.Remove(networkID);
             Debug.Assert(removedId && removedObj, "Networked object was not removed because it was not in collection");
@@ -183,6 +190,7 @@ namespace VRage.Network
             }
 
             m_networkIdGenerator.Return(networkID.Value);
+            networkObjectLock.ReleaseExclusive();
         }
 
         public bool TryGetNetworkIdByObject(IMyNetObject obj, out NetworkId networkId)
@@ -220,6 +228,7 @@ namespace VRage.Network
 
         public void ReportReplicatedObjects()
         {
+            networkObjectLock.AcquireExclusiveUsing();
             foreach (var obj in m_networkIDToObject)
             {
                 Ref<int> num;
@@ -231,7 +240,7 @@ namespace VRage.Network
                 }
                 num.Value++;
             }
-
+            networkObjectLock.ReleaseExclusive();
             ReportObjects("Replicable objects", typeof(IMyReplicable));
             ReportObjects("State groups", typeof(IMyStateGroup));
             ReportObjects("Unknown net objects", typeof(object));
@@ -271,7 +280,7 @@ namespace VRage.Network
         /// Returns string with current multiplayer status. Use only for debugging.
         /// </summary>
         /// <returns>Already formatted string with current multiplayer status.</returns>
-        public virtual string GetMultiplayerStat() { return "Multiplayer Statistics:" + Environment.NewLine; }
+        public virtual string GetMultiplayerStat() { return "Multiplayer Statistics:" + MyEnvironment.NewLine; }
 
         #endregion
 

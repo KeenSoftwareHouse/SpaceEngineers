@@ -17,6 +17,7 @@ using Sandbox.Game.Multiplayer;
 using VRage;
 using VRage.Game.Components;
 using VRage.Game.ObjectBuilders.ComponentSystem;
+using VRage.Profiler;
 using VRageMath;
 
 namespace Sandbox.Game.EntityComponents
@@ -77,7 +78,7 @@ namespace Sandbox.Game.EntityComponents
             }
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_FractureComponentCubeBlock;
 

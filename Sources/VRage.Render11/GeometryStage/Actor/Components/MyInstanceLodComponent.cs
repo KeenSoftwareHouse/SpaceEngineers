@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using VRage;
 using VRage.Generics;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
@@ -50,7 +51,11 @@ namespace VRageRender
         }
 
         [PooledObject]
+#if XB1
+        private class MyLodTransitionData : IMyPooledObjectCleaner
+#else // !XB1
         private class MyLodTransitionData
+#endif // !XB1
         {
             internal float Time;
             internal float Delta;
@@ -59,11 +64,18 @@ namespace VRageRender
             internal float StartDistanceSquared;
             internal float StartTime;
 
+#if XB1
+            public void ObjectCleaner()
+            {
+                Cleanup();
+            }
+#else // !XB1
             [PooledObjectCleaner]
             public static void Cleanup(MyLodTransitionData transitionData)
             {
                 transitionData.Cleanup();
             }
+#endif // !XB1
 
             internal void Cleanup()
             {
@@ -227,13 +239,13 @@ namespace VRageRender
                 float delta = lodTransitionData.Delta;
                 if (MyLodUtils.LOD_TRANSITION_DISTANCE)
                 {
-                    float distance = (float)(MyRender11.Environment.CameraPosition - m_lastCameraPosition).Length();
+                    float distance = (float)(MyRender11.Environment.Matrices.CameraPosition - m_lastCameraPosition).Length();
                     if (distance < 0.01f)
                         distance = m_lastCameraSpeed;
                     delta = distance * 0.01f;// MyLodUtils.GetTransitionDelta(distance * 0.1f, pair.Value.Time, m_instances[pair.Key].CurrentLod);
                     delta = Math.Max(distance * 0.01f, 0.025f);
                     delta *= Math.Sign(lodTransitionData.Delta);
-                    m_lastCameraPosition = MyRender11.Environment.CameraPosition;
+                    m_lastCameraPosition = MyRender11.Environment.Matrices.CameraPosition;
                     m_lastCameraSpeed = distance;
                 }
                 lodTransitionData.Time = lodTransitionData.Time + delta;
@@ -396,7 +408,7 @@ namespace VRageRender
         {
             ProfilerShort.Begin("AddInstanceLod");
 
-            if (!SetDelta(id, index, -0.1f, (float)(MyRender11.Environment.CameraPosition - position).LengthSquared()))
+            if (!SetDelta(id, index, -0.1f, (float)(MyRender11.Environment.Matrices.CameraPosition - position).LengthSquared()))
             {
                 MyInstanceLodId key = new MyInstanceLodId { Id = id, InstanceIndex = index };
 
@@ -456,7 +468,7 @@ namespace VRageRender
 
             MyInstancing.Instancings.Data[id.Index].SetVisibility(index, true);
             m_dirtyInstances.Add(id);
-            SetDelta(id, index, 0.1f, (float)(MyRender11.Environment.CameraPosition - m_instances[new MyInstanceLodId { Id = id, InstanceIndex = index }].Position).LengthSquared());
+            SetDelta(id, index, 0.1f, (float)(MyRender11.Environment.Matrices.CameraPosition - m_instances[new MyInstanceLodId { Id = id, InstanceIndex = index }].Position).LengthSquared());
             ProfilerShort.End();
         }
 
@@ -519,7 +531,7 @@ namespace VRageRender
                     transition.Delta = instance.CurrentLod > lod ? -0.1f : 0.1f;
                     transition.Time = 0.0f;
                     transition.IsProxyToInstance = false;
-                    transition.StartDistanceSquared = (float)(MyRender11.Environment.CameraPosition - instance.Position).LengthSquared();
+                    transition.StartDistanceSquared = (float)(MyRender11.Environment.Matrices.CameraPosition - instance.Position).LengthSquared();
                     m_activeTransitions.Add(instanceLodId, transition);
                     instance.IsDirty = true;
                 }
@@ -606,7 +618,7 @@ namespace VRageRender
 
             ClearInstances(instancing);
 
-            Debug.Assert(MyInstancing.Instancings.Data[instancing.Index].NonVisibleInstanceCount == 0);
+            //Debug.Assert(MyInstancing.Instancings.Data[instancing.Index].NonVisibleInstanceCount == 0);
         }
     }
 }

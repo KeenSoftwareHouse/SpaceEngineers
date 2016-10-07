@@ -128,8 +128,15 @@ namespace VRage.Game
 
         public bool IsRespawnGrid;
 
+        [DefaultValue(-1)]
+        public int playedTime = -1;
+
         [ProtoMember]
         public long LocalCoordSys;
+
+        [ProtoMember]
+        [DefaultValue(true)]
+        public bool Editable = true;
 
     }
 }

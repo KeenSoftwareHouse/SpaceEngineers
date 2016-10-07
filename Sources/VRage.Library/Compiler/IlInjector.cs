@@ -18,6 +18,7 @@ namespace VRage.Compiler
     {
     }
 
+#if !XB1 // XB1_NOILINJECTOR
 #if UNSHARPER
     public class IlInjector
     {
@@ -61,6 +62,8 @@ namespace VRage.Compiler
         static int m_numInstructions = 0;
         static int m_numMaxInstructions = 0;
 
+        static bool m_isDead;
+
         public static bool IsWithinRunBlock()
         {
             return m_instructionCounterHandle.Depth > 0;
@@ -78,12 +81,18 @@ namespace VRage.Compiler
             m_numMaxInstructions = maxInstructions;
         }
 
+        private static void ResetIsDead()
+        {
+            m_isDead = false;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CountInstructions()
         {
             m_numInstructions++;
             if (m_numInstructions > m_numMaxInstructions)
             {
+                m_isDead = true;
                 throw new ScriptOutOfRangeException();
             }
         }
@@ -104,6 +113,7 @@ namespace VRage.Compiler
 			m_numMethodCalls++;
 			if (m_numMethodCalls > m_maxMethodCalls)
 			{
+                m_isDead = true;
 				throw new ScriptOutOfRangeException();
 			}
 		}
@@ -116,6 +126,7 @@ namespace VRage.Compiler
             m_callChainDepth++;
             if (m_callChainDepth > m_maxCallChainDepth)
             {
+                m_isDead = true;
                 throw new ScriptOutOfRangeException();
             }
         }
@@ -124,6 +135,12 @@ namespace VRage.Compiler
         public static void ExitMethod()
         {
             m_callChainDepth--;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDead()
+        {
+            return m_isDead;
         }
 
         private static IlReader m_reader = new IlReader();
@@ -739,6 +756,7 @@ namespace VRage.Compiler
                     // script runs must follow the original limits.
                     RestartCountingInstructions(maxInstructions);
                     RestartCountingMethods(maxMethodCount);
+                    ResetIsDead();
                 }
             }
 
@@ -759,5 +777,6 @@ namespace VRage.Compiler
         }
     }
 #endif
+#endif // !XB1
 }
 

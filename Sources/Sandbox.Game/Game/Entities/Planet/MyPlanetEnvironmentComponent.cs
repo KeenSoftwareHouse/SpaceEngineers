@@ -22,6 +22,7 @@ using VRage.ObjectBuilders;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.WorldEnvironment.ObjectBuilders;
 using VRage.ModAPI;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Planet
 {
@@ -496,7 +497,7 @@ namespace Sandbox.Game.Entities.Planet
             return true;
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var builder = new MyObjectBuilder_PlanetEnvironmentComponent();
 

@@ -21,6 +21,8 @@ using Sandbox.Engine.Physics;
 using Sandbox.Game;
 using System.IO;
 using VRage.Collections;
+using VRage.Profiler;
+using VRageRender.Utils;
 
 namespace Sandbox.Engine.Platform
 {
@@ -188,7 +190,11 @@ namespace Sandbox.Engine.Platform
             }
             catch (SEHException exception)
             {
+#if !XB1
                 MyLog.Default.WriteLine("SEHException caught. Error code: " + exception.ErrorCode.ToString());
+#else // XB1
+                System.Diagnostics.Debug.Assert(false, "System.Runtime.InteropServices.ExternalException.ErrorCode not supported on XB1");
+#endif // XB1
                 throw exception;
             }
         }
@@ -342,6 +348,7 @@ namespace Sandbox.Engine.Platform
             }
 
             ProfilerShort.Commit();
+            MySimpleProfiler.Commit();
             //VRage.Trace.MyTrace.Send(VRage.Trace.TraceWindow.Default, "Update End");
         }
 

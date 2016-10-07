@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 
 namespace ProtoBuf.Meta
 {
@@ -60,3 +61,4 @@ namespace ProtoBuf.Meta
     /// </summary>
     public delegate void TypeFormatEventHandler(object sender, TypeFormatEventArgs args);
 }
+#endif // !XB1

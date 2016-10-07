@@ -56,6 +56,7 @@ namespace Sandbox.Game.Weapons
             m_rotationSpeed = 0.0f;
 
             HeatUpFrames = MyShipGrinderConstants.GRINDER_HEATUP_FRAMES;
+            NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void OnControlAcquired(Sandbox.Game.Entities.Character.MyCharacter owner)

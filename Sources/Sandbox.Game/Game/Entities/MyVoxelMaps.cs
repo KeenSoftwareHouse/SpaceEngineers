@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
 using VRage.Collections;
+using VRage.Profiler;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Game.Entities

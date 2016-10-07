@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml;
-using VRage.Animations;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
-
+using VRageRender.Animations;
+using VRageRender.Messages;
+using VRageRender.Utils;
 
 #endregion
 
@@ -35,6 +36,8 @@ namespace VRage.Game
         bool m_dirty;
         bool m_positionDirty;
         uint m_renderId = MyRenderProxy.RENDER_ID_UNASSIGNED;
+
+        float m_currentParticlesPerSecond = 0;
 
         
         private enum MyGPUGenerationPropertiesEnum
@@ -504,6 +507,17 @@ namespace VRage.Game
             return m_properties;
         }
 
+        private bool m_show = true;
+        public bool Show
+        {
+            get { return m_show; }
+            set
+            {
+                m_show = value;
+                SetDirty();
+            }
+        }
+
         #endregion
 
         #region Update
@@ -517,8 +531,7 @@ namespace VRage.Game
         {
             get
             {
-                bool animatedTimeValues = 
-                    ParticlesPerSecond.GetKeysCount() > 1 || 
+                bool animatedTimeValues =                     
                     Velocity.GetKeysCount() > 1 || 
                     VelocityVar.GetKeysCount() > 1 || 
                     DirectionCone.GetKeysCount() > 1 ||
@@ -526,7 +539,9 @@ namespace VRage.Game
                     EmitterSize.GetKeysCount() > 1 || 
                     EmitterSizeMin.GetKeysCount() > 1;
 
-                return m_dirty || animatedTimeValues;
+                bool particlesPerSecondChanges = m_currentParticlesPerSecond != GetParticlesPerSecond();
+
+                return m_dirty || animatedTimeValues || particlesPerSecondChanges;
             }
         }
         public bool IsPositionDirty { get { return m_positionDirty; } }
@@ -558,12 +573,8 @@ namespace VRage.Game
             ColorIntensity.GetKey(0, out time, out colorIntensity);
 
             emitter.GID = m_renderId;
-            if (Enabled.GetValue<bool>() && !m_effect.IsEmittingStopped)
-            {
-                ParticlesPerSecond.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out emitter.ParticlesPerSecond);
-                emitter.ParticlesPerSecond *= m_effect.UserBirthMultiplier;
-            }
-            else emitter.ParticlesPerSecond = 0;
+            m_currentParticlesPerSecond = GetParticlesPerSecond();
+            emitter.ParticlesPerSecond = m_show ? m_currentParticlesPerSecond : 0;
 
             float intensity;
             color.GetKey(0, out time, out emitter.Data.Color0);
@@ -646,7 +657,8 @@ namespace VRage.Game
             flags |= SleepState ? GPUEmitterFlags.SleepState : 0;
             flags |= Light ? GPUEmitterFlags.Light : 0;
             flags |= VolumetricLight ? GPUEmitterFlags.VolumetricLight : 0;
-            flags |= m_effect.IsSimulationPaused ? GPUEmitterFlags.FreezeSimulate : 0;
+            flags |= m_effect.IsSimulationPaused || MyParticlesManager.Paused ? GPUEmitterFlags.FreezeSimulate : 0;
+            flags |= MyParticlesManager.Paused ? GPUEmitterFlags.FreezeEmit : 0;
 
             emitter.Data.Flags = flags;
 
@@ -661,6 +673,21 @@ namespace VRage.Game
             emitter.AtlasFrameOffset = ArrayOffset;
             emitter.AtlasFrameModulo = ArrayModulo;
             emitter.WorldPosition = mat.Translation;
+        }
+
+        private float GetParticlesPerSecond()
+        {
+            float particlesPerSecond;
+
+            if ((Enabled.GetValue<bool>() || (m_show && m_effect.ShowOnlyThisGeneration >= 0)) && !m_effect.IsEmittingStopped)
+            {
+                ParticlesPerSecond.GetInterpolatedValue<float>(m_effect.GetElapsedTime(), out particlesPerSecond);
+                particlesPerSecond *= m_effect.UserBirthMultiplier;
+            }
+            else 
+                particlesPerSecond = 0;
+            
+            return particlesPerSecond;
         }
 
         #endregion
@@ -769,7 +796,7 @@ namespace VRage.Game
                     Vector4 color;
                     colorAnim.GetKey(j, out time, out color);
                     color = color.UnmultiplyColor();
-                    color.W = Vector4.ToLinearRGBComponent(color.W);
+                    color.W = ColorExtensions.ToLinearRGBComponent(color.W);
                     color = color.PremultiplyColor();
                     color = Vector4.Clamp(color, new Vector4(0, 0, 0, 0), new Vector4(1, 1, 1, 1));
                     anim.SetKey(j, time, color);

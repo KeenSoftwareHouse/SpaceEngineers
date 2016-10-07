@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Text;
@@ -386,3 +387,4 @@ namespace VRage.Service
 
     }
 }
+#endif // !XB1

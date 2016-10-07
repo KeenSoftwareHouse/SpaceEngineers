@@ -29,6 +29,10 @@ using VRage.Game;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.ObjectBuilders.Definitions;
+using VRage.Game.ModAPI.Interfaces;
+using VRage.Game.ModAPI;
+using VRage.Profiler;
+using VRageRender;
 
 namespace Sandbox.Game.Entities.EnvironmentItems
 {
@@ -38,7 +42,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
     [MyEntityType(typeof(MyObjectBuilder_TreesMedium), mainBuilder: false)]
     [MyEntityType(typeof(MyObjectBuilder_Trees), mainBuilder: true)]
     [StaticEventOwner]
-    public class MyTrees : MyEnvironmentItems
+    public class MyTrees : MyEnvironmentItems, IMyDecalProxy
     {
         private struct MyCutTreeInfo
         {
@@ -359,6 +363,17 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                     m_cutTreeInfos.RemoveAtFast(i);
                 }
             }
+        }
+
+        void IMyDecalProxy.AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler)
+        {
+            MyDecalRenderInfo info = new MyDecalRenderInfo();
+            info.Position = hitInfo.Position;
+            info.Normal = hitInfo.Normal;
+            info.RenderObjectId = -1;
+            info.Flags = MyDecalFlags.World;
+            info.Material = Physics.MaterialType;
+            decalHandler.AddDecal(ref info);
         }
     }
 }

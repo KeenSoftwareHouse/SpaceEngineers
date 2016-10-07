@@ -109,7 +109,8 @@ namespace VRage.Game
         XMinusHalfX,
         YMinusHalfX,
         ZMinusHalfX,
-        ZThenOffsetX
+        ZThenOffsetX,
+        YThenOffsetX,
     }
 
     public enum MyAutorotateMode
@@ -211,6 +212,10 @@ namespace VRage.Game
 
             [XmlAttribute, ProtoMember, DefaultValue(true)]
             public bool Enabled = true;
+
+            [XmlAttribute, ProtoMember, DefaultValue(false)]
+            public bool Default = false;
+
         }
 
         [ProtoContract]

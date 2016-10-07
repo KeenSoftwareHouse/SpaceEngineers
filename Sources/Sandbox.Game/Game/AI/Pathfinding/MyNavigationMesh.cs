@@ -11,6 +11,7 @@ using VRage.Generics;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
@@ -670,7 +671,11 @@ namespace Sandbox.Game.AI.Pathfinding
         {
             return
                 m_mesh.ApproximateMemoryFootprint() +
+#if XB1
+                m_triPool.Count * 88;
+#else // !XB1
                 m_triPool.Count * (Environment.Is64BitProcess ? 88 : 56);
+#endif // !XB1
         }
 
         public int GetExternalNeighborCount(MyNavigationPrimitive primitive)

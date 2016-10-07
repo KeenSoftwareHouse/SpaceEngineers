@@ -92,21 +92,21 @@
 	<Bot xsi:type="MyObjectBuilder_AnimalBotDefinition">
       <Id>
         <TypeId>MyObjectBuilder_AnimalBot</TypeId>
-        <SubtypeId>Cyberhound</SubtypeId>
+        <SubtypeId>Wolf</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Bots_Deer</DisplayName>
       <Icon>Textures\GUI\Icons\SpawnDeer.dds</Icon>
-      <BotModel>Space_cyberhound</BotModel>
-      <BotBehaviorTree Subtype="CyberhoundBehavior" />      <!-- Which behavior tree to use -->
-      <BehaviorType>Cyberhound</BehaviorType>               <!-- Which actions (and logic) class to use -->
-      <TargetType>Cyberhound</TargetType>
+      <BotModel>Space_Wolf</BotModel>
+      <BotBehaviorTree Subtype="WolfBehavior" />      <!-- Which behavior tree to use -->
+      <BehaviorType>Wolf</BehaviorType>               <!-- Which actions (and logic) class to use -->
+      <TargetType>Wolf</TargetType>
       <Public>true</Public>
       <AvailableInSurvival>false</AvailableInSurvival>
       <RemoveAfterDeath>true</RemoveAfterDeath>
       <InventoryContentGenerated>true</InventoryContentGenerated>
       <InventoryContainerTypeId>
         <TypeId>ContainerTypeDefinition</TypeId>
-        <SubtypeId>CyberhoundLoot</SubtypeId>
+        <SubtypeId>WolfLoot</SubtypeId>
       </InventoryContainerTypeId>
       <FactionTag>SPID</FactionTag>
     </Bot>

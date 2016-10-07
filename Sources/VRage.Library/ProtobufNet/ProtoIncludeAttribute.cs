@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1 // XB1_NOPROTOBUF
+using System;
 using System.ComponentModel;
 
 using ProtoBuf.Meta;
@@ -76,3 +77,4 @@ namespace ProtoBuf
         private DataFormat dataFormat = DataFormat.Default;
     }
 }
+#endif // !XB1

@@ -468,6 +468,13 @@ namespace Sandbox.Graphics.GUI
             PaddingSizePx = new Vector2(0f, 15f),
         };
 
+        public static readonly MyGuiPaddedTexture TEXTURE_HUD_BG_PERFORMANCE = new MyGuiPaddedTexture()
+        {
+            Texture = @"Textures\GUI\Screens\hud_bg_performance.dds",
+            SizePx = new Vector2(441f, 124f),
+            PaddingSizePx = new Vector2(0f, 0f),
+        };
+
         public static readonly MyGuiPaddedTexture TEXTURE_VOICE_CHAT = new MyGuiPaddedTexture()
         {
             Texture = @"Textures\GUI\Icons\VoiceIcon.dds",

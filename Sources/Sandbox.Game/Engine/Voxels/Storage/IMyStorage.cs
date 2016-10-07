@@ -1,11 +1,8 @@
 ﻿using System;
 using Sandbox.Definitions;
 using Sandbox.Game.Entities;
-using System.Collections.Generic;
 using System.Linq;
 using Sandbox.Game.World;
-using VRage.Collections;
-using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
@@ -26,8 +23,6 @@ namespace Sandbox.Engine.Voxels
         event RangeChangedDelegate RangeChanged;
 
         void OverwriteAllMaterials(MyVoxelMaterialDefinition material);
-
-        void Save(out byte[] outCompressedData);
 
         /// <summary>
         /// Reads range of content and/or materials from specified LOD. If you want to write data back later, you must read LOD0 as that is the only writable one.

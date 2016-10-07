@@ -25,6 +25,7 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.ModAPI;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -88,6 +89,9 @@ namespace Sandbox.Game.Weapons
 
         public MyShipDrill()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -95,11 +99,11 @@ namespace Sandbox.Game.Weapons
             SetupDrillFrameCountdown();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipDrill>())
                 return;
-
+            base.CreateTerminalControls();
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipDrill>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
@@ -214,7 +218,7 @@ namespace Sandbox.Game.Weapons
 
         void OnIsWorkingChanged(MyCubeBlock obj)
         {
-            ResourceSink.Update();
+            WantstoDrillChanged();
         }
 
         void Receiver_IsPoweredChanged()
@@ -294,7 +298,7 @@ namespace Sandbox.Game.Weapons
             ResourceSink.Update();
 
             base.UpdateAfterSimulation100();
-            m_drillBase.UpdateAfterSimulation100();
+            m_drillBase.UpdateSoundEmitter();
 
             if (Sync.IsServer && IsFunctional && m_useConveyorSystem && this.GetInventory().GetItems().Count > 0)
             {
@@ -304,6 +308,7 @@ namespace Sandbox.Game.Weapons
 
         public override void UpdateBeforeSimulation10()
         {
+            Receiver_IsPoweredChanged();
             base.UpdateBeforeSimulation10();
 
             Debug.Assert(WantsToDrill || Enabled);
@@ -632,6 +637,12 @@ namespace Sandbox.Game.Weapons
                     UpdateDetailedInfo();
                 }
             }
+        }
+
+        public void UpdateSoundEmitter()
+        {
+            if (m_soundEmitter != null)
+                m_soundEmitter.Update();
         }
 
         #region IMyConveyorEndpointBlock implementation

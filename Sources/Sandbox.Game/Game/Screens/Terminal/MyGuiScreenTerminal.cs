@@ -20,21 +20,10 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 
 namespace Sandbox.Game.Gui
 {
-    public enum MyTerminalPageEnum
-    {
-        None =-2,
-        Properties = -1,
-        Inventory = 0,
-        ControlPanel = 1,
-        Production = 2,
-        Info = 3,
-        Factions = 4,
-        Gps = 6,
-    }
-
     public partial class MyGuiScreenTerminal : MyGuiScreenBase
     {
         public static event ScreenHandler ClosedCallback
@@ -124,6 +113,17 @@ namespace Sandbox.Game.Gui
             return "MyGuiScreenTerminal";
         }
 
+        public override bool CloseScreen()
+        {
+            if (base.CloseScreen())
+            {
+                if (m_interactedEntity != null)
+                    m_interactedEntity.OnClose -= m_closeHandler;
+                return true;
+            }
+            return false;
+        }
+
         #region recreate controls on load
 
         private void CreateFixedTerminalElements()
@@ -148,8 +148,8 @@ namespace Sandbox.Game.Gui
                 //Inits of temporary panels
                 m_propertiesTopMenuParent = new MyGuiControlParent()
                 {
-                    Position = new Vector2(-0.614f, -0.487f),
-                    Size = new Vector2(0.3f, 0.15f),
+                    Position = new Vector2(-0.814f, -0.487f),
+                    Size = new Vector2(0.7f, 0.15f),
                     Name = "PropertiesPanel",
                     OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
                 };

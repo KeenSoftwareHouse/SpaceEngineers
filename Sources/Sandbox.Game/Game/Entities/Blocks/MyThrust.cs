@@ -35,6 +35,7 @@ using VRage.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Sync;
 
 #endregion
 
@@ -193,6 +194,9 @@ namespace Sandbox.Game.Entities
 
         public MyThrust()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_thrustOverride = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             Render.NeedsDrawFromParent = true;
@@ -206,11 +210,11 @@ namespace Sandbox.Game.Entities
         }
 
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyThrust>())
                 return;
-
+            base.CreateTerminalControls();
             float threshold = 1f;
             var thrustOverride = new MyTerminalControlSlider<MyThrust>("Override", MySpaceTexts.BlockPropertyTitle_ThrustOverride, MySpaceTexts.BlockPropertyDescription_ThrustOverride);
             thrustOverride.Getter = (x) => x.m_thrustOverride;
@@ -286,6 +290,7 @@ namespace Sandbox.Game.Entities
             m_thrustOverride.Value = (builder.ThrustOverride * 100f) / BlockDefinition.ForceMagnitude;
 
             LoadDummies();
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_light = MyLights.AddLight();
             m_light.ReflectorDirection = WorldMatrix.Forward;
@@ -587,7 +592,7 @@ namespace Sandbox.Game.Entities
 
         private void UpdateSoundState()
         {
-            if (m_soundEmitter == null)
+            if (m_soundEmitter == null || !IsWorking)
                 return;
             if (CurrentStrength > 0.1f)
             {

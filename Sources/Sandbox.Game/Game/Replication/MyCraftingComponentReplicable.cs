@@ -86,7 +86,7 @@ namespace Sandbox.Game.Replication
             return null;
         }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             // TODO: This can be adjusted, but for now, make sure it is always created on clients
             return 1.0f;
@@ -119,6 +119,11 @@ namespace Sandbox.Game.Replication
                 ((MyEntity)CraftingComponent.Entity).OnClose -= m_raiseDestroyedHandler;
                 RaiseDestroyed();
             }
+        }
+
+        public override bool IsChild
+        {
+            get { return false; }
         }
     }
 }

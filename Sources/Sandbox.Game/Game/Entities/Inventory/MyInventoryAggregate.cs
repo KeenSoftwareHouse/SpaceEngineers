@@ -303,7 +303,7 @@ namespace Sandbox.Game.Entities.Inventory
             OnContentsChanged();
         }
 
-        public override MyObjectBuilder_ComponentBase Serialize()
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
         {
             var ob = base.Serialize() as MyObjectBuilder_InventoryAggregate;
 

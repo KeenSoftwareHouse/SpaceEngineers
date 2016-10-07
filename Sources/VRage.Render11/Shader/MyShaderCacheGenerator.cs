@@ -10,11 +10,14 @@ using SharpDX.Direct3D;
 using VRage.FileSystem;
 using VRage.Utils;
 using VRageRender;
+using VRage.Library.Utils;
 
 namespace VRage.Render11.Shader
 {
     internal class MyShaderCacheGenerator
     {
+        private const string CacheGeneratorFile = "CacheGenerator.xml";
+
         private const string ANNOTATION_DEFINE = "define";
         private const string ANNOTATION_DEFINE_MANDATORY = "defineMandatory";
         private const string ANNOTATION_SKIP = "@skipCache";
@@ -23,16 +26,36 @@ namespace VRage.Render11.Shader
         {
             // remove contents of the whole cache folder
             var outputPath = Path.Combine(MyFileSystem.UserDataPath, MyShadersDefines.CachePath);
+            Directory.CreateDirectory(outputPath);
             if (clean)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 string[] cacheFiles = Directory.GetFiles(outputPath, "*.cache");
                 for (int i = 0; i < cacheFiles.Length; i++)
                     File.Delete(cacheFiles[i]);
+#endif // !XB1
             }
 
-            GenerateInternal(onShaderCacheProgress);
+            string filename = null;
+            CacheGenerator generatorDesc = null;
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(CacheGenerator));
+                filename = Path.Combine(MyShaders.ShadersPath, CacheGeneratorFile);
+                TextReader reader = new StreamReader(filename);
+                generatorDesc = serializer.Deserialize(reader) as CacheGenerator;
+            }
+            catch (Exception ex)
+            {
+                throw new FileLoadException("File " + filename + " not found or invalid: ", ex);
+            }
+            if (generatorDesc == null)
+                throw new FileLoadException("File " + filename + " not found or invalid: ");
 
-            GenerateMaterials(onShaderCacheProgress);
+            GenerateInternal(generatorDesc, onShaderCacheProgress);
+            GenerateMaterials(generatorDesc, onShaderCacheProgress);
         }
 
         private static bool CheckAnnotation(string source, int idx, string define)
@@ -41,10 +64,13 @@ namespace VRage.Render11.Shader
             return sub == define;
         }
 
-        private static void GenerateInternal(OnShaderCacheProgressDelegate onShaderCacheProgress)
+        private static void GenerateInternal(CacheGenerator generatorDesc, OnShaderCacheProgressDelegate onShaderCacheProgress)
         {
-            var shaderPath = Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath);
-            string[] files = Directory.GetFiles(shaderPath, "*.hlsl");
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
+            var shaderPath = Path.Combine(MyShaders.ShadersPath);
+            string[] files = GetShadersRecursively(shaderPath, generatorDesc.Ignores);
             var macroVariants = new List<string[]>();
             var macroVariantMandatory = new List<bool>();
             for (int i = 0; i < files.Length; i++)
@@ -59,9 +85,9 @@ namespace VRage.Render11.Shader
                     if (source.IndexOf(ANNOTATION_SKIP) != -1)
                         continue;
 
-                    for (MyShadersDefines.Profiles profile = 0; profile < MyShadersDefines.Profiles.count; profile++)
+                    for (MyShaderProfile profile = 0; profile < MyShaderProfile.count; profile++)
                     {
-                        string function = MyShadersDefines.ProfileEntryPoint(profile);
+                        string function = MyShaders.ProfileEntryPoint(profile);
                         if (source.Contains(function))
                         {
                             // generate list of macro variants
@@ -69,14 +95,11 @@ namespace VRage.Render11.Shader
                             macroVariantMandatory.Clear();
 
                             // global ones
-                            //macroVariants.Add(new[] {"DEBUG"});
-                            //macroVariantMandatory.Add(false);
                             macroVariants.Add(new[] {"MS_SAMPLE_COUNT 2", "MS_SAMPLE_COUNT 4", "MS_SAMPLE_COUNT 8", "FXAA_ENABLED"});
                             macroVariantMandatory.Add(false);
 
                             // shader specific ones
                             int defineEndIndex = 0;
-                            bool skip = false;
                             while (true)
                             {
                                 int defineIndex = source.IndexOf('@', defineEndIndex);
@@ -108,9 +131,6 @@ namespace VRage.Render11.Shader
                                 macroVariantMandatory.Add(mandatory);
                             }
 
-                            if (skip)
-                                continue;
-
                             // init macro counters based on mandatory flag
                             var counters = new int[macroVariants.Count];
                             for (int j = 0; j < macroVariants.Count; j++)
@@ -136,7 +156,7 @@ namespace VRage.Render11.Shader
                                 }
 
                                 // compile
-                                PreCompile(source, macros, profile, fileText, "", progress, onShaderCacheProgress);
+                                PreCompile(file, macros, profile, fileText, "", progress, onShaderCacheProgress);
                                 any = true;
 
                                 // increase variants counters
@@ -160,69 +180,54 @@ namespace VRage.Render11.Shader
                         onShaderCacheProgress(progress, file, "", "", "", "No entry point found.", true);
                 }
             }
+#endif // !XB1
         }
 
         private static ShaderMacro[] m_globalMacros = new[] {new ShaderMacro("MS_SAMPLE_COUNT", 2), new ShaderMacro("MS_SAMPLE_COUNT", 4), new ShaderMacro("MS_SAMPLE_COUNT", 8)};//, new ShaderMacro("FXAA_ENABLED",null)};
 
-        private static void GenerateMaterials(OnShaderCacheProgressDelegate onShaderCacheProgress)
+        private static void GenerateMaterials(CacheGenerator generatorDesc, OnShaderCacheProgressDelegate onShaderCacheProgress)
         {
-            string filename = null;
-            MatCombos matDesc = null;
-            try
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof (MatCombos));
-                filename = Path.Combine(MyFileSystem.ContentPath, MyShadersDefines.ShadersContentPath, MyShadersDefines.MaterialComboFile);
-                TextReader reader = new StreamReader(filename);
-                matDesc = serializer.Deserialize(reader) as MatCombos;
-            }
-            catch (Exception ex)
-            {
-                throw new FileLoadException("File " + filename + " not found or invalid: ", ex);
-            }
-            if (matDesc == null)
-                throw new FileLoadException("File " + filename + " not found or invalid: ");
-
-            int combinationsCount = matDesc.Materials.Length*matDesc.Passes.Length*matDesc.Combos.Length;
+            int combinationsCount = generatorDesc.Materials.Length * generatorDesc.Passes.Length * generatorDesc.Combos.Length;
             int combinationsCounter = 0;
-            for (int i = 0; i < matDesc.Materials.Length; i++)
+            for (int i = 0; i < generatorDesc.Materials.Length; i++)
             {
-                var materialId = MyStringId.GetOrCompute(matDesc.Materials[i].Id);
-                var materialFlags = ParseFlags(matDesc.Materials[i].FlagNames);
-                var unsupportedMaterialFlags = ParseFlags(matDesc.Materials[i].UnsupportedFlagNames);
-                for (int j = 0; j < matDesc.Passes.Length; j++)
+                var materialId = MyStringId.GetOrCompute(generatorDesc.Materials[i].Id);
+                var materialFlags = ParseFlags(generatorDesc.Materials[i].FlagNames);
+                var unsupportedMaterialFlags = ParseFlags(generatorDesc.Materials[i].UnsupportedFlagNames);
+                for (int j = 0; j < generatorDesc.Passes.Length; j++)
                 {
-                    var passId = MyStringId.GetOrCompute(matDesc.Passes[j].Id);
-                    var passFlags = ParseFlags(matDesc.Passes[j].FlagNames);
-                    var unsupportedPassFlags = ParseFlags(matDesc.Passes[j].UnsupportedFlagNames);
-                    for (int c = 0; c < matDesc.Combos.Length; c++)
+                    var passId = MyStringId.GetOrCompute(generatorDesc.Passes[j].Id);
+                    var passFlags = ParseFlags(generatorDesc.Passes[j].FlagNames);
+                    var unsupportedPassFlags = ParseFlags(generatorDesc.Passes[j].UnsupportedFlagNames);
+                    for (int c = 0; c < generatorDesc.Combos.Length; c++)
                     {
                         combinationsCounter++;
                         float progress = (float) combinationsCounter*100/combinationsCount;
-                        if (string.IsNullOrEmpty(matDesc.Combos[c].Material) && string.IsNullOrEmpty(matDesc.Combos[c].Pass))
-                            GenerateCombo(materialId, passId, materialFlags | passFlags, unsupportedMaterialFlags | unsupportedPassFlags, matDesc.Combos[c].ComboList1, matDesc.Combos[c].ComboList2, progress, onShaderCacheProgress);
+                        if (string.IsNullOrEmpty(generatorDesc.Combos[c].Material) && string.IsNullOrEmpty(generatorDesc.Combos[c].Pass))
+                            GenerateCombo(materialId, passId, materialFlags | passFlags, unsupportedMaterialFlags | unsupportedPassFlags, generatorDesc.Combos[c].ComboList1, generatorDesc.Combos[c].ComboList2, progress, onShaderCacheProgress);
                     }
                 }
             }
-            for (int c = 0; c < matDesc.Combos.Length; c++)
+            for (int c = 0; c < generatorDesc.Combos.Length; c++)
             {
-                if (!string.IsNullOrEmpty(matDesc.Combos[c].Material) && !string.IsNullOrEmpty(matDesc.Combos[c].Pass))
+                if (!string.IsNullOrEmpty(generatorDesc.Combos[c].Material) && !string.IsNullOrEmpty(generatorDesc.Combos[c].Pass))
                 {
                     combinationsCounter++;
                     float progress = (float)combinationsCounter * 100 / combinationsCount;
-                    var materialId = MyStringId.GetOrCompute(matDesc.Combos[c].Material);
-                    var passId = MyStringId.GetOrCompute(matDesc.Combos[c].Pass);
-                    GenerateCombo(materialId, passId, MyShaderUnifiedFlags.NONE, MyShaderUnifiedFlags.NONE, matDesc.Combos[c].ComboList1, matDesc.Combos[c].ComboList2, progress, onShaderCacheProgress);
+                    var materialId = MyStringId.GetOrCompute(generatorDesc.Combos[c].Material);
+                    var passId = MyStringId.GetOrCompute(generatorDesc.Combos[c].Pass);
+                    GenerateCombo(materialId, passId, MyShaderUnifiedFlags.NONE, MyShaderUnifiedFlags.NONE, generatorDesc.Combos[c].ComboList1, generatorDesc.Combos[c].ComboList2, progress, onShaderCacheProgress);
                 }
             }
         }
 
-        private static void GenerateCombo(MyStringId materialId, MyStringId passId, MyShaderUnifiedFlags additionalFlags, MyShaderUnifiedFlags unsupportedFlags, MatCombos.Combo[] comboList1, MatCombos.Combo[] comboList2, 
+        private static void GenerateCombo(MyStringId materialId, MyStringId passId, MyShaderUnifiedFlags additionalFlags, MyShaderUnifiedFlags unsupportedFlags, CacheGenerator.Combo[] comboList1, CacheGenerator.Combo[] comboList2, 
             float progress, OnShaderCacheProgressDelegate onShaderCacheProgress)
         {
             if (comboList1 == null || comboList1.Length == 0)
-                comboList1 = new[] { new MatCombos.Combo() };
+                comboList1 = new[] { new CacheGenerator.Combo() };
             if (comboList2 == null || comboList2.Length == 0)
-                comboList2 = new[] { new MatCombos.Combo() };
+                comboList2 = new[] { new CacheGenerator.Combo() };
             for (int k = 0; k < comboList1.Length; k++)
             {
                 MyVertexInputComponentType[] vertexInput1 = comboList1[k].VertexInput;
@@ -260,48 +265,79 @@ namespace VRage.Render11.Shader
                         vertexLayout = MyVertexLayouts.GetLayout(vertexInput);
                     else vertexLayout = MyVertexLayouts.Empty;
 
-                    // return errors & skipped info
-                    string vsSource;
-                    string psSource;
-                    MyMaterialShaders.Preprocess(materialId, passId, vertexLayout.Info, out vsSource, out psSource);
-
                     MyShaderUnifiedFlags flags = ParseFlags(comboList2[l].FlagNames) | flags1 | additionalFlags;
+                    var macros = new List<ShaderMacro>();
+                    macros.Add(MyMaterialShaders.GetRenderingPassMacro(passId.String));
+                    MyMaterialShaders.AddMaterialShaderFlagMacrosTo(macros, flags);
+                    macros.AddRange(vertexLayout.Info.Macros);
+
+                    // return errors & skipped info
+                    MyMaterialShaderInfo sources;
+                    MyMaterialShaders.GetMaterialSources(materialId, out sources);
+
                     if ((flags & unsupportedFlags) != 0)
                         continue;
 
-                    var macros = MyMaterialShaders.GenerateMaterialShaderFlagMacros(flags);
-                    var descriptor = String.Format("{0}_{1}", materialId.ToString(), passId.ToString());
                     var vertexLayoutString = vertexLayout.Info.Components.GetString();
 
-                    PreCompile(vsSource, macros, MyShadersDefines.Profiles.vs_5_0, descriptor, vertexLayoutString, progress, onShaderCacheProgress);
-                    PreCompile(psSource, macros, MyShadersDefines.Profiles.ps_5_0, descriptor, vertexLayoutString, progress, onShaderCacheProgress);
+                    string vsDescriptor = MyMaterialShaders.GetShaderDescriptor(sources.VertexShaderFilename, materialId.String, passId.String, vertexLayout);
+                    PreCompile(sources.VertexShaderFilepath, macros, MyShaderProfile.vs_5_0, vsDescriptor, vertexLayoutString, progress, onShaderCacheProgress);
+
+                    string psDescriptor = MyMaterialShaders.GetShaderDescriptor(sources.PixelShaderFilename, materialId.String, passId.String, vertexLayout);
+                    PreCompile(sources.PixelShaderFilepath, macros, MyShaderProfile.ps_5_0, psDescriptor, vertexLayoutString, progress, onShaderCacheProgress);
                     macros.Add(m_globalMacros[0]);
                     for (int m = 0; m < m_globalMacros.Length; m++)
                     {
                         macros[macros.Count - 1] = m_globalMacros[m];
-                        //PreCompile(vsSource, macros, MyShadersDefines.Profiles.vs_5_0, descriptor, vertexLayoutString, progress, onShaderCacheProgress);
-                        PreCompile(psSource, macros, MyShadersDefines.Profiles.ps_5_0, descriptor, vertexLayoutString, progress, onShaderCacheProgress);
+                        //PreCompile(sources.VertexShaderFilepath, macros, MyShadersDefines.Profiles.vs_5_0, vsDescriptor, vertexLayoutString, progress, onShaderCacheProgress);
+                        PreCompile(sources.PixelShaderFilepath, macros, MyShaderProfile.ps_5_0, psDescriptor, vertexLayoutString, progress, onShaderCacheProgress);
                     }
                 }
             }
         }
 
-        private static void PreCompile(string source, List<ShaderMacro> macros, MyShadersDefines.Profiles profile, string descriptor, string vertexLayoutString, float progress, OnShaderCacheProgressDelegate onShaderCacheProgress)
+        private static string[] GetShadersRecursively(string shaderPath, string[] ignoresConf)
+        {
+            List<string> ignores = new List<string>();
+            foreach (var ignore in ignoresConf)
+            {
+                var uri = new System.Uri(Path.Combine(shaderPath, ignore));
+                var localPath = uri.LocalPath;
+                ignores.Add(localPath);
+            }
+
+            List<string> files = new List<string>();
+            foreach (var file in PathUtils.GetFilesRecursively(shaderPath, "*.hlsl"))
+            {
+                bool ignored = false;
+                foreach (var ignore in ignores)
+                {
+                    if (file.StartsWith(ignore))
+                        ignored = true;
+                }
+
+                if (!ignored)
+                    files.Add(file);
+            }
+
+            return files.ToArray();
+        }
+
+        private static void PreCompile(string filepath, List<ShaderMacro> macros, MyShaderProfile profile, string descriptor, string vertexLayoutString, float progress, OnShaderCacheProgressDelegate onShaderCacheProgress)
         {
             var macrosArray = macros.ToArray();
             bool wasCached;
             string compileLog;
             if (onShaderCacheProgress != null)
-                onShaderCacheProgress(progress, descriptor, MyShadersDefines.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(), "", false);
-            var compiled = MyShaders.Compile(source, macrosArray, profile, descriptor, true, false, out wasCached, out compileLog);
+                onShaderCacheProgress(progress, descriptor, MyShaders.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(), "", false);
+            var compiled = MyShaders.Compile(filepath, macrosArray, profile, descriptor, true, false, out wasCached, out compileLog);
             if (onShaderCacheProgress != null)
             {
-                string message = "";
                 if (wasCached)
-                    onShaderCacheProgress(progress, descriptor + vertexLayoutString, MyShadersDefines.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(), "skipped", false);
+                    onShaderCacheProgress(progress, descriptor, MyShaders.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(), "skipped", false);
                 else if (compileLog != null)
                 {
-                    onShaderCacheProgress(progress, descriptor + vertexLayoutString, MyShadersDefines.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(),
+                    onShaderCacheProgress(progress, descriptor, MyShaders.ProfileToString(profile), vertexLayoutString, macrosArray.GetString(),
                         (compiled == null ? "errors:\n" : "warnings:\n") + compileLog, compiled == null);
                 }
             }
@@ -334,8 +370,10 @@ namespace VRage.Render11.Shader
         private static readonly IntComparer m_intComparer = new IntComparer();
     }
     [Serializable]
-    public class MatCombos
+    public class CacheGenerator
     {
+        [XmlArrayItem("Ignore")]
+        public string[] Ignores;
         public Material[] Materials;
         public Pass[] Passes;
         public ComboGroup[] Combos;

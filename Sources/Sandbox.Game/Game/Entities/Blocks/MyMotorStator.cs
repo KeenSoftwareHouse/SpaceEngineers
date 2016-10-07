@@ -22,6 +22,8 @@ using VRage.ModAPI;
 using VRage.Network;
 using VRage.Utils;
 using VRageMath;
+using VRage.Library;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -80,6 +82,15 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyMotorStator()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_dummyDisplacement = SyncType.CreateAndAddProp<float>(); //<== from base class
+
+            Torque = SyncType.CreateAndAddProp<float>();
+            BrakingTorque = SyncType.CreateAndAddProp<float>();
+            TargetVelocity = SyncType.CreateAndAddProp<float>();
+            m_minAngle = SyncType.CreateAndAddProp<float>();
+            m_maxAngle = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -89,11 +100,11 @@ namespace Sandbox.Game.Entities.Cube
             SyncType.PropertyChanged += SyncType_PropertyChanged;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyMotorStator>())
                 return;
-
+            base.CreateTerminalControls();
             var reverse = new MyTerminalControlButton<MyMotorStator>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (b) => b.TargetVelocityRPM = -b.TargetVelocityRPM);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);
@@ -208,8 +219,10 @@ namespace Sandbox.Game.Entities.Cube
 
         void SyncType_PropertyChanged(SyncBase obj)
         {
-            if (obj == m_dummyDisplacement && m_constraint != null)
-                Reattach();
+            if (obj == m_dummyDisplacement && MyPhysicsBody.IsConstraintValid(m_constraint))
+            {
+                SetConstraintPosition(TopBlock, (HkLimitedHingeConstraintData)m_constraint.ConstraintData);
+        }
         }
 
         private float NormalizeRPM(float v)
@@ -257,7 +270,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 if (!m_limitsActive && !(float.IsNegativeInfinity(m_minAngle) && float.IsPositiveInfinity(m_maxAngle)))
                 {
-                    DetailedInfo.Append(Environment.NewLine);
+                    DetailedInfo.Append(MyEnvironment.NewLine);
                     DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorLimitsDisabled));
                 }
             }
@@ -404,10 +417,10 @@ namespace Sandbox.Game.Entities.Cube
         {
             base.UpdateBeforeSimulation();
 
-            if (CheckVelocities())
+            if (m_welded)
                 return;
 
-            if (m_topGrid == null || SafeConstraint == null)
+            if (TopGrid == null || SafeConstraint == null)
                 return;
 
             if (SafeConstraint.RigidBodyA == SafeConstraint.RigidBodyB) //welded
@@ -438,7 +451,7 @@ namespace Sandbox.Game.Entities.Cube
 
                 // Activate even when motor is stopped, so it fixes it's limits
                 CubeGrid.Physics.RigidBody.Activate();
-                m_topGrid.Physics.RigidBody.Activate();
+                TopGrid.Physics.RigidBody.Activate();
             }
             if (m_limitsActive)
             {
@@ -452,8 +465,8 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
 
-            m_motor.MaxForce = Torque;
-            m_motor.MinForce = -Torque;
+            m_motor.MaxForce = Torque * Sync.RelativeSimulationRatio;
+            m_motor.MinForce = -Torque * Sync.RelativeSimulationRatio;
             m_motor.VelocityTarget = TargetVelocity * Sync.RelativeSimulationRatio;
 
             bool motorRunning = IsWorking;
@@ -462,23 +475,48 @@ namespace Sandbox.Game.Entities.Cube
                 data.SetMotorEnabled(m_constraint, motorRunning);
             }
 
-            if (motorRunning && m_topGrid != null && !m_motor.VelocityTarget.IsZero())
+            if (motorRunning && TopGrid != null && !m_motor.VelocityTarget.IsZero())
             {
                 CubeGrid.Physics.RigidBody.Activate();
-                m_topGrid.Physics.RigidBody.Activate();
+                TopGrid.Physics.RigidBody.Activate();
             }
+        }
+
+        private void SetConstraintPosition(MyAttachableTopBlockBase rotor, HkLimitedHingeConstraintData data)
+        {
+            var posA = DummyPosition;
+            var posB = rotor.Position * rotor.CubeGrid.GridSize;
+            var axisA = PositionComp.LocalMatrix.Up;
+            var axisAPerp = PositionComp.LocalMatrix.Forward;
+            var axisB = rotor.PositionComp.LocalMatrix.Up;
+            var axisBPerp = rotor.PositionComp.LocalMatrix.Forward;
+            data.SetInBodySpace(posA, posB, axisA, axisB, axisAPerp, axisBPerp, CubeGrid.Physics, TopGrid.Physics);
         }
 
         protected override bool Attach(MyAttachableTopBlockBase rotor, bool updateGroup = true)
         {
             if (rotor is MyMotorRotor && base.Attach(rotor, updateGroup))
             {
+                CreateConstraint(rotor);
+                
+                UpdateText();
+                return true;
+            }
+            return false;
+        }
+
+        protected override bool CreateConstraint(MyAttachableTopBlockBase rotor)
+        {
+            if (!base.CreateConstraint(rotor))
+                return false;
                 Debug.Assert(rotor != null, "Rotor cannot be null!");
                 Debug.Assert(m_constraint == null, "Already attached, call detach first!");
-                Debug.Assert(m_connectionState.Value.TopBlockId == 0 || m_connectionState.Value.TopBlockId == rotor.EntityId, "m_rotorBlockId must be set prior calling Attach");
+            Debug.Assert(
+                m_connectionState.Value.TopBlockId == 0 || m_connectionState.Value.TopBlockId == rotor.EntityId,
+                "m_rotorBlockId must be set prior calling Attach");
 
 
-                var rotorBody = m_topGrid.Physics.RigidBody;
+            var rotorBody = TopGrid.Physics.RigidBody;
                 var data = new HkLimitedHingeConstraintData();
                 m_motor = new HkVelocityConstraintMotor(1.0f, 1000000f);
 
@@ -486,13 +524,7 @@ namespace Sandbox.Game.Entities.Cube
                 data.Motor = m_motor;
                 data.DisableLimits();
 
-                var posA = DummyPosition;
-                var posB = rotor.Position * rotor.CubeGrid.GridSize;
-                var axisA = PositionComp.LocalMatrix.Up;
-                var axisAPerp = PositionComp.LocalMatrix.Forward;
-                var axisB = rotor.PositionComp.LocalMatrix.Up;
-                var axisBPerp = rotor.PositionComp.LocalMatrix.Forward;
-                data.SetInBodySpace(posA, posB, axisA, axisB, axisAPerp, axisBPerp, CubeGrid.Physics, m_topGrid.Physics);
+            SetConstraintPosition(rotor, data);
                 m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, data);
 
                 m_constraint.WantRuntime = true;
@@ -508,20 +540,11 @@ namespace Sandbox.Game.Entities.Cube
                 m_constraint.Enabled = true;
 
                 SetAngleToPhysics();
-
-                m_topBlock.Attach(this);
-
-                m_isAttached = true;
-                UpdateText();
                 return true;
             }
-            return false;
-        }
 
         protected override void DisposeConstraint()
         {
-           // Debug.Assert(m_motor != null);
-          
             if (m_constraint != null)
             {
                 CubeGrid.Physics.RemoveConstraint(m_constraint);
@@ -540,7 +563,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool CanDebugDraw()
         {
-            return (m_topGrid != null && m_topGrid.Physics != null);
+            return (TopGrid != null && TopGrid.Physics != null);
         }
 
         #region Motor API interface

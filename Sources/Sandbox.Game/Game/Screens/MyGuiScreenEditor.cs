@@ -7,7 +7,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using VRage;
 using VRage.Utils;
 using VRage.Compiler;
@@ -258,6 +260,7 @@ namespace Sandbox.Game.Gui
 
         public static bool CompileProgram(string program, List<string> errors, ref Assembly assembly)
         {
+#if !XB1
             if (!string.IsNullOrEmpty(program))
             {
                 if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
@@ -280,6 +283,9 @@ namespace Sandbox.Game.Gui
                     return true;
                 }
             }
+#else // XB1
+            System.Diagnostics.Debug.Assert(false, "No scripts on XB1");
+#endif // XB1
             return false;
         }
 
@@ -309,7 +315,11 @@ namespace Sandbox.Game.Gui
             }
             if (programData != null)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
                 SetDescription(Regex.Replace(programData, "\r\n", " \n"));
+#endif // !XB1
                 m_lineCounter.Text = string.Format(MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_LineNo), m_editorWindow.GetCurrentCarriageLine(), m_editorWindow.GetTotalNumLines());
                 EnableButtons();
             }

@@ -33,6 +33,16 @@ namespace Sandbox.Game.Replication
         {
         }
 
+        public virtual bool IsReadyForReplication
+        {
+            get { return true; }
+        }
+
+        public virtual Action ReadyForReplicationAction
+        {
+            set { }
+        }
+
         protected virtual void RaiseDestroyed()
         {
             var handler = Destroyed;
@@ -46,9 +56,9 @@ namespace Sandbox.Game.Replication
         protected abstract object GetInstance();
         protected abstract void OnHook();
 
-        public bool IsChild { get; protected set; }
+        public abstract bool IsChild { get; }
         public abstract IMyReplicable GetDependency();
-        public abstract float GetPriority(MyClientInfo client);
+        public abstract float GetPriority(MyClientInfo client,bool cached);
         public abstract bool OnSave(BitStream stream);
         public abstract void OnLoad(BitStream stream, Action<bool> loadingDoneHandler);
         public abstract void OnLoadBegin(BitStream stream, Action<bool> loadingDoneHandler);

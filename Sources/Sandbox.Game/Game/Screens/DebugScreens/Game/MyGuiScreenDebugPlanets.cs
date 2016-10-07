@@ -11,10 +11,11 @@ using VRage;
 using VRage.Voxels;
 using VRageMath;
 using VRageRender;
+using VRageRender.Voxels;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-#if !XB1_TMP
+#if !XB1
 
     [MyDebugScreen("Game", "Planets")]
     class MyGuiScreenDebugPlanets : MyGuiScreenDebugBase

@@ -2,6 +2,7 @@
 using ProtoBuf;
 using VRageMath;
 using VRage.Data;
+using VRageRender;
 
 namespace VRage.Game
 {
@@ -11,6 +12,9 @@ namespace VRage.Game
     {
         [ProtoMember, ModdableContentFile("dds")]
         public string Texture;
+
+        [ProtoMember]
+        public MyTransparentMaterialTextureType TextureType = MyTransparentMaterialTextureType.FileTexture;
 
         [ProtoMember]
         public bool CanBeAffectedByOtherLights;
@@ -53,5 +57,8 @@ namespace VRage.Game
 
         [ProtoMember]
         public bool AlphaCutout;
+
+        [ProtoMember]
+        public Vector2I TargetSize = new Vector2I(-1, -1);
     }
 }

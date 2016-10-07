@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Common.ObjectBuilders.Definitions;
 using VRageMath;
 using VRage.Plugins;
-using Sandbox.Engine.Utils;
 using System.Diagnostics;
 using VRage.ObjectBuilders;
 using VRage;
-using System.Reflection;
 using VRage.Library.Utils;
 using Sandbox.Definitions;
 using VRage.Utils;
-using Sandbox.ModAPI;
 using VRage.Game;
-using VRage.Voxels;
 using VRage.Game.Common;
+using VRage.Voxels;
 
 namespace Sandbox.Game.World
 {
@@ -62,10 +53,14 @@ namespace Sandbox.Game.World
             static OperationFactory()
             {
                 m_objectFactory = new MyObjectFactory<OperationTypeAttribute, MyWorldGeneratorOperationBase>();
+#if XB1 // XB1_ALLINONEASSEMBLY
+                m_objectFactory.RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
                 m_objectFactory.RegisterFromCreatedObjectAssembly();
                 m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
                 m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
                 m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
+#endif // !XB1
             }
 
             public static MyWorldGeneratorOperationBase CreateInstance(MyObjectBuilder_WorldGeneratorOperation builder)

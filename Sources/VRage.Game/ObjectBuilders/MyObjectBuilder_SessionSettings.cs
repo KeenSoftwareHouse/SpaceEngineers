@@ -59,6 +59,36 @@ namespace VRage.Game
         public short MaxFloatingObjects = 56;
 
         [ProtoMember]
+        [Display(Name = "Max Backup Saves")]
+        [GameRelation(Game.SpaceEngineers)]
+        [Range(0, 1000)]
+        public short MaxBackupSaves = 5;
+
+        [ProtoMember]
+
+
+        [Display(Name = "Max grid size")]
+        [GameRelation(Game.SpaceEngineers)]
+        [Range(0, int.MaxValue)]
+        public int MaxGridSize = 50000;
+
+        [ProtoMember]
+        [Display(Name = "Max blocks per player")]
+        [GameRelation(Game.SpaceEngineers)]
+        [Range(0, int.MaxValue)]
+        public int MaxBlocksPerPlayer = 100000;
+
+        [ProtoMember]
+        [Display(Name = "")]
+        [GameRelation(Game.SpaceEngineers)]
+        public bool EnableBlockLimits = true;
+
+        [ProtoMember]
+        [Display(Name = "Enable remote removal of owned blocks")]
+        [GameRelation(Game.SpaceEngineers)]
+        public bool EnableRemoteBlockRemoval = true;
+
+        [ProtoMember]
         [Display(Name = "Environment hostility")]
         [GameRelation(Game.SpaceEngineers)]
         // Only used in quickstart - Scenarios have there own Settings
@@ -225,6 +255,11 @@ namespace VRage.Game
         public bool EnableOxygen = false;
 
         [ProtoMember]
+        [Display(Name = "Enable airtightness")]
+        [GameRelation(Game.SpaceEngineers)]
+        public bool EnableOxygenPressurization = false;
+
+        [ProtoMember]
         [Display(Name = "Enable 3rd person view")]
         [GameRelation(Game.SpaceEngineers)]
         public bool Enable3rdPersonView = true;
@@ -243,6 +278,11 @@ namespace VRage.Game
         [Display(Name = "Enable convert to station")]
         [GameRelation(Game.SpaceEngineers)]
         public bool EnableConvertToStation = true;
+
+        [ProtoMember]
+        [Display(Name = "Enable station grid with voxel")]
+        [GameRelation(Game.SpaceEngineers)]
+        public bool StationVoxelSupport = false;
 
         [ProtoMember]
         [Display(Name = "Enable Sun Rotation")]
@@ -315,9 +355,9 @@ namespace VRage.Game
         public bool EnableDrones = true;
 
         [ProtoMember]
-        [Display(Name = "Enable cyberhounds")]
+        [Display(Name = "Enable wolfs")]
         [GameRelation(Game.SpaceEngineers)]
-        public bool? EnableCyberhounds = true;
+        public bool? EnableWolfs = true;
 
         [ProtoMember]
         [Display(Name = "Enable spiders")]
@@ -341,6 +381,28 @@ namespace VRage.Game
         //Max of any fracture pieces
         public int MaxActiveFracturePieces = 50;
 
+        [ProtoMember]
+        [Display(Name = "Block type limits")]
+        [GameRelation(Game.SpaceEngineers)]
+        public SerializableDictionary<string, short> BlockTypeLimits = new SerializableDictionary<string, short>(new Dictionary<string, short>
+        {
+            { "Assembler", 24 },
+            { "Refinery", 24 },
+            { "Blast Furnace", 24 },
+            { "Antenna", 30 },
+            { "Drill", 30 },
+            { "InteriorTurret", 50 },
+            { "GatlingTurret", 50 },
+            { "MissileTurret", 50 },
+            { "ExtendedPistonBase", 50 },
+            { "MotorStator", 50 },
+            { "MotorAdvancedStator", 50 },
+            { "ShipWelder", 100 },
+            { "ShipGrinder", 150 }
+        });
+        
+
+
         public void LogMembers(MyLog log, LoggingOptions options)
         {
             log.WriteLine("Settings:");
@@ -355,6 +417,8 @@ namespace VRage.Game
                 log.WriteLine("EnableSpectator = " + EnableSpectator);
                 log.WriteLine("EnableCopyPaste = " + EnableCopyPaste);
                 log.WriteLine("MaxFloatingObjects = " + MaxFloatingObjects);
+                log.WriteLine("MaxGridSize = " + MaxGridSize);
+                log.WriteLine("MaxBlocksPerPlayer = " + MaxBlocksPerPlayer);
                 log.WriteLine("CargoShipsEnabled = " + CargoShipsEnabled);
                 log.WriteLine("EnvironmentHostility = " + EnvironmentHostility);
                 log.WriteLine("ShowPlayerNamesOnHud = " + ShowPlayerNamesOnHud);

@@ -51,7 +51,7 @@ namespace Sandbox.Game.Entities.Planet
 
             var matrix = m_manager.ActiveClipmap.WorldMatrix;
 
-            bounds3D = bounds3D.Transform(matrix);
+            bounds3D = bounds3D.TransformFast(matrix);
 
             Coords = new Vector2I(x, y);
 

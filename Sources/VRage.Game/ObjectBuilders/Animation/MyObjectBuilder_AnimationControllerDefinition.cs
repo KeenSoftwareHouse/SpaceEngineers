@@ -19,6 +19,14 @@ namespace VRage.Game.ObjectBuilders
         [XmlArrayItem("StateMachine")]
         public MyObjectBuilder_AnimationSM[] StateMachines;
 
+        [ProtoMember]
+        [XmlArrayItem("FootIkChain")]
+        public MyObjectBuilder_AnimationFootIkChain[] FootIkChains;
+
+        [ProtoMember]
+        [XmlArrayItem("Bone")]
+        public string[] IkIgnoredBones;
+
 	    public MyObjectBuilder_AnimationControllerDefinition()
 	    {
 	        Id.TypeId = typeof(MyObjectBuilder_AnimationControllerDefinition);

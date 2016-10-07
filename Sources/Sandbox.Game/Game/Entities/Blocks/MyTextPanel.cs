@@ -25,6 +25,7 @@ using VRage.Game.GUI.TextPanel;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using VRage.Game.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -368,6 +369,16 @@ namespace Sandbox.Game.Entities.Blocks
                     UpdateTexture();
                 }
             }
+            else if (IsOpen)
+            {
+                SendChangeOpenMessage(false);
+                if (m_textBox != null)
+                {
+                    m_textBox.CloseScreen();
+                    //m_textBox = null;
+                }
+                MyScreenManager.CloseScreen(typeof(MyGuiScreenTerminal));
+            }
         }
 
         private void UpdateTexture()
@@ -484,10 +495,6 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 if (CheckIsWorking() == false)
                 {
-                    if (ShowTextOnScreen)
-                    {
-                        Render.ReleaseRenderTexture();
-                    }
                     Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
                 }
                 else
@@ -515,10 +522,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (CheckIsWorking() == false)
             {
-                if (ShowTextOnScreen)
-                {
-                    Render.ReleaseRenderTexture();
-                }
                 Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
             }
             else
@@ -551,10 +554,6 @@ namespace Sandbox.Game.Entities.Blocks
             }
             else
             {
-                if (ShowTextOnScreen)
-                {
-                    Render.ReleaseRenderTexture();
-                }
                 Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
             }
         }
@@ -563,10 +562,20 @@ namespace Sandbox.Game.Entities.Blocks
         {
             base.OnAddedToScene(source);
             ComponentStack_IsFunctionalChanged();//after merging grids...
+            if (!IsWorking && ShowTextOnScreen)
+                Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
         }
 
         public MyTextPanel()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_backgroundColor = SyncType.CreateAndAddProp<Color>();
+            m_fontColor = SyncType.CreateAndAddProp<Color>();
+            m_accessFlag = SyncType.CreateAndAddProp<TextPanelAccessFlag>();
+            m_showFlag = SyncType.CreateAndAddProp<ShowTextOnScreenFlag>();
+            m_changeInterval = SyncType.CreateAndAddProp<float>();
+            m_fontSize = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             m_publicDescription = new StringBuilder();
@@ -596,11 +605,11 @@ namespace Sandbox.Game.Entities.Blocks
             m_fontSize.ValueChanged += m_fontSize_ValueChanged;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyTextPanel>())
                 return;
-
+            base.CreateTerminalControls();
             var publicTitleField = new MyTerminalControlTextbox<MyTextPanel>("PublicTitle", MySpaceTexts.BlockPropertyTitle_TextPanelPublicTitle, MySpaceTexts.Blank);
             publicTitleField.Getter = (x) => x.PublicTitle;
             publicTitleField.Setter = (x, v) => x.SendChangeTitleMessage(v, true);
@@ -811,6 +820,8 @@ namespace Sandbox.Game.Entities.Blocks
 
         public void OnClosedTextBox(ResultEnum result)
         {
+            if (m_textBox == null)
+                return;
             if (m_textBox.Description.Text.Length > MAX_NUMBER_CHARACTERS)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
@@ -1065,7 +1076,6 @@ namespace Sandbox.Game.Entities.Blocks
         public void ReleaseRenderTexture()
         {
             m_descriptionChanged = true;
-            Render.ReleaseRenderTexture();
             Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
         }
 
@@ -1099,10 +1109,6 @@ namespace Sandbox.Game.Entities.Blocks
             if (ResourceSink != null)
                 if (CheckIsWorking() == false)
                 {
-                    if (ShowTextOnScreen)
-                    {
-                        Render.ReleaseRenderTexture();
-                    }
                     Render.ChangeTexture(GetPathForID(DEFAULT_OFFLINE_TEXTURE));
                 }
                 else

@@ -56,6 +56,8 @@ namespace Sandbox.Game.Gui
         public int CriticalComponentIndex = -1;
         public int MissingComponentIndex = -1;
 
+        public long BlockBuiltBy;
+
         public bool Visible;
     }
     #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ namespace VRage.Library.Collections
     /// Collection which stores multiple elements under same key by using list.
     /// Collection does not allow removing single value, only all items with same key.
     /// </summary>
-    public class MyListDictionary<TKey, TValue>
+    public class MyListDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, List<TValue>>>
     {
         Stack<List<TValue>> m_listCache = new Stack<List<TValue>>();
         Dictionary<TKey, List<TValue>> m_dictionary = new Dictionary<TKey, List<TValue>>();
@@ -73,6 +74,16 @@ namespace VRage.Library.Collections
                 ReturnList(pair.Value);
             }
             m_dictionary.Clear();
+        }
+
+        public IEnumerator<KeyValuePair<TKey, List<TValue>>> GetEnumerator()
+        {
+            return m_dictionary.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

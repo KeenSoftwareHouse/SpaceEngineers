@@ -16,7 +16,6 @@ using System.Xml.Serialization;
 using VRage;
 
 using VRage.Serialization;
-using Sandbox.Graphics.Render;
 using Sandbox.Graphics;
 
 //  This class encapsulated read/write access to our config file - xxx.cfg - stored in user's local files
@@ -58,14 +57,18 @@ namespace Sandbox.Engine.Utils
         readonly string MUSIC_VOLUME = "MusicVolume";
         readonly string VOICE_CHAT_VOLUME = "VoiceChatVolume";
         readonly string LANGUAGE = "Language";
+        readonly string SKIN = "Skin";
         readonly string CONTROLS_HINTS = "ControlsHints";
         readonly string ROTATION_HINTS = "RotationHints";
+        readonly string ANIMATED_ROTATION = "AnimatedRotation";
+        readonly string BUILDING_SIZE_HINT = "BuildingSizeHint";
         readonly string SHOW_CROSSHAIR = "ShowCrosshair";
         readonly string DISABLE_HEADBOB = "DisableHeadbob";
         readonly string CONTROLS_GENERAL = "ControlsGeneral";
         readonly string CONTROLS_BUTTONS = "ControlsButtons";
         readonly string SCREENSHOT_SIZE_MULTIPLIER = "ScreenshotSizeMultiplier";
         readonly string FIRST_TIME_RUN = "FirstTimeRun";
+        readonly string SYNC_RENDERING = "SyncRendering";
         readonly string NEED_SHOW_TUTORIAL_QUESTION = "NeedShowTutorialQuestion";
         readonly string NEED_SHOW_BATTLE_TUTORIAL_QUESTION = "NeedShowBattleTutorialQuestion";
         readonly string DEBUG_INPUT_COMPONENTS = "DebugInputs";
@@ -78,11 +81,13 @@ namespace Sandbox.Engine.Utils
         readonly string COMPRESS_SAVE_GAMES = "CompressSaveGames";
         readonly string SHOW_PLAYER_NAMES_ON_HUD = "ShowPlayerNamesOnHud";
         readonly string RELEASING_ALT_RESETS_CAMERA = "ReleasingAltResetsCamera";
+        readonly string ENABLE_PERFORMANCE_WARNINGS_TEMP = "EnablePerformanceWarningsTemp";
         readonly string LAST_CHECKED_VERSION = "LastCheckedVersion";
         readonly string WINDOW_MODE = "WindowMode";
         readonly string MOUSE_CAPTURE = "CaptureMouse";
         readonly string HUD_WARNINGS = "HudWarnings";
         readonly string DYNAMIC_MUSIC = "EnableDynamicMusic";
+        readonly string SHIP_SOUNDS_SPEED = "ShipSoundsAreBasedOnSpeed";
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
@@ -136,6 +141,18 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(FIRST_TIME_RUN, value);
+            }
+        }
+
+        public bool SyncRendering
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(SYNC_RENDERING), false);
+            }
+            set
+            {
+                SetParameterValue(SYNC_RENDERING, value);
             }
         }
 
@@ -452,6 +469,30 @@ namespace Sandbox.Engine.Utils
             }
         }
 
+        public bool AnimatedRotation
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(ANIMATED_ROTATION), true);
+            }
+            set
+            {
+                SetParameterValue(ANIMATED_ROTATION, value);
+            }
+        }
+
+        public bool ShowBuildingSizeHint
+        {
+            get
+            {
+                return MyUtils.GetBoolFromString(GetParameterValue(BUILDING_SIZE_HINT), true);
+            }
+            set
+            {
+                SetParameterValue(BUILDING_SIZE_HINT, value);
+            }
+        }
+
         public bool ShowCrosshair
         {
             get
@@ -514,6 +555,25 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(LANGUAGE, (byte)value);
+            }
+        }
+
+        public string Skin
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(GetParameterValue(SKIN)))
+                {
+                    SetParameterValue(SKIN, "Default");
+                    Save();
+                }
+
+                return GetParameterValue(SKIN);
+            }
+
+            set
+            {
+                SetParameterValue(SKIN, value);
             }
         }
 
@@ -725,6 +785,12 @@ namespace Sandbox.Engine.Utils
             set { SetParameterValue(RELEASING_ALT_RESETS_CAMERA, value); }
         }
 
+        public bool EnablePerformanceWarnings
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_PERFORMANCE_WARNINGS_TEMP), false); }
+            set { SetParameterValue(ENABLE_PERFORMANCE_WARNINGS_TEMP, value); }
+        }
+
         public int LastCheckedVersion
         {
             get
@@ -788,6 +854,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(DYNAMIC_MUSIC), true); }
             set { SetParameterValue(DYNAMIC_MUSIC, value); }
+        }
+
+        public bool ShipSoundsAreBasedOnSpeed
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(SHIP_SOUNDS_SPEED), true); }
+            set { SetParameterValue(SHIP_SOUNDS_SPEED, value); }
         }
 
         public MyStringId GraphicsRenderer
@@ -1078,9 +1150,6 @@ namespace Sandbox.Engine.Utils
                 var id = MyStringId.TryGet(GetParameterValue(GRAPHICS_RENDERER));
 
                 if (id == MySandboxGame.DirectX11RendererKey)
-                    return MyGraphicsRenderer.DX11;
-
-                if (id == MySandboxGame.DirectX9RendererKey)
                     return MyGraphicsRenderer.DX11;
 
                 return MyGraphicsRenderer.NONE;

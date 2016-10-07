@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 using System.Reflection;
 
 namespace Sandbox.ModAPI.Ingame
@@ -161,3 +162,4 @@ namespace Sandbox.ModAPI.Ingame
         }
     }
 }
+#endif // !XB1

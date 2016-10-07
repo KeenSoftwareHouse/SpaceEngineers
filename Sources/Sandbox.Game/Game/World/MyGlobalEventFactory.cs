@@ -10,6 +10,9 @@ using VRage.Game;
 using VRage.Plugins;
 using VRage.ObjectBuilders;
 using VRage.Game.Common;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace Sandbox.Game.World
 {
@@ -35,6 +38,10 @@ namespace Sandbox.Game.World
 
     public class MyGlobalEventFactory
     {
+#if XB1 // XB1_ALLINONEASSEMBLY
+        private static bool m_registered = false;
+#endif // XB1
+
         //static readonly Dictionary<MyDefinitionId, GlobalEventHandler> m_typesToHandlers;
 		static readonly Dictionary<MyDefinitionId, MethodInfo> m_typesToHandlers;
         static MyObjectFactory<MyEventTypeAttribute, MyGlobalEventBase> m_globalEventFactory;
@@ -44,16 +51,28 @@ namespace Sandbox.Game.World
 			m_typesToHandlers = new Dictionary<MyDefinitionId, MethodInfo>();
             m_globalEventFactory = new MyObjectFactory<MyEventTypeAttribute, MyGlobalEventBase>();
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            RegisterEventTypesAndHandlers(MyAssembly.AllInOneAssembly);
+#else // !XB1
             RegisterEventTypesAndHandlers(Assembly.GetAssembly(typeof(MyGlobalEventBase)));
             RegisterEventTypesAndHandlers(MyPlugins.GameAssembly);
             RegisterEventTypesAndHandlers(MyPlugins.SandboxAssembly);
+#endif // !XB1
         }
 
         private static void RegisterEventTypesAndHandlers(Assembly assembly)
         {
             if (assembly == null) return;
 
+#if XB1 // XB1_ALLINONEASSEMBLY
+            System.Diagnostics.Debug.Assert(m_registered == false);
+            if (m_registered == true)
+                return;
+            m_registered = true;
+            foreach (Type type in MyAssembly.GetTypes())
+#else // !XB1
             foreach (Type type in assembly.GetTypes())
+#endif // !XB1
             {
                 foreach (MethodInfo method in type.GetMethods())
                 {

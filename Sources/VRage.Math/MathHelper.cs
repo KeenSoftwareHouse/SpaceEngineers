@@ -230,6 +230,42 @@ namespace VRageMath
         }
 
         /// <summary>
+        /// Interpolates between zero and one using cubic equiation, solved by de Casteljau.
+        /// </summary>
+        /// <param name="amount">Weighting value [0..1].</param>
+        public static float SmoothStepStable(float amount)
+        {
+            Debug.Assert(amount >= 0f && amount <= 1f, "Wrong amount value for SmoothStep");
+            float invAmount = 1 - amount;
+            // y1 = 0, y2 = 0, y3 = 1, y4 = 1
+            // y12 = 0
+            float y23 = amount;
+            // y34 = 1
+            float y123 = /*y12 * invAmount + */ y23 * amount;
+            float y234 = y23 * invAmount + /* y34 * */amount;
+            float y1234 = y123 * invAmount + y234 * amount;
+            return y1234;
+        }
+
+        /// <summary>
+        /// Interpolates between zero and one using cubic equiation, solved by de Casteljau.
+        /// </summary>
+        /// <param name="amount">Weighting value [0..1].</param>
+        public static double SmoothStepStable(double amount)
+        {
+            Debug.Assert(amount >= 0f && amount <= 1f, "Wrong amount value for SmoothStep");
+            double invAmount = 1 - amount;
+            // y1 = 0, y2 = 0, y3 = 1, y4 = 1
+            // y12 = 0
+            double y23 = amount;
+            // y34 = 1
+            double y123 = /*y12 * invAmount + */ y23 * amount;
+            double y234 = y23 * invAmount + /* y34 * */amount;
+            double y1234 = y123 * invAmount + y234 * amount;
+            return y1234;
+        }
+
+        /// <summary>
         /// Performs a Catmull-Rom interpolation using the specified positions.
         /// </summary>
         /// <param name="value1">The first position in the interpolation.</param><param name="value2">The second position in the interpolation.</param><param name="value3">The third position in the interpolation.</param><param name="value4">The fourth position in the interpolation.</param><param name="amount">Weighting factor.</param>
@@ -355,6 +391,7 @@ namespace VRageMath
             return abMin < c ? abMin : c;
         }
 
+#if !XB1
         public static int ComputeHashFromBytes(byte[] bytes)
         {
             int size = bytes.Length;
@@ -376,6 +413,7 @@ namespace VRageMath
                 }
             }
         }
+#endif // !XB1
 
         public static float RoundOn2(float x)
         {

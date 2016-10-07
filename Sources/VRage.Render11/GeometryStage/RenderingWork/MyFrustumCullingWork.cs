@@ -1,15 +1,21 @@
 ﻿using System.Diagnostics;
 using ParallelTasks;
 using VRage;
+using VRage.Profiler;
 using VRageMath;
 
 namespace VRageRender
 {
     [PooledObject]
+#if XB1
+    internal class MyFrustumCullingWork : IPrioritizedWork, IMyPooledObjectCleaner
+#else // !XB1
     internal class MyFrustumCullingWork : IPrioritizedWork
+#endif // !XB1
     {
         private MyFrustumCullQuery m_query;
         private MyDynamicAABBTreeD m_renderables;
+        internal long Elapsed { get; private set; }
 
         internal void Init(MyFrustumCullQuery query, MyDynamicAABBTreeD renderables)
         {
@@ -19,11 +25,18 @@ namespace VRageRender
             m_renderables = renderables;
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyFrustumCullingWork frustumCullingWork)
         {
             frustumCullingWork.Cleanup();
         }
+#endif // !XB1
 
         internal void Cleanup()
         {
@@ -38,6 +51,7 @@ namespace VRageRender
 
         public void DoWork(WorkData workData = null)
         {
+            long Started = Stopwatch.GetTimestamp();
             ProfilerShort.Begin("DoCullWork");
 
             var frustum = m_query.Frustum;
@@ -47,14 +61,14 @@ namespace VRageRender
                 if (MyRender11.Settings.DrawNonMergeInstanced)
                 {
                     m_renderables.OverlapAllFrustum<MyCullProxy>(ref frustum, m_query.List, m_query.IsInsideList,
-                        m_query.SmallObjects.Value.ProjectionDir, m_query.SmallObjects.Value.ProjectionFactor, m_query.SmallObjects.Value.SkipThreshold,
+                        m_query.SmallObjects.Value.ProjectionFactor, m_query.SmallObjects.Value.SkipThreshold,
                         0, false);
                 }
 
                 if (MyRender11.Settings.DrawMergeInstanced)
                 {
                     MyScene.GroupsDBVH.OverlapAllFrustum<MyCullProxy_2>(ref frustum, m_query.List2, m_query.IsInsideList2,
-                        m_query.SmallObjects.Value.ProjectionDir, m_query.SmallObjects.Value.ProjectionFactor, m_query.SmallObjects.Value.SkipThreshold,
+                        m_query.SmallObjects.Value.ProjectionFactor, m_query.SmallObjects.Value.SkipThreshold,
                         0, false);
                 }
             }
@@ -68,6 +82,7 @@ namespace VRageRender
             }
 
             ProfilerShort.End();
+            Elapsed = Stopwatch.GetTimestamp() - Started;
         }
 
         public WorkOptions Options

@@ -6,6 +6,7 @@ using System;
 using VRage;
 using VRage.Game;
 using VRage.ModAPI;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -45,6 +46,9 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyFunctionalBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_enabled = SyncType.CreateAndAddProp<bool>();
+#endif // BX1
             CreateTerminalControls();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -52,10 +56,11 @@ namespace Sandbox.Game.Entities.Cube
             m_enabled.ValueChanged += (x)=> EnabledSyncChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyFunctionalBlock>())
                 return;
+            base.CreateTerminalControls();
 
             var onOffSwitch = new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("OnOff", MySpaceTexts.BlockAction_Toggle);
             onOffSwitch.Getter = (x) => x.Enabled;
@@ -125,13 +130,10 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override void UpdateBeforeSimulation100()
+        public virtual void UpdateSoundEmitters()
         {
             if (m_soundEmitter != null)
-            {
                 m_soundEmitter.Update();
-            }
-            base.UpdateBeforeSimulation100();
         }
 
         protected virtual void OnStartWorking()

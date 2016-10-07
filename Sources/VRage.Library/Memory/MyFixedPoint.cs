@@ -7,6 +7,10 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+using System.Reflection;
+using VRage.Reflection;
+#endif // XB1
 
 namespace VRage
 {
@@ -14,7 +18,11 @@ namespace VRage
     /// Fixed point number represented as 64-bit integer with 6 decimal places (one millionts)
     /// </summary>
     [ProtoContract]
+#if !XB1 // XB1_SYNC_SERIALIZER_NOEMIT
     public struct MyFixedPoint : IXmlSerializable
+#else // XB1
+    public struct MyFixedPoint : IXmlSerializable, IMySetGetMemberDataHelper
+#endif // XB1
     {
         const int Places = 6;
         const int Divider = 1000000;
@@ -358,5 +366,16 @@ namespace VRage
         {
             writer.WriteString(SerializeString());
         }
+
+#if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
+        public object GetMemberData(MemberInfo m)
+        {
+            if (m.Name == "RawValue")
+                return RawValue;
+
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+            return null;
+        }
+#endif // XB1
     }
 }

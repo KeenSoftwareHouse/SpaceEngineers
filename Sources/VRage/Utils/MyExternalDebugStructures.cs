@@ -24,6 +24,12 @@ namespace VRage.Utils
         /// </summary>
         public static bool ReadMessageFromPtr<TMessage>(ref CommonMsgHeader header, IntPtr data, out TMessage outMsg) where TMessage : IExternalDebugMsg
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false);
+            //TODO:
+            var tm = new TMessage[1]; outMsg = tm[0];//THIS IS HERE JUST TO RETURN SOMETHING FOR NOW!
+            return true;
+#else // !XB1
             outMsg = default(TMessage);
             if (data == IntPtr.Zero ||
                 header.MsgSize != Marshal.SizeOf(typeof(TMessage)) ||
@@ -33,6 +39,7 @@ namespace VRage.Utils
             }
             outMsg = (TMessage)Marshal.PtrToStructure(data, typeof(TMessage));
             return true;
+#endif // !XB1
         }
 
         // Basic message, server as message header in derived messages.

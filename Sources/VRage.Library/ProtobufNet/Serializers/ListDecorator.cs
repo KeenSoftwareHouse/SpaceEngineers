@@ -1,4 +1,5 @@
-﻿#if !NO_RUNTIME
+﻿#if !XB1 // XB1_NOPROTOBUF
+#if !NO_RUNTIME
 using System;
 using System.Collections;
 using ProtoBuf.Meta;
@@ -516,3 +517,4 @@ namespace ProtoBuf.Serializers
     }
 }
 #endif
+#endif // !XB1

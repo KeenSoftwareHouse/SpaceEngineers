@@ -454,8 +454,6 @@ namespace VRage.Game
                         effectBillboard.ContainedBillboards.Add(billboard);
 
                     billboard.CustomViewProjection = -1;
-
-                    MyPerformanceCounter.PerCameraDrawWrite.NewParticlesCount++;
                 }
                 else
                     billboard = null;
@@ -480,7 +478,7 @@ namespace VRage.Game
 
                 billboard.DistanceSquared = (float)Vector3D.DistanceSquared(MyTransparentGeometry.Camera.Translation, effect.WorldMatrix.Translation);
 
-                billboard.Lowres = effect.LowRes || VRageRender.MyRenderConstants.RenderQualityProfile.LowResParticles;
+                billboard.Lowres = VRageRender.MyRenderConstants.RenderQualityProfile.LowResParticles;
                 billboard.Near = effect.Near;
                 billboard.CustomViewProjection = -1;
 

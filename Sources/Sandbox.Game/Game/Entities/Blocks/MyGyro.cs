@@ -21,6 +21,7 @@ using VRage;
 using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
+using VRage.Sync;
 
 #endregion
 
@@ -94,6 +95,11 @@ namespace Sandbox.Game.Entities
 
         public MyGyro()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_gyroPower = SyncType.CreateAndAddProp<float>();
+            m_gyroOverride = SyncType.CreateAndAddProp<bool>();
+            m_gyroOverrideVelocity = SyncType.CreateAndAddProp<Vector3>();
+#endif // XB1
             CreateTerminalControls();
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
@@ -101,11 +107,11 @@ namespace Sandbox.Game.Entities
             m_gyroOverride.ValueChanged += x => GyroOverrideChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyGyro>())
                 return;
-
+            base.CreateTerminalControls();
             var gyroPower = new MyTerminalControlSlider<MyGyro>("Power", MySpaceTexts.BlockPropertyTitle_GyroPower, MySpaceTexts.BlockPropertyDescription_GyroPower);
             gyroPower.Getter = (x) => x.GyroPower;
             gyroPower.Setter = (x, v) => { x.GyroPower = v; };

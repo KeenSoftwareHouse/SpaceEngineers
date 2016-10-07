@@ -13,8 +13,10 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace Sandbox.Game.AI.Pathfinding
 {
@@ -64,7 +66,7 @@ namespace Sandbox.Game.AI.Pathfinding
 
             if (!GridCanHaveNavmesh(grid)) return;
 
-            m_navigationMeshes.Add(grid, new MyGridNavigationMesh(grid, m_coordinator, 32, MyAIComponent.Static.Pathfinding.NextTimestampFunction));
+            m_navigationMeshes.Add(grid, new MyGridNavigationMesh(grid, m_coordinator, 32, MyCestmirPathfindingShorts.Pathfinding.NextTimestampFunction));
             RegisterGridEvents(grid);
         }
 
@@ -179,7 +181,7 @@ namespace Sandbox.Game.AI.Pathfinding
         [Conditional("DEBUG")]
         public void DebugDraw()
         {
-            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW == false) return;
+            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW == false || MyDebugDrawSettings.DEBUG_DRAW_NAVMESHES == MyWEMDebugDrawMode.NONE) return;
 
             foreach (var entry in m_navigationMeshes)
             {

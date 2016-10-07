@@ -21,6 +21,8 @@ using VRage.Game;
 using VRage.Utils;
 using VRage.ModAPI;
 using VRage.Game.Models;
+using VRage.Profiler;
+using VRage.Sync;
 
 namespace Sandbox.Game.Entities.Blocks
 {
@@ -121,11 +123,11 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Terminal properties
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLightingBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var lightColor = new MyTerminalControlColor<MyLightingBlock>("Color", MySpaceTexts.BlockPropertyTitle_LightColor);
             lightColor.Getter = (x) => x.Color;
             lightColor.Setter = (x, v) => x.m_lightColor.Value = v;
@@ -358,7 +360,8 @@ namespace Sandbox.Game.Entities.Blocks
             m_light.ReflectorOn = false;
             m_light.LightOn = false;
             m_light.GlareOn = false;
-            
+
+            UpdateRadius(m_light.IsTypeSpot ? reflectorRadius : radius);
             UpdateIntensity();
             UpdateLightPosition();
 
@@ -400,6 +403,15 @@ namespace Sandbox.Game.Entities.Blocks
 
         public MyLightingBlock()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_blinkIntervalSeconds = SyncType.CreateAndAddProp<float>();
+            m_blinkLength = SyncType.CreateAndAddProp<float>();
+            m_blinkOffset = SyncType.CreateAndAddProp<float>();
+            m_intesity = SyncType.CreateAndAddProp<float>();
+            m_lightColor = SyncType.CreateAndAddProp<Color>();
+            m_lightRadius = SyncType.CreateAndAddProp<float>();
+            m_lightFalloff = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
 
             this.Render = new MyRenderComponentLight();
@@ -414,13 +426,18 @@ namespace Sandbox.Game.Entities.Blocks
             Falloff = m_lightFalloff.Value;
         }
 
-        virtual protected void LightRadiusChanged()
+        virtual protected void UpdateRadius(float value)
         {
             if (m_light.IsTypeSpot)
             {
-                ReflectorRadius = m_lightRadius.Value;
+                ReflectorRadius = value;
             }
-            else Radius = m_lightRadius.Value;
+            else Radius = value;
+        }
+
+        private void LightRadiusChanged()
+        {
+            UpdateRadius(m_lightRadius.Value);
         }
 
         void LightColorChanged()

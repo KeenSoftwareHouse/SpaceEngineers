@@ -5,8 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using VRage.Collections;
 using VRage.Library.Collections;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Replication;
 using VRage.Serialization;
 using VRage.Utils;
@@ -132,13 +134,13 @@ namespace VRage.Network
             public readonly Dictionary<IMyReplicable, IMyReplicable> ForcedReplicables = new Dictionary<IMyReplicable, IMyReplicable>();
 
             // Additional per replicable information for client
-            public readonly Dictionary<IMyReplicable, MyReplicableClientData> Replicables = new Dictionary<IMyReplicable, MyReplicableClientData>(InstanceComparer<IMyReplicable>.Default);
+            public readonly MyConcurrentDictionary<IMyReplicable, MyReplicableClientData> Replicables = new MyConcurrentDictionary<IMyReplicable, MyReplicableClientData>(InstanceComparer<IMyReplicable>.Default);
 
             // Temporary blocked network id by blocking event. Bool flag indicates if it should be destroyed right after it is replicationReady.
-            public readonly Dictionary<IMyReplicable, MyDestroyBlocker> BlockedReplicables = new Dictionary<IMyReplicable, MyDestroyBlocker>();
+            public readonly MyConcurrentDictionary<IMyReplicable, MyDestroyBlocker> BlockedReplicables = new MyConcurrentDictionary<IMyReplicable, MyDestroyBlocker>();
 
             // Additional per state-group information for client
-            public readonly Dictionary<IMyStateGroup, MyStateDataEntry> StateGroups = new Dictionary<IMyStateGroup, MyStateDataEntry>(InstanceComparer<IMyStateGroup>.Default);
+            public readonly MyConcurrentDictionary<IMyStateGroup, MyStateDataEntry> StateGroups = new MyConcurrentDictionary<IMyStateGroup, MyStateDataEntry>(InstanceComparer<IMyStateGroup>.Default);
             public readonly MyPacketQueue EventQueue;
 
             public readonly HashSet<IMyReplicable> PausedReplicables = new HashSet<IMyReplicable>();
@@ -248,6 +250,8 @@ namespace VRage.Network
         /// </summary>
         Func<MyTimeSpan> m_timeFunc;
 
+        static FastResourceLock tmpGroupsLock = new FastResourceLock();
+
         public MyReplicationServer(IReplicationServerCallback callback, Func<MyTimeSpan> updateTimeGetter, EndpointId? localClientEndpoint)
             : base(true)
         {
@@ -310,7 +314,10 @@ namespace VRage.Network
             }
             else
             {
-                m_priorityUpdates.Add(obj);
+                if (obj.IsReadyForReplication)
+                    m_priorityUpdates.Add(obj);
+                else
+                    obj.ReadyForReplicationAction = delegate() { m_priorityUpdates.Add(obj); }; // Kind of hacky implementation. Should be remade when possible
             }
 
             // HACK: uncomment this to test serialization
@@ -767,7 +774,7 @@ namespace VRage.Network
 
                 ProfilerShort.Begin("GetPriority");
                 ProfilerShort.Begin(replicable.GetType().Name);
-                float priority = replicable.GetPriority(new MyClientInfo(client.Value));
+                float priority = replicable.GetPriority(new MyClientInfo(client.Value),false);
 
                 if (hasObj)
                 {
@@ -834,8 +841,9 @@ namespace VRage.Network
                 using (m_tmpSortEntries)
                 {
                     ProfilerShort.Begin("UpdateGroupPriority");
-                    foreach (var entry in clientData.StateGroups.Values)
+                    foreach (var entryPair in clientData.StateGroups)
                     {
+                        var entry = entryPair.Value;
                         // No state sync for pending or sleeping replicables
                         if (entry.Owner != null && !clientData.Replicables[entry.Owner].HasActiveStateSync)
                             continue;
@@ -933,7 +941,7 @@ namespace VRage.Network
                             {
                                 if (!clientData.HasReplicable(child))
                                 {
-                                    AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData)), false);
+                                    AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData),true), false);
                                 }
                             }
                         }
@@ -1007,6 +1015,8 @@ namespace VRage.Network
 
         private void AddForClient(IMyReplicable replicable, EndpointId clientEndpoint, ClientData clientData, float priority,bool force)
         {
+            if (!replicable.IsReadyForReplication) 
+                return;
             if (clientData.HasReplicable(replicable))
                 return; // already added
 
@@ -1215,26 +1225,28 @@ namespace VRage.Network
             return true;
 
         }
-
         public void AddStateGroups(IMyReplicable replicable)
         {
-            using (m_tmpGroups)
+            using (tmpGroupsLock.AcquireExclusiveUsing())
             {
-                IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
-                if (streamable != null)
+                using (m_tmpGroups)
                 {
-                    var group = streamable.GetStreamingStateGroup();
-                    m_tmpGroups.Add(group);
-                }
+                    IMyStreamableReplicable streamable = replicable as IMyStreamableReplicable;
+                    if (streamable != null)
+                    {
+                        var group = streamable.GetStreamingStateGroup();
+                        m_tmpGroups.Add(group);
+                    }
 
-                replicable.GetStateGroups(m_tmpGroups);
-                foreach (var group in m_tmpGroups)
-                {
-                    if (group != replicable)
-                        AddNetworkObjectServer(group);
+                    replicable.GetStateGroups(m_tmpGroups);
+                    foreach (var group in m_tmpGroups)
+                    {
+                        if (group != replicable)
+                            AddNetworkObjectServer(group);
+                    }
+
+                    m_replicableGroups.Add(replicable, new List<IMyStateGroup>(m_tmpGroups));
                 }
-         
-                m_replicableGroups.Add(replicable, new List<IMyStateGroup>(m_tmpGroups));
             }
         }
 

@@ -7,7 +7,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+#if !XB1
 using VRage.Service;
+#endif // !XB1
 
 namespace VRage.Algorithms
 {
@@ -228,7 +230,11 @@ namespace VRage.Algorithms
                 if (papa != uf.Find(i))
                 {
                     File.AppendAllText(@"C:\Users\daniel.ilha\Desktop\perf.log", "FAIL!\n");
+#if !XB1
                     Environment.Exit(1);
+#else // XB1
+                    System.Diagnostics.Debug.Assert(false, "XB1 TODO?");
+#endif // XB1
                 }
             }
             var enlapsed = watch.ElapsedMilliseconds;

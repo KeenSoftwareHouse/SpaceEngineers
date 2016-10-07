@@ -10,7 +10,7 @@ using VRage.Import;
 using VRage.Utils;
 using VRageMath;
 using VRageMath.PackedVector;
-using VRageRender.Resources;
+
 using VRageRender.Vertex;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
@@ -23,9 +23,6 @@ namespace VRageRender
 
     class MyVoxelMesh : MyMesh
     {
-        internal const string SINGLE_MATERIAL_TAG = "triplanar_single";
-        internal const string MULTI_MATERIAL_TAG = "triplanar_multi";
-
         //static List<MyVoxelMesh> m_cellsList = new List<MyVoxelMesh>();
 
 

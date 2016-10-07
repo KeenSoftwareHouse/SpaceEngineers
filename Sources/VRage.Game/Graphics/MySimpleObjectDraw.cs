@@ -22,7 +22,12 @@ namespace VRage.Game
 
         public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, MySimpleObjectRasterizer rasterization, int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
         {
-            DrawTransparentBox(ref worldMatrix, ref localbox, ref color, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, customViewProjection, priority);
+            DrawTransparentBox(ref worldMatrix, ref localbox, ref color, ref color, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, customViewProjection, priority);
+        }
+
+        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, ref Color frontFaceColor, MySimpleObjectRasterizer rasterization, int wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
+        {
+            DrawTransparentBox(ref worldMatrix, ref localbox, ref color, ref frontFaceColor, rasterization, new Vector3I(wireDivideRatio), lineWidth, faceMaterial, lineMaterial, onlyFrontFaces, customViewProjection, priority);
         }
 
         public static void DrawAttachedTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color,
@@ -41,7 +46,7 @@ namespace VRage.Game
         /// <summary>
         /// DrawTransparentBox
         /// </summary>
-        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, MySimpleObjectRasterizer rasterization, Vector3I wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
+        public static void DrawTransparentBox(ref MatrixD worldMatrix, ref BoundingBoxD localbox, ref Color color, ref Color frontFaceColor, MySimpleObjectRasterizer rasterization, Vector3I wireDivideRatio, float lineWidth = 1, string faceMaterial = null, string lineMaterial = null, bool onlyFrontFaces = false, int customViewProjection = -1, int priority = 0)
         {
             if (faceMaterial == null)
             {
@@ -75,7 +80,7 @@ namespace VRage.Game
                 if (!onlyFrontFaces || FaceVisible(vctPos, faceNorm))
                 {
                     MyUtils.GenerateQuad(out quad, ref vctPos, halfWidth, halfHeight, ref worldMatrix);
-                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, color, ref vctPos, priority, customViewProjection);
+                    MyTransparentGeometry.AddQuad(faceMaterial, ref quad, frontFaceColor, ref vctPos, priority, customViewProjection);
                 }
 
                 //@ Back side

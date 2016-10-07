@@ -54,7 +54,7 @@ namespace Sandbox.Game.Entities
         /// This method should only be called when CanShoot returns true for the given action!
         /// </summary>
         /// <param name="action">The shooting action to perform</param>
-        /// <param name="overrideWeaponPos">Changes weapon position.</param>
+        /// <param name="overrideWeaponPos">Changes weapon position, world space.</param>
         /// <param name="direction">The prefered direction of shooting</param>
         void Shoot(MyShootActionEnum action, Vector3 direction, Vector3D? overrideWeaponPos, string gunAction = null);
         void EndShoot(MyShootActionEnum action);
@@ -86,5 +86,7 @@ namespace Sandbox.Game.Entities
         void OnControlReleased();
 
         void DrawHud(IMyCameraController camera, long playerId);
+
+        void UpdateSoundEmitter();
     }
 }

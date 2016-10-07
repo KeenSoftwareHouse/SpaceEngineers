@@ -508,6 +508,9 @@ namespace Sandbox.Game.World
 
                 m_tmpGridList.Clear();
 
+                Stack<Action> callback = new Stack<Action>();
+                callback.Push(delegate() { ChangeDroneOwnership(m_tmpGridList, ownerId, antennaEntityId); });
+
                 MyPrefabManager.Static.SpawnPrefab(
                     resultList: m_tmpGridList,
                     prefabName: shipPrefab.SubtypeId,
@@ -518,36 +521,39 @@ namespace Sandbox.Game.World
                     beaconName: null,
                     spawningOptions: VRage.Game.ModAPI.SpawningOptions.None,
                     ownerId: ownerId,
-                    updateSync: true);
-
-                foreach (var grid in m_tmpGridList)
-                {
-                    grid.ChangeGridOwnership(ownerId, MyOwnershipShareModeEnum.None);
-
-                    MyRemoteControl firstRemote = null;
-
-                    foreach (var block in grid.CubeBlocks)
-                    {
-                        if (block.FatBlock == null) continue;
-
-                        var pb = block.FatBlock as MyProgrammableBlock;
-                        if (pb != null)
-                        {
-                            pb.SendRecompile();
-                        }
-
-                        var remote = block.FatBlock as MyRemoteControl;
-                        if (firstRemote == null)
-                            firstRemote = remote;
-                    }
-
-                    // If there's no remote control on the grid, we have to register it as is
-                    RegisterDrone(antennaEntityId, (MyEntity)firstRemote ?? (MyEntity)grid);
-                }
-
-                m_tmpGridList.Clear();
+                    updateSync: true, callbacks: callback);
             }
             return true;
+        }
+
+        private void ChangeDroneOwnership(List<MyCubeGrid> gridList, long ownerId, long antennaEntityId)
+        {
+            foreach (var grid in gridList)
+            {
+                grid.ChangeGridOwnership(ownerId, MyOwnershipShareModeEnum.None);
+
+                MyRemoteControl firstRemote = null;
+
+                foreach (var block in grid.CubeBlocks)
+                {
+                    if (block.FatBlock == null) continue;
+
+                    var pb = block.FatBlock as MyProgrammableBlock;
+                    if (pb != null)
+                    {
+                        pb.SendRecompile();
+                    }
+
+                    var remote = block.FatBlock as MyRemoteControl;
+                    if (firstRemote == null)
+                        firstRemote = remote;
+                }
+
+                // If there's no remote control on the grid, we have to register it as is
+                RegisterDrone(antennaEntityId, (MyEntity)firstRemote ?? (MyEntity)grid);
+            }
+
+            gridList.Clear();
         }
 
         private void RegisterDrone(long antennaEntityId, MyEntity droneMainEntity, bool immediate = true)

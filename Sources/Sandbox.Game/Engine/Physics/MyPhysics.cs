@@ -24,7 +24,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using Sandbox.Engine.Voxels;
 using Sandbox.Game.Multiplayer;
-
+using VRage.Profiler;
 
 #endregion
 
@@ -61,6 +61,17 @@ namespace Sandbox.Engine.Physics
             IMyEntity IHitInfo.HitEntity
             {
                 get { return HkHitInfo.GetHitEntity(); }
+            }
+
+            public override string ToString()
+            {
+                //return base.ToString();
+                var hitEntity = HkHitInfo.GetHitEntity();
+                if (hitEntity != null)
+                {
+                    return hitEntity.ToString();
+        }
+                return base.ToString();
             }
         }
 
@@ -553,6 +564,7 @@ namespace Sandbox.Engine.Physics
             if (!MySandboxGame.IsGameReady)
                 return;
 
+            MySimpleProfiler.Begin("Physics");
             AddTimestamp();
 
             InsideSimulation = true;
@@ -642,10 +654,16 @@ namespace Sandbox.Engine.Physics
                 if (MySession.Static.ControlledEntity != null
                     && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody() != null
                     && MySession.Static.ControlledEntity.Entity.GetTopMostParent().GetPhysicsBody().HavokWorld == world)
+                {
+                    world.VisualDebuggerEnabled = true;
                     world.StepVDB(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
+            }
+                else
+                    world.VisualDebuggerEnabled = false;
             }
 
             ProfilerShort.End();
+            MySimpleProfiler.End("Physics");
         }
 
         private static void StepWorld(HkWorld world)
@@ -721,7 +739,7 @@ namespace Sandbox.Engine.Physics
         {
             using (m_tmpEntityResults.GetClearToken())
             {
-                MyGamePruningStructure.GetAllEntitiesInBox(ref box, m_tmpEntityResults);
+                MyGamePruningStructure.GetTopMostEntitiesInBox(ref box, m_tmpEntityResults, MyEntityQueryType.Dynamic);
                 foreach (var entity in m_tmpEntityResults)
                 {
                     if (entity.Physics != null && entity.Physics.Enabled && entity.Physics.RigidBody != null)
@@ -943,7 +961,10 @@ namespace Sandbox.Engine.Physics
 
 
                     HkWorld havokWorld = (HkWorld)(world.UserData);
+                    if (havokWorld != null)
+                    {
                     havokWorld.CastRay(fromF, toF, m_resultHits, raycastFilterLayer);
+                    }
 
                 foreach (var hit in m_resultHits)
                 {
@@ -1467,9 +1488,9 @@ namespace Sandbox.Engine.Physics
         /// <param name="oldAabb"></param>
         /// <param name="aabb"></param>
         /// <param name="velocity"></param>
-        public static void MoveObject(ulong id, BoundingBoxD oldAabb, BoundingBoxD aabb, Vector3 velocity)
+        public static void MoveObject(ulong id, BoundingBoxD aabb, Vector3 velocity)
         {
-            Clusters.MoveObject(id, oldAabb, aabb, velocity);
+            Clusters.MoveObject(id, aabb, velocity);
         }
 
         /// <summary>

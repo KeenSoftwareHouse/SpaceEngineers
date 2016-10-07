@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#if !XB1
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using VRage.Collections;
 using VRage.Game.Components;
+using VRage.Profiler;
 using VRage.Utils;
 
 namespace VRage.Game.SessionComponents
@@ -71,21 +72,36 @@ namespace VRage.Game.SessionComponents
         // Tcp listener instance.
         private TcpListener m_listener;
         // Connected tcp clients.
-        private readonly ConcurrentCachingList<MyDebugClientInfo> m_clients = new ConcurrentCachingList<MyDebugClientInfo>(1);
+        private ConcurrentCachingList<MyDebugClientInfo> m_clients = new ConcurrentCachingList<MyDebugClientInfo>(1);
         // Is component active (listening)?
         private bool m_active = false;
         // Buffer for receiving. 10 KB limit... for now.
-        private readonly byte[] m_arrayBuffer = new byte[MsgSizeLimit];
+        private byte[] m_arrayBuffer = new byte[MsgSizeLimit];
         // Temporary receive buffer. 10 KB limit... for now.
         private IntPtr m_tempBuffer;
 
         // Array of handlers (callback methods).
-        private readonly ConcurrentCachingList<ReceivedMsgHandler> m_receivedMsgHandlers = new ConcurrentCachingList<ReceivedMsgHandler>();
+        private ConcurrentCachingList<ReceivedMsgHandler> m_receivedMsgHandlers = new ConcurrentCachingList<ReceivedMsgHandler>();
 
         // ------------------------------------------------------------------------------------
         
         public override void LoadData()
         {
+            if (Static != null)
+            {
+                // take data from previous instance
+                m_listenerThread = Static.m_listenerThread;
+                m_listener = Static.m_listener;
+                m_clients = Static.m_clients;
+                m_active = Static.m_active;
+                m_arrayBuffer = Static.m_arrayBuffer;
+                m_tempBuffer = Static.m_tempBuffer;
+                m_receivedMsgHandlers = Static.m_receivedMsgHandlers;
+                MySessionComponentExtDebug.Static = this;
+                base.LoadData();
+                return;
+            }
+
             MySessionComponentExtDebug.Static = this;
             if (m_tempBuffer == IntPtr.Zero)
                 m_tempBuffer = Marshal.AllocHGlobal(MsgSizeLimit);
@@ -98,14 +114,19 @@ namespace VRage.Game.SessionComponents
 
         protected override void UnloadData()
         {
+            m_receivedMsgHandlers.ClearImmediate();
+            base.UnloadData();
+        }
+
+        public void Dispose()
+        {
+            m_receivedMsgHandlers.ClearList();
             if (m_active)
             {
-                StopServer();
+                StopServer();   // do not stop server
             }
             if (m_tempBuffer != IntPtr.Zero)
                 Marshal.FreeHGlobal(m_tempBuffer);
-
-            base.UnloadData();
         }
 
         /// <summary>
@@ -138,7 +159,10 @@ namespace VRage.Game.SessionComponents
                 foreach (var client in m_clients)
                 {
                     if (client.TcpClient != null)
+                    {
+                        client.TcpClient.Client.Disconnect(true);
                         client.TcpClient.Close();
+                    }
                 }
                 m_clients.ClearImmediate();
                 m_active = false;
@@ -153,13 +177,13 @@ namespace VRage.Game.SessionComponents
             Thread.CurrentThread.Name = "External Debugging Listener";
             ProfilerShort.Autocommit = false;
 
+            try
+            {
 #if OFFICIAL_BUILD == true
             m_listener = new TcpListener(IPAddress.Loopback, GameDebugPort) {ExclusiveAddressUse = false};
 #else
             m_listener = new TcpListener(IPAddress.Any, GameDebugPort) { ExclusiveAddressUse = false };
 #endif
-            try
-            {
                 m_listener.Start();
             }
             catch (SocketException e)
@@ -217,8 +241,12 @@ namespace VRage.Game.SessionComponents
             {
                 if (clientInfo == null || clientInfo.TcpClient == null || clientInfo.TcpClient.Client == null || !clientInfo.TcpClient.Connected)
                 {
-                    if (clientInfo != null && clientInfo.TcpClient != null && clientInfo.TcpClient.Client != null && clientInfo.TcpClient.Client.Connected)
+                    if (clientInfo != null && clientInfo.TcpClient != null && clientInfo.TcpClient.Client != null &&
+                        clientInfo.TcpClient.Client.Connected)
+                    {
+                        clientInfo.TcpClient.Client.Disconnect(true);
                         clientInfo.TcpClient.Close();
+                    }
 
                     m_clients.Remove(clientInfo);
                     continue;
@@ -303,3 +331,4 @@ namespace VRage.Game.SessionComponents
         }
     }
 }
+#endif // !XB1

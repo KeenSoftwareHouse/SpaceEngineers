@@ -49,7 +49,7 @@ using IMyModdingControllableEntity = VRage.Game.ModAPI.Interfaces.IMyControllabl
 using VRage.Game.Entity;
 using VRage.Import;
 using VRage.Game.Models;
-using VRage.Render.Models;
+using VRageRender.Import;
 
 #endregion
 
@@ -254,8 +254,21 @@ namespace Sandbox.Game.Entities.Character
         protected void EnableDetectorsInArea(Vector3D from)
         {
             GatherDetectorsInArea(from);
-            foreach (var ent in m_detectableEntities)
+            for (int i = 0; i < m_detectableEntities.Count; ++i)
             {
+                var ent = m_detectableEntities[i];
+                MyCompoundCubeBlock comp = ent as MyCompoundCubeBlock;
+                if (comp != null)
+                {
+                    foreach (var block in comp.GetBlocks())
+                    {
+                        if (block.FatBlock != null)
+                        {
+                            m_detectableEntities.Add(block.FatBlock);
+                        }
+                    }
+                }
+
                 MyUseObjectsComponentBase use;
                 if (ent.Components.TryGet<MyUseObjectsComponentBase>(out use))
                 {

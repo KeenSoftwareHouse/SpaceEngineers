@@ -2254,6 +2254,7 @@
       <DisplayName>DisplayName_Block_LightArmorSlope</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\light_armor_slope.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2381,6 +2382,7 @@
       <DisplayName>DisplayName_Block_LightArmorCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\light_armor_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2475,6 +2477,7 @@
       <DisplayName>DisplayName_Block_LightArmorInvCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\light_armor_inv_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2806,6 +2809,7 @@
       <DisplayName>DisplayName_Block_HeavyArmorSlope</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\heavy_armor_slope.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2935,6 +2939,7 @@
       <DisplayName>DisplayName_Block_HeavyArmorCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\heavy_armor_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -3031,6 +3036,7 @@
       <DisplayName>DisplayName_Block_HeavyArmorInvCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\heavy_armor_inv_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -3360,7 +3366,6 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <GuiVisible>false</GuiVisible>
-      <Public>true</Public>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -3533,7 +3538,6 @@
       <MirroringY>ZHalfY</MirroringY>
       <MirroringZ>YHalfY</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -3953,7 +3957,6 @@
       <DeformationRatio>0.4</DeformationRatio>
       <EdgeType>Light</EdgeType>
       <GuiVisible>false</GuiVisible>
-      <Public>true</Public>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -4128,7 +4131,6 @@
       <MirroringZ>YHalfY</MirroringZ>
       <DeformationRatio>0.4</DeformationRatio>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -4548,7 +4550,6 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -4720,7 +4721,6 @@
       <MirroringY>ZHalfY</MirroringY>
       <MirroringZ>YHalfY</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -5135,7 +5135,6 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <DeformationRatio>0.16</DeformationRatio>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>3</DisassembleRatio>
@@ -5309,7 +5308,6 @@
       <MirroringY>ZHalfY</MirroringY>
       <MirroringZ>YHalfY</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <DeformationRatio>0.16</DeformationRatio>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>3</DisassembleRatio>
@@ -14362,6 +14360,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\ControlPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Display" Count="1" />
@@ -14429,6 +14428,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\ControlPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Display" Count="1" />
@@ -14511,7 +14511,7 @@
       <MaxRangeMeters>800</MaxRangeMeters>
     </Definition>
     
-        <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
+    <Definition xsi:type="MyObjectBuilder_LargeTurretBaseDefinition">
       <Id>
         <TypeId>LargeGatlingTurret</TypeId>
         <SubtypeId>SmallGatlingTurret</SubtypeId>
@@ -14536,7 +14536,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" Default="true" />
         <MountPoint Side="Right" StartX="1" StartY="0" EndX="4" EndY="1" />
         <MountPoint Side="Back" StartX="1" StartY="0" EndX="4" EndY="1" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="4" EndY="1" />
@@ -14546,7 +14546,7 @@
         <Model BuildPercentUpperBound="0.43" File="Models\Cubes\Small\GatlingTurretConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\GatlingTurretConstruction_2.mwm" />
       </BuildProgressModels>
-          <VoxelPlacement>
+      <VoxelPlacement>
         <!--Possible settings Both,InVoxel,OutsideVoxel,Volumetric. If volumetric set than MaxAllowed and MinAllowed will be used.-->
         <StaticMode>
           <PlacementMode>OutsideVoxel</PlacementMode>
@@ -14671,7 +14671,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" Default="true" />
         <MountPoint Side="Right" StartX="1" StartY="0" EndX="4" EndY="1" />
         <MountPoint Side="Back" StartX="1" StartY="0" EndX="4" EndY="1" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="4" EndY="1" />
@@ -14800,7 +14800,7 @@
       <CriticalComponent Subtype="Construction" Index="0" />
       <MountPoints>
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="0.27" />
         <MountPoint Side="Top" StartX="0" StartY="0.85" EndX="1" EndY="1" />
@@ -14853,7 +14853,7 @@
         <MountPoint Side="Left" PropertiesMask="1" StartX="0.4" StartY="0" EndX="0.6" EndY="1" />
         <MountPoint Side="Right" PropertiesMask="1" StartX="0.4" StartY="0" EndX="0.6" EndY="1" />
         <MountPoint Side="Top" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0.4" EndX="1" EndY="0.6" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0.325" EndX="0.25" EndY="0.675" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0.325" EndX="0.25" EndY="0.675" Default="true" />
         <MountPoint Side="Bottom" StartX="0.75" StartY="0.325" EndX="1" EndY="0.675" />
       </MountPoints>
       <BuildProgressModels>
@@ -14944,7 +14944,7 @@
       </Components>
       <CriticalComponent Subtype="RadioCommunication" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Left" StartX="0.175" StartY="0.1" EndX="0.825" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.175" StartY="0.1" EndX="0.825" EndY="0.9" />
@@ -14976,6 +14976,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\beacon.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="SmallTube" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -15017,7 +15018,7 @@
       </Components>
       <CriticalComponent Subtype="Construction" Index="1" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
+        <MountPoint Side="Back" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" Default="true" />
         <MountPoint Side="Left" StartX="0.5" StartY="0.38" EndX="0.9" EndY="0.62" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.38" EndX="0.5" EndY="0.62" />
         <MountPoint Side="Bottom" StartX="0.38" StartY="0.5" EndX="0.62" EndY="0.9" />
@@ -15056,6 +15057,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\InteriorLight.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
       </Components>
       <CriticalComponent Subtype="Construction" Index="0" />
@@ -15184,7 +15186,7 @@
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.66" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.66" StartY="0" EndX="1.33" EndY="0.55" />
         <MountPoint Side="Right" StartX="1.33" StartY="0" EndX="2" EndY="0.2" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="2" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\StairsConstruction_1.mwm" />
@@ -15230,7 +15232,7 @@
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.66" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.66" StartY="0" EndX="1.33" EndY="0.55" />
         <MountPoint Side="Right" StartX="1.33" StartY="0" EndX="2" EndY="0.2" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="2" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\RampConstruction_1.mwm" />
@@ -15267,7 +15269,7 @@
         <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0.1" EndX="0.1" EndY="0.33" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.9" StartY="0.1" EndX="1" EndY="0.33" />
-        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Front" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.43" />
         <MountPoint Side="Back" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
       </MountPoints>
@@ -15319,7 +15321,7 @@
         <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0.1" EndX="0.1" EndY="0.33" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.9" StartY="0.1" EndX="1" EndY="0.33" />
-        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Front" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.43" />
         <MountPoint Side="Back" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
       </MountPoints>
@@ -15356,7 +15358,7 @@
         <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0.1" EndX="0.1" EndY="0.33" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.9" StartY="0.1" EndX="1" EndY="0.33" />
-        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Front" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.43" />
         <MountPoint Side="Back" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
       </MountPoints>
@@ -15395,7 +15397,7 @@
         <MountPoint Side="Left" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0.1" EndX="0.1" EndY="0.33" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
         <MountPoint Side="Right" ExclusionMask="1" PropertiesMask="2" StartX="0.9" StartY="0.1" EndX="1" EndY="0.33" />
-        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Front" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.43" />
         <MountPoint Side="Back" ExclusionMask="1" PropertiesMask="2" StartX="0" StartY="0" EndX="1" EndY="0.1" />
       </MountPoints>
@@ -15428,7 +15430,7 @@
       <MountPoints>
         <MountPoint Side="Left" StartX="0.83" StartY="0.01" EndX="0.97" EndY="0.4" />
         <MountPoint Side="Right" StartX="0.03" StartY="0.01" EndX="0.17" EndY="0.4" />
-        <MountPoint Side="Bottom" StartX="0.01" StartY="0.8" EndX="0.99" EndY="0.99" />
+        <MountPoint Side="Bottom" StartX="0.01" StartY="0.8" EndX="0.99" EndY="0.99" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.40" File="Models\Cubes\Large\CoverWallConstruction_1.mwm" />
@@ -15506,7 +15508,7 @@
         <MountPoint Side="Right" StartX="0.85" StartY="0.25" EndX="0.97" EndY="0.75" />
         <MountPoint Side="Left" StartX="0.03" StartY="0.25" EndX="0.15" EndY="0.75" />
         <MountPoint Side="Left" StartX="0.85" StartY="0.25" EndX="0.97" EndY="0.75" />
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" Default="true" />
         <MountPoint Side="Top" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
       </MountPoints>
       <BuildProgressModels>
@@ -15515,6 +15517,7 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\WarheadConstruction_3.mwm" />
       </BuildProgressModels>
       <BlockPairName>Warhead</BlockPairName>
+      <ActionSound>WepSmallWarheadExpl</ActionSound>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
       <ExplosionRadius>22.4415</ExplosionRadius>
@@ -15533,6 +15536,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\warhead.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Girder" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="SmallTube" Count="2" />
@@ -15545,6 +15549,7 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\WarheadConstruction_2.mwm" />
       </BuildProgressModels>
       <BlockPairName>Warhead</BlockPairName>
+      <ActionSound>WepLrgWarheadExpl</ActionSound>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <ExplosionRadius> 4.4883 </ExplosionRadius>
@@ -15563,6 +15568,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\decoy.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="2" />
         <Component Subtype="RadioCommunication" Count="1" />
@@ -15609,6 +15615,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\decoy.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="RadioCommunication" Count="1" />
@@ -15760,7 +15767,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.33" StartY="0.33" EndX="0.66" EndY="0.66" />
+        <MountPoint Side="Bottom" StartX="0.33" StartY="0.33" EndX="0.66" EndY="0.66" Default="true" />
         <MountPoint Side="Back" StartX="0.33" StartY="0.33" EndX="0.66" EndY="0.66" />
         <MountPoint Side="Front" StartX="0.33" StartY="0.33" EndX="0.66" EndY="0.66" />
         <MountPoint Side="Left" StartX="0.33" StartY="0.33" EndX="0.66" EndY="0.66" />
@@ -15805,7 +15812,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -15850,7 +15857,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="2" EndY="4" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="4" />
@@ -15880,6 +15887,8 @@
       <RefineSpeed>1.3</RefineSpeed>
       <MaterialEfficiency>0.8</MaterialEfficiency>
       <DamageEffectId>212</DamageEffectId>
+      <Center x="1" y="0" z="0" />
+      <MirroringZ>Y</MirroringZ>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
       <PrimarySound>BlockRafinery</PrimarySound>
       <ActionSound>BlockRafineryProcess</ActionSound>
@@ -15959,7 +15968,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="2" EndY="4" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="4" />
@@ -16017,7 +16026,7 @@
       <MountPoints>
         <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
-        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
@@ -16069,7 +16078,7 @@
       <GenerateSound>BlockOxyGenProcess</GenerateSound>
       <IdleSound>BlockOxyGenIdle</IdleSound>
       
-<!--       <Effects>
+      <!--<Effects>
         <Effect Name="Damage" ParameterMin="0.5">
           <ParticleEffects>
             <ParticleEffect Origin="Damage_02" Name="SmokeWhite" Loop="true" Duration="3" SpawnTimeMin="2" SpawnTimeMax="5" />
@@ -16115,7 +16124,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="2" EndY="4" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="4" />
@@ -16176,7 +16185,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="2" EndY="4" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="4" />
@@ -16239,7 +16248,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="2" EndY="4" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="4" />
@@ -16294,6 +16303,14 @@
         <Component Subtype="SteelPlate" Count="20" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="2" Default="true" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="2" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="2" EndY="1" />
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="2" EndY="1" />
+      </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.16" File="Models\Cubes\Large\AssemblerConstruction_1.mwm" />
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\AssemblerConstruction_2.mwm" />
@@ -16554,7 +16571,7 @@
       </Components>
       <CriticalComponent Subtype="Detector" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
@@ -16603,7 +16620,7 @@
       <CriticalComponent Subtype="Medical" Index="0" />
       <MountPoints>
         <MountPoint Side="Top" StartX="0.2" StartY="0.1" EndX="0.8" EndY="0.8" />
-        <MountPoint Side="Bottom" StartX="0.2" StartY="1.2" EndX="0.8" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="1.2" EndX="0.8" EndY="2" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\MedicalRoomConstruction_1.mwm" />
@@ -16668,6 +16685,10 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
+      <MinFieldSize x="1" y="1" z="1"/>
+      <MaxFieldSize x="150" y="150" z="150"/>
+      <MinGravityAcceleration>-9.81</MinGravityAcceleration>
+      <MaxGravityAcceleration>9.81</MaxGravityAcceleration>
       <RequiredPowerInput>0.56713</RequiredPowerInput>
       <DamageEffectId>211</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -16711,6 +16732,8 @@
       <BuildTimeSeconds>50</BuildTimeSeconds>
       <MinRadius>10</MinRadius>
       <MaxRadius>400</MaxRadius>
+      <MinGravityAcceleration>-9.81</MinGravityAcceleration>
+      <MaxGravityAcceleration>9.81</MaxGravityAcceleration>
       <ResourceSinkGroup>Utility</ResourceSinkGroup>
       <BasePowerInput>0.4</BasePowerInput>
       <ConsumptionPower>1</ConsumptionPower>
@@ -16748,7 +16771,7 @@
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="2" EndY="3" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="3" EndY="3" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="2" EndY="3" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="2" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\JumpDriveConstruction_1.mwm" />
@@ -16774,7 +16797,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>LargeBlockCockpit</SubtypeId>
+        <SubtypeId>LargeBlockCockpit</SubtypeId><!-- Station control seat -->
       </Id>
       <DisplayName>DisplayName_Block_Cockpit2</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Cockpit.dds</Icon>
@@ -16796,7 +16819,7 @@
       </Components>
       <CriticalComponent Subtype="Display" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.3" StartY="0.25" EndX="0.7" EndY="0.85" />
+        <MountPoint Side="Bottom" StartX="0.3" StartY="0.25" EndX="0.7" EndY="0.85" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\CockpitLargeConstruction_1.mwm" />
@@ -16829,16 +16852,15 @@
       <EnableFirstPerson>false</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <EnableBuilderCockpit>false</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
       <PrimarySound>BlockCockpitLrg</PrimarySound>
-      <GetInSound>ShipLrgCockpitIn</GetInSound>
-      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>LargeBlockCockpitSeat</SubtypeId>
+        <SubtypeId>LargeBlockCockpitSeat</SubtypeId><!-- Large block cockpit -->
       </Id>
       <DisplayName>DisplayName_Block_Cockpit1</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\CockpitSmall.dds</Icon>
@@ -16852,17 +16874,17 @@
       <GlassModel>Models\Cubes\Large\CockpitGlass.mwm</GlassModel>
       <CharacterAnimation>cockpit1_large</CharacterAnimation>
       <Components>
-        <Component Subtype="InteriorPlate" Count="20" />
+        <Component Subtype="SteelPlate" Count="20" />
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Display" Count="8" />
         <Component Subtype="Computer" Count="100" />
-        <Component Subtype="InteriorPlate" Count="10" />
+        <Component Subtype="SteelPlate" Count="10" />
         <Component Subtype="BulletproofGlass" Count="60" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true"/>
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
       </MountPoints>
       <BuildProgressModels>
@@ -16899,7 +16921,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>SmallBlockCockpit</SubtypeId>
+        <SubtypeId>SmallBlockCockpit</SubtypeId><!-- Small block cockpit -->
       </Id>
       <DisplayName>DisplayName_Block_Cockpit1</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\CockpitSmall.dds</Icon>
@@ -16913,17 +16935,17 @@
       <GlassModel>Models\Cubes\Small\cockpitglass.mwm</GlassModel>
       <CharacterAnimation>cockpit1_small</CharacterAnimation>
       <Components>
-        <Component Subtype="InteriorPlate" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="Construction" Count="10" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Display" Count="5" />
         <Component Subtype="Computer" Count="15" />
-        <Component Subtype="InteriorPlate" Count="5" />
+        <Component Subtype="SteelPlate" Count="5" />
         <Component Subtype="BulletproofGlass" Count="30" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" Default="true" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="3" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="3" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="3" EndY="1" />
@@ -16964,7 +16986,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>DBSmallBlockFighterCockpit</SubtypeId>
+        <SubtypeId>DBSmallBlockFighterCockpit</SubtypeId><!-- Fighter cockpit -->
       </Id>
       <DisplayName>DisplayName_Block_FighterCockpit</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\FighterCockpit.dds</Icon>
@@ -16977,6 +16999,7 @@
       <InteriorModel>Models\Cubes\small\CockpitFighter_interior.mwm</InteriorModel>
       <CharacterAnimation>FighterCockpitPosture</CharacterAnimation>
       <Components>
+        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Construction" Count="20" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="SteelPlate" Count="10" />
@@ -16989,7 +17012,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="6" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="6" Default="true" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="3.5" />
         <MountPoint Side="Back" StartX="0.5" StartY="3.5" EndX="2.5" EndY="4" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="3" EndY="1.5" />
@@ -17037,7 +17060,7 @@
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>CockpitOpen</SubtypeId>
+        <SubtypeId>CockpitOpen</SubtypeId><!-- Flight seat -->
       </Id>
       <public>false</public>
       <DisplayName>DisplayName_Block_Cockpit3</DisplayName>
@@ -17061,7 +17084,7 @@
       </Components>
       <CriticalComponent Subtype="Display" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.3" StartY="0.25" EndX="0.7" EndY="0.85" />
+        <MountPoint Side="Bottom" StartX="0.3" StartY="0.25" EndX="0.7" EndY="0.85" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\CockpitOpenConstruction_1.mwm" />
@@ -17088,16 +17111,15 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>true</EnableShipControl>
       <EnableBuilderCockpit>true</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
-      <GetInSound>ShipLrgCockpitIn</GetInSound>
-      <GetOutSound>ShipLrgCockpitOut</GetOutSound>
     </Definition>
     <!-- End region Cockpits -->
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>PassengerSeatLarge</SubtypeId>
+        <SubtypeId>PassengerSeatLarge</SubtypeId><!-- Large block passenger seat -->
       </Id>
       <DisplayName>DisplayName_Block_PassengerSeat</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\PassengerSeat.dds</Icon>
@@ -17114,7 +17136,7 @@
       </Components>
       <CriticalComponent Subtype="InteriorPlate" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.3" StartY="0.6" EndX="0.7" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0.3" StartY="0.6" EndX="0.7" EndY="1" Default="true"/>
         <MountPoint Side="Back" StartX="0.3" StartY="0" EndX="0.7" EndY="0.4" />
       </MountPoints>
       <BuildProgressModels>
@@ -17142,13 +17164,14 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
       <EnableBuilderCockpit>false</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
     <Definition xsi:type="MyObjectBuilder_CockpitDefinition">
       <Id>
         <TypeId>Cockpit</TypeId>
-        <SubtypeId>PassengerSeatSmall</SubtypeId>
+        <SubtypeId>PassengerSeatSmall</SubtypeId><!-- Small block passenger seat -->
       </Id>
       <DisplayName>DisplayName_Block_PassengerSeat</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\PassengerSeat.dds</Icon>
@@ -17165,7 +17188,7 @@
       </Components>
       <CriticalComponent Subtype="InteriorPlate" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="3" />
+        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="3" Default="true" />
         <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="2" />
       </MountPoints>
       <BuildProgressModels>
@@ -17192,6 +17215,7 @@
       <EnableFirstPerson>true</EnableFirstPerson>
       <EnableShipControl>false</EnableShipControl>
       <EnableBuilderCockpit>false</EnableBuilderCockpit>
+      <IsPressurized>false</IsPressurized>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
     </Definition>
@@ -17219,7 +17243,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.1" EndX="0.8" EndY="0.7" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.1" EndX="0.8" EndY="0.7" Default="true" />
         <MountPoint Side="Top" StartX="0.2" StartY="0.3" EndX="0.8" EndY="0.9" />
         <MountPoint Side="Back" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.7" />
         <MountPoint Side="Back" StartX="0.05" StartY="0.7" EndX="0.95" EndY="0.95" />
@@ -17255,6 +17279,7 @@
       <IdlePowerConsumption>0.00003</IdlePowerConsumption>
       <OutsideSound>BlockCryoOut</OutsideSound>
       <InsideSound>BlockCryoIn</InsideSound>
+      <EnclosedCockpit>true</EnclosedCockpit>
       <EdgeType>Light</EdgeType>
       <DamageEffectId>214</DamageEffectId>
       <DamagedSound>ParticleElectrical</DamagedSound>
@@ -17275,6 +17300,7 @@
       <UnlockSound>ShipLandGearOff</UnlockSound>
       <FailedAttachSound>ShipLandGearNothing01</FailedAttachSound>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Motor" Count="1" />
@@ -17588,7 +17614,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" Default="true" />
         <MountPoint Side="Right" StartX="0" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="4" StartY="1" EndX="6" EndY="2" />
       </MountPoints>
@@ -17648,7 +17674,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="1" EndY="3" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -17700,6 +17726,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\OreDetector.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="Construction" Count="2" />
         <Component Subtype="Motor" Count="1" />
         <Component Subtype="Computer" Count="1" />
@@ -17708,7 +17735,7 @@
       </Components>
       <CriticalComponent Subtype="Detector" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
@@ -17933,11 +17960,13 @@
       <DisplayName>DisplayName_Block_TextPanel</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\TextPanel.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\TextPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="4" />
         <Component Subtype="Computer" Count="4" />
         <Component Subtype="Display" Count="3" />
@@ -17983,11 +18012,13 @@
       <DisplayName>DisplayName_LCD_PanelWide</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\LCDPanelWide.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="6" y="3" z="1" />
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\LCDPanelWide.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="8" />
         <Component Subtype="Computer" Count="8" />
         <Component Subtype="Display" Count="6" />
@@ -18041,6 +18072,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\LCDPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="4" />
         <Component Subtype="Computer" Count="4" />
         <Component Subtype="Display" Count="3" />
@@ -18196,6 +18228,7 @@
       <ResourceSinkGroup>Factory</ResourceSinkGroup>
       <IceConsumptionPerSecond>83</IceConsumptionPerSecond>
       <InventoryMaxVolume>1</InventoryMaxVolume>
+      <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <InventorySize>
         <X>2</X>
         <Y>2</Y>
@@ -18243,6 +18276,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\TextPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="6" />
         <Component Subtype="Computer" Count="6" />
         <Component Subtype="Display" Count="10" />
@@ -18280,6 +18314,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\LCDPanel.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="1" />
         <Component Subtype="Construction" Count="6" />
         <Component Subtype="Computer" Count="6" />
         <Component Subtype="Display" Count="10" />
@@ -18330,6 +18365,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\LCDPanelWide.mwm</Model>
       <Components>
+        <Component Subtype="InteriorPlate" Count="2" />
         <Component Subtype="Construction" Count="12" />
         <Component Subtype="Computer" Count="12" />
         <Component Subtype="Display" Count="20" />
@@ -18372,6 +18408,7 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\antenna.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="SmallTube" Count="1" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="Construction" Count="1" />
@@ -18420,7 +18457,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="0.7" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.3" EndY="0.7" />
@@ -18467,7 +18504,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -18514,7 +18551,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Bottom" StartX="0" StartY="0.5" EndX="1" EndY="1" />
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.5" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.5" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="0.5" />
@@ -18564,7 +18601,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Bottom" StartX="0" StartY="0.5" EndX="1" EndY="1" />
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.5" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="0.5" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="0.5" />
@@ -18615,7 +18652,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
-        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.3" />
         <MountPoint Side="Front" StartX="0.1" StartY="0.9" EndX="0.9" EndY="1.1" />
         <MountPoint Side="Front" StartX="0.1" StartY="1.7" EndX="0.9" EndY="1.9" />
@@ -18686,7 +18723,7 @@
         <MountPoint Side="Top" StartX="0" StartY="1" EndX="3" EndY="2" />
         <MountPoint Side="Top" StartX="1" StartY="0" EndX="2" EndY="1" />
         <MountPoint Side="Top" StartX="1" StartY="2" EndX="2" EndY="3" />
-        <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="3" EndY="2" />
+        <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="3" EndY="2" Default="true" />
         <MountPoint Side="Bottom" StartX="1" StartY="0" EndX="2" EndY="1" />
         <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="3" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="3" />
@@ -18755,7 +18792,7 @@
         <MountPoint Side="Top" StartX="2.0" StartY="4.0" EndX="3.0" EndY="5.0" />
         <MountPoint Side="Top" StartX="0.0" StartY="2.0" EndX="1.0" EndY="3.0" />
         <MountPoint Side="Top" StartX="4.0" StartY="2.0" EndX="5.0" EndY="3.0" />
-        <MountPoint Side="Bottom" StartX="1.0" StartY="1.0" EndX="4.0" EndY="4.0" />
+        <MountPoint Side="Bottom" StartX="1.0" StartY="1.0" EndX="4.0" EndY="4.0" Default="true" />
         <MountPoint Side="Bottom" StartX="2.0" StartY="0.0" EndX="3.0" EndY="1.0" />
         <MountPoint Side="Bottom" StartX="2.0" StartY="4.0" EndX="3.0" EndY="5.0" />
         <MountPoint Side="Bottom" StartX="0.0" StartY="2.0" EndX="1.0" EndY="3.0" />
@@ -18829,7 +18866,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Right" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" />
+        <MountPoint Side="Right" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" Default="true" />
         <MountPoint Side="Left" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" />
         <MountPoint Side="Top" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" />
         <MountPoint Side="Bottom" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" />
@@ -18878,7 +18915,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Right" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" />
+        <MountPoint Side="Right" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" Default="true" />
         <MountPoint Side="Left" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" />
         <MountPoint Side="Top" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" />
         <MountPoint Side="Bottom" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" />
@@ -18927,7 +18964,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Right" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" />
+        <MountPoint Side="Right" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" Default="true" />
         <MountPoint Side="Left" StartX="0.15" StartY="0.15" EndX="1.85" EndY="0.85" />
         <MountPoint Side="Top" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" />
         <MountPoint Side="Bottom" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" />
@@ -18980,7 +19017,7 @@
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
       </MountPoints>
@@ -19017,6 +19054,14 @@
         <Component Subtype="InteriorPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" Default="true" />
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="3" />
+      </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\CargoContainerMediumConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\CargoContainerMediumConstruction_2.mwm" />
@@ -19050,6 +19095,14 @@
         <Component Subtype="InteriorPlate" Count="20" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="5" EndY="5" Default="true" />
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="5" EndY="5" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="5" EndY="5" />
+      </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\CargoContainerLargeConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\CargoContainerLargeConstruction_2.mwm" />
@@ -19085,6 +19138,14 @@
         <Component Subtype="InteriorPlate" Count="10" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+      </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\CargoContainerSmallConstruction_1.mwm" />
         <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\CargoContainerSmallConstruction_2.mwm" />
@@ -19126,7 +19187,7 @@
         <MountPoint Side="Right" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="2" />
-        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Front" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Back" StartX="1" StartY="1" EndX="2" EndY="2" />
       </MountPoints>
@@ -19161,6 +19222,7 @@
       <ThrusterType>Ion</ThrusterType>
       <SilenceableByShipSoundSystem>true</SilenceableByShipSoundSystem>
       <Components>
+        <Component Subtype="SteelPlate" Count="1" />
         <Component Subtype="LargeTube" Count="1" />
         <Component Subtype="Thrust" Count="1" />
         <Component Subtype="Construction" Count="1" />
@@ -19168,7 +19230,7 @@
       </Components>
       <CriticalComponent Subtype="Thrust" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -19264,7 +19326,7 @@
       </Components>
       <CriticalComponent Subtype="Thrust" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="2" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="3" EndY="2" />
         <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="3" EndY="4" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="2" EndY="2" />
@@ -19354,7 +19416,7 @@
       </Components>
       <CriticalComponent Subtype="Thrust" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
@@ -19450,11 +19512,11 @@
       </Components>
       <CriticalComponent Subtype="Thrust" Index="0" />
       <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="3" EndY="2" />
         <MountPoint Side="Bottom" StartX="0" StartY="2" EndX="3" EndY="4" />
         <MountPoint Side="Left" StartX="2" StartY="0" EndX="4" EndY="2" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="2" EndY="2" />
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="2" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.16" File="Models\Cubes\Large\ThrustLargeConstruction_1.mwm" />
@@ -19544,9 +19606,9 @@
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" />
-        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-        <MountPoint Side="Back" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" Default="true"/>
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" Default="true"/>
+        <MountPoint Side="Back" StartX="1" StartY="2" EndX="2" EndY="3" Default="true"/>
         <MountPoint Side="Right" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="3" />
         <MountPoint Side="Left" StartX="2" StartY="1" EndX="3" EndY="2" />
@@ -19637,7 +19699,7 @@
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -19734,9 +19796,9 @@
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" />
-        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-        <MountPoint Side="Back" StartX="1" StartY="2" EndX="2" EndY="3" />
+        <MountPoint Side="Back" StartX="0" StartY="1" EndX="3" EndY="2" Default="true" />
+        <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" Default="true"/>
+        <MountPoint Side="Back" StartX="1" StartY="2" EndX="2" EndY="3" Default="true"/>
         <MountPoint Side="Right" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="3" />
         <MountPoint Side="Left" StartX="2" StartY="1" EndX="3" EndY="2" />
@@ -19827,7 +19889,7 @@
       </Components>
       <CriticalComponent Subtype="LargeTube" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true"/>
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -19926,8 +19988,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
-        <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="3" />
+        <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="3" Default="true" />
         <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="4" />
         <MountPoint Side="Left" StartX="2" StartY="1" EndX="4" EndY="2" />
         <MountPoint Side="Right" StartX="1" StartY="1" EndX="3" EndY="2" />
@@ -19950,12 +20011,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
-      <BlockVariants>
+      <!--<BlockVariants>
         <BlockVariant>
           <TypeId>Thrust</TypeId>
-          <SubtypeId>SmallBlockLargeAtmosphericThrust</SubtypeId>
+          <SubtypeId>LargeBlockSmallAtmosphericThrust</SubtypeId>
         </BlockVariant>
-      </BlockVariants>
+      </BlockVariants>-->
       <BlockPairName>LargeAtmoThrust</BlockPairName>
       <Center x="1" y="1" z="2" />
       <MirroringZ>Y</MirroringZ>
@@ -20031,8 +20092,7 @@
       </Components>               
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
-        <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" Default="true"/>
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
         <MountPoint Side="Right" StartX="1" StartY="0" EndX="2" EndY="1" />
@@ -20138,8 +20198,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
-        <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="4" />
+        <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="4" Default="true"/>
         <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="1" StartY="1" EndX="4" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="1" EndX="4" EndY="2" />
@@ -20162,6 +20221,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <!--<BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>SmallBlockSmallAtmosphericThrust</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>-->
       <BlockPairName>LargeAtmoThrust</BlockPairName>
       <Center x="1" y="1" z="2" />
       <MirroringZ>Y</MirroringZ>
@@ -20240,7 +20305,7 @@
       <MountPoints>
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
-        <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" />
+        <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" Default="true" />
         <MountPoint Side="Right" StartX="1" StartY="0" EndX="2" EndY="1" />
       </MountPoints>
       <BuildProgressModels>
@@ -20526,7 +20591,7 @@
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
       </MountPoints>
@@ -20584,7 +20649,7 @@
         <MountPoint Side="Right" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="2" />
-        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Front" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Back" StartX="1" StartY="1" EndX="2" EndY="2" />
       </MountPoints>
@@ -20646,7 +20711,7 @@
         <MountPoint Side="Back" StartX="0.15" StartY="0.15" EndX="0.85" EndY="0.85" />
         <MountPoint Side="Right" StartX="0.3" StartY="0.3" EndX="0.7" EndY="0.7" />
         <MountPoint Side="Left" StartX="0.3" StartY="0.3" EndX="0.7" EndY="0.7" />
-        <MountPoint Side="Bottom" StartX="0.3" StartY="0.3" EndX="0.7" EndY="0.7" />
+        <MountPoint Side="Bottom" StartX="0.3" StartY="0.3" EndX="0.7" EndY="0.7" Default="true" />
         <MountPoint Side="Front" StartX="0.3" StartY="0.3" EndX="0.7" EndY="0.7" />
       </MountPoints>
       <BuildProgressModels>
@@ -20704,7 +20769,7 @@
         <MountPoint Side="Right" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="2" />
-        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="2" />
+        <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="2" Default="true" />
         <MountPoint Side="Front" StartX="1" StartY="1" EndX="2" EndY="2" />
         <MountPoint Side="Back" StartX="1" StartY="1" EndX="2" EndY="2" />
       </MountPoints>
@@ -20759,7 +20824,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" Default="true"/>
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
@@ -20806,7 +20871,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
@@ -20874,6 +20939,7 @@
       <DisplayName>DisplayName_Block_PistonBase</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Piston.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -20888,7 +20954,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
@@ -20920,6 +20986,7 @@
       <DisplayName>DisplayName_Block_PistonBase</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Piston.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="3" z="1" />
       <Center x="0" y="0" z="0"></Center>
@@ -20935,7 +21002,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="1.7" />
@@ -21014,7 +21081,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="0.61" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="0.61" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="0.61" />
@@ -21067,7 +21134,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="0.80" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="0.80" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="0.80" />
@@ -21102,7 +21169,7 @@
         </BlockVariant>
       </BlockVariants>
       <BlockPairName>Suspension3x3</BlockPairName>
-      <MirroringY>Z</MirroringY>
+      <MirroringY>ZThenOffsetX</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>20</BuildTimeSeconds>
@@ -21146,7 +21213,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.8" EndX="1.8" EndY="2.2" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.8" EndX="1.8" EndY="2.2" Default="true" />
         <MountPoint Side="Left" StartX="0.9" StartY="0" EndX="2.1" EndY="1.25" />
         <MountPoint Side="Right" StartX="0.9" StartY="0" EndX="2.1" EndY="1.25" />
       </MountPoints>
@@ -21169,8 +21236,8 @@
         </DynamicMode>
       </VoxelPlacement>
       <BlockPairName>Suspension5x5</BlockPairName>
-      <MirroringY>Z</MirroringY>
-      <MirroringZ>Y</MirroringZ>
+      <MirroringY>ZThenOffsetX</MirroringY>
+      <MirroringZ>YThenOffsetX</MirroringZ>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>30</BuildTimeSeconds>
       <PrimarySound>BlockWheel5x5</PrimarySound>
@@ -21209,7 +21276,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true"/>
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="0.80" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="0.80" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="0.80" />
@@ -21258,6 +21325,7 @@
       <DisplayName>DisplayName_Block_Suspension3x3</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\WheelSuspension3x3.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21273,7 +21341,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="0.83" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="0.83" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="0.83" />
@@ -21330,6 +21398,7 @@
       <DisplayName>DisplayName_Block_Suspension5x5</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\WheelSuspension5x5.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="2" y="3" z="2" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21345,7 +21414,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.3" StartY="0.7" EndX="1.7" EndY="2.3" />
+        <MountPoint Side="Bottom" StartX="0.3" StartY="0.7" EndX="1.7" EndY="2.3" Default="true" />
         <MountPoint Side="Left" StartX="0.8" StartY="0" EndX="2.2" EndY="1.2" />
         <MountPoint Side="Right" StartX="0.8" StartY="0" EndX="2.2" EndY="1.2" />
       </MountPoints>
@@ -21390,6 +21459,7 @@
       <DisplayName>DisplayName_Block_Suspension1x1</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\WheelSuspension1x1.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21405,7 +21475,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="0.83" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="0.83" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="0.83" />
@@ -21465,7 +21535,7 @@
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
-        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\MotorRotorConstruction_1.mwm" />
@@ -21485,6 +21555,7 @@
       <DisplayName>DisplayName_Block_Rotor</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\motor.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="-0.25" z="0" />
@@ -21499,7 +21570,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0.25" StartY="0" EndX="0.75" EndY="0.61" />
         <MountPoint Side="Right" StartX="0.25" StartY="0" EndX="0.75" EndY="0.61" />
         <MountPoint Side="Front" StartX="0.25" StartY="0" EndX="0.75" EndY="0.61" />
@@ -21533,6 +21604,7 @@
       <DisplayName>DisplayName_Block_RotorPart</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\RotorPart.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21545,7 +21617,7 @@
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
-        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\MotorRotorConstruction_1.mwm" />
@@ -21583,7 +21655,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\MotorAdvancedStatorConstruction_1.mwm" />
@@ -21632,7 +21704,7 @@
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
-        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\MotorAdvancedRotorConstruction_1.mwm" />
@@ -21668,7 +21740,7 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="4" EndY="4" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="4" EndY="4" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\MotorAdvancedStatorConstruction_1.mwm" />
@@ -21705,6 +21777,7 @@
       <Icon>Textures\GUI\Icons\Cubes\AdvencedMotor.dds</Icon>
       <Public>false</Public>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="2" z="3" />
       <ModelOffset x="0" y="-0.25" z="0" />
@@ -21716,7 +21789,7 @@
       </Components>
       <CriticalComponent Subtype="SteelPlate" Index="0" />
       <MountPoints>
-        <MountPoint Side="Top" StartX="0" StartY="0" EndX="4" EndY="4" />
+        <MountPoint Side="Top" StartX="0" StartY="0" EndX="4" EndY="4" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\MotorAdvancedRotorConstruction_1.mwm" />
@@ -21752,7 +21825,7 @@
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="0.4" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="0.1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="0.1" Default="true" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="0.4" />
         <MountPoint Side="Right" StartX="0.9" StartY="0" EndX="1" EndY="0.4" />
       </MountPoints>
@@ -21828,7 +21901,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="0.3" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="0.3" />
         <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="0.3" />
@@ -21888,7 +21961,7 @@
         <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
-        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
         <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
       </MountPoints>
@@ -21927,6 +22000,14 @@
         <Component Subtype="Construction" Count="1" />
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
+      <MountPoints>
+        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
+        <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+      </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Small\TimerBlockConstruction_1.mwm" />
         <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Small\TimerBlockConstruction_2.mwm" />
@@ -21989,9 +22070,9 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Large\SolarPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Construction" Count="7" />
         <Component Subtype="LargeTube" Count="1" />
-        <Component Subtype="SteelPlate" Count="4" />
         <Component Subtype="Computer" Count="2" />
         <Component Subtype="SolarCell" Count="64" />
         <Component Subtype="Construction" Count="3" />
@@ -21999,7 +22080,7 @@
       <CriticalComponent Subtype="SolarCell" Index="0" />
       <MountPoints>
         <MountPoint Side="Right" StartX="0.9" StartY="0" EndX="1" EndY="2" />
-        <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="2" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="2" Default="true" />
         <MountPoint Side="Top" StartX="3.8" StartY="0.9" EndX="4" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0.9" EndX="0.2" EndY="1" />
         <MountPoint Side="Bottom" StartX="3.8" StartY="0" EndX="4" EndY="0.1" />
@@ -22052,9 +22133,9 @@
       <ModelOffset x="0" y="0" z="0" />
       <Model>Models\Cubes\Small\SolarPanel.mwm</Model>
       <Components>
+        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Girder" Count="4" />
-        <Component Subtype="SteelPlate" Count="2" />
         <Component Subtype="Computer" Count="1" />
         <Component Subtype="SolarCell" Count="16" />
         <Component Subtype="Construction" Count="1" />
@@ -22063,7 +22144,7 @@
       <CriticalComponent Subtype="SolarCell" Index="0" />
       <MountPoints>
         <MountPoint Side="Right" StartX="0.9" StartY="0" EndX="1" EndY="5" />
-        <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="5" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="5" Default="true" />
         <MountPoint Side="Top" StartX="9.8" StartY="0.9" EndX="10" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0.9" EndX="0.2" EndY="1" />
         <MountPoint Side="Bottom" StartX="9.8" StartY="0" EndX="10" EndY="0.1" />
@@ -22119,7 +22200,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Right" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.8" />
         <MountPoint Side="Bottom" StartX="0" StartY="0.25" EndX="3" EndY="0.75" />
         <MountPoint Side="Top" StartX="0" StartY="0.25" EndX="3" EndY="0.75" />
@@ -22890,6 +22971,7 @@
       <DisplayName>DisplayName_Block_ConveyorSmall</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorSmall.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -22901,21 +22983,19 @@
         <Component Subtype="InteriorPlate" Count="2" />
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
+      <Mountpoints>
+        <MountPoint Side="Front" StartX="0.0" StartY="0.0" EndX="1.0" EndY="1.0" />
+        <MountPoint Side="Top" StartX="1.0" StartY="0.0" EndX="1.0" EndY="1.0"  />
+        <MountPoint Side="Back" StartX="1.0" StartY="0.0" EndX="1.0" EndY="1.0"  />
+        <MountPoint Side="Bottom" StartX="1.0" StartY="0.0" EndX="1.0" EndY="1.0"  />
+        <MountPoint Side="Right" StartX="0.0" StartY="0.0" EndX="1.0" EndY="1.0" />
+        <MountPoint Side="Left" StartX="0.0" StartY="0.0" EndX="1.0" EndY="1.0" />
+      </Mountpoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\ConveyorConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorConstruction_2.mwm" />
       </BuildProgressModels>
       <BlockPairName>ConveyorSmall</BlockPairName>
-      <BlockVariants>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeSmall</SubtypeId>
-        </BlockVariant>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeSmallCurved</SubtypeId>
-        </BlockVariant>
-      </BlockVariants>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
@@ -22930,6 +23010,7 @@
       </Id>
       <DisplayName>DisplayName_Block_Conveyor</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\conveyor.dds</Icon>
+      <GuiVisible>false</GuiVisible>
       <CubeSize>Large</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -22950,16 +23031,6 @@
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\ConveyorConstruction_3.mwm" />
       </BuildProgressModels>
       <BlockPairName>Conveyor</BlockPairName>
-      <BlockVariants>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTube</SubtypeId>
-        </BlockVariant>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeCurved</SubtypeId>
-        </BlockVariant>
-      </BlockVariants>
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
@@ -23096,7 +23167,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>35</BuildTimeSeconds>
       <MountPoints>
-        <MountPoint Side="Back" StartX="0.15" StartY="0.15" EndX="0.85" EndY="0.9" />
+        <MountPoint Side="Back" StartX="0.15" StartY="0.15" EndX="0.85" EndY="0.9" Default="true"/>
         <MountPoint Side="Top" StartX="0.27" StartY="0.65" EndX="0.73" EndY="0.9" />
         <MountPoint Side="Top" StartX="0.27" StartY="0.0" EndX="0.73" EndY="0.09" />
         <MountPoint Side="Bottom" StartX="0.27" StartY="0.1" EndX="0.73" EndY="0.35" />
@@ -23137,7 +23208,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>15</BuildTimeSeconds>
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -23178,10 +23249,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <MountPoints>
-        <MountPoint Side="Back" StartX="0.3" StartY="0.3" EndX="0.4" EndY="2.7" />
-        <MountPoint Side="Back" StartX="0.3" StartY="0.3" EndX="2.7" EndY="0.4" />
-        <MountPoint Side="Back" StartX="2.6" StartY="0.3" EndX="2.7" EndY="2.7" />
-        <MountPoint Side="Back" StartX="0.3" StartY="2.6" EndX="2.7" EndY="2.7" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="3" Default="true" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="3" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="3" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="3" EndY="1" />
@@ -23199,7 +23267,7 @@
       </Id>
       <DisplayName>DisplayName_Block_ConveyorTube</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorTube.dds</Icon>
-      <GuiVisible>false</GuiVisible>
+      <GuiVisible>true</GuiVisible>
       <CubeSize>Large</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
@@ -23217,11 +23285,21 @@
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Large\ConveyorTubeConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\ConveyorTubeConstruction_2.mwm" />
       </BuildProgressModels>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Conveyor</TypeId>
+          <SubtypeId>LargeBlockConveyor</SubtypeId>
+        </BlockVariant>
+        <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeCurved</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <BlockPairName>ConveyorTube</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>7</BuildTimeSeconds>
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.3" />
+        <MountPoint Side="Bottom" StartX="0.2" StartY="0.2" EndX="0.8" EndY="0.3" Default="true"/>
         <MountPoint Side="Bottom" StartX="0.2" StartY="0.7" EndX="0.8" EndY="0.8" />
         <MountPoint Side="Bottom" StartX="0.2" StartY="0.3" EndX="0.3" EndY="0.7" />
         <MountPoint Side="Bottom" StartX="0.7" StartY="0.3" EndX="0.8" EndY="0.7" />
@@ -23250,10 +23328,24 @@
         <Component Subtype="Construction" Count="1" />
         <Component Subtype="Motor" Count="1" />
       </Components>
+      <MountPoints>
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" Default="true"/>
+        <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="1" />
+      </MountPoints>
       <CriticalComponent Subtype="Construction" Index="0" />
       <BuildProgressModels>
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorTubeConstruction_1.mwm" />
       </BuildProgressModels>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Conveyor</TypeId>
+          <SubtypeId>SmallBlockConveyor</SubtypeId>
+        </BlockVariant>
+        <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeSmallCurved</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <BlockPairName>ConveyorTubeSmall</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
@@ -23265,7 +23357,7 @@
       </Id>
       <DisplayName>DisplayName_Block_ConveyorTubeMedium</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorTube.dds</Icon>
-      <GuiVisible>true</GuiVisible>
+      <GuiVisible>false</GuiVisible>
       <CubeSize>Small</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
@@ -23282,7 +23374,17 @@
         <Model BuildPercentUpperBound="0.50" File="Models\Cubes\Small\ConveyorTubeMediumConstruction_1.mwm" />
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorTubeMediumConstruction_2.mwm" />
       </BuildProgressModels>
-      <BlockPairName>ConveyorTubeMedium</BlockPairName>
+      <BlockPairName>ConveyorTube</BlockPairName>
+      <BlockVariants>
+        <BlockVariant>
+          <TypeId>Conveyor</TypeId>
+          <SubtypeId>SmallShipConveyorHub</SubtypeId>
+        </BlockVariant>
+        <BlockVariant>
+          <TypeId>ConveyorConnector</TypeId>
+          <SubtypeId>ConveyorTubeCurvedMedium</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>7</BuildTimeSeconds>
       <MountPoints>
@@ -23398,6 +23500,10 @@
       <BuildProgressModels>
         <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Small\ConveyorTubeCurvedConstruction_1.mwm" />
       </BuildProgressModels>
+      <MountPoints>
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
+      </MountPoints>
       <BlockPairName>ConveyorTubeCurvedSmall</BlockPairName>
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>3</BuildTimeSeconds>
@@ -23412,6 +23518,7 @@
       <DisplayName>DisplayName_Block_ConveyorTubeCurved</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorTubeCurved.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -23453,6 +23560,7 @@
       <DisplayName>DisplayName_Block_Conveyor</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Conveyor.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -23492,19 +23600,8 @@
         <MountPoint Side="Front" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" />
       </MountPoints>
       <BlockPairName>Conveyor</BlockPairName>
-      <BlockVariants>
-        <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeMedium</SubtypeId>
-        </BlockVariant>
-      <BlockVariant>
-          <TypeId>ConveyorConnector</TypeId>
-          <SubtypeId>ConveyorTubeCurvedMedium</SubtypeId>
-        </BlockVariant>
-      </BlockVariants>
       <MirroringZ>X</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>25</BuildTimeSeconds>
       <DamageEffectId>212</DamageEffectId>
       <DamagedSound>ParticleHeavyMech</DamagedSound>
@@ -23668,7 +23765,7 @@
         <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
-        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
         <MountPoint Side="Back" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Front" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
       </MountPoints>
@@ -24229,6 +24326,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <Public>true</Public>
+      <GuiVisible>false</GuiVisible>
       <InventorySize>
         <X>2.5</X>
         <Y>2.5</Y>
@@ -24475,6 +24573,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <Public>true</Public>
+      <GuiVisible>false</GuiVisible>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <InventorySize>
         <X>2.5</X>
@@ -24531,7 +24630,7 @@
         <MountPoint Side="Right" StartX="0.08" StartY="0.20" EndX="0.82" EndY="0.80" />
         <MountPoint Side="Top" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" />
         <MountPoint Side="Bottom" StartX="0.30" StartY="1.30" EndX="0.70" EndY="1.70" />
-        <MountPoint Side="Back" StartX="0.08" StartY="0.20" EndX="0.92" EndY="0.80" />
+        <MountPoint Side="Back" StartX="0.08" StartY="0.20" EndX="0.92" EndY="0.80" Default="true" />
       </MountPoints>
       <BlockPairName>ShipGrinder</BlockPairName>
       <MirroringZ>X</MirroringZ>
@@ -24588,7 +24687,7 @@
         <MountPoint Side="Right" StartX="0.2" StartY="0.5" EndX="2.5" EndY="2.5" />
         <MountPoint Side="Top" StartX="0.8" StartY="0.2" EndX="2.2" EndY="2.5" />
         <MountPoint Side="Bottom" StartX="0.8" StartY="3.5" EndX="2.2" EndY="5.8" />
-        <MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.35" EndY="2.75" />
+        <MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.35" EndY="2.75" Default="true" />
         <MountPoint Side="Back" StartX="2.65" StartY="0.25" EndX="2.75" EndY="2.75" />
         <MountPoint Side="Back" StartX="0.35" StartY="0.25" EndX="2.65" EndY="0.35" />
         <MountPoint Side="Back" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" />
@@ -24648,7 +24747,7 @@
         <MountPoint Side="Right" StartX="0.08" StartY="0.20" EndX="0.82" EndY="0.80" />
         <MountPoint Side="Top" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" />
         <MountPoint Side="Bottom" StartX="0.30" StartY="1.30" EndX="0.70" EndY="1.70" />
-        <MountPoint Side="Back" StartX="0.08" StartY="0.20" EndX="0.92" EndY="0.80" />
+        <MountPoint Side="Back" StartX="0.08" StartY="0.20" EndX="0.92" EndY="0.80" Default="true" />
       </MountPoints>
       <BlockPairName>ShipWelder</BlockPairName>
       <MirroringZ>X</MirroringZ>
@@ -24695,7 +24794,7 @@
         <MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.35" EndY="2.75" />
         <MountPoint Side="Back" StartX="2.65" StartY="0.25" EndX="2.75" EndY="2.75" />
         <MountPoint Side="Back" StartX="0.35" StartY="0.25" EndX="2.65" EndY="0.35" />
-        <MountPoint Side="Back" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" />
+        <MountPoint Side="Back" StartX="0.35" StartY="2.65" EndX="2.65" EndY="2.75" Default="true" />
       </MountPoints>
       <BlockPairName>ShipWelder</BlockPairName>
       <MirroringZ>X</MirroringZ>
@@ -24735,7 +24834,7 @@
         <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Large\MergeBlockConstruction_3.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
+        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" Default="true" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
         <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="0.9" />
@@ -24777,7 +24876,7 @@
         <Model BuildPercentUpperBound="1.0" File="Models\Cubes\Small\MergeBlockConstruction_2.mwm" />
       </BuildProgressModels>
       <MountPoints>
-        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" />
+        <MountPoint Side="Left" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" Default="true" />
         <MountPoint Side="Right" StartX="0.1" StartY="0.1" EndX="2.9" EndY="2.9" />
         <MountPoint Side="Top" StartX="0.1" StartY="0.1" EndX="0.9" EndY="2.9" />
         <MountPoint Side="Bottom" StartX="0.1" StartY="0.1" EndX="0.9" EndY="2.9" />
@@ -25089,6 +25188,7 @@
       <DisplayName>DisplayName_Block_ArmorCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ArmorCorner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -25128,6 +25228,7 @@
       <DisplayName>DisplayName_Block_ArmorInvCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\BlastDoorCornerInverted.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -25167,6 +25268,7 @@
       <DisplayName>DisplayName_Block_ArmorSide</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ArmorSide.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -25223,7 +25325,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="1" EndY="1" />
@@ -25277,7 +25379,7 @@
       </Components>
       <CriticalComponent Subtype="Computer" Index="0" />
       <MountPoints>
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" Default="true" />
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="3" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="3" EndY="1" />
         <MountPoint Side="Back" StartX="0" StartY="0" EndX="3" EndY="1" />
@@ -25336,7 +25438,7 @@
         <MountPoint Side="Right" StartX="0.15" StartY="2" EndX="0.3" EndY="3" />
         <MountPoint Side="Left" StartX="0.7" StartY="2" EndX="0.85" EndY="3" />
         <MountPoint Side="Right" StartX="0.7" StartY="2" EndX="0.85" EndY="3" />
-        <MountPoint Side="Top" StartX="0" StartY="0.04" EndX="1" EndY="0.96" />
+        <MountPoint Side="Top" StartX="0" StartY="0.04" EndX="1" EndY="0.96" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\HangarDoorConstruction_1.mwm" />
@@ -25394,7 +25496,7 @@
         <MountPoint Side="Left" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Right" StartX="0" StartY="0" EndX="1" EndY="1" />
         <MountPoint Side="Top" StartX="0" StartY="0" EndX="1" EndY="1" />
-        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" />
+        <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="1" Default="true" />
       </MountPoints>
       <BuildProgressModels>
         <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\SlideDoor_Construction_1.mwm" />
@@ -26064,7 +26166,7 @@
     <!-- End Region Row 10 -->
     <!-- Region Row 11 -->
     <BlockPosition>
-      <Name>Conveyor</Name>
+      <Name>ConveyorTube</Name>
       <Position>
         <X>0</X>
         <Y>11</Y>
@@ -26118,7 +26220,7 @@
         <X>7</X>
         <Y>11</Y>
       </Position>
-    </BlockPosition>    
+    </BlockPosition>
     <!-- End region Row 11 -->
     <!-- Region Row 12 -->
     <BlockPosition>
@@ -26465,5 +26567,3 @@
     </BlockPosition>
   </BlockPositions>
 </Definitions>
-
-    

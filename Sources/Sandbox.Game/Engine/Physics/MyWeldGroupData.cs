@@ -8,6 +8,7 @@ using System.Text;
 using VRage;
 using VRage.Game.Entity;
 using VRage.Groups;
+using VRage.Profiler;
 
 namespace Sandbox.Engine.Physics
 {

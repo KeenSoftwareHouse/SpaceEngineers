@@ -592,6 +592,22 @@ namespace VRageMath
             CreateFromRotationMatrix(ref m, out result);
         }
 
+        public static void CreateFromTwoVectors(ref Vector3 firstVector, ref Vector3 secondVector, out Quaternion result)
+        {
+            Vector3 thirdVector;
+            Vector3.Cross(ref firstVector, ref secondVector, out thirdVector);
+            result = new Quaternion(thirdVector.X, thirdVector.Y, thirdVector.Z, Vector3.Dot(firstVector, secondVector));
+            result.W += result.Length();
+            result.Normalize();
+        }
+
+        public static Quaternion CreateFromTwoVectors(Vector3 firstVector, Vector3 secondVector)
+        {
+            Quaternion rtn;
+            CreateFromTwoVectors(ref firstVector, ref secondVector, out rtn);
+            return rtn;
+        }
+
         /// <summary>
         /// Creates a Quaternion from a rotation Matrix.
         /// </summary>

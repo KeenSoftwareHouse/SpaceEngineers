@@ -17,6 +17,7 @@ using SpaceEngineers.Game.EntityComponents.DebugRenders;
 using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -39,7 +40,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
             get { return m_radius; }
             set
             {
-
                 m_radius.Value = value;
             }
         }
@@ -55,20 +55,23 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyGravityGeneratorSphere()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_radius = SyncType.CreateAndAddProp<float>();
+#endif // XB1
             CreateTerminalControls();
             m_radius.ValueChanged += (x) => UpdateFieldShape();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyGravityGeneratorSphere>())
                 return;
-
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_GRAVITY_GENERATOR_SPHERE)
             {
                 var fieldRadius = new MyTerminalControlSlider<MyGravityGeneratorSphere>("Radius", MySpaceTexts.BlockPropertyTitle_GravityFieldRadius, MySpaceTexts.BlockPropertyDescription_GravityFieldRadius);
                 fieldRadius.DefaultValue = DEFAULT_RADIUS;
-                fieldRadius.Getter = (x) => x.m_radius;
+                fieldRadius.Getter = (x) => x.Radius;
                 fieldRadius.Setter = (x, v) =>
                 {
                     if (v < x.BlockDefinition.MinRadius)
@@ -104,7 +107,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 MyTerminalControlFactory.AddControl(fieldRadius);
 
                 var gravityAcceleration = new MyTerminalControlSlider<MyGravityGeneratorSphere>("Gravity", MySpaceTexts.BlockPropertyTitle_GravityAcceleration, MySpaceTexts.BlockPropertyDescription_GravityAcceleration);
-                gravityAcceleration.SetLimits(-MyGravityProviderSystem.G, MyGravityProviderSystem.G);
+                gravityAcceleration.SetLimits((x) => x.BlockDefinition.MinGravityAcceleration, (x) => x.BlockDefinition.MaxGravityAcceleration);
                 gravityAcceleration.DefaultValue = MyGravityProviderSystem.G;
                 gravityAcceleration.Getter = (x) => x.GravityAcceleration;
                 gravityAcceleration.Setter = (x, v) => x.GravityAcceleration =  v;
@@ -119,8 +122,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
             base.Init(objectBuilder, cubeGrid);
 
             var builder = (MyObjectBuilder_GravityGeneratorSphere)objectBuilder;
-            m_radius.Value = builder.Radius;
-            m_gravityAcceleration.Value = builder.GravityAcceleration;
+            Radius = builder.Radius;
+            GravityAcceleration = builder.GravityAcceleration;
 
             m_defaultVolume = (float)(Math.Pow(DEFAULT_RADIUS, BlockDefinition.ConsumptionPower) * Math.PI * 0.75);
 	        
@@ -212,8 +215,19 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return new HkSphereShape(m_radius);
         }
 
-        float ModAPI.Ingame.IMyGravityGeneratorSphere.Radius { get { return m_radius; } }
-        float ModAPI.Ingame.IMyGravityGeneratorSphere.Gravity { get { return GravityAcceleration; } }
+        #region ModAPI
+        float ModAPI.IMyGravityGeneratorSphere.Radius
+        {
+            get { return Radius; }
+            set { Radius = value; }
+        }
+
+        float ModAPI.Ingame.IMyGravityGeneratorSphere.Radius
+        {
+            get { return Radius; }
+            set { Radius = MathHelper.Clamp(value, BlockDefinition.MinRadius, BlockDefinition.MaxRadius); }
+        }
+        #endregion ModAPI
     }
 }
 

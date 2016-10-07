@@ -8,7 +8,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+#if !XB1
 using System.Text.RegularExpressions;
+#endif // !XB1
 using System.Xml.Serialization;
 using VRage;
 using VRage.Game;

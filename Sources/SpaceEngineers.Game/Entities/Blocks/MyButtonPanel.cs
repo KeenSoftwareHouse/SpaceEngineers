@@ -21,6 +21,7 @@ using VRage.Game;
 using VRage.ModAPI;
 using VRage.Network;
 using VRage.Serialization;
+using VRage.Sync;
 using VRageMath;
 
 namespace SpaceEngineers.Game.Entities.Blocks
@@ -60,15 +61,18 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         public MyButtonPanel()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_anyoneCanUse = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
             m_openedToolbars = new List<MyToolbar>();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyButtonPanel>())
                 return;
-
+            base.CreateTerminalControls();
             var checkAccess = new MyTerminalControlCheckbox<MyButtonPanel>("AnyoneCanUse", MySpaceTexts.BlockPropertyText_AnyoneCanUse, MySpaceTexts.BlockPropertyDescription_AnyoneCanUse);
             checkAccess.Getter = (x) => x.AnyoneCanUse;
             checkAccess.Setter = (x, v) => x.AnyoneCanUse = v;

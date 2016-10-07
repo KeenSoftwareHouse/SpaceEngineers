@@ -22,8 +22,8 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.Gui;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using Color = VRageMath.Color;
@@ -37,12 +37,16 @@ namespace Sandbox.Game.Gui
     {
         public static MyGuiScreenHudSpace Static;
 
+        //GR: Trigger recalculation of oxygen after when altitude differs by this amount
+        private const float ALTITUDE_CHANGE_THRESHOLD = 2000;
+
         private MyGuiControlToolbar m_toolbarControl;
         private MyGuiControlBlockInfo m_blockInfo;
         private MyGuiControlRotatingWheel m_rotatingWheelControl;
         private MyGuiControlMultilineText m_cameraInfoMultilineControl;
 
         private MyGuiControlLabel m_buildModeLabel;
+        private MyGuiControlLabel m_blocksLeft;
 
         private MyHudControlChat m_chatControl;
         private MyHudMarkerRender m_markerRender;
@@ -64,6 +68,8 @@ namespace Sandbox.Game.Gui
         private bool m_hiddenToolbar;
 
 		public float m_gravityHudWidth;
+
+        private float m_altitude;
 
         public MyGuiScreenHudSpace()
             : base()
@@ -152,6 +158,14 @@ namespace Sandbox.Game.Gui
                 font: MyFontEnum.White,
                 text: MyTexts.GetString(MyCommonTexts.Hud_BuildMode));
             Controls.Add(m_buildModeLabel);
+
+            m_blocksLeft = new MyGuiControlLabel(
+                position: new Vector2(0.238f, 0.89f),
+                originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_BOTTOM,
+                font: MyFontEnum.White,
+                text: MyHud.BlocksLeft.GetStringBuilder().ToString()
+                );
+            Controls.Add(m_blocksLeft);
 
             m_relayNotification = new MyGuiControlLabel(new Vector2(1, 0), font: MyFontEnum.White, originAlign: MyGuiDrawAlignEnum.HORISONTAL_RIGHT_AND_VERTICAL_TOP);
             m_relayNotification.TextEnum = MyCommonTexts.Multiplayer_IndirectConnection;
@@ -247,6 +261,9 @@ namespace Sandbox.Game.Gui
             {
                 m_buildModeLabel.Visible = MyHud.IsBuildMode;
 
+                m_blocksLeft.Text = MyHud.BlocksLeft.GetStringBuilder().ToString();
+                m_blocksLeft.Visible = MyHud.BlocksLeft.Visible;
+
                 if (MyHud.ShipInfo.Visible)
                     DrawShipInfo(MyHud.ShipInfo);
 
@@ -255,9 +272,24 @@ namespace Sandbox.Game.Gui
 
                 if (MyHud.ObjectiveLine.Visible && MyFakes.ENABLE_OBJECTIVE_LINE)
                     DrawObjectiveLine(MyHud.ObjectiveLine);
+
+                if (MySandboxGame.Config.EnablePerformanceWarnings)
+                {
+                    foreach (var warning in MySimpleProfiler.CurrentWarnings)
+                    {
+                        if (warning.Value.Time < 120)
+                        {
+                            DrawPerformanceWarning();
+                            break;
+                        }
+                    }
+                }
             }
             else
+            {
                 m_buildModeLabel.Visible = false;
+                m_blocksLeft.Visible = false;
+            }
 
             MyHud.BlockInfo.Visible = false;
             m_blockInfo.BlockInfo = null;
@@ -300,8 +332,9 @@ namespace Sandbox.Game.Gui
 
                 //m_chatControl.Visible = !MyHud.MinimalHud;
 
-                DrawCameraInfo(MyHud.CameraInfo);
             }
+                DrawCameraInfo(MyHud.CameraInfo);
+
             ProfilerShort.Begin("Draw netgraph");
             if (MyFakes.ENABLE_NETGRAPH && MyHud.IsNetgraphVisible)
                 DrawNetgraph(MyHud.Netgraph);
@@ -691,6 +724,18 @@ namespace Sandbox.Game.Gui
 			MyFontEnum altitudeFont = MyFontEnum.Blue;
 			var altitudeAlignment = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER;
 			var altitude = distanceToSeaLevel;
+
+            //GR: Not the best place to start pressurization but it just sets a boolean and the Pressurization itself happens on a seperate thread
+            //Do this because the environment oxygen level will not change in the Cubegrid
+            if (Math.Abs(altitude - m_altitude) > ALTITUDE_CHANGE_THRESHOLD)
+            {
+                if (controlledEntity.CubeGrid.GridSystems.GasSystem != null)
+                {
+                    controlledEntity.CubeGrid.GridSystems.GasSystem.Pressurize();
+                    m_altitude = altitude;
+                }
+            }
+
             var altitudeText = new StringBuilder().AppendDecimal(altitude, 0).Append(" m");
 
 			var altitudeVerticalOffset = 0.03f;
@@ -701,7 +746,7 @@ namespace Sandbox.Game.Gui
             if (MyVideoSettingsManager.IsTripleHead())
                 altitudePosition.X -= 1.0f;
 
-			MyGuiManager.DrawString(altitudeFont, altitudeText, altitudePosition, m_textScale, drawAlign: altitudeAlignment, fullscreen: true);
+            MyGuiManager.DrawString(altitudeFont, altitudeText, altitudePosition, m_textScale, drawAlign: altitudeAlignment, useFullClientArea : true);
 
             var planetSurfaceNormal = (controlledEntityCenterOfMass - nearestPlanet.WorldMatrix.Translation);
             planetSurfaceNormal.Normalize();
@@ -954,6 +999,16 @@ namespace Sandbox.Game.Gui
             {
                 ProfilerShort.End();
             }
+        }
+
+        private void DrawPerformanceWarning()
+        {
+            var bgPos = new Vector2(0.01f, 0.3f);
+            bgPos = ConvertHudToNormalizedGuiPosition(ref bgPos);
+            var bg = MyGuiConstants.TEXTURE_HUD_BG_PERFORMANCE;
+            MyGuiManager.DrawSpriteBatch(bg.Texture, bgPos, bg.SizeGui, Color.White, MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
+            StringBuilder sb = new StringBuilder();
+            MyGuiManager.DrawString(MyFontEnum.White, sb.AppendFormat(MyCommonTexts.PerformanceWarningHeading, MyGuiSandbox.GetKeyName(MyControlsSpace.HELP_SCREEN)), bgPos + new Vector2(0.02f, 0f), 1f, drawAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER);
         }
 
         protected override void OnHide()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ParallelTasks;
 
 namespace VRage.Collections
 {
@@ -9,6 +10,7 @@ namespace VRage.Collections
     {
         List<T> m_list = new List<T>();
         HashSet<T> m_hashSet = new HashSet<T>();
+        SpinLockRef m_lock = new SpinLockRef();
 
         /// <summary>
         /// O(1)
@@ -31,12 +33,15 @@ namespace VRage.Collections
         /// </summary>
         public bool Add(T item)
         {
-            if (m_hashSet.Add(item))
+            using (m_lock.Acquire())
             {
-                m_list.Add(item);
-                return true;
+                if (m_hashSet.Add(item))
+                {
+                    m_list.Add(item);
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         /// <summary>
@@ -44,16 +49,19 @@ namespace VRage.Collections
         /// </summary>
         public bool Insert(int index, T item)
         {
-            if (m_hashSet.Add(item))
+            using (m_lock.Acquire())
             {
-                m_list.Insert(index, item);
-                return true;
-            }
-            else
-            {
-                m_list.Remove(item);
-                m_list.Insert(index, item);
-                return false;
+                if (m_hashSet.Add(item))
+                {
+                    m_list.Insert(index, item);
+                    return true;
+                }
+                else
+                {
+                    m_list.Remove(item);
+                    m_list.Insert(index, item);
+                    return false;
+                }
             }
         }
 
@@ -62,12 +70,15 @@ namespace VRage.Collections
         /// </summary>
         public bool Remove(T item)
         {
-            if (m_hashSet.Remove(item))
+            using (m_lock.Acquire())
             {
-                m_list.Remove(item);
-                return true;
+                if (m_hashSet.Remove(item))
+                {
+                    m_list.Remove(item);
+                    return true;
+                }
+                return false;
             }
-            return false;
         }
 
         public void Clear()

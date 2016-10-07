@@ -276,6 +276,12 @@ namespace Sandbox.Game.Multiplayer
             }
         }
 
+        /// <summary>
+        /// WARNING: OLD METHOD. Do not use. use MyDecaySystem now.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="center"></param>
+        /// <param name="radius"></param>
         public static void RemoveFracturedPiecesRequest(ulong userId, Vector3D center, float radius)
         {
             if (Sync.IsServer)

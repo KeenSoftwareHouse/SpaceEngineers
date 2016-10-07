@@ -14,7 +14,7 @@
     <AIBehavior xsi:type="MyObjectBuilder_BehaviorTreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_BehaviorTreeDefinition</TypeId>
-        <SubtypeId>CyberhoundBehavior</SubtypeId>
+        <SubtypeId>WolfBehavior</SubtypeId>
       </Id>
       <FirstNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
         <BTNodes>
@@ -136,11 +136,12 @@
                           <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
                             <BTNodes>
                               <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
-                                <ActionName>GotoTargetNoPathfinding</ActionName>
+                                <!-->ActionName>GotoTargetNoPathfinding</ActionName>
                                 <Parameters>
                                   <Parameter xsi:type="FloatType" FloatValue="1" />
                                   <Parameter xsi:type="BoolType" BoolValue="false" />
-                                </Parameters>
+                                </Parameters-->
+                                <ActionName>GotoTarget</ActionName>
                               </BTNode>
                               <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
                                 <ActionName>PlayAnimation</ActionName>
@@ -190,6 +191,29 @@
           </BTNode>
         </BTNodes>
         <Name>AttackSequence</Name>
+      </FirstNode>
+      <Behavior>Wolf</Behavior>
+    </AIBehavior>
+    <AIBehavior xsi:type="MyObjectBuilder_BehaviorTreeDefinition">
+      <Id>
+        <TypeId>MyObjectBuilder_BehaviorTreeDefinition</TypeId>
+		<SubtypeId>GoToBehavior</SubtypeId>
+      </Id>
+      <FirstNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
+        <BTNodes>
+          <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
+            <BTNodes>
+              <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+                <ActionName>GoToPlayerDefinedTarget</ActionName>
+              </BTNode>
+            </BTNodes>
+            <Name>Sequence</Name>
+          </BTNode>
+          <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
+            <ActionName>Idle</ActionName>
+          </BTNode>
+        </BTNodes>
+        <Name>Selector</Name>
       </FirstNode>
       <Behavior>Cyberhound</Behavior>
     </AIBehavior>
@@ -411,7 +435,12 @@
                                   <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSelectorNode">
                                     <BTNodes>
                                       <BTNode xsi:type="MyObjectBuilder_BehaviorTreeActionNode">
-                                        <ActionName>GotoAndAimTarget</ActionName>
+                                        <!-->ActionName>GotoTargetNoPathfinding</ActionName>
+                                        <Parameters>
+                                          <Parameter xsi:type="FloatType" FloatValue="1" />
+                                          <Parameter xsi:type="BoolType" BoolValue="false" />
+                                        </Parameters-->
+                                        <ActionName>GotoTarget</ActionName>
                                       </BTNode>
                                       <BTNode xsi:type="MyObjectBuilder_BehaviorTreeSequenceNode">
                                         <BTNodes>

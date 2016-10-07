@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities.Interfaces
 {
@@ -17,5 +18,6 @@ namespace Sandbox.Game.Entities.Interfaces
 
         void RequestLock(bool enable);
         void ResetAutolock();
+        IMyEntity GetAttachedEntity();
     }
 }

@@ -13,8 +13,10 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.Gui;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Game.GUI.HudViewers
 {
@@ -346,7 +348,7 @@ namespace Sandbox.Game.GUI.HudViewers
             Rectangle? source = null;
 
             VRageRender.MyRenderProxy.DrawSprite(texture, ref dest, false, ref source, color, 0,
-                new Vector2(1, 0), ref Vector2.Zero, VRageRender.Graphics.SpriteEffects.None, 0);
+                new Vector2(1, 0), ref Vector2.Zero, SpriteEffects.None, 0);
         }
     }
 }

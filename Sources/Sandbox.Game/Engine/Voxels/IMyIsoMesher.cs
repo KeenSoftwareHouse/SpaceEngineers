@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using VRage.Voxels;
 using VRage.Native;
 using VRageMath;
-using VRageRender;
 using System.Diagnostics;
+using VRage.Voxels;
 
 namespace Sandbox.Engine.Voxels
 {
@@ -118,6 +117,6 @@ namespace Sandbox.Engine.Voxels
         int InvalidatedRangeInflate { get; }
 
         MyIsoMesh Precalc(MyIsoMesherArgs args);
-        MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I lodVoxelMin, Vector3I lodVoxelMax, bool generateMaterials, bool useAmbient, bool doNotCheck = false);
+        MyIsoMesh Precalc(IMyStorage storage, int lod, Vector3I lodVoxelMin, Vector3I lodVoxelMax, bool generateMaterials, bool useAmbient, bool doNotCheck = false, bool adviseCache = false);
     }
 }

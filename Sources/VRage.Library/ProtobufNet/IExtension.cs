@@ -1,4 +1,5 @@
-﻿
+﻿#if !XB1 // XB1_NOPROTOBUF
+
 using System.IO;
 namespace ProtoBuf
 {
@@ -45,3 +46,4 @@ namespace ProtoBuf
         int GetLength();
     }
 }
+#endif // !XB1

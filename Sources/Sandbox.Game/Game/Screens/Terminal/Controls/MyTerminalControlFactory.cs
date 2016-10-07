@@ -43,6 +43,7 @@ namespace Sandbox.Game.Gui
         }
 
         static Dictionary<Type, BlockData> m_controls = new Dictionary<Type, BlockData>();
+        static FastResourceLock m_controlsLock = new FastResourceLock();
 
         public static bool AreControlsCreated<TBlock>()
         {
@@ -341,7 +342,10 @@ namespace Sandbox.Game.Gui
         {
             BlockData list = new BlockData();
             var key = type;
-            m_controls[key] = list;
+            using (m_controlsLock.AcquireExclusiveUsing())
+            {
+                m_controls[key] = list;
+            }
             var baseClass = type.BaseType;
             while (baseClass != null)
             {

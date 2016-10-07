@@ -60,10 +60,12 @@ namespace VRage.ModAPI
 
         IMyEntity GetEntity(Func<IMyEntity, bool> match);
         void GetEntities(HashSet<IMyEntity> entities, Func<IMyEntity, bool> collect = null);
-        List<IMyEntity> GetIntersectionWithSphere(ref VRageMath.BoundingSphereD sphere, IMyEntity ignoreEntity0, IMyEntity ignoreEntity1, bool ignoreVoxelMaps, bool volumetricTest);
+        List<IMyEntity> GetIntersectionWithSphere(ref BoundingSphereD sphere, IMyEntity ignoreEntity0, IMyEntity ignoreEntity1, bool ignoreVoxelMaps, bool volumetricTest);
         List<IMyEntity> GetEntitiesInAABB(ref BoundingBoxD boundingBox);
         List<IMyEntity> GetEntitiesInSphere(ref BoundingSphereD boundingSphere);
         List<IMyEntity> GetElementsInBox(ref BoundingBoxD boundingBox);
+        List<IMyEntity> GetTopMostEntitiesInSphere( ref BoundingSphereD boundingSphere);
+        List<IMyEntity> GetTopMostEntitiesInBox(ref BoundingBoxD boundingBox);
 
         // VRAGE TODO: Missing dependencies
         //void OverlapAllLineSegment(ref Line line, IEnumerable<MyLineSegmentOverlapResult<IMyEntity>> resultList);

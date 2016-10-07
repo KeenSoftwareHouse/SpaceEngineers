@@ -35,6 +35,8 @@ namespace Sandbox.Game.WorldEnvironment
 
         public abstract void GetItemDefinition(ushort index, out MyRuntimeEnvironmentItemInfo def);
 
+        public abstract string DebugData { get; }
+
         #region Multiplayer
 
         public abstract void RaiseItemEvent<T>(int logicalItem, ref MyDefinitionId modDef, T eventData, bool fromClient);

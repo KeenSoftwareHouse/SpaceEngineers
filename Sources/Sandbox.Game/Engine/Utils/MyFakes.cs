@@ -96,12 +96,12 @@ namespace Sandbox.Engine.Utils
         public static bool SHOW_INVALID_TRIANGLES = false;
 
         //Sound Myfakes
-        public static bool ENABLE_NEW_SOUNDS = false;
-        public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
+        public static bool ENABLE_NEW_SOUNDS = true;
+        public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = true;
         public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
         public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
         public static bool ENABLE_MUSIC_CONTROLLER = true;
-        public static bool ENABLE_REALISTIC_LIMITER = true;
+        public static bool ENABLE_REALISTIC_LIMITER = false;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;
@@ -111,7 +111,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_COLOR_MASK_FOR_EVERYTHING = false;
 
-        public static bool ENABLE_CHARACTER_AND_DEBRIS_COLLISIONS = false;
+        public static bool ENABLE_CHARACTER_AND_DEBRIS_COLLISIONS = true;
         
         //  When true, every update will contain few miliseconds of delay - use only for testing/debugging
         public static bool SIMULATE_SLOW_UPDATE = false;
@@ -126,8 +126,6 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_CARGO_SHIPS = true;
 
         public static bool ENABLE_METEOR_SHOWERS = true;
-
-        public static bool ENABLE_DX11_RENDERER = true;
 
         public static bool SHOW_INVENTORY_ITEM_IDS = false;
         
@@ -180,7 +178,9 @@ namespace Sandbox.Engine.Utils
         // Landing gear ignore contacts with grid they're attached to
         public static bool LANDING_GEAR_IGNORE_DAMAGE_CONTACTS = true;
 
+#if !XB1 // XB1_NOWORKSHOP
         public static bool ENABLE_WORKSHOP_MODS = true;
+#endif // !XB1
 
         public static bool ENABLE_BATTERY = true;
 
@@ -192,6 +192,9 @@ namespace Sandbox.Engine.Utils
 
         // When enabled replication distance is 100m and sleep time 30 seconds.
         public static bool MULTIPLAYER_REPLICATION_TEST = false;
+        
+        // When enabled, specific asserts in multiplayer code no longer trigger
+        public static bool DISABLE_MULTIPLAYER_ASSERTS = true;
 
         public static bool ENABLE_PISTON = true;
 
@@ -399,8 +402,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool USE_HAVOK_MODELS = false;
 
-        public static bool ENABLE_DEVELOPER_SPECTATOR_CONTROLS = MyFinalBuildConstants.IS_DEBUG;
-
         public static bool LAZY_LOAD_DESTRUCTION = true;
 
         public static bool ENABLE_STANDARD_AXES_ROTATION = false;
@@ -600,7 +601,6 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_INFINARIO = false;
         public static bool SUSPENSION_POWER_RATIO = false;
         public static bool WHEEL_SOFTNESS = false;
-        public static bool ENABLE_SPECTATOR_ROLL_MOVEMENT = true;
         public static bool USE_BICUBIC_HEIGHTMAP_SMOOTHING = true;
         public static bool FORCE_SINGLE_WORKER = false;
         public static bool DISABLE_CLIPBOARD_PLACEMENT_TEST = false;
@@ -626,7 +626,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool SKIP_PISTON_TOP_REMOVAL = true;
         public static bool GRID_IGNORE_VOXEL_OVERLAP = false;
-        public static bool COMPENSATE_SPEED_WITH_SUPPORT = true;
+        public static bool COMPENSATE_SPEED_WITH_SUPPORT = false;
 
         public static bool ENABLE_FRACTURE_PIECE_SHAPE_CHECK = false;
 
@@ -646,13 +646,13 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_MEDIEVAL_FACTIONS = false;
 
-#if XB1_TMP
+#if XB1
         public static bool ENABLE_RUN_WITHOUT_STEAM = true;
 #else
         public static bool ENABLE_RUN_WITHOUT_STEAM = false;
 #endif
 
-        public static bool PRECISE_SIM_SPEED = true;
+        public static bool PRECISE_SIM_SPEED = false;
         public static bool ENABLE_SIMSPEED_LOCKING = false;
 
         public static bool BACKGROUND_OXYGEN = true;
@@ -664,6 +664,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_SMALL_GRID_BLOCK_COMPONENT_INFO = true;
 
         public static bool ENABLE_MEDIEVAL_AREA_INVENTORY = false;
+        public static bool ENABLE_MEDIEVAL_CREATIVE_OWNERSHIP = true;
 
         public static bool ENABLE_BOUNDINGBOX_SHRINKING = true;
 
@@ -702,8 +703,14 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_PRELOAD_DEFINITIONS = true;
         public static bool ENABLE_ME_DOOR_COLLISION_CHECK = true;
 
+		public static bool ENABLE_CESTMIR_PATHFINDING = false;
+#if XB1
+        public static bool XB1_PREVIEW = true;
+#else // !XB1
+        public static bool XB1_PREVIEW = false;
+#endif // !XB1         
         public static bool ENABLE_ROSLYN_SCRIPTS = true;
-
-        public static bool ENABLE_ROSLYN_SCRIPT_DIAGNOSTICS = false;
+        public static bool ENABLE_ROSLYN_SCRIPT_DIAGNOSTICS = false;      
+       
     }
 }

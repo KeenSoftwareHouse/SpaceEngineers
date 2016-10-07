@@ -18,7 +18,6 @@ using Sandbox.Game.GameSystems.Electricity;
 using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
-using Sandbox.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
 using Sandbox.ModAPI.Interfaces;
@@ -30,6 +29,9 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.Sync;
+using Sandbox.ModAPI.Ingame;
+using IMyConveyorSorter = Sandbox.ModAPI.IMyConveyorSorter;
 
 namespace Sandbox.Game.Entities
 {
@@ -80,7 +82,7 @@ namespace Sandbox.Game.Entities
             {
                 return m_drainAll;
             }
-            private set
+            set
             {
                 m_drainAll.Value = value;
             }
@@ -93,6 +95,9 @@ namespace Sandbox.Game.Entities
 
         public MyConveyorSorter()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_drainAll = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_drainAll.ValueChanged += x => DoChangeDrainAll();
@@ -127,11 +132,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyConveyorSorter>())
                 return;
-
+            base.CreateTerminalControls();
             drainAll = new MyTerminalControlOnOffSwitch<MyConveyorSorter>("DrainAll", MySpaceTexts.Terminal_DrainAll);
             drainAll.Getter = (block) => block.DrainAll;
             drainAll.Setter = (block, val) => block.DrainAll = val;
@@ -626,6 +631,35 @@ namespace Sandbox.Game.Entities
             MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 1.0f, newColor, Color.White);
         }
 
+        [Event, Reliable, Server, Broadcast] 
+        void DoSetupFilter(ModAPI.Ingame.MyConveyorSorterMode mode, List<ModAPI.Ingame.MyInventoryItemFilter> items)
+        {
+            IsWhitelist = mode == ModAPI.Ingame.MyConveyorSorterMode.Whitelist;
+            m_inventoryConstraint.Clear();
+            if (items != null)
+            {
+                m_allowCurrentListUpdate = false;
+                try
+                {
+                    foreach (var item in items)
+                    {
+                        if (item.AllSubTypes)
+                            m_inventoryConstraint.AddObjectBuilderType(item.ItemId.TypeId);
+                        else
+                            m_inventoryConstraint.Add(item.ItemId);
+                    }
+                }
+                finally
+                {
+                    m_allowCurrentListUpdate = true;
+                }
+            }
+
+            // Recompute because of new sorter settings
+            CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
+            currentList.UpdateVisual();
+        }
+
         #region IMyInventoryOwner
 
         int IMyInventoryOwner.InventoryCount
@@ -683,5 +717,59 @@ namespace Sandbox.Game.Entities
         }
 
         #endregion
+
+        ModAPI.Ingame.MyConveyorSorterMode ModAPI.Ingame.IMyConveyorSorter.Mode
+        {
+            get { return m_inventoryConstraint.IsWhitelist ? ModAPI.Ingame.MyConveyorSorterMode.Whitelist : ModAPI.Ingame.MyConveyorSorterMode.Blacklist; }
+        }
+
+        void ModAPI.Ingame.IMyConveyorSorter.GetFilterList(List<ModAPI.Ingame.MyInventoryItemFilter> items)
+        {
+            items.Clear();
+            foreach (var item in m_inventoryConstraint.ConstrainedTypes)
+                items.Add(new MyInventoryItemFilter(new MyDefinitionId(item), true));
+            foreach (var item in m_inventoryConstraint.ConstrainedIds)
+                items.Add(new MyInventoryItemFilter(item));
+        }
+
+        void ModAPI.Ingame.IMyConveyorSorter.SetFilter(ModAPI.Ingame.MyConveyorSorterMode mode, List<ModAPI.Ingame.MyInventoryItemFilter> items)
+        {
+            // Update everyone else - except self
+            MyMultiplayer.RaiseEvent(this, x => x.DoSetupFilter, mode, items);
+        }
+
+        void ModAPI.Ingame.IMyConveyorSorter.AddItem(ModAPI.Ingame.MyInventoryItemFilter item)
+        {
+            if (item.AllSubTypes)
+            {
+                byte id;
+                if (!CandidateTypesToId.TryGetValue(item.ItemId.TypeId, out id))
+                {
+                    Debug.Assert(false, "type not in dictionary");
+                    return;
+                }
+                ChangeListType(id, true);
+                return;
+            }
+
+            ChangeListId(item.ItemId, true);
+        }
+
+        void ModAPI.Ingame.IMyConveyorSorter.RemoveItem(ModAPI.Ingame.MyInventoryItemFilter item)
+        {
+            if (item.AllSubTypes)
+            {
+                byte id;
+                if (!CandidateTypesToId.TryGetValue(item.ItemId.TypeId, out id))
+                {
+                    Debug.Assert(false, "type not in dictionary");
+                    return;
+                }
+                ChangeListType(id, true);
+                return;
+            }
+
+            ChangeListId(item.ItemId, true);
+        }
     }
 }

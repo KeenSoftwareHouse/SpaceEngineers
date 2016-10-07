@@ -15,7 +15,6 @@ using Sandbox.Game.World;
 using Sandbox.Graphics;
 using VRage.Input;
 using VRage.Library.Utils;
-using VRage.Voxels;
 using VRageMath;
 using VRageRender;
 using VRage.FileSystem;
@@ -383,6 +382,7 @@ namespace Sandbox.Game.GameSystems
                         MySandboxGame.Log.WriteLine(string.Format("Obtained details: Id={4}; Result={0}; ugcHandle={1}; title='{2}'; tags='{3}'", data.Result, data.FileHandle, data.Title, data.Tags, data.PublishedFileId));
                         if (!ioFailure && data.Result == Result.OK && data.Tags.Length != 0)
                         {
+#if !XB1 // XB1_NOWORKSHOP
                             m_newWorkshopMap.Title = data.Title;
                             m_newWorkshopMap.PublishedFileId = data.PublishedFileId;
                             m_newWorkshopMap.Description = data.Description;
@@ -391,6 +391,9 @@ namespace Sandbox.Game.GameSystems
                             m_newWorkshopMap.TimeUpdated = data.TimeUpdated;
                             m_newWorkshopMap.Tags = data.Tags.Split(',');
                             Static.EndAction += EndActionLoadWorkshop;
+#else // XB1
+                            System.Diagnostics.Debug.Assert(false); // TODO?
+#endif // XB1
                         }
                         else
                         {
@@ -436,6 +439,7 @@ namespace Sandbox.Game.GameSystems
             LoadMission(m_newPath, false, MyOnlineModeEnum.OFFLINE, 1);
         }
 
+#if !XB1 // XB1_NOWORKSHOP
         private static MySteamWorkshop.SubscribedItem m_newWorkshopMap = new MySteamWorkshop.SubscribedItem();
         private static void EndActionLoadWorkshop()
         {
@@ -453,6 +457,7 @@ namespace Sandbox.Game.GameSystems
                                 messageCaption: MyTexts.Get(MyCommonTexts.ScreenCaptionWorkshop)));
             });
         }
+#endif // !XB1
 
         private struct CheckpointData
         {

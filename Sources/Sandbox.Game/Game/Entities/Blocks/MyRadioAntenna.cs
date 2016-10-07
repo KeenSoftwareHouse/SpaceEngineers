@@ -20,6 +20,7 @@ using VRage.Game.Components;
 using VRage.Utils;
 using VRage.ModAPI;
 using VRage.Game.Gui;
+using VRage.Sync;
 
 #endregion
 
@@ -126,17 +127,22 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyRadioAntenna()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_radius = SyncType.CreateAndAddProp<float>();
+            m_enableBroadcasting = SyncType.CreateAndAddProp<bool>();
+            m_showShipName = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_radius.ValueChanged += (obj) => ChangeRadius();
             m_enableBroadcasting.ValueChanged += (obj) => ChangeEnableBroadcast();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyRadioAntenna>())
                 return;
-
+            base.CreateTerminalControls();
             MyTerminalControlFactory.RemoveBaseClass<MyRadioAntenna, MyTerminalBlock>();
 
             var show = new MyTerminalControlOnOffSwitch<MyRadioAntenna>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
@@ -237,7 +243,7 @@ namespace Sandbox.Game.Entities.Cube
 
             ShowOnHUD = false;
 
-            m_gizmoColor = MySandboxGame.IsDirectX11 ? new Vector4(0.2f, 0.2f, 0.0f, 0.5f) : new Vector4(0.1f, 0.1f, 0.0f, 0.1f);
+            m_gizmoColor = new Vector4(0.2f, 0.2f, 0.0f, 0.5f);
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }

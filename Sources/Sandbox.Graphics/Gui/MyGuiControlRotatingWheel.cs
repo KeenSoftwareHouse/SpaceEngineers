@@ -1,5 +1,6 @@
 ﻿using VRage.Utils;
 using VRageMath;
+using VRage.Library;
 
 namespace Sandbox.Graphics.GUI
 {
@@ -80,7 +81,7 @@ namespace Sandbox.Graphics.GUI
         private void UpdateRotation()
         {
             // not using GameTime, because its nort updated sometimes
-            m_rotatingAngle = (System.Environment.TickCount / 1000f) * m_rotationSpeed;
+            m_rotatingAngle = (MyEnvironment.TickCount / 1000f) * m_rotationSpeed;
         }
 
         private void DrawWheel(Vector2 position, float scale, Color color, float rotationAngle, float rotationSpeed)

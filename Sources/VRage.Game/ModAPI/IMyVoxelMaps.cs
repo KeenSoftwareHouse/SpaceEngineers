@@ -14,6 +14,21 @@ namespace VRage.Game.ModAPI
         IMyVoxelBase GetOverlappingWithSphere(ref BoundingSphereD sphere);
         IMyVoxelBase GetVoxelMapWhoseBoundingBoxIntersectsBox(ref BoundingBoxD boundingBox, IMyVoxelBase ignoreVoxelMap);
 
+        /// <summary>
+        /// Gets a list of all voxelmaps that overlap the specified sphere.
+        /// </summary>
+        /// <param name="sphere"></param>
+        /// <returns></returns>
+        void GetAllOverlappingWithSphere(ref BoundingSphereD sphere, List<IMyVoxelBase> voxels);
+
+        /// <summary>
+        /// Gets a list of all voxelmaps that overlap the specified sphere.
+        /// </summary>
+        /// <param name="sphere"></param>
+        /// <returns></returns>
+        /// <remarks>Not thread safe.</remarks>
+        List<IMyVoxelBase> GetAllOverlappingWithSphere(ref BoundingSphereD sphere);
+
         void GetInstances(List<IMyVoxelBase> outInstances, Func<IMyVoxelBase, bool> collect = null);
 
         IMyStorage CreateStorage(Vector3I size);
@@ -77,6 +92,18 @@ namespace VRage.Game.ModAPI
         {
             get;
         }
+
+        /// <summary>
+        /// Creates a crater in a voxel, and deposits the specifid material.
+        /// </summary>
+        /// <param name="voxelMap"></param>
+        /// <param name="sphere"></param>
+        /// <param name="normal"></param>
+        /// <param name="materialIdx"></param>
+        /// <remarks>Not synced.<br/>
+        /// Call <see cref="VRage.ModAPI.IMyVoxelBase.CreateMeteorCrater">IMyVoxelBase.CreateMeteorCrater</see> on the server instead for a synced operation.
+        /// </remarks>
+        void MakeCrater(IMyVoxelBase voxelMap, BoundingSphereD sphere, Vector3 normal, byte materialIdx);
 
     }
 }

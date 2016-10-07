@@ -1,6 +1,5 @@
 ﻿using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.World;
 using System;
@@ -8,12 +7,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using ParallelTasks;
 using VRage;
 using VRage.Collections;
 using VRage.FileSystem;
+using VRage.Profiler;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageMath;
@@ -129,7 +127,10 @@ namespace Sandbox.Engine.Voxels
                 {
                     byte to;
                     if (map.TryGetValue(data[i], out to))
+                    {
                         data[i] = to;
+                        rewrites++;
+                    }
                 }
 
             if (rewrites > 0) this.WriteRange(cache, MyStorageDataTypeFlags.Material, ref minCorner, ref maxCorner);

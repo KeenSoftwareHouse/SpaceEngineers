@@ -56,7 +56,11 @@ namespace Sandbox.Engine.Networking
 
             if (m_currentPart < m_blockCount - 1)
             {
+#if XB1
+                System.Diagnostics.Debug.Assert(false); // No Marshal.Copy on Xbox One
+#else // !XB1
                 Marshal.Copy(m_data, m_currentPart * m_blockSize, dataPtr, m_blockSize);
+#endif // !XB1
                 Peer2Peer.SendPacket(m_sendTo, block, m_blockSize + 1, P2PMessageEnum.Reliable, m_channel);
                 m_currentPart++;
                 return true;
@@ -64,7 +68,11 @@ namespace Sandbox.Engine.Networking
             else if (m_currentPart == m_blockCount - 1)
             {
                 int basePos = m_currentPart * m_blockSize;
+#if XB1
+                System.Diagnostics.Debug.Assert(false); // No Marshal.Copy on Xbox One
+#else // !XB1
                 Marshal.Copy(m_data, basePos, dataPtr, m_dataLength - basePos);
+#endif // !XB1
                 Peer2Peer.SendPacket(m_sendTo, block, m_dataLength - basePos + 1, P2PMessageEnum.Reliable, m_channel);
                 m_currentPart++;
                 return false;

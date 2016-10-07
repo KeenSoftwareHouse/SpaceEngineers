@@ -1,13 +1,19 @@
 ﻿using SharpDX.Direct3D11;
 using System.Diagnostics;
+using VRage.Render11.Resources;
+using VRage.Render11.Tools;
 
 namespace VRageRender
 {
     [PooledObject]
+#if XB1
+    class MyDepthPass : MyRenderingPass, IMyPooledObjectCleaner
+#else // !XB1
     class MyDepthPass : MyRenderingPass
+#endif // !XB1
     {
-        internal DepthStencilView DSV;
-        internal RasterizerState DefaultRasterizer;
+        internal IDsvBindable Dsv;
+        internal IRasterizerState DefaultRasterizer;
 
         internal sealed override void Begin()
         {
@@ -15,13 +21,13 @@ namespace VRageRender
 
             base.Begin();
 
-            RC.SetRS(DefaultRasterizer);
+            RC.SetRasterizerState(DefaultRasterizer);
             
             // Only write depth
-            Context.OutputMerger.SetTargets(DSV, (RenderTargetView)null);
+            RC.SetRtv(Dsv, null);
 
-            RC.SetPS(null);
-            RC.SetDS(null);
+            RC.PixelShader.Set(null);
+            RC.SetDepthStencilState(null);
         }
 
         internal override void End()
@@ -54,12 +60,12 @@ namespace VRageRender
 
             Debug.Assert(proxy.DepthShaders.VS != null);
 
-            RC.BindShaders(proxy.DepthShaders);
+            MyRenderUtils.BindShaderBundle(RC, proxy.DepthShaders);
 
             if ((proxy.Flags & MyRenderableProxyFlags.DisableFaceCulling) > 0)
-                RC.SetRS(MyRender11.m_nocullRasterizerState);
+                RC.SetRasterizerState(MyRasterizerStateManager.NocullRasterizerState);
             else
-                RC.SetRS(DefaultRasterizer);
+                RC.SetRasterizerState(DefaultRasterizer);
 
             var submesh = proxy.DrawSubmesh;
             if (submesh.MaterialId != Locals.matTexturesID && (!((proxy.Flags & MyRenderableProxyFlags.DepthSkipTextures) > 0)))
@@ -68,36 +74,35 @@ namespace VRageRender
 
                 Locals.matTexturesID = submesh.MaterialId;
                 var material = MyMaterials1.ProxyPool.Data[submesh.MaterialId.Index];
-                RC.MoveConstants(ref material.MaterialConstants);
-                RC.SetConstants(ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
-                RC.SetSRVs(ref material.MaterialSRVs);
+                MyRenderUtils.MoveConstants(RC, ref material.MaterialConstants);
+                MyRenderUtils.SetConstants(RC, ref material.MaterialConstants, MyCommon.MATERIAL_SLOT);
+                MyRenderUtils.SetSrvs(RC, ref material.MaterialSrvs);
             }
 
             if (proxy.InstanceCount == 0) 
             {
-                RC.DeviceContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+                RC.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
                 ++Stats.Instances;
-                ++RC.Stats.ShadowDrawIndexed;
+                ++MyStatsUpdater.Passes.DrawShadows;
             }
             else
             {
                 //MyRender11.AddDebugQueueMessage("DepthPass DrawIndexedInstanced " + proxy.Material.ToString());
-                RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
+                RC.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 Stats.Instances += proxy.InstanceCount;
-                ++RC.Stats.ShadowDrawIndexedInstanced;
+                MyStatsUpdater.Passes.DrawShadows++;
             }
         }
 
         protected override void RecordCommandsInternal(ref MyRenderableProxy_2 proxy, int instanceIndex, int sectionIndex)
         {
-            RC.SetSRVs(ref proxy.ObjectSRVs);
-            RC.BindVertexData(ref proxy.VertexData);
+            MyRenderUtils.SetSrvs(RC, ref proxy.ObjectSrvs);
 
             Debug.Assert(proxy.DepthShaders.MultiInstance.VS != null);
 
-            RC.SetRS(DefaultRasterizer);
+            RC.SetRasterizerState(DefaultRasterizer);
 
-            RC.BindShaders(proxy.DepthShaders.MultiInstance);
+            MyRenderUtils.BindShaderBundle(RC, proxy.DepthShaders.MultiInstance); 
 
             SetProxyConstants(ref proxy);
 
@@ -110,10 +115,10 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
-                            RC.DeviceContext.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
+                            RC.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
                             break;
                         case MyDrawCommandEnum.Draw:
-                            RC.DeviceContext.Draw(submesh.Count, submesh.Start);
+                            RC.Draw(submesh.Count, submesh.Start);
                             break;
                         default:
                             break;
@@ -125,10 +130,10 @@ namespace VRageRender
                     {
                         case MyDrawCommandEnum.DrawIndexed:
                             //MyRender11.AddDebugQueueMessage("DepthPass DrawIndexedInstanced " + proxy.VertexData.VB[0].DebugName);
-                            RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
+                            RC.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                             break;
                         case MyDrawCommandEnum.Draw:
-                            RC.DeviceContext.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
+                            RC.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
                             break;
                         default:
                             break;
@@ -137,17 +142,24 @@ namespace VRageRender
             }
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Cleanup();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Cleanup(MyDepthPass renderPass)
         {
             renderPass.Cleanup();
         }
+#endif // !XB1
 
         internal override void Cleanup()
         {
             base.Cleanup();
 
-            DSV = null;
+            Dsv = null;
             DefaultRasterizer = null;
         }
 
@@ -155,7 +167,7 @@ namespace VRageRender
         {
             var renderPass = base.Fork() as MyDepthPass;
 
-            renderPass.DSV = DSV;
+            renderPass.Dsv = Dsv;
             renderPass.DefaultRasterizer = DefaultRasterizer;
 
             return renderPass;

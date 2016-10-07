@@ -79,6 +79,7 @@ namespace VRage.Audio.X3DAudio
             emitter.InnerRadiusAngle = (channelsCount > 2) ? 0.5f * SharpDX.AngleSingle.RightAngle.Radians : 0f;
         }
 
+#if !XB1
         internal static unsafe void SetOutputMatrix(this SourceVoice sourceVoice, Voice destionationVoice, int sourceChannels, int destinationChannels, float* matrix, int operationSet = 0)
         {
 #if UNSHARPER
@@ -90,6 +91,7 @@ namespace VRage.Audio.X3DAudio
             ((SharpDX.Result)result).CheckError();
 #endif
         }
+#endif // !XB1
 
     }
 }

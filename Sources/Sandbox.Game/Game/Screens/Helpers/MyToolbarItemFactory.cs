@@ -18,6 +18,9 @@ using VRage.Game.Definitions;
 using VRage.Game.Definitions.Animation;
 using VRage.Game.ObjectBuilders;
 using VRage.Game.ModAPI.Ingame;
+#if XB1 // XB1_ALLINONEASSEMBLY
+using VRage.Utils;
+#endif // XB1
 
 namespace Sandbox.Game.Screens.Helpers
 {
@@ -35,10 +38,14 @@ namespace Sandbox.Game.Screens.Helpers
         static MyToolbarItemFactory()
         {
             m_objectFactory = new MyObjectFactory<MyToolbarItemDescriptor, MyToolbarItem>();
+#if XB1 // XB1_ALLINONEASSEMBLY
+            m_objectFactory.RegisterFromAssembly(MyAssembly.AllInOneAssembly);
+#else // !XB1
             m_objectFactory.RegisterFromAssembly(Assembly.GetAssembly(typeof(MyToolbarItem)));
             m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
             m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
             m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
+#endif // !XB1
         }
 
         public static MyToolbarItem CreateToolbarItem(MyObjectBuilder_ToolbarItem data)

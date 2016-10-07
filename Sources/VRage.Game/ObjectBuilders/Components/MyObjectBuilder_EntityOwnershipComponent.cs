@@ -11,7 +11,7 @@ namespace VRage.Game.ObjectBuilders.Components
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_EntityOwnershipComponent: MyObjectBuilder_ComponentBase
     {
-        public long OnwerId;
+        public long OwnerId;
 
         public MyOwnershipShareModeEnum ShareMode;
     }

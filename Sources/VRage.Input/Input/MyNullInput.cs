@@ -23,8 +23,12 @@ namespace VRage.Input
         string IMyInput.JoystickInstanceName { get { return ""; } set { } }
 
         void IMyInput.LoadData(SerializableDictionary<string, object> controlsGeneral, SerializableDictionary<string, object> controlsButtons) { }
+#if !XB1
         void IMyInput.LoadContent(IntPtr windowHandle) { }
         IntPtr IMyInput.WindowHandle { get { return IntPtr.Zero; } }
+#else // XB1
+        void IMyInput.LoadContent() { }
+#endif // XB1
         ListReader<char> IMyInput.TextInput { get { return new ListReader<char>(); } }
         void IMyInput.UnloadData() { }
         List<string> IMyInput.EnumerateJoystickNames() { return new List<string>(); }

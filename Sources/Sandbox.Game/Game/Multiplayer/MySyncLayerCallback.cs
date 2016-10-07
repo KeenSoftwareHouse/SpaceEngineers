@@ -1,5 +1,7 @@
 ﻿using VRage.Serialization;
+#if !XB1 // XB1_NOPROTOBUF
 using ProtoBuf.Meta;
+#endif // !XB1
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.World;
 using System;
@@ -59,10 +61,12 @@ namespace Sandbox.Game.Multiplayer
             void Unregister(MySyncLayer layer);
         }
 
+#if !XB1 // XB1_NOPROTOBUF
         class DefaultProtoSerializer<T>
         {
             public static readonly ProtoSerializer<T> Default = new ProtoSerializer<T>(MyObjectBuilderSerializer.Serializer);
         }
+#endif // !XB1
 
         class Registrator<TMsg> : IRegistrator
             where TMsg : struct

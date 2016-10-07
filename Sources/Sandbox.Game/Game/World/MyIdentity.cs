@@ -49,6 +49,11 @@ namespace Sandbox.Game.World
         public bool IsDead { get; private set; }
         public bool FirstSpawnDone { get; private set; }
 
+        public int BlocksBuilt { get; private set; }
+        public int BlockLimitModifier { get; set; }
+        public Dictionary<string, int> BlockTypeBuilt { get; private set; }
+        public Dictionary<MyCubeGrid, int> BlocksBuiltByGrid { get; private set; }
+
         public event Action<MyCharacter, MyCharacter> CharacterChanged;
 
         private MyIdentity(string name, MyEntityIdentifier.ID_OBJECT_TYPE identityType, string model = null)
@@ -67,7 +72,7 @@ namespace Sandbox.Game.World
 
         private MyIdentity(MyObjectBuilder_Identity objectBuilder)
         {
-            Init(objectBuilder.DisplayName, MyEntityIdentifier.FixObsoleteIdentityType(objectBuilder.IdentityId), objectBuilder.Model);
+            Init(objectBuilder.DisplayName, MyEntityIdentifier.FixObsoleteIdentityType(objectBuilder.IdentityId), objectBuilder.Model, objectBuilder.BlockLimitModifier);
             MyEntityIdentifier.MarkIdUsed(IdentityId);
 
             if (objectBuilder.ColorMask.HasValue)
@@ -89,11 +94,12 @@ namespace Sandbox.Game.World
             objectBuilder.CharacterEntityId = Character == null ? 0 : Character.EntityId;
             objectBuilder.Model = Model;
             objectBuilder.ColorMask = ColorMask;
+            objectBuilder.BlockLimitModifier = BlockLimitModifier;
 
             return objectBuilder;
         }
 
-        private void Init(string name, long identityId, string model)
+        private void Init(string name, long identityId, string model, int blockLimitModifier = 0)
         {
             DisplayName = name;
             IdentityId = identityId;
@@ -101,6 +107,9 @@ namespace Sandbox.Game.World
             IsDead = true;
             Model = model;
             ColorMask = null;
+            BlockLimitModifier = blockLimitModifier;
+            BlockTypeBuilt = new Dictionary<string, int>();
+            BlocksBuiltByGrid = new Dictionary<MyCubeGrid, int>();
         }
     
         public void SetColorMask(Vector3 color) 
@@ -198,6 +207,59 @@ namespace Sandbox.Game.World
             m_requests.Clear();
 
         }
-        
+
+        /// <summary>
+        /// Increase the amount of blocks (in general and of particular type) this player has built
+        /// </summary>
+        public void IncreaseBlocksBuilt(string type, MyCubeGrid grid)
+        {
+            BlocksBuilt++;
+            if (type != null)
+            {
+                if (BlockTypeBuilt.ContainsKey(type))
+                    BlockTypeBuilt[type]++;
+                else
+                    BlockTypeBuilt.Add(type, 1);
+            }
+
+            if (grid != null)
+            {
+                if (BlocksBuiltByGrid.ContainsKey(grid))
+                    BlocksBuiltByGrid[grid]++;
+                else
+                    BlocksBuiltByGrid.Add(grid, 1);
+            }
+        }
+
+        /// <summary>
+        /// Decrease the amount of blocks (in general and of particular type) this player has built
+        /// </summary>
+        public void DecreaseBlocksBuilt(string type, MyCubeGrid grid)
+        {
+            BlocksBuilt--;
+            if (type != null)
+            {
+                if (BlockTypeBuilt.ContainsKey(type))
+                    BlockTypeBuilt[type]--;
+                else
+                    Debug.Fail("Trying to remove a block of type this player doesn't own.");
+            }
+
+            if (grid != null)
+            {
+                if (BlocksBuiltByGrid.ContainsKey(grid))
+                {
+                    BlocksBuiltByGrid[grid]--;
+                    if (BlocksBuiltByGrid[grid] == 0)
+                    {
+                        BlocksBuiltByGrid.Remove(grid);
+                    }
+                }
+                else
+                {
+                    Debug.Fail("Trying to remove a block in a grid this player doesn't own.");
+                }
+            }
+        }
     }
 }

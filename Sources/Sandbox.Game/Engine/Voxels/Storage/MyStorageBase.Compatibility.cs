@@ -28,9 +28,15 @@ namespace Sandbox.Engine.Voxels
             cellSize.X = stream.ReadInt32();
             cellSize.Y = stream.ReadInt32();
             cellSize.Z = stream.ReadInt32();
+#if !XB1
             Trace.Assert(cellSize.X == MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS &&
                          cellSize.Y == MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS &&
                          cellSize.Z == MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS);
+#else // XB1
+            System.Diagnostics.Debug.Assert(cellSize.X == MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS &&
+                         cellSize.Y == MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS &&
+                         cellSize.Z == MyVoxelConstants.DATA_CELL_SIZE_IN_VOXELS);
+#endif // XB1
 
             Vector3I cellsCount = tmpSize / cellSize;
 

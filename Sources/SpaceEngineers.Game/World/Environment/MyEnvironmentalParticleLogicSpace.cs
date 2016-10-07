@@ -11,6 +11,7 @@ using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRageMath;
 
 namespace SpaceEngineers.Game.World.Environment

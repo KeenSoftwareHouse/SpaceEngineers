@@ -237,5 +237,27 @@ namespace Sandbox.Game.WorldEnvironment
                     }
             }
         }
+
+        public static unsafe void GetItemsInAabb(this MyEnvironmentSector sector, ref BoundingBoxD aabb, List<int> itemsInBox)
+        {
+            if (sector.DataView == null)
+                return;
+
+            aabb.Translate(-sector.SectorCenter);
+
+            for (int sectorInd = 0; sectorInd < sector.DataView.LogicalSectors.Count; sectorInd++)
+            {
+                var logicalSector = sector.DataView.LogicalSectors[sectorInd];
+                var logicalItems = logicalSector.Items;
+                var cnt = logicalItems.Count;
+
+                fixed (ItemInfo* items = logicalItems.GetInternalArray())
+                    for (int i = 0; i < cnt; ++i)
+                    {
+                        if (items[i].DefinitionIndex >= 0 && aabb.Contains(items[i].Position) != ContainmentType.Disjoint)
+                            itemsInBox.Add(i);
+                    }
+            }
+        }
     }
 }

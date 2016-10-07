@@ -29,6 +29,9 @@ namespace VRage.Utils
         // SHALLOW copy of a directory
         public static void CopyDirectory(string source, string destination)
         {
+#if XB1
+            System.Diagnostics.Debug.Assert(false, "TODO for XB1.");
+#else // !XB1
             if (System.IO.Directory.Exists(source))
             {
                 if (!Directory.Exists(destination))
@@ -45,6 +48,7 @@ namespace VRage.Utils
                     File.Copy(s, destFile, true);
                 }
             }
+#endif // !XB1
         }
 
         // Strips invalid chars in a filename (:, @, /, etc...)

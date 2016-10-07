@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using SharpDX.Win32;
@@ -14,6 +16,7 @@ using Vector2 = VRageMath.Vector2;
 using System.Diagnostics;
 using VRageRender;
 using VRage.Utils;
+using VRageRender.ExternalApp;
 
 namespace Sandbox.Engine.Platform
 {
@@ -267,3 +270,5 @@ namespace Sandbox.Engine.Platform
         }
     }
 }
+
+#endif

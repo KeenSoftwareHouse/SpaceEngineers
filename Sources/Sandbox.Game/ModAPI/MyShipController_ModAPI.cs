@@ -65,5 +65,57 @@ namespace Sandbox.Game.Entities
             var totalMass = CubeGrid.GetCurrentMass(out baseMass, Pilot);
             return new MyShipMass(baseMass, totalMass);
         }
+
+        bool IMyShipController.TryGetPlanetPosition(out Vector3D position)
+        {
+            var blockPosition = this.PositionComp.GetPosition();
+            if (!MyGravityProviderSystem.IsPositionInNaturalGravity(blockPosition))
+            {
+                position = Vector3D.Zero;
+                return false;
+            }
+            var boundingBox = PositionComp.WorldAABB;
+            var nearestPlanet = MyGamePruningStructure.GetClosestPlanet(ref boundingBox);
+            if (nearestPlanet == null)
+            {
+                position = Vector3D.Zero;
+                return false;
+            }
+            position = nearestPlanet.PositionComp.GetPosition();
+            return true;
+        }
+
+        bool IMyShipController.TryGetPlanetElevation(MyPlanetElevation detail, out double elevation)
+        {
+            var blockPosition = this.PositionComp.GetPosition();
+            if (!MyGravityProviderSystem.IsPositionInNaturalGravity(blockPosition))
+            {
+                elevation = double.PositiveInfinity;
+                return false;
+            }            
+            var boundingBox = PositionComp.WorldAABB;
+            var nearestPlanet = MyGamePruningStructure.GetClosestPlanet(ref boundingBox);
+            if (nearestPlanet == null)
+            {
+                elevation = double.PositiveInfinity;
+                return false;
+            }
+
+            switch (detail)
+            {
+                case MyPlanetElevation.Sealevel:
+                    elevation = ((boundingBox.Center - nearestPlanet.PositionComp.GetPosition()).Length() - nearestPlanet.AverageRadius);
+                    return true;
+
+                case MyPlanetElevation.Surface:
+                    var controlledEntityPosition = CubeGrid.Physics.CenterOfMassWorld;
+                    Vector3D closestPoint = nearestPlanet.GetClosestSurfacePointGlobal(ref controlledEntityPosition);
+                    elevation = Vector3D.Distance(closestPoint, controlledEntityPosition);
+                    return true;
+
+                default:
+                    throw new ArgumentOutOfRangeException("detail", detail, null);
+            }
+        }
     }
 }

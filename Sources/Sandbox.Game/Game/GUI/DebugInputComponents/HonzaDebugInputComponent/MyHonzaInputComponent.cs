@@ -96,6 +96,7 @@ namespace Sandbox.Game.Gui
                             if (body == null || body.Layer == MyPhysics.CollisionLayers.NoCollisionLayer)
                                 continue;
                             SelectedEntity = hit.HkHitInfo.GetHitEntity();
+                            break;
                         }
                     }
 
@@ -104,7 +105,12 @@ namespace Sandbox.Game.Gui
         }
         public MyHonzaInputComponent()
         {
+#if !XB1
             m_components = new MyDebugComponent[] { new DefaultComponent(), new PhysicsComponent(), new LiveWatchComponent() };
+#else
+            // HACK: [vicent] third debug component replaced by "dummy one?"
+            m_components = new MyDebugComponent[] { new DefaultComponent(), new PhysicsComponent(), new DefaultComponent() };
+#endif
         }
     }
 }

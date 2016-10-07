@@ -16,6 +16,7 @@ using VRage.ObjectBuilders;
 using System;
 using VRage.Game;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -68,6 +69,7 @@ namespace Sandbox.Game.Entities.Cube
             OnUpgradeValuesChanged += UpdateDetailedInfo;
 
             UpdateDetailedInfo();
+            NeedsUpdate |= VRage.ModAPI.MyEntityUpdateEnum.EACH_100TH_FRAME;
         }       
 
         protected override void OnBeforeInventoryRemovedFromAggregate(Inventory.MyInventoryAggregate aggregate, MyInventoryBase inventory)
@@ -267,11 +269,12 @@ namespace Sandbox.Game.Entities.Cube
                         }
                     }
 
-                    //Changed by Gregory: This assertion happens on last item to be removed when allowing duplicate blueprints. The queue is emptied but with small delay. Synchronization needed?
+                    //GR: This assertion happens on last item to be removed when allowing duplicate blueprints. The queue is emptied but with small delay. Synchronization needed?
                     //Debug.Assert(blueprintsProcessed > 0, "No items in inventory but there are blueprints in the queue!");
                     if (blueprintsProcessed == 0)
                     {
-                        MySandboxGame.Log.WriteLine("MyRefinery.ProcessQueueItems: Inventory empty while there are still blueprints in the queue!");
+                        //GR: For now comment out bcause it spams the log on servers on occasions
+                        //MySandboxGame.Log.WriteLine("MyRefinery.ProcessQueueItems: Inventory empty while there are still blueprints in the queue!");
                         m_queueNeedsRebuild = true;
                         break;
                     }

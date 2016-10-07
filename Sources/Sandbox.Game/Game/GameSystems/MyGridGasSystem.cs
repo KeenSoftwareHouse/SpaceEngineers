@@ -20,6 +20,7 @@ using VRage.Game.Entity;
 using VRage.Generics;
 using VRage.Input;
 using VRage.Library.Utils;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 using VRageRender;
@@ -389,6 +390,7 @@ namespace Sandbox.Game.GameSystems
             if (MyFakes.BACKGROUND_OXYGEN && m_bgTaskRunning)
                 return;//wait
 
+            MySimpleProfiler.Begin("Oxygen");
             if (m_pressurizationPending && !m_doPostProcess)
             {
                 ProfilerShort.Begin("Oxygen Initialize");
@@ -431,6 +433,7 @@ namespace Sandbox.Game.GameSystems
                 m_deletedBlocks.Clear();
                 ProfilerShort.End();
             }
+            MySimpleProfiler.End("Oxygen");
         }
         protected void BackgroundPressurizeStart()
         {   //reading grid in realtime can clash with main thread, but process will be restarted anyway after grid change
@@ -445,6 +448,7 @@ namespace Sandbox.Game.GameSystems
 
         public void UpdateBeforeSimulation100()
         {
+            MySimpleProfiler.Begin("Oxygen");
             int currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             float deltaTime = (currentTime - m_lastUpdateTime) / 1000f;
 
@@ -462,6 +466,7 @@ namespace Sandbox.Game.GameSystems
                     m_cubeGrid.UpdateOxygenAmount(oxygenAmount);
                 }
             }
+            MySimpleProfiler.End("Oxygen");
         }
 
         #region Pressurization
@@ -1155,6 +1160,19 @@ namespace Sandbox.Game.GameSystems
                         return true;
                     }
                 }
+                else if (doorBlock is MyAirtightSlideDoor)
+                {
+                    var hangarDoor = doorBlock as MyAirtightDoorGeneric;
+                    if (hangarDoor.IsFullyClosed)
+                    {
+                        //check only forward for slide door from backgward it should be not accessible (closed door)
+                        if (transformedNormal == Vector3.Forward)
+                        {
+                            ProfilerShort.End();
+                            return true;
+                        }
+                    }
+                }
                 else if (doorBlock is MyAirtightDoorGeneric)
                 {
                     var hangarDoor = doorBlock as MyAirtightDoorGeneric;
@@ -1414,7 +1432,7 @@ namespace Sandbox.Game.GameSystems
                         }
                         if (DEBUG_MODE)
                         {
-                            MyRenderProxy.DebugDrawText3D(worldPos, roomIndex.ToString(), Color.White, 0.5f, false);
+                            MyRenderProxy.DebugDrawText3D(worldPos, roomIndex.ToString()/* + " " + (i + GridMin().X) + " " + (j + GridMin().Y) + " " + (k + GridMin().Z)*/, Color.White, 0.5f, false);
                         }
                     }
 

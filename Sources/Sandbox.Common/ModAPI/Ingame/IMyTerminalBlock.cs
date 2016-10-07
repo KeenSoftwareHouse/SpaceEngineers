@@ -56,6 +56,8 @@ namespace Sandbox.ModAPI.Ingame
             var entity = block as MyEntity;
             if (entity == null)
                 return false;
+            if (!(block is IMyInventoryOwner))
+                return false;
 
             return entity.HasInventory;
         }

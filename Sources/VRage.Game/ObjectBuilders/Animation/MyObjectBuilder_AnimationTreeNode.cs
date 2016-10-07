@@ -72,6 +72,12 @@ namespace VRage.Game.ObjectBuilders
         /// </summary>
         [ProtoMember]
         public bool Interpolate = true;
+
+        /// <summary>
+        /// Synchronize time in this track with the specified layer.
+        /// </summary>
+        [ProtoMember] 
+        public string SynchronizeWithLayer;
     }
 
     /// <summary>

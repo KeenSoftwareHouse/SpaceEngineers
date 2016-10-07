@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRageMath;
 
-namespace VRage
+namespace VRage.Sync
 {
     public static class SyncExtensions
     {
@@ -25,6 +22,7 @@ namespace VRage
             sync.Validate = (value) => false;
         }
 
+#if !XB1
         /// <summary>
         /// Sets validate handler to validate that value is in range.
         /// </summary>
@@ -55,5 +53,6 @@ namespace VRage
                     return value >= b.Min && value <= b.Max;
                 };
         }
+#endif // !XB1
     }
 }

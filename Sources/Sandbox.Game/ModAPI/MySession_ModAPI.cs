@@ -183,6 +183,11 @@ namespace Sandbox.Game.World
             get { return MaxFloatingObjects; }
         }
 
+        short IMySession.MaxBackupSaves
+        {
+            get { return MaxBackupSaves; }
+        }
+
         short IMySession.MaxPlayers
         {
             get { return MaxPlayers; }

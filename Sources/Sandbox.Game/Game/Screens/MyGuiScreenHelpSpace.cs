@@ -10,6 +10,7 @@ using System.Text;
 using VRage;
 using VRage.Game;
 using VRage.Input;
+using VRage.Profiler;
 using VRage.Utils;
 using VRageMath;
 
@@ -73,6 +74,7 @@ namespace Sandbox.Game.Gui
             Advanced,
             Advanced2,
             Spectator,
+            Performance,
             Developer,
             Developer2,
         }
@@ -95,6 +97,7 @@ namespace Sandbox.Game.Gui
             m_pages[(int)HelpPageEnum.Advanced] = new HelpPage();
             m_pages[(int)HelpPageEnum.Advanced2] = new HelpPage();
             m_pages[(int)HelpPageEnum.Spectator] = new HelpPage();
+            m_pages[(int)HelpPageEnum.Performance] = new HelpPage();
             m_pages[(int)HelpPageEnum.Developer] = new HelpPage();
             m_pages[(int)HelpPageEnum.Developer2] = new HelpPage();
 
@@ -102,6 +105,7 @@ namespace Sandbox.Game.Gui
             m_pageTitles[(int)HelpPageEnum.Advanced] = MyTexts.GetString(MyCommonTexts.AdvancedControls);
             m_pageTitles[(int)HelpPageEnum.Advanced2] = MyTexts.GetString(MyCommonTexts.AdvancedControls);
             m_pageTitles[(int)HelpPageEnum.Spectator] = MyTexts.GetString(MyCommonTexts.SpectatorControls);
+            m_pageTitles[(int)HelpPageEnum.Performance] = MyTexts.GetString(MyCommonTexts.PerformanceWarningHelpHeader);
             m_pageTitles[(int)HelpPageEnum.Developer] = "Developer Controls";
             m_pageTitles[(int)HelpPageEnum.Developer2] = "Developer Controls";
 
@@ -109,6 +113,7 @@ namespace Sandbox.Game.Gui
             HelpPage advancedPage = m_pages[(int)HelpPageEnum.Advanced];
             HelpPage advancedPage2 = m_pages[(int)HelpPageEnum.Advanced2];
             HelpPage spectatorPage = m_pages[(int)HelpPageEnum.Spectator];
+            HelpPage performancePage = m_pages[(int)HelpPageEnum.Performance];
             HelpPage developerPage = m_pages[(int)HelpPageEnum.Developer];
             HelpPage developer2Page = m_pages[(int)HelpPageEnum.Developer2];
 
@@ -244,6 +249,25 @@ namespace Sandbox.Game.Gui
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_DELTA));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_FREE));
             spectatorPage.LeftColumn.Add(new ControlWithDescription(MyControlsSpace.SPECTATOR_STATIC));
+
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaBlocks), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaBlocksDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGrid), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGridDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaConveyor), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaConveyorDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGyro), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaGyroDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaOxygen), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaOxygenDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaAI), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaAIDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaScripts), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaScriptsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPhysics), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPhysicsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRender), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRenderDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTextures), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTexturesDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription("", ""));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaClearAndGeometryRender), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaClearAndGeometryRenderDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTransparentPass), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaTransparentPassDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaLights), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaLightsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaShadows), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaShadowsDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRenderFoliage), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaRenderFoliageDescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaSSAO), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaSSAODescription)));
+            performancePage.LeftColumn.Add(new ControlWithDescription(MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPostProcess), MyTexts.GetString(MyCommonTexts.PerformanceWarningAreaPostProcessDescription)));
             
 
             //These keys are to be used just for developers or testing
@@ -298,6 +322,7 @@ namespace Sandbox.Game.Gui
 
 
             }
+
 
             AddProfilerControls(developerPage);
 

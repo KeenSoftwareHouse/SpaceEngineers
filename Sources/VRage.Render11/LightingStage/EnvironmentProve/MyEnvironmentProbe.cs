@@ -4,197 +4,202 @@ using SharpDX.DXGI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Management.Instrumentation;
+using SharpDX.Mathematics.Interop;
+using Valve.VR;
 using VRage;
 using VRage.Library.Utils;
+using VRage.Profiler;
+using VRage.Render11.Common;
+using VRage.Render11.Profiler;
+using VRage.Render11.Resources;
 using VRageMath;
-using VRageRender.Resources;
 using Matrix = VRageMath.Matrix;
 using Vector3 = VRageMath.Vector3;
 
 namespace VRageRender
 {
-    internal struct MyEnvironmentProbe
+    class MyEnvironmentProbe : IManager, IManagerCallback
     {
-        const float ProbePositionOffset = 2;
+        int m_state;
 
-        internal int state;
+        bool m_isInit;
+        MyTimeSpan m_lastUpdateTime;
+        Vector3D m_position;
 
-        internal RwTexId cubemapPrefiltered;
+        internal IUavArrayTexture Cubemap;
+        internal const int CubeMapResolution = MyRenderSettings.EnvMapResolution;
+        IUavArrayTexture m_workCubemap;
+        IUavArrayTexture m_workCubemapPrefiltered;
+        IUavArrayTexture m_prevWorkCubemapPrefiltered;
+        IDepthArrayTexture CubemapDepth;
 
-        internal MyTimeSpan lastUpdateTime;
-        internal float blendWeight;
+        const float MAX_BLEND_TIME_S = 5f;
 
-        internal RwTexId workCubemap;
-        internal RwTexId workCubemapPrefiltered;
-
-        internal RwTexId prevWorkCubemapPrefiltered;
-
-        internal Vector3D position;
-        internal MyTimeSpan blendT0;
-        internal const float MaxBlendTimeS = 5;
-
-        internal static MyEnvironmentProbe Instance = MyEnvironmentProbe.Create();
-        private static RwTexId m_cubemapDepth = RwTexId.NULL;
-
-        internal const int CubeMapResolution = 256;
-
-        internal static MyEnvironmentProbe Create()
+        void AddAllProbes(MyCullQuery cullQuery)
         {
-            var envProbe = new MyEnvironmentProbe();
+            m_position = MyRender11.Environment.Matrices.CameraPosition;
 
-            envProbe.cubemapPrefiltered = RwTexId.NULL;
-            envProbe.workCubemap = RwTexId.NULL;
-            envProbe.workCubemapPrefiltered = RwTexId.NULL;
-            envProbe.prevWorkCubemapPrefiltered = RwTexId.NULL;
-
-            envProbe.lastUpdateTime = MyTimeSpan.Zero;
-            envProbe.state = 0;
-
-            return envProbe;
+            for (int i = 0; i < 6; i++)
+                AddProbe(i, cullQuery);
         }
 
-        internal void ImmediateProbe(MyCullQuery cullQuery)
+        void AddProbe(int nProbe, MyCullQuery cullQuery)
         {
-            // reset
-            state = 0;
+            MyImmediateRC.RC.ClearDsv(CubemapDepth.SubresourceDsv(nProbe), DepthStencilClearFlags.Depth, 1, 0);
+            MyImmediateRC.RC.ClearRtv(m_workCubemap.SubresourceRtv(nProbe), Color4.Black);
 
-            var prevState = state;
-            StepUpdateProbe(cullQuery);
-            while (prevState != state)
-            {
-                prevState = state;
-                StepUpdateProbe(cullQuery);
-            }
+            var localViewProj =
+                PrepareLocalEnvironmentMatrix(MyRender11.Environment.Matrices.CameraPosition - m_position,
+                    new Vector2I(CubeMapResolution, CubeMapResolution), nProbe, MyRender11.Settings.EnvMapDepth);
+            var viewProj = MatrixD.CreateTranslation(-m_position)*localViewProj;
+
+            cullQuery.AddForwardPass(ref localViewProj, ref viewProj,
+                new MyViewport(0, 0, CubeMapResolution, CubeMapResolution), CubemapDepth.SubresourceDsv(nProbe),
+                m_workCubemap.SubresourceRtv(nProbe));
+            cullQuery.FrustumCullQueries[cullQuery.Size - 1].Type = MyFrustumEnum.EnvironmentProbe;
         }
 
-        internal void StepUpdateProbe(MyCullQuery cullQuery)
+        void PostprocessProbe(int nProbe)
         {
-            if (state == 0)
+            var matrix = CubeFaceViewMatrix(Vector3.Zero, nProbe);
+            MyEnvProbeProcessing.RunForwardPostprocess(m_workCubemap.SubresourceRtv(nProbe),
+                CubemapDepth.SubresourceSrv(nProbe), ref matrix, MyAtmosphereRenderer.GetCurrentAtmosphereId());
+        }
+
+        void BlendAllProbes()
+        {
+            float blendWeight =
+                (float) Math.Min((MyRender11.CurrentDrawTime - m_lastUpdateTime).Seconds/MAX_BLEND_TIME_S, 1);
+
+            if (blendWeight < 1)
             {
-                position = MyRender11.Environment.CameraPosition;// +Vector3.UnitY * 4;
+                MyEnvProbeProcessing.Blend(Cubemap, m_prevWorkCubemapPrefiltered, m_workCubemapPrefiltered, blendWeight);
             }
-
-            if (state < 6)
+            else if (blendWeight == 1)
             {
-                int faceId = state;
-                MyImmediateRC.RC.DeviceContext.ClearDepthStencilView(m_cubemapDepth.SubresourceDsv(faceId), DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, 1, 0);
-                MyImmediateRC.RC.DeviceContext.ClearRenderTargetView(workCubemap.SubresourceRtv(faceId), new Color4(0, 0, 0, 0));
-
-                var localViewProj = PrepareLocalEnvironmentMatrix(MyRender11.Environment.CameraPosition - position, new Vector2I(CubeMapResolution, CubeMapResolution), faceId, 10000.0f);
-                var viewProj = MatrixD.CreateTranslation(-position) * localViewProj;
-
-                cullQuery.AddForwardPass(ref localViewProj, ref viewProj, new MyViewport(0, 0, CubeMapResolution, CubeMapResolution), m_cubemapDepth.SubresourceDsv(faceId), workCubemap.SubresourceRtv(faceId));
-
-                ++state;
-                return;
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource, m_prevWorkCubemapPrefiltered.Resource);
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource, Cubemap.Resource);
             }
         }
 
-        internal void ImmediateFiltering()
-        {
-            Debug.Assert(state == 6);
-
-            var prevState = state;
-            StepUpdateFiltering();
-            while (prevState != state)
-            {
-                prevState = state;
-                StepUpdateFiltering();
-            }
-
-            UpdateBlending();
-        }
-
-        internal void StepUpdateFiltering()
-        {
-            if (6 <= state && state < 12)
-            {
-                int faceId = state - 6;
-                var matrix = CubeFaceViewMatrix(Vector3.Zero, faceId);
-                MyEnvProbeProcessing.RunForwardPostprocess(workCubemap.SubresourceRtv(faceId), m_cubemapDepth.SubresourceSrv(faceId), ref matrix, MyAtmosphereRenderer.GetCurrentAtmosphereId());
-                MyEnvProbeProcessing.BuildMipmaps(workCubemap);
-                MyEnvProbeProcessing.Prefilter(workCubemap, workCubemapPrefiltered);
-
-
-                ++state;
-
-                if (state == 12)
-                {
-                    blendT0 = MyRender11.CurrentDrawTime;
-                }
-
-                return;
-            }
-        }
-
-        internal void UpdateBlending()
-        {
-            if (state == 12 && blendWeight < 1)
-            {
-                blendWeight = (float)Math.Min((MyRender11.CurrentDrawTime - blendT0).Seconds / MaxBlendTimeS, 1);
-
-                MyEnvProbeProcessing.Blend(cubemapPrefiltered, prevWorkCubemapPrefiltered, workCubemapPrefiltered, blendWeight);
-                Instance.lastUpdateTime = MyRender11.CurrentDrawTime;
-            }
-
-            if (state == 12 && blendWeight == 1)
-            {
-                state = 0;
-                MyImmediateRC.RC.DeviceContext.CopyResource(workCubemapPrefiltered.Resource, prevWorkCubemapPrefiltered.Resource);
-                blendWeight = 0;
-            }
-
-            //    Texture2D.ToFile(MyImmediateRC.RC.Context, workCubemap.Resource, ImageFileFormat.Dds, "c:\\environment.dds");
-        }
-
-        internal static void UpdateEnvironmentProbes(MyCullQuery cullQuery)
+        internal void UpdateCullQuery(MyCullQuery cullQuery)
         {
             if (MyRender11.IsIntelBrokenCubemapsWorkaround)
                 return;
 
-            if (m_cubemapDepth == RwTexId.NULL)
+            if (m_isInit == false)
             {
-                m_cubemapDepth = MyRwTextures.CreateShadowmapArray(MyEnvironmentProbe.CubeMapResolution, MyEnvironmentProbe.CubeMapResolution, 6, Format.R24G8_Typeless, Format.D24_UNorm_S8_UInt, Format.R24_UNorm_X8_Typeless);
-            }
+                m_isInit = true;
 
-            if (Instance.cubemapPrefiltered == RwTexId.NULL)
-            {
-                Instance.cubemapPrefiltered = MyRwTextures.CreateCubemap(MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, "Environment Prefiltered Probe");
+                // compute mipmapLevels
+                int mipmapLevels = 0;
+                for (int tmp = MyEnvironmentProbe.CubeMapResolution; tmp != 1;)
+                {
+                    mipmapLevels++;
+                    tmp = tmp/2 + tmp%2;
+                }
 
-                Instance.workCubemap = MyRwTextures.CreateCubemap(MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, "Environment Probe");
-                Instance.workCubemapPrefiltered = MyRwTextures.CreateCubemap(MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, "Environment Prefiltered Probe");
+                MyArrayTextureManager texManager = MyManagers.ArrayTextures;
+                Cubemap = texManager.CreateUavCube("MyEnvironmentProbe.CubemapPrefiltered",
+                    MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, mipmapLevels);
+                m_workCubemap = texManager.CreateUavCube("MyEnvironmentProbe.WorkCubemap",
+                    MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, mipmapLevels);
+                m_workCubemapPrefiltered = texManager.CreateUavCube(
+                    "MyEnvironmentProbe.WorkCubemapPrefiltered", MyEnvironmentProbe.CubeMapResolution,
+                    Format.R16G16B16A16_Float, mipmapLevels);
+                m_prevWorkCubemapPrefiltered =
+                    texManager.CreateUavCube("MyEnvironmentProbe.PrevWorkCubemapPrefiltered",
+                        MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, mipmapLevels);
+                CubemapDepth = MyManagers.ArrayTextures.CreateDepthCube("MyEnvironmentProbe.CubemapDepth",
+                    MyEnvironmentProbe.CubeMapResolution, Format.R24G8_Typeless, Format.R24_UNorm_X8_Typeless,
+                    Format.D24_UNorm_S8_UInt);
 
-                Instance.prevWorkCubemapPrefiltered = MyRwTextures.CreateCubemap(MyEnvironmentProbe.CubeMapResolution, Format.R16G16B16A16_Float, "Environment Prefiltered Probe");
+                m_lastUpdateTime = MyTimeSpan.Zero;
+                m_state = 0;
 
-                Instance.ImmediateProbe(cullQuery);
+                AddAllProbes(cullQuery);
             }
             else
             {
-                Instance.StepUpdateProbe(cullQuery);
+                if (m_lastUpdateTime == MyTimeSpan.Zero)
+                    AddAllProbes(cullQuery);
+                else
+                {
+                    if (m_state == 0)
+                        m_position = MyRender11.Environment.Matrices.CameraPosition;
+                    if (m_state < 6)
+                        AddProbe(m_state, cullQuery);
+                }
             }
         }
 
-        internal static void FinalizeEnvProbes()
+        internal void FinalizeEnvProbes()
         {
             if (MyRender11.IsIntelBrokenCubemapsWorkaround)
                 return;
 
             ProfilerShort.Begin("FinalizeEnvProbes");
-
-            if (Instance.lastUpdateTime == MyTimeSpan.Zero)
+            MyGpuProfiler.IC_BeginBlock("FinalizeEnvProbes");
+            if (m_lastUpdateTime == MyTimeSpan.Zero)
             {
-                Instance.ImmediateFiltering();
-                MyImmediateRC.RC.DeviceContext.CopyResource(Instance.workCubemapPrefiltered.Resource, Instance.prevWorkCubemapPrefiltered.Resource);
+                for (int i = 0; i < 6; i++)
+                    PostprocessProbe(i);
+
+                MyGpuProfiler.IC_BeginBlock("BuildMipmaps");
+                MyEnvProbeProcessing.BuildMipmaps(m_workCubemap);
+                MyGpuProfiler.IC_EndBlock();
+
+                MyGpuProfiler.IC_BeginBlock("Prefilter");
+                MyEnvProbeProcessing.Prefilter(m_workCubemap, m_workCubemapPrefiltered);
+                MyGpuProfiler.IC_EndBlock();
+
+                MyGpuProfiler.IC_BeginBlock("CopyResource");
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource,
+                    m_prevWorkCubemapPrefiltered.Resource);
+                MyImmediateRC.RC.CopyResource(m_workCubemapPrefiltered.Resource, Cubemap.Resource);
+                MyGpuProfiler.IC_EndBlock();
+
+                m_lastUpdateTime = MyRender11.CurrentDrawTime;
             }
             else
             {
-                Instance.StepUpdateFiltering();
-                Instance.UpdateBlending();
+                if (m_state >= 6 && m_state < 12)
+                    PostprocessProbe(m_state - 6);
+                else if (m_state >= 12)
+                {
+                    MyGpuProfiler.IC_BeginBlock("BlendAllProbes");
+                    BlendAllProbes();
+                    MyGpuProfiler.IC_EndBlock();
+                }
+
+                if (m_state == 12)
+                {
+                    MyGpuProfiler.IC_BeginBlock("BuildMipmaps");
+                    m_lastUpdateTime = MyRender11.CurrentDrawTime;
+                    // whole cubemap is rendered and postprocessed, we can use it
+                    MyEnvProbeProcessing.BuildMipmaps(m_workCubemap);
+                    MyGpuProfiler.IC_EndBlock();
+
+                    MyGpuProfiler.IC_BeginBlock("Prefilter");
+                    MyEnvProbeProcessing.Prefilter(m_workCubemap, m_workCubemapPrefiltered);
+                    MyGpuProfiler.IC_EndBlock();
+                }
+
+                m_state++;
+                MyTimeSpan timeForNextCubemap = m_lastUpdateTime +
+                                                MyTimeSpan.FromSeconds(MyEnvironmentProbe.MAX_BLEND_TIME_S);
+                if (m_state > 12 && MyRender11.CurrentDrawTime > timeForNextCubemap)
+                {
+                    m_state = 0; // Time is up, we need to render another environment map
+                }
+
             }
+            MyGpuProfiler.IC_EndBlock();
             ProfilerShort.End();
         }
 
-        internal static Matrix CubeFaceViewMatrix(Vector3 pos, int faceId)
+        static Matrix CubeFaceViewMatrix(Vector3 pos, int faceId)
         {
             Matrix viewMatrix = Matrix.Identity;
             switch (faceId)
@@ -222,11 +227,21 @@ namespace VRageRender
             return viewMatrix;
         }
 
-        internal static Matrix PrepareLocalEnvironmentMatrix(Vector3 pos, Vector2I resolution, int faceId, float farPlane)
+        static Matrix PrepareLocalEnvironmentMatrix(Vector3 pos, Vector2I resolution, int faceId, float farPlane)
         {
-            var projection = Matrix.CreatePerspectiveFieldOfView((float)Math.PI * 0.5f, 1, 0.1f, farPlane);
+            var projection = Matrix.CreatePerspectiveFieldOfView((float) Math.PI*0.5f, 1, 0.1f, farPlane);
             Matrix viewMatrix = CubeFaceViewMatrix(pos, faceId);
-            return viewMatrix * projection;
+            return viewMatrix*projection;
+        }
+
+        void IManagerCallback.OnUnloadData()
+        {
+            m_lastUpdateTime = MyTimeSpan.Zero;
+        }
+
+        void IManagerCallback.OnFrameEnd()
+        {
+            
         }
     }
 }

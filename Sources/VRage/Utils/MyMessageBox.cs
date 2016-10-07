@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !XB1
+using System;
 
 namespace VRage.Utils
 {
@@ -18,3 +19,4 @@ namespace VRage.Utils
         }
     }
 }
+#endif // !XB1

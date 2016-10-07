@@ -20,6 +20,7 @@ using VRage.Library.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.Game;
+using VRage.Profiler;
 
 namespace Sandbox.Game.World
 {

@@ -15,7 +15,9 @@ using VRage;
 using Sandbox.Engine.Networking;
 using PlayerId = Sandbox.Game.World.MyPlayer.PlayerId;
 using System.Threading;
+#if !XB
 using System.Text.RegularExpressions;
+#endif // !XB1
 using Sandbox.Game.Localization;
 using VRage;
 
@@ -473,7 +475,11 @@ namespace Sandbox.Game.Gui
         string m_clipboardText;
         void PasteFromClipboard()
         {
+#if !XB1            
             m_clipboardText = System.Windows.Forms.Clipboard.GetText();
+#else
+            System.Diagnostics.Debug.Assert(false, "Not Clipboard support on XB1!");
+#endif
         }
         private void OnButtonPressedNewFromClipboard(MyGuiControlButton sender)
         {

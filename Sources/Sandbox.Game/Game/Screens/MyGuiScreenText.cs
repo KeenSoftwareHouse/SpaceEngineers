@@ -16,7 +16,6 @@ using Sandbox.Game.World;
 using Sandbox.Gui.RichTextLabel;
 using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
-using Sandbox.Graphics.Render;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System;

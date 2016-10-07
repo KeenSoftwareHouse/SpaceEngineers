@@ -1,20 +1,14 @@
-﻿using Sandbox.Engine.Multiplayer;
-using Sandbox.Engine.Voxels;
+﻿using Sandbox.Engine.Voxels;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
-using Sandbox.Game.Multiplayer;
-using Sandbox.Game.Replication;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using VRage;
 using VRage.Game.Entity;
 using VRage.Library.Collections;
 using VRage.Network;
 using VRage.ObjectBuilders;
-using VRage.Replication;
 using VRage.Voxels;
 using VRageMath;
 
@@ -28,7 +22,7 @@ namespace Sandbox.Game.Replication
 
         public MyVoxelBase Voxel { get { return Instance; } }
 
-        public override float GetPriority(MyClientInfo client)
+        public override float GetPriority(MyClientInfo client,bool cached)
         {
             if(Voxel == null || Voxel.Storage == null || Voxel.Closed)
             {
@@ -42,7 +36,24 @@ namespace Sandbox.Game.Replication
             {
                 return 0.0f;
             }
-            return GetBasePriority(Voxel.PositionComp.GetPosition(), Voxel.Storage.Size * MyVoxelConstants.VOXEL_SIZE_IN_METRES, client);
+
+            ulong clientEndpoint = client.EndpointId.Value;
+            if (cached)
+            {
+
+                if (m_cachedPriorityForClient != null && m_cachedPriorityForClient.ContainsKey(clientEndpoint))
+                {
+                    return m_cachedPriorityForClient[clientEndpoint];
+                }
+            }
+
+            if (m_cachedPriorityForClient == null)
+            {
+                m_cachedPriorityForClient = new Dictionary<ulong, float>();
+            }
+            m_cachedPriorityForClient[clientEndpoint] = GetBasePriority(Voxel.PositionComp.GetPosition(), Voxel.Storage.Size * MyVoxelConstants.VOXEL_SIZE_IN_METRES, client);
+          
+            return m_cachedPriorityForClient[clientEndpoint];
         }
 
         public override bool OnSave(BitStream stream)

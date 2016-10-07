@@ -6,11 +6,14 @@ using System.Text;
 namespace VRageRender
 {
     [PooledObject(poolPreallocationSize: 8)]
+#if XB1
+    class MyRenderLod : IMyPooledObjectCleaner
+#else // !XB1
     class MyRenderLod
+#endif // !XB1
     {
         internal MyRenderableProxy[] RenderableProxies;
         internal UInt64[] SortingKeys;
-        internal MyMaterialShadersBundleId[] HighlightShaders;
 
         internal VertexLayoutId VertexLayout1;
         internal MyShaderUnifiedFlags VertexShaderFlags;
@@ -50,17 +53,23 @@ namespace VRageRender
             }
         }
 
+#if XB1
+        public void ObjectCleaner()
+        {
+            Clear();
+        }
+#else // !XB1
         [PooledObjectCleaner]
         public static void Clear(MyRenderLod renderLod)
         {
             renderLod.Clear();
         }
+#endif // !XB1
 
         internal void Clear()
         {
             DeallocateProxies();
             SortingKeys = null;
-            HighlightShaders = null;
             VertexLayout1 = VertexLayoutId.NULL;
             VertexShaderFlags = MyShaderUnifiedFlags.NONE;
             Distance = float.MinValue;

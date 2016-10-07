@@ -17,6 +17,7 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ModAPI;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -99,6 +100,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
         public MySpaceBall()
             : base()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_friction = SyncType.CreateAndAddProp<float>();
+            m_virtualMass = SyncType.CreateAndAddProp<float>();
+            m_restitution = SyncType.CreateAndAddProp<float>();
+            m_broadcastSync = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_baseIdleSound.Init("BlockArtMass");
@@ -106,11 +113,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_broadcastSync.ValueChanged += (x) => BroadcastChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySpaceBall>())
                 return;
-
+            base.CreateTerminalControls();
             MyTerminalControlFactory.RemoveBaseClass<MySpaceBall, MyTerminalBlock>();
 
             var mass = new MyTerminalControlSlider<MySpaceBall>("VirtualMass", MySpaceTexts.BlockPropertyDescription_SpaceBallVirtualMass, MySpaceTexts.BlockPropertyDescription_SpaceBallVirtualMass);

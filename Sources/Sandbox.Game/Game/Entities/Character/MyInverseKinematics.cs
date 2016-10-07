@@ -7,13 +7,17 @@ using Sandbox.Game.Entities.Character;
 using Sandbox.Engine.Utils;
 using Havok;
 using Sandbox.Engine.Physics;
-using VRage.Animations;
+using VRageRender.Animations;
 using VRage.Game.Entity;
 using VRage.Utils;
 
 
 namespace Sandbox.Game.Entities.Character
 {
+    /// <summary>
+    /// OBSOLETE CLASS, DO NOT USE IT, PREFER MyAnimationInverseKinematics from VRage.
+    /// </summary>
+    [Obsolete]
     public static class MyInverseKinematics
     {
         public struct CastHit

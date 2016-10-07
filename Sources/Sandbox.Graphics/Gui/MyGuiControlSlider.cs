@@ -38,8 +38,13 @@ namespace Sandbox.Graphics.GUI
             set
             {
                 if (value.HasValue)
+                {
                     DefaultRatio = ValueToRatio(value.Value);
-                DefaultRatio = default(float?);
+                }
+                else
+                {
+                    DefaultRatio = default(float?);
+                }
             }
         }
 

@@ -40,51 +40,6 @@ namespace Sandbox.Engine.Voxels
         public int SizeLinear { get { return (maxInLod - minInLod + Vector3I.One).Size; } }
     }
 
-    [Flags]
-    /**
-     * Flags used when requesting voxel materials and content.
-     * 
-     * These flags allow for optimizations such as avoiding
-     * expensive material computations or quickly assigning the
-     * whole storage the same material or content.
-     * 
-     */
-    public enum MyVoxelRequestFlags
-    {
-        // Materials are assigned only to surface (convention now is materials to be filled are 0, rest is left null (255)
-        SurfaceMaterial = 1 << 0,
-
-        // Assign material according to content, i.e. null where empty
-        ConsiderContent = 1 << 1,
-
-        // Content carries occlusion hint (not used anymore)
-        //OcclusionHint = 1 << 2,
-
-        // Content is empty, materials are unassigned
-        EmptyContent = 1 << 3,
-
-        // Content is full
-        FullContent = 1 << 4,
-
-        // The whole assigned storage area contains a single material, the material is on the first cell
-        OneMaterial = 1 << 5,
-
-        // cache storage chunks, this only works for lod0
-        AdviseCache = 1 << 6,
-
-        // Storages that *do* support content hints will mark this, this is also the flag they should check when doing
-        // this optimization.
-        ContentChecked = 1 << 7,
-
-        // When the content is empty or full this flag tells that the content is empty or full at all lower lod levels.
-        ContentCheckedDeep = 1 << 8,
-
-        // Do not check for containment beforehand, assume the caller expects content
-        DoNotCheck = 1<<16,
-
-        RequestFlags = ConsiderContent | SurfaceMaterial
-    }
-
     public static class MyVoxelrequestFlagsExtensions
     {
         public static bool HasFlags(this MyVoxelRequestFlags self, MyVoxelRequestFlags other)

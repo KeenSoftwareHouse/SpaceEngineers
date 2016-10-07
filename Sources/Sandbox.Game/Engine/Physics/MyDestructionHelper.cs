@@ -19,9 +19,11 @@ using VRage.ModAPI;
 using VRageMath;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Engine.Multiplayer;
+using Sandbox.Game.Replication;
 using VRage.Game;
 using VRage.Utils;
 using VRage.Game.Entity;
+using VRage.Profiler;
 
 namespace Sandbox.Engine.Physics
 {
@@ -147,7 +149,8 @@ namespace Sandbox.Engine.Physics
                 fracturedPiece.DebugCheckValidShapes();
 
             ProfilerShort.Begin("MyEntities.Add");
-            MyEntities.RaiseEntityCreated(fracturedPiece);
+            if (MyExternalReplicable.FindByObject(fracturedPiece) == null)
+                MyEntities.RaiseEntityCreated(fracturedPiece);
             MyEntities.Add(fracturedPiece);
             ProfilerShort.End();
 
@@ -272,7 +275,8 @@ namespace Sandbox.Engine.Physics
                 fracturedPiece.DebugCheckValidShapes();
 
             ProfilerShort.Begin("MyEntities.Add");
-            MyEntities.RaiseEntityCreated(fracturedPiece);
+            if (MyExternalReplicable.FindByObject(fracturedPiece) == null)
+                MyEntities.RaiseEntityCreated(fracturedPiece);
             MyEntities.Add(fracturedPiece);
             ProfilerShort.End();
 
@@ -296,7 +300,8 @@ namespace Sandbox.Engine.Physics
                 fp.DebugCheckValidShapes();
 
             ProfilerShort.Begin("MyEntities.Add");
-            MyEntities.RaiseEntityCreated(fp);
+            if (MyExternalReplicable.FindByObject(fp) == null)
+                MyEntities.RaiseEntityCreated(fp);
             MyEntities.Add(fp);
             ProfilerShort.End();
 
@@ -329,7 +334,8 @@ namespace Sandbox.Engine.Physics
                 fp.Physics.MaterialType = def.PhysicalMaterial.Id.SubtypeId;
 
             ProfilerShort.Begin("MyEntities.Add");
-            MyEntities.RaiseEntityCreated(fp);
+            if (MyExternalReplicable.FindByObject(fp) == null)
+                MyEntities.RaiseEntityCreated(fp);
             MyEntities.Add(fp);
             ProfilerShort.End();
 

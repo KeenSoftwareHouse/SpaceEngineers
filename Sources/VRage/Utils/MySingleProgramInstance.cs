@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#if !XB1
+using System.Reflection;
 using System.Threading;
 
 //  Single Process Instance Object
@@ -98,3 +99,4 @@ namespace VRage.Utils
         }
     }
 }
+#endif // !XB1

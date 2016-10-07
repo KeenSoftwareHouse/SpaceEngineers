@@ -1,6 +1,8 @@
-﻿using Sandbox.Common;
+﻿#if !XB1
+using Sandbox.Common;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Audio;
+using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Replication;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
@@ -179,6 +181,10 @@ namespace Sandbox.Game.Gui
                     m_texts.Add(StringBuilderCache.Append("Playing music category: " + MyMusicController.Static.CategoryPlaying.ToString()));
             }
 
+            if (MyPerGameSettings.UseReverbEffect)
+            {
+                m_texts.Add(StringBuilderCache.Append("Current reverb effect: " + MyEntityReverbDetectorComponent.CurrentReverbPreset.ToLower()));
+            }
             var tmp = StringBuilderCache;
             MyAudio.Static.WriteDebugInfo(tmp);
             m_texts.Add(tmp);
@@ -208,7 +214,6 @@ namespace Sandbox.Game.Gui
             }
 
             ClearFrameDebugText();
-            AddPerformanceCountersToFrameDebugText();
             
 #if DEBUG
             //list of last played sounds
@@ -253,63 +258,6 @@ namespace Sandbox.Game.Gui
             m_texts.Add(text);
         }
 
-        //  Show only draw/rendering statistics, because these counts are reseted in a Draw call
-        internal void AddPerformanceCountersToFrameDebugText()
-        {
-            AddDebugTextRA("MyPerformanceCounter");
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   RenderCellsInFrustum_LOD0: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.RenderCellsInFrustum_LOD0));
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   RenderCellsInFrustum_LOD1: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.RenderCellsInFrustum_LOD1));
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   VoxelTrianglesInFrustum_LOD0: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.VoxelTrianglesInFrustum_LOD0));
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   VoxelTrianglesInFrustum_LOD1: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.VoxelTrianglesInFrustum_LOD1));
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   Entities rendered: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.EntitiesRendered));
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   Entities occluded: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.EntitiesOccluded));
-            AddDebugTextRA(StringBuilderCache.GetFormatedInt("   Drawcalls: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.TotalDrawCalls));
-            //debugScreen.AddDebugTextRA(StringBuilderCache.GetFormatedInt("   Shadow entities occluded: ", ShadowEntitiesOccluded));
-            //debugScreen.AddDebugTextRA(GetShadowText("  Shadow entities occluded:", ShadowEntitiesOccluded));
-
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   Queries count: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.QueriesCount));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   ModelTrianglesInFrustum_LOD0: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.ModelTrianglesInFrustum_LOD0));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   ModelTrianglesInFrustum_LOD1: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.ModelTrianglesInFrustum_LOD1));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   DecalsForVoxelsInFrustum: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.DecalsForVoxelsInFrustum));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   DecalsForEntitiesInFrustum: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.DecalsForEntitiesInFrustum));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   DecalsForCockipGlassInFrustum: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.DecalsForCockipGlassInFrustum));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   BillboardsInFrustum: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.BillboardsInFrustum));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   BillboardsDrawCalls: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.BillboardsDrawCalls));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   BillboardsSorted: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.BillboardsSorted));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   OldParticlesInFrustum: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.OldParticlesInFrustum));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   ParticleEffects total: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.ParticleEffectsTotal));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   ParticleEffects drawn: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.ParticleEffectsDrawn));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   NewParticles count: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.NewParticlesCount));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   Lights count: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.LightsCount));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   RenderElementsInFrustum: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.RenderElementsInFrustum));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   RenderElementsIBChanges: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.RenderElementsIBChanges));
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   RenderElementsInShadows: ", VRageRender.MyPerformanceCounter.PerCameraDrawRead.RenderElementsInShadows));
-
-            for (int i = 0; i < VRageRender.MyPerformanceCounter.PerCameraDrawRead.ShadowDrawCalls.Length - 1; i++)
-            {
-                AddDebugTextRA(GetShadowText("   ShadowDrawCalls", i, VRageRender.MyPerformanceCounter.PerCameraDrawRead.ShadowDrawCalls[i]));
-            }
-            AddDebugTextRA(MyGuiScreenDebugStatistics.StringBuilderCache.GetFormatedInt("   ShadowDrawCalls (other):", VRageRender.MyPerformanceCounter.PerCameraDrawRead.ShadowDrawCalls[VRageRender.MyPerformanceCounter.PerCameraDrawRead.ShadowDrawCalls.Length - 1]));
-
-            AddDebugTextRA("Render states");
-            for (int i = 0; i < VRageRender.MyPerformanceCounter.PerCameraDrawRead.MaterialChanges.Length; i++)
-            {
-                int lodNum;
-                var lod = (MyLodTypeEnum)i;
-                if (lod == MyLodTypeEnum.LOD0)
-                    lodNum = 0;
-                else if (lod == MyLodTypeEnum.LOD1)
-                    lodNum = 1;
-                else
-                    continue;
-
-                AddDebugTextRA(GetLodText("   MaterialChanges", lodNum, VRageRender.MyPerformanceCounter.PerCameraDrawRead.MaterialChanges[i]));
-                AddDebugTextRA(GetLodText("   TechniqueChanges", lodNum, VRageRender.MyPerformanceCounter.PerCameraDrawRead.TechniqueChanges[i]));
-                AddDebugTextRA(GetLodText("   VertexBufferChanges", lodNum, VRageRender.MyPerformanceCounter.PerCameraDrawRead.VertexBufferChanges[i]));
-                AddDebugTextRA(GetLodText("   EntityChanges", lodNum, VRageRender.MyPerformanceCounter.PerCameraDrawRead.EntityChanges[i]));
-            }
-        }
-
         private StringBuilder GetShadowText(string text, int cascade, int value)
         {
             var sb = StringBuilderCache;
@@ -329,3 +277,4 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+#endif // !XB1

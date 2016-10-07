@@ -37,6 +37,7 @@ using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Network;
+using VRage.Sync;
 
 #endregion
 
@@ -91,16 +92,20 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyWarhead()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_countdownMs = SyncType.CreateAndAddProp<int>();
+            m_isArmed = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
             m_isArmed.ValueChanged += (x) => UpdateEmissivity();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyWarhead>())
                 return;
-
+            base.CreateTerminalControls();
             var slider = new MyTerminalControlSlider<MyWarhead>("DetonationTime", MySpaceTexts.TerminalControlPanel_Warhead_DetonationTime, MySpaceTexts.TerminalControlPanel_Warhead_DetonationTime);
             slider.SetLogLimits(1, 60 * 60);
             slider.DefaultValue = 10;
@@ -348,7 +353,7 @@ namespace Sandbox.Game.Entities.Cube
                 VoxelExplosionCenter = m_explosionFullSphere.Center,// + 2 * WorldMatrix.Forward * 0.5f,
                 ExplosionFlags = MyExplosionFlags.AFFECT_VOXELS | MyExplosionFlags.APPLY_FORCE_AND_DAMAGE | MyExplosionFlags.CREATE_DEBRIS | MyExplosionFlags.CREATE_DECALS | MyExplosionFlags.CREATE_PARTICLE_EFFECT | MyExplosionFlags.CREATE_SHRAPNELS | MyExplosionFlags.APPLY_DEFORMATION,
                 VoxelCutoutScale = 1.0f,
-                PlaySound = true,
+                PlaySound = false,
                 ApplyForceAndDamage = true,
                 ObjectsRemoveDelayInMiliseconds = 40
             };
@@ -414,6 +419,17 @@ namespace Sandbox.Game.Entities.Cube
 
         public override void OnDestroy()
         {
+            MySoundPair cueEnum = BlockDefinition.ActionSound;
+            if (cueEnum != MySoundPair.Empty)
+            {
+                MyEntity3DSoundEmitter emitter = MyAudioComponent.TryGetSoundEmitter();
+                if (emitter != null)
+                {
+                    emitter.Entity = this;
+                    emitter.SetPosition(PositionComp.GetPosition());
+                    emitter.PlaySound(cueEnum);
+                }
+            }
             if (Sandbox.Game.Multiplayer.Sync.IsServer)
             {
                 if (!IsFunctional) return;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -53,6 +55,7 @@ namespace Sandbox.Game.Gui
             private readonly Dictionary<Type, MyListDictionary<MemberInfo, MemberInfo>> m_watch = new Dictionary<Type, MyListDictionary<MemberInfo, MemberInfo>>();
             private List<List<object>> m_history = new List<List<object>>();
             private bool m_showWatch = false;
+            private bool m_showOnScreenWatch = false;
             private LiveWatch m_form = null;
             private float m_scale = 2;
             private HashSet<int> m_toPlot = new HashSet<int>(); 
@@ -65,11 +68,17 @@ namespace Sandbox.Game.Gui
                  {
                     if (m_form != null)
                     {
-                        Action a = () => { 
-                            m_form.Close();
+                        if (m_form.IsDisposed)
                             m_form = null;
-                        };
-                        m_form.Invoke(a);
+                        else
+                        {
+                            Action a = () =>
+                            {
+                                m_form.Close();
+                                m_form = null;
+                            };
+                            m_form.Invoke(a);
+                        }
                     }
                     else
                     {
@@ -84,6 +93,11 @@ namespace Sandbox.Game.Gui
                     }
                     return true;
                 }, new MyRef<bool>(()=> m_form != null, null), "External viewer");
+                AddSwitch(MyKeys.NumPad8, (key) =>
+                {
+                    m_showOnScreenWatch = !m_showOnScreenWatch;
+                    return true;
+                }, new MyRef<bool>(() => m_showOnScreenWatch, null), "External viewer");
             }
 
             private void RenderCallback()
@@ -143,7 +157,7 @@ namespace Sandbox.Game.Gui
                 if (handled)
                     return true;
 
-                if (MyInput.Static.IsKeyPress(MyKeys.OemTilde))
+                if (MyInput.Static.IsKeyPress(MyKeys.OemTilde) && SelectedMember >= 0)
                 {
                     var info = m_members.Count > SelectedMember ? m_members[SelectedMember] : null;
                     if (MyInput.Static.IsNewKeyPressed(MyKeys.OemPeriod))
@@ -235,7 +249,7 @@ namespace Sandbox.Game.Gui
             {
                 base.Draw();
 
-                if(SelectedEntity == null)
+                if (SelectedEntity == null || !m_showOnScreenWatch)
                     return;
                 MyListDictionary<MemberInfo, MemberInfo> watch = null;
                 m_watch.TryGetValue(m_selectedType, out watch);
@@ -412,3 +426,5 @@ namespace Sandbox.Game.Gui
         }
     }
 }
+
+#endif

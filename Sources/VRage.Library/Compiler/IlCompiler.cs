@@ -18,7 +18,7 @@ using System.Diagnostics;
 
 namespace VRage.Compiler
 {
-#if UNSHARPER
+#if XB1
 	[Unsharper.UnsharperDisableReflection()]
 	public class IlCompiler
 	{
@@ -117,6 +117,7 @@ namespace VRage.Compiler
                 , "VRage.Library.dll"
                 , "VRage.Math.dll"
                 , "VRage.Game.dll"
+                , "VRage.Render.dll"
                 , "System.Core.dll"
                 , "System.dll"
                 , "SpaceEngineers.ObjectBuilders.dll"

@@ -3,7 +3,7 @@ using System.Xml.Serialization;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.ObjectBuilders;
 
-namespace ObjectBuilders.Definitions
+namespace Sandbox.ObjectBuilders.Definitions
 {
     [MyObjectBuilderDefinition]
     public class MyObjectBuilder_DemoComponentDefinition : MyObjectBuilder_SessionComponentDefinition

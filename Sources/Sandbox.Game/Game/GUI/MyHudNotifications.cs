@@ -58,6 +58,8 @@ namespace Sandbox.Game.Gui
         // Piston notifications
         HeadNotPlaced,
         HeadAlreadyExists,
+
+        ShipOverLimits,
     }
 
     public class MyHudNotifications
@@ -167,6 +169,8 @@ namespace Sandbox.Game.Gui
             // Piston notifications
             Register(MyNotificationSingletons.HeadNotPlaced, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.Notification_PistonHeadNotPlaced));
             Register(MyNotificationSingletons.HeadAlreadyExists, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.Notification_PistonHeadAlreadyExists));
+
+            Register(MyNotificationSingletons.ShipOverLimits, new MyHudNotification(font: MyFontEnum.Red, text: MySpaceTexts.NotificationShipOverLimits));
 
             if (MyPerGameSettings.Game == GameEnum.ME_GAME)
             {

@@ -9,6 +9,7 @@ using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 namespace Sandbox.Definitions
 {
@@ -16,6 +17,7 @@ namespace Sandbox.Definitions
     public class MyTransparentMaterialDefinition : MyDefinitionBase
     {
         public string Texture;
+        public MyTransparentMaterialTextureType TextureType; 
         public bool CanBeAffectedByLights;
         public bool AlphaMistingEnable;
         public bool IgnoreDepth;
@@ -30,6 +32,7 @@ namespace Sandbox.Definitions
         public float Reflectivity;
         public Vector4 Color = Vector4.One;
         public bool AlphaCutout;
+        public Vector2I TargetSize;
 
         protected override void Init(MyObjectBuilder_DefinitionBase builder)
         {
@@ -39,6 +42,7 @@ namespace Sandbox.Definitions
             MyDebug.AssertDebug(materialBuilder != null, "Initializing transparent material definition using wrong object builder.");
 
             Texture = materialBuilder.Texture;
+            TextureType = materialBuilder.TextureType;
             CanBeAffectedByLights = materialBuilder.CanBeAffectedByOtherLights;
             AlphaMistingEnable = materialBuilder.AlphaMistingEnable;
             IgnoreDepth = materialBuilder.IgnoreDepth;
@@ -53,6 +57,7 @@ namespace Sandbox.Definitions
             Reflectivity = materialBuilder.Reflectivity;
             Color = materialBuilder.Color;
             AlphaCutout = materialBuilder.AlphaCutout;
+            TargetSize = materialBuilder.TargetSize;
         }   
     }
 }

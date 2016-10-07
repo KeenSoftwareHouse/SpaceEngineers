@@ -25,6 +25,10 @@ namespace System
 
         public static bool IsAppManifestPresent(string path, uint appId)
         {
+#if XB1
+            //XB1_TODO?
+            return false;
+#else // !XB1
             try
             {
                 var gameDir = new DirectoryInfo(path);
@@ -34,6 +38,7 @@ namespace System
             {
                 return false;
             }
+#endif // !XB1
         }
     }
 }

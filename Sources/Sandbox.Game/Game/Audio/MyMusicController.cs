@@ -382,7 +382,7 @@ namespace Sandbox.Game.Audio
             {
                 if (effect != MyStringHash.NullOrEmpty)
                 {
-                    m_musicSourceVoice = MyAudio.Static.ApplyEffect(m_musicSourceVoice, effect, cueIds, effectDuration).OutputSound;
+                    m_musicSourceVoice = MyAudio.Static.ApplyEffect(m_musicSourceVoice, effect, cueIds, effectDuration, true).OutputSound;
                 }
                 if (m_musicSourceVoice != null)
                     m_musicSourceVoice.StoppedPlaying += MusicStopped;

@@ -24,6 +24,8 @@ using Sandbox.ModAPI.Interfaces;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Ingame;
+using VRage.Profiler;
+using VRage.Sync;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 
 namespace Sandbox.Game.Entities
@@ -55,6 +57,10 @@ namespace Sandbox.Game.Entities
 
         public MyReactor()
         {
+#if XB1 // XB1_SYNC_NOREFLECTION
+            m_remainingPowerCapacity = SyncType.CreateAndAddProp<float>();
+            m_useConveyorSystem = SyncType.CreateAndAddProp<bool>();
+#endif // XB1
             CreateTerminalControls();
 
 			SourceComp = new MyResourceSourceComponent();
@@ -62,11 +68,11 @@ namespace Sandbox.Game.Entities
             m_remainingPowerCapacity.ValidateNever();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyReactor>())
                 return;
-
+            base.CreateTerminalControls();
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyReactor>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyorSystem.Getter = (x) => (x).UseConveyorSystem;
             useConveyorSystem.Setter = (x, v) => (x).UseConveyorSystem = v;

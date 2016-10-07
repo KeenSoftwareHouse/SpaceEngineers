@@ -1,15 +1,14 @@
 ﻿using SharpDX.Direct3D11;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using VRage;
-using VRage.Collections;
 using VRage.Library.Utils;
+using VRage.Profiler;
+using VRage.Render11.Common;
+using VRageRender;
 
-namespace VRageRender
+namespace VRage.Render11.Profiler
 {
     enum MyIssuedQueryEnum
     {
@@ -17,7 +16,7 @@ namespace VRageRender
         BlockEnd
     }
 
-    struct MyIssuedQuery
+    internal struct MyIssuedQuery
     {
         internal string m_tag;
         internal MyQuery m_query;
@@ -31,19 +30,20 @@ namespace VRageRender
         }
     }
 
-    class MyFrameProfilingContext
+    internal class MyFrameProfilingContext
     {
         internal Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
     }
 
-    class MyFrameProfiling
+#if !XB1 // XB1_NOPROFILER
+    internal class MyFrameProfiling
     {
         internal MyQuery m_disjoint;
         internal Queue<MyIssuedQuery> m_issued = new Queue<MyIssuedQuery>(128);
 
         internal bool IsFinished()
         {
-            return MyImmediateRC.RC.DeviceContext.IsDataAvailable(m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
+            return MyImmediateRC.RC.IsDataAvailable(m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
         }
 
         internal void Clear()
@@ -61,7 +61,7 @@ namespace VRageRender
         }
     }
 
-    class MyGpuProfiler
+    internal class MyGpuProfiler
     {
         static Queue<MyFrameProfiling> m_pooledFrames = new Queue<MyFrameProfiling>(MyQueryFactory.MaxFramesLag);
         static Queue<MyFrameProfiling> m_frames = new Queue<MyFrameProfiling>(MyQueryFactory.MaxFramesLag);
@@ -83,7 +83,7 @@ namespace VRageRender
             }
 
             var front = m_frames.ElementAt(0);
-            while (!MyImmediateRC.RC.DeviceContext.IsDataAvailable(front.m_disjoint.m_query))
+            while (!MyImmediateRC.RC.IsDataAvailable(front.m_disjoint.m_query))
             {
                 Thread.Sleep(1);
             }
@@ -115,7 +115,7 @@ namespace VRageRender
 
         static void GatherFrame(MyFrameProfiling frame)
         {
-            QueryDataTimestampDisjoint disjoint = MyImmediateRC.RC.DeviceContext.GetData<QueryDataTimestampDisjoint>(frame.m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
+            QueryDataTimestampDisjoint disjoint = MyImmediateRC.RC.GetData<QueryDataTimestampDisjoint>(frame.m_disjoint.m_query, AsynchronousFlags.DoNotFlush);
 
 #if UNSHARPER
             if (!disjoint.Disjoint.value)
@@ -135,12 +135,13 @@ namespace VRageRender
                     var q = frame.m_issued.Dequeue();
 
                     ulong timestamp;
-                    MyImmediateRC.RC.DeviceContext.GetData<ulong>(q.m_query, AsynchronousFlags.DoNotFlush, out timestamp);
+                    MyImmediateRC.RC.GetData<ulong>(q.m_query, AsynchronousFlags.DoNotFlush, out timestamp);
 
                     if (q.m_info == MyIssuedQueryEnum.BlockStart)
                     {
                         stackDepth++;
                         MyRender11.GetRenderProfiler().GPU_StartProfilingBlock(q.m_tag);
+                        MySimpleProfiler.BeginGPUBlock(q.m_tag);
                         m_timestampStack.Push(timestamp);
                     }
                     else if (q.m_info == MyIssuedQueryEnum.BlockEnd)
@@ -151,6 +152,7 @@ namespace VRageRender
 
                         // tick is 100 nanoseconds = 10^-7 second
                         MyRender11.GetRenderProfiler().GPU_EndProfilingBlock(0, MyTimeSpan.FromSeconds(time));
+                        MySimpleProfiler.EndGPUBlock(MyTimeSpan.FromSeconds(time));
                     }
 
                     Debug.Assert(stackDepth >= 0);
@@ -179,7 +181,6 @@ namespace VRageRender
             }
         }
 
-        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void StartFrame()
         {
             if (m_pooledFrames.Count == 0)
@@ -197,7 +198,6 @@ namespace VRageRender
             IC_BeginBlock("Frame");
         }
 
-        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void EndFrame()
         {
             if (m_currentFrame == null)
@@ -211,23 +211,72 @@ namespace VRageRender
             m_frames.Enqueue(m_currentFrame);
         }
 
-        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
+        //IMPORTANT: If you change anything here, also change it in IC_BeginBlockAlways
+        [Conditional(ProfilerShort.PerformanceProfilingSymbol)]
         internal static void IC_BeginBlock(string tag)
         {
+            MyImmediateRC.RC.BeginDxAnnotationBlock(tag);
             MyImmediateRC.RC.BeginProfilingBlock(tag);
         }
 
-        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
         internal static void IC_BeginNextBlock(string tag)
         {
+            MyImmediateRC.RC.EndDxAnnotationBlock();
+            MyImmediateRC.RC.BeginDxAnnotationBlock(tag);
             MyImmediateRC.RC.EndProfilingBlock();
             MyImmediateRC.RC.BeginProfilingBlock(tag);
         }
-        
-        [Conditional(VRage.ProfilerShort.PerformanceProfilingSymbol)]
+
+        //IMPORTANT: If you change anything here, also change it in IC_EndBlockAlways
         internal static void IC_EndBlock()
         {
+            MyImmediateRC.RC.EndDxAnnotationBlock();
             MyImmediateRC.RC.EndProfilingBlock();
         }
+
+        /// <summary>
+        /// IC_BeginBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal static void IC_BeginBlockAlways(string tag)
+        {
+            MyImmediateRC.RC.BeginProfilingBlockAlways(tag);
+        }
+
+        /// <summary>
+        /// IC_EndBlock that works even when PerformanceProfilingSymbol is false
+        /// </summary>
+        internal static void IC_EndBlockAlways()
+        {
+            MyImmediateRC.RC.EndProfilingBlockAlways();
+        }
     }
+
+#else // XB1
+    class MyGpuProfiler
+    {
+        internal static void IC_BeginBlock(string tag)
+        {
+        }
+
+        internal static void IC_EndBlock()
+        {
+        }
+
+        internal static void StartFrame()
+        {
+        }
+
+        internal static void EndFrame()
+        {
+        }
+
+        internal static void IC_Enqueue(MyIssuedQuery q)
+        {
+        }
+
+        internal static void Join(MyFrameProfilingContext context)
+        {
+        }
+    }
+#endif // XB1
 }

@@ -162,6 +162,14 @@ namespace Sandbox.Graphics.GUI
             Top = Bottom = vertical;
         }
 
+        public MyGuiBorderThickness(float left, float right, float top, float bottom)
+        {
+            Left = left;
+            Right = right;
+            Top = top;
+            Bottom = bottom;
+        }
+
         public float HorizontalSum
         {
             get { return Left + Right; }
@@ -185,6 +193,11 @@ namespace Sandbox.Graphics.GUI
         public Vector2 BottomLeftOffset
         {
             get { return new Vector2(Left, -Bottom); }
+        }
+
+        public Vector2 BottomRightOffset
+        {
+            get { return new Vector2(-Right, -Bottom);}
         }
 
         public Vector2 SizeChange
@@ -215,6 +228,13 @@ namespace Sandbox.Graphics.GUI
         public struct NameChangedArgs
         {
             public string OldName;
+        }
+
+        private float m_alpha = 1;
+        public float Alpha
+        {
+            get { return m_alpha; }
+            set { m_alpha = value; }
         }
 
         private const bool DEBUG_CONTROL_FOCUS = false;
@@ -953,7 +973,7 @@ namespace Sandbox.Graphics.GUI
                 if (element.GetExclusiveInputHandler() == element)
                     continue;
 
-                element.Draw(transitionAlpha, backgroundTransitionAlpha);
+                element.Draw(transitionAlpha * element.Alpha, backgroundTransitionAlpha * element.Alpha);
             }
         }
 

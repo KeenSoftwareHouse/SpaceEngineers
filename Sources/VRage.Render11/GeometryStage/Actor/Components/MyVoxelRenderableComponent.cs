@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using VRage.Utils;
-using VRage.Voxels;
 using VRageMath;
+using VRage.Voxels;
+using VRageRender.Import;
 
 namespace VRageRender
 {
@@ -128,7 +126,7 @@ namespace VRageRender
         {
             MyRenderLod lod = m_lods[lodIndex];
             var partId = MyMeshes.GetVoxelPart(Mesh, partIndex);
-            var technique = partId.Info.MaterialTriple.IsMultimaterial() && !shadowsOnly ? MyVoxelMesh.MULTI_MATERIAL_TAG : MyVoxelMesh.SINGLE_MATERIAL_TAG;
+            var technique = partId.Info.MaterialTriple.IsMultimaterial() && !shadowsOnly ? MyMeshDrawTechnique.VOXEL_MAP_MULTI : MyMeshDrawTechnique.VOXEL_MAP_SINGLE;
 
             MyRenderableProxy renderableProxy = lod.RenderableProxies[proxyIndex];
 
@@ -140,7 +138,7 @@ namespace VRageRender
             renderableProxy.VoxelCommonObjectData.MassiveCenterRadius = Vector4.Zero; // Set in UpdateLodState
             renderableProxy.VoxelCommonObjectData.VoxelScale = m_voxelScale;
 
-            MyStringId shaderMaterial = MyStringId.GetOrCompute(MapTechniqueToShaderMaterial(technique));
+            MyStringId shaderMaterial = MyStringId.GetOrCompute(MyMaterialShaders.MapTechniqueToShaderMaterial(technique));
 
             Mesh.AssignLodMeshToProxy(renderableProxy);
             AssignShadersToProxy(renderableProxy, shaderMaterial, lod.VertexLayout1, lod.VertexShaderFlags | MapTechniqueToShaderMaterialFlags(technique) | MyShaderUnifiedFlags.DITHERED);
@@ -191,7 +189,7 @@ namespace VRageRender
 
             My64BitValueHelper.SetBits(ref sortingKey, 36, 2, (ulong)lod.RenderableProxies[proxyIndex].Type);
             My64BitValueHelper.SetBits(ref sortingKey, 32, 4, (ulong)drawSubmesh.MaterialId.Index);
-            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MapTechniqueToShaderMaterial(technique)));
+            My64BitValueHelper.SetBits(ref sortingKey, 26, 6, (ulong)MyShaderMaterial.GetID(MyMaterialShaders.MapTechniqueToShaderMaterial(technique)));
             My64BitValueHelper.SetBits(ref sortingKey, 22, 4, (ulong)m_voxelLod);
             My64BitValueHelper.SetBits(ref sortingKey, 16, 6, (ulong)lod.VertexShaderFlags);
             //My64BitValueHelper.SetBits(ref sortingKey, 14, 6, (ulong)lod.VertexLayout1.Index);
@@ -217,9 +215,9 @@ namespace VRageRender
             if (IsValidVoxelLod(m_voxelLod))
             {
                 Vector4 massiveCenterRadius = new Vector4(
-                            (float)(m_massiveCenter.X - MyRender11.Environment.CameraPosition.X),
-                            (float)(m_massiveCenter.Y - MyRender11.Environment.CameraPosition.Y),
-                            (float)(m_massiveCenter.Z - MyRender11.Environment.CameraPosition.Z),
+                            (float)(m_massiveCenter.X - MyRender11.Environment.Matrices.CameraPosition.X),
+                            (float)(m_massiveCenter.Y - MyRender11.Environment.Matrices.CameraPosition.Y),
+                            (float)(m_massiveCenter.Z - MyRender11.Environment.Matrices.CameraPosition.Z),
                             m_massiveRadius);
 
                 foreach (MyRenderLod lod in m_lods)
