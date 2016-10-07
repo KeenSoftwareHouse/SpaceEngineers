@@ -100,11 +100,11 @@ namespace Sandbox.Game.Entities.Cube
             SyncType.PropertyChanged += SyncType_PropertyChanged;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyMotorStator>())
                 return;
-
+            base.CreateTerminalControls();
             var reverse = new MyTerminalControlButton<MyMotorStator>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (b) => b.TargetVelocityRPM = -b.TargetVelocityRPM);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);

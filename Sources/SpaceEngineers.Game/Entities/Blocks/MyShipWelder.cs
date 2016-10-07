@@ -71,11 +71,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             CreateTerminalControls();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipWelder>())
                 return;
-
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_WELDER_HELP_OTHERS)
             {
                 var helpOthersCheck = new MyTerminalControlCheckbox<MyShipWelder>("helpOthers", MyCommonTexts.ShipWelder_HelpOthers, MyCommonTexts.ShipWelder_HelpOthers);

@@ -19,7 +19,17 @@ namespace Sandbox.Game.Entities.Inventory
 {
     public class MyInventoryItemAdapter : IMyInventoryItemAdapter
     {
-        public static MyInventoryItemAdapter Static = new MyInventoryItemAdapter();
+        [ThreadStatic]
+        static MyInventoryItemAdapter m_static = new MyInventoryItemAdapter();
+        public static MyInventoryItemAdapter Static
+        {
+            get
+            {
+                if (m_static == null)
+                    m_static = new MyInventoryItemAdapter();
+                return m_static;
+            }
+        }
 
         private MyPhysicalItemDefinition m_physItem = null;
         private MyCubeBlockDefinition m_blockDef = null;

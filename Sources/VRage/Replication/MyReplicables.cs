@@ -13,8 +13,8 @@ namespace VRage.Replication
         static readonly HashSet<IMyReplicable> m_empty = new HashSet<IMyReplicable>();
 
         Stack<HashSet<IMyReplicable>> m_pool = new Stack<HashSet<IMyReplicable>>();
-        Dictionary<IMyReplicable, HashSet<IMyReplicable>> m_parentToChildren = new Dictionary<IMyReplicable, HashSet<IMyReplicable>>();
-        Dictionary<IMyReplicable, IMyReplicable> m_childToParent = new Dictionary<IMyReplicable, IMyReplicable>();
+        MyConcurrentDictionary<IMyReplicable, HashSet<IMyReplicable>> m_parentToChildren = new MyConcurrentDictionary<IMyReplicable, HashSet<IMyReplicable>>();
+        MyConcurrentDictionary<IMyReplicable, IMyReplicable> m_childToParent = new MyConcurrentDictionary<IMyReplicable, IMyReplicable>();
         List<IMyReplicable> m_tmpList = new List<IMyReplicable>();
 
         HashSet<IMyReplicable> m_roots = new HashSet<IMyReplicable>();

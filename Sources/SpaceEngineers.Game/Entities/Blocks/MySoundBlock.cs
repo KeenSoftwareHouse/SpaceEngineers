@@ -140,11 +140,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySoundBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var volumeSlider = new MyTerminalControlSlider<MySoundBlock>("VolumeSlider", MySpaceTexts.BlockPropertyTitle_SoundBlockVolume, MySpaceTexts.BlockPropertyDescription_SoundBlockVolume);
             volumeSlider.SetLimits(0, 1.0f);
             volumeSlider.DefaultValue = 1;

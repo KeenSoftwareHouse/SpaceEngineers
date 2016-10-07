@@ -56,10 +56,11 @@ namespace Sandbox.Game.Entities.Cube
             m_enabled.ValueChanged += (x)=> EnabledSyncChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyFunctionalBlock>())
                 return;
+            base.CreateTerminalControls();
 
             var onOffSwitch = new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("OnOff", MySpaceTexts.BlockAction_Toggle);
             onOffSwitch.Getter = (x) => x.Enabled;

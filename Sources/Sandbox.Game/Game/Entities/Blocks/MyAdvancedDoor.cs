@@ -29,7 +29,7 @@ using VRageRender.Import;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AdvancedDoor))]
-    public class MyAdvancedDoor : MyFunctionalBlock, ModAPI.IMyAdvancedDoor
+    public class MyAdvancedDoor : MyDoorBase, ModAPI.IMyAdvancedDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -53,8 +53,6 @@ namespace Sandbox.Game.Entities
         private int m_sequenceCount = 0;
         private int m_subpartCount = 0;
 
-        private readonly Sync<bool> m_open;
-
         protected override bool CheckIsWorking()
         {
 			return ResourceSink.IsPowered && base.CheckIsWorking();
@@ -68,12 +66,13 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public MyAdvancedDoor()
+        public MyAdvancedDoor() : base()
         {
 #if XB1 // XB1_SYNC_NOREFLECTION
             m_open = SyncType.CreateAndAddProp<bool>();
 #endif // XB1
-            CreateTerminalControls();
+            //GR: added to base class do not use here
+            //CreateTerminalControls();
 
             m_subparts.Clear();
             m_subpartIDs.Clear();
@@ -100,21 +99,6 @@ namespace Sandbox.Game.Entities
             }
             else
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
-        }
-
-        public bool Open
-        {
-            get
-            {
-                return m_open;
-            }
-            set
-            {
-				if (m_open != value && Enabled && ResourceSink.IsPowered)
-                {
-                    m_open.Value = value;
-                }
-            }
         }
 
         public bool FullyClosed
@@ -172,19 +156,6 @@ namespace Sandbox.Game.Entities
             { 
                 return (MyAdvancedDoorDefinition)base.BlockDefinition; 
             }
-        }
-
-        static void CreateTerminalControls()
-        {
-            if (MyTerminalControlFactory.AreControlsCreated<MyAdvancedDoor>())
-                return;
-
-            var open = new MyTerminalControlOnOffSwitch<MyAdvancedDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
-            open.Getter = (x) => x.Open;
-            open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);
-            open.EnableToggleAction();
-            open.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(open);
         }
 
         private void OnStateChange()
@@ -721,22 +692,6 @@ namespace Sandbox.Game.Entities
         {
             add { DoorStateChanged += value; }
             remove { DoorStateChanged -= value; }
-        }
-
-        public void SetOpenRequest(bool open, long identityId)
-        {
-            MyMultiplayer.RaiseEvent(this, x => x.OpenRequest, open, identityId);
-        }
-
-        [Event, Reliable, Server]
-        void OpenRequest(bool open, long identityId)
-        {
-            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(identityId);
-
-            if (relation.IsFriendly())
-            {
-                Open = open;
-            }
         }
     }
 }

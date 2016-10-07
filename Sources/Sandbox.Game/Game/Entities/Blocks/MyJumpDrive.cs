@@ -109,11 +109,11 @@ namespace Sandbox.Game.Entities
             RaisePropertiesChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyJumpDrive>())
                 return;
-
+            base.CreateTerminalControls();
             var jumpButton = new MyTerminalControlButton<MyJumpDrive>("Jump", MySpaceTexts.BlockActionTitle_Jump, MySpaceTexts.Blank, (x) => x.RequestJump());
             jumpButton.Enabled = (x) => x.CanJump;
             jumpButton.SupportsMultipleBlocks = false;

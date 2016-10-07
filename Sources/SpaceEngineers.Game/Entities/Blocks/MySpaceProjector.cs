@@ -21,11 +21,11 @@ namespace Entities.Blocks
             CreateTerminalControls();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySpaceProjector>())
                 return;
-
+            base.CreateTerminalControls();
             if (!MyFakes.ENABLE_PROJECTOR_BLOCK)
             {
                 return;

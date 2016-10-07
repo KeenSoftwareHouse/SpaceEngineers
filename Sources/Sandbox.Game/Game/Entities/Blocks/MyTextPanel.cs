@@ -605,11 +605,11 @@ namespace Sandbox.Game.Entities.Blocks
             m_fontSize.ValueChanged += m_fontSize_ValueChanged;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyTextPanel>())
                 return;
-
+            base.CreateTerminalControls();
             var publicTitleField = new MyTerminalControlTextbox<MyTextPanel>("PublicTitle", MySpaceTexts.BlockPropertyTitle_TextPanelPublicTitle, MySpaceTexts.Blank);
             publicTitleField.Getter = (x) => x.PublicTitle;
             publicTitleField.Setter = (x, v) => x.SendChangeTitleMessage(v, true);

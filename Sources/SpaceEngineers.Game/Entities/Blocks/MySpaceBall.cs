@@ -113,11 +113,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_broadcastSync.ValueChanged += (x) => BroadcastChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySpaceBall>())
                 return;
-
+            base.CreateTerminalControls();
             MyTerminalControlFactory.RemoveBaseClass<MySpaceBall, MyTerminalBlock>();
 
             var mass = new MyTerminalControlSlider<MySpaceBall>("VirtualMass", MySpaceTexts.BlockPropertyDescription_SpaceBallVirtualMass, MySpaceTexts.BlockPropertyDescription_SpaceBallVirtualMass);

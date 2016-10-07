@@ -99,6 +99,7 @@ namespace Sandbox.Game.Entities
 
         protected Action<MyEntity> m_pilotClosedHandler;
         private bool? m_pilotJetpackEnabledBackup;
+        public bool PilotJetpackEnabledBackup { get { return m_pilotJetpackEnabledBackup == null ? false : m_pilotJetpackEnabledBackup.Value; } }
 
         public float GlassDirt = 1.0f;
 
@@ -1167,7 +1168,7 @@ namespace Sandbox.Game.Entities
             var jetpack = m_pilot.JetpackComp;
             if (jetpack != null)
             {
-                m_pilotJetpackEnabledBackup = jetpack.Running;
+                m_pilotJetpackEnabledBackup = jetpack.TurnedOn;
                 m_pilot.JetpackComp.TurnOnJetpack(false);
             }
             else

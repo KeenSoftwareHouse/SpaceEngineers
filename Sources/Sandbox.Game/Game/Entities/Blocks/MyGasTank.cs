@@ -87,11 +87,11 @@ namespace Sandbox.Game.Entities.Blocks
 			ResourceSink = new MyResourceSinkComponent(2);
 	    }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyGasTank>())
                 return;
-
+            base.CreateTerminalControls();
             var isStockpiling = new MyTerminalControlOnOffSwitch<MyGasTank>("Stockpile", MySpaceTexts.BlockPropertyTitle_Stockpile, MySpaceTexts.BlockPropertyDescription_Stockpile)
             {
                 Getter = (x) => x.IsStockpiling,

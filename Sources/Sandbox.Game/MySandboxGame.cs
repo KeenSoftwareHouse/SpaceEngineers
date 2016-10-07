@@ -889,7 +889,8 @@ namespace Sandbox
             if (MyFakes.FORCE_SINGLE_WORKER)
                 Parallel.Scheduler = new FixedPriorityScheduler(1, ThreadPriority.Normal);
             else
-                Parallel.Scheduler = new FixedPriorityScheduler(Math.Max(NumberOfCores - 2, 1), ThreadPriority.Normal);
+                Parallel.Scheduler = new PrioritizedScheduler(Math.Max(NumberOfCores - 2, 1));
+            //Parallel.Scheduler = new FixedPriorityScheduler(Math.Max(NumberOfCores - 2, 1), ThreadPriority.Normal);
             //Parallel.Scheduler = new FixedPriorityScheduler(1, ThreadPriority.Normal);
             //Parallel.Scheduler = new WorkStealingScheduler(Math.Max(NumberOfCores - 2, 1), ThreadPriority.Normal);
             //Parallel.Scheduler = new SimpleScheduler(NumberOfCores);
@@ -1043,7 +1044,7 @@ namespace Sandbox
             }
             else
             {
-                GameRenderComponent.Start(m_gameTimer, InitializeRenderThread, settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
+            GameRenderComponent.Start(m_gameTimer, InitializeRenderThread, settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
             }
             GameRenderComponent.RenderThread.SizeChanged += RenderThread_SizeChanged;
             GameRenderComponent.RenderThread.BeforeDraw += RenderThread_BeforeDraw;
@@ -2134,7 +2135,7 @@ namespace Sandbox
                 if (MySession.Static != null && MySession.Static.LocalCharacter != null && MySession.Static.CameraController == MySession.Static.LocalCharacter)
                     position = MySession.Static.LocalCharacter.PositionComp.GetPosition();
                 else
-                    position = MySector.MainCamera.Position;
+                position = MySector.MainCamera.Position;
                 // PARODY
                 up = -Vector3D.Normalize(MySector.MainCamera.UpVector);
                 forward = Vector3D.Normalize(MySector.MainCamera.ForwardVector);

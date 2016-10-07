@@ -575,6 +575,8 @@ namespace Sandbox.Game.GameSystems
             if (MySession.Static.LocalCharacter == null || !(MySession.Static.ControlledEntity is MyShipController))
             {
                 m_playEffect = false;
+                //GR: In this case also change field of view
+                MySector.MainCamera.FieldOfView = MySandboxGame.Config.FieldOfView;
                 return false;
             }
 

@@ -116,11 +116,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_isDepressurizing.ValueChanged += (x) => SetDepressurizing();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyAirVent>())
                 return;
-
+            base.CreateTerminalControls();
             var isDepressurizing = new MyTerminalControlOnOffSwitch<MyAirVent>("Depressurize", MySpaceTexts.BlockPropertyTitle_Depressurize, MySpaceTexts.BlockPropertyDescription_Depressurize);
             isDepressurizing.Getter = (x) => x.IsDepressurizing;
             isDepressurizing.Setter = (x, v) => x.IsDepressurizing = v;

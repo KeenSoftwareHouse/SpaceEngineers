@@ -49,6 +49,7 @@ using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Game.Gui;
 using Sandbox.Game.SessionComponents.Clipboard;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
+using ParallelTasks;
 using VRage.Game.Entity.EntityComponents;
 using VRage.Profiler;
 using VRage.Sync;
@@ -760,7 +761,7 @@ namespace Sandbox.Game.Entities
                 cockpit.GiveControlToPilot();
             }
             m_tmpOccupiedCockpits.Clear();
-            UpdateDirty();
+            //UpdateDirty();
 
             if (MyFakes.ENABLE_MULTIBLOCK_PART_IDS)
             {
@@ -8242,97 +8243,165 @@ namespace Sandbox.Game.Entities
             AfterPaste(results, Vector3.Zero, false);
         }
 
-        [Event, Reliable, Server]
-        public static void TryPasteGrid_Implementation(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId, Vector3 objectVelocity, bool multiBlock,
-            bool instantBuild)
+        private class PasteGridData : ParallelTasks.WorkData
         {
-            bool isAdmin = (MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value));
+            List<MyObjectBuilder_CubeGrid> m_entities;
+            bool m_detectDisconnects;
+            long m_inventoryEntityId; 
+            Vector3 m_objectVelocity;
+            bool m_multiBlock;
+            bool m_instantBuild;
+            List<MyCubeGrid> m_results;
+            bool m_canPlaceGrid;
 
-            bool validBattlePaste = false;
-            if (MySession.Static.Battle)
+            public PasteGridData(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId, Vector3 objectVelocity, bool multiBlock,
+            bool instantBuild)
             {
-                long identityId = Sync.Players.TryGetIdentityId(MyEventContext.Current.Sender.Value);
-                var faction = MySession.Static.Factions.TryGetPlayerFaction(identityId);
-                if (faction != null && faction.IsLeader(identityId))
-                    validBattlePaste = true;
+                m_entities = new List<MyObjectBuilder_CubeGrid>(entities);
+                m_detectDisconnects = detectDisconnects;
+                m_inventoryEntityId = inventoryEntityId;
+                m_objectVelocity = objectVelocity;
+                m_multiBlock = multiBlock;
+                m_instantBuild = instantBuild;
             }
 
-            if (MySession.Static.SurvivalMode && !validBattlePaste && !isAdmin)
+            public void TryPasteGrid()
             {
-                return;
-            }
+                bool isAdmin = (MyEventContext.Current.IsLocallyInvoked || MySession.Static.HasPlayerAdminRights(MyEventContext.Current.Sender.Value));
 
-            MyEntities.RemapObjectBuilderCollection(entities);
-
-            if ((instantBuild && isAdmin) == false)
-            {
-                MyEntity inventoryOwner;
-                if (MyEntities.TryGetEntityById(inventoryEntityId, out inventoryOwner) && inventoryOwner != null)
+                bool validBattlePaste = false;
+                if (MySession.Static.Battle)
                 {
-                    // TODO: If there's not enough materials, it should return false!
-                    if (multiBlock)
+                    long identityId = Sync.Players.TryGetIdentityId(MyEventContext.Current.Sender.Value);
+                    var faction = MySession.Static.Factions.TryGetPlayerFaction(identityId);
+                    if (faction != null && faction.IsLeader(identityId))
+                        validBattlePaste = true;
+                }
+
+                if (MySession.Static.SurvivalMode && !validBattlePaste && !isAdmin)
+                {
+                    return;
+                }
+
+                //Fix for when the player wants to paste a ship with the same object builder multiple times. Should be done in a less performance heavy way if possible
+                for (int i = 0; i < m_entities.Count; i++)
+                {
+                    m_entities[i] = (MyObjectBuilder_CubeGrid)m_entities[i].Clone();
+                }
+
+                MyEntities.RemapObjectBuilderCollection(m_entities);
+
+                if ((m_instantBuild && isAdmin) == false)
+                {
+                    MyEntity inventoryOwner;
+                    if (MyEntities.TryGetEntityById(m_inventoryEntityId, out inventoryOwner) && inventoryOwner != null)
                     {
-                        MyMultiBlockClipboard.TakeMaterialsFromBuilder(entities, inventoryOwner);
-                    }
-                    else
-                    {
-                        MyInventoryBase buildInventory = MyCubeBuilder.BuildComponent.GetBuilderInventory(inventoryOwner);
-                        if (buildInventory != null)
+                        // TODO: If there's not enough materials, it should return false!
+                        if (m_multiBlock)
                         {
-                            MyGridClipboard.CalculateItemRequirements(entities, m_buildComponents);
-                            foreach (var item in m_buildComponents.TotalMaterials)
+                            MyMultiBlockClipboard.TakeMaterialsFromBuilder(m_entities, inventoryOwner);
+                        }
+                        else
+                        {
+                            MyInventoryBase buildInventory = MyCubeBuilder.BuildComponent.GetBuilderInventory(inventoryOwner);
+                            if (buildInventory != null)
                             {
-                                buildInventory.RemoveItemsOfType(item.Value, item.Key);
+                                MyGridClipboard.CalculateItemRequirements(m_entities, m_buildComponents);
+                                foreach (var item in m_buildComponents.TotalMaterials)
+                                {
+                                    buildInventory.RemoveItemsOfType(item.Value, item.Key);
+                                }
                             }
                         }
                     }
                 }
+
+                m_results = new List<MyCubeGrid>();
+
+                m_canPlaceGrid = true;
+                foreach (var entity in m_entities)
+                {
+                    MySandboxGame.Log.WriteLine("CreateCompressedMsg: Type: " + entity.GetType().Name.ToString() + "  Name: " + entity.Name + "  EntityID: " + entity.EntityId.ToString("X8"));
+                    MyCubeGrid grid = MyEntities.CreateFromObjectBuilder(entity, false) as MyCubeGrid;
+                    m_results.Add(grid);
+
+                    m_canPlaceGrid &= TestPastedGridPlacement(grid);
+                    if (m_canPlaceGrid == false)
+                    {
+                        break;
+                    }
+
+                    if (m_instantBuild && isAdmin)
+                    {
+                        ChangeOwnership(m_inventoryEntityId, grid);
+                    }
+
+                    MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(entity.EntityId) + ") InScene(" + ((entity.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
+                }
             }
 
-            List<MyCubeGrid> results = new List<MyCubeGrid>();
-
-            bool canPlaceGrid = true;
-            foreach (var entity in entities)
+            private bool TestPastedGridPlacement(MyCubeGrid grid)
             {
-                MySandboxGame.Log.WriteLine("CreateCompressedMsg: Type: " + entity.GetType().Name.ToString() + "  Name: " + entity.Name + "  EntityID: " + entity.EntityId.ToString("X8"));
-
-                // This does not work, because EntityCreation is not supported on separate thread
-                //MyEntities.CreateAsync(entity, false, (e) => results.Add((MyCubeGrid)e));
-
-                MyCubeGrid grid = MyEntities.CreateFromObjectBuilder(entity) as MyCubeGrid;
-                results.Add(grid);
-
                 var settings = MyClipboardComponent.ClipboardDefinition.PastingSettings.GetGridPlacementSettings(grid.GridSizeEnum, grid.IsStatic);
-                canPlaceGrid &= TestPlacementArea(grid, grid.IsStatic, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, !grid.IsStatic);
-                if (canPlaceGrid == false)
-                {
-                    break;
-                }
-
-                if (instantBuild && isAdmin)
-                {
-                    ChangeOwnership(inventoryEntityId, grid);
-                }
-
-                MySandboxGame.Log.WriteLine("Status: Exists(" + MyEntities.EntityExists(entity.EntityId) + ") InScene(" + ((entity.PersistentFlags & MyPersistentEntityFlags2.InScene) == MyPersistentEntityFlags2.InScene) + ")");
+                return TestPlacementArea(grid, grid.IsStatic, ref settings, (BoundingBoxD)grid.PositionComp.LocalAABB, !grid.IsStatic);
             }
 
-            if (canPlaceGrid)
+            public void Callback()
             {
-                AfterPaste(results, objectVelocity, detectDisconnects);
-            }
-            else
-            {
-                foreach (var grid in results)
+                if (m_canPlaceGrid && m_results.Count > 0)
                 {
-                    grid.Close();
+                    foreach (var grid in m_results)
+                    {
+                        m_canPlaceGrid &= TestPastedGridPlacement(grid);
+                    }
+                    if (m_canPlaceGrid)
+                        AfterPaste(m_results, m_objectVelocity, m_detectDisconnects);
                 }
+                else
+                {
+                    foreach (var grid in m_results)
+                    {
+                        grid.Close();
+                    }
 
-                if(!MyEventContext.Current.IsLocallyInvoked)
-                {
-                    MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.ShowPasteFailedOperation,MyEventContext.Current.Sender);
+                    if (!MyEventContext.Current.IsLocallyInvoked)
+                    {
+                        MyMultiplayer.RaiseStaticEvent(s => MyCubeGrid.ShowPasteFailedOperation, MyEventContext.Current.Sender);
+                    }
                 }
             }
+        }
+
+        [Event, Reliable, Server]
+        public static void TryPasteGrid_Implementation(List<MyObjectBuilder_CubeGrid> entities, bool detectDisconnects, long inventoryEntityId, Vector3 objectVelocity, bool multiBlock,
+            bool instantBuild)
+        {
+            PasteGridData workData = new PasteGridData(entities, detectDisconnects, inventoryEntityId, objectVelocity, multiBlock, instantBuild);
+            Parallel.Start(TryPasteGrid_ImplementationInternal, OnPasteCompleted, workData);
+        }
+
+        static void TryPasteGrid_ImplementationInternal(WorkData workData)
+        {
+            PasteGridData pasteData = workData as PasteGridData;
+            if (pasteData == null)
+            {
+                workData.FlagAsFailed();
+                return;
+            }
+
+            pasteData.TryPasteGrid();
+        }
+
+        static void OnPasteCompleted(WorkData workData)
+        {
+            PasteGridData pasteData = workData as PasteGridData;
+            if (pasteData == null)
+            {
+                workData.FlagAsFailed();
+                return;
+            }
+
+            pasteData.Callback();
         }
         
         [Event, Reliable, Client]
@@ -8396,6 +8465,7 @@ namespace Sandbox.Game.Entities
                             break;
                     }
                 }
+                pastedGrid.IsReadyForReplication = true;
             }
 
             MatrixD worldMatrix = grids[0].PositionComp.WorldMatrix;

@@ -99,11 +99,11 @@ namespace Sandbox.Game.Weapons
             SetupDrillFrameCountdown();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipDrill>())
                 return;
-
+            base.CreateTerminalControls();
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipDrill>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => (x).UseConveyorSystem = v;

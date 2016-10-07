@@ -55,5 +55,8 @@ namespace VRage.Network
         /// It does not have to return same instances every time.
         /// </summary>
         void GetStateGroups(List<IMyStateGroup> resultList);
+
+        bool IsReadyForReplication { get; }
+        Action ReadyForReplicationAction { set; }
     }
 }

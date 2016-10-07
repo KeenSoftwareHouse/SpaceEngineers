@@ -167,11 +167,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_lockModeSync.ValueChanged += x => OnLockModeChanged();
         }
 
-        private static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLandingGear>())
                 return;
-
+            base.CreateTerminalControls();
             var stateWriter = new MyTerminalControl<MyLandingGear>.WriterDelegate((b, sb) => b.WriteLockStateValue(sb));
 
             var lockBtn = new MyTerminalControlButton<MyLandingGear>("Lock", MySpaceTexts.BlockActionTitle_Lock, MySpaceTexts.Blank, (b) => b.RequestLandingGearLock());

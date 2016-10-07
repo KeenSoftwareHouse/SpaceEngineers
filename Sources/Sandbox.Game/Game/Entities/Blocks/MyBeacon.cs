@@ -61,11 +61,11 @@ namespace Sandbox.Game.Entities.Cube
             RadioBroadcaster.BroadcastRadius = m_radius;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyBeacon>())
                 return;
-
+            base.CreateTerminalControls();
             //MyTerminalControlFactory.RemoveBaseClass<MyBeacon, MyTerminalBlock>(); // this removed also controls shared with other blocks
 
             //removed unnecessary controls
@@ -104,7 +104,7 @@ namespace Sandbox.Game.Entities.Cube
                         NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
                         m_lastAnimationUpdateTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
                     }
-                    else
+                    else if (IsFunctional)
                         NeedsUpdate &= ~MyEntityUpdateEnum.EACH_FRAME;
                 }
             }

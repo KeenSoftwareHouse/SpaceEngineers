@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using VRage.Library.Collections;
 using VRage.Network;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Replication
 {
@@ -19,6 +20,26 @@ namespace Sandbox.Game.Replication
     public abstract class MyExternalReplicable<T> : MyExternalReplicable
     {
         public T Instance { get; private set; }
+        public override bool IsReadyForReplication
+        {
+            get
+            {
+                MyEntity entity = Instance as MyEntity;
+                if (entity != null)
+                    return entity.IsReadyForReplication;
+                else 
+                    return true;
+            }
+        }
+
+        public override Action ReadyForReplicationAction
+        {
+            set
+            {
+                MyEntity entity = Instance as MyEntity;
+                entity.ReadyForReplicationAction = value;
+            }
+        }
 
         protected abstract void OnLoad(BitStream stream, Action<T> loadingDoneHandler);
         protected abstract void OnLoadBegin(BitStream stream, Action<T> loadingDoneHandler);

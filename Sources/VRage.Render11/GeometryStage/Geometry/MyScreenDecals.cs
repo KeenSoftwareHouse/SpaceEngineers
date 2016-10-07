@@ -168,7 +168,7 @@ namespace VRageRender
 
         internal static void AddDecal(uint ID, uint ParentID, ref MyDecalTopoData topoData, MyDecalFlags flags, string sourceTarget, string material, int matIndex)
         {
-            if (m_decals.Count >= m_decalsQueueSize)
+            if (m_decals.Count >= m_decalsQueueSize && m_decals.Count != 0)
                 MarkForRemove(m_decals.First);
 
             MyScreenDecal decal = new MyScreenDecal();
@@ -185,6 +185,9 @@ namespace VRageRender
             if (!flags.HasFlag(MyDecalFlags.World))
             {
                 var parent = MyIDTracker<MyActor>.FindByID(ParentID);
+                if (parent == null)
+                    return;
+
                 decal.TopoData.WorldPosition = Vector3D.Transform(topoData.MatrixCurrent.Translation, ref parent.WorldMatrix);
             }
 

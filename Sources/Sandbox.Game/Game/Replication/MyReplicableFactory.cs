@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using VRage;
 using VRage.Plugins;
+using VRage.Collections;
 #if XB1 // XB1_ALLINONEASSEMBLY
 using VRage.Utils;
 #endif // XB1
@@ -18,7 +19,7 @@ namespace Sandbox.Game.Replication
         private bool m_registered = false;
 #endif // !XB1
 
-        Dictionary<Type, Type> m_objTypeToExternalReplicableType = new Dictionary<Type, Type>(32);
+        MyConcurrentDictionary<Type, Type> m_objTypeToExternalReplicableType = new MyConcurrentDictionary<Type, Type>(32);
 
         public MyReplicableFactory()
         {
@@ -52,7 +53,7 @@ namespace Sandbox.Game.Replication
                 if (objType != null && !m_objTypeToExternalReplicableType.ContainsKey(objType))
                 {
                     Debug.Assert(type.HasDefaultConstructor(), string.Format("Type '{0}' should have public constructor", type.Name));
-                    m_objTypeToExternalReplicableType.Add(objType, type);
+                    m_objTypeToExternalReplicableType.TryAdd(objType, type);
                 }
             }
         }
@@ -71,7 +72,7 @@ namespace Sandbox.Game.Replication
             }
             if (originalType != lookupType)
             {
-                m_objTypeToExternalReplicableType.Add(originalType, resultType); // Faster lookup next time
+                m_objTypeToExternalReplicableType.TryAdd(originalType, resultType); // Faster lookup next time
             }
             return resultType;
         }

@@ -39,11 +39,11 @@ namespace Sandbox.Game.Weapons
             m_isShooting.ValueChanged += (x) => ShootingChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyUserControllableGun>())
                 return;
-
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_WEAPON_TERMINAL_CONTROL)
             {
                 var shootOnce = new MyTerminalControlButton<MyUserControllableGun>("ShootOnce", MySpaceTexts.Terminal_ShootOnce, MySpaceTexts.Blank, (b) => b.OnShootOncePressed());

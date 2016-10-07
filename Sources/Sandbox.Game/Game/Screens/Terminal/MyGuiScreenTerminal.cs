@@ -113,6 +113,17 @@ namespace Sandbox.Game.Gui
             return "MyGuiScreenTerminal";
         }
 
+        public override bool CloseScreen()
+        {
+            if (base.CloseScreen())
+            {
+                if (m_interactedEntity != null)
+                    m_interactedEntity.OnClose -= m_closeHandler;
+                return true;
+            }
+            return false;
+        }
+
         #region recreate controls on load
 
         private void CreateFixedTerminalElements()

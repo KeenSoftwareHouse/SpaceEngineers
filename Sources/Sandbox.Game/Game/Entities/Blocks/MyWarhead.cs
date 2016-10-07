@@ -101,11 +101,11 @@ namespace Sandbox.Game.Entities.Cube
             m_isArmed.ValueChanged += (x) => UpdateEmissivity();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyWarhead>())
                 return;
-
+            base.CreateTerminalControls();
             var slider = new MyTerminalControlSlider<MyWarhead>("DetonationTime", MySpaceTexts.TerminalControlPanel_Warhead_DetonationTime, MySpaceTexts.TerminalControlPanel_Warhead_DetonationTime);
             slider.SetLogLimits(1, 60 * 60);
             slider.DefaultValue = 10;

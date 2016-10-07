@@ -70,11 +70,15 @@ namespace VRage.Library.Utils
         private const int MZ = 0;
         private int[] SeedArray;
 
-        private static byte[] m_tmpLongArray = new byte[8];
+        private byte[] m_tmpLongArray = new byte[8];
 
         // Methods
         public MyRandom()
+#if XB1
             : this(MyEnvironment.TickCount)
+#else
+            : this(MyEnvironment.TickCount + System.Threading.Thread.CurrentThread.ManagedThreadId)
+#endif
         {
         }
 

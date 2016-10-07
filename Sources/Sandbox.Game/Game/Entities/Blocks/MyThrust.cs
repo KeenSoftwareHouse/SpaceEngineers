@@ -210,11 +210,11 @@ namespace Sandbox.Game.Entities
         }
 
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyThrust>())
                 return;
-
+            base.CreateTerminalControls();
             float threshold = 1f;
             var thrustOverride = new MyTerminalControlSlider<MyThrust>("Override", MySpaceTexts.BlockPropertyTitle_ThrustOverride, MySpaceTexts.BlockPropertyDescription_ThrustOverride);
             thrustOverride.Getter = (x) => x.m_thrustOverride;

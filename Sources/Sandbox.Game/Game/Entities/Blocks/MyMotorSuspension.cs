@@ -309,11 +309,11 @@ namespace Sandbox.Game.Entities.Cube
             m_suspensionTravel.ValueChanged += (x) => HeigthChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyMotorSuspension>())
                 return;
-
+            base.CreateTerminalControls();
             var steering = new MyTerminalControlCheckbox<MyMotorSuspension>("Steering", MySpaceTexts.BlockPropertyTitle_Motor_Steering, MySpaceTexts.BlockPropertyDescription_Motor_Steering);
             steering.Getter = (x) => x.Steering;
             steering.Setter = (x, v) => x.Steering = v;

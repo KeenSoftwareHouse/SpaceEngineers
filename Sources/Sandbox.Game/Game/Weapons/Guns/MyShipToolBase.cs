@@ -85,11 +85,11 @@ namespace Sandbox.Game.Weapons
 			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
-        internal static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipToolBase>())
                 return;
-
+            base.CreateTerminalControls();
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyShipToolBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConvSystem.Getter = (x) => (x).UseConveyorSystem;
             useConvSystem.Setter = (x, v) => (x).UseConveyorSystem =  v;

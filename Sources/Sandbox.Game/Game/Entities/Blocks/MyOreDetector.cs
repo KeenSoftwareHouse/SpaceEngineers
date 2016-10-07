@@ -39,11 +39,11 @@ namespace Sandbox.Game.Entities.Cube
             m_broadcastUsingAntennas.ValueChanged += (entity) => BroadcastChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyOreDetector>())
                 return;
-
+            base.CreateTerminalControls();
             var range = new MyTerminalControlSlider<MyOreDetector>("Range", MySpaceTexts.BlockPropertyTitle_OreDetectorRange, MySpaceTexts.BlockPropertyDescription_OreDetectorRange);
             range.SetLimits(1, 100);
             range.DefaultValue = 100;

@@ -60,9 +60,13 @@ namespace Sandbox.Game.Entities.Cube
         //static ModelId[][] m_cubeEdgeModelIds = MyCubeGridDefinitions.CubeEdgeModels.Select(s => s.Select(x => MyModel.GetId(x)).ToArray()).ToArray();
         //static ModelId[][] m_cubeHeavyEdgeModelIds = MyCubeGridDefinitions.CubeHeavyEdgeModels.Select(s => s.Select(x => MyModel.GetId(x)).ToArray()).ToArray();
 
+        [ThreadStatic]
+        static List<MyCubeInstanceData> m_tmpInstanceData; // Merge instance data
+        [ThreadStatic]
+        static Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> m_tmpInstanceParts;
 
-        static List<MyCubeInstanceData> m_tmpInstanceData = new List<MyCubeInstanceData>(); // Merge instance data
-        static Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>> m_tmpInstanceParts = new Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>>();
+
+
         static List<MyCubeInstanceDecalData> m_tmpDecalData = new List<MyCubeInstanceDecalData>();
 
         uint m_parentCullObject = MyRenderProxy.RENDER_ID_UNASSIGNED;
@@ -76,6 +80,16 @@ namespace Sandbox.Game.Entities.Cube
         List<EdgeInfoNormal> m_edgesToCompare = new List<EdgeInfoNormal>();
 
         public IEnumerable<MyCubePart> CubeParts { get { return m_cubeParts.Keys; } }
+        static List<MyCubeInstanceData> InstanceData
+        {
+            get
+            {
+                if (m_tmpInstanceData == null)
+                    m_tmpInstanceData = new List<MyCubeInstanceData>();
+                return m_tmpInstanceData;
+            }
+        }
+
 
         public MyCubeGridRenderCell(MyRenderComponentCubeGrid gridRender)
         {
@@ -169,6 +183,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public void RebuildInstanceParts(RenderFlags renderFlags)
         {
+            if (m_tmpInstanceParts == null)
+                m_tmpInstanceParts = new Dictionary<ModelId, Tuple<List<MyCubeInstanceMergedData>, MyInstanceInfo>>();
             var list = m_tmpInstanceParts;
 
             ProfilerShort.Begin("Assert data empty");
@@ -446,7 +462,7 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.Begin("Merge render parts");
 
             // Merge data into one buffer
-            Debug.Assert(m_tmpInstanceData.Count == 0, "Instance data is not cleared");
+            Debug.Assert(InstanceData.Count == 0, "Instance data is not cleared");
             m_instanceInfo.Clear();
             m_tmpDecalData.Clear();
             int instaceDataIndex = -1;
@@ -454,13 +470,13 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var modeId = pair.Key;
                 var tuple = pair.Value;
-                m_instanceInfo.Add(modeId, new MyRenderInstanceInfo(m_instanceBufferId, m_tmpInstanceData.Count, tuple.Item1.Count, tuple.Item2.MaxViewDistance, tuple.Item2.Flags));
+                m_instanceInfo.Add(modeId, new MyRenderInstanceInfo(m_instanceBufferId, InstanceData.Count, tuple.Item1.Count, tuple.Item2.MaxViewDistance, tuple.Item2.Flags));
 
                 var instaceDatas = tuple.Item1;
                 for (int it1 = 0; it1 < instaceDatas.Count; it1++)
                 {
                     instaceDataIndex++;
-                    m_tmpInstanceData.Add(instaceDatas[it1].CubeInstanceData);
+                    InstanceData.Add(instaceDatas[it1].CubeInstanceData);
 
                     var decals = instaceDatas[it1].Decals;
                     if (decals == null)
@@ -472,14 +488,14 @@ namespace Sandbox.Game.Entities.Cube
             }
             ProfilerShort.End();
 
-            if (m_tmpInstanceData.Count > 0)
+            if (InstanceData.Count > 0)
             {
                 ProfilerShort.Begin("Update instance buffer");
 
-                MyRenderProxy.UpdateRenderCubeInstanceBuffer(m_instanceBufferId, m_tmpInstanceData, (int)(m_tmpInstanceData.Count * 1.2f), m_tmpDecalData);
+                MyRenderProxy.UpdateRenderCubeInstanceBuffer(m_instanceBufferId, InstanceData, (int)(InstanceData.Count * 1.2f), m_tmpDecalData);
                 ProfilerShort.End();
             }
-            m_tmpInstanceData.Clear();
+            InstanceData.Clear();
 
             ProfilerShort.Begin("Update instance entitites");
             UpdateRenderEntitiesInstanceData(renderFlags, m_parentCullObject);

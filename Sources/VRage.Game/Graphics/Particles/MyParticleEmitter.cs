@@ -49,7 +49,17 @@ namespace VRage.Game
             LimitAngle
         }
 
-        IMyConstProperty[] m_properties = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
+        [ThreadStatic]
+        IMyConstProperty[] m_propertiesInternal;
+        IMyConstProperty[] m_properties
+        {
+            get
+            {
+                if (m_propertiesInternal == null)
+                    m_propertiesInternal = new IMyConstProperty[Enum.GetValues(typeof(MyEmitterPropertiesEnum)).Length];
+                return m_propertiesInternal;
+            }
+        }
 
         public MyParticleEmitterType Type
         {

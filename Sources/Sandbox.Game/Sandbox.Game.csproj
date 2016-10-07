@@ -531,6 +531,7 @@
     <Compile Include="Game\Entities\Blocks\MyDebugSphere3.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere2.cs" />
     <Compile Include="Game\Entities\Blocks\MyDebugSphere1.cs" />
+    <Compile Include="Game\Entities\Blocks\MyDoorBase.cs" />
     <Compile Include="Game\Entities\Blocks\MyMechanicalConnectionBlockBase.cs" />
     <Compile Include="Game\Entities\Blocks\MyTextPanel.cs" />
     <Compile Include="Game\Entities\Blocks\ToolbarItemCache.cs" />

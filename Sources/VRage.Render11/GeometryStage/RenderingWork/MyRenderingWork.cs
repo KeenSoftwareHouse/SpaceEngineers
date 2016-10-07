@@ -18,7 +18,7 @@ namespace VRageRender
         internal readonly List<MyRenderContext> RCs = new List<MyRenderContext>();
         internal readonly List<MyRenderingPass> Passes = new List<MyRenderingPass>();
 
-        public WorkPriority Priority { get { return WorkPriority.Normal; } }
+        public WorkPriority Priority { get { return WorkPriority.VeryHigh; } }
         public WorkOptions Options { get { return Parallel.DefaultOptions; } }
 
         public abstract void DoWork(WorkData workData = null);

@@ -307,6 +307,7 @@
     <Compile Include="ParallelTasks\BackgroundWorker.cs" />
     <Compile Include="ParallelTasks\DelegateWork.cs" />
     <Compile Include="ParallelTasks\Deque.cs" />
+    <Compile Include="ParallelTasks\PrioritizedScheduler.cs" />
     <Compile Include="ParallelTasks\FixedPriorityScheduler.cs" />
     <Compile Include="ParallelTasks\Future.cs" />
     <Compile Include="ParallelTasks\Hashtable.cs" />
@@ -315,6 +316,7 @@
     <Compile Include="ParallelTasks\LoopWork.cs" />
     <Compile Include="ParallelTasks\Parallel.cs" />
     <Compile Include="ParallelTasks\Pool.cs" />
+    <Compile Include="ParallelTasks\IPrioritizedWork.cs" />
     <Compile Include="ParallelTasks\Semaphore.cs" />
     <Compile Include="ParallelTasks\Singleton.cs" />
     <Compile Include="ParallelTasks\SpinLock.cs" />

@@ -796,7 +796,7 @@ namespace Sandbox.Game.Entities
         {
             DeactivateBlockCreation();
 
-            CurrentBlockDefinition = null;
+                CurrentBlockDefinition = null;
 
             m_stationPlacement = false;
             CurrentGrid = null;
@@ -3724,7 +3724,7 @@ namespace Sandbox.Game.Entities
             base.ChooseHitObject();
 
             m_gizmo.Clear();
-        }
+            }
 
         private Vector3D GetFreeSpacePlacementPosition(out bool valid)
         {
@@ -4017,7 +4017,7 @@ namespace Sandbox.Game.Entities
         /// <summary>
         /// Spawn static grid - must have identity rotation matrix! If dontAdd is true, grid won't be added to enitites. Also it won't have entityId set.
         /// </summary>
-        public static MyCubeGrid SpawnStaticGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, SpawnFlags spawnFlags = SpawnFlags.Default, long builtBy = 0)
+        public static MyCubeGrid SpawnStaticGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, SpawnFlags spawnFlags = SpawnFlags.Default, long builtBy = 0, Action completionCallback = null)
         {
             Debug.Assert(Sync.IsServer, "Only server can spawn grids! Clients have to send requests!");
 
@@ -4050,17 +4050,17 @@ namespace Sandbox.Game.Entities
 
             if ((spawnFlags & SpawnFlags.AddToScene) != SpawnFlags.None)
             {
-                grid = MyEntities.CreateFromObjectBuilderAndAdd(gridBuilder) as MyCubeGrid;
+                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, true, completionCallback) as MyCubeGrid;
             }
             else
             {
-                grid = MyEntities.CreateFromObjectBuilder(gridBuilder) as MyCubeGrid;
+                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, completionCallback: completionCallback) as MyCubeGrid;
             }
 
             return grid;
         }
 
-        public static MyCubeGrid SpawnDynamicGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, long entityId = 0, SpawnFlags spawnFlags = SpawnFlags.Default, long builtBy = 0)
+        public static MyCubeGrid SpawnDynamicGrid(MyCubeBlockDefinition blockDefinition, MyEntity builder, MatrixD worldMatrix, Vector3 color, long entityId = 0, SpawnFlags spawnFlags = SpawnFlags.Default, long builtBy = 0, Action completionCallback = null)
         {
             var gridBuilder = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_CubeGrid>();
             Vector3 offset = Vector3.TransformNormal(MyCubeBlock.GetBlockGridOffset(blockDefinition), worldMatrix);
@@ -4087,7 +4087,7 @@ namespace Sandbox.Game.Entities
             {
                 gridBuilder.EntityId = entityId;
                 blockBuilder.EntityId = entityId + 1;
-                grid = MyEntities.CreateFromObjectBuilderAndAdd(gridBuilder) as MyCubeGrid;
+                grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, true, completionCallback) as MyCubeGrid;
             }
             else
             {
@@ -4096,7 +4096,7 @@ namespace Sandbox.Game.Entities
                 {
                     gridBuilder.EntityId = MyEntityIdentifier.AllocateId();
                     blockBuilder.EntityId = gridBuilder.EntityId + 1;
-                    grid = MyEntities.CreateFromObjectBuilderAndAdd(gridBuilder) as MyCubeGrid;
+                    grid = MyEntities.CreateFromObjectBuilderParallel(gridBuilder, true, completionCallback) as MyCubeGrid;
                 }
             }
 
@@ -4356,10 +4356,10 @@ namespace Sandbox.Game.Entities
 
             if (isStatic)
             {
-                grid = SpawnStaticGrid(blockDefinition, builder, worldMatrix, color, flags, author.IdentityId);
+                grid = SpawnStaticGrid(blockDefinition, builder, worldMatrix, color, flags, author.IdentityId, completionCallback: delegate() { AfterGridBuild(builder, grid, instantBuild); });
             }
             else
-                grid = SpawnDynamicGrid(blockDefinition, builder, worldMatrix, color, spawnFlags: flags, builtBy: author.IdentityId);
+                grid = SpawnDynamicGrid(blockDefinition, builder, worldMatrix, color, spawnFlags: flags, builtBy: author.IdentityId, completionCallback: delegate() { AfterGridBuild(builder, grid, instantBuild); });
 
             
 
@@ -4377,8 +4377,6 @@ namespace Sandbox.Game.Entities
                         MyCoordinateSystem.Static.CreateCoordSys(grid, CubeBuilderDefinition.BuildingSettings.StaticGridAlignToCenter, true);
                     }
                 }
-
-                AfterGridBuild(builder, grid, instantBuild);
             }
         }
 

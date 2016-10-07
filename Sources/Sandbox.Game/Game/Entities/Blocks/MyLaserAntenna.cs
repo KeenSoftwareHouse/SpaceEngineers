@@ -175,7 +175,7 @@ namespace Sandbox.Game.Entities.Cube
         static MyTerminalControlButton<MyLaserAntenna> PasteGpsCoords;
         static MyTerminalControlButton<MyLaserAntenna> ConnectReceiver;
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             /*MyTerminalControlFactory.RemoveBaseClass<MyLaserAntenna, MyTerminalBlock>();
 
@@ -187,7 +187,7 @@ namespace Sandbox.Game.Entities.Cube
 
             if (MyTerminalControlFactory.AreControlsCreated<MyLaserAntenna>())
                 return;
-
+            base.CreateTerminalControls();
             idleButton = new MyTerminalControlButton<MyLaserAntenna>("Idle", MySpaceTexts.LaserAntennaIdleButton, MySpaceTexts.Blank,
                 delegate (MyLaserAntenna self)
                 {

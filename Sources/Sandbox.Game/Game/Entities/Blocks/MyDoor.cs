@@ -35,7 +35,7 @@ using VRage.Sync;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Door))]
-    public class MyDoor : MyFunctionalBlock, ModAPI.IMyDoor
+    public class MyDoor : MyDoorBase, ModAPI.IMyDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -48,8 +48,6 @@ namespace Sandbox.Game.Entities
 
         private MyEntitySubpart m_leftSubpart = null;
         private MyEntitySubpart m_rightSubpart = null;
-
-        private readonly Sync<bool> m_open;
 
         public float MaxOpen = 1.2f;
 
@@ -67,13 +65,14 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        public MyDoor()
+        public MyDoor() : base()
         {
 #if XB1 // XB1_SYNC_NOREFLECTION
             m_currOpening = SyncType.CreateAndAddProp<float>();
             m_open = SyncType.CreateAndAddProp<bool>();
 #endif // XB1
-            CreateTerminalControls();
+            //GR: added to base class do not use here
+            //CreateTerminalControls();
 
             m_currOpening.ValidateNever();
             m_currOpening.Value = 0f;
@@ -99,53 +98,9 @@ namespace Sandbox.Game.Entities
                 MyCubeBlock.UpdateEmissiveParts(Render.RenderObjectIDs[0], 0.0f, Color.Red, Color.White);
         }
 
-        public bool Open
-        {
-            get
-            {
-                return m_open;
-            }
-            set
-            {
-				if (m_open != value && Enabled && ResourceSink.IsPowered)
-                {
-                    m_open.Value = value;
-                }
-            }
-        }
-
         public float OpenRatio
         {
             get { return m_currOpening/MaxOpen; }
-        }
-
-        static void CreateTerminalControls()
-        {
-            if (MyTerminalControlFactory.AreControlsCreated<MyDoor>())
-                return;
-
-            var open = new MyTerminalControlOnOffSwitch<MyDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
-            open.Getter = (x) => x.Open;
-            open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);
-            open.EnableToggleAction();
-            open.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(open);
-        }
-
-        public void SetOpenRequest(bool open, long identityId)
-        {
-            MyMultiplayer.RaiseEvent(this, x => x.OpenRequest, open, identityId);
-        }
-
-        [Event,Reliable,Server]
-        void OpenRequest(bool open, long identityId)
-        {
-            VRage.Game.MyRelationsBetweenPlayerAndBlock relation = GetUserRelationToOwner(identityId);
-
-            if (relation.IsFriendly())
-            {
-                Open = open;
-            }
         }
 
         protected override void OnEnabledChanged()

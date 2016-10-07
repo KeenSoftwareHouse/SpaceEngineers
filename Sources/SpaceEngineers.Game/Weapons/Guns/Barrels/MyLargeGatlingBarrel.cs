@@ -1,6 +1,9 @@
 ﻿using Sandbox;
 using Sandbox.Engine.Utils;
 using Sandbox.Game;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Gui;
+using Sandbox.Game.Localization;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.Weapons.Guns.Barrels;
 using VRage.Game;
@@ -17,8 +20,21 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
         float m_projectileMaxTrajectory;
         Vector3 m_projectileColor;
 
+        private int m_nextNotificationTime = 0;
+        private MyHudNotification m_reloadNotification = null;
+
         float m_rotationAngle;                          //  Actual rotation angle (not rotation speed) around Z axis
         float m_rotationTimeout;
+        private int m_shotsLeftInBurst = 0;
+        private int m_reloadCompletionTime = 0;
+
+        public int ShotsInBurst
+        {
+            get
+            {
+                return this.m_gunBase.ShotsInBurst;
+            }
+        }
 
 
         public MyLargeGatlingBarrel()
@@ -30,6 +46,7 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
         {
             base.Init(entity, turretBase);
 
+            m_shotsLeftInBurst = ShotsInBurst;
             // backward compatibility with old models/mods
             if (!m_gunBase.HasDummies)  
             {
@@ -64,6 +81,8 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
 
             if (rotationAngle != 0)
                 Entity.PositionComp.LocalMatrix = Matrix.CreateRotationZ(rotationAngle) * Entity.PositionComp.LocalMatrix;
+
+            UpdateReloadNotification();
         }
 
         public override void Draw()
@@ -89,11 +108,19 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
         // Start shooting on the presented target in the queue:
         public override bool StartShooting()
         {
+            // Wait for reload to finish
+            if (m_reloadCompletionTime > MySandboxGame.TotalGamePlayTimeInMilliseconds)
+                return false;
+
             // start shooting this kind of ammo ...
             if (!base.StartShooting())
                 return false;
 
             if ((MySandboxGame.TotalGamePlayTimeInMilliseconds - m_lastTimeShoot) < (m_gunBase.ShootIntervalInMiliseconds/* * 0.75f*/))
+                return false;
+
+            // no ammo
+            if (m_shotsLeftInBurst <= 0 && ShotsInBurst != 0)
                 return false;
 
             // Set muzzle flashes:
@@ -132,6 +159,20 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
             // Shoot projectiles
             Shoot(Entity.PositionComp.GetPosition());
 
+            var time = m_gunBase.ReloadTime;
+
+            if (ShotsInBurst > 0)
+            {
+                m_shotsLeftInBurst -= 1;
+
+                // If the clip ran out, start reloading
+                if (m_shotsLeftInBurst <= 0)
+                {
+                    m_reloadCompletionTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + m_gunBase.ReloadTime;
+                    m_shotsLeftInBurst = ShotsInBurst;
+                }
+            }
+
             // dont decrease ammo count ...
             m_lastTimeShoot = MySandboxGame.TotalGamePlayTimeInMilliseconds;
             return true;
@@ -143,6 +184,76 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
             {
                 m_shotSmoke.Stop();
                 m_shotSmoke = null;
+            }
+        }
+
+        private void UpdateReloadNotification()
+        {
+            // Remove expired notification
+            if (MySandboxGame.TotalGamePlayTimeInMilliseconds > m_nextNotificationTime)
+            {
+                m_reloadNotification = null;
+            }
+
+            // If there is no ammo, don't show reloading text
+            if (!m_gunBase.HasEnoughAmmunition() && Sandbox.Game.World.MySession.Static.SurvivalMode)
+            {
+                MyHud.Notifications.Remove(m_reloadNotification);
+                m_reloadNotification = null;
+                return;
+            }
+
+            if (!m_turretBase.IsControlledByLocalPlayer)
+            {
+                // Remove reload notification when not reloading
+                if (m_reloadNotification != null)
+                {
+                    MyHud.Notifications.Remove(m_reloadNotification);
+                    m_reloadNotification = null;
+                }
+
+                return;
+            }
+
+            // Wait reload interval
+            if (m_reloadCompletionTime > MySandboxGame.TotalGamePlayTimeInMilliseconds)
+            {
+                ShowReloadNotification(m_reloadCompletionTime - MySandboxGame.TotalGamePlayTimeInMilliseconds);
+                return;
+            }
+
+        }
+
+        /// <summary>
+        /// Will show the reload notification for the specified duration.
+        /// </summary>
+        /// <param name="duration">The time in MS it should show reloading.</param>
+        private void ShowReloadNotification(int duration)
+        {
+            int desiredEndTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + duration;
+
+            if (m_reloadNotification == null)
+            {
+                // Removing 250ms to remove overlap in notification display.
+                duration = System.Math.Max(0, duration - 250);
+                if (duration == 0)
+                {
+                    // No notification
+                    return;
+                }
+
+                m_reloadNotification = new MyHudNotification(MySpaceTexts.LargeMissileTurretReloadingNotification, duration, level: MyNotificationLevel.Important);
+                MyHud.Notifications.Add(m_reloadNotification);
+
+                m_nextNotificationTime = desiredEndTime;
+            }
+            else
+            {
+                // Append with extra time
+                int extraTime = desiredEndTime - m_nextNotificationTime;
+                m_reloadNotification.AddAliveTime(extraTime);
+
+                m_nextNotificationTime = desiredEndTime;
             }
         }
     }

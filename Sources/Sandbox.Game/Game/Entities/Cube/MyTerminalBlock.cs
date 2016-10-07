@@ -100,7 +100,9 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyTerminalBlock> ShowInTerminalChanged;
         public event Action<MyTerminalBlock> ShowInToolbarConfigChanged;
         public event Action<MyTerminalBlock, StringBuilder> AppendingCustomInfo;
-        
+
+        static FastResourceLock m_createControlsLock = new FastResourceLock();
+
         public MyTerminalBlock()
         {
 #if XB1 // XB1_SYNC_NOREFLECTION
@@ -108,8 +110,11 @@ namespace Sandbox.Game.Entities.Cube
             m_showInTerminal = SyncType.CreateAndAddProp<bool>();
             m_showInToolbarConfig = SyncType.CreateAndAddProp<bool>();
 #endif // XB1
-            CreateTerminalControls();
-
+            //GR: due to parallelization we need this block running synchronized.
+            lock (m_createControlsLock)
+            {
+                CreateTerminalControls();
+            }
             DetailedInfo = new StringBuilder();
             CustomInfo = new StringBuilder();
             CustomNameWithFaction = new StringBuilder();
@@ -355,8 +360,10 @@ namespace Sandbox.Game.Entities.Cube
         /// that inherit MyTerminalBlock should put terminal control creation in a function called CreateTerminalControls, as MyTerminalControlFactory 
         /// will properly ensure their base classes' controls are added in.  I can't make this virtual because terminal controls don't deal with instances
         /// directly (this should probably change)
+        /// 
+        /// GR: Had to change this from static due to parallelization issues with multuple threads. Now it should run only once.
         /// </summary>
-        static void CreateTerminalControls()
+        protected virtual void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyTerminalBlock>())
                 return;

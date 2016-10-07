@@ -2254,6 +2254,7 @@
       <DisplayName>DisplayName_Block_LightArmorSlope</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\light_armor_slope.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2381,6 +2382,7 @@
       <DisplayName>DisplayName_Block_LightArmorCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\light_armor_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2475,6 +2477,7 @@
       <DisplayName>DisplayName_Block_LightArmorInvCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\light_armor_inv_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2806,6 +2809,7 @@
       <DisplayName>DisplayName_Block_HeavyArmorSlope</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\heavy_armor_slope.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -2935,6 +2939,7 @@
       <DisplayName>DisplayName_Block_HeavyArmorCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\heavy_armor_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -3031,6 +3036,7 @@
       <DisplayName>DisplayName_Block_HeavyArmorInvCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\heavy_armor_inv_corner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>Cube</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -3360,7 +3366,6 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <GuiVisible>false</GuiVisible>
-      <Public>true</Public>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -3533,7 +3538,6 @@
       <MirroringY>ZHalfY</MirroringY>
       <MirroringZ>YHalfY</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -3953,7 +3957,6 @@
       <DeformationRatio>0.4</DeformationRatio>
       <EdgeType>Light</EdgeType>
       <GuiVisible>false</GuiVisible>
-      <Public>true</Public>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -4128,7 +4131,6 @@
       <MirroringZ>YHalfY</MirroringZ>
       <DeformationRatio>0.4</DeformationRatio>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>24</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -4548,7 +4550,6 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -4720,7 +4721,6 @@
       <MirroringY>ZHalfY</MirroringY>
       <MirroringZ>YHalfY</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <BuildTimeSeconds>3</BuildTimeSeconds>
       <DisassembleRatio>2.5</DisassembleRatio>
     </Definition>
@@ -5135,7 +5135,6 @@
       <MirroringY>Z</MirroringY>
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <DeformationRatio>0.16</DeformationRatio>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>3</DisassembleRatio>
@@ -5309,7 +5308,6 @@
       <MirroringY>ZHalfY</MirroringY>
       <MirroringZ>YHalfY</MirroringZ>
       <EdgeType>Light</EdgeType>
-      <Public>true</Public>
       <DeformationRatio>0.16</DeformationRatio>
       <BuildTimeSeconds>8</BuildTimeSeconds>
       <DisassembleRatio>3</DisassembleRatio>
@@ -17962,6 +17960,7 @@
       <DisplayName>DisplayName_Block_TextPanel</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\TextPanel.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -18013,6 +18012,7 @@
       <DisplayName>DisplayName_LCD_PanelWide</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\LCDPanelWide.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="6" y="3" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -19988,7 +19988,6 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
         <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="3" Default="true" />
         <MountPoint Side="Bottom" StartX="1" StartY="2" EndX="2" EndY="4" />
         <MountPoint Side="Left" StartX="2" StartY="1" EndX="4" EndY="2" />
@@ -20012,12 +20011,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
-      <BlockVariants>
+      <!--<BlockVariants>
         <BlockVariant>
           <TypeId>Thrust</TypeId>
-          <SubtypeId>SmallBlockLargeAtmosphericThrust</SubtypeId>
+          <SubtypeId>LargeBlockSmallAtmosphericThrust</SubtypeId>
         </BlockVariant>
-      </BlockVariants>
+      </BlockVariants>-->
       <BlockPairName>LargeAtmoThrust</BlockPairName>
       <Center x="1" y="1" z="2" />
       <MirroringZ>Y</MirroringZ>
@@ -20093,7 +20092,6 @@
       </Components>               
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
         <MountPoint Side="Top" StartX="0" StartY="1" EndX="1" EndY="2" Default="true"/>
         <MountPoint Side="Bottom" StartX="0" StartY="1" EndX="1" EndY="2" />
         <MountPoint Side="Left" StartX="1" StartY="0" EndX="2" EndY="1" />
@@ -20200,7 +20198,6 @@
       </Components>
       <CriticalComponent Subtype="Motor" Index="0" />
       <MountPoints>
-        <MountPoint Side="Back" StartX="0" StartY="0" EndX="0" EndY="0" />
         <MountPoint Side="Top" StartX="1" StartY="1" EndX="2" EndY="4" Default="true"/>
         <MountPoint Side="Bottom" StartX="1" StartY="1" EndX="2" EndY="4" />
         <MountPoint Side="Right" StartX="1" StartY="1" EndX="4" EndY="2" />
@@ -20224,6 +20221,12 @@
           <MinAllowed>0</MinAllowed>
         </DynamicMode>
       </VoxelPlacement>
+      <!--<BlockVariants>
+        <BlockVariant>
+          <TypeId>Thrust</TypeId>
+          <SubtypeId>SmallBlockSmallAtmosphericThrust</SubtypeId>
+        </BlockVariant>
+      </BlockVariants>-->
       <BlockPairName>LargeAtmoThrust</BlockPairName>
       <Center x="1" y="1" z="2" />
       <MirroringZ>Y</MirroringZ>
@@ -20936,6 +20939,7 @@
       <DisplayName>DisplayName_Block_PistonBase</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Piston.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -20982,6 +20986,7 @@
       <DisplayName>DisplayName_Block_PistonBase</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Piston.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="3" z="1" />
       <Center x="0" y="0" z="0"></Center>
@@ -21320,6 +21325,7 @@
       <DisplayName>DisplayName_Block_Suspension3x3</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\WheelSuspension3x3.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21392,6 +21398,7 @@
       <DisplayName>DisplayName_Block_Suspension5x5</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\WheelSuspension5x5.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="2" y="3" z="2" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21452,6 +21459,7 @@
       <DisplayName>DisplayName_Block_Suspension1x1</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\WheelSuspension1x1.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21547,6 +21555,7 @@
       <DisplayName>DisplayName_Block_Rotor</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\motor.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="2" z="1" />
       <ModelOffset x="0" y="-0.25" z="0" />
@@ -21595,6 +21604,7 @@
       <DisplayName>DisplayName_Block_RotorPart</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\RotorPart.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -21767,6 +21777,7 @@
       <Icon>Textures\GUI\Icons\Cubes\AdvencedMotor.dds</Icon>
       <Public>false</Public>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="2" z="3" />
       <ModelOffset x="0" y="-0.25" z="0" />
@@ -22960,6 +22971,7 @@
       <DisplayName>DisplayName_Block_ConveyorSmall</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorSmall.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -23345,7 +23357,7 @@
       </Id>
       <DisplayName>DisplayName_Block_ConveyorTubeMedium</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ConveyorTube.dds</Icon>
-      <GuiVisible>true</GuiVisible>
+      <GuiVisible>false</GuiVisible>
       <CubeSize>Small</CubeSize>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
@@ -23548,6 +23560,7 @@
       <DisplayName>DisplayName_Block_Conveyor</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\Conveyor.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="3" y="3" z="3" />
       <ModelOffset x="0" y="0" z="0" />
@@ -24313,6 +24326,7 @@
       <EdgeType>Light</EdgeType>
       <BuildTimeSeconds>10</BuildTimeSeconds>
       <Public>true</Public>
+      <GuiVisible>false</GuiVisible>
       <InventorySize>
         <X>2.5</X>
         <Y>2.5</Y>
@@ -24559,6 +24573,7 @@
       <MirroringZ>Y</MirroringZ>
       <EdgeType>Light</EdgeType>
       <Public>true</Public>
+      <GuiVisible>false</GuiVisible>
       <BuildTimeSeconds>20</BuildTimeSeconds>
       <InventorySize>
         <X>2.5</X>
@@ -25173,6 +25188,7 @@
       <DisplayName>DisplayName_Block_ArmorCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ArmorCorner.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -25212,6 +25228,7 @@
       <DisplayName>DisplayName_Block_ArmorInvCorner</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\BlastDoorCornerInverted.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />
@@ -25251,6 +25268,7 @@
       <DisplayName>DisplayName_Block_ArmorSide</DisplayName>
       <Icon>Textures\GUI\Icons\Cubes\ArmorSide.dds</Icon>
       <CubeSize>Small</CubeSize>
+      <GuiVisible>false</GuiVisible>
       <BlockTopology>TriangleMesh</BlockTopology>
       <Size x="1" y="1" z="1" />
       <ModelOffset x="0" y="0" z="0" />

@@ -123,11 +123,11 @@ namespace Sandbox.Game.Entities.Blocks
         #endregion
 
         #region Terminal properties
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLightingBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var lightColor = new MyTerminalControlColor<MyLightingBlock>("Color", MySpaceTexts.BlockPropertyTitle_LightColor);
             lightColor.Getter = (x) => x.Color;
             lightColor.Setter = (x, v) => x.m_lightColor.Value = v;

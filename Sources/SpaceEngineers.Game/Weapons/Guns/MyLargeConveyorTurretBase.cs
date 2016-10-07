@@ -40,11 +40,11 @@ namespace SpaceEngineers.Game.Weapons.Guns
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLargeConveyorTurretBase>())
                 return;
-
+            base.CreateTerminalControls();
             var separator = new MyTerminalControlSeparator<MyLargeConveyorTurretBase>();
             MyTerminalControlFactory.AddControl(separator);
             var useConvSystem = new MyTerminalControlOnOffSwitch<MyLargeConveyorTurretBase>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);

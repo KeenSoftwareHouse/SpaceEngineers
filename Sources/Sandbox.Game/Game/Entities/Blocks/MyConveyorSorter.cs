@@ -132,11 +132,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyConveyorSorter>())
                 return;
-
+            base.CreateTerminalControls();
             drainAll = new MyTerminalControlOnOffSwitch<MyConveyorSorter>("DrainAll", MySpaceTexts.Terminal_DrainAll);
             drainAll.Getter = (block) => block.DrainAll;
             drainAll.Setter = (block, val) => block.DrainAll = val;

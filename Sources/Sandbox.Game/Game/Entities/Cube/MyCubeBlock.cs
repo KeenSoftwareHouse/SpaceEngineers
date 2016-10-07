@@ -442,7 +442,6 @@ namespace Sandbox.Game.Entities
             orientation.Translation = localMatrix.Translation;
             localMatrix = orientation;
         }
-
         public virtual void Init(MyObjectBuilder_CubeBlock builder, MyCubeGrid cubeGrid)
         {
             //objectBuilder.PersistentFlags |= MyPersistentEntityFlags2.CastShadows;

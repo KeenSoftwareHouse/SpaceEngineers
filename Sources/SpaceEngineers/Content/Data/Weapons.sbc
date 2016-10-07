@@ -165,7 +165,7 @@
         <TypeId>WeaponDefinition</TypeId>
         <SubtypeId>GatlingGun</SubtypeId>
       </Id>
-      <ProjectileAmmoData RateOfFire="700" ShootSoundName="WepShipGatlingShot" />
+      <ProjectileAmmoData RateOfFire="700" ShootSoundName="WepShipGatlingShot" ShotsInBurst="180" />
       <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
 	    <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
@@ -174,6 +174,7 @@
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
       </AmmoMagazines>
+      <ReloadTime>4000</ReloadTime>
     </Weapon>
     
     <Weapon>
@@ -181,13 +182,14 @@
         <TypeId>WeaponDefinition</TypeId>
         <SubtypeId>LargeGatlingTurret</SubtypeId>
       </Id>
-      <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepGatlingTurretShot" />
+      <ProjectileAmmoData RateOfFire="600" ShootSoundName="WepGatlingTurretShot" ShotsInBurst="180" />
       <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
       <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
       </AmmoMagazines>
+      <ReloadTime>6000</ReloadTime>
     </Weapon>
 
     <Weapon>
@@ -195,13 +197,14 @@
         <TypeId>WeaponDefinition</TypeId>
         <SubtypeId>SmallGatlingTurret</SubtypeId>
       </Id>
-      <ProjectileAmmoData RateOfFire="300" ShootSoundName="WepGatlingTurretShot" />
+      <ProjectileAmmoData RateOfFire="300" ShootSoundName="WepGatlingTurretShot" ShotsInBurst="180" />
       <ReleaseTimeAfterFire>204</ReleaseTimeAfterFire>
       <DeviateShotAngle>0.4</DeviateShotAngle>
       <MuzzleFlashLifeSpan>40</MuzzleFlashLifeSpan>
       <AmmoMagazines>
         <AmmoMagazine Subtype="NATO_25x184mm" />
       </AmmoMagazines>
+      <ReloadTime>3000</ReloadTime>
     </Weapon>
     
     <Weapon>

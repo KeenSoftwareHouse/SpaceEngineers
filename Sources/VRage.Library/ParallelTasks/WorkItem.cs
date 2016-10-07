@@ -175,10 +175,7 @@ namespace ParallelTasks
             resetEvent.Reset();
             children.Clear();
             exceptionBuffer = null;
-            ExecutingThread = thread;
-
-            if (ExecutingThread == null)
-                ExecutingThread = Thread.CurrentThread;
+            ExecutingThread = thread ?? Thread.CurrentThread;
 
             var task = new Task(this);
             var currentTask = WorkItem.CurrentTask;
