@@ -1,5 +1,4 @@
-﻿
-using Sandbox.Game.Entities.Cube;
+﻿using Sandbox.Game.Entities.Cube;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
@@ -13,13 +12,16 @@ using VRage;
 using VRage.Library.Utils;
 using Sandbox.Game.Localization;
 using VRage.Library.Collections;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    class MyTerminalControlColor<TBlock> : MyTerminalValueControl<TBlock, Color>
+    class MyTerminalControlColor<TBlock> : MyTerminalValueControl<TBlock, Color>, IMyTerminalControlColor
         where TBlock : MyTerminalBlock
     {
-        public readonly MyStringId Title;
+        public MyStringId Title;
+        public MyStringId Tooltip; // Apparently not actually used
 
         private MyGuiControlColor m_color;
         private Action<MyGuiControlColor> m_changeColor;
@@ -76,6 +78,32 @@ namespace Sandbox.Game.Gui
         public override Color GetMaximum(TBlock block)
         {
             return new Color(Vector4.One);
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
         }
     }
 }

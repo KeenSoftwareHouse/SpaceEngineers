@@ -39,7 +39,7 @@ namespace VRage.Game.Components
             if (container != null)
                 OnAddedToContainer();
         }
-#if !BLIT
+#if !UNSHARPER
         public virtual T GetAs<T>() where T : MyComponentBase
         {
             return this as T;
@@ -59,10 +59,16 @@ namespace VRage.Game.Components
         {
         }
 
+        /// <summary>
+        /// CH: TOOD: Be careful! This does not get called if the component is added to a container that is in the scene already!
+        /// </summary>
         public virtual void OnAddedToScene()
         {
         }
 
+        /// <summary>
+        /// CH: TOOD: Be careful! This does not get called if the component is removed from a container that is still in the scene!
+        /// </summary>
         public virtual void OnRemovedFromScene()
         {
         }

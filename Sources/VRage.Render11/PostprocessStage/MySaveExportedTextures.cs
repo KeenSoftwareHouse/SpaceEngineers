@@ -34,7 +34,7 @@ namespace VRage.Render11.PostprocessStage
             const int RENDER_TEXTURE_RESOLUTION = 512;
 
             RC.DeviceContext.OutputMerger.BlendState = null;
-            RC.DeviceContext.InputAssembler.InputLayout = null;
+            RC.SetIL(null);
 
             RC.SetPS(m_ps);
             RC.SetCB(0, MyCommon.FrameConstants);
@@ -87,7 +87,7 @@ namespace VRage.Render11.PostprocessStage
                 MyScreenPass.DrawFullscreenQuad(viewport);
 
                 // Save to file
-                SaveRenderTargetToFile(renderTexture.GetHWResource(), texture.PathToSave, ImageFileFormat.Png);
+                MyTextureData.ToFile(renderTexture.GetHWResource(), texture.PathToSave, ImageFileFormat.Png);
             }
 
             texturesToRender.Clear();
@@ -101,22 +101,5 @@ namespace VRage.Render11.PostprocessStage
             RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, null);
             RC.BindGBufferForRead(0, MyGBuffer.Main);
         }
-
-        private static void SaveRenderTargetToFile(Resource res, string path, ImageFileFormat fmt)
-        {
-            try
-            {
-                Resource.ToFile(MyRender11.DeviceContext, res, fmt, path);
-            }
-            catch (SharpDX.SharpDXException e)
-            {
-                MyRender11.Log.WriteLine("SaveResourceToFile()");
-                MyRender11.Log.IncreaseIndent();
-                MyRender11.Log.WriteLine(String.Format("Failed to save screenshot {0}: {1}", path, e));
-                MyRender11.Log.DecreaseIndent();
-            }
-        }
-
-
     }
 }

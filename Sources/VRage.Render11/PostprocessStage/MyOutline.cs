@@ -17,6 +17,7 @@ namespace VRageRender
         internal Color Color;
         internal float Thickness;
         internal ulong PulseTimeInFrames;
+        internal int InstanceId;
     }
 
     class MyOutline : MyImmediateRC
@@ -40,18 +41,18 @@ namespace VRageRender
 
         /// <param name="sectionIndices">null for all the mesh</param>
         /// <param name="thickness">Zero or negative remove the outline</param>
-        internal static void HandleOutline(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames)
+        internal static void HandleOutline(uint ID, int[] sectionIndices, Color? outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId)
         {
             if (thickness > 0)
             {
                 if (sectionIndices == null)
                 {
-                    Add(ID, -1, outlineColor.Value, thickness, pulseTimeInFrames);
+                    Add(ID, -1, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
                 }
                 else
                 {
                     foreach (int index in sectionIndices)
-                        Add(ID, index, outlineColor.Value, thickness, pulseTimeInFrames);
+                        Add(ID, index, outlineColor.Value, thickness, pulseTimeInFrames, instanceId);
                 }
             }
             else
@@ -60,7 +61,7 @@ namespace VRageRender
             }
         }
 
-        private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames)
+        private static void Add(uint ID, int sectionIndex, Color outlineColor, float thickness, ulong pulseTimeInFrames, int instanceId = -1)
         {
             if (!m_outlines.ContainsKey(ID))
                 m_outlines[ID] = new List<MyOutlineDesc>();
@@ -70,7 +71,8 @@ namespace VRageRender
                 SectionIndex = sectionIndex,
                 Color = outlineColor,
                 Thickness = thickness,
-                PulseTimeInFrames = pulseTimeInFrames
+                PulseTimeInFrames = pulseTimeInFrames,
+                InstanceId = instanceId
             });
         }
 
@@ -93,7 +95,7 @@ namespace VRageRender
             // blur
             // blend to main target testing with stencil again
 
-            MyOutlinePass.Instance.ViewProjection = MyEnvironment.ViewProjectionAt0;
+            MyOutlinePass.Instance.ViewProjection = MyRender11.Environment.ViewProjectionAt0;
             MyOutlinePass.Instance.Viewport = new MyViewport(MyRender11.ViewportResolution.X, MyRender11.ViewportResolution.Y);
 
             MyOutlinePass.Instance.PerFrame();
@@ -207,7 +209,14 @@ namespace VRageRender
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
             for (int idx = 0; idx < meshes.Length; idx++)
             {
-                MyMaterialMergeGroup materialGroup = group.GetMaterialGroup(meshes[idx].Material);
+                MyMaterialMergeGroup materialGroup;
+                found = group.TryGetMaterialGroup(meshes[idx].Material, out materialGroup);
+                if (!found)
+                {
+                    DebugRecordMeshPartCommands(model, desc.SectionIndex, meshes[idx].Material);
+                    return;
+                }
+
                 int actorIndex;
                 found = materialGroup.TryGetActorIndex(actor, out actorIndex);
                 if (!found)
@@ -233,33 +242,40 @@ namespace VRageRender
 
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
-                if(desc.PulseTimeInFrames > 0)
+                if (desc.PulseTimeInFrames > 0)
                     constants.Color.W *= (float)Math.Pow((float)Math.Cos(2.0 * Math.PI * (float)MyRender11.Settings.GameplayFrame / (float)desc.PulseTimeInFrames), 2.0);
-                
+
                 var mapping = MyMapping.MapDiscard(MyCommon.OutlineConstants);
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
 
                 RC.BindShaders(renderLod.HighlightShaders[submeshIndex]);
-                MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex]);
+                MyOutlinePass.Instance.RecordCommands(renderLod.RenderableProxies[submeshIndex], -1, desc.InstanceId);
             }
         }
 
         /// <returns>True if the section was found</returns>
-        private static bool RecordMeshSectionCommands(MeshId model, LodMeshId lodModelId,
+        private static void RecordMeshSectionCommands(MeshId model, LodMeshId lodModelId,
             MyRenderableComponent rendercomp, MyRenderLod renderLod,
             MyOutlineDesc desc, ref float maxThickness)
         {
             MeshSectionId sectionId;
             bool found = MyMeshes.TryGetMeshSection(model, rendercomp.CurrentLod, desc.SectionIndex, out sectionId);
             if (!found)
-                return false;
+                return;
 
             OutlineConstantsLayout constants = new OutlineConstantsLayout();
             MyMeshSectionInfo1 section = sectionId.Info;
             MyMeshSectionPartInfo1[] meshes = section.Meshes;
             for (int idx = 0; idx < meshes.Length; idx++)
             {
+                MyMeshSectionPartInfo1 sectionInfo = meshes[idx];
+                if (renderLod.RenderableProxies.Length <= sectionInfo.PartIndex)
+                {
+                    DebugRecordMeshPartCommands(model, desc.SectionIndex, rendercomp, renderLod, meshes, idx);
+                    return;
+                }
+
                 maxThickness = Math.Max(desc.Thickness, maxThickness);
                 constants.Color = desc.Color.ToVector4();
                 if (desc.PulseTimeInFrames > 0)
@@ -269,13 +285,37 @@ namespace VRageRender
                 mapping.WriteAndPosition(ref constants);
                 mapping.Unmap();
 
-                RC.BindShaders(renderLod.HighlightShaders[meshes[idx].PartIndex]);
+                RC.BindShaders(renderLod.HighlightShaders[sectionInfo.PartIndex]);
 
-                MyRenderableProxy proxy = renderLod.RenderableProxies[meshes[idx].PartIndex];
-                MyOutlinePass.Instance.RecordCommands(proxy, meshes[idx].PartSubmeshIndex);
+                MyRenderableProxy proxy = renderLod.RenderableProxies[sectionInfo.PartIndex];
+                MyOutlinePass.Instance.RecordCommands(proxy, sectionInfo.PartSubmeshIndex, desc.InstanceId);
             }
 
-            return true;
+            return;
+        }
+
+        static void DebugRecordMeshPartCommands(MeshId model, int sectionIndex, MyRenderableComponent render,
+            MyRenderLod renderLod, MyMeshSectionPartInfo1[] meshes, int index)
+        {
+            Debug.Assert(false, "DebugRecordMeshPartCommands1: Call Francesco");
+            MyLog.Default.WriteLine("DebugRecordMeshPartCommands1");
+            MyLog.Default.WriteLine("sectionIndex: " + sectionIndex);
+            MyLog.Default.WriteLine("model.Info.Name: " + model.Info.Name);
+            MyLog.Default.WriteLine("render.CurrentLod: " + render.CurrentLod);
+            MyLog.Default.WriteLine("renderLod.RenderableProxies.Length: " + renderLod.RenderableProxies.Length);
+            MyLog.Default.WriteLine("renderLod.HighlightShaders.Length: " + renderLod.HighlightShaders.Length);
+            MyLog.Default.WriteLine("meshes.Length: " + meshes.Length);
+            MyLog.Default.WriteLine("Mesh index: " + index);
+            MyLog.Default.WriteLine("Mesh part index: " + meshes[index].PartIndex);
+        }
+
+        static void DebugRecordMeshPartCommands(MeshId model, int sectionIndex, MyMeshMaterialId material)
+        {
+            Debug.Assert(false, "DebugRecordMeshPartCommands2: Call Francesco");
+            MyLog.Default.WriteLine("DebugRecordMeshPartCommands2");
+            MyLog.Default.WriteLine("sectionIndex: " + sectionIndex);
+            MyLog.Default.WriteLine("model.Info.Name: " + model.Info.Name);
+            MyLog.Default.WriteLine("material.Info.Name: " + material.Info.Name);
         }
     }
 }

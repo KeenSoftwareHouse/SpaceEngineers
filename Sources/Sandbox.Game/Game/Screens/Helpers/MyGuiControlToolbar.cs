@@ -43,6 +43,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         protected int m_contextMenuItemIndex = -1;
 
+        public bool UseContextMenu = true;
         public bool DrawNumbers { get { return MyToolbarComponent.CurrentToolbar.DrawNumbers; } }
         public Func<int, Sandbox.Graphics.GUI.MyGuiControlGrid.ColoredIcon> GetSymbol { get { return MyToolbarComponent.CurrentToolbar.GetSymbol; } }
 
@@ -89,7 +90,7 @@ namespace Sandbox.Game.Screens.Helpers
             if (captureControl == null)
                 captureControl = base.HandleInputElements();
 
-            if (MyInput.Static.IsMouseReleased(MyMouseButtonsEnum.Right) && m_contextMenu.Enabled)
+            if (UseContextMenu && MyInput.Static.IsMouseReleased(MyMouseButtonsEnum.Right) && m_contextMenu.Enabled)
             {
                 m_contextMenu.Enabled = false;
                 m_contextMenu.Activate();
@@ -141,9 +142,12 @@ namespace Sandbox.Game.Screens.Helpers
                 position.X += pageLabel.Size.X + 0.001f;
             }
 
-            // Move the context menu to the top
-            Elements.Remove(m_contextMenu);
-            Elements.Add(m_contextMenu);
+            if (UseContextMenu)
+            {
+                // Move the context menu to the top
+                Elements.Remove(m_contextMenu);
+                Elements.Add(m_contextMenu);
+            }
         }
 
         private void RecreateControls(bool contructor)
@@ -456,7 +460,8 @@ namespace Sandbox.Game.Screens.Helpers
 
         private void Toolbar_CurrentPageChanged(MyToolbar toolbar, MyToolbar.PageChangeArgs args)
         {
-            m_contextMenu.Deactivate();
+            if (UseContextMenu)
+                m_contextMenu.Deactivate();
 
             HighlightCurrentPageLabel();
 
@@ -479,7 +484,7 @@ namespace Sandbox.Game.Screens.Helpers
                 if (item is MyToolbarItemActions)
                 {
                     var actionList = (item as MyToolbarItemActions).PossibleActions(ShownToolbar.ToolbarType);
-                    if (actionList.Count > 0)
+                    if (UseContextMenu && actionList.Count > 0)
                     {
                         m_contextMenu.CreateNewContextMenu();
                         foreach (var action in actionList)

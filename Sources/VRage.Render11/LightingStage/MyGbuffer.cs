@@ -17,9 +17,6 @@ namespace VRageRender
         GBuffer1,
         GBuffer2,
         LBuffer,
-
-        DepthResolved,
-        LBufferResolved
     }
 
     static class MyScreenDependants
@@ -70,7 +67,7 @@ namespace VRageRender
                 new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm_SRgb,
                 samplesNum, samplesQuality));
             m_resources.Insert((int)MyGbufferSlot.GBuffer1,
-                new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm,
+                new MyRenderTarget(width, height, Format.R10G10B10A2_UNorm,
                 samplesNum, samplesQuality));
             m_resources.Insert((int)MyGbufferSlot.GBuffer2,
                 new MyRenderTarget(width, height, Format.R8G8B8A8_UNorm,
@@ -78,14 +75,6 @@ namespace VRageRender
             m_resources.Insert((int)MyGbufferSlot.LBuffer,
                 new MyRenderTarget(width, height, LBufferFormat,
                 samplesNum, samplesQuality));
-
-            if (MyRender11.MultisamplingEnabled)
-            {
-                m_resources.Insert((int)MyGbufferSlot.DepthResolved,
-                    new MyDepthStencil(width, height, 1, 0));
-                m_resources.Insert((int)MyGbufferSlot.LBufferResolved,
-                    new MyUnorderedAccessTexture(width, height, LBufferFormat)); // 
-            }
         }
 
         internal void Release()
@@ -104,7 +93,7 @@ namespace VRageRender
 
         internal MyDepthStencil DepthStencil { get { return m_resources[(int)MyGbufferSlot.DepthStencil] as MyDepthStencil; } }
 
-        internal void Clear()
+        internal void Clear(VRageMath.Color clearColor)
         {
             MyRender11.DeviceContext.ClearDepthStencilView(DepthStencil.m_DSV,
                 DepthStencilClearFlags.Depth | DepthStencilClearFlags.Stencil, MyRender11.DepthClearValue, 0);
@@ -113,8 +102,12 @@ namespace VRageRender
             {
                 var rt = res as IRenderTargetBindable;
                 if(rt != null)
+				{
+					var v3 = clearColor.ToVector3();
                     MyRender11.DeviceContext.ClearRenderTargetView(rt.RTV, 
-                        new Color4(0, 0, 0, 0));
+						new Color4(v3.X, v3.Y, v3.Z,1
+							));
+				}
 
                 var uav = res as IUnorderedAccessBindable;
                 if (uav != null)
@@ -123,11 +116,5 @@ namespace VRageRender
         }
 
         internal static MyGBuffer Main;
-    }
-
-    class MyCubemapRenderer
-    {
-        internal MyGBuffer m_faceGbuffer;
-        
     }
 }

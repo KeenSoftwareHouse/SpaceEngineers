@@ -163,7 +163,7 @@ namespace Sandbox.Game
                 if (stat.Value < action.Cost || stat.Value < action.AmountToActivate)
                 {
                     message = new MyTuple<ushort, MyStringHash>(STAT_VALUE_TOO_LOW, action.StatId);
-                    Debug.Write(String.Format("value: {0}, cost: {1}, activation: {2}", stat.Value, action.Cost, action.AmountToActivate));
+                    //Debug.Write(String.Format("value: {0}, cost: {1}, activation: {2}", stat.Value, action.Cost, action.AmountToActivate));
                     return false;
                 }
             }

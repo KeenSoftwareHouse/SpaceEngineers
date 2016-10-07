@@ -4,21 +4,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Linq;
+using VRage.Library.Collections;
 
 namespace System.Collections.Generic
 {
 
-	// TODO: OP! Create one generic IL, per-type is not necessary
-	static class ListInternalAccessor<T>
-	{
-#if !BLIT
+    // TODO: OP! Create one generic IL, per-type is not necessary
+    static class ListInternalAccessor<T>
+    {
+#if !UNSHARPER
 		public static Func<List<T>, T[]> GetArray;
 		public static Action<List<T>, int> SetSize;
 #endif
 
-		static ListInternalAccessor()
-		{
-#if BLIT
+        static ListInternalAccessor()
+        {
+#if UNSHARPER
 
 #else
                 var dm = new DynamicMethod("get", MethodAttributes.Static | MethodAttributes.Public, CallingConventions.Standard, typeof(T[]), new Type[] { typeof(List<T>) }, typeof(ListInternalAccessor<T>), true);
@@ -46,20 +48,20 @@ namespace System.Collections.Generic
                 il2.Emit(OpCodes.Ret);
                 SetSize = (Action<List<T>, int>)dm2.CreateDelegate(typeof(Action<List<T>, int>));
 #endif
-		}
-	}
+        }
+    }
 
 
-	public struct ClearToken<T> : IDisposable
-	{
-		public List<T> List;
+    public struct ClearToken<T> : IDisposable
+    {
+        public List<T> List;
 
-		public void Dispose()
-		{
-			Debug.Assert(List != null, "List cannot be null");
-			List.Clear();
-		}
-	}
+        public void Dispose()
+        {
+            Debug.Assert(List != null, "List cannot be null");
+            List.Clear();
+        }
+    }
 
     public static class ListExtensions
     {
@@ -84,12 +86,12 @@ namespace System.Collections.Generic
             list.RemoveAt(lastPos);
         }
 
-#if BLIT
-		public static T[] GetInternalArray<T>(this List<T> list)
-		{
-			//not the same thing but will work for now.
-			return list.ToArray();
-		}
+#if UNSHARPER_TMP
+        public static T[] GetInternalArray<T>(this List<T> list)
+        {
+            //not the same thing but will work for now.
+            return list.ToArray();
+        }
 #else
         public static T[] GetInternalArray<T>(this List<T> list)
         {
@@ -107,14 +109,14 @@ namespace System.Collections.Generic
 
         public static void AddArray<T>(this List<T> list, T[] itemsToAdd)
         {
-#if BLIT
-			list.AddRange(itemsToAdd);
+#if UNSHARPER_TMP
+            list.AddRange(itemsToAdd);
 #else
             AddArray(list, itemsToAdd, itemsToAdd.Length);
 #endif
         }
 
-#if !BLIT
+#if !UNSHARPER
         public static void AddArray<T>(this List<T> list, T[] itemsToAdd, int itemCount)
         {
             if (list.Capacity < list.Count + itemCount)
@@ -125,16 +127,44 @@ namespace System.Collections.Generic
             Array.Copy(itemsToAdd, 0, list.GetInternalArray(), list.Count, itemCount);
             ListInternalAccessor<T>.SetSize(list, list.Count + itemCount);
         }
+#endif
 
-        public static void SetSize<T>(this List<T> list, int newSize)
+
+#if UNSHARPER_TMP
+        public static void Resize<T>(this List<T> list, int sz, T c)
+        {
+            int cur = list.Count;
+            if (sz < cur)
+                list.RemoveRange(sz, cur - sz);
+            else if (sz > cur)
+            {
+                if (sz > list.Capacity)//this bit is purely an optimisation, to avoid multiple automatic capacity changes.
+                    list.Capacity = sz;
+                list.AddRange(Enumerable.Repeat(c, sz - cur));
+            }
+        }
+        public static void SetSize<T>(this List<T> list, int sz) where T : new()
+        {
+            if (sz == 0)
+            {
+                list.Clear();
+            }
+            else
+            {
+                System.Diagnostics.Debug.Assert(false);
+            }
+            //			Resize(list, sz, default(T));
+        }
+#else
+		public static void SetSize<T>(this List<T> list, int newSize)
         {
             ListInternalAccessor<T>.SetSize(list, newSize);
         }
 #endif
         public static void AddList<T>(this List<T> list, List<T> itemsToAdd)
         {
-#if BLIT
-			list.AddRange(itemsToAdd);
+#if UNSHARPER_TMP
+            list.AddRange(itemsToAdd);
 #else
             AddArray(list, itemsToAdd.GetInternalArray(), itemsToAdd.Count);
 #endif
@@ -209,12 +239,12 @@ namespace System.Collections.Generic
          * 
          * Return range: [0, Length]
          */
-        public static int BinaryIntervalSearch<T>(this List<T> self, T value) where T : IComparable<T>
+        public static int BinaryIntervalSearch<T>(this IList<T> self, T value) where T : IComparable<T>
         {
             if (self.Count == 0) return 0;
             if (self.Count == 1)
             {
-                return value.CompareTo(self[0]) > 0 ? 1 : 0;
+                return value.CompareTo(self[0]) >= 0 ? 1 : 0;
             }
 
             int mid;
@@ -224,7 +254,7 @@ namespace System.Collections.Generic
             {
                 mid = (start + end) / 2;
 
-                if (value.CompareTo(self[mid]) > 0)
+                if (value.CompareTo(self[mid]) >= 0)
                 {
                     start = mid;
                 }
@@ -237,12 +267,17 @@ namespace System.Collections.Generic
             int ret = start;
 
             // end of array;
-            if (value.CompareTo(self[start]) > 0)
+            if (value.CompareTo(self[start]) >= 0)
             {
                 ret = end;
             }
 
             return ret;
+        }
+
+        public static MyRangeIterator<T>.Enumerable Range<T>(this List<T> array, int start, int end)
+        {
+            return MyRangeIterator<T>.ForRange(array, start, end);
         }
 
         public static void InsertInOrder<T>(this List<T> self, T value, IComparer<T> comparer)

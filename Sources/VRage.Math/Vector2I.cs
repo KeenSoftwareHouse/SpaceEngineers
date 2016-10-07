@@ -8,8 +8,8 @@ namespace VRageMath
     public struct Vector2I
     {
         public static readonly ComparerClass Comparer = new ComparerClass();
-        public static Vector2I Zero  = new Vector2I();
-        public static Vector2I One   = new Vector2I(1, 1);
+        public static Vector2I Zero = new Vector2I();
+        public static Vector2I One = new Vector2I(1, 1);
         public static Vector2I UnitX = new Vector2I(1, 0);
         public static Vector2I UnitY = new Vector2I(0, 1);
 
@@ -31,6 +31,12 @@ namespace VRageMath
         }
 
         public Vector2I(Vector2 vec)
+        {
+            X = (int)vec.X;
+            Y = (int)vec.Y;
+        }
+
+        public Vector2I(Vector2D vec)
         {
             X = (int)vec.X;
             Y = (int)vec.Y;
@@ -102,6 +108,16 @@ namespace VRageMath
             return left.X != right.X || left.Y != right.Y;
         }
 
+        public static Vector2I operator <<(Vector2I left, int bits)
+        {
+            return new Vector2I(left.X << bits, left.Y << bits);
+        }
+
+        public static Vector2I operator >>(Vector2I left, int bits)
+        {
+            return new Vector2I(left.X >> bits, left.Y >> bits);
+        }
+
         public static Vector2I Floor(Vector2 value)
         {
             return new Vector2I((int)Math.Floor(value.X), (int)Math.Floor(value.Y));
@@ -125,7 +141,7 @@ namespace VRageMath
             }
             else
             {
-                return this == (Vector2I) obj;
+                return this == (Vector2I)obj;
             }
         }
 
@@ -150,5 +166,27 @@ namespace VRageMath
         }
 
         #endregion
+
+        public static void Min(ref Vector2I v1, ref Vector2I v2, out Vector2I min)
+        {
+            min.X = Math.Min(v1.X, v2.X);
+            min.Y = Math.Min(v1.Y, v2.Y);
+        }
+
+        public static void Max(ref Vector2I v1, ref Vector2I v2, out Vector2I max)
+        {
+            max.X = Math.Max(v1.X, v2.X);
+            max.Y = Math.Max(v1.Y, v2.Y);
+        }
+
+        public static Vector2I Min(Vector2I v1, Vector2I v2)
+        {
+            return new Vector2I(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
+        }
+
+        public static Vector2I Max(Vector2I v1, Vector2I v2)
+        {
+            return new Vector2I(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
+        }
     }
 }

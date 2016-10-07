@@ -147,7 +147,7 @@ namespace VRageRender
 
         internal static void DrawTriangle(Vector3 v0, Vector3 v1, Vector3 v2, Color color)
         {
-            var distance = ((v0 + v1 + v2) / 3f - (Vector3)MyEnvironment.CameraPosition).LengthSquared();
+            var distance = ((v0 + v1 + v2) / 3f - (Vector3)MyRender11.Environment.CameraPosition).LengthSquared();
             m_triangleSortDistance.Add(distance);
 
             m_vertexList.Add(new MyVertexFormatPositionColor(v0, color));
@@ -183,7 +183,7 @@ namespace VRageRender
             Color cc = color;
             cc.A = (byte)(alpha * 255);
 
-            Vector3D c = MyEnvironment.CameraPosition;
+            Vector3D c = MyRender11.Environment.CameraPosition;
             Vector3D v0 = vertices[0] - c, v1 = vertices[1] - c, v2 = vertices[2] - c, v3 = vertices[3] - c, v4 = vertices[4] - c, v5 = vertices[5] - c, v6 = vertices[6] - c, v7 = vertices[7] - c;
 
             DrawQuadRowWise(v0, v1, v2, v3, cc);
@@ -247,7 +247,7 @@ namespace VRageRender
             RC.SetBS(MyRender11.BlendTransparent);
 
             SortTransparent();
-            var transpose = Matrix.Transpose(MyEnvironment.ViewProjectionAt0);
+            var transpose = Matrix.Transpose(MyRender11.Environment.ViewProjectionAt0);
             var mapping = MyMapping.MapDiscard(MyCommon.ProjectionConstants);
             mapping.WriteAndPosition(ref transpose);
             mapping.Unmap();
@@ -267,7 +267,7 @@ namespace VRageRender
 
             if (m_debugMeshes.Count > 0)
             {
-                var transposeViewProj = Matrix.Transpose(MyEnvironment.ViewProjection);
+                var transposeViewProj = Matrix.Transpose(MyRender11.Environment.ViewProjection);
                 mapping = MyMapping.MapDiscard(MyCommon.ProjectionConstants);
                 mapping.WriteAndPosition(ref transposeViewProj);
                 mapping.Unmap();

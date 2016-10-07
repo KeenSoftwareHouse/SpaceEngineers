@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿#if !XB1
+
+using System.Runtime.InteropServices;
 using System.Security;
 
 namespace VRage.Input
@@ -56,3 +58,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

@@ -14,7 +14,7 @@ using System;
 
 namespace LitJson
 {
-#if !BLIT
+#if !XB1
     public class JsonException : ApplicationException
     {
         public JsonException () : base ()

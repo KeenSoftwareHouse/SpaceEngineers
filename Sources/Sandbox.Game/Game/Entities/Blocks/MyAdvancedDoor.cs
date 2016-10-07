@@ -27,7 +27,7 @@ using VRage.Game;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AdvancedDoor))]
-    public class MyAdvancedDoor : MyFunctionalBlock, ModAPI.IMyDoor
+    public class MyAdvancedDoor : MyFunctionalBlock, ModAPI.IMyAdvancedDoor
     {
         private const float CLOSED_DISSASEMBLE_RATIO = 3.3f;
 
@@ -68,6 +68,8 @@ namespace Sandbox.Game.Entities
 
         public MyAdvancedDoor()
         {
+            CreateTerminalControls();
+
             m_subparts.Clear();
             m_subpartIDs.Clear();
             m_currentOpening.Clear();
@@ -167,8 +169,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
-        static MyAdvancedDoor()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyAdvancedDoor>())
+                return;
+
             var open = new MyTerminalControlOnOffSwitch<MyAdvancedDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
             open.Getter = (x) => x.Open;
             open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);
@@ -726,7 +731,7 @@ namespace Sandbox.Game.Entities
 
             if (relation.IsFriendly())
             {
-                m_open.Value = open;
+                Open = open;
             }
         }
     }

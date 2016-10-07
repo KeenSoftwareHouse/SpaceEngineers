@@ -5,6 +5,7 @@ using Sandbox.Common;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Audio;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui.DebugInputComponents;
 using Sandbox.Game.Localization;
@@ -400,6 +401,13 @@ namespace Sandbox.Game.Gui
             {
                 MySession.Static.Unload();
                 MySession.Static = null;
+            }
+
+            if (MyMusicController.Static != null)
+            {
+                MyMusicController.Static.Unload();
+                MyMusicController.Static = null;
+                MyAudio.Static.MusicAllowed = true;
             }
 
             if(MyMultiplayer.Static != null)

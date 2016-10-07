@@ -1,6 +1,6 @@
 ﻿namespace VRageMath.PackedVector
 {
-    internal static class HalfUtils
+    public static class HalfUtils
     {
         private const int cFracBits = 10;
         private const int cExpBits = 5;

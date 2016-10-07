@@ -11,6 +11,8 @@ using Sandbox.Graphics.Render;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Cinematic FX", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugCinematicFX : MyGuiScreenDebugBase
     {
@@ -55,4 +57,6 @@ namespace Sandbox.Game.Gui
         }
 
     }
+
+#endif
 }

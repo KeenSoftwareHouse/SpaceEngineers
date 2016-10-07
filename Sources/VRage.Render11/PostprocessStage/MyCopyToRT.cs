@@ -27,7 +27,7 @@ namespace VRageRender
             context.OutputMerger.BlendState = null;
             //context.Rasterizer.SetViewport(0, 0, MyRender.ViewportResolution.X, MyRender.ViewportResolution.Y);
 
-            context.InputAssembler.InputLayout = null;
+            RC.SetIL(null);
             context.PixelShader.Set(m_copyPs);
         
             //context.OutputMerger.SetTargets(null as DepthStencilView, target);
@@ -45,7 +45,7 @@ namespace VRageRender
 
             context.OutputMerger.BlendState = MyRender11.BlendAdditive;
 
-            context.InputAssembler.InputLayout = null;
+            RC.SetIL(null);
             context.PixelShader.Set(m_clearAlphaPs);
 
             RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, destination);

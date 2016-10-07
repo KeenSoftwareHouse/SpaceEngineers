@@ -2,6 +2,7 @@
 using SharpDX.DXGI;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.OpenVRWrapper;
 using VRage.Utils;
 using VRage.Voxels;
 using VRageRender.Resources;
@@ -67,10 +68,27 @@ namespace VRageRender
             MyMaterials1.Init();
             MyVoxelMaterials1.Init();
             MyMeshMaterials1.Init();
+
+            try
+            {
+                if (m_settings.UseStereoRendering)
+                {
+                    var openVR = new MyOpenVR();
+                    MyStereoStencilMask.InitUsingOpenVR();
+                }
+            }
+            catch (System.Exception e)
+            {
+                if (!VRage.MyCompilationSymbols.DX11ForceStereo)
+                    throw;
+                MyStereoStencilMask.InitUsingUndefinedMask();
+            }
         }
 
         internal static void OnDeviceReset()
         {
+            MyRenderContext.OnDeviceReset();
+            MyRenderContextPool.OnDeviceReset();
             MyHwBuffers.OnDeviceReset();
             MyShaders.OnDeviceReset();
             MyMaterialShaders.OnDeviceReset();
@@ -139,6 +157,9 @@ namespace VRageRender
 
 
             MyRender11.Log.WriteLine("Unloading session data");
+
+            // Remove leftover persistent debug draw messages
+            m_debugDrawMessages.Clear();
 
             MyScene.DynamicRenderablesDBVH.Clear();
             if (MyScene.SeparateGeometry)
@@ -227,10 +248,10 @@ namespace VRageRender
         internal static MyRenderTarget m_rgba8_1;
         internal static MyRenderTarget m_rgba8_2;
         internal static MyRenderTarget m_rgba8_ms;
+        internal static MyUnorderedAccessTexture Gbuffer1Copy;
 
         internal static RwTexId PostProcessedShadows = RwTexId.NULL;
         internal static RwTexId CascadesHelper = RwTexId.NULL;
-        internal static RwTexId m_gbuffer1Copy = RwTexId.NULL;
 
         internal static void RemoveScreenResources()
         {
@@ -253,12 +274,12 @@ namespace VRageRender
                     m_rgba8_ms = null;
                 }
                 m_prevLum.Release();
+                Gbuffer1Copy.Release();
                 m_transparencyAccum.Release();
                 m_transparencyCoverage.Release();
 
                 MyRwTextures.Destroy(ref PostProcessedShadows);
                 MyRwTextures.Destroy(ref CascadesHelper);
-                MyRwTextures.Destroy(ref m_gbuffer1Copy);
             }
 
             if(m_backbufferCopyResource != null)
@@ -328,12 +349,12 @@ namespace VRageRender
             PostProcessedShadows = MyRwTextures.CreateUavRenderTarget(width, height, Format.R8_UNorm);
             CascadesHelper = MyRwTextures.CreateRenderTarget(width, height, Format.R8_UNorm);
 
-            m_gbuffer1Copy = MyRwTextures.CreateScratch2D(width, height, Format.R8G8B8A8_UNorm, samples, 0, "gbuffer 1 copy");
+            Gbuffer1Copy = new MyUnorderedAccessTexture(width, height, Format.R10G10B10A2_UNorm, samples, 0, "Gbuffer1Copy");
         }
 
         internal static void CopyGbufferToScratch()
         {
-            MyImmediateRC.RC.DeviceContext.CopyResource(MyGBuffer.Main.Get(MyGbufferSlot.GBuffer1).m_resource, m_gbuffer1Copy.Resource);
+            MyImmediateRC.RC.DeviceContext.CopyResource(MyGBuffer.Main.Get(MyGbufferSlot.GBuffer1).m_resource, Gbuffer1Copy.m_resource);
         }
     }
 }

@@ -1,0 +1,527 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_Checkpoint xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <CurrentSector x="0" y="0" z="0" />
+  <ElapsedGameTime>1259294720000</ElapsedGameTime>
+  <SessionName>Tutorial 09 - Ship Flight &amp; Tools</SessionName>
+  <SpectatorPosition>
+    <Position x="183.38075976516333" y="6.7540238148928546" z="-66.119705516631811" />
+    <Forward x="-0.980645835" y="-0.170489341" z="0.09626623" />
+    <Up x="-0.17584829" y="0.9831376" z="-0.0501776338" />
+    <Orientation>
+      <X>-0.08221984</X>
+      <Y>0.735780537</Y>
+      <Z>0.0408789366</Z>
+      <W>0.6709663</W>
+    </Orientation>
+  </SpectatorPosition>
+  <SpectatorIsLightOn>false</SpectatorIsLightOn>
+  <CameraController>Entity</CameraController>
+  <CameraEntity>166710353654637874</CameraEntity>
+  <ControlledObject>166710353654637874</ControlledObject>
+  <Password />
+  <Description />
+  <LastSaveTime>2016-02-05T16:16:28.3092224+01:00</LastSaveTime>
+  <SpectatorDistance>12.8309851</SpectatorDistance>
+  <CharacterToolbar>
+    <ToolbarType>Character</ToolbarType>
+    <SelectedSlot xsi:nil="true" />
+    <Slots />
+  </CharacterToolbar>
+  <ControlledEntities>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:long">166710353654637874</Key>
+        <Value xsi:type="PlayerId">
+          <ClientId>76561197967630685</ClientId>
+          <SerialId>0</SerialId>
+        </Value>
+      </item>
+    </dictionary>
+  </ControlledEntities>
+  <Settings xsi:type="MyObjectBuilder_SessionSettings">
+    <GameMode>Creative</GameMode>
+    <InventorySizeMultiplier>10</InventorySizeMultiplier>
+    <AssemblerSpeedMultiplier>10</AssemblerSpeedMultiplier>
+    <AssemblerEfficiencyMultiplier>10</AssemblerEfficiencyMultiplier>
+    <RefinerySpeedMultiplier>10</RefinerySpeedMultiplier>
+    <OnlineMode>OFFLINE</OnlineMode>
+    <MaxPlayers>4</MaxPlayers>
+    <MaxFloatingObjects>256</MaxFloatingObjects>
+    <EnvironmentHostility>SAFE</EnvironmentHostility>
+    <AutoHealing>true</AutoHealing>
+    <EnableCopyPaste>false</EnableCopyPaste>
+    <WeaponsEnabled>true</WeaponsEnabled>
+    <ShowPlayerNamesOnHud>true</ShowPlayerNamesOnHud>
+    <ThrusterDamage>true</ThrusterDamage>
+    <CargoShipsEnabled>false</CargoShipsEnabled>
+    <EnableSpectator>false</EnableSpectator>
+    <RemoveTrash>false</RemoveTrash>
+    <WorldSizeKm>0</WorldSizeKm>
+    <RespawnShipDelete>true</RespawnShipDelete>
+    <ResetOwnership>false</ResetOwnership>
+    <WelderSpeedMultiplier>2</WelderSpeedMultiplier>
+    <GrinderSpeedMultiplier>2</GrinderSpeedMultiplier>
+    <RealisticSound>false</RealisticSound>
+    <HackSpeedMultiplier>0.33</HackSpeedMultiplier>
+    <PermanentDeath>true</PermanentDeath>
+    <AutoSaveInMinutes>0</AutoSaveInMinutes>
+    <SpawnShipTimeMultiplier>1</SpawnShipTimeMultiplier>
+    <DestructibleBlocks>true</DestructibleBlocks>
+    <EnableIngameScripts>true</EnableIngameScripts>
+    <ViewDistance>5000</ViewDistance>
+    <FloraDensity>20</FloraDensity>
+    <EnableToolShake>true</EnableToolShake>
+    <VoxelGeneratorVersion>2</VoxelGeneratorVersion>
+    <EnableOxygen>false</EnableOxygen>
+    <Enable3rdPersonView>true</Enable3rdPersonView>
+    <EnableEncounters>false</EnableEncounters>
+    <EnableFlora>false</EnableFlora>
+    <EnableStationVoxelSupport>false</EnableStationVoxelSupport>
+    <EnableSunRotation>false</EnableSunRotation>
+    <DisableRespawnShips>true</DisableRespawnShips>
+    <ScenarioEditMode>true</ScenarioEditMode>
+    <Battle>false</Battle>
+    <Scenario>false</Scenario>
+    <CanJoinRunning>false</CanJoinRunning>
+    <PhysicsIterations>4</PhysicsIterations>
+    <SunRotationIntervalMinutes>29.7905426</SunRotationIntervalMinutes>
+    <EnableJetpack>true</EnableJetpack>
+    <SpawnWithTools>false</SpawnWithTools>
+    <StartInRespawnScreen>true</StartInRespawnScreen>
+    <EnableVoxelDestruction>true</EnableVoxelDestruction>
+    <MaxDrones>5</MaxDrones>
+    <EnableDrones>false</EnableDrones>
+    <EnableCyberhounds>false</EnableCyberhounds>
+    <EnableSpiders>false</EnableSpiders>
+    <FloraDensityMultiplier>1</FloraDensityMultiplier>
+  </Settings>
+  <AppVersion>1114002</AppVersion>
+  <Factions>
+    <Factions>
+      <MyObjectBuilder_Faction>
+        <FactionId>162601962088698820</FactionId>
+        <Tag>RAS</Tag>
+        <Name>Restricted Access</Name>
+        <Description />
+        <PrivateInfo />
+        <Members>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855875</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>true</IsFounder>
+          </MyObjectBuilder_FactionMember>
+        </Members>
+        <JoinRequests />
+        <AutoAcceptMember>false</AutoAcceptMember>
+        <AutoAcceptPeace>false</AutoAcceptPeace>
+        <AcceptHumans>true</AcceptHumans>
+        <EnableFriendlyFire>true</EnableFriendlyFire>
+      </MyObjectBuilder_Faction>
+      <MyObjectBuilder_Faction>
+        <FactionId>179696335221297753</FactionId>
+        <Tag>ETC</Tag>
+        <Name>Engineer Training Corps</Name>
+        <Description />
+        <PrivateInfo />
+        <Members>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855876</PlayerId>
+            <IsLeader>false</IsLeader>
+            <IsFounder>false</IsFounder>
+          </MyObjectBuilder_FactionMember>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855874</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>true</IsFounder>
+          </MyObjectBuilder_FactionMember>
+        </Members>
+        <JoinRequests />
+        <AutoAcceptMember>false</AutoAcceptMember>
+        <AutoAcceptPeace>false</AutoAcceptPeace>
+        <AcceptHumans>true</AcceptHumans>
+        <EnableFriendlyFire>true</EnableFriendlyFire>
+      </MyObjectBuilder_Faction>
+      <MyObjectBuilder_Faction>
+        <FactionId>279712665953806429</FactionId>
+        <Tag>SPRT</Tag>
+        <Name>Space Pirates</Name>
+        <PrivateInfo />
+        <Members>
+          <MyObjectBuilder_FactionMember>
+            <PlayerId>144115188075855877</PlayerId>
+            <IsLeader>true</IsLeader>
+            <IsFounder>true</IsFounder>
+          </MyObjectBuilder_FactionMember>
+        </Members>
+        <JoinRequests />
+        <AutoAcceptMember>true</AutoAcceptMember>
+        <AutoAcceptPeace>false</AutoAcceptPeace>
+        <AcceptHumans>true</AcceptHumans>
+        <EnableFriendlyFire>false</EnableFriendlyFire>
+      </MyObjectBuilder_Faction>
+    </Factions>
+    <Players>
+      <dictionary>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855874</Key>
+          <Value xsi:type="xsd:long">179696335221297753</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855875</Key>
+          <Value xsi:type="xsd:long">162601962088698820</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855876</Key>
+          <Value xsi:type="xsd:long">179696335221297753</Value>
+        </item>
+        <item>
+          <Key xsi:type="xsd:long">144115188075855877</Key>
+          <Value xsi:type="xsd:long">279712665953806429</Value>
+        </item>
+      </dictionary>
+    </Players>
+    <Relations />
+    <Requests />
+  </Factions>
+  <Mods />
+  <PromotedUsers />
+  <Scenario>
+    <TypeId>MyObjectBuilder_ScenarioDefinition</TypeId>
+    <SubtypeId>EmptyWorld</SubtypeId>
+  </Scenario>
+  <RespawnCooldowns />
+  <Identities>
+    <MyObjectBuilder_Identity>
+      <IdentityId>144115188075855874</IdentityId>
+      <DisplayName>Skinface  X</DisplayName>
+      <CharacterEntityId>166710353654637874</CharacterEntityId>
+      <Model>Default_Astronaut</Model>
+      <ColorMask x="0" y="-0.96" z="-0.5" />
+    </MyObjectBuilder_Identity>
+    <MyObjectBuilder_Identity>
+      <IdentityId>144115188075855875</IdentityId>
+      <DisplayName>RAS NPC1591</DisplayName>
+      <CharacterEntityId>0</CharacterEntityId>
+    </MyObjectBuilder_Identity>
+    <MyObjectBuilder_Identity>
+      <IdentityId>144115188075855876</IdentityId>
+      <DisplayName>ETC NPC3837</DisplayName>
+      <CharacterEntityId>0</CharacterEntityId>
+    </MyObjectBuilder_Identity>
+    <MyObjectBuilder_Identity>
+      <IdentityId>144115188075855877</IdentityId>
+      <DisplayName>Space Pirates</DisplayName>
+      <CharacterEntityId>0</CharacterEntityId>
+    </MyObjectBuilder_Identity>
+  </Identities>
+  <PreviousEnvironmentHostility>SAFE</PreviousEnvironmentHostility>
+  <AllPlayersData>
+    <dictionary>
+      <item>
+        <Key xsi:type="PlayerId">
+          <ClientId>76561197967630685</ClientId>
+          <SerialId>0</SerialId>
+        </Key>
+        <Value xsi:type="MyObjectBuilder_Player">
+          <DisplayName>Skinface  X</DisplayName>
+          <IdentityId>144115188075855874</IdentityId>
+          <Connected>true</Connected>
+          <Toolbar>
+            <ToolbarType>Character</ToolbarType>
+            <SelectedSlot xsi:nil="true" />
+            <Slots />
+          </Toolbar>
+          <CharacterCameraData EntityId="0">
+            <IsFirstPerson>true</IsFirstPerson>
+            <Distance>3.9772513735379409</Distance>
+            <HeadAngle x="0" y="0" />
+          </CharacterCameraData>
+          <EntityCameraData>
+            <CameraControllerSettings EntityId="176470927248776544">
+              <IsFirstPerson>false</IsFirstPerson>
+              <Distance>12.8309849144737</Distance>
+              <HeadAngle x="0" y="0" />
+            </CameraControllerSettings>
+            <CameraControllerSettings EntityId="209264334212132496">
+              <IsFirstPerson>true</IsFirstPerson>
+              <Distance>20.963479804447744</Distance>
+              <HeadAngle x="28.0125141" y="-179.549759" />
+            </CameraControllerSettings>
+            <CameraControllerSettings EntityId="206048588510091189">
+              <IsFirstPerson>false</IsFirstPerson>
+              <Distance>15.016579384457406</Distance>
+              <HeadAngle x="-15.5249815" y="47.58747" />
+            </CameraControllerSettings>
+          </EntityCameraData>
+          <BuildColorSlots>
+            <Vector3>
+              <X>0</X>
+              <Y>-1</Y>
+              <Z>0</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>0</Y>
+              <Z>0.05</Z>
+            </Vector3>
+            <Vector3>
+              <X>0.333333343</X>
+              <Y>-0.48</Y>
+              <Z>-0.25</Z>
+            </Vector3>
+            <Vector3>
+              <X>0.575</X>
+              <Y>0</Y>
+              <Z>0</Z>
+            </Vector3>
+            <Vector3>
+              <X>0.122222222</X>
+              <Y>-0.1</Y>
+              <Z>0.26</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>-0.95</Y>
+              <Z>0.4</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>-0.96</Y>
+              <Z>-0.5</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>-0.85</Y>
+              <Z>0.2</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>0.15</Y>
+              <Z>0.25</Z>
+            </Vector3>
+            <Vector3>
+              <X>0.333333343</X>
+              <Y>-0.329999983</Y>
+              <Z>-0.049999997</Z>
+            </Vector3>
+            <Vector3>
+              <X>0.575</X>
+              <Y>0.15</Y>
+              <Z>0.2</Z>
+            </Vector3>
+            <Vector3>
+              <X>0.122222222</X>
+              <Y>0.0500000045</Y>
+              <Z>0.459999979</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>-0.799999952</Y>
+              <Z>0.6</Z>
+            </Vector3>
+            <Vector3>
+              <X>0</X>
+              <Y>-0.81</Y>
+              <Z>-0.3</Z>
+            </Vector3>
+          </BuildColorSlots>
+        </Value>
+      </item>
+    </dictionary>
+  </AllPlayersData>
+  <AllPlayersColors>
+    <dictionary>
+      <item>
+        <Key xsi:type="PlayerId">
+          <ClientId>76561198066298908</ClientId>
+          <SerialId>0</SerialId>
+        </Key>
+        <Value xsi:type="ArrayOfVector3">
+          <Vector3>
+            <X>0</X>
+            <Y>-1</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>0.05</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.333333343</X>
+            <Y>-0.48</Y>
+            <Z>-0.25</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.575</X>
+            <Y>0</Y>
+            <Z>0</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.122222222</X>
+            <Y>-0.1</Y>
+            <Z>0.26</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.95</Y>
+            <Z>0.4</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.96</Y>
+            <Z>-0.5</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.85</Y>
+            <Z>0.2</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>0.15</Y>
+            <Z>0.25</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.333333343</X>
+            <Y>-0.329999983</Y>
+            <Z>-0.049999997</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.575</X>
+            <Y>0.15</Y>
+            <Z>0.2</Z>
+          </Vector3>
+          <Vector3>
+            <X>0.122222222</X>
+            <Y>0.0500000045</Y>
+            <Z>0.459999979</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.799999952</Y>
+            <Z>0.6</Z>
+          </Vector3>
+          <Vector3>
+            <X>0</X>
+            <Y>-0.809999943</Y>
+            <Z>-0.3</Z>
+          </Vector3>
+        </Value>
+      </item>
+    </dictionary>
+  </AllPlayersColors>
+  <ChatHistory />
+  <FactionChatHistory />
+  <NonPlayerIdentities>
+    <long>144115188075855875</long>
+    <long>144115188075855876</long>
+    <long>144115188075855877</long>
+  </NonPlayerIdentities>
+  <Gps>
+    <dictionary>
+      <item>
+        <Key xsi:type="xsd:long">144115188075855874</Key>
+        <Value xsi:type="MyObjectBuilder_Gps">
+          <Entries>
+            <Entry>
+              <name>Tutorial Success</name>
+              <description>Current position</description>
+              <coords>
+                <X>10.03</X>
+                <Y>6.72</Y>
+                <Z>154.97</Z>
+              </coords>
+              <isFinal>true</isFinal>
+              <showOnHud>false</showOnHud>
+            </Entry>
+          </Entries>
+        </Value>
+      </item>
+    </dictionary>
+  </Gps>
+  <SessionComponents>
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_WorldGenerator">
+      <MarkedAreas />
+      <ExistingObjectsSeeds />
+    </MyObjectBuilder_SessionComponent>
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_AIComponent" />
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SpaceFaunaComponent">
+      <SpawnInfos />
+      <TimeoutInfos />
+    </MyObjectBuilder_SessionComponent>
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_SpacePlanetTrackComponent" />
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_ScriptManager">
+      <variables>
+        <dictionary />
+      </variables>
+    </MyObjectBuilder_SessionComponent>
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_PirateAntennas">
+      <PiratesIdentity>144115188075855877</PiratesIdentity>
+      <Drones />
+    </MyObjectBuilder_SessionComponent>
+    <MyObjectBuilder_SessionComponent xsi:type="MyObjectBuilder_CoordinateSystem">
+      <LastCoordSysId>1</LastCoordSysId>
+      <CoordSystems />
+    </MyObjectBuilder_SessionComponent>
+  </SessionComponents>
+  <MissionTriggers>
+    <Triggers>
+      <dictionary>
+        <item>
+          <Key xsi:type="pair">
+            <stm>0</stm>
+            <ser>0</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers>
+              <MyObjectBuilder_Trigger xsi:type="MyObjectBuilder_TriggerPositionReached">
+                <IsTrue>false</IsTrue>
+                <Message>Tutorial Success!</Message>
+                <WwwLink />
+                <NextMission />
+                <Pos>
+                  <X>10.029999732971191</X>
+                  <Y>6.71999979019165</Y>
+                  <Z>154.97000122070313</Z>
+                </Pos>
+                <Distance2>400</Distance2>
+              </MyObjectBuilder_Trigger>
+            </WinTriggers>
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+        <item>
+          <Key xsi:type="pair">
+            <stm>76561197967630685</stm>
+            <ser>0</ser>
+          </Key>
+          <Value xsi:type="MyObjectBuilder_MissionTriggers">
+            <WinTriggers>
+              <MyObjectBuilder_Trigger xsi:type="MyObjectBuilder_TriggerPositionReached">
+                <IsTrue>false</IsTrue>
+                <Message>Tutorial Success!</Message>
+                <WwwLink />
+                <NextMission />
+                <Pos>
+                  <X>10.029999732971191</X>
+                  <Y>6.71999979019165</Y>
+                  <Z>154.97000122070313</Z>
+                </Pos>
+                <Distance2>400</Distance2>
+              </MyObjectBuilder_Trigger>
+            </WinTriggers>
+            <LoseTriggers />
+            <Won>false</Won>
+            <Lost>false</Lost>
+          </Value>
+        </item>
+      </dictionary>
+    </Triggers>
+  </MissionTriggers>
+  <Briefing>This tutorial offers instruction on how to fly a ship and use the three ship tools. You must use each ship in turn to navigate through several chambers that demonstrate how to grind, weld and drill as well as how to stock a weld ships cargo and how to dock with connectors.</Briefing>
+  <BriefingVideo />
+  <IsAISchoolScenario>false</IsAISchoolScenario>
+</MyObjectBuilder_Checkpoint>

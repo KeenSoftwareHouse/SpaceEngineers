@@ -20,12 +20,14 @@ namespace Sandbox.Definitions
     {
         public MyDefinitionId GameDefinition;
 
-        public BoundingBoxD WorldBoundaries;
+        public MyDefinitionId Environment;
+
+        public BoundingBoxD? WorldBoundaries;
         public MyWorldGeneratorStartingStateBase[] PossiblePlayerStarts;
         public MyWorldGeneratorOperationBase[] WorldGeneratorOperations;
-        public bool  AsteroidClustersEnabled;
+        public bool AsteroidClustersEnabled;
         public float AsteroidClustersOffset;
-        public bool  CentralClusterEnabled;
+        public bool CentralClusterEnabled;
         public MyEnvironmentHostilityEnum DefaultEnvironment;
         public MyStringId[] CreativeModeWeapons;
         public MyStringId[] SurvivalModeWeapons;
@@ -82,6 +84,8 @@ namespace Sandbox.Definitions
             var ob = (MyObjectBuilder_ScenarioDefinition) builder;
 
             GameDefinition = ob.GameDefinition;
+
+            Environment = ob.EnvironmentDefinition;
 
             AsteroidClustersEnabled = ob.AsteroidClusters.Enabled;
             AsteroidClustersOffset  = ob.AsteroidClusters.Offset;
@@ -196,8 +200,7 @@ namespace Sandbox.Definitions
             CreativeInventoryItems = ob.CreativeInventoryItems;
             SurvivalInventoryItems = ob.SurvivalInventoryItems;
 
-            WorldBoundaries.Min = ob.WorldBoundaries.Min;
-            WorldBoundaries.Max = ob.WorldBoundaries.Max;
+            WorldBoundaries = ob.WorldBoundaries;
         }
 
         public override MyObjectBuilder_DefinitionBase GetObjectBuilder()

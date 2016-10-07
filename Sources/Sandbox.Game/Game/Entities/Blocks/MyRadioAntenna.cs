@@ -12,7 +12,7 @@ using Sandbox.Game.Gui;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Game;
@@ -124,8 +124,19 @@ namespace Sandbox.Game.Entities.Cube
             return false;
         }
 
-        static MyRadioAntenna()
+        public MyRadioAntenna()
         {
+            CreateTerminalControls();
+
+            m_radius.ValueChanged += (obj) => ChangeRadius();
+            m_enableBroadcasting.ValueChanged += (obj) => ChangeEnableBroadcast();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyRadioAntenna>())
+                return;
+
             MyTerminalControlFactory.RemoveBaseClass<MyRadioAntenna, MyTerminalBlock>();
 
             var show = new MyTerminalControlOnOffSwitch<MyRadioAntenna>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
@@ -170,12 +181,6 @@ namespace Sandbox.Game.Entities.Cube
             showShipName.EnableAction();
             MyTerminalControlFactory.AddControl(showShipName);
 
-        }
-
-        public MyRadioAntenna()
-        {
-            m_radius.ValueChanged += (obj) => ChangeRadius();
-            m_enableBroadcasting.ValueChanged += (obj) => ChangeEnableBroadcast();
         }
 
         void ChangeRadius()
@@ -426,7 +431,7 @@ namespace Sandbox.Game.Entities.Cube
             RaisePropertiesChanged();
         }
 
-        float IMyRadioAntenna.Radius
+        float ModAPI.Ingame.IMyRadioAntenna.Radius
         {
             get { return GetRadius(); }
         }
@@ -436,7 +441,7 @@ namespace Sandbox.Game.Entities.Cube
 			return (RadioBroadcaster != null) ? RadioBroadcaster.WantsToBeEnabled : false;
 		}
 
-		bool IMyRadioAntenna.IsBroadcasting
+        bool ModAPI.Ingame.IMyRadioAntenna.IsBroadcasting
 		{
 			get {  return IsBroadcasting(); }
 		}

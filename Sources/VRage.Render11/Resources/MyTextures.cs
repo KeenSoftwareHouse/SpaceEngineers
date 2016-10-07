@@ -148,6 +148,10 @@ namespace VRageRender.Resources
                     return Format.B8G8R8A8_UNorm_SRgb;
                 case Format.B8G8R8X8_UNorm:
                     return Format.B8G8R8X8_UNorm_SRgb;
+                case Format.BC1_UNorm:
+                    return Format.BC1_UNorm_SRgb;
+                case Format.BC2_UNorm:
+                    return Format.BC2_UNorm_SRgb;
                 case Format.BC3_UNorm:
                     return Format.BC3_UNorm_SRgb;
                 case Format.BC7_UNorm:
@@ -166,6 +170,10 @@ namespace VRageRender.Resources
                     return Format.B8G8R8A8_UNorm;
                 case Format.B8G8R8X8_UNorm_SRgb:
                     return Format.B8G8R8X8_UNorm;
+                case Format.BC1_UNorm_SRgb:
+                    return Format.BC1_UNorm;
+                case Format.BC2_UNorm_SRgb:
+                    return Format.BC2_UNorm;
                 case Format.BC3_UNorm_SRgb:
                     return Format.BC3_UNorm;
                 case Format.BC7_UNorm_SRgb:
@@ -184,9 +192,13 @@ namespace VRageRender.Resources
                     return true;
                 case Format.B8G8R8X8_UNorm_SRgb:
                     return true;
-                case Format.BC7_UNorm_SRgb:
+                case Format.BC1_UNorm_SRgb:
+                    return true;
+                case Format.BC2_UNorm_SRgb:
                     return true;
                 case Format.BC3_UNorm_SRgb:
+                    return true;
+                case Format.BC7_UNorm_SRgb:
                     return true;
             }
             return false;
@@ -222,7 +234,7 @@ namespace VRageRender.Resources
                 }
                 catch(Exception e)
                 {
-                    MyRender11.Log.WriteLine("Could not load texture: " + path + ", exception: " + e);
+					MyRender11.Log.WriteLine("Error while loading texture: " + path + ", exception: " + e);
                 }
             }
 
@@ -318,6 +330,8 @@ namespace VRageRender.Resources
                         replacingId = MissingCubeTexId;
                         break;
                 }
+
+				MyRender11.Log.WriteLine("Could not load texture: " + path);
 
                 Views[texId.Index] = Views[replacingId.Index];
                 Textures.Data[texId.Index].Resource = Textures.Data[replacingId.Index].Resource;

@@ -19,6 +19,8 @@ using VRage.Game;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Character feet IK")]
     class MyGuiScreenDebugFeetIK : MyGuiScreenDebugBase
     {
@@ -176,4 +178,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             enabledIKState.IsCheckedChanged -= IsCheckedChanged;
         }
     }
+
+#endif
 }

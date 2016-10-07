@@ -11,12 +11,12 @@
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <BackkickForce>3.2</BackkickForce>
+        <PhysicalMaterial>RifleBullet</PhysicalMaterial>
       </BasicProperties>
       <ProjectileProperties>
         <ProjectileHitImpulse>3.2</ProjectileHitImpulse>
         <ProjectileMassDamage>12</ProjectileMassDamage>
         <ProjectileHealthDamage>12</ProjectileHealthDamage>
-        <ProjectileMaterial>RifleBullet</ProjectileMaterial>
       </ProjectileProperties>
     </Ammo>
     <Ammo xsi:type="MyObjectBuilder_ProjectileAmmoDefinition">
@@ -29,12 +29,12 @@
         <SpeedVariance>0</SpeedVariance>
         <MaxTrajectory>800</MaxTrajectory>
         <BackkickForce>50</BackkickForce>
+        <PhysicalMaterial>GunBullet</PhysicalMaterial>
       </BasicProperties>
       <ProjectileProperties>
         <ProjectileHitImpulse>185</ProjectileHitImpulse>
         <ProjectileMassDamage>60</ProjectileMassDamage>
         <ProjectileHealthDamage>185</ProjectileHealthDamage>
-        <ProjectileMaterial>GunBullet</ProjectileMaterial>
       </ProjectileProperties>
     </Ammo>
     <Ammo xsi:type="MyObjectBuilder_MissileAmmoDefinition">
@@ -48,6 +48,7 @@
         <MaxTrajectory>800</MaxTrajectory>
         <IsExplosive>true</IsExplosive>
         <BackkickForce>700</BackkickForce>
+        <PhysicalMaterial>Missile</PhysicalMaterial>
       </BasicProperties>
       <MissileProperties>
         <MissileMass>45</MissileMass>
@@ -58,9 +59,6 @@
         <MissileSkipAcceleration>false</MissileSkipAcceleration>
         <MissileExplosionDamage>500</MissileExplosionDamage>
       </MissileProperties>
-      <ProjectileProperties>
-        <ProjectileMaterial>ExpBullet</ProjectileMaterial>
-      </ProjectileProperties>
     </Ammo>
  <!--   <Ammo>
       <Id>

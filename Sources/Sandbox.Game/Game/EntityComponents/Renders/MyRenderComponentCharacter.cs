@@ -5,6 +5,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Lights;
 using Sandbox.Game.World;
+using Sandbox.Game.Weapons;
 using Sandbox.Graphics;
 using System;
 using System.Collections.Generic;
@@ -278,7 +279,11 @@ namespace Sandbox.Game.Components
                 }
             }
 
-            if (MySession.Static.ControlledEntity == character)
+            //Maybe this check is not needed at all? In every case we want the DrawBlood effect when damaged
+            if ( MySession.Static.ControlledEntity == character ||
+                 MySession.Static.ControlledEntity is MyCockpit && ((MyCockpit)MySession.Static.ControlledEntity).Pilot == character ||
+                 MySession.Static.ControlledEntity is MyLargeTurretBase && ((MyLargeTurretBase)MySession.Static.ControlledEntity).Pilot == character
+                )
             {
                 if (character.IsDead && character.CurrentRespawnCounter > 0)
                 {
@@ -600,6 +605,9 @@ namespace Sandbox.Game.Components
 
         public void UpdateLight(float lightPower, bool updateRenderObject)
         {
+            if (m_light == null)
+                return;
+
             if (lightPower <= 0.0f)
             {
                 m_light.ReflectorOn = false;
@@ -616,16 +624,13 @@ namespace Sandbox.Game.Components
                 UpdateLightPosition();
 
                 VRageRender.MyRenderProxy.UpdateModelProperties(
-                RenderObjectIDs[0],
-                0,
-                Model.AssetName,
-                -1,
-                "Light",
-                null,
-                null,
-                null,
-                null,
-                lightPower);
+                    RenderObjectIDs[0],
+                    0,
+                    -1,
+                    "Light",
+                    null,
+                    null,
+                    null);
 
                 UpdateLightProperties(lightPower);
             }

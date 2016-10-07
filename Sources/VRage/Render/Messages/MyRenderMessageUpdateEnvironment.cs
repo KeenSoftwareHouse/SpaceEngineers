@@ -26,7 +26,9 @@ namespace VRageRender
         public float AmbientMultiplier;
         public float EnvAmbientIntensity;
         public Color BackgroundColor;
-        public string BackgroundTexture;
+        public string DayBackgroundTexture;
+        public string NightBackgroundTexture;
+        public string NightBackgroundPrefilteredTexture;
         public float SunSizeMultiplier;
         public float DistanceToSun; //in milions km
         public Quaternion BackgroundOrientation;

@@ -10,8 +10,8 @@ namespace VRage.Game
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //  This is version of application
         //  FINAL BUILD VALUE: Increase before every major build.
-
-        public static MyVersion APP_VERSION = 01132009; 
+        //  This should be setup in the individual game initialization (e.g. SpaceEngineersGame.SetupBasicGameInfo() ...)
+        public static MyVersion APP_VERSION = 0; 
 
         // For OnLive, CiiNOW and other cloud gaming services (disabled HW cursor, editor, multiplayer)
         public const bool IS_CLOUD_GAMING = false;
@@ -37,6 +37,8 @@ namespace VRage.Game
 #endif
 
         public const int IP_ADDRESS_ANY = 0;
+
+        public const bool IS_STABLE = false;
 
         public const short DEDICATED_SERVER_PORT = 27015;
         public const short DEDICATED_STEAM_AUTH_PORT = 8766;

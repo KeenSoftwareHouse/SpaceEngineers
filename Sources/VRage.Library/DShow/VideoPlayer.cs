@@ -5,7 +5,7 @@ using VRage.Collections;
 
 namespace DShowNET
 {
-#if ! BLIT
+#if !XB1_TMP
     /// <summary>
     /// Describes the state of a video player
     /// </summary>

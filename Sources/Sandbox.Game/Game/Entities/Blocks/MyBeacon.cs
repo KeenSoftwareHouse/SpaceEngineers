@@ -10,7 +10,7 @@ using Sandbox.Engine.Utils;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Components;
 using Sandbox.Game.EntityComponents;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage;
 using VRage.Game;
@@ -21,7 +21,7 @@ using VRage.Game.Gui;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Beacon))]
-    class MyBeacon : MyFunctionalBlock, IMyBeacon
+    public class MyBeacon : MyFunctionalBlock, IMyBeacon
     {
         private static readonly Color COLOR_ON = new Color(255, 255, 128);
         private static readonly Color COLOR_OFF  = new Color(30, 30, 30);
@@ -47,6 +47,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyBeacon()
         {
+            CreateTerminalControls();
+
             m_radius.ValueChanged += (obj) => ChangeRadius();
         }
 
@@ -55,8 +57,11 @@ namespace Sandbox.Game.Entities.Cube
             RadioBroadcaster.BroadcastRadius = m_radius;
         }
 
-        static MyBeacon()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyBeacon>())
+                return;
+
             MyTerminalControlFactory.RemoveBaseClass<MyBeacon, MyTerminalBlock>();
 
             var show = new MyTerminalControlOnOffSwitch<MyBeacon>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);
@@ -388,7 +393,7 @@ namespace Sandbox.Game.Entities.Cube
             MyValueFormatter.AppendWorkInBestUnit(ResourceSink.IsPowered ? ResourceSink.RequiredInput : 0, DetailedInfo);
             RaisePropertiesChanged();
         }
-        float IMyBeacon.Radius
+        float ModAPI.Ingame.IMyBeacon.Radius
         {
             get { return RadioBroadcaster.BroadcastRadius; }
         }

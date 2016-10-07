@@ -204,7 +204,7 @@ namespace VRage.Network
         }
 
 
-        const int MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT = 5;
+        const int MAX_NUM_STATE_SYNC_PACKETS_PER_CLIENT = 7;
         private bool m_replicationPaused = false;
         private EndpointId? m_localClientEndpoint;
         private IReplicationServerCallback m_callback;
@@ -730,7 +730,7 @@ namespace VRage.Network
                 if (replicable == null)
                     break;
 
-                m_replicables.RefreshChildrenHierarchy(replicable);
+                RefreshChildren(replicable);
                 RefreshReplicable(replicable);
             }
             ProfilerShort.End();
@@ -793,13 +793,24 @@ namespace VRage.Network
                     }
                 }
                 else if (hasObj)
-                {
+                {          
                     ProfilerShort.Begin("UpdateSleepAndRemove");
                     // Hysteresis
                     replicableInfo.UpdateSleep(isRelevant, now);
                     if (replicableInfo.ShouldRemove(now, MaxSleepTime))
                         RemoveForClient(replicable, client.Key, client.Value, true);
                     ProfilerShort.End();
+                }
+
+                if(isRelevant && hasObj)
+                {
+                    foreach (var child in m_replicables.GetChildren(replicable))
+                    {
+                        if (!client.Value.HasReplicable(child))
+                        {
+                           AddForClient(child, client.Key, client.Value, priority, false);
+                        }
+                    }
                 }
 
                 ProfilerShort.End();
@@ -920,7 +931,10 @@ namespace VRage.Network
                         {
                             foreach (var child in m_replicables.GetChildren(groupReplicable))
                             {
-                                AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData)), false);
+                                if (!clientData.HasReplicable(child))
+                                {
+                                    AddForClient(child, endpointId, clientData, groupReplicable.GetPriority(new MyClientInfo(clientData)), false);
+                                }
                             }
                         }
                     }
@@ -953,7 +967,8 @@ namespace VRage.Network
                 ProfilerShort.Begin("serializing entry counter");
                 var oldWriteOffset = m_sendStream.BitPosition;
                 m_sendStream.WriteNetworkId(entry.GroupId);
-                entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
+
+                bool fullyWritten = entry.Group.Serialize(m_sendStream, clientData.State.EndpointId, clientData.State.ClientTimeStamp, clientData.StateSyncPacketId, messageBitSize);
 
                 int bitsWritten = m_sendStream.BitPosition - oldWriteOffset;
                 if (bitsWritten > 0 && m_sendStream.BitPosition <= messageBitSize && m_limits.Add(entry.Group.GroupType, bitsWritten))
@@ -961,7 +976,14 @@ namespace VRage.Network
                     clientData.PendingStateSyncAcks[clientData.StateSyncPacketId].Add(entry.Group);
                     sent++;
                     entry.FramesWithoutSync = 0;
-                    m_tmpSentEntries.Add(entry);
+                    if (fullyWritten)
+                    {
+                        m_tmpSentEntries.Add(entry);
+                    }
+                    else
+                    {
+                        numOverLoad++;
+                    }
                 }
                 else
                 {
@@ -1494,6 +1516,18 @@ namespace VRage.Network
                 VRage.Serialization.MySerializer.Write(m_sendStream, ref msg);
                 m_callback.SendWorldBattleData(m_sendStream, client.Key);
             }
+        }
+
+        public void RefreshChildren(IMyEventProxy proxy)
+        {
+            IMyReplicable replicable = GetProxyTarget(proxy) as IMyReplicable;
+            Debug.Assert(replicable != null, "Proxy does not point to replicable!");
+            RefreshChildren(replicable);
+        }
+
+        public void RefreshChildren(IMyReplicable replicable)
+        {
+            m_replicables.RefreshChildrenHierarchy(replicable);
         }
 
         #region Debug methods

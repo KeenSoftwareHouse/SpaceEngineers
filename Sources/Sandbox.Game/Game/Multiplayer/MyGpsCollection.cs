@@ -553,6 +553,39 @@ namespace Sandbox.Game.Multiplayer
             }
             return false;
         }
+
+        //parses input string, searches for only one valid coords
+        public static bool ParseOneGPSExtended(string input, StringBuilder name, ref Vector3D coords, StringBuilder additionalData)
+        {
+            foreach (Match match in Regex.Matches(input, m_ScanPatternExtended))
+            {
+                double x, y, z;
+                try
+                {
+                    x = double.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture);
+                    x = Math.Round(x, 2);
+                    y = double.Parse(match.Groups[3].Value, System.Globalization.CultureInfo.InvariantCulture);
+                    y = Math.Round(y, 2);
+                    z = double.Parse(match.Groups[4].Value, System.Globalization.CultureInfo.InvariantCulture);
+                    z = Math.Round(z, 2);
+                }
+                catch (SystemException)
+                {
+                    continue;//search for next GPS in the input
+                }
+                //parsed successfully
+                name.Clear().Append(match.Groups[1].Value);
+                coords.X = x; coords.Y = y; coords.Z = z;
+
+                additionalData.Clear();
+
+                if (match.Groups.Count == 6 && !string.IsNullOrWhiteSpace(match.Groups[5].Value))
+                    additionalData.Append(match.Groups[5].Value);
+
+                return true;
+            }
+            return false;
+        }
         
         //this is all you have to call if you have text with possible GPS coordinates and want to add them
         //drop string in question into input parameter, if you want you can provide text into GPS description field in second parameter
@@ -564,6 +597,7 @@ namespace Sandbox.Game.Multiplayer
         }
         private static readonly int PARSE_MAX_COUNT = 20;
         private static readonly string m_ScanPattern = @"GPS:([^:]{0,32}):([\d\.-]*):([\d\.-]*):([\d\.-]*):";
+        private static readonly string m_ScanPatternExtended = @"GPS:([^:]{0,32}):([\d\.-]*):([\d\.-]*):([\d\.-]*):(.*)";
         public int ScanText(string input, string desc = null)
         {//scans given text and adds all as uncorfirmed
             int count = 0;

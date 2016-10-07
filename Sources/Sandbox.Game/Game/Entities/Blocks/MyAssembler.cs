@@ -25,7 +25,7 @@ using VRage;
 using Sandbox.Game.GameSystems;
 using VRage.Utils;
 using Sandbox.Game.GameSystems.Conveyors;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.Game.Localization;
 using VRage;
 using Sandbox.Game.Entities.Interfaces;
@@ -41,7 +41,7 @@ using VRage.Network;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Assembler))]
-    class MyAssembler : MyProductionBlock, IMyAssembler, IMyEventProxy
+    public class MyAssembler : MyProductionBlock, IMyAssembler, IMyEventProxy
     {
 
         public enum StateEnum
@@ -122,8 +122,18 @@ namespace Sandbox.Game.Entities.Cube
         public event Action<MyAssembler> CurrentStateChanged;
         public event Action<MyAssembler> CurrentModeChanged;
 
-        static MyAssembler()
+        public MyAssembler() :
+            base()
         {
+            CreateTerminalControls();
+
+            m_otherQueue = new List<QueueItem>();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyAssembler>())
+                return;
 
             var slaveCheck = new MyTerminalControlCheckbox<MyAssembler>("slaveMode", MySpaceTexts.Assembler_SlaveMode, MySpaceTexts.Assembler_SlaveMode);
             slaveCheck.Getter = (x) => x.IsSlave;
@@ -138,12 +148,6 @@ namespace Sandbox.Game.Entities.Cube
             };
             slaveCheck.EnableAction();
             MyTerminalControlFactory.AddControl(slaveCheck);
-        }
-
-        public MyAssembler() :
-            base()
-        {
-            m_otherQueue = new List<QueueItem>();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -282,6 +286,9 @@ namespace Sandbox.Game.Entities.Cube
         private static Predicate<IMyConveyorEndpoint> m_edgePredicate = EdgeRules;
         private static bool EdgeRules(IMyConveyorEndpoint edge)
         {
+            if (edge.CubeBlock.OwnerId == 0)
+                return true;
+
             return m_assemblerForPathfinding.FriendlyWithBlock(edge.CubeBlock);
         }
 

@@ -146,7 +146,7 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
             }
 
             // If there is no ammo, don't show reloading text
-            if (!m_gunBase.HasEnoughAmmunition())
+            if (!m_gunBase.HasEnoughAmmunition() && Sandbox.Game.World.MySession.Static.SurvivalMode)
             {
                 MyHud.Notifications.Remove(m_reloadNotification);
                 m_reloadNotification = null;

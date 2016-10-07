@@ -24,8 +24,17 @@ namespace VRage.Game.Components
         // Reference to last bone result in raw form.
         private List<MyAnimationClip.BoneState> m_lastBoneResult;
 
+        // Last frame actions - only used in non official build.
+#if OFFICIAL_BUILD == false
+        private List<MyStringId> m_lastFrameActions = null;
+        private List<MyStringId> m_currentFrameActions = null;
+#endif
+
         private bool m_componentValid = false;
-        FastResourceLock m_componentValidLock = new FastResourceLock();
+        readonly FastResourceLock m_componentValidLock = new FastResourceLock();
+
+        // Callback informing that we need to reload bones.
+        public Action ReloadBonesNeeded;
 
         // ------------------------------------------------------------------------
 
@@ -98,7 +107,7 @@ namespace VRage.Game.Components
                     CharacterBonesSorted = new MyCharacterBone[m_characterBones.Length];
                     Array.Copy(m_characterBones, CharacterBonesSorted, m_characterBones.Length);
                     // sort the bones, deeper in hierarchy they are, later they are evaluated
-                    Array.Sort(CharacterBonesSorted, (x, y) => x.GetHierarchyDepth().CompareTo(y.GetHierarchyDepth()));
+                    Array.Sort(CharacterBonesSorted, (x, y) => x.Depth.CompareTo(y.Depth));
 
                     m_boneRelativeTransforms = new Matrix[value.Length];
                     m_boneAbsoluteTransforms = new Matrix[value.Length];
@@ -120,6 +129,20 @@ namespace VRage.Game.Components
         public Matrix[] BoneAbsoluteTransforms { get { return m_boneAbsoluteTransforms; } }
         // Last result in raw form. Allocated from internal pool -> this variable or its content may change during update.
         public List<MyAnimationClip.BoneState> LastRawBoneResult { get { return m_lastBoneResult; } }
+        // Definition identifier (source of this controller component).
+        public MyDefinitionId SourceId { get; set; }
+        // Return all actions triggered in last frame.
+        public List<MyStringId> LastFrameActions
+        {
+            get
+            {
+#if OFFICIAL_BUILD
+                return null;
+#else
+                return m_lastFrameActions;
+#endif
+            }
+        }
 
         // ------------------------------------------------------------------------
 
@@ -131,6 +154,7 @@ namespace VRage.Game.Components
             {
                 if (!m_componentValid)
                     return;
+
                 VRage.Animations.MyAnimationUpdateData updateData = new Animations.MyAnimationUpdateData();
                 updateData.DeltaTimeInSeconds = VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 updateData.CharacterBones = m_characterBones;
@@ -147,6 +171,14 @@ namespace VRage.Game.Components
                     }
                 }
                 m_lastBoneResult = updateData.BonesResult;
+
+#if OFFICIAL_BUILD == false
+                var helperLast = m_lastFrameActions;
+                m_lastFrameActions = m_currentFrameActions;
+                m_currentFrameActions = helperLast;
+                if (m_currentFrameActions != null)
+                    m_currentFrameActions.Clear();
+#endif
             }
         }
 
@@ -185,7 +217,14 @@ namespace VRage.Game.Components
             using (m_componentValidLock.AcquireSharedUsing())
             {
                 if (m_componentValid)
+                {
+#if OFFICIAL_BUILD == false
+                    if (m_currentFrameActions == null)
+                        m_currentFrameActions = new List<MyStringId>(16);
+                    m_currentFrameActions.Add(actionName);
+#endif
                     Controller.TriggerAction(actionName);
+                }
             }
         }
 

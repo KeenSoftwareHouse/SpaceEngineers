@@ -45,21 +45,9 @@ namespace VRage.ObjectBuilders
             m_objectFactory = new MyObjectFactory<MyObjectBuilderDefinitionAttribute, MyObjectBuilder_Base>();
         }
 
-        /// <summary>
-        /// Register all object builders in game assemblies and loads serializers. This function must be called after links to assemblies in MyPlugins are set!
-        /// Returns false if assembly links are not set. Only MyPlugins.UserAssembly can be null.
-        /// </summary>
-        public static bool RegisterAssembliesAndLoadSerializers()
+        public static void RegisterFromAssembly(Assembly assembly)
         {
-            m_objectFactory.RegisterFromAssembly(Assembly.GetExecutingAssembly());
-            m_objectFactory.RegisterFromAssembly(MyPlugins.SandboxAssembly); //TODO: Will be removed 
-            m_objectFactory.RegisterFromAssembly(MyPlugins.GameAssembly);
-            m_objectFactory.RegisterFromAssembly(MyPlugins.GameObjectBuildersAssembly);
-            m_objectFactory.RegisterFromAssembly(MyPlugins.UserAssembly);
-
-            LoadSerializers();
-            return Assembly.GetExecutingAssembly() != null && MyPlugins.SandboxAssembly != null 
-                && MyPlugins.GameAssembly != null && MyPlugins.GameObjectBuildersAssembly != null;
+            m_objectFactory.RegisterFromAssembly(assembly);
         }
 
         // Are the types already registered?
@@ -92,8 +80,10 @@ namespace VRage.ObjectBuilders
             return sb.ToString();
         } // GenerateAssemblyId
 
+        static int f = 0;
+
         // Load (from dll or create at runtime) all serializers at once.
-        private static void LoadSerializers()
+        public static void LoadSerializers()
         {
             int index = 0;
             foreach (var definition in m_objectFactory.Attributes)
@@ -108,6 +98,12 @@ namespace VRage.ObjectBuilders
             foreach (var definition in m_objectFactory.Attributes)
             {
                 var type = definition.ProducedType;
+
+                if (type.Name.Contains("Particle"))
+                {
+                    f++;
+                }
+
                 try
                 {
                     XmlSerializer serializer;
@@ -134,20 +130,24 @@ namespace VRage.ObjectBuilders
             }
         }
 
+        [Obsolete]
         public static XmlSerializer GetSerializer(Type type)
         {
             return m_serializersByType[type];
         }
 
+        [Obsolete]
         public static string GetSerializedName(Type type)
         {
             return m_serializedNameByType[type];
         }
 
+        [Obsolete]
         public static XmlSerializer GetSerializer(string serializedName)
         {
             return m_serializersBySerializedName[serializedName];
         }
+
         public static bool IsSerializerAvailable(string serializedName)
         {
             return m_serializersBySerializedName.ContainsKey(serializedName);
@@ -304,7 +304,7 @@ namespace VRage.ObjectBuilders
             return result;
         }
 
-        private static bool DeserializeXML(Stream reader, out MyObjectBuilder_Base objectBuilder, Type builderType)
+        public static bool DeserializeXML(Stream reader, out MyObjectBuilder_Base objectBuilder, Type builderType)
         {
             Debug.Assert(typeof(MyObjectBuilder_Base).IsAssignableFrom(builderType));
             Debug.Assert(reader != null);

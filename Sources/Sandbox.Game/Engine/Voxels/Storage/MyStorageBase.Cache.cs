@@ -294,13 +294,23 @@ namespace Sandbox.Engine.Voxels
 
         private static MyVoxelOperationsSessionComponent OperationsComponent
         {
-            get { return MySession.Static.GetSessionComponent<MyVoxelOperationsSessionComponent>(); }
+            get { return MySession.Static.GetComponent<MyVoxelOperationsSessionComponent>(); }
         }
 
         public bool CachedWrites
         {
             get { return m_cachedWrites && MyVoxelOperationsSessionComponent.EnableCache; }
             set { m_cachedWrites = value; }
+        }
+
+        public bool HasPendingWrites
+        {
+            get { return m_pendingChunksToWrite.Count > 0; }
+        }
+
+        public bool HasCachedChunks
+        {
+            get { return m_chunksbyAge.Count - m_pendingChunksToWrite.Count > 0; }
         }
 
         private bool m_cachedWrites = false;

@@ -794,6 +794,10 @@ namespace Sandbox.Engine.Multiplayer
         static void OnSimulationInfo(Half simulationSpeed)
         {
             Sync.ServerSimulationRatio = simulationSpeed;
+           /* if (MyPerGameSettings.EnableGlobalGravity)
+            {
+                Sandbox.Engine.Physics.MyPhysics.UpdateGravity(Sync.RelativeSimulationRatio);
+            }*/
         }
 
         public static void SendElapsedGameTime()

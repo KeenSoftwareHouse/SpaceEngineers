@@ -64,7 +64,7 @@ namespace VRageRender
             //objectData.LocalMatrix = Matrix.Identity;
 
             var worldMat = proxy.WorldMatrix;
-            //worldMat.Translation -= MyEnvironment.CameraPosition;
+            //worldMat.Translation -= MyRender11.Environment.CameraPosition;
 
             MyObjectDataCommon objectData = proxy.CommonObjectData;
             objectData.LocalMatrix = worldMat;

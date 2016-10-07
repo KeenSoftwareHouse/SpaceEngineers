@@ -116,27 +116,31 @@ namespace VRageMath
 
         public static Vector3 GetVector(int direction)
         {
+            direction = direction % 6;
             return Directions[direction];
         }
 
         public static Vector3 GetVector(Direction dir)
         {
-            return Directions[(int)dir];
+            return GetVector((int)dir);
         }
 
         public static Vector3I GetIntVector(int direction)
         {
+            direction = direction % 6;
             return IntDirections[direction];
         }
 
         public static Vector3I GetIntVector(Direction dir)
         {
-            return IntDirections[(int)dir];
+            int direction = (int)dir % 6;
+            return IntDirections[direction];
         }
 
         public static void GetVector(Direction dir, out Vector3 result)
         {
-            result = Directions[(int)dir];
+            int direction = (int)dir % 6;
+            result = Directions[direction];
         }
 
         public static DirectionFlags GetDirectionFlag(Direction dir)

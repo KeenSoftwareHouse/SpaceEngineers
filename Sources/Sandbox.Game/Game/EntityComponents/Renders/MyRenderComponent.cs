@@ -49,7 +49,8 @@ namespace Sandbox.Game.Components
                  m_colorMaskHsv,
                  Transparency,
                  maxViewDistance: float.MaxValue,
-                 depthBias: DepthBias
+                 depthBias: DepthBias,
+                 rescale: m_model.ScaleFactor
                 ));
         }
 

@@ -10,7 +10,7 @@ namespace System.Linq.Expressions
 {
     public static class ExpressionExtension
     {
-#if BLIT
+#if UNSHARPER_TMP
 #else
         public static Func<T, TMember> CreateGetter<T, TMember>(this Expression<Func<T, TMember>> expression)
         {

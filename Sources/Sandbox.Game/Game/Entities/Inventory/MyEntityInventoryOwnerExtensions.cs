@@ -31,60 +31,62 @@ namespace Sandbox.Game.Entities
     /// </summary>
     public static class MyEntityInventoryOwnerExtensions
     {
-        [Obsolete("IMyInventoryOwner interface and MyInventoryOwnerTypeEnum enum is obsolete. Use type checking and inventory methods on MyEntity or MyInventory. Inventories will have this attribute as member.")]    
+        [Obsolete("IMyInventoryOwner interface and MyInventoryOwnerTypeEnum enum is obsolete. Use type checking and inventory methods on MyEntity or MyInventory. Inventories will have this attribute as member.")]
         public static MyInventoryOwnerTypeEnum InventoryOwnerType(this MyEntity entity)
         {
             // TODO: This should be handled differently, probably as attribute on MyInventory..
-            if (entity.GetType() == typeof(MySmallMissileLauncher))
+            if (IsSameOrSubclass(typeof(MyUserControllableGun), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.System;
             }
-            else if (entity.GetType() == typeof(MyProductionBlock))
-            {
-                 return MyInventoryOwnerTypeEnum.System;
-            }
-            else if (entity.GetType() == typeof(MySmallGatlingGun))
+            else if (IsSameOrSubclass(typeof(MyProductionBlock), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.System;
             }
-            else if (entity.GetType() == typeof(MyConveyorSorter))
+            else if (IsSameOrSubclass(typeof(MyConveyorSorter), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.Storage;
             }
-            else if (entity.GetType() == typeof(MyGasGenerator))
+            else if (IsSameOrSubclass(typeof(MyGasGenerator), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.System;
             }
-            else if (entity.GetType() == typeof(MyShipToolBase))
+            else if (IsSameOrSubclass(typeof(MyShipToolBase), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.System;
             }
-            else if (entity.GetType() == typeof(MyGasTank))
+            else if (IsSameOrSubclass(typeof(MyGasTank), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.System;
             }
-            else if (entity.GetType() == typeof(MyReactor))
+            else if (IsSameOrSubclass(typeof(MyReactor), entity.GetType()))
             {
-                return MyInventoryOwnerTypeEnum.Energy; 
+                return MyInventoryOwnerTypeEnum.Energy;
             }
-            else if (entity.GetType() == typeof(MyCollector))
+            else if (IsSameOrSubclass(typeof(MyCollector), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.Storage;
             }
-            else if (entity.GetType() == typeof(MyCargoContainer))
+            else if (IsSameOrSubclass(typeof(MyCargoContainer), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.Storage;
             }
-            else if (entity.GetType() == typeof(MyShipDrill))
+            else if (IsSameOrSubclass(typeof(MyShipDrill), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.System;
             }
-            else if (entity.GetType() == typeof(MyCharacter))
+            else if (IsSameOrSubclass(typeof(MyCharacter), entity.GetType()))
             {
                 return MyInventoryOwnerTypeEnum.Character;
             }
 
             return MyInventoryOwnerTypeEnum.Storage;
-        }                
+        }
+
+        private static bool IsSameOrSubclass(Type potentialBase, Type potentialDescendant)
+        {
+            return potentialDescendant.IsSubclassOf(potentialBase)
+                   || potentialDescendant == potentialBase;
+        }
     }
 }

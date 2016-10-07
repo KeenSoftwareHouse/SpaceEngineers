@@ -46,19 +46,15 @@ namespace Sandbox.Game.Screens.Helpers
                     character.SwitchToWeapon(weaponDefinition);
                 }
 
-                MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
+                MyCubeBuilder.Static.Activate(((MyCubeBlockDefinition)Definition).Id);
             }
             else
             { }
 
             if (MyCubeBuilder.SpectatorIsBuilding)
             {
-                MyCubeBuilder.Static.ActivateBlockCreation(((MyCubeBlockDefinition)Definition).Id);
-                if (!MyCubeBuilder.Static.IsActivated)
-                {
-                    MyCubeBuilder.Static.Activate();
+                MyCubeBuilder.Static.Activate(((MyCubeBlockDefinition)Definition).Id);
                 }
-            }
             return true;
         }
 
@@ -82,12 +78,13 @@ namespace Sandbox.Game.Screens.Helpers
         public override ChangeInfo Update(MyEntity owner, long playerID = 0)
         {
             ChangeInfo changed = ChangeInfo.None;
+            bool enable = true;
 
             if (MyCubeBuilder.Static == null)
                 return changed;
             var blockDefinition = MyCubeBuilder.Static.IsActivated ? MyCubeBuilder.Static.ToolbarBlockDefinition : null;
             var blockDef = (this.Definition as Sandbox.Definitions.MyCubeBlockDefinition);
-            if ((MyCubeBuilder.Static.BlockCreationIsActivated || MyCubeBuilder.Static.MultiBlockCreationIsActivated) && blockDefinition != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
+            if ((MyCubeBuilder.Static.IsActivated /*|| MyCubeBuilder.Static.MultiBlockCreationIsActivated*/) && blockDefinition != null && (!MyFakes.ENABLE_BATTLE_SYSTEM || !MySession.Static.Battle))
             {
                 if (blockDefinition.BlockPairName == blockDef.BlockPairName)
                 {
@@ -122,23 +119,21 @@ namespace Sandbox.Game.Screens.Helpers
 
                     if (MySession.Static.SurvivalMode)
                     {
-                        changed |= SetEnabled(m_lastAmount > 0);
+                        enable &= m_lastAmount > 0;
                     }
                     else
                     {
-                        changed |= SetEnabled(true);
                         // so that we correctly set icontext when changing from enabled to disabled even when the amount is the same
                         changed |= ChangeInfo.IconText;
                     }
                 }
             }
-            else
-            {
-                changed |= SetEnabled(true);
-            }
 
             if (MyPerGameSettings.EnableResearch && MySessionComponentResearch.Static != null && (blockDef.CubeSize == MyCubeSize.Large))
-                changed |= SetEnabled(MySessionComponentResearch.Static.CanUse(character, Definition.Id));
+                enable &= MySessionComponentResearch.Static.CanUse(character, Definition.Id);
+
+            if (MyCubeBuilder.Static != null)
+                enable &= MyCubeBuilder.Static.IsCubeSizeAvailable(blockDef);
 
             return changed;
         }

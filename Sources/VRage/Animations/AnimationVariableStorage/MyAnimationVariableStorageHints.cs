@@ -49,6 +49,12 @@ namespace VRage.Animations
         public static readonly MyStringId StrIdHelmetOpen = MyStringId.GetOrCompute("helmetopen");
         // unlisted events (maybe move from this central storage to somewhere else? to space, medieval?):
         public static readonly MyStringId StrIdActionJump = MyStringId.GetOrCompute("jump");
+        // unlisted events (maybe move from this central storage to somewhere else? to space, medieval?):
+        public static readonly MyStringId StrIdActionAttack = MyStringId.GetOrCompute("attack");
+        // unlisted events (maybe move from this central storage to somewhere else? to space, medieval?):
+        public static readonly MyStringId StrIdActionHurt = MyStringId.GetOrCompute("hurt");
+        // unlisted events (maybe move from this central storage to somewhere else? to space, medieval?):
+        public static readonly MyStringId StrIdActionShout = MyStringId.GetOrCompute("shout");
 
         static MyAnimationVariableStorageHints()
         {

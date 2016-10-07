@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using VRage.Library.Utils;
@@ -77,6 +78,7 @@ namespace VRage.Compiler
             m_numMaxInstructions = maxInstructions;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void CountInstructions()
         {
             m_numInstructions++;
@@ -87,22 +89,42 @@ namespace VRage.Compiler
         }
 
 		static int m_numMethodCalls = 0;
-		static int m_numMaxMethodCalls= 0;
+		static int m_maxMethodCalls= 0;
+		static int m_maxCallChainDepth = 1000;
 
 		private static void RestartCountingMethods(int maxMethodCalls)
 		{
 			m_numMethodCalls = 0;
-			m_numMaxMethodCalls = maxMethodCalls;
+			m_maxMethodCalls = maxMethodCalls;
 		}
 
-		public static void CountMethodCalls()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CountMethodCalls()
 		{
 			m_numMethodCalls++;
-			if (m_numMethodCalls > m_numMaxMethodCalls)
+			if (m_numMethodCalls > m_maxMethodCalls)
 			{
 				throw new ScriptOutOfRangeException();
 			}
 		}
+
+        static int m_callChainDepth = 0;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void EnterMethod()
+        {
+            m_callChainDepth++;
+            if (m_callChainDepth > m_maxCallChainDepth)
+            {
+                throw new ScriptOutOfRangeException();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ExitMethod()
+        {
+            m_callChainDepth--;
+        }
 
         private static IlReader m_reader = new IlReader();
 
@@ -733,7 +755,7 @@ namespace VRage.Compiler
             public int InstructionCount { get { return IlInjector.m_numInstructions; } }
             public int MaxInstructionCount { get { return IlInjector.m_numMaxInstructions; } }
             public int MethodCallCount { get { return IlInjector.m_numMethodCalls; } }
-            public int MaxMethodCallCount { get { return IlInjector.m_numMaxMethodCalls; } }
+            public int MaxMethodCallCount { get { return IlInjector.m_maxMethodCalls; } }
         }
     }
 #endif

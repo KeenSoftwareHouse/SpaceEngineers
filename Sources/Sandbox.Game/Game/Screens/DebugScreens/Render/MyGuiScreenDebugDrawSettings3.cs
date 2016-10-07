@@ -1,11 +1,15 @@
 ﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Gui;
+using Sandbox.Graphics.GUI;
+using System.Text;
 using VRage;
 using VRageMath;
 using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Debug draw settings 3")]
     class MyGuiScreenDebugDrawSettings3 : MyGuiScreenDebugBase
     {
@@ -30,7 +34,19 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCaption("Debug draw settings 3", Color.Yellow.ToVector4());
             AddShareFocusHint();
 
-            AddCheckBox("Decals", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DebugDrawDecals));
+            AddCheckBox("Debug decals", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DebugDrawDecals));
+            AddCheckBox("Decals default material", null, MemberHelper.GetMember(() => MyFakes.ENABLE_USE_DEFAULT_DAMAGE_DECAL));
+            AddButton(new StringBuilder("Clear decals"), ClearDecals);
+
+            AddCheckBox("Debug Particles", () => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES, x => MyDebugDrawSettings.DEBUG_DRAW_PARTICLES = x);
         }
+
+        static void ClearDecals(MyGuiControlButton button)
+        {
+            MyRenderProxy.ClearDecals();
+        }
+
+#endif
+
     }
 }

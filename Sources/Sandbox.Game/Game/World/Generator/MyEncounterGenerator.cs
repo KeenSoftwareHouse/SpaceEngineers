@@ -35,7 +35,6 @@ namespace Sandbox.Game.World.Generator
         private static List<MyCubeGrid> m_createdGrids = new List<MyCubeGrid>();
         private static SerializableDictionary<MyEncounterId, Vector3D> m_movedOnlyEncounters = new SerializableDictionary<MyEncounterId, Vector3D>();
         private static List<MySpawnGroupDefinition> m_spawnGroups = new List<MySpawnGroupDefinition>();
-        private static List<MySpawnGroupDefinition> m_spawnGroupsNoVoxels = new List<MySpawnGroupDefinition>();
         private static List<int> m_randomEncounters = new List<int>();
         private static List<Vector3D> m_placePositions = new List<Vector3D>();
         private static List<MyEncounterId> m_encountersId = new List<MyEncounterId>();
@@ -110,17 +109,12 @@ namespace Sandbox.Game.World.Generator
 
             if (m_spawnGroups.Count == 0)
             {
-                m_spawnGroupsNoVoxels.Clear();
                 var allSpawnGroups = MyDefinitionManager.Static.GetSpawnGroupDefinitions();
                 foreach (var spawnGroup in allSpawnGroups)
                 {
                     if (spawnGroup.IsEncounter)
                     {
                         m_spawnGroups.Add(spawnGroup);
-                        if (spawnGroup.Voxels.Count == 0)
-                        {
-                            m_spawnGroupsNoVoxels.Add(spawnGroup);
-                        }
                     }
                 }
             }
@@ -130,8 +124,8 @@ namespace Sandbox.Game.World.Generator
                 m_randomEncounters.Clear();
                 m_placePositions.Clear();
                 m_encountersId.Clear();
-                int numEncoutersToPlace = seedType == MyObjectSeedType.EncounterMulti ? 2 : 1;
-                List<MySpawnGroupDefinition> currentSpawnGroup = seedType == MyObjectSeedType.EncounterMulti ? m_spawnGroupsNoVoxels : m_spawnGroups;
+                int numEncoutersToPlace = 1;
+                List<MySpawnGroupDefinition> currentSpawnGroup = m_spawnGroups;
 
                 for (int i = 0; i < numEncoutersToPlace; ++i)
                 {
@@ -373,7 +367,6 @@ namespace Sandbox.Game.World.Generator
             m_entityToEncounterConversion.Clear();
             m_savedEncounters.Clear();
             m_movedOnlyEncounters.Dictionary.Clear();
-            m_spawnGroupsNoVoxels.Clear();
             m_spawnGroups.Clear();
         }
 
@@ -386,10 +379,6 @@ namespace Sandbox.Game.World.Generator
                 if (spawnGroup.IsEncounter)
                 { 
                     m_spawnGroups.Add(spawnGroup);
-                    if (spawnGroup.Voxels.Count == 0)
-                    {
-                        m_spawnGroupsNoVoxels.Add(spawnGroup);
-                    }
                 }
             }
         }

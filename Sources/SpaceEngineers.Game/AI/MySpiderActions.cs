@@ -91,7 +91,7 @@ namespace SpaceEngineers.Game.AI
 
             Vector3D pos = teleportPos.Translation;
             float radius = (float)Bot.AgentEntity.PositionComp.WorldVolume.Radius;
-            var planet = MyGravityProviderSystem.GetNearestPlanet(pos);
+            var planet = MyGamePruningStructure.GetClosestPlanet(pos);
             if (planet != null)
             {
                 planet.CorrectSpawnLocation(ref pos, radius);

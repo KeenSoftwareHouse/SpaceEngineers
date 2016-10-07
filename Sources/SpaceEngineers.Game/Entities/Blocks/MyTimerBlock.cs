@@ -15,7 +15,7 @@ using Sandbox.Game.Localization;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.Screens.Helpers;
 using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.ModAPI;
@@ -26,7 +26,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_TimerBlock))]
-    internal class MyTimerBlock : MyFunctionalBlock, IMyTimerBlock
+    public class MyTimerBlock : MyFunctionalBlock, IMyTimerBlock, IMyTriggerableBlock
     {
         public MyToolbar Toolbar { get; set; }
 
@@ -63,21 +63,25 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
-        private static readonly List<MyToolbar> m_openedToolbars;
+        private static List<MyToolbar> m_openedToolbars;
         private static bool m_shouldSetOtherToolbars;
         bool m_syncing = false;
 
         readonly Sync<int> m_timerSync;
         public MyTimerBlock()
         {
+            CreateTerminalControls();
+
+            m_openedToolbars = new List<MyToolbar>();
             m_timerSync.ValueChanged += (x) => TimerChanged();
             m_isCountingDown.ValueChanged += (x) => CountDownChanged();
             m_isCountingDown.ValidateNever();
         }
 
-        static MyTimerBlock()
+        static void CreateTerminalControls()
         {
-            m_openedToolbars = new List<MyToolbar>();
+            if (MyTerminalControlFactory.AreControlsCreated<MyTimerBlock>())
+                return;
 
             var silent = new MyTerminalControlCheckbox<MyTimerBlock>("Silent", MySpaceTexts.BlockPropertyTitle_Silent, MySpaceTexts.ToolTipTimerBlock_Silent);
             silent.Getter = (x) => x.Silent;
@@ -391,6 +395,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             }
         }
 
+        void IMyTriggerableBlock.Trigger()
+        {
+            OnTrigger();
+        }
+
         private void UpdateEmissivity()
         {
             if (!InScene)
@@ -464,8 +473,8 @@ namespace SpaceEngineers.Game.Entities.Blocks
         {
             get { return Math.Max(m_countdownMsStart, 1000) / 1000; }
         }
-        bool IMyTimerBlock.IsCountingDown { get { return IsCountingDown; } }
-        float IMyTimerBlock.TriggerDelay { get { return TriggerDelay; } }
+        bool ModAPI.Ingame.IMyTimerBlock.IsCountingDown { get { return IsCountingDown; } }
+        float ModAPI.Ingame.IMyTimerBlock.TriggerDelay { get { return TriggerDelay; } }
 
         [Event, Reliable, Server, Broadcast]
         void SendToolbarItemChanged(ToolbarItem sentItem, int index)

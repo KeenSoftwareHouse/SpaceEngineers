@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
+using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
@@ -9,9 +11,12 @@ using Sandbox.Game.Multiplayer;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Utils;
 using VRage.Collections;
+using VRage.Game.Definitions;
+using VRageMath;
 
 namespace Sandbox.Game.World
 {
@@ -31,14 +36,62 @@ namespace Sandbox.Game.World
 
         private static readonly ComponentComparer SessionComparer = new ComponentComparer();
 
+        private void PrepareBaseSession(List<MyObjectBuilder_Checkpoint.ModItem> mods, MyScenarioDefinition definition = null)
+        {
+            ScriptManager.Init(null);
+            MyDefinitionManager.Static.LoadData(mods);
+
+            LoadGameDefinition(definition != null ? definition.GameDefinition : MyGameDefinition.Default);
+
+            Scenario = definition;
+            if (definition != null)
+            {
+                WorldBoundaries = definition.WorldBoundaries;
+
+                MySector.EnvironmentDefinition = MyDefinitionManager.Static.GetDefinition<MyEnvironmentDefinition>(definition.Environment);
+            }
+
+            MySector.InitEnvironmentSettings();
+
+            LoadDataComponents();
+            InitDataComponents();
+        }
+
+        private void PrepareBaseSession(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
+        {
+            ScriptManager.Init(checkpoint.ScriptManagerData);
+            MyDefinitionManager.Static.LoadData(checkpoint.Mods);
+
+            LoadGameDefinition(checkpoint);
+
+            if(MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Scenario) == false)
+            {
+                Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
+            }
+
+
+            FixIncorrectSettings(Settings);
+            WorldBoundaries = checkpoint.WorldBoundaries;
+
+            // Use whatever setting is in scenario if there was nothing in the file (0 min and max).
+            // SE scenarios have nothing while ME scenarios have size defined.
+            if (!WorldBoundaries.HasValue && Scenario != null)
+                WorldBoundaries = Scenario.WorldBoundaries;
+
+            MySector.InitEnvironmentSettings(sector.Environment);
+
+            LoadDataComponents();
+            LoadObjectBuildersComponents(checkpoint.SessionComponents);
+        }
+
         private void RegisterComponentsFromAssemblies()
         {
             var execAssembly = Assembly.GetExecutingAssembly();
             var refs = execAssembly.GetReferencedAssemblies();
 
             // Prepare final session component lists
-            Static.m_componentsToLoad = new HashSet<string>();
-            m_componentsToLoad.UnionWith(GameDefinition.SessionComponents);
+            m_componentsToLoad = new HashSet<string>();
+            m_componentsToLoad.UnionWith(GameDefinition.SessionComponents.Keys);
             m_componentsToLoad.RemoveWhere(x => SessionComponentDisabled.Contains(x));
             m_componentsToLoad.UnionWith(SessionComponentEnabled);
 
@@ -46,22 +99,16 @@ namespace Sandbox.Game.World
             {
                 try
                 {
-                    //MySandboxGame.Log.WriteLine("a:" + assemblyName.Name);
-
+                    // TODO: Re-gig this awful code
                     if (assemblyName.Name.Contains("Sandbox") || assemblyName.Name.Equals("VRage.Game"))
                     {
-                        //MySandboxGame.Log.WriteLine("b:" + assemblyName.Name);
-
                         Assembly assembly = Assembly.Load(assemblyName);
                         object[] attributes = assembly.GetCustomAttributes(typeof(AssemblyProductAttribute), false);
                         if (attributes.Length > 0)
                         {
-                            //MySandboxGame.Log.WriteLine("c:" + assemblyName.Name);
-
                             AssemblyProductAttribute product = attributes[0] as AssemblyProductAttribute;
                             if (product.Product == "Sandbox" || product.Product == "VRage.Game")
                             {
-                                //MySandboxGame.Log.WriteLine("d:" + assemblyName.Name);
                                 RegisterComponentsFromAssembly(assembly);
                             }
                         }
@@ -72,6 +119,19 @@ namespace Sandbox.Game.World
                     MyLog.Default.WriteLine("Error while resolving session components assemblies");
                     MyLog.Default.WriteLine(e.ToString());
                 }
+            }
+
+            try
+            {
+                foreach (var assembly in ScriptManager.Scripts.Values)
+                {
+                    RegisterComponentsFromAssembly(assembly, true);
+                }
+            }
+            catch (Exception e)
+            {
+                MyLog.Default.WriteLine("Error while loading modded session components");
+                MyLog.Default.WriteLine(e.ToString());
             }
 
             try
@@ -113,7 +173,7 @@ namespace Sandbox.Game.World
         public HashSet<string> SessionComponentDisabled = new HashSet<string>();
 
 
-        public T GetSessionComponent<T>() where T : MySessionComponentBase
+        public T GetComponent<T>() where T : MySessionComponentBase
         {
             MySessionComponentBase comp;
             m_sessionComponents.TryGetValue(typeof(T), out comp);
@@ -122,16 +182,16 @@ namespace Sandbox.Game.World
 
         public void RegisterComponent(MySessionComponentBase component, MyUpdateOrder updateOrder, int priority)
         {
-            m_sessionComponents.Add(component.ComponentType, component);
-
-            AddComponentForUpdate(updateOrder, MyUpdateOrder.BeforeSimulation, component);
-            AddComponentForUpdate(updateOrder, MyUpdateOrder.Simulation, component);
-            AddComponentForUpdate(updateOrder, MyUpdateOrder.AfterSimulation, component);
-            AddComponentForUpdate(updateOrder, MyUpdateOrder.NoUpdate, component);
+            // TODO: Better handling of component overrides
+            //if(m_sessionComponents.ContainsKey(component.ComponentType))
+            m_sessionComponents[component.ComponentType] = component;
+            component.Session = this;
+            AddComponentForUpdate(updateOrder, component);
         }
 
         public void UnregisterComponent(MySessionComponentBase component)
         {
+            component.Session = null;
             m_sessionComponents.Remove(component.ComponentType);
         }
 
@@ -154,20 +214,29 @@ namespace Sandbox.Game.World
         {
             try
             {
+                MyDefinitionId? definition = default(MyDefinitionId?);
+
                 if (MyFakes.ENABLE_LOAD_NEEDED_SESSION_COMPONENTS)
                 {
                     var component = (MySessionComponentBase)Activator.CreateInstance(type);
                     Debug.Assert(component != null, "Session component is cannot be created by activator");
 
                     if (component.IsRequiredByGame)
+                    {
                         RegisterComponent(component, component.UpdateOrder, component.Priority);
+
+                        GetComponentInfo(type, out definition);
+                        component.Definition = definition;
+                    }
                 }
-                else if (modAssembly || m_componentsToLoad.Contains(type.Name) || m_componentsToLoad.Contains(type.AssemblyQualifiedName))
+                else if (modAssembly || GetComponentInfo(type, out definition))
                 {
                     var component = (MySessionComponentBase)Activator.CreateInstance(type);
                     Debug.Assert(component != null, "Session component is cannot be created by activator");
 
                     RegisterComponent(component, component.UpdateOrder, component.Priority);
+
+                    component.Definition = definition;
                 }
             }
             catch (Exception)
@@ -176,28 +245,89 @@ namespace Sandbox.Game.World
             }
         }
 
-        private void AddComponentForUpdate(MyUpdateOrder updateOrder, MyUpdateOrder insertIfOrder, MySessionComponentBase component)
+        private bool GetComponentInfo(Type type, out MyDefinitionId? definition)
         {
-            if ((updateOrder & insertIfOrder) != insertIfOrder) return;
-            SortedSet<MySessionComponentBase> componentList = null;
+            string name = null;
+            if (m_componentsToLoad.Contains(type.Name)) name = type.Name;
+            else if (m_componentsToLoad.Contains(type.FullName)) name = type.FullName;
 
-            if (!m_sessionComponentsForUpdate.TryGetValue((int)insertIfOrder, out componentList))
+            if (name != null)
             {
-                m_sessionComponentsForUpdate.Add((int)insertIfOrder, componentList = new SortedSet<MySessionComponentBase>(SessionComparer));
+                GameDefinition.SessionComponents.TryGetValue(name, out definition);
+                return true;
             }
+            definition = default(MyDefinitionId?);
+            return false;
+        }
 
-            componentList.Add(component);
+        public void AddComponentForUpdate(MyUpdateOrder updateOrder, MySessionComponentBase component)
+        {
+            for (int i = 0; i <= 2; ++i)
+            {
+                if (((int)updateOrder & (1 << i)) == 0) continue;
+
+                SortedSet<MySessionComponentBase> componentList = null;
+
+                if (!m_sessionComponentsForUpdate.TryGetValue(1 << i, out componentList))
+                {
+                    m_sessionComponentsForUpdate.Add(1 << i, componentList = new SortedSet<MySessionComponentBase>(SessionComparer));
+                }
+
+                componentList.Add(component);
+            }
+        }
+
+        public void SetComponentUpdateOrder(MySessionComponentBase component, MyUpdateOrder order)
+        {
+            for (int i = 0; i <= 2; ++i)
+            {
+                SortedSet<MySessionComponentBase> componentList = null;
+                if ((order & (MyUpdateOrder)(1 << i)) != 0)
+                {
+                    if (!m_sessionComponentsForUpdate.TryGetValue(1 << i, out componentList))
+                    {
+                        componentList = new SortedSet<MySessionComponentBase>();
+                        m_sessionComponentsForUpdate.Add(i, componentList);
+                    }
+                    componentList.Add(component);
+                }
+                else
+                {
+                    if (m_sessionComponentsForUpdate.TryGetValue(1 << i, out componentList))
+                    {
+                        componentList.Remove(component);
+                    }
+                }
+            }
         }
 
         public void LoadObjectBuildersComponents(List<MyObjectBuilder_SessionComponent> objectBuilderData)
         {
-            var mappedObjectBuilders = MySessionComponentMapping.GetMappedSessionObjectBuilders(objectBuilderData);
-            MyObjectBuilder_SessionComponent tmpOb = null;
+            foreach (var obdata in objectBuilderData)
+            {
+                Type scType;
+                MySessionComponentBase comp;
+                if ((scType = MySessionComponentMapping.TryGetMappedSessionComponentType(obdata.GetType())) != null
+                    && m_sessionComponents.TryGetValue(scType, out comp))
+                {
+                    comp.Init(obdata);
+                }
+            }
+
+            InitDataComponents();
+        }
+
+        private void InitDataComponents()
+        {
             foreach (var comp in m_sessionComponents.Values)
             {
-                if (mappedObjectBuilders.TryGetValue(comp.ComponentType, out tmpOb))
+                if (!comp.Initialized)
                 {
-                    comp.Init(tmpOb);
+                    MyObjectBuilder_SessionComponent compob = null;
+                    if (comp.ObjectBuilderType != MyObjectBuilderType.Invalid)
+                        compob = (MyObjectBuilder_SessionComponent)Activator.CreateInstance(comp.ObjectBuilderType);
+
+                    comp.Init(compob);
                 }
             }
         }
@@ -213,23 +343,20 @@ namespace Sandbox.Game.World
             SetAsNotReady();
         }
 
-        public void LoadDataComponents(bool registerEvents = true)
+        public void LoadDataComponents()
         {
             RaiseOnLoading();
 
-            if (registerEvents)
-            {
-                if (SyncLayer.AutoRegisterGameEvents)
-                    SyncLayer.RegisterGameEvents();
+            if (SyncLayer.AutoRegisterGameEvents)
+                SyncLayer.RegisterGameEvents();
 
-                Sync.Clients.SetLocalSteamId(Sync.MyId, createLocalClient: !(MyMultiplayer.Static is MyMultiplayerClient));
-                Sync.Players.RegisterEvents();
-            }
+            Sync.Clients.SetLocalSteamId(Sync.MyId, createLocalClient: !(MyMultiplayer.Static is MyMultiplayerClient));
+            Sync.Players.RegisterEvents();
 
             SetAsNotReady();
 
             HashSet<MySessionComponentBase> processedComponents = new HashSet<MySessionComponentBase>();
-            
+
             do
             {
                 m_sessionComponents.ApplyChanges();
@@ -266,7 +393,6 @@ namespace Sandbox.Game.World
                 throw new Exception(message);
             }
 
-            var hash = component.DebugName.GetHashCode();
             ProfilerShort.Begin(component.DebugName);
             component.LoadData();
             component.AfterLoadData();
@@ -374,6 +500,5 @@ namespace Sandbox.Game.World
         }
 
         #endregion
-
     }
 }

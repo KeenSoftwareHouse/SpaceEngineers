@@ -269,6 +269,7 @@ namespace VRageRender.Profiler
                 case RenderProfilerCommand.Pause:
                     {
                         Paused = !Paused;
+                        GpuProfiler.AutoCommit = !Paused;
                         break;
                     }
 

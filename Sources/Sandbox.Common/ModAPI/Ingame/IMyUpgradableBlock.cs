@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VRage.Game.ModAPI.Ingame;
 
 namespace Sandbox.ModAPI.Ingame
 {
     /// <summary>
     /// interface to retrieve upgrade effects on block
     /// </summary>
-    public interface IMyUpgradableBlock
+    public interface IMyUpgradableBlock : IMyCubeBlock
     {
         /// <summary>
         /// get list of upgrades (r/o);

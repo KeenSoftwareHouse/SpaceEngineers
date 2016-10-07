@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using VRage.ObjectBuilders;
 
 namespace VRage.Game.Components
@@ -9,7 +10,7 @@ namespace VRage.Game.Components
         BeforeSimulation = 0x01,
         Simulation = 0x02,
         AfterSimulation = 0x04,
-        NoUpdate = 0x08,
+        NoUpdate = 0x0,
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
@@ -37,11 +38,21 @@ namespace VRage.Game.Components
         {
         }
 
-        public MySessionComponentDescriptor(MyUpdateOrder updateOrder, int priority, Type type)
+        public MySessionComponentDescriptor(MyUpdateOrder updateOrder, int priority, Type obType)
         {
             UpdateOrder = updateOrder;
             Priority = priority;
-            ObjectBuilderType = type;
+            ObjectBuilderType = obType;
+
+            if (obType != null)
+            {
+                Debug.Assert(typeof(MyObjectBuilder_SessionComponent).IsAssignableFrom(obType), obType.FullName);
+
+                if (!typeof(MyObjectBuilder_SessionComponent).IsAssignableFrom(obType))
+                {
+                    ObjectBuilderType = MyObjectBuilderType.Invalid;
+                }
+            }
         }
     }
 
@@ -58,6 +69,12 @@ namespace VRage.Game.Components
             return false;
         }
         public bool Loaded;
+        private bool m_initialized;
+
+        public bool Initialized
+        {
+            get { return m_initialized; }
+        }
 
         public MySessionComponentBase()
         {
@@ -93,6 +110,8 @@ namespace VRage.Game.Components
 
         public virtual void Init(MyObjectBuilder_SessionComponent sessionComponent)
         {
+            m_initialized = true;
+
         }
 
         public virtual MyObjectBuilder_SessionComponent GetObjectBuilder()
@@ -104,7 +123,7 @@ namespace VRage.Game.Components
         }
 
         public virtual void LoadData()
-        {           
+        {
         }
 
         protected virtual void UnloadData()

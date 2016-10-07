@@ -8,7 +8,7 @@ namespace Sandbox.ModAPI
     /// <summary>
     /// Ship welder interface
     /// </summary>
-    public interface IMyShipWelder : Ingame.IMyShipWelder
+    public interface IMyShipWelder : IMyShipToolBase, Ingame.IMyShipWelder
     {
     }
 }

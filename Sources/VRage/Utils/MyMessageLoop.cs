@@ -6,7 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 using VRage.Utils;
 using VRage.Win32;
-#if !BLIT
+#if !XB1
 using MSG = VRage.Win32.WinApi.MSG;
 #endif
 

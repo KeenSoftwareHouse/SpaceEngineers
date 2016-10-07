@@ -210,8 +210,6 @@ namespace Sandbox.Game.GameSystems
 		#region Oxygen
 		public const float OXYGEN_UNIFORMIZATION_TIME_MS = 1500;
 
-        private readonly List<MyParticleEffect> m_depressurizationEffects = new List<MyParticleEffect>();
-
         private bool m_isPressurizing = false;
         //Intermediary storage. Needed because the pressurization process can be interrupted
         private MyOxygenBlock[, ,] m_tempPrevCubeRoom;
@@ -462,26 +460,6 @@ namespace Sandbox.Game.GameSystems
                         oxygenAmount[i] = (float)m_rooms[i].OxygenAmount;
                     }
                     m_cubeGrid.UpdateOxygenAmount(oxygenAmount);
-                }
-            }
-
-            foreach (var effect in m_depressurizationEffects)
-            {
-                if (effect.GetElapsedTime() > 1f)
-                    effect.Stop();
-            }
-
-            int index = 0;
-            while (index < m_depressurizationEffects.Count)
-            {
-                if (m_depressurizationEffects[index].GetParticlesCount() == 0)
-                {
-                    m_depressurizationEffects[index].Close(true);
-                    m_depressurizationEffects.RemoveAt(index);
-                }
-                else
-                {
-                    index++;
                 }
             }
         }
@@ -976,12 +954,8 @@ namespace Sandbox.Game.GameSystems
             {
                 var orientation = Matrix.CreateFromDir(to - from);
                 orientation.Translation = from;
-                effect.UserScale = 3f;
 
                 effect.WorldMatrix = orientation;
-                effect.AutoDelete = true;
-
-                m_depressurizationEffects.Add(effect);
 
                 MyEntity3DSoundEmitter airLeakSound = MyAudioComponent.TryGetSoundEmitter();
                 if (airLeakSound != null)

@@ -25,8 +25,16 @@ namespace Sandbox.Game.Entities.Blocks
             Clipboard.Add(block);
         }
         
-        static MyScenarioBuildingBlock()
+        public MyScenarioBuildingBlock()
         {
+            CreateTerminalControls();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyTerminalBlock>())
+                return;
+
             MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyTerminalBlock>());
             var idleButton = new MyTerminalControlButton<MyTerminalBlock>("CopyBlockID", MySpaceTexts.GuiScenarioEdit_CopyIds, MySpaceTexts.GuiScenarioEdit_CopyIdsTooltip,
                 delegate(MyTerminalBlock self)
@@ -37,7 +45,6 @@ namespace Sandbox.Game.Entities.Blocks
             idleButton.Visible = (x) => MySession.Static.Settings.ScenarioEditMode;
             idleButton.SupportsMultipleBlocks = true;
             MyTerminalControlFactory.AddControl(idleButton);
-
         }
     }
 }

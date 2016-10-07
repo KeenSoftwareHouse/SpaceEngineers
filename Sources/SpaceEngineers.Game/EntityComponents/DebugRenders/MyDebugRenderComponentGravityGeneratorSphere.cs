@@ -13,7 +13,7 @@ namespace SpaceEngineers.Game.EntityComponents.DebugRenders
         {
             m_gravityGenerator = gravityGenerator;
         }
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             if (MyDebugDrawSettings.DEBUG_DRAW_MISCELLANEOUS && m_gravityGenerator.IsWorking)
             {
@@ -24,8 +24,6 @@ namespace SpaceEngineers.Game.EntityComponents.DebugRenders
             {
                 VRageRender.MyRenderProxy.DebugDrawAxis(m_gravityGenerator.PositionComp.WorldMatrix, 2, false);
             }
-            return true;
-
         }
     }
 }

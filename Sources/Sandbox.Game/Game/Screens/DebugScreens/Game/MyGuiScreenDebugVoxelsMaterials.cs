@@ -14,6 +14,8 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+    #if !XB1_TMP
+
     [MyDebugScreen("Game", "Voxel materials")]
     public class MyGuiScreenDebugVoxelMaterials : MyGuiScreenDebugBase
     {
@@ -155,4 +157,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             MyDefinitionManager.Static.UpdateVoxelMaterial(m_selectedVoxelMaterial);
         }
     }
+
+#endif
 }

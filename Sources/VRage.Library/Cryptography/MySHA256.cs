@@ -8,7 +8,7 @@ namespace VRage.Cryptography
 {
     public static class MySHA256
     {
-#if BLIT
+#if XB1
 #else
         static bool m_supportsFips = true;
 

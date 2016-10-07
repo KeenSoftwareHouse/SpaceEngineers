@@ -181,6 +181,19 @@ namespace Sandbox.Game.Entities
             get { return (int)Render.RenderObjectIDs[0]; }
         }
 
+        public void SetRenderID(uint id)
+        {
+        }
+
+        public int InstanceID
+        {
+            get { return -1; }
+        }
+
+        public void SetInstanceID(int id)
+        {
+        }
+
         public bool ShowOverlay
         {
             get { return true; }

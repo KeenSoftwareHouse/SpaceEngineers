@@ -82,6 +82,7 @@ namespace Sandbox.Engine.Utils
         readonly string WINDOW_MODE = "WindowMode";
         readonly string MOUSE_CAPTURE = "CaptureMouse";
         readonly string HUD_WARNINGS = "HudWarnings";
+        readonly string DYNAMIC_MUSIC = "EnableDynamicMusic";
         readonly string ANTIALIASING_MODE = "AntialiasingMode";
         readonly string SHADOW_MAP_RESOLUTION = "ShadowMapResolution";
         readonly string MULTITHREADED_RENDERING = "MultithreadedRendering";
@@ -90,6 +91,7 @@ namespace Sandbox.Engine.Utils
         readonly string ANISOTROPIC_FILTERING = "AnisotropicFiltering";
         readonly string FOLIAGE_DETAILS = "FoliageDetails";
         readonly string GRASS_DENSITY = "GrassDensity";
+        readonly string VEGETATION_DISTANCE = "VegetationViewDistance";
         readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
         readonly string ENABLE_VOICE_CHAT = "VoiceChat";
         readonly string ENABLE_MUTE_WHEN_NOT_IN_FOCUS = "EnableMuteWhenNotInFocus";
@@ -196,6 +198,20 @@ namespace Sandbox.Engine.Utils
             set
             {
                 SetParameterValue(GRASS_DENSITY, value);
+            }
+        }
+
+
+        public float VegetationDrawDistance
+        {
+            get
+            {
+                return MyUtils.GetFloatFromString(GetParameterValue(VEGETATION_DISTANCE), 100);
+            }
+
+            set
+            {
+                SetParameterValue(VEGETATION_DISTANCE, value);
             }
         }
 
@@ -766,6 +782,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_MUTE_WHEN_NOT_IN_FOCUS), true); }
             set { SetParameterValue(ENABLE_MUTE_WHEN_NOT_IN_FOCUS, value); }
+        }
+
+        public bool EnableDynamicMusic
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(DYNAMIC_MUSIC), true); }
+            set { SetParameterValue(DYNAMIC_MUSIC, value); }
         }
 
         public MyStringId GraphicsRenderer

@@ -15,6 +15,9 @@ namespace VRage.Game
         public SerializableDefinitionId GameDefinition = MyGameDefinition.Default;
 
         [ProtoMember]
+        public SerializableDefinitionId EnvironmentDefinition = new SerializableDefinitionId(typeof(MyObjectBuilder_EnvironmentDefinition), "Default");
+
+        [ProtoMember]
         public AsteroidClustersSettings AsteroidClusters;
 
         [ProtoMember]
@@ -35,7 +38,7 @@ namespace VRage.Game
         [ProtoMember]
         [XmlArrayItem("Component")]
         public StartingItem[] CreativeModeComponents;
-        
+
         [ProtoMember]
         [XmlArrayItem("PhysicalItem")]
         public StartingPhysicalItem[] CreativeModePhysicalItems;
@@ -67,7 +70,7 @@ namespace VRage.Game
         public MyObjectBuilder_InventoryItem[] SurvivalInventoryItems;
 
         [ProtoMember]
-        public SerializableBoundingBoxD WorldBoundaries;
+        public SerializableBoundingBoxD? WorldBoundaries;
 
         [ProtoMember]
         public MyObjectBuilder_Toolbar DefaultToolbar

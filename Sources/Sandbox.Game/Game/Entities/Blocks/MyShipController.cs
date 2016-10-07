@@ -1,5 +1,6 @@
 ﻿#region Using
 
+using System;
 using Sandbox.Common;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
@@ -16,7 +17,7 @@ using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.Weapons;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
-using Sandbox.ModAPI.Ingame;
+using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces;
 using System.Diagnostics;
 using System.Text;
@@ -49,6 +50,7 @@ using VRage.Game.ModAPI.Interfaces;
 using VRage.Serialization;
 using Sandbox.Game.Replication;
 using VRage.Audio;
+using Sandbox.Game.Entities.Blocks;
 #endregion
 
 namespace Sandbox.Game.Entities
@@ -87,6 +89,8 @@ namespace Sandbox.Game.Entities
 
         private bool m_reactorsSwitched = true;
 
+        private bool m_mainCockpitOverwritten = false;
+
         protected MyRechargeSocket m_rechargeSocket;
 
         MyHudNotification m_notificationReactorsOff;
@@ -120,8 +124,8 @@ namespace Sandbox.Game.Entities
         //        MyGunTypeEnum? m_selectedGunType;
         MyDefinitionId? m_selectedGunId;
 
-        public MyToolbar Toolbar;
-        public MyToolbar BuildToolbar;
+        private MyToolbar m_toolbar;
+        private MyToolbar m_buildToolbar;
         public bool BuildingMode = false;
         public bool hasPower = false;
 
@@ -130,8 +134,6 @@ namespace Sandbox.Game.Entities
         protected MySoundPair GetOutOfCockpitSound = MySoundPair.Empty;// new MySoundPair("CockpitGetOut");
         protected MySoundPair GetInCockpitSound = MySoundPair.Empty;//new MySoundPair("CockpitGetIn");
         public bool PlayDefaultUseSound { get { return GetInCockpitSound == MySoundPair.Empty; } }
-
-        protected static MyTerminalControlCheckbox<MyShipController>  m_horizonIndicator;
 
         public Vector3 MoveIndicator
         {
@@ -149,6 +151,17 @@ namespace Sandbox.Game.Entities
         {
             get;
             set;
+        }
+
+        public MyToolbar Toolbar
+        {
+            get
+            {
+                if (BuildingMode)
+                    return m_buildToolbar;
+                else
+                    return m_toolbar;
+            }
         }
 
         /// <summary>
@@ -191,6 +204,9 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        private static bool m_shouldSetOtherToolbars;
+        bool m_syncing = false;
+
         #endregion
 
         public VRage.Groups.MyGroups<MyCubeGrid, MyGridPhysicalGroupData> ControlGroup
@@ -200,8 +216,39 @@ namespace Sandbox.Game.Entities
 
         #region Init
 
-        static MyShipController()
+        public virtual MyCharacter Pilot
         {
+            get { return null; }
+        }
+        protected MyCharacter m_lastPilot = null;
+
+        protected virtual ControllerPriority Priority
+        {
+            get
+            {
+                return ControllerPriority.Primary;
+            }
+        }
+
+        public MyShipController()
+        {
+            CreateTerminalControls();
+
+            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
+            ControllerInfo.ControlAcquired += OnControlAcquired;
+            ControllerInfo.ControlReleased += OnControlReleased;
+            GridSelectionSystem = new MyGridSelectionSystem(this);
+            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
+
+            m_isMainCockpit.ValueChanged += (x) => MainCockpitChanged();
+            m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyShipController>())
+                return;
+
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
                 var controlThrusters = new MyTerminalControlCheckbox<MyShipController>("ControlThrusters", MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters, MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters);
@@ -226,7 +273,7 @@ namespace Sandbox.Game.Entities
 
                 var handBrake = new MyTerminalControlCheckbox<MyShipController>("HandBrake", MySpaceTexts.TerminalControlPanel_Cockpit_Handbrake, MySpaceTexts.TerminalControlPanel_Cockpit_Handbrake);
                 handBrake.Getter = (x) => x.CubeGrid.GridSystems.WheelSystem.HandBrake;
-                handBrake.Setter = (x, v) => x.SwitchLeadingGears();
+                handBrake.Setter = (x, v) => x.SwitchHandbrake();
                 handBrake.Visible = (x) => x.m_enableShipControl;
                 handBrake.Enabled = (x) => x.GridWheels.WheelCount > 0 && x.IsMainCockpitFree();
                 action = handBrake.EnableAction();
@@ -260,42 +307,15 @@ namespace Sandbox.Game.Entities
             mainCockpit.Enabled = (x) => x.IsMainCockpitFree();
             mainCockpit.Visible = (x) => x.CanBeMainCockpit();
             mainCockpit.EnableAction();
-
             MyTerminalControlFactory.AddControl(mainCockpit);
 
-			m_horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
-			m_horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
-			m_horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
-			m_horizonIndicator.Enabled = (x) => MyFakes.ENABLE_PLANETS;
-			m_horizonIndicator.Visible = (x) => MyFakes.ENABLE_PLANETS;
-			m_horizonIndicator.EnableAction();
-			MyTerminalControlFactory.AddControl(m_horizonIndicator);           
-        }
-
-        public virtual MyCharacter Pilot
-        {
-            get { return null; }
-        }
-        protected MyCharacter m_lastPilot = null;
-
-        protected virtual ControllerPriority Priority
-        {
-            get
-            {
-                return ControllerPriority.Primary;
-            }
-        }
-
-        public MyShipController()
-        {
-            m_isShooting = new bool[(int)MyEnum<MyShootActionEnum>.Range.Max + 1];
-            ControllerInfo.ControlAcquired += OnControlAcquired;
-            ControllerInfo.ControlReleased += OnControlReleased;
-            GridSelectionSystem = new MyGridSelectionSystem(this);
-            m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
-
-            m_isMainCockpit.ValueChanged += (x) => MainCockpitChanged();
-            m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
+            var horizonIndicator = new MyTerminalControlCheckbox<MyShipController>("HorizonIndicator", MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator, MySpaceTexts.TerminalControlPanel_Cockpit_HorizonIndicator);
+            horizonIndicator.Getter = (x) => x.HorizonIndicatorEnabled;
+            horizonIndicator.Setter = (x, v) => x.HorizonIndicatorEnabled = v;
+            horizonIndicator.Enabled = (x) => true;
+            horizonIndicator.Visible = (x) => x.CanHaveHorizon();
+            horizonIndicator.EnableAction();
+            MyTerminalControlFactory.AddControl(horizonIndicator);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -327,11 +347,12 @@ namespace Sandbox.Game.Entities
             }
 
 			HorizonIndicatorEnabled = shipControllerOb.HorizonIndicatorEnabled;
-            Toolbar = new MyToolbar(ToolbarType); ;
-            Toolbar.Init(shipControllerOb.Toolbar, this);
+            m_toolbar = new MyToolbar(ToolbarType);
+            m_toolbar.Init(shipControllerOb.Toolbar, this);
+            m_toolbar.ItemChanged += Toolbar_ItemChanged;
 
-            BuildToolbar = new MyToolbar(MyToolbarType.BuildCockpit);
-            BuildToolbar.Init(shipControllerOb.BuildToolbar, this);
+            m_buildToolbar = new MyToolbar(MyToolbarType.BuildCockpit);
+            m_buildToolbar.Init(shipControllerOb.BuildToolbar, this);
 
 
             SlimBlock.ComponentStack.IsFunctionalChanged += ComponentStack_IsFunctionalChanged;
@@ -375,7 +396,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.ControlThrusters = m_controlThrusters;
             objectBuilder.ControlWheels = m_controlWheels;
             objectBuilder.Toolbar = Toolbar.GetObjectBuilder();
-            objectBuilder.BuildToolbar = BuildToolbar.GetObjectBuilder();
+            objectBuilder.BuildToolbar = m_buildToolbar.GetObjectBuilder();
             objectBuilder.IsMainCockpit = m_isMainCockpit;
 			objectBuilder.HorizonIndicatorEnabled = HorizonIndicatorEnabled;
 
@@ -457,7 +478,7 @@ namespace Sandbox.Game.Entities
                 return;
             }
 
-            if (IsMainCockpit == false && CubeGrid.HasMainCockpit())
+            if ((IsMainCockpit == false && CubeGrid.HasMainCockpit() && !m_mainCockpitOverwritten))
             {
                 return;
             }
@@ -569,7 +590,7 @@ namespace Sandbox.Game.Entities
 
         }
 
-        public bool ForceFirstPersonCamera
+        public virtual bool ForceFirstPersonCamera
         {
             get
             {
@@ -616,13 +637,14 @@ namespace Sandbox.Game.Entities
 
             if (CubeGrid.GridSystems.ControlSystem != null && CubeGrid.GridSystems.ControlSystem.GetShipController() == this)
             {
-                if (EntityThrustComponent != null && EntityThrustComponent.AutopilotEnabled == false)
+                bool isLocalOrServer = Sync.IsServer || ControllerInfo.Controller == MySession.Static.LocalHumanPlayer.Controller;
+                if (EntityThrustComponent != null && EntityThrustComponent.AutopilotEnabled == false && isLocalOrServer)
                 {
                     EntityThrustComponent.ControlThrustMagnitude = Vector3.Zero;
                     EntityThrustComponent.ControlThrust = Vector3.Zero;
                 }
 
-                if (GridGyroSystem != null && GridGyroSystem.AutopilotEnabled == false)
+                if (GridGyroSystem != null && GridGyroSystem.AutopilotEnabled == false && isLocalOrServer)
                 {
                     GridGyroSystem.ControlTorque = Vector3.Zero;
                 }
@@ -712,7 +734,7 @@ namespace Sandbox.Game.Entities
         {
             if ((BuildingMode && MySession.Static.IsCameraControlledObject() == false) ||
                 (MyInput.Static.IsNewKeyPressed(MyKeys.G) && MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyMousePressed() && !(MySession.Static.ControlledEntity is MyRemoteControl)
-                && m_enableBuilderCockpit && CanBeMainCockpit() && MySession.Static.IsCameraControlledObject() == true))
+                && m_enableBuilderCockpit && CanBeMainCockpit() && MySession.Static.IsCameraControlledObject() == true) && MySession.Static.ControlledEntity == this)
             {
                 BuildingMode = !BuildingMode;
                 MyGuiAudio.PlaySound(MyGuiSounds.HudUse);
@@ -721,11 +743,13 @@ namespace Sandbox.Game.Entities
                 {
                     MyHud.Crosshair.ChangeDefaultSprite(MyHudTexturesEnum.Target_enemy, 0.01f);
                     MyHud.Notifications.Add(MyNotificationSingletons.BuildingModeOn);
+                    MyCubeBuilder.Static.Activate();
                 }
                 else
                 {
                     MyHud.Crosshair.ResetToDefault();
                     MyHud.Notifications.Add(MyNotificationSingletons.BuildingModeOff);
+                    MyCubeBuilder.Static.Deactivate();
                 }
             }
 
@@ -1109,8 +1133,31 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
+        private void OnControlEntityChanged(IMyControllableEntity oldControl, IMyControllableEntity newControl)
+        {
+            if (m_enableShipControl && oldControl != null)
+            {
+                if (CubeGrid.IsMainCockpit(oldControl.Entity as MyTerminalBlock))
+                {
+                    if (oldControl.Entity.Parent.EntityId == newControl.Entity.Parent.EntityId)
+                    {
+                        Console.WriteLine("Both controls are from same grid");
+                        var group = ControlGroup.GetGroup(CubeGrid);
+                        if (group != null)
+                        {
+                            group.GroupData.ControlSystem.AddControllerBlock(this);
+                        }
+
+                        GridSelectionSystem.OnControlAcquired();
+                        m_mainCockpitOverwritten = true;
+                    }
+                }
+            }
+        }
+
         protected void OnControlAcquired(MyEntityController controller)
         {
+            controller.ControlledEntityChanged += OnControlEntityChanged;
             // Try to take control of ship
             // This won't be here at all
             if (MySession.Static.LocalHumanPlayer == controller.Player || Sync.IsServer)
@@ -1152,31 +1199,18 @@ namespace Sandbox.Game.Entities
                 //controller.Player.OnDisplayNameChanged += UpdateHudMarker;
                 UpdateHudMarker();
             }
-
-            if (m_enableShipControl && (IsMainCockpit == true || CubeGrid.HasMainCockpit() == false))
+            if (m_enableShipControl)
             {
+                if ((IsMainCockpit == true || CubeGrid.HasMainCockpit() == false))//|| ((MySession.Static.ControlledEntity is MyRemoteControl))
+                {
                 var group = ControlGroup.GetGroup(CubeGrid);
                 if (group != null)
                 {
                     group.GroupData.ControlSystem.AddControllerBlock(this);
                 }
-                /*if (Sync.IsServer)
-                {
-                    var group = ControlGroup.GetGroup(CubeGrid);
-                    if (group != null)
-                    {
-                        if (!CubeGrid.GridSystems.ControlSystem.ControllerSteamId.HasValue)
-                        {
-                            foreach (var node in group.Nodes)
-                                Sync.Controllers.TryExtendControl(this, node.NodeData);
-                        }
-                    }
-                    else
-                        Sync.Controllers.TryExtendControl(this, CubeGrid);
-
-                }*/
 
                 GridSelectionSystem.OnControlAcquired();
+            }
             }
 
             if (BuildingMode && (MySession.Static.ControlledEntity is MyRemoteControl)) BuildingMode = false;
@@ -1208,6 +1242,8 @@ namespace Sandbox.Game.Entities
 
         protected virtual void OnControlReleased(MyEntityController controller)
         {
+            controller.ControlledEntityChanged -= OnControlEntityChanged;
+            m_mainCockpitOverwritten = false;
             var thrustComponent = EntityThrustComponent;
             // Release control of the ship
             if (Sync.Players.GetEntityController(this) == controller && thrustComponent != null)
@@ -1464,6 +1500,18 @@ namespace Sandbox.Game.Entities
                     // When some lights are on, we consider lights to be on and want to disable them.
                     GridReflectorLights.ReflectorsEnabled = MyMultipleEnabledEnum.AllDisabled;
             }
+        }
+
+        public void SwitchHandbrake()
+        {
+            if (m_enableShipControl)
+            {
+                CubeGrid.SetHandbrakeRequest(!CubeGrid.GridSystems.WheelSystem.HandBrake);
+            }
+
+            bool isHandbrakeMessage = MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT && GridWheels != null && GridWheels.WheelCount > 0 && IsMainCockpitFree();
+            m_handbrakeNotification = new MyHudNotification(CubeGrid.GridSystems.WheelSystem.HandBrake ? MySpaceTexts.NotificationHandbrakeOn : MySpaceTexts.NotificationHandbrakeOff);
+            MyHud.Notifications.Add(m_handbrakeNotification);
         }
 
         public void SwitchLeadingGears()
@@ -2004,6 +2052,11 @@ namespace Sandbox.Game.Entities
             CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
             Components.ComponentAdded -= OnComponentAdded;
             Components.ComponentRemoved -= OnComponentRemoved;
+            if(m_soundEmitter != null)
+            {
+                m_soundEmitter.StopSound(true);
+                m_soundEmitter = null;
+            }
             base.Closing();
         }
 
@@ -2106,6 +2159,11 @@ namespace Sandbox.Game.Entities
             return false;
         }
 
+        protected virtual bool CanHaveHorizon()
+        {
+            return true;
+        }
+
         protected bool IsMainCockpitFree()
         {
             return CubeGrid.HasMainCockpit() == false || CubeGrid.IsMainCockpit(this);
@@ -2120,12 +2178,6 @@ namespace Sandbox.Game.Entities
 			{
 				m_horizonIndicatorEnabled.Value = value;
 			}
-		}
-
-		protected void SetHorizonIndicator(bool newValue)
-		{
-			if (HorizonIndicatorEnabled == newValue)
-				return;
 		}
 
         public virtual MyToolbarType ToolbarType
@@ -2316,27 +2368,28 @@ namespace Sandbox.Game.Entities
             set;
         }
 
-        bool IMyShipController.IsUnderControl { get { return ControllerInfo.Controller != null; } }
+        bool ModAPI.Ingame.IMyShipController.IsUnderControl { get { return ControllerInfo.Controller != null; } }
 
-        bool IMyShipController.ControlWheels
+        bool ModAPI.Ingame.IMyShipController.ControlWheels
         {
             get { return ControlWheels; }
         }
-        bool IMyShipController.ControlThrusters
+        bool ModAPI.Ingame.IMyShipController.ControlThrusters
         {
             get { return ControlThrusters; }
         }
 
-        bool IMyShipController.HandBrake
+        bool ModAPI.Ingame.IMyShipController.HandBrake
         {
             get
             {
                 return CubeGrid.GridSystems.WheelSystem.HandBrake;
             }
         }
-        bool IMyShipController.DampenersOverride
+        bool ModAPI.Ingame.IMyShipController.DampenersOverride
         {
-            get {
+            get
+            {
 	            return EntityThrustComponent != null && EntityThrustComponent.DampenersEnabled;
             }
         }
@@ -2485,7 +2538,14 @@ namespace Sandbox.Game.Entities
             }
             else
             {
+               if(MyEventContext.Current.IsLocallyInvoked)
+               {
+                   UseFailureCallback(useAction, usedById, useResult);
+               }  
+                else
+                {
                 MyMultiplayer.RaiseEvent(this, x => x.UseFailureCallback, useAction, usedById, useResult, MyEventContext.Current.Sender);
+                }
             }
         }
 
@@ -2610,6 +2670,48 @@ namespace Sandbox.Game.Entities
 
         }
 
+
+        void Toolbar_ItemChanged(MyToolbar self, MyToolbar.IndexArgs index)
+        {
+            if (m_syncing)
+            {
+                return;
+            }
+
+            Debug.Assert(self == Toolbar);
+
+            MyToolbarItem item = self.GetItemAtIndex(index.ItemIndex);
+            if (item != null)
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.SendToolbarItemChanged, item.GetObjectBuilder(), index.ItemIndex);
+            }
+            else
+            {
+                MyMultiplayer.RaiseEvent(this, x => x.SendToolbarItemRemoved, index.ItemIndex);
+            }
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void SendToolbarItemRemoved( int index)
+        {
+            m_syncing = true;
+            Toolbar.SetItemAtIndex(index, null);
+            m_syncing = false;
+        }
+
+        [Event, Reliable, Server, Broadcast]
+        void SendToolbarItemChanged([DynamicObjectBuilder]MyObjectBuilder_ToolbarItem sentItem, int index)
+        {
+            m_syncing = true;
+            MyToolbarItem item = null;
+            if (sentItem != null)
+            {
+                item = MyToolbarItemFactory.CreateToolbarItem(sentItem);
+            }
+
+            Toolbar.SetItemAtIndex(index, item);
+            m_syncing = false;
+        }
     }
 }
 

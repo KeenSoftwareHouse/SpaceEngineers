@@ -11,7 +11,7 @@ namespace VRage.Groups
         where TGroupData : IGroupData<TNode>, new()
         where TNode : class
 	{
-#if BLIT
+#if XB1
 		// Internal members starting with 'm_' are for internal use only, there's no friends in c#
         public class Node
         {
@@ -42,6 +42,16 @@ namespace VRage.Groups
             public DictionaryValuesReader<long, Node> Children
             {
                 get { return new DictionaryValuesReader<long, Node>(m_children); }
+            }
+
+            public DictionaryReader<long, Node> ChildLinks
+            {
+                get { return new DictionaryReader<long, Node>(m_children); }
+            }
+
+            public DictionaryReader<long, Node> ParentLinks
+            {
+                get { return new DictionaryReader<long, Node>(m_parents); }
             }
 
             public override string ToString()
@@ -84,7 +94,8 @@ namespace VRage.Groups
 
         HashSet<Node> m_disconnectHelper = new HashSet<Node>();
         MajorGroupComparer m_groupSelector;
-
+        bool m_isRecalculating = false;
+        
         /// <summary>
         /// Initializes a new instance of MyGroups class.
         /// </summary>
@@ -344,6 +355,10 @@ namespace VRage.Groups
         // Recalculates consistency, splits groups when disconnected and remove ophrans (Nodes with no links)
         private void RecalculateConnectivity(Node parent, Node child)
         {
+            if (m_isRecalculating)
+            {
+                return;
+            }
             if (parent == null || parent.Group==null || child == null || child.Group == null)
             {
                 Debug.Fail("Null in RecalculateConnectivity");
@@ -351,6 +366,8 @@ namespace VRage.Groups
             }
             try
             {
+
+                m_isRecalculating = true;
                 // When no ophran was removed
                 if (SupportsOphrans || (!TryReleaseNode(parent) & !TryReleaseNode(child)))
                 {
@@ -393,6 +410,7 @@ namespace VRage.Groups
             finally
             {
                 m_disconnectHelper.Clear();
+                m_isRecalculating = false;
             }
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Utils;
+using VRageMath;
 
 namespace VRageRender
 {
@@ -13,6 +14,7 @@ namespace VRageRender
         public MyDecalMaterial(MyDecalMaterialDesc materialDef, MyStringHash target, MyStringHash source,
             float minSize, float maxSize, float depth, float rotation)
         {
+            StringId = MyDecalMaterials.GetStringId(source, target);
             Material = materialDef;
             Target = target;
             Source = source;
@@ -22,9 +24,10 @@ namespace VRageRender
             Rotation = rotation;
         }
 
-        public string GetStringId()
+        public string StringId
         {
-            return Target + "__" + (Source == MyStringHash.NullOrEmpty ? "NULL" : Source.String);
+            get;
+            private set;
         }
 
         public MyDecalMaterialDesc Material
@@ -73,18 +76,12 @@ namespace VRageRender
         }
     }
 
-    public struct MyDecalMaterialId
-    {
-        public string Target;
-        public string Source;
-    }
-
-
     public enum MyScreenDecalType
     {
-        NormalMap, // affects normalmap on whole surface
-        ColorMap, // affects color and metallness on alphatested surface
-        NormalColorMap // affects color and metallness on alphatested surface
+        NormalMap,          // Normals, Gloss
+        ColorMap,           // Color, Metal
+        NormalColorMap,     // Color, Metal
+        NormalColorExtMap   // Color, Metal, Normals, Gloss, AO, Emissivity
     }
 
     [ProtoContract]
@@ -98,5 +95,24 @@ namespace VRageRender
         public string ColorMetalTexture;
         [ProtoMember]
         public string AlphamaskTexture;
+        [ProtoMember]
+        public string ExtensionsTexture;
+    }
+
+    public struct MyDecalRenderInfo
+    {
+        public MyDecalFlags Flags;
+        public Vector3D Position;
+        public Vector3 Normal;
+        public int RenderObjectId;
+        public MyStringHash Material;
+    }
+
+    [Flags]
+    public enum MyDecalFlags
+    {
+        None = 0,
+        World = 1,                              // Position is in world coordinates
+        Transparent = 2
     }
 }

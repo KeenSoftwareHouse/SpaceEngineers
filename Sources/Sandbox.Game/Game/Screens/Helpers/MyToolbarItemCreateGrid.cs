@@ -52,12 +52,12 @@ namespace Sandbox.Game.Screens.Helpers
 
         public override bool Activate()
         {
-            if(Definition.Id.SubtypeId == CreateSmallShip)
-                CreateGrid(MyCubeSize.Small, false);
-            else if(Definition.Id.SubtypeId == CreateLargeShip)
-                CreateGrid(MyCubeSize.Large, false);
-            else if (Definition.Id.SubtypeId == CreateStation)
-                CreateGrid(MyCubeSize.Large, true);
+            //if(Definition.Id.SubtypeId == CreateSmallShip)
+            //    CreateGrid(MyCubeSize.Small, false);
+            //else if(Definition.Id.SubtypeId == CreateLargeShip)
+            //    CreateGrid(MyCubeSize.Large, false);
+            //else if (Definition.Id.SubtypeId == CreateStation)
+            //    CreateGrid(MyCubeSize.Large, true);
 
             return false;
         }

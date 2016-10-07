@@ -22,7 +22,7 @@ namespace Sandbox.Game.Replication
 
         }
 
-        public override void Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
+        public override bool Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
         {
             bool lowPrecisionOrientation = true;
             bool applyWhenReading = true;
@@ -57,6 +57,8 @@ namespace Sandbox.Game.Replication
 
             SerializeFriction(stream, Entity);
             SerializeActive(stream, Entity);
+
+            return true;
         }
 
         static bool ValidatePosition(MyEntity entity, Vector3D position)

@@ -226,8 +226,8 @@ namespace Sandbox.Game.SessionComponents
             base.HandleInput();
 
             var context = BuildMode ? MySpaceBindingCreator.CX_VOXEL : MySpaceBindingCreator.CX_CHARACTER;
-          
-            if (MyInput.Static.IsNewKeyPressed(MyKeys.H) && MyInput.Static.IsAnyCtrlKeyPressed())
+
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.VOXEL_HAND_SETTINGS))    //MyControlsSpace.TERMINAL
                 MyScreenManager.AddScreen(new MyGuiScreenVoxelHandSetting());
          
             // rotation

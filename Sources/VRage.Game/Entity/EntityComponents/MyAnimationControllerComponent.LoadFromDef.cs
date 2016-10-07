@@ -35,6 +35,9 @@ namespace VRage.Game.Components
         {
             bool result = true;
             thisController.Clear();
+
+            thisController.SourceId = animControllerDefinition.Id;
+            
             foreach (var objBuilderLayer in animControllerDefinition.Layers)
             {
                 var layer = thisController.Controller.CreateLayer(objBuilderLayer.Name);
@@ -276,6 +279,11 @@ namespace VRage.Game.Components
                     nodeTrack.Loop = objBuilderNodeTrack.Loop;
                     nodeTrack.Speed = objBuilderNodeTrack.Speed;
                     nodeTrack.Interpolate = objBuilderNodeTrack.Interpolate;
+                }
+                else if (objBuilderNodeTrack.PathToModel != null)
+                {
+                    MyLog.Default.Log(MyLogSeverity.Error, "Cannot load MWM track {0}.", objBuilderNodeTrack.PathToModel);
+                    Debug.Fail("Cannot load MWM track " + objBuilderNodeTrack.PathToModel);
                 }
                 return nodeTrack;
             }

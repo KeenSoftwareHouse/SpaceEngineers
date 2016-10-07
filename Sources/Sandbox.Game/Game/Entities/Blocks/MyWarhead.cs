@@ -29,7 +29,6 @@ using Sandbox.Engine.Multiplayer;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using SteamSDK;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Ingame;
 using Sandbox.ModAPI.Interfaces;
 using Sandbox.Game.Localization;
 using VRage.Game.Entity;
@@ -44,7 +43,7 @@ using VRage.Network;
 namespace Sandbox.Game.Entities.Cube
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Warhead))]
-    class MyWarhead : MyTerminalBlock, IMyDestroyableObject, IMyWarhead
+    public class MyWarhead : MyTerminalBlock, IMyDestroyableObject, IMyWarhead
     {
         const float m_maxExplosionRadius = 30.0f;
         public static float ExplosionImpulse = 30000;
@@ -90,8 +89,18 @@ namespace Sandbox.Game.Entities.Cube
 
         private MyWarheadDefinition m_warheadDefinition;
 
-        static MyWarhead()
+        public MyWarhead()
         {
+            CreateTerminalControls();
+
+            m_isArmed.ValueChanged += (x) => UpdateEmissivity();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyWarhead>())
+                return;
+
             var slider = new MyTerminalControlSlider<MyWarhead>("DetonationTime", MySpaceTexts.TerminalControlPanel_Warhead_DetonationTime, MySpaceTexts.TerminalControlPanel_Warhead_DetonationTime);
             slider.SetLogLimits(1, 60 * 60);
             slider.DefaultValue = 10;
@@ -114,7 +123,7 @@ namespace Sandbox.Game.Entities.Cube
                 "StopCountdown",
                 MySpaceTexts.TerminalControlPanel_Warhead_StopCountdown,
                 MySpaceTexts.TerminalControlPanel_Warhead_StopCountdown,
-                (b) => MyMultiplayer.RaiseEvent(b, x => x.SetCountdown,false));
+                (b) => MyMultiplayer.RaiseEvent(b, x => x.SetCountdown, false));
             stopButton.EnableAction();
             MyTerminalControlFactory.AddControl(stopButton);
 
@@ -135,15 +144,10 @@ namespace Sandbox.Game.Entities.Cube
                 "Detonate",
                 MySpaceTexts.TerminalControlPanel_Warhead_Detonate,
                 MySpaceTexts.TerminalControlPanel_Warhead_Detonate,
-                (b) => {if(b.IsArmed){MyMultiplayer.RaiseEvent(b,x => x.DetonateRequest);}});
+                (b) => { if (b.IsArmed) { MyMultiplayer.RaiseEvent(b, x => x.DetonateRequest); } });
             detonateButton.Enabled = (x) => x.IsArmed;
             detonateButton.EnableAction();
             MyTerminalControlFactory.AddControl(detonateButton);
-        }
-
-        public MyWarhead()
-        {
-            m_isArmed.ValueChanged += (x) => UpdateEmissivity();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -539,7 +543,7 @@ namespace Sandbox.Game.Entities.Cube
         }
 
         public float DetonationTime { get { return Math.Max(m_countdownMs, 1000) / 1000; } }
-        bool IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
-        float IMyWarhead.DetonationTime { get { return DetonationTime; } }
+        bool ModAPI.Ingame.IMyWarhead.IsCountingDown { get { return IsCountingDown; } }
+        float ModAPI.Ingame.IMyWarhead.DetonationTime { get { return DetonationTime; } }
     }
 }

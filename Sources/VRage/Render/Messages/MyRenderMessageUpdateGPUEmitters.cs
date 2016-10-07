@@ -17,44 +17,64 @@ namespace VRageRender
         // use per-vertex lighting (formula: shadow * volumetricLight + ambientDiffuse)
         Light = 0x10,
         // use volumetric lighting based on the particle's initial emitted position and velocity; if not set, volumetricLight = 1
-        VolumetricLight = 0x20
+        VolumetricLight = 0x20,
+        // Simulates position of emitter in shaders; it uses Direction, Velocity and Acceleration for movement of the emitter
+        // It emits at the actual position of the emitter with zero Direction and Velocity for particle; particles inherit Acceleration of emitter
+        SimulateEmitter = 0x40,
+        // do not simulate particles (freeze)
+        FreezeSimulate = 0x80,
+        // do not emit particles
+        FreezeEmit = 0x100
     }
     // the structure is directly copied to shader buffers - watch for padding!
     public struct MyGPUEmitterData
     {
+        // applying the colors = saturate((Color + random(-ColorVar .. ColorVar)) * ColorIntensity
         // color and alpha keys
         public Vector4 Color0, Color1, Color2, Color3;
+
         // color key positions in particle lifetime 0..1
         public float ColorKey1, ColorKey2;
-        // alpha key positions in particle lifetime 0..1
-        public float AlphaKey1, AlphaKey2;
+        // random variance factor for RGB (adding random value to RGB from -ColorVar to ColorVar)
+        public float ColorVar;
 
-        // internal value updated for shader by render system 
-        // view space position
-        public Vector3 Position;
-        // bounce factor for colliding particles (0 - no bounce, 1 - same output velocity after bounce as input velocity)
-        public float Bounciness;
+        // scale of emitter
+        public float Scale;
+
+        // emitter ellipse shape size emitting from its volume; local space
+        public Vector3 EmitterSize;
+        // emitter's shape inner volume size which is not emitting particles
+        // (0 - no inner volume, whole emitter volume emits particles, 1 - only surface of emitter is emitting particles)
+        public float EmitterSizeMin;
+
+        // direction of emittance; local space
+        public Vector3 Direction;
+        // initial speed of the emitted particle
+        public float Velocity;
         
-        // emittor block shape size emitting from its volume
-        public Vector3 PositionVariance;
-        // transparency weighted function factor: to help accommodate for very bright particle systems shining from behind other particle systems
-        // default: 1, lesser value will make the particle system "shine through" less
-        public float OITWeightFactor;
-
-        // direction and initial speed of the emitted particle
-        public Vector3 Velocity;
         // random velocity variance
-        public float VelocityVariance;
+        public float VelocityVar;
+        // emitting conus angle
+        public float DirectionCone;
+        // emitting variance around the conus angle
+        public float DirectionConeVar;
+        // rotation velocity variance
+        public float RotationVelocityVar;
 
-        // acceleration
+        // acceleration; local space
         public Vector3 Acceleration;
         // rotation velocity
         public float RotationVelocity;
 
+        // gravity; world space
+        public Vector3 Gravity;
+        // bounce factor for colliding particles (0 - no bounce, 1 - same output velocity after bounce as input velocity)
+        public float Bounciness;
+
         // radius keys
-        public float Size0, Size1, Size2, Size3;
+        public float ParticleSize0, ParticleSize1, ParticleSize2, ParticleSize3;
         // radius key positions in particle lifetime 0..1
-        public float SizeKeys1, SizeKeys2;
+        public float ParticleSizeKeys1, ParticleSizeKeys2;
         // internal value updated for shader by render system
         // # of particles to emit this frame
         public int NumParticlesToEmitThisFrame;
@@ -76,15 +96,22 @@ namespace VRageRender
         public uint TextureIndex2;
         // time per frame for particle animation (in seconds)
         public float AnimationFrameTime;
-        public float __Pad1, __Pad2;
+        // hue color variance
+        public float HueVar;
+        // transparency weighted function factor: to help accommodate for very bright particle systems shining from behind other particle systems
+        // default: 1, lesser value will make the particle system "shine through" less
+        public float OITWeightFactor;
+
+        // used to rotate Direction, Acceleration and EmitterSize; Gravity should be already in world space
+        public Matrix RotationMatrix;
 
         public void InitDefaults()
         {
             Color0 = Color1 = Color2 = Color3 = Vector4.One;
-            Size0 = Size1 = Size2 = Size3 = 1;
+            ParticleSize0 = ParticleSize1 = ParticleSize2 = ParticleSize3 = 1;
             ColorKey1 = ColorKey2 = 1.0f;
-            AlphaKey1 = AlphaKey2 = 1.0f;
-            Velocity = Vector3.Forward;
+            Direction = Vector3.Forward;
+            Velocity = 1.0f;
             ParticleLifeSpan = 1;
             SoftParticleDistanceScale = 1;
             RotationVelocity = 0;
@@ -92,6 +119,9 @@ namespace VRageRender
             AnimationFrameTime = 1.0f;
             OITWeightFactor = 1.0f;
             Bounciness = 0.5f;
+            DirectionCone = 0;
+            DirectionConeVar = 0;
+            RotationMatrix = Matrix.Identity;
         }
     }
 
@@ -120,13 +150,13 @@ namespace VRageRender
         public int MaxParticles() { return (int)(ParticlesPerSecond * Data.ParticleLifeSpan) + 1;  }
     }
 
-    public struct MyGPUEmitterPositionUpdate
+    public struct MyGPUEmitterTransformUpdate
     {
         // unique identifier of the emitter, so render system can pair emitted particles with their emitter over multiple frames
         public uint GID;
 
         // world space position
-        public Vector3D WorldPosition;
+        public MatrixD Transform;
     }
 
     public class MyRenderMessageUpdateGPUEmitters : MyRenderMessageBase

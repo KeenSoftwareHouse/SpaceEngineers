@@ -16,6 +16,8 @@ using BoundingBox = VRageMath.BoundingBox;
 using BoundingSphere = VRageMath.BoundingSphere;
 using Vector3 = VRageMath.Vector3;
 using VRage.Render.Models;
+using VRageMath;
+using VRageRender;
 
 #endregion
 
@@ -80,14 +82,6 @@ namespace VRage.Game.Models
             public Byte4 Normal;
         }
 
-        //  Vertices and indices used for collision detection
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        struct MyVertexNormal
-        {  //12 + 12 bytes
-            public Vector3 Position;
-            public Vector3 Normal;
-        }
-
         public int[] Indices
         {
             get { return m_Indices; }
@@ -100,6 +94,7 @@ namespace VRage.Game.Models
 
 
         private MyCompressedVertexNormal[] m_vertices;
+        private MyCompressedBoneWeights[] m_bonesWeights;
 
         private int[] m_Indices = null;
         private ushort[] m_Indices_16bit = null;
@@ -182,11 +177,45 @@ namespace VRage.Game.Models
             return GetVertexInt(vertexIndex);
         }
 
+        public void SetVertexPosition(int vertexIndex, ref Vector3 newPosition)
+        {
+            m_vertices[vertexIndex].Position = VF_Packer.PackPosition(newPosition);
+        }
+
         public void GetVertex(int vertexIndex1, int vertexIndex2, int vertexIndex3, out Vector3 v1, out Vector3 v2, out Vector3 v3)
         {
             v1 = GetVertex(vertexIndex1);
             v2 = GetVertex(vertexIndex2);
             v3 = GetVertex(vertexIndex3);
+        }
+
+        public MyTriangle_BoneWeigths? GetBoneWeights(int triangleIndex)
+        {
+            if (m_bonesWeights == null)
+                return null;
+
+            MyTriangleVertexIndices indices = Triangles[triangleIndex];
+
+            MyCompressedBoneWeights boneWeightV0 = m_bonesWeights[indices.I0];
+            MyCompressedBoneWeights boneWeightV1 = m_bonesWeights[indices.I1];
+            MyCompressedBoneWeights boneWeightV2 = m_bonesWeights[indices.I2];
+
+            Vector4 indicesV0 = boneWeightV0.Indices.ToVector4();
+            Vector4 weightsV0 = boneWeightV0.Weights.ToVector4();
+
+            Vector4 indicesV1 = boneWeightV1.Indices.ToVector4();
+            Vector4 weightsV1 = boneWeightV1.Weights.ToVector4();
+
+            Vector4 indicesV2 = boneWeightV2.Indices.ToVector4();
+            Vector4 weightsV2 = boneWeightV2.Weights.ToVector4();
+
+            MyTriangle_BoneWeigths ret = new MyTriangle_BoneWeigths()
+            {
+                Vertex0 = new MyVertex_BoneWeight() { Indices = new Vector3(indicesV0), Weights = new Vector3(weightsV0) },
+                Vertex1 = new MyVertex_BoneWeight() { Indices = new Vector3(indicesV1), Weights = new Vector3(weightsV1) },
+                Vertex2 = new MyVertex_BoneWeight() { Indices = new Vector3(indicesV2), Weights = new Vector3(weightsV2) }
+            };
+            return ret;
         }
 
         public Vector3 GetVertexNormal(int vertexIndex)
@@ -482,6 +511,26 @@ namespace VRage.Game.Models
 
                 Animations = (ModelAnimations)tagData[MyImporterConstants.TAG_ANIMATIONS];
                 Bones = (MyModelBone[])tagData[MyImporterConstants.TAG_BONES];
+
+                Vector4I[] boneIndices = (Vector4I[])tagData[MyImporterConstants.TAG_BLENDINDICES];
+                Vector4[] boneWeights = (Vector4[])tagData[MyImporterConstants.TAG_BLENDWEIGHTS];
+                if (boneIndices != null && boneIndices.Length != 0)
+                {
+                    if (boneWeights != null && boneIndices.Length == boneWeights.Length && boneIndices.Length == m_vertices.Length)
+                    {
+                        m_bonesWeights = new MyCompressedBoneWeights[boneIndices.Length];
+
+                        for (int it = 0; it < boneIndices.Length; it++)
+                        {
+                            m_bonesWeights[it].Indices = new Byte4(boneIndices[it].X, boneIndices[it].Y, boneIndices[it].Z, boneIndices[it].W);
+                            m_bonesWeights[it].Weights = new HalfVector4(boneWeights[it]);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "Bone indices/weights my be same number as vertices");
+                    }
+                }
 
                 BoundingBox = (BoundingBox)tagData[MyImporterConstants.TAG_BOUNDING_BOX];
                 BoundingSphere = (BoundingSphere)tagData[MyImporterConstants.TAG_BOUNDING_SPHERE];
@@ -794,6 +843,8 @@ namespace VRage.Game.Models
             HavokData = null;
             HavokDestructionData = null;
 
+            m_scaleFactor = 1f;
+
             Animations = null;
 
             return res;
@@ -995,5 +1046,47 @@ namespace VRage.Game.Models
                 errorFound = false;
             }
         }
+
+        private float m_scaleFactor = 1.0f;
+        public float ScaleFactor { get { return m_scaleFactor; } }
+        public void Rescale(float scaleFactor)
+        {
+            if (m_scaleFactor != scaleFactor)
+            {
+                float scaleChange = scaleFactor / m_scaleFactor;
+                m_scaleFactor = scaleFactor;
+
+                for (int i = 0; i < m_verticesCount; i++)
+                {
+                    Vector3 p = GetVertex(i) * scaleChange;
+                    SetVertexPosition(i, ref p);
+                }
+
+                if (Dummies != null) 
+                {
+                    foreach (var dummy in Dummies)
+                    {
+                        var localMatrix = dummy.Value.Matrix;
+                        localMatrix.Translation *= scaleChange;
+                        dummy.Value.Matrix = localMatrix;
+                    }
+                }
+
+                BoundingBox.Min *= scaleChange;
+                BoundingBox.Max *= scaleChange;
+
+                BoundingBoxSize = BoundingBox.Max - BoundingBox.Min;
+                BoundingBoxSizeHalf = BoundingBoxSize / 2.0f;
+
+                BoundingSphere.Radius *= scaleChange;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MyCompressedBoneWeights
+    {  //8 + 4 bytes
+        public HalfVector4 Weights;
+        public Byte4 Indices;
     }
 }

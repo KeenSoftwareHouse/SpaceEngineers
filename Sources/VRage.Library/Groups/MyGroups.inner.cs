@@ -11,7 +11,7 @@ namespace VRage.Groups
         where TGroupData : IGroupData<TNode>, new()
         where TNode : class
     {
-#if !BLIT
+#if !XB1
 		// Internal members starting with 'm_' are for internal use only, there's no friends in c#
         public class Node
         {

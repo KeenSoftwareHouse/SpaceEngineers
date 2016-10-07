@@ -5,6 +5,8 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+
+#if !XB1_TMP
     [MyDebugScreen("Render", "Debug draw settings 2")]
     class MyGuiScreenDebugDrawSettings2 : MyGuiScreenDebugBase
     {
@@ -62,4 +64,5 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Update trigger", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_UPDATE_TRIGGER));
         }
     }
+#endif
 }

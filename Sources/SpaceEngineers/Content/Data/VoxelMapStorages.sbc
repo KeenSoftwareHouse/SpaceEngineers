@@ -18,6 +18,13 @@
     <VoxelMapStorage>
       <Id>
         <TypeId>VoxelMapStorageDefinition</TypeId>
+        <SubtypeId>Stones</SubtypeId>
+      </Id>
+      <StorageFile>VoxelMaps\MediumStoneIronCoreStoneCoverage.vx2</StorageFile>
+    </VoxelMapStorage>
+    <VoxelMapStorage>
+      <Id>
+        <TypeId>VoxelMapStorageDefinition</TypeId>
         <SubtypeId>Arabian_Border_7</SubtypeId>
       </Id>
       <StorageFile>VoxelMaps\Arabian_Border_7.vx2</StorageFile>
@@ -351,7 +358,7 @@
       </Id>
       <StorageFile>VoxelMaps\VerticalIslandStorySector_128x256x128.vx2</StorageFile>
     </VoxelMapStorage>
-	
+
 	<VoxelMapStorage>
       <Id>
         <TypeId>VoxelMapStorageDefinition</TypeId>
@@ -552,7 +559,7 @@
       </Id>
       <StorageFile>VoxelMaps\alienrockyterrain_largestone.vx2</StorageFile>
     </VoxelMapStorage>
-    
+
     <!-- Alien - AlienRockyTerrain with snow on top -->
     <VoxelMapStorage>
       <Id>
@@ -577,7 +584,7 @@
       </Id>
       <StorageFile>VoxelMaps\alienrockyterrain_snowtop_largestone.vx2</StorageFile>
     </VoxelMapStorage>
-    
+
     <!-- Mars - MarsRocks -->
     <VoxelMapStorage>
       <Id>
@@ -652,7 +659,7 @@
       </Id>
       <StorageFile>VoxelMaps\ice_largestone.vx2</StorageFile>
     </VoxelMapStorage>
-    
+
     <!-- Moon - MoonSoil -->
     <VoxelMapStorage>
       <Id>
@@ -704,7 +711,7 @@
     </VoxelMapStorage>
 
     <!-- Voxelstones with ORE -->
-    
+
     <VoxelMapStorage>
       <Id>
         <TypeId>VoxelMapStorageDefinition</TypeId>
@@ -720,6 +727,6 @@
       </Id>
       <StorageFile>VoxelMaps\VoxelstoneStoneSnowFe.vx2</StorageFile>
     </VoxelMapStorage>
-    
+
   </VoxelMapStorages>
 </Definitions>

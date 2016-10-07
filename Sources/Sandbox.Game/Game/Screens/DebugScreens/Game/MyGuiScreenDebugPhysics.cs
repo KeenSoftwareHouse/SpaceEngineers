@@ -10,6 +10,9 @@ using VRageMath;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+
+#if !XB1_TMP
+
     [MyDebugScreen("Game", "Physics")]
     public class MyGuiScreenDebugPhysics : MyGuiScreenDebugBase
     {
@@ -51,4 +54,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Suspension power ratio", null, MemberHelper.GetMember(() => MyFakes.SUSPENSION_POWER_RATIO));
         }
     }
+
+#endif
 }

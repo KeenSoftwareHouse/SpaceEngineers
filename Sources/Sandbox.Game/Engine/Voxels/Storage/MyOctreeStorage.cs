@@ -1214,19 +1214,16 @@ namespace Sandbox.Engine.Voxels
 
         public override unsafe bool IntersectInternal(ref LineD line)
         {
-#if DEBUG
             int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
             MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
 
+#if DEBUG
             return IntersectInternalWStack(ref line, stack, stackSize);
         }
 
         // To help debug even when using stackalloc
-        public unsafe bool IntersectInternalWStack(ref LineD line, MyCellCoord * stack, int stackSize) {
-#else
-
-            int stackSize = MySparseOctree.EstimateStackSize(m_treeHeight);
-            MyCellCoord* stack = stackalloc MyCellCoord[stackSize];
+        public unsafe bool IntersectInternalWStack(ref LineD line, MyCellCoord* stack, int stackSize)
+        {
 #endif
             var finalB = BoundingBoxD.CreateInvalid();
 

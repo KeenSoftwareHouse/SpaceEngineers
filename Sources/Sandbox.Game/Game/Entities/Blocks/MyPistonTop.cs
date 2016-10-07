@@ -13,32 +13,14 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_PistonTop))]
-    public class MyPistonTop : MyCubeBlock, IMyConveyorEndpointBlock, IMyPistonTop
+    public class MyPistonTop : MyAttachableTopBlockBase, IMyConveyorEndpointBlock, IMyPistonTop
     {
         private MyPistonBase m_pistonBlock;
 
-        internal void Attach(MyPistonBase pistonBase)
+        public override void Attach(MyMechanicalConnectionBlockBase pistonBase)
         {
-            m_pistonBlock = pistonBase;
-        }
-
-        internal void Detach(bool isWelding)
-        {
-            if (isWelding == false)
-            {
-                m_pistonBlock = null;
-            }
-        }
-
-        public override void OnUnregisteredFromGridSystems()
-        {
-            if (m_pistonBlock != null)
-            {
-                var pistonBlock = m_pistonBlock;
-                pistonBlock.Detach();
-                pistonBlock.SyncDetach();
-            }
-            base.OnUnregisteredFromGridSystems();
+            base.Attach(pistonBase);
+            m_pistonBlock = pistonBase as MyPistonBase;
         }
 
         public override void ContactPointCallback(ref MyGridContactInfo value)

@@ -64,6 +64,11 @@ namespace VRage.Game.Entity.UseObject
         int RenderObjectID { get; }
 
         /// <summary>
+        /// Instance ID of objects (this should mostly be unused
+        /// </summary>
+        int InstanceID { get; }
+
+        /// <summary>
         /// Show overlay (semitransparent bounding box)
         /// </summary>
         bool ShowOverlay { get; }
@@ -93,6 +98,10 @@ namespace VRage.Game.Entity.UseObject
         bool HandleInput();
 
         void OnSelectionLost();
+
+        void SetRenderID(uint id);
+
+        void SetInstanceID(int id);
 
         bool PlayIndicatorSound { get; }
     }

@@ -339,7 +339,8 @@ namespace Sandbox.Game.AI.Actions
             // generate position and set navigation
             var position = Bot.AgentEntity.PositionComp.GetPosition();
             var up = MyPerGameSettings.NavmeshPresumesDownwardGravity ? Vector3D.UnitY : (Vector3D)MyGravityProviderSystem.CalculateTotalGravityInPoint(position);
-            var randomDir = MyFakes.DEBUG_AVOID_RANDOM_AI? GetRandomPerpendicularVector(ref up): MyUtils.GetRandomPerpendicularVector(ref up);
+            up.Normalize();
+            var randomDir = MyUtils.GetRandomPerpendicularVector(ref up);
             var correctedPosition = position - randomDir * 15;
             AiTargetBase.SetTargetPosition(position + randomDir * 30);
             Bot.Navigation.AimAt(null,AiTargetBase.TargetPosition);
@@ -352,7 +353,7 @@ namespace Sandbox.Game.AI.Actions
             Debug.Assert(Vector3D.IsUnit(ref axis));
             Vector3D tangent = Vector3D.CalculatePerpendicularVector(axis);
             Vector3D bitangent; Vector3D.Cross(ref axis, ref tangent, out bitangent);
-            double angle = MyAIComponent.Static.GetRandomDouble(0, 2 * MathHelper.Pi);
+            double angle = MyUtils.GetRandomDouble(0, 2 * MathHelper.Pi);
             return Math.Cos(angle) * tangent + Math.Sin(angle) * bitangent;
         }
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-#if !BLIT
+#if !UNSHARPER
 
 namespace VRage.Library.Reflection
 {

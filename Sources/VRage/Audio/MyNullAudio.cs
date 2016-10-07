@@ -25,6 +25,7 @@ namespace VRage.Audio
         bool IMyAudio.UseSameSoundLimiter { get { return false; } set { } }
         bool IMyAudio.UseVolumeLimiter { get { return false; } set { } }
         void IMyAudio.SetSameSoundLimiter() { }
+        void IMyAudio.EnableMasterLimiter(bool e) { }
         event Action<bool> IMyAudio.VoiceChatEnabled { add { } remove { } }
 
         bool IMyAudio.IsValidTransitionCategory(MyStringId transitionCategory, MyStringId musicCategory) { return false; }
@@ -38,7 +39,7 @@ namespace VRage.Audio
         void IMyAudio.PauseGameSounds() { }
         void IMyAudio.ResumeGameSounds() { }
         void IMyAudio.PlayMusic(MyMusicTrack? track, int priorityForRandom) { }
-        IMySourceVoice IMyAudio.PlayMusicCue(MyCueId musicCue) { return null; }
+        IMySourceVoice IMyAudio.PlayMusicCue(MyCueId musicCue, bool overrideMusicAllowed) { return null; }
         void IMyAudio.StopMusic() { }
         void IMyAudio.MuteHud(bool mute) { }
         bool IMyAudio.HasAnyTransition() { return false; }

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Diagnostics;
 
-#if !BLIT
+#if !UNSHARPER
 
 namespace System
 {

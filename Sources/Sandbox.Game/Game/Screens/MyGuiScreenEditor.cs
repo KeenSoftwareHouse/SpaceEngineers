@@ -15,13 +15,16 @@ using VRageMath;
 
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Entities.Blocks;
 using VRage;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.FileSystem;
 using Sandbox.Game.Screens;
+using Sandbox.ModAPI.Ingame;
 using VRage.Game;
 using VRage.Game.ModAPI;
+using VRage.Scripting;
 
 namespace Sandbox.Game.Gui
 {
@@ -31,6 +34,7 @@ namespace Sandbox.Game.Gui
         private static Vector2 m_editorWindowSize = new Vector2(1.0f, 0.9f);
         private static Vector2 m_editorDescSize = new Vector2(0.94f, 0.73f);
 
+        #region Old Scripting System
         const string CODE_WRAPPER_BEFORE = "using System;\n" +
                                            "using System.Collections.Generic;\n" +
                                            "using VRageMath;\n" +
@@ -47,6 +51,8 @@ namespace Sandbox.Game.Gui
                                            "public class Program: MyGridProgram\n" +
                                            "{\n";
         const string CODE_WRAPPER_AFTER = "\n}";
+        #endregion
+
         private MyGuiControlButton m_openWorkshopButton;
         private MyGuiControlButton m_checkCodeButton;
         private MyGuiControlButton m_saveChanges;
@@ -152,18 +158,47 @@ namespace Sandbox.Game.Gui
             Assembly assembly = null;
             if (CompileProgram(code, m_compilerErrors, ref assembly))
             {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                   styleEnum: MyMessageBoxStyleEnum.Info,
-                   buttonType: MyMessageBoxButtonsType.OK,
-                   messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_Editor_CompilationOk),
-                   canHideOthers: false));
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS && m_compilerErrors.Count > 0)
+                {
+                    var messageBuilder = new StringBuilder();
+                    foreach (var message in m_compilerErrors)
+                    {
+                        messageBuilder.Append(message);
+                        messageBuilder.Append('\n');
+                    }
+                    var errorListScreen = new MyGuiScreenMission(missionTitle: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationOk),
+                        currentObjectivePrefix: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationOkWarningList),
+                        currentObjective: "",
+                        description: messageBuilder.ToString(),
+                        canHideOthers: false,
+                        enableBackgroundFade: true,
+                        style: MyMissionScreenStyleEnum.BLUE);
+
+                    MyScreenManager.AddScreen(errorListScreen);
+                }
+                else
+                {
+                    MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                        styleEnum: MyMessageBoxStyleEnum.Info,
+                        buttonType: MyMessageBoxButtonsType.OK,
+                        messageText: MyTexts.Get(MySpaceTexts.ProgrammableBlock_Editor_CompilationOk),
+                        canHideOthers: false));
+                }
             }
             else
             {
-                string compilerErrors = "";
-                foreach (var error in m_compilerErrors)
+                string compilerErrors;
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS && m_compilerErrors.Count > 0)
                 {
-                    compilerErrors += FormatError(error) + "\n";
+                    compilerErrors = string.Join("\n", m_compilerErrors);
+                }
+                else
+                {
+                    compilerErrors = "";
+                    foreach (var error in m_compilerErrors)
+                    {
+                        compilerErrors += FormatError(error) + "\n";
+                    }
                 }
                 var errorListScreen = new MyGuiScreenMission(missionTitle: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailed),
                 currentObjectivePrefix: MyTexts.GetString(MySpaceTexts.ProgrammableBlock_Editor_CompilationFailedErrorList),
@@ -221,10 +256,24 @@ namespace Sandbox.Game.Gui
             return error;
         }
 
-        public static bool CompileProgram(string program, List<string> errors,ref Assembly assembly)
+        public static bool CompileProgram(string program, List<string> errors, ref Assembly assembly)
         {
-            if (program != null && program.Length > 0)
+            if (!string.IsNullOrEmpty(program))
             {
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                {
+                    var messageList = new List<MyScriptCompiler.Message>();
+                    assembly = MyScriptCompiler.Static.Compile(
+                        MyApiTarget.Ingame,
+                        Path.Combine(MyFileSystem.UserDataPath, "EditorCode.dll"),
+                        MyScriptCompiler.Static.GetIngameScript(program, "Program", typeof(MyGridProgram).Name),
+                        messageList).Result;
+                    errors.Clear();
+                    errors.AddRange(messageList.OrderByDescending(m => m.Severity).Select(m => m.Text));
+
+                    return assembly != null;
+                }
+
                 string finalCode = CODE_WRAPPER_BEFORE + program + CODE_WRAPPER_AFTER;
                 if (true == IlCompiler.CompileStringIngame(Path.Combine(MyFileSystem.UserDataPath, "IngameScript.dll"), new string[] { finalCode }, out assembly, errors))
                 {

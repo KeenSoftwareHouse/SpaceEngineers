@@ -18,25 +18,11 @@ namespace Sandbox.Game.Entities.Cube
 
         private readonly Sync<bool> m_enabled;
 
-        static MyFunctionalBlock()
-        {
-            var onOffSwitch = new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("OnOff", MySpaceTexts.BlockAction_Toggle);
-            onOffSwitch.Getter = (x) => x.Enabled;
-            onOffSwitch.Setter = (x, v) => x.Enabled = v;
-            onOffSwitch.EnableToggleAction();
-            onOffSwitch.EnableOnOffActions();
-            MyTerminalControlFactory.AddControl(0, onOffSwitch);
-
-            MyTerminalControlFactory.AddControl(1, new MyTerminalControlSeparator<MyTerminalBlock>());
-        }
-
-
         public override void OnRemovedFromScene(object source)
         {
-            if (m_soundEmitter != null)
+            if(m_soundEmitter != null)
                 m_soundEmitter.StopSound(true, true);
                 
-            m_soundEmitter = null;
             base.OnRemovedFromScene(source);
         }
 
@@ -59,9 +45,26 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyFunctionalBlock()
         {
+            CreateTerminalControls();
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
 
             m_enabled.ValueChanged += (x)=> EnabledSyncChanged();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyFunctionalBlock>())
+                return;
+
+            var onOffSwitch = new MyTerminalControlOnOffSwitch<MyFunctionalBlock>("OnOff", MySpaceTexts.BlockAction_Toggle);
+            onOffSwitch.Getter = (x) => x.Enabled;
+            onOffSwitch.Setter = (x, v) => x.Enabled = v;
+            onOffSwitch.EnableToggleAction();
+            onOffSwitch.EnableOnOffActions();
+            MyTerminalControlFactory.AddControl(0, onOffSwitch);
+
+            MyTerminalControlFactory.AddControl(1, new MyTerminalControlSeparator<MyFunctionalBlock>());
         }
 
         protected override bool CheckIsWorking()

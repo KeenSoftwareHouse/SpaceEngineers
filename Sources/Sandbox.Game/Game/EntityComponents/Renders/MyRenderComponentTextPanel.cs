@@ -25,7 +25,7 @@ namespace Sandbox.Game.Components
             MyRenderProxy.ChangeMaterialTexture(this.RenderObjectIDs[0], PANEL_MATERIAL_NAME, path);
             if (RenderObjectIDs[0] != MyRenderProxy.RENDER_ID_UNASSIGNED)
             {
-                MyRenderProxy.UpdateModelProperties(this.RenderObjectIDs[0], 0, null, -1, PANEL_MATERIAL_NAME, null, null, null, null, 1);
+                MyRenderProxy.UpdateModelProperties(this.RenderObjectIDs[0], 0, -1, PANEL_MATERIAL_NAME, null, null, 1);
             }
         }
         public void RenderTextToTexture(long entityId,string text, float scale, Color fontColor, Color backgroundColor, int textureResolution,int aspectRatio)

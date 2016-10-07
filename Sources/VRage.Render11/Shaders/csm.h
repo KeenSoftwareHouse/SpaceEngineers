@@ -43,7 +43,7 @@ float cascade_index_by_split(float linear_depth)
 
 uint cascade_id_stencil(uint stencil)
 {
-	return 31 - firstbithigh(reversebits(stencil));
+	return 0xf - (0xf & stencil);
 }
 
 float3 WorldToShadowmap(float3 worldPosition, matrix shadowMatrix)

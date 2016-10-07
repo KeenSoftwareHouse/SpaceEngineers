@@ -24,10 +24,11 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.ModAPI.Weapons;
 
 namespace Sandbox.Game.Weapons
 {
-    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>
+    public abstract class MyEngineerToolBase : MyEntity, IMyHandheldGunObject<MyToolBase>, IMyEngineerToolBase
     {
         public static float GLARE_SIZE = 0.068f;
         /// <summary>
@@ -78,7 +79,7 @@ namespace Sandbox.Game.Weapons
         MyLight m_toolEffectLight;
 
 
-        public Vector3I TargetCube { get { return m_raycastComponent.HitBlock.Position; } }
+        public Vector3I TargetCube { get { return m_raycastComponent != null && m_raycastComponent.HitBlock != null ? m_raycastComponent.HitBlock.Position : Vector3I.Zero; } }
 
         public bool HasHitBlock { get { return m_raycastComponent.HitBlock != null; } }
 
@@ -331,7 +332,19 @@ namespace Sandbox.Game.Weapons
             {
                 Debug.Assert(Owner != null && Owner is MyCharacter, "An engineer tool is not held by a character");
                 MyCharacter character = Owner as MyCharacter;
-                MatrixD sensorWorldMatrix = character.GetHeadMatrix(false, true);
+
+                MatrixD sensorWorldMatrix = MatrixD.Identity;
+                if (character.ControllerInfo.IsLocallyControlled())
+                {
+                    sensorWorldMatrix = character.GetHeadMatrix(false, true);
+                    character.SyncHeadToolTransform(ref sensorWorldMatrix);
+                }
+                else
+                {
+                    sensorWorldMatrix = character.GetSyncedToolTransform();
+                }
+
+
                 m_raycastComponent.OnWorldPosChanged(ref sensorWorldMatrix);
             }
         }
@@ -533,7 +546,7 @@ namespace Sandbox.Game.Weapons
             }
 
             const float lightMuzzleOffset = 0.0f;
-            const float particleMuzzleOffset = 1.0f;            
+            const float particleMuzzleOffset = 0.5f;            
 
             if (m_toolEffect != null)
             {

@@ -118,7 +118,7 @@ namespace Sandbox.Game
             m_explosions.DeallocateAllMarked();
         }
 
-        [Event, Reliable, BroadcastExcept]
+        [Event, Reliable, Server,BroadcastExcept]
         private static void ProxyExplosionRequest(Vector3D center, float radius, MyExplosionTypeEnum type, Vector3D voxelCenter, float particleScale)
         {
             //Dont create explosion particles if message is bufferred, it is useless to create hundred explosion after scene load

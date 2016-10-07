@@ -104,7 +104,7 @@ namespace Sandbox.Engine.Multiplayer
             MyTrace.Send(TraceWindow.Multiplayer, "Host game");
 
             MyMultiplayerHostResult ret = new MyMultiplayerHostResult();
-#if !BLIT
+#if !XB1
 			SteamSDK.Lobby.Create(lobbyType, maxPlayers, (lobby, result) =>
             {
                 if (!ret.Cancelled)
@@ -128,7 +128,7 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyTrace.Send(TraceWindow.Multiplayer, "Join game");
             MyMultiplayerJoinResult ret = new MyMultiplayerJoinResult();
-#if !BLIT
+#if !XB1
             Lobby.Join(lobbyId, (info, result) =>
             {
                 if (!ret.Cancelled)
@@ -405,6 +405,25 @@ namespace Sandbox.Engine.Multiplayer
             }
         }
 
+        public static void RefreshChild(IMyEventProxy proxy)
+        {
+            var server = GetReplicationServer();
+            if (server != null)
+            {
+                Debug.Assert(proxy != null, "Proxy cannot be null");
+                server.RefreshChildren(proxy);
+            }
+        }
+
+        public static void RefreshChild(IMyReplicable replicable)
+        {
+            var server = GetReplicationServer();
+            if (server != null)
+            {
+                server.RefreshChildren(replicable);
+            }
+        }
+
         /// <summary>
         /// This is hack for immediate replication, it's necessary because of logic dependency.
         /// E.g. Character is created on server, sent to client and respawn message sent immediatelly.
@@ -421,6 +440,8 @@ namespace Sandbox.Engine.Multiplayer
                 server.ForceReplicable(replicable, clientEndpoint);
             }
         }
+
+
 
         public static void ReplicateImmediatelly(IMyEventProxy proxy, EndpointId clientEndpoint)
         {

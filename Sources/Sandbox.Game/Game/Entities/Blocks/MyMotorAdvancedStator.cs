@@ -29,32 +29,37 @@ namespace Sandbox.Game.Entities.Cube
     using Sandbox.Engine.Models;
     using VRage.Groups;
     using Sandbox.Game.Screens.Terminal.Controls;
-    using Sandbox.ModAPI.Ingame;
+    using Sandbox.ModAPI;
+    using Sandbox.Game.Entities.Blocks;
 
     [MyCubeBlockType(typeof(MyObjectBuilder_MotorAdvancedStator))]
-    class MyMotorAdvancedStator : MyMotorStator, IMyMotorAdvancedStator
+    public class MyMotorAdvancedStator : MyMotorStator, IMyMotorAdvancedStator
     {
-        public override bool Attach(MyMotorRotor rotor, bool updateGroup = true)
+        protected override bool Attach(MyAttachableTopBlockBase rotor, bool updateGroup = true)
         {
-            var ret = base.Attach(rotor, updateGroup);
-
-            if (ret)
+            if (rotor is MyMotorRotor)
             {
-                if (m_rotorBlock is MyMotorAdvancedRotor)
-                {
-                    m_conveyorEndpoint.Attach((m_rotorBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
-                }
-            }
+                var ret = base.Attach(rotor, updateGroup);
 
-            return ret;
+                if (ret)
+                {
+                    if (m_topBlock is MyMotorAdvancedRotor)
+                    {
+                        m_conveyorEndpoint.Attach((m_topBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
+                    }
+                }
+
+                return ret;
+            }
+            return false;
         }
         public override bool Detach(bool updateGroup = true)
         {
-            if (m_rotorBlock != null)
+            if (m_topBlock != null)
             {
-                if (m_rotorBlock is MyMotorAdvancedRotor)
+                if (m_topBlock is MyMotorAdvancedRotor)
                 {
-                    m_conveyorEndpoint.Detach((m_rotorBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
+                    m_conveyorEndpoint.Detach((m_topBlock as MyMotorAdvancedRotor).ConveyorEndpoint as MyAttachableConveyorEndpoint);
                 }
             }
             var ret = base.Detach(updateGroup);
@@ -64,6 +69,17 @@ namespace Sandbox.Game.Entities.Cube
         public MyMotorAdvancedStator()
         {
             m_canBeDetached = true;
+        }
+
+        protected override void CustomUnweld()
+        {
+            base.CustomUnweld();
+
+            MyMotorAdvancedRotor topBlock = m_topBlock as MyMotorAdvancedRotor;
+            if (topBlock != null)
+            {
+                m_conveyorEndpoint.Detach(topBlock.ConveyorEndpoint as MyAttachableConveyorEndpoint);
+            }
         }
     }
 }

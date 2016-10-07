@@ -468,12 +468,19 @@ VertexShaderInterface __prepare_interface(__VertexInput input, uint sv_vertex_id
 
 #ifdef PASS_OBJECT_VALUES_THROUGH_STAGES
     result.key_color = __colormask.xyz;
-    result.hologram = __colormask.w;
+	result.custom_alpha = __colormask.w;
 #endif
 
 #if defined(USE_CUBE_INSTANCING) || defined(USE_DEFORMED_CUBE_INSTANCING)
-	result.hologram = __colormask.w * (__packed_bone7.w ? -1 : 1);
-
+	// __packed_bone7.w contains flag for hologram. Don't do dithering for holograms
+	if (__packed_bone7.w) 
+	{
+		result.custom_alpha = -__colormask.w;
+	}
+	else 
+	{
+		result.custom_alpha = __colormask.w + object_.custom_alpha;
+	}
 
 #endif
 

@@ -29,7 +29,7 @@ namespace VRageRender
     internal static partial class MyRender
     {
         static Dictionary<uint, Tuple<string, float>> m_reloadVideos = new Dictionary<uint, Tuple<string, float>>();
-#if BLIT
+#if XB1_TMP
         static void CloseVideo(uint id)
 		{
             Debug.Assert(false);

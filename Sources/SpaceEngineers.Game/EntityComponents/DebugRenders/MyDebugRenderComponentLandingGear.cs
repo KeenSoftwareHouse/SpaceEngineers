@@ -17,10 +17,8 @@ namespace SpaceEngineers.Game.EntityComponents.DebugRenders
             m_langingGear = landingGear;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
-            var result = true;
-
             if (MyDebugDrawSettings.DEBUG_DRAW_MODEL_DUMMIES)
             {
                 Quaternion orientation;
@@ -36,7 +34,6 @@ namespace SpaceEngineers.Game.EntityComponents.DebugRenders
                     MyRenderProxy.DebugDrawOBB(m, Color.Yellow.ToVector3(), 1.0f, false, false);
                 }
             }
-            return result;
         }
     }
 }

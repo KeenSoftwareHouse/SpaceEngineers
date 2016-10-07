@@ -72,7 +72,7 @@ namespace Sandbox.Game.World
             AdditionalSunDiffuse = new Color[] { new Color(0.784313738f, 0.784313738f, 0.784313738f) },
             AdditionalSunDirection = new Vector2[] { new Vector2(0, 0) },
             SunSizeMultiplier = 100,
-            BackgroundColor = Color.White,
+            BackgroundColor = Color.Black,
             SunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f),
             BaseSunDirectionNormalized = new Vector3(0.339467347f, 0.709795356f, -0.617213368f)
         };

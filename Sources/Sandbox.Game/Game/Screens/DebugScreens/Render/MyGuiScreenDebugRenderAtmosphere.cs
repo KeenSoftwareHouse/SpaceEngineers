@@ -8,12 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Sandbox.Game.SessionComponents;
 using VRage.Game.Entity;
 using VRageMath;
 using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Atmosphere", MyDirectXSupport.DX11)]
     public class MyGuiScreenDebugRenderAtmosphere : MyGuiScreenDebugBase
     {
@@ -88,19 +91,29 @@ namespace Sandbox.Game.Screens.DebugScreens
                 }
             );
             */
+            if (MySession.Static.GetComponent<MySectorWeatherComponent>() != null)
+            {
+                AddCheckBox("Enable Sun Rotation",
+                    () => MySession.Static.GetComponent<MySectorWeatherComponent>().Enabled,
+                    x => MySession.Static.GetComponent<MySectorWeatherComponent>().Enabled = x
+                );
+
+                AddSlider("Time of day", 0.0f, 1,
+                    () => timeOfDay,
+                    f => UpdateTimeOfDay(f)
+                );
+
+                AddSlider("Sun Speed", 0.5f, 60,
+                    () => MySession.Static.GetComponent<MySectorWeatherComponent>().RotationInterval,
+                    f => MySession.Static.GetComponent<MySectorWeatherComponent>().RotationInterval = f
+                );
+            }
+
             AddCheckBox("Enable atmosphere",
                 () => m_atmosphereEnabled,
                 (bool b) =>
                 {
                     EnableAtmosphere(b);
-                }
-            );
-
-            AddSlider("Time of day", 0.0f, MySession.Static.Settings.SunRotationIntervalMinutes,
-                () => timeOfDay,
-                (float f) =>
-                {
-                    UpdateTimeOfDay(f);
                 }
             );
 
@@ -316,8 +329,7 @@ namespace Sandbox.Game.Screens.DebugScreens
             if (!OriginalTime.HasValue)
                 OriginalTime = MySession.Static.ElapsedGameTime;
 
-            MySession.Static.ElapsedGameTime = OriginalTime.Value.Add(new TimeSpan(0, (int)time, 0));
-            MySession.Static.Settings.EnableSunRotation = true;
+            MySession.Static.ElapsedGameTime = OriginalTime.Value.Add(new TimeSpan(0, (int)(time * MySession.Static.GetComponent<MySectorWeatherComponent>().RotationInterval), 0));
 
             // Disable sun rotation because otherwise it will overwrite the sun position every frame
             //MySession.Static.Settings.EnableSunRotation = false;
@@ -342,4 +354,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             //MySector.SunProperties.SunDirectionNormalized = -sunDirection;
         }
     }
+
+#endif
 }

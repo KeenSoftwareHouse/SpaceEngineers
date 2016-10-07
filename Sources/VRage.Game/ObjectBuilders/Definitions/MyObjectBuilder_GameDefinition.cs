@@ -21,9 +21,21 @@ namespace VRage.Game.ObjectBuilders.Definitions
         [DefaultValue(false)]
         public bool Default;
 
+        public struct Comp
+        {
+            [XmlAttribute]
+            public string Type;
+
+            [XmlAttribute]
+            public string Subtype;
+
+            [XmlText]
+            public string ComponentName;
+        }
+
         [Description("List of session components to load for this Game.")]
         [DefaultValue("empty")]
         [XmlArrayItem("Component")]
-        public HashSet<string> SessionComponents = new HashSet<string>();
+        public List<Comp> SessionComponents = new List<Comp>();
     }
 }

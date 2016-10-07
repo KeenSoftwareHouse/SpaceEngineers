@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-#if !BLIT
+#if !XB1
 using System.Windows.Forms;
 #endif
 using VRageMath;
@@ -19,7 +19,7 @@ namespace VRage
 
     public class MyRenderWindow : IMyRenderWindow, IMyBufferedInputSource
     {
-#if !BLIT
+#if !XB1
         public Control Control;
         public Form TopLevelForm;
 #else
@@ -45,6 +45,7 @@ namespace VRage
 
         public void SetMouseCapture(bool capture)
         {
+#if !XB1
             if (capture)
             {
                 Cursor.Clip = Control.RectangleToScreen(Control.ClientRectangle);
@@ -56,6 +57,7 @@ namespace VRage
                 Cursor.Clip = new System.Drawing.Rectangle(0, 0, SystemInformation.VirtualScreen.Width, SystemInformation.VirtualScreen.Height);                
                 Cursor.Show();
             }
+#endif
         }
 
         public void OnModeChanged(VRageRender.MyWindowModeEnum mode, int width, int height)

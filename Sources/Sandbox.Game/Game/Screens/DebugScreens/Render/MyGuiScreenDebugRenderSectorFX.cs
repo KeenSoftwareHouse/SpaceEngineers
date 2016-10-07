@@ -9,6 +9,7 @@ using System;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
     [MyDebugScreen("Render", "Sector FX", MyDirectXSupport.DX9)]
     class MyGuiScreenDebugRenderSectorFX : MyGuiScreenDebugBase
     {
@@ -78,7 +79,7 @@ namespace Sandbox.Game.Gui
             AddColor(new StringBuilder("Color"), MySector.ParticleDustProperties, MemberHelper.GetMember(() => MySector.ParticleDustProperties.Color));
 
             m_currentPosition.Y += 0.01f * m_scale;
-            var env = MyDefinitionManager.Static.EnvironmentDefinition;
+            var env = MySector.EnvironmentDefinition;
             if (false)
             {
                 AddSlider("Bg. Yaw",   env.BackgroundOrientation.Yaw,   0f, MathHelper.TwoPi, (s) => { env.BackgroundOrientation.Yaw   = s.Value; });
@@ -89,7 +90,7 @@ namespace Sandbox.Game.Gui
             Vector3.GetAzimuthAndElevation(env != null ? env.SunProperties.SunDirectionNormalized : Vector3.Down, out m_azimuth, out m_elevation);
             AddSlider("Sun Azimuth",   m_azimuth,   -MathHelper.TwoPi,   MathHelper.TwoPi,   (s) => { m_azimuth   = s.Value; });
             AddSlider("Sun Elevation", m_elevation, -MathHelper.PiOver2, MathHelper.PiOver2, (s) => { m_elevation = s.Value; });
-            AddButton(new StringBuilder("Save environment"), (s) => { MyDefinitionManager.Static.SaveEnvironmentDefinition(); });
+            //AddButton(new StringBuilder("Save environment"), (s) => { MyDefinitionManager.Static.SaveEnvironmentDefinition(); });
 
         }
         static float m_azimuth, m_elevation;
@@ -118,10 +119,11 @@ namespace Sandbox.Game.Gui
 
             Vector3 dir;
             Vector3.CreateFromAzimuthAndElevation(m_azimuth, m_elevation, out dir);
-            MyDefinitionManager.Static.EnvironmentDefinition.SunProperties.SunDirectionNormalized = dir;
+            MySector.EnvironmentDefinition.SunProperties.SunDirectionNormalized = dir;
 
             MySector.InitEnvironmentSettings();
         }
 
     }
+#endif
 }

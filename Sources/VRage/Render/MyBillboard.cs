@@ -16,12 +16,16 @@ namespace VRageRender
         public Vector3D Position1;
         public Vector3D Position2;
         public Vector3D Position3;
-        public Color Color;
+        public Vector4 Color;
         public float ColorIntensity;
+        public float SoftParticleDistanceScale;
         public Vector2 UVOffset;
         public Vector2 UVSize;
 
         public int ParentID = -1;
+
+        // The billboard is part of a window
+        public bool Window = false;
 
         //  Distance to camera, for sorting
         public float DistanceSquared;
@@ -29,7 +33,6 @@ namespace VRageRender
         public float Size;
         public float Reflectivity;
         public float AlphaCutout;
-
 
         public bool EnableColorize = false;
         public bool Near = false;
@@ -51,14 +54,14 @@ namespace VRageRender
 
             if (CustomViewProjection == compareToParticle.CustomViewProjection)
             {
-                if (Priority == compareToParticle.Priority)
+                /*if (Priority == compareToParticle.Priority)
                 {
                     return compareToParticle.DistanceSquared.CompareTo(this.DistanceSquared);
                 }
                 else
-                {
+                {*/
                     return Priority.CompareTo(compareToParticle.Priority);
-                }
+                //}
             }
             else
             {

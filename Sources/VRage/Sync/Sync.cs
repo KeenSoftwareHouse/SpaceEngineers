@@ -71,6 +71,11 @@ namespace VRage
         {
         }
 
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
         bool IsValid(ref T value)
         {
             var handler = Validate;

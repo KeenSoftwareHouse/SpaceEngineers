@@ -36,6 +36,7 @@ using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Engine.Multiplayer;
+using IMyEntity = VRage.ModAPI.IMyEntity;
 
 #endregion
 
@@ -69,7 +70,8 @@ namespace Sandbox.Game.Entities
 
         public long SyncWaitCounter; // counting how many times this object was skipped on sync;
 
-        private MyPhysicalItemDefinition m_itemDefinition = null;
+        public MyPhysicalItemDefinition ItemDefinition { get; private set; }
+
         private DateTime lastTimeSound = DateTime.MinValue;
 
         public new MyPhysicsBody Physics
@@ -116,10 +118,14 @@ namespace Sandbox.Game.Entities
 
             UseDamageSystem = true;
 
-            if (!MyDefinitionManager.Static.TryGetPhysicalItemDefinition(Item.GetDefinitionId(), out m_itemDefinition))
+            MyPhysicalItemDefinition itemDefinition = null;
+            if (!MyDefinitionManager.Static.TryGetPhysicalItemDefinition(Item.GetDefinitionId(), out itemDefinition))
             {
                 System.Diagnostics.Debug.Fail("Creating floating object, but it's physical item definition wasn't found! - " + Item.ItemId);
+                ItemDefinition = null;
             }
+            else
+                ItemDefinition = itemDefinition;
             m_timeFromSpawn = MySession.Static.ElapsedPlayTime;
         }
 
@@ -357,6 +363,22 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        void IMyUseObject.SetRenderID(uint id)
+        {
+        }
+
+        int IMyUseObject.InstanceID
+        {
+            get
+            {
+                return -1;
+            }
+        }
+
+        void IMyUseObject.SetInstanceID(int id)
+        {
+        }
+
         bool IMyUseObject.ShowOverlay
         {
             get { return false; }
@@ -562,16 +584,16 @@ namespace Sandbox.Game.Entities
                         }
                     }
 
-                    if (m_itemDefinition != null && m_itemDefinition.DestroyedPieceId.HasValue && Sync.IsServer)
+                    if (ItemDefinition != null && ItemDefinition.DestroyedPieceId.HasValue && Sync.IsServer)
                     {
                         MyPhysicalItemDefinition pieceDefinition;
-                        if (MyDefinitionManager.Static.TryGetPhysicalItemDefinition(m_itemDefinition.DestroyedPieceId.Value, out pieceDefinition))
+                        if (MyDefinitionManager.Static.TryGetPhysicalItemDefinition(ItemDefinition.DestroyedPieceId.Value, out pieceDefinition))
                         {
-                            MyFloatingObjects.Spawn(pieceDefinition, WorldMatrix.Translation, WorldMatrix.Forward, WorldMatrix.Up, m_itemDefinition.DestroyedPieces);
+                            MyFloatingObjects.Spawn(pieceDefinition, WorldMatrix.Translation, WorldMatrix.Forward, WorldMatrix.Up, ItemDefinition.DestroyedPieces);
                         }
                         else
                         {
-                            System.Diagnostics.Debug.Fail("Trying to spawn piece of the item after being destroyed, but definition wasn't found! - " + m_itemDefinition.DestroyedPieceId.Value);
+                            System.Diagnostics.Debug.Fail("Trying to spawn piece of the item after being destroyed, but definition wasn't found! - " + ItemDefinition.DestroyedPieceId.Value);
                         }
                     }
 

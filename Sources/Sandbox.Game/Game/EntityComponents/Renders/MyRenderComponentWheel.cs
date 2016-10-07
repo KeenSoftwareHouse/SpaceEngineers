@@ -14,7 +14,7 @@ using VRageMath;
 
 namespace Sandbox.Game.EntityComponents.Renders
 {
-	class MyRenderComponentWheel : MyRenderComponentCubeBlock
+	public class MyRenderComponentWheel : MyRenderComponentCubeBlock
 	{
 		private int m_lastEffectCreationTime = 0;
 		private int m_effectCreationInterval = 125;
@@ -31,7 +31,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 			m_lastEffectCreationTime = MySandboxGame.TotalGamePlayTimeInMilliseconds + 2*m_effectCreationInterval;
 		}
 
-        public bool TrySpawnParticle(Vector3D worldPosition, string particleName)
+        public bool TrySpawnParticle(Vector3 position, Vector3 normal, string particleName)
 		{
 			if (!MyFakes.ENABLE_DRIVING_PARTICLES)
 				return false;
@@ -40,12 +40,12 @@ namespace Sandbox.Game.EntityComponents.Renders
 			if(wheel == null)
 				return false;
 
-            if (MyUtils.GetRandomInt(10) < 8)//spawn only about 20% of particles
+            if (MyUtils.GetRandomInt(10) < 5)//spawn only about 20% of particles
                 return false;
             var speedMultiplier = wheel.GetTopMostParent().Physics.LinearVelocity.Length() / MyGridPhysics.ShipMaxLinearVelocity();
 			var currentTime = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
-            if (currentTime - m_lastEffectCreationTime < 50)
+            if (currentTime - m_lastEffectCreationTime < 5)
                 return false;
 
 			MyParticleEffect drivingEffect = null;
@@ -55,7 +55,7 @@ namespace Sandbox.Game.EntityComponents.Renders
 			m_lastEffectCreationTime = currentTime;
 			m_lastGlobalEffectCreationTime = m_lastEffectCreationTime;
 
-            drivingEffect.WorldMatrix = MatrixD.CreateTranslation(worldPosition);
+            drivingEffect.WorldMatrix = MatrixD.CreateWorld(position, normal, Vector3.CalculatePerpendicularVector(normal));
             var speedScaleMultiplier = 1.0f + speedMultiplier * 6.0f;
             drivingEffect.UserScale = speedScaleMultiplier;
 

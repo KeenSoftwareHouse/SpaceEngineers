@@ -6,6 +6,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Gui
 {
+
+#if !XB1_TMP
     [MyDebugScreen("Render", "Shadow settings", MyDirectXSupport.ALL)]
     class MyGuiScreenDebugRenderShadows : MyGuiScreenDebugBase
     {
@@ -37,6 +39,7 @@ namespace Sandbox.Game.Gui
             AddCheckBox("Force per-frame updating", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.UpdateCascadesEveryFrame));
 			AddCheckBox("Show cascade splits", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayShadowsWithDebug));
             AddCheckBox("Show cascade textures", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DrawCascadeTextures));
+            AddCheckBox("Display frozen cascades", MyRenderProxy.Settings, MemberHelper.GetMember(() => MyRenderProxy.Settings.DisplayFrozenShadowCascade));
 			for (int cascadeIndex = 0; cascadeIndex < MyRenderProxy.Settings.ShadowCascadeCount; ++cascadeIndex)
 			{
 				int captureIndex = cascadeIndex;
@@ -64,4 +67,6 @@ namespace Sandbox.Game.Gui
         }
 
     }
+
+#endif
 }

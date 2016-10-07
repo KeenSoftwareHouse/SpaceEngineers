@@ -37,7 +37,7 @@ namespace VRageRender
                 proxy.DrawSubmesh.IndexCount > 0;
         }
 
-        protected sealed override void RecordCommandsInternal(MyRenderableProxy proxy, int section)
+        protected sealed override void RecordCommandsInternal(MyRenderableProxy proxy)
         {
 			if ((proxy.Mesh.Buffers == MyMeshBuffers.Empty && proxy.MergedMesh.Buffers == MyMeshBuffers.Empty))
             { 

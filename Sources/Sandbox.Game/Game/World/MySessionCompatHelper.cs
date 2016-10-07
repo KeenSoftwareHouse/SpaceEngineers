@@ -2,6 +2,7 @@
 using Sandbox.Common.ObjectBuilders.Definitions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using Sandbox.Definitions;
@@ -15,8 +16,15 @@ namespace Sandbox.Game.World
 {
     public class MySessionCompatHelper
     {
+        public virtual void FixSessionComponentObjectBuilders(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
+        {
+            if (checkpoint.ScriptManagerData == null)
+                checkpoint.ScriptManagerData = (MyObjectBuilder_ScriptManager)checkpoint.SessionComponents.FirstOrDefault(x => x is MyObjectBuilder_ScriptManager);
+        }
+
         public virtual void FixSessionObjectBuilders(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
-        { }
+        {
+        }
 
         public virtual void AfterEntitiesLoad(int saveVersion)
         { }
@@ -30,7 +38,7 @@ namespace Sandbox.Game.World
         /// </summary>
         protected MyObjectBuilder_EntityBase ConvertBuilderToEntityBase(MyObjectBuilder_EntityBase origEntity, string subTypeNamePrefix)
         {
-            var origSubTypeName = !string.IsNullOrEmpty(origEntity.SubtypeName) 
+            var origSubTypeName = !string.IsNullOrEmpty(origEntity.SubtypeName)
                 ? origEntity.SubtypeName : (origEntity.EntityDefinitionId != null ? origEntity.EntityDefinitionId.Value.SubtypeName : null);
             System.Diagnostics.Debug.Assert(origSubTypeName != null);
             if (origSubTypeName == null)

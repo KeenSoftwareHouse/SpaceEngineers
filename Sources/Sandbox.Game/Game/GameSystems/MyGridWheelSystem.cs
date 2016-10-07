@@ -7,6 +7,7 @@ using Sandbox.Game.EntityComponents;
 using VRage.Utils;
 using VRageMath;
 using VRage.Game.Entity;
+using System;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -18,6 +19,7 @@ namespace Sandbox.Game.GameSystems
         private bool m_wheelsChanged;
         private float m_maxRequiredPowerInput;
         private MyCubeGrid m_grid;
+        public HashSet<MyMotorSuspension> Wheels { get { return m_wheels; } }
         private HashSet<MyMotorSuspension> m_wheels;
 
         #endregion
@@ -99,9 +101,13 @@ namespace Sandbox.Game.GameSystems
             motor.Brake = m_handbrake;
         }
 
+        public event Action<MyCubeGrid> OnMotorUnregister;
+
         public void Unregister(MyMotorSuspension motor)
         {
             Debug.Assert(m_wheels.Contains(motor), "Removing wheel which was not registered.");
+            if (motor != null && motor.RotorGrid != null && OnMotorUnregister != null)
+                OnMotorUnregister(motor.RotorGrid);
             m_wheels.Remove(motor);
             m_wheelsChanged = true;
             motor.EnabledChanged -= motor_EnabledChanged;
@@ -144,7 +150,7 @@ namespace Sandbox.Game.GameSystems
             {
                 if (motor.IsWorking)
                 {
-                    if(propulsion)
+                    if (propulsion)
                     {
                         if (motor.RotorGrid != null && motor.RotorAngularVelocity.LengthSquared() > 2f)
                             return true;

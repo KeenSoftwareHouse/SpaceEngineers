@@ -12,9 +12,9 @@ namespace Sandbox.Game.Entities.Cube
 {
     partial class MyMotorBase : IMyMotorBase
     {
-        IMyCubeGrid IMyMotorBase.RotorGrid { get { return m_rotorGrid; } }
+        IMyCubeGrid IMyMotorBase.RotorGrid { get { return m_topGrid; } }
 
-        IMyCubeBlock IMyMotorBase.Rotor { get { return m_rotorBlock; } }
+        IMyCubeBlock IMyMotorBase.Rotor { get { return m_topBlock; } }
 
         event Action<IMyMotorBase> IMyMotorBase.AttachedEntityChanged
         {
@@ -34,7 +34,7 @@ namespace Sandbox.Game.Entities.Cube
 
         bool ModAPI.Ingame.IMyMotorBase.PendingAttachment
         {
-            get {  return (m_rotorBlockId.Value.OtherEntityId.HasValue && m_rotorBlockId.Value.OtherEntityId.Value == 0); }
+            get { return (m_connectionState.Value.TopBlockId.HasValue && m_connectionState.Value.TopBlockId.Value == 0); }
         }
 
         void ModAPI.IMyMotorBase.Attach(ModAPI.IMyMotorRotor rotor)
@@ -42,18 +42,18 @@ namespace Sandbox.Game.Entities.Cube
             if (rotor != null)
             {
                 MatrixD masterToSlave = rotor.CubeGrid.WorldMatrix * MatrixD.Invert(WorldMatrix);
-                m_rotorBlockId.Value = new State() { OtherEntityId = rotor.EntityId, MasterToSlave = masterToSlave };
+                m_connectionState.Value = new State() { TopBlockId = rotor.EntityId, MasterToSlave = masterToSlave };
             }
         }
 
         void ModAPI.Ingame.IMyMotorBase.Attach()
         {
-            m_rotorBlockId.Value = new State() { OtherEntityId = 0, MasterToSlave = null };
+            m_connectionState.Value = new State() { TopBlockId = 0};
         }
 
         void ModAPI.Ingame.IMyMotorBase.Detach()
         {
-            m_rotorBlockId.Value = new State() { OtherEntityId = null, MasterToSlave = null };
+            m_connectionState.Value = new State() { TopBlockId = null};
         }
     }
 }

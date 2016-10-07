@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 
 namespace DShowNET
 {
-#if !BLIT
+#if !XB1_TMP
     [ComVisible(false)]
     public class Clsid		// uuids.h  :  CLSID_*
     {

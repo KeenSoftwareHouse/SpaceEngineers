@@ -6,37 +6,40 @@
 			<SubtypeId>VRageDefault</SubtypeId>
 		</Id>
 		<SessionComponents>
-			<Component>MyPhysicsComponentSystem</Component>
-			<Component>MySessionComponentAnimationSystem</Component>
-			<Component>MyParticlesManager</Component>
-			<Component>MyAiTargetManager</Component>
 			<Component>MyAIComponent</Component>
-			<Component>MyTimerComponentSystem</Component>
-			<Component>MyCubeBuilder</Component>
-			<Component>MyCoordinateSystem</Component>
-			<Component>MyDamageSystem</Component>
+			<Component>MyAiTargetManager</Component>
+			<Component>MyAudioComponent</Component>
 			<Component>MyChatSystem</Component>
-			<Component>MyScenarioSystem</Component>
-			<Component>MyHudCameraOverlay</Component>
+			<Component>MyDamageSystem</Component>
+			<Component>MyDebris</Component>
+			<Component>MyFloatingObjects</Component>
+			<Component>MyGamePruningStructure</Component>
+			<Component>MyGlobalEvents</Component>
 			<Component>MyHitReportingComponent</Component>
+			<Component>MyHud</Component>
+			<Component>MyHudCameraOverlay</Component>
+			<Component>MyHudWarnings</Component>
+			<Component>MyLights</Component>
+			<Component>MyMaterialPropertiesHelper</Component>
+			<Component>MyParticlesManager</Component>
+			<Component>MyPhysics</Component>
+			<Component>MyPhysicsComponentSystem</Component>
+			<Component>MyPrecalcComponent</Component>
+			<Component>MyScenarioSystem</Component>
+			<Component>MyScriptManager</Component>
+			<Component>MySector</Component>
+			<Component>MySessionComponentAnimationSystem</Component>
+      <Component Type="MyObjectBuilder_CoordinateSystemDefinition" Subtype="CoordinateSystem">MyCoordinateSystem</Component>
+      <Component Type="MyObjectBuilder_ClipboardDefinition" Subtype="ClipboardBase">MyClipboardComponent</Component>
 			<Component>MySessionComponentEntityTrigger</Component>
 			<Component>MySessionComponentMissionTriggers</Component>
 			<Component>MySessionComponentVoxelHand</Component>
-			<Component>MyScriptManager</Component>
-			<Component>MyHudWarnings</Component>
-			<Component>MyFloatingObjects</Component>
-			<Component>MyDebris</Component>
-			<Component>MyHud</Component>
-			<Component>MyToolbarComponent</Component>
-			<Component>MyAudioComponent</Component>
-			<Component>MyGlobalEvents</Component>
-			<Component>MyGamePruningStructure</Component>
-			<Component>MyLights</Component>
-			<Component>MyPhysics</Component>
-			<Component>MyMaterialPropertiesHelper</Component>
 			<Component>MyThirdPersonSpectator</Component>
-			<Component>MyPrecalcComponent</Component>
-			<Component>MySector</Component>
+			<Component>MyTimerComponentSystem</Component>
+			<Component>MyToolbarComponent</Component>
+			<Component>MyVoxelOperationsSessionComponent</Component>
+			<Component>MySessionComponentExtDebug</Component>
+			<Component>MyCubeGrids</Component>
 		</SessionComponents>
 	</Definition>
 
@@ -51,16 +54,15 @@
 		<InheritFrom>VRageDefault</InheritFrom>
 
 		<SessionComponents Combine="Union">
+			<Component>MyTerminalControls</Component>
 			<Component>MySpaceFaunaComponent</Component>
 			<Component>MySpaceBuildComponent</Component>
 			<Component>MySpacePlanetTrackComponent</Component>
 			<Component>MySpaceRespawnComponent</Component>
-			<Component>MyPlanets</Component>
 			<Component>MyAntennaSystem</Component>
-			<Component>MyHeightMapLoadingSystem</Component>
 			<Component>MyEnvironmentalParticles</Component>
-			<Component>MySessionComponentPlanetAmbientSounds</Component>
 			<Component>MyEncounterGenerator</Component>
+			<Component>MyGravityProviderSystem</Component>
 			<Component>MyProceduralWorldGenerator</Component>
 			<Component>MyPirateAntennas</Component>
 			<Component>MyMeteorShower</Component>
@@ -69,6 +71,23 @@
 			<Component>MyMissiles</Component>
 			<Component>MyProjectiles</Component>
 			<Component>MyNeutralShipSpawner</Component>
+      <Component Type="MyObjectBuilder_CubeBuilderDefinition" Subtype="CubeBuilderBase">MyCubeBuilder</Component>
+			<Component Type="MyObjectBuilder_DemoComponentDefinition" Subtype="Default">DemoComponent</Component>
+
+			<Component>MyPlanets</Component>
+			<Component>MyHeightMapLoadingSystem</Component>
+			<Component>MySessionComponentPlanetAmbientSounds</Component>
+			<Component>MyPlanetTrackComponent</Component>
+			<Component>MyPlanetEnvironmentSessionComponent</Component>
+			<Component>MyEnvironmentBotSpawningSystem</Component>
+			<Component>MySectorWeatherComponent</Component>
+			<Component>MyPlanets</Component>
+			<Component>MyHeightMapLoadingSystem</Component>
+			<Component>MySessionComponentPlanetAmbientSounds</Component>
+			<Component>MyPlanetTrackComponent</Component>
+			<Component>MyPlanetEnvironmentSessionComponent</Component>
+			<Component>MyEnvironmentBotSpawningSystem</Component>
+			<Component>MySectorWeatherComponent</Component>
 		</SessionComponents>
 	</Definition>
 </Definitions>

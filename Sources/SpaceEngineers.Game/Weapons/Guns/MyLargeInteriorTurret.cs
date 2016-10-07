@@ -5,7 +5,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Weapons;
 using Sandbox.ModAPI.Ingame;
 using SpaceEngineers.Game.EntityComponents.Renders;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using SpaceEngineers.Game.Weapons.Guns.Barrels;
 using VRage.Game;
 using VRage.Utils;
@@ -14,7 +14,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Weapons.Guns
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_InteriorTurret))]
-    class MyLargeInteriorTurret : MyLargeTurretBase, IMyLargeInteriorTurret
+    public class MyLargeInteriorTurret : MyLargeTurretBase, IMyLargeInteriorTurret
     {
         public int Burst { get; private set; }
      

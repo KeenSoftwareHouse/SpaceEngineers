@@ -86,7 +86,7 @@ namespace Sandbox
 
         private void SetClip()
         {
-            Cursor.Clip = this.RectangleToScreen(this.ClientRectangle);
+            Cursor.Clip = this.RectangleToScreen(ClientRectangle);
         }
 
         private static void ClearClip()

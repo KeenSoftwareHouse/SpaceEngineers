@@ -11,6 +11,8 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Debug draw settings")]
     class MyGuiScreenDebugDrawSettings : MyGuiScreenDebugBase
     {
@@ -68,4 +70,6 @@ namespace Sandbox.Game.Screens.DebugScreens
             AddCheckBox("Volumetric explosion coloring", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_VOLUMETRIC_EXPLOSION_COLORING));
         }
     }
+
+#endif
 }

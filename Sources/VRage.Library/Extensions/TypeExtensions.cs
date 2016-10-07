@@ -9,7 +9,7 @@ namespace VRage
 {
     public static class MemberHelper<T>
     {
-#if BLIT
+#if UNSHARPER_TMP
 		public static Func<T,TValue> GetMember<TValue>(Func<T,TValue> selector)
 		{
             Debug.Assert(false, "Check this is working properly");
@@ -38,7 +38,7 @@ namespace VRage
 
     public static class MemberHelper
     {
-#if BLIT
+#if UNSHARPER_TMP
     public static Func<TValue> GetMember<TValue>(Func<TValue> selector)
     {
 		return selector;

@@ -1,6 +1,7 @@
 ﻿#region Using
 
 using Sandbox.Game.Entities;
+using Sandbox.Game.SessionComponents.Clipboard;
 using Sandbox.Game.World;
 using VRage;
 using VRage.Input;
@@ -63,7 +64,7 @@ namespace Sandbox.Game.Gui
                () => "Save clipboard as prefab",
                delegate
                {
-                  MyCubeBuilder.Static.Clipboard.SaveClipboardAsPrefab();
+                   MyClipboardComponent.Static.Clipboard.SaveClipboardAsPrefab();
                    return true;
                });
         }

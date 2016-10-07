@@ -253,8 +253,6 @@ namespace Sandbox.Graphics.GUI
 
         #region Mouse & Input
 
-        bool IMyGuiControlsOwner.HandleMouse { get { return true; } }
-
         public bool IsMouseOverAnyControl()
         {
             //  Update screen controls
@@ -565,6 +563,13 @@ namespace Sandbox.Graphics.GUI
             if (m_firstUpdateServed == false && FocusedControl == null) //m_keyboardControlIndex could be set from constructor
             {
                 FocusedControl = GetFirstFocusableControl();
+#if XB1
+                if (FocusedControl != null)
+                {
+                    Vector2 coords = MyGuiManager.GetScreenCoordinateFromNormalizedCoordinate(FocusedControl.GetPositionAbsoluteCenter());
+                    MyInput.Static.SetMousePosition((int)coords.X, (int)coords.Y);
+                }
+#endif
 
                 //  Never again call this update-initialization (except if RecreateControls() is called, which resets this)
                 m_firstUpdateServed = true;

@@ -10,6 +10,9 @@ namespace VRage.Voxels
     /// Functions for transforming to and from various coordinate systems in voxel maps and for computing bounding boxes of various types of cells.
     /// Note that local and world positions are (and should be) always in the min-corner!
     /// </summary>
+    /// 
+    /// TODO: Review this whole class
+    /// These are half wrong/ don't consider world matrix, beware
     public static class MyVoxelCoordSystems
     {
         public static void WorldPositionToLocalPosition(Vector3D worldPosition, MatrixD worldMatrix, MatrixD worldMatrixInv, Vector3 halfSize, out Vector3D localPosition)
@@ -50,7 +53,13 @@ namespace VRage.Voxels
             Vector3D tmp = localPosition / RenderCellSizeInMeters(lod);
             Vector3I.Floor(ref tmp, out renderCellCoord);
         }
-
+        
+        public static void WorldPositionToVoxelCoord(ref Vector3D worldPosition, MatrixD worldMatrix, MatrixD worldMatrixInv, Vector3 halfSize, out Vector3I voxelCoord)
+        {
+            Vector3D localPosition;
+            WorldPositionToLocalPosition(worldPosition, worldMatrix, worldMatrixInv, halfSize, out localPosition);
+            LocalPositionToVoxelCoord(ref localPosition, out voxelCoord);
+        }
 
         public static void WorldPositionToVoxelCoord(Vector3D referenceVoxelMapPosition, ref Vector3D worldPosition, out Vector3I voxelCoord)
         {

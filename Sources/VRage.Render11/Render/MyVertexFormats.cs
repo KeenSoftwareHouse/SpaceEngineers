@@ -194,7 +194,15 @@ namespace VRageRender.Vertex
 
     unsafe struct MyVertexFormatCubeInstance
     {
+#if XB1
+		static MyVertexFormatCubeInstance()
+		{
+			System.Diagnostics.Debug.Assert(MyRender11Constants.CUBE_INSTANCE_BONES_NUM == 8);
+		}
+		internal fixed byte bones[8 * 4];
+#else
         internal fixed byte bones[MyRender11Constants.CUBE_INSTANCE_BONES_NUM * 4];
+#endif
         internal Vector4 translationRotation;
         internal Vector4 colorMaskHSV;
 
@@ -290,4 +298,16 @@ namespace VRageRender.Vertex
 
         internal static unsafe int STRIDE = sizeof(MyVertexFormatPositionColor);
     }
+
+    struct MyVertexFormat2DPosition
+    {
+        internal Vector2 Position;
+
+        internal MyVertexFormat2DPosition(Vector2 position)
+        {
+            Position = position;
+        }
+
+        internal static unsafe int STRIDE = sizeof(MyVertexFormat2DPosition);
+    };
 }

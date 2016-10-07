@@ -9,35 +9,50 @@ using VRageMath;
 
 namespace Sandbox.Graphics.GUI
 {
+    public delegate void ScissorRectangleHandler(ref RectangleF rectangle);
+
     public class MyRichLabel
     {
-        private static readonly string[] m_lineSeparators = new[] {"\n", "\r\n" };
+        private static readonly string[] LINE_SEPARATORS = new[] {"\n", "\r\n" };
         private const char m_wordSeparator = ' ';
+
+        public event ScissorRectangleHandler AdjustingScissorRectangle;
+
+        private MyGuiControlBase m_parent;
+
+        private bool m_sizeDirty;
+        private Vector2 m_size;
 
         private float m_maxLineWidth;
         private float m_minLineHeight;
 
-        private List<MyRichLabelLine> m_lines;
+        // NOTE: line separators, not lines themselves. Also even
+        // at zero separators, there's always at least one line
+        private List<MyRichLabelLine> m_lineSeparators;
+        private int m_lineSeparatorsCount;
+        private int m_lineSeparatorsCapacity;
+        private int m_lineSeparatorFirst;
 
         private MyRichLabelLine m_currentLine;
         private float m_currentLineRestFreeSpace;
         private StringBuilder m_helperSb;
 
         private MyRichLabelLine m_emptyLine;
-        private int m_linesCount; // number of line separators, not lines themselves (1 line means 0 separators)
-        private int m_linesCountMax;
+        private int m_visibleLinesCount;
 
         private List<MyRichLabelText> m_richTextsPool;
         private int m_richTextsOffset;
-        private int m_richTextsMax;
+        private int m_richTexsCapacity;
 
         public MyGuiDrawAlignEnum TextAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
 
-        public MyRichLabel(float maxLineWidth, float minLineHeight)
+        public MyRichLabel(MyGuiControlBase parent, float maxLineWidth, float minLineHeight, int? linesCountMax = null)
         {
+            m_parent = parent;
             m_maxLineWidth = maxLineWidth;
             m_minLineHeight = minLineHeight;
             m_helperSb = new StringBuilder(256);
+            m_visibleLinesCount = linesCountMax == null ? int.MaxValue : linesCountMax.Value;
 
             Init();
         }
@@ -46,47 +61,53 @@ namespace Sandbox.Graphics.GUI
         {
             m_helperSb.Clear();
 
-            m_linesCount = 0;
-            m_linesCountMax = 64;
+            m_sizeDirty = true;
+            m_size = Vector2.Zero;
+            m_lineSeparatorsCount = 0;
+            m_lineSeparatorsCapacity = 32;
             m_richTextsOffset = 0;
-            m_richTextsMax = 64;
+            m_richTexsCapacity = 32;
             m_currentLineRestFreeSpace = m_maxLineWidth;
 
-            m_lines = new List<MyRichLabelLine>(m_linesCountMax);
-            for (int i = 0; i < m_linesCountMax; i++)
+            m_lineSeparatorFirst = 0;
+            m_lineSeparators = new List<MyRichLabelLine>(m_lineSeparatorsCapacity);
+            for (int i = 0; i < m_lineSeparatorsCapacity; i++)
             {
-                m_lines.Add(new MyRichLabelLine(m_minLineHeight));
+                m_lineSeparators.Add(new MyRichLabelLine(m_minLineHeight));
             }
+            m_currentLine = m_lineSeparators[0];
 
-            m_richTextsPool = new List<MyRichLabelText>(m_richTextsMax);
-            for (int i = 0; i < m_richTextsMax; i++)
+            m_richTextsPool = new List<MyRichLabelText>(m_richTexsCapacity);
+            for (int i = 0; i < m_richTexsCapacity; i++)
             {
-                m_richTextsPool.Add(new MyRichLabelText() { ShowTextShadow = this.ShowTextShadow });
+                m_richTextsPool.Add(new MyRichLabelText() { ShowTextShadow = this.ShowTextShadow, Tag = m_parent.Name });
             }
         }
 
-        private void RealocateLines()
+        private void ReallocateLines()
         {
-            if ((m_linesCount + 1) >= m_linesCountMax)
+            // NOTE: Reallocate is done in advance of 1
+            if (m_lineSeparatorsCount + 1 >= m_lineSeparatorsCapacity)
             {
-                m_linesCountMax *= 2;
-                m_lines.Capacity = m_linesCountMax;
-                for (int i = m_linesCount + 1; i < m_linesCountMax; i++)
+                m_lineSeparatorsCapacity *= 2;
+                m_lineSeparators.Capacity = m_lineSeparatorsCapacity;
+                for (int i = m_lineSeparatorsCount + 1; i < m_lineSeparatorsCapacity; i++)
                 {
-                    m_lines.Add(new MyRichLabelLine(m_minLineHeight));
+                    m_lineSeparators.Add(new MyRichLabelLine(m_minLineHeight));
                 }
             }
         }
 
-        private void RealocateRichTexts()
+        private void ReallocateRichTexts()
         {
-            if ((m_richTextsOffset + 1) >= m_richTextsMax)
+            // NOTE: Reallocate is done in advance of 1
+            if (m_richTextsOffset + 1 >= m_richTexsCapacity)
             {
-                m_richTextsMax *= 2;
-                m_richTextsPool.Capacity = m_richTextsMax;
-                for (int i = m_richTextsOffset + 1; i < m_richTextsMax; i++)
+                m_richTexsCapacity *= 2;
+                m_richTextsPool.Capacity = m_richTexsCapacity;
+                for (int i = m_richTextsOffset + 1; i < m_richTexsCapacity; i++)
                 {
-                    m_richTextsPool.Add(new MyRichLabelText() { ShowTextShadow = this.ShowTextShadow });
+                    m_richTextsPool.Add(new MyRichLabelText() { ShowTextShadow = this.ShowTextShadow, Tag = m_parent.Name });
                 }
             }
         }
@@ -98,7 +119,7 @@ namespace Sandbox.Graphics.GUI
 
         public void Append(string text, MyFontEnum font, float scale, Vector4 color)
         {
-            string[] paragraphs = text.Split(m_lineSeparators, StringSplitOptions.None);
+            string[] paragraphs = text.Split(LINE_SEPARATORS, StringSplitOptions.None);
 
             for (int i = 0; i < paragraphs.Length; i++)
             {
@@ -113,7 +134,7 @@ namespace Sandbox.Graphics.GUI
         public void Append(string texture, Vector2 size, Vector4 color)
         {
             MyRichLabelImage image = new MyRichLabelImage(texture, size, color);
-            if (image.GetSize().X > m_currentLineRestFreeSpace)
+            if (image.Size.X > m_currentLineRestFreeSpace)
             {
                 AppendLine();
             }
@@ -128,11 +149,22 @@ namespace Sandbox.Graphics.GUI
 
         public void AppendLine()
         {
-            RealocateLines();
-            m_currentLine = m_lines[++m_linesCount];
-            m_currentLineRestFreeSpace = m_maxLineWidth;
-            RealocateRichTexts();
+            if (m_lineSeparatorsCount == m_visibleLinesCount)
+            {
+                m_lineSeparatorFirst = GetIndexSafe(1);
+                m_currentLine = m_lineSeparators[GetIndexSafe(m_lineSeparatorsCount)];
+                m_currentLine.ClearParts();
+            }
+            else
+            {
+                ReallocateLines();
+                ++m_lineSeparatorsCount;
+                m_currentLine = m_lineSeparators[GetIndexSafe(m_lineSeparatorsCount)];
+            }
 
+            m_currentLineRestFreeSpace = m_maxLineWidth;
+            ReallocateRichTexts();
+            m_sizeDirty = true;
         }
 
         public void AppendLine(StringBuilder text, MyFontEnum font, float scale, Vector4 color)
@@ -155,14 +187,14 @@ namespace Sandbox.Graphics.GUI
             // first we try append all paragraph to current line
             if (textWidth < m_currentLineRestFreeSpace)
             {
-                RealocateRichTexts();
+                ReallocateRichTexts();
                 m_richTextsPool[++m_richTextsOffset].Init(m_helperSb.ToString(), font, scale, color);
                 AppendPart(m_richTextsPool[m_richTextsOffset]);
             }
             // if there is not enough free space in current line for whole paragraph
             else
             {
-                RealocateRichTexts();
+                ReallocateRichTexts();
                 m_richTextsPool[++m_richTextsOffset].Init("", font, scale, color);
                 string[] words = paragraph.Split(m_wordSeparator);
                 int currentWordIndex = 0;
@@ -183,7 +215,7 @@ namespace Sandbox.Graphics.GUI
 
                     textWidth = MyGuiManager.MeasureString(font, m_helperSb, scale).X;
 
-                    if (textWidth <= m_currentLineRestFreeSpace - m_richTextsPool[m_richTextsOffset].GetSize().X)
+                    if (textWidth <= m_currentLineRestFreeSpace - m_richTextsPool[m_richTextsOffset].Size.X)
                     {
                         m_richTextsPool[m_richTextsOffset].Append(m_helperSb.ToString());
                         currentWordIndex++;
@@ -199,7 +231,7 @@ namespace Sandbox.Graphics.GUI
                         }
 
                         AppendPart(m_richTextsPool[m_richTextsOffset]);
-                        RealocateRichTexts();
+                        ReallocateRichTexts();
                         m_richTextsPool[++m_richTextsOffset].Init("", font, scale, color);
                         if (currentWordIndex < words.Length)
                         {
@@ -217,9 +249,10 @@ namespace Sandbox.Graphics.GUI
 
         private void AppendPart(MyRichLabelPart part)
         {
-            m_currentLine = m_lines[m_linesCount];
+            m_currentLine = m_lineSeparators[GetIndexSafe(m_lineSeparatorsCount)];
             m_currentLine.AddPart(part);
-            m_currentLineRestFreeSpace = m_maxLineWidth - m_currentLine.GetSize().X;
+            m_currentLineRestFreeSpace = m_maxLineWidth - m_currentLine.Size.X;
+            m_sizeDirty = true;
         }
 
         /// <summary>
@@ -232,17 +265,10 @@ namespace Sandbox.Graphics.GUI
         public bool Draw(Vector2 position, float offset, Vector2 drawSizeMax)
         {
             RectangleF scissorRect = new RectangleF(position, drawSizeMax);
+            OnAdjustingScissorRectangle(ref scissorRect);
+            Vector2 textSize = Size;
             using (MyGuiManager.UsingScissorRectangle(ref scissorRect))
             {
-                // Compute size of visible text for alignment.
-                Vector2 textSize = Vector2.Zero;
-                for (int i = 0; i <= m_linesCount; ++i)
-                {
-                    var lineSize = m_lines[i].GetSize();
-                    textSize.X = MathHelper.Max(textSize.X, lineSize.X);
-                    textSize.Y += lineSize.Y;
-                }
-
                 // Compute data for text positioning.
                 Vector2 drawPosition = Vector2.Zero;
                 float horizontalAdjustment = 0.0f;
@@ -289,10 +315,10 @@ namespace Sandbox.Graphics.GUI
                 }
                 drawPosition.Y -= offset;
 
-                for (int i = 0; i <= m_linesCount; ++i)
+                for (int i = 0; i <= m_lineSeparatorsCount; ++i)
                 {
-                    MyRichLabelLine currentLine = m_lines[i];
-                    var lineSize = currentLine.GetSize();
+                    MyRichLabelLine currentLine = m_lineSeparators[GetIndexSafe(i)];
+                    var lineSize = currentLine.Size;
                     var pos = position + drawPosition;
                     pos.X += horizontalAdjustment * (textSize.X - lineSize.X);
                     currentLine.Draw(pos);
@@ -303,24 +329,39 @@ namespace Sandbox.Graphics.GUI
             return true;
         }
 
-        public Vector2 GetSize()
+        public Vector2 Size
         {
-            Vector2 size = Vector2.Zero;
-
-            for (int i = 0; i <= m_linesCount; i++)
+            get
             {
-                Vector2 lineSize = m_lines[i].GetSize();
-                size.Y += lineSize.Y;
-                size.X = MathHelper.Max(size.X, lineSize.X);
-            }
+                if (!m_sizeDirty)
+                    return m_size;
 
-            return size;
+                m_size = Vector2.Zero;
+
+                for (int i = 0; i <= m_lineSeparatorsCount; i++)
+                {
+                    var line = m_lineSeparators[GetIndexSafe(i)];
+                    Vector2 lineSize = line.Size;
+                    m_size.Y += lineSize.Y;
+                    m_size.X = MathHelper.Max(m_size.X, lineSize.X);
+                }
+
+                m_sizeDirty = false;
+
+                return m_size;
+            }
+        }
+
+        private int GetIndexSafe(int index)
+        {
+            // NOTE: +1 is used to accomodates one clean line at the end
+            // when overflowing visible lines count
+            return (index + m_lineSeparatorFirst) % (m_visibleLinesCount + 1);
         }
 
         public void Clear()
         {
-            m_lines.Clear();
-            m_currentLine = null;
+            m_lineSeparators.Clear();
             Init();
         }
 
@@ -336,14 +377,22 @@ namespace Sandbox.Graphics.GUI
             set;
         }
 
+        private void OnAdjustingScissorRectangle(ref RectangleF rectangle)
+        {
+            var handler = AdjustingScissorRectangle;
+            if (handler != null)
+                handler(ref rectangle);
+        }
+
         internal bool HandleInput(Vector2 position, float offset)
         {
             position.Y -= offset;
-            foreach (var line in m_lines)
+            for (int i = 0; i <= m_lineSeparatorsCount; i++)
             {
+                var line = m_lineSeparators[GetIndexSafe(i)];
                 if (line.HandleInput(position))
                     return true;
-                position.Y += line.GetSize().Y;
+                position.Y += line.Size.Y;
             }
             return false;
         }

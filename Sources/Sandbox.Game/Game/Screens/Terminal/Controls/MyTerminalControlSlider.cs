@@ -12,16 +12,18 @@ using VRage.Library.Collections;
 using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlSlider<TBlock> : MyTerminalValueControl<TBlock, float>
+    public class MyTerminalControlSlider<TBlock> : MyTerminalValueControl<TBlock, float>, IMyTerminalControlSlider
         where TBlock : MyTerminalBlock
     {
         public delegate float FloatFunc(TBlock block, float val);
         
-        public readonly MyStringId Title;
-        public readonly MyStringId Tooltip;
+        public MyStringId Title;
+        public MyStringId Tooltip;
 
         private MyGuiControlSlider m_slider;
         private MyGuiControlBlockProperty m_control;
@@ -178,6 +180,13 @@ namespace Sandbox.Game.Gui
                 };
         }
 
+        void IMyTerminalControlSlider.SetLimits(Func<IMyTerminalBlock, float> minGetter, Func<IMyTerminalBlock, float> maxGetter)
+        {
+            var minGetterDelegate = new GetterDelegate(minGetter);
+            var maxGetterDelegate = new GetterDelegate(maxGetter);
+            SetLimits(minGetterDelegate, maxGetterDelegate);
+        }
+
         public void SetLogLimits(GetterDelegate minGetter, GetterDelegate maxGetter)
         {
             Normalizer = (block, f) =>
@@ -194,6 +203,13 @@ namespace Sandbox.Game.Gui
             };
         }
 
+        void IMyTerminalControlSlider.SetLogLimits(Func<IMyTerminalBlock, float> minGetter, Func<IMyTerminalBlock, float> maxGetter)
+        {
+            var minGetterDelegate = new GetterDelegate(minGetter);
+            var maxGetterDelegate = new GetterDelegate(maxGetter);
+            SetLogLimits(minGetterDelegate, maxGetterDelegate);
+        }
+
         public void SetDualLogLimits(GetterDelegate minGetter, GetterDelegate maxGetter, float centerBand)
         {
             Normalizer = (block, f) =>
@@ -208,6 +224,13 @@ namespace Sandbox.Game.Gui
                 float max = maxGetter(block);
                 return DualLogDenormalizer(block, f, min, max, centerBand);
             };
+        }
+
+        void IMyTerminalControlSlider.SetDualLogLimits(Func<IMyTerminalBlock, float> minGetter, Func<IMyTerminalBlock, float> maxGetter, float centerBand)
+        {
+            var minGetterDelegate = new GetterDelegate(minGetter);
+            var maxGetterDelegate = new GetterDelegate(maxGetter);
+            SetDualLogLimits(minGetterDelegate, maxGetterDelegate, centerBand);
         }
 
         protected override void OnUpdateVisual()
@@ -324,6 +347,59 @@ namespace Sandbox.Game.Gui
         public override float GetMaximum(TBlock block)
         {
             return Denormalizer(block, 1);
+        }
+
+        public override float GetValue(TBlock block)
+        {
+            return base.GetValue(block);
+        }
+
+        /// <summary>
+        /// Implementation of IMyTerminalControlSlider for Mods
+        /// </summary>
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
+        }
+
+        Action<IMyTerminalBlock, StringBuilder> IMyTerminalControlSlider.Writer
+        {
+            get
+            {
+                WriterDelegate oldWriter = Writer;
+                Action<IMyTerminalBlock, StringBuilder> action = (x, y) =>
+                {
+                    oldWriter((TBlock)x, y);
+                };
+
+                return action;
+            }
+
+            set
+            {
+                Writer = new WriterDelegate(value);
+            }
         }
     }
 }

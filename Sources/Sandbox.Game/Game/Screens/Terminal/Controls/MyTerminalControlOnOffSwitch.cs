@@ -15,18 +15,20 @@ using VRage.Utils;
 using Sandbox.Game.Localization;
 using VRage.Library.Utils;
 using VRage.Library.Collections;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlOnOffSwitch<TBlock> : MyTerminalValueControl<TBlock, bool>
+    public class MyTerminalControlOnOffSwitch<TBlock> : MyTerminalValueControl<TBlock, bool>, IMyTerminalControlOnOffSwitch
         where TBlock : MyTerminalBlock
     {
         MyGuiControlOnOffSwitch m_onOffSwitch;
 
-        public readonly MyStringId Title;
-        public readonly MyStringId OnText;
-        public readonly MyStringId OffText;
-        public readonly MyStringId Tooltip;
+        public MyStringId Title;
+        public MyStringId OnText;
+        public MyStringId OffText;
+        public MyStringId Tooltip;
         
         private Action<MyGuiControlOnOffSwitch> m_valueChanged;
 
@@ -141,6 +143,71 @@ namespace Sandbox.Game.Gui
         public override bool GetMaximum(TBlock block)
         {
             return true;
+        }
+
+        public override void SetValue(TBlock block, bool value)
+        {
+            base.SetValue(block, value);
+        }
+
+        public override bool GetValue(TBlock block)
+        {
+            return base.GetValue(block);
+        }
+
+        /// <summary>
+        ///  Implements IMyTerminalControlOnOffSwitch for Mods
+        /// </summary>
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlOnOffSwitch.OnText
+        {
+            get
+            {
+                return OnText;
+            }
+
+            set
+            {
+                OnText = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlOnOffSwitch.OffText
+        {
+            get
+            {
+                return OffText;
+            }
+
+            set
+            {
+                OffText = value;
+            }
         }
     }
 }

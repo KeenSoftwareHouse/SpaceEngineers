@@ -29,17 +29,8 @@ using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_Reactor))]
-    class MyReactor : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyReactor, IMyInventoryOwner
+    public class MyReactor : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyReactor, IMyInventoryOwner
     {
-        static MyReactor()
-        {
-            var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyReactor>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConveyorSystem.Getter = (x) => (x).UseConveyorSystem;
-            useConveyorSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
-            useConveyorSystem.EnableToggleAction();
-            MyTerminalControlFactory.AddControl(useConveyorSystem);
-        }
-
         private MyReactorDefinition m_reactorDefinition;
 		public MyReactorDefinition ReactorDefinition { get { return m_reactorDefinition; } }
 
@@ -64,9 +55,23 @@ namespace Sandbox.Game.Entities
 
         public MyReactor()
         {
+            CreateTerminalControls();
+
 			SourceComp = new MyResourceSourceComponent();
             m_remainingPowerCapacity.ValueChanged += (x) => RemainingCapacityChanged();
             m_remainingPowerCapacity.ValidateNever();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyReactor>())
+                return;
+
+            var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyReactor>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
+            useConveyorSystem.Getter = (x) => (x).UseConveyorSystem;
+            useConveyorSystem.Setter = (x, v) => (x).UseConveyorSystem = v;
+            useConveyorSystem.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(useConveyorSystem);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -105,9 +110,10 @@ namespace Sandbox.Game.Entities
             }
             Debug.Assert(this.GetInventory().Owner == this, "Ownership was not set!");
 
+            this.GetInventory().Constraint = m_reactorDefinition.InventoryConstraint;
+
             if (Sync.IsServer)
             {
-                this.GetInventory().Constraint = m_reactorDefinition.InventoryConstraint;
                 RefreshRemainingCapacity();
             }
             

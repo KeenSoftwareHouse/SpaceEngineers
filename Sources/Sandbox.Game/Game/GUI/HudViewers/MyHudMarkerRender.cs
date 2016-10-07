@@ -2,6 +2,7 @@
 using Sandbox.Engine.Platform.VideoMode;
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Gui;
 using Sandbox.Game.World;
 using Sandbox.Graphics;
@@ -20,26 +21,64 @@ using VRageMath;
 
 namespace Sandbox.Game.GUI.HudViewers
 {
-    public class MyHudMarkerRender
+    public class MyHudMarkerRender : MyHudMarkerRenderBase
     {
         //const float MAX_ANTENNA_DRAW_DISTANCE = 500000;
-        const double LS_METRES = 299792458.0001367;
-        const double LY_METRES = 9.460730473e+15;
 
         static float m_friendAntennaRange = MyPerGameSettings.MaxAntennaDrawDistance;
 
         private static bool m_disableFading = false;
         private bool m_disableFadingToggle = false;
 
-        public void Update()
+        public enum SignalMode
         {
-            m_disableFading = m_disableFadingToggle;
+            DefaultMode = 0,
+            FullDisplay,
+            NoNames,
+            Off,
 
-            if (!m_disableFading && VRage.Input.MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND))
-                m_disableFading = true;
+            MaxSignalModes,
+        }
 
-            if (VRage.Input.MyInput.Static.IsGameControlReleased(MyControlsSpace.TOGGLE_SIGNALS))
-                m_disableFadingToggle = !m_disableFadingToggle;
+        public static SignalMode SignalDisplayMode { get; private set; }
+        private MyHudNotification m_signalModeNotification = null;
+
+        public override void Update()
+        {
+            m_disableFading = VRage.Input.MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND);
+
+            //for now make extra check for control key. Maybe trigger from HandleInput?
+            if (VRage.Input.MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOGGLE_SIGNALS) && !VRage.Input.MyInput.Static.IsAnyCtrlKeyPressed() && Sandbox.Graphics.GUI.MyScreenManager.FocusedControl == null)
+            {
+                SignalDisplayMode += 1;
+                if (SignalDisplayMode >= SignalMode.MaxSignalModes)
+                    SignalDisplayMode = SignalMode.DefaultMode;
+
+                if (m_signalModeNotification != null)
+                {
+                    MyHud.Notifications.Remove(m_signalModeNotification);
+                    m_signalModeNotification = null;
+                }
+
+                switch (SignalDisplayMode)
+                {
+                    case SignalMode.DefaultMode:
+                        m_signalModeNotification = new MyHudNotification(MyCommonTexts.SignalMode_Switch_DefaultMode, 1000);
+                        break;
+                    case SignalMode.FullDisplay:
+                        m_signalModeNotification = new MyHudNotification(MyCommonTexts.SignalMode_Switch_FullDisplay, 1000);
+                        break;
+                    case SignalMode.NoNames:
+                        m_signalModeNotification = new MyHudNotification(MyCommonTexts.SignalMode_Switch_NoNames, 1000);
+                        break;
+                    case SignalMode.Off:
+                        m_signalModeNotification = new MyHudNotification(MyCommonTexts.SignalMode_Switch_Off, 1000);
+                        break;
+                }
+
+                if (m_signalModeNotification != null)
+                    MyHud.Notifications.Add(m_signalModeNotification);
+            }
         }
 
         public static float FriendAntennaRange 
@@ -80,79 +119,11 @@ namespace Sandbox.Game.GUI.HudViewers
             }
         }
 
-        public class MyMarkerStyle
+        public MyHudMarkerRender(MyGuiScreenHudBase hudScreen) : base(hudScreen)
         {
-            public MyFontEnum Font { get; set; }
-            public MyHudTexturesEnum TextureDirectionIndicator { get; set; }
-            public MyHudTexturesEnum TextureTarget { get; set; }
-            public Color Color { get; set; }
-            public float TextureTargetRotationSpeed { get; set; }
-            public float TextureTargetScale { get; set; }
-
-            public MyMarkerStyle(MyFontEnum font, MyHudTexturesEnum textureDirectionIndicator, MyHudTexturesEnum textureTarget, Color color, float textureTargetRotationSpeed = 0f, float textureTargetScale = 1f)
-            {
-                Font = font;
-                TextureDirectionIndicator = textureDirectionIndicator;
-                TextureTarget = textureTarget;
-                this.Color = color;
-                TextureTargetRotationSpeed = textureTargetRotationSpeed;
-                TextureTargetScale = textureTargetScale;
-            }
         }
 
-        public class DistanceComparer : IComparer<MyHudEntityParams>
-        {
-            public int Compare(MyHudEntityParams x, MyHudEntityParams y)
-            {
-                return Vector3D.DistanceSquared(MySector.MainCamera.Position, y.Entity.PositionComp.GetPosition()).CompareTo(Vector3D.DistanceSquared(MySector.MainCamera.Position, x.Entity.PositionComp.GetPosition()));
-            }
-        }
-
-        private MyGuiScreenHudBase m_hudScreen;
-        private List<MyMarkerStyle> m_markerStyles;
-        private int[] m_markerStylesForBlocks;
-
-        private List<MyHudEntityParams> m_sortedMarkers = new List<MyHudEntityParams>(128);
-        private DistanceComparer m_distanceComparer = new DistanceComparer();
-
-        public MyHudMarkerRender(MyGuiScreenHudBase hudScreen)
-        {
-            m_hudScreen = hudScreen;
-            m_markerStyles = new List<MyMarkerStyle>();
-
-            int neutralStyle, enemyStyle, ownerStyle, factionStyle;
-            neutralStyle = AllocateMarkerStyle(MyFontEnum.White, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_neutral, MyHudConstants.MARKER_COLOR_WHITE);
-            enemyStyle = AllocateMarkerStyle(MyFontEnum.Red, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_enemy, MyHudConstants.MARKER_COLOR_WHITE);
-            ownerStyle = AllocateMarkerStyle(MyFontEnum.DarkBlue, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_me, MyHudConstants.MARKER_COLOR_WHITE);
-            factionStyle = AllocateMarkerStyle(MyFontEnum.Green, MyHudTexturesEnum.DirectionIndicator, MyHudTexturesEnum.Target_friend, MyHudConstants.MARKER_COLOR_WHITE);
-
-            m_markerStylesForBlocks = new int[MyUtils.GetMaxValueFromEnum<VRage.Game.MyRelationsBetweenPlayerAndBlock>() + 1];
-            m_markerStylesForBlocks[(int)VRage.Game.MyRelationsBetweenPlayerAndBlock.Neutral] = neutralStyle;
-            m_markerStylesForBlocks[(int)VRage.Game.MyRelationsBetweenPlayerAndBlock.Enemies] = enemyStyle;
-            m_markerStylesForBlocks[(int)VRage.Game.MyRelationsBetweenPlayerAndBlock.Owner] = ownerStyle;
-            m_markerStylesForBlocks[(int)VRage.Game.MyRelationsBetweenPlayerAndBlock.FactionShare] = factionStyle;
-            m_markerStylesForBlocks[(int)VRage.Game.MyRelationsBetweenPlayerAndBlock.NoOwnership] = factionStyle;
-        }
-
-        public int AllocateMarkerStyle(MyFontEnum font, MyHudTexturesEnum directionIcon, MyHudTexturesEnum targetIcon, Color color)
-        {
-            int newHandle = m_markerStyles.Count;
-            m_markerStyles.Add(new MyMarkerStyle(font, directionIcon, targetIcon, color));
-            return newHandle;
-        }
-
-        public void OverrideStyleForRelation(VRage.Game.MyRelationsBetweenPlayerAndBlock relation, MyFontEnum font, MyHudTexturesEnum directionIcon, MyHudTexturesEnum targetIcon, Color color)
-        {
-            int handle = GetStyleForRelation(relation);
-            m_markerStyles[handle] = new MyMarkerStyle(font, directionIcon, targetIcon, color);
-        }
-
-        public int GetStyleForRelation(VRage.Game.MyRelationsBetweenPlayerAndBlock relation)
-        {
-            return m_markerStylesForBlocks[(int)relation];
-        }
-
-        public void DrawLocationMarkers(MyHudLocationMarkers locationMarkers)
+        public override void DrawLocationMarkers(MyHudLocationMarkers locationMarkers)
         {
             ProfilerShort.Begin("MyHudMarkerRender.DrawLocationMarkers");
 
@@ -163,13 +134,34 @@ namespace Sandbox.Game.GUI.HudViewers
                     continue;
                 m_sortedMarkers.Add(entityMarker.Value);
             }
-            m_sortedMarkers.Sort(m_distanceComparer);
+            //m_sortedMarkers.Sort(m_distanceComparer);
 
             foreach (var entityMarker in m_sortedMarkers)
             {
                 MyEntity entity = entityMarker.Entity as MyEntity;
                 if (entityMarker.ShouldDraw != null && !entityMarker.ShouldDraw())
                     continue;
+
+                double distance = (entity.WorldMatrix.Translation - MyHudMarkerRender.ActiveWorldMatrix.Translation).LengthSquared();
+
+                // Do not show entities if entity is beyond the limit set by the info tab sliders
+                switch (entityMarker.TargetMode)
+                {
+                    case MyRelationsBetweenPlayerAndBlock.Owner:
+                        if (distance > (m_ownerAntennaRange * m_ownerAntennaRange))
+                            continue;
+                        break;
+                    case MyRelationsBetweenPlayerAndBlock.NoOwnership:
+                    case MyRelationsBetweenPlayerAndBlock.FactionShare:
+                        if (distance > (m_friendAntennaRange * m_friendAntennaRange))
+                            continue;
+                        break;
+                    case MyRelationsBetweenPlayerAndBlock.Neutral:
+                    case MyRelationsBetweenPlayerAndBlock.Enemies:
+                        if (distance > (m_enemyAntennaRange * m_enemyAntennaRange))
+                            continue;
+                        break;
+                }
 
                 AddEntity(entity, entityMarker.TargetMode, entityMarker.Text);
             }
@@ -266,11 +258,16 @@ namespace Sandbox.Game.GUI.HudViewers
                 /// Used for static entities (Stations, etc)
                 /// </summary>
                 StaticEntity,
-                
+
                 /// <summary>
                 /// Used for GPS coordinates
                 /// </summary>
                 GPS,
+
+                /// <summary>
+                /// Used for Button Markers
+                /// </summary>
+                ButtonMarker,
             }
 
             // World state
@@ -779,7 +776,7 @@ namespace Sandbox.Game.GUI.HudViewers
 
                 alphaValue = MyMath.Clamp(alphaValue, 0, 1);
 
-                if (m_disableFading || AlwaysVisible)
+                if (m_disableFading || SignalDisplayMode == SignalMode.FullDisplay || AlwaysVisible)
                 {
                     alphaValue = 1;
                     alphaValueSubtext = 1;
@@ -790,15 +787,17 @@ namespace Sandbox.Game.GUI.HudViewers
                 // Render name, but only if visible
                 //ProfilerShort.BeginNextBlock("Draw name");
                 Vector2 textLabelOffset = new Vector2(0, 24f / MyGuiManager.GetFullscreenRectangle().Width);
-                textLabelOffset.Y /= yScale;
-                if (alphaValue > float.Epsilon && this.Text.Length > 0)
+                if (SignalDisplayMode != SignalMode.NoNames || POIType == PointOfInterestType.ButtonMarker || m_disableFading || AlwaysVisible)
                 {
-                    MyHudText objectName = renderer.m_hudScreen.AllocateText();
-                    if (objectName != null)
+                    if (alphaValue > float.Epsilon && this.Text.Length > 0)
                     {
-                        fontColor.A = (byte)(255f * alphaValue);
-                        objectName.Start(font, screenPosition - textLabelOffset, fontColor, 0.7f / yScale, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
-                        objectName.Append(this.Text);
+                        MyHudText objectName = renderer.m_hudScreen.AllocateText();
+                        if (objectName != null)
+                        {
+                            fontColor.A = (byte)(255f * alphaValue);
+                            objectName.Start(font, screenPosition - textLabelOffset, fontColor, 0.7f / yScale, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER);
+                            objectName.Append(this.Text);
+                        }
                     }
                 }
 
@@ -839,17 +838,31 @@ namespace Sandbox.Game.GUI.HudViewers
                 for (int i = 0; i < offsetsSquare.Length; i++)
                 {
                     float offsetVal = edgeState < 2 ? 1 : alphaValueSubtext;
+                    float offsetY = offsetsSquare[i].Y;
 
-                    offsetsSquare[i].X = (offsetsSquare[i].X + (22 * offsetVal)) / MyGuiManager.GetFullscreenRectangle().Width / yScale;
-                    offsetsSquare[i].Y = (offsetsSquare[i].Y / 1080f) / yScale;
+                    offsetsSquare[i].X = ((offsetsSquare[i].X + (22 * offsetVal)) / MyGuiManager.GetFullscreenRectangle().Width);
+                    offsetsSquare[i].Y = (offsetY / 1080f) / yScale;
 
-                    offsetsVertical[i].X = offsetsVertical[i].X / MyGuiManager.GetFullscreenRectangle().Width / yScale;
-                    offsetsVertical[i].Y = (offsetsVertical[i].Y / 1080f) / yScale;
+                    // Correct for triple-monitor-setup
                     if (MyVideoSettingsManager.IsTripleHead())
                         offsetsSquare[i].X /= 0.33f;
 
+                    // Fallback in case the scale is too small
+                    if (offsetsSquare[i].Y <= float.Epsilon)
+                        offsetsSquare[i].Y = offsetY / 1080f;
+
+                    offsetY = offsetsVertical[i].Y;
+
                     offsetsVertical[i].X = (offsetsVertical[i].X / MyGuiManager.GetFullscreenRectangle().Width) / yScale;
-                    offsetsVertical[i].Y = (offsetsVertical[i].Y / 1080f) / yScale;
+                    offsetsVertical[i].Y = (offsetY / 1080f) / yScale;
+
+                    // Correct for triple-monitor-setup
+                    if (MyVideoSettingsManager.IsTripleHead())
+                        offsetsVertical[i].X /= 0.33f;
+
+                    // Fallback in case the scale is too small
+                    if (offsetsVertical[i].Y <= float.Epsilon)
+                        offsetsVertical[i].Y = offsetY / 1080f;
                 }
 
                 int index = 0;
@@ -880,7 +893,7 @@ namespace Sandbox.Game.GUI.HudViewers
                         if (IsPoiAtHighAlert(poi))
                             DrawIcon(renderer, "Textures\\HUD\\marker_alert.dds", screenPosition + offset, Color.White, 0.75f / yScale);
 
-                        if (poi.Text.Length > 0)
+                        if ((SignalDisplayMode != SignalMode.NoNames || m_disableFading || AlwaysVisible) && poi.Text.Length > 0)
                         {
                             MyHudText objectName = renderer.m_hudScreen.AllocateText();
                             if (objectName != null)
@@ -927,7 +940,7 @@ namespace Sandbox.Game.GUI.HudViewers
                             if (IsPoiAtHighAlert(poi))
                                 DrawIcon(renderer, "Textures\\HUD\\marker_alert.png", screenPosition + offset, Color.White, 0.75f / yScale);
 
-                            if (poi.Text.Length > 0)
+                            if ((SignalDisplayMode != SignalMode.NoNames || m_disableFading || AlwaysVisible) && poi.Text.Length > 0)
                             {
                                 MyHudText objectName = renderer.m_hudScreen.AllocateText();
                                 if (objectName != null)
@@ -1271,6 +1284,9 @@ namespace Sandbox.Game.GUI.HudViewers
         /// </summary>
         public void AddPOI(Vector3D worldPosition, StringBuilder name, MyRelationsBetweenPlayerAndBlock relationship)
         {
+            // Don't add poi if we're not displaying them
+            if (SignalDisplayMode == SignalMode.Off) return;
+
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
@@ -1280,6 +1296,9 @@ namespace Sandbox.Game.GUI.HudViewers
 
         public void AddEntity(MyEntity entity, MyRelationsBetweenPlayerAndBlock relationship, StringBuilder entityName)
         {
+            // Don't add poi if we're not displaying them
+            if (SignalDisplayMode == SignalMode.Off) return;
+
             if (entity == null) return;
 
             Vector3D worldPosition = entity.PositionComp.GetPosition();
@@ -1320,6 +1339,9 @@ namespace Sandbox.Game.GUI.HudViewers
 
         public void AddGPS(Vector3D worldPosition, string name, bool alwaysVisible)
         {
+            // Don't add poi if we're not displaying them
+            if (SignalDisplayMode == SignalMode.Off) return;
+
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
@@ -1330,15 +1352,21 @@ namespace Sandbox.Game.GUI.HudViewers
 
         public void AddButtonMarker(Vector3D worldPosition, string name)
         {
+            // Don't add poi if we're not displaying them
+            //if (SignalDisplayMode == SignalMode.Off) return;
+
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
-            poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.GPS, MyRelationsBetweenPlayerAndBlock.Owner);
+            poi.SetState(worldPosition, PointOfInterest.PointOfInterestType.ButtonMarker, MyRelationsBetweenPlayerAndBlock.Owner);
             poi.SetText(name);
         }
 
         public void AddOre(Vector3D worldPosition, string name)
         {
+            // Don't add poi if we're not displaying them
+            if (SignalDisplayMode == SignalMode.Off) return;
+
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
@@ -1348,6 +1376,9 @@ namespace Sandbox.Game.GUI.HudViewers
 
         public void AddTarget(Vector3D worldPosition)
         {
+            // Don't add poi if we're not displaying them
+            if (SignalDisplayMode == SignalMode.Off) return;
+
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
@@ -1356,6 +1387,9 @@ namespace Sandbox.Game.GUI.HudViewers
 
         public void AddHacking(Vector3D worldPosition, StringBuilder name)
         {
+            // Don't add poi if we're not displaying them
+            if (SignalDisplayMode == SignalMode.Off) return;
+
             PointOfInterest poi = m_pointOfInterestPool.Allocate();
             m_pointsOfInterest.Add(poi);
             poi.Reset();
@@ -1404,13 +1438,17 @@ namespace Sandbox.Game.GUI.HudViewers
             }
         }
 
-        public void Draw()
+        public override void Draw()
         {
+            // Don't draw if signal mode is set to off
+            //if (SignalDisplayMode == SignalMode.Off)
+                //return;
+
             Vector3D cameraPosition = MySector.MainCamera.Position;
 
             ProfilerShort.Begin("Clustering");
             List<PointOfInterest> finalPOIs = new List<PointOfInterest>();
-            if (m_disableFading)
+            if (m_disableFading || SignalDisplayMode == SignalMode.FullDisplay)
             {
                 finalPOIs.AddRange(m_pointsOfInterest);
             }
@@ -1489,77 +1527,17 @@ namespace Sandbox.Game.GUI.HudViewers
                 //ProfilerShort.Begin("Draw POI");
                 poi.Draw(this);
                 //ProfilerShort.End();
+            }
 
-                // Return POI to pool
-                if (poi.POIType == PointOfInterest.PointOfInterestType.Group)
-                {
-                    foreach (PointOfInterest child in poi.m_group)
-                        m_pointOfInterestPool.Deallocate(child);
-                }
+            // Return POI to pool
+            foreach (PointOfInterest poi in m_pointsOfInterest)
+            {
+                poi.Reset();
                 m_pointOfInterestPool.Deallocate(poi);
             }
+
             ProfilerShort.End();
             m_pointsOfInterest.Clear();
-        }
-
-        /// <summary>
-        /// Add textured quad with specified UP direction and width/height.
-        /// </summary>
-        protected void AddTexturedQuad(MyHudTexturesEnum texture, Vector2 position, Vector2 upVector, Color color, float halfWidth, float halfHeight)
-        {
-            Vector2 rightVector = new Vector2(-upVector.Y, upVector.X);
-
-            MyAtlasTextureCoordinate textureCoord = m_hudScreen.GetTextureCoord(texture);
-
-            Vector2 screen = new Vector2(MyGuiManager.GetSafeFullscreenRectangle().Width, MyGuiManager.GetSafeFullscreenRectangle().Height);
-
-            float hudSizeX = screen.X / MyGuiManager.GetHudSize().X;
-            float hudSizeY = screen.Y / MyGuiManager.GetHudSize().Y;
-
-            var pos = position;
-            if (MyVideoSettingsManager.IsTripleHead())
-                pos.X += 1.0f;
-
-            float yScale = screen.Y / 1080f;
-            halfWidth *= yScale;
-            halfHeight *= yScale;
-
-            VRageRender.MyRenderProxy.DrawSpriteAtlas(
-                m_hudScreen.TextureAtlas,
-                pos,
-                textureCoord.Offset,
-                textureCoord.Size,
-                rightVector,
-                new Vector2(hudSizeX, hudSizeY),
-                color,
-                new Vector2(halfWidth, halfHeight));
-        }
-
-        /// <summary>
-        /// Add textured quad with specified UP direction and width/height.
-        /// </summary>
-        protected void AddTexturedQuad(string texture, Vector2 position, Vector2 upVector, Color color, float halfWidth, float halfHeight)
-        {
-            Vector2 screen = new Vector2(MyGuiManager.GetSafeFullscreenRectangle().Width, MyGuiManager.GetSafeFullscreenRectangle().Height);
-
-            float hudSizeX = screen.X / MyGuiManager.GetHudSize().X;
-            float hudSizeY = screen.Y / MyGuiManager.GetHudSize().Y;
-
-            if (MyVideoSettingsManager.IsTripleHead())
-                position.X += 1.0f;
-
-            position.X *= hudSizeX;
-            position.Y *= hudSizeY;
-
-            float yScale = screen.Y / 1080f;
-            halfWidth *= yScale;
-            halfHeight *= yScale;
-
-            RectangleF dest = new RectangleF(position.X - halfWidth, position.Y - halfHeight, halfWidth * 2, halfHeight * 2);
-            Rectangle? source = null;
-
-            VRageRender.MyRenderProxy.DrawSprite(texture, ref dest, false, ref source, color, 0,
-                new Vector2(1, 0), ref Vector2.Zero, VRageRender.Graphics.SpriteEffects.None, 0);
         }
 
 		static public float Normalize(float value)

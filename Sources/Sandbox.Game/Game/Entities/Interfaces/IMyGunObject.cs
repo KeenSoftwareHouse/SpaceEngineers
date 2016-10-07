@@ -22,6 +22,7 @@ namespace Sandbox.Game.Entities
         Failed = 6,        // Any other reason not given here
         NotSelected = 7,   // No gun was selected, so nothing could shoot
         AccessDenied = 8,   // Shooter has not access to the weapon
+        BurstLimit = 9,    // whole burst fired, re-press the trigger
     }
 
     /// <summary>

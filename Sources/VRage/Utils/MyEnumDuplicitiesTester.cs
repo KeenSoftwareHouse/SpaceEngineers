@@ -21,7 +21,7 @@ namespace VRage.Utils
 
         static void CheckEnumNotDuplicities(string companyName)
         {
-#if !BLIT
+#if !XB1
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
             string[] dlls = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
             List<Assembly> assembliesToTest = new List<Assembly>(assemblies.Length + dlls.Length);
@@ -53,7 +53,7 @@ namespace VRage.Utils
             }
 #endif
         }
-#if !BLIT
+#if !XB1
         static bool IsLoaded(Assembly[] assemblies, string assemblyPath)
         {
             foreach (var assembly in assemblies)

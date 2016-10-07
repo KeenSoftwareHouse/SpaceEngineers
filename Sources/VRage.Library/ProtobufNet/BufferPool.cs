@@ -72,7 +72,7 @@ namespace ProtoBuf
         }
         internal static void ReleaseBufferToPool(ref byte[] buffer)
         {
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
             if (buffer == null) return;
@@ -105,7 +105,7 @@ namespace ProtoBuf
 
 
 
-#endif //BLIT
+#endif //XB1
         }
 
     }

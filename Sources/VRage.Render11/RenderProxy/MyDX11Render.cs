@@ -79,7 +79,7 @@ namespace VRageRender
             MyRender11.Present();
         }
 
-        public void ClearBackbuffer(ColorBGRA clearColor)
+        public void ClearBackbuffer(VRageMath.Color clearColor)
         {
             MyRender11.ClearBackbuffer(clearColor);
         }
@@ -144,6 +144,7 @@ namespace VRageRender
             {
                 MyRender11.ProcessDebugOutput();
                 System.Diagnostics.Debug.WriteLine(ex);
+                MyRenderProxy.Assert(false, "Exception in render!\n" + ex);
             }
 #else
             MyRender11.Draw(draw);

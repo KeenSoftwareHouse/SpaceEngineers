@@ -20,6 +20,7 @@ using VRage.Input;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRageMath;
+using System;
 
 
 #endregion
@@ -44,6 +45,14 @@ namespace Sandbox.Game.Entities
 		{
 			Static = this;
 		}
+
+        public override Type[] Dependencies
+        {
+            get
+            {
+                return new Type[] { typeof(MyToolbarComponent) };
+            }
+        }
 
 		public override void LoadData()
 		{

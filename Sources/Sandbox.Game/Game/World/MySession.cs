@@ -53,6 +53,7 @@ using VRageRender;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.Game.GameSystems.ContextHandling;
 
 #endregion
 
@@ -149,7 +150,7 @@ namespace Sandbox.Game.World
         public bool Enable3RdPersonView { get { return Settings.Enable3rdPersonView; } }
         public bool EnableToolShake { get { return Settings.EnableToolShake; } }
         public bool ShowPlayerNamesOnHud { get { return Settings.ShowPlayerNamesOnHud; } }
-        public bool EnableStationVoxelSupport { get { return Settings.EnableStationVoxelSupport && MyPerGameSettings.Game == GameEnum.SE_GAME; } }
+        public bool EnableConvertToStation { get { return Settings.EnableConvertToStation; } }
         public bool EnableFlora { get { return Settings.EnableFlora; } }
         public short MaxPlayers { get { return Settings.MaxPlayers; } }
         public short MaxFloatingObjects { get { return Settings.MaxFloatingObjects; } }
@@ -190,6 +191,9 @@ namespace Sandbox.Game.World
                 return false;
             }
         }
+
+        public MyScriptManager ScriptManager;
+
         public bool IsScenario { get { return Settings.Scenario; } }
         public bool LoadedAsMission { get; private set; }
         public bool PersistentEditMode { get; private set; }
@@ -199,8 +203,8 @@ namespace Sandbox.Game.World
         public List<MyObjectBuilder_Checkpoint.ModItem> Mods;
         public HashSet<ulong> PromotedUsers = new HashSet<ulong>();
         public MyScenarioDefinition Scenario;
-        public BoundingBoxD WorldBoundaries;
-        BoundingBoxD IMySession.WorldBoundaries { get { return WorldBoundaries; } }
+        public BoundingBoxD? WorldBoundaries;
+        BoundingBoxD IMySession.WorldBoundaries { get { return WorldBoundaries.HasValue ? WorldBoundaries.Value : BoundingBoxD.CreateInvalid(); } }
 
         public MySyncLayer SyncLayer { get; private set; }
 
@@ -436,6 +440,11 @@ namespace Sandbox.Game.World
             }
         }
 
+        public MyGameFocusManager GameFocusManager
+        {
+            get;
+            private set;
+        }
 
         #endregion
 
@@ -495,11 +504,18 @@ namespace Sandbox.Game.World
             MultiplayerAlive = true;
             MultiplayerDirect = true;
 
+            AppVersionFromSave = MyFinalBuildConstants.APP_VERSION;
+
             Factions.FactionStateChanged += OnFactionsStateChanged;
+
+            ScriptManager = new MyScriptManager();
 
             GC.Collect(2, GCCollectionMode.Forced);
             MySandboxGame.Log.WriteLine(String.Format("GC Memory: {0} B", GC.GetTotalMemory(false).ToString("##,#")));
             MySandboxGame.Log.WriteLine(String.Format("Process Memory: {0} B", Process.GetCurrentProcess().PrivateMemorySize64.ToString("##,#")));
+
+            this.GameFocusManager = new MyGameFocusManager();
+
         }
 
         private MySession()
@@ -846,48 +862,42 @@ namespace Sandbox.Game.World
 
             MyEntityContainerEventExtensions.InitEntityEvents();
 
-            MyDefinitionManager.Static.LoadData(mods);
-
             Static = new MySession();
-
-            Static.LoadGameDefinition(generationArgs.Scenario != null ? generationArgs.Scenario.GameDefinition : default(MyDefinitionId?));
-
             Static.Name = name;
+            Static.Mods = mods;
             Static.Description = description;
             Static.Password = password;
             Static.Settings = settings;
-            Static.Mods = mods;
             Static.Scenario = generationArgs.Scenario;
             FixIncorrectSettings(Static.Settings);
-            Static.WorldBoundaries = generationArgs.Scenario.WorldBoundaries;
 
-            double tmp = settings.WorldSizeKm * 500; //half size
-            if (tmp > 0)
+            double radius = settings.WorldSizeKm * 500; //half size
+            if (radius > 0)
             {
-                MyPerGameSettings.SingleCluster = true;
-                Static.WorldBoundaries.Min = new Vector3D(-tmp, -tmp, -tmp);
-                Static.WorldBoundaries.Max = new Vector3D(tmp, tmp, tmp);
+                Static.WorldBoundaries = new BoundingBoxD(new Vector3D(-radius, -radius, -radius), new Vector3D(radius, radius, radius));
             }
 
             Static.InGameTime = generationArgs.Scenario.GameDate;//MyObjectBuilder_Checkpoint.DEFAULT_DATE;
             Static.RequiresDX = generationArgs.Scenario.HasPlanets ? 11 : 9;
 
-            string safeName = MyUtils.StripInvalidChars(name);
-            Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
-
             if (Static.OnlineMode != MyOnlineModeEnum.OFFLINE)
                 StartServerRequest();
-
-            Static.LoadDataComponents();
 
             Static.IsCameraAwaitingEntity = true;
 
             // Find new non existing folder. The game folder name may be different from game name, so we have to
             // make sure we don't overwrite another save
+            string safeName = MyUtils.StripInvalidChars(name);
+            Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName, false, false);
+
             while (Directory.Exists(Static.CurrentPath))
             {
                 Static.CurrentPath = MyLocalCache.GetSessionSavesPath(safeName + MyUtils.GetRandomInt(int.MaxValue).ToString("########"), false, false);
             }
+
+            Static.PrepareBaseSession(mods, generationArgs.Scenario);
+
+            MySector.EnvironmentDefinition = MyDefinitionManager.Static.GetDefinition<MyEnvironmentDefinition>(generationArgs.Scenario.Environment);
 
             MyWorldGenerator.GenerateWorld(generationArgs);
 
@@ -907,7 +917,6 @@ namespace Sandbox.Game.World
             var scenarioName = generationArgs.Scenario.DisplayNameText.ToString();
             Static.LogSettings(scenarioName, generationArgs.AsteroidAmount);
 
-            MySector.InitEnvironmentSettings();
             if (generationArgs.Scenario.SunDirection.IsValid())
             {
                 MySector.SunProperties.SunDirectionNormalized = Vector3.Normalize(generationArgs.Scenario.SunDirection);
@@ -916,12 +925,12 @@ namespace Sandbox.Game.World
 
             //Because blocks fills SubBlocks in this method..
             //TODO: Create LoadPhase2
+            
             MyEntities.UpdateOnceBeforeFrame();
+            Static.BeforeStartComponents();
 
             Static.Save();
             MyLocalCache.SaveLastLoadedTime(Static.CurrentPath, DateTime.Now);
-
-            Static.BeforeStartComponents();
 
             // Initialize Spectator light
             MySpectatorCameraController.Static.InitLight(false);
@@ -936,30 +945,21 @@ namespace Sandbox.Game.World
         internal static void LoadMultiplayer(MyObjectBuilder_World world, MyMultiplayerBase multiplayerSession)
         {
             //MyAudio.Static.Mute = true;
-            MyDefinitionManager.Static.LoadData(world.Checkpoint.Mods);
-
             Static = new MySession(multiplayerSession.SyncLayer);
-            
-
-            Static.LoadGameDefinition(world.Checkpoint);
-
             Static.Mods = world.Checkpoint.Mods;
             Static.Settings = world.Checkpoint.Settings;
             Static.CurrentPath = MyLocalCache.GetSessionSavesPath(MyUtils.StripInvalidChars(world.Checkpoint.SessionName), false, false);
             if (!MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(world.Checkpoint.Scenario, out Static.Scenario))
                 Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             FixIncorrectSettings(Static.Settings);
-            Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
-
-            if (Static.WorldBoundaries.Min != Vector3D.Zero || Static.WorldBoundaries.Max != Vector3D.Zero)
-                MyPerGameSettings.SingleCluster = true;
 
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
             Static.LoadMembersFromWorld(world, multiplayerSession);
 
-            Static.LoadDataComponents();
-            Static.LoadObjectBuildersComponents(world.Checkpoint.SessionComponents);
+            MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(world.Checkpoint, world.Sector);
+
+            Static.PrepareBaseSession(world.Checkpoint, world.Sector);
 
             // No controlled object
             long hostObj = world.Checkpoint.ControlledObject;
@@ -1041,9 +1041,6 @@ namespace Sandbox.Game.World
             ulong sectorSizeInBytes;
             ProfilerShort.Begin("MyLocalCache.LoadSector");
 
-            if (checkpoint.WorldBoundaries.Min != Vector3D.Zero || checkpoint.WorldBoundaries.Max != Vector3D.Zero)
-                MyPerGameSettings.SingleCluster = true;
-
             var sector = MyLocalCache.LoadSector(sessionPath, checkpoint.CurrentSector, out sectorSizeInBytes);
             ProfilerShort.End();
             if (sector == null)
@@ -1056,10 +1053,6 @@ namespace Sandbox.Game.World
 
             ulong voxelsSizeInBytes = GetVoxelsSizeInBytes(sessionPath);
 
-            ProfilerShort.Begin("MyDefinitionManager.Static.LoadData");
-            MyDefinitionManager.Static.LoadData(checkpoint.Mods);
-            ProfilerShort.End();
-
 #if false
             if ( MyFakes.DEBUG_AVOID_RANDOM_AI )
                 MyBBSetSampler.ResetRandomSeed();
@@ -1069,31 +1062,16 @@ namespace Sandbox.Game.World
 
             Static = new MySession();
 
-            Static.LoadGameDefinition(checkpoint);
-
             Static.Mods = checkpoint.Mods;
             Static.Settings = checkpoint.Settings;
             Static.CurrentPath = sessionPath;
-            if (!MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(checkpoint.Scenario, out Static.Scenario))
-                Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
-            FixIncorrectSettings(Static.Settings);
-            Static.WorldBoundaries = checkpoint.WorldBoundaries;
-            // Use whatever setting is in scenario if there was nothing in the file (0 min and max).
-            // SE scenarios have nothing while ME scenarios have size defined.
-            if (Static.WorldBoundaries.Min == Vector3D.Zero &&
-                Static.WorldBoundaries.Max == Vector3D.Zero)
-                Static.WorldBoundaries = Static.Scenario.WorldBoundaries;
-
+            
             if (Static.OnlineMode != MyOnlineModeEnum.OFFLINE)
                 StartServerRequest();
 
-            ProfilerShort.Begin("MySession.Static.LoadDataComponents");
-            Static.LoadDataComponents();
-            ProfilerShort.End();
+            MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(checkpoint, sector);
 
-            ProfilerShort.Begin("MySession.Static.LoadObjectBuildersComponents");
-            Static.LoadObjectBuildersComponents(checkpoint.SessionComponents);
-            ProfilerShort.End();
+            Static.PrepareBaseSession(checkpoint, sector);
 
             ProfilerShort.Begin("MySession.Static.LoadWorld");
             Static.LoadWorld(checkpoint, sector);
@@ -1133,12 +1111,8 @@ namespace Sandbox.Game.World
         {
             Debug.Assert(!Sync.IsServer);
 
-            MyDefinitionManager.Static.LoadData(new List<MyObjectBuilder_Checkpoint.ModItem>());
-
             Static = new MySession(multiplayerSession.SyncLayer, false);
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
-
-            Static.LoadGameDefinition();
 
             MyHud.Chat.RegisterChat(multiplayerSession);
             Static.Gpss.RegisterChat(multiplayerSession);
@@ -1151,9 +1125,9 @@ namespace Sandbox.Game.World
 
             Static.IsCameraAwaitingEntity = true;
 
-            multiplayerSession.StartProcessingClientMessagesWithEmptyWorld();
+            Static.PrepareBaseSession(new List<MyObjectBuilder_Checkpoint.ModItem>());
 
-            Static.LoadDataComponents();
+            multiplayerSession.StartProcessingClientMessagesWithEmptyWorld();
 
             if (Sync.IsServer)
             {
@@ -1178,25 +1152,18 @@ namespace Sandbox.Game.World
 
             MyDefinitionManager.Static.UnloadData();
 
-            MyDefinitionManager.Static.LoadData(world.Checkpoint.Mods);
-
-            Static.LoadGameDefinition(world.Checkpoint);
-
             Static.Mods = world.Checkpoint.Mods;
             Static.Settings = world.Checkpoint.Settings;
             Static.CurrentPath = MyLocalCache.GetSessionSavesPath(MyUtils.StripInvalidChars(world.Checkpoint.SessionName), false, false);
             if (!MyDefinitionManager.Static.TryGetDefinition<MyScenarioDefinition>(world.Checkpoint.Scenario, out Static.Scenario))
                 Static.Scenario = MyDefinitionManager.Static.GetScenarioDefinitions().FirstOrDefault();
             FixIncorrectSettings(Static.Settings);
-            Static.WorldBoundaries = world.Checkpoint.WorldBoundaries;
-
-            if (Static.WorldBoundaries.Min != Vector3D.Zero || Static.WorldBoundaries.Max != Vector3D.Zero)
-                MyPerGameSettings.SingleCluster = true;
 
             Static.InGameTime = MyObjectBuilder_Checkpoint.DEFAULT_DATE;
 
-            Static.LoadDataComponents(false);
-            Static.LoadObjectBuildersComponents(world.Checkpoint.SessionComponents);
+            MySandboxGame.Static.SessionCompatHelper.FixSessionComponentObjectBuilders(world.Checkpoint, world.Sector);
+
+            Static.PrepareBaseSession(world.Checkpoint, world.Sector);
 
             // No controlled object
             long hostObj = world.Checkpoint.ControlledObject;
@@ -1329,7 +1296,7 @@ namespace Sandbox.Game.World
 
         private void LoadWorld(MyObjectBuilder_Checkpoint checkpoint, MyObjectBuilder_Sector sector)
         {
-            // Backward compatibility:
+            // Run compatibility helper.
             MySandboxGame.Static.SessionCompatHelper.FixSessionObjectBuilders(checkpoint, sector);
 
             //MyAudio.Static.Mute = true
@@ -1348,6 +1315,8 @@ namespace Sandbox.Game.World
             RequiresDX = checkpoint.RequiresDX;
             FixIncorrectSettings(Settings);
 
+            AppVersionFromSave = checkpoint.AppVersion;
+
             if (MyFakes.ENABLE_BATTLE_SYSTEM)
             {
                 VoxelHandVolumeChanged = sector.VoxelHandVolumeChanged;
@@ -1355,9 +1324,7 @@ namespace Sandbox.Game.World
 
             MyToolbarComponent.InitCharacterToolbar(checkpoint.CharacterToolbar);
 
-            LoadCameraControllerSettings(checkpoint);
-
-            MySector.InitEnvironmentSettings(sector.Environment);
+            LoadCameraControllerSettings(checkpoint);;
 
             Sync.Players.RespawnComponent.InitFromCheckpoint(checkpoint);
 
@@ -1368,7 +1335,8 @@ namespace Sandbox.Game.World
                 savingPlayerNullable = savingPlayer;
 
             // Identities have to be loaded before entities (because of ownership)
-            if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME))
+            if (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)
+                || (!IsScenario && MyPerGameSettings.Game == GameEnum.VRS_GAME))
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
 
             Toolbars.LoadToolbars(checkpoint);
@@ -1391,9 +1359,10 @@ namespace Sandbox.Game.World
             MySpectatorCameraController.Static.InitLight(checkpoint.SpectatorIsLightOn);
 
             // MySpectator.Static.SpectatorCameraMovement = checkpoint.SpectatorCameraMovement;
-            MySpectatorCameraController.Static.SetViewMatrix((MatrixD)Matrix.Invert(checkpoint.SpectatorPosition.GetMatrix()));
+            MySpectatorCameraController.Static.SetViewMatrix(MatrixD.Invert(checkpoint.SpectatorPosition.GetMatrix()));
 
-            if (MyPerGameSettings.Game == GameEnum.UNKNOWN_GAME || ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME)))
+            if (MyPerGameSettings.Game == GameEnum.UNKNOWN_GAME || ((!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.SE_GAME)
+                || ((!IsScenario || Static.OnlineMode == MyOnlineModeEnum.OFFLINE) && MyPerGameSettings.Game == GameEnum.VRS_GAME)))
             {
                 if (!(Static.IsScenario && Static.Settings.StartInRespawnScreen))
                 {
@@ -1459,6 +1428,8 @@ namespace Sandbox.Game.World
 
             MyRenderProxy.CollectGarbage();
         }
+
+        public int AppVersionFromSave { get; private set; }
 
         private bool TryFindSavingPlayerId(SerializableDictionaryCompat<long, MyObjectBuilder_Checkpoint.PlayerId, ulong> controlledEntities, long controlledObject, out MyPlayer.PlayerId playerId)
         {
@@ -2035,6 +2006,10 @@ namespace Sandbox.Game.World
             checkpoint.PreviousEnvironmentHostility = PreviousEnvironmentHostility;
             checkpoint.RequiresDX = RequiresDX;
 
+            checkpoint.GameDefinition = GameDefinition.Id;
+            checkpoint.SessionComponentDisabled = SessionComponentDisabled;
+            checkpoint.SessionComponentEnabled = SessionComponentEnabled;
+
             //  checkpoint.PlayerToolbars = Toolbars.GetSerDictionary();
 
             Sync.Players.SavePlayers(checkpoint);
@@ -2084,6 +2059,8 @@ namespace Sandbox.Game.World
             checkpoint.NonPlayerIdentities = Sync.Players.SaveNpcIdentities();
 
             SaveSessionComponentObjectBuilders(checkpoint);
+
+            checkpoint.ScriptManagerData = ScriptManager.GetObjectBuilder();
 
             ProfilerShort.End();
 
@@ -2207,6 +2184,7 @@ namespace Sandbox.Game.World
             MyAudio.Static.StopUpdatingAll3DCues();
             MyAudio.Static.Mute = true;
             MyAudio.Static.StopMusic();
+            MyParticlesLibrary.Close();
 
             Ready = false;
 
@@ -2392,7 +2370,7 @@ namespace Sandbox.Game.World
 
         private static BoundingBoxD GetWorldBoundaries()
         {
-            return Static != null ? Static.WorldBoundaries : default(BoundingBoxD);
+            return Static != null && Static.WorldBoundaries.HasValue ? Static.WorldBoundaries.Value : default(BoundingBoxD);
         }
 
         private static Vector3D GetLocalPlayerPosition()

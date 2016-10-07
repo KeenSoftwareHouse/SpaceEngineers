@@ -1,8 +1,10 @@
-﻿namespace VRage.Game.ModAPI
+﻿using VRage.Game.ModAPI.Interfaces;
+using VRage.ModAPI;
+namespace VRage.Game.ModAPI
 {
 	public delegate void CharacterMovementStateDelegate(MyCharacterMovementEnum oldState, MyCharacterMovementEnum newState);
 
-	public interface IMyCharacter
+    public interface IMyCharacter : IMyEntity, IMyControllableEntity, IMyCameraController, IMyDestroyableObject, IMyDecalProxy
     {
         float EnvironmentOxygenLevel { get; }
 		float BaseMass { get; }
@@ -38,6 +40,7 @@
         /// Trigger animation event in the new animation system.
         /// If there is a transition leading from current animation state having same name as this event, 
         /// animation state machine will change state accordingly.
+        /// If not, nothing happens.
         /// </summary>
         /// <param name="eventName">Event name.</param>
         /// <param name="sync">Synchronize over network</param>

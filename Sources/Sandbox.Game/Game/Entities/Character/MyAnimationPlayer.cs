@@ -616,7 +616,7 @@ namespace Sandbox.Game.Entities
                     return;
 
                 List<MyAnimationClip.Keyframe> keyframes = ClipBone.Keyframes;
-                if (keyframes.Count == 0)
+                if (keyframes == null || Keyframe1 == null || Keyframe2 == null || keyframes.Count == 0)
                     return;
 
                 if (!m_isConst)

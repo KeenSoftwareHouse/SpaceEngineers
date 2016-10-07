@@ -146,5 +146,20 @@ namespace Sandbox.Engine.Utils
 
         public static float DEBUG_DRAW_MODEL_DUMMIES_DISTANCE = 0f;
         public static bool DEBUG_DRAW_PLANET_SECTORS = false;
+        public static bool DEBUG_DRAW_PARTICLES = false;
+
+        // Regrowth System
+        public static bool DEBUG_DRAW_REGROWTH_ACTIVE_MODULES = false;
+        public static bool DEBUG_DRAW_REGROWTH_INTERACTABLE_ENTITIES = false;
+        public static bool DEBUG_DRAW_REGROWTH_GROWTHSTEPS = false;
+        public static bool DEBUG_DRAW_REGROWTH_EVENT_PROGRESS = false;
+
+        public static bool DEBUG_DRAW_DECAY = false;
+
+        public static bool DEBUG_DRAW_OWNERSHIP_CURRENT_SECTOR = false;
+        public static bool DEBUG_DRAW_OWNERSHIP_CURRENT_ANGLES = false;
+        public static bool DEBUG_DRAW_OWNERSHIP_SECTOR_ANGLES = false;
+        public static int DEBUG_DRAW_OWNERSHIP_DRAW_DISTANCE = 1000;
+        public static bool DEBUG_DRAW_OWNERSHIP_SECTORS_STATUS = false;
     }
 }

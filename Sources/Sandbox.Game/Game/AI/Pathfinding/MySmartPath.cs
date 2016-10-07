@@ -94,17 +94,21 @@ namespace Sandbox.Game.AI.Pathfinding
             m_goal = goal;
 
             ProfilerShort.Begin("Find start primitive");
+            ProfilerShort.Begin("FindClosestPrimitive");
             m_currentPrimitive = m_pathfinding.FindClosestPrimitive(start, highLevel: false);
             if (m_currentPrimitive != null)
             {
+                ProfilerShort.BeginNextBlock("GetHighLevelPrimitive");
                 m_hlBegin = m_currentPrimitive.GetHighLevelPrimitive();
                 Debug.Assert(m_hlBegin != null, "Start primitive did not have a high-level primitive!");
 
                 if (m_hlBegin != null && !m_pathNodes.Contains(m_hlBegin))
                 {
+                    ProfilerShort.BeginNextBlock("ObservePrimitive");
                     m_hlBegin.Parent.ObservePrimitive(m_hlBegin, this);
                 }
             }
+            ProfilerShort.End();
             ProfilerShort.End();
 
             if (m_currentPrimitive == null)

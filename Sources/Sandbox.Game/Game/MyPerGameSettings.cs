@@ -82,25 +82,55 @@ namespace Sandbox.Game
     {
         UNKNOWN_GAME,
         SE_GAME,
-        ME_GAME
+        ME_GAME,
+        VRS_GAME
+    }
+
+    public struct MyBasicGameInfo
+    {
+        public int? GameVersion;
+        public string GameName;
+        /// <summary>
+        /// Game name without any spaces and generally usable for folder names.
+        /// </summary>
+        public string GameNameSafe;
+        public string ApplicationName;
+        public string GameAcronym;
+        public string MinimumRequirementsWeb;
+        public string SplashScreenImage;
+
+        public bool CheckIsSetup()
+        {
+            bool retval = true;
+
+            var fields = this.GetType().GetFields();
+            foreach (var field in fields)
+            {
+                bool fieldIsSetup = field.GetValue(this) != null;
+                Debug.Assert(fieldIsSetup, "The field " + field.Name + " of MyperGameSettings.BasicGameInfo was not initialized!");
+
+                retval = retval && fieldIsSetup;
+            }
+
+            return retval;
+        }
     }
 
     public static class MyPerGameSettings
     {
+        public static MyBasicGameInfo BasicGameInfo = new MyBasicGameInfo();
+
         public static GameEnum Game = GameEnum.UNKNOWN_GAME;
-        public static string GameName = "Unknown great game";
-        /// <summary>
-        /// Game name without any spaces and generally usable for folder names.
-        /// </summary>
-        public static string GameNameSafe = "SpaceEngineers";
+        public static string GameName { get { return BasicGameInfo.GameName; } }
+        public static string GameNameSafe { get { return BasicGameInfo.GameNameSafe; } }
         public static string GameWebUrl = "www.SpaceEngineersGame.com";
         public static string LocalizationWebUrl = "http://www.spaceengineersgame.com/localization.html";
         public static string ChangeLogUrl = "http://mirror.keenswh.com/SpaceEngineersChangelog.xml";
-        public static string MinimumRequirementsPage = "http://www.spaceengineersgame.com/system-requirements.html";
+        public static string MinimumRequirementsPage { get { return BasicGameInfo.MinimumRequirementsWeb; } }
         public static bool RequiresDX11 = false;
         public static string GameIcon;
         public static bool EnableGlobalGravity;
-        public static bool ZoomRequiresLookAroundPressed = false;
+        public static bool ZoomRequiresLookAroundPressed = true;
 
         public static bool EnablePregeneratedAsteroidHack = false;
         public static bool SendLogToKeen = true;
@@ -114,15 +144,12 @@ namespace Sandbox.Game
         public static string GA_Other_GameKey = String.Empty;
         public static string GA_Other_SecretKey = String.Empty;
 
-        public static MyPlacementSettings CreationSettings;
-        public static MyPlacementSettings BuildingSettings;
-        public static MyPlacementSettings PastingSettings;
         public static string GameModAssembly;
         public static string GameModObjBuildersAssembly;
+        public static string GameModBaseObjBuildersAssembly;
         public static string SandboxAssembly = "Sandbox.Common.dll";
         public static string SandboxGameAssembly = "Sandbox.Game.dll";
 
-        public static bool SingleCluster = false;
         public static int LoadingScreenQuoteCount = 71;
         public static bool OffsetVoxelMapByHalfVoxel = false;
 
@@ -130,8 +157,11 @@ namespace Sandbox.Game
         public static bool UseMusicController = false;
 
         public static bool UseSameSoundLimiter = false;
+        public static bool UseNewDamageEffects = false;
 
         public static bool RestrictSpectatorFlyMode = false;
+
+        public static float MaxFrameRate = 120;
 
         private static Type m_isoMesherType = typeof(MyDualContouringMesher);
         //private static Type m_isoMesherType = typeof(MyMarchingCubesMesher);
@@ -208,7 +238,6 @@ namespace Sandbox.Game
         }
 
         public static bool MultiplayerEnabled = true;
-        public static bool EnableMultiplayerVelocityCompensation = true;
         public static Type ClientStateType = typeof(MyClientState);
 
         public static bool WorkshopUseUGCEnumerate = true;
@@ -292,7 +321,7 @@ namespace Sandbox.Game
         public static bool SimplePlayerNames = false;
         public static Type CharacterDetectionComponent;
 
-        public static string BugReportUrl = "https://steamcommunity.com/openid/login?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=http%3A%2F%2Fforums.keenswh.com%2Fregister%2Fsteam%3Fredirect%3Dhttp%253A%252F%252Fforums.keenswh.com%252Fforums%252Fbug-reports.326950%252F&openid.realm=http%3A%2F%2Fforums.keenswh.com&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select";
+        public static string BugReportUrl = "http://forum.keenswh.com/forums/bug-reports.326950";
 
         public static bool EnableScenarios = false;
         public static bool EnableTutorials = false;
@@ -330,13 +359,15 @@ namespace Sandbox.Game
         public static float CharacterGravityMultiplier = 1.0f;
 
         public static bool BlockForVoxels = false;
+        public static bool AlwaysShowAvailableBlocksOnHud = false;
 
         public static float MaxAntennaDrawDistance = 500000;
 
         public static bool EnableResearch = false;
 
+        public static VRageRender.MyRenderDeviceSettings? DefaultRenderDeviceSettings;
+
         // Factions
         public static MyRelationsBetweenFactions DefaultFactionRelationship = MyRelationsBetweenFactions.Enemies;
-
     }
 }

@@ -58,6 +58,8 @@ namespace Sandbox.Game.Entities
         MyStringId ControlContext { get; }
 
         void Teleport(Vector3D pos);
+
+        MyToolbar Toolbar { get; }
     }
 
     public struct MoveInformation
@@ -71,6 +73,7 @@ namespace Sandbox.Game.Entities
     {
         PrimaryAction = 0,
         SecondaryAction = 1,
+        TertiaryAction = 2,
     }
 
     static class MyControllableEntityExtensions

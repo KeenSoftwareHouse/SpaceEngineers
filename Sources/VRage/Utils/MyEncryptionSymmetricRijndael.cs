@@ -7,7 +7,7 @@ namespace VRage.Utils
 {
     public static class MyEncryptionSymmetricRijndael
     {
-#if !BLIT
+#if !XB1
         public static string EncryptString(string inputText, string password)
         {
             if (inputText.Length <= 0) return "";

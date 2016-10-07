@@ -88,6 +88,12 @@ namespace Sandbox.Engine.Platform
             }
         }
 
+        public double TimerMultiplier
+        {
+            get { return m_gameTimer.Multiplier; }
+            set { m_gameTimer.Multiplier = value; }
+        }
+
         private bool isFirstUpdateDone;
 
         private bool isMouseVisible;
@@ -196,6 +202,12 @@ namespace Sandbox.Engine.Platform
 
             FrameTimeTicks = MyPerformanceCounter.ElapsedTicks - beforeUpdate;
 
+            if (MyFakes.PRECISE_SIM_SPEED)
+            {
+                long currentTicks = Math.Min(Math.Max(m_renderLoop.TickPerFrame, UpdateCurrentFrame()), 10 * m_renderLoop.TickPerFrame);
+                m_targetMs = (float)Math.Max(TARGET_MS_PER_FRAME,MyPerformanceCounter.TicksToMs(currentTicks));
+            }
+
             if (EnableSimSpeedLocking && MyFakes.ENABLE_SIMSPEED_LOCKING)
             {
                 Lock(beforeUpdate);
@@ -205,14 +217,14 @@ namespace Sandbox.Engine.Platform
         private void Lock(long beforeUpdate)
         {
             //maximum sim speed can be 1.0 minimum 0.01, during loading there can be peaks more than 100 ms and we dont want to lock sim speed to such values
-            long currentValue = Math.Min(Math.Max(m_renderLoop.TickPerFrame, UpdateCurrentFrame()),10*m_renderLoop.TickPerFrame);
+            long currentTicks = Math.Min(Math.Max(m_renderLoop.TickPerFrame, UpdateCurrentFrame()), 10 * m_renderLoop.TickPerFrame);
 
-            m_currentMin = Math.Max(currentValue, m_currentMin);
+            m_currentMin = Math.Max(currentTicks, m_currentMin);
             m_currentFrameIncreaseTime += m_targetMs;
 
-            if (currentValue > m_targetTicks)
+            if (currentTicks > m_targetTicks)
             {
-                m_targetTicks = currentValue;
+                m_targetTicks = currentTicks;
                 m_currentFrameIncreaseTime = 0;
                 m_currentMin = 0;
                 m_targetMs = (float)MyPerformanceCounter.TicksToMs(m_targetTicks);

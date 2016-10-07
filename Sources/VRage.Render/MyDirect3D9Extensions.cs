@@ -49,7 +49,7 @@ namespace VRageRender
             const int GET_SURFACE_LEVEL = 18;
             IntPtr result = IntPtr.Zero;
             IntPtr resultPointer = new IntPtr((void*)&result); // We need address of pointer, because it's out pointer
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
             ((Result)NativeCall<int>.Method<int, IntPtr>(texture.NativePointer, GET_SURFACE_LEVEL, level, resultPointer)).CheckError();
@@ -61,7 +61,7 @@ namespace VRageRender
         {
             using (var surface = GetSurface(renderTargetTexture, level))
             {
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
                 const int SET_RENDER_TARGET = 37;
@@ -74,7 +74,7 @@ namespace VRageRender
         {
             using (var surface = GetSurface(depthTexture, level))
             {
-#if BLIT
+#if XB1
 			Debug.Assert(false);
 #else
                 const int SET_DEPTH_STENCIL = 39;

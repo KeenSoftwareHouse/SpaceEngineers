@@ -14,6 +14,8 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+#if !XB1_TMP
+
     [MyDebugScreen("Game", "Planets")]
     class MyGuiScreenDebugPlanets : MyGuiScreenDebugBase
     {
@@ -100,4 +102,6 @@ namespace Sandbox.Game.Screens.DebugScreens
            // MyClipmap.UpdateLodRanges(lods);
         }
     }
+
+#endif
 }

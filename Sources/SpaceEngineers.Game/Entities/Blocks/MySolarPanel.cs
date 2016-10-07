@@ -6,7 +6,7 @@ using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.ModAPI;
@@ -16,7 +16,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SolarPanel))]
-    class MySolarPanel : MyTerminalBlock, IMySolarPanel
+    public class MySolarPanel : MyFunctionalBlock, IMySolarPanel
     {
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
@@ -85,7 +85,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], Color.Black, 0);
+                    UpdateNamedEmissiveParts(Render.RenderObjectIDs[0], m_emissiveNames[i], Color.Red, 0);
                 }
                 return;
             }
@@ -114,6 +114,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
             UpdateEmissivity();
         }
 
+        protected override void OnEnabledChanged()
+        {
+            UpdateEmissivity();
+            base.OnEnabledChanged();
+        }
+
         public override void UpdateVisual()
         {
             base.UpdateVisual();
@@ -135,6 +141,16 @@ namespace SpaceEngineers.Game.Entities.Blocks
 			UpdateDisplay();
         
             RaisePropertiesChanged();
+        }
+
+        protected override void Closing()
+        {
+            base.Closing();
+            if (m_soundEmitter != null)
+            {
+                m_soundEmitter.StopSound(true);
+                m_soundEmitter = null;
+            }
         }
 
         public override void SetDamageEffect(bool show)

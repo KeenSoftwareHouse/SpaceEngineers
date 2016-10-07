@@ -113,8 +113,26 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         bool m_converted = false;
 
-        static MyLandingGear()
+        public MyLandingGear()
         {
+            CreateTerminalControls();
+
+            m_physicsChangedHandler = new Action<IMyEntity>(PhysicsChanged);
+            m_attachedState.ValidateNever();
+            m_attachedState.ValueChanged += x => AttachedValueChanged();
+            m_autoLock.ValueChanged += x => AutolockChanged();
+
+            m_breakForceSync.ValueChanged += x => BreakForceChanged();
+
+            m_lockModeSync.ValidateNever();
+            m_lockModeSync.ValueChanged += x => OnLockModeChanged();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyLandingGear>())
+                return;
+
             var stateWriter = new MyTerminalControl<MyLandingGear>.WriterDelegate((b, sb) => b.WriteLockStateValue(sb));
 
             var lockBtn = new MyTerminalControlButton<MyLandingGear>("Lock", MySpaceTexts.BlockActionTitle_Lock, MySpaceTexts.Blank, (b) => b.RequestLandingGearLock());
@@ -155,19 +173,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 brakeForce.EnableActions();
                 MyTerminalControlFactory.AddControl(brakeForce);
             }
-        }
-
-        public MyLandingGear()
-        {
-            m_physicsChangedHandler = new Action<IMyEntity>(PhysicsChanged);
-            m_attachedState.ValidateNever();
-            m_attachedState.ValueChanged += x => AttachedValueChanged();
-            m_autoLock.ValueChanged += x => AutolockChanged();
-
-            m_breakForceSync.ValueChanged += x => BreakForceChanged();
-
-            m_lockModeSync.ValidateNever();
-            m_lockModeSync.ValueChanged += x => OnLockModeChanged();
         }
 
         void OnLockModeChanged()
@@ -663,7 +668,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 //hack for floating objects (they can be on different position on server and client and have scale !!!)
                 if ((body is MyFloatingObject) == false)
                 {
-                    WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, body.WorldMatrix);
+                    CubeGrid.WorldMatrix = MatrixD.Multiply(state.MasterToSlave.Value, body.WorldMatrix);
                 }
 
                 Attach(body, state.GearPivotPosition.Value, state.OtherPivot.Value.Matrix);
@@ -887,7 +892,15 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 //temporary fix by Gregory for the Landing gears do not want to lock bug. This should be check further though
             }
             else if (entity.Physics == null)
-            {
+            {        
+                if (LockMode == LandingGearMode.Locked)
+                {
+                    if (Sync.IsServer)
+                    {
+                        m_needsToRetryLock = true;
+                    }
+                }
+
                 Detach();
             }
             else if (LockMode == LandingGearMode.Locked)
@@ -1055,6 +1068,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (Sync.IsServer)
             {
+             
                 CubeGrid.OnGridSplit -= CubeGrid_OnGridSplit;
             }
         }
@@ -1066,6 +1080,23 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             if (Sync.IsServer)
             {
+
+                if (m_attachedState.Value.OtherEntityId.HasValue)
+                {
+                    if (this.CubeGrid.Physics == null)
+                    {
+                        m_needsToRetryLock = true;
+                    }
+                    else
+                    {
+                        RetryLockServer();
+                        var state = m_attachedState.Value;
+                        state.Force = true;
+                        m_attachedState.Value = state;
+                    }
+                }
+
+                
                 CubeGrid.OnGridSplit += CubeGrid_OnGridSplit;
             }
         }
@@ -1073,6 +1104,13 @@ namespace SpaceEngineers.Game.Entities.Blocks
         protected void CubeGrid_OnGridSplit(MyCubeGrid grid1, MyCubeGrid grid2)
         {
             ResetLockConstraint(true,true);
+            if (m_attachedState.Value.OtherEntityId.HasValue)
+            {
+                RetryLockClient();
+                var state = m_attachedState.Value;
+                state.Force = true;
+                m_attachedState.Value = state;
+            }
         }
       
     }

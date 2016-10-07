@@ -66,6 +66,11 @@ namespace VRage.Animations
             GetInterpolatedKeys(overallTime, default(W), multiplier, interpolatedKeys);
         }
 
+        public override bool Is2D
+        {
+            get { return true; }
+        }
+
         public void GetInterpolatedKeys(float overallTime, W variance, float multiplier, IMyAnimatedProperty interpolatedKeysOb)
         {
             T previousKeys, nextKeys;
@@ -141,6 +146,20 @@ namespace VRage.Animations
             }
         }
 
+        public override void DeserializeFromObjectBuilder(GenerationProperty property)
+        {
+            m_name = property.Name;
+
+            m_keys.Clear();
+
+            foreach (var key in property.Keys)
+            {
+                T value = new T();
+                value.DeserializeFromObjectBuilder_Animation(key.Value2D, property.Type);
+
+                AddKey<T>(key.Time, value);
+            }
+        }
     }
 
     #endregion
@@ -156,6 +175,11 @@ namespace VRage.Animations
         public MyAnimatedProperty2DFloat(string name, MyAnimatedProperty<float>.InterpolatorDelegate interpolator)
             : base(name, interpolator)
         {
+        }
+
+        public override string ValueType
+        {
+            get { return "Float"; }
         }
 
         public override void DeserializeValue(XmlReader reader, out object value)
@@ -192,6 +216,11 @@ namespace VRage.Animations
         public MyAnimatedProperty2DInt(string name, MyAnimatedProperty<int>.InterpolatorDelegate interpolator)
             : base(name, interpolator)
         {
+        }
+
+        public override string ValueType
+        {
+            get { return "Int"; }
         }
 
         public override void DeserializeValue(XmlReader reader, out object value)
@@ -231,6 +260,11 @@ namespace VRage.Animations
         public MyAnimatedProperty2DEnum(string name, Type enumType, List<string> enumStrings)
             : this(name, null, enumType, enumStrings)
         { }
+
+        public override string BaseValueType
+        {
+            get { return "Enum"; }
+        }
 
         public MyAnimatedProperty2DEnum(string name, MyAnimatedProperty<int>.InterpolatorDelegate interpolator, Type enumType, List<string> enumStrings)
             : base(name, interpolator)
@@ -278,6 +312,11 @@ namespace VRage.Animations
         {
         }
 
+        public override string ValueType
+        {
+            get { return "Vector3"; }
+        }
+
         public override void DeserializeValue(XmlReader reader, out object value)
         {
             MyAnimatedPropertyVector3 prop = new MyAnimatedPropertyVector3(this.Name, false, m_interpolator2);
@@ -314,6 +353,11 @@ namespace VRage.Animations
         public MyAnimatedProperty2DVector4(string name, MyAnimatedProperty<Vector4>.InterpolatorDelegate interpolator)
             : base(name, null)
         {
+        }
+
+        public override string ValueType
+        {
+            get { return "Vector4"; }
         }
 
         public override void DeserializeValue(XmlReader reader, out object value)

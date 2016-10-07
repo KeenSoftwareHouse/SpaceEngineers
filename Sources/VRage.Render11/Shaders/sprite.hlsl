@@ -46,11 +46,14 @@ void __vertex_shader(
 	output.position.zw = float2(0, 1);
 
 	output.texcoord0 = quad_uv * input.texcoord_offset_scale.zw + input.texcoord_offset_scale.xy;
-	output.color = input.color;
+    output.color = srgba_to_rgba(input.color);
+    output.color.rgb *= output.color.a;
 }
 
 
-void __pixel_shader(ProcessedVertex input, out float4 output : SV_Target0) {
+void __pixel_shader(ProcessedVertex input, out float4 output : SV_Target0) 
+{
 	float4 sample = SpriteTexture.Sample(TextureSampler, input.texcoord0);
-	output = float4(sample.xyz * srgb_to_rgb(input.color.xyz), sample.w * input.color.w);
+    sample.rgb *= sample.a;
+	output = sample * input.color;
 }

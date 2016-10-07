@@ -58,7 +58,7 @@ namespace VRage
 
         #region string manipulation
 
-#if BLIT
+#if XB1
         private IEnumerable<String> SplitArgsSelector2(String[] element)
         {
             return element;
@@ -68,7 +68,7 @@ namespace VRage
         //Splits by spaces unless in quotes, in which case we remove the quotes
         public List<string> SplitArgs(string input)
         {
-#if BLIT
+#if XB1
             string[] splitted = input.Split('"');
             IEnumerable<String[]> selected = splitted.Select((element, index) => index % 2 == 0
                                                             ? element.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)

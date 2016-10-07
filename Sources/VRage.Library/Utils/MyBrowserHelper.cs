@@ -10,7 +10,7 @@ namespace VRage.Library.Utils
         public const string IE_PROCESS = "IExplore.exe";
         public static bool OpenInternetBrowser(string url)
         {
-#if BLIT
+#if XB1
 			return true;
 #else
 			try

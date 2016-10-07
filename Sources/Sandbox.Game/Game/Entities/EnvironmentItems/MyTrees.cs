@@ -28,6 +28,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
+using VRage.ObjectBuilders.Definitions;
 
 namespace Sandbox.Game.Entities.EnvironmentItems
 {
@@ -69,7 +70,6 @@ namespace Sandbox.Game.Entities.EnvironmentItems
                 if (MyParticlesManager.TryCreateParticleEffect(effectId, out effect))
                 {
                     effect.WorldMatrix = MatrixD.CreateWorld(position, Vector3.CalculatePerpendicularVector(normal), normal);
-                    effect.AutoDelete = true;
                 }
             }
 
@@ -117,12 +117,13 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             return;
         }
 
-		public static bool IsEntityFracturedTree(VRage.ModAPI.IMyEntity entity)
-		{
-			return (entity is MyFracturedPiece) && ((MyFracturedPiece)entity).OriginalBlocks != null && ((MyFracturedPiece)entity).OriginalBlocks.Count > 0
-				&& (((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_Tree)
-				|| ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_DestroyableItem)) && ((MyFracturedPiece)entity).Physics != null;
-		}
+        public static bool IsEntityFracturedTree(VRage.ModAPI.IMyEntity entity)
+        {
+            return (entity is MyFracturedPiece) && ((MyFracturedPiece)entity).OriginalBlocks != null && ((MyFracturedPiece)entity).OriginalBlocks.Count > 0
+                && (((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_Tree)
+                || ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_DestroyableItem)
+                || ((MyFracturedPiece)entity).OriginalBlocks[0].TypeId == typeof(MyObjectBuilder_TreeDefinition)) && ((MyFracturedPiece)entity).Physics != null;
+        }
 
         protected override void OnRemoveItem(int instanceId, ref Matrix matrix, MyStringHash myStringId, int userData)
         {
@@ -308,7 +309,7 @@ namespace Sandbox.Game.Entities.EnvironmentItems
             //compound.SetMassRecursively(500);
             //compound.SetStrenghtRecursively(5000, 0.7f);
 
-            var fp = MyDestructionHelper.CreateFracturePiece(compound, MyPhysics.SingleWorld.DestructionWorld, ref worldMatrix, containsFixedChildren, itemDefinition.Id, true);
+            var fp = MyDestructionHelper.CreateFracturePiece(compound, ref worldMatrix, containsFixedChildren, itemDefinition.Id, true);
             if (fp != null && !canContainFixedChildren)
             {
                 ApplyImpulseToTreeFracture(ref worldMatrix, ref hitNormal, shapeList, ref compound, fp, forceMultiplier);

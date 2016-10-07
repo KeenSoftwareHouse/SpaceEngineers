@@ -19,7 +19,7 @@ using System.Reflection;
 
 namespace LitJson
 {
-#if !BLIT
+#if !XB1
     internal struct PropertyMetadata
     {
         public MemberInfo Info;

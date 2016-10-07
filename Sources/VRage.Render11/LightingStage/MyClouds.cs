@@ -113,7 +113,7 @@ namespace VRageRender
             float angularVelocity,
             float radiansAroundAxis)
         {
-            MeshId mesh = MyMeshes.GetMeshId(X.TEXT_(model));
+            MeshId mesh = MyMeshes.GetMeshId(X.TEXT_(model), 1.0f);
             MyCloudLayer.MyCloudTextureInfo textureInfo;
             if (textures != null && textures.Count > 0) // TODO: Multiple textures
             {
@@ -183,7 +183,7 @@ namespace VRageRender
             m_cloudLayers.OrderByDescending(x =>
             {
                 MyCloudLayer cloudLayer = x.Value;
-                Vector3D cameraToLayer = cloudLayer.CenterPoint - MyEnvironment.CameraPosition;
+                Vector3D cameraToLayer = cloudLayer.CenterPoint - MyRender11.Environment.CameraPosition;
                 Vector3D layerToCameraDirection = -Vector3D.Normalize(cameraToLayer);
                 return (cameraToLayer + layerToCameraDirection * cloudLayer.Altitude).Length();
             });
@@ -201,7 +201,7 @@ namespace VRageRender
 
                 double scaledAltitude = cloudLayer.Value.Altitude;
                 Vector3D centerPoint = cloudLayer.Value.CenterPoint;
-                Vector3D cameraPosition = MyEnvironment.CameraPosition;
+                Vector3D cameraPosition = MyRender11.Environment.CameraPosition;
                 double cameraDistanceFromCenter = (centerPoint - cameraPosition).Length();
 
                 if (cloudLayer.Value.ScalingEnabled)
@@ -215,7 +215,7 @@ namespace VRageRender
 
                 MatrixD worldMatrix = MatrixD.CreateScale(scaledAltitude) * MatrixD.CreateFromAxisAngle(cloudLayer.Value.RotationAxis, (float)modifiableData.RadiansAroundAxis);
                 worldMatrix.Translation = cloudLayer.Value.CenterPoint;
-                worldMatrix.Translation -= MyEnvironment.CameraPosition;
+                worldMatrix.Translation -= MyRender11.Environment.CameraPosition;
 
                 float layerAlpha = 1.0f;
 
@@ -233,7 +233,7 @@ namespace VRageRender
 
                 var constants = new CloudsConstants();
                 constants.World = MatrixD.Transpose(worldMatrix);
-                constants.ViewProj = MatrixD.Transpose(MyEnvironment.ViewProjectionAt0);
+                constants.ViewProj = MatrixD.Transpose(MyRender11.Environment.ViewProjectionAt0);
                 constants.Color = layerColor;
 
                 var mapping = MyMapping.MapDiscard(cb);
@@ -265,7 +265,7 @@ namespace VRageRender
         private static void FindClosestClouds(List<uint> indexList)
         {
             m_closestCloudsIndexList.Clear();
-            Vector3D cameraPosition = MyEnvironment.CameraPosition;
+            Vector3D cameraPosition = MyRender11.Environment.CameraPosition;
 
             foreach (KeyValuePair<uint, MyCloudLayer> cloudLayer in m_cloudLayers)
             {
@@ -290,7 +290,7 @@ namespace VRageRender
 
             immediateContext.BindSRV(0, MyGBuffer.Main.DepthStencil.Depth);
 
-            Vector3D cameraPosition = MyEnvironment.CameraPosition;
+            Vector3D cameraPosition = MyRender11.Environment.CameraPosition;
             foreach (var cloudLayerIndex in m_closestCloudsIndexList)
             {
                 var cloudLayer = m_cloudLayers[cloudLayerIndex];

@@ -1,23 +1,19 @@
 ﻿using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 namespace VRage.Game.ModAPI.Interfaces
 {
     public interface IMyDecalProxy
     {
         /// <param name="hitInfo">Hithinfo on world coordinates</param>
-        /// <param name="renderable">Position and normal on local coordinates for regular actors.
-        /// World position on voxel maps. NB: To be changed</param>
-        void GetDecalRenderData(MyHitInfo hitInfo, out MyDecalRenderData renderable);
-        void OnAddDecal(uint decalId, ref MyDecalRenderData renderable);
+        void AddDecals(MyHitInfo hitInfo, MyStringHash source, object customdata, IMyDecalHandler decalHandler);
     }
 
-    public struct MyDecalRenderData
+    public interface IMyDecalHandler
     {
-        public bool Skip;
-        public Vector3 Position;
-        public Vector3 Normal;
-        public int RenderObjectId;
-        public MyStringHash Material;
+        /// <param name="renderData">Position and normal on local coordinates for regular actors.
+        /// World position on voxel maps</param>
+        uint? AddDecal(ref MyDecalRenderInfo renderInfo);
     }
 }

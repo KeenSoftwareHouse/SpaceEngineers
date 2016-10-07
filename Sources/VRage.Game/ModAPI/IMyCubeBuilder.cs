@@ -7,7 +7,7 @@ namespace VRage.Game.ModAPI
         /// <summary>
         /// Activates the building mode
         /// </summary>
-        void Activate();
+        void Activate(MyDefinitionId? blockDefinitionId = null);
         
         /// <summary>
         /// Adds construction site of block with currently selected definition
@@ -15,15 +15,10 @@ namespace VRage.Game.ModAPI
         /// <param name="buildingEntity"></param>
         bool AddConstruction(IMyEntity buildingEntity);
 
-        /// <summary>
+        ///<summary>
         /// Returns state of building mode
-        /// </summary>
+        ///</summary>
         bool BlockCreationIsActivated { get; }
-
-        /// <summary>
-        /// Returns state of copy pasting mode
-        /// </summary>
-        bool CopyPasteIsActivated { get; }
 
         /// <summary>
         /// Deactivates all modes
@@ -36,24 +31,9 @@ namespace VRage.Game.ModAPI
         void DeactivateBlockCreation();
 
         /// <summary>
-        /// Deactivates copy pasting mode
-        /// </summary>
-        void DeactivateCopyPaste();
-
-        /// <summary>
-        /// Deactivates creating grids
-        /// </summary>
-        void DeactivateShipCreationClipboard();
-
-        /// <summary>
         /// Freezes the built object preview in current position
         /// </summary>
         bool FreezeGizmo { get; set; }
-
-        /// <summary>
-        /// Current stat of grid creation mode
-        /// </summary>
-        bool ShipCreationIsActivated { get; }
 
         /// <summary>
         /// Shows the delete area preview

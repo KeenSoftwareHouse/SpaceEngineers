@@ -53,11 +53,12 @@ using VRage.Game.Definitions;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI;
-using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Scripting;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Screens;
+using VRage.Game.ObjectBuilder;
 
 #endregion
 
@@ -230,12 +231,8 @@ namespace Sandbox
             ProfilerShort.BeginNextBlock("MyTexts.Init()");
             MyLanguage.Init();
 
-            ProfilerShort.BeginNextBlock("MyObjectBuilderType.RegisterAssemblies()");
-            bool registerAssembliesSuccess = MyObjectBuilderType.RegisterAssemblies();
-            Debug.Assert(registerAssembliesSuccess, "Failed to load object builder types (set links to assemblies?).");
-            ProfilerShort.BeginNextBlock("MyObjectBuilderSerializer.RegisterAssembliesAndLoadSerializers()");
-            registerAssembliesSuccess = MyObjectBuilderSerializer.RegisterAssembliesAndLoadSerializers();
-            Debug.Assert(registerAssembliesSuccess, "Failed to load serializers (set links to assemblies?).");
+            ProfilerShort.BeginNextBlock("MyGlobalTypeMetadata.Static.Init();");
+            MyGlobalTypeMetadata.Static.Init();
 
             ProfilerShort.BeginNextBlock("MyDefinitionManager.LoadScenarios");
             MyDefinitionManager.Static.LoadScenarios();
@@ -450,11 +447,11 @@ namespace Sandbox
             MyGuiGameControlsHelpers.Add(MyControlsSpace.SPECTATOR_FREE, new MyGuiDescriptor(MyCommonTexts.SpectatorControls_Free, MySpaceTexts.SpectatorControls_Free_Desc));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.SPECTATOR_STATIC, new MyGuiDescriptor(MyCommonTexts.SpectatorControls_Static, MySpaceTexts.SpectatorControls_Static_Desc));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.TOGGLE_HUD, new MyGuiDescriptor(MyCommonTexts.ControlName_HudOnOff));
-            //MyGuiGameControlsHelpers.Add(MyControlsSpace.VOXEL_HAND_SETTINGS, new MyGuiDescriptor(MyCommonTexts.ControlName_VoxelHandSettings));
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.VOXEL_HAND_SETTINGS, new MyGuiDescriptor(MyCommonTexts.ControlName_VoxelHandSettings));
             MyGuiGameControlsHelpers.Add(MyControlsSpace.CONTROL_MENU, new MyGuiDescriptor(MyCommonTexts.ControlName_ControlMenu));
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
                 MyGuiGameControlsHelpers.Add(MyControlsSpace.MISSION_SETTINGS, new MyGuiDescriptor(MySpaceTexts.ControlName_MissionSettings));
-            MyGuiGameControlsHelpers.Add(MyControlsSpace.STATION_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
+            MyGuiGameControlsHelpers.Add(MyControlsSpace.FREE_ROTATION, new MyGuiDescriptor(MySpaceTexts.StationRotation_Static, MySpaceTexts.StationRotation_Static_Desc));
 
             Dictionary<MyStringId, MyControl> defaultGameControls = new Dictionary<MyStringId, MyControl>(MyStringId.Comparer);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Navigation, MyControlsSpace.FORWARD, null, MyKeys.W);
@@ -505,11 +502,11 @@ namespace Sandbox
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CUBE_COLOR_CHANGE, MyMouseButtonsEnum.Middle, null);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.SYMMETRY_SWITCH, null, MyKeys.M);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.USE_SYMMETRY, null, MyKeys.N);
-            //AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.VOXEL_HAND_SETTINGS, null, MyKeys.H);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.VOXEL_HAND_SETTINGS, null, MyKeys.K);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.CONTROL_MENU);
             if (MyFakes.ENABLE_MISSION_TRIGGERS)
-                AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.MISSION_SETTINGS, null, MyKeys.U);
-            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.STATION_ROTATION, null, MyKeys.B);
+                AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems2, MyControlsSpace.MISSION_SETTINGS, null, MyKeys.U);
+            AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.Systems3, MyControlsSpace.FREE_ROTATION, null, MyKeys.B);
 
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT1, null, MyKeys.D1);
             AddDefaultGameControl(defaultGameControls, MyGuiControlTypeEnum.ToolsOrWeapons, MyControlsSpace.SLOT2, null, MyKeys.D2);
@@ -533,8 +530,11 @@ namespace Sandbox
 
             MyInput.Initialize(IsDedicated
                 ? (VRage.Input.IMyInput)new MyNullInput()
+#if !XB1
                 : (VRage.Input.IMyInput)new MyDirectXInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
-
+#else
+                : (VRage.Input.IMyInput)new MyXInputInput(m_bufferedInputSource, new MyKeysToString(), defaultGameControls, !MyFinalBuildConstants.IS_OFFICIAL));
+#endif
             MySpaceBindingCreator.CreateBinding();
         }
 
@@ -592,6 +592,8 @@ namespace Sandbox
         private void ParseArgs(string[] args)
         {
             MyPlugins.RegisterGameAssemblyFile(MyPerGameSettings.GameModAssembly);
+            if (MyPerGameSettings.GameModBaseObjBuildersAssembly != null)
+                MyPlugins.RegisterBaseGameObjectBuildersAssemblyFile(MyPerGameSettings.GameModBaseObjBuildersAssembly);
             MyPlugins.RegisterGameObjectBuildersAssemblyFile(MyPerGameSettings.GameModObjBuildersAssembly);
             MyPlugins.RegisterSandboxAssemblyFile(MyPerGameSettings.SandboxAssembly);
             MyPlugins.RegisterSandboxGameAssemblyFile(MyPerGameSettings.SandboxGameAssembly);
@@ -686,7 +688,8 @@ namespace Sandbox
 
                         if (MySession.IsCompatibleVersion(checkpoint))
                         {
-                            if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
+                            MySteamWorkshop.ResultData result =  MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods);
+                            if (result.Success)
                             {
                                 MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
                                 if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
@@ -723,7 +726,7 @@ namespace Sandbox
 
                             if (MySession.IsCompatibleVersion(checkpoint))
                             {
-                                if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods))
+                                if (MySteamWorkshop.DownloadWorldModsBlocking(checkpoint.Mods).Success)
                                 {
                                     MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Load);
                                     if (MyFakes.ENABLE_BATTLE_SYSTEM && ConfigDedicated.SessionSettings.Battle)
@@ -781,7 +784,7 @@ namespace Sandbox
                             }
                         }
 
-                        if (MySteamWorkshop.DownloadWorldModsBlocking(mods))
+                        if (MySteamWorkshop.DownloadWorldModsBlocking(mods).Success)
                         {
                             MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
 
@@ -978,7 +981,7 @@ namespace Sandbox
 
         protected virtual void StartRenderComponent(MyRenderDeviceSettings? settingsToTry)
         {
-            GameRenderComponent.Start(m_gameTimer, InitializeRenderThread, settingsToTry, MyRenderQualityEnum.NORMAL);
+            GameRenderComponent.Start(m_gameTimer, InitializeRenderThread, settingsToTry, MyRenderQualityEnum.NORMAL, MyPerGameSettings.MaxFrameRate);
             GameRenderComponent.RenderThread.SizeChanged += RenderThread_SizeChanged;
             GameRenderComponent.RenderThread.BeforeDraw += RenderThread_BeforeDraw;
         }
@@ -991,7 +994,7 @@ namespace Sandbox
             ScreenSizeHalf = new Vector2I(ScreenSize.X / 2, ScreenSize.Y / 2);
             ScreenViewport = viewport;
 
-            MyGuiManager.UpdateScreenSize(MySandboxGame.ScreenSize, MySandboxGame.ScreenSizeHalf, MyVideoSettingsManager.IsTripleHead());
+            MyGuiManager.UpdateScreenSize(MySandboxGame.ScreenSize, MySandboxGame.ScreenSizeHalf, MyVideoSettingsManager.IsTripleHead(MySandboxGame.ScreenSize));
             MyScreenManager.RecreateControls();
 
             if (MySector.MainCamera != null)
@@ -1001,6 +1004,7 @@ namespace Sandbox
             ProfilerShort.End();
 
             CanShowHotfixPopup = true;
+            CanShowWhitelistPopup = true;
         }
 
         /// <summary>
@@ -1179,6 +1183,8 @@ namespace Sandbox
         {
             Sandbox.Engine.Multiplayer.MyMultiplayer.InitOfflineReplicationLayer();
 
+            MyMath.InitializeFastSin();
+
             try
             {
                 MyDefinitionManager.Static.PrepareBaseDefinitions();
@@ -1248,17 +1254,27 @@ namespace Sandbox
             }
         }
 
+        private static bool ShowWhitelistPopup = false;
+        private static bool CanShowWhitelistPopup = false;
         private static bool ShowHotfixPopup = false;
         private static bool CanShowHotfixPopup = false;
         private void InitModAPI()
         {
             try
             {
-                InitIlChecker();
                 InitIlCompiler();
+                InitIlChecker();
             }
-            catch
+            catch (MyWhitelistException e)
             {
+                // Malware: I still believe these exceptions should simply be rethrown,
+                // but Deepflame requested this solution, so that's what he gets.
+                Log.Error("Mod API Whitelist Integrity: {0}", e.Message);
+                ShowWhitelistPopup = true;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error during ModAPI initialization: {0}", e.Message);
                 ShowHotfixPopup = true;
             }
         }
@@ -1266,6 +1282,11 @@ namespace Sandbox
         private static void OnDotNetHotfixPopupClosed(MyGuiScreenMessageBox.ResultEnum result)
         {
             System.Diagnostics.Process.Start("https://support.microsoft.com/kb/3120241");
+            ClosePopup(result);
+        }
+
+        private static void OnWhitelistIntegrityPopupClosed(MyGuiScreenMessageBox.ResultEnum result)
+        {
             ClosePopup(result);
         }
 
@@ -1289,22 +1310,179 @@ namespace Sandbox
 
             Log.DecreaseIndent();
             if (MyFakes.ENABLE_SCRIPTS_PDB)
-                IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
+            {
+                if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                    MyScriptCompiler.Static.EnableDebugInformation = true;
+                else
+                    IlCompiler.Options.CompilerOptions = string.Format("/debug {0}", IlCompiler.Options.CompilerOptions);
+            }
         }
 
         internal static void InitIlChecker()
         {
-
             if (GameCustomInitialization != null)
                 GameCustomInitialization.InitIlChecker();
 
+            if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+            {
+                using (var handle = MyScriptCompiler.Static.Whitelist.OpenBatch())
+                {
+                    handle.AllowNamespaceOfTypes(MyWhitelistTarget.Both,
+                        typeof(System.Collections.Generic.ListExtensions),
+                        typeof(VRage.Game.ModAPI.Ingame.IMyCubeBlock),
+                        typeof(Sandbox.ModAPI.Ingame.IMyTerminalBlock),
+                        typeof(VRageMath.Vector3)
+                        );
+
+                    handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
+                        typeof(Sandbox.ModAPI.MyAPIUtilities),
+                        typeof(VRage.Game.ModAPI.IMyCubeBlock),
+                        typeof(Sandbox.ModAPI.MyAPIGateway),
+                        typeof(VRage.Game.ModAPI.Interfaces.IMyCameraController),
+                        typeof(VRage.ModAPI.IMyEntity),
+                        typeof(VRage.Game.Entity.MyEntity),
+                        typeof(Sandbox.Game.Entities.MyEntityExtensions),
+                        typeof(VRage.Game.EnvironmentItemsEntry),
+                        typeof(Sandbox.Common.ObjectBuilders.MyObjectBuilder_AdvancedDoor),
+                        typeof(Sandbox.Common.ObjectBuilders.Definitions.MyObjectBuilder_AdvancedDoorDefinition),
+                        typeof(VRage.ObjectBuilders.MyObjectBuilder_Base),
+                        typeof(VRage.Game.Components.MyIngameScript),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent)
+                        );
+
+                    // space & medieval object builders/definition object builders. Move to game dlls when sandbox's finally gone.
+                    handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
+                        typeof(VRage.Game.ObjectBuilders.MyObjectBuilder_EntityStatRegenEffect)
+                        );
+
+                    handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
+                        typeof(Sandbox.Game.MyStatLogic),
+                        typeof(VRage.SerializableVector3),
+                        typeof(Sandbox.Definitions.MyDefinitionManager),
+                        typeof(VRage.MyFixedPoint),
+                        typeof(VRage.Collections.ListReader<>),
+                        typeof(VRage.Voxels.MyStorageData),
+                        typeof(VRage.Utils.MyEventArgs),
+                        typeof(VRage.Library.Utils.MyGameTimer),
+                        typeof(Sandbox.Game.Lights.MyLight),
+                        typeof(Sandbox.ModAPI.Weapons.IMyAutomaticRifleGun)
+                        );
+
+                    // This partial whitelisting need to have its own modapi interface
+                    handle.AllowMembers(MyWhitelistTarget.ModApi,
+                        typeof(MySpectatorCameraController).GetProperty("IsLightOn")
+                        );
+
+                    // Hoooboy... the entire namespace for this one is already whitelisted. NOT good.
+                    //handle.AllowMembers(WhitelistTarget.Both,
+                    //    typeof(MyObjectBuilderSerializer).GetMethod("CreateNewObject", new[] { typeof(MyObjectBuilderType) }),
+                    //    typeof(MyObjectBuilderSerializer).GetMethod("CreateNewObject", new[] { typeof(SerializableDefinitionId) }),
+                    //    typeof(MyObjectBuilderSerializer).GetMethod("CreateNewObject", new[] { typeof(string) }),
+                    //    typeof(MyObjectBuilderSerializer).GetMethod("CreateNewObject", new[] { typeof(MyObjectBuilderType), typeof(string) })
+                    //    );
+
+                    handle.AllowTypes(MyWhitelistTarget.Both,
+                        typeof(Sandbox.Game.Gui.TerminalActionExtensions),
+                        typeof(Sandbox.ModAPI.Interfaces.ITerminalAction),
+                        typeof(Sandbox.ModAPI.Interfaces.ITerminalProperty),
+                        typeof(Sandbox.ModAPI.Interfaces.ITerminalProperty<>),
+                        typeof(Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions),
+                        typeof(Sandbox.Game.Localization.MySpaceTexts),
+                        typeof(VRage.MyTexts)
+                        );
+
+                    #region Input
+                    // Access to Input
+                    handle.AllowNamespaceOfTypes(MyWhitelistTarget.ModApi,
+                        typeof(VRage.ModAPI.IMyInput));
+
+                    handle.AllowTypes(MyWhitelistTarget.ModApi,
+                        typeof(VRage.Input.MyInputExtensions),
+                        typeof(VRage.Input.MyKeys),
+                        typeof(VRage.Input.MyJoystickAxesEnum),
+                        typeof(VRage.Input.MyJoystickButtonsEnum),
+                        typeof(VRage.Input.MyMouseButtonsEnum),
+                        typeof(VRage.Input.MySharedButtonsEnum),
+                        typeof(VRage.Input.MyGuiControlTypeEnum),
+                        typeof(VRage.Input.MyGuiInputDeviceEnum)
+                    );
+                    #endregion
+
+                    #region Power/Gas Resources
+
+                    // Allow resource checking in ingame script
+                    // Get the generic overloaded TryGet method
+                    var tryGetGeneric = from method in typeof(VRage.Game.Components.MyComponentContainer).GetMethods()
+                        where method.Name == "TryGet" &&
+                              method.ContainsGenericParameters &&
+                              method.GetParameters().Length == 1
+                        select method;
+                    Debug.Assert(tryGetGeneric.Count() == 1);
+
+                    handle.AllowMembers(MyWhitelistTarget.Both,
+                        tryGetGeneric.FirstOrDefault(),
+                        typeof(MyComponentContainer).GetMethod("Has"),
+                        typeof(MyComponentContainer).GetMethod("Get"),
+                        typeof(MyComponentContainer).GetMethod("TryGet", new[] { typeof(Type), typeof(VRage.Game.Components.MyComponentBase).MakeByRefType() })
+                        );
+
+                    handle.AllowTypes(MyWhitelistTarget.Ingame,
+                        typeof(VRage.Collections.ListReader<>),
+                        typeof(VRage.Game.MyDefinitionId),
+                        typeof(VRage.Game.Components.MyResourceSourceComponentBase),
+                        typeof(VRage.Game.ObjectBuilders.Definitions.MyObjectBuilder_GasProperties),
+                        typeof(VRage.ObjectBuilders.MyObjectBuilder_Base),
+                        typeof(MyComponentBase),
+                        typeof(SerializableDefinitionId)
+                        );
+
+                    handle.AllowMembers(MyWhitelistTarget.Ingame,
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent).GetProperty("CurrentOutput"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent).GetProperty("MaxOutput"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent).GetProperty("DefinedOutput"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent).GetProperty("ProductionEnabled"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent).GetProperty("RemainingCapacity"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent).GetProperty("HasCapacityRemaining"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent).GetProperty("AcceptedResources"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent).GetProperty("RequiredInput"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent).GetProperty("SuppliedRatio"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent).GetProperty("CurrentInput"),
+                        typeof(Sandbox.Game.EntityComponents.MyResourceSinkComponent).GetProperty("IsPowered"),
+                        typeof(MyResourceSinkComponentBase).GetProperty("AcceptedResources"),
+                        typeof(MyResourceSinkComponentBase).GetMethod("CurrentInputByType"),
+                        typeof(MyResourceSinkComponentBase).GetMethod("IsPowerAvailable"),
+                        typeof(MyResourceSinkComponentBase).GetMethod("IsPoweredByType"),
+                        typeof(MyResourceSinkComponentBase).GetMethod("MaxRequiredInputByType"),
+                        typeof(MyResourceSinkComponentBase).GetMethod("RequiredInputByType"),
+                        typeof(MyResourceSinkComponentBase).GetMethod("SuppliedRatioByType")
+                    );
+
+                    #endregion
+
+                    handle.AllowTypes(MyWhitelistTarget.ModApi,
+                        typeof(VRageRender.MyLodTypeEnum),
+                        typeof(ProtoBuf.ProtoMemberAttribute),
+                        typeof(ProtoBuf.ProtoContractAttribute),
+                        typeof(VRageRender.Lights.MyGlareTypeEnum),
+                        typeof(VRage.Serialization.SerializableDictionary<,>),
+                        typeof(ParallelTasks.IWork),
+                        typeof(ParallelTasks.Task),
+                        typeof(ParallelTasks.WorkOptions)
+                    );
+                    return;
+                }
+            }
+
             // Added by Ondrej
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Components.MyEntityStatComponent));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.MyFactionMember));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.MyFontEnum));
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.MyObjectBuilder_SessionSettings));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(Sandbox.Game.Gui.TerminalActionExtensions));
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.MyAPIUtilities));
+
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.WorldEnvironment.MyEnvironmentSector));
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(VRage.Game.SerializableBlockOrientation));
             IlChecker.AllowNamespaceOfTypeCommon(typeof(VRage.Game.ModAPI.Ingame.IMyCubeBlock));
@@ -1362,6 +1540,10 @@ namespace Sandbox
 
             IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Lights.MyLight));
 
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.Interfaces.Terminal.IMyTerminalAction));
+
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.ModAPI.Weapons.IMyAutomaticRifleGun));
+
             var serializerType = typeof(MyObjectBuilderSerializer);
             IlChecker.AllowedOperands[serializerType] = new HashSet<MemberInfo>()
             {
@@ -1370,12 +1552,7 @@ namespace Sandbox
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(string)}),
                 serializerType.GetMethod("CreateNewObject", new Type[] {typeof(MyObjectBuilderType), typeof(string)}),
             };
-            IlChecker.AllowedOperands.Add(typeof(IMyEntity), new HashSet<MemberInfo>()
-            {
-                typeof(IMyEntity).GetMethod("GetPosition"),
-                typeof(IMyEntity).GetProperty("WorldMatrix").GetGetMethod(),
-                typeof(IMyEntity).GetProperty("Components").GetGetMethod(),
-            });
+
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.IWork), null);
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.Task), null);
             IlChecker.AllowedOperands.Add(typeof(ParallelTasks.WorkOptions), null);
@@ -1401,6 +1578,9 @@ namespace Sandbox
             IlChecker.AllowedOperands.Add(typeof(VRage.Input.MyGuiInputDeviceEnum), null);
 
             #region Power/Gas Resources
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.EntityComponents.MyResourceSourceComponent));
+            IlChecker.AllowNamespaceOfTypeModAPI(typeof(Sandbox.Game.Entities.Character.Components.MyCharacterOxygenComponent));
+
             // Allow resource checking in ingame script
 
             // Get the generic overloaded TryGet method
@@ -1621,6 +1801,22 @@ namespace Sandbox
                 );
             }
 
+            if (ShowWhitelistPopup && CanShowWhitelistPopup)
+            {
+                ShowHotfixPopup = false;
+
+                // Error is most likely caused by missing .NET hotfix: https://support.microsoft.com/kb/3120241
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
+                    messageCaption: new StringBuilder("Whitelist Integrity Error"),
+                    messageText: new StringBuilder("The Mod API type whitelist has an integrity error.\nPlease check the log for details."),
+                    styleEnum: MyMessageBoxStyleEnum.Error,
+                    buttonType: MyMessageBoxButtonsType.OK,
+                    callback: OnWhitelistIntegrityPopupClosed,
+                    focusedResult: MyGuiScreenMessageBox.ResultEnum.NO,
+                    canHideOthers: true)
+                );
+            }
+
             // Compute time elapsed since last frame
             long currentTimestamp = Stopwatch.GetTimestamp();
             long elapsedTime = currentTimestamp - m_lastFrameTimeStamp;
@@ -1805,10 +2001,11 @@ namespace Sandbox
             if (MySector.MainCamera != null)
             {
                 position = MySector.MainCamera.Position;
-                up = -MySector.MainCamera.UpVector;
-                forward = MySector.MainCamera.ForwardVector;
+                // PARODY
+                up = -Vector3D.Normalize(MySector.MainCamera.UpVector);
+                forward = Vector3D.Normalize(MySector.MainCamera.ForwardVector);
             }
-            const float epsilon = 0.00001f;
+            const float epsilon = 0.00005f;
             Debug.Assert(up.Dot(forward) < epsilon && Math.Abs(up.LengthSquared() - 1) < epsilon && Math.Abs(forward.LengthSquared() - 1) < epsilon, "Invalid direction vectors for audio");
         }
 
@@ -1856,7 +2053,7 @@ namespace Sandbox
                 MyEntities.DebugDraw();
             }
 
-            if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
+            if (MyDebugDrawSettings.DEBUG_DRAW_PARTICLES)
                 MyParticlesLibrary.DebugDraw();
         }
 
@@ -1922,6 +2119,9 @@ namespace Sandbox
         #endregion
 
         #region Render output
+
+        private static IErrorConsumer m_errorConsumer = new MyGameErrorConsumer();
+        public static IErrorConsumer ErrorConsumer { get { return m_errorConsumer; } set { m_errorConsumer = value; } }
 
         // TODO: OP! Should be on different place, somewhere in the game where we handle game data
         /// <summary>
@@ -2000,9 +2200,7 @@ namespace Sandbox
                     case VRageRender.MyRenderMessageEnum.Error:
                         {
                             var rMessage = (VRageRender.MyRenderMessageError)message;
-                            //Debug.Assert(false, "Error happened in renderer. \n" +
-                            //    "Message: " + rMessage.Message + "\n\n" +
-                            //    "Stack: " + rMessage.Callstack);
+                            ErrorConsumer.OnError("Renderer error", rMessage.Message, rMessage.Callstack);
                             break;
                         }
                     case VRageRender.MyRenderMessageEnum.ScreenshotTaken:
@@ -2144,8 +2342,10 @@ namespace Sandbox
             Parallel.Scheduler.WaitForTasksToFinish(TimeSpan.FromSeconds(10));
             m_windowCreatedEvent.Dispose();
 
-
-            IlChecker.Clear();
+            if (MyFakes.ENABLE_ROSLYN_SCRIPTS)
+                MyScriptCompiler.Static.Whitelist.Clear();
+            else
+                IlChecker.Clear();
 
             Services = null;
             MyObjectBuilderType.UnregisterAssemblies();

@@ -1,10 +1,7 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Definition xsi:type="AnimationControllerDefinition">
-    <Id>
-      <TypeId>MyObjectBuilder_AnimationControllerDefinition</TypeId>
-      <SubtypeId>Default_Astronaut</SubtypeId>
-    </Id>
+    <Id Type="MyObjectBuilder_AnimationControllerDefinition" Subtype="Default_Astronaut" />
     <Layers>
       <Layer>
         <Name>Body</Name>
@@ -340,8 +337,8 @@
             <Name>Sit</Name>
             <StateMachineName>SMSit</StateMachineName>
             <EdPos>
-              <X>686</X>
-              <Y>533</Y>
+              <X>595</X>
+              <Y>529</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
@@ -353,6 +350,39 @@
               <Y>746</Y>
             </EdPos>
             <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>Victory</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>279</X>
+                  <Y>-27</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\victory.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_victory_final</AnimationName>
+                <Loop>false</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>648</X>
+              <Y>939</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>BeforeVictory</Name>
+            <EdPos>
+              <X>735</X>
+              <Y>538</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
           </Node>
         </Nodes>
         <Transitions>
@@ -491,6 +521,36 @@
             <Conditions>
               <Conjunction>
                 <Condition Lhs="crouch" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Victory" To="Idle" TimeInSec="0.5" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="Equal" Rhs="1" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="speed" Op="GreaterOrEqual" Rhs="0.3" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Victory" From="Any" To="BeforeVictory" TimeInSec="0" Sync="Synchronize">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="BeforeVictory" To="Victory" TimeInSec="0.25" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="BeforeVictory" To="Jetpack" TimeInSec="0" Sync="Synchronize">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="1" />
               </Conjunction>
             </Conditions>
             <Priority xsi:nil="true" />
@@ -822,6 +882,14 @@
             <Type>AnyExceptTarget</Type>
           </Node>
           <Node>
+            <Name>EquipTool</Name>
+            <EdPos>
+              <X>-291</X>
+              <Y>-121</Y>
+            </EdPos>
+            <Type>AnyExceptTarget</Type>
+          </Node>
+          <Node>
             <Name>Victory</Name>
             <AnimationTree>
               <EdPos>
@@ -830,8 +898,8 @@
               </EdPos>
               <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
                 <EdPos>
-                  <X>220</X>
-                  <Y>-6</Y>
+                  <X>192</X>
+                  <Y>1</Y>
                 </EdPos>
                 <PathToModel>Models\Characters\Animations\victory.mwm</PathToModel>
                 <AnimationName>AnimStack::Astronaut_character_victory_final</AnimationName>
@@ -841,18 +909,18 @@
               </Child>
             </AnimationTree>
             <EdPos>
-              <X>286</X>
-              <Y>-10</Y>
+              <X>448</X>
+              <Y>0</Y>
             </EdPos>
             <Type>Normal</Type>
           </Node>
           <Node>
-            <Name>EquipTool</Name>
+            <Name>BeforeVictory</Name>
             <EdPos>
-              <X>-291</X>
-              <Y>-121</Y>
+              <X>226</X>
+              <Y>-31</Y>
             </EdPos>
-            <Type>AnyExceptTarget</Type>
+            <Type>PassThrough</Type>
           </Node>
         </Nodes>
         <Transitions>
@@ -864,10 +932,37 @@
             </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Victory" From="Nothing" To="Victory" TimeInSec="0.2" Sync="Restart">
+          <Transition Name="equip_left_tool" From="EquipTool" To="Nothing" TimeInSec="0.25" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="equip_left_tool" From="EquipTool" To="Nothing" TimeInSec="0.25" Sync="Restart">
+          <Transition Name="Victory" From="Nothing" To="BeforeVictory" TimeInSec="0" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="BeforeVictory" To="Nothing" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="BeforeVictory" To="Victory" TimeInSec="0.25" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Victory" To="Nothing" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="Equal" Rhs="1" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
         </Transitions>
@@ -957,31 +1052,6 @@
             <Type>AnyExceptTarget</Type>
           </Node>
           <Node>
-            <Name>Victory</Name>
-            <AnimationTree>
-              <EdPos>
-                <X>0</X>
-                <Y>0</Y>
-              </EdPos>
-              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
-                <EdPos>
-                  <X>350</X>
-                  <Y>-22</Y>
-                </EdPos>
-                <PathToModel>Models\Characters\Animations\victory.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_victory_final</AnimationName>
-                <Loop>false</Loop>
-                <Speed>1</Speed>
-                <Interpolate>true</Interpolate>
-              </Child>
-            </AnimationTree>
-            <EdPos>
-              <X>274</X>
-              <Y>-246</Y>
-            </EdPos>
-            <Type>Normal</Type>
-          </Node>
-          <Node>
             <Name>Facepalm</Name>
             <AnimationTree>
               <EdPos>
@@ -1014,6 +1084,39 @@
             </EdPos>
             <Type>AnyExceptTarget</Type>
           </Node>
+          <Node>
+            <Name>Victory</Name>
+            <AnimationTree>
+              <EdPos>
+                <X>0</X>
+                <Y>0</Y>
+              </EdPos>
+              <Child xsi:type="MyObjectBuilder_AnimationTreeNodeTrack">
+                <EdPos>
+                  <X>344</X>
+                  <Y>7</Y>
+                </EdPos>
+                <PathToModel>Models\Characters\Animations\victory.mwm</PathToModel>
+                <AnimationName>AnimStack::Astronaut_character_victory_final</AnimationName>
+                <Loop>true</Loop>
+                <Speed>1</Speed>
+                <Interpolate>true</Interpolate>
+              </Child>
+            </AnimationTree>
+            <EdPos>
+              <X>319</X>
+              <Y>-199</Y>
+            </EdPos>
+            <Type>Normal</Type>
+          </Node>
+          <Node>
+            <Name>BeforeVictory</Name>
+            <EdPos>
+              <X>155</X>
+              <Y>-183</Y>
+            </EdPos>
+            <Type>PassThrough</Type>
+          </Node>
         </Nodes>
         <Transitions>
           <Transition Name="Thumb-Up" From="Nothing" To="ThumbUp" TimeInSec="0.25" Sync="Restart">
@@ -1030,13 +1133,40 @@
             </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
-          <Transition Name="Victory" From="Nothing" To="Victory" TimeInSec="0.25" Sync="Restart">
-            <Priority xsi:nil="true" />
-          </Transition>
           <Transition Name="Facepalm" From="Nothing" To="Facepalm" TimeInSec="0.25" Sync="Restart">
             <Priority xsi:nil="true" />
           </Transition>
           <Transition Name="equip_right_tool" From="AnyToolRight" To="Nothing" TimeInSec="0.25" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition Name="Victory" From="Nothing" To="BeforeVictory" TimeInSec="0" Sync="Restart">
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="BeforeVictory" To="Nothing" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="BeforeVictory" To="Victory" TimeInSec="0.25" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="1" />
+              </Conjunction>
+            </Conditions>
+            <Priority xsi:nil="true" />
+          </Transition>
+          <Transition From="Victory" To="Nothing" TimeInSec="0" Sync="Restart">
+            <Conditions>
+              <Conjunction>
+                <Condition Lhs="@animationfinished" Op="Equal" Rhs="1" />
+              </Conjunction>
+              <Conjunction>
+                <Condition Lhs="flying" Op="Equal" Rhs="0" />
+              </Conjunction>
+            </Conditions>
             <Priority xsi:nil="true" />
           </Transition>
         </Transitions>
@@ -1106,8 +1236,8 @@
                   <X>239</X>
                   <Y>-3</Y>
                 </EdPos>
-                <PathToModel>Models\Characters\Animations\cockpit1_large.mwm</PathToModel>
-                <AnimationName>AnimStack::Astronaut_character_cockpitlarge_01</AnimationName>
+                <PathToModel>Models\Characters\Animations\cockpit1_small.mwm</PathToModel>
+                <AnimationName>AnimStack::SE_astronaut</AnimationName>
                 <Loop>true</Loop>
                 <Speed>1</Speed>
                 <Interpolate>true</Interpolate>

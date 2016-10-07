@@ -3,8 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using Sandbox.Game.WorldEnvironment;
 using VRage.Utils;
 using VRage.Voxels;
+using VRageMath;
+using System.Text;
+using VRage.Utils;using VRage.Voxels;
 using VRageMath;
 
 namespace Sandbox.Engine.Voxels
@@ -296,24 +300,6 @@ namespace Sandbox.Engine.Voxels
         /**
          * Combined surface properties for the planet.
          * 
-         * This object stores most information about the planet surface.
-         * 
-         */
-        public struct SurfaceProperties {
-            public Vector3 Position;
-            public Vector3 Gravity;
-            public Vector3 Normal;
-            public MyVoxelMaterialDefinition Material;
-            public float Slope;
-            public float HeightRatio;
-            public float Latitude;
-            public float Longitude;
-            public byte Biome;
-        }
-
-        /**
-         * Combined surface properties for the planet.
-         * 
          * This object stores very detailed information about a point in the planet's surface.
          * 
          */
@@ -359,12 +345,12 @@ namespace Sandbox.Engine.Voxels
          * 
          * When using the coefficient cache be sure to have it properly set up. (MyPlanetShapeProvider.PrepareCache())
          */
-        public void ComputeCombinedMaterialAndSurface(Vector3 position, bool useCache, out SurfaceProperties props)
+        public void ComputeCombinedMaterialAndSurface(Vector3 position, bool useCache, out MySurfaceParams props)
         {
             if (Closed)
             {
                 Debug.Fail("Storage closed!");
-                props = new SurfaceProperties();
+                props = new MySurfaceParams();
                 return;
             }
 
@@ -418,12 +404,12 @@ namespace Sandbox.Engine.Voxels
 
             var rule = Material.GetLayeredMaterialForPosition(ref pars, out props.Biome, ref occl);
 
-            props.Material = rule.FirstOrDefault;
-            if (props.Material == null) props.Material = MyDefinitionManager.Static.GetVoxelMaterialDefinition(0);
+            if (rule.FirstOrDefault == null) props.Material = 0;
+            else props.Material = rule.FirstOrDefault.Index;
 
             //props.Altitude = value;
 
-            props.Slope = pars.Normal.Z;
+            props.Normal = pars.Normal;
 
             props.HeightRatio = Shape.AltitudeToRatio(value);
         }

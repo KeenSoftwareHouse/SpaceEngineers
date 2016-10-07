@@ -10,6 +10,7 @@ using VRage.Utils;
 
 namespace Sandbox.Game.Gui
 {
+#if !XB1_TMP
     [MyDebugScreen("Render", "Lights settings")]
     class MyGuiScreenDebugRenderLights : MyGuiScreenDebugBase
     {
@@ -89,4 +90,5 @@ namespace Sandbox.Game.Gui
         }
 
     }
+#endif
 }

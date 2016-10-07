@@ -101,7 +101,8 @@ namespace Sandbox.Game.World
             public static MyWorldGeneratorStartingStateBase CreateInstance(MyObjectBuilder_WorldGeneratorPlayerStartingState builder)
             {
                 var instance = m_objectFactory.CreateInstance(builder.TypeId);
-                instance.Init(builder);
+                if (instance != null)
+                    instance.Init(builder);
                 return instance;
             }
 

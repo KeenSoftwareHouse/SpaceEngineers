@@ -24,11 +24,13 @@ using VRage;
 using Sandbox.Game.Replication;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
+using Sandbox.ModAPI;
+using VRage.Game.Entity;
 
 namespace Sandbox.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_CryoChamber))]
-    public class MyCryoChamber : MyCockpit
+    public class MyCryoChamber : MyCockpit, IMyCryoChamber
     {
         private MatrixD m_characterDummy;
         private MatrixD m_cameraDummy;
@@ -57,15 +59,17 @@ namespace Sandbox.Game.Entities.Blocks
         }
 
         protected override MyStringId LeaveNotificationHintText { get { return MySpaceTexts.NotificationHintLeaveCryoChamber; } }
-        static MyCryoChamber()
-        {
-            m_horizonIndicator.Enabled = (x) => false;
-            m_horizonIndicator.Visible = (x) => false;
-        }
+
         public MyCryoChamber()
         {
             ControllerInfo.ControlAcquired += OnCryoChamberControlAcquired;
             m_attachedPlayerId.ValueChanged += (x) => AttachedPlayerChanged();
+        }
+
+        //override this in order not to show horizon
+        protected override bool CanHaveHorizon()
+        {
+            return false;
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -271,6 +275,26 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 UpdateSound(Pilot != null && Pilot == MySession.Static.LocalCharacter);
             }
+
+            if(IsLocalCharacterInside())
+            {
+                if (MySession.Static.CameraController is MyEntity)
+                {
+                    if (MyHudCameraOverlay.Enabled == false)
+                    {
+                        MyHudCameraOverlay.Enabled = true;
+                        this.Render.Visible = false;
+                    }
+                }
+                else
+                {
+                    if (MyHudCameraOverlay.Enabled)
+                    {
+                        MyHudCameraOverlay.Enabled = false;
+                        this.Render.Visible = true;
+                    }
+                }
+            }
         }
 
         public override void UpdateAfterSimulation100()
@@ -289,9 +313,12 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void SetOverlay()
         {
-            MyHudCameraOverlay.TextureName = m_overlayTextureName;
-            MyHudCameraOverlay.Enabled = true;
-            this.Render.Visible = false;
+            if (IsLocalCharacterInside())
+            {
+                MyHudCameraOverlay.TextureName = m_overlayTextureName;
+                MyHudCameraOverlay.Enabled = true;
+                this.Render.Visible = false;
+            }
         }
 
         private void UpdateEmissivity(bool isUsed)

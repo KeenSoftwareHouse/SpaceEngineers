@@ -13,6 +13,6 @@ namespace VRage.Game.ObjectBuilders
     public class MyObjectBuilder_ToolbarItemMedievalWeapon : MyObjectBuilder_ToolbarItemWeapon
     {
         [ProtoMember]
-        public uint ItemId;
+        public uint? ItemId;
     }
 }

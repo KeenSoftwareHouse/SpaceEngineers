@@ -217,9 +217,9 @@ namespace VRageRender
             if (IsValidVoxelLod(m_voxelLod))
             {
                 Vector4 massiveCenterRadius = new Vector4(
-                            (float)(m_massiveCenter.X - MyEnvironment.CameraPosition.X),
-                            (float)(m_massiveCenter.Y - MyEnvironment.CameraPosition.Y),
-                            (float)(m_massiveCenter.Z - MyEnvironment.CameraPosition.Z),
+                            (float)(m_massiveCenter.X - MyRender11.Environment.CameraPosition.X),
+                            (float)(m_massiveCenter.Y - MyRender11.Environment.CameraPosition.Y),
+                            (float)(m_massiveCenter.Z - MyRender11.Environment.CameraPosition.Z),
                             m_massiveRadius);
 
                 foreach (MyRenderLod lod in m_lods)

@@ -39,8 +39,10 @@ namespace Sandbox.Graphics.GUI
             MyGuiDrawAlignEnum textAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP,
             StringBuilder contents = null,
             bool drawScrollbar = true,
-            MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER)
-            : base(position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, true)
+            MyGuiDrawAlignEnum textBoxAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_CENTER,
+            int? visibleLinesCount = null
+        )
+            : base(position, size, backgroundColor, font, textScale, textAlign, contents, drawScrollbar, textBoxAlign, visibleLinesCount, true)
         {
             m_fontHeight = MyGuiManager.GetFontHeight(Font, TextScaleWithLanguage);
             this.AllowFocusingElements = false;

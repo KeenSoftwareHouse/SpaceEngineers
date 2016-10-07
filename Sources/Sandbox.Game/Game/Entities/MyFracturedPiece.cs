@@ -91,7 +91,7 @@ namespace Sandbox.Game.Entities
             base.Render.PersistentFlags = MyPersistentEntityFlags2.Enabled;
             AddDebugRenderComponent(new MyFracturedPieceDebugDraw(this));
             UseDamageSystem = false;
-            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate = MyEntityUpdateEnum.EACH_10TH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
             SyncType = SyncHelpers.Compose(this);
             m_fallSoundShouldPlay.Value = false;
             m_fallSoundString.Value = "";
@@ -296,7 +296,7 @@ namespace Sandbox.Game.Entities
                 Physics.CanUpdateAccelerations = true;
                 Physics.InitialSolverDeactivation = HkSolverDeactivation.High;
                 Physics.CreateFromCollisionObject(Shape.GetShape(), Vector3.Zero, PositionComp.WorldMatrix, mp);
-                Physics.BreakableBody = new HkdBreakableBody(Shape, Physics.RigidBody, MyPhysics.SingleWorld.DestructionWorld, (Matrix)PositionComp.WorldMatrix);
+                Physics.BreakableBody = new HkdBreakableBody(Shape, Physics.RigidBody, null, (Matrix)PositionComp.WorldMatrix);
                 Physics.BreakableBody.AfterReplaceBody += Physics.FracturedBody_AfterReplaceBody;
 
                 if (OriginalBlocks.Count > 0)
@@ -467,6 +467,9 @@ namespace Sandbox.Game.Entities
                 fid.Details = details;
                 MyPhysics.EnqueueDestruction(fid);
             }
+
+            var grav = MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.GetPosition());
+            Physics.RigidBody.Gravity = grav;
         }
 
         public void RegisterObstacleContact(ref HkContactPointEvent e)
@@ -526,7 +529,7 @@ namespace Sandbox.Game.Entities
                     if (m_soundEmitter == null)
                     {
                         m_soundEmitter = new MyEntity3DSoundEmitter(this);
-                        NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+                        //NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
                     }
                     if (m_soundEmitter.IsPlaying == false && m_fallSound != null && m_fallSound != MySoundPair.Empty)
                         m_soundEmitter.PlaySound(m_fallSound, true, true);
@@ -563,8 +566,10 @@ namespace Sandbox.Game.Entities
                 if (m_soundEmitter.IsPlaying && (DateTime.UtcNow - m_soundStart).TotalSeconds >= 15f)//stop falling sound if it playing too long
                     m_fallSoundShouldPlay.Value = false;
             }
-        }
 
+			var grav = MyGravityProviderSystem.CalculateTotalGravityInPoint(PositionComp.GetPosition());
+            Physics.RigidBody.Gravity = grav;
+        }
         private void UnmarkEntityBreakable(bool checkTime)
         {
             if (m_markedBreakImpulse != MyTimeSpan.Zero && (!checkTime || MySandboxGame.Static.UpdateTime - m_markedBreakImpulse > MyTimeSpan.FromSeconds(1.5)))
@@ -630,7 +635,7 @@ namespace Sandbox.Game.Entities
                 m_piece = piece;
             }
 
-            public override bool DebugDraw()
+            public override void DebugDraw()
             {
                 if (MyDebugDrawSettings.DEBUG_DRAW_FRACTURED_PIECES)
                 {
@@ -662,7 +667,6 @@ namespace Sandbox.Game.Entities
                         VRageRender.MyRenderProxy.DebugDrawText3D(center, str, Color.White, 0.6f, false);
                     }
                 }
-                return false;
             }
 
             public override void DebugDrawInvalidTriangles()

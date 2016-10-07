@@ -20,7 +20,7 @@ using Sandbox.Game.Screens.Helpers;
 using Sandbox.Game.World;
 using Sandbox.Graphics.GUI;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
@@ -34,7 +34,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_AirVent))]
-    class MyAirVent : MyFunctionalBlock, IMyAirVent, IMyGasBlock
+    public class MyAirVent : MyFunctionalBlock, IMyAirVent, IMyGasBlock
     {
         private static readonly string[] m_emissiveNames = { "Emissive1", "Emissive2", "Emissive3", "Emissive4" };
 
@@ -101,8 +101,21 @@ namespace SpaceEngineers.Game.Entities.Blocks
         bool m_syncing = false;
 
         #region Initialization
-        static MyAirVent()
+
+        public MyAirVent()
         {
+            CreateTerminalControls();
+
+            ResourceSink = new MyResourceSinkComponent(2);
+            SourceComp = new MyResourceSourceComponent();
+            m_isDepressurizing.ValueChanged += (x) => SetDepressurizing();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyAirVent>())
+                return;
+
             var isDepressurizing = new MyTerminalControlOnOffSwitch<MyAirVent>("Depressurize", MySpaceTexts.BlockPropertyTitle_Depressurize, MySpaceTexts.BlockPropertyDescription_Depressurize);
             isDepressurizing.Getter = (x) => x.IsDepressurizing;
             isDepressurizing.Setter = (x, v) => x.IsDepressurizing = v;
@@ -140,14 +153,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 });
             toolbarButton.SupportsMultipleBlocks = false;
             MyTerminalControlFactory.AddControl(toolbarButton);
-        }
-
-        public MyAirVent()
-        {
-            ResourceSink = new MyResourceSinkComponent(2);
-            SourceComp = new MyResourceSourceComponent();
-
-            m_isDepressurizing.ValueChanged += (x) => SetDepressurizing();
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -355,7 +360,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 orientation.Translation = CubeGrid.GridIntegerToWorld(Position + mat.Forward / 4f);
 
                 m_effect.WorldMatrix = orientation;
-                m_effect.AutoDelete = false;
 
                 m_effect.UserScale = 3f;
             }

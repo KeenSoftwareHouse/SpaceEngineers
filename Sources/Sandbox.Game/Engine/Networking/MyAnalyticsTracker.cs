@@ -18,7 +18,7 @@ using ParallelTasks;
 using Sandbox.Definitions;
 using System.Diagnostics;
 using VRage.Trace;
-#if !BLIT
+#if !XB1
 using LitJson;
 #endif
 using VRage;
@@ -52,12 +52,12 @@ namespace Sandbox.Engine.Networking
     {
         private static bool m_enabled = true;
         private static string[] m_oreTypes;
-#if !BLIT
+#if !XB1
         private static readonly CommonRequiredData m_requiredData;
 #endif
         private static bool AnalyticsEnabled = (MyFinalBuildConstants.IS_OFFICIAL || MyFakes.ENABLE_INFINARIO) && !MyCompilationSymbols.PerformanceOrMemoryProfiling;
 
-#if BLIT
+#if XB1
         public static void SendGameStart()
         {
             
@@ -81,6 +81,19 @@ namespace Sandbox.Engine.Networking
         public static void ReportError(SeverityEnum severityEnum, string messageText, bool async = true)
         {
 
+        }
+
+
+        /// <summary>
+        /// Severity levels corresponding with Game analytics.
+        /// </summary>
+        public enum SeverityEnum
+        {
+            Critical,
+            Error,
+            Warning,
+            Info,
+            Debug
         }
 #else
         static MyAnalyticsTracker()
@@ -507,7 +520,7 @@ namespace Sandbox.Engine.Networking
             }
 		}
 		#endregion
-#endif //!BLIT
+#endif //!XB1
 
 	}
 }

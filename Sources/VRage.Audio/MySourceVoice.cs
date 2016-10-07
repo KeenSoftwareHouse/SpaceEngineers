@@ -55,8 +55,17 @@ namespace VRage.Audio
                 MySoundData soundData = MyAudio.Static.GetCue(m_cueId);
                 if (soundData != null && soundData.DisablePitchEffects)
                     return;
-                if(m_voice != null && m_voice.State.BuffersQueued > 0)
-                    m_voice.SetFrequencyRatio(FrequencyRatio);
+                if (m_voice != null && m_voice.IsValid()){
+                    try
+                    {
+                        VoiceState state = m_voice.State;//this sometimes fails - not sure why since we already check for null and IsValid
+                        if (state.BuffersQueued > 0)
+                            m_voice.SetFrequencyRatio(FrequencyRatio);
+                    }
+                    catch (NullReferenceException)
+                    {
+                    }
+                }
             }
         }
         private float m_volumeBase = 1f;
@@ -244,7 +253,15 @@ namespace VRage.Audio
         {
             m_volumeBase = volume;
             if (IsValid)
-                m_voice.SetVolume(m_volumeBase * m_volumeMultiplier);
+            {
+                try
+                {
+                    m_voice.SetVolume(m_volumeBase * m_volumeMultiplier);
+                }
+                catch (NullReferenceException)
+                {
+                }
+            }
         }
 
         public void SetOutputVoices(VoiceSendDescriptor[] descriptors)

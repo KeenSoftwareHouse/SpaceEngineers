@@ -158,12 +158,25 @@ namespace Sandbox.Game.Entities.Cube
             get { return (MyLaserAntennaDefinition)base.BlockDefinition; }
         }
         
-        public MyLaserAntenna() { }
+        public MyLaserAntenna()
+        {
+            CreateTerminalControls();
+        }
 
         static MyLaserAntenna()
         {
             m_Max_LosDist=MySession.Static.Settings.ViewDistance;
 
+        }
+        static MyTerminalControlButton<MyLaserAntenna> idleButton;
+        static MyTerminalControlButton<MyLaserAntenna> connectGPS;
+        static MyTerminalControlListbox<MyLaserAntenna> receiversList;
+        static MyTerminalControlTextbox<MyLaserAntenna> gpsCoords;
+        static MyTerminalControlButton<MyLaserAntenna> PasteGpsCoords;
+        static MyTerminalControlButton<MyLaserAntenna> ConnectReceiver;
+
+        static void CreateTerminalControls()
+        {
             /*MyTerminalControlFactory.RemoveBaseClass<MyLaserAntenna, MyTerminalBlock>();
 
             var customName = new MyTerminalControlTextbox<MyLaserAntenna>("CustomName", MySpaceTexts.Name, MySpaceTexts.Blank);
@@ -172,8 +185,11 @@ namespace Sandbox.Game.Entities.Cube
             customName.SupportsMultipleBlocks = false;
             MyTerminalControlFactory.AddControl(customName);*/
 
+            if (MyTerminalControlFactory.AreControlsCreated<MyLaserAntenna>())
+                return;
+
             idleButton = new MyTerminalControlButton<MyLaserAntenna>("Idle", MySpaceTexts.LaserAntennaIdleButton, MySpaceTexts.Blank,
-                delegate(MyLaserAntenna self)
+                delegate (MyLaserAntenna self)
                 {
                     self.SetIdle();
                     idleButton.UpdateVisual();
@@ -186,15 +202,15 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(new MyTerminalControlSeparator<MyLaserAntenna>());
 
             var copyCoordsButton = new MyTerminalControlButton<MyLaserAntenna>("CopyCoords", MySpaceTexts.LaserAntennaCopyCoords, MySpaceTexts.LaserAntennaCopyCoordsHelp,
-                delegate(MyLaserAntenna self)
+                delegate (MyLaserAntenna self)
                 {
                     StringBuilder sanitizedName = new StringBuilder(self.DisplayNameText);
                     sanitizedName.Replace(':', ' ');
                     StringBuilder sb = new StringBuilder("GPS:", 256);
                     sb.Append(sanitizedName); sb.Append(":");
-                    sb.Append(Math.Round(self.HeadPos.X,2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
-                    sb.Append(Math.Round(self.HeadPos.Y,2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
-                    sb.Append(Math.Round(self.HeadPos.Z,2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(Math.Round(self.HeadPos.X, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(Math.Round(self.HeadPos.Y, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(Math.Round(self.HeadPos.Z, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
                     Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(sb.ToString()));
                     thread.SetApartmentState(ApartmentState.STA);
                     thread.Start();
@@ -203,7 +219,7 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(copyCoordsButton);
 
             var copyTargetCoordsButton = new MyTerminalControlButton<MyLaserAntenna>("CopyTargetCoords", MySpaceTexts.LaserAntennaCopyTargetCoords, MySpaceTexts.LaserAntennaCopyTargetCoordsHelp,
-                delegate(MyLaserAntenna self)
+                delegate (MyLaserAntenna self)
                 {
                     if (self.m_targetId == null)
                         return;
@@ -211,20 +227,20 @@ namespace Sandbox.Game.Entities.Cube
                     sanitizedName.Replace(':', ' ');
                     StringBuilder sb = new StringBuilder("GPS:", 256);
                     sb.Append(sanitizedName); sb.Append(":");
-                    sb.Append(Math.Round(self.m_targetCoords.X,2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
-                    sb.Append(Math.Round(self.m_targetCoords.Y,2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
-                    sb.Append(Math.Round(self.m_targetCoords.Z,2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(Math.Round(self.m_targetCoords.X, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(Math.Round(self.m_targetCoords.Y, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
+                    sb.Append(Math.Round(self.m_targetCoords.Z, 2).ToString(System.Globalization.CultureInfo.InvariantCulture)); sb.Append(":");
                     Thread thread = new Thread(() => System.Windows.Forms.Clipboard.SetText(sb.ToString()));
                     thread.SetApartmentState(ApartmentState.STA);
                     thread.Start();
                     thread.Join();
-                    
+
                 });
             copyTargetCoordsButton.Enabled = (x) => x.m_targetId != null;
             MyTerminalControlFactory.AddControl(copyTargetCoordsButton);
 
             PasteGpsCoords = new MyTerminalControlButton<MyLaserAntenna>("PasteGpsCoords", MySpaceTexts.LaserAntennaPasteGPS, MySpaceTexts.Blank,
-                delegate(MyLaserAntenna self)
+                delegate (MyLaserAntenna self)
                 {
                     Thread thread = new Thread(() => PasteFromClipboard());
                     thread.SetApartmentState(ApartmentState.STA);
@@ -242,23 +258,23 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(gpsCoords);
 
             connectGPS = new MyTerminalControlButton<MyLaserAntenna>("ConnectGPS", MySpaceTexts.LaserAntennaConnectGPS, MySpaceTexts.Blank,
-                delegate(MyLaserAntenna self)
+                delegate (MyLaserAntenna self)
                 {
                     if (self.m_termGpsCoords == null)
                         return;//should not get here anyway
                     self.ConnectToGps();
                 });
             connectGPS.Enabled = (x) => x.CanConnectToGPS();
-            connectGPS.EnableAction(); 
+            connectGPS.EnableAction();
             MyTerminalControlFactory.AddControl(connectGPS);
 
-            var isPerm = new MyTerminalControlCheckbox<MyLaserAntenna>("isPerm",MySpaceTexts.LaserAntennaPermanentCheckbox,MySpaceTexts.Blank);
-                isPerm.Getter = (self) => self.m_IsPermanent;
-                isPerm.Setter = (self, v) =>
-                {
-                    self.ChangePerm(v);
-                };
-            isPerm.Enabled = (self) => self.State==StateEnum.connected;
+            var isPerm = new MyTerminalControlCheckbox<MyLaserAntenna>("isPerm", MySpaceTexts.LaserAntennaPermanentCheckbox, MySpaceTexts.Blank);
+            isPerm.Getter = (self) => self.m_IsPermanent;
+            isPerm.Setter = (self, v) =>
+            {
+                self.ChangePerm(v);
+            };
+            isPerm.Enabled = (self) => self.State == StateEnum.connected;
             isPerm.EnableAction();
             MyTerminalControlFactory.AddControl(isPerm);
 
@@ -272,20 +288,13 @@ namespace Sandbox.Game.Entities.Cube
             MyTerminalControlFactory.AddControl(receiversList);
 
             ConnectReceiver = new MyTerminalControlButton<MyLaserAntenna>("ConnectReceiver", MySpaceTexts.LaserAntennaConnectButton, MySpaceTexts.Blank,
-                delegate(MyLaserAntenna self)
+                delegate (MyLaserAntenna self)
                 {
                     self.ConnectToId();
                 });
-            ConnectReceiver.Enabled = (x) => x.m_selectedEntityId!=null;
+            ConnectReceiver.Enabled = (x) => x.m_selectedEntityId != null;
             MyTerminalControlFactory.AddControl(ConnectReceiver);
-
         }
-        static MyTerminalControlButton<MyLaserAntenna> idleButton;
-        static MyTerminalControlButton<MyLaserAntenna> connectGPS;
-        static MyTerminalControlListbox<MyLaserAntenna> receiversList;
-        static MyTerminalControlTextbox<MyLaserAntenna> gpsCoords;
-        static MyTerminalControlButton<MyLaserAntenna> PasteGpsCoords;
-        static MyTerminalControlButton<MyLaserAntenna> ConnectReceiver;
 
         static void UpdateVisuals()
         {

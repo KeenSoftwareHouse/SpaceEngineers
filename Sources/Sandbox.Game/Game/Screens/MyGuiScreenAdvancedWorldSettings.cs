@@ -57,7 +57,7 @@ namespace Sandbox.Game.Gui
         MyGuiControlCombobox m_onlineMode, m_environment, m_worldSizeCombo, m_soundModeCombo, m_spawnShipTimeCombo, m_viewDistanceCombo, m_physicsOptionsCombo;
         MyGuiControlCheckbox m_autoHealing, m_clientCanSave, m_enableCopyPaste, m_weaponsEnabled, m_showPlayerNamesOnHud, m_thrusterDamage, m_cargoShipsEnabled, m_enableSpectator,
                              m_trashRemoval, m_respawnShipDelete, m_resetOwnership, m_permanentDeath, m_destructibleBlocks, m_enableIngameScripts, m_enableToolShake, m_enableOxygen,
-                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_stationVoxelSupport, m_enableSunRotation, m_enableJetpack, 
+                             m_enable3rdPersonCamera, m_enableEncounters, m_disableRespawnShips, m_scenarioEditMode, m_enableConvertToStation, m_enableSunRotation, m_enableJetpack, 
                              m_spawnWithTools, m_startInRespawnScreen, m_enableVoxelDestruction, m_enableDrones,m_enableCyberhounds,m_enableSpiders;
 
         MyGuiControlButton m_okButton, m_cancelButton, m_survivalModeButton, m_creativeModeButton, m_inventory_x1, m_inventory_x3, m_inventory_x10;
@@ -181,8 +181,8 @@ namespace Sandbox.Game.Gui
             var spawnShipTimeLabel = MakeLabel(MySpaceTexts.WorldSettings_RespawnShipCooldown);
             var viewDistanceLabel = MakeLabel(MySpaceTexts.WorldSettings_ViewDistance);
             var physicsOptionLabel = MakeLabel(MyCommonTexts.WorldSettings_Physics);
-			
-			var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableStationVoxel);
+
+            var enableStationVoxelLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableConvertToStation);
             var enableSunRotationLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableSunRotation);
 
             var enableJetpackLabel = MakeLabel(MySpaceTexts.WorldSettings_EnableJetpack);
@@ -244,7 +244,7 @@ namespace Sandbox.Game.Gui
             m_enableJetpack = new MyGuiControlCheckbox();
             m_spawnWithTools = new MyGuiControlCheckbox();
 
-			m_stationVoxelSupport = new MyGuiControlCheckbox();
+			m_enableConvertToStation = new MyGuiControlCheckbox();
             m_maxPlayersSlider = new MyGuiControlSlider(
                 position: Vector2.Zero,
                 width: m_onlineMode.Size.X,
@@ -427,7 +427,7 @@ namespace Sandbox.Game.Gui
             m_enableCyberhounds.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableCyberhounds));
             m_enableSpiders.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableSpiders));
 			
-			m_stationVoxelSupport.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableStationVoxel));
+			m_enableConvertToStation.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableConvertToStation));
             m_disableRespawnShips.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_DisableRespawnShips));
             m_enableVoxelDestruction.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_EnableVoxelDestruction));
 
@@ -646,7 +646,7 @@ namespace Sandbox.Game.Gui
             m_enableEncounters.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enable3rdPersonCamera.Position.Y);
 
             enableStationVoxelLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, enableSunRotationLabel.Position.Y);
-            m_stationVoxelSupport.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enableSunRotation.Position.Y);
+            m_enableConvertToStation.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_enableSunRotation.Position.Y);
 
             startInRespawnScreenLabel.Position = new Vector2(rightColumnOffset + 0.75f * labelSize, spawnWithToolsLabel.Position.Y);
             m_startInRespawnScreen.Position = new Vector2(rightColumnOffset + labelSize + 0.75f * labelSize, m_spawnWithTools.Position.Y);
@@ -691,7 +691,7 @@ namespace Sandbox.Game.Gui
             parent.Controls.Add(m_enable3rdPersonCamera);
 
 			parent.Controls.Add(enableStationVoxelLabel);
-			parent.Controls.Add(m_stationVoxelSupport);
+			parent.Controls.Add(m_enableConvertToStation);
 
             parent.Controls.Add(startInRespawnScreenLabel);
             parent.Controls.Add(m_startInRespawnScreen);
@@ -973,7 +973,7 @@ namespace Sandbox.Game.Gui
             }
             output.RespawnShipDelete = m_respawnShipDelete.IsChecked;
 
-			output.EnableStationVoxelSupport = m_stationVoxelSupport.IsChecked;
+			output.EnableConvertToStation = m_enableConvertToStation.IsChecked;
             output.DisableRespawnShips = m_disableRespawnShips.IsChecked;
             output.EnableCyberhounds = m_enableCyberhounds.IsChecked;
             output.EnableSunRotation = m_enableSunRotation.IsChecked;
@@ -1042,7 +1042,7 @@ namespace Sandbox.Game.Gui
             }
             m_disableRespawnShips.IsChecked = settings.DisableRespawnShips;
             m_respawnShipDelete.IsChecked = settings.RespawnShipDelete;
-			m_stationVoxelSupport.IsChecked = settings.EnableStationVoxelSupport;
+			m_enableConvertToStation.IsChecked = settings.EnableConvertToStation;
             m_enableSunRotation.IsChecked = settings.EnableSunRotation;
 
             m_enableJetpack.IsChecked = settings.EnableJetpack;

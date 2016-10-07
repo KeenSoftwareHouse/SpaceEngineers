@@ -2,16 +2,20 @@
 void pixel_program(PixelInterface pixel, inout MaterialOutputInterface output)
 {
 #if defined(DITHERED) || defined(DITHERED_LOD)
-	// discards pixels
-	Dither(pixel.screen_position, pixel.custom_alpha);
+	// Don't do dithering for holograms
+	if (pixel.custom_alpha >= 0) 
+	{
+		// discards pixels
+		Dither(pixel.screen_position, pixel.custom_alpha);
+	}
 #endif
 
 #ifndef DEPTH_ONLY
 	// for hologram sampling in branch
-	if (pixel.hologram < 0)
+	if (pixel.custom_alpha < 0)
 	{
 		// discards pixels
-		pixel.color_mul *= Hologram(pixel.screen_position, pixel.hologram);
+		pixel.color_mul *= Hologram(pixel.screen_position, pixel.custom_alpha);
 		output.emissive = 1;
 	}
 

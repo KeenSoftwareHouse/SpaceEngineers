@@ -70,7 +70,8 @@ namespace Sandbox.Game.Screens.Helpers
                 else
                 {
                     genericType = true;
-                    return GetValidActions(typeof(MyFunctionalBlock), blocks);
+                    var commonType = FindBaseClass(tmpBlockTypes.ToArray<Type>(), typeof(MyFunctionalBlock));
+                    return GetValidActions(commonType, blocks);
                 }
             }
             finally
@@ -79,6 +80,43 @@ namespace Sandbox.Game.Screens.Helpers
             }
         }
 
+        /// <summary>
+        /// Searching for common base class. Used to return more specific group actions than only basic actions of functional blocks (if the blocks are of common origin)
+        /// </summary>
+        /// <param name="types"></param>
+        /// <param name="baseKnownCommonType"></param>
+        /// <returns></returns>
+        public static Type FindBaseClass(Type[] types, Type baseKnownCommonType)
+        {
+            var currentType = types[0];
+            Dictionary<Type, int> typeCount = new Dictionary<Type, int>();
+            typeCount.Add(baseKnownCommonType, types.Length);
+
+            for (int i = 0; i < types.Length; i++)
+            {
+                 currentType = types[i];
+                 while (currentType != baseKnownCommonType)
+                 {
+                     if (typeCount.ContainsKey(currentType))
+                     {
+                         typeCount[currentType] += 1;
+                     }
+                     else
+                     {
+                         typeCount[currentType] = 1;
+                     }
+                     currentType = currentType.BaseType;
+                 }
+            }
+
+            //return the top-most class found that is common for all types
+            currentType = types[0];
+            while (typeCount[currentType] != types.Length)
+            {
+                currentType = currentType.BaseType;
+            }
+            return currentType;
+        }
 
         private ListReader<ITerminalAction> GetValidActions(Type blockType, ListReader<MyTerminalBlock> blocks)
         {

@@ -31,6 +31,22 @@ namespace VRageRender
         {
         }
 
+        public override string ValueType
+        {
+            get
+            {
+                return "String";
+            }
+        }
+
+        public override string BaseValueType
+        {
+            get
+            {
+                return "MyTransparentMaterial";
+            }
+        }
+
         public override void DeserializeValue(XmlReader reader, out object value)
         {
             MyAnimatedPropertyTransparentMaterial prop = new MyAnimatedPropertyTransparentMaterial(this.Name,
@@ -67,6 +83,22 @@ namespace VRageRender
         public MyAnimatedPropertyTransparentMaterial(string name, InterpolatorDelegate interpolator)
             : base(name, false, interpolator)
         {
+        }
+
+        public override string ValueType
+        {
+            get
+            {
+                return "String";
+            }
+        }
+
+        public override string BaseValueType
+        {
+            get
+            {
+                return "MyTransparentMaterial";
+            }
         }
 
         protected override void Init()
@@ -113,6 +145,22 @@ namespace VRageRender
         protected override void Init()
         {
             base.Init();
+        }
+
+        public override string ValueType
+        {
+            get
+            {
+                return "String";
+            }
+        }
+
+        public override string BaseValueType
+        {
+            get
+            {
+                return "MyTransparentMaterial";
+            }
         }
 
         public override IMyConstProperty Duplicate()

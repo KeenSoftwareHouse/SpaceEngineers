@@ -68,7 +68,7 @@ namespace VRage.Import
         /// <param name="filePath"></param>
         public MyModelExporter(string filePath)
         {
-            FileStream fileStream = new FileStream(filePath, FileMode.Create);
+            FileStream fileStream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             m_writer = new BinaryWriter(fileStream);
 
             Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;

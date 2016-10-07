@@ -32,6 +32,24 @@ namespace Sandbox.Game.Multiplayer
             return TryGetPlayerFaction(playerId);
         }
 
+        IMyFaction IMyFactionCollection.TryGetFactionByTag(string tag)
+        {
+            return TryGetFactionByTag(tag);
+        }
+
+        IMyFaction IMyFactionCollection.TryGetFactionByName(string name)
+        {
+            foreach (var entry in m_factions)
+            {
+                var faction = entry.Value;
+
+                if (string.Equals(name, faction.Name, StringComparison.OrdinalIgnoreCase))
+                    return faction;
+            }
+
+            return null;
+        }
+
         void IMyFactionCollection.AddPlayerToFaction(long playerId, long factionId)
         {
             AddPlayerToFaction(playerId, factionId);

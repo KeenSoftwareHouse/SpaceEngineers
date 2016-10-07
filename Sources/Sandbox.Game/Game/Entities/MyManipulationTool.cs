@@ -1521,6 +1521,19 @@ namespace Sandbox.Game.Entities
             get { return Render.RenderObjectIDs != null ? (int)Render.RenderObjectIDs[0] : 0; }
         }
 
+        void IMyUseObject.SetRenderID(uint id)
+        {
+        }
+
+        int IMyUseObject.InstanceID
+        {
+            get { return -1; }
+        }
+
+        void IMyUseObject.SetInstanceID(int id)
+        {
+        }
+
         bool IMyUseObject.ShowOverlay
         {
             get { return false; }

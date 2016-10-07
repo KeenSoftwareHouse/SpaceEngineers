@@ -56,9 +56,6 @@ namespace VRageRender
                 case ".jpeg":
                     return ImageFileFormat.Jpg;
 
-                case ".dds":
-                    return ImageFileFormat.Dds;
-
                 case ".bmp":
                     return ImageFileFormat.Bmp;
 

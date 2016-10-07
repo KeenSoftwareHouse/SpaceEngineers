@@ -11,10 +11,12 @@ using Sandbox.Game.Localization;
 using VRage;
 using VRage.Library.Utils;
 using VRage.Library.Collections;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlCheckbox<TBlock> : MyTerminalValueControl<TBlock, bool>
+    public class MyTerminalControlCheckbox<TBlock> : MyTerminalValueControl<TBlock, bool>, IMyTerminalControlCheckbox
         where TBlock : MyTerminalBlock
     {
         Action<TBlock> m_action;
@@ -22,10 +24,10 @@ namespace Sandbox.Game.Gui
         private MyGuiControlCheckbox m_checkbox;
         private Action<MyGuiControlCheckbox> m_checkboxClicked;
 
-        public readonly MyStringId Title;
-        public readonly MyStringId OnText;
-        public readonly MyStringId OffText;
-        public readonly MyStringId Tooltip;
+        public MyStringId Title;
+        public MyStringId OnText;
+        public MyStringId OffText;
+        public MyStringId Tooltip;
 
         public MyTerminalControlCheckbox(string id, MyStringId title, MyStringId tooltip, MyStringId? on = null, MyStringId? off = null)
             : base(id)
@@ -105,6 +107,71 @@ namespace Sandbox.Game.Gui
         public override bool GetMaximum(TBlock block)
         {
             return true;
+        }
+
+        public override void SetValue(TBlock block, bool value)
+        {
+            base.SetValue(block, value);
+        }
+
+        public override bool GetValue(TBlock block)
+        {
+            return base.GetValue(block);
+        }
+
+        /// <summary>
+        /// Implement IMyTerminalControlCheckbox for mods
+        /// </summary>
+        MyStringId IMyTerminalControlCheckbox.OnText
+        {
+            get
+            {
+                return this.OnText;
+            }
+
+            set
+            {
+                this.OnText = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlCheckbox.OffText
+        {
+            get
+            {
+                return this.OffText;
+            }
+
+            set
+            {
+                OffText = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
         }
     }
 }

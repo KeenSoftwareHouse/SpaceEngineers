@@ -12,10 +12,14 @@ using VRage.Utils;
 using VRage;
 using VRage.Library.Utils;
 using VRage.Library.Collections;
+using Sandbox.ModAPI.Interfaces.Terminal;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces;
+using Sandbox.Game.Screens.Terminal.Controls;
 
 namespace Sandbox.Game.Gui
 {
-    public class MyTerminalControlTextbox<TBlock> : MyTerminalControl<TBlock>, ITerminalControlSync
+    public class MyTerminalControlTextbox<TBlock> : MyTerminalValueControl<TBlock, StringBuilder>, ITerminalControlSync, IMyTerminalControlTextbox
         where TBlock : MyTerminalBlock
     {
         public delegate StringBuilder GetterDelegate(TBlock block);
@@ -32,10 +36,10 @@ namespace Sandbox.Game.Gui
         public SetterDelegate Setter { private get; set; }
         public SerializerDelegate Serializer;
 
-        public readonly MyStringId Title;
-        public readonly MyStringId Tooltip;
+        public MyStringId Title;
+        public MyStringId Tooltip;
 
-#if !BLIT
+#if !XB1
         public Expression<Func<TBlock, StringBuilder>> MemberExpression
         {
             set
@@ -54,17 +58,6 @@ namespace Sandbox.Game.Gui
             Title = title;
             Tooltip = tooltip;
             Serializer = (s, sb) => s.Serialize(sb, ref m_tmpArray, Encoding.UTF8);
-        }
-
-        public StringBuilder GetValue(TBlock block)
-        {
-            return Getter(block);
-        }
-
-        public void SetValue(TBlock block, StringBuilder value)
-        {
-            Setter(block, value);
-            block.NotifyTerminalValueChanged(this);
         }
 
         public void Serialize(BitStream stream, MyTerminalBlock block)
@@ -118,6 +111,102 @@ namespace Sandbox.Game.Gui
                     m_textbox.SetText(newText);
                     m_textbox.TextChanged += m_textChanged;
                 }
+            }
+        }
+
+        public override StringBuilder GetValue(TBlock block)
+        {
+            return Getter(block);
+        }
+
+        public override void SetValue(TBlock block, StringBuilder value)
+        {
+            Setter(block, new StringBuilder(value.ToString()));
+            block.NotifyTerminalValueChanged(this);
+        }
+
+        public override StringBuilder GetDefaultValue(TBlock block)
+        {
+            return new StringBuilder();
+        }
+
+        public override StringBuilder GetMinimum(TBlock block)
+        {
+            return new StringBuilder();
+        }
+
+        public override StringBuilder GetMaximum(TBlock block)
+        {
+            return new StringBuilder();
+        }
+
+        /// <summary>
+        /// Implements IMyTerminalControlTextbox for ModAPI
+        /// </summary>
+        MyStringId IMyTerminalControlTitleTooltip.Title
+        {
+            get
+            {
+                return Title;
+            }
+
+            set
+            {
+                Title = value;
+            }
+        }
+
+        MyStringId IMyTerminalControlTitleTooltip.Tooltip
+        {
+            get
+            {
+                return Tooltip;
+            }
+
+            set
+            {
+                Tooltip = value;
+            }
+        }
+
+        /// <summary>
+        /// Implements IMyTerminalValueControl for Mods
+        /// </summary>
+        Func<IMyTerminalBlock, StringBuilder> IMyTerminalValueControl<StringBuilder>.Getter
+        {
+            get
+            {
+                GetterDelegate oldGetter = Getter;
+                Func<IMyTerminalBlock, StringBuilder> func = (x) =>
+                {
+                    return oldGetter((TBlock)x);
+                };
+
+                return func;
+            }
+
+            set
+            {
+                Getter = new GetterDelegate(value);
+            }
+        }
+
+        Action<IMyTerminalBlock, StringBuilder> IMyTerminalValueControl<StringBuilder>.Setter
+        {
+            get
+            {
+                SetterDelegate oldSetter = Setter;
+                Action<IMyTerminalBlock, StringBuilder> action = (x, y) =>
+                {
+                    oldSetter((TBlock)x, y);
+                };
+
+                return action;
+            }
+
+            set
+            {
+                Setter = new SetterDelegate(value);
             }
         }
     }

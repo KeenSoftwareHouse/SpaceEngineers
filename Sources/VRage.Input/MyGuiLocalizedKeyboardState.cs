@@ -1,9 +1,12 @@
-﻿using System;
+﻿#if !XB1
+
+using System;
 using System.Collections.Generic;
 using VRage.Win32;
 
 namespace VRage.Input
 {
+	[Unsharper.UnsharperDisableReflection]
     public class MyGuiLocalizedKeyboardState
     {
         static HashSet<byte> m_localKeys;
@@ -247,3 +250,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

@@ -183,7 +183,7 @@ namespace SpaceEngineers.Game.AI
         {
             Debug.Assert(m_burrowEffectTable.ContainsKey(position) == false, "Burrowing particle effect was not disposed properly (client)!");
             MyParticleEffect burrowEffect;
-            if (MyParticlesManager.TryCreateParticleEffect(506, out burrowEffect))
+            if (MyParticlesManager.TryCreateParticleEffect("Burrowing", out burrowEffect))
             {
                 burrowEffect.WorldMatrix = MatrixD.CreateTranslation(position);
                 burrowEffect.UserColorMultiplier = new Vector4(1, 0.8f, 0.5f, 0.2f);
@@ -198,7 +198,7 @@ namespace SpaceEngineers.Game.AI
             MyParticleEffect burrowEffect;
             if (m_burrowEffectTable.TryGetValue(position, out burrowEffect))
             {
-                burrowEffect.Stop(autodelete: true);
+                burrowEffect.Stop();
                 m_burrowEffectTable.Remove(position);
             }
         }

@@ -398,48 +398,56 @@ namespace VRage.Network
             m_receiveStream.ResetRead(packet);
             bool isStreaming = m_receiveStream.ReadBool();
             m_lastStateSyncPacketId = m_receiveStream.ReadByte();
-
-            while (m_receiveStream.BytePosition < m_receiveStream.ByteLength)
+            try
             {
-                NetworkId networkID = m_receiveStream.ReadNetworkId();
-                IMyStateGroup obj = GetObjectByNetworkId(networkID) as IMyStateGroup;
-
-                if (obj == null)
+                while (m_receiveStream.BytePosition < m_receiveStream.ByteLength)
                 {
-                    if (isStreaming == false)
+
+                    NetworkId networkID = m_receiveStream.ReadNetworkId();
+                    IMyStateGroup obj = GetObjectByNetworkId(networkID) as IMyStateGroup;
+
+                    if (obj == null)
                     {
-                        Debug.Fail("IMyStateGroup not found by NetworkId");
-                        break;
+                        if (isStreaming == false)
+                        {
+                            Debug.Fail("IMyStateGroup not found by NetworkId");
+                            break;
+                        }
+                        else
+                        {
+                            return;
+                        }
                     }
-                    else
+
+                    if (isStreaming && obj.GroupType != StateGroupEnum.Streamining)
                     {
+                        Debug.Fail("group type mismatch !");
+                        MyLog.Default.WriteLine("received streaming flag but group is not streaming !");
                         return;
                     }
+
+                    if (!isStreaming && obj.GroupType == StateGroupEnum.Streamining)
+                    {
+                        Debug.Fail("group type mismatch !");
+                        MyLog.Default.WriteLine("received non streaming flag but group wants to stream !");
+                        return;
+                    }
+
+                    var pos = m_receiveStream.BytePosition;
+                    NetProfiler.Begin(obj.GetType().Name);
+                    obj.Serialize(m_receiveStream, ClientState.EndpointId, 0, m_lastStateSyncPacketId, 0);
+                    NetProfiler.End(m_receiveStream.ByteLength - pos);
+
+
+                    if (!m_acks.Contains(m_lastStateSyncPacketId))
+                    {
+                        m_acks.Add(m_lastStateSyncPacketId);
+                    }
                 }
-
-               if(isStreaming && obj.GroupType != StateGroupEnum.Streamining)
-               {
-                   Debug.Fail("group type mismatch !");
-                   MyLog.Default.WriteLine("received streaming flag but group is not streaming !");
-                   return;
-               }
-
-               if (!isStreaming && obj.GroupType == StateGroupEnum.Streamining)
-               {
-                   Debug.Fail("group type mismatch !");
-                   MyLog.Default.WriteLine("received non streaming flag but group wants to stream !");
-                   return;
-               }
-
-                var pos = m_receiveStream.BytePosition;
-                NetProfiler.Begin(obj.GetType().Name);
-                obj.Serialize(m_receiveStream, ClientState.EndpointId,0, m_lastStateSyncPacketId, 0);
-                NetProfiler.End(m_receiveStream.ByteLength - pos);
             }
-
-            if (!m_acks.Contains(m_lastStateSyncPacketId))
+            catch (BitStreamException)
             {
-                m_acks.Add(m_lastStateSyncPacketId);
+
             }
         }
 

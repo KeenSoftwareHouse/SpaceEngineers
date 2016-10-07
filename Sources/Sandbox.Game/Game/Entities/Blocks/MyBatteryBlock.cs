@@ -21,7 +21,7 @@ using VRage.ModAPI;
 namespace Sandbox.Game.Entities
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_BatteryBlock))]
-    class MyBatteryBlock : MyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyBatteryBlock
+    public class MyBatteryBlock : MyFunctionalBlock, ModAPI.IMyBatteryBlock
     {
         static readonly string[] m_emissiveNames = new string[] { "Emissive0", "Emissive1", "Emissive2", "Emissive3" };
 
@@ -88,7 +88,7 @@ namespace Sandbox.Game.Entities
             set
             {
                 m_semiautoEnabled.Value = value;
-                
+
                 if(!OnlyRecharge && !OnlyDischarge)
                 {
                     if (CurrentStoredPower == 0)
@@ -123,8 +123,25 @@ namespace Sandbox.Game.Entities
 			return Enabled && SourceComp.Enabled && SourceComp.HasCapacityRemainingByType(MyResourceDistributorComponent.ElectricityId) && base.CheckIsWorking();
         }
 
-        static MyBatteryBlock()
+        public MyBatteryBlock()
         {
+            CreateTerminalControls();
+
+            SourceComp = new MyResourceSourceComponent();
+            ResourceSink = new MyResourceSinkComponent();
+            m_semiautoEnabled.ValueChanged += (x) => UpdateMaxOutputAndEmissivity();
+            m_onlyRecharge.ValueChanged += (x) => { if (m_onlyRecharge.Value) m_onlyDischarge.Value = false; UpdateMaxOutputAndEmissivity(); };
+            m_onlyDischarge.ValueChanged += (x) => { if (m_onlyDischarge.Value) m_onlyRecharge.Value = false; UpdateMaxOutputAndEmissivity(); };
+
+            m_producerEnabled.ValueChanged += (x) => ProducerEnadChanged();
+            m_storedPower.ValueChanged += (x) => CapacityChanged();
+	    }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyBatteryBlock>())
+                return;
+
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
             recharge.Getter = (x) => x.OnlyRecharge;
             recharge.Setter = (x, v) => x.OnlyRecharge = v;
@@ -146,18 +163,6 @@ namespace Sandbox.Game.Entities
             MyTerminalControlFactory.AddControl(discharge);
             MyTerminalControlFactory.AddControl(semiAuto);
         }
-
-        public MyBatteryBlock()
-        {
-            SourceComp = new MyResourceSourceComponent();
-            ResourceSink = new MyResourceSinkComponent();
-            m_semiautoEnabled.ValueChanged += (x) => UpdateMaxOutputAndEmissivity();
-            m_onlyRecharge.ValueChanged += (x) => { if (m_onlyRecharge.Value) m_onlyDischarge.Value = false; UpdateMaxOutputAndEmissivity(); };
-            m_onlyDischarge.ValueChanged += (x) => { if (m_onlyDischarge.Value) m_onlyRecharge.Value = false; UpdateMaxOutputAndEmissivity(); };
-
-            m_producerEnabled.ValueChanged += (x) => ProducerEnadChanged();
-            m_storedPower.ValueChanged += (x) => CapacityChanged();
-	    }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
         {
@@ -195,9 +200,9 @@ namespace Sandbox.Game.Entities
 
             m_storedPower.Value = CurrentStoredPower;
 
-            OnlyRecharge = !batteryBuilder.ProducerEnabled;
 			
             SemiautoEnabled = batteryBuilder.SemiautoEnabled;
+            OnlyRecharge = !batteryBuilder.ProducerEnabled;
             OnlyDischarge = batteryBuilder.OnlyDischargeEnabled;
             UpdateMaxOutputAndEmissivity();
 

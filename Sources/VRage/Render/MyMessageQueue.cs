@@ -47,6 +47,9 @@ namespace VRageRender
 
         public void Return(MyRenderMessageBase message)
         {
+            if (message.IsPersistent)
+                return;
+
             MyConcurrentQueue<MyRenderMessageBase> queue = base[(int)message.MessageType];
 
             message.Close();

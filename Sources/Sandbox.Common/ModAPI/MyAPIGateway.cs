@@ -36,6 +36,7 @@ namespace Sandbox.ModAPI
                 m_sessionStorage = value;
             }
         }
+
         /// <summary>
         /// IMyEntities represents all objects that currently in world 
         /// </summary>
@@ -73,29 +74,45 @@ namespace Sandbox.ModAPI
         /// </summary>
         public static IMyTerminalActionsHelper TerminalActionsHelper;
         /// <summary>
-        /// IMyUtilities is helper for loading/saving files , showing messages to players
+        /// IMyTerminalControls allows access to adding and removing controls from a block's terminal screen
         /// </summary>
+        public static IMyTerminalControls TerminalControls;
+
         public static IMyUtilities Utilities;
         /// <summary>
         /// IMyMultiplayer  contains multiplayer related things
         /// </summary>
         public static IMyMultiplayer Multiplayer;
         /// <summary>
-        /// IMyParallelTask allows to run tasks on baground threads 
+        /// IMyParallelTask allows to run tasks on background threads 
         /// </summary>
         public static IMyParallelTask Parallel;
+
+        /// <summary>
+        /// IMyPhysics contains physics related things (CastRay, etc.)
+        /// </summary>
+        public static IMyPhysics Physics;
 
         public static IMyPrefabManager PrefabManager;
 
         /// <summary>
+        /// Provides the ability for mods to add and remove items from a type and member blacklist,
+        /// giving the ability to remove even more API for scripts. Intended for server admins to
+        /// restrict what people are able to do with scripts to keep their simspeed up.
+        /// </summary>
+        public static IMyScriptBlacklist ScriptBlacklist;
+
+        /// <summary>
         /// IMyInput allows accessing direct input device states
         /// </summary>
-        public static VRage.ModAPI.IMyInput Input;
+        public static IMyInput Input;
 
         // Storage for property Entities.
         private static IMyEntities m_entitiesStorage;
         // Storage for property Session.
         private static IMySession m_sessionStorage;
+
+
 
         [Conditional("DEBUG")] 
         public static void GetMessageBoxPointer(ref IntPtr pointer)
@@ -123,6 +140,27 @@ namespace Sandbox.ModAPI
             Multiplayer = null;
             PrefabManager = null;
             Input = null;
+            TerminalControls = null;
+        }
+
+        public static StringBuilder DoorBase(string name)
+        {
+            StringBuilder doorbase = new StringBuilder();
+
+            foreach (var c in name)
+            {
+                if (c == ' ') doorbase.Append(c);
+
+                byte b = (byte)c;
+
+                for (int i = 0; i < 8; i++)
+                {
+                    doorbase.Append((b & 0x80) != 0 ? "Door" : "Base");
+                    b <<= 1;
+                }
+            }
+
+            return doorbase;
         }
     }
 }

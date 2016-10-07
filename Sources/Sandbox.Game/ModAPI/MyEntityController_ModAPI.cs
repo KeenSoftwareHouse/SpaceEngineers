@@ -19,10 +19,15 @@ namespace Sandbox.Game.World
             }
         }
 
+        Action<Sandbox.Game.Entities.IMyControllableEntity, Sandbox.Game.Entities.IMyControllableEntity> GetDelegate(Action<IMyControllableEntity, IMyControllableEntity> value)
+        {
+            return (Action<Sandbox.Game.Entities.IMyControllableEntity, Sandbox.Game.Entities.IMyControllableEntity>)Delegate.CreateDelegate(typeof(Action<Sandbox.Game.Entities.IMyControllableEntity, Sandbox.Game.Entities.IMyControllableEntity>), value.Target, value.Method);
+        }
+
         event Action<IMyControllableEntity, IMyControllableEntity> IMyEntityController.ControlledEntityChanged
         {
-            add { ControlledEntityChanged += value; }
-            remove { ControlledEntityChanged -= value; }
+            add { ControlledEntityChanged += GetDelegate(value); }
+            remove { ControlledEntityChanged -= GetDelegate(value); }
         }
 
         IMyControllableEntity IMyEntityController.ControlledEntity

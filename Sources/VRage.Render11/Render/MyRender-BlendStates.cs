@@ -18,9 +18,10 @@ namespace VRageRender
         internal static BlendId BlendDecalNormal;
         internal static BlendId BlendDecalColor;
         internal static BlendId BlendDecalNormalColor;
+        internal static BlendId BlendDecalNormalColorExt;
 
         internal static BlendId BlendWeightedTransparency;
-        internal static BlendId BlendInvTransparent;
+        internal static BlendId BlendWeightedTransparencyResolve;
 
         static void InitializeBlendStates()
         {
@@ -104,28 +105,27 @@ namespace VRageRender
 
             {
                 BlendStateDescription desc = new BlendStateDescription();
-                desc.RenderTarget[0].IsBlendEnabled = true;
-                desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
-                desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
-                desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
-                desc.RenderTarget[0].DestinationBlend = BlendOption.SourceAlpha;
-                desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.SourceAlpha;
-                desc.RenderTarget[0].SourceBlend = BlendOption.InverseSourceAlpha;
-                desc.RenderTarget[0].SourceAlphaBlend = BlendOption.InverseSourceAlpha;
-                BlendInvTransparent = MyPipelineStates.CreateBlendState(desc);
-            }
+                desc.IndependentBlendEnable = true;
 
-            {
-                BlendStateDescription desc = new BlendStateDescription();
                 // color
                 desc.RenderTarget[0].IsBlendEnabled = true;
-                desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+                desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
                 desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
-                desc.RenderTarget[0].DestinationBlend = BlendOption.InverseSecondarySourceAlpha;
-                desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
-                desc.RenderTarget[0].SourceBlend = BlendOption.SecondarySourceAlpha;
-                desc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+                desc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+                desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.One;
+                desc.RenderTarget[0].SourceBlend = BlendOption.One;
+                desc.RenderTarget[0].SourceAlphaBlend = BlendOption.Zero;
+                // metal
+                desc.RenderTarget[2].IsBlendEnabled = true;
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red;
+                desc.RenderTarget[2].BlendOperation = BlendOperation.Add;
+                desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Add;
+                desc.RenderTarget[2].DestinationBlend = BlendOption.InverseSourceAlpha;
+                desc.RenderTarget[2].DestinationAlphaBlend = BlendOption.One;
+                desc.RenderTarget[2].SourceBlend = BlendOption.One;
+                desc.RenderTarget[2].SourceAlphaBlend = BlendOption.Zero;
+
                 BlendDecalColor = MyPipelineStates.CreateBlendState(desc);
             }
 
@@ -135,22 +135,22 @@ namespace VRageRender
 
                 // normal
                 desc.RenderTarget[1].IsBlendEnabled = true;
-                desc.RenderTarget[1].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+                desc.RenderTarget[1].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
                 desc.RenderTarget[1].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[1].AlphaBlendOperation = BlendOperation.Add;
-                desc.RenderTarget[1].DestinationBlend = BlendOption.Zero;
-                desc.RenderTarget[1].DestinationAlphaBlend = BlendOption.Zero;
-                desc.RenderTarget[1].SourceBlend = BlendOption.One;
-                desc.RenderTarget[1].SourceAlphaBlend = BlendOption.One;
-                // ao
+                desc.RenderTarget[1].DestinationBlend = BlendOption.InverseSourceAlpha;
+                desc.RenderTarget[1].DestinationAlphaBlend = BlendOption.One;
+                desc.RenderTarget[1].SourceBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[1].SourceAlphaBlend = BlendOption.Zero;
+                // gloss
                 desc.RenderTarget[2].IsBlendEnabled = true;
-                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red;
-                desc.RenderTarget[2].BlendOperation = BlendOperation.Minimum;
-                desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Minimum;
-                desc.RenderTarget[2].DestinationBlend = BlendOption.One;
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Green;
+                desc.RenderTarget[2].BlendOperation = BlendOperation.Add;
+                desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Add;
+                desc.RenderTarget[2].DestinationBlend = BlendOption.InverseSourceAlpha;
                 desc.RenderTarget[2].DestinationAlphaBlend = BlendOption.One;
-                desc.RenderTarget[2].SourceBlend = BlendOption.InverseBlendFactor;
-                desc.RenderTarget[2].SourceAlphaBlend = BlendOption.InverseBlendFactor;
+                desc.RenderTarget[2].SourceBlend = BlendOption.One;
+                desc.RenderTarget[2].SourceAlphaBlend = BlendOption.Zero;
 
                 BlendDecalNormal = MyPipelineStates.CreateBlendState(desc);
             }
@@ -160,35 +160,50 @@ namespace VRageRender
                 desc.IndependentBlendEnable = true;
 
                 // color
-                // NOTE: We skip metal as we can't use dual-source alpha when using multiple targets
                 desc.RenderTarget[0].IsBlendEnabled = true;
                 desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
                 desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
                 desc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
                 desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.One;
-                desc.RenderTarget[0].SourceBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[0].SourceBlend = BlendOption.One;
                 desc.RenderTarget[0].SourceAlphaBlend = BlendOption.Zero;
                 // normal
                 desc.RenderTarget[1].IsBlendEnabled = true;
-                desc.RenderTarget[1].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+                desc.RenderTarget[1].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
                 desc.RenderTarget[1].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[1].AlphaBlendOperation = BlendOperation.Add;
-                desc.RenderTarget[1].DestinationBlend = BlendOption.Zero;
-                desc.RenderTarget[1].DestinationAlphaBlend = BlendOption.Zero;
-                desc.RenderTarget[1].SourceBlend = BlendOption.One;
-                desc.RenderTarget[1].SourceAlphaBlend = BlendOption.One;
-                // ao
+                desc.RenderTarget[1].DestinationBlend = BlendOption.InverseSourceAlpha;
+                desc.RenderTarget[1].DestinationAlphaBlend = BlendOption.One;
+                desc.RenderTarget[1].SourceBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[1].SourceAlphaBlend = BlendOption.Zero;
+                // metal/gloss
                 desc.RenderTarget[2].IsBlendEnabled = true;
-                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red;
-                desc.RenderTarget[2].BlendOperation = BlendOperation.Minimum;
-                desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Minimum;
-                desc.RenderTarget[2].DestinationBlend = BlendOption.One;
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green;
+                desc.RenderTarget[2].BlendOperation = BlendOperation.Add;
+                desc.RenderTarget[2].AlphaBlendOperation = BlendOperation.Add;
+                desc.RenderTarget[2].DestinationBlend = BlendOption.InverseSourceAlpha;
                 desc.RenderTarget[2].DestinationAlphaBlend = BlendOption.One;
-                desc.RenderTarget[2].SourceBlend = BlendOption.InverseBlendFactor;
-                desc.RenderTarget[2].SourceAlphaBlend = BlendOption.InverseBlendFactor;
+                desc.RenderTarget[2].SourceBlend = BlendOption.One;
+                desc.RenderTarget[2].SourceAlphaBlend = BlendOption.Zero;
 
                 BlendDecalNormalColor = MyPipelineStates.CreateBlendState(desc);
+
+                desc.RenderTarget[2].RenderTargetWriteMask = ColorWriteMaskFlags.Red | ColorWriteMaskFlags.Green | ColorWriteMaskFlags.Blue;
+                BlendDecalNormalColorExt = MyPipelineStates.CreateBlendState(desc);
+            }
+
+            {
+                BlendStateDescription desc = new BlendStateDescription();
+                desc.RenderTarget[0].IsBlendEnabled = true;
+                desc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+                desc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+                desc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+                desc.RenderTarget[0].DestinationBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[0].DestinationAlphaBlend = BlendOption.SourceAlpha;
+                desc.RenderTarget[0].SourceBlend = BlendOption.One;
+                desc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+                BlendWeightedTransparencyResolve = MyPipelineStates.CreateBlendState(desc);
             }
 
             {
@@ -209,7 +224,7 @@ namespace VRageRender
                 desc.RenderTarget[1].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 desc.RenderTarget[1].BlendOperation = BlendOperation.Add;
                 desc.RenderTarget[1].AlphaBlendOperation = BlendOperation.Add;
-                desc.RenderTarget[1].DestinationBlend = BlendOption.InverseSourceAlpha;
+                desc.RenderTarget[1].DestinationBlend = BlendOption.InverseSourceColor;
                 desc.RenderTarget[1].DestinationAlphaBlend = BlendOption.InverseSourceAlpha;
                 desc.RenderTarget[1].SourceBlend = BlendOption.Zero;
                 desc.RenderTarget[1].SourceAlphaBlend = BlendOption.Zero;

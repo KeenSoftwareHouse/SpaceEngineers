@@ -70,9 +70,9 @@
         {
             return new MyPostprocessSettings
             {
-                EnableTonemapping = false,
+                EnableTonemapping = true,
                 EnableSsao = true,
-                EnableEyeAdaptation = false,
+                EnableEyeAdaptation = true,
             };
         }
 

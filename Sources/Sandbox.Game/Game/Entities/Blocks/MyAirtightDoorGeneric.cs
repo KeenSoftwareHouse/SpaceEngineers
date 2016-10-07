@@ -20,7 +20,7 @@ using VRage.Game;
 
 namespace Sandbox.Game.Entities
 {
-    public abstract class MyAirtightDoorGeneric : MyFunctionalBlock, ModAPI.IMyDoor
+    public abstract class MyAirtightDoorGeneric : MyFunctionalBlock, ModAPI.IMyAirtightDoorBase
     {
 
         private MySoundPair m_sound;
@@ -71,21 +71,27 @@ namespace Sandbox.Game.Entities
 
 
         #region constructors & init & save
-        static MyAirtightDoorGeneric()
+        public MyAirtightDoorGeneric()
         {
+            CreateTerminalControls();
+
+            m_open.Value = false;
+            m_currOpening = 0f;
+            m_currSpeed = 0f;
+            m_open.ValueChanged += (x) => DoChangeOpenClose();
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyAirtightDoorGeneric>())
+                return;
+
             var open = new MyTerminalControlOnOffSwitch<MyAirtightDoorGeneric>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
             open.Getter = (x) => x.Open;
             open.Setter = (x, v) => x.m_open.Value = v;
             open.EnableToggleAction();
             open.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(open);
-        }
-        public MyAirtightDoorGeneric()
-        {
-            m_open.Value = false;
-            m_currOpening = 0f;
-            m_currSpeed = 0f;
-            m_open.ValueChanged += (x) => DoChangeOpenClose();
         }
 
         private new MyAirtightDoorGenericDefinition BlockDefinition
@@ -195,7 +201,7 @@ namespace Sandbox.Game.Entities
             if (m_stateChange && ((m_open && 1f - m_currOpening < EPSILON) || (!m_open && m_currOpening < EPSILON)))
             {
                 //END OF MOVEMENT
-                if (m_soundEmitter != null && m_soundEmitter.IsPlaying && m_soundEmitter.Loop)
+                if (m_soundEmitter != null && m_soundEmitter.Loop)
                     m_soundEmitter.StopSound(false);
                 m_currSpeed = 0;
                 ResourceSink.Update();
@@ -213,7 +219,7 @@ namespace Sandbox.Game.Entities
                 {
                     StartSound(m_sound);
                 }
-            }
+                }
 
             base.UpdateBeforeSimulation();
             UpdateCurrentOpening();
@@ -276,11 +282,10 @@ namespace Sandbox.Game.Entities
             if (!Enabled || !ResourceSink.IsPowered)
                 return;
 
+            if (m_soundEmitter != null)
+                m_soundEmitter.StopSound(true);
             OnStateChange();
             RaisePropertiesChanged();
-
-            if(m_soundEmitter != null)
-                m_soundEmitter.StopSound(true);
         }
         #endregion
 

@@ -1,5 +1,7 @@
-﻿using ProtoBuf;
+﻿using System.ComponentModel;
+using ProtoBuf;
 using VRage.ObjectBuilders;
+using VRageMath;
 
 namespace VRage.Game
 {
@@ -12,7 +14,27 @@ namespace VRage.Game
         FilterStorage,
         FilterSystem,
         ScenarioButton,
-        Rectangular
+        Rectangular,
+        Custom
+    }
+
+    [ProtoContract]
+    public struct MyGuiCustomVisualStyle
+    {
+        [ProtoMember]
+        public string NormalTexture;
+        [ProtoMember]
+        public string HighlightTexture;
+        [ProtoMember]
+        public Vector2 Size;
+        [ProtoMember]
+        public MyFontEnum NormalFont;
+        [ProtoMember]
+        public MyFontEnum HighlightFont;
+        [ProtoMember]
+        public float HorizontalPadding;
+        [ProtoMember]
+        public float VerticalPadding;
     }
 
     [ProtoContract]
@@ -24,5 +46,12 @@ namespace VRage.Game
 
         [ProtoMember]
         public MyGuiControlRadioButtonStyleEnum VisualStyle;
+
+        /// <summary>
+        /// Custom visual style. This is check if visual style is set to Custom.
+        /// </summary>
+        [ProtoMember]
+        public MyGuiCustomVisualStyle? CustomVisualStyle = null;
+
     }
 }

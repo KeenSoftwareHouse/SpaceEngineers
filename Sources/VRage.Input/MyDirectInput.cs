@@ -1,7 +1,7 @@
-﻿using SharpDX;
-#if !UNSHARPER
+﻿#if !XB1
+
+using SharpDX;
 using SharpDX.DirectInput;
-#endif
 using System;
 using VRage.Utils;
 
@@ -9,7 +9,6 @@ namespace VRage.Input
 {
     public static class MyDirectInput
     {
-#if !UNSHARPER
         static DirectInput m_directInput;
         public static DirectInput DirectInput
         {
@@ -90,6 +89,7 @@ namespace VRage.Input
 
             return mouseState;
         }
-#endif
     }
 }
+
+#endif

@@ -18,7 +18,7 @@ using SteamSDK;
 using Sandbox.Game.Localization;
 using VRage.ObjectBuilders;
 using VRage.ModAPI;
-using Sandbox.ModAPI.Interfaces;
+using Sandbox.ModAPI;
 using Sandbox.Game.Entities.Inventory;
 using VRage.Game;
 using VRage.Game.Components;
@@ -32,9 +32,8 @@ namespace Sandbox.Game.Entities.Cube
     /// <summary>
     /// Common base for Assembler and Refinery blocks
     /// </summary>
-    abstract class MyProductionBlock : MyFunctionalBlock, IMyConveyorEndpointBlock, Sandbox.ModAPI.Ingame.IMyProductionBlock, IMyInventoryOwner
+    public abstract class MyProductionBlock : MyFunctionalBlock, IMyConveyorEndpointBlock, IMyProductionBlock, IMyInventoryOwner
     {
- 
         protected MySoundPair m_processSound = new MySoundPair();
 
         public struct QueueItem
@@ -178,15 +177,6 @@ namespace Sandbox.Game.Entities.Cube
 			return ResourceSink.IsPowered && base.CheckIsWorking();
         }
 
-        static MyProductionBlock()
-        {
-            var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyProductionBlock>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
-            useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
-            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem =  v;
-            useConveyorSystem.EnableToggleAction();
-            MyTerminalControlFactory.AddControl(useConveyorSystem);
-        }
-
         #endregion Properties
 
         public event Action<MyProductionBlock> QueueChanged;
@@ -206,6 +196,8 @@ namespace Sandbox.Game.Entities.Cube
 
         public MyProductionBlock()
         {
+            CreateTerminalControls();
+
             m_soundEmitter = new MyEntity3DSoundEmitter(this, true);
             m_queue = new List<QueueItem>();
 
@@ -213,6 +205,18 @@ namespace Sandbox.Game.Entities.Cube
 
             IsProducing = false;
             Components.ComponentAdded += OnComponentAdded;
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MyProductionBlock>())
+                return;
+
+            var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyProductionBlock>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
+            useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
+            useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v;
+            useConveyorSystem.EnableToggleAction();
+            MyTerminalControlFactory.AddControl(useConveyorSystem);
         }
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)
@@ -999,6 +1003,45 @@ namespace Sandbox.Game.Entities.Cube
             pullInformation.OwnerID = OwnerId;
             pullInformation.Constraint = OutputInventory.Constraint;
             return pullInformation;
+        }
+
+        bool IMyProductionBlock.CanUseBlueprint(MyDefinitionBase blueprint)
+        {
+            return CanUseBlueprint(blueprint as MyBlueprintDefinition);
+        }
+
+        void IMyProductionBlock.AddQueueItem(MyDefinitionBase blueprint, MyFixedPoint amount)
+        {
+            AddQueueItemRequest(blueprint as MyBlueprintDefinition, amount);
+        }
+
+        void IMyProductionBlock.InsertQueueItem(int idx, MyDefinitionBase blueprint, MyFixedPoint amount)
+        {
+            InsertQueueItemRequest(idx, blueprint as MyBlueprintDefinition, amount);
+        }
+
+        void Sandbox.ModAPI.IMyProductionBlock.RemoveQueueItem(int idx, MyFixedPoint amount)
+        {
+            RemoveQueueItemRequest(idx, amount);
+        }
+
+        void Sandbox.ModAPI.IMyProductionBlock.ClearQueue()
+        {
+            ClearQueueRequest();
+        }
+
+        List<MyProductionQueueItem> IMyProductionBlock.GetQueue()
+        {
+            List<MyProductionQueueItem> result = new List<MyProductionQueueItem>(m_queue.Count);
+            foreach (var item in m_queue)
+            {
+                MyProductionQueueItem newItem = new MyProductionQueueItem();
+                newItem.Amount = item.Amount;
+                newItem.Blueprint = item.Blueprint;
+                newItem.ItemId = item.ItemId;
+                result.Add(newItem);
+            }
+            return result;
         }
 
         #endregion

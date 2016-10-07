@@ -19,6 +19,9 @@ using VRage.Game;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
+
+#if !XB1_TMP
+
     [MyDebugScreen("Render", "Character kinematics")]
     class MyGuiScreenDebugCharacterKinematics : MyGuiScreenDebugBase
     {
@@ -130,4 +133,6 @@ namespace Sandbox.Game.Screens.DebugScreens
         }
 
     }
+
+#endif
 }

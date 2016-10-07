@@ -108,11 +108,12 @@ namespace VRage.Audio
             set;
         }
         void SetSameSoundLimiter();
+        void EnableMasterLimiter(bool enable);
 
         event Action<bool> VoiceChatEnabled;
 
         void PlayMusic(MyMusicTrack? track = null, int priorityForRandom = 0);
-        IMySourceVoice PlayMusicCue(MyCueId musicCue);
+        IMySourceVoice PlayMusicCue(MyCueId musicCue, bool overrideMusicAllowed);
         void StopMusic();
         void MuteHud(bool mute);
         

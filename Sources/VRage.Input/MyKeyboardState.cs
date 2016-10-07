@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if !XB1
+
+using System.Collections.Generic;
 
 namespace VRage.Input
 {
@@ -43,3 +45,5 @@ namespace VRage.Input
         }
     }
 }
+
+#endif

@@ -194,7 +194,7 @@ namespace Sandbox.Game.Gui
 
         public static void JoinScenarioGame(ulong lobbyId)
         {
-            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningBattle);
+            StringBuilder text = MyTexts.Get(MySpaceTexts.DialogTextJoiningScenario);
 
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
@@ -373,7 +373,7 @@ namespace Sandbox.Game.Gui
         public static void OnJoinScenario(MyGuiScreenProgress progress, Result joinResult, LobbyEnterInfo enterInfo, MyMultiplayerBase multiplayer)
         {
             MyLog.Default.WriteLine(String.Format("Lobby join response: {0}, enter state: {1}", joinResult.ToString(), enterInfo.EnterState));
-
+          
             if (joinResult == Result.OK && enterInfo.EnterState == LobbyEnterResponseEnum.Success && multiplayer.GetOwner() != Sync.MyId)
             {
                 // Create session with empty world
@@ -387,6 +387,7 @@ namespace Sandbox.Game.Gui
 
                 progress.CloseScreen();
 
+                MyScreenManager.CloseAllScreensNowExcept(null);
                 MyLog.Default.WriteLine("Scenario lobby joined");
 
                 if (MyPerGameSettings.GUI.ScenarioLobbyClientScreen != null)

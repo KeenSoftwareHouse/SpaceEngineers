@@ -6,7 +6,7 @@ using VRage.Game.ModAPI;
 
 namespace Sandbox.ModAPI
 {
-    public interface IMyPistonBase : Sandbox.ModAPI.Ingame.IMyPistonBase
+    public interface IMyPistonBase : IMyFunctionalBlock, Sandbox.ModAPI.Ingame.IMyPistonBase
     {
         event Action<bool> LimitReached;
 

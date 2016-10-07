@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Sandbox.ModAPI;
+using System;
 
 namespace SpaceEngineers.Game.ModAPI
 {
-    public interface IMyShipMergeBlock:Ingame.IMyShipMergeBlock
+    public interface IMyShipMergeBlock : IMyFunctionalBlock, Ingame.IMyShipMergeBlock
     {
         event Action BeforeMerge;
     }

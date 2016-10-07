@@ -25,7 +25,7 @@ namespace VRageRender
         {
             if(m_factory == null)
             {
-                m_factory = new Factory();
+                m_factory = new Factory1();
             }
             return m_factory;
         }
@@ -216,21 +216,21 @@ namespace VRageRender
                 }
 
                 info.MaxAntialiasingModeSupported = MyAntialiasingMode.FXAA;
-                if (supportedDevice)
-                {
-                    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 2) > 0)
-                    {
-                        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_2;
-                    }
-                    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 4) > 0)
-                    {
-                        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_4;
-                    }
-                    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 8) > 0)
-                    {
-                        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_8;
-                    }
-                }
+                //if (supportedDevice)
+                //{
+                //    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 2) > 0)
+                //    {
+                //        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_2;
+                //    }
+                //    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 4) > 0)
+                //    {
+                //        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_4;
+                //    }
+                //    if (adapterTestDevice.CheckMultisampleQualityLevels(Format.R11G11B10_Float, 8) > 0)
+                //    {
+                //        info.MaxAntialiasingModeSupported = MyAntialiasingMode.MSAA_8;
+                //    }
+                //}
 
                 LogAdapterInfoBegin(ref info);
 

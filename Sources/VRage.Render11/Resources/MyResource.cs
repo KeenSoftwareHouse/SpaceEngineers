@@ -61,6 +61,7 @@ namespace VRageRender.Resources
 
         internal void Init()
         {
+            var srcData = MyTextures.Textures.Data[m_mergeList[0].Index];
             var srcDesc = MyTextures.GetView(m_mergeList[0]).Description;
             Size = MyTextures.GetSize(m_mergeList[0]);
             ArrayLen = m_mergeList.Length;
@@ -72,7 +73,7 @@ namespace VRageRender.Resources
             desc.Format = srcDesc.Format;
             desc.Height = (int)Size.Y;
             desc.Width = (int)Size.X;
-            desc.MipLevels = srcDesc.Texture2D.MipLevels == 1 ? 0 : srcDesc.Texture2D.MipLevels;
+            desc.MipLevels = srcDesc.Texture2D.MipLevels;
             desc.SampleDescription.Count = 1;
             desc.SampleDescription.Quality = 0;
             desc.Usage = ResourceUsage.Default;
@@ -87,12 +88,13 @@ namespace VRageRender.Resources
                 var data = MyTextures.Textures.Data[m_mergeList[a].Index];
                 var tex2D = data.Resource as Texture2D;
                 MyRenderProxy.Assert(tex2D != null, "MyTextureArray supports only 2D textures. Inconsistent texture: " + data.Name);
-                MyRenderProxy.Assert(tex2D.Description.Format == desc.Format && tex2D.Description.MipLevels == desc.MipLevels &&
-                    tex2D.Description.Width == desc.Width && tex2D.Description.Height == desc.Height,
-                    "All MyTextureArray has to have the same pixel format, width / height and # of mipmaps. Inconsistent texture: " + data.Name);
-                if (tex2D.Description.Format != desc.Format)
+                bool consistent = tex2D.Description.Format == desc.Format && tex2D.Description.MipLevels == desc.MipLevels &&
+                    tex2D.Description.Width == desc.Width && tex2D.Description.Height == desc.Height;
+                if (!consistent)
                 {
-                    MyRender11.Log.WriteLine(String.Format("Inconsistent format in textures array {0}", data.Name));
+                    string errorMsg = "All MyTextureArray has to have the same pixel format, width / height and # of mipmaps. Inconsistent textures: " + data.Name + " / " + srcData.Name;
+                    MyRenderProxy.Error(errorMsg);
+                    MyRender11.Log.WriteLine(errorMsg);
                 }
 
                 for (int m = 0; m < mipmaps; m++)

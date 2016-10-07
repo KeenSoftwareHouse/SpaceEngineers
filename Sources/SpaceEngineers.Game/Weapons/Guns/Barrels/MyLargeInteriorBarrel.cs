@@ -38,8 +38,16 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
             // Draw smoke:
             if (m_shotSmoke != null)
             {
-                m_shotSmoke.UserBirthMultiplier = m_smokeToGenerate;
-                m_shotSmoke.WorldMatrix = m_gunBase.GetMuzzleWorldMatrix();
+                if (m_smokeToGenerate == 0)
+                {
+                    m_shotSmoke.Stop();
+                    m_shotSmoke = null;
+                }
+                else
+                {
+                    m_shotSmoke.UserBirthMultiplier = m_smokeToGenerate;
+                    m_shotSmoke.WorldMatrix = m_gunBase.GetMuzzleWorldMatrix();
+                }
             }
         }
 
@@ -94,7 +102,6 @@ namespace SpaceEngineers.Game.Weapons.Guns.Barrels
 
             if (m_shotSmoke != null)
             {
-                m_shotSmoke.AutoDelete = false;
                 m_shotSmoke.UserEmitterScale = m_smokeToGenerate;
                 m_shotSmoke.WorldMatrix = m_gunBase.GetMuzzleWorldMatrix();
                 m_shotSmoke.UserScale = 5;

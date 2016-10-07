@@ -134,7 +134,8 @@ namespace VRageRender
         //  Add billboard for one frame only. This billboard isn't particle (it doesn't survive this frame, doesn't have update/draw methods, etc).
         //  It's used by other classes when they want to draw some billboard (e.g. rocket thrusts, reflector glare).
         public static void AddPointBillboard(string material,
-            Color color, Vector3D origin, float radius, float angle, int priority = 0, bool colorize = false, bool near = false, bool lowres = false, int customViewProjection = -1,bool cullwithStencil = false)
+            Color color, Vector3D origin, float radius, float angle, int priority = 0, bool colorize = false, 
+            bool near = false, bool lowres = false, int customViewProjection = -1,bool cullwithStencil = false)
         {
             Debug.Assert(material != null);
 
@@ -253,7 +254,8 @@ namespace VRageRender
         //  This method is like a constructor (which we can't use because billboards are allocated from a pool).
         //  It starts/initializes a billboard. Refs used only for optimalization
         public static void CreateBillboard(VRageRender.MyBillboard billboard, ref MyQuadD quad, string material, string blendMaterial, float textureBlendRatio,
-            ref Color color, ref Vector3D origin, Vector2 uvOffset, bool colorize = false, bool near = false, bool lowres = false, float reflectivity = 0)
+            ref Color color, ref Vector3D origin, Vector2 uvOffset, bool colorize = false, bool near = false, 
+            bool lowres = false, float reflectivity = 0)
         {
             Debug.Assert(material != null);
             

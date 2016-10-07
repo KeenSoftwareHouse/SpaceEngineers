@@ -19,10 +19,10 @@ namespace Sandbox.Game.SessionComponents
 		{
 			base.LoadData();
 
-			if (MyDefinitionManager.Static.EnvironmentDefinition == null)
+			if (MySector.EnvironmentDefinition == null)
 				return;
 
-			var typeList = MyDefinitionManager.Static.EnvironmentDefinition.EnvironmentalParticles;
+            var typeList = MySector.EnvironmentDefinition.EnvironmentalParticles;
 			foreach(var typeDefinition in typeList)
 			{
 				MyObjectBuilder_EnvironmentalParticleLogic objectBuilder = MyObjectBuilderSerializer.CreateNewObject(typeDefinition.Id) as MyObjectBuilder_EnvironmentalParticleLogic;

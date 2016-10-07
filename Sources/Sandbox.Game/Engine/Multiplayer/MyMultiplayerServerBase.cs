@@ -66,6 +66,12 @@ namespace Sandbox.Engine.Multiplayer
             syncLayer.TransportLayer.Register(MyMessageId.CLIENT_READY, (p) => ClientReady(p));
         }
 
+        public void RaiseReplicableCreated(object obj)
+        {
+            Debug.Assert(Sync.IsServer);
+            CreateReplicableForObject(obj);
+        }
+
         void CreateReplicableForObject(object obj)
         {
             Debug.Assert(obj != null);
@@ -85,6 +91,8 @@ namespace Sandbox.Engine.Multiplayer
             var type = m_factory.FindTypeFor(obj);
             if (type != null && ReplicationLayer.IsTypeReplicated(type))
             {
+                Debug.Assert(MyExternalReplicable.FindByObject(obj) == null, "Object is already replicated!");
+
                 var replicable = (MyExternalReplicable)Activator.CreateInstance(type);
                 replicable.Hook(obj);
                 ReplicationLayer.Replicate(replicable);

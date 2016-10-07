@@ -50,6 +50,92 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayDropItem</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.821624756</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayDropItem2d01.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayDropItem3d03.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayDropItem3d02.xwm</Start>
+        </Wave>
+        <Wave Type="D3">
+          <Start>ARC\PLAYER\ArcPlayDropItem3d01.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayDropItem2d02.xwm</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayDropItem2d03.xwm</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayDropItem</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <MaxDistance>20</MaxDistance>
+      <PitchVariation>120</PitchVariation>
+      <Volume>0.8</Volume>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayDropItem2d01.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>ArcPlayTakeItem</SubtypeId>
+      </Id>
+      <Category>PLAYER</Category>
+      <MaxDistance>20</MaxDistance>
+      <Volume>0.4</Volume>
+      <VolumeVariation>1</VolumeVariation>
+      <PitchVariation>100</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d01.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>ARC\PLAYER\ArcPlayTakeItem2d03.wav</Start>
+        </Wave>
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+        <SubtypeId>RealPlayTakeItem</SubtypeId>
+      </Id>
+      <Category>R_PLAYER</Category>
+      <Volume>0.8</Volume>
+      <PitchVariation>150</PitchVariation>
+      <Waves>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayTakeItem2d01.wav</Start>
+        </Wave>
+        <!--<Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayTakeItem2d02.wav</Start>
+        </Wave>
+        <Wave Type="D2">
+          <Start>Real\PLAYER\RealPlayTakeItem2d03.wav</Start>
+        </Wave>-->
+      </Waves>
+    </Sound>
+    <Sound>
+      <Id>
+        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
         <SubtypeId>ArcHudVocAmmoLow</SubtypeId>
       </Id>
       <Category>HUD_VOC</Category>

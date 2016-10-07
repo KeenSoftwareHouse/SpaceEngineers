@@ -61,8 +61,6 @@ namespace Sandbox.Engine.Utils
 
         public static bool SHOW_DAMAGE_EFFECTS = true;
 
-        public static bool SHOW_NEW_DAMAGE_EFFECTS = false;
-
         public static float THRUST_FORCE_RATIO = 1.0f;
 
         // Higher number makes deformation and destruction faster
@@ -97,11 +95,13 @@ namespace Sandbox.Engine.Utils
 
         public static bool SHOW_INVALID_TRIANGLES = false;
 
+        //Sound Myfakes
         public static bool ENABLE_NEW_SOUNDS = false;
         public static bool ENABLE_NEW_SOUNDS_QUICK_UPDATE = false;
         public static bool ENABLE_NEW_SMALL_SHIP_SOUNDS = true;
         public static bool ENABLE_NEW_LARGE_SHIP_SOUNDS = true;
-        public static bool ENABLE_MUSIC_CONTROLLER = false;
+        public static bool ENABLE_MUSIC_CONTROLLER = true;
+        public static bool ENABLE_REALISTIC_LIMITER = true;
 
         public static bool ENABLE_NON_PUBLIC_BLOCKS = false;
         public static bool ENABLE_NON_PUBLIC_SCENARIOS = !MyFinalBuildConstants.IS_OFFICIAL;
@@ -167,7 +167,7 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_CENTER_OF_MASS = true;
 
         // With debugger attached, throw exceptions during loading.
-        public static bool THROW_LOADING_ERRORS = Debugger.IsAttached;
+        public static bool THROW_LOADING_ERRORS = false;
 
         public static bool ENABLE_VIDEO_PLAYER = true;
 
@@ -244,7 +244,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_SPAWN_MENU_ASTEROIDS = true;
         public static bool ENABLE_SPAWN_MENU_PROCEDURAL_ASTEROIDS = true;
-        public static bool ENABLE_SPAWN_MENU_EMPTY_VOXEL_MAPS = false;
+        public static bool ENABLE_SPAWN_MENU_EMPTY_VOXEL_MAPS = MyFinalBuildConstants.IS_OFFICIAL;
 
         public static bool ENABLE_VOLUMETRIC_EXPLOSION = true;
 
@@ -317,9 +317,6 @@ namespace Sandbox.Engine.Utils
         public static bool DEBUG_DRAW_NAVMESH_FRINGE_HL_CELLS = false;
         public static bool DEBUG_DRAW_NAVMESH_LINKS = false;
         public static bool SHOW_PATH_EXPANSION_ASSERTS = false;
-        public static bool BARBARIANS_SPAWN_AT_DAY = false;
-        public static int BARBARIAN_STARTING_DAY = 1;
-        public static bool DEBUG_AVOID_RANDOM_AI = false;
         public static bool DEBUG_ONE_AI_STEP_SETTING = false;    // allow only one step od AI (by setting of flag DEBUG_ONE_AI_STEP)
         public static bool DEBUG_ONE_AI_STEP = false;
         public static bool DEBUG_ONE_VOXEL_PATHFINDING_STEP_SETTING = false;// allow only one step of voxel pathfinding (and 5 steps of other AI stuff) - it has higher priority than DEBUG_ONE_AI_STEP_SETTING
@@ -338,14 +335,12 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_COMMUNICATION = true;
 
-        public static bool ENABLE_GUI_HIDDEN_CUBEBLOCKS = false;
+        public static bool ENABLE_GUI_HIDDEN_CUBEBLOCKS = true;
 
-        public static bool ENABLE_BLOCK_STAGES = false;
+        public static bool ENABLE_BLOCK_STAGES = true;
         public static bool SHOW_REMOVE_GIZMO = true;
 
         public static bool ENABLE_PROGRAMMABLE_BLOCK = true;
-
-        public static bool CLIPBOARD_CUT_CONFIRMATION = true;
 
         public static bool ENABLE_DESTRUCTION_EFFECTS = true;
 
@@ -412,7 +407,7 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_ARMOR_HAND = false;
 
-        public static bool ENABLE_CUBE_BUILDER_DYNAMIC_MODE = false;
+        //public static bool ENABLE_CUBE_BUILDER_DYNAMIC_MODE = true;
 
         public static bool ASSERT_NON_PUBLIC_BLOCKS = false; 
         public static bool REMOVE_NON_PUBLIC_BLOCKS = false;
@@ -535,6 +530,12 @@ namespace Sandbox.Engine.Utils
         
         public static bool ENABLE_MEDIEVAL_INVENTORY = false;
 
+        /// <summary>
+        /// If true, container grid mass will be static
+        /// If false, container grid mass includes the content mass
+        /// </summary>
+        public static bool ENABLE_STATIC_INVENTORY_MASS = false;
+
         public static bool ENABLE_PLANETS = true;
 
         public static bool ENABLE_NEW_TRIGGERS = true;
@@ -592,7 +593,6 @@ namespace Sandbox.Engine.Utils
         public static bool TESTING_VEHICLES = false;
 	    public static bool ENABLE_WALKING_PARTICLES = true;
         public const bool UNRELIABLE_POSITION_SYNC = false;
-        public static bool USE_LOD1_VOXEL_PHYSICS = false;
 
         public static bool ENABLE_HYDROGEN_FUEL = true;
         public static bool WELD_PISTONS = true;
@@ -646,8 +646,13 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_MEDIEVAL_FACTIONS = false;
 
+#if XB1_TMP
+        public static bool ENABLE_RUN_WITHOUT_STEAM = true;
+#else
         public static bool ENABLE_RUN_WITHOUT_STEAM = false;
+#endif
 
+        public static bool PRECISE_SIM_SPEED = true;
         public static bool ENABLE_SIMSPEED_LOCKING = false;
 
         public static bool BACKGROUND_OXYGEN = true;
@@ -656,17 +661,32 @@ namespace Sandbox.Engine.Utils
 
         public static bool ENABLE_COMPONENT_BLOCKS = true;
         public static bool ENABLE_SMALL_GRID_BLOCK_INFO = true;
+        public static bool ENABLE_SMALL_GRID_BLOCK_COMPONENT_INFO = true;
 
         public static bool ENABLE_MEDIEVAL_AREA_INVENTORY = false;
 
         public static bool ENABLE_BOUNDINGBOX_SHRINKING = true;
 
         public static bool ENABLE_HUD_PICKED_UP_ITEMS = false;
+        public static bool USE_NEW_ENVIRONMENT_SECTORS = true;
 
         public static bool ENABLE_SENT_GROUP_AT_ONCE = false;
 
-        public static bool ENABLE_LOAD_NEEDED_SESSION_COMPONENTS = true;
+        public static bool ENABLE_QUICKLAUNCH_SKIP_MAIN_MENU = false;
 
+        public static bool ENABLE_REGROWTH_EVENT = true;
+
+        public static bool DISABLE_VOXEL_PHYSICS = false;
+
+        public static bool ENABLE_VR_DRONE_COLLISIONS = false;
+        public static bool ENABLE_VR_BLOCK_DEFORMATION_RATIO = false;
+        public static bool ENABLE_VR_REMOTE_BLOCK_AUTOPILOT_SPEED_LIMIT = false;
+        // Enable damage for some blocks even when grid is not destructible
+        public static bool ENABLE_VR_FORCE_BLOCK_DESTRUCTIBLE = false;
+        public static bool ENABLE_VR_REMOTE_CONTROL_WAYPOINTS_FAST_MOVEMENT = false;
+        public static bool ENABLE_VR_BUILDING = false;
+
+        public static bool ENABLE_LOAD_NEEDED_SESSION_COMPONENTS = false;
         public static bool ENABLE_SMALL_GRIDS_IN_SURVIVAL_TOOLBAR_CONFIG = true;
 
         public static bool ENABLE_CHARACTER_CONTROL_ON_SERVER = true;
@@ -675,5 +695,15 @@ namespace Sandbox.Engine.Utils
         public static bool ENABLE_SEPARATE_USE_AND_PICK_UP_KEY = false;
 
         public static bool ENABLE_USE_DEFAULT_DAMAGE_DECAL = false;
+
+        public static bool ENABLE_QUICK_WARDROBE = false;
+        public static bool ENABLE_TYPES_FROM_MODS = false;
+
+        public static bool ENABLE_PRELOAD_DEFINITIONS = true;
+        public static bool ENABLE_ME_DOOR_COLLISION_CHECK = true;
+
+        public static bool ENABLE_ROSLYN_SCRIPTS = true;
+
+        public static bool ENABLE_ROSLYN_SCRIPT_DIAGNOSTICS = false;
     }
 }

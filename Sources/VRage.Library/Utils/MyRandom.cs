@@ -258,6 +258,4 @@ namespace VRage.Library.Utils
             return (this.InternalSample() * 4.6566128752457969E-10);
         }
     }
-
-
 }

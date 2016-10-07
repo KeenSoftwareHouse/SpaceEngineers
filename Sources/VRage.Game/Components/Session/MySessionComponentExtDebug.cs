@@ -90,10 +90,8 @@ namespace VRage.Game.SessionComponents
             if (m_tempBuffer == IntPtr.Zero)
                 m_tempBuffer = Marshal.AllocHGlobal(MsgSizeLimit);
 
-#if OFFICIAL_BUILD == false
             if (!ForceDisable)
                 StartServer();
-#endif
 
             base.LoadData();
         }
@@ -139,7 +137,8 @@ namespace VRage.Game.SessionComponents
                 //m_listenerThread.Interrupt(); // will stop itself
                 foreach (var client in m_clients)
                 {
-                    client.TcpClient.Close();
+                    if (client.TcpClient != null)
+                        client.TcpClient.Close();
                 }
                 m_clients.ClearImmediate();
                 m_active = false;
@@ -154,7 +153,11 @@ namespace VRage.Game.SessionComponents
             Thread.CurrentThread.Name = "External Debugging Listener";
             ProfilerShort.Autocommit = false;
 
-            m_listener = new TcpListener(IPAddress.Any, GameDebugPort) {ExclusiveAddressUse = false};
+#if OFFICIAL_BUILD == true
+            m_listener = new TcpListener(IPAddress.Loopback, GameDebugPort) {ExclusiveAddressUse = false};
+#else
+            m_listener = new TcpListener(IPAddress.Any, GameDebugPort) { ExclusiveAddressUse = false };
+#endif
             try
             {
                 m_listener.Start();
@@ -214,6 +217,9 @@ namespace VRage.Game.SessionComponents
             {
                 if (clientInfo == null || clientInfo.TcpClient == null || clientInfo.TcpClient.Client == null || !clientInfo.TcpClient.Connected)
                 {
+                    if (clientInfo != null && clientInfo.TcpClient != null && clientInfo.TcpClient.Client != null && clientInfo.TcpClient.Client.Connected)
+                        clientInfo.TcpClient.Close();
+
                     m_clients.Remove(clientInfo);
                     continue;
                 }

@@ -1,6 +1,6 @@
 #include <frame.h>
 
-#define COLLISION_THICKNESS 1
+#define COLLISION_THICKNESS 0.1
 
 #define EMITTERFLAG_STREAKS 1
 #define EMITTERFLAG_COLLIDE 2
@@ -8,47 +8,59 @@
 #define EMITTERFLAG_DEAD 8
 #define EMITTERFLAG_LIGHT 0x10
 #define EMITTERFLAG_VOLUMETRICLIGHT 0x20
+#define EMITTERFLAG_DONOTSIMULATE 0x80
 
 #define MAX_PARTICLE_COLLISIONS 10
 
 // Emitter structure
 // ===================
 
+// look @VRageRender.MyGPUEmitterData for description
 struct EmittersStructuredBuffer
 {
     float4  Colors[4];
+
     float2  ColorKeys;
-    float2  AlphaKeys;
+    float   ColorVar;
+    float   Scale;
 
-    float3  Position;
-	float   Bounciness;
+    float3  EmitterSize;
+    float   EmitterSizeMin;
 
-    float3  PositionVariance;
-	float   OITWeightFactor;
-
-    float3  Velocity;
+    float3  Direction;
+    float   Velocity;
+    
     float   VelocityVariance;
-
-    float3  Acceleration;
+	float   DirectionCone;
+	float   DirectionConeVariance;
+    float   RotationVelocityVariance;
+	
+	float3  Acceleration;
     float   RotationVelocity;
 
-    float   Size[4];
+    float3  Gravity;
+    float   Bounciness;
 
-    float2  SizeKeys;
+    float   ParticleSize[4];
+
+    float2  ParticleSizeKeys;
     uint    NumParticlesToEmitThisFrame;
     float   ParticleLifeSpan;
 
     float   SoftParticleDistanceScale;
     float   StreakMultiplier;
     uint    Flags;
-	// format: 8b atlas texture array index, 6b atlas dimensionX, 6b atlas dimensionY, 12b image index in atlas
+    // format: 8b atlas texture array index, 6b atlas dimensionX, 6b atlas dimensionY, 12b image index in atlas
     uint    TextureIndex1;
-	
-	// bits 20..31: image animation modulo
-	uint    TextureIndex2;
-	// time per frame for animated particle image
-	float   AnimationFrameTime;
-	float   __Pad1, __Pad2;
+    
+    // bits 20..31: image animation modulo
+    uint    TextureIndex2;
+    // time per frame for animated particle image
+    float   AnimationFrameTime;
+    float   HueVar;
+    float   OITWeightFactor;
+
+    matrix  RotationMatrix;
 };
 
 // Particle structures
@@ -60,19 +72,22 @@ struct Particle
     float   Variation;              // Random value 0..1
 
     float3  Velocity;               // World space velocity
-	uint    EmitterIndex;           // The index of the emitter in 0-15 bits, 16-23 for atlas index, 24th bit is whether or not the emitter supports velocity-based streaks
-	
-	// lighting:
-	float3  Normal;
-	float   Age;                    // The current age counting down from lifespan to zero
-	float3  Origin;
-	uint    CollisionCount;         // Keep track of how many times the particle has collided
+    uint    EmitterIndex;           // The index of the emitter in 0-15 bits, 16-23 for atlas index, 24th bit is whether or not the emitter supports velocity-based streaks
+    
+    // lighting:
+    float3  Normal;
+    float   Age;                    // The current age counting down from lifespan to zero
+    float3  Origin;
+    uint    CollisionCount;         // Keep track of how many times the particle has collided
+
+    float   RotationVelocity;
+    float3  Acceleration;
 };
 
 // Function to calculate the streak radius in X and Y given the particles radius and velocity
-float2 calcEllipsoidRadius(float radius, float multiplier, float2 viewSpaceVelocity)
+float2 calcEllipsoidRadius(float radius, float2 viewSpaceVelocity)
 {
-    float minRadius = radius * max(1.0f, multiplier * length(viewSpaceVelocity));
+    float minRadius = radius * max(1.0f, length(viewSpaceVelocity));
     return float2(radius, minRadius);
 }
 
@@ -104,26 +119,26 @@ float Interpolate(float factor, float2 keys, out int index)
 #define ATLAS_INDEX_BITS 12
 #define ATLAS_DIMENSION_BITS 6
 #define ATLAS_TEXTURE_BITS 8
-float3 UnpackUV(float2 offset, uint textureIndex1, uint textureIndex2, float age, float frameTime)
+float3 UnpackUV(float2 offset, uint textureIndex1, uint textureIndex2, float lifeSpan, float age, float frameTime)
 {
-	float3 uvw;
-	uint imgOffset = textureIndex1 & ((1 << ATLAS_INDEX_BITS) - 1);
-	textureIndex1 >>= ATLAS_INDEX_BITS;
-	uint dimY = textureIndex1 & ((1 << ATLAS_DIMENSION_BITS) - 1);
-	textureIndex1 >>= ATLAS_DIMENSION_BITS;
-	uint dimX = textureIndex1 & ((1 << ATLAS_DIMENSION_BITS) - 1);
-	textureIndex1 >>= ATLAS_DIMENSION_BITS;
-	uint texIndex = textureIndex1 & ((1 << ATLAS_TEXTURE_BITS) - 1);
+    float3 uvw;
+    uint imgOffset = textureIndex1 & ((1 << ATLAS_INDEX_BITS) - 1);
+    textureIndex1 >>= ATLAS_INDEX_BITS;
+    uint dimY = textureIndex1 & ((1 << ATLAS_DIMENSION_BITS) - 1);
+    textureIndex1 >>= ATLAS_DIMENSION_BITS;
+    uint dimX = textureIndex1 & ((1 << ATLAS_DIMENSION_BITS) - 1);
+    textureIndex1 >>= ATLAS_DIMENSION_BITS;
+    uint texIndex = textureIndex1 & ((1 << ATLAS_TEXTURE_BITS) - 1);
 
-	uint frameModulo = textureIndex2 & ((1 << ATLAS_INDEX_BITS) - 1);
-	uint animImageIndex = age / frameTime;
-	uint animImageOffset = animImageIndex % frameModulo;
-	imgOffset += animImageOffset;
+    uint frameModulo = textureIndex2 & ((1 << ATLAS_INDEX_BITS) - 1);
+    uint animImageIndex = (lifeSpan - age) / frameTime;
+    uint animImageOffset = animImageIndex % frameModulo;
+    imgOffset += animImageOffset;
 
-	float2 uvOffset = (offset + 1) / 2;
-	uvw.x = float(imgOffset % dimX) / dimX + uvOffset.x / dimX;
-	uvw.y = float(imgOffset / dimX) / dimY + uvOffset.y / dimY;
-	uvw.z = texIndex;
+    float2 uvOffset = (offset + 1) / 2;
+    uvw.x = float(imgOffset % dimX) / dimX + uvOffset.x / dimX;
+    uvw.y = float(imgOffset / dimX) / dimY + uvOffset.y / dimY;
+    uvw.z = texIndex;
 
-	return uvw;
+    return uvw;
 }

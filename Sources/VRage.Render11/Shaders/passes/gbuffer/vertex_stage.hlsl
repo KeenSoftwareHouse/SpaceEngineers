@@ -17,7 +17,7 @@ void __vertex_shader(__VertexInput input, out VertexStageOutput output, uint sv_
 	vertex_program(vertex, output.custom);
 
 	output.position = vertex.position_clip;
-	output.key_color_alpha = float4(vertex.key_color, vertex.hologram);
+	output.key_color_alpha = float4(vertex.key_color, vertex.custom_alpha);
 	output.custom_alpha = vertex.custom_alpha;
 
 #ifdef BUILD_TANGENT_IN_PIXEL

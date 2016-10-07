@@ -9,7 +9,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Game.Components;
@@ -20,7 +20,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_VirtualMass))]
-    class MyVirtualMass : MyFunctionalBlock, IMyVirtualMass
+    public class MyVirtualMass : MyFunctionalBlock, IMyVirtualMass
     {
         #region Properties
 
@@ -164,7 +164,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 			ResourceSink.Update();
         }
 
-        float IMyVirtualMass.VirtualMass
+        float ModAPI.Ingame.IMyVirtualMass.VirtualMass
         {
             get { return BlockDefinition.VirtualMass; }
         }

@@ -10,6 +10,7 @@ using VRage.Input;
 using VRage.Plugins;
 using VRage.Utils;
 using VRageMath;
+using VRageRender;
 
 [Flags]
 public enum MyDirectXSupport : byte
@@ -284,8 +285,8 @@ namespace Sandbox.Game.Gui
             m_currentPosition.Y += buttonSize.Y * 1.1f;
 
             float groupStartPosition = m_currentPosition.Y;
-
-            bool rendererIsDirectX11 = MySandboxGame.Config.GraphicsRenderer.ToString().Equals("DirectX 11");
+            var renderer = MySandboxGame.Config.GraphicsRenderer;
+            bool rendererIsDirectX11 = !renderer.ToString().Equals(MySandboxGame.DirectX9RendererKey);
 
             foreach (var groupEntry in s_developScreenTypes)
             {
@@ -322,20 +323,24 @@ namespace Sandbox.Game.Gui
         //Because of edit and continue
         void CreateDebugDrawControls()
         {
+#if !XB1_TMP
             //Debug draw
             AddCheckBox("Debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.ENABLE_DEBUG_DRAW), true, s_debugDrawGroup.ControlList);
             AddCheckBox("Draw physics", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_PHYSICS), true, s_debugDrawGroup.ControlList);
             AddCheckBox("Audio debug draw", null, MemberHelper.GetMember(() => MyDebugDrawSettings.DEBUG_DRAW_AUDIO), true, s_debugDrawGroup.ControlList);
-            AddCheckBox("Profiler", () => EnableProfiler, (v) => EnableProfiler = v, true, s_debugDrawGroup.ControlList);
+            AddButton(new StringBuilder("Clear persistent"), (v) => MyRenderProxy.DebugClearPersistentMessages(), s_debugDrawGroup.ControlList);
             // AddCheckBox(new StringBuilder("Flatten primitive hierarchy"), null, MemberHelper.GetMember(() => MyPhysicsBody.DebugDrawFlattenHierarchy), true, s_debugDrawGroup.Item2);
-
+#endif
             m_currentPosition.Y += 0.01f;
         }
 
         //Because of edit and continue
         void CreatePerformanceControls()
         {
+#if !XB1_TMP
+            AddCheckBox("Profiler", () => EnableProfiler, (v) => EnableProfiler = v, true, s_performanceGroup.ControlList);
             AddCheckBox("Particles", null, MemberHelper.GetMember(() => MyParticlesManager.Enabled), true, s_performanceGroup.ControlList);
+#endif
             m_currentPosition.Y += 0.01f;
         }
 

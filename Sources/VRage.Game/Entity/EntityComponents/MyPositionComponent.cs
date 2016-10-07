@@ -95,7 +95,7 @@ namespace VRage.Game.Components
         {
             if (Entity.Parent != null && source != Entity.Parent)
                 return;
-            MyUtils.AssertIsValid(worldMatrix);
+            //MyUtils.AssertIsValid(worldMatrix);
 
             if (Scale != null)
             {

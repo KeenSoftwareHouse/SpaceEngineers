@@ -100,12 +100,12 @@ namespace VRageRender
 
         internal void AddMainViewPass(MyViewport viewport, MyGBuffer gbuffer)
         {
-            int frustumMask = AddFrustum(ref MyEnvironment.ViewProjectionD);
+            int frustumMask = AddFrustum(ref MyRender11.Environment.ViewProjectionD);
             FrustumCullQueries[Size - 1].Type = MyFrustumEnum.MainFrustum;
 
             var pass = MyObjectPoolManager.Allocate<MyGBufferPass>();
             pass.ProcessingMask = frustumMask;
-            pass.ViewProjection = MyEnvironment.ViewProjectionAt0;
+            pass.ViewProjection = MyRender11.Environment.ViewProjectionAt0;
             pass.Viewport = viewport;
             pass.GBuffer = gbuffer;
 

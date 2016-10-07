@@ -194,7 +194,7 @@ namespace VRageRender
             }
             return def;
         }
-#if !BLIT
+#if !XB1
         public static TValue Get<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> dictionary, TKey key, TValue def = default(TValue))
         {
             TValue value;

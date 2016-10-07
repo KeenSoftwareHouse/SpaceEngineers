@@ -219,6 +219,11 @@ namespace Sandbox.Game.Entities
             return WorldToGridInteger(coords);
         }
 
+        bool IMyCubeGrid.WillRemoveBlockSplitGrid( IMySlimBlock testBlock )
+        {
+            return WillRemoveBlockSplitGrid( (MySlimBlock)testBlock );
+        }
+
         Action<MySlimBlock> GetDelegate(Action<IMySlimBlock> value)
         {
             return (Action<MySlimBlock>)Delegate.CreateDelegate(typeof(Action<MySlimBlock>), value.Target, value.Method);

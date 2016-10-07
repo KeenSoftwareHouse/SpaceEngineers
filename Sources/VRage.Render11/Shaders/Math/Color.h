@@ -28,6 +28,13 @@ float3 srgb_to_rgb(float3 srgb)
     return rgb;
 }
 
+float4 srgba_to_rgba(float4 srgb)
+{
+    float4 rgb = (srgb <= 0.04045) * srgb / 12.92;
+    rgb += (srgb > 0.04045) * pow((abs(srgb) + 0.055) / 1.055, 2.4);
+    return rgb;
+}
+
 float3 rgb_to_srgb(float3 rgb)
 {
     return pow(rgb, 1 / 2.2f);

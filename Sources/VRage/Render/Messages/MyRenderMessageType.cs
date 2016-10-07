@@ -8,13 +8,15 @@ namespace VRageRender
     public enum MyRenderMessageType
     {
         /// <summary>
-        /// Draw message, skipped when processing multiple updates (only handled in last update before draw)
-        /// Draw sprite, debug draw...
+        /// Draw message
+        /// Skipped when renderer is falling behind and has to process multiple enqueued frames (only handled in last frame before draw)
+        /// Draw sprite, Draw light
         /// </summary>
         Draw,
 
         /// <summary>
-        /// Debug Draw message, in render11 this messages are queued internally 
+        /// Debug Draw message, in render11 these messages are queued internally
+        /// Skipped when renderer is falling behind and has to process multiple enqueued frames (only handled in last frame before draw)
         /// Draw sprite, debug draw...
         /// </summary>
         DebugDraw,

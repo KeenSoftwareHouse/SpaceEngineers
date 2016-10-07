@@ -15,10 +15,9 @@ namespace Sandbox.Game.Components
 			m_entity = entity;
 		}
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
 			m_sink.DebugDraw(m_entity.PositionComp.WorldMatrix);
-            return true;
         }
     }
 }

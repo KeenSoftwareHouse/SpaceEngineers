@@ -315,10 +315,11 @@ namespace Sandbox.Game.Audio
 
             //planet or space
             Vector3D pos = MySession.Static.LocalCharacter.PositionComp.GetPosition();
-            MyPlanet planet = MyGravityProviderSystem.GetNearestPlanet(pos);
-            if (planet != null && Vector3D.Distance(pos, planet.PositionComp.GetPosition()) <= planet.GravityLimit * 0.65f)
+            MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(pos);
+            var grav = planet!= null ? planet.Components.Get<MyGravityProviderComponent>() as MySphericalNaturalGravityComponent : null;
+            if (planet != null && (grav != null) && Vector3D.Distance(pos, planet.PositionComp.GetPosition()) <= grav.GravityLimit * 0.65f)
             {
-                if(planet != m_lastVisitedPlanet)
+                if (planet != m_lastVisitedPlanet)
                 {
                     m_lastVisitedPlanet = planet;
                     if (planet.Generator.MusicCategories != null && planet.Generator.MusicCategories.Count > 0)
@@ -373,16 +374,18 @@ namespace Sandbox.Game.Audio
 
         private void PlayMusic(MyCueId cue, MyStringHash effect, int effectDuration = 2000, MyCueId[] cueIds = null, bool play = true)
         {
+            if (MyAudio.Static == null)
+                return;
             if(play)
-                m_musicSourceVoice = MyAudio.Static.PlayMusicCue(cue);
+                m_musicSourceVoice = MyAudio.Static.PlayMusicCue(cue, true);
             if (m_musicSourceVoice != null)
             {
                 if (effect != MyStringHash.NullOrEmpty)
                 {
-                    var effectSourceVoice = MyAudio.Static.ApplyEffect(m_musicSourceVoice, effect, cueIds, effectDuration);
-                    m_musicSourceVoice = effectSourceVoice.OutputSound;
+                    m_musicSourceVoice = MyAudio.Static.ApplyEffect(m_musicSourceVoice, effect, cueIds, effectDuration).OutputSound;
                 }
-                m_musicSourceVoice.StoppedPlaying += MusicStopped;
+                if (m_musicSourceVoice != null)
+                    m_musicSourceVoice.StoppedPlaying += MusicStopped;
             }
             m_lastMusicData = MyAudio.Static.GetCue(cue);
         }
@@ -437,6 +440,17 @@ namespace Sandbox.Game.Audio
         {
             ClearMusicCues();
             m_musicCuesAll = musicCues;
+        }
+
+        public void Unload()
+        {
+            if(m_musicSourceVoice != null)
+            {
+                m_musicSourceVoice.Stop();
+                m_musicSourceVoice = null;
+            }
+            Active = false;
+            ClearMusicCues();
         }
 
         #endregion

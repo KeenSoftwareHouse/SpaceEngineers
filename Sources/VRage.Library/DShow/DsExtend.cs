@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace DShowNET
 {
-#if !BLIT
+#if !XB1_TMP
     [ComVisible(true), ComImport,
     Guid("56a868a9-0ad4-11ce-b03a-0020af0ba770"),
     InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

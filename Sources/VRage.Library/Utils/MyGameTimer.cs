@@ -13,11 +13,19 @@ namespace VRage.Library.Utils
     public class MyGameTimer
     {
         long m_startTicks;
+        long m_elapsedTicks;
+        double m_multiplier = 1;
 
         /// <summary>
         /// Number of ticks per seconds
         /// </summary>
         public static readonly long Frequency = Stopwatch.Frequency;
+
+        public double Multiplier
+        {
+            get { return m_multiplier; }
+            set { m_elapsedTicks = ElapsedTicks; m_startTicks = Stopwatch.GetTimestamp(); m_multiplier = value; }
+        }
 
         /// <summary>
         /// This may not be accurate for large values - double accuracy
@@ -34,7 +42,7 @@ namespace VRage.Library.Utils
         {
             get
             {
-                return Stopwatch.GetTimestamp() - m_startTicks;
+                return m_elapsedTicks + (long)(m_multiplier * (Stopwatch.GetTimestamp() - m_startTicks));
             }
         }
 
@@ -42,7 +50,7 @@ namespace VRage.Library.Utils
         {
             get
             {
-                return new MyTimeSpan(Stopwatch.GetTimestamp() - m_startTicks);
+                return new MyTimeSpan(ElapsedTicks);
             }
         }
 

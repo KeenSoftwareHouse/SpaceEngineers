@@ -26,7 +26,7 @@ namespace VRageMath
         public static Matrix Zero = new Matrix(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
-#if !BLIT
+#if !XB1
 
         /// <summary>
         /// Matrix values
@@ -1494,6 +1494,32 @@ namespace VRageMath
             result.M42 = 0.0f;
             result.M43 = 0.0f;
             result.M44 = 1f;
+        }
+
+        public static void CreateRotationFromTwoVectors(ref Vector3 fromVector, ref Vector3 toVector, out Matrix resultMatrix)
+        {
+            Vector3 fromVectorNormalized = Vector3.Normalize(fromVector);
+            Vector3 toVectorNormalized = Vector3.Normalize(toVector);
+
+            Vector3 rotAxis;
+            Vector3 thirdAxis;
+            Vector3.Cross(ref fromVectorNormalized, ref toVectorNormalized, out rotAxis);
+            rotAxis.Normalize();
+            Vector3.Cross(ref fromVectorNormalized, ref rotAxis, out thirdAxis);
+            Matrix fromMatrixTransposed = new Matrix(
+                fromVectorNormalized.X, rotAxis.X, thirdAxis.X, 0,
+                fromVectorNormalized.Y, rotAxis.Y, thirdAxis.Y, 0,
+                fromVectorNormalized.Z, rotAxis.Z, thirdAxis.Z, 0,
+                0, 0, 0, 1);
+            
+            Vector3.Cross(ref toVectorNormalized, ref rotAxis, out thirdAxis);
+            Matrix toMatrix = new Matrix(
+                toVectorNormalized.X, toVectorNormalized.Y, toVectorNormalized.Z, 0,
+                rotAxis.X, rotAxis.Y, rotAxis.Z, 0,
+                thirdAxis.X, thirdAxis.Y, thirdAxis.Z, 0,
+                0, 0, 0, 1);
+
+            resultMatrix = fromMatrixTransposed * toMatrix;
         }
 
         /// <summary>

@@ -16,6 +16,7 @@ using Sandbox.Game.AI;
 using VRage.Game.Entity;
 using Sandbox.Engine.Utils;
 using VRage.Game;
+using Sandbox.Engine.Physics;
 
 namespace Sandbox.Game.Entities
 {
@@ -432,14 +433,18 @@ namespace Sandbox.Game.Entities
             return m_retvalBlockInfos;
         }
 
-        public static List<CollectibleInfo> FindCollectiblesInRadius(Vector3D fromPosition, double radius)
+        public static List<CollectibleInfo> FindCollectiblesInRadius(Vector3D fromPosition, double radius, bool doRaycast = false)
         {
             Debug.Assert(m_retvalCollectibleInfos.Count == 0, "The result of the last call of FindComponentsInRadius was not cleared!");
+
+            List<MyPhysics.HitInfo> hits = new List<MyPhysics.HitInfo>();
 
             BoundingSphereD sphere = new BoundingSphereD(fromPosition, radius);
             var entities = MyEntities.GetEntitiesInSphere(ref sphere);
             foreach (var entity in entities)
             {
+                bool addCollectibleInfo = false;
+
                 CollectibleInfo info = new CollectibleInfo();
                 MyCubeBlock block = null;
                 MyCubeGrid grid = TryGetAsComponent(entity, out block);
@@ -454,7 +459,7 @@ namespace Sandbox.Game.Entities
                         Debug.Assert(false, "Block definition does not have any components!");
                         info.Amount = 0;
                     }
-                    m_retvalCollectibleInfos.Add(info);
+                    addCollectibleInfo = true;
                 }
                 else if (entity is MyFloatingObject)
                 {
@@ -465,6 +470,29 @@ namespace Sandbox.Game.Entities
                         info.EntityId = floatingObj.EntityId;
                         info.DefinitionId = defId;
                         info.Amount = floatingObj.Item.Amount;
+                        addCollectibleInfo = true;
+                    }
+                }
+
+                if (addCollectibleInfo)
+                {
+                    bool hitSomething = false;
+                    MyPhysics.CastRay(fromPosition, entity.WorldMatrix.Translation, hits, MyPhysics.CollisionLayers.DefaultCollisionLayer);
+                    foreach (var hit in hits)
+                    {
+                        var hitEntity = hit.HkHitInfo.GetHitEntity();
+                        if (hitEntity == entity) continue;
+                        if (hitEntity is MyCharacter) continue;
+                        if (hitEntity is MyFracturedPiece) continue;
+                        if (hitEntity is MyFloatingObject) continue;
+                        MyCubeBlock dummy = null;
+                        if (TryGetAsComponent(hitEntity as MyEntity, out dummy) != null) continue;
+                        hitSomething = true;
+                        break;
+                    }
+
+                    if (!hitSomething)
+                    {
                         m_retvalCollectibleInfos.Add(info);
                     }
                 }

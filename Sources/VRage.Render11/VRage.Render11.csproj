@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,8 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VRage.Render11</RootNamespace>
     <AssemblyName>VRage.Render11</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +24,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <NoWarn>0661, 0660</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -32,6 +35,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -43,10 +47,55 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
     <DefineConstants>TRACE;WINDOWS</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -61,14 +110,23 @@
     <Reference Include="SharpDX.D3DCompiler">
       <HintPath>..\..\3rd\SharpDX\SharpDX.D3DCompiler.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Direct2D1">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Direct2D1.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.Direct3D11">
       <HintPath>..\..\3rd\SharpDX\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D9">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI">
       <HintPath>..\..\3rd\SharpDX\SharpDX.DXGI.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.Toolkit.Graphics">
-      <HintPath>..\..\3rd\SharpDX\SharpDX.Toolkit.Graphics.dll</HintPath>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit">
+      <HintPath>..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -87,6 +145,7 @@
     <Compile Include="Common\MyCommon.cs" />
     <Compile Include="Common\MyEnvironment.cs" />
     <Compile Include="Common\MyObjectPoolManager.cs" />
+    <Compile Include="OpenVR\MyStereoRender.cs" />
     <Compile Include="GeometryStage\Actor\ActorWorks.cs" />
     <Compile Include="GeometryStage\Actor\Components\MyInstanceLodComponent.cs" />
     <Compile Include="GeometryStage\Actor\MyLodUtils.cs" />
@@ -124,7 +183,7 @@
     <Compile Include="LightingStage\EnvironmentProve\MyEnvProbeProcessing.cs" />
     <Compile Include="LightingStage\Shadows\MyShadowCascades.cs" />
     <Compile Include="LightingStage\Shadows\MyShadowCascadesPostProcess.cs" />
-    <Compile Include="LightingStage\Shadows\MyShadowsResolve.cs" />
+    <Compile Include="OpenVR\MyStereoStencilMask.cs" />
     <Compile Include="PostprocessStage\MyBlendTargets.cs" />
     <Compile Include="PostprocessStage\MyBlur.cs" />
     <Compile Include="PostprocessStage\MyPlanetBlur.cs" />
@@ -185,6 +244,7 @@
     <Compile Include="Primitives\MyBillboardRenderer.cs" />
     <Compile Include="Render\MyDepthStencilState.cs" />
     <Compile Include="Render\MyQuery.cs" />
+    <Compile Include="Render\MyTextureData.cs" />
     <Compile Include="Render\Utils\MyFreelist.cs" />
     <Compile Include="Render\Utils\MyPackedPool.cs" />
     <Compile Include="Render\MyRender-DebugMessages.cs" />
@@ -213,10 +273,18 @@
     <Compile Include="Resources\MyTextureAtlas.cs" />
     <Compile Include="Resources\MyTextures.cs" />
     <Compile Include="Resources\MyResource.cs" />
-    <Compile Include="TransparentStage\MyGPUEmitter.cs" />
+    <Compile Include="TransparentStage\MyFlareRenderer.cs" />
     <Compile Include="TransparentStage\MyGPUEmitters.cs" />
     <Compile Include="TransparentStage\MyGPUParticleRenderer.cs" />
     <Compile Include="TransparentStage\MyTransparentRendering.cs" />
+    <Content Include="Shaders\billboard.h" />
+    <Content Include="Shaders\billboard_depth_only.hlsl" />
+    <Content Include="d3dcompiler_47.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="d3dcsx_47.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Shaders\data_visualization.h" />
     <Content Include="Shaders\data_visualization_histogram.hlsl" />
     <Content Include="Shaders\data_visualization_tonemapping.hlsl" />
@@ -238,6 +306,7 @@
     <Content Include="Shaders\debug_metalness.hlsl" />
     <Content Include="Shaders\debug_NDotL.hlsl" />
     <Content Include="Shaders\debug_normal.hlsl" />
+    <Content Include="Shaders\debug_normal_view.hlsl" />
     <Content Include="Shaders\Foliage\Foliage.h" />
     <Content Include="Shaders\Foliage\GrassFoliage.h" />
     <Content Include="Shaders\Foliage\RockFoliage.h" />
@@ -259,6 +328,10 @@
     <ProjectReference Include="..\VRage.Math\VRage.Math.csproj">
       <Project>{40ce67d5-c89f-4a56-ae52-85db1bea07fe}</Project>
       <Name>VRage.Math</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.OpenVRWrapper\VRage.OpenVRWrapper.csproj">
+      <Project>{21865086-a876-40b0-9b2e-f20d8b0ea723}</Project>
+      <Name>VRage.OpenVRWrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
@@ -286,7 +359,6 @@
     <Content Include="Shaders\common.h" />
     <Content Include="Shaders\csm.h" />
     <Content Include="Shaders\D3DX_DXGIFormatConvert.inl" />
-    <Content Include="Shaders\Data.h" />
     <Content Include="Shaders\decal.hlsl" />
     <Content Include="Shaders\depth_resolve.hlsl" />
     <Content Include="Shaders\edge_detection.hlsl" />
@@ -334,6 +406,7 @@
     <Content Include="Shaders\Math\math.h" />
     <Content Include="Shaders\Particles\Emit.hlsl" />
     <Content Include="Shaders\Particles\Globals.h" />
+    <Content Include="Shaders\Particles\EmitSkipFix.hlsl" />
     <Content Include="Shaders\Particles\InitDeadList.hlsl" />
     <Content Include="Shaders\Particles\Render.hlsl" />
     <Content Include="Shaders\Particles\Reset.hlsl" />
@@ -349,10 +422,11 @@
     <Content Include="Shaders\passes\gbuffer\vertex_stage.hlsl" />
     <Content Include="Shaders\passes\highlight\pixel_stage.hlsl" />
     <Content Include="Shaders\passes\highlight\vertex_stage.hlsl" />
+    <Content Include="Shaders\pixel_utils.h" />
     <Content Include="Shaders\postprocess_colorize_exported_texture.hlsl" />
     <Content Include="Shaders\passes\test\pixel_stage.hlsl" />
     <Content Include="Shaders\passes\test\vertex_stage.hlsl" />
-    <Content Include="Shaders\materials\pixel_utils.h" />
+    <Content Include="Shaders\materials\pixel_utils_materials.h" />
     <Content Include="Shaders\pixel_template_base.h" />
     <Content Include="Shaders\postprocess.h" />
     <Content Include="Shaders\postprocess_base.h" />

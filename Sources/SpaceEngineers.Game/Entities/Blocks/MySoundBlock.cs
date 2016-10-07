@@ -13,7 +13,7 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Gui;
 using Sandbox.Game.Localization;
 using Sandbox.Graphics.GUI;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage;
 using VRage.Audio;
 using VRage.Game;
@@ -25,7 +25,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_SoundBlock))]
-    class MySoundBlock : MyFunctionalBlock, IMySoundBlock
+    public class MySoundBlock : MyFunctionalBlock, IMySoundBlock
     {
         private const float MAXIMUM_LOOP_PERIOD = 30 * 60f; // seconds
         private const int EMITTERS_NUMBER = 5;
@@ -115,8 +115,31 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
         #region Init & object builder
 
-        static MySoundBlock()
-        {      
+        public MySoundBlock() : base()
+        {
+            CreateTerminalControls();
+
+            m_soundPair = new MySoundPair();
+
+            m_soundEmitterIndex = 0;
+            m_soundEmitters = new MyEntity3DSoundEmitter[EMITTERS_NUMBER];
+            for (int i = 0; i < EMITTERS_NUMBER; i++)
+            {
+                m_soundEmitters[i] = new MyEntity3DSoundEmitter(this);
+                m_soundEmitters[i].Force3D = true;
+            }
+
+            m_volume.ValueChanged += (x) => VolumeChanged();
+            m_soundRadius.ValueChanged += (x) => RadiusChanged();
+            m_cueId.ValueChanged += (x) => SelectionChanged();
+
+        }
+
+        static void CreateTerminalControls()
+        {
+            if (MyTerminalControlFactory.AreControlsCreated<MySoundBlock>())
+                return;
+
             var volumeSlider = new MyTerminalControlSlider<MySoundBlock>("VolumeSlider", MySpaceTexts.BlockPropertyTitle_SoundBlockVolume, MySpaceTexts.BlockPropertyDescription_SoundBlockVolume);
             volumeSlider.SetLimits(0, 1.0f);
             volumeSlider.DefaultValue = 1;
@@ -161,24 +184,6 @@ namespace SpaceEngineers.Game.Entities.Blocks
             soundsList.ListContent = (x, list1, list2) => x.FillListContent(list1, list2);
             soundsList.ItemSelected = (x, y) => x.SelectSound(y, true);
             MyTerminalControlFactory.AddControl(soundsList);
-        }
-
-        public MySoundBlock() : base()
-        {
-            m_soundPair = new MySoundPair();
-
-            m_soundEmitterIndex = 0;
-            m_soundEmitters = new MyEntity3DSoundEmitter[EMITTERS_NUMBER];
-            for (int i = 0; i < EMITTERS_NUMBER; i++)
-            {
-                m_soundEmitters[i] = new MyEntity3DSoundEmitter(this);
-                m_soundEmitters[i].Force3D = true;
-            }
-
-            m_volume.ValueChanged += (x) => VolumeChanged();
-            m_soundRadius.ValueChanged += (x) => RadiusChanged();
-            m_cueId.ValueChanged += (x) => SelectionChanged();
-
         }
 
         void SelectionChanged()
@@ -297,7 +302,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
         [Event, Reliable, Server, Broadcast]
         public void PlaySound()
         {
-            if (!m_soundPair.SoundId.IsNull)
+            if (!m_soundPair.SoundId.IsNull && Enabled && IsWorking)
             {
                 StopSound();
                 if (IsLoopable)
@@ -549,9 +554,9 @@ namespace SpaceEngineers.Game.Entities.Blocks
             return newCue == m_soundEmitters[m_soundEmitterIndex].SoundId;
         }
 
-        float IMySoundBlock.Volume { get {return Volume;} }
-        float IMySoundBlock.Range { get {return Range;}  }
-        bool IMySoundBlock.IsSoundSelected{ get {return IsSoundSelected;}}
-        float IMySoundBlock.LoopPeriod { get { return LoopPeriod; } }
+        float ModAPI.Ingame.IMySoundBlock.Volume { get {return Volume;} }
+        float ModAPI.Ingame.IMySoundBlock.Range { get { return Range; } }
+        bool ModAPI.Ingame.IMySoundBlock.IsSoundSelected { get { return IsSoundSelected; } }
+        float ModAPI.Ingame.IMySoundBlock.LoopPeriod { get { return LoopPeriod; } }
     }
 }

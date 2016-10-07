@@ -43,7 +43,7 @@ namespace ProtoBuf
             return result;
         }
 
-#if BLITCREMENTAL
+#if UNSHARPER_TMP
         /// <summary>
         /// Creates a new ProtoMemberAttribute instance.
         /// </summary>
@@ -241,7 +241,7 @@ namespace ProtoBuf
             : base(tag)
 #endif
         {
-#if BLITCREMENTAL
+#if UNSHARPER_TMP
 #else
             if (Helpers.IsNullOrEmpty(memberName)) throw new ArgumentNullException("memberName");
 #endif

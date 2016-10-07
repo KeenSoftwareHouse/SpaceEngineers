@@ -177,7 +177,7 @@ namespace VRageRender
         internal void UpdateEntity(MyActor actor)
         {
             //var matrix = actor.WorldMatrix;
-            //matrix.Translation = matrix.Translation - MyEnvironment.CameraPosition;
+            //matrix.Translation = matrix.Translation - MyRender11.Environment.CameraPosition;
             m_mergeGroup.UpdateEntity(actor, ref actor.WorldMatrix, actor.GetRenderable().m_depthBias);
         }
 
@@ -337,6 +337,12 @@ namespace VRageRender
         {
             int rootMaterialRK = MyMeshMaterials1.Table[matId.Index].RepresentationKey;
             return m_materialGroups[rootMaterialRK];
+        }
+
+        public bool TryGetMaterialGroup(MyMeshMaterialId matId, out MyMaterialMergeGroup group)
+        {
+            int rootMaterialRK = MyMeshMaterials1.Table[matId.Index].RepresentationKey;
+            return m_materialGroups.TryGetValue(rootMaterialRK, out group);
         }
 
         internal void OnDeviceReset()

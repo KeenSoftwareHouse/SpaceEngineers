@@ -150,7 +150,7 @@ namespace Sandbox.Game.AI
                 return m_player != null
                     && m_player.Controller.ControlledEntity != null
                     && m_player.Controller.ControlledEntity.Entity != null
-                    && !AgentEntity.IsDead;
+                    && AgentEntity != null && !AgentEntity.IsDead;
             }
         }
 
@@ -270,13 +270,13 @@ namespace Sandbox.Game.AI
         {
             if (m_player.Controller.ControlledEntity != null)
             {
-                if (AgentEntity.IsDead && !m_respawnRequestSent)
+                if (AgentEntity != null && AgentEntity.IsDead && !m_respawnRequestSent)
                 {
                     HandleDeadBot();
                 }
                 else
                 {
-                    if (!AgentEntity.IsDead && m_respawnRequestSent) EraseRespawn();
+                    if (AgentEntity != null && !AgentEntity.IsDead && m_respawnRequestSent) EraseRespawn();
                     UpdateInternal();
                 }
             }

@@ -122,6 +122,8 @@ namespace VRage.Game.Entity
         public bool StaticForPruningStructure = false;
         public int TargetPruningProxyId = MyVRageConstants.PRUNING_PROXY_ID_UNITIALIZED;
 
+        bool m_raisePhysicsCalled = false;
+
         #endregion
 
         #region Properties
@@ -935,6 +937,11 @@ namespace VRage.Game.Entity
         //jn:TODO this should be on Physics component
         public void RaisePhysicsChanged()
         {
+            if (m_raisePhysicsCalled)
+            {
+                return;
+            }
+            m_raisePhysicsCalled = true;
             // TODO: JanN, this should be done cleaner imho
             if (!InScene)
             {
@@ -953,9 +960,19 @@ namespace VRage.Game.Entity
                 }
                 m_tmpOnPhysicsChanged.Clear();
             }
+            m_raisePhysicsCalled = false;
         }
 
         #region Drawing, objectbuilder, init & close
+
+        /// <summary>
+        /// DONT USE THIS METHOD, EVER!
+        /// </summary>
+        /// <param name="id"></param>
+        public void HackyComponentInitByMiroPleaseDontUseEver(MyDefinitionId id)
+        {
+            InitComponentsExtCallback(Components, id.TypeId, id.SubtypeId, null);
+        }
 
         public virtual void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -983,14 +1000,15 @@ namespace VRage.Game.Entity
                 {
                     var posAndOrient = objectBuilder.PositionAndOrientation.Value;
                     MatrixD matrix = MatrixD.CreateWorld(posAndOrient.Position, posAndOrient.Forward, posAndOrient.Up);
+                    //if (matrix.IsValid())
+                    //    MatrixD.Rescale(ref matrix, scale);
                     MyUtils.AssertIsValid(matrix);
-
                     PositionComp.SetWorldMatrix((MatrixD)matrix);
                     ClampToWorld();
                 }
 
                 this.Name = objectBuilder.Name;
-                this.Render.PersistentFlags = objectBuilder.PersistentFlags;
+                this.Render.PersistentFlags = objectBuilder.PersistentFlags & ~VRage.ObjectBuilders.MyPersistentEntityFlags2.InScene;
 
                 // This needs to be called after Entity has it's valid EntityID so components when are initiliazed or added to container, they get valid EntityID
                 InitComponentsExtCallback(this.Components, DefinitionId.Value.TypeId, DefinitionId.Value.SubtypeId, objectBuilder.ComponentContainer);
@@ -1000,7 +1018,7 @@ namespace VRage.Game.Entity
                 AllocateEntityID();
             }
 
-            this.InScene = false;
+            Debug.Assert(!this.InScene, "Entity is in scene after creation!");
 
             MyEntitiesInterface.SetEntityName(this, false);
 
@@ -1065,27 +1083,32 @@ namespace VRage.Game.Entity
                 parentObject.Hierarchy.AddChild(this, false, false);
             }
 
+            if (PositionComp.Scale == null)
             PositionComp.Scale = scale;
 
             AllocateEntityID();
             ProfilerShort.End();
         }
 
-        public void RefreshModels(string model, string modelCollision)
+        public virtual void RefreshModels(string model, string modelCollision)
         {
+            float scale = PositionComp.Scale.GetValueOrDefault(1.0f);
             if (model != null)
             {
                 Render.ModelStorage = VRage.Game.Models.MyModels.GetModelOnlyData(model);
                 var renderModel = Render.GetModel();
-                PositionComp.LocalVolumeOffset = renderModel == null ? Vector3.Zero : renderModel.BoundingSphere.Center;
-            }
+                PositionComp.LocalVolumeOffset = renderModel == null ? Vector3.Zero : renderModel.BoundingSphere.Center * scale;
+             }
 
             if (modelCollision != null)
                 m_modelCollision = VRage.Game.Models.MyModels.GetModelOnlyData(modelCollision);
 
             if (Render.ModelStorage != null)
             {
-                this.PositionComp.LocalAABB = Render.GetModel().BoundingBox;
+                var localAABB = Render.GetModel().BoundingBox;
+                localAABB.Min = localAABB.Min * scale;
+                localAABB.Max = localAABB.Max * scale;
+                this.PositionComp.LocalAABB = localAABB;
 
                 bool idAllocationState = MyEntityIdentifier.AllocationSuspended;
                 try
@@ -1124,7 +1147,12 @@ namespace VRage.Game.Entity
                         MyEntitySubpart subpart = new MyEntitySubpart();
                         subpart.Render.EnableColorMaskHsv = Render.EnableColorMaskHsv;
                         subpart.Render.ColorMaskHsv = Render.ColorMaskHsv;
-                        subpart.Init(null, data.File, this, null);
+                        // First rescale model
+                        var subPartModel = MyModels.GetModelOnlyData(data.File);
+                        if (subPartModel != null && Model != null)
+                            subPartModel.Rescale(Model.ScaleFactor);
+
+                        subpart.Init(null, data.File, this, PositionComp.Scale);
 
                         // Set this to false becase no one else is responsible for rendering subparts
                         subpart.Render.NeedsDrawFromParent = false;

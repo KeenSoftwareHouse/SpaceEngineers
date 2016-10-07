@@ -9,7 +9,11 @@ namespace VRageRender
         public bool AdditionalSuns = true;
         public bool PointLights = true;
         public bool SpotLights = true;
+        public bool EnvLight = true;
+
+        public bool Shadows = true;
         public bool Fog = true;
+        public bool Flares = true;
 
         public bool Transparent = true;
         public bool OIT = true;
@@ -24,9 +28,6 @@ namespace VRageRender
         public bool Bloom = true;
         public bool Fxaa = true;
         public bool Tonemapping = true;
-        public bool Contrast = true;
-
-        public bool Pause = false;
 
         public MyRenderDebugOverrides Clone()
         {

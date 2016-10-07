@@ -1,0 +1,51 @@
+Profiler usage:
+To enable/disable the profiler, open MyCompilationSymbols.cs in Vrage, and enable PerformanceProfiling and ProfileFromStart.
+
+Profiler Keybindings
+It is not immediately apparent what all the possible controls are for the profiler, so here they are, organized by group.
+
+Key combination                                        Functionality
+Profiler management
+Alt + numpad ,                                         Opens/closes the profiler, doesn't reset the current profiler stack
+Alt + numpad enter                                     Pause/unpause profiler
+Alt + Ctrl + Insert                                    Reset profiler data
+
+Alt + numpad /                                         Decreases the level limit
+Alt + numpad *                                         Increases the level limit
+Alt + Ctrl + numpad /                                  Decreases the level limit by 1
+Alt + Ctrl + numpad *                                  Increases the level limit by 1
+
+Profiler navigation
+Alt + numpad 0                                         Go back 1 block (will open the profiler if it is closed, this is done for backwards compatibility with programmer muscle memory)
+Alt + numpad 1-9                                       Enter the next profiler block as usual
+Alt + Ctrl + numpad 1-9                                Select block 10-19
+Alt + Ctrl + Space + numpad 1-9                        Select block 20-29
+Alt + Ctrl + Home                                      Jump to the root block
+Alt + numpad +                                         Next thread
+Alt + numpad -                                         Previous thread
+
+Alt + Shift + /                                        Copy current profiler path to clipboard
+Alt + Shift + *                                        Try to navigate to the profiler path from the clipboard
+
+Profiler display settings
+Alt + Home                                             Increase profiler scale
+Alt + End                                              Decrease profiler scale
+Alt + Insert                                           Change profiler sorting order
+Alt + Ctrl + numpad +                                  Increase local area (Used for calculating the average milliseconds)
+Alt + Ctrl + numpad -                                  Decrease local area (Used for calculating the average milliseconds)
+
+Profiler frame selection
+Alt + PageUp                                           Go forward through frames
+Alt + PageDown                                         Go backwards through frames
+Alt + Ctrl + PageUp                                    Go forward through frames by 1 frame
+Alt + Ctrl + PageDown                                  Go backwards through frames by 1 frame
+Alt + Shift + PageUp                                   Fast forward through frames
+Alt + Shift + PageDown                                 Fast backwards through frames
+Alt + Ctrl + End                                       Disable selection mode
+
+Generally interesting paths:
+UpdateInternal::Update > Update > Session.Update > Before simulation > MySector > MyEntities.UpdateBeforeSimulation
+UpdateInternal::Update > Update > Session.Update > After simulation > MySector > UpdateAfterSimulation
+These two paths will generally show you the updated elements in a given world. Useful for when you are trying to profile the world.
+
+You can use these paths by copying them in your browser, then opening the profiler and pressing Alt + Shift + *.

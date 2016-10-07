@@ -1,6 +1,8 @@
-﻿namespace VRage.Game.ModAPI
+﻿using VRage.ModAPI;
+
+namespace VRage.Game.ModAPI
 {
-    public interface IMyFloatingObject
+    public interface IMyFloatingObject : IMyEntity
     {
     }
 }

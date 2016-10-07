@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using VRage.Game;
+using VRage.Game.Entity;
+using VRageMath;
 
 namespace Sandbox.Game.Entities.Cube
 {
@@ -278,7 +280,6 @@ namespace Sandbox.Game.Entities.Cube
             UpdateVisual();
         }
 
-
         VRageMath.Vector3I IMySlimBlock.Position
         {
             get
@@ -290,7 +291,6 @@ namespace Sandbox.Game.Entities.Cube
                 Position = value;
             }
         }
-
 
         VRageMath.Vector3I VRage.Game.ModAPI.Ingame.IMySlimBlock.Position
         {
@@ -305,10 +305,78 @@ namespace Sandbox.Game.Entities.Cube
         VRage.Game.ModAPI.IMyCubeGrid VRage.Game.ModAPI.IMySlimBlock.CubeGrid
         {
             get { return CubeGrid; }
-        }        
+        }
+
+        MyDefinitionBase IMySlimBlock.BlockDefinition
+        {
+            get
+            {
+                return BlockDefinition;
+            }
+        }
+
+        Vector3I IMySlimBlock.Max
+        {
+            get
+            {
+                return Max;
+            }
+        }
+
+        MyBlockOrientation IMySlimBlock.Orientation
+        {
+            get
+            {
+                return Orientation;
+            }
+        }
+
+        List<IMySlimBlock> IMySlimBlock.Neighbours
+        {
+            get
+            {
+                return Neighbours.Cast<IMySlimBlock>().ToList();
+            }
+        }
+
         VRageMath.Vector3 IMySlimBlock.GetColorMask()
         {
             return ColorMaskHSV;
+        }
+
+        void IMySlimBlock.DecreaseMountLevel(float grinderAmount, IMyInventory outputInventory, bool useDefaultDeconstructEfficiency)
+        {
+            DecreaseMountLevel(grinderAmount, outputInventory as MyInventoryBase, useDefaultDeconstructEfficiency);
+        }
+
+        void IMySlimBlock.IncreaseMountLevel(float welderMountAmount, long welderOwnerPlayerId, IMyInventory outputInventory, float maxAllowedBoneMovement, bool isHelping, MyOwnershipShareModeEnum share)
+        {
+            IncreaseMountLevel(welderMountAmount, welderOwnerPlayerId, outputInventory as MyInventoryBase, maxAllowedBoneMovement, isHelping, share);
+        }
+
+        int IMySlimBlock.GetConstructionStockpileItemAmount(MyDefinitionId id)
+        {
+            return GetConstructionStockpileItemAmount(id);
+        }
+
+        void IMySlimBlock.MoveItemsToConstructionStockpile(IMyInventory fromInventory)
+        {
+            MoveItemsToConstructionStockpile(fromInventory as MyInventoryBase);
+        }
+
+        void IMySlimBlock.ClearConstructionStockpile(IMyInventory outputInventory)
+        {
+            ClearConstructionStockpile(outputInventory as MyInventoryBase);
+        }
+
+        bool IMySlimBlock.CanContinueBuild(IMyInventory sourceInventory)
+        {
+            return CanContinueBuild(sourceInventory as MyInventory);
+        }
+
+        void IMySlimBlock.GetWorldBoundingBox(out BoundingBoxD aabb, bool useAABBFromBlockCubes)
+        {
+            GetWorldBoundingBox(out aabb, useAABBFromBlockCubes);
         }
     }
 }

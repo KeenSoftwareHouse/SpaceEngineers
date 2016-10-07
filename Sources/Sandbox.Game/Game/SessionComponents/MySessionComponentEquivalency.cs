@@ -62,8 +62,6 @@ namespace Sandbox.Game.SessionComponents
 
                 group.Add(mainId);
                 m_equivalencyGroups[mainId] = group;
-                if (groupDef.ForceMainElement)
-                    m_forcedMain.Add(mainId);
             }
         }
 
@@ -88,6 +86,14 @@ namespace Sandbox.Game.SessionComponents
         public bool ForceMainElement(MyDefinitionId id)
         {
             return m_forcedMain.Contains(id);
+        }
+
+        public MyDefinitionId Convert(MyDefinitionId id)
+        {
+            if (m_forcedMain.Contains(id))
+                return m_groupMain[id];
+            else
+                return id;
         }
 
         public bool HasEquivalents(MyDefinitionId id)

@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRageMath;
+using System.Reflection;
 
 using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities.Cube;
@@ -16,6 +17,12 @@ using VRage.Collections;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Screens.Terminal.Controls;
 using Sandbox.ModAPI.Interfaces;
+using Sandbox.ModAPI;
+using Sandbox.Definitions;
+using VRage.Game;
+using VRage.Utils;
+using VRage.Game.Components;
+using Sandbox.ModAPI.Interfaces.Terminal;
 
 namespace Sandbox.Game.Gui
 {
@@ -29,13 +36,38 @@ namespace Sandbox.Game.Gui
 
     public static class MyTerminalControlFactory
     {
-        class BlockData
+        internal class BlockData
         {
             public MyUniqueList<ITerminalControl> Controls = new MyUniqueList<ITerminalControl>();
             public MyUniqueList<ITerminalAction> Actions = new MyUniqueList<ITerminalAction>();
         }
 
         static Dictionary<Type, BlockData> m_controls = new Dictionary<Type, BlockData>();
+
+        public static bool AreControlsCreated<TBlock>()
+        {
+            if (m_controls.ContainsKey(typeof(TBlock)))
+                return true;
+
+            return false;
+        }
+
+        public static bool AreControlsCreated(Type blockType)
+        {
+            if (m_controls.ContainsKey(blockType))
+                return true;
+
+            return false;
+        }
+
+        public static void EnsureControlsAreCreated(Type blockType)
+        {
+            MethodInfo createMethod = blockType.GetMethod("CreateTerminalControls", BindingFlags.NonPublic | BindingFlags.Static);
+            if (createMethod == null)
+                return;
+
+            createMethod.Invoke(null, new object[] { });
+        }
 
         /// <summary>
         /// Base class controls are added automatically
@@ -65,7 +97,7 @@ namespace Sandbox.Game.Gui
                 baseClass = baseClass.BaseType;
             }
         }
-        
+
         public static void AddControl<TBlock>(int index, MyTerminalControl<TBlock> control)
             where TBlock : MyTerminalBlock
         {
@@ -88,6 +120,10 @@ namespace Sandbox.Game.Gui
             AddActions(control);
         }
 
+        public static void AddControl(Type blockType, ITerminalControl control)
+        {
+            GetList(blockType).Controls.Add(control);
+        }
 
         public static void AddAction<TBlock>(int index, MyTerminalAction<TBlock> Action)
             where TBlock : MyTerminalBlock
@@ -108,6 +144,17 @@ namespace Sandbox.Game.Gui
             GetList<TBlock>().Actions.Add(Action);
         }
 
+        public static void AddActions(Type blockType, ITerminalControl control)
+        {            
+            if(control.Actions != null)
+            {
+                foreach(var a in control.Actions)
+                {
+                    GetList(blockType).Actions.Add(a);
+                }
+            }
+        }
+
         static void AddActions<TBlock>(MyTerminalControl<TBlock> block)
            where TBlock : MyTerminalBlock
         {
@@ -116,6 +163,38 @@ namespace Sandbox.Game.Gui
                 foreach (var a in block.Actions)
                 {
                     AddAction<TBlock>((MyTerminalAction<TBlock>)a);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove a control from a terminal block.  These will return on session load.
+        /// </summary>
+        /// <typeparam name="TBlock"></typeparam>
+        /// <param name="id"></param>
+        public static void RemoveControl<TBlock>(IMyTerminalControl item)
+        {
+            RemoveControl(typeof(TBlock), item);
+        }
+
+        public static void RemoveControl(Type blockType, IMyTerminalControl controlItem)
+        {
+            var controlList = GetList(blockType).Controls;
+            foreach (var item in controlList)
+            {
+                if (item == (ITerminalControl)controlItem)
+                {
+                    controlList.Remove(item);
+                    break;
+                }
+            }
+
+            var block = (ITerminalControl)controlItem;
+            if(block.Actions != null)
+            {
+                foreach(var a in block.Actions)
+                {
+                    GetList(blockType).Actions.Remove((ITerminalAction)a);
                 }
             }
         }
@@ -199,11 +278,9 @@ namespace Sandbox.Game.Gui
 
         public static void Unload()
         {
-            foreach (var control in m_controls)
-                foreach (var ccontrol in control.Value.Controls)
-                    ccontrol.TargetBlocks = new MyTerminalBlock[0];
+            // Let's burn the controls to the ground!
+            m_controls.Clear();
         }
-
 
         private static void RemoveBaseClass(Type baseClass, BlockData resultList)
         {
@@ -224,7 +301,11 @@ namespace Sandbox.Game.Gui
 
         private static void AddBaseClass(Type baseClass, BlockData resultList)
         {
-            RuntimeHelpers.RunClassConstructor(baseClass.TypeHandle);
+            MethodInfo createMethod = baseClass.GetMethod("CreateTerminalControls", BindingFlags.NonPublic | BindingFlags.Static);
+            if(createMethod != null)
+            {
+                createMethod.Invoke(null, new object[] { });
+            }
 
             BlockData baseList;
             if (m_controls.TryGetValue(baseClass, out baseList))
@@ -247,20 +328,25 @@ namespace Sandbox.Game.Gui
             return GetList(typeof(TBlock));
         }
 
-        private static BlockData GetList(Type type)
-        {
+        internal static BlockData GetList(Type type)
+        {            
             BlockData list;
             if (!m_controls.TryGetValue(type, out list))
-            {
-                list = new BlockData();
-                m_controls[type] = list;
+                list = InitializeControls(type);
 
-                var baseClass = type.BaseType;
-                while (baseClass != null)
-                {
-                    AddBaseClass(baseClass, list);
-                    baseClass = baseClass.BaseType;
-                }
+            return list;
+        }
+
+        internal static BlockData InitializeControls(Type type)
+        {
+            BlockData list = new BlockData();
+            var key = type;
+            m_controls[key] = list;
+            var baseClass = type.BaseType;
+            while (baseClass != null)
+            {
+                AddBaseClass(baseClass, list);
+                baseClass = baseClass.BaseType;
             }
             return list;
         }

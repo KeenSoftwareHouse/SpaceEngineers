@@ -22,7 +22,7 @@ namespace VRageRender
 
             context.OutputMerger.BlendState = null;
 
-            context.InputAssembler.InputLayout = null;
+            RC.SetIL(null);
             context.PixelShader.Set(m_ps);
 
             RC.BindDepthRT(null, DepthStencilAccess.ReadWrite, destination);

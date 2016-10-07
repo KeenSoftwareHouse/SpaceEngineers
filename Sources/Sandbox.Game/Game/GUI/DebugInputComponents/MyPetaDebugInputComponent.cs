@@ -866,7 +866,7 @@ namespace Sandbox.Game.Gui
                 List<HkdShapeInstanceInfo> children = new List<HkdShapeInstanceInfo>();
                 breakableShape.GetChildren(children);
                 children[0].Shape.SetFlagRecursively(HkdBreakableShape.Flags.IS_FIXED);
-                var piece = Sandbox.Engine.Physics.MyDestructionHelper.CreateFracturePiece(breakableShape, MyPhysics.SingleWorld.DestructionWorld, ref worldMatrix, false, itemDefinition.Id, true);
+                var piece = MyDestructionHelper.CreateFracturePiece(breakableShape, ref worldMatrix, false, itemDefinition.Id, true);
             }
 
         }

@@ -61,12 +61,15 @@ namespace Sandbox.Game.Entities
         {
             get
             {
-                return base.DisassembleRatio * (Open ? 1.0f : CLOSED_DISSASEMBLE_RATIO);
+                //for now have the same dissasemble ratio maybe change again in the future
+                return base.DisassembleRatio * CLOSED_DISSASEMBLE_RATIO/* * (Open ? 1.0f : CLOSED_DISSASEMBLE_RATIO) */;
             }
         }
 
         public MyDoor()
         {
+            CreateTerminalControls();
+
             m_currOpening.ValidateNever();
             m_currOpening.Value = 0f;
             m_currSpeed = 0f;
@@ -111,8 +114,11 @@ namespace Sandbox.Game.Entities
             get { return m_currOpening/MaxOpen; }
         }
 
-        static MyDoor()
+        static void CreateTerminalControls()
         {
+            if (MyTerminalControlFactory.AreControlsCreated<MyDoor>())
+                return;
+
             var open = new MyTerminalControlOnOffSwitch<MyDoor>("Open", MySpaceTexts.Blank, on: MySpaceTexts.BlockAction_DoorOpen, off: MySpaceTexts.BlockAction_DoorClosed);
             open.Getter = (x) => x.Open;
             open.Setter = (x, v) => x.SetOpenRequest(v, x.OwnerId);
@@ -120,7 +126,6 @@ namespace Sandbox.Game.Entities
             open.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(open);
         }
-
 
         public void SetOpenRequest(bool open, long identityId)
         {
@@ -134,7 +139,7 @@ namespace Sandbox.Game.Entities
 
             if (relation.IsFriendly())
             {
-                m_open.Value = open;
+                Open = open;
             }
         }
 

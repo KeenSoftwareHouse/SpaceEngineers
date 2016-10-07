@@ -24,6 +24,8 @@ using Sandbox.Common.ObjectBuilders;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Network;
+using VRage.ModAPI;
+using VRage.Utils;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -51,6 +53,7 @@ namespace Sandbox.Game.GameSystems
         private float m_prevJumpTime = 0f;
         private bool m_jumped = false;
         private bool m_effectPlayed;
+        private bool m_updateEffectPosition = false;
         
         private float m_jumpTimeLeft;
         private bool m_playEffect = false;  // is local character affected by effect?
@@ -62,6 +65,7 @@ namespace Sandbox.Game.GameSystems
         private MySoundPair m_jumpInSound = new MySoundPair("ShipJumpDriveJumpIn");
         private MySoundPair m_jumpOutSound = new MySoundPair("ShipJumpDriveJumpOut");
         protected MyEntity3DSoundEmitter m_soundEmitter;
+        private MyParticleEffect m_effect;
 
         public MyGridJumpDriveSystem(MyCubeGrid grid)
         {
@@ -213,6 +217,7 @@ namespace Sandbox.Game.GameSystems
 
         public void RequestJump(string destinationName, Vector3D destination, long userId)
         {
+
             if (!Vector3.IsZero(MyGravityProviderSystem.CalculateNaturalGravityInPoint(m_grid.WorldMatrix.Translation)))
             {
                 var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpFromGravity, 1500);
@@ -250,19 +255,55 @@ namespace Sandbox.Game.GameSystems
                 m_jumpDirection *= ratio;
             }
 
+            //By Gregory: Check for obstacle not that fast but happens rarely(on Jump drive enable)
+            //TODO: make compatible with GetMaxJumpDistance and refactor to much code checks for actual jump
+            var direction = Vector3D.Normalize(destination - m_grid.WorldMatrix.Translation);
+            var startPos = m_grid.WorldMatrix.Translation + m_grid.PositionComp.LocalAABB.Extents.Max() * direction;
+            var line = new LineD(startPos, destination);
+
+
+            var intersection = MyEntities.GetIntersectionWithLine(ref line, m_grid, null, ignoreObjectsWithoutPhysics: false);
+
+            Vector3D newDestination = Vector3D.Zero;
+            Vector3D newDirection = Vector3D.Zero;
+            if (intersection.HasValue)
+            {
+                MyEntity MyEntity = intersection.Value.Entity as MyEntity;
+
+                var targetPos = MyEntity.WorldMatrix.Translation;
+                var obstaclePoint = MyUtils.GetClosestPointOnLine(ref startPos, ref destination, ref targetPos);
+
+                MyPlanet MyEntityPlanet = intersection.Value.Entity as MyPlanet;
+                if (MyEntityPlanet != null)
+                {
+                    var notification = new MyHudNotification(MySpaceTexts.NotificationCannotJumpIntoGravity, 1500);
+                    MyHud.Notifications.Add(notification);
+                    return;
+                }
+
+                //var Radius = MyEntityPlanet != null ? MyEntityPlanet.MaximumRadius : MyEntity.PositionComp.LocalAABB.Extents.Length();
+                var Radius = MyEntity.PositionComp.LocalAABB.Extents.Length();
+
+                destination = obstaclePoint - direction * (Radius + m_grid.PositionComp.LocalAABB.HalfExtents.Length());
+                m_selectedDestination = destination;
+                m_jumpDirection = m_selectedDestination - startPos;
+                actualDistance = m_jumpDirection.Length();
+            }
+
             if (actualDistance < MIN_JUMP_DISTANCE)
             {
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.OK,
-                    messageText: GetWarningText(actualDistance),
+                    messageText: GetWarningText(actualDistance, intersection.HasValue),
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionWarning)
                     ));
             }
             else
             {
+                
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     buttonType: MyMessageBoxButtonsType.YES_NO,
-                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId),
+                    messageText: GetConfimationText(destinationName, jumpDistance, actualDistance, userId, intersection.HasValue),
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionPleaseConfirm),
                     size: new Vector2(0.839375f, 0.3675f), callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
                     {
@@ -278,7 +319,7 @@ namespace Sandbox.Game.GameSystems
 
         }
 
-        private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId)
+        private StringBuilder GetConfimationText(string name, double distance, double actualDistance, long userId, bool obstacleDetected)
         {
             int totalJumpDrives = m_jumpDrives.Count;
             int operationalJumpDrives = m_jumpDrives.Count((x) => x.CanJumpAndHasAccess(userId));
@@ -309,10 +350,10 @@ namespace Sandbox.Game.GameSystems
             m_characters.Clear();
 
             StringBuilder result = new StringBuilder();
-
+            var obstacleDetectedStr = obstacleDetected ? "(Obstacle Detected)" : "";
             result.Append("Jump destination: ").Append(name).Append("\n");
             result.Append("Distance to the proximity of coordinate: ").Append(distance.ToString("N")).Append(" Kilometers\n");
-            result.Append("Achievable percentage of the jump: ").Append(percent.ToString("P")).Append(" (").Append(actualDistance.ToString("N")).Append(" Kilometers)\n");
+            result.Append("Achievable percentage of the jump " + obstacleDetectedStr + ": ").Append(percent.ToString("P")).Append(" (").Append(actualDistance.ToString("N")).Append(" Kilometers)\n");
 			result.Append("Weight of transported mass: ").Append(MyHud.ShipInfo.Mass.ToString("N")).Append(" kg\n");
             result.Append("Operational jump drives: ").Append(operationalJumpDrives).Append("/").Append(totalJumpDrives).Append("\n");
             result.Append("Seated crew on board: ").Append(seatedCharacters).Append("/").Append(totalCharacters).Append("\n");
@@ -320,9 +361,11 @@ namespace Sandbox.Game.GameSystems
             return result;
         }
 
-        private StringBuilder GetWarningText(double actualDistance)
+        private StringBuilder GetWarningText(double actualDistance, bool obstacleDetected)
         {
             StringBuilder result = new StringBuilder();
+            if (obstacleDetected)
+                result.Append("Obstacle Detected! Jump Distance will be truncated. \n");
             result.Append("Distance to destination: ").Append(actualDistance.ToString("N")).Append(" Meters\n");
             result.Append("Minimum jump distance: ").Append(MIN_JUMP_DISTANCE.ToString("N")).Append(" Meters\n");
             return result;
@@ -525,7 +568,8 @@ namespace Sandbox.Game.GameSystems
 
         private bool IsLocalCharacterAffectedByJump(bool forceRecompute = false)
         {
-            if (MySession.Static.LocalCharacter == null)
+            //If we enabled jumpdrive and later got out of the Ship (not Ship controller anymore) disable effect
+            if (MySession.Static.LocalCharacter == null || !(MySession.Static.ControlledEntity is MyShipController))
             {
                 m_playEffect = false;
                 return false;
@@ -595,21 +639,22 @@ namespace Sandbox.Game.GameSystems
                 const float particleTime = 0.3f;
                 const float endJumpTime = -0.3f;
 
+                PlayParticleEffect();
                 m_jumpTimeLeft -= VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 if (jumpTime > startJumpTime)
                 {
                     double roundTime = Math.Round(jumpTime);
                     if (roundTime != m_prevJumpTime)
-                        if (IsLocalCharacterAffectedByJump())
+                        if (IsLocalCharacterAffectedByJump(true))
                         {
-                            var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500);
+                            var notification = new MyHudNotification(MySpaceTexts.NotificationJumpWarmupTime, 500, priority : 3);
                             notification.SetTextFormatArguments(roundTime);
                             MyHud.Notifications.Add(notification);
                         }
                 }
                 else if (jumpTime > 0)
                 {
-                    IsLocalCharacterAffectedByJump();
+                    IsLocalCharacterAffectedByJump(true);
                     if (m_soundEmitter.SoundId != m_jumpOutSound.Arcade && m_soundEmitter.SoundId != m_jumpOutSound.Realistic)
                     {
                         m_soundEmitter.PlaySound(m_jumpOutSound);
@@ -618,7 +663,7 @@ namespace Sandbox.Game.GameSystems
 
                     if (jumpTime < particleTime)
                     {
-                        PlayParticleEffect();
+                        //PlayParticleEffect();
                     }
                 }
                 else if (!m_jumped)
@@ -664,20 +709,32 @@ namespace Sandbox.Game.GameSystems
 
         private void PlayParticleEffect()
         {
-            if (m_effectPlayed) return;
-
-            m_effectPlayed = true;
-            MyParticleEffect effect;
-            if (MyParticlesManager.TryCreateParticleEffect(53, out effect))
+            if (!m_effectPlayed)
             {
-                effect.WorldMatrix = MatrixD.CreateFromTransformScale(Quaternion.Identity, m_grid.WorldMatrix.Translation, Vector3D.One);
-                effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 25f;
-                effect.AutoDelete = true;
+                MyParticlesManager.TryCreateParticleEffect("Warp", out m_effect);
+                m_effectPlayed = true;
+                m_updateEffectPosition = true;
             }
+
+            if (m_updateEffectPosition && m_effect != null)
+            {
+                Vector3D dir = Vector3D.Normalize(m_jumpDirection);
+                MatrixD matrix = MatrixD.CreateFromDir(-dir);
+                matrix.Translation = m_grid.PositionComp.WorldAABB.Center + dir * m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() * 2f;
+                m_effect.WorldMatrix = matrix;
+                m_effect.UserScale = (float)m_grid.PositionComp.WorldAABB.HalfExtents.AbsMax() / 15f;
+            }
+        }
+
+        private void StopParticleEffect()
+        {
+            if (m_effect != null)
+                m_effect.Stop();
         }
 
         private void PerformJump(Vector3D jumpTarget)
         {
+            m_updateEffectPosition = false;
             m_jumpDirection = jumpTarget - m_grid.WorldMatrix.Translation;
 
             BoundingBoxD aggregateBox = m_grid.PositionComp.WorldAABB;
@@ -720,6 +777,7 @@ namespace Sandbox.Game.GameSystems
 
         public void AbortJump()
         {
+            StopParticleEffect();
             m_soundEmitter.StopSound(true, true);
             if (m_isJumping && IsLocalCharacterAffectedByJump())
             {

@@ -139,12 +139,14 @@ namespace Sandbox.Game.Gui
             return new MyGuiControlLabel(text: text, originAlign: MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP, position: position, textScale: textScale);
         }
 
-        protected static void SavePrefabToFile(MyObjectBuilder_Definitions prefab, string name = null, bool replace = false, MyBlueprintTypeEnum type = MyBlueprintTypeEnum.LOCAL)
+        protected static void SavePrefabToFile(MyObjectBuilder_Definitions prefab, string name, bool replace = false, MyBlueprintTypeEnum type = MyBlueprintTypeEnum.LOCAL)
         { 
-            if (name == null)
-            {
-                name = MyUtils.StripInvalidChars(MyCubeBuilder.Static.Clipboard.CopiedGridsName);
-            }
+            //if (name == null)
+            //{
+            //    name = MyUtils.StripInvalidChars(MyCubeBuilder.Static.Clipboard.CopiedGridsName);
+            //}
+
+            Debug.Assert(name != null, "Name cannot be null");
 
             string file = "";
             if (type == MyBlueprintTypeEnum.LOCAL)
@@ -265,7 +267,7 @@ namespace Sandbox.Game.Gui
 
         public static MyObjectBuilder_Definitions LoadWorkshopPrefab(string archive, ulong? publishedItemId)
         {
-#if !BLIT
+#if !XB1
 
             if (!File.Exists(archive) || publishedItemId == null)
                 return null;

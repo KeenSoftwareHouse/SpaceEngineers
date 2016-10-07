@@ -14,10 +14,9 @@ namespace Sandbox.Game.Components
             m_conveyorSegment = conveyorSegment;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             m_conveyorSegment.DebugDraw();
-            return true;
         }
     }
 }

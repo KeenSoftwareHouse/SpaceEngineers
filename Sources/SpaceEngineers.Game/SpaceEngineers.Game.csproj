@@ -10,6 +10,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -20,6 +21,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +31,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -38,21 +41,69 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_XB1|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug_XB1\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;XB1;XB1_TMP</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <GenerateSerializationAssemblies>On</GenerateSerializationAssemblies>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x64'">
+    <OutputPath>bin\x64\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x64\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_XB1|x86'">
+    <OutputPath>bin\x86\Release_XB1\</OutputPath>
+    <DefineConstants>TRACE;XB1,XB1_TMP</DefineConstants>
+    <DocumentationFile>bin\x86\Release\VRage.Game.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <ProjectGuid>{9F620AAB-5008-4D91-8D8F-8BE6CF26F926}</ProjectGuid>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
   <PropertyGroup>
+    <HavokDir>HavokWrapper_SE</HavokDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <HavokWrapperFullPath>..\..\3rd\$(HavokDir)\Release\$(Platform)\HavokWrapper.dll</HavokWrapperFullPath>
+  </PropertyGroup>
+  <PropertyGroup>
     <RootNamespace>SpaceEngineers.Game</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="HavokWrapper, Version=1.0.5877.23574, Culture=neutral, processorArchitecture=AMD64">
+    <Reference Include="HavokWrapper">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\3rd\HavokWrapper_SE\debug\x64\HavokWrapper.dll</HintPath>
+      <HintPath>$(HavokWrapperFullPath)</HintPath>
     </Reference>
     <Reference Include="SteamSDK">
       <SpecificVersion>False</SpecificVersion>
@@ -75,6 +126,7 @@
     <Compile Include="AI\MyCyberhoundTarget.cs" />
     <Compile Include="AI\MySpiderTarget.cs" />
     <Compile Include="AI\MySpaceFaunaComponent.cs" />
+    <Compile Include="Definitions\MyDemoComponentDefinition.cs" />
     <Compile Include="Definitions\MyUpgradeModuleDefinition.cs" />
     <Compile Include="Entities\Blocks\MyAirVent.cs" />
     <Compile Include="Entities\Blocks\MyButtonPanel.cs" />
@@ -112,10 +164,25 @@
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsVideoSpace.cs" />
+    <Compile Include="ModAPI\IMyAirVent.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
+    <Compile Include="ModAPI\IMyControlPanel.cs" />
+    <Compile Include="ModAPI\IMyGravityGenerator.cs" />
+    <Compile Include="ModAPI\IMyGravityGeneratorBase.cs" />
+    <Compile Include="ModAPI\IMyGravityGeneratorSphere.cs" />
+    <Compile Include="ModAPI\IMyInteriorLight.cs" />
     <Compile Include="ModAPI\IMyLandingGear.cs" />
+    <Compile Include="ModAPI\IMyLargeConveyorTurretBase.cs" />
+    <Compile Include="ModAPI\IMyLargeGatlingTurret.cs" />
+    <Compile Include="ModAPI\IMyLargeInteriorTurret.cs" />
+    <Compile Include="ModAPI\IMyLargeMissileTurret.cs" />
+    <Compile Include="ModAPI\IMyMedicalRoom.cs" />
+    <Compile Include="ModAPI\IMyOxygenFarm.cs" />
     <Compile Include="ModAPI\IMyShipMergeBlock.cs" />
+    <Compile Include="ModAPI\IMySolarPanel.cs" />
+    <Compile Include="ModAPI\IMySoundBlock.cs" />
     <Compile Include="ModAPI\IMySpaceBall.cs" />
+    <Compile Include="ModAPI\IMyTimerBlock.cs" />
     <Compile Include="ModAPI\IMyUpgradeModule.cs" />
     <Compile Include="ModAPI\IMyVirtualMass.cs" />
     <Compile Include="ModAPI\Ingame\IMyAirVent.cs" />
@@ -141,6 +208,7 @@
     <Compile Include="ModAPI\Ingame\IMyVirtualMass.cs" />
     <Compile Include="Multiplayer\MySpaceClientState.cs" />
     <Compile Include="MySpaceGameCustomInitialization.cs" />
+    <Compile Include="SessionComponents\DemoComponent.cs" />
     <Compile Include="SpaceEngineersGame.Secrets.cs" />
     <Compile Include="SpaceEngineersGame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -156,7 +224,6 @@
     <Compile Include="World\Environment\MyEnvironmentalParticleLogicSpace.cs" />
     <Compile Include="World\Generator\MyShipStartingState.cs" />
     <Compile Include="World\Generator\MySpaceWorldGenerator.cs" />
-    <Compile Include="World\MySpacePlanetTrackComponent.cs" />
     <Compile Include="World\MySpaceRespawnComponent.cs" />
     <Compile Include="World\MySpaceSessionCompatHelper.cs" />
   </ItemGroup>
@@ -197,6 +264,10 @@
       <Project>{76080059-9756-4065-bce8-373e7150a8f7}</Project>
       <Name>VRage.Network</Name>
     </ProjectReference>
+    <ProjectReference Include="..\VRage.Scripting\VRage.Scripting.csproj">
+      <Project>{47e07dc1-03cb-4668-a031-71816def8955}</Project>
+      <Name>VRage.Scripting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VRage\VRage.csproj">
       <Project>{1c814936-c9a7-4faf-b543-28f021d98b6c}</Project>
       <Name>VRage</Name>
@@ -205,6 +276,12 @@
   <ItemGroup>
     <Folder Include="ModAPI\Interfaces\" />
     <Folder Include="Players\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

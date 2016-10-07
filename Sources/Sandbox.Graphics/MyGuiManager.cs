@@ -280,6 +280,10 @@ namespace Sandbox.Graphics
             float screenScale    = scale * m_safeScreenScale;
             float screenMaxWidth = GetScreenSizeFromNormalizedSize(new Vector2(maxTextWidth, 0f)).X;
 
+#if DEBUG_TEXT_SIZE
+            DebugTextSize(text, ref size);
+#endif
+
             VRageRender.MyRenderProxy.DrawString(
                 (int)font,
                 screenCoord,
@@ -310,6 +314,17 @@ namespace Sandbox.Graphics
             float fixedScale = scale * m_safeScreenScale * MyRenderGuiConstants.FONT_SCALE;
             Vector2 sizeInPixelsScaled = new Vector2(0.0f, fixedScale* m_fontsById[(int)font].LineHeight);
             return GetNormalizedSizeFromScreenSize(sizeInPixelsScaled).Y;
+        }
+
+        static HashSet<String> m_sizes = new HashSet<string>();
+
+        [Conditional("DEBUG")]
+        private static void DebugTextSize(StringBuilder text, ref Vector2 size)
+        {
+            string str = text.ToString();
+            bool inserted = m_sizes.Add(str);
+            if (inserted)
+                Console.WriteLine("Text = \"" + str + "\", Width = " + size.X);
         }
 
         #endregion
@@ -567,7 +582,9 @@ namespace Sandbox.Graphics
         //  Convertes screen size (pixels) to normalized size <0..1>
         public static Vector2 GetNormalizedSizeFromScreenSize(Vector2 screenSize)
         {
-            return new Vector2(screenSize.X / (float)m_safeGuiRectangle.Width, screenSize.Y / (float)m_safeGuiRectangle.Height);
+            float x = m_safeGuiRectangle.Width != 0 ? screenSize.X / (float)m_safeGuiRectangle.Width : 0;
+            float y = m_safeGuiRectangle.Height != 0 ? screenSize.Y / (float)m_safeGuiRectangle.Height : 0;
+            return new Vector2(x, y);
         }
 
         //  This is for HUD, therefore not GUI normalized coordinates
@@ -710,6 +727,11 @@ namespace Sandbox.Graphics
             m_minMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left, m_fullscreenRectangle.Top));
             m_maxMouseCoordFullscreenHud = GetNormalizedCoordinateFromScreenCoordinate(new Vector2(m_fullscreenRectangle.Left + m_fullscreenRectangle.Width, m_fullscreenRectangle.Top + m_fullscreenRectangle.Height));
 
+#if XB1
+            MyInput.Static.SetMouseLimits( new Vector2(m_safeFullscreenRectangle.Left, m_safeFullscreenRectangle.Top),
+                new Vector2(m_safeFullscreenRectangle.Left + m_safeFullscreenRectangle.Width, m_safeFullscreenRectangle.Top + m_safeFullscreenRectangle.Height) );
+#endif
+
             //  Normalized coordinates where width is always 1.0 and height something like 0.8
             //  Don't confuse with GUI normalized coordinates. They are different.
             //  HUD - get normalized screen size -> width is always 1.0, but height depends on aspect ratio, so usualy it is 0.8 or something.
@@ -720,12 +742,14 @@ namespace Sandbox.Graphics
 
         public static void SetHWCursorBitmap(System.Drawing.Bitmap b)
         {
+#if !XB1
             System.Windows.Forms.Form f = System.Windows.Forms.Control.FromHandle(MyInput.Static.WindowHandle) as System.Windows.Forms.Form;
             if (f != null)
             {
                 // TODO: OP! Make this in thread safe way and optimized
                 f.Invoke(new Action(() => f.Cursor = new System.Windows.Forms.Cursor(b.GetHicon())));
             }
+#endif
         }
 
 

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using VRage;
 using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
@@ -88,6 +89,16 @@ namespace Sandbox.Graphics.GUI
             }
         }
 
+        public void SelectByIndex(int index)
+        {
+            if (SelectedIndex.HasValue)
+                m_radioButtons[SelectedIndex.Value].Selected = false;
+
+            var button = m_radioButtons[index];
+            SelectedIndex = index;
+            button.Selected = true;
+        }
+
         private void OnRadioButtonSelected(MyGuiControlRadioButton sender)
         {
             SelectedIndex = m_radioButtons.IndexOf(sender);
@@ -128,7 +139,7 @@ namespace Sandbox.Graphics.GUI
 
         static MyGuiControlRadioButton()
         {
-            m_styles = new StyleDefinition[MyUtils.GetMaxValueFromEnum<MyGuiControlRadioButtonStyleEnum>() + 1];
+            m_styles = new StyleDefinition[MyUtils.GetMaxValueFromEnum<MyGuiControlRadioButtonStyleEnum>()];
             m_styles[(int)MyGuiControlRadioButtonStyleEnum.FilterCharacter] = new StyleDefinition()
             {
                 NormalTexture    = MyGuiConstants.TEXTURE_BUTTON_FILTER_CHARACTER,
@@ -188,6 +199,7 @@ namespace Sandbox.Graphics.GUI
         private StringBuilder m_text;
         private MyFontEnum m_font;
         private RectangleF m_internalArea;
+
 
         public MyGuiControlRadioButtonStyleEnum VisualStyle
         {
@@ -250,7 +262,35 @@ namespace Sandbox.Graphics.GUI
             base.Init(builder);
             var ob = (MyObjectBuilder_GuiControlRadioButton)builder;
             Key = ob.Key;
-            VisualStyle = ob.VisualStyle;
+            if (ob.VisualStyle == MyGuiControlRadioButtonStyleEnum.Custom)
+            {
+                if (ob.CustomVisualStyle.HasValue)
+                {
+                    MyGuiCustomVisualStyle customVs = ob.CustomVisualStyle.Value;
+                    m_styleDef = new StyleDefinition();
+                    m_styleDef.HighlightFont = customVs.HighlightFont;
+                    m_styleDef.NormalFont = customVs.NormalFont;
+                    m_styleDef.HighlightTexture = new MyGuiCompositeTexture()
+                    {
+                        LeftTop = new MyGuiSizedTexture() {SizePx = customVs.Size, Texture = customVs.HighlightTexture}
+                    };
+                    m_styleDef.NormalTexture = new MyGuiCompositeTexture()
+                    {
+                        LeftTop = new MyGuiSizedTexture() { SizePx = customVs.Size, Texture = customVs.NormalTexture }
+                    };
+                    m_styleDef.Padding = new MyGuiBorderThickness(customVs.HorizontalPadding, customVs.VerticalPadding);
+
+                    VisualStyle = ob.VisualStyle;
+                }
+                else
+                {
+                    VisualStyle = MyGuiControlRadioButtonStyleEnum.Rectangular;
+                }
+            }
+            else
+            {
+                VisualStyle = ob.VisualStyle;
+            }
         }
 
         public override MyObjectBuilder_GuiControlBase GetObjectBuilder()
@@ -258,6 +298,19 @@ namespace Sandbox.Graphics.GUI
             var ob = (MyObjectBuilder_GuiControlRadioButton)base.GetObjectBuilder();
             ob.Key = Key;
             ob.VisualStyle = VisualStyle;
+            if (VisualStyle == MyGuiControlRadioButtonStyleEnum.Custom)
+            {
+                MyGuiCustomVisualStyle customStyle = new MyGuiCustomVisualStyle();
+
+                customStyle.HighlightTexture = m_styleDef.HighlightTexture.LeftTop.Texture;
+                customStyle.NormalTexture = m_styleDef.NormalTexture.LeftTop.Texture;
+                customStyle.Size = m_styleDef.HighlightTexture.LeftTop.SizePx;
+                customStyle.HighlightFont = m_styleDef.HighlightFont;
+                customStyle.NormalFont = m_styleDef.NormalFont;
+                customStyle.VerticalPadding = m_styleDef.Padding.VerticalSum;
+                customStyle.HorizontalPadding = m_styleDef.Padding.HorizontalSum;
+            }
+
             return ob;
         }
 
@@ -354,7 +407,9 @@ namespace Sandbox.Graphics.GUI
 
         private void RefreshVisualStyle()
         {
-            m_styleDef = GetVisualStyle(VisualStyle);
+            if(m_visualStyle != MyGuiControlRadioButtonStyleEnum.Custom)
+                m_styleDef = GetVisualStyle(VisualStyle);
+
             RefreshInternals();
         }
 

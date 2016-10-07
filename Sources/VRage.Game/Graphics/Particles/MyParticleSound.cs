@@ -184,8 +184,8 @@ namespace VRage.Game
 
             if (Enabled)
             {
-                Range.GetInterpolatedValue(m_effect.GetElapsedTime() / m_effect.Length, out m_range);
-                Volume.GetInterpolatedValue(m_effect.GetElapsedTime() / m_effect.Length, out m_volume);
+                Range.GetInterpolatedValue(m_effect.GetElapsedTime() / m_effect.Duration, out m_range);
+                Volume.GetInterpolatedValue(m_effect.GetElapsedTime() / m_effect.Duration, out m_volume);
                 m_position = (Vector3)m_effect.WorldMatrix.Translation;
             }
             if (!Enabled)
@@ -203,10 +203,9 @@ namespace VRage.Game
 
         public MyParticleSound CreateInstance(MyParticleEffect effect)
         {
-            MyParticleSound particleSound = MyParticlesManager.SoundsPool.Allocate(true);
-            if (particleSound == null)
-                return null;
-
+            MyParticleSound particleSound;
+            MyParticlesManager.SoundsPool.AllocateOrCreate(out particleSound);
+            
             particleSound.Start(effect);
 
             particleSound.Name = Name;
@@ -227,7 +226,8 @@ namespace VRage.Game
 
         public MyParticleSound Duplicate(MyParticleEffect effect)
         {
-            MyParticleSound particleSound = MyParticlesManager.SoundsPool.Allocate();
+            MyParticleSound particleSound;
+            MyParticlesManager.SoundsPool.AllocateOrCreate(out particleSound);
             particleSound.Start(effect);
 
             particleSound.Name = Name;
@@ -263,15 +263,47 @@ namespace VRage.Game
         public void Serialize(XmlWriter writer)
         {
             writer.WriteStartElement("ParticleSound");
-            writer.WriteAttributeString("name", Name);
-            writer.WriteAttributeString("version", Version.ToString(CultureInfo.InvariantCulture));
+            writer.WriteAttributeString("Name", Name);
+            writer.WriteAttributeString("Version", Version.ToString(CultureInfo.InvariantCulture));
+
+            writer.WriteStartElement("Properties");
 
             foreach (IMyConstProperty property in m_properties)
             {
-                property.Serialize(writer);
-            }
+                writer.WriteStartElement("Property");
 
-            writer.WriteEndElement(); 
+                writer.WriteAttributeString("Name", property.Name);
+
+                writer.WriteAttributeString("Type", property.BaseValueType);
+
+                PropertyAnimationType animType = PropertyAnimationType.Const;
+                if (property.Animated)
+                    animType = property.Is2D ? PropertyAnimationType.Animated2D : PropertyAnimationType.Animated;
+                writer.WriteAttributeString("AnimationType", animType.ToString());
+
+                property.Serialize(writer);
+
+                writer.WriteEndElement();//property
+            }
+            writer.WriteEndElement();//properties
+
+            writer.WriteEndElement();//particle sound
+        }
+
+        public void DeserializeFromObjectBuilder(ParticleSound sound)
+        {
+            m_name = sound.Name;
+
+            foreach (GenerationProperty property in sound.Properties)
+            {
+                for (int i = 0; i < m_properties.Length; i++)
+                {
+                    if (m_properties[i].Name.Equals(property.Name))
+                    {
+                        m_properties[i].DeserializeFromObjectBuilder(property);
+                    }
+                }
+            }
         }
 
         public void Deserialize(XmlReader reader)

@@ -100,10 +100,10 @@ namespace SpaceEngineers.Game.Entities
             bool result = true;
             foreach (var entry in m_materialList.RequiredMaterials)
             {
-                result &=  GetItemAmountCombined(inventory, entry.Key) >= entry.Value;
+                result &= inventory.GetItemAmount(entry.Key) >= entry.Value;
                 if (!result && shipInventory != null)
                 {
-                    result = GetItemAmountCombined(shipInventory, entry.Key) >= entry.Value;
+                    result = shipInventory.GetItemAmount(entry.Key) >= entry.Value;
                     if (!result)
                     {
                         //MyGridConveyorSystem.ItemPullRequest((MySession.Static.ControlledEntity as MyCockpit), shipInventory, MySession.Static.LocalPlayerId, entry.Key, entry.Value);
@@ -204,6 +204,7 @@ namespace SpaceEngineers.Game.Entities
 
         private void TakeMaterialsFromBuilder(MyEntity builder)
         {
+            // CH: TODO: Please refactor this to not be so ugly. Especially, calling the Solve function multiple times on the component combiner is bad...
             if (builder == null) return;
             var inventory = GetBuilderInventory(builder);
             if (inventory == null) return;
@@ -230,28 +231,28 @@ namespace SpaceEngineers.Game.Entities
             foreach (var entry in m_materialList.RequiredMaterials)
             {
                 VRage.MyFixedPoint toRemove = entry.Value;
-                hasAmount = GetItemAmountCombined(inventory,entry.Key);
+                hasAmount = inventory.GetItemAmount(entry.Key);
                 if (hasAmount > entry.Value)
                 {
-                    RemoveItemsCombined(inventory,(int)toRemove, entry.Key);
+                    inventory.RemoveItemsOfType(toRemove, entry.Key);
                     continue;
                 }
                 if (hasAmount>0)
                 {
-                    RemoveItemsCombined(inventory, (int)hasAmount, entry.Key);
+                    inventory.RemoveItemsOfType(hasAmount, entry.Key);
                     toRemove -= hasAmount;
                 }
                 if (shipInventory != null)
                 {
-                    hasAmountCockpit = GetItemAmountCombined(shipInventory,entry.Key);
+                    hasAmountCockpit = shipInventory.GetItemAmount(entry.Key);
                     if (hasAmountCockpit >= toRemove)
                     {
-                        RemoveItemsCombined(shipInventory, (int)toRemove, entry.Key);
+                        shipInventory.RemoveItemsOfType(toRemove, entry.Key);
                         continue;
                     }
                     if (hasAmountCockpit > 0)
                     {
-                        RemoveItemsCombined(shipInventory, (int)hasAmountCockpit, entry.Key);
+                        shipInventory.RemoveItemsOfType(hasAmountCockpit, entry.Key);
                         toRemove -= hasAmountCockpit;
                     }
                     var transferred = MyGridConveyorSystem.ItemPullRequest(cockpit, shipInventory, identityId, entry.Key, toRemove, true);

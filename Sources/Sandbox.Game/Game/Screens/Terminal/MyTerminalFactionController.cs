@@ -438,6 +438,11 @@ namespace Sandbox.Game.Gui
 
         private void RefreshCreateButton()
         {
+            if(m_buttonCreate == null)
+            {
+                return;
+            }
+
             if (m_userFaction != null)
             {
                 m_buttonCreate.Enabled = false;

@@ -23,11 +23,10 @@ namespace Sandbox.Game.Components
             m_thrust = thrust;
         }
 
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             //if (MyFakes.DEBUG_DRAW_THRUSTER_DAMAGE)
             DebugDrawDamageArea();
-            return true;
         }
         private void DebugDrawDamageArea()
         {

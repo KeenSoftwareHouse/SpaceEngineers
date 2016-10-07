@@ -8,7 +8,7 @@ namespace VRage.Service
     internal static class NativeMethods
     {
 
-#if !BLIT
+#if !UNSHARPER
 
         public static readonly string DATABASE_ACTIVE = "ServicesActive";
         public static readonly string DATABASE_FAILED = "ServicesFailed";

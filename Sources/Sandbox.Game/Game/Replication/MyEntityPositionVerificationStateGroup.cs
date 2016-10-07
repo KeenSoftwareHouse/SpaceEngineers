@@ -103,7 +103,7 @@ namespace Sandbox.Game.Replication
             return 0;     
         }
 
-        public void Serialize(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
+        public bool Serialize(VRage.Library.Collections.BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition)
         {
             if (stream.Writing)
             {
@@ -127,6 +127,8 @@ namespace Sandbox.Game.Replication
                     ClientRead(stream);
                 }
             }
+
+            return true;
         }
 
         protected virtual void ClientWrite(VRage.Library.Collections.BitStream stream)

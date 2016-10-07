@@ -134,6 +134,21 @@ namespace VRageRender
         {
             return I1 > -1 || I2 > -1;
         }
+
+        private class comp : IEqualityComparer<MyVoxelMaterialTriple>
+        {
+            public bool Equals(MyVoxelMaterialTriple x, MyVoxelMaterialTriple y)
+            {
+                return x.I0 == y.I0 && x.I1 == y.I1 && x.I2 == y.I2;
+            }
+
+            public int GetHashCode(MyVoxelMaterialTriple obj)
+            {
+                return (obj.I0 << 16 | obj.I1 << 8 | obj.I2).GetHashCode();
+            }
+        }
+
+        public static readonly IEqualityComparer<MyVoxelMaterialTriple> Comparer = new comp();
     }
 
     struct MaterialFoliageConstantsElem

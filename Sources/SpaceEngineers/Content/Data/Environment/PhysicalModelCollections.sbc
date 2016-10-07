@@ -1,0 +1,954 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- Earth Planet -->
+  <!-- Foliage -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushSmall_var1" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushMedium_var1" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <!-- Foliage end -->
+
+  <!-- Forest edge -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnowMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTreeMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushSmall_var1" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushMedium_var1" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="0.01"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Forest edge end -->
+  
+  <!-- Forest medium -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnowMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnow" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushSmall_var1" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushMedium_var1" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTree" Weight="0.3"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="0.01"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDead" Weight="0.3"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Forest medium end -->
+
+  <!-- Forest large -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnowMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnow" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTree" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>WoodGrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTree" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>RockGrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTree" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushSmall_var1" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushMedium_var1" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTree" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDead" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>GrassOldBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="0.01"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDead" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SandBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Forest large end -->
+  <!-- Earth planet end -->
+
+  <!-- Alient planet -->
+  <!-- Foliage -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandFoliage</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Foliage end -->
+
+  <!-- Forest edge -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeSnowMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienLeafTreeMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDeadMedium" Weight="0.01"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="0.1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDeadMedium" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandBushForestEdge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Forest edge end -->
+
+  <!-- Forest medium -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeSnowMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeSnow" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienLeafTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienLeafTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDeadMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTree" Weight="0.3"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="0.01"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDeadMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDead" Weight="0.3"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandBushForestMedium</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="0.5"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Forest medium end -->
+
+  <!-- Forest large -->
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeSnowMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeSnow" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSnowBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSnowMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTree" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienOrangeGrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienPineTree" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienYellowGrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienLeafTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienLeafTree" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienGreenGrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienLeafBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDeadMedium" Weight="0.2"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTree" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDead" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienRockGrassBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="0.01"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="0.1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDeadMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTreeDead" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="AlienDesertTree" Weight="0.2"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>AlienSandBushForestLarge</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadSmall" Weight="0.2"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="AlienDesertBushDeadMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <!-- Forest large end -->
+  <!-- Alien planet end -->
+
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowTrees</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnow" Weight="0.05"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeSnowMedium" Weight="0.6"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>DesertTrees</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTree" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeMedium" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDead" Weight="1"/>
+      <Item TypeId="TreeDefinition" SubtypeId="DesertTreeDeadMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>JungleTrees</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTree" Weight="0.05"/>
+      <Item TypeId="TreeDefinition" SubtypeId="LeafTreeMedium" Weight="0.6"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTree" Weight="0.05"/>
+      <Item TypeId="TreeDefinition" SubtypeId="PineTreeMedium" Weight="0.6"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>BushesDesert</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DesertBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="DeadBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>SnowBushes</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="SnowPineBushMedium" Weight="1"/>
+    </Items>
+  </Definition>
+  <Definition xsi:type="VR.PhysicalModelCollectionDefinition">
+    <Id>
+      <TypeId>PhysicalModelCollectionDefinition</TypeId>
+      <SubtypeId>BushesForest</SubtypeId>
+    </Id>
+    <Items>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushSmall" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="PineBushMedium" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushMedium_var1" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushMedium_var2" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushSmall_var1" Weight="1"/>
+      <Item TypeId="PhysicalModelDefinition" SubtypeId="LeafBushSmall_var2" Weight="1"/>
+    </Items>
+  </Definition>
+
+</Definitions>

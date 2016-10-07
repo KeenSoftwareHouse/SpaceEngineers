@@ -34,7 +34,7 @@ namespace Sandbox.Game.Multiplayer
         {
             m_localSteamId = localSteamId;
 
-            if (createLocalClient == true)
+            if (createLocalClient == true && m_clients.ContainsKey(m_localSteamId) == false)
             {
                 AddClient(m_localSteamId);
             }

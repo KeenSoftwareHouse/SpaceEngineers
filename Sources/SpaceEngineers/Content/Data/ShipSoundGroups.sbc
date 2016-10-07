@@ -9,6 +9,8 @@
     <MaxUpdateRange>2500</MaxUpdateRange> <!-- max distance in metres to update ship sounds -->
     <FullSpeed>96</FullSpeed> <!-- max speed used for volume calculations (m/s) -->
     <LargeShipDetectionRadius>15</LargeShipDetectionRadius> <!-- max distance from large grid block to play 2D sounds -->
+    <WheelStartUpdateRange>500</WheelStartUpdateRange> <!-- distance at which will wheels start detecting if they are on ground -->
+    <WheelStopUpdateRange>750</WheelStopUpdateRange> <!-- distance at which will wheels stop detecting if they are on ground -->
   </ShipSoundSystem>
 
   <ShipSoundGroups>
@@ -29,8 +31,8 @@
         <EngineVolume Speed="1" Volume="1" />
       </EngineVolumes>
       
-      <SpeedUpSoundChangeVolumeTo>0.7</SpeedUpSoundChangeVolumeTo> <!-- Lower volume of othe ship sound to this if speed up is playing -->
-      <SpeedDownSoundChangeVolumeTo>0.7</SpeedDownSoundChangeVolumeTo> <!-- Lower volume of othe ship sound to this if speed down is playing -->
+      <SpeedUpSoundChangeVolumeTo>0.85</SpeedUpSoundChangeVolumeTo> <!-- Lower volume of othe ship sound to this if speed up is playing -->
+      <SpeedDownSoundChangeVolumeTo>0.75</SpeedDownSoundChangeVolumeTo> <!-- Lower volume of othe ship sound to this if speed down is playing -->
       <SpeedUpDownChangeSpeed>0.2</SpeedUpDownChangeSpeed> <!-- Volume change per second because of speed up/down sounds -->
 
       <ThrusterPitchRangeInSemitones>4</ThrusterPitchRangeInSemitones><!-- max difference in pitch for thruster sound loops -->
@@ -67,7 +69,7 @@
         <Sound Type="HydrogenThrusters" SoundName="ShipSmallThrusterHydrogen" /> <!-- Sound loop for hydrogen thrusters (uses pitch effect) -->
         <Sound Type="HydrogenThrustersIdle" SoundName="ShipSmallThrusterHydrogenIdle" /> <!-- Sound loop for hydrogen thrusters (low speed) -->
         <Sound Type="AtmoThrustersSlow" SoundName="ShipSmallThrusterAtmosphericSlow" /> <!-- Sound loop for atmospheric thruster played at 0 - 33% of max speed (uses pitch effect) -->
-        <Sound Type="AtmoThrustersMedium" SoundName="ShipSmallThrusterAtmosphericMedium" /> <!-- Sound loop for atmospheric thruster played at 33 - 66% of max speed (uses pitch effect) -->
+        <Sound Type="AtmoThrustersMedium" SoundName="ShipSmallThrusterAtmosphericSlow" /> <!-- Sound loop for atmospheric thruster played at 33 - 66% of max speed (uses pitch effect) -->
         <Sound Type="AtmoThrustersFast" SoundName="ShipSmallThrusterAtmosphericFast" /> <!-- Sound loop for atmospheric thruster played at 66 - 100% of max speed (uses pitch effect) -->
         <Sound Type="AtmoThrustersIdle" SoundName="ShipSmallThrusterAtmosphericIdle" /> <!-- Sound loop for atmospheric thrusters (low speed) -->
         <Sound Type="WheelsEngineRun" SoundName="ShipSmallWheelsRun" /> <!-- Engine sound loop for wheels (uses pitch effect) -->
@@ -87,7 +89,7 @@
       <EngineTimeToTurnOn>4</EngineTimeToTurnOn>
       <EngineTimeToTurnOff>3</EngineTimeToTurnOff>
       <EngineVolumes>
-        <EngineVolume Speed="0" Volume="0.25" />
+        <EngineVolume Speed="0" Volume="0.33" />
         <EngineVolume Speed="1" Volume="1" />
       </EngineVolumes>
 
@@ -130,7 +132,7 @@
         <Sound Type="HydrogenThrusters" SoundName="ShipLargeThrusterHydrogen" />
         <Sound Type="HydrogenThrustersIdle" SoundName="ShipLargeThrusterHydrogenIdle" />
         <Sound Type="AtmoThrustersSlow" SoundName="ShipLargeThrusterAtmosphericSlow" />
-        <Sound Type="AtmoThrustersMedium" SoundName="ShipLargeThrusterAtmosphericMedium" />
+        <Sound Type="AtmoThrustersMedium" SoundName="ShipLargeThrusterAtmosphericSlow" />
         <Sound Type="AtmoThrustersFast" SoundName="ShipLargeThrusterAtmosphericFast" />
         <Sound Type="AtmoThrustersIdle" SoundName="ShipLargeThrusterAtmosphericIdle" />
         <Sound Type="WheelsEngineRun" SoundName="ShipLargeWheelsRun" />

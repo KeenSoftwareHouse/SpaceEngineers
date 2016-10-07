@@ -103,6 +103,8 @@ namespace VRage.Game
         [XmlElement("Settings", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_SessionSettings>))]
         public MyObjectBuilder_SessionSettings Settings = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_SessionSettings>();
 
+        public MyObjectBuilder_ScriptManager ScriptManagerData;
+
         [ProtoMember]
         public int AppVersion = 0;
 
@@ -227,12 +229,10 @@ namespace VRage.Game
         public SerializableDictionary<long, MyObjectBuilder_Gps> Gps;
 
         [ProtoMember]
-        public SerializableBoundingBoxD WorldBoundaries;
+        public SerializableBoundingBoxD? WorldBoundaries;
         public bool ShouldSerializeWorldBoundaries()
         {
-            // Prevent this from appearing in SE checkpoints.
-            return WorldBoundaries.Min != Vector3D.Zero ||
-                   WorldBoundaries.Max != Vector3D.Zero;
+            return WorldBoundaries.HasValue;
         }
 
         [ProtoMember]

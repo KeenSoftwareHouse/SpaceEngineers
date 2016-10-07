@@ -1172,7 +1172,7 @@
             <Z>0.0</Z>
           </Position>
           <BeaconText>The Pilgrims Curiosity</BeaconText>
-          <Speed>25.0</Speed>
+          <Speed>30.0</Speed>
         </Prefab>
       </Prefabs>
     </SpawnGroup>

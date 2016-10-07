@@ -14,6 +14,7 @@ using VRage.Game.Components;
 using VRage.Input;
 using VRage.Utils;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI.Interfaces;
 
 namespace Sandbox.Game.GameSystems
 {
@@ -35,6 +36,8 @@ namespace Sandbox.Game.GameSystems
         {
             get { return m_currentCamera; }
         }
+
+        public static IMyCameraController PreviousNonCameraBlockController { get; set; }
 
         private static MyHudCameraOverlay m_cameraOverlay;
         static MyGridCameraSystem()
@@ -114,7 +117,8 @@ namespace Sandbox.Game.GameSystems
             m_ignoreNextInput = true;
 
             MySessionComponentVoxelHand.Static.Enabled = false;
-            MyCubeBuilder.Static.Deactivate();
+            MySession.Static.GameFocusManager.Clear();
+            //MyCubeBuilder.Static.Deactivate();
         }
 
         public void UpdateBeforeSimulation()
@@ -208,7 +212,19 @@ namespace Sandbox.Game.GameSystems
         {
             ResetCurrentCamera();
             //Can be null when closing the game
-            if (MySession.Static.LocalCharacter != null)
+            bool switched = false;
+            if (PreviousNonCameraBlockController != null)
+            {
+                MyEntity entity = PreviousNonCameraBlockController as MyEntity;
+                if (entity != null && !entity.Closed)
+                {
+                    MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, entity);
+                    PreviousNonCameraBlockController = null;
+                    switched = true;
+                }
+            }
+
+            if (!switched && MySession.Static.LocalCharacter != null)
             {
                 MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.LocalCharacter);
             }

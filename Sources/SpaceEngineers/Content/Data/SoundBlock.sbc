@@ -14,8 +14,8 @@
         <SoundDesc Id="SoundBlockAlert1" SoundName="SoundBlock_SoundName_Alert1" />
         <SoundDesc Id="SoundBlockAlert2" SoundName="SoundBlock_SoundName_Alert2" />
         <SoundDesc Id="SoundBlockAlert3" SoundName="SoundBlock_SoundName_Alert3" />
-        <SoundDesc Id="MusHeavyFight_KA02" SoundName="SoundBlock_SoundName_Music1" />
-        <SoundDesc Id="MusMystery_KA01" SoundName="SoundBlock_SoundName_Music2" />
+        <SoundDesc Id="MusHeavyFight_08" SoundName="SoundBlock_SoundName_Music1" />
+        <SoundDesc Id="MusSpace_08" SoundName="SoundBlock_SoundName_Music2" />
       </Sounds>
     </SoundCategory>
   </SoundCategories>

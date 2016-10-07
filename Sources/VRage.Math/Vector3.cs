@@ -1163,6 +1163,35 @@ namespace VRageMath
                      matrix.Translation;
         }
 
+        /**
+         * Transform the provided vector only about the rotation, scale and translation terms of a matrix.
+         * 
+         * This effectively treats the matrix as a 3x4 matrix and the input vector as a 4 dimensional vector with unit W coordinate.
+         */
+        public static void TransformNoProjection(ref Vector3 vector, ref Matrix matrix, out Vector3 result)
+        {
+            float x = (vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31) + matrix.M41;
+            float y = (vector.X * matrix.M12 + vector.Y * matrix.M22 + vector.Z * matrix.M32) + matrix.M42;
+            float z = (vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33) + matrix.M43;
+
+            result.X = x;
+            result.Y = y;
+            result.Z = z;
+        }
+
+        /**
+         * Transform the provided vector only about the rotation and scale terms of a matrix.
+         */
+        public static void RotateAndScale(ref Vector3 vector, ref Matrix matrix, out Vector3 result)
+        {
+            float x = (vector.X * matrix.M11 + vector.Y * matrix.M21 + vector.Z * matrix.M31);
+            float y = (vector.X * matrix.M12 + vector.Y * matrix.M22 + vector.Z * matrix.M32);
+            float z = (vector.X * matrix.M13 + vector.Y * matrix.M23 + vector.Z * matrix.M33);
+
+            result.X = x;
+            result.Y = y;
+            result.Z = z;
+        }
 
         // Transform (x, y, z, 1) by matrix, project result back into w=1.
         //D3DXVECTOR3* WINAPI D3DXVec3TransformCoord
@@ -1278,6 +1307,12 @@ namespace VRageMath
             result = - normal.X * Base6Directions.GetVector(orientation.Left)
                      + normal.Y * Base6Directions.GetVector(orientation.Up)
                      - normal.Z * Base6Directions.GetVector(orientation.Forward);
+        }
+
+        public static Vector3 TransformNormal(Vector3 normal, ref Matrix matrix)
+        {
+            TransformNormal(ref normal, ref matrix, out normal);
+            return normal;
         }
 
         /// <summary>

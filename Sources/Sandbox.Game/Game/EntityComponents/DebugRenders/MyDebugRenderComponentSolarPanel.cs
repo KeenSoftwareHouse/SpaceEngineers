@@ -36,7 +36,7 @@ namespace Sandbox.Game.Components
                 System.Diagnostics.Debug.Fail("No solar component was found!");
             }
         }
-        public override bool DebugDraw()
+        public override void DebugDraw()
         {
             Matrix WorldMatrix = m_solarBlock.PositionComp.WorldMatrix;
             Matrix rot = Matrix.CreateFromDir(WorldMatrix.Forward, WorldMatrix.Up);
@@ -56,7 +56,6 @@ namespace Sandbox.Game.Components
                 if (i == m_solarComponent.DebugCurrentPivot)
                     MyRenderProxy.DebugDrawLine3D(pivot, pivot + MySector.DirectionToSunNormalized * 7, Color.Yellow, Color.Yellow, false);
             }
-            return true;
         }
     }
 }

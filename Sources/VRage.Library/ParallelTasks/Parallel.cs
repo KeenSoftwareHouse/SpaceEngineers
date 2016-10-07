@@ -378,6 +378,43 @@ namespace ParallelTasks
             return task;
         }
 
+        /// <summary>
+        /// Creates and schedules a task to execute on the given work-tracking thread.
+        /// If the requested thread that does not execute completion callbacks the callback will never be called.
+        /// </summary>
+        /// <param name="action">The work to execute in parallel.</param>
+        /// <param name="workData">Data to be passed along both the work and the completion callback.</param>
+        /// <param name="thread">Thread to execute the callback on. If not provided this is the calling thread.</param>
+        /// <returns>A task which represents one execution of the action.</returns>
+        public static Task ScheduleForThread(Action<WorkData> action, WorkData workData, Thread thread = null)
+        {
+            if(thread == null)
+                thread = Thread.CurrentThread;
+
+            WorkOptions options = new WorkOptions() { MaximumThreads = 1, DetachFromParent = false, QueueFIFO = false };
+
+            var work = DelegateWork.GetInstance();
+            work.Options = options;
+
+            var workItem = WorkItem.Get(thread);
+            lock (Buffers)
+            {
+                workItem.CompletionCallbacks = Buffers[thread];
+            }
+            workItem.DataCallback = action;
+
+
+            if (workData != null)
+                workItem.WorkData = workData;
+            else
+                workItem.WorkData = new WorkData();
+
+            var task = workItem.PrepareStart(work, thread);
+
+            CallbackBuffer.Add(workItem);
+            return task;
+        }
+
 
         private static void RunPerWorker(Action action, Barrier barrier)
         {

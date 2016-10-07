@@ -67,7 +67,7 @@ namespace SpaceEngineers.Game.AI
 
             var target = (AiTarget as MyCyberhoundTarget);
             Debug.Assert(target != null);
-            if (AgentBot.Player.Character.UseNewAnimationSystem == false) // obsolete in new animation system
+            if (AgentBot.Player.Character != null && AgentBot.Player.Character.UseNewAnimationSystem == false) // obsolete in new animation system
             {
                 if ((!target.IsAttacking && !m_lastWasAttacking) && target.HasTarget()
                     && !target.PositionIsNearTarget(AgentBot.Player.Character.PositionComp.GetPosition(), 1.5f))

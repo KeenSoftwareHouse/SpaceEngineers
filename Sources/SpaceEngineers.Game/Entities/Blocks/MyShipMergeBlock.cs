@@ -543,7 +543,12 @@ namespace SpaceEngineers.Game.Entities.Blocks
                 if (other.GetLineIntersectionExactGrid(ref l, ref pos, ref dist))
                 {
                     var block = other.GetCubeBlock(pos).FatBlock as MyShipMergeBlock;
-                    if (block == null || block.InConstraint || !block.IsWorking || !block.CheckUnobstructed() || block.GetMergeNormalWorld().Dot(GetMergeNormalWorld()) > 0.0f)
+
+                    if(block == null)
+                    {
+                        continue;
+                    }
+                    if (block.InConstraint || !block.IsWorking || !block.CheckUnobstructed() || block.GetMergeNormalWorld().Dot(GetMergeNormalWorld()) > 0.0f)
                         return;
 
                     if (!block.FriendlyWithBlock(this)) return;

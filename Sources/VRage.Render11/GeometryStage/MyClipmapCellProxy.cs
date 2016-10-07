@@ -74,8 +74,7 @@ namespace VRageRender
 
         void IMyClipmapCell.SetDithering(float dithering)
         {
-            if (m_actor.GetRenderable() != null)
-                m_actor.GetRenderable().SetDithering(dithering);
+            m_actor.GetRenderable().SetDithering(dithering);
         }
 
         bool IMyClipmapCell.IsValid()
@@ -85,7 +84,7 @@ namespace VRageRender
             return m_actor != null && !m_actor.IsDestroyed;
         }
 
-		internal MyClipmapCellProxy(MyCellCoord cellCoord, ref MatrixD worldMatrix, Vector3D massiveCenter, float massiveRadius, RenderFlags additionalFlags = 0, bool mergedMesh = false)
+        internal MyClipmapCellProxy(MyCellCoord cellCoord, ref MatrixD worldMatrix, Vector3D massiveCenter, float massiveRadius, RenderFlags additionalFlags = 0, bool mergedMesh = false)
         {
             m_worldMatrix = worldMatrix;
 

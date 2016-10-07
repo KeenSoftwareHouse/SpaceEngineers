@@ -32,15 +32,10 @@ namespace Sandbox.Graphics.GUI
             set { m_color = value; }
         }
 
-        public Vector2 Size
+        public new Vector2 Size
         {
-            get { return m_size; }
-            set { m_size = value; }
-        }
-
-        public override Vector2 GetSize()
-        {
-            return m_size;
+            get { return base.Size; }
+            set { base.Size = value; }
         }
 
         /// <summary>

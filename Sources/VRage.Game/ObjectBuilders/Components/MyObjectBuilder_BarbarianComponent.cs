@@ -8,7 +8,7 @@ namespace VRage.Game.ObjectBuilders.Components
     public class MyObjectBuilder_BarbarianComponent : MyObjectBuilder_SessionComponent
     {
         [ProtoMember]
-        public bool PeaceTime;
+        public bool PeaceTime = true;
 
         [ProtoMember]
         public int LastWarDay;

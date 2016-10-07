@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <EnvironmentItems>
+  <!--<EnvironmentItems>
 
-    <!--Version 01-->
+    --><!--Version 01--><!--
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
@@ -143,7 +143,7 @@
       <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
-    <!--Alien Trees-->
+    --><!--Alien Trees--><!--
     <EnvironmentItem xsi:type="MyObjectBuilder_TreeDefinition">
       <Id>
         <TypeId>MyObjectBuilder_Tree</TypeId>
@@ -285,7 +285,7 @@
       <BreakSound>ImpTreeBreak</BreakSound>
     </EnvironmentItem>
 
-    <!--Alien Trees End-->
+    --><!--Alien Trees End--><!--
 
-  </EnvironmentItems>
+  </EnvironmentItems>-->
 </Definitions>

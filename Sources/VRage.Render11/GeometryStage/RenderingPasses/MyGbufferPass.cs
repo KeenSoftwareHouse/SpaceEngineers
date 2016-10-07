@@ -17,10 +17,13 @@ namespace VRageRender
 
             RC.BindGBufferForWrite(GBuffer);
 
-            RC.SetDS(MyDepthStencilState.DepthTestWrite);
+            if ((!MyStereoRender.Enable) && (!MyStereoRender.EnableUsingStencilMask))
+                RC.SetDS(MyDepthStencilState.DepthTestWrite);
+            else
+                RC.SetDS(MyDepthStencilState.StereoDepthTestWrite);
         }
 
-        protected unsafe override sealed void RecordCommandsInternal(MyRenderableProxy proxy, int section)
+        protected unsafe override sealed void RecordCommandsInternal(MyRenderableProxy proxy)
         {
             if ((proxy.Mesh.Buffers.IB == IndexBufferId.NULL && proxy.MergedMesh.Buffers.IB == IndexBufferId.NULL)
                 || proxy.DrawSubmesh.IndexCount == 0
@@ -66,7 +69,10 @@ namespace VRageRender
 
             if (proxy.InstanceCount == 0) 
             {
-                RC.DeviceContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+                if (!MyStereoRender.Enable)
+                    RC.DeviceContext.DrawIndexed(submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
+                else
+                    MyStereoRender.DrawIndexedGBufferPass(RC, submesh.IndexCount, submesh.StartIndex, submesh.BaseVertex);
                 ++RC.Stats.DrawIndexed;
                 ++Stats.Instances;
                 Stats.Triangles += submesh.IndexCount / 3;
@@ -74,7 +80,10 @@ namespace VRageRender
             else
             {
                 //MyRender11.AddDebugQueueMessage("GbufferPass DrawIndexedInstanced " + proxy.Material.ToString());
-                RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
+                if (!MyStereoRender.Enable)
+                    RC.DeviceContext.DrawIndexedInstanced(submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
+                else
+                    MyStereoRender.DrawIndexedInstancedGBufferPass(RC, submesh.IndexCount, proxy.InstanceCount, submesh.StartIndex, submesh.BaseVertex, proxy.StartInstance);
                 ++RC.Stats.DrawIndexedInstanced;
                 Stats.Instances += proxy.InstanceCount;
                 Stats.Triangles += proxy.InstanceCount * submesh.IndexCount / 3;
@@ -105,10 +114,16 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
-                            RC.DeviceContext.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
+                            if (!MyStereoRender.Enable)
+                                RC.DeviceContext.DrawIndexed(submesh.Count, submesh.Start, submesh.BaseVertex);
+                            else
+                                MyStereoRender.DrawIndexedGBufferPass(RC, submesh.Count, submesh.Start, submesh.BaseVertex);
                             break;
                         case MyDrawCommandEnum.Draw:
-                            RC.DeviceContext.Draw(submesh.Count, submesh.Start);
+                            if (!MyStereoRender.Enable)
+                                RC.DeviceContext.Draw(submesh.Count, submesh.Start);
+                            else
+                                MyStereoRender.DrawGBufferPass(RC, submesh.Count, submesh.Start);
                             break;
                         default:
                             break;
@@ -119,11 +134,16 @@ namespace VRageRender
                     switch (submesh.DrawCommand)
                     {
                         case MyDrawCommandEnum.DrawIndexed:
-                            //MyRender11.AddDebugQueueMessage("GbufferPass DrawIndexedInstanced " + proxy.VertexData.VB[0].DebugName);
-                            RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
+                            if (!MyStereoRender.Enable)
+                                RC.DeviceContext.DrawIndexedInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
+                            else
+                                MyStereoRender.DrawIndexedInstancedGBufferPass(RC, submesh.Count, proxy.InstanceCount, submesh.Start, submesh.BaseVertex, proxy.StartInstance);
                             break;
                         case MyDrawCommandEnum.Draw:
-                            RC.DeviceContext.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
+                            if (!MyStereoRender.Enable)
+                                RC.DeviceContext.DrawInstanced(submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
+                            else
+                                MyStereoRender.DrawInstancedGBufferPass(RC, submesh.Count, proxy.InstanceCount, submesh.Start, proxy.StartInstance);
                             break;
                         default:
                             break;

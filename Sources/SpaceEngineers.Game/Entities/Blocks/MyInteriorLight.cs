@@ -6,7 +6,7 @@ using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.Lights;
 using Sandbox.ModAPI.Ingame;
-using SpaceEngineers.Game.ModAPI.Ingame;
+using SpaceEngineers.Game.ModAPI;
 using VRage.Game;
 using VRageMath;
 
@@ -15,7 +15,7 @@ using VRageMath;
 namespace SpaceEngineers.Game.Entities.Blocks
 {
     [MyCubeBlockType(typeof(MyObjectBuilder_InteriorLight))]
-    class MyInteriorLight : MyLightingBlock,IMyInteriorLight
+    public class MyInteriorLight : MyLightingBlock,IMyInteriorLight
     {
 
         public override void Init(MyObjectBuilder_CubeBlock objectBuilder, MyCubeGrid cubeGrid)

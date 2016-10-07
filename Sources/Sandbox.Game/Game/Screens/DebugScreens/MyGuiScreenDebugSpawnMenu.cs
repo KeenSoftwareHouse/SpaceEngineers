@@ -32,6 +32,7 @@ using VRage.Serialization;
 using System.Diagnostics;
 using VRage.Game;
 using VRageRender;
+using Sandbox.Game.SessionComponents.Clipboard;
 
 namespace Sandbox.Game.Gui
 {
@@ -362,7 +363,7 @@ namespace Sandbox.Game.Gui
             obj.Item.Amount = amount;
             obj.Item.PhysicalContent = builder;
 
-            MyCubeBuilder.Static.ActivateFloatingObjectClipboard(obj, Vector3.Zero, 1f);
+            MyClipboardComponent.Static.ActivateFloatingObjectClipboard(obj, Vector3.Zero, 1f);
         }
 
         private MyGuiControlButton CreateDebugButton(float usableWidth, MyStringId text, Action<MyGuiControlButton> onClick, bool enabled = true, MyStringId? tooltip = null)
@@ -508,7 +509,7 @@ namespace Sandbox.Game.Gui
                     IsProcedural = false
                 };
 
-                MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+                MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
             }
         }
 
@@ -534,7 +535,7 @@ namespace Sandbox.Game.Gui
                 ProceduralRadius = radius,
             };
 
-            MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+            MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
         }
 
         private static String MakeStorageName(String storageNameBase)
@@ -774,7 +775,7 @@ namespace Sandbox.Game.Gui
                 ProceduralRadius = size,
             };
 
-            MyCubeBuilder.Static.ActivateVoxelClipboard(planet.GetObjectBuilder(), storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+            MyClipboardComponent.Static.ActivateVoxelClipboard(planet.GetObjectBuilder(), storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
         }
 
         public static void SpawnPlanet(Vector3D pos)
@@ -850,7 +851,7 @@ namespace Sandbox.Game.Gui
                 string name = MakeStorageName("MyEmptyVoxelMap");
 
                 var builder = CreateAsteroidObjectBuilder(name);
-                MyCubeBuilder.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
+                MyClipboardComponent.Static.ActivateVoxelClipboard(builder, storage, MySector.MainCamera.ForwardVector, (storage.Size * 0.5f).Length());
 
                 CloseScreenNow();
             });

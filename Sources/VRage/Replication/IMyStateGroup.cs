@@ -52,7 +52,7 @@ namespace VRage.Network
         /// <param name="forClient">When writing the client which will receive the data. When reading, it's null.</param>
         /// <param name="packetId">Id of packet in which the data will be sent or from which the data is received.</param>
         /// <param name="maxBitPosition">Maximum position in bit stream where you can write data, it's inclusive.</param>
-        void Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition);
+        bool Serialize(BitStream stream, EndpointId forClient, uint timestamp, byte packetId, int maxBitPosition);
 
         /// <summary>
         /// Called for each packet id sent to client from this state group.

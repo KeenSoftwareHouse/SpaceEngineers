@@ -25,12 +25,13 @@ using Sandbox.Game.Localization;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
+using Sandbox.ModAPI.Weapons;
 
 #endregion
 
 namespace Sandbox.Game.Weapons
 {
-    public abstract class MyBlockPlacerBase : MyEngineerToolBase
+    public abstract class MyBlockPlacerBase : MyEngineerToolBase, IMyBlockPlacerBase
     {
         public static MyHudNotificationBase MissingComponentNotification =
              new MyHudNotification(MyCommonTexts.NotificationMissingComponentToPlaceBlockFormat, font: MyFontEnum.Red, priority: 1);
@@ -93,7 +94,7 @@ namespace Sandbox.Game.Weapons
 
                 m_lastKeyPress = MySandboxGame.TotalGamePlayTimeInMilliseconds;
 
-                var definition = MyCubeBuilder.Static.HudBlockDefinition;
+                var definition = MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition;
                 if (definition == null)
                 {
                     return;
@@ -109,9 +110,7 @@ namespace Sandbox.Game.Weapons
                 // Must have first component to start building
                 if (MyCubeBuilder.Static.CanStartConstruction(Owner))
                 {
-                    bool placingGrid = MyCubeBuilder.Static.ShipCreationClipboard.IsActive;
-                    m_closeAfterBuild = MyCubeBuilder.Static.AddConstruction(Owner) && placingGrid;
-                    return;
+                    MyCubeBuilder.Static.AddConstruction(Owner);
                 }
                 else
                 {
@@ -169,7 +168,8 @@ namespace Sandbox.Game.Weapons
 
             if (Owner != null && Owner.ControllerInfo.IsLocallyHumanControlled())
             {
-                BlockBuilder.Deactivate();
+                //BlockBuilder.Deactivate();
+                MySession.Static.GameFocusManager.Clear();
             }
 
             base.OnControlReleased();
@@ -184,7 +184,10 @@ namespace Sandbox.Game.Weapons
             if (Owner != null)
             {
                 if (MyPerGameSettings.CheckUseAnimationInsteadOfIK())
-                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f); 
+                {
+                    Owner.PlayCharacterAnimation("Building_pose", MyBlendOption.Immediate, MyFrameOption.Loop, 0.2f);
+                    Owner.TriggerCharacterAnimationEvent("building", false);
+                }
                 if (Owner.ControllerInfo.IsLocallyHumanControlled())
                 {
                     BlockBuilder.Activate();

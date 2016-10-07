@@ -165,7 +165,7 @@ namespace Sandbox.Graphics.GUI
 
             if (m_currentBlocks.Length > 0)
             {
-                m_currentBlocks[0].PropertiesChanged += block_PropertiesChanged;
+                m_currentBlocks[0].PropertiesChanged -= block_PropertiesChanged;
             }
 
             foreach (var block in m_currentBlocks)
@@ -239,7 +239,7 @@ namespace Sandbox.Graphics.GUI
                 foreach (var block in m_currentBlocks)
                 {
                     var type = block.GetType();
-                    foreach (var control in MyTerminalControlFactory.GetControls(block.GetType()))
+                    foreach(var control in MyTerminalControls.Static.GetControls(block))
                     {
                         int num;
                         m_tmpControlDictionary.TryGetValue(control, out num);

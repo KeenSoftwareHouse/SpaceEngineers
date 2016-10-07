@@ -45,18 +45,16 @@ namespace Sandbox.Game.EntityComponents
                         }
                         CubeGrid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, thrust, null, null);
 
-                        if (MyPerGameSettings.EnableMultiplayerVelocityCompensation)
-                        {
-                            Vector3 velocity = CubeGrid.Physics.LinearVelocity;
-                            float maxSpeed = CubeGrid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();
 
-                            maxSpeed *= Sync.RelativeSimulationRatio;
-                            if (velocity.LengthSquared() > maxSpeed * maxSpeed)
-                            {
-                                velocity.Normalize();
-                                velocity *= maxSpeed;
-                                CubeGrid.Physics.LinearVelocity = velocity;
-                            }
+                        Vector3 velocity = CubeGrid.Physics.LinearVelocity;
+                        float maxSpeed = CubeGrid.GridSizeEnum == MyCubeSize.Large ? MyGridPhysics.LargeShipMaxLinearVelocity() : MyGridPhysics.SmallShipMaxLinearVelocity();
+
+                        maxSpeed *= Sync.RelativeSimulationRatio;
+                        if (velocity.LengthSquared() > maxSpeed * maxSpeed)
+                        {
+                            velocity.Normalize();
+                            velocity *= maxSpeed;
+                            CubeGrid.Physics.LinearVelocity = velocity;
                         }
                     }
 
