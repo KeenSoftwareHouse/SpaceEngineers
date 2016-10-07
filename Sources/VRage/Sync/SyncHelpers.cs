@@ -27,6 +27,7 @@ namespace VRage.Sync
         internal delegate SyncBase Composer(object instance, int id, MySerializeInfo serializeInfo);
 
         static Dictionary<Type, List<Item>> m_composers = new Dictionary<Type, List<Item>>();
+        static FastResourceLock m_composersLock = new FastResourceLock();
 
         public static SyncType Compose(object obj, int firstId = 0)
         {
@@ -42,10 +43,13 @@ namespace VRage.Sync
         {
             var type = obj.GetType();
             List<Item> composers;
-            if (!m_composers.TryGetValue(type, out composers))
+            using (m_composersLock.AcquireExclusiveUsing())
             {
-                composers = CreateComposer(type);
-                m_composers.Add(type, composers);
+                if (!m_composers.TryGetValue(type, out composers))
+                {
+                    composers = CreateComposer(type);
+                    m_composers.Add(type, composers);
+                }
             }
 
             foreach (var comp in composers)

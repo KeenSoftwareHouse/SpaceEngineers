@@ -39,11 +39,11 @@ namespace Sandbox.Game.Weapons
             CreateTerminalControls();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MySmallMissileLauncher>())
                 return;
-
+            base.CreateTerminalControls();
             var useConveyor = new MyTerminalControlOnOffSwitch<MySmallMissileLauncher>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyor.Getter = (x) => x.UseConveyorSystem;
             useConveyor.Setter = (x, v) => x.UseConveyorSystem = v;

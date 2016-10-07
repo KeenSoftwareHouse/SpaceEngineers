@@ -50,6 +50,7 @@ using VRageRender.Import;
 using IMyControllableEntity = Sandbox.Game.Entities.IMyControllableEntity;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
+using VRageRender;
 
 #if XB1 // XB1_SYNC_SERIALIZER_NOEMIT
 using System.Reflection;
@@ -1886,7 +1887,7 @@ namespace Sandbox.Game.Weapons
                 return false;
 
             var head = WorldMatrix;
-            var from = head.Translation - 0.4f * head.Up; //decrease by offset to muzzle
+            var from = Barrel.GunBase.GetMuzzleWorldPosition();
             var to = predictedPos;
 
             if (target is MyCharacter)
@@ -2135,7 +2136,7 @@ namespace Sandbox.Game.Weapons
 
             MyEntity nearestTarget = null;
             float targetRange = 0;
-            //GetNearestVisibleTarget(m_searchingRange, true);//TODO smaz radek
+            
             if (Target != null)
             {
 
@@ -2309,11 +2310,11 @@ namespace Sandbox.Game.Weapons
 
         #region Control panel
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyLargeTurretBase>())
                 return;
-
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_TURRET_CONTROL)
             {
                 var controlBtn = new MyTerminalControlButton<MyLargeTurretBase>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (t) => t.RequestControl());

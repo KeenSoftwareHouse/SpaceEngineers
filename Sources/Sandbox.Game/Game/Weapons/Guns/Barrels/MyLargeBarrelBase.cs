@@ -17,6 +17,7 @@ namespace Sandbox.Game.Weapons.Guns.Barrels
         #region Fields
         // used ammo type for this barrel:
         protected MyGunBase m_gunBase;
+        public MyGunBase GunBase { get { return m_gunBase; } }
 
         public MyModelDummy CameraDummy { get; private set; }
 

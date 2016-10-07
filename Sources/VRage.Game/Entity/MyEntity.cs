@@ -220,6 +220,26 @@ namespace VRage.Game.Entity
             }
         }
 
+        bool m_isreadyForReplication = true;
+        public Action ReadyForReplicationAction;
+
+        // Indicates whether the entity finished initialization and can be replicated for clients
+        public bool IsReadyForReplication
+        {
+            get { return m_isreadyForReplication; }
+            set 
+            {
+                m_isreadyForReplication = value;
+
+                // Add your replicable to priority updates once done. Kind of hacky implementation. Should be remade when possible
+                if (m_isreadyForReplication && ReadyForReplicationAction != null)
+                {
+                    ReadyForReplicationAction();
+                    ReadyForReplicationAction = null;
+                }
+            }
+        }
+
         public MyEntityUpdateEnum NeedsUpdate
         {
             get

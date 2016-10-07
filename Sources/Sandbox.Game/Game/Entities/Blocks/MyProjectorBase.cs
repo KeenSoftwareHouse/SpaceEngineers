@@ -160,6 +160,8 @@ namespace Sandbox.Game.Entities.Blocks
             set { m_keepProjection.Value = value; }
         }
 
+        public bool IsActivating { get; private set; }
+
         #endregion
 
         #region UI
@@ -281,12 +283,16 @@ namespace Sandbox.Game.Entities.Blocks
                 }
             }
 
-            m_originalGridBuilder = (MyObjectBuilder_CubeGrid)m_clipboard.CopiedGrids[largestGridIndex].Clone();
-
-            m_clipboard.ProcessCubeGrid(m_clipboard.CopiedGrids[largestGridIndex]);
-
-            MyEntities.RemapObjectBuilder(m_originalGridBuilder);
-            SendNewBlueprint(m_originalGridBuilder);
+            ParallelTasks.Parallel.Start(delegate()
+            {
+                m_originalGridBuilder = (MyObjectBuilder_CubeGrid)m_clipboard.CopiedGrids[largestGridIndex].Clone();
+                m_clipboard.ProcessCubeGrid(m_clipboard.CopiedGrids[largestGridIndex]);
+                MyEntities.RemapObjectBuilder(m_originalGridBuilder);
+            }, 
+            delegate()
+            {
+                SendNewBlueprint(m_originalGridBuilder);
+            });
         }
 
         protected bool ScenarioSettingsEnabled()
@@ -531,21 +537,24 @@ namespace Sandbox.Game.Entities.Blocks
         {
             m_clipboard.ResetGridOrientation();
             m_shouldUpdateProjection = true;
-            if (!m_clipboard.IsActive)
+            if (!m_clipboard.IsActive && !IsActivating)
             {
-                m_clipboard.Activate();
+                IsActivating = true;
+                m_clipboard.Activate(delegate()
+                {
+                    if (m_clipboard.PreviewGrids.Count != 0)
+                        ProjectedGrid.Projector = this;
+                    m_shouldUpdateProjection = true;
+                    m_shouldUpdateTexts = true;
+
+                    m_clipboard.ActuallyTestPlacement();
+
+                    SetRotation(m_clipboard, m_projectionRotation);
+
+                    NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
+                    IsActivating = false;
+                });
             }
-
-            if (m_clipboard.PreviewGrids.Count != 0)
-                ProjectedGrid.Projector = this;
-            m_shouldUpdateProjection = true;
-            m_shouldUpdateTexts = true;
-
-            m_clipboard.ActuallyTestPlacement();
-
-            SetRotation(m_clipboard, m_projectionRotation);
-
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override MyObjectBuilder_CubeBlock GetObjectBuilderCubeBlock(bool copy = false)
@@ -1290,11 +1299,11 @@ namespace Sandbox.Game.Entities.Blocks
         internal void SetNewBlueprint(MyObjectBuilder_CubeGrid gridBuilder)
         {
             m_originalGridBuilder = gridBuilder;
-            
-            var clone = (MyObjectBuilder_CubeGrid)gridBuilder.Clone();
 
-            MyEntities.RemapObjectBuilder(clone);
-            m_clipboard.ProcessCubeGrid(clone);
+            var clone = m_originalGridBuilder;//(MyObjectBuilder_CubeGrid)gridBuilder.Clone();
+
+            //MyEntities.RemapObjectBuilder(clone);
+            //m_clipboard.ProcessCubeGrid(clone);
 
             m_clipboard.SetGridFromBuilder(clone, Vector3.Zero, 0f);
 
@@ -1331,8 +1340,8 @@ namespace Sandbox.Game.Entities.Blocks
         {
             if (MyEventContext.Current.IsLocallyInvoked == false)
             {
-            SetNewBlueprint(projectedGrid);
-        }
+                SetNewBlueprint(projectedGrid);
+            }
         }
 
         public void SendNewOffset(Vector3I positionOffset, Vector3I rotationOffset, bool showOnlyBuildable)

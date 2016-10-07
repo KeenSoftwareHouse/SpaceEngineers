@@ -68,11 +68,11 @@ namespace SpaceEngineers.Game.Entities.Blocks
             m_openedToolbars = new List<MyToolbar>();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyButtonPanel>())
                 return;
-
+            base.CreateTerminalControls();
             var checkAccess = new MyTerminalControlCheckbox<MyButtonPanel>("AnyoneCanUse", MySpaceTexts.BlockPropertyText_AnyoneCanUse, MySpaceTexts.BlockPropertyDescription_AnyoneCanUse);
             checkAccess.Getter = (x) => x.AnyoneCanUse;
             checkAccess.Setter = (x, v) => x.AnyoneCanUse = v;

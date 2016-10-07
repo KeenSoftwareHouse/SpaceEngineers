@@ -130,11 +130,11 @@ namespace Sandbox.Game.Entities.Cube
             m_otherQueue = new List<QueueItem>();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyAssembler>())
                 return;
-
+            base.CreateTerminalControls();
             var slaveCheck = new MyTerminalControlCheckbox<MyAssembler>("slaveMode", MySpaceTexts.Assembler_SlaveMode, MySpaceTexts.Assembler_SlaveMode);
             slaveCheck.Getter = (x) => x.IsSlave;
             slaveCheck.Setter = (x, v) =>

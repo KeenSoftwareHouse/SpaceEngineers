@@ -412,11 +412,12 @@ namespace Sandbox.Game.Entities
             m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
+            
             if (MyTerminalControlFactory.AreControlsCreated<MyRemoteControl>())
                 return;
-
+            base.CreateTerminalControls();
             var controlBtn = new MyTerminalControlButton<MyRemoteControl>("Control", MySpaceTexts.ControlRemote, MySpaceTexts.Blank, (b) => b.RequestControl());
             controlBtn.Enabled = r => r.CanControl();
             controlBtn.SupportsMultipleBlocks = false;

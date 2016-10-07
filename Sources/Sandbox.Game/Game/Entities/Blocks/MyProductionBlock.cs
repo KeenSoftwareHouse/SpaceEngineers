@@ -212,11 +212,11 @@ namespace Sandbox.Game.Entities.Cube
             Components.ComponentAdded += OnComponentAdded;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyProductionBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyProductionBlock>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyorSystem.Getter = (x) => x.UseConveyorSystem;
             useConveyorSystem.Setter = (x, v) => x.UseConveyorSystem = v;

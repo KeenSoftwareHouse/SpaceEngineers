@@ -2,22 +2,24 @@
 using System.Diagnostics;
 using System.Linq;
 using VRage.Collections;
+using ParallelTasks;
 
 namespace VRage.Generics
 {
     public class MyObjectsPool<T> where T : class, new()
     {
-        Queue<T> m_unused;
+        MyConcurrentQueue<T> m_unused;
         HashSet<T> m_active;
         HashSet<T> m_marked;
+        SpinLockRef m_activeLock = new SpinLockRef();
 
         //  Count of items allowed to store in this pool.
         int m_baseCapacity;
 
-        public QueueReader<T> Unused
-        {
-            get { return new QueueReader<T>(m_unused); }
-        }
+        //public QueueReader<T> Unused
+        //{
+        //    get { return new QueueReader<T>(m_unused); }
+        //}
 
         public HashSetReader<T> Active
         {
@@ -49,7 +51,7 @@ namespace VRage.Generics
             Debug.Assert(baseCapacity > 0);
 
             m_baseCapacity = baseCapacity;
-            m_unused = new Queue<T>(m_baseCapacity);
+            m_unused = new MyConcurrentQueue<T>(m_baseCapacity);
             m_active = new HashSet<T>();
             m_marked = new HashSet<T>();
 
@@ -69,7 +71,10 @@ namespace VRage.Generics
                 item = new T();
             else
                 item = m_unused.Dequeue();
-            m_active.Add(item);
+            using (m_activeLock.Acquire())
+            {
+                m_active.Add(item);
+            }
             return create;
         }
 
@@ -81,7 +86,10 @@ namespace VRage.Generics
             if (m_unused.Count > 0)
             {
                 item = m_unused.Dequeue();
-                m_active.Add(item);
+                using (m_activeLock.Acquire())
+                {
+                    m_active.Add(item);
+                }
             }
             Debug.Assert(nullAllowed ? true : item != null, "MyObjectsPool is full and cannot allocate any other item!");
             return item;
@@ -92,7 +100,10 @@ namespace VRage.Generics
         public void Deallocate(T item)
         {
             Debug.Assert(m_active.Contains(item), "Deallocating item which is not in active set of the pool.");
-            m_active.Remove(item);
+            using (m_activeLock.Acquire())
+            {
+                m_active.Remove(item);
+            }
             m_unused.Enqueue(item);
         }
 
@@ -133,16 +144,16 @@ namespace VRage.Generics
             m_marked.Clear();
         }
 
-        public void TrimToBaseCapacity()
-        {
-            while (Capacity > BaseCapacity && m_unused.Count > 0)
-            {
-                m_unused.Dequeue();
-            }
-            m_unused.TrimExcess();
-            m_active.TrimExcess();
-            m_marked.TrimExcess();
-            Debug.Assert(Capacity == BaseCapacity, "Could not trim to base capacity (possibly due to active objects).");
-        }
+        //public void TrimToBaseCapacity()
+        //{
+        //    while (Capacity > BaseCapacity && m_unused.Count > 0)
+        //    {
+        //        m_unused.Dequeue();
+        //    }
+        //    m_unused.TrimExcess();
+        //    m_active.TrimExcess();
+        //    m_marked.TrimExcess();
+        //    Debug.Assert(Capacity == BaseCapacity, "Could not trim to base capacity (possibly due to active objects).");
+        //}
     }
 }

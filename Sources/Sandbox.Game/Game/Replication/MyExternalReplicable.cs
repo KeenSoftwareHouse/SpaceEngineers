@@ -33,6 +33,16 @@ namespace Sandbox.Game.Replication
         {
         }
 
+        public virtual bool IsReadyForReplication
+        {
+            get { return true; }
+        }
+
+        public virtual Action ReadyForReplicationAction
+        {
+            set { }
+        }
+
         protected virtual void RaiseDestroyed()
         {
             var handler = Destroyed;

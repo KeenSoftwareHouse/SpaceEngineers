@@ -156,11 +156,11 @@ namespace Sandbox.Game.Entities.Cube
             Strength.Validate = (o) => Strength >= 0 && Strength <= 1;
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipConnector>())
                 return;
-
+            base.CreateTerminalControls();
             var throwOut = new MyTerminalControlOnOffSwitch<MyShipConnector>("ThrowOut", MySpaceTexts.Terminal_ThrowOut);
             throwOut.Getter = (block) => block.ThrowOut;
             throwOut.Setter = (block, value) => block.ThrowOut.Value = value;
@@ -739,6 +739,13 @@ namespace Sandbox.Game.Entities.Cube
 
         private void UpdateConnectionState()
         {
+            if (m_other == null && (m_connectionState.Value.OtherEntityId != 0))
+            {
+                if (Sync.IsServer)
+                {
+                    m_connectionState.Value = State.Detached;
+                }
+            }
             if (!IsMaster)
                 return;
 

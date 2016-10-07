@@ -1531,9 +1531,14 @@ false,
             if (!Enabled)
                 return;
 
-            System.Diagnostics.Debug.Assert(!IsInWorld);
+            System.Diagnostics.Debug.Assert(!IsInWorld && ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED && m_world == null);
 
-            ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+            if(ClusterObjectID == MyClusterTree.CLUSTERED_OBJECT_ID_UNITIALIZED)
+                ClusterObjectID = MyPhysics.AddObject(Entity.WorldAABB, LinearVelocity, this, null);
+            else
+            {
+                Debug.Fail("Hotfix. Object was activated twice fix properly!");
+            }
         }
 
         public virtual void Activate(object world, ulong clusterObjectID)

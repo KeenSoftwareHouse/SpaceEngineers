@@ -104,11 +104,11 @@ namespace Sandbox.Game.Entities.Blocks
             m_currentPos.ValueChanged += (o) => UpdatePosition(true);
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyPistonBase>())
                 return;
-
+            base.CreateTerminalControls();
             var reverse = new MyTerminalControlButton<MyPistonBase>("Reverse", MySpaceTexts.BlockActionTitle_Reverse, MySpaceTexts.Blank, (x) => x.Velocity.Value = -x.Velocity);
             reverse.EnableAction(MyTerminalActionIcons.REVERSE);
             MyTerminalControlFactory.AddControl(reverse);

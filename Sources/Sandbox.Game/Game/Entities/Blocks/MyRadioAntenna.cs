@@ -138,11 +138,11 @@ namespace Sandbox.Game.Entities.Cube
             m_enableBroadcasting.ValueChanged += (obj) => ChangeEnableBroadcast();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyRadioAntenna>())
                 return;
-
+            base.CreateTerminalControls();
             MyTerminalControlFactory.RemoveBaseClass<MyRadioAntenna, MyTerminalBlock>();
 
             var show = new MyTerminalControlOnOffSwitch<MyRadioAntenna>("ShowInTerminal", MySpaceTexts.Terminal_ShowInTerminal, MySpaceTexts.Terminal_ShowInTerminalToolTip);

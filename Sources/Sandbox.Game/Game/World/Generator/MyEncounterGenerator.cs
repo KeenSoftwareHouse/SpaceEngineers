@@ -225,6 +225,9 @@ namespace Sandbox.Game.World.Generator
 
                 if (selectedPrefab.PlaceToGridOrigin) spawningOptions |= SpawningOptions.UseGridOrigin;
 
+                Stack<Action> callback = new Stack<Action>();
+                callback.Push(delegate() { ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed); });
+
                 MyPrefabManager.Static.SpawnPrefab(
                    resultList: m_createdGrids,
                    prefabName: selectedPrefab.SubtypeId,
@@ -235,9 +238,9 @@ namespace Sandbox.Game.World.Generator
                    initialLinearVelocity: direction * selectedPrefab.Speed,
                    spawningOptions: spawningOptions | SpawningOptions.UseGridOrigin,
                    ownerId: ownerId,
-                   updateSync: true);
+                   updateSync: true,
+                   callbacks: callback);
 
-                ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed);
             }
         }
 

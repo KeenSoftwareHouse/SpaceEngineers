@@ -107,11 +107,11 @@ namespace Sandbox.Game.Entities
             m_gyroOverride.ValueChanged += x => GyroOverrideChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyGyro>())
                 return;
-
+            base.CreateTerminalControls();
             var gyroPower = new MyTerminalControlSlider<MyGyro>("Power", MySpaceTexts.BlockPropertyTitle_GyroPower, MySpaceTexts.BlockPropertyDescription_GyroPower);
             gyroPower.Getter = (x) => x.GyroPower;
             gyroPower.Setter = (x, v) => { x.GyroPower = v; };

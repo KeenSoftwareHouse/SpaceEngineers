@@ -256,11 +256,11 @@ namespace Sandbox.Game.Entities
             m_dampenersEnabled.ValueChanged += (x) => DampenersEnabledChanged();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyShipController>())
                 return;
-
+            base.CreateTerminalControls();
             if (MyFakes.ENABLE_WHEEL_CONTROLS_IN_COCKPIT)
             {
                 var controlThrusters = new MyTerminalControlCheckbox<MyShipController>("ControlThrusters", MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters, MySpaceTexts.TerminalControlPanel_Cockpit_ControlThrusters);

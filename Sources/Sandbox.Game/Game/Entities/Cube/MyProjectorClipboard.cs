@@ -175,10 +175,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override void Activate()
+        public override void Activate(Action callback = null)
         {
-            ChangeClipboardPreview(true);
-            IsActive = true;
+            ActivateNoAlign(callback);
             m_firstUpdateAfterNewBlueprint = true;
         }
     }

@@ -991,8 +991,8 @@ namespace Sandbox.Definitions
 				if(addedMounts != null)
 					addedMounts.Add(mpBuilder);
 				// shrink mount points a little to avoid overlaps when they are very close.
-				var mpStart = new Vector3((Vector2)mpBuilder.Start + OFFSET_CONST, THICKNESS_HALF);
-				var mpEnd = new Vector3((Vector2)mpBuilder.End - OFFSET_CONST, -THICKNESS_HALF);
+                var mpStart = new Vector3((Vector2)Vector2.Min(mpBuilder.Start, mpBuilder.End) + OFFSET_CONST, THICKNESS_HALF);
+                var mpEnd = new Vector3((Vector2)Vector2.Max(mpBuilder.Start, mpBuilder.End) - OFFSET_CONST, -THICKNESS_HALF);
 				var sideIdx = (int)mpBuilder.Side;
 				var mpNormal = Vector3I.Forward;
 				TransformMountPointPosition(ref mpStart, sideIdx, Size, out mpStart);

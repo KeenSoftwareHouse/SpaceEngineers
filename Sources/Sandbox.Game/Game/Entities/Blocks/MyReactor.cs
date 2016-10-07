@@ -68,11 +68,11 @@ namespace Sandbox.Game.Entities
             m_remainingPowerCapacity.ValidateNever();
         }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyReactor>())
                 return;
-
+            base.CreateTerminalControls();
             var useConveyorSystem = new MyTerminalControlOnOffSwitch<MyReactor>("UseConveyor", MySpaceTexts.Terminal_UseConveyorSystem);
             useConveyorSystem.Getter = (x) => (x).UseConveyorSystem;
             useConveyorSystem.Setter = (x, v) => (x).UseConveyorSystem = v;

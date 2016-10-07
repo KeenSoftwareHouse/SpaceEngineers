@@ -131,7 +131,12 @@ namespace Sandbox.Game.Entities.Character.Components
         public virtual void GetObjectBuilder(MyObjectBuilder_Character characterBuilder)
         {
             characterBuilder.DampenersEnabled = DampenersTurnedOn;
-            characterBuilder.JetpackEnabled = TurnedOn;
+            bool jetpackEnabled = TurnedOn;
+            if (MySession.Static.ControlledEntity is MyCockpit)
+            {
+                jetpackEnabled = (MySession.Static.ControlledEntity as MyCockpit).PilotJetpackEnabledBackup;
+            }
+            characterBuilder.JetpackEnabled = jetpackEnabled;
             characterBuilder.AutoenableJetpackDelay = CurrentAutoEnableDelay;
         }
 

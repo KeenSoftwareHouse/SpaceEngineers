@@ -93,8 +93,13 @@ namespace Sandbox.Game.Entities
         public static MyEntity Spawn(ref MyPhysicalInventoryItem item, Vector3 position, Vector3 speed)
         {
             var builder = PrepareBuilder(ref item);
-            var meteorEntity = MyEntities.CreateFromObjectBuilder(builder);
+            var meteorEntity = MyEntities.CreateFromObjectBuilderNoinit(builder);
+            MyEntities.CreateFromObjectBuilderParallel(builder, true, delegate() { SetSpawnSettings(meteorEntity, position, speed); }, meteorEntity);
+            return meteorEntity;
+        }
 
+        private static void SetSpawnSettings(MyEntity meteorEntity, Vector3 position, Vector3 speed)
+        {
             Vector3 forward = -MySector.DirectionToSunNormalized;
             Vector3 up = MyUtils.GetRandomVector3Normalized();
             while (forward == up)
@@ -104,11 +109,9 @@ namespace Sandbox.Game.Entities
             up = Vector3.Cross(right, forward);
 
             meteorEntity.WorldMatrix = Matrix.CreateWorld(position, forward, up);
-            MyEntities.Add(meteorEntity);
             meteorEntity.Physics.RigidBody.MaxLinearVelocity = 500;
             meteorEntity.Physics.LinearVelocity = speed;
             meteorEntity.Physics.AngularVelocity = MyUtils.GetRandomVector3Normalized() * MyUtils.GetRandomFloat(1.5f, 3);
-            return meteorEntity;
         }
 
         private static MyObjectBuilder_Meteor PrepareBuilder(ref MyPhysicalInventoryItem item)
@@ -229,7 +232,7 @@ namespace Sandbox.Game.Entities
                         {
                             VoxelMaterial = mat;
                             model = MyDebris.GetRandomDebrisVoxel();
-                            scale = (float)Math.Pow((float)Item.Amount * physicalItem.Volume / MyDebris.VoxelDebrisModelVolume, 0.333f);
+                            scale = (float)Math.Pow((float)Item.Amount * physicalItem.Volume  / MyDebris.VoxelDebrisModelVolume, 0.333f);
                             break;
                         }
                     }

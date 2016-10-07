@@ -640,8 +640,6 @@ namespace SpaceEngineers.Game.World
             if (Sync.MultiplayerActive)
                 SyncCooldownToPlayer(player.Id.SteamId, player.Id.SteamId == Sync.MyId);
 
-            MyCharacter character = null;
-            MyCockpit cockpit = null;
             List<MyCubeGrid> respawnGrids = new List<MyCubeGrid>();
 
             var respawnShipDef = MyDefinitionManager.Static.GetRespawnShipDefinition(respawnShipId);
@@ -672,6 +670,9 @@ namespace SpaceEngineers.Game.World
 
             GetSpawnPosition(prefabDef.BoundingSphere.Radius, ref position, out forward, out up, planetSpawnHeightRatio, spawnRangeMin, spawnRangeMax);
 
+            Stack<Action> callback = new Stack<Action>();
+            callback.Push(delegate() { PutPlayerInRespawnGrid(player, respawnGrids, botDefinition); });
+
             MyPrefabManager.Static.SpawnPrefab(
                 respawnGrids,
                 prefabDef.Id.SubtypeName,
@@ -679,7 +680,14 @@ namespace SpaceEngineers.Game.World
                 forward,
                 up,
                 spawningOptions: VRage.Game.ModAPI.SpawningOptions.RotateFirstCockpitTowardsDirection,
-                updateSync: true);
+                updateSync: true,
+                callbacks: callback);
+        }
+
+        private void PutPlayerInRespawnGrid(MyPlayer player, List<MyCubeGrid> respawnGrids, MyBotDefinition botDefinition)
+        {
+            MyCharacter character = null;
+            MyCockpit cockpit = null;
 
             // Find cockpits
             List<MyCockpit> shipCockpits = new List<MyCockpit>();

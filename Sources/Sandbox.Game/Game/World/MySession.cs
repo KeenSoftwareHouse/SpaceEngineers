@@ -949,6 +949,15 @@ namespace Sandbox.Game.World
 
             //Because blocks fills SubBlocks in this method..
             //TODO: Create LoadPhase2
+
+            // Wait until all prefabs are initialized
+            while (MyPrefabManager.PendingGrids > 0)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+
+            // Make sure all objects are added to the scene before we save
+            ParallelTasks.Parallel.RunCallbacks();
             
             MyEntities.UpdateOnceBeforeFrame();
             Static.BeforeStartComponents();
@@ -1365,11 +1374,22 @@ namespace Sandbox.Game.World
                 Sync.Players.LoadIdentities(checkpoint, savingPlayerNullable);
 
             Toolbars.LoadToolbars(checkpoint);
+            MyEntities.PendingInits = 0;
 
             if (!MyEntities.Load(sector.SectorObjects))
             {
                 ShowLoadingError();
             }
+
+            // Wait until all entities are initialized
+            while (MyEntities.PendingInits > 0)
+            {
+                System.Threading.Thread.Sleep(1);
+            }
+
+            // Make sure everything is added to scene before we proceed
+            ParallelTasks.Parallel.RunCallbacks();
+
             MySandboxGame.Static.SessionCompatHelper.AfterEntitiesLoad(sector.AppVersion);
 
             if (checkpoint.Factions != null && (Sync.IsServer || (!Battle && MyPerGameSettings.Game == GameEnum.ME_GAME) || (!IsScenario && MyPerGameSettings.Game == GameEnum.SE_GAME)))
@@ -2430,6 +2450,6 @@ namespace Sandbox.Game.World
             if (limit > 0 && limit / divisor == 0)
                 return 1;
             else return (short)(limit / divisor);
-        }
+    }
     }
 }

@@ -666,14 +666,14 @@ namespace Sandbox.Engine.Utils
         {
             bool canZoom = (!MyPerGameSettings.ZoomRequiresLookAroundPressed || MyInput.Static.IsGameControlPressed(MyControlsSpace.LOOKAROUND)) && !MySession.Static.Battle;
             double newDistance = 0;
-
             var velocity = Vector3.Zero;
             if (MySession.Static.ControlledEntity != null && MySession.Static.ControlledEntity.Entity.Physics != null)
                 velocity = MySession.Static.ControlledEntity.Entity.Physics.LinearVelocity;
 
             Vector3D positionSafe = m_positionSafe + (Vector3D) velocity * MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
 
-            if (canZoom && !MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
+            //if (canZoom && !MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
+            if (canZoom)
             {
                 if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {

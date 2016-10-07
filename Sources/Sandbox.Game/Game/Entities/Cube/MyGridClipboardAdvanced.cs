@@ -93,9 +93,9 @@ namespace Sandbox.Game.Entities.Cube
             }
         }
 
-        public override void Activate()
+        public override void Activate(Action callback = null)
         {
-            base.Activate();
+            base.Activate(callback);
             SetupDragDistance();
         }
 

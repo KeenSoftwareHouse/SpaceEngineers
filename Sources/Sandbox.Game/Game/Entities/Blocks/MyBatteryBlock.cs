@@ -150,11 +150,11 @@ namespace Sandbox.Game.Entities
             m_storedPower.ValueChanged += (x) => CapacityChanged();
 	    }
 
-        static void CreateTerminalControls()
+        protected override void CreateTerminalControls()
         {
             if (MyTerminalControlFactory.AreControlsCreated<MyBatteryBlock>())
                 return;
-
+            base.CreateTerminalControls();
             var recharge = new MyTerminalControlCheckbox<MyBatteryBlock>("Recharge", MySpaceTexts.BlockPropertyTitle_Recharge, MySpaceTexts.ToolTipBatteryBlock);
             recharge.Getter = (x) => x.OnlyRecharge;
             recharge.Setter = (x, v) => x.OnlyRecharge = v;
