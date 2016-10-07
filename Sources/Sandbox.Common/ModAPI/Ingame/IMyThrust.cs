@@ -18,6 +18,11 @@ namespace Sandbox.ModAPI.Ingame
         float MaxThrust { get; }
 
         /// <summary>
+        /// Gets the maximum effective thrust amount, in Newtons (N)
+        /// </summary>
+        float MaxEffectiveThrust { get; }
+
+        /// <summary>
         /// Gets the current thrust amount, in Newtons (N)
         /// </summary>
         float CurrentThrust { get; }
