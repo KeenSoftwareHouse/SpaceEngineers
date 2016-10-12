@@ -208,7 +208,7 @@ namespace Sandbox.Game.Entities.Cube
 
         public List <ModAPI.Ingame.OreDeposit> GetOreMarkers() 
         {
-            List <ModAPI.Ingame.OreDeposit> oreMarkers = new List <ModAPI.Ingame.OreDeposit>();
+            List <ModAPI.Ingame.OreDeposit> formattedMarkers = new List <ModAPI.Ingame.OreDeposit>();
             
             foreach (MyEntityOreDeposit cache in MyHud.OreMarkers)
             {
@@ -217,10 +217,10 @@ namespace Sandbox.Game.Entities.Cube
                 for (int i = 0; i < deposits.Count; i++)
                 {
                     string elementName = deposits[i].Material.MaterialTypeName;
-                    oreMarkers.Add (new ModAPI.Ingame.OreDeposit (elementName, deposits[i].AverageLocalPosition));
+                    formattedMarkers.Add (new ModAPI.Ingame.OreDeposit (elementName, deposits[i].AverageLocalPosition));
                 }
             }
-            return oreMarkers;
+            return formattedMarkers;
         }
     }
 }
