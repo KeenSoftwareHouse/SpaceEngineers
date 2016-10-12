@@ -216,8 +216,8 @@ namespace Sandbox.Game.Entities.Cube
 
                 for (int i = 0; i < deposits.Count; i++)
                 {
-                    string elementName = deposits[i].Material.MaterialTypeName;
-                    oreMarkers.Add (new ModAPI.Ingame.OreDeposit (elementName, deposits[i].AverageLocalPosition));
+                    string substanceName = deposits[i].Material.MaterialTypeName;
+                    oreMarkers.Add (new ModAPI.Ingame.OreDeposit (substanceName, deposits[i].AverageLocalPosition));
                 }
             }
             return oreMarkers;
