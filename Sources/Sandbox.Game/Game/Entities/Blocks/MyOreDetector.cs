@@ -1,7 +1,5 @@
 ﻿#region Using
 
-using System.Collections.Generic;
-
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.Gui;
@@ -205,22 +203,5 @@ namespace Sandbox.Game.Entities.Cube
 
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
-
-        public List <ModAPI.Ingame.OreDeposit> GetOreMarkers() 
-        {
-            List <ModAPI.Ingame.OreDeposit> oreMarkers = new List <ModAPI.Ingame.OreDeposit>();
-            
-            foreach (MyEntityOreDeposit deposit in MyHud.OreMarkers)
-            {
-                List <MyEntityOreDeposit.Data> markers = deposit.Materials;
-
-                for (int i = 0; i < markers.Count; i++)
-                {
-                    string substanceName = markers[i].Material.MaterialTypeName;
-                    oreMarkers.Add (new ModAPI.Ingame.OreDeposit (substanceName, markers[i].AverageLocalPosition));
-                }
-            }
-            return oreMarkers;
-        }
     }
 }
