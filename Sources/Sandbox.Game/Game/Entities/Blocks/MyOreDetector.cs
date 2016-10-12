@@ -208,19 +208,27 @@ namespace Sandbox.Game.Entities.Cube
 
         //using ref is a tiny bit cheaper than a return. this is because of number of list definitions.
         public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList)
-        {                                                                         
+        {                                                                       
             if (usersList == null)
             {
                 usersList = new List <ModAPI.Ingame.MyOreMarker>();
             }
-                    
-            foreach (MyEntityOreDeposit cache in MyHud.OreMarkers)
+            
+            else
             {
-                List <MyEntityOreDeposit.Data> deposits = cache.Materials;
+                usersList.Clear();
+            }
 
-                for (int i = 0; i < deposits.Count; i++)
+            foreach (MyEntityOreDeposit deposit in MyHud.OreMarkers)
+            {
+                List <MyEntityOreDeposit.Data> caches = deposit.Materials;
+
+                for (int i = 0; i < caches.Count; i++)
                 {
-                    usersList.Add (new ModAPI.Ingame.MyOreMarker (deposits[i].Material.MaterialTypeName, deposits[i].AverageLocalPosition));
+                    usersList.Add (new ModAPI.Ingame.MyOreMarker (caches[i].Material.MaterialTypeName, 
+                                                                  caches[i].Material.Id..ToString(), //returns the name of this struct.                                                            
+                                                                  caches[i].Material.IsRare,
+                                                                  caches[i].AverageLocalPosition));
                 }
             }
         }
