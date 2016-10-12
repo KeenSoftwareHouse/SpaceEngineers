@@ -207,8 +207,13 @@ namespace Sandbox.Game.Entities.Cube
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
         //using ref is a tiny bit cheaper than a return. this is because of number of list definitions.
-        public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //ref ensures userList will never be null.
-        {                                                                          
+        public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList)
+        {                                                                         
+            if (usersList == null)
+            {
+                usersList = new List <ModAPI.Ingame.MyOreMarker>();
+            }
+                    
             foreach (MyEntityOreDeposit cache in MyHud.OreMarkers)
             {
                 List <MyEntityOreDeposit.Data> deposits = cache.Materials;
