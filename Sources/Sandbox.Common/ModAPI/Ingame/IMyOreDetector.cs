@@ -21,14 +21,14 @@ namespace Sandbox.ModAPI.Ingame
     public struct MyOreMarker
     {
         public readonly string ElementName;
-        public readonly string TypeID;
+        public readonly string SubTypeName;
         public readonly bool IsRare;
         public readonly Vector3D Location;
 
-        public MyOreMarker (string inputName, string inputID, bool inputRarity, Vector3D inputCoords)
+        public MyOreMarker (string inputElement, string inputSubName, bool inputRarity, Vector3D inputCoords)
         {
-            this.ElementName = inputName;
-            this.TypeID = inputID;
+            this.ElementName = inputElement;
+            this.SubTypeName = inputSubName;
             this.IsRare = inputRarity;
             this.Location = inputCoords;
         }
