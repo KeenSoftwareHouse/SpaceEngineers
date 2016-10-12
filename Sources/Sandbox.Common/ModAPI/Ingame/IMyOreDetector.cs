@@ -19,13 +19,13 @@ namespace Sandbox.ModAPI.Ingame
 
     public struct MyOreMarker
     {
-        public readonly string elementName;
-        public readonly Vector3D coordinates;
+        public readonly string ElementName;
+        public readonly Vector3D Location;
 
         public MyOreMarker (string inputName, Vector3D inputCoords)
         {
-            this.elementName = inputName;
-            this.coordinates = inputCoords;
+            this.ElementName = inputName;
+            this.Location = inputCoords;
         }
     }
 }
