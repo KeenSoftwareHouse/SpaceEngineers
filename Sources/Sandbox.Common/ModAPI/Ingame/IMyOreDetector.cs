@@ -12,17 +12,18 @@ namespace Sandbox.ModAPI.Ingame
         bool BroadcastUsingAntennas {get;}
 
         /// <summary>
-        ///Returns a list of ore deposits. Each ore deposit has an element name and a location.
+        ///Returns a list of ore deposits.
+        ///Each ore deposit has an element name and a location.
         /// </summary>        
-        List <MyOreMarker> GetOreMarkers();        
+        List <OreDeposit> GetOreMarkers();        
     }
 
-    public struct MyOreMarker
+    public struct OreDeposit
     {
         public readonly string elementName;
         public readonly Vector3D coordinates;
 
-        public MyOreMarker (string inputName, Vector3D inputCoords)
+        public OreDeposit (string inputName, Vector3D inputCoords)
         {
             this.elementName = inputName;
             this.coordinates = inputCoords;

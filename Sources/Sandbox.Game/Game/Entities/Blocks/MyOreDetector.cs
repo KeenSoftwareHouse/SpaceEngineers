@@ -206,9 +206,9 @@ namespace Sandbox.Game.Entities.Cube
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
-        public List <ModAPI.Ingame.MyOreMarker> GetOreMarkers() 
+        public List <ModAPI.Ingame.OreDeposit> GetOreMarkers() 
         {
-            List <ModAPI.Ingame.MyOreMarker> formattedMarkers = new List <ModAPI.Ingame.MyOreMarker>();
+            List <ModAPI.Ingame.OreDeposit> formattedMarkers = new List <ModAPI.Ingame.OreDeposit>();
             
             foreach (MyEntityOreDeposit cache in MyHud.OreMarkers)
             {
@@ -217,7 +217,7 @@ namespace Sandbox.Game.Entities.Cube
                 for (int i = 0; i < deposits.Count; i++)
                 {
                     string elementName = deposits[i].Material.MaterialTypeName;
-                    formattedMarkers.Add (new ModAPI.Ingame.MyOreMarker (elementName, deposits[i].AverageLocalPosition));
+                    formattedMarkers.Add (new ModAPI.Ingame.OreDeposit (elementName, deposits[i].AverageLocalPosition));
                 }
             }
             return formattedMarkers;
