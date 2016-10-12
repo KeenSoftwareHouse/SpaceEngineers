@@ -12,9 +12,10 @@ namespace Sandbox.ModAPI.Ingame
         bool BroadcastUsingAntennas {get;}
 
         /// <summary>
-        ///Returns a list of ore deposits. Each ore deposit has an element name and a location.
+        ///Returns your own List filled with known ore markers.
+        ///Each marker has an element name and a location.
         /// </summary>        
-        List <MyOreMarker> GetOreMarkers();        
+        void GetOreMarkers (ref List <MyOreMarker> outputList);        
     }
 
     public struct MyOreMarker

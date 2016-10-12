@@ -206,21 +206,18 @@ namespace Sandbox.Game.Entities.Cube
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
-        public List <ModAPI.Ingame.MyOreMarker> GetOreMarkers() 
-        {
-            List <ModAPI.Ingame.MyOreMarker> formattedMarkers = new List <ModAPI.Ingame.MyOreMarker>();
-            
+        //using ref is a tiny bit cheaper than a return. this is because of number of list definitions.
+        public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //ref ensures userList will never be null.
+        {                                                                          
             foreach (MyEntityOreDeposit cache in MyHud.OreMarkers)
             {
                 List <MyEntityOreDeposit.Data> deposits = cache.Materials;
 
                 for (int i = 0; i < deposits.Count; i++)
                 {
-                    string elementName = deposits[i].Material.MaterialTypeName;
-                    formattedMarkers.Add (new ModAPI.Ingame.MyOreMarker (elementName, deposits[i].AverageLocalPosition));
+                    usersList.Add (new ModAPI.Ingame.MyOreMarker (deposits[i].Material.MaterialTypeName, deposits[i].AverageLocalPosition));
                 }
             }
-            return formattedMarkers;
         }
     }
 }
