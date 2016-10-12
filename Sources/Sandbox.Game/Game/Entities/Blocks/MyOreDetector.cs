@@ -210,14 +210,14 @@ namespace Sandbox.Game.Entities.Cube
         {
             List <ModAPI.Ingame.OreDeposit> oreMarkers = new List <ModAPI.Ingame.OreDeposit>();
             
-            foreach (MyEntityOreDeposit deposit in MyHud.OreMarkers)
+            foreach (MyEntityOreDeposit cache in MyHud.OreMarkers)
             {
-                List <MyEntityOreDeposit.Data> markers = deposit.Materials;
+                List <MyEntityOreDeposit.Data> deposits = cache.Materials;
 
-                for (int i = 0; i < markers.Count; i++)
+                for (int i = 0; i < deposits.Count; i++)
                 {
-                    string substanceName = markers[i].Material.MaterialTypeName;
-                    oreMarkers.Add (new ModAPI.Ingame.OreDeposit (substanceName, markers[i].AverageLocalPosition));
+                    string substanceName = deposits[i].Material.MaterialTypeName;
+                    oreMarkers.Add (new ModAPI.Ingame.OreDeposit (substanceName, deposits[i].AverageLocalPosition));
                 }
             }
             return oreMarkers;
