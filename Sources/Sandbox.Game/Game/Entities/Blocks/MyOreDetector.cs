@@ -225,7 +225,8 @@ namespace Sandbox.Game.Entities.Cube
 
                 for (int i = 0; i < caches.Count; i++)
                 {
-                    usersList.Add (new ModAPI.Ingame.MyOreMarker (caches[i].Material.MaterialTypeName,                                       
+                    usersList.Add (new ModAPI.Ingame.MyOreMarker (caches[i].Material.MaterialTypeName, 
+                                                                  caches[i].Material.Id.SubtypeId.String,                                      
                                                                   caches[i].Material.IsRare,
                                                                   caches[i].AverageLocalPosition));
                 }
