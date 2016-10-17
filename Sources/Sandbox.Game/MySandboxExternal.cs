@@ -51,10 +51,14 @@ namespace Sandbox
 #if XB1
 			System.Diagnostics.Debug.Assert(false);
 #else
-            wnd.Control = Control.FromHandle(WindowHandle);
+            wnd.Control = Control.FromHandle(WindowHandle);            
             wnd.TopLevelForm = (Form)wnd.Control.TopLevelControl;
+            wnd.TopLevelForm.Tag = wnd;
 
             m_bufferedInputSource = wnd;
+
+            wnd.TopLevelForm.KeyPress += TopLevelForm_KeyPress;
+
             m_windowCreatedEvent.Set();
             ((Form)wnd.TopLevelForm).FormClosed += (o, e) => ExitThreadSafe();
 #endif
@@ -94,6 +98,11 @@ namespace Sandbox
 
             VRageRender.MyViewport vp = new MyViewport(0, 0, wnd.Control.ClientSize.Width, wnd.Control.ClientSize.Height);
             RenderThread_SizeChanged(wnd.Control.ClientSize.Width, wnd.Control.ClientSize.Height, vp);
+        }
+
+        void TopLevelForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            ((MyRenderWindow)((Form)sender).Tag).AddChar(e.KeyChar);
         }
 
         //protected override void Draw()

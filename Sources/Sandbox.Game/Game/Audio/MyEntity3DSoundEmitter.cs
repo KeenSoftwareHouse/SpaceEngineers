@@ -216,6 +216,8 @@ namespace Sandbox.Game.Entities
 
         public bool Loop { get; private set; }
 
+        public bool CanPlayLoopSounds = true;
+
         public bool IsPlaying { get { return m_sound != null && m_sound.IsPlaying; } }
 
         public MyCueId SoundId
@@ -824,7 +826,7 @@ namespace Sandbox.Game.Entities
             Force2D = force2D;
             m_alwaysHearOnRealistic = alwaysHearOnRealistic;
             m_playing2D = (ShouldPlay2D() && !Force3D) || force2D || Force2D;
-            Loop = MyAudio.Static.IsLoopable(SoundId) && !skipToEnd;
+            Loop = MyAudio.Static.IsLoopable(SoundId) && !skipToEnd && CanPlayLoopSounds;
             if (!SoundId.IsNull)
             {
                 if (Loop && MySession.Static.ElapsedPlayTime.TotalSeconds < 6)
@@ -962,7 +964,7 @@ namespace Sandbox.Game.Entities
             m_lastUpdate = now;
             for (int i = 0; i < m_entityEmitters.Count; i++)
             {
-                if (m_entityEmitters[i].Entity != null && m_entityEmitters[i].Entity.Closed == false)
+                if (m_entityEmitters[i] != null && m_entityEmitters[i].Entity != null && m_entityEmitters[i].Entity.Closed == false)
                 {
                     if ((m_entityEmitters[i].IsPlaying && updatePlaying) || (!m_entityEmitters[i].IsPlaying && updateNotPlaying))
                     {

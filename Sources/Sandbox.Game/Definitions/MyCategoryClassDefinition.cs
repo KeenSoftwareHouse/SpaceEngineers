@@ -19,6 +19,9 @@ namespace Sandbox.Definitions
         public bool SearchBlocks = true;
         public bool ShowAnimations = false;
         public bool ShowInCreative = true;
+        public bool IsAnimationCategory = false;
+        public bool IsToolCategory = false;
+        public int ValidItems = 0;
         public bool Public = true;
 
         private class SubtypeComparer : IComparer<MyGuiBlockCategoryDefinition>
@@ -44,6 +47,8 @@ namespace Sandbox.Definitions
             this.ShowAnimations = builder.ShowAnimations;
             this.ShowInCreative = builder.ShowInCreative;
             this.Public = builder.Public;
+            this.IsAnimationCategory = builder.IsAnimationCategory;
+            this.IsToolCategory = builder.IsToolCategory;
         }
 
         public bool HasItem(string itemId)

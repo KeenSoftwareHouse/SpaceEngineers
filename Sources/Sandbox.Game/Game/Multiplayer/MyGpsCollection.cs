@@ -58,6 +58,8 @@ namespace Sandbox.Game.Multiplayer
             public Vector3D Coords;
             public bool ShowOnHud;
             public bool IsFinal;
+            public bool AlwaysVisible;
+            public long EntityId;
         }
 
         struct ModifyMsg
@@ -73,7 +75,7 @@ namespace Sandbox.Game.Multiplayer
 
         #region add_GPS
         //ADD:
-        public void SendAddGps(long identityId, ref MyGps gps)
+        public void SendAddGps(long identityId, ref MyGps gps, long entityId = -1)
         {
             var msg = new AddMsg();
             msg.IdentityId = identityId;
@@ -82,6 +84,8 @@ namespace Sandbox.Game.Multiplayer
             msg.Coords = gps.Coords;
             msg.ShowOnHud = gps.ShowOnHud;
             msg.IsFinal = (gps.DiscardAt == null ? true : false);
+            msg.AlwaysVisible = gps.AlwaysVisible;
+            msg.EntityId = entityId;
 
             MyMultiplayer.RaiseStaticEvent(s => MyGpsCollection.OnAddGps, msg);
         }
@@ -94,10 +98,13 @@ namespace Sandbox.Game.Multiplayer
             gps.Description = msg.Description;
             gps.Coords = msg.Coords;
             gps.ShowOnHud = msg.ShowOnHud;
+            gps.AlwaysVisible = msg.AlwaysVisible;
             gps.DiscardAt = null;
             if (!msg.IsFinal)
                 gps.SetDiscardAt();
             gps.UpdateHash();
+            if(msg.EntityId > 0)
+                gps.SetEntity(MyEntities.GetEntityById(msg.EntityId));
             if (MySession.Static.Gpss.AddPlayerGps(msg.IdentityId, ref gps))
             {//new entry succesfully added
                 if (gps.ShowOnHud && msg.IdentityId == MySession.Static.LocalPlayerId)
@@ -145,6 +152,7 @@ namespace Sandbox.Game.Multiplayer
                     if (gps.ShowOnHud)
                         MyHud.GpsMarkers.UnregisterMarker(gps);
                     gpsList.Remove(gpsHash);
+                    gps.Close();
                     var handler = MySession.Static.Gpss.ListChanged;
                     if (handler != null)
                         handler(identityId);

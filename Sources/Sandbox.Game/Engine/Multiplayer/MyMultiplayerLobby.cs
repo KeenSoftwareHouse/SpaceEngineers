@@ -261,6 +261,12 @@ namespace Sandbox.Engine.Multiplayer
             set { Lobby.SetLobbyData(MyMultiplayer.BattleTimeLimitTag, value.ToString()); }
         }
 
+        public ulong HostSteamId
+        {
+            get { return GetLobbyULong(MyMultiplayer.HostSteamIdTag, Lobby, 0); }
+            set { Lobby.SetLobbyData(MyMultiplayer.HostSteamIdTag, value.ToString()); }
+        }
+
         private bool m_serverDataValid;
 
 
@@ -349,7 +355,7 @@ namespace Sandbox.Engine.Multiplayer
                         MyTrace.Send(TraceWindow.Multiplayer, "Host left: " + stateChange.ToString());
                         RaiseHostLeft();
 
-                        MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                        MySessionLoader.UnloadAndExitToMenu();
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                             messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                             messageText: MyTexts.Get(MyCommonTexts.MultiplayerErrorServerHasLeft)));
@@ -641,6 +647,11 @@ namespace Sandbox.Engine.Multiplayer
             return int.TryParse(lobby.GetLobbyData(MyMultiplayer.AppVersionTag), out result) ? result : 0;
         }
 
+        public static ulong GetLobbyHostSteamId(Lobby lobby)
+        {
+            return GetLobbyULong(MyMultiplayer.HostSteamIdTag, lobby, 0);
+        }
+
         public static string GetDataHash(Lobby lobby)
         {
             return lobby.GetLobbyData(MyMultiplayer.DataHashTag);
@@ -739,7 +750,7 @@ namespace Sandbox.Engine.Multiplayer
 
             if (data.KickedClient == Sync.MyId)
             {
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionKicked),
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextYouHaveBeenKicked)));

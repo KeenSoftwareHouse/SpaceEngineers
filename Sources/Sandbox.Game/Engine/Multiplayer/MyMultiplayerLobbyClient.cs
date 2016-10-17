@@ -355,7 +355,7 @@ namespace Sandbox.Engine.Multiplayer
                         MyTrace.Send(TraceWindow.Multiplayer, "Host left: " + stateChange.ToString());
                         RaiseHostLeft();
 
-                        MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                        MySessionLoader.UnloadAndExitToMenu();
                         MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                             messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                             messageText: MyTexts.Get(MyCommonTexts.MultiplayerErrorServerHasLeft)));
@@ -738,7 +738,7 @@ namespace Sandbox.Engine.Multiplayer
 
             if (data.KickedClient == Sync.MyId)
             {
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionKicked),
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextYouHaveBeenKicked)));

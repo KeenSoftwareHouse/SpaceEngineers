@@ -54,6 +54,7 @@ using Sandbox.Graphics.GUI;
 using VRage.Library;
 using VRage.Profiler;
 using VRageRender.Utils;
+using Sandbox.Game.GameSystems;
 
 #endregion
 
@@ -839,6 +840,12 @@ namespace Sandbox.Definitions
                 MySandboxGame.Log.WriteLine("Loading environment definition");
                 Check(failOnDebug, "Environment", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
                 InitEnvironment(context, definitionSet, objBuilder.Environments, failOnDebug);
+            }
+            if (objBuilder.DroneBehaviors != null)
+            {
+                MySandboxGame.Log.WriteLine("Loading drone behaviors");
+                Check(failOnDebug, "DroneBehaviors", failOnDebug, WARNING_ON_REDEFINITION_MESSAGE);
+                LoadDroneBehaviorPresets(context, definitionSet, objBuilder.DroneBehaviors, failOnDebug);
             }
             if (objBuilder.EnvironmentItemsEntries != null)
             {
@@ -2173,6 +2180,15 @@ namespace Sandbox.Definitions
                 var environmentDef = InitDefinition<MyEnvironmentDefinition>(context, ob);
 
                 defSet.AddDefinition(environmentDef);
+            }
+        }
+
+        private static void LoadDroneBehaviorPresets(MyModContext context, DefinitionSet defSet, MyObjectBuilder_DroneBehaviorDefinition[] objBuilder, bool failOnDebug = true)
+        {
+            foreach (var ob in objBuilder)
+            {
+                MySpaceStrafeData preset = new MySpaceStrafeData(ob);
+                MySpaceStrafeDataStatic.SavePreset(ob.Id.SubtypeId, preset);
             }
         }
 

@@ -27,6 +27,7 @@ using VRage.ModAPI;
 using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.GameSystems.CoordinateSystem;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
@@ -1476,6 +1477,8 @@ namespace Sandbox.Game.Entities.Cube
 
         protected void AlignRotationToCoordSys()
         {
+            if (m_previewGrids.Count <= 0)
+                return;
             double gridSize = m_previewGrids[0].GridSize;
             MyCoordinateSystem.CoordSystemData localCoordData = MyCoordinateSystem.Static.SnapWorldPosToClosestGrid(ref m_pastePosition, gridSize, m_settings.StaticGridAlignToCenter);
 

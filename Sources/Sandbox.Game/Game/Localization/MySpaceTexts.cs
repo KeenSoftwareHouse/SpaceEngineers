@@ -9008,5 +9008,20 @@ namespace Sandbox.Game.Localization
         ///Unsupported Stations
         ///</summary>
         public static readonly MyStringId WorldSettings_StationVoxelSupport = MyStringId.GetOrCompute("WorldSettings_StationVoxelSupport");
+
+        ///<summary>
+        ///Assigned camera
+        ///</summary>
+        public static readonly MyStringId BlockPropertyTitle_AssignedCamera = MyStringId.GetOrCompute("BlockPropertyTitle_AssignedCamera");
+
+        ///<summary>
+        ///Show block in Inventory Screen
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowInInventory = MyStringId.GetOrCompute("Terminal_ShowInInventory");
+
+        ///<summary>
+        ///Show block in inventory screen. If you access the block directly it will be visible regardless of this setting.
+        ///</summary>
+        public static readonly MyStringId Terminal_ShowInInventoryToolTip = MyStringId.GetOrCompute("Terminal_ShowInInventoryToolTip");
     }
 }

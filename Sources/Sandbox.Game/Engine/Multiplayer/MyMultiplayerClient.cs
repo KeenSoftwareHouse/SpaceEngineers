@@ -404,7 +404,7 @@ namespace Sandbox.Engine.Multiplayer
             m_clientJoined = false;
             CloseClient();
 
-            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+            MySessionLoader.UnloadAndExitToMenu();
             MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                 messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                 messageText: MyTexts.Get(MyCommonTexts.MultiplayerErrorServerHasLeft)));
@@ -635,7 +635,7 @@ namespace Sandbox.Engine.Multiplayer
             }
             else if (msg.JoinResult == JoinResult.NotInGroup)
             {
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 Dispose();
 
                 ulong groupId = Server.GetGameTagByPrefixUlong("groupId");
@@ -657,7 +657,7 @@ namespace Sandbox.Engine.Multiplayer
             }
             else if (msg.JoinResult == JoinResult.BannedByAdmins)
             {
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 Dispose();
 
                 ulong admin = msg.Admin;
@@ -734,7 +734,7 @@ namespace Sandbox.Engine.Multiplayer
                 }
 
                 Dispose();
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                     messageText: MyTexts.Get(resultText)));
@@ -796,7 +796,7 @@ namespace Sandbox.Engine.Multiplayer
             uint ticketHandle; // TODO: Store handle and end auth session on end
             if (!MySteam.API.GetAuthSessionTicket(out ticketHandle, buffer, out length))
             {
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
                     messageText: MyTexts.Get(MyCommonTexts.MultiplayerErrorConnectionFailed)));
@@ -817,7 +817,7 @@ namespace Sandbox.Engine.Multiplayer
                 m_clientJoined = false;
 
                 Dispose();
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionKicked),
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextYouHaveBeenKicked)));
@@ -837,7 +837,7 @@ namespace Sandbox.Engine.Multiplayer
                 m_clientJoined = false;
 
                 Dispose();
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
                     messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionKicked),
                     messageText: MyTexts.Get(MyCommonTexts.MessageBoxTextYouHaveBeenBanned)));

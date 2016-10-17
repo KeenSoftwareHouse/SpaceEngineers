@@ -34,12 +34,17 @@
 			<Component>MySessionComponentEntityTrigger</Component>
 			<Component>MySessionComponentMissionTriggers</Component>
 			<Component>MySessionComponentVoxelHand</Component>
+			<Component>MySessionComponentTriggerSystem</Component>
+      <Component>MySessionComponentCutscenes</Component>
+			<Component>MyVisualScriptManagerSessionComponent</Component>
 			<Component>MyThirdPersonSpectator</Component>
 			<Component>MyTimerComponentSystem</Component>
 			<Component>MyToolbarComponent</Component>
 			<Component>MyVoxelOperationsSessionComponent</Component>
 			<Component>MySessionComponentExtDebug</Component>
 			<Component>MyCubeGrids</Component>
+			<Component>MyHighlightSystem</Component>
+      <Component>MyLocalizationSessionComponent</Component>
 		</SessionComponents>
 	</Definition>
 
@@ -78,7 +83,7 @@
 			<Component>MyHeightMapLoadingSystem</Component>
 			<Component>MySessionComponentPlanetAmbientSounds</Component>
 			<Component>MyPlanetTrackComponent</Component>
-			<Component>MyPlanetEnvironmentSessionComponent</Component>
+			<Component>MySessionComponentScriptSharedStorage</Component>
 			<Component>MyEnvironmentBotSpawningSystem</Component>
 			<Component>MySectorWeatherComponent</Component>
 			<Component>MyPlanets</Component>
@@ -88,6 +93,9 @@
 			<Component>MyPlanetEnvironmentSessionComponent</Component>
 			<Component>MyEnvironmentBotSpawningSystem</Component>
 			<Component>MySectorWeatherComponent</Component>
+			<Component>MyCampaignSessionComponent</Component>
+			<Component>MyEntityTransformationSystem</Component>
+      <Component>MySessionComponentResearch</Component>
 		</SessionComponents>
 	</Definition>
 </Definitions>

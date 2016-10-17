@@ -49,6 +49,8 @@ namespace Sandbox.Game
 
     public struct MyGUISettings
     {
+        public bool EnableToolbarConfigScreen;
+        public bool EnableTerminalScreen;
         public bool MultipleSpinningWheels;
         public Type HUDScreen;
         public Type ToolbarConfigScreen; // aka G-screen
@@ -70,6 +72,7 @@ namespace Sandbox.Game
         public Type FactionScreen;
         public Type CreateFactionScreen;
         public Type PlayersScreen;
+        public Type MainMenu;
         public Type PerformanceWarningScreen;
 
         public string[] MainMenuBackgroundVideos;
@@ -247,6 +250,8 @@ namespace Sandbox.Game
 
         public static MyGUISettings GUI = new MyGUISettings()
         {
+            EnableTerminalScreen = true,
+            EnableToolbarConfigScreen = true,
             MultipleSpinningWheels = true,
             LoadingScreenIndexRange = new Vector2I(1,24),
             HUDScreen = typeof(Sandbox.Game.Gui.MyGuiScreenHudSpace),

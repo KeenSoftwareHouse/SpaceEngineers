@@ -13,6 +13,41 @@ using VRage.Utils;
 
 namespace VRage.Audio
 {
+    public enum MyGuiSounds
+    {
+        HudClick,
+        HudUse,
+        HudRotateBlock,
+        HudPlaceBlock,
+        HudDeleteBlock,
+        HudColorBlock,
+        HudMouseClick,
+        HudMouseOver,
+        HudUnable,
+        PlayDropItem,
+        HudVocInventoryFull,
+        HudVocMeteorInbound,
+        HudVocHealthLow,
+        HudVocHealthCritical,
+        None,
+        HudVocEnergyLow,
+        HudVocStationFuelLow,
+        HudVocShipFuelLow,
+        HudVocEnergyCrit,
+        HudVocStationFuelCrit,
+        HudVocShipFuelCrit,
+        HudVocEnergyNo,
+        HudVocStationFuelNo,
+        HudVocShipFuelNo,
+        HudCraftBarProgressLoop,
+        HudErrorMessage,
+        HudOpenCraftWin,
+        HudOpenInventory,
+        HudItem,
+        PlayTakeItem,
+        HudPlaceItem
+    }
+
     public struct MyWaveFormat : IEquatable<MyWaveFormat>
     {
         public class Comparer : IEqualityComparer<MyWaveFormat>

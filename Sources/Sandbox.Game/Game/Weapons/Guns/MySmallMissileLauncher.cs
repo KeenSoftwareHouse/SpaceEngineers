@@ -81,6 +81,11 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new Components.MyDebugRenderComponentDrawConveyorEndpoint(m_endpoint));
         }
 
+        public override bool IsStationary()
+        {
+            return true;
+        }
+
         public MySmallMissileLauncher()
         {
 #if XB1 // XB1_SYNC_NOREFLECTION

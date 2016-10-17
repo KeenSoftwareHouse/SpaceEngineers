@@ -11,6 +11,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -22,6 +23,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -163,6 +165,7 @@
     <Compile Include="GUI\MyGuiScreenMedicals.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsGraphics.cs" />
     <Compile Include="GUI\MyGuiScreenOptionsSpace.cs" />
+    <Compile Include="GUI\MyGuiScreenMainMenu.cs" />
     <Compile Include="GUI\MyGuiScreenPerformanceWarnings.cs" />
     <Compile Include="ModAPI\IMyAirVent.cs" />
     <Compile Include="ModAPI\IMyButtonPanel.cs" />
@@ -243,6 +246,10 @@
     <ProjectReference Include="..\SpaceEngineers.ObjectBuilders\SpaceEngineers.ObjectBuilders.csproj">
       <Project>{e48feb99-6814-4947-8035-8c2b4066dd9b}</Project>
       <Name>SpaceEngineers.ObjectBuilders</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VRage.Audio\VRage.Audio.csproj">
+      <Project>{F77D0A49-F011-4E8A-80C8-CBE1842BF2D4}</Project>
+      <Name>VRage.Audio</Name>
     </ProjectReference>
     <ProjectReference Include="..\VRage.Game\VRage.Game.csproj">
       <Project>{4539b5f0-3316-40e6-b032-9fbcafaac5be}</Project>

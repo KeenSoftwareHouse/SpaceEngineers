@@ -20,6 +20,7 @@ namespace VRage.Game
         ThirdPersonSpectator,
         SpectatorDelta,
         SpectatorFixed,
+        SpectatorFreeMouse
     }
 
     [ProtoContract]
@@ -267,8 +268,14 @@ namespace VRage.Game
         [ProtoMember]
         public string BriefingVideo;
 
+        public string CustomLoadingScreenImage;
+        public string CustomLoadingScreenText;
+        [ProtoMember]
+        public string CustomSkybox = "";
+
         [ProtoMember, DefaultValue(9)]
         public int RequiresDX = 9;
+
 
         #region obsolete
 

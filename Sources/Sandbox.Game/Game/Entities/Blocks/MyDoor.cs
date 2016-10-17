@@ -315,29 +315,29 @@ namespace Sandbox.Game.Entities
             if (m_leftSubpart != null && m_leftSubpart.Physics != null)
             {
                 m_leftSubpart.PositionComp.LocalMatrix = Matrix.CreateTranslation(new Vector3(-opening, 0f, 0f));
-                if (m_leftSubpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
-                {
-                    m_leftSubpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
-                }
+                //if (m_leftSubpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
+                //{
+                //    m_leftSubpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
+                //}
 
-                if (m_leftSubpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
-                {
-                    m_leftSubpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
-                }
+                //if (m_leftSubpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
+                //{
+                //    m_leftSubpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
+                //}
             }
 
             if (m_rightSubpart != null && m_rightSubpart.Physics != null)
             {
                 m_rightSubpart.PositionComp.LocalMatrix = Matrix.CreateTranslation(new Vector3(opening, 0f, 0f));
-                if (m_rightSubpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
-                {
-                    m_rightSubpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
-                }
+                //if (m_rightSubpart.Physics.LinearVelocity.Equals(CubeGrid.Physics.LinearVelocity, 0.01f) == false)
+                //{
+                //    m_rightSubpart.Physics.LinearVelocity = this.CubeGrid.Physics.LinearVelocity;
+                //}
 
-                if (m_rightSubpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
-                {
-                    m_rightSubpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
-                }
+                //if (m_rightSubpart.Physics.AngularVelocity.Equals(this.CubeGrid.Physics.AngularVelocity, 0.01f) == false)
+                //{
+                //    m_rightSubpart.Physics.AngularVelocity = this.CubeGrid.Physics.AngularVelocity;
+                //}
             }
         }
 

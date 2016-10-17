@@ -1302,6 +1302,8 @@ namespace Sandbox.Game.Entities.Cube
             if (this.m_connectorDummy != null && this.m_connectorDummy.Enabled && this.m_connectorDummy != source)
             {
                 m_connectorDummy.OnWorldPositionChanged(source);
+                if(CubeGrid.Physics != null)
+                    m_connectorDummy.LinearVelocity = CubeGrid.Physics.GetVelocityAtPoint(WorldMatrix.Translation);
             }
         }
 

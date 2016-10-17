@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using VRage.Game.Components;
 using VRage.Game.ModAPI.Interfaces;
 using VRage.Library.Utils;
@@ -46,7 +47,9 @@ namespace VRage.Game.ModAPI
         float HackSpeedMultiplier { get; }
         float InventoryMultiplier { get; }
         bool IsCameraAwaitingEntity { get; set; }
+        List<MyObjectBuilder_Checkpoint.ModItem> Mods { get; set; }
         bool IsPausable();
+        bool IsServer { get; }
         //void LoadDataComponents(IMyLocalPlayer localPlayer = null);
         short MaxFloatingObjects { get; }
         short MaxBackupSaves { get; }

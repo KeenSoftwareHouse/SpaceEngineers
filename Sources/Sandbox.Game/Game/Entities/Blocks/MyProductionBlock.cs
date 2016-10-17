@@ -858,7 +858,7 @@ namespace Sandbox.Game.Entities.Cube
      
         private float ComputeRequiredPower()
         {
-            return (Enabled && IsFunctional) ? (IsProducing) ? GetOperationalPowerConsumption()
+            return (Enabled && IsFunctional) ? (IsProducing || !IsQueueEmpty) ? GetOperationalPowerConsumption()
                                                              : ProductionBlockDefinition.StandbyPowerConsumption
                                              : 0.0f;
         }

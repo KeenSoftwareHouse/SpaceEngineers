@@ -40,6 +40,7 @@ using VRage.Network;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Game.Weapons.Guns.Barrels;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
@@ -1809,6 +1810,8 @@ namespace Sandbox.Game.Weapons
             bool sameParent = false;
             if (topMostParent is MyCubeGrid)
             {
+                if (CubeGrid.UsesTargetingList && !CubeGrid.TargetingCanAttackGrid(topMostParent.EntityId))
+                    return false;
                 var thisGrid = (MyCubeGrid)this.GetTopMostParent();
                 var otherGrid = (MyCubeGrid)topMostParent;
                 sameParent = thisGrid.GridSystems.TerminalSystem == otherGrid.GridSystems.TerminalSystem;

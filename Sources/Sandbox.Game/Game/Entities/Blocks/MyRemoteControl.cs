@@ -49,6 +49,7 @@ using VRage.Sync;
 using VRage.Voxels;
 using TerminalActionParameter = Sandbox.ModAPI.Ingame.TerminalActionParameter;
 using MyWaypointInfo = Sandbox.ModAPI.Ingame.MyWaypointInfo;
+using Sandbox.Game.Weapons;
 
 namespace Sandbox.Game.Entities
 {
@@ -239,6 +240,8 @@ namespace Sandbox.Game.Entities
         private float m_powerNeeded = 0.01f;
         private long? m_savedPreviousControlledEntityId = null;
         private IMyControllableEntity m_previousControlledEntity;
+        private Sync<long> m_bindedCamera;
+        private static MyTerminalControlCombobox<MyRemoteControl> m_cameraList = null;
 
         public IMyControllableEntity PreviousControlledEntity
         {
@@ -352,6 +355,7 @@ namespace Sandbox.Game.Entities
         private readonly Sync<Base6Directions.Direction> m_currentDirection;
 
         // Automatic behaviour of remote control (used for strafing, etc)
+        public double TargettingAimDelta { get; private set; }
         public interface IRemoteControlAutomaticBehaviour
         {
             bool NeedUpdate { get; }
@@ -408,13 +412,42 @@ namespace Sandbox.Game.Entities
             m_waypointThresholdDistance = SyncType.CreateAndAddProp<float>();
 #endif // XB1
             CreateTerminalControls();
-
+            TargettingAimDelta = 0;
             m_autoPilotEnabled.ValueChanged += (x) => OnSetAutoPilotEnabled();
+        }
+
+        private void FillCameraComboBoxContent(ICollection<MyTerminalControlComboBoxItem> items)
+        {
+            items.Add(new MyTerminalControlComboBoxItem() { Key = 0, Value = MyCommonTexts.ScreenGraphicsOptions_AntiAliasing_None });
+            bool bindedCameraExist = false;
+            foreach (var block in CubeGrid.GetFatBlocks<MyCameraBlock>())
+            {
+                items.Add(new MyTerminalControlComboBoxItem() { Key = block.EntityId, Value = MyStringId.GetOrCompute(block.CustomName.ToString()) });
+                if (block.EntityId == m_bindedCamera)
+                    bindedCameraExist = true;
+            }
+            var group = MyCubeGridGroups.Static.Logical.GetGroup(CubeGrid);
+            if (group != null)
+            {
+                foreach (var grid in group.Nodes)
+                {
+                    if (grid.NodeData != CubeGrid)
+                    {
+                        foreach (var block in grid.NodeData.GetFatBlocks<MyCameraBlock>())
+                        {
+                            items.Add(new MyTerminalControlComboBoxItem() { Key = block.EntityId, Value = MyStringId.GetOrCompute(block.CustomName.ToString()) });
+                            if (block.EntityId == m_bindedCamera)
+                                bindedCameraExist = true;
+                        }
+                    }
+                }
+            }
+            if (!bindedCameraExist)
+                m_bindedCamera.Value = 0;
         }
 
         protected override void CreateTerminalControls()
         {
-            
             if (MyTerminalControlFactory.AreControlsCreated<MyRemoteControl>())
                 return;
             base.CreateTerminalControls();
@@ -456,6 +489,13 @@ namespace Sandbox.Game.Entities
             dockignMode.EnableToggleAction();
             dockignMode.EnableOnOffActions();
             MyTerminalControlFactory.AddControl(dockignMode);
+
+            var cameraList = new MyTerminalControlCombobox<MyRemoteControl>("CameraList", MySpaceTexts.BlockPropertyTitle_AssignedCamera, MySpaceTexts.Blank);
+            cameraList.ComboBoxContentWithBlock = (x, list) => x.FillCameraComboBoxContent(list);
+            cameraList.Getter = (x) => (long)x.m_bindedCamera;
+            cameraList.Setter = (x, y) => x.m_bindedCamera.Value = y;
+            MyTerminalControlFactory.AddControl(cameraList);
+            m_cameraList = cameraList;
 
             var flightMode = new MyTerminalControlCombobox<MyRemoteControl>("FlightMode", MySpaceTexts.BlockPropertyTitle_FlightMode, MySpaceTexts.Blank);
             flightMode.ComboBoxContent = (x) => FillFlightModeCombo(x);
@@ -616,6 +656,7 @@ namespace Sandbox.Game.Entities
             m_currentFlightMode.Value = (FlightMode)remoteOb.FlightMode;
             m_currentDirection.Value = (Base6Directions.Direction)remoteOb.Direction;
             m_autopilotSpeedLimit.Value = remoteOb.AutopilotSpeedLimit;
+            m_bindedCamera.Value = remoteOb.BindedCamera;
             m_waypointThresholdDistance.Value = remoteOb.WaypointThresholdDistance;
             m_currentAutopilotSpeedLimit = m_autopilotSpeedLimit;
 
@@ -726,7 +767,6 @@ namespace Sandbox.Game.Entities
                     m_savedPreviousControlledEntityId = null;
                 }
             }
-
             UpdateAutopilot();
         }
 
@@ -736,8 +776,8 @@ namespace Sandbox.Game.Entities
             //by Gregory: disable autopilot when  no waypoints or only one way point in circle or patrol
             if (m_automaticBehaviour == null && (m_waypoints.Count == 0 || (m_waypoints.Count == 1 && m_currentFlightMode != FlightMode.OneWay)))
                 return false;
-
-            return IsWorking && m_previousControlledEntity == null;
+            
+            return IsFunctional && m_previousControlledEntity == null;
         }
 
         private static void FillFlightModeCombo(List<MyTerminalControlComboBoxItem> list)
@@ -764,13 +804,12 @@ namespace Sandbox.Game.Entities
         {
             if (CanEnableAutoPilot())
             {
-                if(enabled == false)
+                if (enabled == false)
                 {
                     ClearMovementControl();
                 }
             m_autoPilotEnabled.Value = enabled;
         }
-            
             }
 
         bool ModAPI.Ingame.IMyRemoteControl.IsAutoPilotEnabled
@@ -1041,6 +1080,7 @@ namespace Sandbox.Game.Entities
                 MyMultiplayer.RaiseEvent(this, x => x.OnRemoveWaypoints, indexes);
                
                 m_selectedWaypoints.Clear();
+                RaisePropertiesChangedRemote();
             }
         }
 
@@ -1460,6 +1500,17 @@ namespace Sandbox.Game.Entities
                             }
                         }
                     }
+                    else if (Sync.IsServer && m_automaticBehaviour != null && m_automaticBehaviour.IsActive && m_automaticBehaviour.RotateToPlayer)
+                    {
+                        bool rotating, isLabile;
+                        UpdateGyro(Vector3.Zero, Vector3.Zero, out rotating, out isLabile);
+
+                        if (rotating && !isLabile)
+                        {
+                            if (thrustComp != null)
+                                thrustComp.AutoPilotControlThrust = Vector3.Zero;
+                        }
+                    }
 
                     m_stuckDetection.Update(this.WorldMatrix.Translation, this.WorldMatrix.Forward, CurrentWaypoint == null ? Vector3D.Zero : CurrentWaypoint.Coords);
                 }
@@ -1655,7 +1706,7 @@ namespace Sandbox.Game.Entities
             q1.Conjugate();
             QuaternionD r = q2 * q1;
 
-            double angle = 2 * System.Math.Acos(r.W);
+            double angle = 2 * System.Math.Acos(MathHelper.Clamp(r.W, -1, 1));
             if (angle > Math.PI)
             {
                 angle -= 2.0 * Math.PI;
@@ -1742,9 +1793,10 @@ namespace Sandbox.Game.Entities
             Vector3D velocityToTarget = velocity * angularVelocity.Dot(ref velocity);
 
             velocity = Vector3D.Transform(velocity, invWorldRot);
+            double angle = System.Math.Acos(MathHelper.Clamp(Vector3D.Dot(targetDirection, orientation.Forward),-1,1));
 
-            double angle = System.Math.Acos(Vector3D.Dot(targetDirection, orientation.Forward));
-            if (angle < 0.06)
+            TargettingAimDelta = angle;
+            if (angle < 0.01)
             {
                 rotating = false;
                 return;
@@ -2205,7 +2257,7 @@ namespace Sandbox.Game.Entities
             return MyGravityProviderSystem.CalculateNaturalGravityInPoint(WorldMatrix.Translation);
         }
 
-        private MyPlayer GetNearestPlayer()
+        public MyPlayer GetNearestPlayer()
         {
             Vector3D myPosition = this.WorldMatrix.Translation;
             double closestDistSq = double.MaxValue;
@@ -2383,6 +2435,7 @@ namespace Sandbox.Game.Entities
             objectBuilder.Direction = (byte)m_currentDirection.Value;
             objectBuilder.AutopilotSpeedLimit = m_autopilotSpeedLimit;
             objectBuilder.WaypointThresholdDistance = m_waypointThresholdDistance;
+            objectBuilder.BindedCamera = m_bindedCamera.Value;
 
             objectBuilder.Waypoints = new List<MyObjectBuilder_AutopilotWaypoint>(m_waypoints.Count);
 
@@ -2704,6 +2757,28 @@ namespace Sandbox.Game.Entities
                 user.SwitchControl(this);
 
                 RefreshTerminal();
+            }
+
+            //switch to binded camera
+            if (m_bindedCamera != 0)
+            {
+                MyEntity entity;
+                if (MyEntities.TryGetEntityById(m_bindedCamera, out entity))
+                {
+                    MyCameraBlock camera = entity as MyCameraBlock;
+                    if (camera != null)
+                    {
+                        camera.RequestSetView();
+        }
+                    else
+                    {
+                        m_bindedCamera.Value = 0;
+                    }
+                }
+                else
+                {
+                    m_bindedCamera.Value = 0;
+                }
             }
         }
 

@@ -2249,7 +2249,7 @@ using VRage.Utils;
         public static readonly MyStringId SpectatorControls = MyStringId.GetOrCompute("SpectatorControls");
 
         ///<summary>
-        ///Spectator with fixed view vector to controlled object
+        ///Spectator with fixed position to controlled object
         ///</summary>
         public static readonly MyStringId SpectatorControls_Delta_Desc = MyStringId.GetOrCompute("SpectatorControls_Delta_Desc");
 
@@ -2294,7 +2294,7 @@ using VRage.Utils;
         public static readonly MyStringId Spectator = MyStringId.GetOrCompute("Spectator");
 
         ///<summary>
-        ///Delta spectator
+        ///Orbit spectator
         ///</summary>
         public static readonly MyStringId SpectatorControls_Delta = MyStringId.GetOrCompute("SpectatorControls_Delta");
 
@@ -3859,6 +3859,61 @@ using VRage.Utils;
         public static readonly MyStringId ControlName_ChangeBlockVariants = MyStringId.GetOrCompute("ControlName_ChangeBlockVariants");
 
         ///<summary>
+        ///You have no registered saved games. Your progress cannot be loaded.
+        ///</summary>
+        public static readonly MyStringId MessageBoxLastSessionNotFound = MyStringId.GetOrCompute("MessageBoxLastSessionNotFound");
+
+        ///<summary>
+        ///Campaign
+        ///</summary>
+        public static readonly MyStringId NewGame_SelectionLabel = MyStringId.GetOrCompute("NewGame_SelectionLabel");
+
+        ///<summary>
+        ///New Game
+        ///</summary>
+        public static readonly MyStringId ScreenCaptionNewGame = MyStringId.GetOrCompute("ScreenCaptionNewGame");
+
+        ///<summary>
+        ///Continue Game
+        ///</summary>
+        public static readonly MyStringId ScreenMenuButtonContinueGame = MyStringId.GetOrCompute("ScreenMenuButtonContinueGame");
+
+        ///<summary>
+        ///Custom Game
+        ///</summary>
+        public static readonly MyStringId ScreenMenuButtonCustomGame = MyStringId.GetOrCompute("ScreenMenuButtonCustomGame");
+
+        ///<summary>
+        ///Join Game
+        ///</summary>
+        public static readonly MyStringId ScreenMenuButtonJoinGame = MyStringId.GetOrCompute("ScreenMenuButtonJoinGame");
+
+        ///<summary>
+        ///Load Game
+        ///</summary>
+        public static readonly MyStringId ScreenMenuButtonLoadGame = MyStringId.GetOrCompute("ScreenMenuButtonLoadGame");
+
+        ///<summary>
+        ///New Game
+        ///</summary>
+        public static readonly MyStringId ScreenMenuButtonCampaign = MyStringId.GetOrCompute("ScreenMenuButtonCampaign");
+
+        ///<summary>
+        ///Created
+        ///</summary>
+        public static readonly MyStringId Created = MyStringId.GetOrCompute("Created");
+
+        ///<summary>
+        ///Backups
+        ///</summary>
+        public static readonly MyStringId LoadScreenButtonBackups = MyStringId.GetOrCompute("LoadScreenButtonBackups");
+
+        ///<summary>
+        ///The backup folder of selected saved game is missing.
+        ///</summary>
+        public static readonly MyStringId SaveBrowserMissingBackup = MyStringId.GetOrCompute("SaveBrowserMissingBackup");
+
+        ///<summary>
         ///Skin
         ///</summary>
         public static readonly MyStringId ScreenOptionsGame_Skin = MyStringId.GetOrCompute("ScreenOptionsGame_Skin");
@@ -3867,6 +3922,11 @@ using VRage.Utils;
         ///Note: Not all screens support skin at the moment
         ///</summary>
         public static readonly MyStringId ScreenOptionsGame_SkinWarning = MyStringId.GetOrCompute("ScreenOptionsGame_SkinWarning");
+
+        ///<summary>
+        ///Server is loading world
+        ///</summary>
+        public static readonly MyStringId LoadingDialogServerIsLoadingWorld = MyStringId.GetOrCompute("LoadingDialogServerIsLoadingWorld");
 
         ///<summary>
         ///Animated block preview
@@ -3882,6 +3942,16 @@ using VRage.Utils;
         ///Speed based ship sounds
         ///</summary>
         public static readonly MyStringId AudioSettings_ShipSoundsBasedOnSpeed = MyStringId.GetOrCompute("AudioSettings_ShipSoundsBasedOnSpeed");
+
+        ///<summary>
+        ///Continue
+        ///</summary>
+        public static readonly MyStringId ScreenMenuButtonContinue = MyStringId.GetOrCompute("ScreenMenuButtonContinue");
+
+        ///<summary>
+        ///Void
+        ///</summary>
+        public static readonly MyStringId Void = MyStringId.GetOrCompute("Void");
 
         ///<summary>
         ///Game performance is low. Cause: {0}

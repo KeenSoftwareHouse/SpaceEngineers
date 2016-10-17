@@ -14,6 +14,12 @@ namespace Sandbox.Game.Entities
     {
         static MyObjectFactory<MyEntityTypeAttribute, MyEntity> m_objectFactory = new MyObjectFactory<MyEntityTypeAttribute, MyEntity>();
 
+        public static void RegisterDescriptor(MyEntityTypeAttribute descriptor, Type type)
+        {
+            if(type != null && descriptor != null)
+                m_objectFactory.RegisterDescriptor(descriptor, type);
+        }
+
         public static void RegisterDescriptorsFromAssembly(Assembly assembly)
         {
             if (assembly != null)

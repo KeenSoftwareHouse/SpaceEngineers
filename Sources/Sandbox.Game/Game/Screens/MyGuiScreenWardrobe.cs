@@ -91,7 +91,7 @@ namespace Sandbox.Game.Screens
                     MyCharacterDefinition definition;
                     // NPCs can't be played with while in survival mode
                     if (!definedCharacters.TryGetValue(characterName, out definition) || MySession.Static.SurvivalMode && !definition.UsableByPlayer) continue;
-                    if (definition.Public) continue;
+                    if (!definition.Public) continue;
 
                     var key = GetDisplayName(definition.Name);
                     m_displayModels[key] = i;

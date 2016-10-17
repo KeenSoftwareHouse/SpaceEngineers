@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<MyObjectBuilder_MissionSM xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>StationEvacuation_Mission</Name>
+  <Cursors>
+    <MyObjectBuilder_MissionSMCursor>
+      <NodeName>CryoChamber</NodeName>
+    </MyObjectBuilder_MissionSMCursor>
+  </Cursors>
+  <Nodes>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="471" y="202" />
+      <Name>CryoChamber</Name>
+      <ScriptFilePath>Data\Missions\CryoChamber_script.vs</ScriptFilePath>
+      <ScriptClassName>CryoChamber_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="741" y="207" />
+      <Name>Jump</Name>
+      <ScriptFilePath>Data\Missions\Jump_script.vs</ScriptFilePath>
+      <ScriptClassName>Jump_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="964" y="199" />
+      <Name>Crouch</Name>
+      <ScriptFilePath>D:\MissionScripting\Sources\SpaceEngineers\Content\Data\Missions\Crouch_script.vs</ScriptFilePath>
+      <ScriptClassName>Crouch_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1191" y="198" />
+      <Name>Repair a panel</Name>
+      <ScriptFilePath>D:\MissionScripting\Sources\SpaceEngineers\Content\Data\Missions\Repair_script.vs</ScriptFilePath>
+      <ScriptClassName>Repair_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1425" y="196" />
+      <Name>Pickup oxygen bottle</Name>
+      <ScriptFilePath>D:\MissionScripting\Sources\SpaceEngineers\Content\Data\Missions\PickupOxygenBottle_script.vs</ScriptFilePath>
+      <ScriptClassName>PickupOxygenBottle_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1733" y="198" />
+      <Name>Flying</Name>
+      <ScriptFilePath>D:\MissionScripting\Sources\SpaceEngineers\Content\Data\Missions\Flying_script.vs</ScriptFilePath>
+      <ScriptClassName>Flying_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="1978" y="199" />
+      <Name>Medbays</Name>
+      <ScriptFilePath>Data\Missions\Medbays_script.vs</ScriptFilePath>
+      <ScriptClassName>Medbays_script</ScriptClassName>
+    </MyObjectBuilder_MissionSMNode>
+    <MyObjectBuilder_MissionSMNode>
+      <Position x="2261" y="200" />
+      <Name>Escape pod</Name>
+    </MyObjectBuilder_MissionSMNode>
+  </Nodes>
+  <Transitions>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>CryoChamber</From>
+      <To>Jump</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Jump</From>
+      <To>Crouch</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Crouch</From>
+      <To>Repair a panel</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Repair a panel</From>
+      <To>Pickup oxygen bottle</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Pickup oxygen bottle</From>
+      <To>Flying</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Flying</From>
+      <To>Medbays</To>
+    </MyObjectBuilder_MissionSMTransition>
+    <MyObjectBuilder_MissionSMTransition>
+      <Name>Completed</Name>
+      <From>Medbays</From>
+      <To>Escape pod</To>
+    </MyObjectBuilder_MissionSMTransition>
+  </Transitions>
+</MyObjectBuilder_MissionSM>

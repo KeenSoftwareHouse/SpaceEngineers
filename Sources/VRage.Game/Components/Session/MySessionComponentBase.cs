@@ -76,8 +76,12 @@ namespace VRage.Game.Components
             return false;
         }
         public bool Loaded { get; private set; }
+        private bool m_initialized;
 
-        public bool Initialized { get; private set; }
+        public bool Initialized
+        {
+            get { return m_initialized; }
+        }
 
         public MySessionComponentBase()
         {
@@ -131,8 +135,7 @@ namespace VRage.Game.Components
 
         public virtual void Init(MyObjectBuilder_SessionComponent sessionComponent)
         {
-            Initialized = true;
-
+            m_initialized = true;
             if (sessionComponent != null && sessionComponent.Definition.HasValue)
             {
                 Definition = sessionComponent.Definition;

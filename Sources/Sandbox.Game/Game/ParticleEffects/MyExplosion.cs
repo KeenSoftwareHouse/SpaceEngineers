@@ -15,7 +15,6 @@ using Sandbox.Game.GameSystems;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
 using VRage.Audio;
 using VRage.Utils;
 using VRageMath;
@@ -25,6 +24,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Interfaces;
+using VRage.Profiler;
 using VRage.Voxels;
 
 #endregion
@@ -132,15 +132,6 @@ namespace Sandbox.Game
         public bool CreateShrapnels { get { return HasFlag(MyExplosionFlags.CREATE_SHRAPNELS); } set { SetFlag(MyExplosionFlags.CREATE_SHRAPNELS, value); } }
     }
 
-    internal struct MyDamageInfo
-    {
-        public bool GridWasHit;
-        public MyExplosionDamage ExplosionDamage;
-        public HashSet<MyCubeGrid> AffectedCubeGrids;
-        public HashSet<MySlimBlock> AffectedCubeBlocks;
-        public BoundingSphereD Sphere;
-    }
-
     class MyExplosion
     {
         //  IMPORTANT: This class isn't realy inicialized by constructor, but by Start()
@@ -160,6 +151,7 @@ namespace Sandbox.Game
         HashSet<MySlimBlock> m_explodedBlocksExact = new HashSet<MySlimBlock>();
         HashSet<MySlimBlock> m_explodedBlocksOuter = new HashSet<MySlimBlock>();
 
+        MyGridExplosion m_gridExplosion = new MyGridExplosion();
         MyExplosionInfo m_explosionInfo;
         private bool m_explosionTriggered = false;
 
@@ -478,9 +470,12 @@ namespace Sandbox.Game
             var damageInfo = ApplyVolumetricExplosionOnGrid(ref m_explosionInfo, ref influenceExplosionSphere, entities);
             if ((m_explosionInfo.ExplosionFlags & MyExplosionFlags.APPLY_DEFORMATION) == MyExplosionFlags.APPLY_DEFORMATION)
             {
-                damageInfo.ExplosionDamage.ComputeDamagedBlocks();
+                ProfilerShort.Begin("ComputeDamagedBlocks");
+                damageInfo.ComputeDamagedBlocks();
                 gridWasHit = damageInfo.GridWasHit;
+                ProfilerShort.BeginNextBlock("ApplyVolumetriDamageToGrid");
                 ApplyVolumetriDamageToGrid(damageInfo, m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
+                ProfilerShort.End();
             }
 
             if (m_explosionInfo.HitEntity is MyWarhead)
@@ -496,7 +491,9 @@ namespace Sandbox.Game
                     warhead.CubeGrid.Physics.AddDirtyBlock(warhead);
                 }
             }
+            ProfilerShort.Begin("ApplyVolumetricExplosionOnEntities");
             ApplyVolumetricExplosionOnEntities(ref m_explosionInfo, entities, damageInfo);
+            ProfilerShort.End();
 
             entities.Clear();
             return gridWasHit;
@@ -522,11 +519,17 @@ namespace Sandbox.Game
             }
         }
 
-        private void ApplyVolumetricExplosionOnEntities(ref MyExplosionInfo m_explosionInfo, List<MyEntity> entities, MyDamageInfo explosionDamageInfo)
+        private void ApplyVolumetricExplosionOnEntities(ref MyExplosionInfo m_explosionInfo, List<MyEntity> entities, MyGridExplosion explosionDamageInfo)
         {
             Debug.Assert(Sync.IsServer);
+            float explosionRadiusR = (float)(1/explosionDamageInfo.Sphere.Radius);
             foreach (var entity in entities)
             {
+                if (entity is MyCubeGrid) //we already have blocks
+                    continue;
+                var ammoBase = entity as MyAmmoBase;
+                if (!(entity is IMyDestroyableObject) && ammoBase == null && !m_explosionInfo.ApplyForceAndDamage)
+                    continue;
                 //Special case for characters in cockpits
                 var character = entity as MyCharacter;
                 if (character != null)
@@ -534,36 +537,37 @@ namespace Sandbox.Game
                     var cockpit = character.IsUsing as MyCockpit;
                     if (cockpit != null)
                     {
-                        if (explosionDamageInfo.ExplosionDamage.DamagedBlocks.ContainsKey(cockpit.SlimBlock))
+                        if (explosionDamageInfo.DamagedBlocks.ContainsKey(cockpit.SlimBlock))
                         {
-                            float damageRemaining = explosionDamageInfo.ExplosionDamage.DamageRemaining[cockpit.SlimBlock].DamageRemaining;
+                            float damageRemaining = explosionDamageInfo.DamageRemaining[cockpit.SlimBlock].DamageRemaining;
                             character.DoDamage(damageRemaining, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
                         }
                         continue;
                     }
                 }
 
-                var raycastDamageInfo = explosionDamageInfo.ExplosionDamage.ComputeDamageForEntity(entity.PositionComp.WorldAABB.Center);
-                float damage = raycastDamageInfo.DamageRemaining;
+                //ProfilerShort.Begin("ComputeDamageForEntity");
+                //var raycastDamageInfo = explosionDamageInfo.ExplosionDamage.ComputeDamageForEntity(entity.PositionComp.WorldAABB.Center);
+                //ProfilerShort.End();
+
+                //float damage = raycastDamageInfo.DamageRemaining;
 
                 float entityDistanceToExplosion = (float)(entity.PositionComp.WorldAABB.Center - explosionDamageInfo.Sphere.Center).Length();
-                damage *= (float)(1 - (entityDistanceToExplosion - raycastDamageInfo.DistanceToExplosion) / (explosionDamageInfo.Sphere.Radius - raycastDamageInfo.DistanceToExplosion));
+                //damage *= (float)(1 - (entityDistanceToExplosion - raycastDamageInfo.DistanceToExplosion) / (explosionDamageInfo.Sphere.Radius - raycastDamageInfo.DistanceToExplosion));
+                float damage = explosionDamageInfo.Damage * (1 - (entityDistanceToExplosion * explosionRadiusR));
 
                 if (damage <= 0f)
                     continue;
 
+                if (ammoBase != null)
+                {
+                    Debug.Assert(Vector3.DistanceSquared(m_explosionSphere.Center, ammoBase.PositionComp.GetPosition()) < 4 * m_explosionSphere.Radius * m_explosionSphere.Radius);
+                    ammoBase.MarkedToDestroy = true;
+                    ammoBase.Explode();
+                }
+
                 if (entity.Physics != null && entity.Physics.Enabled)
                 {
-                    var ammoBase = entity as MyAmmoBase;
-                    if (ammoBase != null)
-                    {
-                        if (Vector3.DistanceSquared(m_explosionSphere.Center, ammoBase.PositionComp.GetPosition()) < 4 * m_explosionSphere.Radius * m_explosionSphere.Radius)
-                        {
-                            ammoBase.MarkedToDestroy = true;
-                        }
-                        ammoBase.Explode();
-                    }
-
                     float forceMultiplier = damage / 50000f;
 
                     //  Throws surrounding objects away from centre of the explosion.
@@ -588,11 +592,12 @@ namespace Sandbox.Game
                     }
                 }
 
-                if (!(entity is IMyDestroyableObject))
-                    continue;
-                
                 var destroyableObj = entity as IMyDestroyableObject;
+                if (destroyableObj == null)
+                    continue;
+                ProfilerShort.Begin("DoDamage");
                 destroyableObj.DoDamage(damage, MyDamageType.Explosion, true, attackerId: m_explosionInfo.OwnerEntity != null ? m_explosionInfo.OwnerEntity.EntityId : 0);
+                ProfilerShort.End();
             }
         }
 
@@ -810,23 +815,21 @@ namespace Sandbox.Game
             return gridWasHit;
         }
 
-        MyDamageInfo ApplyVolumetricExplosionOnGrid(ref MyExplosionInfo explosionInfo, ref BoundingSphereD sphere, List<MyEntity> entities)
+        MyGridExplosion ApplyVolumetricExplosionOnGrid(ref MyExplosionInfo explosionInfo, ref BoundingSphereD sphere, List<MyEntity> entities)
         {
             Debug.Assert(Sandbox.Game.Multiplayer.Sync.IsServer, "This is supposed to be only server method");
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("ApplyExplosionOnGrid");
 
             bool gridWasHit = false;
 
-            HashSet<MySlimBlock> explodedBlocks = new HashSet<MySlimBlock>();
-            Dictionary<MySlimBlock, float> damagedBlocks = new Dictionary<MySlimBlock, float>();
-            HashSet<MyCubeGrid> explodedGrids = new HashSet<MyCubeGrid>();
+            m_gridExplosion.Init(explosionInfo.ExplosionSphere, explosionInfo.Damage);
 
             foreach (var entity in entities)
             {
                 MyCubeGrid grid = entity as MyCubeGrid;
                 if (grid != null && grid.CreatePhysics)
                 {
-                    explodedGrids.Add(grid);
+                    m_gridExplosion.AffectedCubeGrids.Add(grid);
 
                     var detectionHalfSize = grid.GridSize / 2 / 1.25f;
                     var invWorldGrid = MatrixD.Invert(grid.WorldMatrix);
@@ -847,7 +850,7 @@ namespace Sandbox.Game
 
                     m_explodedBlocksInner.UnionWith(m_explodedBlocksExact);
 
-                    explodedBlocks.UnionWith(m_explodedBlocksInner);
+                    m_gridExplosion.AffectedCubeBlocks.UnionWith(m_explodedBlocksInner);
 
                     VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("outerSphere2");
 
@@ -867,24 +870,13 @@ namespace Sandbox.Game
             }
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
-            var damage = new MyExplosionDamage(explodedBlocks, sphere, explosionInfo.Damage);
-            
 
-            var damageInfo = new MyDamageInfo
-            {
-                GridWasHit = gridWasHit,
-                ExplosionDamage = damage,
-                AffectedCubeBlocks = explodedBlocks,
-                AffectedCubeGrids = explodedGrids,
-                Sphere = sphere
-            };
-
-            return damageInfo;
+            return m_gridExplosion;
         }
 
-        private void ApplyVolumetriDamageToGrid(MyDamageInfo damageInfo, long attackerId)
+        private void ApplyVolumetriDamageToGrid(MyGridExplosion damageInfo, long attackerId)
         {
-            var damagedBlocks = damageInfo.ExplosionDamage.DamagedBlocks;
+            var damagedBlocks = damageInfo.DamagedBlocks;
             var explodedBlocks = damageInfo.AffectedCubeBlocks;
             var explodedGrids = damageInfo.AffectedCubeGrids;
 
@@ -898,7 +890,7 @@ namespace Sandbox.Game
                 }
                 foreach (var damagedBlock in damagedBlocks)
                 {
-                    float hue = 1f - damagedBlock.Value / damageInfo.ExplosionDamage.Damage;
+                    float hue = 1f - damagedBlock.Value / damageInfo.Damage;
                     damagedBlock.Key.CubeGrid.ChangeColor(damagedBlock.Key, new Vector3(hue / 3f, 1.0f, 0.5f));
                 }
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using VRage.Game.VisualScripting;
 using VRage.Utils;
 using VRageMath;
 

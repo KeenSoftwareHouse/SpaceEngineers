@@ -74,6 +74,14 @@ namespace Sandbox.Graphics.GUI
         }
 
         /// <summary>
+        /// Corrently active screens.
+        /// </summary>
+        public static IEnumerable<MyGuiScreenBase> Screens
+        {
+            get { return m_screens; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="T:System.Object"/> class.
         /// </summary>
         static MyScreenManager()

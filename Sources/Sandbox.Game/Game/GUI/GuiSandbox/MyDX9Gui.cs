@@ -170,6 +170,7 @@ namespace Sandbox.Graphics.GUI
             UserDebugInputComponents.Add(new MyVRDebugInputComponent());
 #endif // !XB1
             UserDebugInputComponents.Add(new MyResearchDebugInputComponent());
+            UserDebugInputComponents.Add(new MyVisualScriptingDebugInputComponent());
             UserDebugInputComponents.Add(new MyAIDebugInputComponent());
             UserDebugInputComponents.Add(new MyAlesDebugInputComponent());
             LoadDebugInputsFromConfig();
@@ -885,7 +886,7 @@ namespace Sandbox.Graphics.GUI
         public void BackToMainMenu()
         {
             AddIntroScreen();
-            MyGuiScreenMainMenu.AddMainMenu();
+            MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.MainMenu));
         }
 
         public float GetDefaultTextScaleWithLanguage()

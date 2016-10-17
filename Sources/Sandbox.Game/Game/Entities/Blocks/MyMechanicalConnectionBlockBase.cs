@@ -23,6 +23,7 @@ using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.Network;
 using VRage.ObjectBuilders;
+using VRage.Profiler;
 using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
@@ -194,7 +195,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 Reattach();
             }
-            }
+        }
 
         private bool ValidateTopBlockId(State newState)
         {
@@ -354,7 +355,7 @@ namespace Sandbox.Game.Entities.Blocks
             {
                 m_needReattach = true;
                 return;
-        }
+            }
 
             if (m_constraint != null)
             {
@@ -375,7 +376,7 @@ namespace Sandbox.Game.Entities.Blocks
             if (grid1 == TopGrid && grid2 == TopBlock.CubeGrid)
             {
                 m_needReattach = true;
-        }
+            }
         }
 
         void TopBlock_OnClosing(MyEntity obj)
@@ -563,7 +564,7 @@ namespace Sandbox.Game.Entities.Blocks
                         m_connectionState.Value = new State() { TopBlockId = null, MasterToSlave = null };
                     }
                     else
-                    m_updateAttach = true;
+                        m_updateAttach = true;
                 }
             }
             RefreshConstraint();

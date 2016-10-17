@@ -56,8 +56,6 @@ namespace Sandbox.Game.Gui
             Realistic,
         }
 
-        MyGuiControlCheckbox m_scenarioEditMode;
-
         private List<MyObjectBuilder_Checkpoint.ModItem> m_mods;
 
         MyObjectBuilder_Checkpoint m_checkpoint;
@@ -150,7 +148,7 @@ namespace Sandbox.Game.Gui
         public static Vector2 CalcSize(MyObjectBuilder_Checkpoint checkpoint)
         {
             float width = checkpoint == null ? 0.9f : 0.65f;
-            float height = checkpoint == null ? 1.24f : 1.00f;
+            float height = checkpoint == null ? 1.24f : 0.95f;
             if (MyFakes.ENABLE_NEW_SOUNDS)
                 height += 0.05f;
             height -= 0.27f;
@@ -277,6 +275,9 @@ namespace Sandbox.Game.Gui
 
             if (m_isNewGame)
             {
+                if(MyDefinitionManager.Static.GetScenarioDefinitions().Count == 0)
+                    MyDefinitionManager.Static.LoadScenarios();
+
                 m_scenarioTypesGroup = new MyGuiControlRadioButtonGroup();
                 m_scenarioTypesGroup.SelectedChanged += scenario_SelectedChanged;
                 foreach (var scenario in MyDefinitionManager.Static.GetScenarioDefinitions())
@@ -353,13 +354,6 @@ namespace Sandbox.Game.Gui
             m_autoSave.SetToolTip(new StringBuilder().AppendFormat(MyCommonTexts.ToolTipWorldSettingsAutoSave, MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES).ToString());
             Controls.Add(autoSaveLabel);
             Controls.Add(m_autoSave);
-
-            var scenarioEditModeLabel = MakeLabel(MySpaceTexts.WorldSettings_ScenarioEditMode);
-            m_scenarioEditMode = new MyGuiControlCheckbox();
-            m_scenarioEditMode.SetToolTip(MyTexts.GetString(MySpaceTexts.ToolTipWorldSettings_ScenarioEditMode));
-
-            Controls.Add(scenarioEditModeLabel);
-            Controls.Add(m_scenarioEditMode);
 
 #if !XB1 // XB1_NOWORKSHOP
             if (!MyFakes.XB1_PREVIEW)
@@ -771,7 +765,7 @@ namespace Sandbox.Game.Gui
             m_settings.AutoSaveInMinutes = m_autoSave.IsChecked ? MyObjectBuilder_SessionSettings.DEFAULT_AUTOSAVE_IN_MINUTES : 0;
             m_settings.GameMode = GetGameMode();
             m_settings.RealisticSound = ((MySoundModeEnum)m_soundModeCombo.GetSelectedKey() == MySoundModeEnum.Realistic);
-            m_settings.ScenarioEditMode = m_scenarioEditMode.IsChecked;
+            m_settings.ScenarioEditMode = false;
             m_settings.EnableBlockLimits = m_blockLimits.IsChecked;
         }
 
@@ -783,7 +777,6 @@ namespace Sandbox.Game.Gui
             m_autoSave.IsChecked = m_settings.AutoSaveInMinutes > 0;
 
             UpdateSurvivalState(m_settings.GameMode == MyGameModeEnum.Survival);
-            m_scenarioEditMode.IsChecked = m_settings.ScenarioEditMode;
             m_soundModeCombo.SelectItemByKey(m_settings.RealisticSound ? (int)MySoundModeEnum.Realistic : (int)MySoundModeEnum.Arcade);
             m_blockLimits.IsChecked = m_settings.EnableBlockLimits;
         }
@@ -881,68 +874,15 @@ namespace Sandbox.Game.Gui
             MyLog.Default.WriteLine("StartNewSandbox - Start");
 
             GetSettingsFromControls();
-            if (!MySteamWorkshop.CheckLocalModsAllowed(m_mods, m_settings.OnlineMode == MyOnlineModeEnum.OFFLINE))
-            {
-                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                    messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
-                    messageText: MyTexts.Get(MyCommonTexts.DialogTextLocalModsDisabledInMultiplayer),
-                    buttonType: MyMessageBoxButtonsType.OK));
-                MyLog.Default.WriteLine("LoadSession() - End");
-                return;
-            }
-
-            MySteamWorkshop.DownloadModsAsync(m_mods, delegate(bool success,string mismatchMods)
-            {
-                if (success || (m_settings.OnlineMode == MyOnlineModeEnum.OFFLINE) && MySteamWorkshop.CanRunOffline(m_mods))
-                {
-                    MyGuiScreenLoadSandbox.CheckMismatchmods(mismatchMods, callback: delegate(VRage.Game.ModAPI.ResultEnum val)
-                    {
-                        MyScreenManager.RemoveAllScreensExcept(null);
-
-                        if (AsteroidAmount < 0)
-                        {
-                            MyWorldGenerator.SetProceduralSettings(AsteroidAmount, m_settings);
-                            m_asteroidAmount = 0;
-                        }
-
-                        MyAnalyticsHelper.SetEntry(MyGameEntryEnum.Custom);
-
-                        MyGuiScreenGamePlay.StartLoading(delegate
-                        {
-                            MySession.Start(
-                                m_nameTextbox.Text,
-                                GetDescription(),
-                                GetPassword(),
-                                m_settings,
-                                m_mods,
-                                new MyWorldGenerator.Args()
-                                {
-                                    AsteroidAmount = this.AsteroidAmount,
-                                    Scenario = (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario
-                                }
-                            );
-                        });
-                    });
-                }
-                else
-                {
-                    if (MySteam.IsOnline)
-                    {
-                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                             messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
-                             messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailed),
-                             buttonType: MyMessageBoxButtonsType.OK));
-                    }
-                    else
-                    {
-                        MyGuiSandbox.AddScreen(MyGuiSandbox.CreateMessageBox(
-                                                      messageCaption: MyTexts.Get(MyCommonTexts.MessageBoxCaptionError),
-                                                      messageText: MyTexts.Get(MyCommonTexts.DialogTextDownloadModsFailedSteamOffline),
-                                                      buttonType: MyMessageBoxButtonsType.OK));
-                    }
-                }
-                MyLog.Default.WriteLine("StartNewSandbox - End");
-            });
+            MySessionLoader.StartNewSession(
+                m_nameTextbox.Text, 
+                m_settings, 
+                m_mods, 
+                (m_scenarioTypesGroup.SelectedButton as MyGuiControlScenarioButton).Scenario, 
+                AsteroidAmount, 
+                GetDescription(), 
+                GetPassword()
+            );
         }
 
         public void UpdateAsteroidAmountEnabled(bool enabled)

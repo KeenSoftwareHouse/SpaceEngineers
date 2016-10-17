@@ -451,6 +451,8 @@ namespace Sandbox.Game.Entities
             else if (builder.EntityId != 0)
                 EntityId = builder.EntityId;
 
+            Name = builder.Name;
+
             NumberInGrid = cubeGrid.BlockCounter.GetNextNumber(builder.GetId());
             Render.ColorMaskHsv = builder.ColorMaskHSV;
 
@@ -552,6 +554,7 @@ namespace Sandbox.Game.Entities
             builder.Min = Min;
             builder.Owner = 0;
             builder.ShareMode = MyOwnershipShareModeEnum.None;
+            builder.Name = Name;
             if (m_IDModule != null)
             {
                 builder.Owner = m_IDModule.Owner;
@@ -575,6 +578,8 @@ namespace Sandbox.Game.Entities
             }
 
             builder.ComponentContainer = Components.Serialize(copy);
+            if(copy)
+                builder.Name = null;
 
             return builder;
         }

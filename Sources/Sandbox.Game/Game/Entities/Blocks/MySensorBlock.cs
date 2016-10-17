@@ -764,7 +764,7 @@ namespace Sandbox.Game.Entities.Blocks
         {
             UpdateEmissivity();
             Toolbar.UpdateItem(0);
-            if (Sync.IsServer && MySession.Static.ElapsedPlayTime.TotalSeconds > 5)
+            if (Sync.IsServer)
                 Toolbar.ActivateItemAtSlot(0, false, PlayProximitySound);
         }
 

@@ -143,7 +143,7 @@ namespace Sandbox.Engine.Physics
 
         public static int ThreadId;
 
-        private static MyHavokCluster Clusters;
+        public static MyHavokCluster Clusters;
 
         private static HkJobThreadPool m_threadPool;
         private static HkJobQueue m_jobQueue;
@@ -417,7 +417,7 @@ namespace Sandbox.Engine.Physics
             }
 
             //Needed for smooth wheel movement
-            HkCylinderShape.SetNumberOfVirtualSideSegments(128);
+            HkCylinderShape.SetNumberOfVirtualSideSegments(32);
         }
 
         HkWorld OnClusterCreated(int clusterId, BoundingBoxD bbox)
@@ -657,7 +657,7 @@ namespace Sandbox.Engine.Physics
                 {
                     world.VisualDebuggerEnabled = true;
                     world.StepVDB(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS);
-            }
+                }
                 else
                     world.VisualDebuggerEnabled = false;
             }

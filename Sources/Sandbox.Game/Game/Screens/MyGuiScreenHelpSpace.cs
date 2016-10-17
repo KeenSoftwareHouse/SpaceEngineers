@@ -16,7 +16,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenHelpSpace : MyGuiScreenBase
+    public class MyGuiScreenHelpSpace : MyGuiScreenBase
     {
         struct ControlWithDescription
         {
@@ -291,7 +291,7 @@ namespace Sandbox.Game.Gui
 
                 developerPage.RightColumn.Add(new ControlWithDescription("", "Global Debug Input"));
                 developerPage.RightColumn.Add(new ControlWithDescription("F6", "Switch between astronauts"));
-                developerPage.RightColumn.Add(new ControlWithDescription("F7", "Switch to fixed dir. 3rd person camera"));
+                developerPage.RightColumn.Add(new ControlWithDescription("F7", "Switch to fixed pos. 3rd person camera"));
                 developerPage.RightColumn.Add(new ControlWithDescription("F8", "Switch to spectator camera"));
                 developerPage.RightColumn.Add(new ControlWithDescription("Ctrl + F8", "Reset spectator camera"));
                 developerPage.RightColumn.Add(new ControlWithDescription("F9", "Switch to static 3rd person"));

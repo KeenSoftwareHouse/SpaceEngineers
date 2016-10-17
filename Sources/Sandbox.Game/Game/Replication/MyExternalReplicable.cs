@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using VRage.Collections;
 using VRage.Library.Collections;
 using VRage.Network;
 
@@ -12,7 +13,7 @@ namespace Sandbox.Game.Replication
 {
     public abstract class MyExternalReplicable : IMyReplicable
     {
-        private static Dictionary<object, MyExternalReplicable> m_objectExternalReplicables = new Dictionary<object, MyExternalReplicable>();
+        private static MyConcurrentDictionary<object, MyExternalReplicable> m_objectExternalReplicables = new MyConcurrentDictionary<object, MyExternalReplicable>();
 
         /// <summary>
         /// Raised when replicable is destroyed from inside, e.g. Entity is closed which causes replicable to be closed.
@@ -21,7 +22,7 @@ namespace Sandbox.Game.Replication
 
         public static MyExternalReplicable FindByObject(object obj)
         {
-            return m_objectExternalReplicables.GetValueOrDefault(obj);
+            return m_objectExternalReplicables.GetValueOrDefault(obj, null);
         }
 
         public virtual void Hook(object obj)

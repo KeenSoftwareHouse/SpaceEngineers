@@ -13,7 +13,7 @@ namespace Sandbox.Game.Screens.DebugScreens
 
 #if !XB1
 
-    [MyDebugScreen("Game", "Physics")]
+    [MyDebugScreen("VRage", "Physics")]
     public class MyGuiScreenDebugPhysics : MyGuiScreenDebugBase
     {
         public MyGuiScreenDebugPhysics()

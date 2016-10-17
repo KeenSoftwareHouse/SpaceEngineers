@@ -13,7 +13,7 @@ namespace Sandbox.Game.Screens.Helpers
 
         public int Compare(MyTerminalBlock lhs, MyTerminalBlock rhs)
         {
-            int definitionDiff = lhs.DefinitionDisplayNameText.CompareTo(rhs.DefinitionDisplayNameText);
+            int definitionDiff = (lhs.CustomName != null ? lhs.CustomName.ToString() : lhs.DefinitionDisplayNameText).CompareTo((rhs.CustomName != null ? rhs.CustomName.ToString() : rhs.DefinitionDisplayNameText));
             if (definitionDiff != 0)
                 return definitionDiff;
 

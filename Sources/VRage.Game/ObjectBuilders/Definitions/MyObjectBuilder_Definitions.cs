@@ -158,6 +158,10 @@ namespace VRage.Game
         [ProtoMember]
         public MyObjectBuilder_ShipSoundsDefinition[] ShipSoundGroups;
 
+        [ProtoMember]
+        [XmlArrayItem("DroneBehavior", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_DroneBehaviorDefinition>))]
+        public MyObjectBuilder_DroneBehaviorDefinition[] DroneBehaviors;
+
         [XmlElement("ShipSoundSystem", Type = typeof(MyAbstractXmlSerializer<MyObjectBuilder_ShipSoundSystemDefinition>))]
         [ProtoMember]
         public MyObjectBuilder_ShipSoundSystemDefinition ShipSoundSystem;

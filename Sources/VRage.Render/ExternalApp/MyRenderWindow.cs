@@ -28,6 +28,11 @@ namespace VRageRender.ExternalApp
         private FastResourceLock m_bufferedCharsLock = new FastResourceLock();
         private List<char> m_bufferedChars = new List<char>();
 
+        public void AddChar(char ch)
+        {
+            m_bufferedChars.Add(ch);
+        }
+
         public bool DrawEnabled
         {
             get { return true; }

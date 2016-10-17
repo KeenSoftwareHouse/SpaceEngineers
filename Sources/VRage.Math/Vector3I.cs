@@ -904,5 +904,10 @@ namespace VRageMath
 
             return true;
         }
+
+        public int Volume()
+        {
+            return X*Y*Z;
+        }
     }
 }

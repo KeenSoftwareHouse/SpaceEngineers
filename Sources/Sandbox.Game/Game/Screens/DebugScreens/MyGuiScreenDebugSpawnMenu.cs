@@ -510,7 +510,7 @@ namespace Sandbox.Game.Gui
 
         public static MyStorageBase CreateProceduralAsteroidStorage(int seed, float radius)
         {
-            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 0), MyVoxelCoordSystems.FindBestOctreeSize(radius));
+            return new MyOctreeStorage(MyCompositeShapeProvider.CreateAsteroidShape(seed, radius, 2), MyVoxelCoordSystems.FindBestOctreeSize(radius));
         }
 
         private void SpawnProceduralAsteroid(int seed, float radius)

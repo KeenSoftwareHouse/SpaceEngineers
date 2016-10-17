@@ -231,7 +231,7 @@ namespace Sandbox.Game.Gui
 
             MyScreenManager.RemoveAllScreensExcept(null);
 
-            MyGuiScreenGamePlay.StartLoading(delegate
+            MySessionLoader.StartLoading(delegate
             {
                 var settings = (quickstartSettings != null) ? quickstartSettings : CreateBasicQuickStartSettings();
                 var args = (quickstartArgs != null) ? quickstartArgs.Value : CreateBasicQuickstartArgs();

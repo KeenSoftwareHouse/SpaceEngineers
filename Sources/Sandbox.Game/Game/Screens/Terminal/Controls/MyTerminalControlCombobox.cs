@@ -29,6 +29,8 @@ namespace Sandbox.Game.Gui
 
         private MyGuiControlCombobox m_comboBox;
 
+        public delegate void ComboBoxContentDelegate(TBlock block, ICollection<MyTerminalControlComboBoxItem> comboBoxContent);
+        public ComboBoxContentDelegate ComboBoxContentWithBlock;
         public Action<List<MyTerminalControlComboBoxItem>> ComboBoxContent;
         public Func<TBlock, long> Getter { private get; set; }
         public Action<TBlock, long> Setter { private get; set; }
@@ -159,6 +161,19 @@ namespace Sandbox.Game.Gui
                     if (m_comboBox.GetSelectedKey() != value)
                         m_comboBox.SelectItemByKey(value);
                 }
+                // add items
+                if (ComboBoxContentWithBlock != null)
+                {
+                    ComboBoxContentWithBlock(first, m_handlerItems);
+                    foreach (var item in m_handlerItems)
+                    {
+                        m_comboBox.AddItem(item.Key, item.Value);
+                    }
+
+                    var value = GetValue(first);
+                    if (m_comboBox.GetSelectedKey() != value)
+                        m_comboBox.SelectItemByKey(value);
+                }
             }
         }
 
@@ -207,6 +222,23 @@ namespace Sandbox.Game.Gui
             set
             {
                 ComboBoxContent = value;
+            }
+        }
+
+        Action<IMyTerminalBlock, List<MyTerminalControlComboBoxItem>> ComboBoxContentWithBlockAction
+        {
+            set
+            {
+                ComboBoxContentWithBlock = new ComboBoxContentDelegate((block, comboBoxContent) =>
+                {
+                    List<MyTerminalControlComboBoxItem> wrapList = new List<MyTerminalControlComboBoxItem>();
+                    value(block, wrapList);
+                    foreach (var wrapItem in wrapList)
+                    {
+                        var item = new MyTerminalControlComboBoxItem() { Key = wrapItem.Key, Value = wrapItem.Value};
+                        comboBoxContent.Add(item);
+                    }
+                });
             }
         }
 

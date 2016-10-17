@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Sandbox.Game.Entities.Cube;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Definitions;
 using VRage.Game.Entity;

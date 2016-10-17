@@ -18,7 +18,14 @@ namespace VRage.Utils
             {
                 if (m_secretRandom == null)
                 {
-                    m_secretRandom = new Random();
+                    if (VRage.Library.Utils.MyRandom.DisableRandomSeed)
+                    {
+                        m_secretRandom = new Random(1);
+                    }
+                    else
+                    {
+                        m_secretRandom = new Random();
+                    }
                 }
                 return m_secretRandom;
             }

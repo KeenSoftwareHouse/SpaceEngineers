@@ -38,7 +38,6 @@ namespace Sandbox.Game.World
         private const int EVENT_SPAWN_TRY_MAX = 3;
 
         private static List<MyPhysics.HitInfo> m_raycastHits = new List<MyPhysics.HitInfo>();
-        private static List<MyCubeGrid> m_tmpGridList = new List<MyCubeGrid>();
 
         private static List<float> m_spawnGroupCumulativeFrequencies = new List<float>();
         private static float m_spawnGroupTotalFrequencies = 0.0f;
@@ -412,7 +411,7 @@ namespace Sandbox.Game.World
                 Vector3D shipDestination = shipPosition + directionMult;
                 Vector3D up = Vector3D.CalculatePerpendicularVector(-direction);
 
-                m_tmpGridList.Clear();
+                List<MyCubeGrid> tmpGridList = new List<MyCubeGrid>();
 
                 // CH: We don't want a new identity for each ship anymore. We should handle that in a better way...
                 /*if (shipPrefab.ResetOwnership)
@@ -428,7 +427,7 @@ namespace Sandbox.Game.World
                 // Deploy ship
                 ProfilerShort.Begin("Spawn cargo ship");
                 MyPrefabManager.Static.SpawnPrefab(
-                    resultList: m_tmpGridList,
+                    resultList: tmpGridList,
                     prefabName: shipPrefab.SubtypeId,
                     position: shipPosition,
                     forward: direction,
@@ -442,7 +441,7 @@ namespace Sandbox.Game.World
                     updateSync: true);
                 ProfilerShort.End();
 
-                foreach (var grid in m_tmpGridList)
+                foreach (var grid in tmpGridList)
                 {
                     var cockpit = grid.GetFirstBlockOfType<MyCockpit>();
                     if (cockpit != null)
@@ -452,8 +451,6 @@ namespace Sandbox.Game.World
                         break;
                     }
                 }
-
-                m_tmpGridList.Clear();
 
                 ProfilerShort.End();
             }

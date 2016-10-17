@@ -11,7 +11,7 @@ namespace VRageRender.Animations
     /// Animation state machine selects the animation to match current state.
     /// When it finds valid transition to some next state, transition is performed automatically.
     /// </summary>
-    public class MyAnimationStateMachine : MyStateMachine
+    public class MyAnimationStateMachine : MySingleStateMachine
     {
         // Blending mode of the layer.
         public enum MyBlendingMode

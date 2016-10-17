@@ -23,7 +23,7 @@ using Sandbox.Game.Screens.Helpers;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenSaveAs : MyGuiScreenBase
+    public class MyGuiScreenSaveAs : MyGuiScreenBase
     {
         MyGuiControlTextbox m_nameTextbox;
         MyGuiControlButton m_okButton, m_cancelButton;

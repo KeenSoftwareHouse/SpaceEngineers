@@ -6,6 +6,7 @@ using Sandbox.Game.Components;
 using VRage.Game.Components;
 using VRage.ObjectBuilders;
 using VRage.Game.Entity;
+using VRage.ModAPI;
 
 namespace Sandbox.Game.Entities
 {
@@ -28,6 +29,7 @@ namespace Sandbox.Game.Entities
             MyEntity.MyProceduralWorldGeneratorTrackEntityExtCallback = MyEntityExtensions.ProceduralWorldGeneratorTrackEntity;
             MyEntity.CreateStandardRenderComponentsExtCallback = MyEntityExtensions.CreateStandardRenderComponents;
             MyEntity.InitComponentsExtCallback = MyComponentContainerExtension.InitComponents;
+            MyEntity.MyEntitiesCreateFromObjectBuilderExtCallback = MyEntities.CreateFromObjectBuilder;
         }
 
         public static MyPhysicsBody GetPhysicsBody(this MyEntity thisEntity)
@@ -37,7 +39,7 @@ namespace Sandbox.Game.Entities
 
         public static void UpdateGamePruningStructure(this MyEntity thisEntity)
         {
-            if (thisEntity.Parent == null && thisEntity.InScene)
+            if (thisEntity.InScene && (thisEntity.Parent == null || (thisEntity.Flags & EntityFlags.IsGamePrunningStructureObject) != 0))
             {
                 //Debug.Assert(thisEntity.Parent == null, "Only top most entity should be in prunning structure");
                 MyGamePruningStructure.Move(thisEntity);
@@ -47,7 +49,7 @@ namespace Sandbox.Game.Entities
 
         public static void AddToGamePruningStructure(this MyEntity thisEntity)
         {
-            if (thisEntity.Parent != null)
+            if (thisEntity.Parent != null && (thisEntity.Flags & EntityFlags.IsGamePrunningStructureObject) == 0)
                 return;
             //Debug.Assert(thisEntity.Parent == null,"Only top most entity should be in prunning structure");
             MyGamePruningStructure.Add(thisEntity);

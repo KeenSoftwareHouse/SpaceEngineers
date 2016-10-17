@@ -84,6 +84,11 @@ namespace Sandbox.Game.Weapons
             AddDebugRenderComponent(new MyDebugRenderComponentDrawConveyorEndpoint(m_conveyorEndpoint));
         }
 
+        public override bool IsStationary()
+        {
+            return true;
+        }
+
         public MySmallGatlingGun()
         {
 #if XB1 // XB1_SYNC_NOREFLECTION

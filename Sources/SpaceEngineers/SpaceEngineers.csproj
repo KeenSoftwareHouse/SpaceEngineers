@@ -208,9 +208,16 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />
+    <None Include="Content\Data\Audio_gui.sbc" />
+    <None Include="Content\Data\Audio_music.sbc" />
+    <None Include="Content\Data\Audio_player.sbc" />
+    <None Include="Content\Data\Audio_shipSounds.sbc" />
     <None Include="Content\Data\Characters_animals.sbc" />
     <None Include="Content\Data\Decals.sbc" />
     <None Include="Content\Data\DefinitionsToPreload.sbc" />
+    <None Include="Content\Data\DroneBehaviors.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\EntityComponents.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -235,7 +242,9 @@
     <None Include="Content\Data\AmmoMagazines.sbc">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Content\Data\Ammos.sbc" />
+    <None Include="Content\Data\Ammos.sbc">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\Data\Animations.sbc" />
     <None Include="Content\Data\Audio.sbc">
       <SubType>Designer</SubType>
@@ -286,6 +295,7 @@
     <None Include="Content\Data\MaterialProperties.sbc">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Content\Data\Particles.sbc" />
     <None Include="Content\Data\PhysicalItems.sbc">
       <SubType>Designer</SubType>
     </None>
@@ -353,6 +363,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Content\Data\Screens\MedicalsScreen.gsc" />
+    <None Include="Content\Data\ShipSoundGroups.sbc" />
     <None Include="Content\Data\SoundBlock.sbc" />
     <None Include="Content\Data\SpawnGroups.sbc">
       <SubType>Designer</SubType>

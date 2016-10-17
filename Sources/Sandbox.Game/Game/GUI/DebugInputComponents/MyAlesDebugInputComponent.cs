@@ -20,6 +20,26 @@ using System;
 using Sandbox.ModAPI;
 using System;
 
+using VRage;
+using VRage.Collections;
+using VRage.Audio;
+using VRage.Plugins;
+using VRage.Data;
+using VRage.Filesystem.FindFilesRegEx;
+using VRage.Library.Utils;
+using Sandbox.Engine.Networking;
+using Sandbox.Game.AI.Pathfinding;
+using VRage.FileSystem;
+using VRage.ObjectBuilders;
+using VRage.Game.Components;
+using Sandbox.Game;
+using VRage.Game.Definitions;
+using VRage.Game.Definitions.Animation;
+using VRage.Game.ObjectBuilders.ComponentSystem;
+using Sandbox.Game.EntityComponents;
+using Sandbox.Graphics.GUI;
+using Sandbox.Game.Screens;
+using System;
 
 namespace Sandbox.Game.Gui
 {
@@ -95,6 +115,10 @@ namespace Sandbox.Game.Gui
     class MyAlesDebugInputComponent : MyDebugComponent
     {
 
+        private bool m_questlogOpened = false;
+        private MyGuiScreenBase guiScreen = null;
+        private static Random random = new Random();
+
         Random m_random;
 
         public override string GetName()
@@ -121,6 +145,57 @@ namespace Sandbox.Game.Gui
                 });
             //AddShortcut(MyKeys.NumPad1, true, false, false, false, () => "Reorder cluster", delegate { ReorderCluster(); return true; });
             
+            AddShortcut(MyKeys.NumPad0, true, false, false, false,
+                () => "Init questlog",
+                delegate
+                {
+                    ToggleQuestlog();
+                    return true;
+                });
+            AddShortcut(MyKeys.NumPad1, true, false, false, false,
+                () => "Show/Hide QL",
+                delegate
+                {
+                    m_questlogOpened = !m_questlogOpened;
+                    MyHud.Questlog.Visible = m_questlogOpened;
+                    return true;
+                });
+            AddShortcut(MyKeys.NumPad2, true, false, false, false,
+                () => "QL: Prew page",
+                delegate
+                {
+                    MyHud.Questlog.Page = MyHud.Questlog.Page - 1;
+                    return true;
+                });
+            AddShortcut(MyKeys.NumPad3, true, false, false, false,
+                () => "QL: Next page",
+                delegate
+                {
+                    MyHud.Questlog.Page = MyHud.Questlog.Page + 1;
+                    return true;
+                });
+            int shortLine = 30;
+            AddShortcut(MyKeys.NumPad4, true, false, false, false,
+                () => "QL: Add short line",
+                delegate
+                {
+                    MyHud.Questlog.AddDetail(RandomString(shortLine));
+                    return true;
+                });
+            int longLine = 60;
+            AddShortcut(MyKeys.NumPad5, true, false, false, false,
+                () => "QL: Add long line",
+                delegate
+                {
+                    MyHud.Questlog.AddDetail(RandomString(longLine));
+                    return true;
+                });
+        }
+
+        private void ToggleQuestlog()
+        {
+            MyHud.Questlog.QuestTitle = "Test Questlog title message";
+            MyHud.Questlog.CleanDetails();
         }
 
         private void TravelToWaypointClient()
@@ -139,6 +214,13 @@ namespace Sandbox.Game.Gui
         private void ReloadParticleDefinition()
         {
             MyDefinitionManager.Static.ReloadParticles();
+        }
+
+        public static string RandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789           ";
+            return (new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray())).Trim();
         }
 
     }

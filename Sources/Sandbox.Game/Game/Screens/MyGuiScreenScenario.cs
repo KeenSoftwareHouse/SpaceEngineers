@@ -192,7 +192,7 @@ namespace Sandbox.Game.Gui
                 if (save != null)
                 {
                     CloseScreen();
-                    MyGuiScreenLoadSandbox.LoadSingleplayerSession(save.Item1);
+                    MySessionLoader.LoadSingleplayerSession(save.Item1);
                 }
                 else
                     Debug.Fail("save not found");

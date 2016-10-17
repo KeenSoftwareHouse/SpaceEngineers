@@ -269,7 +269,7 @@ namespace Sandbox.Game.Gui
                         }
                         VRageRender.MyRenderProxy.DebugDrawText2D(pos, sb.ToString(), Color.White, 0.7f);
                         pos.Y += 20;
-                        if (hitEntity != null)
+                        if (hitEntity != null && hitEntity.GetPhysicsBody() != null)
                         {
                             VRageRender.MyRenderProxy.DebugDrawText2D(pos, string.Format("Weld: {0}", hitEntity.GetPhysicsBody().WeldInfo.Children.Count), Color.White, 0.7f);
                         }
@@ -497,6 +497,15 @@ namespace Sandbox.Game.Gui
                 }
 
                 DrawBodyInfo();
+
+                //var pos2 = MySector.MainCamera.Position;
+                //var sphere = new BoundingSphereD(pos2, 1000);
+                //var lst = new List<MyEntity>();
+                //MyGamePruningStructure.GetAllEntitiesInSphere(ref sphere,lst);
+                //foreach(var ent in MyEntities.GetEntities())
+                //    if(!lst.Contains(ent))
+                //        ent.Close();
+
                 //if (!MySandboxGame.Static.IsRunning)
                 //    return;
                 //VRageRender.MyRenderProxy.DebugDrawText2D(new Vector2(0.1f, 0.1f), "Destruction: " + (MyPerGameSettings.Destruction ? "ON" : "OFF"), Color.Red, 1);

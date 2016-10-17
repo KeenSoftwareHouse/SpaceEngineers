@@ -14,6 +14,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Graphics;
 using VRage;
 using Sandbox.Common;
+using Sandbox.Game.Entities.Blocks;
 using VRage;
 using VRage.Game;
 using VRage.Profiler;
@@ -258,7 +259,7 @@ namespace Sandbox.Game.Entities.Cube
                                 Vector3 min = it * gridSize - gridSizeHalf;
                                 Vector3 max = maxI * gridSize + gridSizeHalf;
                                 AddBox(it, maxI, ref min, ref max);
-                }
+                            }
                     }
                 }
 
@@ -306,13 +307,13 @@ namespace Sandbox.Game.Entities.Cube
 
             if (block.BlockDefinition.BlockTopology == MyBlockTopology.Cube)
             {
-                Debug.Assert(block.Min == block.Max, "Calculation assume that cube blocks have size 1x1x1");
-                var cubeTopology = block.BlockDefinition.CubeDefinition.CubeTopology;
+                var cubeTopology = block.BlockDefinition.CubeDefinition != null ? block.BlockDefinition.CubeDefinition.CubeTopology : MyCubeTopology.Box;
                 if (MyFakes.ENABLE_SIMPLE_GRID_PHYSICS)
                 {
                     physicsOption = MyPhysicsOption.Box;
                 }
-                else if ((cubeTopology == MyCubeTopology.Box) && block.CubeGrid.Skeleton.IsDeformed(block.Min, 0.05f, block.CubeGrid, false))
+                else if ((cubeTopology == MyCubeTopology.Box && block.BlockDefinition.CubeDefinition != null) && 
+                    block.CubeGrid.Skeleton.IsDeformed(block.Min, 0.05f, block.CubeGrid, false))
                 {
                     physicsOption = MyPhysicsOption.Convex;
                 }
@@ -451,7 +452,7 @@ namespace Sandbox.Game.Entities.Cube
             else
             {
                 pos *= block.CubeGrid.GridSizeHalf;
-        }
+            }
             return pos + block.Min * block.CubeGrid.GridSize;
         }
 
@@ -460,7 +461,7 @@ namespace Sandbox.Game.Entities.Cube
             ProfilerShort.Begin("AddConvexShape");
             Debug.Assert(block.Min == block.Max, "Calculation assume that cube blocks have size 1x1x1");
             Debug.Assert(block.BlockDefinition.BlockTopology == MyBlockTopology.Cube, "Convex shape is available only for cube block");
-            
+            Debug.Assert(block.BlockDefinition.CubeDefinition != null, "No cube definition! Only armor can be convex");
             m_tmpHelperVerts.Clear();
             MyBlockOrientation blockOrientation = block.Orientation;
             //.GetMatrix(out blockOrientation);

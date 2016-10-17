@@ -543,17 +543,23 @@ namespace VRage.Game
 
         [XmlArrayItem("GeneratedBlock")]
         [ProtoMember, DefaultValue(null)]
-        public SerializableDefinitionId[] GeneratedBlocks = null;
+        public SerializableDefinitionId[] GeneratedBlocks;
 
         [ProtoMember, DefaultValue(null)]
-        public string GeneratedBlockType = null;
+        public string GeneratedBlockType;
 
         // Defines if the block is mirrored version of some other block (mirrored block is usually used as block variant)
         [ProtoMember, DefaultValue(false)]
-        public bool Mirrored = false;
+        public bool Mirrored;
 
         [ProtoMember, DefaultValue(0)]
-        public int DamageEffectId = 0;
+        public int DamageEffectId;
+
+        [ProtoMember, DefaultValue("")]
+        public string DestroyEffect;
+
+        [ProtoMember, DefaultValue("")]
+        public string DestroySound;
 
         // Defines if the block is deformed by a skeleton by default (round blocks)
         [ProtoMember, DefaultValue(null)]
@@ -561,14 +567,14 @@ namespace VRage.Game
 
         // Defines if the block can be randomly rotated when line/plane building is applied to it.
         [ProtoMember, DefaultValue(false)]
-        public bool RandomRotation = false;
+        public bool RandomRotation;
 
         // Temporary flag that tells the oxygen system to treat this block as a full block
         [ProtoMember, DefaultValue(false)]
-        public bool IsAirTight = false;
+        public bool IsAirTight;
 
         [ProtoMember, DefaultValue(1)]
-        public int Points = 1;
+        public int Points;
 
         [ProtoMember, DefaultValue(0)]
         public int MaxIntegrity = 0;

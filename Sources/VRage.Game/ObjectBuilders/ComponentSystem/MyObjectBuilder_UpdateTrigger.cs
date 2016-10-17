@@ -5,9 +5,8 @@ namespace VRage.Game.ObjectBuilders.ComponentSystem
 {
     [ProtoContract]
     [MyObjectBuilderDefinition]
-    public class MyObjectBuilder_UpdateTrigger : MyObjectBuilder_ComponentBase
+    public class MyObjectBuilder_UpdateTrigger : MyObjectBuilder_TriggerBase
     {
-        [ProtoMember]
         public int Size = 25000;
     }
 }

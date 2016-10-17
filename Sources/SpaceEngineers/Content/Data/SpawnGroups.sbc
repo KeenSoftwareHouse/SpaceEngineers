@@ -1,6 +1,48 @@
 <?xml version="1.0"?>
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <SpawnGroups>
+      <SpawnGroup>
+      <Id>
+        <TypeId>SpawnGroupDefinition</TypeId>
+        <SubtypeId>Combatant mk.1_13 Weapons Ready</SubtypeId>
+      </Id>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <IsEncounter>false</IsEncounter>
+	  <IsPirate>false</IsPirate>
+      <Speed>0.0</Speed>
+      <Frequency>0.1</Frequency>
+      <Prefabs>
+        <Prefab SubtypeId="Combatant mk.1_13 Weapons Ready">
+          <Position>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+          </Position>
+          <Speed>0</Speed>
+        </Prefab>
+      </Prefabs>
+    </SpawnGroup>  
+    <SpawnGroup>
+      <Id>
+        <TypeId>SpawnGroupDefinition</TypeId>
+        <SubtypeId>Penguin_mk.1</SubtypeId>
+      </Id>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <IsEncounter>false</IsEncounter>
+	  <IsPirate>false</IsPirate>
+      <Speed>0.0</Speed>
+      <Frequency>0.1</Frequency>
+      <Prefabs>
+        <Prefab SubtypeId="Penguin_mk.1">
+          <Position>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+          </Position>
+          <Speed>0</Speed>
+        </Prefab>
+      </Prefabs>
+    </SpawnGroup>  
     <SpawnGroup>
       <Id>
         <TypeId>SpawnGroupDefinition</TypeId>
@@ -1674,6 +1716,53 @@
       </Prefabs>
     </SpawnGroup>
     
+    <SpawnGroup>
+      <Id>
+        <TypeId>SpawnGroupDefinition</TypeId>
+        <SubtypeId>DodgeDrone</SubtypeId>
+      </Id>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <IsEncounter>false</IsEncounter>
+      <IsPirate>true</IsPirate>
+      <ReactorsOn>true</ReactorsOn>
+      <Frequency>100.0</Frequency>
+      <Prefabs>
+        <Prefab SubtypeId="DodgeDrone">
+          <Position>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+          </Position>
+          <BeaconText>DodgeDrone</BeaconText>
+          <Speed>0.0</Speed>
+        </Prefab>
+      </Prefabs>
+    </SpawnGroup>
+
+    <SpawnGroup>
+      <Id>
+        <TypeId>SpawnGroupDefinition</TypeId>
+        <SubtypeId>PractiseShip</SubtypeId>
+      </Id>
+      <Icon>Textures\GUI\Icons\Fake.dds</Icon>
+      <IsEncounter>false</IsEncounter>
+      <IsPirate>false</IsPirate>
+      <ReactorsOn>true</ReactorsOn>
+      <Frequency>100.0</Frequency>
+      <Prefabs>
+        <Prefab SubtypeId="PractiseShip">
+          <Position>
+            <X>0.0</X>
+            <Y>0.0</Y>
+            <Z>0.0</Z>
+          </Position>
+          <BeaconText>PractiseShip</BeaconText>
+          <Speed>0.0</Speed>
+        </Prefab>
+      </Prefabs>
+    </SpawnGroup>
+
+
   </SpawnGroups>
 </Definitions>
 

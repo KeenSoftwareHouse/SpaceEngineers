@@ -20,6 +20,8 @@ namespace Sandbox.Engine.Voxels
 
             public readonly Vector3I Coords;
 
+            private byte m_maxLod;
+
             public byte MaxLod;
 
             // Volume with lod data
@@ -138,7 +140,7 @@ namespace Sandbox.Engine.Voxels
 
                 //using (Lock.AcquireSharedUsing())
                 {
-                    if (lodIndex > MaxLod)
+                    if (lodIndex > m_maxLod)
                         UpdateLodData(lodIndex);
 
                     if (dataTypes.Requests(MyStorageDataTypeEnum.Content))
@@ -216,7 +218,7 @@ namespace Sandbox.Engine.Voxels
                     Cached |= dataTypes;
 
                     Dirty |= dataTypes;
-                    MaxLod = 0;
+                    m_maxLod = 0;
                 }
             }
 
@@ -379,25 +381,22 @@ namespace Sandbox.Engine.Voxels
                     using (m_storageLock.AcquireSharedUsing())
                         ReadDatForChunk(chunk, required & ~chunk.Cached);
                 }
+
             }
         }
 
         private void ReadDatForChunk(VoxelChunk chunk, MyStorageDataTypeFlags data)
         {
-            using (chunk.Lock.AcquireExclusiveUsing())
-            {
-                var rangeStart = chunk.Coords << VoxelChunk.SizeBits;
-                var rangeEnd = ((chunk.Coords + 1) << VoxelChunk.SizeBits) - 1;
+            var rangeStart = chunk.Coords << VoxelChunk.SizeBits;
+            var rangeEnd = ((chunk.Coords + 1) << VoxelChunk.SizeBits) - 1;
 
-                MyStorageData storage = chunk.MakeData();
+            MyStorageData storage = chunk.MakeData();
 
-                MyVoxelRequestFlags flags = 0;
+            MyVoxelRequestFlags flags = 0;
 
-                ReadRangeInternal(storage, ref Vector3I.Zero, data, 0, ref rangeStart, ref rangeEnd, ref flags);
+            ReadRangeInternal(storage, ref Vector3I.Zero, data, 0, ref rangeStart, ref rangeEnd, ref flags);
 
-                chunk.Cached |= data;
-                chunk.MaxLod = 0;
-            }
+            chunk.Cached |= data;
         }
 
         private void DequeueDirtyChunk(out VoxelChunk chunk, out Vector3I coords)

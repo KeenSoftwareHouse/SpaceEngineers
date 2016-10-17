@@ -67,6 +67,9 @@ namespace Sandbox.Game.SessionComponents
         {
             base.Init(sessionComponent);
 
+            if (MyMultiplayer.Static != null && !MyMultiplayer.Static.IsServer)
+                MyMultiplayer.RaiseStaticEvent(x => RequestCurrentState);
+
             var builder = sessionComponent as MyObjectBuilder_SessionComponentResearch;
 
             if (builder == null || builder.Researches == null)
@@ -86,18 +89,48 @@ namespace Sandbox.Game.SessionComponents
         {
             base.InitFromDefinition(definition);
 
-            var def = definition as MySessionComponentResearchDefinition;
-            if (def == null)
-                return;
-
-            WhitelistMode = def.WhitelistMode;
-
-            foreach (var id in def.Researches)
+            if (MyMultiplayer.Static != null && !MyMultiplayer.Static.IsServer)
             {
-                var researchDef = MyDefinitionManager.Static.GetDefinition<MyResearchDefinition>(id);
-                foreach (var defId in researchDef.Entries)
-                    m_requiredResearch.Add(defId);
+                MyMultiplayer.RaiseStaticEvent(x => RequestCurrentState);
             }
+            else
+            {
+                var def = definition as MySessionComponentResearchDefinition;
+                if (def == null)
+                    return;
+
+                WhitelistMode = def.WhitelistMode;
+
+                foreach (var id in def.Researches)
+                {
+                    var researchDef = MyDefinitionManager.Static.GetDefinition<MyResearchDefinition>(id);
+                    foreach (var defId in researchDef.Entries)
+                        m_requiredResearch.Add(defId);
+                }
+            }
+        }
+
+        [Event, Reliable, Server]
+        private static void RequestCurrentState()
+        {
+            List<SerializableDefinitionId> ids = new List<SerializableDefinitionId>();
+            foreach (var id in Static.m_requiredResearch)
+                ids.Add((SerializableDefinitionId)id);
+            MyMultiplayer.RaiseStaticEvent(x => SendCurrentState, ids, Static.WhitelistMode, MyEventContext.Current.Sender);
+        }
+
+        [Event, Reliable, Client]
+        private static void SendCurrentState(List<SerializableDefinitionId> requiredList, bool whitelist)
+        {
+            Static.m_requiredResearch.Clear();
+            foreach (var id in requiredList)
+            {
+                MyDefinitionBase definition;
+                if (!MyDefinitionManager.Static.TryGetDefinition(id, out definition))
+                    continue;
+                Static.m_requiredResearch.Add(definition.Id);
+            }
+            Static.WhitelistMode = whitelist;
         }
 
         public override MyObjectBuilder_SessionComponent GetObjectBuilder()
@@ -265,7 +298,10 @@ namespace Sandbox.Game.SessionComponents
 
         public bool RequiresResearch(MyDefinitionId id)
         {
-            return WhitelistMode || m_requiredResearch.Contains(id);
+            if(WhitelistMode)
+                return !m_requiredResearch.Contains(id);
+            else
+                return m_requiredResearch.Contains(id);
         }
 
         public bool IsResearchUnlocked(MyCharacter character, MyDefinitionId id)
@@ -278,9 +314,6 @@ namespace Sandbox.Game.SessionComponents
 
         public bool IsResearchUnlocked(long identityId, MyDefinitionId id)
         {
-            if (MySession.Static != null && MySession.Static.CreativeMode)
-                return true;
-
             HashSet<MyDefinitionId> unlockedItems;
             if (!m_unlockedResearch.TryGetValue(identityId, out unlockedItems))
                 return false;
@@ -298,9 +331,7 @@ namespace Sandbox.Game.SessionComponents
 
         public void ResetResearch(long identityId)
         {
-            HashSet<MyDefinitionId> unlockedItems;
-            if (m_unlockedResearch.TryGetValue(identityId, out unlockedItems))
-                unlockedItems.Clear();
+            MyMultiplayer.RaiseStaticEvent(x => ResetResearchSync, identityId);
         }
 
         public void DebugUnlockAllResearch(MyCharacter character)
@@ -353,5 +384,138 @@ namespace Sandbox.Game.SessionComponents
                 }
             }
         }
+
+        #region Visual Scripting methods
+
+        //add item to research list
+        public void AddRequiredResearch(MyDefinitionId itemId)
+        {
+            if (itemId.TypeId.IsNull || itemId.SubtypeId == null)
+            {
+                Debug.Fail("Provided typeId is invalid: " + itemId.ToString());
+                return;
+            }
+            SerializableDefinitionId serializableId = itemId;
+            MyMultiplayer.RaiseStaticEvent(x => AddRequiredResearchSync, serializableId);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void AddRequiredResearchSync(SerializableDefinitionId itemId)
+        {
+            MyDefinitionBase definition;
+            if (!MyDefinitionManager.Static.TryGetDefinition(itemId, out definition))
+                return;
+
+            if (!Static.m_requiredResearch.Contains(definition.Id))
+                Static.m_requiredResearch.Add(definition.Id);
+        }
+
+        //remove item from research list
+        public void RemoveRequiredResearch(MyDefinitionId itemId)
+        {
+            if (itemId.TypeId.IsNull || itemId.SubtypeId == null)
+            {
+                Debug.Fail("Provided typeId is invalid: " + itemId.ToString());
+                return;
+            }
+            SerializableDefinitionId serializableId = itemId;
+            MyMultiplayer.RaiseStaticEvent(x => RemoveRequiredResearchSync, serializableId);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void RemoveRequiredResearchSync(SerializableDefinitionId itemId)
+        {
+            MyDefinitionBase definition;
+            if (!MyDefinitionManager.Static.TryGetDefinition(itemId, out definition))
+                return;
+
+            Static.m_requiredResearch.Remove(definition.Id);
+        }
+
+        //clear research list
+        public void ClearRequiredResearch()
+        {
+            MyMultiplayer.RaiseStaticEvent(x => ClearRequiredResearchSync);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void ClearRequiredResearchSync()
+        {
+            Static.m_requiredResearch.Clear();
+        }
+
+        //clear player unlocks for all players
+        public void ResetResearchForAll()
+        {
+            MyMultiplayer.RaiseStaticEvent(x => ResetResearchForAllSync);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void ResetResearchForAllSync()
+        {
+            Static.m_unlockedResearch.Clear();
+        }
+
+        //lock player research
+        public void LockResearch(long characterId, MyDefinitionId itemId)
+        {
+            if (itemId.TypeId.IsNull || itemId.SubtypeId == null)
+            {
+                Debug.Fail("Provided typeId is invalid: " + itemId.ToString());
+                return;
+            }
+            SerializableDefinitionId serializableId = itemId;
+            MyMultiplayer.RaiseStaticEvent(x => LockResearchSync, characterId, serializableId);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void LockResearchSync(long characterId, SerializableDefinitionId itemId)
+        {
+            MyDefinitionBase definition;
+            if (!MyDefinitionManager.Static.TryGetDefinition(itemId, out definition))
+                return;
+            if (Static.m_unlockedResearch.ContainsKey(characterId))
+                Static.m_unlockedResearch[characterId].Remove(definition.Id);
+        }
+
+        //unlock player research
+        public void UnlockResearchDirect(long characterId, MyDefinitionId itemId)
+        {
+            if (itemId.TypeId.IsNull || itemId.SubtypeId == null)
+            {
+                Debug.Fail("Provided typeId is invalid: " + itemId.ToString());
+                return;
+            }
+            SerializableDefinitionId serializableId = itemId;
+            MyMultiplayer.RaiseStaticEvent(x => UnlockResearchDirectSync, characterId, serializableId);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void UnlockResearchDirectSync(long characterId, SerializableDefinitionId itemId)
+        {
+            MyDefinitionBase definition;
+            if (!MyDefinitionManager.Static.TryGetDefinition(itemId, out definition))
+                return;
+            if (Static.m_unlockedResearch.ContainsKey(characterId) && Static.m_unlockedResearch[characterId].Contains(definition.Id))
+                return;
+            if (!Static.m_unlockedResearch.ContainsKey(characterId))
+                Static.m_unlockedResearch.Add(characterId, new HashSet<MyDefinitionId>());
+            Static.m_unlockedResearch[characterId].Add(definition.Id);
+        }
+
+        //unlock player research
+        public void SwitchWhitelistMode(bool whitelist)
+        {
+            MyMultiplayer.RaiseStaticEvent(x => SwitchWhitelistModeSync, whitelist);
+        }
+        [Event, Reliable, Server, Broadcast]
+        private static void SwitchWhitelistModeSync(bool whitelist)
+        {
+            Static.WhitelistMode = whitelist;
+        }
+
+        //reset player research
+        [Event, Reliable, Server, Broadcast]
+        private static void ResetResearchSync(long identityId)
+        {
+            if (Static.m_unlockedResearch.ContainsKey(identityId))
+                Static.m_unlockedResearch[identityId].Clear();
+        }
+
+        #endregion
     }
 }

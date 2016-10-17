@@ -39,6 +39,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Definitions.Animation;
@@ -1186,6 +1187,10 @@ namespace Sandbox.Game.Entities.Character
                 inventory.FixInventoryVolume(m_characterDefinition.InventoryDefinition.InventoryVolume);
             }
 
+            //GR: This is a good spot for registering multiple events and calling them a lot of times... So unregister first and then register
+            this.GetInventory().ContentsChanged -= inventory_OnContentsChanged;
+            this.GetInventory().BeforeContentsChanged -= inventory_OnBeforeContentsChanged;
+            this.GetInventory().BeforeRemovedFromContainer -= inventory_OnRemovedFromContainer;
             this.GetInventory().ContentsChanged += inventory_OnContentsChanged;
             this.GetInventory().BeforeContentsChanged += inventory_OnBeforeContentsChanged;
             this.GetInventory().BeforeRemovedFromContainer += inventory_OnRemovedFromContainer;
@@ -5579,7 +5584,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void OnReleaseControl(IMyCameraController newCameraController)
         {
-            IsInFirstPersonView = false;
+            //IsInFirstPersonView = false; //AB: Why this?
         }
 
         private void ResetHeadRotation()
@@ -6515,7 +6520,11 @@ namespace Sandbox.Game.Entities.Character
         {
             if (ControllerInfo.Controller != null && ControllerInfo.Controller.Player != null)
             {
-                MySessionComponentMissionTriggers.PlayerDied(this.ControllerInfo.Controller.Player);
+                MySessionComponentMissionTriggers.PlayerDied(ControllerInfo.Controller.Player);
+                if (MyVisualScriptLogicProvider.PlayerDied != null && !IsBot)
+                    MyVisualScriptLogicProvider.PlayerDied(ControllerInfo.Controller.Player.Identity.IdentityId);
+                if (MyVisualScriptLogicProvider.NPCDied != null && IsBot)
+                    MyVisualScriptLogicProvider.NPCDied(DefinitionId.HasValue ? DefinitionId.Value.SubtypeName : "");
                 if (!MySessionComponentMissionTriggers.CanRespawn(this.ControllerInfo.Controller.Player.Id))
                 {
                     m_currentRespawnCounter = -1;
@@ -7244,6 +7253,9 @@ namespace Sandbox.Game.Entities.Character
                 float oldHeadLocalY = m_headLocalYAngle;
 
                 Init(characterOb);
+                //GR: Do this in order to reset to max volume and then be able to reinitialize inventory's max volume. Do this only when model is to be changed
+                this.GetInventory().ResetVolume();
+                InitInventory(characterOb);
 
                 m_headLocalXAngle = oldHeadLocalX;
                 m_headLocalYAngle = oldHeadLocalY;

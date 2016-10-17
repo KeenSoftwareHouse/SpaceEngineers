@@ -56,6 +56,8 @@ namespace Sandbox.Game.Entities.Debris
         private const int MaxDebrisCount = 100;
         private int m_debrisCount = 0;
 
+        private FastResourceLock m_debrislock = new FastResourceLock();
+
         public MyDebris()
         {
             //m_debrisModels = new string[]
@@ -155,8 +157,8 @@ namespace Sandbox.Game.Entities.Debris
             MyDebug.AssertDebug(Static == null);
             m_positionBuffer = new List<Vector3D>(MyDebrisConstants.APPROX_NUMBER_OF_DEBRIS_OBJECTS_PER_MODEL_EXPLOSION);
             m_voxelDebrisOffsets = new List<Vector3>(MyDebrisConstants.EXPLOSION_VOXEL_DEBRIS_OFFSET_COUNT_3);
-            m_desc.LifespanMinInMiliseconds = MyDebrisConstants.EXPLOSION_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS;
-            m_desc.LifespanMaxInMiliseconds = MyDebrisConstants.EXPLOSION_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS;
+            m_desc.LifespanMinInMiliseconds = MyDebrisConstants.EXPLOSION_VOXEL_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS;
+            m_desc.LifespanMaxInMiliseconds = MyDebrisConstants.EXPLOSION_VOXEL_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS;
             m_desc.OnCloseAction = OnDebrisClosed;
 
             GenerateVoxelDebrisPositionOffsets(m_voxelDebrisOffsets);
@@ -174,11 +176,14 @@ namespace Sandbox.Game.Entities.Debris
                 return;
             MyDebug.AssertDebug(Static != null);
 
-            foreach (var shape in m_shapes)
+            using (m_debrislock.AcquireExclusiveUsing())
             {
-                shape.Value.RemoveReference();
+                foreach (var shape in m_shapes)
+                {
+                    shape.Value.RemoveReference();
+                }
+                m_shapes.Clear();
             }
-            m_shapes.Clear();
 
             m_positionBuffer = null;
             Static = null;
@@ -439,6 +444,8 @@ namespace Sandbox.Game.Entities.Debris
             m_desc.Model = model;
             newObj.Debris.Init(m_desc);
             m_debrisCount++;
+            m_desc.LifespanMinInMiliseconds = MyDebrisConstants.EXPLOSION_MODEL_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS;
+            m_desc.LifespanMaxInMiliseconds = MyDebrisConstants.EXPLOSION_MODEL_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS;
             return newObj;
         }
     }

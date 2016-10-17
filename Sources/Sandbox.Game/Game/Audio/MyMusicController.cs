@@ -35,7 +35,8 @@ namespace Sandbox.Game.Audio
             building,
             danger,
             lightFight,
-            heavyFight
+            heavyFight,
+            custom
         }
 
         #endregion
@@ -46,7 +47,7 @@ namespace Sandbox.Game.Audio
         private const int METEOR_SHOWER_CROSSFADE_LENGTH = 8000;//in miliseconds
 
         private const int DEFAULT_NO_MUSIC_TIME_MIN = 2;//in seconds
-        private const int DEFAULT_NO_MUSIC_TIME_MAX = 11;//in seconds
+        private const int DEFAULT_NO_MUSIC_TIME_MAX = 8;//in seconds
         private const int FAST_NO_MUSIC_TIME_MIN = 1;//in seconds
         private const int FAST_NO_MUSIC_TIME_MAX = 4;//in seconds
 
@@ -79,6 +80,7 @@ namespace Sandbox.Game.Audio
 
         private static MyStringHash m_hashCrossfade = MyStringHash.GetOrCompute("CrossFade");
         private static MyStringHash m_hashFadeIn = MyStringHash.GetOrCompute("FadeIn");
+        private static MyStringHash m_hashFadeOut = MyStringHash.GetOrCompute("FadeOut");
         private static MyStringId m_stringIdDanger = MyStringId.GetOrCompute("Danger");
         private static MyStringId m_stringIdBuilding = MyStringId.GetOrCompute("Building");
         private static MyStringId m_stringIdLightFight = MyStringId.GetOrCompute("LightFight");
@@ -94,6 +96,9 @@ namespace Sandbox.Game.Audio
         public MyCueId CueIdPlaying { get; private set; }
         public bool Active = false;
         public float NextMusicTrackIn { get { return m_noMusicTimer; } }
+        public bool CanChangeCategoryGlobal = true;
+        private bool CanChangeCategoryLocal = true;
+        public bool CanChangeCategory { get { return CanChangeCategoryGlobal && CanChangeCategoryLocal; } }
 
         #endregion
 
@@ -177,16 +182,19 @@ namespace Sandbox.Game.Audio
                     m_noMusicTimer -= MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS;
                 else
                 {
-                    if (m_fightHeavy >= FIGHTING_NEED)
-                        m_currentMusicCategory = MusicCategory.heavyFight;
-                    else if (m_fightLight >= FIGHTING_NEED)
-                        m_currentMusicCategory = MusicCategory.lightFight;
-                    else if (m_meteorShower > 0)
-                        m_currentMusicCategory = MusicCategory.danger;
-                    else if (m_building >= BUILDING_NEED)
-                        m_currentMusicCategory = MusicCategory.building;
-                    else
-                        m_currentMusicCategory = MusicCategory.location;
+                    if (CanChangeCategory)
+                    {
+                        if (m_fightHeavy >= FIGHTING_NEED)
+                            m_currentMusicCategory = MusicCategory.heavyFight;
+                        else if (m_fightLight >= FIGHTING_NEED)
+                            m_currentMusicCategory = MusicCategory.lightFight;
+                        else if (m_meteorShower > 0)
+                            m_currentMusicCategory = MusicCategory.danger;
+                        else if (m_building >= BUILDING_NEED)
+                            m_currentMusicCategory = MusicCategory.building;
+                        else
+                            m_currentMusicCategory = MusicCategory.location;
+                    }
 
                     switch (m_currentMusicCategory)
                     {
@@ -196,6 +204,18 @@ namespace Sandbox.Game.Audio
 
                         case MusicCategory.danger:
                             PlayDangerMusic();
+                            break;
+
+                        case MusicCategory.lightFight:
+                            PlayFightingMusic(true);
+                            break;
+
+                        case MusicCategory.heavyFight:
+                            PlayFightingMusic(false);
+                            break;
+
+                        case MusicCategory.custom:
+                            PlaySpecificMusicCategory(CategoryLast, false);
                             break;
 
                         default:
@@ -216,7 +236,7 @@ namespace Sandbox.Game.Audio
         {
             m_building = Math.Min(BUILDING_NEED, m_building + amount);
             m_buildingCooldown = Math.Min(BUILDING_COOLDOWN, m_buildingCooldown + amount * 5);
-            if (m_building >= BUILDING_NEED)
+            if (CanChangeCategory && m_building >= BUILDING_NEED)
             {
                 m_noMusicTimer = m_random.Next(FAST_NO_MUSIC_TIME_MIN, FAST_NO_MUSIC_TIME_MAX);
                 if ((int)m_currentMusicCategory < (int)MusicCategory.building)
@@ -227,7 +247,7 @@ namespace Sandbox.Game.Audio
         public void MeteorShowerIncoming()
         {
             int now = MyFpsManager.GetSessionTotalFrames();
-            if (Math.Abs(m_lastMeteorShower - now) < METEOR_SHOWER_MUSIC_FREQUENCY)
+            if (!CanChangeCategory || Math.Abs(m_lastMeteorShower - now) < METEOR_SHOWER_MUSIC_FREQUENCY)
                 return;
             m_meteorShower = 10;
             m_lastMeteorShower = now;
@@ -245,6 +265,8 @@ namespace Sandbox.Game.Audio
                 m_fightHeavy = Math.Min(m_fightHeavy + amount, FIGHTING_NEED);
                 m_fightHeavyCooldown = FIGHTING_COOLDOWN_HEAVY;
             }
+            if (!CanChangeCategory)
+                return;
             if (m_fightHeavy >= FIGHTING_NEED && (int)m_currentMusicCategory < (int)MusicCategory.heavyFight)
                 PlayFightingMusic(false);
             else if (m_fightLight >= FIGHTING_NEED && (int)m_currentMusicCategory < (int)MusicCategory.lightFight)
@@ -274,7 +296,7 @@ namespace Sandbox.Game.Audio
             if (m_musicSourceVoice != null && m_musicSourceVoice.IsPlaying)
                 PlayMusic(CueIdPlaying, m_hashCrossfade, METEOR_SHOWER_CROSSFADE_LENGTH, new MyCueId[] { SelectCueFromCategory(m_stringIdDanger) }, false);
             else
-                PlayMusic(CueIdPlaying, m_hashFadeIn, METEOR_SHOWER_CROSSFADE_LENGTH / 2, new MyCueId[] { });
+                PlayMusic(SelectCueFromCategory(CategoryPlaying), m_hashFadeIn, METEOR_SHOWER_CROSSFADE_LENGTH / 2, new MyCueId[] { });
 
             m_noMusicTimer = m_random.Next(DEFAULT_NO_MUSIC_TIME_MIN, DEFAULT_NO_MUSIC_TIME_MAX);
         }
@@ -286,7 +308,7 @@ namespace Sandbox.Game.Audio
             if (m_musicSourceVoice != null && m_musicSourceVoice.IsPlaying)
                 PlayMusic(CueIdPlaying, m_hashCrossfade, BUILDING_CROSSFADE_LENGTH, new MyCueId[] { SelectCueFromCategory(m_stringIdBuilding) }, false);
             else
-                PlayMusic(CueIdPlaying, m_hashFadeIn, BUILDING_CROSSFADE_LENGTH / 2, new MyCueId[] { });
+                PlayMusic(SelectCueFromCategory(CategoryPlaying), m_hashFadeIn, BUILDING_CROSSFADE_LENGTH / 2, new MyCueId[] { });
 
             m_noMusicTimer = m_random.Next(DEFAULT_NO_MUSIC_TIME_MIN, DEFAULT_NO_MUSIC_TIME_MAX);
         }
@@ -298,7 +320,7 @@ namespace Sandbox.Game.Audio
             if (m_musicSourceVoice != null && m_musicSourceVoice.IsPlaying)
                 PlayMusic(CueIdPlaying, m_hashCrossfade, FIGHTING_CROSSFADE_LENGTH, new MyCueId[] { SelectCueFromCategory(CategoryPlaying) }, false);
             else
-                PlayMusic(CueIdPlaying, m_hashFadeIn, FIGHTING_CROSSFADE_LENGTH / 2, new MyCueId[] { });
+                PlayMusic(SelectCueFromCategory(CategoryPlaying), m_hashFadeIn, FIGHTING_CROSSFADE_LENGTH / 2, new MyCueId[] { });
 
             m_noMusicTimer = m_random.Next(FAST_NO_MUSIC_TIME_MIN, FAST_NO_MUSIC_TIME_MAX);
         }
@@ -372,6 +394,46 @@ namespace Sandbox.Game.Audio
 
         #region Utility
 
+        public void PlaySpecificMusicTrack(MyCueId cue, bool playAtLeastOnce)
+        {
+            if (!cue.IsNull)
+            {
+                if (m_musicSourceVoice != null && m_musicSourceVoice.IsPlaying)
+                    PlayMusic(CueIdPlaying, m_hashCrossfade, BUILDING_CROSSFADE_LENGTH, new MyCueId[] { cue }, false);
+                else
+                    PlayMusic(cue, m_hashFadeIn, BUILDING_CROSSFADE_LENGTH / 2, new MyCueId[] { });
+
+                m_noMusicTimer = m_random.Next(DEFAULT_NO_MUSIC_TIME_MIN, DEFAULT_NO_MUSIC_TIME_MAX);
+                CanChangeCategoryLocal = !playAtLeastOnce;
+                m_currentMusicCategory = MusicCategory.location;
+            }
+        }
+
+        public void PlaySpecificMusicCategory(MyStringId category, bool playAtLeastOnce)
+        {
+            if (category.Id != 0)
+            {
+                CategoryPlaying = category;
+                if (m_musicSourceVoice != null && m_musicSourceVoice.IsPlaying)
+                    PlayMusic(CueIdPlaying, m_hashCrossfade, BUILDING_CROSSFADE_LENGTH, new MyCueId[] { SelectCueFromCategory(CategoryPlaying) }, false);
+                else
+                    PlayMusic(SelectCueFromCategory(CategoryPlaying), m_hashFadeIn, BUILDING_CROSSFADE_LENGTH / 2, new MyCueId[] { });
+
+                m_noMusicTimer = m_random.Next(DEFAULT_NO_MUSIC_TIME_MIN, DEFAULT_NO_MUSIC_TIME_MAX);
+                CanChangeCategoryLocal = !playAtLeastOnce;
+                m_currentMusicCategory = MusicCategory.custom;
+            }
+        }
+
+        public void SetSpecificMusicCategory(MyStringId category)
+        {
+            if (category.Id != 0)
+            {
+                CategoryPlaying = category;
+                m_currentMusicCategory = MusicCategory.custom;
+            }
+        }
+
         private void PlayMusic(MyCueId cue, MyStringHash effect, int effectDuration = 2000, MyCueId[] cueIds = null, bool play = true)
         {
             if (MyAudio.Static == null)
@@ -416,6 +478,7 @@ namespace Sandbox.Game.Audio
             {
                 CategoryLast = CategoryPlaying;
                 CategoryPlaying = MyStringId.NullOrEmpty;
+                CanChangeCategoryLocal = true;
             }
         }
 

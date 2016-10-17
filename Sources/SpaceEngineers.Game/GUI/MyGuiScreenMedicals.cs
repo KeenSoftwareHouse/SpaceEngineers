@@ -20,6 +20,7 @@ using Sandbox.Graphics.GUI;
 using SpaceEngineers.Game.Entities.Blocks;
 using SpaceEngineers.Game.World;
 using VRage;
+using VRage.Audio;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Input;
@@ -121,7 +122,7 @@ namespace SpaceEngineers.Game.GUI
             if (MyInput.Static.IsNewKeyPressed(MyKeys.Escape))
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-                MyGuiScreenMainMenu.AddMainMenu();
+                MyGuiSandbox.AddScreen(new MyGuiScreenMainMenu());
             }
         }
 

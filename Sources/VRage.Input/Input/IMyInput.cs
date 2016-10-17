@@ -39,6 +39,12 @@ namespace VRage.Input
 
         bool Update(bool gameFocused);
 
+        // Whitelists/Blacklists given control
+        void SetControlBlock(MyStringId controlEnum, bool block = false);
+
+        // Retruns true if the control was blacklisted
+        bool IsControlBlocked(MyStringId controlEnum);
+
         //  Return true if ANY key IS pressed, that means that the key was pressed now. During previous Update it wasn't pressed at all.
         bool IsAnyKeyPress();
 

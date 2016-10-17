@@ -12,7 +12,7 @@ using VRageRender;
 
 namespace Sandbox.Game.Screens.DebugScreens
 {
-    [MyDebugScreen("Game", "Crash tests")]
+    [MyDebugScreen("VRage", "Crash tests")]
     class MyGuiScreenDebugCrashTests : MyGuiScreenDebugBase
     {
         public MyGuiScreenDebugCrashTests()

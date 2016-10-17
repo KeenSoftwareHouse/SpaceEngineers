@@ -18,6 +18,7 @@ using Sandbox.Engine.Networking;
 using VRage.Network;
 using Sandbox.Graphics;
 using Sandbox.Engine.Utils;
+using VRage.Audio;
 using VRage.Game;
 
 namespace Sandbox.Game.Gui

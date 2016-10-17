@@ -33,6 +33,7 @@ namespace Sandbox.Engine.Multiplayer
 
         public const string HostNameTag = "host";
         public const string WorldNameTag = "world";
+        public const string HostSteamIdTag = "host_steamId";
         public const string WorldSizeTag = "worldSize";
         public const string AppVersionTag = "appVersion";
         public const string GameModeTag = "gameMode";

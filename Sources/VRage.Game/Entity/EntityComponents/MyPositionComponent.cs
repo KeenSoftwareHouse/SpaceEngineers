@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using VRage.Game.Entity;
+using VRage.ModAPI;
 using VRage.Profiler;
 using VRageMath;
 using VRage.Utils;
@@ -144,7 +146,7 @@ namespace VRage.Game.Components
             //ProfilerShort.Begin("OnWorldPositionChanged");
             Debug.Assert(source != this && (Container.Entity == null || source != Container.Entity), "Recursion detected!");
 
-            if (Entity.Parent == null)
+            if (Entity.Parent == null || (Entity.Flags & EntityFlags.IsGamePrunningStructureObject) != 0)
             {
                 Container.Entity.UpdateGamePruningStructure();
             }

@@ -675,7 +675,7 @@ namespace Sandbox.Game.Components
             // turn off breathing when helmet is off and there is no oxygen https://app.asana.com/0/64822442925263/33431071589757
             if (m_character.OxygenComponent != null && m_character.Breath != null)
             {
-                if (MySession.Static.Settings.EnableOxygen)
+                if (MySession.Static.Settings.EnableOxygen && MySession.Static.CreativeMode == false)
                 {
                     if (m_character.Parent is MyCockpit && (m_character.Parent as MyCockpit).BlockDefinition.IsPressurized)
                     {

@@ -32,6 +32,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.ModAPI.Weapons;
+using VRage.Audio;
 using VRage.Sync;
 
 #endregion

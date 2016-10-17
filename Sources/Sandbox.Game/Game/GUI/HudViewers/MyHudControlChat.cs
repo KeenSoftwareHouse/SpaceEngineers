@@ -61,13 +61,10 @@ namespace Sandbox.Game.GUI.HudViewers
 
                 foreach (var message in m_chat.MessagesQueue)
                 {
-                    bool isMe = Sandbox.Engine.Networking.MySteam.UserName == message.Item1;
-
                     var username = new StringBuilder(message.Item1);
-                    username.Append(":");
-                    AppendText(username, isMe ? MyFontEnum.Blue : MyFontEnum.White, TextScale, Vector4.One);
-                    AppendText(new StringBuilder("    "));
-                    AppendText(new StringBuilder(message.Item2));
+                    username.Append(": ");
+                    AppendText(username, message.Item3, TextScale, Vector4.One);
+                    AppendText(new StringBuilder(message.Item2), MyFontEnum.White, TextScale, Vector4.One);
                     AppendLine();
                 }
 

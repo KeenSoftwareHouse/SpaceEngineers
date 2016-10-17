@@ -93,14 +93,14 @@ namespace Sandbox.Game.Multiplayer
                 PrepareScenario(PrepStartTime);
 
             MyJoinGameHelper.DownloadScenarioWorld(MyMultiplayer.Static);
-            MyGuiScreenLoadSandbox.ScenarioWorldLoaded += MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
+            MySessionLoader.ScenarioWorldLoaded += MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
         }                    
 
         private static void MyGuiScreenLoadSandbox_ScenarioWorldLoaded()
         {
             Debug.Assert(!Sync.IsServer);
 
-            MyGuiScreenLoadSandbox.ScenarioWorldLoaded -= MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
+            MySessionLoader.ScenarioWorldLoaded -= MyGuiScreenLoadSandbox_ScenarioWorldLoaded;
 
             MyMultiplayer.RaiseStaticEvent(s => MySyncScenario.OnPlayerReadyToStartScenario, Sync.MyId);
 

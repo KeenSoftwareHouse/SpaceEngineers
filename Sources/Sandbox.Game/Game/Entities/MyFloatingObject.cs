@@ -38,6 +38,7 @@ using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Interfaces;
 using Sandbox.Engine.Multiplayer;
+using VRage.Audio;
 using VRage.Sync;
 using VRageRender.Import;
 using IMyEntity = VRage.ModAPI.IMyEntity;

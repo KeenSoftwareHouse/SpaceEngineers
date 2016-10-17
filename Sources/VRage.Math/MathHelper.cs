@@ -292,6 +292,22 @@ namespace VRageMath
             return (float)((double)value1 * (double)num4 + (double)value2 * (double)num5 + (double)tangent1 * (double)num6 + (double)tangent2 * (double)num7);
         }
 
+        public static Vector3D CalculateBezierPoint(float t, Vector3D p0, Vector3D p1, Vector3D p2, Vector3D p3)
+        {
+            float u = 1 - t;
+            float tt = t * t;
+            float uu = u * u;
+            float uuu = uu * u;
+            float ttt = tt * t;
+
+            Vector3D p = uuu * p0; //first term
+            p += 3 * uu * t * p1; //second term
+            p += 3 * u * tt * p2; //third term
+            p += ttt * p3; //fourth term
+
+            return p;
+        }
+
         /// <summary>
         /// Reduces a given angle to a value between π and -π.
         /// </summary>

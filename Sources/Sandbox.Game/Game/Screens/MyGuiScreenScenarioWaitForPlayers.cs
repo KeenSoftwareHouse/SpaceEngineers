@@ -17,6 +17,7 @@ using VRage.Library.Utils;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.GameSystems;
+using VRage.Audio;
 using VRage.Game;
 
 namespace Sandbox.Game.GUI
@@ -76,7 +77,7 @@ namespace Sandbox.Game.GUI
             if (MyInput.Static.IsNewKeyPressed(MyKeys.Escape))
             {
                 MyGuiAudio.PlaySound(MyGuiSounds.HudMouseClick);
-                MyGuiScreenMainMenu.AddMainMenu();
+                MyGuiSandbox.AddScreen(MyGuiSandbox.CreateScreen(MyPerGameSettings.GUI.MainMenu));
             }
         }
 
@@ -102,7 +103,7 @@ namespace Sandbox.Game.GUI
         private void OnLeaveClicked(MyGuiControlButton sender)
         {
             CloseScreen();
-            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+            MySessionLoader.UnloadAndExitToMenu();
         }
 
     }

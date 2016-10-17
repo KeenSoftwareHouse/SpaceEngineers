@@ -721,7 +721,10 @@ namespace Sandbox.Game.Entities.Cube
             var len = velAtPoint.Normalize();
             Vector3 normal;
             if (len > 5)
-                normal = Vector3D.TransformNormal(velAtPoint, invWorld) * pt.ContactPointDirection;
+            {
+                normal = Vector3.TransformNormal(velAtPoint, invWorld) * pt.ContactPointDirection;
+                normal.Normalize();
+            }
             else
                 normal = pt.ContactPointDirection * pt.ContactPoint.Normal;
             int destroyed = ApplyDeformation(deformationOffset, softAreaPlanar, softAreaVertical, pos, normal, MyDamageType.Deformation, attackerId: otherEntity != null ? otherEntity.EntityId : 0);

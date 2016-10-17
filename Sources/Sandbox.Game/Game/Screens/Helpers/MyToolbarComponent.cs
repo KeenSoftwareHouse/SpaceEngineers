@@ -1,6 +1,4 @@
-﻿using Sandbox.Common;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Engine.Utils;
+﻿using Sandbox.Engine.Utils;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Gui;
 using Sandbox.Game.GUI;
@@ -13,10 +11,8 @@ using VRage;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Input;
-using VRage.Library.Utils;
 using VRage.Utils;
-using VRage.Utils;
-using Sandbox.Game.Weapons;
+using VRage.Audio;
 using VRage.Profiler;
 using VRageRender.Utils;
 
@@ -158,7 +154,7 @@ namespace Sandbox.Game.Screens.Helpers
                 var focusedScreen = MyScreenManager.GetScreenWithFocus();
                 if ((focusedScreen == MyGuiScreenGamePlay.Static ||
                     IsToolbarControlShown ) &&
-                    CurrentToolbar != null)
+                    CurrentToolbar != null && !MyGuiScreenGamePlay.DisableInput)
                 {
                     {
                         for (int i = 0; i < m_slotControls.Length; i++)
@@ -167,7 +163,7 @@ namespace Sandbox.Game.Screens.Helpers
                             {
                                 if (!MyInput.Static.IsAnyCtrlKeyPressed())
                                 {
-                                    if ((focusedScreen == MyGuiScreenGamePlay.Static ||
+                                    if ((focusedScreen is MyGuiScreenScriptingTools|| focusedScreen == MyGuiScreenGamePlay.Static ||
                                             (focusedScreen is MyGuiScreenCubeBuilder || focusedScreen is MyGuiScreenToolbarConfigBase) && ((MyGuiScreenToolbarConfigBase)focusedScreen).AllowToolbarKeys()) &&
                                             CurrentToolbar != null)
                                         CurrentToolbar.ActivateItemAtSlot(i);
@@ -189,15 +185,18 @@ namespace Sandbox.Game.Screens.Helpers
                             CurrentToolbar.SelectNextSlot();
                         else if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_PREV_ITEM, MyControlStateType.NEW_PRESSED))
                             CurrentToolbar.SelectPreviousSlot();
-                        if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_UP, MyControlStateType.NEW_PRESSED))
+                        if (MySpectator.Static.SpectatorCameraMovement != MySpectatorCameraMovementEnum.ConstantDelta)
                         {
-                            MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
-                            CurrentToolbar.PageUp();
-                        }
-                        if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_DOWN, MyControlStateType.NEW_PRESSED))
-                        {
-                            MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
-                            CurrentToolbar.PageDown();
+                            if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_UP, MyControlStateType.NEW_PRESSED))
+                            {
+                                MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
+                                CurrentToolbar.PageUp();
+                            }
+                            if (MyControllerHelper.IsControl(context, MyControlsSpace.TOOLBAR_DOWN, MyControlStateType.NEW_PRESSED))
+                            {
+                                MyGuiAudio.PlaySound(MyGuiSounds.HudClick);
+                                CurrentToolbar.PageDown();
+                            }
                         }
                     }
                 }

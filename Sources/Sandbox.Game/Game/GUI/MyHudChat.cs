@@ -8,6 +8,7 @@ using Sandbox.Graphics.GUI;
 using SteamSDK;
 using System;
 using System.Collections.Generic;
+using VRage.Game;
 
 
 #endregion
@@ -21,7 +22,7 @@ namespace Sandbox.Game.Gui
         static readonly int MAX_MESSAGES_IN_CHAT = 10;
         static readonly int MAX_MESSAGE_TIME = 15000; //ms
 
-        public Queue<Tuple<string, string>> MessagesQueue = new Queue<Tuple<string, string>>();
+        public Queue<Tuple<string, string, MyFontEnum>> MessagesQueue = new Queue<Tuple<string, string, MyFontEnum>>();
 
         private int m_lastUpdateTime = int.MaxValue;
 
@@ -35,19 +36,21 @@ namespace Sandbox.Game.Gui
         public void RegisterChat(MyMultiplayerBase multiplayer)
         {
             multiplayer.ChatMessageReceived += Multiplayer_ChatMessageReceived;
+            multiplayer.ScriptedChatMessageReceived += multiplayer_ScriptedChatMessageReceived;
         }
 
         public void UnregisterChat(MyMultiplayerBase multiplayer)
         {
             multiplayer.ChatMessageReceived -= Multiplayer_ChatMessageReceived;
+            multiplayer.ScriptedChatMessageReceived -= multiplayer_ScriptedChatMessageReceived;
             MessagesQueue.Clear();
             
             UpdateTimestamp();
         }
 
-        public void ShowMessage(string sender, string messageText)
+        public void ShowMessage(string sender, string messageText, MyFontEnum font = MyFontEnum.Blue)
         {
-            MessagesQueue.Enqueue(new Tuple<string, string>(sender, messageText));
+            MessagesQueue.Enqueue(new Tuple<string, string, MyFontEnum>(sender, messageText, font));
 
             if (MessagesQueue.Count > MAX_MESSAGES_IN_CHAT)
                 MessagesQueue.Dequeue();
@@ -60,12 +63,27 @@ namespace Sandbox.Game.Gui
             if (MySteam.IsActive)
             {
                 string userName = MyMultiplayer.Static.GetMemberName(steamUserId);
-                ShowMessage(userName, messageText);
+                ShowMessage(userName, messageText, steamUserId == MySteam.UserId ? MyFontEnum.DarkBlue : MyFontEnum.Blue);
 
                 MySession.Static.GlobalChatHistory.GlobalChatHistory.Chat.Enqueue(new MyGlobalChatItem
                 {
                     IdentityId = MySession.Static.Players.TryGetIdentityId(steamUserId),
                     Text = messageText
+                });
+            }
+        }
+
+        public void multiplayer_ScriptedChatMessageReceived(string message, string author, MyFontEnum font)
+        {
+            if (MySteam.IsActive)
+            {
+                ShowMessage(author, message, font);
+
+                MySession.Static.GlobalChatHistory.GlobalChatHistory.Chat.Enqueue(new MyGlobalChatItem
+                {
+                    Author = author,
+                    Text = message,
+                    AuthorFont = font
                 });
             }
         }

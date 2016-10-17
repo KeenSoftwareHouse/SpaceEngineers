@@ -16,6 +16,7 @@ using VRageMath;
 using VRageRender;
 using VRage.ModAPI;
 using VRage;
+using VRage.Audio;
 using VRage.Library.Utils;
 using VRage.Game.Entity;
 using VRage.Game;

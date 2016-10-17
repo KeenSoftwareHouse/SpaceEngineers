@@ -36,6 +36,6 @@ namespace Sandbox.Common.ObjectBuilders
         {
             base.Remap(remapHelper);
             if (TopBlockId.HasValue && TopBlockId != 0) TopBlockId = remapHelper.RemapEntityId(TopBlockId.Value);
-    }
+        }
     }
 }

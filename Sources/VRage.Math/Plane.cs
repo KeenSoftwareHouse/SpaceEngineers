@@ -379,8 +379,17 @@ namespace VRageMath
         public Vector3 RandomPoint()
         {
             if (_random == null)
-                _random  = new Random();
-
+            {
+                if (VRage.Library.Utils.MyRandom.DisableRandomSeed)
+                {
+                    _random = new Random(1);
+                }
+                else
+                {
+                    _random = new Random();
+                }
+            }
+            
             Vector3 random = new Vector3();
             Vector3 randomPoint;
 

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using VRage.Generics;
+using VRage.Utils;
 
 namespace VRageRender.Animations
 {
@@ -39,6 +40,20 @@ namespace VRageRender.Animations
                 Debug.Fail("Creating single animation node in machine " + this.Name + ", node name "
                 + name + ": Animation clip must not be null!");            
             }
+        }
+
+        protected override MyStateMachineTransition QueryNextTransition()
+        {
+            for (int i = 0; i < OutTransitions.Count; i++)
+            {
+                if (OutTransitions[i].Name == MyStringId.NullOrEmpty && OutTransitions[i].Evaluate()) // first transition that is valid is used
+                {
+                    // Needs to be override because of the empty name condition
+                    return OutTransitions[i];
+                }
+            }
+
+            return null; // stay in current state
         }
 
         public override void OnUpdate(MyStateMachine stateMachine)

@@ -34,6 +34,8 @@ using VRage.Utils;
 using VRageMath;
 using VRage.Game.Entity;
 using VRage.Profiler;
+using Sandbox.Game.SessionComponents;
+using VRage.Audio;
 
 #endregion
 
@@ -225,6 +227,15 @@ namespace Sandbox.Game.Gui
 
         protected int m_onDropContextMenuToolbarIndex = -1;
         protected MyToolbarItem m_onDropContextMenuItem;
+        public enum GroupModes
+        {
+            Default = 0,
+            HideEmpty = 1,
+            HideBlockGroups = 2,
+            HideAll = 3
+        }
+        public static GroupModes GroupMode = GroupModes.Default;
+        private const int BLOCK_GROUPS_MIN_COUNT = 20;
 
         protected class GridItemUserData
         {
@@ -488,7 +499,8 @@ namespace Sandbox.Game.Gui
             }
             else if (m_character != null || (m_shipController != null && m_shipController.BuildingMode))
             {
-                RecreateBlockCategories(categoriesDefinitions, m_sortedCategories);
+                if (GroupMode != GroupModes.HideAll)
+                    RecreateBlockCategories(categoriesDefinitions, m_sortedCategories);
                 AddCubeDefinitionsToBlocks(m_categorySearchCondition);
             }
 
@@ -588,6 +600,30 @@ namespace Sandbox.Game.Gui
         {
             categories.Clear();
             foreach (var category in loadedCategories)
+                category.Value.ValidItems = 0;
+            if (MyPerGameSettings.EnableResearch && (MySessionComponentResearch.Static.m_requiredResearch.Count > 0 || MySessionComponentResearch.Static.WhitelistMode))
+            {
+                var keys = MyDefinitionManager.Static.GetDefinitionPairNames();
+                foreach (var key in keys)
+                {
+                    var group = MyDefinitionManager.Static.GetDefinitionGroup(key);
+                    if (IsValidItem(Vector2I.Zero, group) == false)
+                        continue;
+                    if (group.AnyPublic != null)
+                    {
+                        if (MySessionComponentResearch.Static.CanUse(m_character, group.AnyPublic.Id))
+                        {
+                            foreach (var category in loadedCategories.Values)
+                            {
+                                if (category.HasItem(group.AnyPublic.Id.ToString()))
+                                    category.ValidItems++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var category in loadedCategories)
             {
                 if (MySession.Static.SurvivalMode && !category.Value.AvailableInSurvival)
                     continue;
@@ -597,6 +633,17 @@ namespace Sandbox.Game.Gui
 
                 if (!MyPerGameSettings.EnableResearch && category.Key.CompareTo("Schematics") == 0)
                     continue;
+
+                if (GroupMode == GroupModes.HideBlockGroups && !category.Value.IsAnimationCategory && !category.Value.IsToolCategory)
+                    continue;
+
+                if (GroupMode == GroupModes.HideEmpty && !category.Value.IsAnimationCategory && !category.Value.IsToolCategory)
+                {
+                    if (category.Value.ItemIds.Count == 0)
+                        continue;
+                    if (MyPerGameSettings.EnableResearch && (MySessionComponentResearch.Static.m_requiredResearch.Count > 0 || MySessionComponentResearch.Static.WhitelistMode) && category.Value.ValidItems == 0)
+                        continue;
+                }
 
                 if (true == category.Value.IsBlockCategory)
                 {
@@ -748,10 +795,16 @@ namespace Sandbox.Game.Gui
                 {
                     if (searchCondition != null && !searchCondition.MatchesCondition(definition))
                         continue;
+
                     var inventory = character.GetInventory() as MyInventory;
                     System.Diagnostics.Debug.Assert(inventory != null, "Null or unexpected inventory type returned");
-                    bool enabled = definition.Id.SubtypeId == manipulationToolId
-                        || ((inventory != null && inventory.ContainItems(1, definition.Id)) || MySession.Static.CreativeMode);
+
+                    bool enabled = definition.Id.SubtypeId == manipulationToolId || ((inventory != null && inventory.ContainItems(1, definition.Id)));
+
+                    if (MyPerGameSettings.EnableResearch && MySession.Static.CreativeMode && !enabled && !MySessionComponentResearch.Static.CanUse(m_character, definition.Id))//remove unresearched items that you do not have (creative only)
+                        continue;
+
+                    enabled |= MySession.Static.CreativeMode;
                     if (enabled || MyPerGameSettings.Game == GameEnum.SE_GAME)
                         AddWeaponDefinition(m_gridBlocks, definition, enabled);
                 }
@@ -825,6 +878,8 @@ namespace Sandbox.Game.Gui
         {
             if (definition == null)
                 return;
+            if (MyPerGameSettings.EnableResearch && !MySessionComponentResearch.Static.CanUse(m_character, definition.Id))
+                return;
             if (!definition.Public && !MyFakes.ENABLE_NON_PUBLIC_BLOCKS)
                 return;
             if (!definition.AvailableInSurvival && MySession.Static.SurvivalMode)
@@ -893,6 +948,9 @@ namespace Sandbox.Game.Gui
                 var group = MyDefinitionManager.Static.GetDefinitionGroup(key);
                 var pos = MyDefinitionManager.Static.GetCubeBlockScreenPosition(key);
 
+                if (MyPerGameSettings.EnableResearch && MySessionComponentResearch.Static.WhitelistMode && MySessionComponentResearch.Static.m_requiredResearch.Count < BLOCK_GROUPS_MIN_COUNT)
+                    pos = new Vector2I(-1, -1);
+
                 if (false == IsValidItem(pos, group))
                 {
                     continue;
@@ -950,6 +1008,8 @@ namespace Sandbox.Game.Gui
             {
                 HashSet<MyCubeBlockDefinitionGroup> sortedSelectedBlocks = searchCondition.GetSortedBlocks();
                 int newItemPosition = 0;
+                bool noPosition = (MyPerGameSettings.EnableResearch && MySessionComponentResearch.Static.WhitelistMode && MySessionComponentResearch.Static.m_requiredResearch.Count < BLOCK_GROUPS_MIN_COUNT);
+                Vector2I defualtPos = new Vector2I(-1, -1);
 
                 foreach (var blockGroup in sortedSelectedBlocks)
                 {
@@ -957,7 +1017,7 @@ namespace Sandbox.Game.Gui
                     pos.X = newItemPosition % m_gridBlocks.ColumnsCount;
                     pos.Y = (int)(newItemPosition / (float)m_gridBlocks.ColumnsCount);
                     newItemPosition++;
-                    AddCubeDefinition(m_gridBlocks, blockGroup, pos);
+                    AddCubeDefinition(m_gridBlocks, blockGroup, noPosition ? defualtPos : pos);
                     var anyDef = MyFakes.ENABLE_NON_PUBLIC_BLOCKS ? blockGroup.Any : blockGroup.AnyPublic;
                     if (anyDef.BlockStages != null && anyDef.BlockStages.Length > 0 && searchCondition is MySearchByCategoryCondition)
                     {

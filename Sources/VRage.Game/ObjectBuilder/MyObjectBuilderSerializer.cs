@@ -245,8 +245,8 @@ namespace VRage.ObjectBuilders
             {
                 MyLog.Default.WriteLine("ERROR: Exception during objectbuilder read! (xml): " + builderType.Name);
                 MyLog.Default.WriteLine(e);
-                if (Debugger.IsAttached)
-                    Debugger.Break();
+                //if (Debugger.IsAttached)
+                //    Debugger.Break();
                 return false;
             }
 

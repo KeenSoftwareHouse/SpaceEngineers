@@ -61,14 +61,27 @@ namespace Sandbox.Engine.Physics
         static MyStringId m_startCue = MyStringId.GetOrCompute("Start");
         private static MyStringHash m_character = MyStringHash.GetOrCompute("Character");
 
-        private Vector3 m_lastLinearVelocity;
-        private Vector3 m_lastAngularVelocity;
         private int m_motionCounter = 0;
         //MyMotionState m_motionState;
         protected float m_angularDamping;
         protected float m_linearDamping;
 
-        protected ulong ClusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+        private ulong m_clusterObjectID = MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED;
+
+        protected ulong ClusterObjectID
+        {
+            get { return m_clusterObjectID; }
+            set
+            {
+                m_clusterObjectID = value;
+                if (value != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED)
+                    Offset = MyPhysics.GetObjectOffset(value);
+                else
+                    Offset = Vector3D.Zero;
+            }
+        }
+        protected Vector3D Offset = Vector3D.Zero;
+        protected Matrix m_bodyMatrix;
 
         public new MyPhysicsBodyComponentDefinition Definition { get; private set; }
 
@@ -329,14 +342,6 @@ namespace Sandbox.Engine.Physics
             }
         }
 
-        public override void SetSpeeds(Vector3 linear, Vector3 angular)
-        {
-            LinearVelocity = linear;
-            AngularVelocity = angular;
-            ClearAccelerations();
-            SetActualSpeedsAsPrevious();
-        }
-
         /// <summary>
         /// Gets or sets the linear damping.
         /// </summary>
@@ -557,11 +562,9 @@ namespace Sandbox.Engine.Physics
             if (rigidBody == null || force == null || MyUtils.IsZero(force.Value))
                 return;
 
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-
             if (position.HasValue)
             {
-                Vector3 point = position.Value - offset;
+                Vector3 point = position.Value - Offset;
                 rigidBody.ApplyForce(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS, force.Value, point);
             }
             else
@@ -573,10 +576,8 @@ namespace Sandbox.Engine.Physics
             if (rigidBody == null)
                 return;
 
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-
             if (force.HasValue && position.HasValue)
-                rigidBody.ApplyPointImpulse(force.Value, (Vector3)(position.Value - offset));
+                rigidBody.ApplyPointImpulse(force.Value, (Vector3)(position.Value - Offset));
 
             if (torque.HasValue)
                 rigidBody.ApplyAngularImpulse(torque.Value * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * MyFakes.SIMULATION_SPEED);
@@ -659,18 +660,20 @@ namespace Sandbox.Engine.Physics
 
                     if (!IsConstraintValid(c))
                         col = Color.Red;
+                    if (!c.Enabled)
+                        col = Color.Yellow;
 
                     Vector3 pivotA, pivotB;
                     c.GetPivotsInWorld(out pivotA, out pivotB);
                     var pos = ClusterToWorld(pivotA);
                     MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
-                    MyRenderProxy.DebugDrawText3D(pos, i.ToString(), Color.White, 0.7f, true);
+                    MyRenderProxy.DebugDrawText3D(pos, i + " A", Color.White, 0.7f, true);
 
                     Vector3 pos1 = pos;
                   
                     pos = ClusterToWorld(pivotB);
                     MyRenderProxy.DebugDrawSphere(pos, 0.2f, col, 1, false);
-                    MyRenderProxy.DebugDrawText3D(pos, i.ToString(), Color.White, 0.7f, true);
+                    MyRenderProxy.DebugDrawText3D(pos, i+ " B", Color.White, 0.7f, true);
 
                     MyRenderProxy.DebugDrawLine3D(pos1,pos,col,col,false);
                     i++;
@@ -704,13 +707,11 @@ namespace Sandbox.Engine.Physics
                 //if (!Enabled)
                 //    return;
 
-                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-
                 if (RigidBody != null && BreakableBody != null)
                 {
-                    Vector3D com = Vector3D.Transform((Vector3D)BreakableBody.BreakableShape.CoM, RigidBody.GetRigidBodyMatrix()) + offset;
+                    Vector3D com = Vector3D.Transform((Vector3D)BreakableBody.BreakableShape.CoM, RigidBody.GetRigidBodyMatrix()) + Offset;
                     Color color = RigidBody.GetMotionType() != Havok.HkMotionType.Box_Inertia ? Color.Gray : RigidBody.IsActive ? Color.Red : Color.Blue;
-                    VRageRender.MyRenderProxy.DebugDrawSphere(RigidBody.CenterOfMassWorld + offset, 0.2f, color, 1, false);
+                    VRageRender.MyRenderProxy.DebugDrawSphere(RigidBody.CenterOfMassWorld + Offset, 0.2f, color, 1, false);
 
                     VRageRender.MyRenderProxy.DebugDrawAxis(Entity.PositionComp.WorldMatrix, 0.2f, false);
                 }
@@ -720,7 +721,7 @@ namespace Sandbox.Engine.Physics
                 {
                     index = 0;
                     Matrix rbMatrix = RigidBody.GetRigidBodyMatrix();
-                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + offset, rbMatrix.Forward, rbMatrix.Up);
+                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + Offset, rbMatrix.Forward, rbMatrix.Up);
 
                     MyPhysicsDebugDraw.DrawCollisionShape(RigidBody.GetShape(), worldMatrix, alpha, ref index);
                 }
@@ -729,7 +730,7 @@ namespace Sandbox.Engine.Physics
                 {
                     index = 0;
                     Matrix rbMatrix = RigidBody2.GetRigidBodyMatrix();
-                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + offset, rbMatrix.Forward, rbMatrix.Up);
+                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + Offset, rbMatrix.Forward, rbMatrix.Up);
 
                     MyPhysicsDebugDraw.DrawCollisionShape(RigidBody2.GetShape(), worldMatrix, alpha, ref index);
                 }
@@ -739,7 +740,7 @@ namespace Sandbox.Engine.Physics
                     index = 0;
                     //MatrixD characterTransform = MatrixD.CreateWorld(CharacterProxy.Position + offset, CharacterProxy.Forward, CharacterProxy.Up);
                     Matrix rbMatrix = CharacterProxy.GetRigidBodyTransform();
-                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + offset, rbMatrix.Forward, rbMatrix.Up);
+                    MatrixD worldMatrix = MatrixD.CreateWorld(rbMatrix.Translation + Offset, rbMatrix.Forward, rbMatrix.Up);
 
                     MyPhysicsDebugDraw.DrawCollisionShape(CharacterProxy.GetShape(), worldMatrix, alpha, ref index);
                 }
@@ -1060,6 +1061,7 @@ false,
 
                m_world.RemoveConstraint(constraint);             
             }
+            CheckRBNotInWorld();
 
             m_world = null;
             IsInWorld = false;
@@ -1095,7 +1097,7 @@ false,
             foreach (var constraint in m_constraints)
             {
                 if (IsConstraintValid(constraint) && constraint.InWorld)
-                m_constraintsRemoveBatch.Add(constraint);
+                    m_constraintsRemoveBatch.Add(constraint);
                 else
                     Debug.Fail("Trying to remove invalid constraint!");
             }
@@ -1121,7 +1123,8 @@ false,
 
             if (ReactivateRagdoll)
             {
-                ActivateRagdoll(GetRigidBodyMatrix());
+                GetRigidBodyMatrix(out m_bodyMatrix);
+                ActivateRagdoll(m_bodyMatrix);
                 ReactivateRagdoll = false;
             }
 
@@ -1271,37 +1274,40 @@ false,
         {
             if (WeldInfo.Parent != null)
                 return WeldInfo.Transform * WeldInfo.Parent.GetWorldMatrix();
-            
-            Vector3 transformedCenter;
-            MatrixD entityMatrix = MatrixD.Identity;
-            Matrix rbWorld;
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
+
+            MatrixD entityMatrix;
 
             if (RigidBody2 != null)
             {
-                rbWorld = RigidBody2.GetRigidBodyMatrix();
-                transformedCenter = Vector3.TransformNormal(Center, rbWorld);
-                entityMatrix = MatrixD.CreateWorld(rbWorld.Translation - transformedCenter + offset, rbWorld.Forward, rbWorld.Up);
+                entityMatrix = RigidBody2.GetRigidBodyMatrix();
+                entityMatrix.Translation += Offset;
             }
             else if (RigidBody != null)
             {
-                rbWorld = RigidBody.GetRigidBodyMatrix();
-                transformedCenter = Vector3.TransformNormal(Center, rbWorld);
-                entityMatrix = MatrixD.CreateWorld(rbWorld.Translation - transformedCenter + offset, rbWorld.Forward, rbWorld.Up);
+                entityMatrix = RigidBody.GetRigidBodyMatrix();
+                entityMatrix.Translation += Offset;
             }
             else if (CharacterProxy != null)
             {
                 MatrixD characterTransform = CharacterProxy.GetRigidBodyTransform();
                 //MatrixD characterTransform = MatrixD.CreateWorld(CharacterProxy.Position, CharacterProxy.Forward, CharacterProxy.Up);
 
-                transformedCenter = Vector3.TransformNormal(Center, characterTransform);
-                characterTransform.Translation = CharacterProxy.Position - transformedCenter + offset;
+                characterTransform.Translation = CharacterProxy.Position + Offset;
                 entityMatrix = characterTransform;
             }
             else if (Ragdoll != null & IsRagdollModeActive)
             {
-                entityMatrix = Ragdoll.WorldMatrix;               
-                entityMatrix.Translation = entityMatrix.Translation + offset;
+                entityMatrix = Ragdoll.WorldMatrix;
+                entityMatrix.Translation = entityMatrix.Translation + Offset;
+            }
+            else
+            {
+                entityMatrix = MatrixD.Identity;
+            }
+
+            if (Center != Vector3.Zero)
+            {
+                entityMatrix.Translation -= Vector3D.TransformNormal(Center, ref entityMatrix);
             }
 
             return entityMatrix;
@@ -1309,6 +1315,7 @@ false,
 
         public override Vector3 GetVelocityAtPoint(Vector3D worldPos)
         {
+            //TODO:Avoid M/N transition inside RigidBody.GetVelocityAtPoint
             Vector3 relPos = WorldToCluster(worldPos);
             if (RigidBody != null)
                 return RigidBody.GetVelocityAtPoint(relPos);
@@ -1332,35 +1339,43 @@ false,
 
             Vector3 velocity = Vector3.Zero;
             IMyEntity parentEntity = Entity.GetTopMostParent();
-            if (parentEntity != null && parentEntity.Physics != null)
+            if (parentEntity.Physics != null)
             {
                 velocity = parentEntity.Physics.LinearVelocity;
+                //TODO:this should be optional, all our child bodies are kinematic and dependent on parent atm
+                if (Entity != parentEntity)
+                    LinearVelocity = parentEntity.Physics.GetVelocityAtPoint(Entity.PositionComp.GetPosition());
             }
             if(!IsWelded)
                 MyPhysics.MoveObject(ClusterObjectID, parentEntity.WorldAABB, velocity);
 
-            Matrix rigidBodyMatrix = GetRigidBodyMatrix();
+            Matrix bodyMatrix;
+            GetRigidBodyMatrix(out bodyMatrix);
+            if (bodyMatrix.EqualsFast(ref m_bodyMatrix))
+                return;
+
+            m_bodyMatrix = bodyMatrix;
 
             if (RigidBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
             }
 
             if (RigidBody2 != null)
             {
-                RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody2.SetWorldMatrix(m_bodyMatrix);
             }
 
             if (CharacterProxy != null)
             {
-                CharacterProxy.Position = rigidBodyMatrix.Translation;
-                CharacterProxy.Forward = rigidBodyMatrix.Forward;
-                CharacterProxy.Up = rigidBodyMatrix.Up;
+                CharacterProxy.Position = m_bodyMatrix.Translation;
+                CharacterProxy.Forward = m_bodyMatrix.Forward;
+                CharacterProxy.Up = m_bodyMatrix.Up;
                 CharacterProxy.Speed = 0;
 
                 //if (CharacterProxy.ImmediateSetWorldTransform)
                 {
-                    CharacterProxy.SetRigidBodyTransform(rigidBodyMatrix);
+                    CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 }
             }
 
@@ -1375,35 +1390,30 @@ false,
 
             if (Ragdoll != null && IsRagdollModeActive && source is MyCockpit)
             {
-                Debug.Assert(rigidBodyMatrix.IsValid() && rigidBodyMatrix != Matrix.Zero, "Ragdoll world matrix is invalid!");
-                Ragdoll.ResetToRigPose();                
-                Ragdoll.SetWorldMatrix(rigidBodyMatrix);
+                Debug.Assert(m_bodyMatrix.IsValid() && m_bodyMatrix != Matrix.Zero, "Ragdoll world matrix is invalid!");
+                Ragdoll.ResetToRigPose();
+                Ragdoll.SetWorldMatrix(m_bodyMatrix);
                 Ragdoll.ResetVelocities();
             }
         }
 
-        protected Matrix GetRigidBodyMatrix()
+        protected void GetRigidBodyMatrix(out Matrix m)
         {
             System.Diagnostics.Debug.Assert(ClusterObjectID != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED, "Unitialized object in cluster!");
-
-            Vector3 transformedCenter = Vector3.TransformNormal(Center, Entity.WorldMatrix);
-
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-
-            Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)((Vector3D)transformedCenter + Entity.GetPosition() - (Vector3D)offset), Entity.WorldMatrix.Forward, Entity.WorldMatrix.Up);
-            return rigidBodyMatrix;
+            m = Entity.WorldMatrix;
+            if (Center != Vector3.Zero)
+                m.Translation += Vector3.TransformNormal(Center, Entity.WorldMatrix);
+            m.Translation -= Offset;
         }
 
         protected Matrix GetRigidBodyMatrix(MatrixD worldMatrix)
         {
             System.Diagnostics.Debug.Assert(ClusterObjectID != MyHavokCluster.CLUSTERED_OBJECT_ID_UNITIALIZED, "Unitialized object in cluster!");
 
-            Vector3 transformedCenter = Vector3.TransformNormal(Center, worldMatrix);
-
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-
-            Matrix rigidBodyMatrix = Matrix.CreateWorld((Vector3)((Vector3D)transformedCenter + worldMatrix.Translation - (Vector3D)offset), worldMatrix.Forward, worldMatrix.Up);
-            return rigidBodyMatrix;
+            if(Center != Vector3.Zero)
+                worldMatrix.Translation += Vector3D.TransformNormal(Center, ref worldMatrix);
+            worldMatrix.Translation -= Offset;
+            return worldMatrix;
         }
 
         public virtual void ChangeQualityType(HkCollidableQualityType quality)
@@ -1419,8 +1429,7 @@ false,
         {
             get
             {
-                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-                return RigidBody.CenterOfMassWorld + offset;
+                return RigidBody.CenterOfMassWorld + Offset;
             }
         }
 
@@ -1431,12 +1440,10 @@ false,
             ProfilerShort.Begin("PhysicsBody.OnContacPointCallback");
             if (ContactPointCallback != null)
             {
-                var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-
                 MyPhysics.MyContactPointEvent ce = new MyPhysics.MyContactPointEvent()
                 {
                     ContactPointEvent = e,
-                    Position = e.ContactPoint.Position + offset
+                    Position = e.ContactPoint.Position + Offset
                 };
 
                 ContactPointCallback(ref ce);
@@ -1487,6 +1494,7 @@ false,
 
             if(IsWelded)
             {
+                m_constraints.Remove(constraint);
                 WeldInfo.Parent.RemoveConstraint(constraint);
                 return;
             }
@@ -1513,14 +1521,12 @@ false,
 
         public override Vector3D WorldToCluster(Vector3D worldPos)
         {
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-            return (Vector3D)(worldPos - offset);
+            return worldPos - Offset;
         }
 
         public override Vector3D ClusterToWorld(Vector3 clusterPos)
         {
-            var offset = MyPhysics.GetObjectOffset(ClusterObjectID);
-            return (Vector3D)clusterPos + (Vector3D)offset;
+            return (Vector3D)clusterPos + Offset;
         }
 
         /// <summary>
@@ -1554,11 +1560,11 @@ false,
 
             IsInWorld = true;
 
-            Matrix rigidBodyMatrix = GetRigidBodyMatrix();
+            GetRigidBodyMatrix(out m_bodyMatrix);
 
             if (BreakableBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
 
                 //Disable destruction on clients
                 if (Sync.IsServer)
@@ -1568,12 +1574,12 @@ false,
             }
             else if (RigidBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBody(RigidBody);
             }
             if (RigidBody2 != null)
             {
-                RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody2.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBody(RigidBody2);
             }
 
@@ -1586,7 +1592,7 @@ false,
                 CharacterProxy.CharacterRigidBody.SetCollisionFilterInfo(CharacterCollisionFilter);
 
 
-                CharacterProxy.SetRigidBodyTransform(rigidBodyMatrix);
+                CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 CharacterProxy.Activate(m_world);
             }
 
@@ -1628,22 +1634,22 @@ false,
             IsInWorld = true;
 
 
-            Matrix rigidBodyMatrix = GetRigidBodyMatrix();
+            GetRigidBodyMatrix(out m_bodyMatrix);
 
             if (RigidBody != null)
             {
-                RigidBody.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBodyBatch(RigidBody);
             }
             if (RigidBody2 != null)
             {
-                RigidBody2.SetWorldMatrix(rigidBodyMatrix);
+                RigidBody2.SetWorldMatrix(m_bodyMatrix);
                 m_world.AddRigidBodyBatch(RigidBody2);
             }
 
             if (CharacterProxy != null)
             {
-                CharacterProxy.SetRigidBodyTransform(rigidBodyMatrix);
+                CharacterProxy.SetRigidBodyTransform(m_bodyMatrix);
                 CharacterProxy.Activate(m_world);
             }
 
@@ -1657,7 +1663,7 @@ false,
             if (ReactivateRagdoll)
             {
                 if (MyFakes.ENABLE_RAGDOLL_DEBUG) Debug.WriteLine("MyPhysicsBody.ActivateBatch.ReactivateRagdoll");
-                ActivateRagdoll(rigidBodyMatrix);
+                ActivateRagdoll(m_bodyMatrix);
                 ReactivateRagdoll = false;
             }
 
@@ -1709,30 +1715,6 @@ false,
         }
 
         #endregion
-
-        public override void UpdateAccelerations()
-        {
-            Vector3 delta = LinearVelocity - m_lastLinearVelocity;
-            m_lastLinearVelocity = LinearVelocity;
-            LinearAcceleration = delta * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-
-            Vector3 deltaAng = AngularVelocity - m_lastAngularVelocity;
-            m_lastAngularVelocity = AngularVelocity;
-            AngularAcceleration = deltaAng * VRage.Game.MyEngineConstants.UPDATE_STEPS_PER_SECOND;
-        }
-
-        public void ClearAccelerations()
-        {
-            LinearAcceleration = Vector3.Zero;
-            AngularAcceleration = Vector3.Zero;
-        }
-
-        public void SetActualSpeedsAsPrevious()
-        {
-            // setting of previous speeds according to current one - elimination of acceleration that was caused by setting of speed when for example speed on server is different that speed on client
-            m_lastLinearVelocity = LinearVelocity;
-            m_lastAngularVelocity = AngularVelocity;
-        }
 
         /// <summary>
         /// Gets shape of this physics body even if its welded with other

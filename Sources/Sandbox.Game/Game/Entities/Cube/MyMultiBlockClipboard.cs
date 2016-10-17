@@ -23,6 +23,7 @@ using VRage.Game.Entity;
 using VRage.Game;
 using Sandbox.Game.Multiplayer;
 using Sandbox.Game.SessionComponents.Clipboard;
+using VRage.Audio;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Profiler;
 

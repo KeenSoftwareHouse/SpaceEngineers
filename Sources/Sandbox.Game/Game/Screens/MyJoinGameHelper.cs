@@ -128,7 +128,7 @@ namespace Sandbox.Game.Gui
                 progress.ProgressCancelled += () =>
                 {
                     multiplayer.Dispose();
-                    MyGuiScreenMainMenu.ReturnToMainMenu();
+                    MySessionLoader.UnloadAndExitToMenu();
                 };
 
                 multiplayer.OnJoin += delegate
@@ -165,7 +165,7 @@ namespace Sandbox.Game.Gui
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
 
-            progress.ProgressCancelled += () => MyGuiScreenMainMenu.ReturnToMainMenu();
+            progress.ProgressCancelled += () => MySessionLoader.UnloadAndExitToMenu();
 
             MyLog.Default.WriteLine("Joining lobby: " + lobbyId);
 
@@ -182,7 +182,7 @@ namespace Sandbox.Game.Gui
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
 
-            progress.ProgressCancelled += () => MyGuiScreenMainMenu.ReturnToMainMenu();
+            progress.ProgressCancelled += () => MySessionLoader.UnloadAndExitToMenu();
 
             MyLog.Default.WriteLine("Joining battle lobby: " + lobbyId);
 
@@ -199,7 +199,7 @@ namespace Sandbox.Game.Gui
             MyGuiScreenProgress progress = new MyGuiScreenProgress(text, MyCommonTexts.Cancel);
             MyGuiSandbox.AddScreen(progress);
 
-            progress.ProgressCancelled += () => MyGuiScreenMainMenu.ReturnToMainMenu();
+            progress.ProgressCancelled += () => MySessionLoader.UnloadAndExitToMenu();
 
             MyLog.Default.WriteLine("Joining scenario lobby: " + lobbyId);
 
@@ -422,7 +422,7 @@ namespace Sandbox.Game.Gui
 
             progress.ProgressCancelled += () =>
             {
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
             };
 
             DownloadWorld(progress, multiplayer);
@@ -439,7 +439,7 @@ namespace Sandbox.Game.Gui
 
             progress.ProgressCancelled += () =>
             {
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
             };
 
             DownloadWorld(progress, multiplayer);
@@ -461,7 +461,7 @@ namespace Sandbox.Game.Gui
 
         private static void OnJoinBattleFailed(MyGuiScreenProgress progress, MyMultiplayerBase multiplayer, string status, bool statusFullMessage = false)
         {
-            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+            MySessionLoader.UnloadAndExitToMenu();
 
             progress.Cancel();
             StringBuilder error = new StringBuilder();
@@ -487,23 +487,23 @@ namespace Sandbox.Game.Gui
                 {
                     if (multiplayer.BattleCanBeJoined)
                     {
-                        MyGuiScreenLoadSandbox.LoadMultiplayerBattleWorld(world, multiplayer);
+                        MySessionLoader.LoadMultiplayerBattleWorld(world, multiplayer);
                     }
                     else
                     {
                         MyLog.Default.WriteLine("World downloaded but battle game ended");
-                        MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                        MySessionLoader.UnloadAndExitToMenu();
                         MyGuiSandbox.Show(MyCommonTexts.MultiplayerErrorSessionEnded);
                         multiplayer.Dispose();
                     }
                 }
                 else if (multiplayer.Scenario)
                 {
-                    MyGuiScreenLoadSandbox.LoadMultiplayerScenarioWorld(world, multiplayer);
+                    MySessionLoader.LoadMultiplayerScenarioWorld(world, multiplayer);
                 }
                 else
                 {
-                    MyGuiScreenLoadSandbox.LoadMultiplayerSession(world, multiplayer);
+                    MySessionLoader.LoadMultiplayerSession(world, multiplayer);
                 }
             }
             else
@@ -514,7 +514,7 @@ namespace Sandbox.Game.Gui
 
         public static void HandleDx11Needed()
         {
-            MyGuiScreenMainMenu.ReturnToMainMenu();
+            MySessionLoader.UnloadAndExitToMenu();
             if (MyDirectXHelper.IsDx11Supported())
             {
                 // Has DX11, ask for switch or selecting different scenario

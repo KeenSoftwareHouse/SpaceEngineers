@@ -188,8 +188,10 @@ namespace Sandbox.Game
 
     public static class MyDebrisConstants
     {
-        public const int EXPLOSION_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS = 10000;
-        public const int EXPLOSION_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS = 20000;
+        public const int EXPLOSION_VOXEL_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS = 10000;
+        public const int EXPLOSION_VOXEL_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS = 20000;
+        public const int EXPLOSION_MODEL_DEBRIS_LIFESPAN_MIN_IN_MILISECONDS = 4000;
+        public const int EXPLOSION_MODEL_DEBRIS_LIFESPAN_MAX_IN_MILISECONDS = 7000;
         public const int EXPLOSION_DEBRIS_OBJECTS_MAX = 150;
         public const float EXPLOSION_DEBRIS_INITIAL_SPEED_MIN = 4.0f;
         public const float EXPLOSION_DEBRIS_INITIAL_SPEED_MAX = 8.0f;

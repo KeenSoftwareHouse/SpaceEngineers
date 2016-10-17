@@ -6,6 +6,7 @@ using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
 using Sandbox.Graphics.GUI;
 using System;
+using Sandbox.Game.World;
 using VRage.Game;
 using VRage.Input;
 using VRage.Library.Utils;
@@ -53,7 +54,7 @@ namespace Sandbox.Game.Gui
 
             if (MyInput.Static.IsKeyPress(MyKeys.Escape))
             {
-                MyGuiScreenMainMenu.ReturnToMainMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 return base.Update(hasFocus);
             }
 
@@ -64,7 +65,7 @@ namespace Sandbox.Game.Gui
                         var lastSessionPath = MyLocalCache.GetLastSessionPath();
                         if (lastSessionPath != null && System.IO.Directory.Exists(lastSessionPath))
                         {
-                            MyGuiScreenLoadSandbox.LoadSingleplayerSession(lastSessionPath);
+                            MySessionLoader.LoadSingleplayerSession(lastSessionPath);
                         }
                         else
                         {

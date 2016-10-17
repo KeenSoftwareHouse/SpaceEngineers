@@ -37,6 +37,7 @@ namespace Sandbox.Game.Gui
         public static MyHudNetgraph Netgraph = new MyHudNetgraph();
         public static MyHudVoiceChat VoiceChat = new MyHudVoiceChat();
         public static MyHudChangedInventoryItems ChangedInventoryItems = new MyHudChangedInventoryItems();
+        public static MyHudQuestlog Questlog = new MyHudQuestlog();
         public static MyHudText BlocksLeft = new MyHudText();
 
         private static int m_rotatingWheelVisibleCounter;
@@ -139,6 +140,7 @@ namespace Sandbox.Game.Gui
             GravityIndicator.Hide();
             SinkGroupInfo.Visible = false;
             LargeTurretTargets.Visible = false;
+            //Questlog.Visible = false;
         }
     }
 }

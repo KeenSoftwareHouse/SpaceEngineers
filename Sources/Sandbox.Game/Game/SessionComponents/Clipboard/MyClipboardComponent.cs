@@ -29,6 +29,7 @@ using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.Multiplayer;
+using VRage.Audio;
 using VRage.Profiler;
 
 namespace Sandbox.Game.SessionComponents.Clipboard

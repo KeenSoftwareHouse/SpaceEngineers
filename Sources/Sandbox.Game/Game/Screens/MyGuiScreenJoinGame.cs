@@ -33,7 +33,7 @@ using VRage.ObjectBuilders;
 
 namespace Sandbox.Game.Gui
 {
-    partial class MyGuiScreenJoinGame : MyGuiScreenBase
+    public partial class MyGuiScreenJoinGame : MyGuiScreenBase
     {
 
         #region Fields

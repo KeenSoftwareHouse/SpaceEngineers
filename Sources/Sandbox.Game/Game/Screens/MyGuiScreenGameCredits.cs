@@ -16,7 +16,7 @@ using VRageMath;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenGameCredits : MyGuiScreenBase
+    public class MyGuiScreenGameCredits : MyGuiScreenBase
     {
         Color color = new Color(255, 255, 255, 220); //  Red 
         const float NUMBER_OF_SECONDS_TO_SCROLL_THROUGH_WHOLE_SCREEN = 30;

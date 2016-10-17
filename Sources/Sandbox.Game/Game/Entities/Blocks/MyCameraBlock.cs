@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using Sandbox.Game.EntityComponents;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Input;
 using VRage.ModAPI;

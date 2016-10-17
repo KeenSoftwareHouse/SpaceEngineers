@@ -2,9 +2,6 @@
 
 using Havok;
 using ParallelTasks;
-using Sandbox.Common;
-
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Engine.Multiplayer;
 using Sandbox.Engine.Networking;
@@ -40,7 +37,6 @@ using VRage.Collections;
 using VRage.Compiler;
 using VRage.FileSystem;
 using VRage.Input;
-using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRage.Utils;
@@ -49,16 +45,16 @@ using VRageMath;
 using VRageRender;
 using Sandbox.Engine.Platform;
 using VRage.Game.Components;
-using VRage.Game.Definitions;
 using VRage.Game.Entity;
 using VRage.Game;
 using VRage.Game.ModAPI;
-using VRage.Game.ModAPI.Interfaces;
 using VRage.Scripting;
-using IMyInventory = VRage.Game.ModAPI.Ingame.IMyInventory;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Screens;
+using VRage.Game.Localization;
 using VRage.Game.ObjectBuilder;
+using VRage.Game.VisualScripting;
+using MyVisualScriptLogicProvider = VRage.Game.VisualScripting.MyVisualScriptLogicProvider;
 using VRage.Library;
 using VRage.Game.SessionComponents;
 using VRage.Profiler;
@@ -328,6 +324,10 @@ namespace Sandbox
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.Constructor() - END");
+            ProfilerShort.End();
+
+            ProfilerShort.BeginNextBlock("InitCampaignManager");
+            MyCampaignManager.Static.Init();
             ProfilerShort.End();
         }
 
@@ -1030,6 +1030,9 @@ namespace Sandbox
             InitQuickLaunch();
 
             MyAnalyticsTracker.SendGameStart();
+            MyVisualScriptingProxy.Init();
+            MyVisualScriptingProxy.RegisterLogicProvider(typeof(MyVisualScriptLogicProvider));
+            MyVisualScriptingProxy.RegisterLogicProvider(typeof(Game.MyVisualScriptLogicProvider));
 
             MySandboxGame.Log.DecreaseIndent();
             MySandboxGame.Log.WriteLine("MySandboxGame.Initialize() - END");
@@ -1225,6 +1228,8 @@ namespace Sandbox
             MyAudio.Static.EnableVoiceChat = Config.EnableVoiceChat;
             MyGuiAudio.HudWarnings = Config.HudWarnings;
             MyGuiSoundManager.Audio = MyGuiAudio.Static;
+            MyLocalization.Initialize();
+            MyLocalization.Static.Switch("English");
 
             ProfilerShort.BeginNextBlock("MyGuiSandbox.LoadData");
             MyGuiSandbox.LoadData(IsDedicated);
@@ -1744,7 +1749,7 @@ namespace Sandbox
             if (!lobby.IsValid || (MySession.Static != null && MyMultiplayer.Static != null && MyMultiplayer.Static.LobbyId == lobby.LobbyId))
                 return;
 
-            MyGuiScreenMainMenu.UnloadAndExitToMenu();
+            MySessionLoader.UnloadAndExitToMenu();
 
             MyJoinGameHelper.JoinGame(lobby);
         }
@@ -1754,7 +1759,7 @@ namespace Sandbox
             IPEndPoint endpoint;
             if (IPAddressExtensions.TryParseEndpoint(server, out endpoint))
             {
-                MyGuiScreenMainMenu.UnloadAndExitToMenu();
+                MySessionLoader.UnloadAndExitToMenu();
                 MySandboxGame.Services.SteamService.SteamAPI.PingServer(endpoint.Address.ToIPv4NetworkOrder(), (ushort)endpoint.Port);
             }
         }

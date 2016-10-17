@@ -13,6 +13,7 @@ using Sandbox.Game.Multiplayer;
 using Sandbox.Game.World;
 using System;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Network;
@@ -113,9 +114,9 @@ namespace Sandbox.Game.Entities.Character.Components
             NeedsAtmosphereForInfluence = thrustProperties.NeedsAtmosphereForInfluence;
             ConsumptionFactorPerG = thrustProperties.ConsumptionFactorPerG;
 
-            MyEntityThrustComponent thrustComp = new MyJetpackThrustComponent();
-            thrustComp.Init();
-            Character.Components.Add(thrustComp);
+			MyEntityThrustComponent thrustComp = new MyJetpackThrustComponent();
+			thrustComp.Init();
+			Character.Components.Add(thrustComp);
 
             ThrustComp.DampenersEnabled = characterBuilder.DampenersEnabled;
 

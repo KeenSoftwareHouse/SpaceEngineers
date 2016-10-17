@@ -183,14 +183,14 @@ namespace Sandbox.Engine.Voxels
                 // if the phantom is immediatelly intersecting something.
                 if (Enabled)
                 {
-                    var matrix = GetRigidBodyMatrix();
+                    GetRigidBodyMatrix(out m_bodyMatrix);
 
-                    RigidBody.SetWorldMatrix(matrix);
+                    RigidBody.SetWorldMatrix(m_bodyMatrix);
                     m_world.AddRigidBody(RigidBody);
 
                     if (UseLod1VoxelPhysics)
                     {
-                        RigidBody2.SetWorldMatrix(matrix);
+                        RigidBody2.SetWorldMatrix(m_bodyMatrix);
                         m_world.AddRigidBody(RigidBody2);
                     }
                 }
@@ -238,16 +238,16 @@ namespace Sandbox.Engine.Voxels
             return result;
         }
 
-        private void RequestShapeBlockingLod1(int x, int y, int z, out HkBvCompressedMeshShape shape, out HkReferencePolicy refPolicy)
+        private void RequestShapeBlockingLod1(int x, int y, int z, out HkShape shape, out HkReferencePolicy refPolicy)
         {
             RequestShapeBlockingInternal(x, y, z, out shape, out refPolicy, true);
         }
-        private void RequestShapeBlocking(int x, int y, int z, out HkBvCompressedMeshShape shape, out HkReferencePolicy refPolicy)
+        private void RequestShapeBlocking(int x, int y, int z, out HkShape shape, out HkReferencePolicy refPolicy)
         {
             RequestShapeBlockingInternal(x, y, z, out shape, out refPolicy, false);
         }
 
-        private void RequestShapeBlockingInternal(int x, int y, int z, out HkBvCompressedMeshShape shape, out HkReferencePolicy refPolicy, bool lod1physics)
+        private void RequestShapeBlockingInternal(int x, int y, int z, out HkShape shape, out HkReferencePolicy refPolicy, bool lod1physics)
         {
             ProfilerShort.Begin("MyVoxelPhysicsBody.RequestShapeBlocking");
 
@@ -255,11 +255,10 @@ namespace Sandbox.Engine.Voxels
 
             int lod = lod1physics ? 1 : 0;
             var cellCoord = new MyCellCoord(lod, new Vector3I(x, y, z));
-            shape = (HkBvCompressedMeshShape)HkShape.Empty;
+            shape = HkShape.Empty;
             // shape must take ownership, otherwise shapes created here will leak, since I can't remove reference
             refPolicy = HkReferencePolicy.TakeOwnership;
-            MyPrecalcComponent.QueueJobCancel(m_workTracker, cellCoord);
-
+            //MyPrecalcComponent.QueueJobCancel(m_workTracker, cellCoord);
             if (m_voxelMap.MarkedForClose)
             {
                 ProfilerShort.End();
@@ -278,7 +277,10 @@ namespace Sandbox.Engine.Voxels
             if (!MyIsoMesh.IsEmpty(geometryData))
             {
                 ProfilerShort.Begin("Shape from geometry");
-                shape = CreateShape(geometryData);
+                shape = CreateShape(geometryData, true);
+                shape.AddReference();
+                var args = new MyPrecalcJobPhysicsPrefetch.Args() {GeometryCell = cellCoord, TargetPhysics = this, Tracker = m_workTracker, SimpleShape = shape};
+                MyPrecalcJobPhysicsPrefetch.Start(args);
                 m_needsShapeUpdate = true;
                 ProfilerShort.End();
             }
@@ -622,7 +624,7 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        internal void OnTaskComplete(MyCellCoord coord, HkBvCompressedMeshShape childShape)
+        internal void OnTaskComplete(MyCellCoord coord, HkShape childShape)
         {
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
             if (RigidBody != null)
@@ -637,7 +639,7 @@ namespace Sandbox.Engine.Voxels
             }
         }
 
-        internal void OnBatchTaskComplete(Dictionary<Vector3I, HkBvCompressedMeshShape> newShapes, int lod)
+        internal void OnBatchTaskComplete(Dictionary<Vector3I, HkShape> newShapes, int lod)
         {
             Debug.Assert(RigidBody != null, "RigidBody in voxel physics is null! This must not happen.");
             if (RigidBody != null)
@@ -678,21 +680,37 @@ namespace Sandbox.Engine.Voxels
             return mesh;
         }
 
-        internal HkBvCompressedMeshShape CreateShape(MyIsoMesh mesh)
+        [ThreadStatic]
+        private static List<int> s_indexListMember;
+
+        private static List<int> s_indexList { get { return MyUtils.Init(ref s_indexListMember); } }
+
+        [ThreadStatic]
+        private static HkGeometry s_cellGeometryMember;
+
+        private static HkGeometry s_cellGeometry { get { return MyUtils.Init(ref s_cellGeometryMember); } }
+
+        [ThreadStatic]
+        private static List<Vector3> s_vertexListMember;
+        private static List<Vector3> s_vertexList { get { return MyUtils.Init(ref s_vertexListMember); } }
+
+        internal unsafe HkShape CreateShape(MyIsoMesh mesh, bool simple = false)
         {
             // mk:NOTE This method must be thread safe. Called from worker threads.
 
             if (mesh == null || mesh.TrianglesCount == 0 || mesh.VerticesCount == 0)
-                return (HkBvCompressedMeshShape)HkShape.Empty;
+                return HkShape.Empty;
 
-            List<int> indexList = new List<int>(mesh.TrianglesCount * 3);
-            List<Vector3> vertexList = new List<Vector3>(mesh.VerticesCount);
+            if (s_indexList.Capacity < mesh.TrianglesCount * 3)
+                s_indexList.Capacity = mesh.TrianglesCount * 3;
+            if (s_vertexList.Capacity < mesh.VerticesCount)
+                s_vertexList.Capacity = mesh.VerticesCount;
 
             for (int i = 0; i < mesh.TrianglesCount; i++)
             {
-                indexList.Add(mesh.Triangles[i].VertexIndex0);
-                indexList.Add(mesh.Triangles[i].VertexIndex2);
-                indexList.Add(mesh.Triangles[i].VertexIndex1);
+                s_indexList.Add(mesh.Triangles[i].VertexIndex0);
+                s_indexList.Add(mesh.Triangles[i].VertexIndex2);
+                s_indexList.Add(mesh.Triangles[i].VertexIndex1);
             }
 
             // mk:TODO Unify denormalizing of positions with what is in MyIsoMesh.
@@ -700,16 +718,31 @@ namespace Sandbox.Engine.Voxels
             var positions = mesh.Positions.GetInternalArray();
             for (int i = 0; i < mesh.VerticesCount; i++)
             {
-                vertexList.Add(positions[i] * mesh.PositionScale + positionOffset);
+                s_vertexList.Add(positions[i] * mesh.PositionScale + positionOffset);
             }
-
-            // TODO(DI): This whole thing is absolutely wrong, we must send pointers and stuff
-            using (var cellGeometry = new HkGeometry(vertexList, indexList))
             {
-                var result = new HkBvCompressedMeshShape(cellGeometry, null, null, HkWeldingType.None, MyPerGameSettings.PhysicsConvexRadius);
-                Debug.Assert(result.Base.ReferenceCount == 1);
+                HkShape result;
+                if (simple)
+                {
+                    result = new HkSimpleMeshShape(s_vertexList, s_indexList);
+                }
+                else
+                {
+                    s_cellGeometry.SetGeometry(s_vertexList, s_indexList);
+                    result = new HkBvCompressedMeshShape(s_cellGeometry, null, null, HkWeldingType.None,
+                        MyPerGameSettings.PhysicsConvexRadius);
+
+                }
+                Debug.Assert(result.ReferenceCount == 1);
+                s_vertexList.Clear();
+                s_indexList.Clear();
                 return result;
             }
+        }
+
+        internal HkShape BakeCompressedMeshShape(HkSimpleMeshShape simpleMesh)
+        {
+            return new HkBvCompressedMeshShape(simpleMesh);
         }
 
         public override bool IsStaticForCluster
@@ -767,7 +800,8 @@ namespace Sandbox.Engine.Voxels
         {
             if (ENABLE_AABB_PHANTOM)
             {
-                var center = GetRigidBodyMatrix().Translation + m_voxelMap.SizeInMetresHalf;
+                GetRigidBodyMatrix(out m_bodyMatrix);
+                var center = m_bodyMatrix.Translation + m_voxelMap.SizeInMetresHalf;
                 var size = m_voxelMap.SizeInMetres;
                 size *= m_phantomExtend;
 

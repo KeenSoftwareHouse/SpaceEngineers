@@ -222,7 +222,7 @@ namespace Sandbox.Game.Entities.Cube
             if (obj == m_dummyDisplacement && MyPhysicsBody.IsConstraintValid(m_constraint))
             {
                 SetConstraintPosition(TopBlock, (HkLimitedHingeConstraintData)m_constraint.ConstraintData);
-        }
+            }
         }
 
         private float NormalizeRPM(float v)
@@ -261,12 +261,14 @@ namespace Sandbox.Game.Entities.Cube
 
         protected override void UpdateText()
         {
+            VRage.Profiler.ProfilerShort.Begin("UpdateText");
             DetailedInfo.Clear();
             DetailedInfo.AppendStringBuilder(MyTexts.Get(GetAttachState())).AppendLine();
 
             if (SafeConstraint != null)
             {
-                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorCurrentAngle)).AppendDecimal(MathHelper.ToDegrees(m_currentAngle), 0).Append("°");
+                float angle = m_limitsActive ? MyMath.Clamp(m_currentAngle, m_minAngle, m_maxAngle) : m_currentAngle;
+                DetailedInfo.AppendStringBuilder(MyTexts.Get(MySpaceTexts.BlockPropertiesText_MotorCurrentAngle)).AppendDecimal(MathHelper.ToDegrees(angle), 0).Append("°");
 
                 if (!m_limitsActive && !(float.IsNegativeInfinity(m_minAngle) && float.IsPositiveInfinity(m_maxAngle)))
                 {
@@ -275,6 +277,7 @@ namespace Sandbox.Game.Entities.Cube
                 }
             }
             RaisePropertiesChanged();
+            VRage.Profiler.ProfilerShort.End();
         }
 
         void ScaleDown()
@@ -463,10 +466,15 @@ namespace Sandbox.Game.Entities.Cube
                     if (oldAngle < data.MaxAngularLimit && m_currentAngle >= data.MaxAngularLimit)
                         handle(true);
                 }
+                if (m_currentAngle > MathHelper.TwoPi)
+                   ScaleDown();
+                if (m_currentAngle < -MathHelper.TwoPi)
+                    ScaleUp();
             }
 
-            m_motor.MaxForce = Torque * Sync.RelativeSimulationRatio;
-            m_motor.MinForce = -Torque * Sync.RelativeSimulationRatio;
+            var effectiveTorque = Math.Min(Torque, TopGrid.Physics.Mass*100)*Sync.RelativeSimulationRatio;
+            m_motor.MaxForce = effectiveTorque;
+            m_motor.MinForce = -effectiveTorque;
             m_motor.VelocityTarget = TargetVelocity * Sync.RelativeSimulationRatio;
 
             bool motorRunning = IsWorking;
@@ -509,39 +517,39 @@ namespace Sandbox.Game.Entities.Cube
         {
             if (!base.CreateConstraint(rotor))
                 return false;
-                Debug.Assert(rotor != null, "Rotor cannot be null!");
-                Debug.Assert(m_constraint == null, "Already attached, call detach first!");
+            Debug.Assert(rotor != null, "Rotor cannot be null!");
+            Debug.Assert(m_constraint == null, "Already attached, call detach first!");
             Debug.Assert(
                 m_connectionState.Value.TopBlockId == 0 || m_connectionState.Value.TopBlockId == rotor.EntityId,
                 "m_rotorBlockId must be set prior calling Attach");
 
 
             var rotorBody = TopGrid.Physics.RigidBody;
-                var data = new HkLimitedHingeConstraintData();
-                m_motor = new HkVelocityConstraintMotor(1.0f, 1000000f);
+            var data = new HkLimitedHingeConstraintData();
+            m_motor = new HkVelocityConstraintMotor(1.0f, 1000000f);
 
-                data.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
-                data.Motor = m_motor;
-                data.DisableLimits();
+            data.SetSolvingMethod(HkSolvingMethod.MethodStabilized);
+            data.Motor = m_motor;
+            data.DisableLimits();
 
             SetConstraintPosition(rotor, data);
-                m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, data);
+            m_constraint = new HkConstraint(CubeGrid.Physics.RigidBody, rotorBody, data);
 
-                m_constraint.WantRuntime = true;
-                CubeGrid.Physics.AddConstraint(m_constraint);
-                if (!m_constraint.InWorld)
-                {
-                    CubeGrid.Physics.RemoveConstraint(m_constraint);
-                    m_constraint.Dispose();
-                    m_constraint = null;
-                    return false;
-                }
-
-                m_constraint.Enabled = true;
-
-                SetAngleToPhysics();
-                return true;
+            m_constraint.WantRuntime = true;
+            CubeGrid.Physics.AddConstraint(m_constraint);
+            if (!m_constraint.InWorld)
+            {
+                CubeGrid.Physics.RemoveConstraint(m_constraint);
+                m_constraint.Dispose();
+                m_constraint = null;
+                return false;
             }
+
+            m_constraint.Enabled = true;
+
+            SetAngleToPhysics();
+            return true;
+        }
 
         protected override void DisposeConstraint()
         {

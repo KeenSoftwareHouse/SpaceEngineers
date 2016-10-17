@@ -30,7 +30,7 @@ namespace SpaceEngineers.Game.Entities.Blocks
 
             light.ReflectorDirection = WorldMatrix.Forward;
             light.ReflectorUp        = WorldMatrix.Up;
-            light.PointLightOffset   = 0.5f;
+            light.PointLightOffset   = 0f;
 
             light.GlareOn        = true;
             light.GlareIntensity = 0.4f;

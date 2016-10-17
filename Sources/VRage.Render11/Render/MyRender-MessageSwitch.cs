@@ -859,7 +859,11 @@ namespace VRageRender
                         MyOutline.HandleOutline(rMessage.ID, rMessage.SectionIndices, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInFrames, rMessage.InstanceIndex);
                         if (rMessage.SubpartIndices != null)
                             foreach (uint index in rMessage.SubpartIndices)
-                                MyOutline.HandleOutline(index, null, rMessage.OutlineColor, rMessage.Thickness, rMessage.PulseTimeInFrames, -1);
+                                if (index != -1)
+                                {
+                                    MyOutline.HandleOutline(index, null, rMessage.OutlineColor, rMessage.Thickness,
+                                        rMessage.PulseTimeInFrames, -1);
+                                }
                     }
 
                     break;

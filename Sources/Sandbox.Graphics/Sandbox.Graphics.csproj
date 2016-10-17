@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Gui\MyGuiControlContextMenu.cs" />
     <Compile Include="Gui\MyGuiControlCountdownWheel.cs" />
+    <Compile Include="Gui\MyGuiControlDirectoryBrowser.cs" />
     <Compile Include="Gui\MyGuiControlImage.cs" />
     <Compile Include="Gui\MyGuiControlImageButton.cs" />
     <Compile Include="Gui\MyGuiControlLabeledGrid.cs" />

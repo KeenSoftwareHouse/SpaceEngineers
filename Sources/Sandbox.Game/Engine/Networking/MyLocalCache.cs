@@ -197,19 +197,19 @@ namespace Sandbox.Engine.Networking
             return MyObjectBuilderSerializer.SerializeXML(cubeGridFile, MySandboxGame.Config.CompressSaveGames, cubegrid, out sizeInBytes);
         }
 
-        public static List<Tuple<string, MyWorldInfo>> GetAvailableWorldInfos()
+        public static List<Tuple<string, MyWorldInfo>> GetAvailableWorldInfos(string customPath = null)
         {
             MySandboxGame.Log.WriteLine("Loading available saves - START");
             var result = new List<Tuple<string, MyWorldInfo>>();
             using (MySandboxGame.Log.IndentUsing(LoggingOptions.ALL))
             {
-                if (MyFakes.ENABLE_LOADING_CONTENT_WORLDS)
-                {
-                    // Search in Content/Sessions as well as App Data folder
-                    GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, ContentSessionsPath), result);
-                }
+                //if (MyFakes.ENABLE_LOADING_CONTENT_WORLDS)
+                //{
+                //    // Search in Content/Sessions as well as App Data folder
+                //    GetWorldInfoFromDirectory(Path.Combine(MyFileSystem.ContentPath, ContentSessionsPath), result);
+                //}
 
-                GetWorldInfoFromDirectory(MyFileSystem.SavesPath, result);
+                GetWorldInfoFromDirectory(customPath ?? MyFileSystem.SavesPath, result);
 
                 LoadLastLoadedTimes(result);
             }
@@ -283,8 +283,8 @@ namespace Sandbox.Engine.Networking
 
         public static string GetLastSessionPath()
         {
-            if (MyFinalBuildConstants.IS_OFFICIAL)
-                return null;
+            //if (MyFinalBuildConstants.IS_OFFICIAL)
+            //    return null;
 
             if (!File.Exists(LastSessionPath))
                 return null;
@@ -306,8 +306,8 @@ namespace Sandbox.Engine.Networking
 
         public static bool SaveLastSessionInfo(string sessionPath)
         {
-            if (MyFinalBuildConstants.IS_OFFICIAL)
-                return true;
+            //if (MyFinalBuildConstants.IS_OFFICIAL)
+            //    return true;
 
             MyObjectBuilder_LastSession lastSession = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_LastSession>();
             if (sessionPath != null)

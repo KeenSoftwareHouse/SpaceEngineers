@@ -157,6 +157,9 @@
     <Reference Include="SharpDX.Toolkit">
       <HintPath>..\..\3rd\SharpDX.Toolkit\x64\Release\SharpDX.Toolkit.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.XAudio2">
+      <HintPath>..\..\3rd\SharpDX\SharpDX.XAudio2.dll</HintPath>
+    </Reference>
     <Reference Include="SteamSDK" Condition="('$(Configuration)' != 'Debug_XB1') And ('$(Configuration)' != 'Release_XB1')">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\3rd\SteamSDK\$(Configuration)\$(Platform)\SteamSDK.dll</HintPath>
@@ -383,6 +386,7 @@
     <Compile Include="Engine\Physics\MyRagdollMapper.cs" />
     <Compile Include="Engine\Physics\MyWeldingGroups.cs" />
     <Compile Include="Engine\Physics\PhysicsLayers.cs" />
+    <Compile Include="Engine\Utils\MyCutsceneCamera.cs" />
     <Compile Include="Engine\Utils\MyDebugDrawSettings.cs" />
     <Compile Include="Engine\Utils\MyConfigBase.cs" />
     <Compile Include="Engine\Utils\MyConfigDedicated.cs" />
@@ -525,6 +529,22 @@
     <Compile Include="Game\Audio\MyAudioExtensions.cs" />
     <Compile Include="Game\Audio\MyEntity3DSoundEmitter.cs" />
     <Compile Include="Game\Audio\MyMusicController.cs" />
+    <Compile Include="Game\Entities\MyTriggerAggregate.cs" />
+    <Compile Include="Game\EntityComponents\MyObjectBuilder_TriggerAggregate.cs" />
+    <Compile Include="Game\GameSystems\MyDroneStrafeBehaviour.cs" />
+    <Compile Include="Game\GameSystems\MySpaceStrafeData.cs" />
+    <Compile Include="Game\GameSystems\MyTriggerManipulator.cs" />
+    <Compile Include="Game\GUI\MyHudQuestlog.cs" />
+    <Compile Include="Game\MyCampaignManager.cs" />
+    <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugCutscenes.cs" />
+    <Compile Include="Game\Screens\Helpers\MyGuiControlCampaignButton.cs" />
+    <Compile Include="Game\Screens\Helpers\MyGuiControlQuestlog.cs" />
+    <Compile Include="Game\Screens\Helpers\MyGuiControlSaveBrowser.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenMainMenuBase.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenNewControlTesting.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenNewGame.cs" />
+    <Compile Include="Game\Screens\MyGuiScreenScriptingTools.cs" />
+    <Compile Include="Game\SessionComponents\MyCampaignSessionComponent.cs" />
     <Compile Include="Game\Entities\Blocks\IMyTriggerableBlock.cs" />
     <Compile Include="Game\Entities\Blocks\MyAirtightSlideDoor.cs" />
     <Compile Include="Game\Entities\Blocks\MyAttachableTopBlockBase.cs" />
@@ -554,13 +574,16 @@
     <Compile Include="Game\Entities\Cube\MyCubeGrids.cs" />
     <Compile Include="Game\Entities\Planet\MyPlanetSectorId.cs" />
     <Compile Include="Game\EntityComponents\MyAtmosphereDetectorComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyAreaTriggerComponent.cs" />
     <Compile Include="Game\EntityComponents\MyEntityReferenceComponent.cs" />
     <Compile Include="Game\EntityComponents\MyGridOwnershipComponentBase.cs" />
     <Compile Include="Game\EntityComponents\MyEntityReverbDetectorComponent.cs" />
     <Compile Include="Game\EntityComponents\MyShipSoundComponent.cs" />
+    <Compile Include="Game\EntityComponents\MyTriggerComponent.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyAlesDebugInputComponent.cs" />
     <Compile Include="Game\EntityComponents\MyEntityTerrainHeightProviderComponent.cs" />
     <Compile Include="Game\Entities\Planet\MyGravityProviderComponent.cs" />
+    <Compile Include="Game\GUI\DebugInputComponents\MyVisualScriptingDebugInputComponent.cs" />
     <Compile Include="Game\Entities\Planet\MySphericalNaturalGravityComponent.cs" />
     <Compile Include="Game\GameSystems\MyEnvironmentBotSpawningSystem.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\MyResearchDebugInputComponent.cs" />
@@ -620,9 +643,12 @@
     <Compile Include="Game\GameSystems\CoordinateSystem\MyLocalCoordSys.cs" />
     <Compile Include="Game\GameSystems\ContextHandling\MyGameFocusManager.cs" />
     <Compile Include="Game\GUI\DebugInputComponents\PlanetsDebugInputComponent\MyPlanetsDebugInputComponent.SectorTree.cs" />
+    <Compile Include="Game\SessionComponents\MyEntityTransformationSystem.cs" />
+    <Compile Include="Game\SessionComponents\MyHighlightSystem.cs" />
     <Compile Include="Game\Replication\MyComponentReplicableBase.cs" />
     <Compile Include="Game\SessionComponents\MySectorWeatherComponent.cs" />
     <Compile Include="Game\SessionComponents\MyPlanetTrackComponent.cs" />
+    <Compile Include="Game\SessionComponents\MySessionComponentCutscenes.cs" />
     <Compile Include="Game\SessionComponents\MyUniformGravityProviderComponent.cs" />
     <Compile Include="Game\WorldEnvironment\Definitions\MyBotCollectionDefinition.cs" />
     <Compile Include="Game\WorldEnvironment\Definitions\MyProceduralEnvironmentModuleDefinition.cs" />
@@ -672,6 +698,7 @@
     <Compile Include="Game\GUI\DebugInputComponents\VoxelsDebugInputComponent\MyVoxelDebugInputComponent.IntersectBB.cs" />
     <Compile Include="Game\GUI\MyHudChangedInventoryItems.cs" />
     <Compile Include="Game\MyDecals.cs" />
+    <Compile Include="Game\MyVisualScriptLogicProvider.cs" />
     <Compile Include="Game\ParticleEffects\MyCubeBlockEffect.cs" />
     <Compile Include="Game\Replication\MyCharacterNetState.cs" />
     <Compile Include="Game\Replication\MyCharacterPositionVerificationStateGroup.cs" />
@@ -1009,7 +1036,7 @@
     <Compile Include="Game\MyGameStats.cs" />
     <Compile Include="Game\MyGuiDetailScreenScript.cs" />
     <Compile Include="Game\MyVoxelBase.cs" />
-    <Compile Include="Game\ParticleEffects\MyExplosionDamage.cs" />
+    <Compile Include="Game\ParticleEffects\MyGridExplosion.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugAi.cs" />
     <Compile Include="Game\Screens\DebugScreens\VRage\MyGuiScreenDebugCharacterKinematics.cs" />
     <Compile Include="Game\Screens\DebugScreens\Game\MyGuiScreenDebugStructuralIntegrity.cs" />
@@ -1100,7 +1127,7 @@
     <Compile Include="Game\SessionComponents\MyRespawnComponentBase.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentArmorHand.cs" />
     <Compile Include="Game\Screens\Terminal\MyTerminalGpsController.cs" />
-    <Compile Include="Game\SessionComponents\MySessionComponentEntityTrigger.cs" />
+    <Compile Include="Game\SessionComponents\MySessionComponentTriggerSystem.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentEquivalency.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentMissionTriggers.cs" />
     <Compile Include="Game\SessionComponents\MySessionComponentPlanetAmbientSounds.cs" />
@@ -1148,6 +1175,7 @@
     <Compile Include="Game\World\MyPirateAntennas.cs" />
     <Compile Include="Game\World\MySession.Components.cs" />
     <Compile Include="Game\World\MySessionCompatHelper.cs" />
+    <Compile Include="Game\World\MySessionLoader.cs" />
     <Compile Include="Game\World\MyWorldGenerator.Planet.cs" />
     <Compile Include="Game\World\Triggers\MyMissionTriggers.cs" />
     <Compile Include="Game\World\Triggers\MyTrigger.cs" />
@@ -1503,7 +1531,6 @@
     <Compile Include="Game\Screens\MyGuiScreenHelpSpace.cs" />
     <Compile Include="Game\Screens\MyGuiScreenIntroVideo.cs" />
     <Compile Include="Game\Screens\MyGuiScreenLoading.cs" />
-    <Compile Include="Game\Screens\MyGuiScreenMainMenu.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsAudio.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsControls.cs" />
     <Compile Include="Game\Screens\MyGuiScreenOptionsGame.cs" />
@@ -1636,6 +1663,9 @@
     <EmbeddedResource Include="MySandboxForm.resx">
       <DependentUpon>MySandboxForm.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -39,6 +39,7 @@ using VRage.Game.ModAPI.Ingame;
 using Sandbox.Game.Entities.Interfaces;
 using Sandbox.Game.GUI;
 using Sandbox.Game.SessionComponents;
+using VRage.Audio;
 using VRage.Sync;
 using IMyEntity = VRage.ModAPI.IMyEntity;
 
@@ -669,6 +670,17 @@ namespace Sandbox.Game
                     if (amount >= obj.Item.Amount)
                     {
                         MyFloatingObjects.RemoveFloatingObject(obj, true);
+
+                        // Visual Scripting event Implementation
+                        if(MyVisualScriptLogicProvider.PlayerPickedUp != null)
+                        {
+                            var character = Owner as MyCharacter;
+                            if(character != null)
+                            {
+                                var playerId = character.ControllerInfo.ControllingIdentityId;
+                                MyVisualScriptLogicProvider.PlayerPickedUp(obj.ItemDefinition.Id.TypeId.ToString(), obj.ItemDefinition.Id.SubtypeName, obj.Name, playerId, amount.ToIntSafe());
+                            }
+                        }
                     }
                     else
                     {
@@ -1984,6 +1996,16 @@ namespace Sandbox.Game
         [Event, Reliable, Server]
         private void DropItem_Implementation(MyFixedPoint amount, uint itemIndex)
         {
+            if (MyVisualScriptLogicProvider.PlayerDropped != null)
+            {
+                var character = Owner as MyCharacter;
+                if (character != null)
+                {
+                    var item = GetItemByID(itemIndex);
+                    var playerId = character.ControllerInfo.ControllingIdentityId;
+                    MyVisualScriptLogicProvider.PlayerDropped(item.Value.Content.TypeId.ToString(), item.Value.Content.SubtypeName, playerId, amount.ToIntSafe());
+                }
+            }
             RemoveItems(itemIndex, amount, true, true);
         }
 
@@ -2324,6 +2346,11 @@ namespace Sandbox.Game
             {
                 m_maxVolume = (MyFixedPoint)newValue;
             }
+        }
+
+        public void ResetVolume()
+        {
+            m_maxVolume = MyFixedPoint.MaxValue;
         }
     }
 }

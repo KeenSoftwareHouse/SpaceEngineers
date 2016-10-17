@@ -162,8 +162,10 @@
     <Compile Include="Generics\IMyCondition.cs" />
     <Compile Include="Generics\IMyVariableStorage.cs" />
     <Compile Include="Generics\MyCachingDynamicObjectsPool.cs" />
-    <Compile Include="Generics\MyStateMachine.cs" />
+    <Compile Include="Generics\MyMultiStateMachine.cs" />
+    <Compile Include="Generics\MySingleStateMachine.cs" />
     <Compile Include="Generics\MyCondition.cs" />
+    <Compile Include="Generics\MyStateMachineCursor.cs" />
     <Compile Include="Generics\MyStateMachineNode.cs" />
     <Compile Include="Generics\MyStateMachineTransition.cs" />
     <Compile Include="ModdableContentFileAttribute.cs" />

@@ -3,6 +3,7 @@ using VRage.Game.Components;
 using VRage.ModAPI;
 using VRageRender;
 using VRage.Utils;
+using VRageMath;
 using Vector3 = VRageMath.Vector3;
 using Vector3D = VRageMath.Vector3D;
 using MatrixD = VRageMath.MatrixD;
@@ -286,6 +287,38 @@ namespace VRage.Game.Utils
         public Vector3D WorldToScreen(ref Vector3D worldPos)
         {
             return Vector3D.Transform(worldPos, ViewProjectionMatrix);
+        }
+
+        /// <summary>
+        /// Gets normalized world space line from screen space coordinates.
+        /// </summary>
+        /// <param name="screenCoords"></param>
+        /// <returns></returns>
+        public LineD WorldLineFromScreen(Vector2 screenCoords)
+        {
+            var matViewProjInv = MatrixD.Invert(ViewProjectionMatrix);
+
+            // normalized screen space vector
+            var raySource = new Vector4D(
+                    (2.0f * screenCoords.X) / Viewport.Width - 1.0f,
+                    1.0f - (2.0f * screenCoords.Y) / Viewport.Height,
+                    0.0f,
+                    1.0f
+                );
+            var rayTarget = new Vector4D(
+                    (2.0f * screenCoords.X) / Viewport.Width - 1.0f,
+                    1.0f - (2.0f * screenCoords.Y) / Viewport.Height,
+                    1.0f,
+                    1.0f
+                );
+
+            var raySourceWorld = Vector4D.Transform(raySource, matViewProjInv);
+            var rayTargetWorld = Vector4D.Transform(rayTarget, matViewProjInv);
+
+            raySourceWorld /= raySourceWorld.W;
+            rayTargetWorld /= rayTargetWorld.W;
+
+            return new LineD(new Vector3D(raySourceWorld), new Vector3D(rayTargetWorld));
         }
 
         #region ModAPI

@@ -76,6 +76,11 @@ namespace Sandbox.Game.Weapons
             return builder;
         }
 
+        public virtual bool IsStationary()
+        {
+            return false;
+        }
+
         void OnShootOncePressed()
         {
            SyncRotationAndOrientation();
@@ -86,6 +91,11 @@ namespace Sandbox.Game.Weapons
         public void ShootOncePressedEvent()
         {
             Shoot();
+        }
+
+        public void SetShooting(bool shooting)
+        {
+            OnShootPressed(shooting);
         }
 
         void OnShootPressed(bool isShooting)

@@ -33,9 +33,11 @@ namespace Sandbox.Game.Gui
 
         public List<Tuple<string, MyWorldInfo>> AvailableSaves = new List<Tuple<string, MyWorldInfo>>();
         public bool ContainsCorruptedWorlds;
+        public readonly string CustomPath;
 
-        public MyLoadListResult()
+        public MyLoadListResult(string customPath = null)
         {
+            CustomPath = customPath;
             Task = Parallel.Start(() => LoadListAsync());
         }
 
@@ -105,9 +107,11 @@ namespace Sandbox.Game.Gui
 
     public class MyLoadWorldInfoListResult : MyLoadListResult
     {
+        public MyLoadWorldInfoListResult(string customPath = null) : base(customPath) {}
+
         protected override List<Tuple<string, MyWorldInfo>> GetAvailableSaves()
         {
-            return MyLocalCache.GetAvailableWorldInfos();
+            return MyLocalCache.GetAvailableWorldInfos(CustomPath);
         }
     }
 

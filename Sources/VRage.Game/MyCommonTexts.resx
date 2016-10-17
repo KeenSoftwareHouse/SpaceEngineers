@@ -2305,4 +2305,10 @@ Do you want to continue?</value>
   <data name="ToolTipWorkshopCopyWorld" xml:space="preserve">
     <value>Download selected world to save games without loading it (Use to Edit Settings before playing world)</value>
   </data>
+  <data name="Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="ScreenMenuButtonCampaign" xml:space="preserve">
+    <value>New Game</value>
+  </data>
 </root>

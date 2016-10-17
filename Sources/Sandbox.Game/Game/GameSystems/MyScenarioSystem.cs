@@ -2,35 +2,21 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
-using Sandbox.Common;
 using Sandbox.Engine.Networking;
 using Sandbox.Engine.Utils;
-using Sandbox.Engine.Voxels;
-using Sandbox.Game.Components;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
-using Sandbox.Graphics;
-using VRage.Input;
 using VRage.Library.Utils;
 using VRageMath;
 using VRageRender;
 using VRage.FileSystem;
 using Sandbox.Graphics.GUI;
-using Sandbox.Game.Entities.Character;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using Sandbox.Engine.Multiplayer;
 using SteamSDK;
-using ProtoBuf;
 using Sandbox.Game.Gui;
 using VRage.Utils;
-using Sandbox.Definitions;
-using Sandbox.Game.Screens.Helpers;
-using Sandbox.Engine.Physics;
 using Sandbox.Game.GUI;
 using Sandbox.Game.Screens;
 using Sandbox.Game.Localization;
@@ -574,7 +560,7 @@ namespace Sandbox.Game.GameSystems
                     MyScreenManager.CloseAllScreensNowExcept(null);
                     MyGuiSandbox.Update(VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_MILLISECONDS);
 
-                    MyGuiScreenLoadSandbox.CheckMismatchmods(mismatchMods, callback: delegate(VRage.Game.ModAPI.ResultEnum val)
+                    MySessionLoader.CheckMismatchmods(mismatchMods, callback: delegate(VRage.Game.ModAPI.ResultEnum val)
                     {
                         // May be called from gameplay, so we must make sure we unload the current game
                         if (MySession.Static != null)
@@ -588,7 +574,7 @@ namespace Sandbox.Game.GameSystems
                         if (checkpoint.Settings.ProceduralSeed == 0)
                             checkpoint.Settings.ProceduralSeed = MyRandom.Instance.Next();
 
-                        MyGuiScreenGamePlay.StartLoading(delegate
+                        MySessionLoader.StartLoading(delegate
                         {
                             checkpoint.Settings.Scenario = true;
                             MySession.LoadMission(data.SessionPath, checkpoint, data.CheckpointSize, data.PersistentEditMode);
@@ -604,7 +590,7 @@ namespace Sandbox.Game.GameSystems
                         buttonType: MyMessageBoxButtonsType.OK, callback: delegate(MyGuiScreenMessageBox.ResultEnum result)
                         {
                             if (MyFakes.QUICK_LAUNCH != null)
-                                MyGuiScreenMainMenu.ReturnToMainMenu();
+                                MySessionLoader.UnloadAndExitToMenu();
                         }));
                 }
                 MyLog.Default.WriteLine("LoadSession() - End");

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Input;
@@ -101,6 +102,34 @@ namespace Sandbox.Game.Gui
             m_rightFilterGroup = new MyGuiControlRadioButtonGroup();
             m_controlsDisabledWhileDragged = new List<MyGuiControlGrid>();
             m_endpointPredicate = this.EndpointPredicate;
+        }
+
+        public void Refresh()
+        {
+            var parentGrid = (m_interactedAsEntity != null) ? m_interactedAsEntity.Parent as MyCubeGrid : null;
+            m_interactedGridOwners.Clear();
+            if (parentGrid != null)
+            {
+                var group = MyCubeGridGroups.Static.Logical.GetGroup(parentGrid);
+                foreach (var node in group.Nodes)
+                {
+                    GetGridInventories(node.NodeData, m_interactedGridOwners);
+                    node.NodeData.GridSystems.ConveyorSystem.BlockAdded += ConveyorSystem_BlockAdded;
+                    node.NodeData.GridSystems.ConveyorSystem.BlockRemoved += ConveyorSystem_BlockRemoved;
+
+                    m_registeredConveyorSystems.Add(node.NodeData.GridSystems.ConveyorSystem);
+                }
+            }
+
+            m_leftTypeGroup.SelectedIndex = 0;
+            m_rightTypeGroup.SelectedIndex = (m_interactedAsEntity is MyCharacter) || (m_interactedAsEntity is MyInventoryBagEntity) ? 0 : 1;
+            m_leftFilterGroup.SelectedIndex = 0;
+            m_rightFilterGroup.SelectedIndex = 0;
+
+            LeftTypeGroup_SelectedChanged(m_leftTypeGroup);
+            RightTypeGroup_SelectedChanged(m_rightTypeGroup);
+            SetLeftFilter(m_leftFilterType);
+            SetRightFilter(m_rightFilterType);
         }
 
         public void Init(IMyGuiControlsParent controlsParent, MyEntity thisEntity, MyEntity interactedEntity, MyGridColorHelper colorHelper)
@@ -450,6 +479,8 @@ namespace Sandbox.Game.Gui
                 {
                     if ((block is Sandbox.Game.Entities.Cube.MyTerminalBlock) &&
                         !(block as Sandbox.Game.Entities.Cube.MyTerminalBlock).HasLocalPlayerAccess())
+                        continue;
+                    if (m_interactedAsEntity != block && block is Sandbox.Game.Entities.Cube.MyTerminalBlock && !(block as Sandbox.Game.Entities.Cube.MyTerminalBlock).ShowInInventory)
                         continue;
 
                     outputInventories.Add(block);

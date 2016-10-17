@@ -5634,4 +5634,13 @@ When this is 0 then the backup feature is disabled and all backups are deleted u
   <data name="WorldSettings_StationVoxelSupport" xml:space="preserve">
     <value>Unsupported Stations</value>
   </data>
+  <data name="BlockPropertyTitle_AssignedCamera" xml:space="preserve">
+    <value>Assigned camera</value>
+  </data>
+  <data name="Terminal_ShowInInventory" xml:space="preserve">
+    <value>Show block in Inventory Screen</value>
+  </data>
+  <data name="Terminal_ShowInInventoryToolTip" xml:space="preserve">
+    <value>Show block in inventory screen. If you access the block directly it will be visible regardless of this setting.</value>
+  </data>
 </root>

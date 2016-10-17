@@ -3,6 +3,7 @@ using Sandbox.Definitions;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using VRage.Algorithms;
@@ -135,8 +136,7 @@ namespace Sandbox.Game.GameSystems.Conveyors
             public MyObjectBuilder_ConveyorLine.LineConductivity LineConductivity;
         }
 
-        private static SpinLockRef objectLock = new SpinLockRef();
-        private static Dictionary<MyDefinitionId, BlockLinePositionInformation[]> m_blockLinePositions = new Dictionary<MyDefinitionId, BlockLinePositionInformation[]>();
+        private static ConcurrentDictionary<MyDefinitionId, BlockLinePositionInformation[]> m_blockLinePositions = new ConcurrentDictionary<MyDefinitionId, BlockLinePositionInformation[]>();
 
         private static readonly float CONVEYOR_PER_LINE_PENALTY = 1.0f;
 
@@ -599,81 +599,78 @@ namespace Sandbox.Game.GameSystems.Conveyors
         {
             BlockLinePositionInformation[] retval;
 
-            using (objectLock.Acquire())
-            {
-                if (m_blockLinePositions.TryGetValue(block.BlockDefinition.Id, out retval))
-                    return retval;
-
-                var definition = block.BlockDefinition;
-                float cubeSize = MyDefinitionManager.Static.GetCubeSize(definition.CubeSize);
-                Vector3 blockCenter = new Vector3(definition.Size) * 0.5f * cubeSize;
-
-                var finalModel = VRage.Game.Models.MyModels.GetModelOnlyDummies(block.BlockDefinition.Model);
-
-                int count = 0;
-                foreach (var dummy in finalModel.Dummies)
-                {
-                    String[] parts = dummy.Key.ToLower().Split('_');
-                    if (parts.Length < 2) continue;
-                    if (parts[0] == "detector" && parts[1].StartsWith("conveyor"))
-                    {
-                        count++;
-                    }
-                }
-
-                retval = new BlockLinePositionInformation[count];
-                int i = 0;
-                foreach (var dummy in finalModel.Dummies)
-                {
-                    String[] parts = dummy.Key.ToLower().Split('_');
-                    if (parts.Length < 2 || parts[0] != "detector" || !parts[1].StartsWith("conveyor")) continue;
-
-                    bool smallLine = parts.Length > 2 && parts[2] == "small";
-                    if (smallLine)
-                    {
-                        retval[i].LineType = MyObjectBuilder_ConveyorLine.LineType.SMALL_LINE;
-                    }
-                    else
-                    {
-                        retval[i].LineType = MyObjectBuilder_ConveyorLine.LineType.LARGE_LINE;
-                    }
-
-                    retval[i].LineConductivity = MyObjectBuilder_ConveyorLine.LineConductivity.FULL;
-
-                    bool input = (parts.Length > 2 && parts[2] == "in") || (parts.Length > 3 && parts[3] == "in");
-                    if (input)
-                    {
-                        retval[i].LineConductivity = MyObjectBuilder_ConveyorLine.LineConductivity.FORWARD;
-                    }
-
-                    bool output = (parts.Length > 2 && parts[2] == "out") || (parts.Length > 3 && parts[3] == "out");
-                    if (output)
-                    {
-                        retval[i].LineConductivity = MyObjectBuilder_ConveyorLine.LineConductivity.BACKWARD;
-                    }
-
-                    var matrix = dummy.Value.Matrix;
-                    ConveyorLinePosition linePosition = new ConveyorLinePosition();
-
-                    Vector3 doorPosition = matrix.Translation + definition.ModelOffset + blockCenter;
-
-                    Vector3I doorPositionInt = Vector3I.Floor(doorPosition / cubeSize);
-                    doorPositionInt = Vector3I.Max(Vector3I.Zero, doorPositionInt);
-                    doorPositionInt = Vector3I.Min(definition.Size - Vector3I.One, doorPositionInt);
-
-                    Vector3 cubeCenter = (new Vector3(doorPositionInt) + Vector3.Half) * cubeSize;
-
-                    var direction = Vector3.Normalize(Vector3.DominantAxisProjection(Vector3.Divide(doorPosition - cubeCenter, cubeSize)));
-
-                    linePosition.LocalGridPosition = doorPositionInt - definition.Center;
-                    linePosition.Direction = Base6Directions.GetDirection(direction);
-                    retval[i].Position = linePosition;
-                    i++;
-                }
-
-                m_blockLinePositions.Add(definition.Id, retval);
+            if (m_blockLinePositions.TryGetValue(block.BlockDefinition.Id, out retval))
                 return retval;
+
+            var definition = block.BlockDefinition;
+            float cubeSize = MyDefinitionManager.Static.GetCubeSize(definition.CubeSize);
+            Vector3 blockCenter = new Vector3(definition.Size) * 0.5f * cubeSize;
+
+            var finalModel = VRage.Game.Models.MyModels.GetModelOnlyDummies(block.BlockDefinition.Model);
+
+            int count = 0;
+            foreach (var dummy in finalModel.Dummies)
+            {
+                String[] parts = dummy.Key.ToLower().Split('_');
+                if (parts.Length < 2) continue;
+                if (parts[0] == "detector" && parts[1].StartsWith("conveyor"))
+                {
+                    count++;
+                }
             }
+
+            retval = new BlockLinePositionInformation[count];
+            int i = 0;
+            foreach (var dummy in finalModel.Dummies)
+            {
+                String[] parts = dummy.Key.ToLower().Split('_');
+                if (parts.Length < 2 || parts[0] != "detector" || !parts[1].StartsWith("conveyor")) continue;
+
+                bool smallLine = parts.Length > 2 && parts[2] == "small";
+                if (smallLine)
+                {
+                    retval[i].LineType = MyObjectBuilder_ConveyorLine.LineType.SMALL_LINE;
+                }
+                else
+                {
+                    retval[i].LineType = MyObjectBuilder_ConveyorLine.LineType.LARGE_LINE;
+                }
+
+                retval[i].LineConductivity = MyObjectBuilder_ConveyorLine.LineConductivity.FULL;
+
+                bool input = (parts.Length > 2 && parts[2] == "in") || (parts.Length > 3 && parts[3] == "in");
+                if (input)
+                {
+                    retval[i].LineConductivity = MyObjectBuilder_ConveyorLine.LineConductivity.FORWARD;
+                }
+
+                bool output = (parts.Length > 2 && parts[2] == "out") || (parts.Length > 3 && parts[3] == "out");
+                if (output)
+                {
+                    retval[i].LineConductivity = MyObjectBuilder_ConveyorLine.LineConductivity.BACKWARD;
+                }
+
+                var matrix = dummy.Value.Matrix;
+                ConveyorLinePosition linePosition = new ConveyorLinePosition();
+
+                Vector3 doorPosition = matrix.Translation + definition.ModelOffset + blockCenter;
+
+                Vector3I doorPositionInt = Vector3I.Floor(doorPosition / cubeSize);
+                doorPositionInt = Vector3I.Max(Vector3I.Zero, doorPositionInt);
+                doorPositionInt = Vector3I.Min(definition.Size - Vector3I.One, doorPositionInt);
+
+                Vector3 cubeCenter = (new Vector3(doorPositionInt) + Vector3.Half) * cubeSize;
+
+                var direction = Vector3.Normalize(Vector3.DominantAxisProjection(Vector3.Divide(doorPosition - cubeCenter, cubeSize)));
+
+                linePosition.LocalGridPosition = doorPositionInt - definition.Center;
+                linePosition.Direction = Base6Directions.GetDirection(direction);
+                retval[i].Position = linePosition;
+                i++;
+            }
+
+            m_blockLinePositions.TryAdd(definition.Id, retval);
+            return retval;
         }
 
         public void RecalculateConductivity()

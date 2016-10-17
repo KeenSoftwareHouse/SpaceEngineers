@@ -61,7 +61,7 @@ namespace Sandbox.Game.Weapons
         //Debugging variable
         private int m_activateCounter;
 
-        private Dictionary<MyEntity, int> m_entitiesInContact;
+        private HashSet<MyEntity> m_entitiesInContact;
         protected BoundingSphere m_detectorSphere;
 
         private HashSet<MySlimBlock> m_blocksToActivateOn;
@@ -109,7 +109,7 @@ namespace Sandbox.Game.Weapons
 
             base.Init(objectBuilder, cubeGrid);
 
-            m_entitiesInContact = new Dictionary<MyEntity, int>();
+            m_entitiesInContact = new HashSet<MyEntity>();
             m_blocksToActivateOn = new HashSet<MySlimBlock>();
             m_tempBlocksBuffer = new HashSet<MySlimBlock>();
 
@@ -191,71 +191,10 @@ namespace Sandbox.Game.Weapons
 
                     Matrix blockMatrix = this.PositionComp.LocalMatrix;
                     Vector3 gridDetectorPosition = Vector3.Transform(matrix.Translation, blockMatrix);
-
                     m_detectorSphere = new BoundingSphere(gridDetectorPosition, radius);
-
-                    var phantom = new HkPhantomCallbackShape(phantom_Enter, phantom_Leave);
-                    var sphereShape = new HkSphereShape(radius);
-                    var detectorShape = new HkBvShape(sphereShape, phantom, HkReferencePolicy.TakeOwnership);
-
-                    Physics = new Engine.Physics.MyPhysicsBody(this, RigidBodyFlag.RBF_DEFAULT);
-                    Physics.IsPhantom = true;
-                    Physics.CreateFromCollisionObject(detectorShape, matrix.Translation, WorldMatrix, null, MyPhysics.CollisionLayers.ObjectDetectionCollisionLayer);
-                    detectorShape.Base.RemoveReference();
                     break;
                 }
             }
-        }
-
-        private void phantom_Leave(HkPhantomCallbackShape shape, HkRigidBody body)
-        {
-            ProfilerShort.Begin("ShipToolLeave");
-            var entities = body.GetAllEntities();
-            foreach (var ientity in entities)
-            {
-                if (!CanInteractWith(ientity))
-                    continue;
-
-                var entity = ientity as MyEntity;
-
-                int entityCounter;
-                bool registered = m_entitiesInContact.TryGetValue(entity, out entityCounter);
-          //      Debug.Assert(registered, "Unregistering not registered entity from ship tool");
-                if (!registered)
-                    continue;
-
-                m_entitiesInContact.Remove(entity);
-                if (entityCounter > 1)
-                    m_entitiesInContact.Add(entity, entityCounter - 1);
-            }
-            entities.Clear();
-            ProfilerShort.End();
-        }
-
-        private void phantom_Enter(HkPhantomCallbackShape shape, HkRigidBody body)
-        {
-            ProfilerShort.Begin("ShipToolEnter");
-            var entities = body.GetAllEntities();
-            foreach (var ientity in entities)
-            {
-                if (!CanInteractWith(ientity))
-                    continue;
-
-                var entity = ientity as MyEntity;
-
-                int entityCounter;
-                if (m_entitiesInContact.TryGetValue(entity, out entityCounter))
-                {
-                    m_entitiesInContact.Remove(entity);
-                    m_entitiesInContact.Add(entity, entityCounter + 1);
-                }
-                else
-                {
-                    m_entitiesInContact.Add(entity, 1);
-                }
-            }
-            entities.Clear();
-            ProfilerShort.End();
         }
 
         protected void SetBuildingMusic(int amount)
@@ -394,11 +333,23 @@ namespace Sandbox.Game.Weapons
             }
 
             m_isActivatedOnSomething = false;
+            ProfilerShort.Begin("Query");
+            var res = MyEntities.GetTopMostEntitiesInSphere(ref globalSphere);
+            m_entitiesInContact.Clear();
+            foreach (MyEntity entity in res)
+            {
+                var rootEntity = entity.GetTopMostParent();
+                if (CanInteractWith(rootEntity))
+                    m_entitiesInContact.Add(rootEntity);
+            }
+            res.Clear();
+            ProfilerShort.End();
 
+            //TODO:cache blocks on this grid
             foreach (var entry in m_entitiesInContact)
             {
-                MyCubeGrid grid = entry.Key as MyCubeGrid;
-                MyCharacter character = entry.Key as MyCharacter;
+                MyCubeGrid grid = entry as MyCubeGrid;
+                MyCharacter character = entry as MyCharacter;
 
                 if (grid != null)
                 {
@@ -474,7 +425,6 @@ namespace Sandbox.Game.Weapons
 
         protected virtual void StartShooting()
         {
-            Physics.Enabled = true;
             m_isActivated = true;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }

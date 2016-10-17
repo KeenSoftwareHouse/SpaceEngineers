@@ -8,6 +8,7 @@ namespace VRage
     {
         UserControlled,
         ConstantDelta,
+        FreeMouse,
         None,
         Orbit
     }

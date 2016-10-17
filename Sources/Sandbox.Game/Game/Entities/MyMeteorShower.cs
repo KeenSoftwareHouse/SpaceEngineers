@@ -432,7 +432,7 @@ namespace Sandbox.Game.Entities
             {
                 int size = (cg[i].Max - cg[i].Min + Vector3I.One).Size;
 
-                if (size < 16 || (MySessionComponentEntityTrigger.Static != null && MySessionComponentEntityTrigger.Static.IsActive(cg[i]) == false))
+                if (size < 16 || (MySessionComponentTriggerSystem.Static.IsAnyTriggerActive(cg[i]) == false))
                 {
                     cg.RemoveAt(i);
                     i--;

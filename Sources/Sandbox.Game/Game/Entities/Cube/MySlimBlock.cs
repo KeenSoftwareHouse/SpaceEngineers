@@ -1954,19 +1954,12 @@ namespace Sandbox.Game.Entities.Cube
 
         public void ComputeScaledCenter(out Vector3D scaledCenter)
         {
-            var min = (Vector3)Min;
-            var max = (Vector3)Max;
-            min -= 0.5f;
-            max += 0.5f;
-            scaledCenter = (max + min) * 0.5f;
-            scaledCenter *= CubeGrid.GridSize;
+            scaledCenter = (Max + Min) * CubeGrid.GridSizeHalf;
         }
 
         public void ComputeScaledHalfExtents(out Vector3 scaledHalfExtents)
         {
-            var min = (Vector3)Min * CubeGrid.GridSize;
-            var max = (Vector3)(Max + 1) * CubeGrid.GridSize;
-            scaledHalfExtents = (max - min) * 0.5f;
+            scaledHalfExtents = ((Max + 1)- Min) * CubeGrid.GridSizeHalf;
         }
 
         public float GetMass()
@@ -1981,14 +1974,14 @@ namespace Sandbox.Game.Entities.Cube
 
         void IMyDestroyableObject.OnDestroy()
         {
-            m_componentStack.DestroyCompletely();
-            ReleaseUnneededStockpileItems();
             if (FatBlock != null)
             {
                 ProfilerShort.Begin("MySlimBlock.OnDestroy");
                 FatBlock.OnDestroy();
                 ProfilerShort.End();
             }
+            m_componentStack.DestroyCompletely();
+            ReleaseUnneededStockpileItems();
             CubeGrid.RemoveFromDamageApplication(this);
             AccumulatedDamage = 0;
 

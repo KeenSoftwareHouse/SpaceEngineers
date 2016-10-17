@@ -20,6 +20,10 @@ namespace VRage.Game
         public long EntityId = 0;
         public bool ShouldSerializeEntityId() { return EntityId != 0; }
 
+        // TODO: Hotfixed, should inherit entity OB
+        [Serialize(MyObjectFlags.Nullable)]
+        public string Name;
+
         [ProtoMember]
         [Serialize(MyPrimitiveFlags.Variant, Kind = MySerializeKind.Item)]
         public SerializableVector3I Min = new SerializableVector3I(0, 0, 0);

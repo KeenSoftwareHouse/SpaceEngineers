@@ -27,6 +27,12 @@ namespace VRage.Game
         public bool SearchBlocks = true;
 
         [ProtoMember]
+        public bool IsAnimationCategory = false;
+
+        [ProtoMember]
+        public bool IsToolCategory = false;
+
+        [ProtoMember]
         public bool ShowAnimations = false;
 
         [ProtoMember]

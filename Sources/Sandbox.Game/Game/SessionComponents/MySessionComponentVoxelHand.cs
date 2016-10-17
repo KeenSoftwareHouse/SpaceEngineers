@@ -892,7 +892,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "Box"; } }
 
@@ -1013,7 +1013,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE + MySessionComponentVoxelHand.VOXEL_HALF; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "Capsule"; } }
 
@@ -1147,7 +1147,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE * 4.5f; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "Ramp"; } }
 
@@ -1252,7 +1252,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE + MySessionComponentVoxelHand.VOXEL_HALF; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return false; } }
         public string SubtypeName { get { return "Sphere"; } }
 
@@ -1362,7 +1362,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.VOXEL_SIZE/4; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 4f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return false; } }
         public string SubtypeName { get { return "Ellipsoid"; } }
 
@@ -1525,7 +1525,7 @@ namespace Sandbox.Game.SessionComponents
         #region IMyVoxelBrush
 
         public float MinScale { get { return MySessionComponentVoxelHand.GRID_SIZE; } }
-        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 10f; } }
+        public float MaxScale { get { return MySessionComponentVoxelHand.GRID_SIZE * 40f; } }
         public bool AutoRotate { get { return true; } }
         public string SubtypeName { get { return "AutoLevel"; } }
 

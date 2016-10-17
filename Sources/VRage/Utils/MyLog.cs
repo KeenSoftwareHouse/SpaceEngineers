@@ -469,6 +469,11 @@ namespace VRage.Utils
 
         void WriteString(String text)
         {
+            if (text == null)
+            {
+                Debug.Fail("text shouldn't be null!");
+                text = "UNKNOWN ERROR: text shouldn't be null!";
+            }
             if (m_tmpWrite.Length < text.Length)
             {
                 Array.Resize(ref m_tmpWrite, Math.Max(m_tmpWrite.Length * 2, text.Length));

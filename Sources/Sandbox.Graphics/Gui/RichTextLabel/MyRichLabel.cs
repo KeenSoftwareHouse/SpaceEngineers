@@ -46,6 +46,14 @@ namespace Sandbox.Graphics.GUI
 
         public MyGuiDrawAlignEnum TextAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_TOP;
 
+        public int NumberOfRows
+        {
+            get
+            {
+                return m_lineSeparatorsCount + 1;
+            }
+        }
+
         public MyRichLabel(MyGuiControlBase parent, float maxLineWidth, float minLineHeight, int? linesCountMax = null)
         {
             m_parent = parent;

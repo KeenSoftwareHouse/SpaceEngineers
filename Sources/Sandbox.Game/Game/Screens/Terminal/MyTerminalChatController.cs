@@ -508,14 +508,21 @@ namespace Sandbox.Game.Gui
             var chat = MySession.Static.GlobalChatHistory.GlobalChatHistory.Chat;
             foreach (var text in chat)
             {
-                var identity = MySession.Static.Players.TryGetIdentity(text.IdentityId);
+                if (text.IdentityId == 0)
+                {
+                    if (text.Author.Length > 0)
+                        m_chatHistory.AppendText(text.Author + ": ", text.AuthorFont, m_chatHistory.TextScale, Vector4.One);
+                }
+                else
+                {
+                    var identity = MySession.Static.Players.TryGetIdentity(text.IdentityId);
 
-                if (identity == null) continue;
-                bool isPlayer = identity.IdentityId == MySession.Static.LocalPlayerId;
+                    if (identity == null) continue;
+                    bool isPlayer = identity.IdentityId == MySession.Static.LocalPlayerId;
 
-                m_chatHistory.AppendText(identity.DisplayName, isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                    m_chatHistory.AppendText(identity.DisplayName + ": ", isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
+                }
 
-                m_chatHistory.AppendText(": ", isPlayer ? MyFontEnum.DarkBlue : MyFontEnum.Blue, m_chatHistory.TextScale, Vector4.One);
                 m_chatHistory.AppendText(text.Text, MyFontEnum.White, m_chatHistory.TextScale, Vector4.One);
                 m_chatHistory.AppendLine();
             }

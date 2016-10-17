@@ -1898,6 +1898,8 @@ namespace Sandbox.Game.Gui
         {
             if (m_propertiesTableParent.Visible)
                 m_propertiesTableParent.Visible = false;
+            if (m_instance.m_terminalTabs.SelectedPage == (int)MyTerminalPageEnum.Inventory && m_instance.m_controllerInventory != null)
+                m_instance.m_controllerInventory.Refresh();
         }
 
         public override void HandleInput(bool receivedFocusInThisUpdate)
@@ -1918,7 +1920,7 @@ namespace Sandbox.Game.Gui
 
         public static void Show(MyTerminalPageEnum page, MyCharacter user, MyEntity interactedEntity)
         {
-            if (!MyPerGameSettings.TerminalEnabled)
+            if (!MyPerGameSettings.TerminalEnabled || !MyPerGameSettings.GUI.EnableTerminalScreen)
                 return;
 
             bool showProperties = MyInput.Static.IsAnyShiftKeyPressed();

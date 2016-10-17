@@ -7,6 +7,7 @@ using Sandbox.Graphics;
 using Sandbox.Graphics.GUI;
 using System;
 using System.Text;
+using Sandbox.Game.SessionComponents;
 using VRage;
 using VRage.Game;
 using VRage.Game.Gui;
@@ -182,7 +183,9 @@ namespace Sandbox.Game.Gui
             {
                 case MyHudObjectHighlightStyle.OutlineHighlight:
                 {
-                    MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, null, status.SubpartIndices, null, -1, 0, status.Instance.InstanceID);
+                    var data = new MyHighlightSystem.MyHighlightData(status.Instance.Owner.EntityId);
+                    //MyRenderProxy.UpdateModelHighlight((uint)status.Instance.RenderObjectID, null, status.SubpartIndices, null, -1, 0, status.Instance.InstanceID);
+                    MySession.Static.GetComponent<MyHighlightSystem>().RequestHighlightChange(data);
                     break;
                 }
             }
@@ -220,7 +223,13 @@ namespace Sandbox.Game.Gui
             Color color = MySector.EnvironmentDefinition.ContourHighlightColor;
             float thickness = MySector.EnvironmentDefinition.ContourHighlightThickness;
             ulong pulseTimeInFrames = (ulong)Math.Round(MySector.EnvironmentDefinition.HighlightPulseInSeconds * MyEngineConstants.UPDATE_STEPS_PER_SECOND);
-            MyRenderProxy.UpdateModelHighlight((uint)selection.InteractiveObject.RenderObjectID, selection.SectionIndices, selection.SubpartIndices, color, thickness, pulseTimeInFrames, selection.InteractiveObject.InstanceID);
+            var data = new MyHighlightSystem.MyHighlightData(
+                entityId: selection.InteractiveObject.Owner.EntityId, 
+                outlineColor: color, 
+                thickness: (int)thickness, 
+                pulseTimeInFrames: pulseTimeInFrames
+                );
+            MySession.Static.GetComponent<MyHighlightSystem>().RequestHighlightChange(data);
         }
 
         public static void DrawSelectedObjectHighlightDummy(MyHudSelectedObject selection, string atlasTexture, MyAtlasTextureCoordinate textureCoord)

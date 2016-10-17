@@ -179,11 +179,23 @@ namespace VRage.Utils
         {
             return IsZero(value.X, epsilon) && IsZero(value.Y, epsilon) && IsZero(value.Z, epsilon);
         }
+        public static bool IsZero(ref Vector3 value, float epsilon = MyMathConstants.EPSILON)
+        {
+            return IsZero(value.X, epsilon) && IsZero(value.Y, epsilon) && IsZero(value.Z, epsilon);
+        }
         public static bool IsZero(Vector3D value, float epsilon = MyMathConstants.EPSILON)
         {
             return IsZero(value.X, epsilon) && IsZero(value.Y, epsilon) && IsZero(value.Z, epsilon);
         }
+        public static bool IsZero(ref Vector3D value, float epsilon = MyMathConstants.EPSILON)
+        {
+            return IsZero(value.X, epsilon) && IsZero(value.Y, epsilon) && IsZero(value.Z, epsilon);
+        }
         public static bool IsZero(Quaternion value, float epsilon = MyMathConstants.EPSILON)
+        {
+            return IsZero(value.X, epsilon) && IsZero(value.Y, epsilon) && IsZero(value.Z, epsilon) && IsZero(value.W, epsilon);
+        }
+        public static bool IsZero(ref Quaternion value, float epsilon = MyMathConstants.EPSILON)
         {
             return IsZero(value.X, epsilon) && IsZero(value.Y, epsilon) && IsZero(value.Z, epsilon) && IsZero(value.W, epsilon);
         }

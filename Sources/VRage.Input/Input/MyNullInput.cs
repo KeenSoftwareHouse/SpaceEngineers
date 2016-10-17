@@ -33,6 +33,10 @@ namespace VRage.Input
         void IMyInput.UnloadData() { }
         List<string> IMyInput.EnumerateJoystickNames() { return new List<string>(); }
         bool IMyInput.Update(bool gameFocused) { return false; }
+
+        public void SetControlBlock(MyStringId controlEnum, bool block = false){}
+        public bool IsControlBlocked(MyStringId controlEnum){ return false; }
+
         bool IMyInput.IsAnyKeyPress() { return false; }
         bool IMyInput.IsAnyMousePressed() { return false; }
         bool IMyInput.IsAnyNewMousePressed() { return false; }

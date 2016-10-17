@@ -390,7 +390,16 @@ namespace VRageMath
         public Vector3D RandomPoint()
         {
             if (_random == null)
-                _random  = new Random();
+            {
+                if (VRage.Library.Utils.MyRandom.DisableRandomSeed)
+                {
+                    _random = new Random(1);
+                }
+                else
+                {
+                    _random = new Random();
+                }
+            }
 
             Vector3D random = new Vector3D();
             Vector3D randomPoint;
@@ -424,6 +433,19 @@ namespace VRageMath
         public Vector3D ProjectPoint(ref Vector3D point)
         {
             return point - Normal * DistanceToPoint(ref point);
+        }
+
+        /// <summary>
+        /// Gets intersection point in Plane.
+        /// </summary>
+        /// <param name="from">Starting point of a ray.</param>
+        /// <param name="direction">Ray direction.</param>
+        /// <returns>Point of intersection.</returns>
+        public Vector3D Intersection(ref Vector3D from, ref Vector3D direction)
+        {
+            var t = - (DotNormal(from) + D) / DotNormal(direction);
+
+            return new Vector3D(from + t * direction);
         }
     }
 }

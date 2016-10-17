@@ -20,6 +20,7 @@ using VRageRender;
 using Sandbox.Game.Entities.Cube;
 using VRage.ObjectBuilders;
 using VRage;
+using VRage.Audio;
 using VRage.Game;
 using VRage.ModAPI;
 using VRage.Game.Entity;

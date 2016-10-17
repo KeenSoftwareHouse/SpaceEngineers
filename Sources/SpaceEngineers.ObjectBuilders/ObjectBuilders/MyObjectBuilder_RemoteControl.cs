@@ -27,6 +27,9 @@ namespace Sandbox.Common.ObjectBuilders
         public int FlightMode;
 
         [ProtoMember]
+        public long BindedCamera = 0;
+
+        [ProtoMember]
         public int CurrentWaypointIndex = -1;
 
         [ProtoMember]

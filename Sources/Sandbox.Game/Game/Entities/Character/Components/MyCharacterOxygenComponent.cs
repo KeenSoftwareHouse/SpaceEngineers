@@ -18,6 +18,7 @@ using VRage.Game.ObjectBuilders.Definitions;
 using VRageMath;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.VisualScripting;
 using Sandbox.Engine.Multiplayer;
 
 namespace Sandbox.Game.Entities.Character.Components

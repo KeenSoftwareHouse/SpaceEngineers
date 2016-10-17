@@ -90,6 +90,8 @@ namespace VRage.ModAPI
 
 		DrawOutsideViewDistance = 1 << 18,
 
+        IsGamePrunningStructureObject = 1 << 19,
+
         Default = EntityFlags.Visible | EntityFlags.SkipIfTooSmall | EntityFlags.Save | EntityFlags.NeedsResolveCastShadow | EntityFlags.InvalidateOnMove,
     }
 

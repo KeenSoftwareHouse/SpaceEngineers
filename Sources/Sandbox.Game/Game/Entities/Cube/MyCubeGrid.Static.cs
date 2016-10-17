@@ -2309,7 +2309,7 @@ namespace Sandbox.Game.Entities
             foreach (var collison in m_physicsBoxQueryList)
             {
                 var entity = collison.Body.GetEntity(0) as MyEntity;
-                if (entity == null)
+                if (entity == null || entity.GetPhysicsBody() == null)
                     continue;
 
                 if (ignoreFracturedPieces && (entity is MyFracturedPiece))

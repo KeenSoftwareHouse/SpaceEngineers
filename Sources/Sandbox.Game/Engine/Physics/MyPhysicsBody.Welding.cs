@@ -133,8 +133,6 @@ namespace Sandbox.Engine.Physics
 
             other.Deactivate();
 
-            //other.RemoveConstraints(other.RigidBody);//jn:TODO check if this is OK
-
             var transform = other.Entity.WorldMatrix*Entity.WorldMatrixInvScaled;
             other.WeldInfo.Transform = transform;
             other.WeldInfo.UpdateMassProps(other.RigidBody);

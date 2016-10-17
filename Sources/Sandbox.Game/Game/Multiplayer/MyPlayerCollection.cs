@@ -475,12 +475,16 @@ namespace Sandbox.Game.Multiplayer
 
         private void RemovePlayerFromDictionary(PlayerId playerId)
         {
+            if (Sync.IsServer && m_players.ContainsKey(playerId) && MyVisualScriptLogicProvider.PlayerConnected != null)
+                MyVisualScriptLogicProvider.PlayerDisconnected(m_players[playerId].Identity.IdentityId);
             m_players.Remove(playerId);
             OnPlayersChanged(false, playerId);
         }
 
         private void AddPlayer(PlayerId playerId, MyPlayer newPlayer)
         {
+            if (Sync.IsServer && MyVisualScriptLogicProvider.PlayerConnected != null)
+                MyVisualScriptLogicProvider.PlayerConnected(newPlayer.Identity.IdentityId);
             m_players.Add(playerId, newPlayer);
             OnPlayersChanged(true, playerId);
         }
@@ -1069,6 +1073,8 @@ namespace Sandbox.Game.Multiplayer
             Debug.Assert(Sync.IsServer, "SetPlayerCharacter can be only called on the server!");
 
             newCharacter.SetPlayer(player);
+            if (MyVisualScriptLogicProvider.PlayerSpawned != null && !newCharacter.IsBot)
+                MyVisualScriptLogicProvider.PlayerSpawned(newCharacter.ControllerInfo.Controller.Player.Identity.IdentityId);
 
             if(spawnedBy != null)
             {

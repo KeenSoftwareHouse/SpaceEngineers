@@ -64,11 +64,14 @@ namespace Sandbox.Engine.Voxels
 
         public static bool UseStorageCache = true;
         static LRUCache<int, MyStorageBase> m_storageCache = new LRUCache<int, MyStorageBase>(16);
+        static FastResourceLock m_loadCompressLock = new FastResourceLock();
+
         public bool Shared { get; protected set; }
 
         public bool MarkedForClose { get; private set; }
 
-        protected bool Pinned {
+        protected bool Pinned
+        {
             get { return m_pinCount > 0; }
         }
 
@@ -183,7 +186,11 @@ namespace Sandbox.Engine.Voxels
                 file.Read(compressedData, 0, compressedData.Length);
             }
 
-            result = Load(compressedData);
+            // JC: with Parallelization, it was crashing the game here, without lock
+            using (m_loadCompressLock.AcquireExclusiveUsing())
+            {
+                result = Load(compressedData);
+            }
 
             //change materials
             if (definition.Changes != null)
@@ -285,7 +292,7 @@ namespace Sandbox.Engine.Voxels
             MyPrecalcComponent.AssertUpdateThread();
 
             // We must flush all caches before saving.
-            if(CachedWrites)
+            if (CachedWrites)
                 WritePending(true);
 
             ProfilerShort.Begin("MyStorageBase.Save");
@@ -664,7 +671,7 @@ namespace Sandbox.Engine.Voxels
                     DataProvider.Close();
             }
 
-            if(CachedWrites)
+            if (CachedWrites)
                 OperationsComponent.Remove(this);
         }
 

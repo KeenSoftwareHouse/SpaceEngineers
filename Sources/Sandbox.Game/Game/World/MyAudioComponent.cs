@@ -26,12 +26,15 @@ namespace Sandbox.Game.World
     {
         public static ConcurrentDictionary<long, byte> ContactSoundsPool = new ConcurrentDictionary<long, byte>();
         private static int m_updateCounter = 0;
-        private const int POOL_CAPACITY = 30;
+        private const int POOL_CAPACITY = 50;
         private static MyConcurrentQueue<MyEntity3DSoundEmitter> m_singleUseEmitterPool = new MyConcurrentQueue<MyEntity3DSoundEmitter>(POOL_CAPACITY);
         private static List<MyEntity3DSoundEmitter> m_borrowedEmitters = new List<MyEntity3DSoundEmitter>();
         private static List<MyEntity3DSoundEmitter> m_emittersToRemove = new List<MyEntity3DSoundEmitter>();
+        private static Dictionary<string, MyEntity3DSoundEmitter> m_emitterLibrary = new Dictionary<string, MyEntity3DSoundEmitter>();
+        private static List<string> m_emitterLibraryToRemove = new List<string>();
         private static int m_currentEmitters;
         private static List<MyEntity> m_detectedGrids = new List<MyEntity>();
+        private static MyCueId m_nullCueId = new MyCueId(MyStringHash.NullOrEmpty);
 
         public override void UpdateBeforeSimulation()
         {
@@ -55,6 +58,17 @@ namespace Sandbox.Game.World
                         }
                     }
                 }
+                foreach (var key in m_emitterLibraryToRemove)
+                {
+                    if (m_emitterLibrary.ContainsKey(key))
+                    {
+                        m_emitterLibrary[key].StopSound(true);
+                        m_emitterLibrary.Remove(key);
+                    }
+                }
+                m_emitterLibraryToRemove.Clear();
+                foreach (var emitter in m_emitterLibrary.Values)
+                    emitter.Update();
             }
         }
 
@@ -77,6 +91,7 @@ namespace Sandbox.Game.World
                 {
                     emitter = new MyEntity3DSoundEmitter(null);
                     emitter.StoppedPlaying += emitter_StoppedPlaying;
+                    emitter.CanPlayLoopSounds = false;
                     m_currentEmitters++;
                 }
             }
@@ -96,8 +111,9 @@ namespace Sandbox.Game.World
         {
             for (int i = 0; i < m_borrowedEmitters.Count; i++)
             {
-                if (m_borrowedEmitters[i] != null && !m_borrowedEmitters[i].IsPlaying)
-                    m_emittersToRemove.Add(m_borrowedEmitters[i]);
+                var emitter = m_borrowedEmitters[i];
+                if (emitter != null && !emitter.IsPlaying)
+                    m_emittersToRemove.Add(emitter);
             }
         }
 
@@ -105,10 +121,14 @@ namespace Sandbox.Game.World
         {
             for (int i = 0; i < m_emittersToRemove.Count; i++)
             {
-                m_emittersToRemove[i].Entity = null;
-                m_emittersToRemove[i].SoundId = new MyCueId(MyStringHash.NullOrEmpty);
-                m_singleUseEmitterPool.Enqueue(m_emittersToRemove[i]);
-                m_borrowedEmitters.Remove(m_emittersToRemove[i]);
+                var emitter = m_emittersToRemove[i];
+                if (emitter != null)
+                {
+                    emitter.Entity = null;
+                    emitter.SoundId = m_nullCueId;
+                    m_singleUseEmitterPool.Enqueue(emitter);
+                    m_borrowedEmitters.Remove(emitter);
+                }
             }
             m_emittersToRemove.Clear();
         }
@@ -117,7 +137,41 @@ namespace Sandbox.Game.World
         {
             base.UnloadData();
             m_singleUseEmitterPool.Clear();
+            foreach (var emitter in m_emitterLibrary.Values)
+                emitter.StopSound(true, true);
+            m_emitterLibrary.Clear();
+            m_emitterLibraryToRemove.Clear();
             m_currentEmitters = 0;
+        }
+
+        public static MyEntity3DSoundEmitter CreateNewLibraryEmitter(string id, MyEntity entity = null)
+        {
+            if (!m_emitterLibrary.ContainsKey(id))
+            {
+                m_emitterLibrary.Add(id, new MyEntity3DSoundEmitter(entity, (entity != null && entity is MyCubeBlock)));
+                return m_emitterLibrary[id];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static MyEntity3DSoundEmitter GetLibraryEmitter(string id)
+        {
+            if (m_emitterLibrary.ContainsKey(id))
+                return m_emitterLibrary[id];
+            else
+                return null;
+        }
+
+        public static void RemoveLibraryEmitter(string id)
+        {
+            if (m_emitterLibrary.ContainsKey(id))
+            {
+                m_emitterLibrary[id].StopSound(true, true);
+                m_emitterLibraryToRemove.Add(id);
+            }
         }
 
         public static bool PlayContactSound(long entityId, MyStringId strID, Vector3D position, MyStringHash materialA, MyStringHash materialB, float volume = 1, Func<bool> canHear = null, Func<bool> shouldPlay2D = null, MyEntity surfaceEntity = null, float separatingVelocity = 0f)
@@ -135,6 +189,9 @@ namespace Sandbox.Game.World
             MySoundPair cue = (firstEntity.Physics != null && firstEntity.Physics.IsStatic == false) ?
                 MyMaterialPropertiesHelper.Static.GetCollisionCueWithMass(strID, materialA, materialB, ref volume, firstEntity.Physics.Mass, separatingVelocity) :
                 MyMaterialPropertiesHelper.Static.GetCollisionCue(strID, materialA, materialB);
+
+            if (cue == null || cue.SoundId == null || MyAudio.Static == null)
+                return false;
 
             if (separatingVelocity > 0f && separatingVelocity < 0.5f)
                 return false;

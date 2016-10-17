@@ -269,6 +269,7 @@ namespace Sandbox.Engine.Multiplayer
         public event Action<ulong, ChatMemberStateChangeEnum> ClientLeft;
         public event Action HostLeft;
         public event Action<ulong, string, ChatEntryTypeEnum> ChatMessageReceived;
+        public event Action<string, string, MyFontEnum> ScriptedChatMessageReceived;
         public event Action<ulong> ClientKicked;
 
         internal MyMultiplayerBase(MySyncLayer syncLayer)
@@ -476,6 +477,11 @@ namespace Sandbox.Engine.Multiplayer
 
         }
 
+        protected virtual void OnScriptedChatMessage(ref ScriptedChatMsg msg)
+        {
+            RaiseScriptedChatMessageReceived(msg.Author, msg.Text, msg.Font);
+        }
+
         void OnDisconnectedClient(ref MyControlDisconnectedMsg data, ulong sender)
         {
             RaiseClientLeft(data.Client, ChatMemberStateChangeEnum.Disconnected);
@@ -678,6 +684,13 @@ namespace Sandbox.Engine.Multiplayer
                 handler(steamUserID, messageText, chatEntryType);
         }
 
+        protected void RaiseScriptedChatMessageReceived(string author, string messageText, MyFontEnum font)
+        {
+            var handler = ScriptedChatMessageReceived;
+            if (handler != null)
+                handler(messageText, author, font);
+        }
+
         protected void RaiseHostLeft()
         {
             var handler = HostLeft;
@@ -820,6 +833,11 @@ namespace Sandbox.Engine.Multiplayer
             MyMultiplayer.RaiseStaticEvent(s => MyMultiplayerBase.OnChatMessageRecieved, msg);
         }
 
+        public static void SendScriptedChatMessage(ref ScriptedChatMsg msg)
+        {
+            MyMultiplayer.RaiseStaticEvent(s => MyMultiplayerBase.OnScriptedChatMessageRecieved, msg);
+        }
+
         [Event,Reliable, Client]
         static void OnAllMembersRecieved(AllMembersDataMsg msg)
         {
@@ -831,6 +849,24 @@ namespace Sandbox.Engine.Multiplayer
         {
             MyMultiplayer.Static.OnChatMessage(ref msg);
         }
+        
+        [Event,Reliable, Server, Broadcast]
+        static void OnScriptedChatMessageRecieved(ScriptedChatMsg msg)
+        {
+            if(MySession.Static == null)
+                return;
+            if (msg.Target != 0 && MySession.Static.LocalPlayerId != msg.Target)
+                return;
+            MyMultiplayer.Static.OnScriptedChatMessage(ref msg);
+        }
+    }
 
+    //necessary to have it here because of font enum
+    public struct ScriptedChatMsg
+    {
+        public string Text;
+        public string Author;
+        public long Target;
+        public MyFontEnum Font;
     }
 }

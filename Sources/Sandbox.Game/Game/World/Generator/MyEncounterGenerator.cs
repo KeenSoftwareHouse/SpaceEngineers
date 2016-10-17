@@ -31,7 +31,6 @@ namespace Sandbox.Game.World.Generator
         private const double m_minDistanceToRecognizeMovement = 100.0; 
         private static Dictionary<IMyEntity, MyEncounterId> m_entityToEncounterConversion = new Dictionary<IMyEntity, MyEncounterId>();
         private static HashSet<MyEncounterId> m_savedEncounters  = new HashSet<MyEncounterId>();
-        private static List<MyCubeGrid> m_createdGrids = new List<MyCubeGrid>();
         private static SerializableDictionary<MyEncounterId, Vector3D> m_movedOnlyEncounters = new SerializableDictionary<MyEncounterId, Vector3D>();
         private static List<MySpawnGroupDefinition> m_spawnGroups = new List<MySpawnGroupDefinition>();
         private static List<int> m_randomEncounters = new List<int>();
@@ -198,7 +197,7 @@ namespace Sandbox.Game.World.Generator
 
             foreach (var selectedPrefab in spawnGroup.Prefabs)
             {
-                m_createdGrids.Clear();
+                List<MyCubeGrid> createdGrids = new List<MyCubeGrid>();
                 Vector3D direction = Vector3D.Forward;
                 Vector3D upVector = Vector3D.Up;
 
@@ -226,10 +225,10 @@ namespace Sandbox.Game.World.Generator
                 if (selectedPrefab.PlaceToGridOrigin) spawningOptions |= SpawningOptions.UseGridOrigin;
 
                 Stack<Action> callback = new Stack<Action>();
-                callback.Push(delegate() { ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed); });
+                callback.Push(delegate() { ProcessCreatedGrids(ref encounterPosition, selectedPrefab.Speed, createdGrids); });
 
                 MyPrefabManager.Static.SpawnPrefab(
-                   resultList: m_createdGrids,
+                   resultList: createdGrids,
                    prefabName: selectedPrefab.SubtypeId,
                    position: placePosition + selectedPrefab.Position,
                    forward: direction,
@@ -270,9 +269,9 @@ namespace Sandbox.Game.World.Generator
             return selectedEncounter;
         }
 
-        private static void ProcessCreatedGrids(ref MyEncounterId encounterPosition,  float prefabSpeed)
+        private static void ProcessCreatedGrids(ref MyEncounterId encounterPosition, float prefabSpeed, List<MyCubeGrid> createdGrids)
         {
-            foreach (var grid in m_createdGrids)
+            foreach (var grid in createdGrids)
             {              
                 grid.OnGridChanged += OnCreatedEntityChanged;
                 grid.OnPhysicsChanged += OnCreatedEntityChanged;
@@ -365,7 +364,6 @@ namespace Sandbox.Game.World.Generator
 
         private void ClearCollections()
         {
-            m_createdGrids.Clear();
             m_entityToEncounterConversion.Clear();
             m_savedEncounters.Clear();
             m_movedOnlyEncounters.Dictionary.Clear();

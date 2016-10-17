@@ -194,6 +194,7 @@ namespace Sandbox.Game.World
             m_sessionComponents[component.ComponentType] = component;
             component.Session = this;
             AddComponentForUpdate(updateOrder, component);
+            m_sessionComponents.ApplyChanges();
         }
 
         public void UnregisterComponent(MySessionComponentBase component)
@@ -217,7 +218,7 @@ namespace Sandbox.Game.World
             foreach (Type type in MyAssembly.GetTypes())
 #else // !XB1
             MySandboxGame.Log.WriteLine("Registered modules from: " + assembly.FullName);
-            
+
             foreach (Type type in assembly.GetTypes())
 #endif // !XB1
             {

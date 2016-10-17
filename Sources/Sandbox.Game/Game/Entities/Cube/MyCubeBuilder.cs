@@ -46,6 +46,7 @@ using VRage.OpenVRWrapper;
 using Sandbox.Game.Audio;
 using Sandbox.Game.Entities.Cube.CubeBuilder;
 using Sandbox.Game.GameSystems.ContextHandling;
+using VRage.Audio;
 using VRage.Game.Components.Session;
 using VRage.Game.ObjectBuilders.Definitions.SessionComponents;
 using VRage.Profiler;
@@ -4339,9 +4340,12 @@ namespace Sandbox.Game.Entities
             //}
             canSpawn = hasBuildMat & canSpawn; // It is not possible to create something in already occupied place, even if admin.
 
-            ulong senderId =  MyEventContext.Current.Sender.Value;
+            ulong senderId = MyEventContext.Current.Sender.Value;
 
-            MyMultiplayer.RaiseStaticEvent(s => SpawnGridReply, canSpawn, new EndpointId(senderId));
+            if(senderId == 0)
+                SpawnGridReply(canSpawn);
+            else
+                MyMultiplayer.RaiseStaticEvent(s => SpawnGridReply, canSpawn, new EndpointId(senderId));
 
             if (!canSpawn) return;
 
@@ -4429,7 +4433,7 @@ namespace Sandbox.Game.Entities
         //    return canSpawn;
         //}
 
-        [Event, Reliable, Broadcast]
+        [Event, Reliable, Client]
         static void SpawnGridReply(bool success)
         {
             if (success)

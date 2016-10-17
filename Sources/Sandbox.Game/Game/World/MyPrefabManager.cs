@@ -37,6 +37,7 @@ namespace Sandbox.Game.World
         //private static List<MyCubeGrid> m_tmpSpawnedGridList = new List<MyCubeGrid>();
         private static FastResourceLock m_builderLock = new FastResourceLock();
 
+        public static EventWaitHandle FinishedProcessingGrids = new AutoResetEvent(false);
         public static int PendingGrids;
 
         static MyPrefabManager()
@@ -183,6 +184,8 @@ namespace Sandbox.Game.World
                 finally
                 {
                     Interlocked.Decrement(ref PendingGrids);
+                    if (PendingGrids <= 0)
+                        FinishedProcessingGrids.Set();
                 }
             }
 

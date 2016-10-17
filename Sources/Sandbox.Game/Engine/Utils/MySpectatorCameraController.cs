@@ -14,6 +14,9 @@ using VRage.Input;
 using VRage.Utils;
 using VRageMath;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Gui;
+using Sandbox.Game.SessionComponents;
+using VRage.Game.Entity;
 
 namespace Sandbox.Engine.Utils
 {
@@ -26,6 +29,15 @@ namespace Sandbox.Engine.Utils
         private const int REFLECTOR_RANGE_MULTIPLIER = 5;
 
         public static MySpectatorCameraController Static;
+
+        float m_orbitY = 0;
+        float m_orbitX = 0;
+        Vector3D ThirdPersonCameraOrbit = Vector3D.UnitZ * 10;
+
+        CyclingOptions m_cycling = new CyclingOptions();
+        float m_cyclingMetricValue = float.MinValue;
+        long m_entityID = 0;
+        MyEntity m_character = null;
 
         private double m_yaw;
         private double m_pitch;
@@ -54,26 +66,6 @@ namespace Sandbox.Engine.Utils
         //  Moves and rotates player by specified vector and angles
         public override void MoveAndRotate(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
-            switch (SpectatorCameraMovement)
-            {
-                case MySpectatorCameraMovementEnum.None:
-                    break;
-                case MySpectatorCameraMovementEnum.ConstantDelta:
-                    MoveAndRotate_ConstantDelta();
-                    if (IsLightOn)
-                        UpdateLightPosition();
-                    break;
-                case MySpectatorCameraMovementEnum.UserControlled:
-                    MoveAndRotate_UserControlled(moveIndicator, rotationIndicator, rollIndicator);
-                    if (IsLightOn)
-                        UpdateLightPosition();
-                    break;
-            }
-        }
-
-        // ------------------------------------------------------------------------------------------------
-        private void MoveAndRotate_UserControlled(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
-        {
             if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition == null)
             {
                 if (MyInput.Static.IsAnyCtrlKeyPressed())
@@ -99,6 +91,29 @@ namespace Sandbox.Engine.Utils
                     }
                 }
             }
+            switch (SpectatorCameraMovement)
+            {
+                case MySpectatorCameraMovementEnum.None:
+                    break;
+                case MySpectatorCameraMovementEnum.FreeMouse:
+                    MoveAndRotate_FreeMouse(moveIndicator, rotationIndicator, rollIndicator);
+                    break;
+                case MySpectatorCameraMovementEnum.ConstantDelta:
+                    MoveAndRotate_ConstantDelta(moveIndicator, rotationIndicator, rollIndicator);
+                    if (IsLightOn)
+                        UpdateLightPosition();
+                    break;
+                case MySpectatorCameraMovementEnum.UserControlled:
+                    MoveAndRotate_UserControlled(moveIndicator, rotationIndicator, rollIndicator);
+                    if (IsLightOn)
+                        UpdateLightPosition();
+                    break;
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        private void MoveAndRotate_UserControlled(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
+        {
 
             //  Physical movement and rotation is based on constant time, therefore is indepedent of time delta
             //  This formulas works even if FPS is low or high, or if step size is 1/10 or 1/10000
@@ -106,7 +121,7 @@ namespace Sandbox.Engine.Utils
             float amountOfRotation = 0.0025f * m_speedModeAngular;
 
             rollIndicator = MyInput.Static.GetDeveloperRoll();
-            
+
             float rollAmount = 0;
             if (rollIndicator != 0)
             {
@@ -198,10 +213,10 @@ namespace Sandbox.Engine.Utils
             if (rightVector.LengthSquared() < MyMathConstants.EPSILON)
             {
                 rightVector = m_orientation.Right - Vector3D.Dot(m_orientation.Right, upVector) * upVector;
-                    // backup behavior if singularity happens
+                // backup behavior if singularity happens
                 if (rightVector.LengthSquared() < MyMathConstants.EPSILON)
                     rightVector = m_orientation.Forward - Vector3D.Dot(m_orientation.Forward, upVector) * upVector;
-                        // backup behavior if singularity happens
+                // backup behavior if singularity happens
             }
             rightVector.Normalize();
             m_lastRightVec = rightVector;
@@ -236,33 +251,79 @@ namespace Sandbox.Engine.Utils
         }
 
         // ------------------------------------------------------------------------------------------------
-        private void MoveAndRotate_ConstantDelta()
+        private void MoveAndRotate_ConstantDelta(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
         {
-            if (!MyInput.Static.IsAnyAltKeyPressed() && !MyInput.Static.IsAnyCtrlKeyPressed() &&
-                !MyInput.Static.IsAnyShiftKeyPressed())
+            m_cycling.Enabled = true;
+            bool findNew = false;
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOOLBAR_UP) && MySession.Static.LocalHumanPlayer.IsAdmin)
+            {
+                MyEntityCycling.FindNext(MyEntityCyclingOrder.Characters, ref m_cyclingMetricValue, ref m_entityID, false, m_cycling);
+                findNew = true;
+            }
+            if (MyInput.Static.IsNewGameControlPressed(MyControlsSpace.TOOLBAR_DOWN) && MySession.Static.LocalHumanPlayer.IsAdmin)
+            {
+                MyEntityCycling.FindNext(MyEntityCyclingOrder.Characters, ref m_cyclingMetricValue, ref m_entityID, true, m_cycling);
+                findNew = true;
+            }
+
+            //zoom
+            if (!MyInput.Static.IsAnyCtrlKeyPressed() && !MyInput.Static.IsAnyShiftKeyPressed())
             {
                 if (MyInput.Static.PreviousMouseScrollWheelValue() < MyInput.Static.MouseScrollWheelValue())
                 {
-                    ThirdPersonCameraDelta /= 1.1f;
+                    ThirdPersonCameraOrbit /= 1.1f;
                 }
                 else if (MyInput.Static.PreviousMouseScrollWheelValue() > MyInput.Static.MouseScrollWheelValue())
                 {
-                    ThirdPersonCameraDelta *= 1.1f;
+                    ThirdPersonCameraOrbit *= 1.1f;
                 }
             }
+            if(findNew)
+                MyEntities.TryGetEntityById(m_entityID, out m_character);
 
-            if (MySession.Static.ControlledEntity != null)
+            if (m_character != null || MySession.Static.ControlledEntity != null)
             {
+                if (MyInput.Static.IsAnyAltKeyPressed())
+                {
+                    m_orbitY += rotationIndicator.Y * 0.0025f * SpeedModeAngular;
+                    m_orbitX -= rotationIndicator.X * 0.0025f * SpeedModeAngular;
+                    m_orbitX = (float)MathHelper.Clamp(m_orbitX, -((Math.PI / 2) - 0.0001f), ((Math.PI / 2) - 0.0001f));
+                }
+
                 MatrixD gravityOrientationMatrix;
+                MatrixD rotationMatrix = MatrixD.CreateRotationX(m_orbitX) * MatrixD.CreateRotationY(m_orbitY);
+
                 m_roll = 0;
                 m_yaw = 0;
                 m_pitch = 0;
                 m_lastOrientationWeight = 0;
                 ComputeGravityAlignedOrientation(out gravityOrientationMatrix);
-                var target = (Vector3D)MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition();
-                Position = target + Vector3D.Transform(ThirdPersonCameraDelta, gravityOrientationMatrix);
+                Vector3D target = m_character == null ? MySession.Static.ControlledEntity.Entity.PositionComp.GetPosition() : m_character.PositionComp.GetPosition();
+                Position = target + Vector3D.Transform(ThirdPersonCameraOrbit, rotationMatrix * gravityOrientationMatrix);
                 Target = target;
                 m_orientation.Up = gravityOrientationMatrix.Up;
+            }
+        }
+
+        // ------------------------------------------------------------------------------------------------
+        private void MoveAndRotate_FreeMouse(Vector3 moveIndicator, Vector2 rotationIndicator, float rollIndicator)
+        {
+            // Act normally when the cube builder is active
+            if (MyCubeBuilder.Static.CubeBuilderState.CurrentBlockDefinition != null || MyInput.Static.IsRightMousePressed())
+            {
+                MoveAndRotate_UserControlled(moveIndicator, rotationIndicator, rollIndicator);
+            }
+            else
+            {
+                // Activate the transformation session component if it isn't active
+                var transfromComp = MySession.Static.GetComponent<MyEntityTransformationSystem>();
+                if (!transfromComp.Active)
+                {
+                    transfromComp.Active = true;
+                }
+
+                // Allow rolling and moving, but don't take mouse rotation into account
+                MoveAndRotate_UserControlled(moveIndicator, Vector2.Zero, rollIndicator);
             }
         }
 
@@ -314,7 +375,7 @@ namespace Sandbox.Engine.Utils
             m_light.ReflectorOn = isLightOn;
         }
 
-        
+
         public void UpdateLightPosition()
         {
             if (m_light != null)

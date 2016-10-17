@@ -14,6 +14,7 @@ namespace Sandbox.Engine.Voxels
             public IMyStorage Storage;
             public MyCellCoord GeometryCell;
             public MyVoxelPhysicsBody TargetPhysics;
+            public HkShape SimpleShape;
         }
 
         private static readonly MyDynamicObjectPool<MyPrecalcJobPhysicsPrefetch> m_instancePool = new MyDynamicObjectPool<MyPrecalcJobPhysicsPrefetch>(16);
@@ -22,7 +23,7 @@ namespace Sandbox.Engine.Voxels
         private volatile bool m_isCancelled;
 
 
-        private HkBvCompressedMeshShape m_result;
+        private HkShape m_result;
 
         public MyPrecalcJobPhysicsPrefetch() : base(true) { }
 
@@ -31,6 +32,7 @@ namespace Sandbox.Engine.Voxels
             var job = m_instancePool.Allocate();
 
             job.m_args = args;
+            args.Tracker.Cancel(args.GeometryCell);
             args.Tracker.Add(args.GeometryCell, job);
 
             MyPrecalcComponent.EnqueueBack(job);
@@ -39,22 +41,36 @@ namespace Sandbox.Engine.Voxels
         public override void DoWork()
         {
             ProfilerShort.Begin("MyPrecalcJobPhysicsPrefetch.DoWork");
-            try
+            //try
             {
                 if (m_isCancelled)
-                    return;
-
-                var geometryData = m_args.TargetPhysics.CreateMesh(m_args.Storage, m_args.GeometryCell);
-
-                if (m_isCancelled)
-                    return;
-
-                if (!MyIsoMesh.IsEmpty(geometryData))
                 {
-                    m_result = m_args.TargetPhysics.CreateShape(geometryData);
+                    ProfilerShort.End();
+                    return;
+                }
+
+                if (m_args.Storage != null)
+                {
+                    var geometryData = m_args.TargetPhysics.CreateMesh(m_args.Storage, m_args.GeometryCell);
+
+                    if (m_isCancelled)
+                    {
+                        ProfilerShort.End();
+                        return;
+                    }
+
+                    if (!MyIsoMesh.IsEmpty(geometryData))
+                    {
+                        m_result = m_args.TargetPhysics.CreateShape(geometryData);
+                    }
+                }
+                else
+                {
+                    m_result = m_args.TargetPhysics.BakeCompressedMeshShape((HkSimpleMeshShape) m_args.SimpleShape);
+                    m_args.SimpleShape.RemoveReference();
                 }
             }
-            finally
+            //finally
             {
                 ProfilerShort.End();
             }
@@ -74,12 +90,12 @@ namespace Sandbox.Engine.Voxels
                 m_args.Tracker.Complete(m_args.GeometryCell);
             }
 
-            if (!m_result.Base.IsZero)
-                m_result.Base.RemoveReference();
+            if (!m_result.IsZero)
+                m_result.RemoveReference();
 
             m_args = default(Args);
             m_isCancelled = false;
-            m_result = (HkBvCompressedMeshShape)HkShape.Empty;
+            m_result = HkShape.Empty;
             m_instancePool.Deallocate(this);
         }
 

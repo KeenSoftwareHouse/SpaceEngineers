@@ -759,12 +759,17 @@ namespace Sandbox.Game.Entities
 
             m_pilot.OnMarkForClose -= m_pilotClosedHandler;
 
+            if(MyVisualScriptLogicProvider.PlayerLeftCockpit != null)
+                MyVisualScriptLogicProvider.PlayerLeftCockpit(Name, m_pilot.GetPlayerIdentityId(), CubeGrid.Name);
+
+            Hierarchy.RemoveChild(m_pilot);
+
             if (m_pilot.IsDead)
             {
                 if (this.ControllerInfo.Controller != null)
                     this.SwitchControl(m_pilot);
 
-                Hierarchy.RemoveChild(m_pilot);
+                
                 MyEntities.Add(m_pilot);
                 m_pilot.WorldMatrix = WorldMatrix;
                 m_pilotGunDefinition = null;
@@ -1126,7 +1131,8 @@ namespace Sandbox.Game.Entities
             m_pilot.Physics.Clear();
             //m_pilot.SetPosition(GetPosition() - WorldMatrix.Forward * 0.5f);
 
-            Hierarchy.AddChild(m_pilot, true, true);
+            if (!Hierarchy.Children.Any(x => x.Entity == m_pilot))  //may contain after load
+                Hierarchy.AddChild(m_pilot, true, true);
 
             var gunEntity = m_pilot.CurrentWeapon as MyEntity;
             if (gunEntity != null && !m_forgetTheseWeapons.Contains(m_pilot.CurrentWeapon.DefinitionId))
@@ -1180,6 +1186,9 @@ namespace Sandbox.Game.Entities
             if (GetInCockpitSound != MySoundPair.Empty && !calledFromInit && !merged)
                 PlayUseSound(true);
             m_playIdleSound = true;
+
+            if(MyVisualScriptLogicProvider.PlayerEnteredCockpit != null)
+                MyVisualScriptLogicProvider.PlayerEnteredCockpit(Name, pilot.GetPlayerIdentityId(), CubeGrid.Name);
 
         }
 

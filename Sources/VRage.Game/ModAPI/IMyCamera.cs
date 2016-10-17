@@ -32,6 +32,7 @@ namespace VRage.ModAPI
         /// <param name="worldPos">World position.</param>
         /// <returns>Screen coordinate in 0-1 distance.</returns>
         Vector3D WorldToScreen(ref Vector3D worldPos);
+        LineD WorldLineFromScreen(Vector2 screenCoords);
 
         [Obsolete]
         MatrixD ProjectionMatrixForNearObjects { get; }

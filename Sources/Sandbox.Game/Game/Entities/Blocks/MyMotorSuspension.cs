@@ -660,48 +660,48 @@ namespace Sandbox.Game.Entities.Cube
             if (!base.CreateConstraint(rotor))
                 return false;
             var rotorBody = TopGrid.Physics.RigidBody;
-                    rotorBody.MaxAngularVelocity = float.MaxValue;
-                    rotorBody.Restitution = 0.5f;
-                    CubeGrid.GetPhysicsBody().HavokWorld.BreakOffPartsUtil.UnmarkEntityBreakable(rotorBody);
-                    if (MyFakes.WHEEL_SOFTNESS)
-                    {
+            rotorBody.MaxAngularVelocity = float.MaxValue;
+            rotorBody.Restitution = 0.5f;
+            CubeGrid.GetPhysicsBody().HavokWorld.BreakOffPartsUtil.UnmarkEntityBreakable(rotorBody);
+            if (MyFakes.WHEEL_SOFTNESS)
+            {
                 HkUtils.SetSoftContact(rotorBody, null, MyPhysicsConfig.WheelSoftnessRatio,
                     MyPhysicsConfig.WheelSoftnessVelocity);
-                    }
+            }
             var info = HkGroupFilter.CalcFilterInfo(rotorBody.Layer,
                 CubeGrid.GetPhysicsBody().HavokCollisionSystemID, 1, 1);
-                    rotorBody.SetCollisionFilterInfo(info);
-                    HkWheelConstraintData data = new HkWheelConstraintData();
-                    var suspensionAx = PositionComp.LocalMatrix.Forward;
+            rotorBody.SetCollisionFilterInfo(info);
+            HkWheelConstraintData data = new HkWheelConstraintData();
+            var suspensionAx = PositionComp.LocalMatrix.Forward;
             var posA = DummyPosition + (suspensionAx*m_height);
-                    var posB = (rotor as MyMotorRotor).DummyPosLoc;
-                    var axisA = PositionComp.LocalMatrix.Up;
-                    var axisAPerp = PositionComp.LocalMatrix.Forward;
-                    var axisB = rotor.PositionComp.LocalMatrix.Up;
+            var posB = (rotor as MyMotorRotor).DummyPosLoc;
+            var axisA = PositionComp.LocalMatrix.Up;
+            var axisAPerp = PositionComp.LocalMatrix.Forward;
+            var axisB = rotor.PositionComp.LocalMatrix.Up;
             data.SetInBodySpace(posB, posA, axisB, axisA, suspensionAx, suspensionAx, RotorGrid.Physics,
                 CubeGrid.Physics);
-                    //empirical values because who knows what havoc sees behind this 
-                    //docs say one value should mean same effect for 2 ton or 200 ton vehicle 
-                    //but we have virtual mass blocks so real mass doesnt corespond to actual "weight" in game and varying gravity
-                    data.SetSuspensionDamping(m_damping);
-                    data.SetSuspensionStrength(m_strenth);
-                    //Min/MaxHeight also define the limits of the suspension and SuspensionTravel lowers this limit
+            //empirical values because who knows what havoc sees behind this 
+            //docs say one value should mean same effect for 2 ton or 200 ton vehicle 
+            //but we have virtual mass blocks so real mass doesnt corespond to actual "weight" in game and varying gravity
+            data.SetSuspensionDamping(m_damping);
+            data.SetSuspensionStrength(m_strenth);
+            //Min/MaxHeight also define the limits of the suspension and SuspensionTravel lowers this limit
             data.SetSuspensionMinLimit((BlockDefinition.MinHeight - m_height)*SuspensionTravel);
             data.SetSuspensionMaxLimit((BlockDefinition.MaxHeight - m_height)*SuspensionTravel);
-                    m_constraint = new HkConstraint(rotorBody, CubeGrid.Physics.RigidBody, data);
+            m_constraint = new HkConstraint(rotorBody, CubeGrid.Physics.RigidBody, data);
 
-                    m_constraint.WantRuntime = true;
-                    CubeGrid.Physics.AddConstraint(m_constraint);
-                    if (!m_constraint.InWorld)
-                    {
-                        Debug.Fail("Constraint not added!");
-                        CubeGrid.Physics.RemoveConstraint(m_constraint);
-                        m_constraint = null;
-                        return false;
-                    }
-                    m_constraint.Enabled = true;
-                    return true;
-                }
+            m_constraint.WantRuntime = true;
+            CubeGrid.Physics.AddConstraint(m_constraint);
+            if (!m_constraint.InWorld)
+            {
+                Debug.Fail("Constraint not added!");
+                CubeGrid.Physics.RemoveConstraint(m_constraint);
+                m_constraint = null;
+                return false;
+            }
+            m_constraint.Enabled = true;
+            return true;
+        }
 
         public override void ComputeTopQueryBox(out Vector3D pos, out Vector3 halfExtents, out Quaternion orientation)
         {

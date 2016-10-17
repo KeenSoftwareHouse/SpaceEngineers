@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using VRage;
+using VRage.Audio;
 using VRage.Input;
 using VRage.Utils;
 using VRageMath;

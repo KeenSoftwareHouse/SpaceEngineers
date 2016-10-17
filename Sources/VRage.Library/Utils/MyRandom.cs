@@ -72,6 +72,9 @@ namespace VRage.Library.Utils
 
         private byte[] m_tmpLongArray = new byte[8];
 
+        //GR: Used only for testing
+        internal static bool DisableRandomSeed = false;
+
         // Methods
         public MyRandom()
 #if XB1
@@ -143,6 +146,10 @@ namespace VRage.Library.Utils
         /// </summary>
         public void SetSeed(int Seed)
         {
+            if (DisableRandomSeed)
+            {
+                Seed = 1;
+            }
             int num4 = (Seed == -2147483648) ? 0x7fffffff : Math.Abs(Seed);
             int num2 = 0x9a4ec86 - num4;
             this.SeedArray[0x37] = num2;

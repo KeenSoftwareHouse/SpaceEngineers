@@ -35,8 +35,10 @@ using System.Text;
 using Sandbox.Game.Components;
 using ParallelTasks;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities.Cube;
 using VRage.Game.Entity;
 using VRage.Game;
+using VRage.Game.VisualScripting;
 using VRage.Library;
 using VRage.Profiler;
 
@@ -92,11 +94,16 @@ namespace Sandbox.Game.Entities
         public static bool IgnoreMemoryLimits = false;
 
         public static int PendingInits;
+        public static EventWaitHandle FinishedProcessingInits = new AutoResetEvent(false);
 
         #endregion
 
         static MyEntities()
         {
+            var typeOfBlankEntity = typeof(MyEntity);
+            var descriptor = typeOfBlankEntity.GetCustomAttribute<MyEntityTypeAttribute>(false);
+            MyEntityFactory.RegisterDescriptor(descriptor, typeOfBlankEntity);
+
 #if XB1 // XB1_ALLINONEASSEMBLY
             MyEntityFactory.RegisterDescriptorsFromAssembly(MyAssembly.AllInOneAssembly);
 #else // !XB1
@@ -334,7 +341,38 @@ namespace Sandbox.Game.Entities
                     MySession.Static.VoxelMaps.GetAllOverlappingWithSphere(ref boundingSphere, voxels);
 
                     if (voxels.Count == 0)
+                    {
                         return currentPos;
+                    }
+                    else
+                    {
+                        //GR: For planets GetAllOverlappingWithSphere is pretty inaccurate and covers large area of empty space
+                        //So do custom check for big voxels (planets) manually without raycast. Just check maximum radius of planet for current point
+                        //If for at least one planet we are below the maximum radius threshold then do not try to spawn.
+                        var ignoreAll = true;
+                        foreach (var voxel in voxels)
+                        {
+                            var planet = (MyPlanet)voxel;
+                            if (planet == null)
+                            {
+                                ignoreAll = false;
+                                break;
+                            }
+                            else
+                            {
+                                var distanceFromPlanet = (currentPos - planet.MaximumRadius).Length();
+                                if (distanceFromPlanet < planet.MaximumRadius)
+                                {
+                                    ignoreAll = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (ignoreAll)
+                        {
+                            return currentPos;
+                        }
+                    }
                 }
                 return null;
             }
@@ -757,7 +795,7 @@ namespace Sandbox.Game.Entities
 
             if (!string.IsNullOrEmpty(myEntity.Name))
             {
-                Debug.Assert(!m_entityNameDictionary.ContainsKey(myEntity.Name));
+                Debug.Assert(!m_entityNameDictionary.ContainsKey(myEntity.Name), "MyEntities: Entity names are conflicting. : " + newName);
                 if (!m_entityNameDictionary.ContainsKey(myEntity.Name))
                 {
                     m_entityNameDictionary.TryAdd(myEntity.Name, myEntity);
@@ -1785,6 +1823,16 @@ namespace Sandbox.Game.Entities
                         MyRenderProxy.DebugDrawText2D(new Vector2(700.0f, 0.0f), "Grid number: " + MyCubeGrid.GridCounter, Color.Red, 1.0f, MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP);
                     }
 
+                    // Add empty entities -- these cannot be classified as not visible by render proxy
+                    // no render id.
+                    foreach (var entity in m_entities)
+                    {
+                        if (entity.DefinitionId == null)
+                        {
+                            m_entitiesForDebugDraw.Add(entity);
+                        }
+                    }
+
                     foreach (IMyEntity entity in m_entitiesForDebugDraw)
                     {
                         if (MyDebugDrawSettings.ENABLE_DEBUG_DRAW)
@@ -2062,6 +2110,8 @@ namespace Sandbox.Game.Entities
                 finally
                 {
                     Interlocked.Decrement(ref PendingInits);
+                    if (PendingInits <= 0)
+                        FinishedProcessingInits.Set();
                 }
             }
 
@@ -2073,11 +2123,12 @@ namespace Sandbox.Game.Entities
                     if (m_entity != null && m_entity.EntityId != 0)
                     {
                         Add(m_entity, insertIntoScene);
+
+                        if (m_completionCallback != null)
+                            m_completionCallback();
+                        m_entity.IsReadyForReplication = true;
                     }
                 }
-                if (m_completionCallback != null)
-                    m_completionCallback();
-                m_entity.IsReadyForReplication = true;
             }
         }
 
@@ -2227,45 +2278,11 @@ namespace Sandbox.Game.Entities
                     Debug.Assert(objBuilder != null, "Save flag specified returns nullable objectbuilder");
                     list.Add(objBuilder);
                 }
-
-                // recurse
-                var childrenObjectBuilders = GetObjectBuilders(entity.Hierarchy.Children);
-                if (childrenObjectBuilders != null) list.AddList(childrenObjectBuilders);
             }
 
             VRageRender.MyRenderProxy.GetRenderProfiler().EndProfilingBlock();
 
             return list;
-        }
-
-
-        // Saves the whole hierarchy, but every type needs to resolve parent links on its own (probably in Link)
-        private static List<MyObjectBuilder_EntityBase> GetObjectBuilders(List<MyHierarchyComponentBase> components)
-        {
-            List<MyObjectBuilder_EntityBase> objectBuilders = null;
-            if (components != null)
-            {
-                objectBuilders = new List<MyObjectBuilder_EntityBase>();
-
-                foreach (var comp in components)
-                {
-                    var entity = comp.Container.Entity;
-                    if (entity.Save)
-                    {
-                        entity.BeforeSave();
-                        MyObjectBuilder_EntityBase objBuilder = entity.GetObjectBuilder();
-                        Debug.Assert(objBuilder != null, "Save flag specified returns nullable objectbuilder");
-                        objectBuilders.Add(objBuilder);
-                    }
-
-                    // recurse
-                    //var childrenObjectBuilders = GetObjectBuilders(entity.Children);
-                    //if (childrenObjectBuilders != null)
-                    //    objectBuilders.AddList(childrenObjectBuilders);
-                }
-            }
-
-            return objectBuilders;
         }
 
         private struct BoundingBoxDrawArgs

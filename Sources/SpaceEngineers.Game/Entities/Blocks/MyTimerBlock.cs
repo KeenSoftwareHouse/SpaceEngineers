@@ -301,6 +301,10 @@ namespace SpaceEngineers.Game.Entities.Blocks
                     Toolbar.UpdateItem(i);
                     Toolbar.ActivateItemAtIndex(i);
                 }
+
+                //Visual scripting action
+                if (CubeGrid.Physics != null && MyVisualScriptLogicProvider.TimerBlockTriggered != null)
+                    MyVisualScriptLogicProvider.TimerBlockTriggered(CustomName.ToString());
             }
             UpdateEmissivity();
             DetailedInfo.Clear();

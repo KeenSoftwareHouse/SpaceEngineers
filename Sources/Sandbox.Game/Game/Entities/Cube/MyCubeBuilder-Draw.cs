@@ -572,6 +572,8 @@ namespace Sandbox.Game.Entities
 
             MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "Asset: " + model.AssetName, Color.Yellow, DEBUG_SCALE);
 
+            MyRenderProxy.DebugDrawText2D(new Vector2(20, row++ * 10), "BlockID: " + block.EntityId, Color.Yellow, DEBUG_SCALE);
+
             // Enables to copy asset name to windows clipboard through * key in MyTomasInputComponent
             var lastIndex = model.AssetName.LastIndexOf("\\") + 1;
             if (lastIndex != -1 && lastIndex < model.AssetName.Length)

@@ -18,10 +18,11 @@ using VRage.Game;
 using VRage.Utils;
 using VRage.Library.Utils;
 using System.IO;
+using Sandbox.Game.World;
 
 namespace Sandbox.Game.Gui
 {
-    class MyGuiScreenLoadSubscribedWorld : MyGuiScreenBase
+    public class MyGuiScreenLoadSubscribedWorld : MyGuiScreenBase
     {
         private MyGuiControlTable m_worldsTable;
         private MyGuiControlButton m_loadButton;
@@ -186,11 +187,12 @@ namespace Sandbox.Game.Gui
             {
                 var loadScreen = new MyGuiScreenLoadSandbox();
                 MyGuiSandbox.AddScreen(new MyGuiScreenLoadSandbox());
-                loadScreen.SelectSteamWorld(sessionPath);
+                // TODO: FIx whatever I broke here
+                //loadScreen.SelectSteamWorld(sessionPath);
             }
             else if (m_currentButton == m_loadButton)
             {
-                MyGuiScreenLoadSandbox.LoadSingleplayerSession(sessionPath);
+                MySessionLoader.LoadSingleplayerSession(sessionPath);
             }
             m_currentButton = null;
         }

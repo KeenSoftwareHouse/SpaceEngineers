@@ -704,12 +704,14 @@ namespace Sandbox.Graphics.GUI
                         else
                         if (cell != null && cell.Text != null)
                         {
+                            float iconTextOffset = 0;
                             if (cell.Icon.HasValue)
                             {
                                 var iconPosition = MyUtils.GetCoordAlignedFromTopLeft(cellPos, cellSize, cell.IconOriginAlign);
                                 var icon = cell.Icon.Value;
                                 var ratios = Vector2.Min(icon.SizeGui, cellSize) / icon.SizeGui;
                                 float scale = Math.Min(ratios.X, ratios.Y);
+                                iconTextOffset = icon.SizeGui.X;
                                 MyGuiManager.DrawSpriteBatch(
                                     texture: (HasHighlight) ? icon.Highlight : icon.Normal,
                                     normalizedCoord: iconPosition,
@@ -719,6 +721,7 @@ namespace Sandbox.Graphics.GUI
                             }
 
                             var textPos = MyUtils.GetCoordAlignedFromCenter(cellPos + 0.5f * cellSize, cellSize, meta.TextAlign);
+                            textPos.X += iconTextOffset;
                             MyGuiManager.DrawString(rowFont, cell.Text, textPos,
                                 TextScaleWithLanguage,
                                 (cell.TextColor != null) ? cell.TextColor : ApplyColorMaskModifiers(ColorMask, Enabled, transitionAlpha),

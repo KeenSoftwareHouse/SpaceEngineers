@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using VRage.Library.Utils;
+using System.Runtime.InteropServices;
 
 
 namespace VRage.Compiler
@@ -64,6 +65,39 @@ namespace VRage.Compiler
 
         static bool m_isDead;
 
+        private struct MEMORY_BASIC_INFORMATION
+        {
+            public uint BaseAddress;
+            public uint AllocationBase;
+            public uint AllocationProtect;
+            public uint RegionSize;
+            public uint State;
+            public uint Protect;
+            public uint Type;
+        }
+
+        private const uint STACK_RESERVED_SPACE = 4096 * 16;
+        private const uint MAX_ALLOWED_STACK_SIZE = (1024 * 1024) / 10;
+
+        private static uint m_startStack = 0;
+
+        [DllImport("kernel32.dll")]
+        private static extern int VirtualQuery(
+            IntPtr lpAddress,
+            ref MEMORY_BASIC_INFORMATION lpBuffer,
+            int dwLength);
+
+
+        private unsafe static uint EstimatedRemainingStackBytes()
+        {
+            MEMORY_BASIC_INFORMATION stackInfo = new MEMORY_BASIC_INFORMATION();
+            IntPtr currentAddr = new IntPtr((uint)&stackInfo - 4096);
+
+            VirtualQuery(currentAddr, ref stackInfo, sizeof(MEMORY_BASIC_INFORMATION));
+            return (uint)currentAddr.ToInt64() - stackInfo.AllocationBase - STACK_RESERVED_SPACE;
+        }
+
+
         public static bool IsWithinRunBlock()
         {
             return m_instructionCounterHandle.Depth > 0;
@@ -79,6 +113,7 @@ namespace VRage.Compiler
         {
             m_numInstructions = 0;
             m_numMaxInstructions = maxInstructions;
+            m_startStack = EstimatedRemainingStackBytes();
         }
 
         private static void ResetIsDead()
@@ -90,7 +125,8 @@ namespace VRage.Compiler
         public static void CountInstructions()
         {
             m_numInstructions++;
-            if (m_numInstructions > m_numMaxInstructions)
+            uint currentStack = EstimatedRemainingStackBytes();
+            if (m_numInstructions > m_numMaxInstructions || m_startStack - currentStack>MAX_ALLOWED_STACK_SIZE)
             {
                 m_isDead = true;
                 throw new ScriptOutOfRangeException();
@@ -124,6 +160,7 @@ namespace VRage.Compiler
         public static void EnterMethod()
         {
             m_callChainDepth++;
+            
             if (m_callChainDepth > m_maxCallChainDepth)
             {
                 m_isDead = true;

@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using VRageMath;
 using VRage.ModAPI;
 using System.Diagnostics;
+using VRage.Game.Entity;
+using VRage.Game.ObjectBuilders.Components;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 
 namespace VRage.Game.Components
 {
+    [MyComponentBuilder(typeof(MyObjectBuilder_HierarchyComponentBase))]
     public class MyHierarchyComponentBase : MyEntityComponentBase
     {
         protected List<MyHierarchyComponentBase> m_children = new List<MyHierarchyComponentBase>();
+        private readonly List<MyEntity> m_deserializedChildren = new List<MyEntity>(); 
 
         public event Action<IMyEntity> OnChildRemoved;
 
@@ -192,6 +197,54 @@ namespace VRage.Game.Components
             m_parent = null;
 
             base.OnBeforeRemovedFromContainer();
+        }
+
+        public override bool IsSerialized()
+        {
+            return true;
+        }
+
+        public override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            foreach (var child in m_deserializedChildren)
+            {
+                AddChild(child, true, false);
+            }
+
+            m_deserializedChildren.Clear();
+        }
+
+        public override MyObjectBuilder_ComponentBase Serialize(bool copy = false)
+        {
+            var ob = new MyObjectBuilder_HierarchyComponentBase();
+
+            foreach (var child in Children)
+            {
+                if (child.Entity.Save)
+                {
+                    ob.Children.Add(child.Entity.GetObjectBuilder(copy));
+                }
+            }
+
+            return ob;
+        }
+
+        public override void Deserialize(MyObjectBuilder_ComponentBase builder)
+        {
+            base.Deserialize(builder);
+            var ob = builder as MyObjectBuilder_HierarchyComponentBase;
+
+            if (ob != null)
+            {
+                m_deserializedChildren.Clear();
+                foreach (var child in ob.Children)
+                {
+                    var childEntity = MyEntity.MyEntitiesCreateFromObjectBuilderExtCallback(child, true);
+                    m_deserializedChildren.Add(childEntity);
+                }
+            }
         }
     }
 }

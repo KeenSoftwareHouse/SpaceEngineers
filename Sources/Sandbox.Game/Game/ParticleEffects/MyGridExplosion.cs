@@ -21,7 +21,7 @@ namespace Sandbox.Game
     /// calculates the damage for all blocks in this stack. 
     /// It early exits if it encounters a block that was already calculated.
     /// </summary>
-    public class MyExplosionDamage
+    public class MyGridExplosion
     {
         //This is used to enable damage that decreases with distance
         public struct MyRaycastDamageInfo
@@ -35,6 +35,10 @@ namespace Sandbox.Game
             public float DamageRemaining;
             public float DistanceToExplosion;
         }
+
+        public bool GridWasHit;
+        public readonly HashSet<MyCubeGrid> AffectedCubeGrids = new HashSet<MyCubeGrid>();
+        public readonly HashSet<MySlimBlock> AffectedCubeBlocks = new HashSet<MySlimBlock>();
 
         Dictionary<MySlimBlock, float> m_damagedBlocks = new Dictionary<MySlimBlock, float>();
         public Dictionary<MySlimBlock, float> DamagedBlocks
@@ -54,7 +58,6 @@ namespace Sandbox.Game
         }
         Stack<MySlimBlock> m_castBlocks = new Stack<MySlimBlock>();
 
-        HashSet<MySlimBlock> m_blocksInRadius;
         BoundingSphereD m_explosion;
         float m_explosionDamage;
 
@@ -66,14 +69,29 @@ namespace Sandbox.Game
             }
         }
 
+        public BoundingSphereD Sphere 
+        {
+            get { return m_explosion; }
+        }
+
         int stackOverflowGuard;
         const int MAX_PHYSICS_RECURSION_COUNT = 10;
 
-        public MyExplosionDamage(HashSet<MySlimBlock> blocksInRadius, BoundingSphereD explosion, float explosionDamage)
+        public MyGridExplosion()
         {
-            m_blocksInRadius = blocksInRadius;
+            
+        }
+
+        public void Init(BoundingSphereD explosion, float explosionDamage)
+        {
             m_explosion = explosion;
             m_explosionDamage = explosionDamage;
+
+            AffectedCubeBlocks.Clear();
+            AffectedCubeGrids.Clear();
+            m_damageRemaining.Clear();
+            m_damagedBlocks.Clear();
+            m_castBlocks.Clear();
         }
 
         /// <summary>
@@ -83,7 +101,7 @@ namespace Sandbox.Game
         {
             VRageRender.MyRenderProxy.GetRenderProfiler().StartProfilingBlock("Volumetric explosion raycasts");
 
-            foreach (var cubeBlock in m_blocksInRadius)
+            foreach (var cubeBlock in AffectedCubeBlocks)
             {
                 m_castBlocks.Clear();
                 MyRaycastDamageInfo startDamage = CastDDA(cubeBlock);
@@ -126,11 +144,20 @@ namespace Sandbox.Game
         /// <returns></returns>
         public MyRaycastDamageInfo ComputeDamageForEntity(Vector3D worldPosition)
         {
+            return new MyRaycastDamageInfo(m_explosionDamage, (float)(worldPosition - m_explosion.Center).Length());
+            var hitInfo = MyPhysics.CastRay(m_explosion.Center, worldPosition, MyPhysics.CollisionLayers.ExplosionRaycastLayer);
+            if (hitInfo.HasValue)
+            {
+                return new MyRaycastDamageInfo(m_explosionDamage, (float)(hitInfo.Value.Position - m_explosion.Center).Length());
+            }
+            return new MyRaycastDamageInfo(m_explosionDamage, (float)(worldPosition - m_explosion.Center).Length());
+
             m_castBlocks.Clear();
             stackOverflowGuard = 0;
             return CastPhysicsRay(worldPosition);
         }
 
+        List<Vector3I> m_cells = new List<Vector3I>();
         /// <summary>
         /// Performs a grid raycast (is prone to aliasing effects).
         /// It can be recursive (it calls CastPhysicsRay when exiting the grid or when it hits an empty cell).
@@ -150,13 +177,14 @@ namespace Sandbox.Game
 
             Vector3D startPosition;
             cubeBlock.ComputeWorldCenter(out startPosition);
-
-            List<Vector3I> cells = new List<Vector3I>();
-            cubeBlock.CubeGrid.RayCastCells(startPosition, m_explosion.Center, cells);
+            m_cells.Clear();
+            cubeBlock.CubeGrid.RayCastCells(startPosition, m_explosion.Center, m_cells);
+            var dir = (m_explosion.Center - startPosition);
+            dir.Normalize();
             Vector3D oldCellWorldPosition = startPosition;
-            foreach (var cell in cells)
+            foreach (var cell in m_cells)
             {
-                Vector3D cellWorldPosition = Vector3D.Transform(new Vector3(cell.X, cell.Y, cell.Z) * cubeBlock.CubeGrid.GridSize, cubeBlock.CubeGrid.WorldMatrix);
+                Vector3D cellWorldPosition = Vector3D.Transform(cell * cubeBlock.CubeGrid.GridSize, cubeBlock.CubeGrid.WorldMatrix);
                 if (MyDebugDrawSettings.DEBUG_DRAW_EXPLOSION_DDA_RAYCASTS)
                 {
                     DrawRay(oldCellWorldPosition, cellWorldPosition, Color.Red, false);
@@ -171,6 +199,9 @@ namespace Sandbox.Game
                     }
                     else
                     {
+                        //move to the edge of cube so we dont hit ourselves
+                         //+ dir * (0.5 / dir).AbsMin()
+                        //cmon cell is empty
                         return CastPhysicsRay(cellWorldPosition);
                     }
                 }
@@ -202,12 +233,7 @@ namespace Sandbox.Game
 
         private bool IsExplosionInsideCell(Vector3I cell, MyCubeGrid cellGrid)
         {
-            Vector3 cellMin = new Vector3(cell.X, cell.Y, cell.Z) - new Vector3(0.5f, 0.5f, 0.5f);
-            Vector3 cellMax = new Vector3(cell.X, cell.Y, cell.Z) + new Vector3(0.5f, 0.5f, 0.5f);
-
-            BoundingBox cellBounds = new BoundingBox(cellMin, cellMax);
-
-            return cellBounds.Contains(Vector3D.Transform(m_explosion.Center, cellGrid.PositionComp.WorldMatrixNormalizedInv) / cellGrid.GridSize) == ContainmentType.Contains;
+            return cellGrid.WorldToGridInteger(m_explosion.Center) == cell;
         }
 
         /// <summary>
@@ -228,8 +254,7 @@ namespace Sandbox.Game
                 pos = hitInfo.Value.Position;
             }
             Vector3D direction = (m_explosion.Center - fromWorldPos);
-            float lengthToCenter = (float)direction.Length();
-            direction.Normalize();
+            float lengthToCenter = (float)direction.Normalize();
 
             var grid = (hitEntity as MyCubeGrid);
             if (grid == null)
@@ -242,13 +267,14 @@ namespace Sandbox.Game
             }
             if (grid != null)
             {
+                var localPos =  Vector3D.Transform(pos, grid.PositionComp.WorldMatrixNormalizedInv) * grid.GridSizeR;
+                var localDir = Vector3D.TransformNormal(direction, grid.PositionComp.WorldMatrixNormalizedInv) * 1 / 8f;
                 //Try advancing the point to find the intersected block
                 //If the block is a cube, this is necessary because the raycast will return a point somewhere outside the cube
                 //If the block is not a full cube (slope, special block), the raycast can return inside the cube
                 //It advances 4 times, each time one 8th the grid size
                 for (int i = 0; i < 5; i++)
                 {
-                    Vector3D localPos = Vector3D.Transform(pos, grid.PositionComp.WorldMatrixNormalizedInv) / grid.GridSize;
                     Vector3I gridPos = Vector3I.Round(localPos);
                     var cubeBlock = grid.GetCubeBlock(gridPos);
                     if (cubeBlock != null)
@@ -263,19 +289,21 @@ namespace Sandbox.Game
                         }
                         else
                         {
-                            if (MyDebugDrawSettings.DEBUG_DRAW_EXPLOSION_HAVOK_RAYCASTS)
-                                DrawRay(fromWorldPos, pos, Color.Blue);
+                            //if (MyDebugDrawSettings.DEBUG_DRAW_EXPLOSION_HAVOK_RAYCASTS)
+                            //    DrawRay(fromWorldPos, pos, Color.Blue);
                             return CastDDA(cubeBlock);
                         }
                     }
-                    pos += direction * grid.GridSize / 8f;
+                    localPos += localDir;
                 }
+                pos = Vector3D.Transform(localPos * grid.GridSize, grid.WorldMatrix);
+
                 //We hit a grid but were unable to find the hit cube. Send another raycast
                 //Ideally, we would want to get the cube in all cases, but it also has to be fast
                 //We need to check if the explosion center is between the initial start position (fromWorldPos) and the new one (pos)
 
-                Vector3D min = new Vector3D(Math.Min(fromWorldPos.X, pos.X), Math.Min(fromWorldPos.Y, pos.Y), Math.Min(fromWorldPos.Z, pos.Z));
-                Vector3D max = new Vector3D(Math.Max(fromWorldPos.X, pos.X), Math.Max(fromWorldPos.Y, pos.Y), Math.Max(fromWorldPos.Z, pos.Z));
+                Vector3D min = Vector3D.Min(fromWorldPos, pos);
+                Vector3D max = Vector3D.Max(fromWorldPos, pos);
 
                 BoundingBoxD boundingBox = new BoundingBoxD(min, max);
                 if (boundingBox.Contains(m_explosion.Center) == ContainmentType.Contains)
@@ -307,8 +335,8 @@ namespace Sandbox.Game
             }
 
             //Nothing was hit, so we can assume the there was nothing blocking the explosion
-            if (MyDebugDrawSettings.DEBUG_DRAW_EXPLOSION_HAVOK_RAYCASTS)
-                DrawRay(fromWorldPos, pos, Color.Salmon);
+            //if (MyDebugDrawSettings.DEBUG_DRAW_EXPLOSION_HAVOK_RAYCASTS)
+            //    DrawRay(fromWorldPos, pos, Color.Salmon);
             return new MyRaycastDamageInfo(m_explosionDamage, lengthToCenter);
         }
 
@@ -323,7 +351,7 @@ namespace Sandbox.Game
         {
             if (MyAlexDebugInputComponent.Static != null)
             {
-                MyAlexDebugInputComponent.Static.AddDebugLine(new MyAlexDebugInputComponent.LineInfo(from, to, color, depthRead));
+                MyAlexDebugInputComponent.Static.AddDebugLine(new MyAlexDebugInputComponent.LineInfo(from, to, color, false));
             }
         }
     }

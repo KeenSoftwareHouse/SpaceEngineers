@@ -1474,7 +1474,7 @@ Refinery speed {2}x</value>
     <value>Spectator Controls</value>
   </data>
   <data name="SpectatorControls_Delta_Desc" xml:space="preserve">
-    <value>Spectator with fixed view vector to controlled object</value>
+    <value>Spectator with fixed position to controlled object</value>
   </data>
   <data name="MultiplayerErrorBannedByAdmins" xml:space="preserve">
     <value>You are banned on this server</value>
@@ -1502,7 +1502,7 @@ Open admin profile?</value>
     <value>Spectator</value>
   </data>
   <data name="SpectatorControls_Delta" xml:space="preserve">
-    <value>Delta spectator</value>
+    <value>Orbit spectator</value>
   </data>
   <data name="SpectatorControls_Free" xml:space="preserve">
     <value>Free spectator</value>
@@ -2443,11 +2443,47 @@ Do you want to continue?</value>
   <data name="ControlName_ChangeBlockVariants" xml:space="preserve">
     <value>Change block variants</value>
   </data>
+  <data name="MessageBoxLastSessionNotFound" xml:space="preserve">
+    <value>You have no registered saved games. Your progress cannot be loaded.</value>
+  </data>
+  <data name="NewGame_SelectionLabel" xml:space="preserve">
+    <value>Campaign</value>
+  </data>
+  <data name="ScreenCaptionNewGame" xml:space="preserve">
+    <value>New Game</value>
+  </data>
+  <data name="ScreenMenuButtonContinueGame" xml:space="preserve">
+    <value>Continue Game</value>
+  </data>
+  <data name="ScreenMenuButtonCustomGame" xml:space="preserve">
+    <value>Custom Game</value>
+  </data>
+  <data name="ScreenMenuButtonJoinGame" xml:space="preserve">
+    <value>Join Game</value>
+  </data>
+  <data name="ScreenMenuButtonLoadGame" xml:space="preserve">
+    <value>Load Game</value>
+  </data>
+  <data name="ScreenMenuButtonCampaign" xml:space="preserve">
+    <value>New Game</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="LoadScreenButtonBackups" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="SaveBrowserMissingBackup" xml:space="preserve">
+    <value>The backup folder of selected saved game is missing.</value>
+  </data>
   <data name="ScreenOptionsGame_Skin" xml:space="preserve">
     <value>Skin</value>
   </data>
   <data name="ScreenOptionsGame_SkinWarning" xml:space="preserve">
     <value>Note: Not all screens support skin at the moment</value>
+  </data>
+  <data name="LoadingDialogServerIsLoadingWorld" xml:space="preserve">
+    <value>Server is loading world</value>
   </data>
   <data name="AnimatedRotation" xml:space="preserve">
     <value>Animated block preview</value>
@@ -2457,6 +2493,12 @@ Do you want to continue?</value>
   </data>
   <data name="AudioSettings_ShipSoundsBasedOnSpeed" xml:space="preserve">
     <value>Speed based ship sounds</value>
+  </data>
+  <data name="ScreenMenuButtonContinue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Void" xml:space="preserve">
+    <value>Void</value>
   </data>
 
   <data name="NotificationPerformanceLow" xml:space="preserve">

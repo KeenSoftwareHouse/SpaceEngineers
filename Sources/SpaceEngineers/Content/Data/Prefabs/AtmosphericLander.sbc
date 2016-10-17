@@ -977,24 +977,8 @@
                           <Amount>1</Amount>
                           <PhysicalContent xsi:type="MyObjectBuilder_PhysicalGunObject">
                             <SubtypeName>HandDrillItem</SubtypeName>
-                            <GunEntity xsi:type="MyObjectBuilder_HandDrill">
-                              <EntityId>134906357123852059</EntityId>
-                              <PersistentFlags>CastShadows InScene</PersistentFlags>
-                              <PositionAndOrientation>
-                                <Position x="86199.810809494767" y="116772.38859667892" z="170834.72586192653" />
-                                <Forward x="0.650247157" y="-0.669225633" z="-0.359604836" />
-                                <Up x="-0.17855446" y="-0.594699" z="0.783869565" />
-                                <Orientation>
-                                  <X>-0.352367669</X>
-                                  <Y>0.442757964</Y>
-                                  <Z>0.820479453</Z>
-                                  <W>-0.08133824</W>
-                                </Orientation>
-                              </PositionAndOrientation>
-                              <EntityDefinitionId xsi:nil="true" />
-                            </GunEntity>
                           </PhysicalContent>
-                          <ItemId>8</ItemId>
+                          <ItemId>2</ItemId>
                           <AmountDecimal>1</AmountDecimal>
                         </MyObjectBuilder_InventoryItem>
                         <MyObjectBuilder_InventoryItem>

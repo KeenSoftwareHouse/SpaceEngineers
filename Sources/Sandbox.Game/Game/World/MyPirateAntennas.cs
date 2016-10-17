@@ -121,7 +121,6 @@ namespace Sandbox.Game.World
         // CH: TODO: Serialization (& sync)!
         private static CachingDictionary<long, DroneInfo> m_droneInfos;
 
-        private static List<MyCubeGrid> m_tmpGridList = new List<MyCubeGrid>();
         private static long m_piratesIdentityId = 0;
 
         public override bool IsRequiredByGame
@@ -506,13 +505,13 @@ namespace Sandbox.Game.World
             {
                 Vector3D shipPosition = Vector3D.Transform((Vector3D)shipPrefab.Position, originMatrix);
 
-                m_tmpGridList.Clear();
+                List<MyCubeGrid> tmpGridList = new List<MyCubeGrid>();
 
                 Stack<Action> callback = new Stack<Action>();
-                callback.Push(delegate() { ChangeDroneOwnership(m_tmpGridList, ownerId, antennaEntityId); });
+                callback.Push(delegate() { ChangeDroneOwnership(tmpGridList, ownerId, antennaEntityId); });
 
                 MyPrefabManager.Static.SpawnPrefab(
-                    resultList: m_tmpGridList,
+                    resultList: tmpGridList,
                     prefabName: shipPrefab.SubtypeId,
                     position: shipPosition,
                     forward: direction,

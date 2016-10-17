@@ -13,6 +13,7 @@ using Sandbox.Game.World;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VRage.Audio;
 using VRage.Game;
 using VRage.Game.Entity;
 using VRage.ObjectBuilders;

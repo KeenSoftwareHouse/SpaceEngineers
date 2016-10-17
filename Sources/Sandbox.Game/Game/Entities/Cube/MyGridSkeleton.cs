@@ -48,12 +48,12 @@ namespace Sandbox.Game.Entities
 
         public MyGridSkeleton()
         {
-            BoneOffsets = new Vector3I[BoneDensity * BoneDensity * BoneDensity];
+            BoneOffsets = new Vector3I[(int)Math.Pow(BoneDensity+1,3)];
             int idx = 0;
             Vector3I offset = Vector3I.Zero;
-            for(;offset.X < BoneDensity; offset.X++)
-                for(offset.Y = 0; offset.Y < BoneDensity; offset.Y++)
-                    for(offset.Z = 0; offset.Z < BoneDensity; offset.Z++)
+            for(;offset.X <= BoneDensity; offset.X++)
+                for(offset.Y = 0; offset.Y <= BoneDensity; offset.Y++)
+                    for(offset.Z = 0; offset.Z <= BoneDensity; offset.Z++)
                     {
                         BoneOffsets[idx] = offset;
                         idx++;
@@ -318,6 +318,11 @@ namespace Sandbox.Game.Entities
             }
         }
 
+        public bool TryGetBone(ref Vector3I pos, out Vector3 bone)
+        {
+            return Bones.TryGetValue(pos, out bone);
+        }
+
         public void SetBone(ref Vector3I pos, ref Vector3 bone)
         {
             Bones[pos] = bone;
@@ -405,33 +410,28 @@ namespace Sandbox.Game.Entities
             float boneErrorSquared = GetMaxBoneError(cubeGrid.GridSize);
             boneErrorSquared *= boneErrorSquared;
 
-            Vector3I boneOffset;
-            for (boneOffset.X = 0; boneOffset.X <= BoneDensity; boneOffset.X++)
+            foreach (var boneOffset in BoneOffsets)
             {
-                for (boneOffset.Y = 0; boneOffset.Y <= BoneDensity; boneOffset.Y++)
+                Vector3 offset;
+                if (Bones.TryGetValue(cube*BoneDensity + boneOffset, out offset))
                 {
-                    for (boneOffset.Z = 0; boneOffset.Z <= BoneDensity; boneOffset.Z++)
+                    if (checkBlockDefinition)
                     {
-                        Vector3 offset;
-                        if (Bones.TryGetValue(cube * BoneDensity + boneOffset, out offset))
+                        float definitionLength =
+                            GetDefinitionOffsetWithNeighbours(cube, cube*BoneDensity + boneOffset, cubeGrid)
+                                .LengthSquared();
+                        float offsetLength = offset.LengthSquared();
+
+                        if (Math.Abs(definitionLength - offsetLength) > boneErrorSquared)
                         {
-                            if (checkBlockDefinition)
-                            {
-                                float definitionLength = GetDefinitionOffsetWithNeighbours(cube, cube * BoneDensity + boneOffset, cubeGrid).LengthSquared();
-                                float offsetLength = offset.LengthSquared();
-                                
-                                if (Math.Abs(definitionLength - offsetLength) > boneErrorSquared)
-                                {
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                if (offset.LengthSquared() > ignoredDeformationSq)
-                                {
-                                    return true;
-                                }
-                            }
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if (offset.LengthSquared() > ignoredDeformationSq)
+                        {
+                            return true;
                         }
                     }
                 }
@@ -445,33 +445,27 @@ namespace Sandbox.Game.Entities
             float maxBoneErrorSq = GetMaxBoneError(cubeGrid.GridSize);
             maxBoneErrorSq *= maxBoneErrorSq;
 
-            Vector3I boneOffset;
-            for (boneOffset.X = 0; boneOffset.X <= BoneDensity; boneOffset.X++)
+            foreach (var boneOffset in BoneOffsets)
             {
-                for (boneOffset.Y = 0; boneOffset.Y <= BoneDensity; boneOffset.Y++)
+                Vector3 offset;
+                Vector3I bonePos = cube*BoneDensity + boneOffset;
+                bool boneExits = Bones.TryGetValue(bonePos, out offset);
+
+                float definitionLength =
+                    GetDefinitionOffsetWithNeighbours(cube, cube*BoneDensity + boneOffset, cubeGrid).LengthSquared();
+                float offsetLength = offset.LengthSquared();
+
+                float deformationSq = Math.Abs(definitionLength - offsetLength);
+
+                if (deformationSq > maxDeformationSq)
                 {
-                    for (boneOffset.Z = 0; boneOffset.Z <= BoneDensity; boneOffset.Z++)
-                    {
-                        Vector3 offset = Vector3.Zero;
-                        Vector3I bonePos = cube * BoneDensity + boneOffset;
-                        bool boneExits = Bones.TryGetValue(bonePos, out offset);
+                    maxDeformationSq = deformationSq;
+                }
 
-                        float definitionLength = GetDefinitionOffsetWithNeighbours(cube, cube * BoneDensity + boneOffset, cubeGrid).LengthSquared();
-                        float offsetLength = offset.LengthSquared();
-
-                        float deformationSq = Math.Abs(definitionLength - offsetLength);
-
-                        if (deformationSq > maxDeformationSq)
-                        {
-                            maxDeformationSq = deformationSq;
-                        }
-
-                        if (!boneExits && deformationSq > maxBoneErrorSq)
-                        {
-                            Bones.Add(bonePos, offset);
-                            cubeGrid.AddDirtyBone(cube, boneOffset);
-                        }
-                    }
+                if (!boneExits && deformationSq > maxBoneErrorSq)
+                {
+                    Bones.Add(bonePos, offset);
+                    cubeGrid.AddDirtyBone(cube, boneOffset);
                 }
             }
             return (float)Math.Sqrt(maxDeformationSq);

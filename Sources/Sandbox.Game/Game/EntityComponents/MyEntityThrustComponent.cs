@@ -1761,5 +1761,25 @@ namespace Sandbox.Game.GameSystems
                 return m_resourceSink.IsPowered;
             }
         }
+
+        public bool HasThrustersInAllDirections(MyDefinitionId fuelId)
+        {
+            int fuelIndex;
+            if (m_fuelTypeToIndex.TryGetValue(fuelId, out fuelIndex))
+            {
+                var data = m_dataByFuelType[fuelIndex];
+                var flag = true;
+                flag &= data.ThrustsByDirection[Vector3I.Backward].Count > 0;
+                flag &= data.ThrustsByDirection[Vector3I.Forward].Count > 0;
+                flag &= data.ThrustsByDirection[Vector3I.Up].Count > 0;
+                flag &= data.ThrustsByDirection[Vector3I.Down].Count > 0;
+                flag &= data.ThrustsByDirection[Vector3I.Left].Count > 0;
+                flag &= data.ThrustsByDirection[Vector3I.Right].Count > 0;
+
+                return flag;
+            }
+
+            return false;
+        }
     }
 }

@@ -125,6 +125,11 @@ namespace Sandbox.Graphics.GUI
             get { return m_label.Size; }
         }
 
+        public int NumberOfRows
+        {
+            get { return m_label.NumberOfRows; }
+        }
+
         public float ScrollbarOffset
         {
             get { return m_scrollbarOffset; }

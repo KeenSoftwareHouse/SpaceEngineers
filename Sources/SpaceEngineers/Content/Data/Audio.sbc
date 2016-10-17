@@ -5766,7 +5766,7 @@
         <SubtypeId>ArcMeteorExplosion</SubtypeId>
       </Id>
       <Category>WEP_EXPL</Category>
-      <MaxDistance>500</MaxDistance>
+      <MaxDistance>1000</MaxDistance>
       <Volume>0.5</Volume>
       <Waves>
         <Wave Type="D3">
@@ -5792,7 +5792,7 @@
         <SubtypeId>RealMeteorExplosion</SubtypeId>
       </Id>
       <Category>WEP_EXPL</Category>
-      <MaxDistance>250</MaxDistance>
+      <MaxDistance>600</MaxDistance>
       <Volume>0.7</Volume>
       <PitchVariation>150</PitchVariation>
       <PreventSynchronization>5</PreventSynchronization>

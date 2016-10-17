@@ -26,6 +26,7 @@ using VRage.Game;
 using VRage.ObjectBuilders;
 using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI.Weapons;
+using VRage.Audio;
 
 #endregion
 
