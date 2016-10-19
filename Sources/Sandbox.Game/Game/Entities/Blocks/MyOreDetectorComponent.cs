@@ -188,6 +188,7 @@ namespace Sandbox.Game.Entities.Cube
         public bool BroadcastUsingAntennas { get; set; }
 
         private readonly Dictionary<MyVoxelBase, MyOreDepositGroup> m_depositGroupsByEntity = new Dictionary<MyVoxelBase, MyOreDepositGroup>();
+        public HashSet <MyEntityOreDeposit> DetectedDeposits { get; private set; }
 
         public MyOreDetectorComponent()
         {
@@ -247,6 +248,7 @@ namespace Sandbox.Game.Entities.Cube
                     if (deposit != null)
                     {
                         MyHud.OreMarkers.RegisterMarker(deposit);
+                        DetectedDeposits.Add (deposit);
                     }
                 }
             }
@@ -264,8 +266,8 @@ namespace Sandbox.Game.Entities.Cube
                         MyHud.OreMarkers.UnregisterMarker(deposit);
                 }
             }
+            DetectedDeposits.Clear();
         }
-
     }
 
     /// <summary>

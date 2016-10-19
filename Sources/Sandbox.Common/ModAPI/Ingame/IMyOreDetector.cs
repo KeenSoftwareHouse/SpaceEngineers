@@ -12,24 +12,19 @@ namespace Sandbox.ModAPI.Ingame
         bool BroadcastUsingAntennas {get;}
 
         /// <summary>
-        ///Returns your own List filled with known ore markers.
-        ///This information is only available when owning player is in the world.
+        ///Returns your own List filled with visible ore markers.
         /// </summary>        
-        void GetOreMarkers (ref List <MyOreMarker> outputList);        
+        void GetOreMarkers (List <MyOreMarker> outputList);        
     }
 
     public struct MyOreMarker
     {
         public readonly string ElementName;
-        public readonly string SubTypeID;
-        public readonly bool IsRare;
         public readonly Vector3D Location;
 
-        public MyOreMarker (string inputElement, string inputID, bool inputRarity, Vector3D inputCoords)
+        public MyOreMarker (string inputElement, Vector3D inputCoords)
         {
             this.ElementName = inputElement;
-            this.SubTypeID = inputID;
-            this.IsRare = inputRarity;
             this.Location = inputCoords;
         }
     }

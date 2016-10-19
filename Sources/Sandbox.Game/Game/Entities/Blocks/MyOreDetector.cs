@@ -206,31 +206,47 @@ namespace Sandbox.Game.Entities.Cube
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
-        //using ref is a tiny bit cheaper than a return. this is because of number of list definitions.
-        public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList)
-        {                                                                       
-            if (usersList == null)
-            {
-                usersList = new List <ModAPI.Ingame.MyOreMarker>();
-            }
-            
-            else
-            {
-                usersList.Clear();
-            }
+        public void GetOreMarkers (List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
+        {                              
+            usersList.Clear();
+            Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());
+            m_oreDetectorComponent.Update (blockCoordinates, true);
 
-            foreach (MyEntityOreDeposit deposit in MyHud.OreMarkers)
+            foreach (MyEntityOreDeposit deposit in m_oreDetectorComponent.DetectedDeposits)
             {
-                List <MyEntityOreDeposit.Data> caches = deposit.Materials;
+                for (int i = 0; i < deposit.Materials.Count; i++)
+                {                                                 
+                    MyEntityOreDeposit.Data depositData = deposit.Materials[i];
+                    Vector3D cachesPosition = new Vector3D();
+                    depositData.ComputeWorldPosition (deposit.VoxelMap, out cachesPosition);                    
+                    string cachesElement = deposit.Materials[i].Material.MinedOre;
 
-                for (int i = 0; i < caches.Count; i++)
-                {
-                    usersList.Add (new ModAPI.Ingame.MyOreMarker (caches[i].Material.MaterialTypeName, 
-                                                                  caches[i].Material.Id.SubtypeId.String,                                      
-                                                                  caches[i].Material.IsRare,
-                                                                  caches[i].AverageLocalPosition));
+                    if (m_nearestDetections.ContainsKey (cachesElement) == false)
+                    {
+                        m_nearestDetections.Add (cachesElement, cachesPosition); //I decided Dictionary was the best way to group nearest markers since all I need is two variables.                            
+                    }
+
+                    else
+                    {      
+                        Vector3D difference = blockCoordinates - cachesPosition;                        
+                        Vector3D previousDifference = m_nearestDetections[cachesElement] - cachesPosition; 
+                        float distanceToCache = (float)difference.LengthSquared(); //explicitly converted in order to estimate the actual hud markers as close as possible.                   
+                        float previousDistance = (float)previousDifference.LengthSquared();
+                                                                           
+                        if (distanceToCache < previousDistance)    
+                        {                                                                             
+                            m_nearestDetections[cachesElement] = cachesPosition; //I only want the nearest of each element. 
+                        }                                                       
+                    }
                 }
             }
-        }
+                       
+            foreach (KeyValuePair <string, Vector3D> marker in m_nearestDetections)
+            {
+                usersList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key,                                  
+                                                              marker.Value));
+            }
+            m_nearestDetections.Clear();
+        } 
     }
 }
