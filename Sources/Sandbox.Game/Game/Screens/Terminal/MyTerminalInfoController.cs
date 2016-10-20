@@ -271,7 +271,7 @@ namespace Sandbox.Game.Gui
             {
                 identity.BlockTypeBuilt.TryGetValue(blockType.Key, out built);
                 var definition = Sandbox.Definitions.MyDefinitionManager.Static.TryGetDefinitionGroup(blockType.Key);
-                if (built == null || definition == null)
+                if (definition == null)
                     continue;
                 MyGuiControlLabel blockTypeLabel = new MyGuiControlLabel(text: String.Format("{0} {1}/{2} {3}", MyTexts.Get(MySpaceTexts.TerminalTab_Info_YouBuilt), built, MySession.Static.GetBlockTypeLimit(blockType.Key), definition.Any.DisplayNameText));
                 list.Controls.Add(blockTypeLabel);
@@ -283,8 +283,10 @@ namespace Sandbox.Game.Gui
             }
 
             m_infoGrids.Clear();
-            foreach (var grid in identity.BlocksBuiltByGrid)
+            identity.LockBlocksBuiltByGrid.AcquireExclusive();
+            for (int i = 0; i < identity.BlocksBuiltByGrid.Count; i++)
             {
+                var grid = identity.BlocksBuiltByGrid.ElementAt(i);
                 MyGuiControlParent panel = new MyGuiControlParent();
 
                 if (m_infoGrids.Count == 0)
@@ -352,6 +354,7 @@ namespace Sandbox.Game.Gui
                 panel.Size = new Vector2(panel.Size.X, 0.09f);
                 list.Controls.Add(panel);
             }
+            identity.LockBlocksBuiltByGrid.ReleaseExclusive();
         }
 
         //Rule: Count the player who has the most number of FUNCTIONAL blocks: only he can rename the ship

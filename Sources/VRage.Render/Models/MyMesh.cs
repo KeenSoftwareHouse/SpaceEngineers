@@ -26,10 +26,7 @@ namespace VRageRender.Models
 
                 var material = new MyMeshMaterial();
                 material.Name = meshInfo.m_MaterialDesc.MaterialName;
-                material.DiffuseTexture = texName;
                 material.Textures = matDesc.Textures;
-                material.SpecularIntensity = meshInfo.m_MaterialDesc.SpecularIntensity;
-                material.SpecularPower = meshInfo.m_MaterialDesc.SpecularPower;
                 material.DrawTechnique = meshInfo.Technique;
                 material.GlassCW = meshInfo.m_MaterialDesc.GlassCW;
                 material.GlassCCW = meshInfo.m_MaterialDesc.GlassCCW;

@@ -53,6 +53,7 @@ namespace Sandbox.Game.World
         public int BlockLimitModifier { get; set; }
         public Dictionary<string, int> BlockTypeBuilt { get; private set; }
         public Dictionary<MyCubeGrid, int> BlocksBuiltByGrid { get; private set; }
+        public FastResourceLock LockBlocksBuiltByGrid = new FastResourceLock();
 
         public event Action<MyCharacter, MyCharacter> CharacterChanged;
 
@@ -225,9 +226,15 @@ namespace Sandbox.Game.World
             if (grid != null)
             {
                 if (BlocksBuiltByGrid.ContainsKey(grid))
+
                     BlocksBuiltByGrid[grid]++;
                 else
-                    BlocksBuiltByGrid.Add(grid, 1);
+                {
+                    using (LockBlocksBuiltByGrid.AcquireExclusiveUsing())
+                    {
+                        BlocksBuiltByGrid.Add(grid, 1);
+                    }
+                }
             }
         }
 
@@ -252,7 +259,10 @@ namespace Sandbox.Game.World
                     BlocksBuiltByGrid[grid]--;
                     if (BlocksBuiltByGrid[grid] == 0)
                     {
-                        BlocksBuiltByGrid.Remove(grid);
+                        using (LockBlocksBuiltByGrid.AcquireExclusiveUsing())
+                        {
+                            BlocksBuiltByGrid.Remove(grid);
+                        }
                     }
                 }
                 else

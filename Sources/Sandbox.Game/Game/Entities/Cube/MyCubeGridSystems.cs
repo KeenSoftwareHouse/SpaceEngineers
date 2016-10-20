@@ -476,7 +476,7 @@ namespace Sandbox.Game.Entities.Cube
                     ResourceDistributor.AddSource(powerProducer);
 
                 var powerConsumer = block.Components.Get<MyResourceSinkComponent>();
-                if (powerConsumer != null)
+                if (!(block is MyThrust) && powerConsumer != null)
                     ResourceDistributor.AddSink(powerConsumer);
 
                 var socketOwner = block as IMyRechargeSocketOwner;
@@ -564,8 +564,9 @@ namespace Sandbox.Game.Entities.Cube
 
                 ProfilerShort.BeginNextBlock("Unregister Power consumer");
                 var powerConsumer = block.Components.Get<MyResourceSinkComponent>();
-                if (powerConsumer != null)
+                if (!(block is MyThrust) && powerConsumer != null)
                     ResourceDistributor.RemoveSink(powerConsumer);
+
                 ProfilerShort.End();
 
                 var socketOwner = block as IMyRechargeSocketOwner;

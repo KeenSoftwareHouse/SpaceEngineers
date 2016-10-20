@@ -75,6 +75,8 @@ namespace Sandbox.Game.WorldEnvironment.Modules
             {
                 var normal = e.ContactPointEvent.ContactPoint.Normal;
 
+                impactEnergy = MathHelper.Clamp(impactEnergy, 0, ItemResilience(itemId) * 10);
+
                 Impact impact = new Impact(e.Position, normal, impactEnergy);
 
                 m_sector.RaiseItemEvent(this, itemId, impact);

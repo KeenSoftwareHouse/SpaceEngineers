@@ -97,7 +97,7 @@ namespace Sandbox.Game.Entities.Character
 
         public void Update(bool force=false)
         {
-            if (MySession.Static == null || MySession.Static.LocalCharacter != m_character)
+            if (MySession.Static == null || MySession.Static.LocalCharacter != m_character || MySession.Static.CreativeMode)
                 return;
 
             if (CurrentState == State.Heated)
@@ -119,11 +119,11 @@ namespace Sandbox.Game.Entities.Character
             float health = m_character.StatComp.Health.Value;
             if (CurrentState == State.Choking)
             {
-                if (health >= CHOKE_TRESHOLD_LOW && (m_sound == null || m_sound.CueEnum != OXYGEN_CHOKE_NORMAL.SoundId))
+                if (health >= CHOKE_TRESHOLD_LOW && (m_sound == null || m_sound.IsPlaying == false || m_sound.CueEnum != OXYGEN_CHOKE_NORMAL.SoundId))
                     PlaySound(OXYGEN_CHOKE_NORMAL.SoundId, false);
-                else if (health >= CHOKE_TRESHOLD_CRITICAL && health < CHOKE_TRESHOLD_LOW && (m_sound == null || m_sound.CueEnum != OXYGEN_CHOKE_LOW.SoundId))
+                else if (health >= CHOKE_TRESHOLD_CRITICAL && health < CHOKE_TRESHOLD_LOW && (m_sound == null || m_sound.IsPlaying == false || m_sound.CueEnum != OXYGEN_CHOKE_LOW.SoundId))
                     PlaySound(OXYGEN_CHOKE_LOW.SoundId, false);
-                else if (health > 0f && health < CHOKE_TRESHOLD_CRITICAL && (m_sound == null || m_sound.CueEnum != OXYGEN_CHOKE_CRITICAL.SoundId))
+                else if (health > 0f && health < CHOKE_TRESHOLD_CRITICAL && (m_sound == null || m_sound.IsPlaying == false || m_sound.CueEnum != OXYGEN_CHOKE_CRITICAL.SoundId))
                     PlaySound(OXYGEN_CHOKE_CRITICAL.SoundId, false);
                 return;
             }
@@ -132,13 +132,17 @@ namespace Sandbox.Game.Entities.Character
             {
                 if (m_staminaDepletion < STAMINA_RECOVERY_CALM_TO_ZERO && health > 20f)
                 {
-                    if (!BREATH_CALM.SoundId.IsNull && (m_sound == null || m_sound.CueEnum != BREATH_CALM.SoundId))
+                    if (!BREATH_CALM.SoundId.IsNull && (m_sound == null || m_sound.IsPlaying == false || m_sound.CueEnum != BREATH_CALM.SoundId))
                         PlaySound(BREATH_CALM.SoundId, true);
+                    else if (m_sound != null && m_sound.IsPlaying && BREATH_CALM.SoundId.IsNull)
+                        m_sound.Stop(true);
                 }
                 else
                 {
-                    if (!BREATH_HEAVY.SoundId.IsNull && (m_sound == null || m_sound.CueEnum != BREATH_HEAVY.SoundId))
+                    if (!BREATH_HEAVY.SoundId.IsNull && (m_sound == null || m_sound.IsPlaying == false || m_sound.CueEnum != BREATH_HEAVY.SoundId))
                         PlaySound(BREATH_HEAVY.SoundId, true);
+                    else if (m_sound != null && m_sound.IsPlaying && BREATH_HEAVY.SoundId.IsNull)
+                        m_sound.Stop(true);
                 }
             }
         }

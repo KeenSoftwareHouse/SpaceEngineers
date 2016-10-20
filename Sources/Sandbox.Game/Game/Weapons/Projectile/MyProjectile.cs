@@ -253,13 +253,10 @@ namespace Sandbox.Game.Weapons
 
                 //particle effect defined in materialProperties.sbc
                 Vector3D particleHitPosition = hitInfo.Position + line.Direction * -0.2;
-                if (MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Hit, particleHitPosition, hitInfo.Normal, m_projectileAmmoDefinition.PhysicalMaterial, materialType) == false)
-                {
-                    //default effect when none other was found
-                    if (surfaceImpact != MySurfaceImpactEnum.CHARACTER)
-                        MyParticleEffects.CreateBasicHitParticles(m_projectileAmmoDefinition.ProjectileOnHitEffectName, ref hitInfo.Position, ref hitInfo.Normal, ref line.Direction, entity, m_weapon, 1, OwnerEntity);
-                }
-
+                MyMaterialPropertiesHelper.Static.TryCreateCollisionEffect(MyMaterialPropertiesHelper.CollisionType.Hit, particleHitPosition, hitInfo.Normal, m_projectileAmmoDefinition.PhysicalMaterial, materialType);
+                if (surfaceImpact != MySurfaceImpactEnum.CHARACTER)
+                    MyParticleEffects.CreateBasicHitParticles(m_projectileAmmoDefinition.ProjectileOnHitEffectName, ref hitInfo.Position, ref hitInfo.Normal, ref line.Direction, entity, m_weapon, 1, OwnerEntity);
+                
                 CreateDecal(materialType);
 
                 if (m_weapon == null || (entity.GetTopMostParent() != m_weapon.GetTopMostParent()))
@@ -686,8 +683,10 @@ namespace Sandbox.Game.Weapons
                     projectileTrailLength = trajectoryLength;
                 }
 
-                previousPosition = m_position - projectileTrailLength * direction;
-
+                if (m_state == MyProjectileStateEnum.ACTIVE || trajectoryLength * trajectoryLength >= (m_velocity.LengthSquared() * VRage.Game.MyEngineConstants.UPDATE_STEP_SIZE_IN_SECONDS * CHECK_INTERSECTION_INTERVAL))
+                    previousPosition = m_position - projectileTrailLength * direction;
+                else
+                    previousPosition = m_position - ((trajectoryLength - projectileTrailLength) * MyUtils.GetRandomFloat(0, 1) + projectileTrailLength) * direction;
 
                 //float color = MyMwcUtils.GetRandomFloat(1, 2);
                 float color = MyParticlesManager.Paused ? 1 : MyUtils.GetRandomFloat(1, 2);

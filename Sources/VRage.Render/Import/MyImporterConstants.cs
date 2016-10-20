@@ -10,12 +10,7 @@
         public const string TAG_BINORMALS = "Binormals";
         public const string TAG_TANGENTS = "Tangents";
         public const string TAG_TEXCOORDS1 = "TexCoords1";
-        public const string TAG_RESCALE_TO_LENGTH_IN_METERS = "RescaleToLengthInMeters";
-        public const string TAG_LENGTH_IN_METERS = "LengthInMeters";
-        public const string TAG_CENTERED = "Centered";
         public const string TAG_USE_CHANNEL_TEXTURES = "UseChannelTextures";
-        public const string TAG_SPECULAR_SHININESS = "SpecularShininess";
-        public const string TAG_SPECULAR_POWER = "SpecularPower";
         public const string TAG_BOUNDING_BOX = "BoundingBox";
         public const string TAG_BOUNDING_SPHERE = "BoundingSphere";
         public const string TAG_RESCALE_FACTOR = "RescaleFactor";

@@ -298,14 +298,14 @@ namespace Sandbox.Game.Entities.Cube
         {
             Debug.Assert(Sync.IsServer);
 
-            Debug.Assert(m_refineryDef == null, "m_refineryDef shouldnt be null!!!");
+            Debug.Assert(m_refineryDef != null, "m_refineryDef shouldn't be null!!!");
 
             if(Sync.IsServer == false)
             {
                 return;
             }
 
-            if (MySession.Static == null || queueItem == null || queueItem.Prerequisites == null || OutputInventory == null || queueItem.Results == null) 
+            if (MySession.Static == null || queueItem == null || queueItem.Prerequisites == null || OutputInventory == null || InputInventory == null || queueItem.Results == null) 
             {
                 return;
             }

@@ -581,7 +581,7 @@ namespace Sandbox.Game.Entities.Character.Components
                     m_soundEmitter.PlaySound(m_helmetOpenSound, true, force2D: force2D);
                 else
                     m_soundEmitter.PlaySound(m_helmetCloseSound, true, force2D: force2D);
-                if(NeedsOxygenFromSuit && Character.AtmosphereDetectorComp != null && Character.AtmosphereDetectorComp.InAtmosphere == false
+                if(MySession.Static.CreativeMode == false && NeedsOxygenFromSuit && Character.AtmosphereDetectorComp != null && Character.AtmosphereDetectorComp.InAtmosphere == false
                     && Character.AtmosphereDetectorComp.InShipOrStation == false && SuitOxygenAmount >= 0.5f)
                     m_soundEmitter.PlaySound(m_helmetAirEscapeSound, false, force2D: force2D);
             }

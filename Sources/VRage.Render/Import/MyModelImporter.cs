@@ -60,12 +60,7 @@ namespace VRageRender.Import
            { MyImporterConstants.TAG_BINORMALS, new TagReader<Byte4[] >(ReadArrayOfByte4) },
            { MyImporterConstants.TAG_TANGENTS, new TagReader<Byte4[] >(ReadArrayOfByte4) },
            { MyImporterConstants.TAG_TEXCOORDS1, new TagReader<HalfVector2[] >(ReadArrayOfHalfVector2) },
-           { MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS, new TagReader<bool>(x => x.ReadBoolean()) },
-           { MyImporterConstants.TAG_LENGTH_IN_METERS, new TagReader<float>(x => x.ReadSingle()) },
-           { MyImporterConstants.TAG_CENTERED, new TagReader<bool>(x => x.ReadBoolean()) },
            { MyImporterConstants.TAG_USE_CHANNEL_TEXTURES, new TagReader<bool>(x => x.ReadBoolean()) },
-           { MyImporterConstants.TAG_SPECULAR_SHININESS, new TagReader<float>(x => x.ReadSingle()) },
-           { MyImporterConstants.TAG_SPECULAR_POWER, new TagReader<float>(x => x.ReadSingle()) },
            { MyImporterConstants.TAG_BOUNDING_BOX, new TagReader<BoundingBox>(ReadBoundingBox) },
            { MyImporterConstants.TAG_BOUNDING_SPHERE, new TagReader<BoundingSphere>(ReadBoundingSphere) },
            { MyImporterConstants.TAG_RESCALE_FACTOR, new TagReader<float>(x => x.ReadSingle()) },
@@ -935,7 +930,10 @@ namespace VRageRender.Import
                         string readTag = reader.ReadString();
                         System.Diagnostics.Debug.Assert(tag == readTag, "Wrong model data (version mismatch?)");
 
-                        m_retTagData.Add(tag, TagReaders[tag].Read(reader, m_version));
+                        if (TagReaders.ContainsKey(tag))
+                        {
+                            m_retTagData.Add(tag, TagReaders[tag].Read(reader, m_version));
+                        }
                     }
                 }
             }

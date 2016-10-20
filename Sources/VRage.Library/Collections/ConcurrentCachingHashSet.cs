@@ -101,10 +101,47 @@ namespace VRage.Collections
             }
         }
 
-        public HashSet<T>.Enumerator GetEnumerator()
+        public struct SafeEnumerator<V> : IEnumerator<V>
         {
-            using (m_setLock.Acquire())
-                return m_hashSet.GetEnumerator();
+            IEnumerator<V> setEnumerator;
+            SpinLockRef.Token ilock;
+
+            public SafeEnumerator(HashSet<V> set, SpinLockRef.Token ilock)
+            {
+                setEnumerator = set.GetEnumerator();
+                this.ilock = ilock;
+            }
+
+            public V Current
+            {
+                get { return setEnumerator.Current; }
+            }
+
+            public void Dispose()
+            {
+                setEnumerator.Dispose();
+                ilock.Dispose();
+            }
+
+            object System.Collections.IEnumerator.Current
+            {
+                get { return setEnumerator.Current; }
+            }
+
+            public bool MoveNext()
+            {
+                return setEnumerator.MoveNext();
+            }
+
+            public void Reset()
+            {
+                setEnumerator.Reset();
+            }
+        }
+
+        public SafeEnumerator<T> GetEnumerator()
+        {
+            return new SafeEnumerator<T>(m_hashSet, m_setLock.Acquire());
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()

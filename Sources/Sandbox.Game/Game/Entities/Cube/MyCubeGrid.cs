@@ -2955,7 +2955,11 @@ namespace Sandbox.Game.Entities
             if (oldIdentity == null || newIdentity == null)
                 return false;
 
-            if (!oldIdentity.BlocksBuiltByGrid.ContainsKey(this) || newIdentity.BlocksBuilt + oldIdentity.BlocksBuiltByGrid[this] > MySession.Static.MaxBlocksPerPlayer + newIdentity.BlockLimitModifier)
+            int blocksNum;
+            if (!oldIdentity.BlocksBuiltByGrid.TryGetValue(this, out blocksNum))
+                return false;
+
+            if (blocksNum > MySession.Static.MaxBlocksPerPlayer + newIdentity.BlockLimitModifier)
                 return false;
 
             Dictionary<string, short> builtBlocksByType = new Dictionary<string, short>(MySession.Static.BlockTypeLimits);

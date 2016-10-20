@@ -59,6 +59,12 @@ namespace Sandbox.Game.Entities
             ProfilerShort.End();
         }
 
+        public override void UpdateVisual()
+        {
+            base.UpdateVisual();
+            UpdateEmissivity(true);
+        }
+
         public override float Falloff
         {
             get { return m_light.ReflectorFalloff; }

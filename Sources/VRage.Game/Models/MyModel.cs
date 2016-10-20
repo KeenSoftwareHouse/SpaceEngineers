@@ -610,10 +610,7 @@ namespace VRage.Game.Models
 
                 MyLog.Default.WriteLine("Triangles.Length: " + Triangles.Length, LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("Vertexes.Length: " + GetVerticesCount(), LoggingOptions.LOADING_MODELS);
-                MyLog.Default.WriteLine("Centered: " + (bool)tagData[MyImporterConstants.TAG_CENTERED], LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("UseChannelTextures: " + (bool)tagData[MyImporterConstants.TAG_USE_CHANNEL_TEXTURES], LoggingOptions.LOADING_MODELS);
-                MyLog.Default.WriteLine("Length in meters: " + (float)tagData[MyImporterConstants.TAG_LENGTH_IN_METERS], LoggingOptions.LOADING_MODELS);
-                MyLog.Default.WriteLine("Rescale to length in meters?: " + (bool)tagData[MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS], LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("BoundingBox: " + BoundingBox, LoggingOptions.LOADING_MODELS);
                 MyLog.Default.WriteLine("BoundingSphere: " + BoundingSphere, LoggingOptions.LOADING_MODELS);
 

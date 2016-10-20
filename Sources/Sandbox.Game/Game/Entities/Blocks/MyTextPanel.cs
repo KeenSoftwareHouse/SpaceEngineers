@@ -35,7 +35,7 @@ namespace Sandbox.Game.Entities.Blocks
         private const int NUM_DECIMALS = 1;
         public const double MAX_DRAW_DISTANCE = 100.0;
         private const int DEFAULT_RESOLUTION = 512;
-        private const int MAX_NUMBER_CHARACTERS = 4200;
+        private const int MAX_NUMBER_CHARACTERS = 100000;
         private const string DEFAULT_OFFLINE_TEXTURE = "Offline";
         private const string DEFAULT_ONLINE_TEXTURE = "Online";
 

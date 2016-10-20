@@ -647,6 +647,11 @@ namespace Sandbox.Game.Gui
                         }
                     }
                 }
+                else
+                {
+                    controlledObject.EndShoot(MyShootActionEnum.PrimaryAction);
+                    controlledObject.EndShoot(MyShootActionEnum.SecondaryAction);
+                }
 
                 if (MySandboxGame.IsPaused == false)
                 {

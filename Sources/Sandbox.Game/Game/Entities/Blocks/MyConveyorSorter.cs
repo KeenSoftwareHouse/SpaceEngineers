@@ -487,6 +487,8 @@ namespace Sandbox.Game.Entities
         }
         protected override void OnEnabledChanged()
         {
+            //GR: this is taking a long time but is needed when sorter is enabled/disabled
+            CubeGrid.GridSystems.ConveyorSystem.FlagForRecomputation();
 			ResourceSink.Update();
             UpdateText();
             UpdateEmissivity();

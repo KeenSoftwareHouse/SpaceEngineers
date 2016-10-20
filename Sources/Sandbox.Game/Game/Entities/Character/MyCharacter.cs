@@ -390,9 +390,6 @@ namespace Sandbox.Game.Entities.Character
         private float m_lightTurningOffSpeed = 0.05f;
         private bool m_lightEnabled = true;
 
-        //Add this in order to identify if we should turn off the light when Character leaves Cockpit
-        private bool m_lightWasEnabled = false;
-
         //Needed to check relation between character and remote players when controlling a remote control
         private MyEntityController m_oldController;
 
@@ -5346,15 +5343,6 @@ namespace Sandbox.Game.Entities.Character
                 bool isHuman = controller.Player == MySession.Static.LocalHumanPlayer;
                 if (isHuman)
                 {
-                    //---
-                    //When gaining control turn on character lights until we regain control
-                    if (m_lightWasEnabled)
-                    {
-                        EnableLights(true);
-                        RecalculatePowerRequirement();
-                    }
-                    m_lightWasEnabled = false;
-                    //---
 
                     MyHud.HideAll();
                     MyHud.Crosshair.ResetToDefault();
@@ -5497,15 +5485,6 @@ namespace Sandbox.Game.Entities.Character
 
             if (MySession.Static.LocalHumanPlayer == controller.Player)
             {
-                //---
-                //When losing control turn off character lights until we regain control
-                m_lightWasEnabled = LightEnabled;
-                if (m_lightWasEnabled)
-                {
-                    EnableLights(false);
-                    RecalculatePowerRequirement();
-                }
-                //---
 
                 MyHud.SelectedObjectHighlight.RemoveHighlight();
 

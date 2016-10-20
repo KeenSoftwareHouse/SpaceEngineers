@@ -903,7 +903,7 @@ namespace VRageRender.Import
                 var debugArray = (string[])tagData[MyImporterConstants.TAG_DEBUG];
                 var debug = new List<string>(debugArray);
                 debug.RemoveAll(x => x.Contains("Version:"));
-                debug.Add("Version:01097001");
+                debug.Add("Version:01157001");
 
                 // Debug info
                 modelExporter.ExportData(MyImporterConstants.TAG_DEBUG, (string[])debug.ToArray());
@@ -934,20 +934,10 @@ namespace VRageRender.Import
                 modelExporter.ExportData(MyImporterConstants.TAG_TEXCOORDS1, (HalfVector2[])tagData[MyImporterConstants.TAG_TEXCOORDS1]);
 
                 //  Properties
-                exportDictionary.Add(MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS, modelExporter.GetCachePosition());
-                modelExporter.ExportBool(MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS, (bool)tagData[MyImporterConstants.TAG_RESCALE_TO_LENGTH_IN_METERS]);
-                exportDictionary.Add(MyImporterConstants.TAG_LENGTH_IN_METERS, modelExporter.GetCachePosition());
-                modelExporter.ExportFloat(MyImporterConstants.TAG_LENGTH_IN_METERS, (float)tagData[MyImporterConstants.TAG_LENGTH_IN_METERS]);
                 exportDictionary.Add(MyImporterConstants.TAG_RESCALE_FACTOR, modelExporter.GetCachePosition());
                 modelExporter.ExportFloat(MyImporterConstants.TAG_RESCALE_FACTOR, (float)tagData[MyImporterConstants.TAG_RESCALE_FACTOR]);
-                exportDictionary.Add(MyImporterConstants.TAG_CENTERED, modelExporter.GetCachePosition());
-                modelExporter.ExportBool(MyImporterConstants.TAG_CENTERED, (bool)tagData[MyImporterConstants.TAG_CENTERED]);
                 exportDictionary.Add(MyImporterConstants.TAG_USE_CHANNEL_TEXTURES, modelExporter.GetCachePosition());
                 modelExporter.ExportBool(MyImporterConstants.TAG_USE_CHANNEL_TEXTURES, (bool)tagData[MyImporterConstants.TAG_USE_CHANNEL_TEXTURES]);
-                exportDictionary.Add(MyImporterConstants.TAG_SPECULAR_SHININESS, modelExporter.GetCachePosition());
-                modelExporter.ExportFloat(MyImporterConstants.TAG_SPECULAR_SHININESS, (float)tagData[MyImporterConstants.TAG_SPECULAR_SHININESS]);
-                exportDictionary.Add(MyImporterConstants.TAG_SPECULAR_POWER, modelExporter.GetCachePosition());
-                modelExporter.ExportFloat(MyImporterConstants.TAG_SPECULAR_POWER, (float)tagData[MyImporterConstants.TAG_SPECULAR_POWER]);
                 exportDictionary.Add(MyImporterConstants.TAG_BOUNDING_BOX, modelExporter.GetCachePosition());
                 modelExporter.ExportData(MyImporterConstants.TAG_BOUNDING_BOX, (BoundingBox)tagData[MyImporterConstants.TAG_BOUNDING_BOX]);
                 exportDictionary.Add(MyImporterConstants.TAG_BOUNDING_SPHERE, modelExporter.GetCachePosition());

@@ -18,7 +18,7 @@ using VRageMath;
 namespace Sandbox.Game.World.Generator
 {
     internal delegate void MyCompositeShapeGeneratorDelegate(int seed, float size, out MyCompositeShapeGeneratedData data);
-    
+
     internal static class MyCompositeShapes
     {
         public const float PLANET_SCALE_FACTOR = 1.2f;
@@ -42,7 +42,7 @@ namespace Sandbox.Game.World.Generator
         {
             Generator(0, seed, size, out data);
         }
-       
+
         //Added ice material
         private static void Generator1(int seed, float size, out MyCompositeShapeGeneratedData data)
         {
@@ -68,6 +68,9 @@ namespace Sandbox.Game.World.Generator
 
         private static void Generator(int version, int seed, float size, out MyCompositeShapeGeneratedData data)
         {
+            Debug.Assert(size != 0, "Size could not be zero.");
+            if (size == 0)
+                size = MyUtils.GetRandomFloat(128, 512);
             var random = MyRandom.Instance;
             using (var stateToken = random.PushSeed(seed))
             {
@@ -275,7 +278,7 @@ namespace Sandbox.Game.World.Generator
                                         halfDeviation: (random.NextFloat() * 0.25f + 0.5f) * radius,
                                         deviationFrequency: random.NextFloat() * 0.4f + 0.4f,
                                         detailFrequency: random.NextFloat() * 0.6f + 0.4f);
-                                    
+
                                     data.RemovedShapes[removedShapesCount++] = capsule;
                                 }
                                 break;
@@ -317,113 +320,93 @@ namespace Sandbox.Game.World.Generator
                         data.DefaultMaterial = m_surfaceMaterials[(int)random.Next() % m_surfaceMaterials.Count];
                     }
 
-                    if (false)
+
+                    int depositCount = Math.Max((int)Math.Log(size), data.FilledShapes.Length);
+                    data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
+
+                    var depositSize = size / 10f;
+
+                    MyVoxelMaterialDefinition material = data.DefaultMaterial;
+                    int currentMaterial = 0;
+                    for (int i = 0; i < data.FilledShapes.Length; ++i)
                     {
-                        data.Deposits = new MyCompositeShapeOreDeposit[data.FilledShapes.Length];
-                        int currentMaterial = 0;
-                        int depositCount = 0;
 
-                        data.Deposits[depositCount] = new MyCompositeShapeOreDeposit(data.FilledShapes[depositCount].DeepCopy(), m_coreMaterials[(int)random.Next() % m_coreMaterials.Count]);
-                        data.Deposits[depositCount].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
-                        ++depositCount;
-                        while (depositCount < data.FilledShapes.Length)
+                        if (i == 0)
                         {
-                            data.Deposits[depositCount] = new MyCompositeShapeOreDeposit(data.FilledShapes[depositCount].DeepCopy(), m_depositMaterials[currentMaterial++]);
-                            data.Deposits[depositCount].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
-                            ++depositCount;
-                            if (currentMaterial == m_depositMaterials.Count)
-                            {
-                                currentMaterial = 0;
-                                shuffleMaterials(m_depositMaterials);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        int depositCount = Math.Max((int)Math.Log(size), data.FilledShapes.Length);
-                        data.Deposits = new MyCompositeShapeOreDeposit[depositCount];
-
-                        var depositSize = size / 10f;
-
-                        int currentMaterial = 0;
-                        for (int i = 0; i < data.FilledShapes.Length; ++i)
-                        {
-                            MyVoxelMaterialDefinition material;
-                            if (i == 0)
-                            {
-                                if (m_coreMaterials.Count == 0)
-                                {
-                                    if (m_depositMaterials.Count == 0)
-                                    {
-                                        material = m_surfaceMaterials[(int)random.Next() % m_surfaceMaterials.Count];
-                                    }
-                                    else
-                                    {
-                                        material = m_depositMaterials[currentMaterial++];
-                                    }
-                                }
-                                else
-                                {
-                                    material = m_coreMaterials[(int)random.Next() % m_coreMaterials.Count];
-                                }
-                            }
-                            else
+                            if (m_coreMaterials.Count == 0)
                             {
                                 if (m_depositMaterials.Count == 0)
                                 {
-                                    material = m_surfaceMaterials[(int)random.Next() % m_surfaceMaterials.Count];
+                                    if (m_surfaceMaterials.Count != 0)
+                                        material = m_surfaceMaterials[(int)random.Next() % m_surfaceMaterials.Count];
                                 }
                                 else
                                 {
                                     material = m_depositMaterials[currentMaterial++];
                                 }
                             }
-                            data.Deposits[i] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
-                            data.Deposits[i].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
+                            else
+                            {
+                                material = m_coreMaterials[(int)random.Next() % m_coreMaterials.Count];
+                            }
+                        }
+                        else
+                        {
+                            if (m_depositMaterials.Count == 0)
+                            {
+                                if (m_surfaceMaterials.Count != 0)
+                                    material = m_surfaceMaterials[(int)random.Next() % m_surfaceMaterials.Count];
+                            }
+                            else
+                            {
+                                material = m_depositMaterials[currentMaterial++];
+                            }
+                        }
+                        data.Deposits[i] = new MyCompositeShapeOreDeposit(data.FilledShapes[i].DeepCopy(), material);
+                        data.Deposits[i].Shape.ShrinkTo(random.NextFloat() * 0.15f + 0.6f);
+                        if (currentMaterial == m_depositMaterials.Count)
+                        {
+                            currentMaterial = 0;
+                            shuffleMaterials(m_depositMaterials);
+                        }
+                    }
+                    for (int i = data.FilledShapes.Length; i < depositCount; ++i)
+                    {
+                        var center = CreateRandomPointInBox(random, size * 0.7f) + storageOffset + size * 0.15f;
+                        var radius = random.NextFloat() * depositSize + 8f;
+                        random.NextFloat(); random.NextFloat();//backwards compatibility
+                        MyCsgShapeBase shape = new MyCsgSphere(center, radius);
+
+                        if (m_depositMaterials.Count == 0)
+                        {
+                            material = m_surfaceMaterials[currentMaterial++];
+                        }
+                        else
+                        {
+                            material = m_depositMaterials[currentMaterial++];
+                        }
+
+                        data.Deposits[i] = new MyCompositeShapeOreDeposit(shape, material);
+
+                        if (m_depositMaterials.Count == 0)
+                        {
+                            if (currentMaterial == m_surfaceMaterials.Count)
+                            {
+                                currentMaterial = 0;
+                                shuffleMaterials(m_surfaceMaterials);
+                            }
+                        }
+                        else
+                        {
+
                             if (currentMaterial == m_depositMaterials.Count)
                             {
                                 currentMaterial = 0;
                                 shuffleMaterials(m_depositMaterials);
                             }
                         }
-                        for (int i = data.FilledShapes.Length; i < depositCount; ++i)
-                        {
-                            var center = CreateRandomPointInBox(random, size * 0.7f) + storageOffset + size * 0.15f;
-                            var radius = random.NextFloat() * depositSize + 8f;
-                            random.NextFloat();random.NextFloat();//backwards compatibility
-                            MyCsgShapeBase shape = new MyCsgSphere(center, radius);
-
-                            MyVoxelMaterialDefinition material;
-                            if (m_depositMaterials.Count == 0)
-                            {
-                                material = m_surfaceMaterials[currentMaterial++];
-                            }
-                            else
-                            {
-                                material = m_depositMaterials[currentMaterial++];
-                            }
-
-                            data.Deposits[i] = new MyCompositeShapeOreDeposit(shape, material);
-
-                            if (m_depositMaterials.Count == 0)
-                            {
-                                if (currentMaterial == m_surfaceMaterials.Count)
-                                {
-                                    currentMaterial = 0;
-                                    shuffleMaterials(m_surfaceMaterials);
-                                }
-                            }
-                            else
-                            {
-
-                                if (currentMaterial == m_depositMaterials.Count)
-                                {
-                                    currentMaterial = 0;
-                                    shuffleMaterials(m_depositMaterials);
-                                }
-                            }
-                        }
                     }
+
 
                     m_surfaceMaterials.Clear();
                     m_coreMaterials.Clear();

@@ -56,8 +56,6 @@ namespace Sandbox.Game.Entities.Debris
         private const int MaxDebrisCount = 100;
         private int m_debrisCount = 0;
 
-        private FastResourceLock m_debrislock = new FastResourceLock();
-
         public MyDebris()
         {
             //m_debrisModels = new string[]
@@ -176,14 +174,11 @@ namespace Sandbox.Game.Entities.Debris
                 return;
             MyDebug.AssertDebug(Static != null);
 
-            using (m_debrislock.AcquireExclusiveUsing())
+            foreach (var shape in m_shapes)
             {
-                foreach (var shape in m_shapes)
-                {
-                    shape.Value.RemoveReference();
-                }
-                m_shapes.Clear();
+                shape.Value.RemoveReference();
             }
+            m_shapes.Clear();
 
             m_positionBuffer = null;
             Static = null;

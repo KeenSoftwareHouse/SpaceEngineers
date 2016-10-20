@@ -644,7 +644,7 @@ namespace Sandbox.Game.Components
         {
             if(m_oxygenEmitter == null)
                 return;
-            if (m_character.IsDead == false && MySession.Static != null && (MySession.Static.Settings.EnableOxygen || MySession.Static.CreativeMode) && m_character.OxygenComponent != null && m_character.OxygenComponent.HelmetEnabled)
+            if (m_character.IsDead == false && MySession.Static != null && MySession.Static.Settings.EnableOxygen && !MySession.Static.CreativeMode && m_character.OxygenComponent != null && m_character.OxygenComponent.HelmetEnabled)
             {
                 MySoundPair oxygenSoundToPlay;
                 if (MySession.Static.CreativeMode)

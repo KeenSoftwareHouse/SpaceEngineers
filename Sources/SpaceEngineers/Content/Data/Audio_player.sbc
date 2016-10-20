@@ -3411,11 +3411,11 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>RealPlayHelmetA</SubtypeId>
+        <SubtypeId>PlayHelmetA</SubtypeId>
       </Id>
       <Category>R_PLAY_BREATH</Category>
       <MaxDistance>0</MaxDistance>
-      <Volume>0.01</Volume>
+      <Volume>0.04</Volume>
       <Loopable>true</Loopable>
       <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
       <Waves>
@@ -3427,11 +3427,11 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>RealPlayHelmetB</SubtypeId>
+        <SubtypeId>PlayHelmetB</SubtypeId>
       </Id>
       <Category>R_PLAY_BREATH</Category>
       <MaxDistance>0</MaxDistance>
-      <Volume>0.01</Volume>
+      <Volume>0.04</Volume>
       <Loopable>true</Loopable>
       <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
       <Waves>
@@ -3443,11 +3443,11 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>RealPlayHelmetC</SubtypeId>
+        <SubtypeId>PlayHelmetC</SubtypeId>
       </Id>
       <Category>R_PLAY_BREATH</Category>
       <MaxDistance>0</MaxDistance>
-      <Volume>0.01</Volume>
+      <Volume>0.04</Volume>
       <Loopable>true</Loopable>
       <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
       <Waves>
@@ -3459,76 +3459,16 @@
     <Sound>
       <Id>
         <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>RealPlayHelmetD</SubtypeId>
+        <SubtypeId>PlayHelmetD</SubtypeId>
       </Id>
       <Category>R_PLAY_BREATH</Category>
       <MaxDistance>0</MaxDistance>
-      <Volume>0.01</Volume>
+      <Volume>0.04</Volume>
       <Loopable>true</Loopable>
       <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
       <Waves>
         <Wave Type="D2">
           <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
-        </Wave>
-      </Waves>
-    </Sound>
-    <Sound>
-      <Id>
-        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcPlayHelmetA</SubtypeId>
-      </Id>
-      <Category>R_PLAY_BREATH</Category>
-      <Volume>0.01</Volume>
-      <Loopable>true</Loopable>
-      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
-      <Waves>
-        <Wave Type="D2">
-          <Loop>Real\PLAYER\RealPlayHelmetALoop2d.wav</Loop>
-        </Wave>
-      </Waves>
-    </Sound>
-    <Sound>
-      <Id>
-        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcPlayHelmetB</SubtypeId>
-      </Id>
-      <Category>R_PLAY_BREATH</Category>
-      <Volume>0.02</Volume>
-      <Loopable>true</Loopable>
-      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
-      <Waves>
-        <Wave Type="D2">
-          <Loop>Real\PLAYER\RealPlayHelmetBLoop2d.wav</Loop>
-        </Wave>
-      </Waves>
-    </Sound>
-    <Sound>
-      <Id>
-        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcPlayHelmetC</SubtypeId>
-      </Id>
-      <Category>R_PLAY_BREATH</Category>
-      <Volume>0.02</Volume>
-      <Loopable>true</Loopable>
-      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
-      <Waves>
-        <Wave Type="D2">
-          <Loop>Real\PLAYER\RealPlayHelmetCLoop2d.wav</Loop>
-        </Wave>
-      </Waves>
-    </Sound>
-    <Sound>
-      <Id>
-        <TypeId>MyObjectBuilder_AudioDefinition</TypeId>
-        <SubtypeId>ArcPlayHelmetD</SubtypeId>
-      </Id>
-      <Category>R_PLAY_BREATH</Category>
-      <Volume>0.02</Volume>
-      <Loopable>true</Loopable>
-      <ModifiableByHelmetFilters>false</ModifiableByHelmetFilters>
-      <Waves>
-        <Wave Type="D2">
-          <Loop>Real\PLAYER\RealPlayHelmetDLoop2d.wav</Loop>
         </Wave>
       </Waves>
     </Sound>

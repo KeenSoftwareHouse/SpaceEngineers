@@ -9,13 +9,9 @@ namespace VRageRender.Models
     {
         public MyMeshDrawTechnique DrawTechnique;
         public string Name;
-        public Color DiffuseColor;
-        public float SpecularIntensity;
-        public float SpecularPower;
         public string GlassCW;
         public string GlassCCW;
         public bool GlassSmooth;
-        public string DiffuseTexture;
 
         public Dictionary<string, string> Textures;
 
@@ -23,24 +19,6 @@ namespace VRageRender.Models
         {
             int result = 1;
             int modCode = 0;
-
-            if (SpecularIntensity != 0)
-            {
-                result = (result * 397) ^ SpecularIntensity.GetHashCode();
-                modCode += (1 << 1);
-            }
-
-            if (SpecularPower != 0)
-            {
-                result = (result * 397) ^ SpecularPower.GetHashCode();
-                modCode += (1 << 2);
-            }
-
-            if (DiffuseColor.GetHashCode() != 0)
-            {
-                result = (result * 397) ^ DiffuseColor.GetHashCode();
-                modCode += (1 << 3);
-            }
 
             int i = 3;
             foreach (var pair in Textures)

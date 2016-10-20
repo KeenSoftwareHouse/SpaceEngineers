@@ -415,9 +415,6 @@
   <ItemGroup>
     <Folder Include="Input\ModAPI\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(ProjectDir)..\..\Build\Tools\SGenAutoResolve\SGenAutoResolve_$(PlatformName).exe" /a:"$(TargetPath)" /d:"$(TargetDir)VRage.Math.dll" /r:"SerializableAttribute" /b /v</PostBuildEvent>

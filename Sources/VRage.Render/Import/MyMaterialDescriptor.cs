@@ -13,23 +13,6 @@ namespace VRageRender.Import
     {
         public string MaterialName { get; private set; }
 
-        public Vector3 DiffuseColor = Vector3.One;
-        public float DiffuseColorX { get { return DiffuseColor.X; } set { DiffuseColor.X = value; } }
-        public float DiffuseColorY { get { return DiffuseColor.Y; } set { DiffuseColor.Y = value; } }
-        public float DiffuseColorZ { get { return DiffuseColor.Z; } set { DiffuseColor.Z = value; } }
-
-        public float SpecularPower { get; set; }
-        /// <summary>
-        /// Extra data (animation of holos)
-        /// </summary>
-        public Vector3 ExtraData = Vector3.Zero;
-
-        public float SpecularIntensity
-        {
-            get { return ExtraData.X; }
-            set { ExtraData.X = value; }
-        }
-
         public Dictionary<string, string> Textures = new Dictionary<string, string>();
         public Dictionary<string, string> UserData = new Dictionary<string, string>();
 
@@ -75,15 +58,7 @@ namespace VRageRender.Import
                 writer.Write(userData.Key);
                 writer.Write(userData.Value == null ? "" : userData.Value);
             }
-
-            writer.Write(SpecularPower);
-            writer.Write(DiffuseColor.X);
-            writer.Write(DiffuseColor.Y);
-            writer.Write(DiffuseColor.Z);
-            writer.Write(ExtraData.X);
-            writer.Write(ExtraData.Y);
-            writer.Write(ExtraData.Z);
-
+           
             writer.Write(Technique);
 
             if (Technique == "GLASS")
@@ -141,13 +116,16 @@ namespace VRageRender.Import
                 }
             }
 
-            SpecularPower = reader.ReadSingle();
-            DiffuseColor.X = reader.ReadSingle();
-            DiffuseColor.Y = reader.ReadSingle();
-            DiffuseColor.Z = reader.ReadSingle();
-            ExtraData.X = reader.ReadSingle();
-            ExtraData.Y = reader.ReadSingle();
-            ExtraData.Z = reader.ReadSingle();
+            if (version < 1157001)
+            {
+                reader.ReadSingle();  //SpecularPower 
+                reader.ReadSingle();  //DiffuseColor.X
+                reader.ReadSingle();  //DiffuseColor.Y
+                reader.ReadSingle();  //DiffuseColor.Z
+                reader.ReadSingle();  //ExtraData.X 
+                reader.ReadSingle();  //ExtraData.Y
+                reader.ReadSingle();  //ExtraData.Z
+            }
 
             if (version < 1052001)
             {

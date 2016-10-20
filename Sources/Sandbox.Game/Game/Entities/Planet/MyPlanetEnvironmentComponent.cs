@@ -128,7 +128,13 @@ namespace Sandbox.Game.Entities.Planet
 
         public void Update(bool doLazyUpdates = true, bool forceUpdate = false)
         {
+            var tempMaxLod = MaxLod;
             MaxLod = MathHelper.Log2Floor((int)(MySandboxGame.Config.VegetationDrawDistance / EnvironmentDefinition.SectorSize));
+            if (tempMaxLod != MaxLod)
+            {
+                CloseAll();
+                forceUpdate = true;
+            }
 
             UpdateClipmaps();
 

@@ -1455,20 +1455,11 @@ namespace Sandbox.Game.Entities
                     writer.WriteLine("illum 2");
                     if (mat.IsGlass)
                     {
-                        foreach (var material in MyDefinitionManager.Static.GetTransparentMaterialDefinitions())
-                        {
-                            if(mat.DiffuseTexture.Equals(material.Texture, StringComparison.OrdinalIgnoreCase))
-                            {
-                                writer.WriteLine("Kd {0} {1} {2}", material.Color.Y, material.Color.Z, material.Color.W);
-                            };
-                        }
-
                         continue;
                     }
 
                     renderColoredTextureProperties textureToRenderProperties = new renderColoredTextureProperties();
                     textureToRenderProperties.ColorMaskHSV = mat.ColorMaskHSV;
-                    textureToRenderProperties.TextureName = mat.DiffuseTexture;
                     textureToRenderProperties.PathToSave = Path.Combine(folder, mat.NewDiffuseTexture);
                     texturesToRender.Add(textureToRenderProperties);
 
@@ -2059,37 +2050,37 @@ namespace Sandbox.Game.Entities
             List<MyExportModel.Material> modelMaterials = renderModel.GetMaterials();
             foreach (var material in modelMaterials)
             {
-                string diffuseTextureName = GetDiffuseTextureName(material.DiffuseTexture);
-                bool materialFound = false;
-                foreach (var savedMaterial in materials)
-                {
-                    if (savedMaterial.Value.DiffuseTexture.Equals(diffuseTextureName, StringComparison.OrdinalIgnoreCase) &&
-                        Math.Abs(savedMaterial.Value.ColorMaskHSV.X - colorMaskHSV.X) < 0.01f &&
-                        Math.Abs(savedMaterial.Value.ColorMaskHSV.Y - colorMaskHSV.Y) < 0.01f &&
-                        Math.Abs(savedMaterial.Value.ColorMaskHSV.Z - colorMaskHSV.Z) < 0.01f)
-                    {
-                        MyExportModel.Material newMaterial = material;
-                        newMaterial.DiffuseTexture = diffuseTextureName;
-                        //each time new material is created new name for this material is assgined e.g. Material_x
-                        //but model materials have they original name so we need to swap material name with created one
-                        newMaterial.Name = savedMaterial.Value.Name;
-                        newModelMaterials.Add(newMaterial);
-                        materialFound = true;
-                        break;
-                    }
-                }
-                if (false == materialFound)
-                {
-                    materialID++;
+                //string diffuseTextureName = GetDiffuseTextureName(material.DiffuseTexture);
+                //bool materialFound = false;
+                //foreach (var savedMaterial in materials)
+                //{
+                //    if (savedMaterial.Value.DiffuseTexture.Equals(diffuseTextureName, StringComparison.OrdinalIgnoreCase) &&
+                //        Math.Abs(savedMaterial.Value.ColorMaskHSV.X - colorMaskHSV.X) < 0.01f &&
+                //        Math.Abs(savedMaterial.Value.ColorMaskHSV.Y - colorMaskHSV.Y) < 0.01f &&
+                //        Math.Abs(savedMaterial.Value.ColorMaskHSV.Z - colorMaskHSV.Z) < 0.01f)
+                //    {
+                //        MyExportModel.Material newMaterial = material;
+                //        newMaterial.DiffuseTexture = diffuseTextureName;
+                //        //each time new material is created new name for this material is assgined e.g. Material_x
+                //        //but model materials have they original name so we need to swap material name with created one
+                //        newMaterial.Name = savedMaterial.Value.Name;
+                //        newModelMaterials.Add(newMaterial);
+                //        materialFound = true;
+                //        break;
+                //    }
+                //}
+                //if (false == materialFound)
+                //{
+                //    materialID++;
 
-                    MyExportModel.Material newMaterial = material;
-                    newMaterial.Name = "material_" + materialID.ToString();                 
-                    newMaterial.ColorMaskHSV = colorMaskHSV;
-                    newMaterial.DiffuseTexture = diffuseTextureName;
-                    newMaterial.NewDiffuseTexture = newMaterial.Name + ".png";                   
-                    newModelMaterials.Add(newMaterial);
-                    materials.Add(newMaterial.Name, newMaterial);
-                }
+                //    MyExportModel.Material newMaterial = material;
+                //    newMaterial.Name = "material_" + materialID.ToString();                 
+                //    newMaterial.ColorMaskHSV = colorMaskHSV;
+                //    newMaterial.DiffuseTexture = diffuseTextureName;
+                //    newMaterial.NewDiffuseTexture = newMaterial.Name + ".png";                   
+                //    newModelMaterials.Add(newMaterial);
+                //    materials.Add(newMaterial.Name, newMaterial);
+                //}
             }
             return newModelMaterials;
         }
@@ -2772,7 +2763,6 @@ namespace Sandbox.Game.Entities
             public string Name;
             public int FirstTri;
             public int LastTri;
-            public string DiffuseTexture;
             public string NormalTexture;
             public bool IsGlass;
             public Vector3 ColorMaskHSV;
@@ -2835,7 +2825,6 @@ namespace Sandbox.Game.Entities
                                 Name = materialName,
                                 FirstTri = mesh.IndexStart / 3,
                                 LastTri = mesh.IndexStart / 3 + mesh.TriCount - 1,
-                                DiffuseTexture = mesh.Material.DiffuseTexture,
                                 IsGlass = mesh.Material.DrawTechnique == MyMeshDrawTechnique.GLASS,
                             });
                         }
