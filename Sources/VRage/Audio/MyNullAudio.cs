@@ -24,6 +24,7 @@ namespace VRage.Audio
         bool IMyAudio.MusicAllowed { get { return false; } set { } }
         bool IMyAudio.EnableVoiceChat { get { return false; } set { } }
         bool IMyAudio.UseSameSoundLimiter { get { return false; } set { } }
+        bool IMyAudio.EnableReverb { get { return false; } set { } }
         bool IMyAudio.UseVolumeLimiter { get { return false; } set { } }
         void IMyAudio.SetSameSoundLimiter() { }
         void IMyAudio.EnableMasterLimiter(bool e) { }

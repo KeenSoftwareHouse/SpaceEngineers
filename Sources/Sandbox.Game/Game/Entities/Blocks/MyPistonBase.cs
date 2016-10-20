@@ -297,16 +297,24 @@ namespace Sandbox.Game.Entities.Blocks
             var mass = HkInertiaTensorComputer.ComputeCylinderVolumeMassProperties(new Vector3(0, -2, 0), new Vector3(0, 2, 0), CubeGrid.GridSize / 2, 40.0f * CubeGrid.GridSize);
             mass.Mass = BlockDefinition.Mass;
             m_subpartPhysics.CreateFromCollisionObject(shape, Vector3.Zero, subpart.WorldMatrix, mass);
-            m_subpartPhysics.RigidBody.Layer = CubeGrid.Physics.RigidBody.Layer;
-            var info = HkGroupFilter.CalcFilterInfo(m_subpartPhysics.RigidBody.Layer, CubeGrid.Physics.HavokCollisionSystemID, 1, 1);
+            var info = HkGroupFilter.CalcFilterInfo(CubeGrid.Physics.RigidBody.Layer, CubeGrid.Physics.HavokCollisionSystemID, 1, 1);
             m_subpartPhysics.RigidBody.SetCollisionFilterInfo(info);
             shape.Base.RemoveReference();
             if (m_subpartPhysics.RigidBody2 != null)
                 m_subpartPhysics.RigidBody2.Layer = MyPhysics.CollisionLayers.KinematicDoubledCollisionLayer;
-
+            CubeGrid.OnHavokSystemIDChanged += CubeGrid_OnHavokSystemIDChanged;
             CreateSubpartsConstraint(subpart);
 
             m_posChanged = true;
+        }
+
+        void CubeGrid_OnHavokSystemIDChanged(int sysId)
+        {
+            if (CubeGrid.Physics != null && CubeGrid.Physics.RigidBody != null && m_subpartPhysics != null && m_subpartPhysics.RigidBody != null)
+            {
+                var info = HkGroupFilter.CalcFilterInfo(CubeGrid.Physics.RigidBody.Layer, sysId, 1, 1);
+                m_subpartPhysics.RigidBody.SetCollisionFilterInfo(info);
+            }
         }
 
         private void DisposeSubpartsPhysics()
@@ -317,6 +325,7 @@ namespace Sandbox.Game.Entities.Blocks
             }
             if (m_subpart1 != null && m_subpartPhysics != null)
             {
+                CubeGrid.OnHavokSystemIDChanged -= CubeGrid_OnHavokSystemIDChanged;
                 m_subpartPhysics.Enabled = false;
                 m_subpartPhysics.Close();
                 m_subpartPhysics = null;
@@ -337,6 +346,10 @@ namespace Sandbox.Game.Entities.Blocks
 
             HkConstraintData constraintData = m_subpartsFixedData;
             m_subpartsConstraint = new HkConstraint(CubeGrid.Physics.RigidBody, m_subpartPhysics.RigidBody, constraintData);
+            var info = CubeGrid.Physics.RigidBody.GetCollisionFilterInfo();
+            info = HkGroupFilter.CalcFilterInfo(CubeGrid.Physics.RigidBody.Layer, HkGroupFilter.GetSystemGroupFromFilterInfo(info), 1, 1);
+            m_subpartPhysics.RigidBody.SetCollisionFilterInfo(info);
+            CubeGrid.Physics.HavokWorld.RefreshCollisionFilterOnEntity(m_subpartPhysics.RigidBody);
             Debug.Assert(m_subpartsConstraint.RigidBodyA != null);
             m_subpartsConstraint.WantRuntime = true;
         }
@@ -355,7 +368,7 @@ namespace Sandbox.Game.Entities.Blocks
 
         private void CheckSubpartConstraint()
         {
-            if (m_subpartsConstraint != null && (m_subpartsConstraint.RigidBodyA == null))
+            if (!Sandbox.Engine.Physics.MyPhysicsBody.IsConstraintValid(m_subpartsConstraint))
             {
                 DisposeSubpartsConstraint();
                 CreateSubpartsConstraint(m_subpart1);

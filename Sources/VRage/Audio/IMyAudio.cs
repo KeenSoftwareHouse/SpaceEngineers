@@ -108,6 +108,12 @@ namespace VRage.Audio
             get;
             set;
         }
+
+        bool EnableReverb
+        {
+            get;
+            set;
+        }
         void SetSameSoundLimiter();
         void EnableMasterLimiter(bool enable);
 

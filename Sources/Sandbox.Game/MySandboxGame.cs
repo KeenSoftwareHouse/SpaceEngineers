@@ -1219,6 +1219,10 @@ namespace Sandbox
                 MyAudio.Static.UseSameSoundLimiter = true;
                 MyAudio.Static.SetSameSoundLimiter();
             }
+            if (MyPerGameSettings.UseReverbEffect)
+            {
+                MyAudio.Static.EnableReverb = MySandboxGame.Config.EnableReverb;
+            }
 
             //  Volume from config
             MyAudio.Static.VolumeMusic = Config.MusicVolume;

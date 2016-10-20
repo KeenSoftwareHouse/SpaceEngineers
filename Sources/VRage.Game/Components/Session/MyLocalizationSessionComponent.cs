@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using VRage.FileSystem;
 using VRage.Game.Localization;
@@ -79,15 +80,22 @@ namespace VRage.Game.Components.Session
             foreach (var modItem in Session.Mods)
             {
                 // Local mods have a name as folder name
-                // workshop modes have pulisherfileid + .sbm archive
+                // workshop mods have pulisherfileid + .sbm archive
                 var modPath = Path.Combine(MyFileSystem.ModsPath,
-                        modItem.ShouldSerializeName() ? modItem.Name : modItem.PublishedFileId + ".sbm");
-
-                var files = MyFileSystem.GetFiles(modPath, "*.sbl", MySearchOption.AllDirectories);
-
-                foreach (var file in files)
+                    modItem.ShouldSerializeName() ? modItem.Name : modItem.PublishedFileId + ".sbm");
+                try
                 {
-                    m_modBundle.FilePaths.Add(file);
+                    var files = MyFileSystem.GetFiles(modPath, "*.sbl", MySearchOption.AllDirectories);
+
+                    foreach (var file in files)
+                    {
+                        m_modBundle.FilePaths.Add(file);
+                    }   
+                }
+                catch (Exception e)
+                {
+                    // ignored -- can be just about anything that causes trouble in file system
+                    MyLog.Default.WriteLine("MyLocalizationSessionComponent: Problem deserializing " + modPath + "\n" + e);
                 }
             }
 

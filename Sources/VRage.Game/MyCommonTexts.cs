@@ -4262,4 +4262,9 @@ using VRage.Utils;
         ///Too many blocks of this type.
         ///</summary>
         public static readonly MyStringId PerformanceWarningTooManyBlocks = MyStringId.GetOrCompute("PerformanceWarningTooManyBlocks");
+
+        ///<summary>
+        ///Enable echo
+        ///</summary>
+        public static readonly MyStringId AudioSettings_EnableReverb = MyStringId.GetOrCompute("AudioSettings_EnableReverb");
     }

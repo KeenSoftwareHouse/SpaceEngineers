@@ -183,7 +183,7 @@ namespace Sandbox.Game.Gui
 
             if (MyPerGameSettings.UseReverbEffect)
             {
-                m_texts.Add(StringBuilderCache.Append("Current reverb effect: " + MyEntityReverbDetectorComponent.CurrentReverbPreset.ToLower()));
+                m_texts.Add(StringBuilderCache.Append("Current reverb effect: " + (MyAudio.Static.EnableReverb ? MyEntityReverbDetectorComponent.CurrentReverbPreset.ToLower() : "disabled")));
             }
             var tmp = StringBuilderCache;
             MyAudio.Static.WriteDebugInfo(tmp);

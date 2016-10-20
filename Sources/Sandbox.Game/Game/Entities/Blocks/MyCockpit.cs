@@ -1127,7 +1127,7 @@ namespace Sandbox.Game.Entities
                 MyEntities.Remove(pilot);
 
             m_pilot.Physics.Enabled = false;
-            m_pilot.PositionComp.SetWorldMatrix(WorldMatrix);
+            m_pilot.PositionComp.SetWorldMatrix(WorldMatrix, this);
             m_pilot.Physics.Clear();
             //m_pilot.SetPosition(GetPosition() - WorldMatrix.Forward * 0.5f);
 

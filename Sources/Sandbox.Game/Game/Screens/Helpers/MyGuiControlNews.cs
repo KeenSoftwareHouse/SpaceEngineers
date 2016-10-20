@@ -348,16 +348,18 @@ namespace Sandbox.Game.Screens.Helpers
             {
                 var newsDownloadClient = new WebClient();
                 newsDownloadClient.Proxy = null;
-                var downloadedNews = newsDownloadClient.DownloadString(new Uri(MyPerGameSettings.ChangeLogUrl));
+
+                Uri changeLogUri;
+                if (MyFinalBuildConstants.IS_STABLE)
+                    changeLogUri = new Uri(MyPerGameSettings.ChangeLogUrl);
+                else
+                    changeLogUri = new Uri(MyPerGameSettings.ChangeLogUrlDevelop);
+
+                var downloadedNews = newsDownloadClient.DownloadString(changeLogUri);
 
                 using (StringReader stream = new StringReader(downloadedNews))
                 {
                     m_downloadedNews = (MyNews)m_newsSerializer.Deserialize(stream);
-
-                    if (!MyFinalBuildConstants.IS_STABLE)
-                    {
-                        m_downloadedNews.Entry.RemoveAll(entry => entry.Dev);
-                    }
 
                     StringBuilder text = new StringBuilder();
                     for (int i = 0; i < m_downloadedNews.Entry.Count; i++)

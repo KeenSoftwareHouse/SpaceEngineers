@@ -111,6 +111,8 @@ namespace VRage.Audio
         public bool GameSoundIsPaused { get; private set; }
         private bool m_useVolumeLimiter = false;
         private bool m_useSameSoundLimiter = false;
+        private bool m_enableReverb = false;
+        private bool m_reverbSet = false;
         private bool m_soundLimiterReady = false;
         private bool m_soundLimiterSet = false;
         bool IMyAudio.UseVolumeLimiter
@@ -133,6 +135,24 @@ namespace VRage.Audio
             set
             {
                 m_useSameSoundLimiter = value;
+            }
+        }
+        bool IMyAudio.EnableReverb
+        {
+            get
+            {
+                return m_enableReverb;
+            }
+            set
+            {
+                m_enableReverb = value;
+                if (!m_reverbSet && value)
+                {
+                    m_reverb = new Reverb(m_audioEngine);
+                    m_gameAudioVoice.SetEffectChain(new EffectDescriptor(m_reverb, m_masterVoice.VoiceDetails.InputChannelCount));
+                    m_gameAudioVoice.DisableEffect(0);
+                    m_reverbSet = true;
+                }
             }
         }
 
@@ -233,10 +253,6 @@ namespace VRage.Audio
                 m_gameAudioVoice.SetVolume(0);
                 m_musicAudioVoice.SetVolume(0);
             }
-
-            m_reverb = new Reverb(m_audioEngine);
-            m_gameAudioVoice.SetEffectChain(new EffectDescriptor(m_reverb, masterDetails.InputChannelCount));
-            m_gameAudioVoice.DisableEffect(0);
         }
 
         public void SetReverbParameters(float diffusion, float roomSize)
@@ -471,6 +487,7 @@ namespace VRage.Audio
             }
 
             m_canPlay = false;
+            m_reverbSet = false;
 
             MyLog.Default.WriteLine("MyAudio.UnloadData - END");
         }
@@ -497,7 +514,7 @@ namespace VRage.Audio
         {
             get
             {
-                if (!m_canPlay)
+                if (!m_canPlay || !m_enableReverb)
                     return false;
 
                 if (m_cueBank == null)
@@ -507,10 +524,13 @@ namespace VRage.Audio
             }
             set
             {
-                if (!m_canPlay)
+                if (!m_canPlay || !m_reverbSet)
                     return;
 
                 if (m_cueBank == null)
+                    return;
+
+                if (!m_enableReverb && !m_applyReverb)
                     return;
 
                 if (m_gameAudioVoice != null)

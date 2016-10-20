@@ -359,7 +359,7 @@ namespace VRage.Render11.Resources
             m_missingExtensionTex.Init(ReleaseMissingExtensionTex, DebugMissingExtensionTex);
             m_missingCubeTex.Init(ReleaseMissingCubeTex, DebugMissingCubeTex);
 
-            CreateCubeRGBA_1x1((MyGeneratedTexture)IntelFallbackCubeTex, "IntelFallbackCubeTex", new Color(50, 0, 50, 0));
+            CreateCubeRGBA_1x1((MyGeneratedTexture)IntelFallbackCubeTex, "IntelFallbackCubeTex", new Color(10, 10, 10, 0));
 
             InitializeRandomTexture();
 

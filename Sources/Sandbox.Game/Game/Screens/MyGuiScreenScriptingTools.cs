@@ -172,6 +172,10 @@ namespace Sandbox.Game.Screens
             MySpectatorCameraController.Static.SpectatorCameraMovement = MySpectatorCameraMovementEnum.UserControlled;
             MySession.Static.SetCameraController(MyCameraControllerEnum.Entity, MySession.Static.ControlledEntity.Entity);
 
+            // Disable Debug Draw
+            MyDebugDrawSettings.ENABLE_DEBUG_DRAW = false;
+            MyDebugDrawSettings.DEBUG_DRAW_UPDATE_TRIGGER = false;
+
             return base.CloseScreen();
         }
 

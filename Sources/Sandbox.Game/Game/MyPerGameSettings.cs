@@ -130,6 +130,7 @@ namespace Sandbox.Game
         public static string GameWebUrl = "www.SpaceEngineersGame.com";
         public static string LocalizationWebUrl = "http://www.spaceengineersgame.com/localization.html";
         public static string ChangeLogUrl = "http://mirror.keenswh.com/SpaceEngineersChangelog.xml";
+        public static string ChangeLogUrlDevelop = "http://mirror.keenswh.com/SpaceEngineersChangelogDevelop.xml";
         public static string MinimumRequirementsPage { get { return BasicGameInfo.MinimumRequirementsWeb; } }
         public static bool RequiresDX11 = false;
         public static string GameIcon;

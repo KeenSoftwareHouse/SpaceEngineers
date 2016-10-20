@@ -472,7 +472,7 @@ namespace Sandbox.Game.Entities.Cube
                     ScaleUp();
             }
 
-            var effectiveTorque = Math.Min(Torque, TopGrid.Physics.Mass*100)*Sync.RelativeSimulationRatio;
+            var effectiveTorque = Math.Min(Torque, TopGrid.Physics.Mass * TopGrid.Physics.Mass) * Sync.RelativeSimulationRatio;
             m_motor.MaxForce = effectiveTorque;
             m_motor.MinForce = -effectiveTorque;
             m_motor.VelocityTarget = TargetVelocity * Sync.RelativeSimulationRatio;

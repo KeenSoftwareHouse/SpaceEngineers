@@ -2500,7 +2500,6 @@ Do you want to continue?</value>
   <data name="Void" xml:space="preserve">
     <value>Void</value>
   </data>
-
   <data name="NotificationPerformanceLow" xml:space="preserve">
     <value>Game performance is low. Cause: {0}</value>
   </data>
@@ -2692,5 +2691,8 @@ On - All performance warnings of this session are displayed.</value>
   </data>
   <data name="PerformanceWarningTooManyBlocks" xml:space="preserve">
     <value>Too many blocks of this type.</value>
+  </data>
+  <data name="AudioSettings_EnableReverb" xml:space="preserve">
+    <value>Enable echo</value>
   </data>
 </root>

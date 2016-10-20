@@ -100,6 +100,7 @@ namespace Sandbox.Engine.Utils
         readonly string GRAPHICS_RENDERER = "GraphicsRenderer";
         readonly string ENABLE_VOICE_CHAT = "VoiceChat";
         readonly string ENABLE_MUTE_WHEN_NOT_IN_FOCUS = "EnableMuteWhenNotInFocus";
+        readonly string ENABLE_REVERB = "EnableReverb";
         readonly string UI_TRANSPARENCY = "UiTransparency";
         readonly string UI_BK_TRANSPARENCY = "UiBkTransparency";
         readonly string TUTORIALS_FINISHED = "TutorialsFinished";
@@ -860,6 +861,12 @@ namespace Sandbox.Engine.Utils
         {
             get { return MyUtils.GetBoolFromString(GetParameterValue(SHIP_SOUNDS_SPEED), true); }
             set { SetParameterValue(SHIP_SOUNDS_SPEED, value); }
+        }
+
+        public bool EnableReverb
+        {
+            get { return MyUtils.GetBoolFromString(GetParameterValue(ENABLE_REVERB), true); }
+            set { SetParameterValue(ENABLE_REVERB, value); }
         }
 
         public MyStringId GraphicsRenderer
