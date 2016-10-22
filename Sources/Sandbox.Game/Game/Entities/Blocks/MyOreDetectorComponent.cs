@@ -180,6 +180,8 @@ namespace Sandbox.Game.Entities.Cube
         private static readonly List<MyVoxelBase> m_inRangeCache = new List<MyVoxelBase>();
         private static readonly List<MyVoxelBase> m_notInRangeCache = new List<MyVoxelBase>();
 
+        public HashSet <MyEntityOreDeposit> DetectedDeposits { get; private set; }
+
         public delegate bool CheckControlDelegate();
 
         public float DetectionRadius { get; set; }
@@ -188,7 +190,6 @@ namespace Sandbox.Game.Entities.Cube
         public bool BroadcastUsingAntennas { get; set; }
 
         private readonly Dictionary<MyVoxelBase, MyOreDepositGroup> m_depositGroupsByEntity = new Dictionary<MyVoxelBase, MyOreDepositGroup>();
-        public HashSet <MyEntityOreDeposit> DetectedDeposits { get; private set; }
 
         public MyOreDetectorComponent()
         {
@@ -200,30 +201,36 @@ namespace Sandbox.Game.Entities.Cube
 
         public bool SetRelayedRequest { get; set; }
 
-        public void Update(Vector3D position, bool checkControl = true)
-        {
-            Clear();
-
-            if (!SetRelayedRequest && checkControl && !OnCheckControl())
+        public void Update (Vector3D position, bool onlyUpdateMember, bool checkControl = true)
+        {           
+            if (onlyUpdateMember == false) 
             {
-                m_depositGroupsByEntity.Clear();
-                return;
-            }
+                Clear(); //It should only clear hud markers if it's prepared to renew them.
 
-            SetRelayedRequest = false;
-
-            var sphere = new BoundingSphereD(position, DetectionRadius);
-            MyGamePruningStructure.GetAllVoxelMapsInSphere(ref sphere, m_inRangeCache);
+                if (!SetRelayedRequest && checkControl && !OnCheckControl())
+                {
+                    //m_depositGroupsByEntity.Clear(); I commented this out because it, in some states, causes DetectedDeposits to ouput as empty. m_depositGroupsByEntity seems to take more than one method one to fully update.
+                    return;
+                }
+                SetRelayedRequest = false;
+            }     
+            
+            else
+            {
+                DetectedDeposits.Clear();
+            } 
+            var sphere = new BoundingSphereD (position, DetectionRadius);
+            MyGamePruningStructure.GetAllVoxelMapsInSphere (ref sphere, m_inRangeCache);
 
             { // Find voxel maps which went out of range and then remove them.
                 foreach (var voxelMap in m_depositGroupsByEntity.Keys)
                 {
-                    if (!m_inRangeCache.Contains(voxelMap))
-                        m_notInRangeCache.Add(voxelMap);
+                    if (!m_inRangeCache.Contains (voxelMap))
+                        m_notInRangeCache.Add (voxelMap);
                 }
                 foreach (var notInRange in m_notInRangeCache)
                 {
-                    m_depositGroupsByEntity.Remove(notInRange);
+                    m_depositGroupsByEntity.Remove (notInRange);
                 }
                 m_notInRangeCache.Clear();
             }
@@ -231,8 +238,8 @@ namespace Sandbox.Game.Entities.Cube
             { // Add voxel maps which came into range.
                 foreach (var voxelMap in m_inRangeCache)
                 {
-                    if (!m_depositGroupsByEntity.ContainsKey(voxelMap))
-                        m_depositGroupsByEntity.Add(voxelMap, new MyOreDepositGroup(voxelMap));
+                    if (!m_depositGroupsByEntity.ContainsKey (voxelMap))
+                        m_depositGroupsByEntity.Add (voxelMap, new MyOreDepositGroup(voxelMap));
                 }
                 m_inRangeCache.Clear();
             }
@@ -242,19 +249,26 @@ namespace Sandbox.Game.Entities.Cube
             {
                 var voxelMap = entry.Key;
                 var group = entry.Value;
-                group.UpdateDeposits(ref sphere);
+                group.UpdateDeposits (ref sphere);
 
                 foreach (var deposit in group.Deposits)
                 {
                     if (deposit != null)
-                    {
-                        MyHud.OreMarkers.RegisterMarker(deposit);
-                        DetectedDeposits.Add (deposit);
+                    {                              
+                        switch (onlyUpdateMember) //the method has been divided into these two choices because previously, oremarkers could not be fetched without a radio antenna.
+                        {
+                            case true:                                
+                                DetectedDeposits.Add (deposit);
+                                break;
+
+                            case false:      
+                                MyHud.OreMarkers.RegisterMarker (deposit);                    
+                                break;
+                        }                      
                     }
                 }
-            }
-
-            m_inRangeCache.Clear();
+            }             
+            m_inRangeCache.Clear();            
         }
 
         public void Clear()
@@ -264,9 +278,11 @@ namespace Sandbox.Game.Entities.Cube
                 foreach (var deposit in group.Deposits)
                 {
                     if (deposit != null)
-                        MyHud.OreMarkers.UnregisterMarker(deposit);
+                    {
+                        MyHud.OreMarkers.UnregisterMarker (deposit);
+                    }                        
                 }
-            }
+            }          
             DetectedDeposits.Clear();
         }
     }
