@@ -26,6 +26,7 @@ namespace Sandbox.Game.Entities.Cube
     public class MyOreDetector : MyFunctionalBlock, IMyComponentOwner<MyOreDetectorComponent>, IMyOreDetector
     {
         private MyOreDetectorDefinition m_definition;
+        private Dictionary <string, Vector3D> m_nearestDetections = new Dictionary <string, Vector3D>(); //I use the same collection to reduce heap allocations.
 
         MyOreDetectorComponent m_oreDetectorComponent = new MyOreDetectorComponent();
 
