@@ -2123,6 +2123,7 @@ namespace VRageRender
             StoreLodMeshSections(id, 0, ref sections);
 
             int modelLods = 1;
+            var mainMeshDir = Path.IsPathRooted(assetName) ? Path.GetDirectoryName(assetName) : Path.GetDirectoryName(Path.Combine(MyFileSystem.ContentPath, assetName));
 
             if (lodDescriptors != null)
             for (int i = 0; i < lodDescriptors.Length; i++)
@@ -2135,7 +2136,7 @@ namespace VRageRender
 
                 MyLodMeshInfo lodMesh = new MyLodMeshInfo
                 {
-                    FileName = meshFile,
+                    FileName = Path.Combine(mainMeshDir, Path.GetFileName(meshFile)),
                     LodDistance = lodDescriptors[i].Distance,
                     NullLodMesh = meshFile == null,
                 };
