@@ -195,6 +195,7 @@ namespace Sandbox.Game.Entities.Cube
             DetectionRadius = 50;
             SetRelayedRequest = false;
             BroadcastUsingAntennas = false;
+            DetectedDeposits = new HashSet <MyEntityOreDeposit>();
         }
 
         public bool SetRelayedRequest { get; set; }
