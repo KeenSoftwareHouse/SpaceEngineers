@@ -245,8 +245,7 @@ namespace Sandbox.Game.Entities.Cube
                        
             foreach (KeyValuePair <string, Vector3D> marker in m_closestEachElement)
             {
-                usersList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key,                                  
-                                                                marker.Value));
+                usersList.Add (new ModAPI.Ingame.MyOreMarker (marker.Key, marker.Value));
             }
             m_closestEachElement.Clear();
         }       
