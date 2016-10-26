@@ -208,7 +208,7 @@ namespace Sandbox.Game.Entities.Cube
         bool ModAPI.Ingame.IMyOreDetector.BroadcastUsingAntennas { get { return m_oreDetectorComponent.BroadcastUsingAntennas; } }
         float ModAPI.Ingame.IMyOreDetector.Range { get { return Range; } }
 
-        public void GetOreMarkers (List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
+        public void GetOreMarkers (ref List <ModAPI.Ingame.MyOreMarker> usersList) //Imprinting on the reference parameter is cheaper than a return List<T> due to heap allocations. 
         {                                                           
             usersList.Clear();
             Vector3D blockCoordinates = new Vector3D (base.PositionComp.GetPosition());

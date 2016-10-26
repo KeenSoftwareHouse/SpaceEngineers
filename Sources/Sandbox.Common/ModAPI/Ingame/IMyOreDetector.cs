@@ -14,7 +14,7 @@ namespace Sandbox.ModAPI.Ingame
         /// <summary>
         ///Returns your own List filled with visible ore markers.
         /// </summary>        
-        void GetOreMarkers (List <MyOreMarker> outputList);        
+        void GetOreMarkers (ref List <MyOreMarker> outputList);        
     }
 
     public struct MyOreMarker
