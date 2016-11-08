@@ -180,6 +180,7 @@ namespace VRage.Compiler
             return m_isDead;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T YieldGuard<T>(T value)
         {
             m_callChainDepth--;
