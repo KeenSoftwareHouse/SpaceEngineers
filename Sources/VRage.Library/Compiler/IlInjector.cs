@@ -180,6 +180,12 @@ namespace VRage.Compiler
             return m_isDead;
         }
 
+        public static T YieldGuard<T>(T value)
+        {
+            m_callChainDepth--;
+            return value;
+        }
+
         private static IlReader m_reader = new IlReader();
 
         public static Assembly InjectCodeToAssembly(string newAssemblyName, Assembly inputAssembly, MethodInfo method,MethodInfo methodToInjectMethodCheck, bool save = false)
