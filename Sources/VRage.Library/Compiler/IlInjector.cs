@@ -164,6 +164,7 @@ namespace VRage.Compiler
             if (m_callChainDepth > m_maxCallChainDepth)
             {
                 m_isDead = true;
+	    	m_callChainDepth--;
                 throw new ScriptOutOfRangeException();
             }
         }
